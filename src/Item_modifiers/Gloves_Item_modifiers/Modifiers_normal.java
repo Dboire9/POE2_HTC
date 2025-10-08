@@ -10,8 +10,11 @@ public class Modifiers_normal {
     public static final Modifier BASE_MAXIMUM_LIFE;
     public static final Modifier BASE_MAXIMUM_MANA;
     public static final Modifier BASE_ARMOUR;
+    public static final Modifier BASE_EVASION;
     public static final Modifier INCREASED_PERCENT_ARMOUR;
+    public static final Modifier INCREASED_PERCENT_EVASION;
     public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE;
+    public static final Modifier HYBRID_INCREASED_PERCENT_EVASION_AND_LIFE;
     public static final Modifier PHYSICAL_DAMAGE_FLAT;
     public static final Modifier FIRE_DAMAGE_FLAT;
     public static final Modifier COLD_DAMAGE_FLAT;
@@ -37,6 +40,7 @@ public class Modifiers_normal {
     public static final Modifier CRITICAL_DAMAGE_BONUS;
     public static final Modifier ITEM_FOUND_RARITY_INCREASE;
     public static final Modifier ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE;
+    public static final Modifier EVASION_APPLIES_TO_DEFLECTION;
     
 
 
@@ -82,7 +86,7 @@ public class Modifiers_normal {
             Modifier.ModifierSource.NORMAL,
             "IncreasedMana",
             "+# to maximum Mana"
-    );
+        );
 
         BASE_ARMOUR = new Modifier(
             "base_armour",
@@ -100,7 +104,25 @@ public class Modifiers_normal {
             Modifier.ModifierSource.NORMAL,
             "BaseLocalDefences",
             "+# to Armour"
-    );
+        );
+
+        BASE_EVASION = new Modifier(
+            "base_evasion",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Agile", 1, 1000, new Pair<>(11, 18)),
+                new ModifierTier("Dancer's", 8, 1000, new Pair<>(19, 39)),
+                new ModifierTier("Acrobat's", 16, 1000, new Pair<>(40, 56)),
+                new ModifierTier("Fleet", 25, 1000, new Pair<>(57, 70)),
+                new ModifierTier("Blurred", 33, 1000, new Pair<>(71, 88)),
+                new ModifierTier("Phased", 46, 1000, new Pair<>(89, 107)),
+                new ModifierTier("Vaporous", 54, 1000, new Pair<>(108, 142))
+            ),
+            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierSource.NORMAL,
+            "BaseLocalDefences",
+            "+# to Evasion Rating"
+        );
 
         INCREASED_PERCENT_ARMOUR = new Modifier(
             "increased_percent_armour",
@@ -120,6 +142,24 @@ public class Modifiers_normal {
             "(#)% increased Armour"
         );
 
+        INCREASED_PERCENT_EVASION = new Modifier(
+            "increased_percent_evasion",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Shade's", 2, 1000, new Pair<>(15, 26)),
+                new ModifierTier("Ghost's", 16, 1000, new Pair<>(27, 42)),
+                new ModifierTier("Spectre's", 33, 1000, new Pair<>(43, 55)),
+                new ModifierTier("Wraith's", 46, 1000, new Pair<>(56, 67)),
+                new ModifierTier("Phantasm's", 54, 1000, new Pair<>(68, 79)),
+                new ModifierTier("Nightmare's", 60, 1000, new Pair<>(80, 91)),
+                new ModifierTier("Mirage's", 65, 1000, new Pair<>(92, 100))
+            ),
+            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierSource.NORMAL,
+            "DefencesPercent",
+            "(#)% increased Evasion Rating"
+        );
+
         HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE = new Modifier(
             "increased_percent_armour", "base_maximum_life",
             List.of("life", "defences"),
@@ -135,6 +175,23 @@ public class Modifiers_normal {
             Modifier.ModifierSource.NORMAL,
             "BaseLocalDefencesAndLife",
             "(#)% increased Armour +# to maximum Life"
+        );
+
+        HYBRID_INCREASED_PERCENT_EVASION_AND_LIFE = new Modifier(
+            "increased_percent_evasion", "base_maximum_life",
+            List.of("life", "defences"),
+            List.of(
+                new ModifierTier("Flea's", 8, 1000, new Pair<>(6, 13), new Pair<>(7, 10), "increased_percent_evasion", "base_maximum_life"),
+                new ModifierTier("Fawn's", 16, 1000, new Pair<>(14, 20), new Pair<>(11, 19), "increased_percent_evasion", "base_maximum_life"),
+                new ModifierTier("Mouflon's", 33, 1000, new Pair<>(21, 26), new Pair<>(20, 25), "increased_percent_evasion", "base_maximum_life"),
+                new ModifierTier("Ram's", 46, 1000, new Pair<>(27, 32), new Pair<>(26, 32), "increased_percent_evasion", "base_maximum_life"),
+                new ModifierTier("Ibex's", 60, 1000, new Pair<>(33, 38), new Pair<>(33, 41), "increased_percent_evasion", "base_maximum_life"),
+                new ModifierTier("Stag's", 78, 1000, new Pair<>(39, 42), new Pair<>(42, 49), "increased_percent_evasion", "base_maximum_life")
+            ),
+            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierSource.NORMAL,
+            "BaseLocalDefencesAndLife",
+            "(#)% increased Evasion Rating +# to maximum Life"
         );
 
         PHYSICAL_DAMAGE_FLAT = new Modifier(
@@ -527,6 +584,22 @@ public class Modifiers_normal {
             Modifier.ModifierSource.NORMAL,
             "ArmourAppliesToElementalDamage",
             "+#% of Armour also applies to Elemental Damage"
+        );
+
+        EVASION_APPLIES_TO_DEFLECTION = new Modifier(
+            "evasion_applies_to_deflection",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("of Deflecting", 1, 1000, new Pair<>(8, 11)),
+                new ModifierTier("of Bending", 16, 1000, new Pair<>(12, 14)),
+                new ModifierTier("of Curvation", 36, 1000, new Pair<>(15, 17)),
+                new ModifierTier("of Diversion", 48, 1000, new Pair<>(18, 20)),
+                new ModifierTier("of Flexure", 66, 1000, new Pair<>(21, 23))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "EvasionAppliesToDeflection",
+            "Gain Deflection Rating equal to (#)% of Evasion Rating"
         );
 
     }

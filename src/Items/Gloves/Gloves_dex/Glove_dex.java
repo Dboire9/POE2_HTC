@@ -1,4 +1,4 @@
-package Items.Gloves.Gloves_str;
+package Items.Gloves.Gloves_dex;
 
 
 import Item_modifiers.Gloves_Item_modifiers.*;
@@ -6,15 +6,15 @@ import Item_modifiers.Gloves_Item_modifiers.*;
 import java.util.ArrayList;
 
 
-public class Glove_str extends Glove_str_Item {
+public class Glove_dex extends Glove_dex_Item {
 
-    public Glove_str() {
+    public Glove_dex() {
         Normal_allowedPrefixes = new ArrayList<>();
         Normal_allowedPrefixes.add(Modifiers_normal.BASE_MAXIMUM_LIFE);
         Normal_allowedPrefixes.add(Modifiers_normal.BASE_MAXIMUM_MANA);
-        Normal_allowedPrefixes.add(Modifiers_normal.BASE_ARMOUR);
-        Normal_allowedPrefixes.add(Modifiers_normal.INCREASED_PERCENT_ARMOUR);
-        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE);
+        Normal_allowedPrefixes.add(Modifiers_normal.BASE_EVASION);
+        Normal_allowedPrefixes.add(Modifiers_normal.INCREASED_PERCENT_EVASION);
+        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_EVASION_AND_LIFE);
         Normal_allowedPrefixes.add(Modifiers_normal.PHYSICAL_DAMAGE_FLAT);
         Normal_allowedPrefixes.add(Modifiers_normal.FIRE_DAMAGE_FLAT);
         Normal_allowedPrefixes.add(Modifiers_normal.COLD_DAMAGE_FLAT);
@@ -22,7 +22,6 @@ public class Glove_str extends Glove_str_Item {
         Normal_allowedPrefixes.add(Modifiers_normal.ACCURACY_RATING);
         
         Normal_allowedSuffixes = new ArrayList<>();
-        Normal_allowedSuffixes.add(Modifiers_normal.STRENGTH);
         Normal_allowedSuffixes.add(Modifiers_normal.DEXTERITY);
         Normal_allowedSuffixes.add(Modifiers_normal.FIRE_RESISTANCE);
         Normal_allowedSuffixes.add(Modifiers_normal.COLD_RESISTANCE);
@@ -38,7 +37,7 @@ public class Glove_str extends Glove_str_Item {
         Normal_allowedSuffixes.add(Modifiers_normal.INCREASED_ATTACK_SPEED);
         Normal_allowedSuffixes.add(Modifiers_normal.CRITICAL_DAMAGE_BONUS);
         Normal_allowedSuffixes.add(Modifiers_normal.ITEM_FOUND_RARITY_INCREASE);
-        Normal_allowedSuffixes.add(Modifiers_normal.ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE);
+        Normal_allowedSuffixes.add(Modifiers_normal.EVASION_APPLIES_TO_DEFLECTION);
 
         Desecrated_allowedPrefixes = new ArrayList<>();
         
@@ -46,8 +45,9 @@ public class Glove_str extends Glove_str_Item {
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_INTELLIGENCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_DEXTERITY);
+        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_CURSE_AREA_OF_EFFECT);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DAZE_ON_HIT);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_INSTANT_LEECH_PERCENT);
+        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_IMMOBILISE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DEXTERITY_AND_INTELLIGENCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_MANA_COST_EFFICIENCY);

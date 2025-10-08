@@ -1,4 +1,4 @@
-package Item_modifiers.Gloves_Item_modifiers;
+package Item_modifiers.Gloves_Item_modifiers.Gloves_Hybrid_Item_modifiers;
 
 import Modifier_class.*;
 import Modifier_class.Modifier.ModifierSource;

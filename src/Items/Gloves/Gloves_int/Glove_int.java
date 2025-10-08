@@ -1,9 +1,9 @@
 package Items.Gloves.Gloves_int;
 
 
-import Item_modifiers.Gloves_Item_modifiers.*;
-
 import java.util.ArrayList;
+
+import Item_modifiers.Gloves_Item_modifiers.Gloves_Normal_Item_modifiers.*;
 
 
 public class Glove_int extends Glove_int_Item {

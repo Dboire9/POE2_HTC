@@ -47,7 +47,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1000, new Pair<>(13, 17), new Pair<>(13, 17), "fire_resistance", "chaos_resistance")
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "FireAndChaosDamageResistance",
             "+#% to Fire and Chaos Resistances"
         );
@@ -60,7 +60,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1000, new Pair<>(9, 15), new Pair<>(9, 15), "strength", "intelligence")
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "StrengthAndIntelligence",
             "+# to Strength and Intelligence"
         );
@@ -72,7 +72,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1000, new Pair<>(9, 15), new Pair<>(9, 15), "strength", "dexterity")
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "StrengthAndDexterity",
             "+# to Strength and Dexterity"
         );
@@ -84,7 +84,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1000, new Pair<>(10, 20))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "DazeBuildup",
             "#% chance to Daze on Hit"
         );
@@ -98,7 +98,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Kurgal", 65, 1000, new Pair<>(13, 17), new Pair<>(13, 17), "cold_resistance", "chaos_resistance")
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "ColdAndChaosDamageResistance",
             "+#% to Cold and Chaos Resistances"
         );
@@ -110,7 +110,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Kurgal", 65, 1000, new Pair<>(9, 15), new Pair<>(9, 15), "dexterity", "intelligence")
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "DexterityAndIntelligence",
             "+# to Dexterity and Intelligence"
         );
@@ -122,7 +122,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Kurgal", 65, 1000, new Pair<>(6, 10))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "ManaCostEfficiency",
             "#% increased Mana Cost Efficiency"
         );
@@ -134,7 +134,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1000, new Pair<>(13, 17), new Pair<>(13, 17), "lightning_resistance", "chaos_resistance")
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "LightningAndChaosDamageResistance",
             "+#% to Lightning and Chaos Resistances"
         );
@@ -146,7 +146,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1, new Pair<>(10, 20))
             ),
             ModifierType.PREFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "AilmentEffect",
             "#% increased Magnitude of Ailments you inflict"
         );
@@ -158,7 +158,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1000, new Pair<>(20, 30))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "BleedChanceIncrease",
             "#% increased chance to inflict Bleeding"
         );
@@ -170,7 +170,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1000, new Pair<>(20, 30))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "PoisonChanceIncrease",
             "#% increased chance to Poison"
         );
@@ -186,7 +186,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1000, new Pair<>(8, 15))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "InstantLeechPercent",
             "#% of Leech is Instant"
         );
@@ -200,7 +200,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1000, new Pair<>(12, 20))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "CurseAreaOfEffect",
             "(#)% increased Area of Effect of Curses"
         );
@@ -212,7 +212,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1000, new Pair<>(10, 20))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "Immobilise",
             "(#)% increased Immobilisation buildup"
         );
@@ -226,7 +226,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Kurgal", 65, 1000, new Pair<>(10, 15))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "ArcaneSurgeOnCrit",
             "(#)% chance to Gain Arcane Surge when you deal a Critical Hit"
         );
@@ -238,7 +238,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Kurgal", 65, 1000, new Pair<>(8, 15))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "CastSpeedOnFullLife",
             "(#)% increased Cast Speed when on Full Life"
         );
@@ -250,7 +250,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1000, new Pair<>(8, 12))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "IncreasedSpeed",
             "(#)% increased Skill Speed if you've consumed a Frenzy Charge Recently"
         );
@@ -262,7 +262,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1000, new Pair<>(15, 25))
             ),
             Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "IncisionChance",
             "(#)% chance for Attack Hits to apply Incision"
         );

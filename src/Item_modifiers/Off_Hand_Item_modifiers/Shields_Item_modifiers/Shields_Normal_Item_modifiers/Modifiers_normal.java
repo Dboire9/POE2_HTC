@@ -12,7 +12,7 @@ public class Modifiers_normal {
     public static final Modifier INCREASED_PERCENT_ARMOUR;
     public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_AND_STUN;
     public static final Modifier PHYSICAL_THORNS_DAMAGE;
-    public static final Modifier BASE_SPIRIT;
+    public static final Modifier INCREASED_SHIELD_BLOCK_CHANCE;
 
 
 
@@ -136,23 +136,18 @@ public class Modifiers_normal {
             "(#) to (#) Physical Thorns damage"
         );
 
-        BASE_SPIRIT = new Modifier(
-            "base_spirit",
-            List.of("spirit"),
+        INCREASED_SHIELD_BLOCK_CHANCE = new Modifier(
+            "increased_shield_block_chance",
+            List.of("block", "shield"),
             List.of(
-                new ModifierTier("Lady's", 16, 500, new Pair<>(30, 33)),
-                new ModifierTier("Baronness'", 25, 500, new Pair<>(34, 37)),
-                new ModifierTier("Viscountess'", 33, 500, new Pair<>(38, 42)),
-                new ModifierTier("Marchioness'", 46, 500, new Pair<>(43, 46)),
-                new ModifierTier("Countess'", 54, 400, new Pair<>(47, 50)),
-                new ModifierTier("Duchess'", 60, 300, new Pair<>(51, 53)),
-                new ModifierTier("Princess'", 65, 200, new Pair<>(54, 56)),
-                new ModifierTier("Queen's", 78, 100, new Pair<>(57, 61))
+                new ModifierTier("Steadfast", 1, 1000, new Pair<>(15, 19)),
+                new ModifierTier("Unrelenting", 33, 1000, new Pair<>(20, 24)),
+                new ModifierTier("Adamant", 65, 1000, new Pair<>(25, 30))
             ),
-            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.NORMAL,
-            "BaseSpirit",
-            "+# to Spirit"
+            "IncreasedShieldBlockPercentage",
+            "(#–#)% increased Block chance"
         );
 
 // SUFFIXES

@@ -12,10 +12,7 @@ public class Modifiers_essences {
         public static final Modifier ESSENCE_INCREASED_PERCENT_ARMOUR;
         public static final Modifier ESSENCE_INCREASED_PERCENT_EVASION;
         public static final Modifier ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD;
-        public static final Modifier ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT;
-        public static final Modifier ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS;
-        public static final Modifier ESSENCE_PHYSICAL_THORNS_DAMAGE;
-        public static final Modifier ESSENCE_RANDOM_NOTABLE_PASSIVE;
+        public static final Modifier ESSENCE_INCREASED_SHIELD_BLOCK_PERCENTAGE;
         public static final Modifier ESSENCE_ABYSS_PREFIX;
 
         
@@ -25,7 +22,6 @@ public class Modifiers_essences {
         public static final Modifier ESSENCE_ATTRIBUTES_STRENGTH;
         public static final Modifier ESSENCE_ATTRIBUTES_DEXTERITY;
         public static final Modifier ESSENCE_ATTRIBUTES_INTELLIGENCE;
-        public static final Modifier ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF;
         public static final Modifier ESSENCE_ABYSS_SUFFIX;
         public static final Modifier ESSENCE_FIRE_RESISTANCE;
         public static final Modifier ESSENCE_COLD_RESISTANCE;
@@ -91,54 +87,17 @@ public class Modifiers_essences {
             "#% increased Energy Shield"
         );
 
-        ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT = new Modifier(
-            "maximum_life_increase_percent",
-            List.of("life"),
+        ESSENCE_INCREASED_SHIELD_BLOCK_PERCENTAGE = new Modifier(
+            "increased_shield_block_percentage",
+            List.of(""),
             List.of(
-                new ModifierTier("Perfect Essence of the Body", 72, 1, new Pair<>(8, 10))
+                new ModifierTier("Essence of Hysteria", 33, 0, new Pair<>(20, 24))
             ),
-            ModifierType.PREFIX,
-            ModifierSource.ESSENCE,
-            "MaximumLifeIncreasePercent",
-            "(#)% increased maximum Life"
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.ESSENCE,
+            "IncreasedShieldBlockPercentage",
+            "(#–#)% increased Block chance"
         );
-
-        ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS = new Modifier(
-            "physical_damage_taken_as_chaos",
-            List.of("physical", "chaos"),
-            List.of(
-                new ModifierTier("Perfect Essence of Ruin", 72, 1, new Pair<>(10, 15))
-            ),
-            ModifierType.PREFIX,
-            ModifierSource.ESSENCE,
-            "PhysicalDamageTakenAsChaos",
-            "(#)% of Physical Damage from Hits taken as Chaos Damage"
-        );
-
-        ESSENCE_PHYSICAL_THORNS_DAMAGE = new Modifier(
-            "physical_thorns_damage",
-            List.of("damage", "physical"),
-            List.of(
-                new ModifierTier("Essence of Hysteria", 63, 1, new Pair<>(64, 97), new Pair<>(97, 145), "", "")
-            ),
-            ModifierType.PREFIX,
-            ModifierSource.ESSENCE,
-            "Thorns",
-            "Adds (#) to (#) Physical Thorns damage"
-        );
-
-        ESSENCE_RANDOM_NOTABLE_PASSIVE = new Modifier(
-            "essence_random_notable_passive",
-            List.of(),
-            List.of(
-                new ModifierTier("Essence of Delirium", 1, 1, new Pair<>(0, 0))
-            ),
-            ModifierType.PREFIX,
-            ModifierSource.ESSENCE,
-            "EssenceGrantedPassive",
-            "Allocates a random Notable Passive Skill"
-        );
-
 
         ESSENCE_ABYSS_PREFIX = new Modifier(
             "essence_abyss",
@@ -208,18 +167,6 @@ public class Modifiers_essences {
             ModifierSource.ESSENCE,
             "Intelligence",
             "# to Strength, Dexterity or Intelligence"
-        );
-
-        ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF = new Modifier(
-            "reduced_critical_strike_damage_taken_on_self",
-            List.of(),
-            List.of(
-                new ModifierTier("Perfect Essence of Seeking", 72, 1, new Pair<>(40, 50))
-            ),
-            ModifierType.PREFIX,
-            ModifierSource.ESSENCE,
-            "ReducedCriticalStrikeDamageTaken",
-            "Hits against you have (#)% reduced Critical Damage Bonus"
         );
 
         ESSENCE_ABYSS_SUFFIX = new Modifier(

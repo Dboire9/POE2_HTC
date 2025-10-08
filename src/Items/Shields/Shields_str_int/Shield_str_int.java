@@ -1,24 +1,25 @@
-package Items.Shields.Shields_str;
+package Items.Shields.Shields_str_int;
 
 
 import java.util.ArrayList;
 
-import Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Normal_Item_modifiers.*;
+import Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Hybrid_Item_modifiers.*;
 
 
-public class Shield_str extends Shield_str_Item {
+public class Shield_str_int extends Shield_str_int_Item {
 
-    public Shield_str() {
+    public Shield_str_int() {
         Normal_allowedPrefixes = new ArrayList<>();
         Normal_allowedPrefixes.add(Modifiers_normal.BASE_MAXIMUM_LIFE);
-        Normal_allowedPrefixes.add(Modifiers_normal.BASE_ARMOUR);
-        Normal_allowedPrefixes.add(Modifiers_normal.INCREASED_PERCENT_ARMOUR);
-        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_ARMOUR_AND_STUN);
+        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_BASE_ARMOUR_ENERGY_SHIELD);
+        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD);
+        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_STUN);
         Normal_allowedPrefixes.add(Modifiers_normal.PHYSICAL_THORNS_DAMAGE);
         Normal_allowedPrefixes.add(Modifiers_normal.INCREASED_SHIELD_BLOCK_CHANCE);
         
         Normal_allowedSuffixes = new ArrayList<>();
         Normal_allowedSuffixes.add(Modifiers_normal.STRENGTH);
+        Normal_allowedSuffixes.add(Modifiers_normal.INTELLIGENCE);
         Normal_allowedSuffixes.add(Modifiers_normal.FIRE_RESISTANCE);
         Normal_allowedSuffixes.add(Modifiers_normal.COLD_RESISTANCE);
         Normal_allowedSuffixes.add(Modifiers_normal.LIGHTNING_RESISTANCE);
@@ -31,6 +32,7 @@ public class Shield_str extends Shield_str_Item {
         Normal_allowedSuffixes.add(Modifiers_normal.MAXIMUM_LIGHTNING_RESIST);
         Normal_allowedSuffixes.add(Modifiers_normal.MAXIMUM_CHAOS_RESIST);
         Normal_allowedSuffixes.add(Modifiers_normal.ALL_MAXIMUM_RESISTANCES);
+        Normal_allowedSuffixes.add(Modifiers_normal.ENERGY_SHIELD_RECHARGE_RATE);
         Normal_allowedSuffixes.add(Modifiers_normal.ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE);
 
         Desecrated_allowedPrefixes = new ArrayList<>();
@@ -55,7 +57,6 @@ public class Shield_str extends Shield_str_Item {
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_MAXIMUM_BLOCK_CHANCE);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_PARRIED_DEBUFF_DURATION);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_PARRIED_DEBUFF_MAGNITUDE);
-
 
         Essences_allowedPrefixes = new ArrayList<>();
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_BASE_MAXIMUM_LIFE);

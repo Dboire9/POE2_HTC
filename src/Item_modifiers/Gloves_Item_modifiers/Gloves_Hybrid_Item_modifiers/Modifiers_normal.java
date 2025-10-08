@@ -244,14 +244,14 @@ public class Modifiers_normal {
             "strength",
             List.of("attribute"),
             List.of(
-                new ModifierTier("of the Brute", 1, 1000, new Pair<>(5, 8)),
-                new ModifierTier("of the Wrestler", 11, 1000, new Pair<>(9, 12)),
-                new ModifierTier("of the Bear", 22, 1000, new Pair<>(13, 16)),
-                new ModifierTier("of the Lion", 33, 1000, new Pair<>(17, 20)),
-                new ModifierTier("of the Gorilla", 44, 1000, new Pair<>(21, 24)),
-                new ModifierTier("of the Goliath", 55, 1000, new Pair<>(25, 27)),
-                new ModifierTier("of the Leviathan", 66, 1000, new Pair<>(28, 30)),
-                new ModifierTier("of the Titan", 74, 1000, new Pair<>(31, 33))
+                new ModifierTier("of the Brute", 1, 500, new Pair<>(5, 8)),
+                new ModifierTier("of the Wrestler", 11, 500, new Pair<>(9, 12)),
+                new ModifierTier("of the Bear", 22, 500, new Pair<>(13, 16)),
+                new ModifierTier("of the Lion", 33, 500, new Pair<>(17, 20)),
+                new ModifierTier("of the Gorilla", 44, 500, new Pair<>(21, 24)),
+                new ModifierTier("of the Goliath", 55, 500, new Pair<>(25, 27)),
+                new ModifierTier("of the Leviathan", 66, 500, new Pair<>(28, 30)),
+                new ModifierTier("of the Titan", 74, 500, new Pair<>(31, 33))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.NORMAL,

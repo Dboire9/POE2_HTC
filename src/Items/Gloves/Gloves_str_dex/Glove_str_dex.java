@@ -47,7 +47,9 @@ public class Glove_str_dex extends Glove_str_dex_Item {
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_INTELLIGENCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_DEXTERITY);
+        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_CURSE_AREA_OF_EFFECT);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DAZE_ON_HIT);
+        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_IMMOBILISE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_INSTANT_LEECH_PERCENT);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DEXTERITY_AND_INTELLIGENCE);

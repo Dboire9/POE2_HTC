@@ -1,4 +1,4 @@
-package Item_modifiers.Body_Armours_Item_modifiers.Body_Armours_Hybrid_Item_modifiers;
+package Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Hybrid_Item_modifiers;
 
 import Modifier_class.*;
 

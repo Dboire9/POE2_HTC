@@ -8,14 +8,14 @@ import java.util.List;
 
 public class Modifiers_desecrated {
 
-    // PREFIXES
-    
-    //SUFFIXES
+	// NO PREFIXES FOR THE GLOVES
+
+
+    //SHARED SUFFIXES
     public static final Modifier DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE;
     public static final Modifier DESECRATED_STRENGTH_AND_INTELLIGENCE;
     public static final Modifier DESECRATED_STRENGTH_AND_DEXTERITY;
     public static final Modifier DESECRATED_DAZE_ON_HIT;
-    public static final Modifier DESECRATED_INSTANT_LEECH_PERCENT;
     public static final Modifier DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE;
     public static final Modifier DESECRATED_DEXTERITY_AND_INTELLIGENCE;
     public static final Modifier DESECRATED_MANA_COST_EFFICIENCY;
@@ -24,7 +24,12 @@ public class Modifiers_desecrated {
     public static final Modifier DESECRATED_BLEED_CHANCE_INCREASE;
     public static final Modifier DESECRATED_POISON_CHANCE_INCREASE;
     
+	// STR SUFFIXES
+    public static final Modifier DESECRATED_INSTANT_LEECH_PERCENT;
 
+    //DEX SUFFIXES
+    public static final Modifier DESECRATED_CURSE_AREA_OF_EFFECT;
+    public static final Modifier DESECRATED_IMMOBILISE;
 
 
     static{
@@ -78,17 +83,7 @@ public class Modifiers_desecrated {
             "#% chance to Daze on Hit"
         );
 
-        DESECRATED_INSTANT_LEECH_PERCENT = new Modifier(
-            "instant_leech_percent",
-            List.of("amanamu_mod"),
-            List.of(
-                new ModifierTier("of Amanamu", 65, 1000, new Pair<>(8, 15))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
-            "InstantLeechPercent",
-            "#% of Leech is Instant"
-        );
+
 
         DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
             "cold_resistance", "chaos_resistance",
@@ -173,5 +168,49 @@ public class Modifiers_desecrated {
             "PoisonChanceIncrease",
             "#% increased chance to Poison"
         );
+
+
+
+        // GLOVES STR SUFFIXES
+
+        DESECRATED_INSTANT_LEECH_PERCENT = new Modifier(
+            "instant_leech_percent",
+            List.of("amanamu_mod"),
+            List.of(
+                new ModifierTier("of Amanamu", 65, 1000, new Pair<>(8, 15))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "InstantLeechPercent",
+            "#% of Leech is Instant"
+        );
+
+        // GLOVES DEX SUFFIXES
+
+        DESECRATED_CURSE_AREA_OF_EFFECT = new Modifier(
+            "curse_area_of_effect",
+            List.of("amanamu", "caster", "curse"),
+            List.of(
+                new ModifierTier("of Amanamu", 65, 1000, new Pair<>(12, 20))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "CurseAreaOfEffect",
+            "(#)% increased Area of Effect of Curses"
+        );
+
+        DESECRATED_IMMOBILISE = new Modifier(
+            "immobilisation_buildup",
+            List.of("amanamu"),
+            List.of(
+                new ModifierTier("of Amanamu", 65, 1000, new Pair<>(10, 20))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "Immobilise",
+            "(#)% increased Immobilisation buildup"
+        );
+
+
     }
 }

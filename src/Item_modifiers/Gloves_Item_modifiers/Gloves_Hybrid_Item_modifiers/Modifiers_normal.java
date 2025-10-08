@@ -10,8 +10,11 @@ public class Modifiers_normal {
     public static final Modifier BASE_MAXIMUM_LIFE;
     public static final Modifier BASE_MAXIMUM_MANA;
     public static final Modifier HYBRID_BASE_ARMOUR_EVASION;
-    public static final Modifier HYBRID_INCREASED_PERCENT_AMOUR_EVASION;
-    public static final Modifier HYBRID_INCREASED_PERCENT_AMOUR_EVASION_LIFE;
+    public static final Modifier HYBRID_BASE_ARMOUR_ENERGY_SHIELD;
+    public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_EVASION;
+    public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD;
+    public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_LIFE;
+    public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_LIFE;
     public static final Modifier PHYSICAL_DAMAGE_FLAT;
     public static final Modifier FIRE_DAMAGE_FLAT;
     public static final Modifier COLD_DAMAGE_FLAT;
@@ -102,7 +105,22 @@ public class Modifiers_normal {
             "+# to Armour\n+# to Evasion Rating"
         );
 
-        HYBRID_INCREASED_PERCENT_AMOUR_EVASION = new Modifier(
+        HYBRID_BASE_ARMOUR_ENERGY_SHIELD = new Modifier(
+            "base_armour", "base_energy_shield",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Blessed", 1, 1000, new Pair<>(8, 14), new Pair<>(5, 8), "base_armour", "base_energy_shield"),
+                new ModifierTier("Anointed", 16, 1000, new Pair<>(15, 35), new Pair<>(9, 15), "base_armour", "base_energy_shield"),
+                new ModifierTier("Sanctified", 33, 1000, new Pair<>(36, 53), new Pair<>(16, 21), "base_armour", "base_energy_shield"),
+                new ModifierTier("Hallowed", 46, 1000, new Pair<>(54, 65), new Pair<>(22, 25), "base_armour", "base_energy_shield")
+            ),
+            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierSource.NORMAL,
+            "BaseLocalDefences",
+            "+# to Armour\n+# to maximum Energy Shield"
+        );
+
+        HYBRID_INCREASED_PERCENT_ARMOUR_EVASION = new Modifier(
             "increased_percent_armour", "increased_percent_evasion",
             List.of("defences"),
             List.of(
@@ -120,7 +138,25 @@ public class Modifiers_normal {
             "(#)% increased Armour and Evasion"
         );
 
-        HYBRID_INCREASED_PERCENT_AMOUR_EVASION_LIFE = new Modifier(
+        HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD = new Modifier(
+            "increased_percent_armour", "increased_percent_energy_shield",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Infixed", 2, 1000, new Pair<>(15, 26), new Pair<>(15, 26), "increased_percent_armour", "increased_percent_energy_shield"),
+                new ModifierTier("Ingrained", 16, 1000, new Pair<>(27, 42), new Pair<>(27, 42), "increased_percent_armour", "increased_percent_energy_shield"),
+                new ModifierTier("Instilled", 33, 1000, new Pair<>(43, 55), new Pair<>(43, 55), "increased_percent_armour", "increased_percent_energy_shield"),
+                new ModifierTier("Infused", 46, 1000, new Pair<>(56, 67), new Pair<>(56, 67), "increased_percent_armour", "increased_percent_energy_shield"),
+                new ModifierTier("Inculcated", 54, 1000, new Pair<>(68, 79), new Pair<>(68, 79), "increased_percent_armour", "increased_percent_energy_shield"),
+                new ModifierTier("Interpolated", 60, 1000, new Pair<>(80, 91), new Pair<>(80, 91), "increased_percent_armour", "increased_percent_energy_shield"),
+                new ModifierTier("Inspired", 65, 1000, new Pair<>(92, 100), new Pair<>(92, 100), "increased_percent_armour", "increased_percent_energy_shield")
+            ),
+            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierSource.NORMAL,
+            "DefencesPercent",
+            "(#)% increased Armour and Energy Shield"
+        );
+
+        HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_LIFE = new Modifier(
             "increased_percent_armour", "increased_percent_evasion", "base_maximum_life",
             List.of("life", "defences"),
             List.of(
@@ -135,6 +171,23 @@ public class Modifiers_normal {
             Modifier.ModifierSource.NORMAL,
             "BaseLocalDefencesAndLife",
             "(#)% increased Armour and Evasion\n+# to maximum Life"
+        );
+
+        HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_LIFE = new Modifier(
+            "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life",
+            List.of("life", "defences"),
+            List.of(
+                new ModifierTier("Augur's", 8, 1000, new Pair<>(6, 13), new Pair<>(6, 13), new Pair<>(7, 10), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Auspex's", 16, 1000, new Pair<>(14, 20), new Pair<>(14, 20), new Pair<>(11, 19), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Druid's", 33, 1000, new Pair<>(21, 26), new Pair<>(21, 26), new Pair<>(20, 25), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Haruspex's", 46, 1000, new Pair<>(27, 32), new Pair<>(27, 32), new Pair<>(26, 32), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Visionary's", 60, 1000, new Pair<>(33, 38), new Pair<>(33, 38), new Pair<>(33, 41), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Prophet's", 78, 1000, new Pair<>(39, 42), new Pair<>(39, 42), new Pair<>(42, 49), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life")
+            ),
+            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierSource.NORMAL,
+            "BaseLocalDefencesAndLife",
+            "(#)% increased Armour and Energy Shield\n+# to maximum Life"
         );
 
         PHYSICAL_DAMAGE_FLAT = new Modifier(

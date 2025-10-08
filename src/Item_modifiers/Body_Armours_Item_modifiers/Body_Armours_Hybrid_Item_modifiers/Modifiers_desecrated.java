@@ -13,20 +13,20 @@ public class Modifiers_desecrated {
     public static final Modifier DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE;
     public static final Modifier DESECRATED_STRENGTH_AND_INTELLIGENCE;
     public static final Modifier DESECRATED_STRENGTH_AND_DEXTERITY;
-    public static final Modifier DESECRATED_DODGE_ROLL_DISTANCE;
-    public static final Modifier DESECRATED_SLOW_POTENCY_REDUCTION;
-    public static final Modifier DESECRATED_REDUCED_SELF_IGNITE_DURATION;
+    public static final Modifier DESECRATED_SPIRIT_RESERVATION_EFFICIENCY;
+    public static final Modifier DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF;
     public static final Modifier DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE;
     public static final Modifier DESECRATED_DEXTERITY_AND_INTELLIGENCE;
-    public static final Modifier DESECRATED_REDUCED_BLEEDING_DURATION;
-    public static final Modifier DESECRATED_REDUCED_POISON_DURATION;
-    public static final Modifier DESECRATED_MANA_COST_EFFICIENCY_IF_DODGE_ROLL;
-    public static final Modifier DESECRATED_MANA_REGENERATION_WHILE_STATIONARY;
     public static final Modifier DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE;
-    public static final Modifier DESECRATED_CORRUPTED_BLOOD_IMMUNITY;
-    public static final Modifier DESECRATED_REDUCES_MOVEMENT_VELOCITY_PENALTY_SKILLS_WHEN_MOVING;
+    public static final Modifier DESECRATED_DAMAGE_RECOUPED_AS_MANA;
+    public static final Modifier DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION;
 
+    //DEX SUFFIXES
+    public static final Modifier DESECRATED_COMPANION_RESERVATION_EFFICIENCY;
+    public static final Modifier DESECRATED_PREVENT_DEFLECT_DAMAGE_TAKEN;
 
+    //INT SUFFIXES
+    public static final Modifier DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE;
 
     static{
 
@@ -67,40 +67,28 @@ public class Modifiers_desecrated {
             "+# to Strength and Dexterity"
         );
 
-        DESECRATED_DODGE_ROLL_DISTANCE = new Modifier(
-            "dodge_roll_distance",
+        DESECRATED_SPIRIT_RESERVATION_EFFICIENCY = new Modifier(
+            "spirit_reservation_efficiency",
             List.of("amanamu_mod"),
             List.of(
-                new ModifierTier("of Amanamu", 65, 1, new Pair<>(10, 20)) // Representing 0.1–0.2 metres as integers
+                new ModifierTier("of Amanamu", 65, 1, new Pair<>(6, 12))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
-            "DodgeRollDistance",
-            "+#.# metres to Dodge Roll distance"
+            "SpiritReservationEfficiency",
+            "(#)% increased Spirit Reservation Efficiency of Skills"
         );
 
-        DESECRATED_SLOW_POTENCY_REDUCTION = new Modifier(
-            "slow_potency_reduction",
-            List.of("amanamu_mod"),
+        DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF = new Modifier(
+            "reduced_curse_effect_on_self",
+            List.of("amanamu_mod", "caster", "curse"),
             List.of(
-                new ModifierTier("of Amanamu", 65, 1, new Pair<>(12, 20))
+                new ModifierTier("of Amanamu", 65, 1, new Pair<>(25, 35))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
-            "SlowPotencyReduction",
-            "#% reduced Slowing Potency of Debuffs on You"
-        );
-
-        DESECRATED_REDUCED_SELF_IGNITE_DURATION = new Modifier(
-            "reduced_self_ignite_duration",
-            List.of("amanamu_mod", "elemental", "fire", "ailment"),
-            List.of(
-                new ModifierTier("of Amanamu", 65, 1, new Pair<>(20, 30))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.DESECRATED,
-            "ReducedSelfIgniteDuration",
-            "#% reduced Ignite Duration on you"
+            "ReducedCurseEffect",
+            "(#)% reduced effect of Curses on you"
         );
 
         DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
@@ -127,52 +115,16 @@ public class Modifiers_desecrated {
             "+# to Dexterity and Intelligence"
         );
 
-        DESECRATED_REDUCED_BLEEDING_DURATION = new Modifier(
-            "reduced_bleeding_duration",
-            List.of("kurgal_mod", "physical", "ailment"),
+        DESECRATED_DAMAGE_RECOUPED_AS_MANA = new Modifier(
+            "damage_recouped_as_mana",
+            List.of("kurgal_mod", "life", "mana"),
             List.of(
-                new ModifierTier("of Kurgal", 65, 1, new Pair<>(20, 30))
+                new ModifierTier("of Kurgal", 65, 1, new Pair<>(10, 20))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
-            "ReducedBleedingDuration",
-            "#% reduced Duration of Bleeding on You"
-        );
-    
-        DESECRATED_REDUCED_POISON_DURATION = new Modifier(
-            "reduced_poison_duration",
-            List.of("ulaman_mod", "chaos", "ailment"),
-            List.of(
-                new ModifierTier("of Ulaman", 65, 1, new Pair<>(20, 30))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.DESECRATED,
-            "ReducedPoisonDuration",
-            "#% reduced Poison Duration on you"
-        );
-
-        DESECRATED_MANA_COST_EFFICIENCY_IF_DODGE_ROLL = new Modifier(
-            "mana_cost_efficiency_if_dodge_roll",
-            List.of("kurgal_mod", "mana"),
-            List.of(
-                new ModifierTier("of Kurgal", 65, 1, new Pair<>(8, 12))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.DESECRATED,
-            "ManaCostEfficiency",
-            "#% increased Mana Cost Efficiency if you have Dodge Rolled Recently"
-        );
-
-        DESECRATED_MANA_REGENERATION_WHILE_STATIONARY = new Modifier(
-            "mana_regeneration_while_stationary",
-            List.of("kurgal_mod", "mana"),
-            List.of(
-                new ModifierTier("of Kurgal", 65, 1, new Pair<>(40, 50))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.DESECRATED,
-            "ManaRegeneration",
-            "#% increased Mana Regeneration Rate while stationary"
+            "PercentDamageGoesToMana",
+            "(#)% of Damage taken Recouped as Mana"
         );
 
         DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
@@ -187,29 +139,59 @@ public class Modifiers_desecrated {
             "+#% to Lightning and Chaos Resistances"
         );
 
-        DESECRATED_CORRUPTED_BLOOD_IMMUNITY = new Modifier(
-            "corrupted_blood_immunity",
-            List.of("ulaman_mod", "physical", "ailment"),
+        DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION = new Modifier(
+            "critical_hit_chance_reduction",
+            List.of("ulaman_mod", "critical"),
             List.of(
-                new ModifierTier("of Ulaman", 65, 1, new Pair<>(1, 1))
+                new ModifierTier("of Ulaman", 65, 1, new Pair<>(17, 25))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
-            "CorruptedBloodImmunity",
-            "Corrupted Blood cannot be inflicted on you"
+            "ChanceToTakeCriticalStrike",
+            "Critical Hits have (#)% reduced Critical Hit Chance against you"
         );
 
-        DESECRATED_REDUCES_MOVEMENT_VELOCITY_PENALTY_SKILLS_WHEN_MOVING = new Modifier(
-            "reduces_movement_velocity_penalty_skills_when_moving",
-            List.of("ulaman_mod", "speed"),
+//DEX SUFFIXES
+
+        DESECRATED_COMPANION_RESERVATION_EFFICIENCY = new Modifier(
+            "companion_reservation_efficiency",
+            List.of("ulaman_mod"),
             List.of(
-                new ModifierTier("of Ulaman", 65, 1000, new Pair<>(6, 10))
+                new ModifierTier("of Ulaman", 65, 1, new Pair<>(12, 18))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
-            "MovementVelocityPenalty",
-            "#% reduced Movement Speed Penalty from using Skills while moving"
+            "CompanionReservationEfficiency",
+            "(#)% increased Reservation Efficiency of Companion Skills"
         );
+
+        DESECRATED_PREVENT_DEFLECT_DAMAGE_TAKEN = new Modifier(
+            "deflect_damage_taken",
+            List.of("ulaman_mod"),
+            List.of(
+                new ModifierTier("of Ulaman", 65, 1, new Pair<>(3, 5))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.DESECRATED,
+            "DeflectDamageTaken",
+            "Prevent +(#)% of Damage from Deflected Hits"
+        );
+
+//INT SUFFIXES
+
+        DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE = new Modifier(
+            "damage_removed_from_mana_before_life",
+            List.of("kurgal_mod", "life", "mana"),
+            List.of(
+                new ModifierTier("of Kurgal", 65, 1, new Pair<>(10, 20))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.DESECRATED,
+            "DamageRemovedFromManaBeforeLife",
+            "(#)% of Damage is taken from Mana before Life"
+        );
+
+
 
     }
 }

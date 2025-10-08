@@ -9,11 +9,13 @@ public class Modifiers_essences {
 
         //PREFIXES
         public static final Modifier ESSENCE_BASE_MAXIMUM_LIFE;
-        public static final Modifier ESSENCE_BASE_MAXIMUM_MANA;
         public static final Modifier ESSENCE_INCREASED_PERCENT_ARMOUR;
         public static final Modifier ESSENCE_INCREASED_PERCENT_EVASION;
         public static final Modifier ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD;
-        public static final Modifier ESSENCE_INCREASED_MOVEMENT_SPEED;
+        public static final Modifier ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT;
+        public static final Modifier ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS;
+        public static final Modifier ESSENCE_PHYSICAL_THORNS_DAMAGE;
+        public static final Modifier ESSENCE_RANDOM_NOTABLE_PASSIVE;
         public static final Modifier ESSENCE_ABYSS_PREFIX;
 
         
@@ -23,12 +25,11 @@ public class Modifiers_essences {
         public static final Modifier ESSENCE_ATTRIBUTES_STRENGTH;
         public static final Modifier ESSENCE_ATTRIBUTES_DEXTERITY;
         public static final Modifier ESSENCE_ATTRIBUTES_INTELLIGENCE;
-        public static final Modifier ESSENCE_SOUL_CORE;
+        public static final Modifier ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF;
         public static final Modifier ESSENCE_ABYSS_SUFFIX;
         public static final Modifier ESSENCE_FIRE_RESISTANCE;
         public static final Modifier ESSENCE_COLD_RESISTANCE;
         public static final Modifier ESSENCE_LIGHTNING_RESISTANCE;
-        public static final Modifier ESSENCE_ITEM_FOUND_RARITY_INCREASE;
         
 
 
@@ -39,27 +40,13 @@ public class Modifiers_essences {
             List.of("life"),
             List.of(
                 new ModifierTier("Lesser Essence of the Body", 16, 1, new Pair<>(30, 39)),
-                new ModifierTier("Essence of the Body", 38, 1, new Pair<>(70, 84)),
-                new ModifierTier("Greater Essence of the Body", 46, 1, new Pair<>(85, 99))
+                new ModifierTier("Essence of the Body", 38, 1, new Pair<>(85, 99)),
+                new ModifierTier("Greater Essence of the Body", 46, 1, new Pair<>(100, 119))
             ),
             ModifierType.PREFIX,
             ModifierSource.ESSENCE,
             "IncreasedLife",
             "+# to maximum Life"
-        );
-
-        ESSENCE_BASE_MAXIMUM_MANA = new Modifier(
-            "base_maximum_mana",
-            List.of("mana"),
-            List.of(
-                new ModifierTier("Lesser Essence of the Mind", 16, 1, new Pair<>(25, 34)),
-                new ModifierTier("Essence of the Mind", 38, 1, new Pair<>(65, 79)),
-                new ModifierTier("Greater Essence of the Mind", 46, 1, new Pair<>(80, 89))
-            ),
-            ModifierType.PREFIX,
-            ModifierSource.ESSENCE,
-            "IncreasedMana",
-            "+# to maximum Mana"
         );
 
         ESSENCE_INCREASED_PERCENT_ARMOUR = new Modifier(
@@ -104,17 +91,53 @@ public class Modifiers_essences {
             "#% increased Energy Shield"
         );
 
-		ESSENCE_INCREASED_MOVEMENT_SPEED = new Modifier(
-			"increased_movement_speed",
-			List.of("speed"),
-			List.of(
-				new ModifierTier("Essence of Hysteria", 65, 1, new Pair<>(30, 30)) // Fixed 30% increase
-			),
-			ModifierType.PREFIX,
-			ModifierSource.ESSENCE,
-			"IncreasedMovementSpeed",
-			"#% increased Movement Speed"
-		);
+        ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT = new Modifier(
+            "maximum_life_increase_percent",
+            List.of("life"),
+            List.of(
+                new ModifierTier("Perfect Essence of the Body", 72, 1, new Pair<>(8, 10))
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "MaximumLifeIncreasePercent",
+            "(#)% increased maximum Life"
+        );
+
+        ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS = new Modifier(
+            "physical_damage_taken_as_chaos",
+            List.of("physical", "chaos"),
+            List.of(
+                new ModifierTier("Perfect Essence of Ruin", 72, 1, new Pair<>(10, 15))
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "PhysicalDamageTakenAsChaos",
+            "(#)% of Physical Damage from Hits taken as Chaos Damage"
+        );
+
+        ESSENCE_PHYSICAL_THORNS_DAMAGE = new Modifier(
+            "physical_thorns_damage",
+            List.of("damage", "physical"),
+            List.of(
+                new ModifierTier("Essence of Hysteria", 63, 1, new Pair<>(64, 97), new Pair<>(97, 145), "", "")
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "Thorns",
+            "Adds (#) to (#) Physical Thorns damage"
+        );
+
+        ESSENCE_RANDOM_NOTABLE_PASSIVE = new Modifier(
+            "essence_random_notable_passive",
+            List.of(),
+            List.of(
+                new ModifierTier("Essence of Delirium", 1, 1, new Pair<>(0, 0))
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "EssenceGrantedPassive",
+            "Allocates a random Notable Passive Skill"
+        );
 
 
         ESSENCE_ABYSS_PREFIX = new Modifier(
@@ -187,16 +210,16 @@ public class Modifiers_essences {
             "# to Strength, Dexterity or Intelligence"
         );
 
-        ESSENCE_SOUL_CORE = new Modifier(
-            "essence_soul_core",
-            List.of("socketed_items"),
+        ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF = new Modifier(
+            "reduced_critical_strike_damage_taken_on_self",
+            List.of(),
             List.of(
-                new ModifierTier("Essence of Horror", 1, 1, new Pair<>(100, 100))
+                new ModifierTier("Perfect Essence of Seeking", 72, 1, new Pair<>(40, 50))
             ),
-            ModifierType.SUFFIX,
+            ModifierType.PREFIX,
             ModifierSource.ESSENCE,
-            "SoulCore",
-            "#% increased effect of Socketed Items"
+            "ReducedCriticalStrikeDamageTaken",
+            "Hits against you have (#)% reduced Critical Damage Bonus"
         );
 
         ESSENCE_ABYSS_SUFFIX = new Modifier(
@@ -253,19 +276,6 @@ public class Modifiers_essences {
             "+#% to Lightning Resistance"
         );
 
-        ESSENCE_ITEM_FOUND_RARITY_INCREASE = new Modifier(
-            "item_found_rarity_increase",
-            List.of(""),
-            List.of(
-                new ModifierTier("Lesser Essence of Opulence", 24, 1, new Pair<>(11, 14)),
-                new ModifierTier("Essence of Opulence", 40, 1, new Pair<>(15, 18)),
-                new ModifierTier("Greater Essence of Opulence", 63, 1, new Pair<>(19, 21))
-            ),
-            ModifierType.SUFFIX,
-            ModifierSource.ESSENCE,
-            "ItemFoundRarityIncrease",
-            "#% increased Rarity of Items found"
-        );
 
     }
 

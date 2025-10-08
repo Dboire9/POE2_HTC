@@ -9,13 +9,15 @@ import Item_modifiers.Body_Armours_Item_modifiers.Body_Armours_Hybrid_Item_modif
 public class Body_Armour_str_int extends Body_Armour_str_int_Item {
 
     public Body_Armour_str_int() {
-        Normal_allowedPrefixes = new ArrayList<>();
+		Normal_allowedPrefixes = new ArrayList<>();
         Normal_allowedPrefixes.add(Modifiers_normal.BASE_MAXIMUM_LIFE);
-        Normal_allowedPrefixes.add(Modifiers_normal.BASE_MAXIMUM_MANA);
         Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_BASE_ARMOUR_ENERGY_SHIELD);
         Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD);
-        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_STUN);
-        Normal_allowedPrefixes.add(Modifiers_normal.MOVEMENT_SPEED);
+        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_LIFE);
+        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_BASE_AND_PERCENT_ARMOUR_ENERGY_SHIELD);
+        Normal_allowedPrefixes.add(Modifiers_normal.PHYSICAL_THORNS_DAMAGE);
+        Normal_allowedPrefixes.add(Modifiers_normal.BASE_SPIRIT);
+        
         
         Normal_allowedSuffixes = new ArrayList<>();
         Normal_allowedSuffixes.add(Modifiers_normal.STRENGTH);
@@ -27,12 +29,11 @@ public class Body_Armour_str_int extends Body_Armour_str_int_Item {
         Normal_allowedSuffixes.add(Modifiers_normal.REDUCED_ATTRIBUTE_REQUIREMENTS);
         Normal_allowedSuffixes.add(Modifiers_normal.BASE_STUN_THRESHOLD);
         Normal_allowedSuffixes.add(Modifiers_normal.LIFE_REGENERATION_PER_SECOND);
-        Normal_allowedSuffixes.add(Modifiers_normal.ITEM_FOUND_RARITY_INCREASE);
-        Normal_allowedSuffixes.add(Modifiers_normal.REDUCED_SHOCK_DURATION);
-        Normal_allowedSuffixes.add(Modifiers_normal.REDUCED_CHILL_DURATION);
-        Normal_allowedSuffixes.add(Modifiers_normal.REDUCED_FREEZE_DURATION);
+        Normal_allowedSuffixes.add(Modifiers_normal.REDUCED_BLEEDING_DURATION_ON_SELF);
+        Normal_allowedSuffixes.add(Modifiers_normal.REDUCED_POISON_DURATION_ON_SELF);
+        Normal_allowedSuffixes.add(Modifiers_normal.REDUCED_IGNITE_DURATION_ON_SELF);
+        Normal_allowedSuffixes.add(Modifiers_normal.ENERGY_SHIELD_FASTER_START_RECHARGE);
         Normal_allowedSuffixes.add(Modifiers_normal.ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE);
-        Normal_allowedSuffixes.add(Modifiers_normal.ENERGY_SHIELD_RECHARGE_RATE);
 
         Desecrated_allowedPrefixes = new ArrayList<>();
         
@@ -40,26 +41,24 @@ public class Body_Armour_str_int extends Body_Armour_str_int_Item {
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_INTELLIGENCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_DEXTERITY);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DODGE_ROLL_DISTANCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_SLOW_POTENCY_REDUCTION);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_REDUCED_SELF_IGNITE_DURATION);
+        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_SPIRIT_RESERVATION_EFFICIENCY);
+        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE);
         Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DEXTERITY_AND_INTELLIGENCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_REDUCED_BLEEDING_DURATION);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_REDUCED_POISON_DURATION);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_MANA_COST_EFFICIENCY_IF_DODGE_ROLL);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_MANA_REGENERATION_WHILE_STATIONARY);
+        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE);
+        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DAMAGE_RECOUPED_AS_MANA);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE);
-        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_CORRUPTED_BLOOD_IMMUNITY);
-        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_REDUCES_MOVEMENT_VELOCITY_PENALTY_SKILLS_WHEN_MOVING);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION);
 
         Essences_allowedPrefixes = new ArrayList<>();
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_BASE_MAXIMUM_LIFE);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_BASE_MAXIMUM_MANA);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_PERCENT_ARMOUR);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_PERCENT_EVASION);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_MOVEMENT_SPEED);
+        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT);
+        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS);
+        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_PHYSICAL_THORNS_DAMAGE);
+        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_RANDOM_NOTABLE_PASSIVE);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
         
         Essences_allowedSuffixes = new ArrayList<>();
@@ -67,12 +66,12 @@ public class Body_Armour_str_int extends Body_Armour_str_int_Item {
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_STRENGTH);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_DEXTERITY);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_INTELLIGENCE);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_SOUL_CORE);
+        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_FIRE_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_COLD_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_LIGHTNING_RESISTANCE);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ITEM_FOUND_RARITY_INCREASE);
+
 
     }
 }

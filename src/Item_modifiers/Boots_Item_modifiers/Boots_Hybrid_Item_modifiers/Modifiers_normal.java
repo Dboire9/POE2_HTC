@@ -15,14 +15,11 @@ public class Modifiers_normal {
     public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_EVASION;
     public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD;
     public static final Modifier HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD;
-    public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_LIFE;
-    public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_LIFE;
-    public static final Modifier HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_LIFE;
-    public static final Modifier PHYSICAL_DAMAGE_FLAT;
-    public static final Modifier FIRE_DAMAGE_FLAT;
-    public static final Modifier COLD_DAMAGE_FLAT;
-    public static final Modifier LIGHTNING_DAMAGE_FLAT;
-    public static final Modifier ACCURACY_RATING;
+    public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_AND_STUN;
+    public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_STUN;
+    public static final Modifier HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_AND_STUN;
+    public static final Modifier MOVEMENT_SPEED;
+
 
 
     //SUFFIXES
@@ -34,15 +31,12 @@ public class Modifiers_normal {
     public static final Modifier LIGHTNING_RESISTANCE;
     public static final Modifier CHAOS_RESISTANCE;
     public static final Modifier REDUCED_ATTRIBUTE_REQUIREMENTS;
-    public static final Modifier LEVEL_MELEE_SKILL;
-    public static final Modifier LIFE_LEECH;
-    public static final Modifier MANA_LEECH;
-    public static final Modifier LIFE_PER_ENEMY_KILLED;
-    public static final Modifier MANA_PER_ENEMY_KILLED;
-    public static final Modifier LIFE_PER_ENEMY_HIT;
-    public static final Modifier INCREASED_ATTACK_SPEED;
-    public static final Modifier CRITICAL_DAMAGE_BONUS;
+    public static final Modifier BASE_STUN_THRESHOLD;
+    public static final Modifier LIFE_REGENERATION_PER_SECOND;
     public static final Modifier ITEM_FOUND_RARITY_INCREASE;
+    public static final Modifier REDUCED_SHOCK_DURATION;
+    public static final Modifier REDUCED_CHILL_DURATION;
+    public static final Modifier REDUCED_FREEZE_DURATION;
     public static final Modifier ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE;
     public static final Modifier EVASION_APPLIES_TO_DEFLECTION;
     public static final Modifier ENERGY_SHIELD_RECHARGE_RATE;
@@ -124,7 +118,7 @@ public class Modifiers_normal {
         );
 
         HYBRID_BASE_EVASION_ENERGY_SHIELD = new Modifier(
-            "base_evasion", "base_maximum_energy_shield",
+            "base_evasion", "base_energy_shield",
             List.of("defences"),
             List.of(
                 new ModifierTier("Will-o-wisp's", 1, 1000, new Pair<>(6, 9), new Pair<>(5, 8), "base_evasion", "base_energy_shield"),
@@ -192,155 +186,72 @@ public class Modifiers_normal {
             "(#)% increased Evasion and Energy Shield"
         );
 
-        HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_LIFE = new Modifier(
-            "increased_percent_armour", "increased_percent_evasion", "base_maximum_life",
-            List.of("life", "defences"),
+        HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_AND_STUN = new Modifier(
+            "increased_percent_armour", "increased_percent_evasion", "base_stun_threshold",
+            List.of("defences"),
             List.of(
-                new ModifierTier("Bully's", 8, 1000, new Pair<>(6, 13), new Pair<>(6, 13), new Pair<>(7, 10), "increased_percent_armour", "increased_percent_evasion", "base_maximum_life"),
-                new ModifierTier("Thug's", 16, 1000, new Pair<>(14, 20), new Pair<>(14, 20), new Pair<>(11, 19), "increased_percent_armour", "increased_percent_evasion", "base_maximum_life"),
-                new ModifierTier("Brute's", 33, 1000, new Pair<>(21, 26), new Pair<>(21, 26), new Pair<>(20, 25), "increased_percent_armour", "increased_percent_evasion", "base_maximum_life"),
-                new ModifierTier("Assailant's", 46, 1000, new Pair<>(27, 32), new Pair<>(27, 32), new Pair<>(26, 32), "increased_percent_armour", "increased_percent_evasion", "base_maximum_life"),
-                new ModifierTier("Aggressor's", 60, 1000, new Pair<>(33, 38), new Pair<>(33, 38), new Pair<>(33, 41), "increased_percent_armour", "increased_percent_evasion", "base_maximum_life"),
-                new ModifierTier("Predator's", 78, 1000, new Pair<>(39, 42), new Pair<>(39, 42), new Pair<>(42, 49), "increased_percent_armour", "increased_percent_evasion", "base_maximum_life")
+                new ModifierTier("Captain's", 10, 1000, new Pair<>(6, 13), new Pair<>(6, 13), new Pair<>(8, 13), "increased_percent_armour", "increased_percent_evasion", "base_stun_threshold"),
+                new ModifierTier("Commander's", 19, 1000, new Pair<>(14, 20), new Pair<>(14, 20), new Pair<>(14, 24), "increased_percent_armour", "increased_percent_evasion", "base_stun_threshold"),
+                new ModifierTier("Magnate's", 38, 1000, new Pair<>(21, 26), new Pair<>(21, 26), new Pair<>(25, 40), "increased_percent_armour", "increased_percent_evasion", "base_stun_threshold"),
+                new ModifierTier("Marshal's", 48, 1000, new Pair<>(27, 32), new Pair<>(27, 32), new Pair<>(41, 63), "increased_percent_armour", "increased_percent_evasion", "base_stun_threshold"),
+                new ModifierTier("General's", 63, 1000, new Pair<>(33, 38), new Pair<>(33, 38), new Pair<>(64, 94), "increased_percent_armour", "increased_percent_evasion", "base_stun_threshold"),
+                new ModifierTier("Warlord's", 74, 1000, new Pair<>(39, 42), new Pair<>(39, 42), new Pair<>(95, 136), "increased_percent_armour", "increased_percent_evasion", "base_stun_threshold")
             ),
             Modifier.ModifierType.PREFIX,
             Modifier.ModifierSource.NORMAL,
-            "BaseLocalDefencesAndLife",
-            "(#)% increased Armour and Evasion\n+# to maximum Life"
+            "DefencesPercentAndStunThreshold",
+            "(#)% increased Armour and Evasion\n+# to Stun Threshold"
         );
 
-        HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_LIFE = new Modifier(
-            "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life",
-            List.of("life", "defences"),
+        HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_STUN = new Modifier(
+            "increased_percent_armour", "increased_percent_energy_shield", "base_stun_threshold",
+            List.of("defences"),
             List.of(
-                new ModifierTier("Augur's", 8, 1000, new Pair<>(6, 13), new Pair<>(6, 13), new Pair<>(7, 10), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Auspex's", 16, 1000, new Pair<>(14, 20), new Pair<>(14, 20), new Pair<>(11, 19), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Druid's", 33, 1000, new Pair<>(21, 26), new Pair<>(21, 26), new Pair<>(20, 25), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Haruspex's", 46, 1000, new Pair<>(27, 32), new Pair<>(27, 32), new Pair<>(26, 32), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Visionary's", 60, 1000, new Pair<>(33, 38), new Pair<>(33, 38), new Pair<>(33, 41), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Prophet's", 78, 1000, new Pair<>(39, 42), new Pair<>(39, 42), new Pair<>(42, 49), "increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life")
+                new ModifierTier("Defender's", 10, 1000, new Pair<>(6, 13), new Pair<>(6, 13), new Pair<>(8, 13), "increased_percent_armour", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Protector's", 19, 1000, new Pair<>(14, 20), new Pair<>(14, 20), new Pair<>(14, 24), "increased_percent_armour", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Keeper's", 38, 1000, new Pair<>(21, 26), new Pair<>(21, 26), new Pair<>(25, 40), "increased_percent_armour", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Guardian's", 48, 1000, new Pair<>(27, 32), new Pair<>(27, 32), new Pair<>(41, 63), "increased_percent_armour", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Warden's", 63, 1000, new Pair<>(33, 38), new Pair<>(33, 38), new Pair<>(64, 94), "increased_percent_armour", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Sentinel's", 74, 1000, new Pair<>(39, 42), new Pair<>(39, 42), new Pair<>(95, 136), "increased_percent_armour", "increased_percent_energy_shield", "base_stun_threshold")
             ),
             Modifier.ModifierType.PREFIX,
             Modifier.ModifierSource.NORMAL,
-            "BaseLocalDefencesAndLife",
-            "(#)% increased Armour and Energy Shield\n+# to maximum Life"
+            "DefencesPercentAndStunThreshold",
+            "(#)% increased Armour and Energy Shield\n+# to Stun Threshold"
         );
 
-        HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_LIFE = new Modifier(
-            "increased_percent_evasion", "increased_percent_energy_shield", "base_maximum_life",
-            List.of("life", "defences"),
+        HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_AND_STUN = new Modifier(
+            "increased_percent_evasion", "increased_percent_energy_shield", "base_stun_threshold",
+            List.of("defences"),
             List.of(
-                new ModifierTier("Poet's", 8, 1000, new Pair<>(6, 13), new Pair<>(6, 13), new Pair<>(7, 10), "increased_percent_evasion", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Musician's", 16, 1000, new Pair<>(14, 20), new Pair<>(14, 20), new Pair<>(11, 19), "increased_percent_evasion", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Troubadour's", 33, 1000, new Pair<>(21, 26), new Pair<>(21, 26), new Pair<>(20, 25), "increased_percent_evasion", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Bard's", 46, 1000, new Pair<>(27, 32), new Pair<>(27, 32), new Pair<>(26, 32), "increased_percent_evasion", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Minstrel's", 60, 1000, new Pair<>(33, 38), new Pair<>(33, 38), new Pair<>(33, 41), "increased_percent_evasion", "increased_percent_energy_shield", "base_maximum_life"),
-                new ModifierTier("Maestro's", 78, 1000, new Pair<>(39, 42), new Pair<>(39, 42), new Pair<>(42, 49), "increased_percent_evasion", "increased_percent_energy_shield", "base_maximum_life")
+                new ModifierTier("Intuitive", 10, 1000, new Pair<>(6, 13), new Pair<>(6, 13), new Pair<>(8, 13), "increased_percent_evasion", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Psychic", 19, 1000, new Pair<>(14, 20), new Pair<>(14, 20), new Pair<>(14, 24), "increased_percent_evasion", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Telepath's", 38, 1000, new Pair<>(21, 26), new Pair<>(21, 26), new Pair<>(25, 40), "increased_percent_evasion", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Illusionist's", 48, 1000, new Pair<>(27, 32), new Pair<>(27, 32), new Pair<>(41, 63), "increased_percent_evasion", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Mentalist's", 63, 1000, new Pair<>(33, 38), new Pair<>(33, 38), new Pair<>(64, 94), "increased_percent_evasion", "increased_percent_energy_shield", "base_stun_threshold"),
+                new ModifierTier("Trickster's", 74, 1000, new Pair<>(39, 42), new Pair<>(39, 42), new Pair<>(95, 136), "increased_percent_evasion", "increased_percent_energy_shield", "base_stun_threshold")
             ),
             Modifier.ModifierType.PREFIX,
             Modifier.ModifierSource.NORMAL,
-            "BaseLocalDefencesAndLife",
-            "(#)% increased Evasion and Energy Shield\n+# to maximum Life"
+            "DefencesPercentAndStunThreshold",
+            "(#)% increased Evasion and Energy Shield\n+# to Stun Threshold"
         );
 
-        PHYSICAL_DAMAGE_FLAT = new Modifier(
-            "physical_damage_flat",
-            List.of("damage", "physical", "attack"),
+        MOVEMENT_SPEED = new Modifier(
+            "movement_speed",
+            List.of("speed"),
             List.of(
-                new ModifierTier("Glinting", 1, 1000, new Pair<>(1, 2), new Pair<>(3, 3), "", ""),
-                new ModifierTier("Burnished", 8, 1000, new Pair<>(2, 3), new Pair<>(4, 6), "", ""),
-                new ModifierTier("Polished", 16, 1000, new Pair<>(2, 4), new Pair<>(5, 8), "", ""),
-                new ModifierTier("Honed", 33, 1000, new Pair<>(4, 6), new Pair<>(8, 11), "", ""),
-                new ModifierTier("Gleaming", 46, 1000, new Pair<>(5, 7), new Pair<>(9, 13), "", ""),
-                new ModifierTier("Annealed", 54, 1000, new Pair<>(6, 10), new Pair<>(12, 17), "", ""),
-                new ModifierTier("Razor-sharp", 60, 800, new Pair<>(7, 11), new Pair<>(14, 20), "", ""),
-                new ModifierTier("Tempered", 65, 600, new Pair<>(10, 15), new Pair<>(18, 26), "", ""),
-                new ModifierTier("Flaring", 75, 400, new Pair<>(12, 19), new Pair<>(22, 32), "", "")
+                new ModifierTier("Runner's", 1, 1000, new Pair<>(10, 10)),
+                new ModifierTier("Sprinter's", 16, 1000, new Pair<>(15, 15)),
+                new ModifierTier("Stallion's", 33, 1000, new Pair<>(20, 20)),
+                new ModifierTier("Gazelle's", 46, 1000, new Pair<>(25, 25)),
+                new ModifierTier("Cheetah's", 65, 1000, new Pair<>(30, 30)),
+                new ModifierTier("Hellion's", 82, 1000, new Pair<>(35, 35))
             ),
             Modifier.ModifierType.PREFIX,
             Modifier.ModifierSource.NORMAL,
-            "PhysicalDamage",
-            "Adds # to # Physical Damage to Attacks"
-        );
-
-        FIRE_DAMAGE_FLAT = new Modifier(
-            "fire_damage_flat",
-            List.of("damage", "elemental", "fire", "attack"),
-            List.of(
-                new ModifierTier("Heated", 1, 500, new Pair<>(1, 2), new Pair<>(3, 3), "", ""),
-                new ModifierTier("Smouldering", 8, 500, new Pair<>(3, 5), new Pair<>(6, 9), "", ""),
-                new ModifierTier("Smoking", 16, 500, new Pair<>(6, 8), new Pair<>(10, 13), "", ""),
-                new ModifierTier("Burning", 33, 500, new Pair<>(9, 11), new Pair<>(14, 17), "", ""),
-                new ModifierTier("Flaming", 46, 500, new Pair<>(12, 13), new Pair<>(18, 20), "", ""),
-                new ModifierTier("Scorching", 54, 500, new Pair<>(11, 16), new Pair<>(21, 26), "", ""),
-                new ModifierTier("Incinerating", 60, 400, new Pair<>(13, 19), new Pair<>(27, 32), "", ""),
-                new ModifierTier("Blasting", 65, 300, new Pair<>(20, 24), new Pair<>(33, 36), "", ""),
-                new ModifierTier("Cremating", 75, 200, new Pair<>(25, 29), new Pair<>(37, 45), "", "")
-            ),
-            Modifier.ModifierType.PREFIX,
-            Modifier.ModifierSource.NORMAL,
-            "FireDamage",
-            "Adds # to # Fire Damage to Attacks"
-        );
-
-        COLD_DAMAGE_FLAT = new Modifier(
-            "cold_damage_flat",
-            List.of("damage", "elemental", "cold", "attack"),
-            List.of(
-                new ModifierTier("Frosted", 1, 500, new Pair<>(1, 1), new Pair<>(2, 3), "", ""),
-                new ModifierTier("Chilled", 8, 500, new Pair<>(3, 4), new Pair<>(5, 8), "", ""),
-                new ModifierTier("Icy", 16, 500, new Pair<>(5, 6), new Pair<>(9, 11), "", ""),
-                new ModifierTier("Frigid", 33, 500, new Pair<>(7, 8), new Pair<>(12, 14), "", ""),
-                new ModifierTier("Freezing", 46, 500, new Pair<>(9, 10), new Pair<>(15, 17), "", ""),
-                new ModifierTier("Frozen", 54, 500, new Pair<>(11, 13), new Pair<>(18, 21), "", ""),
-                new ModifierTier("Glaciated", 60, 400, new Pair<>(14, 15), new Pair<>(22, 24), "", ""),
-                new ModifierTier("Polar", 65, 300, new Pair<>(16, 20), new Pair<>(25, 31), "", ""),
-                new ModifierTier("Entombing", 75, 200, new Pair<>(21, 24), new Pair<>(32, 37), "", "")
-            ),
-            Modifier.ModifierType.PREFIX,
-            Modifier.ModifierSource.NORMAL,
-            "ColdDamage",
-            "Adds # to # Cold Damage to Attacks"
-        );
-
-        LIGHTNING_DAMAGE_FLAT = new Modifier(
-            "lightning_damage_flat",
-            List.of("damage", "elemental", "lightning", "attack"),
-            List.of(
-                new ModifierTier("Humming", 1, 500, new Pair<>(1, 1), new Pair<>(4, 6), "", ""),
-                new ModifierTier("Buzzing", 8, 500, new Pair<>(1, 1), new Pair<>(10, 15), "", ""),
-                new ModifierTier("Snapping", 16, 500, new Pair<>(1, 1), new Pair<>(16, 22), "", ""),
-                new ModifierTier("Crackling", 33, 500, new Pair<>(1, 1), new Pair<>(23, 27), "", ""),
-                new ModifierTier("Sparking", 46, 500, new Pair<>(1, 1), new Pair<>(28, 32), "", ""),
-                new ModifierTier("Arcing", 54, 500, new Pair<>(1, 2), new Pair<>(33, 40), "", ""),
-                new ModifierTier("Shocking", 60, 400, new Pair<>(1, 2), new Pair<>(41, 47), "", ""),
-                new ModifierTier("Discharging", 65, 300, new Pair<>(1, 3), new Pair<>(48, 59), "", ""),
-                new ModifierTier("Electrocuting", 75, 200, new Pair<>(1, 4), new Pair<>(60, 71), "", "")
-            ),
-            Modifier.ModifierType.PREFIX,
-            Modifier.ModifierSource.NORMAL,
-            "LightningDamage",
-            "Adds # to # Lightning Damage to Attacks"
-        );
-
-        ACCURACY_RATING = new Modifier(
-            "accuracy_rating",
-            List.of("attack"),
-            List.of(
-                new ModifierTier("Precise", 1, 800, new Pair<>(11, 32)),
-                new ModifierTier("Reliable", 11, 800, new Pair<>(33, 60)),
-                new ModifierTier("Focused", 18, 800, new Pair<>(61, 84)),
-                new ModifierTier("Deliberate", 26, 800, new Pair<>(85, 123)),
-                new ModifierTier("Consistent", 36, 800, new Pair<>(124, 167)),
-                new ModifierTier("Steady", 48, 800, new Pair<>(168, 236)),
-                new ModifierTier("Hunter's", 58, 800, new Pair<>(237, 346)),
-                new ModifierTier("Ranger's", 67, 400, new Pair<>(347, 450)),
-                new ModifierTier("Amazon's", 76, 200, new Pair<>(451, 550))
-            ),
-            Modifier.ModifierType.PREFIX,
-            Modifier.ModifierSource.NORMAL,
-            "IncreasedAccuracy",
-            "+# to Accuracy Rating"
+            "MovementVelocity",
+            "(#)% increased Movement Speed"
         );
 
 
@@ -369,15 +280,15 @@ public class Modifiers_normal {
             "dexterity",
             List.of("attribute"),
             List.of(
-                new ModifierTier("of the Mongoose", 1, 1000, new Pair<>(5, 8)),
-                new ModifierTier("of the Lynx", 11, 1000, new Pair<>(9, 12)),
-                new ModifierTier("of the Fox", 22, 1000, new Pair<>(13, 16)),
-                new ModifierTier("of the Falcon", 33, 1000, new Pair<>(17, 20)),
-                new ModifierTier("of the Panther", 44, 1000, new Pair<>(21, 24)),
-                new ModifierTier("of the Leopard", 55, 1000, new Pair<>(25, 27)),
-                new ModifierTier("of the Jaguar", 66, 1000, new Pair<>(28, 30)),
-                new ModifierTier("of the Phantom", 74, 1000, new Pair<>(31, 33)),
-                new ModifierTier("of the Wind", 81, 1000, new Pair<>(34, 36))
+                new ModifierTier("of the Mongoose", 1, 500, new Pair<>(5, 8)),
+                new ModifierTier("of the Lynx", 11, 500, new Pair<>(9, 12)),
+                new ModifierTier("of the Fox", 22, 500, new Pair<>(13, 16)),
+                new ModifierTier("of the Falcon", 33, 500, new Pair<>(17, 20)),
+                new ModifierTier("of the Panther", 44, 500, new Pair<>(21, 24)),
+                new ModifierTier("of the Leopard", 55, 500, new Pair<>(25, 27)),
+                new ModifierTier("of the Jaguar", 66, 500, new Pair<>(28, 30)),
+                new ModifierTier("of the Phantom", 74, 500, new Pair<>(31, 33)),
+                new ModifierTier("of the Wind", 81, 500, new Pair<>(34, 36))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.NORMAL,
@@ -389,14 +300,14 @@ public class Modifiers_normal {
             "intelligence",
             List.of("attribute"),
             List.of(
-                new ModifierTier("of the Pupil", 1, 1000, new Pair<>(5, 8)),
-                new ModifierTier("of the Student", 11, 1000, new Pair<>(9, 12)),
-                new ModifierTier("of the Prodigy", 22, 1000, new Pair<>(13, 16)),
-                new ModifierTier("of the Augur", 33, 1000, new Pair<>(17, 20)),
-                new ModifierTier("of the Philosopher", 44, 1000, new Pair<>(21, 24)),
-                new ModifierTier("of the Sage", 55, 1000, new Pair<>(25, 27)),
-                new ModifierTier("of the Savant", 66, 1000, new Pair<>(28, 30)),
-                new ModifierTier("of the Virtuoso", 74, 1000, new Pair<>(31, 33))
+                new ModifierTier("of the Pupil", 1, 500, new Pair<>(5, 8)),
+                new ModifierTier("of the Student", 11, 500, new Pair<>(9, 12)),
+                new ModifierTier("of the Prodigy", 22, 500, new Pair<>(13, 16)),
+                new ModifierTier("of the Augur", 33, 500, new Pair<>(17, 20)),
+                new ModifierTier("of the Philosopher", 44, 500, new Pair<>(21, 24)),
+                new ModifierTier("of the Sage", 55, 500, new Pair<>(25, 27)),
+                new ModifierTier("of the Savant", 66, 500, new Pair<>(28, 30)),
+                new ModifierTier("of the Virtuoso", 74, 500, new Pair<>(31, 33))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.NORMAL,
@@ -494,133 +405,45 @@ public class Modifiers_normal {
             "% reduced Attribute Requirements"
         );
 
-        LEVEL_MELEE_SKILL = new Modifier(
-            "level_melee_skill",
-            List.of("attack"),
+        BASE_STUN_THRESHOLD = new Modifier(
+            "base_stun_threshold",
+            List.of(),
             List.of(
-                new ModifierTier("of Combat", 5, 500, new Pair<>(1, 1)),
-                new ModifierTier("of Dueling", 41, 250, new Pair<>(2, 2))
+                new ModifierTier("of Thick Skin", 1, 800, new Pair<>(6, 11)),
+                new ModifierTier("of Reinforced Skin", 8, 800, new Pair<>(12, 29)),
+                new ModifierTier("of Stone Skin", 15, 800, new Pair<>(30, 49)),
+                new ModifierTier("of Iron Skin", 22, 800, new Pair<>(50, 72)),
+                new ModifierTier("of Steel Skin", 29, 800, new Pair<>(73, 97)),
+                new ModifierTier("of Granite Skin", 36, 800, new Pair<>(98, 124)),
+                new ModifierTier("of Platinum Skin", 45, 800, new Pair<>(125, 163)),
+                new ModifierTier("of Adamantite Skin", 54, 800, new Pair<>(164, 206)),
+                new ModifierTier("of Corundum Skin", 63, 800, new Pair<>(207, 253)),
+                new ModifierTier("of Obsidian Skin", 72, 800, new Pair<>(254, 304)),
+                new ModifierTier("of Titanium Skin", 80, 800, new Pair<>(305, 352))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.NORMAL,
-            "IncreaseSocketedGemLevel",
-            "+# to Level of all Melee Skills"
+            "StunThreshold",
+            "+# to Stun Threshold"
         );
 
-        LIFE_LEECH = new Modifier(
-            "life_leech",
-            List.of("life", "physical", "attack"),
-            List.of(
-                new ModifierTier("of the Parasite", 21, 1000, new Pair<>(5.0, 5.9)),
-                new ModifierTier("of the Locust", 38, 1000, new Pair<>(6.0, 6.9)),
-                new ModifierTier("of the Remora", 54, 1000, new Pair<>(7.0, 7.9)),
-                new ModifierTier("of the Lamprey", 68, 1000, new Pair<>(8.0, 8.9)),
-                new ModifierTier("of the Vampire", 81, 1000, new Pair<>(9.0, 9.9))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
-            "LifeLeech",
-            "Leeches #% of Physical Damage as Life"
-        );
-
-        MANA_LEECH = new Modifier(
-            "mana_leech",
-            List.of("mana", "physical", "attack"),
-            List.of(
-                new ModifierTier("of the Thirsty", 21, 1000, new Pair<>(4.0, 4.9)),
-                new ModifierTier("of the Parched", 38, 1000, new Pair<>(5.0, 5.9)),
-                new ModifierTier("of the Arid", 54, 1000, new Pair<>(6.0, 6.9)),
-                new ModifierTier("of the Drought", 68, 1000, new Pair<>(7.0, 7.9)),
-                new ModifierTier("of the Desperate", 81, 1000, new Pair<>(8.0, 8.9))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
-            "ManaLeech",
-            "Leeches #% of Physical Damage as Mana"
-        );
-
-        LIFE_PER_ENEMY_KILLED = new Modifier(
-            "life_per_enemy_killed",
+        LIFE_REGENERATION_PER_SECOND = new Modifier(
+            "life_regeneration_per_second",
             List.of("life"),
             List.of(
-                new ModifierTier("of Success", 1, 750, new Pair<>(4, 6)),
-                new ModifierTier("of Victory", 11, 750, new Pair<>(7, 9)),
-                new ModifierTier("of Triumph", 22, 750, new Pair<>(10, 18)),
-                new ModifierTier("of Conquest", 33, 750, new Pair<>(19, 28)),
-                new ModifierTier("of Vanquishing", 44, 750, new Pair<>(29, 40)),
-                new ModifierTier("of Valour", 55, 750, new Pair<>(41, 53)),
-                new ModifierTier("of Glory", 66, 750, new Pair<>(54, 68)),
-                new ModifierTier("of Legend", 77, 750, new Pair<>(69, 84))
+                new ModifierTier("of the Newt", 1, 1000, new Pair<>(1.0, 2.0)),
+                new ModifierTier("of the Lizard", 5, 1000, new Pair<>(2.1, 3.0)),
+                new ModifierTier("of the Flatworm", 11, 1000, new Pair<>(3.1, 4.0)),
+                new ModifierTier("of the Starfish", 17, 1000, new Pair<>(4.1, 6.0)),
+                new ModifierTier("of the Hydra", 26, 1000, new Pair<>(6.1, 9.0)),
+                new ModifierTier("of the Troll", 35, 1000, new Pair<>(9.1, 13.0)),
+                new ModifierTier("of Convalescence", 47, 1000, new Pair<>(13.1, 18.0)),
+                new ModifierTier("of Recuperation", 58, 1000, new Pair<>(18.1, 23.0))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.NORMAL,
-            "LifeGainedFromEnemyDeath",
-            "Gain # Life per Enemy Killed"
-        );
-
-        MANA_PER_ENEMY_KILLED = new Modifier(
-            "mana_per_enemy_killed",
-            List.of("mana"),
-            List.of(
-                new ModifierTier("of Absorption", 1, 750, new Pair<>(2, 3)),
-                new ModifierTier("of Osmosis", 12, 750, new Pair<>(4, 5)),
-                new ModifierTier("of Infusion", 23, 750, new Pair<>(6, 9)),
-                new ModifierTier("of Enveloping", 34, 750, new Pair<>(10, 14)),
-                new ModifierTier("of Consumption", 45, 750, new Pair<>(15, 20)),
-                new ModifierTier("of Siphoning", 56, 750, new Pair<>(21, 27)),
-                new ModifierTier("of Devouring", 67, 750, new Pair<>(28, 35)),
-                new ModifierTier("of Assimilation", 78, 750, new Pair<>(36, 45))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
-            "ManaGainedFromEnemyDeath",
-            "Gain # Mana per Enemy Killed"
-        );
-
-        LIFE_PER_ENEMY_HIT = new Modifier(
-            "life_per_enemy_hit",
-            List.of("life", "attack"),
-            List.of(
-                new ModifierTier("of Rejuvenation", 8, 1000, new Pair<>(2, 2)),
-                new ModifierTier("of Restoration", 20, 1000, new Pair<>(3, 3)),
-                new ModifierTier("of Regrowth", 30, 1000, new Pair<>(4, 4)),
-                new ModifierTier("of Nourishment", 40, 1000, new Pair<>(5, 5))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
-            "LifeGainPerTarget",
-            "Grants # Life per Enemy Hit"
-        );
-
-        INCREASED_ATTACK_SPEED = new Modifier(
-            "increased_attack_speed",
-            List.of("attack", "speed"),
-            List.of(
-                new ModifierTier("of Skill", 1, 500, new Pair<>(5, 7)),
-                new ModifierTier("of Ease", 22, 500, new Pair<>(8, 10)),
-                new ModifierTier("of Mastery", 37, 500, new Pair<>(11, 13)),
-                new ModifierTier("of Renown", 60, 500, new Pair<>(14, 16))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
-            "IncreasedAttackSpeed",
-            "#% increased Attack Speed"
-        );
-
-        CRITICAL_DAMAGE_BONUS = new Modifier(
-            "critical_damage_bonus",
-            List.of("damage", "critical"),
-            List.of(
-                new ModifierTier("of Ire", 8, 1000, new Pair<>(10, 14)),
-                new ModifierTier("of Anger", 21, 1000, new Pair<>(15, 19)),
-                new ModifierTier("of Rage", 31, 1000, new Pair<>(20, 24)),
-                new ModifierTier("of Fury", 45, 500, new Pair<>(25, 29)),
-                new ModifierTier("of Ferocity", 59, 250, new Pair<>(30, 34))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.NORMAL,
-            "CriticalStrikeMultiplier",
-            "#% increased Critical Damage Bonus"
+            "LifeRegeneration",
+            "(#) Life Regeneration per second"
         );
 
         ITEM_FOUND_RARITY_INCREASE = new Modifier(
@@ -637,6 +460,54 @@ public class Modifiers_normal {
             Modifier.ModifierSource.NORMAL,
             "ItemFoundRarityIncrease",
             "#% increased Rarity of Items found"
+        );
+
+        REDUCED_SHOCK_DURATION = new Modifier(
+            "reduced_shock_duration",
+            List.of("elemental", "lightning", "ailment"),
+            List.of(
+                new ModifierTier("of Earthing", 20, 500, new Pair<>(36, 40)),
+                new ModifierTier("of Insulation", 36, 500, new Pair<>(41, 45)),
+                new ModifierTier("of the Impedance", 49, 500, new Pair<>(46, 50)),
+                new ModifierTier("of the Dielectric", 63, 500, new Pair<>(51, 55)),
+                new ModifierTier("of Grounding", 75, 500, new Pair<>(56, 60))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "ReducedShockDuration",
+            "#% reduced Shock duration on you"
+        );
+        
+        REDUCED_CHILL_DURATION = new Modifier(
+            "reduced_chill_duration",
+            List.of("elemental", "cold", "ailment"),
+            List.of(
+                new ModifierTier("of Convection", 20, 500, new Pair<>(36, 40)),
+                new ModifierTier("of Fluidity", 36, 500, new Pair<>(41, 45)),
+                new ModifierTier("of Entropy", 49, 500, new Pair<>(46, 50)),
+                new ModifierTier("of Dissipation", 63, 500, new Pair<>(51, 55)),
+                new ModifierTier("of the Reversal", 75, 500, new Pair<>(56, 60))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "ReducedChillDuration",
+            "#% reduced Chill Duration on you"
+        );
+        
+        REDUCED_FREEZE_DURATION = new Modifier(
+            "reduced_freeze_duration",
+            List.of("elemental", "cold", "ailment"),
+            List.of(
+                new ModifierTier("of Heating", 20, 500, new Pair<>(36, 40)),
+                new ModifierTier("of Unfreezing", 36, 500, new Pair<>(41, 45)),
+                new ModifierTier("of Defrosting", 49, 500, new Pair<>(46, 50)),
+                new ModifierTier("of the Temperate", 63, 500, new Pair<>(51, 55)),
+                new ModifierTier("of Thawing", 75, 500, new Pair<>(56, 60))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "ReducedFreezeDuration",
+            "#% reduced Freeze Duration on you"
         );
 
         ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE = new Modifier(

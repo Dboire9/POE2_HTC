@@ -13,20 +13,24 @@ public class Modifiers_desecrated {
     public static final Modifier DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE;
     public static final Modifier DESECRATED_STRENGTH_AND_INTELLIGENCE;
     public static final Modifier DESECRATED_STRENGTH_AND_DEXTERITY;
+    public static final Modifier DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE;
+    public static final Modifier DESECRATED_GLORY_GENERATION;
+    public static final Modifier DESECRATED_PRESENCE_RADIUS;
     public static final Modifier DESECRATED_SPIRIT_RESERVATION_EFFICIENCY;
-    public static final Modifier DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF;
     public static final Modifier DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE;
     public static final Modifier DESECRATED_DEXTERITY_AND_INTELLIGENCE;
+    public static final Modifier DESECRATED_ARMOUR_APPLIES_TO_CHAOS_DAMAGE;
+    public static final Modifier DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD;
+    public static final Modifier DESECRATED_MANA_COST_EFFICIENCY;
     public static final Modifier DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE;
-    public static final Modifier DESECRATED_DAMAGE_RECOUPED_AS_MANA;
-    public static final Modifier DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION;
+    public static final Modifier DESECRATED_LIFE_COST_EFFICIENCY;
 
     //DEX SUFFIXES
-    public static final Modifier DESECRATED_COMPANION_RESERVATION_EFFICIENCY;
-    public static final Modifier DESECRATED_PREVENT_DEFLECT_DAMAGE_TAKEN;
+    public static final Modifier DESECRATED_INCREASED_CRITICAL_DAMAGE_BONUS;
+    public static final Modifier DESECRATED_MARK_DAMAGE;
 
     //INT SUFFIXES
-    public static final Modifier DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE;
+    public static final Modifier DESECRATED_ARCANE_SURGE_EFFECT;
 
     static{
 
@@ -79,16 +83,16 @@ public class Modifiers_desecrated {
             "(#)% increased Spirit Reservation Efficiency of Skills"
         );
 
-        DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF = new Modifier(
-            "reduced_curse_effect_on_self",
-            List.of("amanamu_mod", "caster", "curse"),
+        DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE = new Modifier(
+            "damage_taken_recouped_as_life",
+            List.of("amanamu_mod", "life"),
             List.of(
-                new ModifierTier("of Amanamu", 65, 1, new Pair<>(25, 35))
+                new ModifierTier("of Amanamu", 65, 1, new Pair<>(10, 20))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
-            "ReducedCurseEffect",
-            "(#)% reduced effect of Curses on you"
+            "DamageTakenGainedAsLife",
+            "(#)% of Damage taken Recouped as Life"
         );
 
         DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
@@ -115,16 +119,28 @@ public class Modifiers_desecrated {
             "+# to Dexterity and Intelligence"
         );
 
-        DESECRATED_DAMAGE_RECOUPED_AS_MANA = new Modifier(
-            "damage_recouped_as_mana",
-            List.of("kurgal_mod", "life", "mana"),
+        DESECRATED_GLORY_GENERATION = new Modifier(
+            "glory_generation",
+            List.of("amanamu_mod"),
             List.of(
-                new ModifierTier("of Kurgal", 65, 1, new Pair<>(10, 20))
+                new ModifierTier("of Amanamu", 65, 1, new Pair<>(10, 20))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
-            "PercentDamageGoesToMana",
-            "(#)% of Damage taken Recouped as Mana"
+            "GloryGeneration",
+            "(#)% increased Glory generation"
+        );
+
+        DESECRATED_PRESENCE_RADIUS = new Modifier(
+            "presence_radius",
+            List.of("amanamu_mod"),
+            List.of(
+                new ModifierTier("of Amanamu", 65, 1, new Pair<>(25, 35))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.DESECRATED,
+            "PresenceRadius",
+            "(#)% increased Presence Area of Effect"
         );
 
         DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
@@ -139,57 +155,93 @@ public class Modifiers_desecrated {
             "+#% to Lightning and Chaos Resistances"
         );
 
-        DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION = new Modifier(
-            "critical_hit_chance_reduction",
-            List.of("ulaman_mod", "critical"),
+        DESECRATED_ARMOUR_APPLIES_TO_CHAOS_DAMAGE = new Modifier(
+            "armour_applies_to_chaos_damage",
+            List.of("kurgal_mod"),
             List.of(
-                new ModifierTier("of Ulaman", 65, 1, new Pair<>(17, 25))
+                new ModifierTier("of Kurgal", 65, 1, new Pair<>(23, 31))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
-            "ChanceToTakeCriticalStrike",
-            "Critical Hits have (#)% reduced Critical Hit Chance against you"
+            "ArmourAppliesToChaosDamage",
+            "+(#)% of Armour also applies to Chaos Damage"
         );
 
-//DEX SUFFIXES
-
-        DESECRATED_COMPANION_RESERVATION_EFFICIENCY = new Modifier(
-            "companion_reservation_efficiency",
-            List.of("ulaman_mod"),
-            List.of(
-                new ModifierTier("of Ulaman", 65, 1, new Pair<>(12, 18))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.DESECRATED,
-            "CompanionReservationEfficiency",
-            "(#)% increased Reservation Efficiency of Companion Skills"
-        );
-
-        DESECRATED_PREVENT_DEFLECT_DAMAGE_TAKEN = new Modifier(
-            "deflect_damage_taken",
-            List.of("ulaman_mod"),
-            List.of(
-                new ModifierTier("of Ulaman", 65, 1, new Pair<>(3, 5))
-            ),
-            Modifier.ModifierType.SUFFIX,
-            Modifier.ModifierSource.DESECRATED,
-            "DeflectDamageTaken",
-            "Prevent +(#)% of Damage from Deflected Hits"
-        );
-
-//INT SUFFIXES
-
-        DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE = new Modifier(
-            "damage_removed_from_mana_before_life",
-            List.of("kurgal_mod", "life", "mana"),
+        DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD = new Modifier(
+            "elemental_damage_recouped_as_energy_shield",
+            List.of("kurgal_mod", "elemental", "energy_shield"),
             List.of(
                 new ModifierTier("of Kurgal", 65, 1, new Pair<>(10, 20))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
-            "DamageRemovedFromManaBeforeLife",
-            "(#)% of Damage is taken from Mana before Life"
+            "ElementalDamageTakenRecoupedAsEnergyShield",
+            "(#)% of Elemental Damage taken Recouped as Energy Shield"
         );
+
+        DESECRATED_MANA_COST_EFFICIENCY = new Modifier(
+            "mana_cost_efficiency",
+            List.of("kurgal_mod", "mana"),
+            List.of(
+                new ModifierTier("of Kurgal", 65, 1000, new Pair<>(6, 10))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.DESECRATED,
+            "ManaCostEfficiency",
+            "#% increased Mana Cost Efficiency"
+        );
+
+        DESECRATED_LIFE_COST_EFFICIENCY = new Modifier(
+            "life_cost_efficiency",
+            List.of("ulaman_mod", "life"),
+            List.of(
+                new ModifierTier("of Ulaman", 65, 1, new Pair<>(8, 12))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.DESECRATED,
+            "LifeCostEfficiency",
+            "(#)% increased Life Cost Efficiency"
+        );
+
+//DEX SUFFIXES
+
+        DESECRATED_INCREASED_CRITICAL_DAMAGE_BONUS = new Modifier(
+            "increased_critical_damage_bonus",
+            List.of("ulaman_mod", "damage", "critical"),
+            List.of(
+                new ModifierTier("of Ulaman", 65, 1, new Pair<>(13, 20))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.DESECRATED,
+            "CriticalStrikeMultiplier",
+            "(#)% increased Critical Damage Bonus"
+        );
+
+        DESECRATED_MARK_DAMAGE = new Modifier(
+            "mark_damage",
+            List.of("ulaman_mod"),
+            List.of(
+                new ModifierTier("of Ulaman", 65, 3, new Pair<>(4, 8))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.DESECRATED,
+            "MarkDamage",
+            "Enemies you Mark take (#)% increased Damage"
+        );
+
+//INT SUFFIXES
+
+		DESECRATED_ARCANE_SURGE_EFFECT = new Modifier(
+			"arcane_surge_effect",
+			List.of("kurgal_mod"),
+			List.of(
+				new ModifierTier("of Kurgal", 65, 1, new Pair<>(20, 30))
+			),
+			Modifier.ModifierType.SUFFIX,
+			Modifier.ModifierSource.DESECRATED,
+			"ArcaneSurgeEffect",
+			"(#)% increased effect of Arcane Surge on you"
+		);
 
 
 

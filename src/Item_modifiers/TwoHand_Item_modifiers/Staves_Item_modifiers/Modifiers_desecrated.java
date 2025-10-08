@@ -41,7 +41,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_SPELL_DAMAGE_COST_LIFE = new Modifier(
             "spell_damage_cost_life",
-            List.of("amanamu"),
+            List.of("amanamu_mod"),
             List.of(
                 new ModifierTier("Amanamu's", 65, 1, new Pair<>(91, 116))
             ),
@@ -53,7 +53,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_SPELL_DAMAGE_PER_100_MANA = new Modifier(
             "spell_damage_per_100_mana",
-            List.of("kurgal", "mana", "damage", "caster"),
+            List.of("kurgal_mod", "mana", "damage", "caster"),
             List.of(
                 new ModifierTier("Kurgal's", 65, 1, new Pair<>(4, 5))
             ),
@@ -65,7 +65,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_SPELL_DAMAGE_PER_100_LIFE = new Modifier(
             "spell_damage_per_100_life",
-            List.of("ulaman", "life", "damage", "caster"),
+            List.of("ulaman_mod", "life", "damage", "caster"),
             List.of(
                 new ModifierTier("Ulaman's", 65, 1, new Pair<>(4, 5))
             ),
@@ -77,7 +77,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_ELEMENTAL_INFUSION = new Modifier(
             "elemental_infusion",
-            List.of("kurgal", "elemental"),
+            List.of("kurgal_mod", "elemental"),
             List.of(
                 new ModifierTier("Kurgal's", 65, 1, new Pair<>(1, 2))
             ),
@@ -89,7 +89,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_INCREASED_MAGNITUDE_AILMENT_EFFECT = new Modifier(
             "increased_magnitude_ailment_effect",
-            List.of("ulaman", "ailment"),
+            List.of("ulaman_mod", "ailment"),
             List.of(
                 new ModifierTier("Ulaman's", 65, 1, new Pair<>(31, 49))
             ),
@@ -103,7 +103,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_ARCHON_DURATION = new Modifier(
                     "archon_duration",
-                    List.of("amanamu"),
+                    List.of("amanamu_mod"),
                     List.of(
                         new ModifierTier("of Amanamu", 65, 1, new Pair<>(25, 35))
                     ),
@@ -115,7 +115,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_BLOCK_CHANCE = new Modifier(
             "block_chance",
-            List.of("amanamu"),
+            List.of("amanamu_mod"),
             List.of(
                 new ModifierTier("of Amanamu", 65, 1, new Pair<>(12, 16))
             ),
@@ -127,7 +127,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_SKILL_LIFE_COST = new Modifier(
             "skill_life_cost",
-            List.of("amanamu", "life", "caster"),
+            List.of("amanamu_mod", "life", "caster"),
             List.of(
                 new ModifierTier("of Amanamu", 65, 1, new Pair<>(25, 35))
             ),
@@ -139,7 +139,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_ARCHON_DELAY_RECOVERY = new Modifier(
             "archon_delay_recovery",
-            List.of("kurgal"),
+            List.of("kurgal_mod"),
             List.of(
                 new ModifierTier("of Kurgal", 65, 1, new Pair<>(25, 35))
             ),
@@ -151,7 +151,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_CAST_SPEED_ON_LOW_LIFE = new Modifier(
             "cast_speed_on_low_life",
-            List.of("ulaman", "caster", "speed"),
+            List.of("ulaman_mod", "caster", "speed"),
             List.of(
                 new ModifierTier("of Ulaman", 65, 1, new Pair<>(30, 40))
             ),
@@ -163,7 +163,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_SPELLS_FIRE_2_ADDITIONAL_PROJECTILE_CHANCE = new Modifier(
             "spells_fire_2_additional_projectile_chance",
-            List.of("ulaman", "caster"),
+            List.of("ulaman_mod", "caster"),
             List.of(
                 new ModifierTier("of Ulaman", 65, 1, new Pair<>(25, 35))
             ),

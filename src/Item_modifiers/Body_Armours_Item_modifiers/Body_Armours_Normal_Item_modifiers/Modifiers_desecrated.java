@@ -148,7 +148,7 @@ public class Modifiers_desecrated {
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.DESECRATED,
             "ChanceToTakeCriticalStrike",
-            "Critical Hits have (#)% reduced Critical Hit Chance against you"
+            "Hits have (#)% reduced Critical Hit Chance against you"
         );
 
 //DEX SUFFIXES

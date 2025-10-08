@@ -11,10 +11,13 @@ public class Modifiers_normal {
     public static final Modifier BASE_MAXIMUM_MANA;
     public static final Modifier BASE_ARMOUR;
     public static final Modifier BASE_EVASION;
+    public static final Modifier BASE_ENERGY_SHIELD;
     public static final Modifier INCREASED_PERCENT_ARMOUR;
     public static final Modifier INCREASED_PERCENT_EVASION;
+    public static final Modifier INCREASED_PERCENT_ENERGY_SHIELD;
     public static final Modifier HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE;
     public static final Modifier HYBRID_INCREASED_PERCENT_EVASION_AND_LIFE;
+    public static final Modifier HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_LIFE;
     public static final Modifier PHYSICAL_DAMAGE_FLAT;
     public static final Modifier FIRE_DAMAGE_FLAT;
     public static final Modifier COLD_DAMAGE_FLAT;
@@ -25,6 +28,7 @@ public class Modifiers_normal {
     //SUFFIXES
     public static final Modifier STRENGTH;
     public static final Modifier DEXTERITY;
+    public static final Modifier INTELLIGENCE;
     public static final Modifier FIRE_RESISTANCE;
     public static final Modifier COLD_RESISTANCE;
     public static final Modifier LIGHTNING_RESISTANCE;
@@ -41,6 +45,7 @@ public class Modifiers_normal {
     public static final Modifier ITEM_FOUND_RARITY_INCREASE;
     public static final Modifier ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE;
     public static final Modifier EVASION_APPLIES_TO_DEFLECTION;
+    public static final Modifier ENERGY_SHIELD_RECHARGE_RATE;
     
 
 
@@ -124,6 +129,24 @@ public class Modifiers_normal {
             "+# to Evasion Rating"
         );
 
+        BASE_ENERGY_SHIELD = new Modifier(
+            "base_energy_shield",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Shining", 1, 1000, new Pair<>(10, 17)),
+                new ModifierTier("Glimmering", 8, 1000, new Pair<>(18, 24)),
+                new ModifierTier("Glittering", 16, 1000, new Pair<>(25, 30)),
+                new ModifierTier("Glowing", 25, 1000, new Pair<>(31, 35)),
+                new ModifierTier("Radiating", 33, 1000, new Pair<>(36, 41)),
+                new ModifierTier("Pulsing", 46, 1000, new Pair<>(42, 47)),
+                new ModifierTier("Blazing", 54, 1000, new Pair<>(48, 60))
+            ),
+            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierSource.NORMAL,
+            "BaseLocalDefences",
+            "+# to maximum Energy Shield"
+        );
+
         INCREASED_PERCENT_ARMOUR = new Modifier(
             "increased_percent_armour",
             List.of("defences"),
@@ -160,6 +183,24 @@ public class Modifiers_normal {
             "(#)% increased Evasion Rating"
         );
 
+        INCREASED_PERCENT_ENERGY_SHIELD = new Modifier(
+            "increased_percent_energy_shield",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Protective", 2, 1000, new Pair<>(15, 26)),
+                new ModifierTier("Strong-Willed", 16, 1000, new Pair<>(27, 42)),
+                new ModifierTier("Resolute", 33, 1000, new Pair<>(43, 55)),
+                new ModifierTier("Fearless", 46, 1000, new Pair<>(56, 67)),
+                new ModifierTier("Dauntless", 54, 1000, new Pair<>(68, 79)),
+                new ModifierTier("Indomitable", 60, 1000, new Pair<>(80, 91)),
+                new ModifierTier("Unassailable", 65, 1000, new Pair<>(92, 100))
+            ),
+            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierSource.NORMAL,
+            "DefencesPercent",
+            "(#)% increased Energy Shield"
+        );
+
         HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE = new Modifier(
             "increased_percent_armour", "base_maximum_life",
             List.of("life", "defences"),
@@ -192,6 +233,23 @@ public class Modifiers_normal {
             Modifier.ModifierSource.NORMAL,
             "BaseLocalDefencesAndLife",
             "(#)% increased Evasion Rating +# to maximum Life"
+        );
+
+        HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_LIFE = new Modifier(
+            "increased_percent_energy_shield", "base_maximum_life",
+            List.of("life", "defences"),
+            List.of(
+                new ModifierTier("Monk's", 8, 1000, new Pair<>(6, 13), new Pair<>(7, 10), "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Prior's", 16, 1000, new Pair<>(14, 20), new Pair<>(11, 19), "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Abbot's", 33, 1000, new Pair<>(21, 26), new Pair<>(20, 25), "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Bishop's", 46, 1000, new Pair<>(27, 32), new Pair<>(26, 32), "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Exarch's", 60, 1000, new Pair<>(33, 38), new Pair<>(33, 41), "increased_percent_energy_shield", "base_maximum_life"),
+                new ModifierTier("Pope's", 78, 1000, new Pair<>(39, 42), new Pair<>(42, 49), "increased_percent_energy_shield", "base_maximum_life")
+            ),
+            Modifier.ModifierType.PREFIX,
+            Modifier.ModifierSource.NORMAL,
+            "BaseLocalDefencesAndLife",
+            "(#)% increased Energy Shield +# to maximum Life"
         );
 
         PHYSICAL_DAMAGE_FLAT = new Modifier(
@@ -283,9 +341,9 @@ public class Modifiers_normal {
                 new ModifierTier("Focused", 18, 800, new Pair<>(61, 84)),
                 new ModifierTier("Deliberate", 26, 800, new Pair<>(85, 123)),
                 new ModifierTier("Consistent", 36, 800, new Pair<>(124, 167)),
-                new ModifierTier("Steady", 48, 600, new Pair<>(168, 236)),
-                new ModifierTier("Hunter's", 58, 600, new Pair<>(237, 346)),
-                new ModifierTier("Ranger's", 67, 300, new Pair<>(347, 450)),
+                new ModifierTier("Steady", 48, 800, new Pair<>(168, 236)),
+                new ModifierTier("Hunter's", 58, 800, new Pair<>(237, 346)),
+                new ModifierTier("Ranger's", 67, 400, new Pair<>(347, 450)),
                 new ModifierTier("Amazon's", 76, 200, new Pair<>(451, 550))
             ),
             Modifier.ModifierType.PREFIX,
@@ -333,6 +391,25 @@ public class Modifiers_normal {
             Modifier.ModifierSource.NORMAL,
             "Dexterity",
             "+# to Dexterity"
+        );
+
+        INTELLIGENCE = new Modifier(
+            "intelligence",
+            List.of("attribute"),
+            List.of(
+                new ModifierTier("of the Pupil", 1, 1000, new Pair<>(5, 8)),
+                new ModifierTier("of the Student", 11, 1000, new Pair<>(9, 12)),
+                new ModifierTier("of the Prodigy", 22, 1000, new Pair<>(13, 16)),
+                new ModifierTier("of the Augur", 33, 1000, new Pair<>(17, 20)),
+                new ModifierTier("of the Philosopher", 44, 1000, new Pair<>(21, 24)),
+                new ModifierTier("of the Sage", 55, 1000, new Pair<>(25, 27)),
+                new ModifierTier("of the Savant", 66, 1000, new Pair<>(28, 30)),
+                new ModifierTier("of the Virtuoso", 74, 1000, new Pair<>(31, 33))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "Intelligence",
+            "+# to Intelligence"
         );
 
         FIRE_RESISTANCE = new Modifier(
@@ -600,6 +677,21 @@ public class Modifiers_normal {
             Modifier.ModifierSource.NORMAL,
             "EvasionAppliesToDeflection",
             "Gain Deflection Rating equal to (#)% of Evasion Rating"
+        );
+
+        ENERGY_SHIELD_RECHARGE_RATE = new Modifier(
+            "energy_shield_recharge_rate",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("of Enlivening", 1, 1000, new Pair<>(26, 30)),
+                new ModifierTier("of Diffusion", 16, 1000, new Pair<>(31, 35)),
+                new ModifierTier("of Dispersal", 36, 1000, new Pair<>(36, 40)),
+                new ModifierTier("of Buffering", 48, 1000, new Pair<>(41, 45))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "EnergyShieldRegeneration",
+            "(#)% increased Energy Shield Recharge Rate"
         );
 
     }

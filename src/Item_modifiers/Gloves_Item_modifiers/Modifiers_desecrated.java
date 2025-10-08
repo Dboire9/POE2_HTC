@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Modifiers_desecrated {
 
-	// NO PREFIXES FOR THE GLOVES
+    // NO PREFIXES FOR THE GLOVES
 
 
     //SHARED SUFFIXES
@@ -24,12 +24,18 @@ public class Modifiers_desecrated {
     public static final Modifier DESECRATED_BLEED_CHANCE_INCREASE;
     public static final Modifier DESECRATED_POISON_CHANCE_INCREASE;
     
-	// STR SUFFIXES
+    // STR SUFFIXES
     public static final Modifier DESECRATED_INSTANT_LEECH_PERCENT;
 
     //DEX SUFFIXES
     public static final Modifier DESECRATED_CURSE_AREA_OF_EFFECT;
     public static final Modifier DESECRATED_IMMOBILISE;
+    
+    //INT SUFFIXES
+    public static final Modifier DESECRATED_ARCANE_SURGE_ON_CRIT;
+    public static final Modifier DESECRATED_INCREASED_CAST_SPEED_ON_FULL_LIFE;
+    public static final Modifier DESECRATED_INCREASED_SKILL_SPEED_ON_FRENZY_CONSUMPTION;
+    public static final Modifier DESECRATED_INCISION_CHANCE;
 
 
     static{
@@ -189,7 +195,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_CURSE_AREA_OF_EFFECT = new Modifier(
             "curse_area_of_effect",
-            List.of("amanamu", "caster", "curse"),
+            List.of("amanamu_mod", "caster", "curse"),
             List.of(
                 new ModifierTier("of Amanamu", 65, 1000, new Pair<>(12, 20))
             ),
@@ -201,7 +207,7 @@ public class Modifiers_desecrated {
 
         DESECRATED_IMMOBILISE = new Modifier(
             "immobilisation_buildup",
-            List.of("amanamu"),
+            List.of("amanamu_mod"),
             List.of(
                 new ModifierTier("of Amanamu", 65, 1000, new Pair<>(10, 20))
             ),
@@ -211,6 +217,55 @@ public class Modifiers_desecrated {
             "(#)% increased Immobilisation buildup"
         );
 
+        // GLOVES INT SUFFIXES
+
+        DESECRATED_ARCANE_SURGE_ON_CRIT = new Modifier(
+            "arcane_surge_on_crit",
+            List.of("kurgal_mod", "critical"),
+            List.of(
+                new ModifierTier("of Kurgal", 65, 1000, new Pair<>(10, 15))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "ArcaneSurgeOnCrit",
+            "(#)% chance to Gain Arcane Surge when you deal a Critical Hit"
+        );
+
+        DESECRATED_INCREASED_CAST_SPEED_ON_FULL_LIFE = new Modifier(
+            "increased_cast_speed_on_full_life",
+            List.of("kurgal_mod", "caster", "speed"),
+            List.of(
+                new ModifierTier("of Kurgal", 65, 1000, new Pair<>(8, 15))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "CastSpeedOnFullLife",
+            "(#)% increased Cast Speed when on Full Life"
+        );
+
+        DESECRATED_INCREASED_SKILL_SPEED_ON_FRENZY_CONSUMPTION = new Modifier(
+            "increased_skill_speed_on_frenzy_consumption",
+            List.of("ulaman_mod", "speed"),
+            List.of(
+                new ModifierTier("of Ulaman", 65, 1000, new Pair<>(8, 12))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "IncreasedSpeed",
+            "(#)% increased Skill Speed if you've consumed a Frenzy Charge Recently"
+        );
+
+        DESECRATED_INCISION_CHANCE = new Modifier(
+            "incision_chance",
+            List.of("ulaman_mod", "damage", "physical", "ailment"),
+            List.of(
+                new ModifierTier("of Ulaman", 65, 1000, new Pair<>(15, 25))
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.NORMAL,
+            "IncisionChance",
+            "(#)% chance for Attack Hits to apply Incision"
+        );
 
     }
 }

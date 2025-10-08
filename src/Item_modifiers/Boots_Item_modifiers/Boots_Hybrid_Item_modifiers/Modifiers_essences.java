@@ -13,7 +13,7 @@ public class Modifiers_essences {
         public static final Modifier ESSENCE_INCREASED_PERCENT_ARMOUR;
         public static final Modifier ESSENCE_INCREASED_PERCENT_EVASION;
         public static final Modifier ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD;
-        public static final Modifier ESSENCE_INCREASED_ACCURACY;
+        public static final Modifier ESSENCE_INCREASED_MOVEMENT_SPEED;
         public static final Modifier ESSENCE_ABYSS_PREFIX;
 
         
@@ -23,15 +23,12 @@ public class Modifiers_essences {
         public static final Modifier ESSENCE_ATTRIBUTES_STRENGTH;
         public static final Modifier ESSENCE_ATTRIBUTES_DEXTERITY;
         public static final Modifier ESSENCE_ATTRIBUTES_INTELLIGENCE;
-        public static final Modifier ESSENCE_CRITICAL_DAMAGE_BONUS;
         public static final Modifier ESSENCE_SOUL_CORE;
         public static final Modifier ESSENCE_ABYSS_SUFFIX;
         public static final Modifier ESSENCE_FIRE_RESISTANCE;
         public static final Modifier ESSENCE_COLD_RESISTANCE;
         public static final Modifier ESSENCE_LIGHTNING_RESISTANCE;
-        public static final Modifier ESSENCE_LIGHTNING_DAMAGE_TAKEN_RECOUPED_AS_LIFE;
         public static final Modifier ESSENCE_ITEM_FOUND_RARITY_INCREASE;
-        public static final Modifier ESSENCE_GOLD_DROPPED;
         
 
 
@@ -107,17 +104,17 @@ public class Modifiers_essences {
             "#% increased Energy Shield"
         );
 
-        ESSENCE_INCREASED_ACCURACY = new Modifier(
-            "increased_accuracy",
-            List.of("attack", "accuracy"),
-            List.of(
-                new ModifierTier("Greater Essence of Battle", 58, 1, new Pair<>(237, 346))
-            ),
-            ModifierType.PREFIX,
-            ModifierSource.ESSENCE,
-            "IncreasedAccuracy",
-            "+# to Accuracy Rating"
-        );
+		ESSENCE_INCREASED_MOVEMENT_SPEED = new Modifier(
+			"increased_movement_speed",
+			List.of("speed"),
+			List.of(
+				new ModifierTier("Essence of Hysteria", 65, 1, new Pair<>(30, 30)) // Fixed 30% increase
+			),
+			ModifierType.PREFIX,
+			ModifierSource.ESSENCE,
+			"IncreasedMovementSpeed",
+			"#% increased Movement Speed"
+		);
 
 
         ESSENCE_ABYSS_PREFIX = new Modifier(
@@ -190,18 +187,6 @@ public class Modifiers_essences {
             "# to Strength, Dexterity or Intelligence"
         );
 
-        ESSENCE_CRITICAL_DAMAGE_BONUS = new Modifier(
-            "critical_damage_bonus",
-            List.of("damage", "critical"),
-            List.of(
-                new ModifierTier("Essence of Hysteria", 45, 1, new Pair<>(25, 29))
-            ),
-            ModifierType.SUFFIX,
-            ModifierSource.ESSENCE,
-            "CriticalStrikeMultiplier",
-            "#% increased Critical Damage Bonus"
-        );
-
         ESSENCE_SOUL_CORE = new Modifier(
             "essence_soul_core",
             List.of("socketed_items"),
@@ -268,18 +253,6 @@ public class Modifiers_essences {
             "+#% to Lightning Resistance"
         );
 
-        ESSENCE_LIGHTNING_DAMAGE_TAKEN_RECOUPED_AS_LIFE = new Modifier(
-            "lightning_damage_taken_recouped_as_life",
-            List.of("life", "elemental", "lightning"),
-            List.of(
-                new ModifierTier("Perfect Essence of Grounding", 72, 1, new Pair<>(26, 30))
-            ),
-            ModifierType.SUFFIX,
-            ModifierSource.ESSENCE,
-            "LightningDamageTakenRecoupedAsLife",
-            "#% of Lightning Damage taken Recouped as Life"
-        );
-
         ESSENCE_ITEM_FOUND_RARITY_INCREASE = new Modifier(
             "item_found_rarity_increase",
             List.of(""),
@@ -292,18 +265,6 @@ public class Modifiers_essences {
             ModifierSource.ESSENCE,
             "ItemFoundRarityIncrease",
             "#% increased Rarity of Items found"
-        );
-
-        ESSENCE_GOLD_DROPPED = new Modifier(
-            "essence_gold_dropped",
-            List.of(""),
-            List.of(
-                new ModifierTier("Perfect Essence of Opulence", 72, 1, new Pair<>(10, 15))
-            ),
-            ModifierType.SUFFIX,
-            ModifierSource.ESSENCE,
-            "EssenceGoldDropped",
-            "#% increased Quantity of Gold Dropped by Slain Enemies"
         );
 
     }

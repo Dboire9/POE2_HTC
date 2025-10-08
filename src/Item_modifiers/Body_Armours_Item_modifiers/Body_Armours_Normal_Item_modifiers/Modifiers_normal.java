@@ -518,7 +518,10 @@ public class Modifiers_normal {
                 new ModifierTier("of the Hydra", 26, 1000, new Pair<>(6.1, 9.0)),
                 new ModifierTier("of the Troll", 35, 1000, new Pair<>(9.1, 13.0)),
                 new ModifierTier("of Convalescence", 47, 1000, new Pair<>(13.1, 18.0)),
-                new ModifierTier("of Recuperation", 58, 1000, new Pair<>(18.1, 23.0))
+                new ModifierTier("of Recuperation", 58, 1000, new Pair<>(18.1, 23.0)),
+                new ModifierTier("of Resurgence", 68, 1000, new Pair<>(23.1, 29.0)),
+                new ModifierTier("of Immortality", 75, 1000, new Pair<>(29.1, 33.0)),
+                new ModifierTier("of the Phoenix", 81, 1000, new Pair<>(33.1, 36.0))
             ),
             Modifier.ModifierType.SUFFIX,
             Modifier.ModifierSource.NORMAL,

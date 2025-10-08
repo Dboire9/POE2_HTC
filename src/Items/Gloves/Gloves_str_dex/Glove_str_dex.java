@@ -1,20 +1,20 @@
-package Items.Gloves.Gloves_str;
+package Items.Gloves.Gloves_str_dex;
 
+
+import Item_modifiers.Gloves_Item_modifiers.Gloves_Hybrid_Item_modifiers.*;
 
 import java.util.ArrayList;
 
-import Item_modifiers.Gloves_Item_modifiers.Gloves_Normal_Item_modifiers.*;
 
+public class Glove_str_dex extends Glove_str_dex_Item {
 
-public class Glove_str extends Glove_str_Item {
-
-    public Glove_str() {
+    public Glove_str_dex() {
         Normal_allowedPrefixes = new ArrayList<>();
         Normal_allowedPrefixes.add(Modifiers_normal.BASE_MAXIMUM_LIFE);
         Normal_allowedPrefixes.add(Modifiers_normal.BASE_MAXIMUM_MANA);
-        Normal_allowedPrefixes.add(Modifiers_normal.BASE_ARMOUR);
-        Normal_allowedPrefixes.add(Modifiers_normal.INCREASED_PERCENT_ARMOUR);
-        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE);
+        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_BASE_ARMOUR_EVASION);
+        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_AMOUR_EVASION);
+        Normal_allowedPrefixes.add(Modifiers_normal.HYBRID_INCREASED_PERCENT_AMOUR_EVASION_LIFE);
         Normal_allowedPrefixes.add(Modifiers_normal.PHYSICAL_DAMAGE_FLAT);
         Normal_allowedPrefixes.add(Modifiers_normal.FIRE_DAMAGE_FLAT);
         Normal_allowedPrefixes.add(Modifiers_normal.COLD_DAMAGE_FLAT);
@@ -39,6 +39,7 @@ public class Glove_str extends Glove_str_Item {
         Normal_allowedSuffixes.add(Modifiers_normal.CRITICAL_DAMAGE_BONUS);
         Normal_allowedSuffixes.add(Modifiers_normal.ITEM_FOUND_RARITY_INCREASE);
         Normal_allowedSuffixes.add(Modifiers_normal.ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE);
+        Normal_allowedSuffixes.add(Modifiers_normal.EVASION_APPLIES_TO_DEFLECTION);
 
         Desecrated_allowedPrefixes = new ArrayList<>();
         

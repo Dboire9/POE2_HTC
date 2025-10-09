@@ -1,6 +1,6 @@
-package main.java.core.Items.Foci;
+package core.Items.Foci;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Foci_Item {

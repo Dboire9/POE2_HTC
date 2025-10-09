@@ -1,7 +1,7 @@
-package main.java.core.Items.Quivers;
+package core.Items.Quivers;
 
 
-import main.java.core.Item_modifiers.Off_Hand_Item_modifiers.Quivers_Item_modifiers.*;
+import core.Item_modifiers.Off_Hand_Item_modifiers.Quivers_Item_modifiers.*;
 
 import java.util.ArrayList;
 

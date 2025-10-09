@@ -1,9 +1,9 @@
-package main.java.core.Items.Rings;
+package core.Items.Rings;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Jewellery_Item_modifiers.Rings_Item_modifiers.*;
+import core.Item_modifiers.Jewellery_Item_modifiers.Rings_Item_modifiers.*;
 
 
 public class Ring extends Ring_Item {

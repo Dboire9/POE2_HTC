@@ -1,9 +1,9 @@
-package main.java.core.Items.Gloves.Gloves_dex;
+package core.Items.Gloves.Gloves_dex;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Gloves_Item_modifiers.Gloves_Normal_Item_modifiers.*;
+import core.Item_modifiers.Gloves_Item_modifiers.Gloves_Normal_Item_modifiers.*;
 
 
 public class Glove_dex extends Glove_dex_Item {

@@ -1,9 +1,9 @@
-package main.java.core.Items.Shields.Shields_str_int;
+package core.Items.Shields.Shields_str_int;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Hybrid_Item_modifiers.*;
+import core.Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Hybrid_Item_modifiers.*;
 
 
 public class Shield_str_int extends Shield_str_int_Item {

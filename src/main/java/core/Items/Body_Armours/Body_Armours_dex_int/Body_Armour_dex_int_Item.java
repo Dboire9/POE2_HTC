@@ -1,6 +1,6 @@
-package main.java.core.Items.Body_Armours.Body_Armours_dex_int;
+package core.Items.Body_Armours.Body_Armours_dex_int;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Body_Armour_dex_int_Item {

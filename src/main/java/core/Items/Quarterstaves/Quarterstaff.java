@@ -1,7 +1,7 @@
-package main.java.core.Items.Quarterstaves;
+package core.Items.Quarterstaves;
 
 
-import main.java.core.Item_modifiers.TwoHand_Item_modifiers.Quarterstaves_Items_modifiers.*;
+import core.Item_modifiers.TwoHand_Item_modifiers.Quarterstaves_Items_modifiers.*;
 
 import java.util.ArrayList;
 

@@ -1,8 +1,8 @@
-package main.java.core.Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Normal_Item_modifiers;
+package core.Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Normal_Item_modifiers;
 
-import main.java.core.Modifier_class.*;
-import main.java.core.Modifier_class.Modifier.ModifierSource;
-import main.java.core.Modifier_class.Modifier.ModifierType;
+import core.Modifier_class.*;
+import core.Modifier_class.Modifier.ModifierSource;
+import core.Modifier_class.Modifier.ModifierType;
 
 import java.util.List;
 public class Modifiers_essences {

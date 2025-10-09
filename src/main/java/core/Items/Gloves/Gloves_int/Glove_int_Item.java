@@ -1,6 +1,6 @@
-package main.java.core.Items.Gloves.Gloves_int;
+package core.Items.Gloves.Gloves_int;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Glove_int_Item {

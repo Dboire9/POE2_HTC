@@ -1,9 +1,9 @@
-package main.java.core.Items.Amulets;
+package core.Items.Amulets;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Jewellery_Item_modifiers.Amulets_Item_modifiers.*;
+import core.Item_modifiers.Jewellery_Item_modifiers.Amulets_Item_modifiers.*;
 
 
 public class Amulet extends Amulet_Item {

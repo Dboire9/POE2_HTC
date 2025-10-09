@@ -1,6 +1,6 @@
-package main.java.core.Items.Wands;
+package core.Items.Wands;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Wand_Item {

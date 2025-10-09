@@ -1,6 +1,6 @@
-package main.java.core.Items.Quivers;
+package core.Items.Quivers;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Quiver_Item {

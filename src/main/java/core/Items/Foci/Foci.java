@@ -1,6 +1,6 @@
-package main.java.core.Items.Foci;
+package core.Items.Foci;
 
-import main.java.core.Item_modifiers.Off_Hand_Item_modifiers.Foci_Item_modifiers.*;
+import core.Item_modifiers.Off_Hand_Item_modifiers.Foci_Item_modifiers.*;
 
 import java.util.ArrayList;
 

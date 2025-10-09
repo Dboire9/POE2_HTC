@@ -1,6 +1,6 @@
-package main.java.core.Item_modifiers.Off_Hand_Item_modifiers.Quivers_Item_modifiers;
+package core.Item_modifiers.Off_Hand_Item_modifiers.Quivers_Item_modifiers;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 
 import java.util.List;
 

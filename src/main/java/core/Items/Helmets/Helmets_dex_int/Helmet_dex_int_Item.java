@@ -1,6 +1,6 @@
-package main.java.core.Items.Helmets.Helmets_dex_int;
+package core.Items.Helmets.Helmets_dex_int;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Helmet_dex_int_Item {

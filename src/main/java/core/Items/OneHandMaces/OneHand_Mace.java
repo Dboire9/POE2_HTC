@@ -1,7 +1,7 @@
-package main.java.core.Items.OneHandMaces;
+package core.Items.OneHandMaces;
 
 
-import main.java.core.Item_modifiers.OneHand_Item_modifiers.OneHand_Maces_Item_modifiers.*;
+import core.Item_modifiers.OneHand_Item_modifiers.OneHand_Maces_Item_modifiers.*;
 
 import java.util.ArrayList;
 

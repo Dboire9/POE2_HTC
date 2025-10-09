@@ -1,6 +1,6 @@
-package main.java.core.Item_modifiers.Boots_Item_modifiers.Boots_Normal_Item_modifiers;
+package core.Item_modifiers.Boots_Item_modifiers.Boots_Normal_Item_modifiers;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 
 import java.util.List;
 

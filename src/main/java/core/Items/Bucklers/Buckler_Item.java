@@ -1,6 +1,6 @@
-package main.java.core.Items.Bucklers;
+package core.Items.Bucklers;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Buckler_Item {

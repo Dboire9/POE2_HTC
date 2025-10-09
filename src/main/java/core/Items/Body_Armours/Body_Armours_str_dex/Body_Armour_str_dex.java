@@ -1,9 +1,9 @@
-package main.java.core.Items.Body_Armours.Body_Armours_str_dex;
+package core.Items.Body_Armours.Body_Armours_str_dex;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Body_Armours_Item_modifiers.Body_Armours_Hybrid_Item_modifiers.*;
+import core.Item_modifiers.Body_Armours_Item_modifiers.Body_Armours_Hybrid_Item_modifiers.*;
 
 
 public class Body_Armour_str_dex extends Body_Armour_str_dex_Item {

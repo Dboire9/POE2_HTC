@@ -1,7 +1,7 @@
-package main.java.core.Items.Gloves.Gloves_str_dex;
+package core.Items.Gloves.Gloves_str_dex;
 
 
-import main.java.core.Item_modifiers.Gloves_Item_modifiers.Gloves_Hybrid_Item_modifiers.*;
+import core.Item_modifiers.Gloves_Item_modifiers.Gloves_Hybrid_Item_modifiers.*;
 
 import java.util.ArrayList;
 

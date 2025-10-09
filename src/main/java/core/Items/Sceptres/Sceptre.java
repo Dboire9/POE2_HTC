@@ -1,6 +1,6 @@
-package main.java.core.Items.Sceptres;
+package core.Items.Sceptres;
 
-import main.java.core.Item_modifiers.OneHand_Item_modifiers.Sceptres_Item_modifiers.*;
+import core.Item_modifiers.OneHand_Item_modifiers.Sceptres_Item_modifiers.*;
 
 import java.util.ArrayList;
 

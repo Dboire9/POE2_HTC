@@ -1,6 +1,6 @@
-package main.java.core.Items.Staves;
+package core.Items.Staves;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Staff_Item {

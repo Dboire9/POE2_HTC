@@ -1,6 +1,6 @@
-package main.java.core.Items.OneHandMaces;
+package core.Items.OneHandMaces;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class OneHand_Mace_Item {

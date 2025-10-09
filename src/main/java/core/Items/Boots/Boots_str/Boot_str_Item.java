@@ -1,6 +1,6 @@
-package main.java.core.Items.Boots.Boots_str;
+package core.Items.Boots.Boots_str;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Boot_str_Item {

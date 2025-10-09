@@ -1,9 +1,9 @@
-package main.java.core.Items.Shields.Shields_str_dex;
+package core.Items.Shields.Shields_str_dex;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Hybrid_Item_modifiers.*;
+import core.Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Hybrid_Item_modifiers.*;
 
 
 public class Shield_str_dex extends Shield_str_dex_Item {

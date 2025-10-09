@@ -1,7 +1,7 @@
-package main.java.core.Item_modifiers.OneHand_Item_modifiers.OneHand_Maces_Item_modifiers;
-import main.java.core.Modifier_class.*;
-import main.java.core.Modifier_class.Modifier.ModifierSource;
-import main.java.core.Modifier_class.Modifier.ModifierType;
+package core.Item_modifiers.OneHand_Item_modifiers.OneHand_Maces_Item_modifiers;
+import core.Modifier_class.*;
+import core.Modifier_class.Modifier.ModifierSource;
+import core.Modifier_class.Modifier.ModifierType;
 
 import java.util.List;
 public class Modifiers_essences {

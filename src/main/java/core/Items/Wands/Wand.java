@@ -1,6 +1,6 @@
-package main.java.core.Items.Wands;
+package core.Items.Wands;
 
-import main.java.core.Item_modifiers.OneHand_Item_modifiers.Wands_Item_modifiers.*;
+import core.Item_modifiers.OneHand_Item_modifiers.Wands_Item_modifiers.*;
 
 import java.util.ArrayList;
 

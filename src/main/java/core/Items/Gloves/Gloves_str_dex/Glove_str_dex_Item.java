@@ -1,6 +1,6 @@
-package main.java.core.Items.Gloves.Gloves_str_dex;
+package core.Items.Gloves.Gloves_str_dex;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Glove_str_dex_Item {

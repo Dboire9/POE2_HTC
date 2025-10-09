@@ -1,9 +1,9 @@
-package main.java.core.Items.Helmets.Helmets_str_int;
+package core.Items.Helmets.Helmets_str_int;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Helmets_Item_modifiers.Helmets_Hybrid_Item_modifiers.*;
+import core.Item_modifiers.Helmets_Item_modifiers.Helmets_Hybrid_Item_modifiers.*;
 
 
 public class Helmet_str_int extends Helmet_str_int_Item {

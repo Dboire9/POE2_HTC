@@ -1,6 +1,6 @@
-package main.java.core.Items.Shields.Shields_str;
+package core.Items.Shields.Shields_str;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Shield_str_Item {

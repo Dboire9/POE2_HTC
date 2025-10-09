@@ -1,6 +1,6 @@
-package main.java.core.Items.Crossbows;
+package core.Items.Crossbows;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Crossbow_Item {

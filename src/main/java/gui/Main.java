@@ -9,7 +9,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Label label = new Label("Hello POE2 Crafter!");
+        Label label = new Label("Hello POE2 Reverse Crafter!");
         Scene scene = new Scene(label, 400, 200);
         primaryStage.setTitle("POE2 Crafter");
         primaryStage.setScene(scene);

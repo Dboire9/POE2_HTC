@@ -1,6 +1,6 @@
-package main.java.core.Items.Boots.Boots_int;
+package core.Items.Boots.Boots_int;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Boot_int_Item {

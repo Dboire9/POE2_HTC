@@ -1,6 +1,6 @@
-package main.java.core.Items.Rings;
+package core.Items.Rings;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Ring_Item {

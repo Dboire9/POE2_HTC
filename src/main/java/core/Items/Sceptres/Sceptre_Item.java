@@ -1,6 +1,6 @@
-package main.java.core.Items.Sceptres;
+package core.Items.Sceptres;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Sceptre_Item {

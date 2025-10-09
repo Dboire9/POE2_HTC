@@ -1,4 +1,4 @@
-package main.java.core.Modifier_class;
+package core.Modifier_class;
 
 // Tier for a modifier
 public class ModifierTier {

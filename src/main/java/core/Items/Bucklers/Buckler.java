@@ -1,9 +1,9 @@
-package main.java.core.Items.Bucklers;
+package core.Items.Bucklers;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Off_Hand_Item_modifiers.Bucklers_Item_modifiers.*;
+import core.Item_modifiers.Off_Hand_Item_modifiers.Bucklers_Item_modifiers.*;
 
 
 public class Buckler extends Buckler_Item {

@@ -1,6 +1,6 @@
-package main.java.core.Items.Bows;
+package core.Items.Bows;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Bow_Item {

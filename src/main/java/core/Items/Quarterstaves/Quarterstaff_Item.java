@@ -1,6 +1,6 @@
-package main.java.core.Items.Quarterstaves;
+package core.Items.Quarterstaves;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 import java.util.List;
 
 public class Quarterstaff_Item {

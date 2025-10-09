@@ -1,6 +1,6 @@
-package main.java.core.Items.TwoHandMaces;
+package core.Items.TwoHandMaces;
 
-import main.java.core.Modifier_class.*;
+import core.Modifier_class.*;
 
 import java.util.List;
 

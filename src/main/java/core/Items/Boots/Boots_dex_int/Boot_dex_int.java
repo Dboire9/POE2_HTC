@@ -1,9 +1,9 @@
-package main.java.core.Items.Boots.Boots_dex_int;
+package core.Items.Boots.Boots_dex_int;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Boots_Item_modifiers.Boots_Hybrid_Item_modifiers.*;
+import core.Item_modifiers.Boots_Item_modifiers.Boots_Hybrid_Item_modifiers.*;
 
 
 public class Boot_dex_int extends Boot_dex_int_Item {

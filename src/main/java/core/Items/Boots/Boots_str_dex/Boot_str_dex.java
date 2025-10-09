@@ -1,9 +1,9 @@
-package main.java.core.Items.Boots.Boots_str_dex;
+package core.Items.Boots.Boots_str_dex;
 
 
 import java.util.ArrayList;
 
-import main.java.core.Item_modifiers.Boots_Item_modifiers.Boots_Hybrid_Item_modifiers.*;
+import core.Item_modifiers.Boots_Item_modifiers.Boots_Hybrid_Item_modifiers.*;
 
 
 public class Boot_str_dex extends Boot_str_dex_Item {

@@ -1,6 +1,6 @@
-package main.java.core.Items.Staves;
+package core.Items.Staves;
 
-import main.java.core.Item_modifiers.TwoHand_Item_modifiers.Staves_Item_modifiers.*;
+import core.Item_modifiers.TwoHand_Item_modifiers.Staves_Item_modifiers.*;
 
 import java.util.ArrayList;
 

@@ -3,6 +3,7 @@ package core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class ItemManager {
     }
 
     // Getting the modifiers of the items the user chose
-    public Map<String, List<String>> getAvailableModifiersFor(String CategoryPath, String SubCategoryPath) {
+    public List<String> getAvailableModifiersFor(String CategoryPath, String SubCategoryPath) {
         try {
             String className;
             if (SubCategoryPath == null || SubCategoryPath.isEmpty()) {
@@ -50,26 +51,30 @@ public class ItemManager {
             Class<?> itemClass = Class.forName(className);
             Object itemInstance = itemClass.getDeclaredConstructor().newInstance();
 
-            // Get protected field from superclass
-            Field normalPrefixesField = itemClass.getSuperclass().getDeclaredField("Normal_allowedPrefixes");
-            normalPrefixesField.setAccessible(true);
+            // Get all fields from the superclass
+            Field[] fields = itemClass.getSuperclass().getDeclaredFields();
 
-            @SuppressWarnings("unchecked")
-            List<Modifier> normalPrefixes = (List<Modifier>) normalPrefixesField.get(itemInstance);
+            List<String> allModifierTexts = new ArrayList<>();
 
-            List<String> normalPrefixTexts = new ArrayList<>();
-            for (Modifier mod : normalPrefixes) {
-                normalPrefixTexts.add(mod.text);
-                System.out.println(mod.text);
+            for (Field field : fields) {
+                // Check if the field is a List of Modifier
+                if (field.getType().equals(List.class)) {
+                    field.setAccessible(true);
+
+                    @SuppressWarnings("unchecked")
+                    List<Modifier> modifiers = (List<Modifier>) field.get(itemInstance);
+
+                    for (Modifier mod : modifiers) {
+                        allModifierTexts.add(mod.text);
+                        System.out.println(mod.text);
+                    }
+                }
             }
 
-            Map<String, List<String>> result = new HashMap<>();
-            result.put("NormalPrefixes", normalPrefixTexts);
-            return result;
-
+            return allModifierTexts;
         } catch (Exception e) {
             e.printStackTrace();
-            return Map.of();
+            return Collections.emptyList(); // Return an empty list in case of an error
         }
     }
 

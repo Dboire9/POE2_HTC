@@ -22,6 +22,7 @@
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_normal.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Helmets_Item_modifiers/Helmets_Hybrid_Item_modifiers/Modifiers_normal.java
+/root/POE2craft_java/src/main/java/core/ItemManager.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Quivers_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Items/Boots/Boots_str/Boot_str_Item.java
@@ -53,6 +54,7 @@
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Gloves_Item_modifiers/Gloves_Normal_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Items/Bows/Bow.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_desecrated.java
+/root/POE2craft_java/src/main/java/gui/views/CategoryView.java
 /root/POE2craft_java/src/main/java/core/Items/Body_Armours/Body_Armours_dex/Body_Armour_dex.java
 /root/POE2craft_java/src/main/java/core/Items/Crossbows/Crossbow_Item.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Quivers_Item_modifiers/Modifiers_normal.java
@@ -69,6 +71,7 @@
 /root/POE2craft_java/src/main/java/core/Items/Gloves/Gloves_str_dex/Glove_str_dex.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Quivers_Item_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Items/Helmets/Helmets_str/Helmet_str.java
+/root/POE2craft_java/src/main/java/gui/views/SubCategoryView.java
 /root/POE2craft_java/src/main/java/core/Items/Wands/Wand_Item.java
 /root/POE2craft_java/src/main/java/core/Items/Boots/Boots_int/Boot_int.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Gloves_Item_modifiers/Gloves_Normal_Item_modifiers/Modifiers_normal.java
@@ -101,6 +104,7 @@
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Crossbows_Items_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Items/Body_Armours/Body_Armours_dex/Body_Armour_dex_Item.java
+/root/POE2craft_java/src/main/java/gui/controllers/SubCategoryController.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_normal.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Bows_Item_modifiers/Modifiers_normal.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Spears_Item_modifiers/Modifiers_essences.java
@@ -123,6 +127,7 @@
 /root/POE2craft_java/src/main/java/core/Items/Sceptres/Sceptre.java
 /root/POE2craft_java/src/main/java/core/Items/Shields/Shields_str_int/Shield_str_int_Item.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Staves_Item_modifiers/Modifiers_desecrated.java
+/root/POE2craft_java/src/main/java/gui/controllers/CategoryController.java
 /root/POE2craft_java/src/main/java/core/Items/Body_Armours/Body_Armours_dex_int/Body_Armour_dex_int_Item.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Normal_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Items/Body_Armours/Body_Armours_str/Body_Armour_str_Item.java

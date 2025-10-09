@@ -4,9 +4,9 @@ package core.Items.Gloves.Gloves_dex;
 import java.util.ArrayList;
 
 import core.Item_modifiers.Gloves_Item_modifiers.Gloves_Normal_Item_modifiers.*;
+import core.Items.*;
 
-
-public class Gloves_dex extends Gloves_dex_Item {
+public class Gloves_dex extends Item_base {
 
     public Gloves_dex() {
         Normal_allowedPrefixes = new ArrayList<>();

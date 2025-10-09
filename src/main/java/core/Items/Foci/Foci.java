@@ -1,10 +1,11 @@
 package core.Items.Foci;
 
 import core.Item_modifiers.Off_Hand_Item_modifiers.Foci_Item_modifiers.*;
+import core.Items.*;
 
 import java.util.ArrayList;
 
-public class Foci extends Foci_Item{
+public class Foci extends Item_base{
     public Foci() {
         Normal_allowedPrefixes = new ArrayList<>();
         Normal_allowedPrefixes.add(Modifiers_normal.MAXIMUM_MANA);

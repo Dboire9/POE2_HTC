@@ -2,11 +2,11 @@ package core.Items.OneHandMaces;
 
 
 import core.Item_modifiers.OneHand_Item_modifiers.OneHand_Maces_Item_modifiers.*;
-
+import core.Items.*;
 import java.util.ArrayList;
 
 
-public class OneHand_Maces extends OneHand_Maces_Item {
+public class OneHand_Maces extends Item_base {
 
     public OneHand_Maces() {
         Normal_allowedPrefixes = new ArrayList<>();

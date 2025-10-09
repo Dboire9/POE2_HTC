@@ -1,6 +1,7 @@
 package gui.controllers;
 
 import core.ItemManager;
+import core.Modifier_class.*;
 import gui.views.ItemSelectionView;
 import javafx.collections.FXCollections;
 
@@ -12,6 +13,8 @@ public class ItemSelectionController {
     private final ItemSelectionView view;
     private final ItemManager manager;
 
+    private String selectedCategory;
+
     public ItemSelectionController(ItemSelectionView view, ItemManager manager) {
         this.view = view;
         this.manager = manager;
@@ -21,7 +24,7 @@ public class ItemSelectionController {
     private void initialize() {
         // When a category is selected
         view.getCategoryComboBox().setOnAction(e -> {
-            String selectedCategory = view.getCategoryComboBox().getValue();
+            selectedCategory = view.getCategoryComboBox().getValue();
             if (selectedCategory != null) {
                 List<String> subcategories = manager.getSubCategories(selectedCategory);
                 view.getSubCategoryComboBox().setItems(FXCollections.observableArrayList(subcategories));
@@ -33,22 +36,51 @@ public class ItemSelectionController {
         view.getSubCategoryComboBox().setOnAction(e -> {
             String selectedSubCategory = view.getSubCategoryComboBox().getValue();
             if (selectedSubCategory != null) {
-                Map<String, List<String>> modifiers = manager.getAvailableModifiersFor(selectedSubCategory);
-                updateModifierBoxes(modifiers);
+                Map<String, List<Modifier>> modifiers = manager.getAvailableModifiersFor(selectedCategory, selectedSubCategory);
+                // updateModifierBoxes(modifiers);
             }
         });
     }
 
-    private void updateModifierBoxes(Map<String, List<String>> modifiers) {
-        List<String> prefixes = modifiers.getOrDefault("prefixes", List.of());
-        List<String> suffixes = modifiers.getOrDefault("suffixes", List.of());
-
-        view.getPrefix1ComboBox().setItems(FXCollections.observableArrayList(prefixes));
-        view.getPrefix2ComboBox().setItems(FXCollections.observableArrayList(prefixes));
-        view.getPrefix3ComboBox().setItems(FXCollections.observableArrayList(prefixes));
-
-        view.getSuffix1ComboBox().setItems(FXCollections.observableArrayList(suffixes));
-        view.getSuffix2ComboBox().setItems(FXCollections.observableArrayList(suffixes));
-        view.getSuffix3ComboBox().setItems(FXCollections.observableArrayList(suffixes));
-    }
+    // private void updateModifierBoxes(Map<String, List<Modifier>> modifiers) {
+    //     // Extract text from the modifiers
+    //     List<String> normalPrefixes = modifiers.getOrDefault("NormalPrefixes", List.of())
+    //                                            .stream()
+    //                                            .map(mod -> mod.getText())  // assuming you have a getText() method
+    //                                            .toList();
+    
+    //     List<String> normalSuffixes = modifiers.getOrDefault("NormalSuffixes", List.of())
+    //                                            .stream()
+    //                                            .map(Modifier::getText)
+    //                                            .toList();
+    
+    //     List<String> desecratedPrefixes = modifiers.getOrDefault("DesecratedPrefixes", List.of())
+    //                                                .stream()
+    //                                                .map(Modifier::getText)
+    //                                                .toList();
+    
+    //     List<String> desecratedSuffixes = modifiers.getOrDefault("DesecratedSuffixes", List.of())
+    //                                                .stream()
+    //                                                .map(Modifier::getText)
+    //                                                .toList();
+    
+    //     List<String> essencePrefixes = modifiers.getOrDefault("EssencePrefixes", List.of())
+    //                                             .stream()
+    //                                             .map(Modifier::getText)
+    //                                             .toList();
+    
+    //     List<String> essenceSuffixes = modifiers.getOrDefault("EssenceSuffixes", List.of())
+    //                                             .stream()
+    //                                             .map(Modifier::getText)
+    //                                             .toList();
+    
+    //     // Then set the ComboBoxes
+    //     view.getPrefix1ComboBox().setItems(FXCollections.observableArrayList(normalPrefixes));
+    //     view.getPrefix2ComboBox().setItems(FXCollections.observableArrayList(normalPrefixes));
+    //     view.getPrefix3ComboBox().setItems(FXCollections.observableArrayList(normalPrefixes));
+    
+    //     view.getSuffix1ComboBox().setItems(FXCollections.observableArrayList(normalSuffixes));
+    //     view.getSuffix2ComboBox().setItems(FXCollections.observableArrayList(normalSuffixes));
+    //     view.getSuffix3ComboBox().setItems(FXCollections.observableArrayList(normalSuffixes));
+    // }
 }

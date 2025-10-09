@@ -15,7 +15,7 @@ public class Main extends Application {
         ItemManager manager = new ItemManager();
 
         ItemSelectionView view = new ItemSelectionView(manager.getCategories());
-        new ItemSelectionController(view.getCategoryComboBox(), view.getSubCategoryComboBox(), manager);
+        new ItemSelectionController(view, manager);
         
 
         HBox root = new HBox(20, view); // Add the view, not the controller

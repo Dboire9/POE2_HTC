@@ -2,11 +2,11 @@ package core.Items.Spears;
 
 
 import core.Item_modifiers.OneHand_Item_modifiers.Spears_Item_modifiers.*;
-
+import core.Items.*;
 import java.util.ArrayList;
 
 
-public class Spears extends Spears_Item {
+public class Spears extends Item_base {
 
     public Spears() {
         Normal_allowedPrefixes = new ArrayList<>();

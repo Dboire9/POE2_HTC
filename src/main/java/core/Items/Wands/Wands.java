@@ -1,10 +1,10 @@
 package core.Items.Wands;
 
 import core.Item_modifiers.OneHand_Item_modifiers.Wands_Item_modifiers.*;
-
+import core.Items.*;
 import java.util.ArrayList;
 
-public class Wands extends Wands_Item {
+public class Wands extends Item_base {
 
     public Wands() {
         Normal_allowedPrefixes = new ArrayList<>();

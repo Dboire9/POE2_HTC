@@ -1,13 +1,15 @@
 package core;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.lang.reflect.Field;
+
+import core.Modifier_class.*;
+import core.Items.*;
 
 
 public class ItemManager {
@@ -33,24 +35,51 @@ public class ItemManager {
     }
 
     // Getting the modifiers of the items the user chose
-    public Map<String, List<String>> getAvailableModifiersFor(Class<?> itemClass) {
+    public Map<String, List<Modifier>> getAvailableModifiersFor(String CategoryPath, String SubCategoryPath) {
         try {
+            String className;
+            if (SubCategoryPath == null || SubCategoryPath.isEmpty()) {
+                className = "core.Items." + CategoryPath;  // only category for single-base items
+            } else {
+                className = "core.Items." + CategoryPath + "." + SubCategoryPath;  // both for multi-base items
+            }
+
+            System.out.println(className);
+
+            
+
+            // Load the class and instantiate it
+            Class<?> itemClass = Class.forName(className);
             Object itemInstance = itemClass.getDeclaredConstructor().newInstance();
-            Map<String, List<String>> result = new HashMap<>();
-    
-            result.put("NormalPrefixes", (List<String>) itemClass.getField("Normal_allowedPrefixes").get(itemInstance));
-            result.put("NormalSuffixes", (List<String>) itemClass.getField("Normal_allowedSuffixes").get(itemInstance));
-            result.put("DesecratedPrefixes", (List<String>) itemClass.getField("Desecrated_allowedPrefixes").get(itemInstance));
-            result.put("DesecratedSuffixes", (List<String>) itemClass.getField("Desecrated_allowedSuffixes").get(itemInstance));
-            result.put("EssencePrefixes", (List<String>) itemClass.getField("Essences_allowedPrefixes").get(itemInstance));
-            result.put("EssenceSuffixes", (List<String>) itemClass.getField("Essences_allowedSuffixes").get(itemInstance));
-    
+
+            Map<String, List<Modifier>> result = new HashMap<>();
+
+            // List of protected fields to retrieve
+            String[] fields = {
+                "Normal_allowedPrefixes",
+                "Normal_allowedSuffixes",
+                "Desecrated_allowedPrefixes",
+                "Desecrated_allowedSuffixes",
+                "Essences_allowedPrefixes",
+                "Essences_allowedSuffixes"
+            };
+
+            // Access each field dynamically
+            for (String fieldName : fields) {
+                Field field = itemClass.getDeclaredField(fieldName);
+                field.setAccessible(true); // allow access to protected
+                @SuppressWarnings("unchecked") // Suppress unchecked cast warning
+                List<Modifier> list = (List<Modifier>) field.get(itemInstance);
+                result.put(fieldName, list != null ? list : new ArrayList<>());
+            }
+
             return result;
-    
+
         } catch (Exception e) {
             e.printStackTrace();
             return Map.of();
         }
     }
+
 }
 

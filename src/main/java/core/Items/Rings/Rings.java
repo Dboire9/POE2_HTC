@@ -2,11 +2,11 @@ package core.Items.Rings;
 
 
 import java.util.ArrayList;
-
+import core.Items.*;
 import core.Item_modifiers.Jewellery_Item_modifiers.Rings_Item_modifiers.*;
 
 
-public class Rings extends Rings_Item {
+public class Rings extends Item_base {
 
     public Rings() {
         Normal_allowedPrefixes = new ArrayList<>();

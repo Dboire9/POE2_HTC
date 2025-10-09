@@ -2,11 +2,11 @@ package core.Items.Gloves.Gloves_str_int;
 
 
 import core.Item_modifiers.Gloves_Item_modifiers.Gloves_Hybrid_Item_modifiers.*;
-
+import core.Items.*;
 import java.util.ArrayList;
 
 
-public class Gloves_str_int extends Gloves_str_int_Item {
+public class Gloves_str_int extends Item_base {
 
     public Gloves_str_int() {
         Normal_allowedPrefixes = new ArrayList<>();

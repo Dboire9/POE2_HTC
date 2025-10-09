@@ -107,7 +107,7 @@ public class Modifiers_essences {
                 new ModifierTier("Perfect Essence of Sorcery", 72, 1, new Pair<>(3, 3))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.ESSENCE,
             "IncreaseSocketedGemLevel",
             "+# to Level of all Spell Skills"
         );
@@ -121,7 +121,7 @@ public class Modifiers_essences {
                 new ModifierTier("Greater Essence of Seeking", 41, 1, new Pair<>(47, 53))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.ESSENCE,
             "SpellCriticalStrikeChanceIncrease",
             "#% increased Critical Hit Chance for Spells"
         );
@@ -147,7 +147,7 @@ public class Modifiers_essences {
                 new ModifierTier("Greater Essence of Alacrity", 60, 1, new Pair<>(25, 28))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.ESSENCE,
             "IncreasedCastSpeed",
             "#% increased Cast Speed"
         );
@@ -159,7 +159,7 @@ public class Modifiers_essences {
                 new ModifierTier("Perfect Essence of Alacrity", 72, 1, new Pair<>(18, 20))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.ESSENCE,
             "ManaCostEfficiency",
             "#% increased Mana Cost Efficiency"
         );

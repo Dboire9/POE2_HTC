@@ -39,7 +39,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Amanamu's", 65, 1, new Pair<>(55, 64), new Pair<>(55, 64), "increased_spell_damage", "minion_increased_damage")
             ),
             Modifier.ModifierType.PREFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "MinionDamage",
             "#% increased Spell Damage\nMinions deal #% increased Damage"
         );
@@ -51,7 +51,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Amanamu's", 65, 1, new Pair<>(74, 89))
             ),
             Modifier.ModifierType.PREFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "WeaponDamageTypePrefix",
             "#% increased Elemental Damage"
         );
@@ -63,7 +63,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Amanamu's", 65, 1, new Pair<>(74, 89))
             ),
             Modifier.ModifierType.PREFIX,
-            Modifier.ModifierSource.NORMAL,
+            Modifier.ModifierSource.DESECRATED,
             "WeaponCasterDamagePrefix",
             "#% increased Spell Damage with Spells that cost Life"
         );
@@ -75,7 +75,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Ulaman's", 65, 1, new Pair<>(27, 38))
             ),
             ModifierType.PREFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "BleedingDamage",
             "#% increased Magnitude of Bleeding you inflict"
         );
@@ -87,7 +87,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Ulaman's", 65, 1, new Pair<>(21, 25))
             ),
             ModifierType.PREFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "MartialWeaponGainedDamage",
             "Gain #% of Damage as Extra Physical Damage"
         );
@@ -102,7 +102,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1, new Pair<>(4, 7))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "HinderedEnemyTakeIncreasedDamage",
             "Enemies Hindered by you take #% increased Elemental Damage"
         );
@@ -114,7 +114,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Kurgal", 65, 1, new Pair<>(4, 7))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "HinderedEnemyTakeIncreasedDamage",
             "Enemies Hindered by you take #% increased Chaos Damage"
         );
@@ -126,7 +126,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1, new Pair<>(4, 7))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "HinderedEnemyTakeIncreasedDamage",
             "Enemies Hindered by you take #% increased Physical Damage"
         );
@@ -138,7 +138,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1, new Pair<>(8, 16))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "SpellAreaOfEffect",
             "Spell Skills have #% increased Area of Effect"
         );
@@ -150,7 +150,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1, new Pair<>(5, 10), new Pair<>(15, 25), "mana_to_life_cost", "mana_cost_efficiency")
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "SkillLifeCost",
             "#% increased Cost Efficiency\n#% of Spell Mana Cost Converted to Life Cost"
         );
@@ -162,7 +162,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Kurgal", 65, 1, new Pair<>(26, 36), new Pair<>(3, 5), "increased_cast_speed_full_mana", "increased_cast_speed_different_spells")
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "IncreasedCastSpeed",
             "#% increased Cast Speed while on Full Mana\n#% increased Cast Speed for each different Non-Instant Spell you've Cast Recently"
         );
@@ -174,7 +174,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1, new Pair<>(31, 39))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "ArmourBreak",
             "#% increased Armour"
         );
@@ -186,7 +186,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1, new Pair<>(11, 18))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "CriticalArmourBreak",
             "Break Armour on Critical Hit with Spells equal to #% of Physical Damage dealt"
         );

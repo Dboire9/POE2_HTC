@@ -183,7 +183,7 @@ public class Modifiers_essences {
                 new ModifierTier("Perfect Essence of Sorcery", 72, 1, new Pair<>(3, 3))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.ESSENCE,
             "IncreaseSocketedGemLevel",
             "+# to Level of all Spell Skills"
         );
@@ -289,7 +289,7 @@ public class Modifiers_essences {
                 new ModifierTier("Perfect Essence of Alacrity", 72, 1, new Pair<>(18, 20))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.ESSENCE,
             "ManaCostEfficiency",
             "#% increased Mana Cost Efficiency"
         );

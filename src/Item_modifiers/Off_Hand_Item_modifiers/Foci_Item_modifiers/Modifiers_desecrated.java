@@ -248,7 +248,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1, new Pair<>(10, 20))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "SkillLifeCost",
             "#% of Spell Mana Cost Converted to Life Cost"
         );

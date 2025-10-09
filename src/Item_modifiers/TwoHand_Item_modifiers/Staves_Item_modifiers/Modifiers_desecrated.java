@@ -34,7 +34,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Amanamu's", 65, 1, new Pair<>(35, 50))
             ),
             ModifierType.PREFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "BaseSpirit",
             "+# to Spirit"
         );
@@ -46,7 +46,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Amanamu's", 65, 1, new Pair<>(91, 116))
             ),
             ModifierType.PREFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "WeaponCasterDamagePrefix",
             "#% increased Spell Damage with Spells that cost Life"
         );
@@ -58,7 +58,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Kurgal's", 65, 1, new Pair<>(4, 5))
             ),
             ModifierType.PREFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "WeaponCasterDamagePrefix",
             "#% increased Spell Damage per 100 maximum Mana"
         );
@@ -70,7 +70,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Ulaman's", 65, 1, new Pair<>(4, 5))
             ),
             ModifierType.PREFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "WeaponCasterDamagePrefix",
             "#% increased Spell Damage per 100 Maximum Life"
         );
@@ -82,7 +82,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Kurgal's", 65, 1, new Pair<>(1, 2))
             ),
             ModifierType.PREFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "ElementalInfusion",
             "+# to maximum number of Elemental Infusions"
         );
@@ -94,7 +94,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("Ulaman's", 65, 1, new Pair<>(31, 49))
             ),
             ModifierType.PREFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "AilmentEffect",
             "#% increased Magnitude of Damaging Ailments you inflict"
         );
@@ -108,7 +108,7 @@ public class Modifiers_desecrated {
                         new ModifierTier("of Amanamu", 65, 1, new Pair<>(25, 35))
                     ),
                     ModifierType.SUFFIX,
-                    ModifierSource.NORMAL,
+                    ModifierSource.DESECRATED,
                     "ArchonDuration",
                     "#% increased Archon Buff duration"
                 );
@@ -120,7 +120,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1, new Pair<>(12, 16))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "AdditionalBlock",
             "+#% to Block chance"
         );
@@ -132,7 +132,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Amanamu", 65, 1, new Pair<>(25, 35))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "SkillLifeCost",
             "#% of Spell Mana Cost Converted to Life Cost"
         );
@@ -144,7 +144,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Kurgal", 65, 1, new Pair<>(25, 35))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "ArchonDelayRecovery",
             "Archon recovery period expires #% faster"
         );
@@ -156,7 +156,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1, new Pair<>(30, 40))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "CastSpeedOnLowLife",
             "#% increased Cast Speed when on Low Life"
         );
@@ -168,7 +168,7 @@ public class Modifiers_desecrated {
                 new ModifierTier("of Ulaman", 65, 1, new Pair<>(25, 35))
             ),
             ModifierType.SUFFIX,
-            ModifierSource.NORMAL,
+            ModifierSource.DESECRATED,
             "SpellsFire2AdditionalProjectileChance",
             "#% chance for Spell Skills to fire 2 additional Projectiles"
         );

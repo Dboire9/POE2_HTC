@@ -37,7 +37,8 @@ public class ItemManager {
     }
 
     // Getting the modifiers of the items the user chose
-    public List<String> getAvailableModifiersFor(String CategoryPath, String SubCategoryPath) {
+    // Getting the modifiers of the items the user chose
+    public Map<String, List<String>> getAvailableModifiersFor(String CategoryPath, String SubCategoryPath) {
         try {
             String className;
             if (SubCategoryPath == null || SubCategoryPath.isEmpty()) {
@@ -54,7 +55,8 @@ public class ItemManager {
             // Get all fields from the superclass
             Field[] fields = itemClass.getSuperclass().getDeclaredFields();
 
-            List<String> allModifierTexts = new ArrayList<>();
+            List<String> prefixTexts = new ArrayList<>();
+            List<String> suffixTexts = new ArrayList<>();
 
             for (Field field : fields) {
                 // Check if the field is a List of Modifier
@@ -64,17 +66,30 @@ public class ItemManager {
                     @SuppressWarnings("unchecked")
                     List<Modifier> modifiers = (List<Modifier>) field.get(itemInstance);
 
-                    for (Modifier mod : modifiers) {
-                        allModifierTexts.add(mod.text);
-                        System.out.println(mod.text);
+                    // Check if the field name indicates prefixes or suffixes
+                    if (field.getName().toLowerCase().contains("prefix")) {
+                        for (Modifier mod : modifiers) {
+                            prefixTexts.add(mod.text);
+                            System.out.println("Prefix: " + mod.text);
+                        }
+                    } else if (field.getName().toLowerCase().contains("suffix")) {
+                        for (Modifier mod : modifiers) {
+                            suffixTexts.add(mod.text);
+                            System.out.println("Suffix: " + mod.text);
+                        }
                     }
                 }
             }
 
-            return allModifierTexts;
+            // Return both lists as a map
+            Map<String, List<String>> result = new HashMap<>();
+            result.put("prefixes", prefixTexts);
+            result.put("suffixes", suffixTexts);
+
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return Collections.emptyList(); // Return an empty list in case of an error
+            return Collections.emptyMap(); // Return an empty map in case of an error
         }
     }
 

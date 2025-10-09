@@ -1,6 +1,5 @@
 package core.Items.Shields.Shields_str_int;
 
-
 import java.util.ArrayList;
 import core.Items.*;
 import core.Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Hybrid_Item_modifiers.*;

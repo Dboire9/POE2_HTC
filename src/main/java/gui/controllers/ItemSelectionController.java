@@ -6,6 +6,7 @@ import gui.views.ItemSelectionView;
 import javafx.collections.FXCollections;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ public class ItemSelectionController {
                 if (subcategories == null || subcategories.isEmpty()) {
                     // Handle the case where there are no subcategories
                     view.getSubCategoryComboBox().setVisible(false);
-                    List<String> modifiers = manager
+                    Map<String, List<String>> modifiers = manager
                             .getAvailableModifiersFor(selectedCategory, null);
                     updateModifierBoxes(modifiers);
                 } else {
@@ -45,34 +46,54 @@ public class ItemSelectionController {
         view.getSubCategoryComboBox().setOnAction(e -> {
             String selectedSubCategory = view.getSubCategoryComboBox().getValue();
             if (selectedSubCategory != null) {
-                List<String> modifiers = manager.getAvailableModifiersFor(selectedCategory,
+                Map<String, List<String>> modifiers = manager.getAvailableModifiersFor(selectedCategory,
                         selectedSubCategory);
                 updateModifierBoxes(modifiers);
             } else {
-                List<String> modifiers = manager.getAvailableModifiersFor(selectedCategory,
+                Map<String, List<String>> modifiers = manager.getAvailableModifiersFor(selectedCategory,
                         null);
                 updateModifierBoxes(modifiers);
             }
         });
     }
 
-    private void updateModifierBoxes(List<String> categorizedModifiers) {
+    private void updateModifierBoxes(Map<String, List<String>> categorizedModifiers) {
         // Check if the input list is null or empty
         if (categorizedModifiers == null || categorizedModifiers.isEmpty()) {
             System.out.println("categorizedModifiers is empty or null");
             return;
         }
 
-        // Create a single list to hold all modifiers
-        List<String> allModifiers = new ArrayList<>(categorizedModifiers);
+        Map<String, List<String>> prefixModifiers = new HashMap<>();
+        Map<String, List<String>> suffixModifiers = new HashMap<>();
 
-        // Populate all ComboBoxes with the combined list of modifiers
-        view.getPrefix1ComboBox().getItems().addAll(allModifiers);
-        view.getPrefix2ComboBox().getItems().addAll(allModifiers);
-        view.getPrefix3ComboBox().getItems().addAll(allModifiers);
-        view.getSuffix1ComboBox().getItems().addAll(allModifiers);
-        view.getSuffix2ComboBox().getItems().addAll(allModifiers);
-        view.getSuffix3ComboBox().getItems().addAll(allModifiers);
+        for (Map.Entry<String, List<String>> entry : categorizedModifiers.entrySet()) {
+            String key = entry.getKey().toLowerCase(); // Normalize key for case-insensitive comparison
+            if (key.contains("prefix")) {
+                prefixModifiers.put(entry.getKey(), entry.getValue());
+            } else if (key.contains("suffix")) {
+                suffixModifiers.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        // Flatten the prefix and suffix modifiers into single lists
+        List<String> flattenedPrefixes = new ArrayList<>();
+        for (List<String> values : prefixModifiers.values()) {
+            flattenedPrefixes.addAll(values);
+        }
+
+        List<String> flattenedSuffixes = new ArrayList<>();
+        for (List<String> values : suffixModifiers.values()) {
+            flattenedSuffixes.addAll(values);
+        }
+
+        // Populate all ComboBoxes with the flattened lists of modifiers
+        view.getPrefix1ComboBox().getItems().addAll(flattenedPrefixes);
+        view.getPrefix2ComboBox().getItems().addAll(flattenedPrefixes);
+        view.getPrefix3ComboBox().getItems().addAll(flattenedPrefixes);
+        view.getSuffix1ComboBox().getItems().addAll(flattenedSuffixes);
+        view.getSuffix2ComboBox().getItems().addAll(flattenedSuffixes);
+        view.getSuffix3ComboBox().getItems().addAll(flattenedSuffixes);
 
         System.out.println("Modifiers successfully updated");
     }

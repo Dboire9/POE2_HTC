@@ -1,0 +1,299 @@
+package Item_modifiers.Off_Hand_Item_modifiers.Foci_Item_modifiers;
+
+import Modifier_class.*;
+import Modifier_class.Modifier.ModifierSource;
+import Modifier_class.Modifier.ModifierType;
+
+import java.util.List;
+public class Modifiers_essences {
+
+        //PREFIXES
+        public static final Modifier ESSENCE_BASE_MAXIMUM_LIFE;
+        public static final Modifier ESSENCE_INCREASED_PERCENT_ARMOUR;
+        public static final Modifier ESSENCE_INCREASED_PERCENT_EVASION;
+        public static final Modifier ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD;
+        public static final Modifier ESSENCE_INCREASED_SPELL_DAMAGE;
+        public static final Modifier ESSENCE_ABYSS_PREFIX;
+
+        
+    
+        //SUFFIXES
+        public static final Modifier ESSENCE_CHAOS_RESISTANCE;
+        public static final Modifier ESSENCE_ATTRIBUTES_STRENGTH;
+        public static final Modifier ESSENCE_ATTRIBUTES_DEXTERITY;
+        public static final Modifier ESSENCE_ATTRIBUTES_INTELLIGENCE;
+        public static final Modifier ESSENCE_ALL_SPELL_SKILL_LEVEL;
+        public static final Modifier ESSENCE_ENERGY_SHIELD_REGENERATION;
+        public static final Modifier ESSENCE_SPELL_CRITICAL_STRIKE_CHANCE_INCREASE;
+        public static final Modifier ESSENCE_ABYSS_SUFFIX;
+        public static final Modifier ESSENCE_FIRE_RESISTANCE;
+        public static final Modifier ESSENCE_COLD_RESISTANCE;
+        public static final Modifier ESSENCE_LIGHTNING_RESISTANCE;
+        public static final Modifier ESSENCE_INCREASED_CAST_SPEED;
+        public static final Modifier ESSENCE_MANA_COST_EFFICIENCY;
+
+
+
+    static {
+
+        ESSENCE_BASE_MAXIMUM_LIFE = new Modifier(
+            "base_maximum_life",
+            List.of("life"),
+            List.of(
+                new ModifierTier("Lesser Essence of the Body", 16, 1, new Pair<>(30, 39)),
+                new ModifierTier("Essence of the Body", 38, 1, new Pair<>(85, 99)),
+                new ModifierTier("Greater Essence of the Body", 46, 1, new Pair<>(100, 119))
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "IncreasedLife",
+            "+# to maximum Life"
+        );
+
+        ESSENCE_INCREASED_PERCENT_ARMOUR = new Modifier(
+            "increased_percent_armour",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Lesser Essence of Enhancement", 16, 1, new Pair<>(27, 42)),
+                new ModifierTier("Essence of Enhancement", 46, 1, new Pair<>(56, 67)),
+                new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79))
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "DefencesPercentArmour",
+            "#% increased Armour"
+        );
+        
+        ESSENCE_INCREASED_PERCENT_EVASION = new Modifier(
+            "increased_percent_evasion",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Lesser Essence of Enhancement", 16, 1, new Pair<>(27, 42)),
+                new ModifierTier("Essence of Enhancement", 46, 1, new Pair<>(56, 67)),
+                new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79))
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "DefencesPercentEvasion",
+            "#% increased Evasion"
+        );
+        
+        ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD = new Modifier(
+            "increased_percent_energy_shield",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Lesser Essence of Enhancement", 16, 1, new Pair<>(27, 42)),
+                new ModifierTier("Essence of Enhancement", 46, 1, new Pair<>(56, 67)),
+                new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79))
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "DefencesPercentEnergyShield",
+            "#% increased Energy Shield"
+        );
+
+        ESSENCE_INCREASED_SPELL_DAMAGE = new Modifier(
+            "increased_spell_damage",
+            List.of("caster_damage", "damage", "caster"),
+            List.of(
+                new ModifierTier("Lesser Essence of Sorcery", 8, 1, new Pair<>(35, 44)),
+                new ModifierTier("Essence of Sorcery", 33, 1, new Pair<>(55, 64)),
+                new ModifierTier("Greater Essence of Sorcery", 60, 1, new Pair<>(75, 89))
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "WeaponCasterDamagePrefix",
+            "#% increased Spell Damage"
+        );
+
+        ESSENCE_ABYSS_PREFIX = new Modifier(
+            "essence_abyss",
+            List.of(),
+            List.of(
+                new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))
+            ),
+            ModifierType.PREFIX,
+            ModifierSource.ESSENCE,
+            "EssenceAbyss",
+            "Mark of the Abyssal Lord"
+        );
+
+// SUFFIXES
+
+        ESSENCE_CHAOS_RESISTANCE = new Modifier(
+            "chaos_resistance",
+            List.of("chaos", "resistance"),
+            List.of(
+                new ModifierTier("Lesser Essence of Ruin", 16, 1, new Pair<>(4, 7)),
+                new ModifierTier("Essence of Ruin", 30, 1, new Pair<>(8, 11)),
+                new ModifierTier("Greater Essence of Ruin", 56, 1, new Pair<>(16, 19))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "ChaosResistance",
+            "+#% to Chaos Resistance"
+        );
+
+        ESSENCE_ATTRIBUTES_STRENGTH = new Modifier(
+            "attributes",
+            List.of("attribute"),
+            List.of(
+                new ModifierTier("Lesser Essence of the Infinite", 11, 1, new Pair<>(9, 12)),
+                new ModifierTier("Essence of the Infinite", 33, 1, new Pair<>(17, 20)),
+                new ModifierTier("Greater Essence of the Infinite", 55, 1, new Pair<>(25, 27))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "Strength",
+            "# to Strength, Dexterity or Intelligence"
+        );
+
+        ESSENCE_ATTRIBUTES_DEXTERITY = new Modifier(
+            "attributes",
+            List.of("attribute"),
+            List.of(
+                new ModifierTier("Lesser Essence of the Infinite", 11, 1, new Pair<>(9, 12)),
+                new ModifierTier("Essence of the Infinite", 33, 1, new Pair<>(17, 20)),
+                new ModifierTier("Greater Essence of the Infinite", 55, 1, new Pair<>(25, 27))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "Dexterity",
+            "# to Strength, Dexterity or Intelligence"
+        );
+
+        ESSENCE_ATTRIBUTES_INTELLIGENCE = new Modifier(
+            "attributes",
+            List.of("attribute"),
+            List.of(
+                new ModifierTier("Lesser Essence of the Infinite", 11, 1, new Pair<>(9, 12)),
+                new ModifierTier("Essence of the Infinite", 33, 1, new Pair<>(17, 20)),
+                new ModifierTier("Greater Essence of the Infinite", 55, 1, new Pair<>(25, 27))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "Intelligence",
+            "# to Strength, Dexterity or Intelligence"
+        );
+
+        ESSENCE_ALL_SPELL_SKILL_LEVEL = new Modifier(
+            "essence_spell_skill_level",
+            List.of("caster", "gem"),
+            List.of(
+                new ModifierTier("Perfect Essence of Sorcery", 72, 1, new Pair<>(3, 3))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.NORMAL,
+            "IncreaseSocketedGemLevel",
+            "+# to Level of all Spell Skills"
+        );
+
+        ESSENCE_ENERGY_SHIELD_REGENERATION = new Modifier(
+            "energy_shield_regeneration",
+            List.of("defences"),
+            List.of(
+                new ModifierTier("Essence of Hysteria", 48, 0, new Pair<>(41, 45))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "EnergyShieldRegeneration",
+            "#% increased Energy Shield Recharge Rate"
+        );
+
+        ESSENCE_SPELL_CRITICAL_STRIKE_CHANCE_INCREASE = new Modifier(
+            "spell_critical_strike_chance_increase",
+            List.of("caster", "critical"),
+            List.of(
+                new ModifierTier("Lesser Essence of Seeking", 21, 0, new Pair<>(34, 39)),
+                new ModifierTier("Essence of Seeking", 28, 0, new Pair<>(40, 46)),
+                new ModifierTier("Greater Essence of Seeking", 41, 0, new Pair<>(47, 53))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "SpellCriticalStrikeChanceIncrease",
+            "#% increased Critical Hit Chance for Spells"
+        );
+
+        ESSENCE_ABYSS_SUFFIX = new Modifier(
+            "essence_abyss",
+            List.of("mark_of_abyssal_lord"),
+            List.of(
+                new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "EssenceAbyss",
+            "Mark of the Abyssal Lord"
+        );
+
+        ESSENCE_FIRE_RESISTANCE = new Modifier(
+            "fire_resistance",
+            List.of("elemental", "fire", "resistance"),
+            List.of(
+                new ModifierTier("Lesser Essence of Insulation", 12, 1, new Pair<>(11, 15)),
+                new ModifierTier("Essence of Insulation", 36, 1, new Pair<>(21, 25)),
+                new ModifierTier("Greater Essence of Insulation", 60, 1, new Pair<>(31, 35))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "FireResistance",
+            "+#% to Fire Resistance"
+        );
+        
+        ESSENCE_COLD_RESISTANCE = new Modifier(
+            "cold_resistance",
+            List.of("elemental", "cold", "resistance"),
+            List.of(
+                new ModifierTier("Lesser Essence of Thawing", 12, 1, new Pair<>(11, 15)),
+                new ModifierTier("Essence of Thawing", 36, 1, new Pair<>(21, 25)),
+                new ModifierTier("Greater Essence of Thawing", 60, 1, new Pair<>(31, 35))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "ColdResistance",
+            "+#% to Cold Resistance"
+        );
+        
+        ESSENCE_LIGHTNING_RESISTANCE = new Modifier(
+            "lightning_resistance",
+            List.of("elemental", "lightning", "resistance"),
+            List.of(
+                new ModifierTier("Lesser Essence of Grounding", 12, 1, new Pair<>(11, 15)),
+                new ModifierTier("Essence of Grounding", 36, 1, new Pair<>(21, 25)),
+                new ModifierTier("Greater Essence of Grounding", 60, 1, new Pair<>(31, 35))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "LightningResistance",
+            "+#% to Lightning Resistance"
+        );
+
+        ESSENCE_INCREASED_CAST_SPEED = new Modifier(
+            "essence_increased_cast_speed",
+            List.of("caster", "speed"),
+            List.of(
+                new ModifierTier("Lesser Essence of Alacrity", 15, 0, new Pair<>(13, 16)),
+                new ModifierTier("Essence of Alacrity", 30, 0, new Pair<>(17, 20)),
+                new ModifierTier("Greater Essence of Alacrity", 60, 0, new Pair<>(25, 28))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.ESSENCE,
+            "IncreasedCastSpeed",
+            "#% increased Cast Speed"
+        );
+
+        ESSENCE_MANA_COST_EFFICIENCY = new Modifier(
+            "essence_mana_cost_efficiency",
+            List.of("mana"),
+            List.of(
+                new ModifierTier("Perfect Essence of Alacrity", 72, 1, new Pair<>(18, 20))
+            ),
+            ModifierType.SUFFIX,
+            ModifierSource.NORMAL,
+            "ManaCostEfficiency",
+            "#% increased Mana Cost Efficiency"
+        );
+
+    }
+
+}

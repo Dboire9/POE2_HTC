@@ -31,6 +31,7 @@ public class Modifiers_desecrated {
     public static final Modifier DESECRATED_EXPOSURE_EFFECT;
     public static final Modifier DESECRATED_COOLDOWN_RECOVERY;
     public static final Modifier DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE;
+    public static final Modifier DESECRATED_DEXTERITY_AND_INTELLIGENCE;
     public static final Modifier DESECRATED_GLOBAL_SKILL_GEM_QUALITY;
     public static final Modifier DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE;
     public static final Modifier DESECRATED_MINION_COOLDOWN;
@@ -309,6 +310,18 @@ public class Modifiers_desecrated {
             Modifier.ModifierSource.DESECRATED,
             "ColdAndChaosDamageResistance",
             "+#% to Cold and Chaos Resistances"
+        );
+
+        DESECRATED_DEXTERITY_AND_INTELLIGENCE = new Modifier(
+            "dexterity", "intelligence",
+            List.of("kurgal_mod", "attribute"),
+            List.of(
+                new ModifierTier("of Kurgal", 65, 1, new Pair<>(9, 15), new Pair<>(9, 15), "dexterity", "intelligence")
+            ),
+            Modifier.ModifierType.SUFFIX,
+            Modifier.ModifierSource.DESECRATED,
+            "DexterityAndIntelligence",
+            "+# to Dexterity and Intelligence"
         );
 
         DESECRATED_GLOBAL_SKILL_GEM_QUALITY = new Modifier(

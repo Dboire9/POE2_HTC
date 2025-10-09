@@ -1,10 +1,8 @@
 package gui;
 
 import core.ItemManager;
-import gui.controllers.CategoryController;
-import gui.controllers.SubCategoryController;
-import gui.views.CategoryView;
-import gui.views.SubCategoryView;
+import gui.controllers.ItemSelectionController;
+import gui.views.ItemSelectionView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -16,14 +14,11 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         ItemManager manager = new ItemManager();
 
-        CategoryView categoryView = new CategoryView(manager.getCategories());
-        SubCategoryView subCategoryView = new SubCategoryView();
+        ItemSelectionView view = new ItemSelectionView(manager.getCategories());
+        new ItemSelectionController(view.getCategoryComboBox(), view.getSubCategoryComboBox(), manager);
+        
 
-        // Pass the ComboBoxes from the views, plus the manager
-        new CategoryController(categoryView.getComboBox(), subCategoryView.getComboBox(), manager);
-        new SubCategoryController(subCategoryView.getComboBox());
-
-        HBox root = new HBox(20, categoryView, subCategoryView);
+        HBox root = new HBox(20, view); // Add the view, not the controller
 
         Scene scene = new Scene(root, 800, 400);
         primaryStage.setTitle("POE2 Reverse Crafter");

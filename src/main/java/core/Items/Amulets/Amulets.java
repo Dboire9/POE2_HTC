@@ -4,9 +4,10 @@ package core.Items.Amulets;
 import java.util.ArrayList;
 
 import core.Item_modifiers.Jewellery_Item_modifiers.Amulets_Item_modifiers.*;
+import core.Items.*;
 
 
-public class Amulets extends Amulets_Item {
+public class Amulets extends Item_base {
 
     public Amulets() {
         Normal_allowedPrefixes = new ArrayList<>();

@@ -1,9 +1,9 @@
-package core.Items.Helmets.Helmets_int;
+package core.Items;
 
 import core.Modifier_class.*;
 import java.util.List;
 
-public class Helmets_int_Item {
+public class Item_base {
 
     protected List<Modifier> Normal_allowedPrefixes;
     protected List<Modifier> Normal_allowedSuffixes;

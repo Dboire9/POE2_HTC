@@ -2,11 +2,12 @@ package core.Items.Bows;
 
 
 import core.Item_modifiers.OneHand_Item_modifiers.Bows_Item_modifiers.*;
+import core.Items.*;
 
 import java.util.ArrayList;
 
 
-public class Bows extends Bows_Item {
+public class Bows extends Item_base {
 
     public Bows() {
         Normal_allowedPrefixes = new ArrayList<>();

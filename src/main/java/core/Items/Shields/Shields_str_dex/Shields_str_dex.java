@@ -2,11 +2,11 @@ package core.Items.Shields.Shields_str_dex;
 
 
 import java.util.ArrayList;
-
+import core.Items.*;
 import core.Item_modifiers.Off_Hand_Item_modifiers.Shields_Item_modifiers.Shields_Hybrid_Item_modifiers.*;
 
 
-public class Shields_str_dex extends Shields_str_dex_Item {
+public class Shields_str_dex extends Item_base {
 
     public Shields_str_dex() {
         Normal_allowedPrefixes = new ArrayList<>();

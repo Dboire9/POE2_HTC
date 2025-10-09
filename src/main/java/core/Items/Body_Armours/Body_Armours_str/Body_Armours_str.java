@@ -4,9 +4,9 @@ package core.Items.Body_Armours.Body_Armours_str;
 import java.util.ArrayList;
 
 import core.Item_modifiers.Body_Armours_Item_modifiers.Body_Armours_Normal_Item_modifiers.*;
+import core.Items.*;
 
-
-public class Body_Armours_str extends Body_Armours_str_Item {
+public class Body_Armours_str extends Item_base {
 
     public Body_Armours_str() {
         Normal_allowedPrefixes = new ArrayList<>();

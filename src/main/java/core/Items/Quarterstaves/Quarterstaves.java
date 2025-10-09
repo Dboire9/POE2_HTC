@@ -2,10 +2,10 @@ package core.Items.Quarterstaves;
 
 
 import core.Item_modifiers.TwoHand_Item_modifiers.Quarterstaves_Items_modifiers.*;
-
+import core.Items.*;
 import java.util.ArrayList;
 
-public class Quarterstaves extends Quarterstaves_Item {
+public class Quarterstaves extends Item_base {
 
     public Quarterstaves() {
         

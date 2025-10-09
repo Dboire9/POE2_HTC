@@ -2,10 +2,10 @@ package core.Items.TwoHandMaces;
 
 
 import core.Item_modifiers.TwoHand_Item_modifiers.TwoHandMaces_Items_modifiers.*;
-
+import core.Items.*;
 import java.util.ArrayList;
 
-public class TwoHand_Maces extends TwoHand_Maces_Item {
+public class TwoHand_Maces extends Item_base {
 
     public TwoHand_Maces() {
         

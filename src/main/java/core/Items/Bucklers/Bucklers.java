@@ -3,10 +3,11 @@ package core.Items.Bucklers;
 
 import java.util.ArrayList;
 
+import core.Items.*;
 import core.Item_modifiers.Off_Hand_Item_modifiers.Bucklers_Item_modifiers.*;
 
 
-public class Bucklers extends Bucklers_Item {
+public class Bucklers extends Item_base {
 
     public Bucklers() {
         Normal_allowedPrefixes = new ArrayList<>();

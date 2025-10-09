@@ -2,11 +2,11 @@ package core.Items.Quivers;
 
 
 import core.Item_modifiers.Off_Hand_Item_modifiers.Quivers_Item_modifiers.*;
-
+import core.Items.*;
 import java.util.ArrayList;
 
 
-public class Quivers extends Quivers_Item {
+public class Quivers extends Item_base {
 
     public Quivers() {
         Normal_allowedPrefixes = new ArrayList<>();

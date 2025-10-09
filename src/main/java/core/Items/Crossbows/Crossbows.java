@@ -2,10 +2,10 @@ package core.Items.Crossbows;
 
 
 import core.Item_modifiers.TwoHand_Item_modifiers.Crossbows_Items_modifiers.*;
+import core.Items.*;
 
 import java.util.ArrayList;
-
-public class Crossbows extends Crossbows_Item {
+public class Crossbows extends Item_base {
 
     public Crossbows() {
         

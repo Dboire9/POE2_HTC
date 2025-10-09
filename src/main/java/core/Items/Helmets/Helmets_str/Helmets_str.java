@@ -2,11 +2,11 @@ package core.Items.Helmets.Helmets_str;
 
 
 import java.util.ArrayList;
-
+import core.Items.*;
 import core.Item_modifiers.Helmets_Item_modifiers.Helmets_Normal_Item_modifiers.*;
 
 
-public class Helmets_str extends Helmets_str_Item {
+public class Helmets_str extends Item_base {
 
     public Helmets_str() {
         Normal_allowedPrefixes = new ArrayList<>();

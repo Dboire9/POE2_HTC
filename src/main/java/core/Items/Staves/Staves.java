@@ -1,10 +1,10 @@
 package core.Items.Staves;
 
 import core.Item_modifiers.TwoHand_Item_modifiers.Staves_Item_modifiers.*;
-
+import core.Items.*;
 import java.util.ArrayList;
 
-public class Staves extends Staves_Item{
+public class Staves extends Item_base{
     public Staves() {
         Normal_allowedPrefixes = new ArrayList<>();
         Normal_allowedPrefixes.add(Modifiers_normal.MAXIMUM_MANA);

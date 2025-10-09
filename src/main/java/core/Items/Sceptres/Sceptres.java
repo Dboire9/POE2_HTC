@@ -3,8 +3,8 @@ package core.Items.Sceptres;
 import core.Item_modifiers.OneHand_Item_modifiers.Sceptres_Item_modifiers.*;
 
 import java.util.ArrayList;
-
-public class Sceptres extends Sceptres_Item {
+import core.Items.*;
+public class Sceptres extends Item_base {
 
     public Sceptres() {
         Normal_allowedPrefixes = new ArrayList<>();

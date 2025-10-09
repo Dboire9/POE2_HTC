@@ -4,9 +4,9 @@ package core.Items.Boots.Boots_dex;
 import java.util.ArrayList;
 
 import core.Item_modifiers.Boots_Item_modifiers.Boots_Normal_Item_modifiers.*;
+import core.Items.*;
 
-
-public class Boots_dex extends Boots_dex_Item {
+public class Boots_dex extends Item_base {
 
     public Boots_dex() {
         Normal_allowedPrefixes = new ArrayList<>();

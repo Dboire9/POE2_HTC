@@ -1,60 +1,54 @@
 package gui.controllers;
 
 import core.ItemManager;
+import gui.views.ItemSelectionView;
 import javafx.collections.FXCollections;
-import javafx.scene.control.ComboBox;
 
-
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class ItemSelectionController {
 
-    private final ItemManager itemManager;
-    private final ComboBox<String> categoryComboBox;
-    private final ComboBox<String> subCategoryComboBox;
+    private final ItemSelectionView view;
+    private final ItemManager manager;
 
-    private String selectedCategory;
-    private String selectedSubCategory;
-
-    // Categories that have subcategories
-    private final List<String> categoriesWithSub = Arrays.asList(
-            "Body_Armours", "Shields", "Boots", "Gloves", "Helmets"
-    );
-
-    public ItemSelectionController(ComboBox<String> categoryComboBox, ComboBox<String> subCategoryComboBox, ItemManager itemManager) {
-        this.itemManager = itemManager;
-        this.categoryComboBox = categoryComboBox;
-        this.subCategoryComboBox = subCategoryComboBox;
-
-        // Initialize categories
-        categoryComboBox.setItems(FXCollections.observableArrayList(itemManager.getCategories()));
-        subCategoryComboBox.setVisible(false);
-
-        // Listeners
-        categoryComboBox.setOnAction(e -> onCategorySelected());
-        subCategoryComboBox.setOnAction(e -> selectedSubCategory = subCategoryComboBox.getValue());
+    public ItemSelectionController(ItemSelectionView view, ItemManager manager) {
+        this.view = view;
+        this.manager = manager;
+        initialize();
     }
 
-    private void onCategorySelected() {
-        selectedCategory = categoryComboBox.getValue();
-        if (categoriesWithSub.contains(selectedCategory)) {
-            List<String> subCategories = itemManager.getSubCategories(selectedCategory);
-            subCategoryComboBox.setItems(FXCollections.observableArrayList(subCategories));
-            subCategoryComboBox.setVisible(true);
-        } else {
-            subCategoryComboBox.setVisible(false);
-            subCategoryComboBox.getItems().clear();
-            selectedSubCategory = null;
-        }
+    private void initialize() {
+        // When a category is selected
+        view.getCategoryComboBox().setOnAction(e -> {
+            String selectedCategory = view.getCategoryComboBox().getValue();
+            if (selectedCategory != null) {
+                List<String> subcategories = manager.getSubCategories(selectedCategory);
+                view.getSubCategoryComboBox().setItems(FXCollections.observableArrayList(subcategories));
+                view.getSubCategoryComboBox().setVisible(true);
+            }
+        });
+
+        // When a subcategory is selected
+        view.getSubCategoryComboBox().setOnAction(e -> {
+            String selectedSubCategory = view.getSubCategoryComboBox().getValue();
+            if (selectedSubCategory != null) {
+                Map<String, List<String>> modifiers = manager.getAvailableModifiersFor(selectedSubCategory);
+                updateModifierBoxes(modifiers);
+            }
+        });
     }
 
-    // Getters
-    public String getSelectedCategory() {
-        return selectedCategory;
-    }
+    private void updateModifierBoxes(Map<String, List<String>> modifiers) {
+        List<String> prefixes = modifiers.getOrDefault("prefixes", List.of());
+        List<String> suffixes = modifiers.getOrDefault("suffixes", List.of());
 
-    public String getSelectedSubCategory() {
-        return selectedSubCategory;
+        view.getPrefix1ComboBox().setItems(FXCollections.observableArrayList(prefixes));
+        view.getPrefix2ComboBox().setItems(FXCollections.observableArrayList(prefixes));
+        view.getPrefix3ComboBox().setItems(FXCollections.observableArrayList(prefixes));
+
+        view.getSuffix1ComboBox().setItems(FXCollections.observableArrayList(suffixes));
+        view.getSuffix2ComboBox().setItems(FXCollections.observableArrayList(suffixes));
+        view.getSuffix3ComboBox().setItems(FXCollections.observableArrayList(suffixes));
     }
 }

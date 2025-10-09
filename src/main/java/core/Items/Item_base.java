@@ -4,7 +4,6 @@ import core.Modifier_class.*;
 import java.util.List;
 
 public class Item_base {
-
     protected List<Modifier> Normal_allowedPrefixes;
     protected List<Modifier> Normal_allowedSuffixes;
     protected List<Modifier> Desecrated_allowedPrefixes;

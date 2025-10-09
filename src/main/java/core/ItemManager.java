@@ -11,7 +11,6 @@ import java.lang.reflect.Field;
 import core.Modifier_class.*;
 import core.Items.*;
 
-
 public class ItemManager {
 
     private final String itemsPath = "src/main/java/core/Items"; // Path to your Items folder
@@ -19,7 +18,8 @@ public class ItemManager {
     // Returns all top-level category folder names
     public List<String> getCategories() {
         File folder = new File(itemsPath);
-        if (!folder.exists() || !folder.isDirectory()) return new ArrayList<>();
+        if (!folder.exists() || !folder.isDirectory())
+            return new ArrayList<>();
 
         String[] categories = folder.list((current, name) -> new File(current, name).isDirectory());
         return categories != null ? Arrays.asList(categories) : new ArrayList<>();
@@ -28,51 +28,43 @@ public class ItemManager {
     // Returns all subfolders/files inside a category
     public List<String> getSubCategories(String category) {
         File folder = new File(itemsPath + "/" + category);
-        if (!folder.exists() || !folder.isDirectory()) return new ArrayList<>();
+        if (!folder.exists() || !folder.isDirectory())
+            return new ArrayList<>();
 
         String[] subCategories = folder.list((current, name) -> new File(current, name).isDirectory());
         return subCategories != null ? Arrays.asList(subCategories) : new ArrayList<>();
     }
 
     // Getting the modifiers of the items the user chose
-    public Map<String, List<Modifier>> getAvailableModifiersFor(String CategoryPath, String SubCategoryPath) {
+    public Map<String, List<String>> getAvailableModifiersFor(String CategoryPath, String SubCategoryPath) {
         try {
             String className;
             if (SubCategoryPath == null || SubCategoryPath.isEmpty()) {
-                className = "core.Items." + CategoryPath;  // only category for single-base items
+                className = "core.Items." + CategoryPath + "." + CategoryPath; // single-base
             } else {
-                className = "core.Items." + CategoryPath + "." + SubCategoryPath;  // both for multi-base items
+                className = "core.Items." + CategoryPath + "." + SubCategoryPath + "." + SubCategoryPath; // multi-base
             }
 
-            System.out.println(className);
+            System.out.println("Loading item class: " + className);
 
-            
-
-            // Load the class and instantiate it
             Class<?> itemClass = Class.forName(className);
             Object itemInstance = itemClass.getDeclaredConstructor().newInstance();
 
-            Map<String, List<Modifier>> result = new HashMap<>();
+            // Get protected field from superclass
+            Field normalPrefixesField = itemClass.getSuperclass().getDeclaredField("Normal_allowedPrefixes");
+            normalPrefixesField.setAccessible(true);
 
-            // List of protected fields to retrieve
-            String[] fields = {
-                "Normal_allowedPrefixes",
-                "Normal_allowedSuffixes",
-                "Desecrated_allowedPrefixes",
-                "Desecrated_allowedSuffixes",
-                "Essences_allowedPrefixes",
-                "Essences_allowedSuffixes"
-            };
+            @SuppressWarnings("unchecked")
+            List<Modifier> normalPrefixes = (List<Modifier>) normalPrefixesField.get(itemInstance);
 
-            // Access each field dynamically
-            for (String fieldName : fields) {
-                Field field = itemClass.getDeclaredField(fieldName);
-                field.setAccessible(true); // allow access to protected
-                @SuppressWarnings("unchecked") // Suppress unchecked cast warning
-                List<Modifier> list = (List<Modifier>) field.get(itemInstance);
-                result.put(fieldName, list != null ? list : new ArrayList<>());
+            List<String> normalPrefixTexts = new ArrayList<>();
+            for (Modifier mod : normalPrefixes) {
+                normalPrefixTexts.add(mod.text);
+                System.out.println(mod.text);
             }
 
+            Map<String, List<String>> result = new HashMap<>();
+            result.put("NormalPrefixes", normalPrefixTexts);
             return result;
 
         } catch (Exception e) {
@@ -82,4 +74,3 @@ public class ItemManager {
     }
 
 }
-

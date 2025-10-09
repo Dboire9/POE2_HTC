@@ -47,13 +47,35 @@ public class ItemSelectionView extends VBox {
         this.setSpacing(10);
     }
 
-    public ComboBox<String> getCategoryComboBox() { return categoryComboBox; }
-    public ComboBox<String> getSubCategoryComboBox() { return subCategoryComboBox; }
+    public ComboBox<String> getCategoryComboBox() {
+        return categoryComboBox;
+    }
 
-    public ComboBox<String> getPrefix1ComboBox() { return prefix1ComboBox; }
-    public ComboBox<String> getPrefix2ComboBox() { return prefix2ComboBox; }
-    public ComboBox<String> getPrefix3ComboBox() { return prefix3ComboBox; }
-    public ComboBox<String> getSuffix1ComboBox() { return suffix1ComboBox; }
-    public ComboBox<String> getSuffix2ComboBox() { return suffix2ComboBox; }
-    public ComboBox<String> getSuffix3ComboBox() { return suffix3ComboBox; }
+    public ComboBox<String> getSubCategoryComboBox() {
+        return subCategoryComboBox;
+    }
+
+    public ComboBox<String> getPrefix1ComboBox() {
+        return prefix1ComboBox;
+    }
+
+    public ComboBox<String> getPrefix2ComboBox() {
+        return prefix2ComboBox;
+    }
+
+    public ComboBox<String> getPrefix3ComboBox() {
+        return prefix3ComboBox;
+    }
+
+    public ComboBox<String> getSuffix1ComboBox() {
+        return suffix1ComboBox;
+    }
+
+    public ComboBox<String> getSuffix2ComboBox() {
+        return suffix2ComboBox;
+    }
+
+    public ComboBox<String> getSuffix3ComboBox() {
+        return suffix3ComboBox;
+    }
 }

@@ -22,38 +22,38 @@ public class ItemSelectionController {
         this.view = view;
         this.manager = manager;
         initialize(); // entry point
-        view.getDesecratedModifierCheckBox().selectedProperty().addListener((obs, oldValue, newValue) -> {
+        view.desecratedModifierCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> {
             resetAllModifiers();
         });
-        view.getModifierTypeComboBox().valueProperty().addListener((obs, oldValue, newValue) -> {
+        view.modifierTypeComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
             resetAllModifiers();
         });
     }
 
     private void initialize() {
-        view.getCategoryComboBox().setOnAction(e -> handleCategorySelection());
-        view.getSubCategoryComboBox().setOnAction(e -> handleSubCategorySelection());
+        view.categoryComboBox.setOnAction(e -> handleCategorySelection());
+        view.subCategoryComboBox.setOnAction(e -> handleSubCategorySelection());
     }
 
     private void handleCategorySelection() {
-        selectedCategory = view.getCategoryComboBox().getValue();
+        selectedCategory = view.categoryComboBox.getValue();
         if (selectedCategory == null)
             return;
 
         List<String> subcategories = manager.getSubCategories(selectedCategory);
 
         if (subcategories == null || subcategories.isEmpty()) {
-            view.getSubCategoryComboBox().setVisible(false);
+            view.subCategoryComboBox.setVisible(false);
             selectedItemClass = getItemClass(selectedCategory, null);
             populateModifiers(selectedItemClass);
         } else {
-            view.getSubCategoryComboBox().setItems(FXCollections.observableArrayList(subcategories));
-            view.getSubCategoryComboBox().setVisible(true);
+            view.subCategoryComboBox.setItems(FXCollections.observableArrayList(subcategories));
+            view.subCategoryComboBox.setVisible(true);
         }
     }
 
     private void handleSubCategorySelection() {
-        selectedSubCategory = view.getSubCategoryComboBox().getValue();
+        selectedSubCategory = view.subCategoryComboBox.getValue();
         if (selectedCategory == null || selectedSubCategory == null)
             return;
 
@@ -105,24 +105,25 @@ public class ItemSelectionController {
             // Prefix combo boxes
             @SuppressWarnings("unchecked")
             ComboBox<String>[] prefixBoxes = new ComboBox[] {
-                    view.getPrefix1ComboBox(),
-                    view.getPrefix2ComboBox(),
-                    view.getPrefix3ComboBox()
+                    view.prefix1ComboBox,
+                    view.prefix2ComboBox,
+                    view.prefix3ComboBox
             };
 
             // Suffix combo boxes
             @SuppressWarnings("unchecked")
             ComboBox<String>[] suffixBoxes = new ComboBox[] {
-                    view.getSuffix1ComboBox(),
-                    view.getSuffix2ComboBox(),
-                    view.getSuffix3ComboBox()
+                    view.suffix1ComboBox,
+                    view.suffix2ComboBox,
+                    view.suffix3ComboBox
             };
-            if (view.isDesecratedModifierSelected() && view.getSelectedmodifierTypeComboBoxvalue() == "Prefix") {
+            if (view.desecratedModifierCheckBox.isSelected()
+                    && view.modifierTypeComboBox.getValue() == "Prefix") {
                 populateComboBoxes(prefixBoxes[0], DesecratednormalPrefixes);
                 populateComboBoxes(suffixBoxes[0], normalSuffixes);
 
-            } else if (view.isDesecratedModifierSelected()
-                    && view.getSelectedmodifierTypeComboBoxvalue() == "Suffix") {
+            } else if (view.desecratedModifierCheckBox.isSelected()
+                    && view.modifierTypeComboBox.getValue() == "Suffix") {
                 populateComboBoxes(suffixBoxes[0], DesecratednormalSuffixes);
                 populateComboBoxes(prefixBoxes[0], normalPrefixes);
 
@@ -201,13 +202,13 @@ public class ItemSelectionController {
 
     private void resetAllModifiers() {
         // Clear selections for all prefixes and suffixes
-        view.getPrefix1ComboBox().getSelectionModel().clearSelection();
-        view.getPrefix2ComboBox().getSelectionModel().clearSelection();
-        view.getPrefix3ComboBox().getSelectionModel().clearSelection();
+        view.prefix1ComboBox.getSelectionModel().clearSelection();
+        view.prefix2ComboBox.getSelectionModel().clearSelection();
+        view.prefix3ComboBox.getSelectionModel().clearSelection();
 
-        view.getSuffix1ComboBox().getSelectionModel().clearSelection();
-        view.getSuffix2ComboBox().getSelectionModel().clearSelection();
-        view.getSuffix3ComboBox().getSelectionModel().clearSelection();
+        view.suffix1ComboBox.getSelectionModel().clearSelection();
+        view.suffix2ComboBox.getSelectionModel().clearSelection();
+        view.suffix3ComboBox.getSelectionModel().clearSelection();
 
         // Refresh the combo boxes with the current item class and desecrated state
         populateModifiers(selectedItemClass);

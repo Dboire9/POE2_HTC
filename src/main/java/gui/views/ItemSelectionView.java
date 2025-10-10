@@ -2,6 +2,7 @@ package gui.views;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import java.util.List;
@@ -18,6 +19,9 @@ public class ItemSelectionView extends VBox {
     private final ComboBox<String> suffix2ComboBox;
     private final ComboBox<String> suffix3ComboBox;
 
+    private final CheckBox desecratedModifierCheckBox;
+    private final ComboBox<String> modifierTypeComboBox;
+
     public ItemSelectionView(List<String> categories) {
         categoryComboBox = new ComboBox<>(FXCollections.observableArrayList(categories));
         categoryComboBox.setPromptText("Select Category");
@@ -26,12 +30,40 @@ public class ItemSelectionView extends VBox {
         subCategoryComboBox.setPromptText("Select Subcategory");
         subCategoryComboBox.setVisible(false);
 
+        desecratedModifierCheckBox = new CheckBox("Desecrated Modifier");
+        modifierTypeComboBox = new ComboBox<>();
+        modifierTypeComboBox.setPromptText("Select Modifier Type");
+        modifierTypeComboBox.setVisible(false);
+
         prefix1ComboBox = new ComboBox<>();
         prefix2ComboBox = new ComboBox<>();
         prefix3ComboBox = new ComboBox<>();
         suffix1ComboBox = new ComboBox<>();
         suffix2ComboBox = new ComboBox<>();
         suffix3ComboBox = new ComboBox<>();
+
+        desecratedModifierCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                // Show the ComboBox and populate it with options
+                modifierTypeComboBox.setItems(FXCollections.observableArrayList("Prefix", "Suffix"));
+                modifierTypeComboBox.setVisible(true);
+            } else {
+                // Hide the ComboBox when the checkbox is unticked
+                modifierTypeComboBox.setVisible(false);
+                modifierTypeComboBox.getSelectionModel().clearSelection();
+            }
+        });
+
+        modifierTypeComboBox.setOnAction(event -> {
+            String selectedModifier = modifierTypeComboBox.getValue();
+            if ("Prefix".equals(selectedModifier)) {
+                System.out.println("User selected Prefix");
+                // Handle prefix selection logic here
+            } else if ("Suffix".equals(selectedModifier)) {
+                System.out.println("User selected Suffix");
+                // Handle suffix selection logic here
+            }
+        });
 
         prefix1ComboBox.setPromptText("Prefix 1");
         prefix2ComboBox.setPromptText("Prefix 2");
@@ -43,7 +75,8 @@ public class ItemSelectionView extends VBox {
         HBox prefixBox = new HBox(10, prefix1ComboBox, prefix2ComboBox, prefix3ComboBox);
         HBox suffixBox = new HBox(10, suffix1ComboBox, suffix2ComboBox, suffix3ComboBox);
 
-        this.getChildren().addAll(categoryComboBox, subCategoryComboBox, prefixBox, suffixBox);
+        this.getChildren().addAll(categoryComboBox, subCategoryComboBox, prefixBox, suffixBox,
+                desecratedModifierCheckBox, modifierTypeComboBox);
         this.setSpacing(10);
     }
 
@@ -77,5 +110,9 @@ public class ItemSelectionView extends VBox {
 
     public ComboBox<String> getSuffix3ComboBox() {
         return suffix3ComboBox;
+    }
+
+    public boolean isDesecratedModifierSelected() {
+        return desecratedModifierCheckBox.isSelected();
     }
 }

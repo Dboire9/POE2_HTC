@@ -88,24 +88,58 @@ public class ItemSelectionController {
             @SuppressWarnings("unchecked")
             List<Modifier> normalSuffixes = (List<Modifier>) suffixesField.get(itemInstance);
 
-            // Populate prefix combo boxes
+            // Prefix combo boxes
             @SuppressWarnings("unchecked")
-            ComboBox<String>[] prefixBoxes = (ComboBox<String>[]) new ComboBox[3];
-            prefixBoxes[0] = view.getPrefix1ComboBox();
-            prefixBoxes[1] = view.getPrefix2ComboBox();
-            prefixBoxes[2] = view.getPrefix3ComboBox();
+            ComboBox<String>[] prefixBoxes = new ComboBox[] {
+                    view.getPrefix1ComboBox(),
+                    view.getPrefix2ComboBox(),
+                    view.getPrefix3ComboBox()
+            };
             populateComboBoxes(prefixBoxes, normalPrefixes);
+            setupUniqueSelection(prefixBoxes);
 
-            // Populate suffix combo boxes
+            // Suffix combo boxes
             @SuppressWarnings("unchecked")
-            ComboBox<String>[] suffixBoxes = (ComboBox<String>[]) new ComboBox[3];
-            suffixBoxes[0] = view.getSuffix1ComboBox();
-            suffixBoxes[1] = view.getSuffix2ComboBox();
-            suffixBoxes[2] = view.getSuffix3ComboBox();
+            ComboBox<String>[] suffixBoxes = new ComboBox[] {
+                    view.getSuffix1ComboBox(),
+                    view.getSuffix2ComboBox(),
+                    view.getSuffix3ComboBox()
+            };
             populateComboBoxes(suffixBoxes, normalSuffixes);
+            setupUniqueSelection(suffixBoxes);
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void setupUniqueSelection(ComboBox<String>[] boxes) {
+        for (ComboBox<String> box : boxes) {
+            final String[] previousSelection = { null }; // track previous selection for this box
+
+            box.setOnAction(e -> {
+                String selected = box.getValue();
+
+                // If there was a previous selection, add it back to other boxes
+                if (previousSelection[0] != null) {
+                    for (ComboBox<String> otherBox : boxes) {
+                        if (otherBox != box && !otherBox.getItems().contains(previousSelection[0])) {
+                            otherBox.getItems().add(previousSelection[0]);
+                        }
+                    }
+                }
+
+                // Remove the newly selected value from other boxes
+                if (selected != null) {
+                    for (ComboBox<String> otherBox : boxes) {
+                        if (otherBox != box) {
+                            otherBox.getItems().remove(selected);
+                        }
+                    }
+                }
+
+                previousSelection[0] = selected; // update previous selection
+            });
         }
     }
 

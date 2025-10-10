@@ -113,4 +113,8 @@ public class ItemSelectionView extends VBox {
     public String getSelectedmodifierTypeComboBoxvalue() {
         return modifierTypeComboBox.getValue();
     }
+
+    public ComboBox<String> getModifierTypeComboBox() {
+        return modifierTypeComboBox;
+    }
 }

@@ -22,6 +22,12 @@ public class ItemSelectionController {
         this.view = view;
         this.manager = manager;
         initialize(); // entry point
+        view.getDesecratedModifierCheckBox().selectedProperty().addListener((obs, oldValue, newValue) -> {
+            resetAllModifiers();
+        });
+        view.getModifierTypeComboBox().valueProperty().addListener((obs, oldValue, newValue) -> {
+            resetAllModifiers();
+        });
     }
 
     private void initialize() {
@@ -191,5 +197,19 @@ public class ItemSelectionController {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void resetAllModifiers() {
+        // Clear selections for all prefixes and suffixes
+        view.getPrefix1ComboBox().getSelectionModel().clearSelection();
+        view.getPrefix2ComboBox().getSelectionModel().clearSelection();
+        view.getPrefix3ComboBox().getSelectionModel().clearSelection();
+
+        view.getSuffix1ComboBox().getSelectionModel().clearSelection();
+        view.getSuffix2ComboBox().getSelectionModel().clearSelection();
+        view.getSuffix3ComboBox().getSelectionModel().clearSelection();
+
+        // Refresh the combo boxes with the current item class and desecrated state
+        populateModifiers(selectedItemClass);
     }
 }

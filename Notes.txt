@@ -1,1 +1,0 @@
-When choosing a base, return the class of the Item, so that when we select the modifiers we want, we have the modifierTier 

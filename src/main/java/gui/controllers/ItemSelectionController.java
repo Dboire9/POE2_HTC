@@ -1,7 +1,7 @@
 package gui.controllers;
 
 import core.ItemManager;
-import core.Modifier_class.Modifier;
+import core.Modifier_class.*;
 import gui.views.ItemSelectionView;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
@@ -22,17 +22,17 @@ public class ItemSelectionController {
         this.view = view;
         this.manager = manager;
         initialize(); // entry point
+    }
+
+    private void initialize() {
+        view.categoryComboBox.setOnAction(e -> handleCategorySelection());
+        view.subCategoryComboBox.setOnAction(e -> handleSubCategorySelection());
         view.desecratedModifierCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> {
             resetAllModifiers();
         });
         view.modifierTypeComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
             resetAllModifiers();
         });
-    }
-
-    private void initialize() {
-        view.categoryComboBox.setOnAction(e -> handleCategorySelection());
-        view.subCategoryComboBox.setOnAction(e -> handleSubCategorySelection());
     }
 
     private void handleCategorySelection() {
@@ -110,6 +110,14 @@ public class ItemSelectionController {
                     view.prefix3ComboBox
             };
 
+            // Prefix tier combo boxes
+            @SuppressWarnings("unchecked")
+            ComboBox<String>[] prefixTierBoxes = new ComboBox[] {
+                    view.prefix1TierComboBox,
+                    view.prefix1TierComboBox,
+                    view.prefix1TierComboBox
+            };
+
             // Suffix combo boxes
             @SuppressWarnings("unchecked")
             ComboBox<String>[] suffixBoxes = new ComboBox[] {
@@ -117,6 +125,15 @@ public class ItemSelectionController {
                     view.suffix2ComboBox,
                     view.suffix3ComboBox
             };
+
+            // Suffix tier combo boxes
+            @SuppressWarnings("unchecked")
+            ComboBox<String>[] suffixTierBoxes = new ComboBox[] {
+                    view.suffix1TierComboBox,
+                    view.suffix1TierComboBox,
+                    view.suffix1TierComboBox
+            };
+
             if (view.desecratedModifierCheckBox.isSelected()
                     && view.modifierTypeComboBox.getValue() == "Prefix") {
                 populateComboBoxes(prefixBoxes[0], DesecratednormalPrefixes);

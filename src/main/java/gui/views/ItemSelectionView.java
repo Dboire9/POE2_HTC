@@ -10,67 +10,87 @@ import java.util.List;
 
 public class ItemSelectionView extends VBox {
 
-    public final ComboBox<String> categoryComboBox;
-    public final ComboBox<String> subCategoryComboBox;
+	public final ComboBox<String> categoryComboBox;
+	public final ComboBox<String> subCategoryComboBox;
 
-    public final ComboBox<String> prefix1ComboBox;
-    public final ComboBox<String> prefix2ComboBox;
-    public final ComboBox<String> prefix3ComboBox;
-    public final ComboBox<String> suffix1ComboBox;
-    public final ComboBox<String> suffix2ComboBox;
-    public final ComboBox<String> suffix3ComboBox;
+	public final ComboBox<String> prefix1ComboBox;
+	public final ComboBox<String> prefix2ComboBox;
+	public final ComboBox<String> prefix3ComboBox;
+	public final ComboBox<String> suffix1ComboBox;
+	public final ComboBox<String> suffix2ComboBox;
+	public final ComboBox<String> suffix3ComboBox;
 
-    public final CheckBox desecratedModifierCheckBox;
-    public final ComboBox<String> modifierTypeComboBox;
+	public final ComboBox<String> prefix1TierComboBox;
+	public final ComboBox<String> prefix2TierComboBox;
+	public final ComboBox<String> prefix3TierComboBox;
+	public final ComboBox<String> suffix1TierComboBox;
+	public final ComboBox<String> suffix2TierComboBox;
+	public final ComboBox<String> suffix3TierComboBox;
 
-    public ItemSelectionView(List<String> categories) {
-        categoryComboBox = new ComboBox<>(FXCollections.observableArrayList(categories));
-        categoryComboBox.setPromptText("Select Category");
+	public final CheckBox desecratedModifierCheckBox;
+	public final ComboBox<String> modifierTypeComboBox;
 
-        subCategoryComboBox = new ComboBox<>();
-        subCategoryComboBox.setPromptText("Select Subcategory");
-        subCategoryComboBox.setVisible(false);
+	public ItemSelectionView(List<String> categories) {
+		categoryComboBox = new ComboBox<>(FXCollections.observableArrayList(categories));
+		categoryComboBox.setPromptText("Select Category");
 
-        desecratedModifierCheckBox = new CheckBox("Desecrated Modifier");
-        modifierTypeComboBox = new ComboBox<>();
-        modifierTypeComboBox.setPromptText("Select Modifier Type");
-        modifierTypeComboBox.setVisible(false);
+		subCategoryComboBox = new ComboBox<>();
+		subCategoryComboBox.setPromptText("Select Subcategory");
+		subCategoryComboBox.setVisible(false);
 
-        prefix1ComboBox = new ComboBox<>();
-        prefix2ComboBox = new ComboBox<>();
-        prefix3ComboBox = new ComboBox<>();
-        suffix1ComboBox = new ComboBox<>();
-        suffix2ComboBox = new ComboBox<>();
-        suffix3ComboBox = new ComboBox<>();
+		desecratedModifierCheckBox = new CheckBox("Desecrated Modifier");
+		modifierTypeComboBox = new ComboBox<>();
+		modifierTypeComboBox.setPromptText("Select Modifier Type");
+		modifierTypeComboBox.setVisible(false);
 
-        desecratedModifierCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                // Show the ComboBox and populate it with options
-                modifierTypeComboBox.setItems(FXCollections.observableArrayList("Prefix", "Suffix"));
-                modifierTypeComboBox.setVisible(true);
-            } else {
-                // Hide the ComboBox when the checkbox is unticked
-                modifierTypeComboBox.setVisible(false);
-                modifierTypeComboBox.getSelectionModel().clearSelection();
-            }
-        });
+		prefix1ComboBox = new ComboBox<>();
+		prefix2ComboBox = new ComboBox<>();
+		prefix3ComboBox = new ComboBox<>();
+		suffix1ComboBox = new ComboBox<>();
+		suffix2ComboBox = new ComboBox<>();
+		suffix3ComboBox = new ComboBox<>();
 
-        prefix1ComboBox.setPromptText("Prefix 1");
-        prefix2ComboBox.setPromptText("Prefix 2");
-        prefix3ComboBox.setPromptText("Prefix 3");
-        suffix1ComboBox.setPromptText("Suffix 1");
-        suffix2ComboBox.setPromptText("Suffix 2");
-        suffix3ComboBox.setPromptText("Suffix 3");
+		prefix1TierComboBox = new ComboBox<>();
+		prefix2TierComboBox = new ComboBox<>();
+		prefix3TierComboBox = new ComboBox<>();
+		suffix1TierComboBox = new ComboBox<>();
+		suffix2TierComboBox = new ComboBox<>();
+		suffix3TierComboBox = new ComboBox<>();
 
-        HBox prefixBox = new HBox(10, prefix1ComboBox, prefix2ComboBox, prefix3ComboBox);
-        HBox suffixBox = new HBox(10, suffix1ComboBox, suffix2ComboBox, suffix3ComboBox);
+		desecratedModifierCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue) {
+				// Show the ComboBox and populate it with options
+				modifierTypeComboBox.setItems(FXCollections.observableArrayList("Prefix", "Suffix"));
+				modifierTypeComboBox.setVisible(true);
+			} else {
+				// Hide the ComboBox when the checkbox is unticked
+				modifierTypeComboBox.setVisible(false);
+				modifierTypeComboBox.getSelectionModel().clearSelection();
+			}
+		});
 
-        this.getChildren().addAll(categoryComboBox, subCategoryComboBox, prefixBox, suffixBox,
-                desecratedModifierCheckBox, modifierTypeComboBox);
-        this.setSpacing(10);
-    }
+		prefix1ComboBox.setPromptText("Prefix 1");
+		prefix2ComboBox.setPromptText("Prefix 2");
+		prefix3ComboBox.setPromptText("Prefix 3");
+		suffix1ComboBox.setPromptText("Suffix 1");
+		suffix2ComboBox.setPromptText("Suffix 2");
+		suffix3ComboBox.setPromptText("Suffix 3");
 
-    public ComboBox<String> getModifierTypeComboBox() {
-        return modifierTypeComboBox;
-    }
+		prefix1TierComboBox.setPromptText("Prefix 1 Tier");
+		prefix2TierComboBox.setPromptText("Prefix 2 Tier");
+		prefix3TierComboBox.setPromptText("Prefix 3 Tier");
+		suffix1TierComboBox.setPromptText("Suffix 1 Tier");
+		suffix2TierComboBox.setPromptText("Suffix 2 Tier");
+		suffix3TierComboBox.setPromptText("Suffix 3 Tier");
+
+		HBox prefixBox = new HBox(10, prefix1ComboBox, prefix1TierComboBox, prefix2ComboBox, prefix2TierComboBox,
+				prefix3ComboBox, prefix3TierComboBox);
+		HBox suffixBox = new HBox(10, suffix1ComboBox, suffix1TierComboBox, suffix2ComboBox, suffix2TierComboBox,
+				suffix3ComboBox, suffix3TierComboBox);
+
+		this.getChildren().addAll(categoryComboBox, subCategoryComboBox, prefixBox, suffixBox,
+				desecratedModifierCheckBox, modifierTypeComboBox);
+		this.setSpacing(10);
+	}
+
 }

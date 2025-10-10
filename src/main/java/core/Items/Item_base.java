@@ -10,4 +10,9 @@ public class Item_base {
     protected List<Modifier> Desecrated_allowedSuffixes;
     protected List<Modifier> Essences_allowedPrefixes;
     protected List<Modifier> Essences_allowedSuffixes;
+
+    // Used to return a class 
+    public String getItemClass() {
+        return this.getClass().getSimpleName();
+    }
 }

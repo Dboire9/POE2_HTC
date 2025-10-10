@@ -1,6 +1,7 @@
 package gui.views;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
@@ -54,17 +55,6 @@ public class ItemSelectionView extends VBox {
             }
         });
 
-        modifierTypeComboBox.setOnAction(event -> {
-            String selectedModifier = modifierTypeComboBox.getValue();
-            if ("Prefix".equals(selectedModifier)) {
-                System.out.println("User selected Prefix");
-                // Handle prefix selection logic here
-            } else if ("Suffix".equals(selectedModifier)) {
-                System.out.println("User selected Suffix");
-                // Handle suffix selection logic here
-            }
-        });
-
         prefix1ComboBox.setPromptText("Prefix 1");
         prefix2ComboBox.setPromptText("Prefix 2");
         prefix3ComboBox.setPromptText("Prefix 3");
@@ -114,5 +104,13 @@ public class ItemSelectionView extends VBox {
 
     public boolean isDesecratedModifierSelected() {
         return desecratedModifierCheckBox.isSelected();
+    }
+
+    public CheckBox getDesecratedModifierCheckBox() {
+        return desecratedModifierCheckBox;
+    }
+
+    public String getSelectedmodifierTypeComboBoxvalue() {
+        return modifierTypeComboBox.getValue();
     }
 }

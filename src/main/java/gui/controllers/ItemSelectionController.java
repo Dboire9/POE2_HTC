@@ -82,11 +82,19 @@ public class ItemSelectionController {
             prefixesField.setAccessible(true);
             Field suffixesField = itemClass.getSuperclass().getDeclaredField("Normal_allowedSuffixes");
             suffixesField.setAccessible(true);
+            Field DesecratedprefixesField = itemClass.getSuperclass().getDeclaredField("Desecrated_allowedPrefixes");
+            DesecratedprefixesField.setAccessible(true);
+            Field DesecratedsuffixesField = itemClass.getSuperclass().getDeclaredField("Desecrated_allowedSuffixes");
+            DesecratedsuffixesField.setAccessible(true);
 
             @SuppressWarnings("unchecked")
             List<Modifier> normalPrefixes = (List<Modifier>) prefixesField.get(itemInstance);
             @SuppressWarnings("unchecked")
             List<Modifier> normalSuffixes = (List<Modifier>) suffixesField.get(itemInstance);
+            @SuppressWarnings("unchecked")
+            List<Modifier> DesecratednormalPrefixes = (List<Modifier>) DesecratedprefixesField.get(itemInstance);
+            @SuppressWarnings("unchecked")
+            List<Modifier> DesecratednormalSuffixes = (List<Modifier>) DesecratedsuffixesField.get(itemInstance);
 
             // Prefix combo boxes
             @SuppressWarnings("unchecked")
@@ -95,8 +103,6 @@ public class ItemSelectionController {
                     view.getPrefix2ComboBox(),
                     view.getPrefix3ComboBox()
             };
-            populateComboBoxes(prefixBoxes, normalPrefixes);
-            setupUniqueSelection(prefixBoxes);
 
             // Suffix combo boxes
             @SuppressWarnings("unchecked")
@@ -105,7 +111,27 @@ public class ItemSelectionController {
                     view.getSuffix2ComboBox(),
                     view.getSuffix3ComboBox()
             };
-            populateComboBoxes(suffixBoxes, normalSuffixes);
+            if (view.isDesecratedModifierSelected() && view.getSelectedmodifierTypeComboBoxvalue() == "Prefix") {
+                populateComboBoxes(prefixBoxes[0], DesecratednormalPrefixes);
+                populateComboBoxes(suffixBoxes[0], normalSuffixes);
+
+            } else if (view.isDesecratedModifierSelected()
+                    && view.getSelectedmodifierTypeComboBoxvalue() == "Suffix") {
+                populateComboBoxes(suffixBoxes[0], DesecratednormalSuffixes);
+                populateComboBoxes(prefixBoxes[0], normalPrefixes);
+
+            } else {
+                populateComboBoxes(prefixBoxes[0], normalPrefixes);
+                populateComboBoxes(suffixBoxes[0], normalSuffixes);
+
+            }
+
+            populateComboBoxes(prefixBoxes[1], normalPrefixes);
+            populateComboBoxes(prefixBoxes[2], normalPrefixes);
+            setupUniqueSelection(prefixBoxes);
+
+            populateComboBoxes(suffixBoxes[1], normalSuffixes);
+            populateComboBoxes(suffixBoxes[2], normalSuffixes);
             setupUniqueSelection(suffixBoxes);
 
         } catch (Exception e) {
@@ -143,13 +169,11 @@ public class ItemSelectionController {
         }
     }
 
-    private void populateComboBoxes(ComboBox<String>[] boxes, List<Modifier> modifiers) {
-        for (ComboBox<String> box : boxes) {
-            box.getItems().clear();
-            if (modifiers != null) {
-                for (Modifier mod : modifiers) {
-                    box.getItems().add(mod.text);
-                }
+    private void populateComboBoxes(ComboBox<String> box, List<Modifier> modifiers) {
+        box.getItems().clear();
+        if (modifiers != null) {
+            for (Modifier mod : modifiers) {
+                box.getItems().add(mod.text);
             }
         }
     }

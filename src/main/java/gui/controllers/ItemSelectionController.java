@@ -254,6 +254,7 @@ public class ItemSelectionController {
 		comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
 				Modifier mod = getModifierFromValue(selectedItemClass, newVal);
+				System.out.println("Debug: mod = " + mod);
 				if (mod.tiers != null && !mod.tiers.isEmpty()) {
 					System.out.println("✅ Selected Modifier Tiers:");
 
@@ -312,7 +313,9 @@ public class ItemSelectionController {
 					itemClass.getSuperclass().getDeclaredField("Normal_allowedPrefixes"),
 					itemClass.getSuperclass().getDeclaredField("Normal_allowedSuffixes"),
 					itemClass.getSuperclass().getDeclaredField("Desecrated_allowedPrefixes"),
-					itemClass.getSuperclass().getDeclaredField("Desecrated_allowedSuffixes")
+					itemClass.getSuperclass().getDeclaredField("Desecrated_allowedSuffixes"),
+					itemClass.getSuperclass().getDeclaredField("Essences_allowedPrefixes"),
+					itemClass.getSuperclass().getDeclaredField("Essences_allowedSuffixes")
 			};
 
 			for (Field field : fields) {

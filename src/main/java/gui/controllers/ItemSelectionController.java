@@ -7,7 +7,9 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ItemSelectionController {
 
@@ -33,6 +35,12 @@ public class ItemSelectionController {
         view.modifierTypeComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
             resetAllModifiers();
         });
+        setupModifierSelectionListener(view.prefix1ComboBox, view.prefix1TierComboBox);
+        setupModifierSelectionListener(view.prefix2ComboBox, view.prefix2TierComboBox);
+        setupModifierSelectionListener(view.prefix3ComboBox, view.prefix3TierComboBox);
+        setupModifierSelectionListener(view.suffix1ComboBox, view.suffix1TierComboBox);
+        setupModifierSelectionListener(view.suffix2ComboBox, view.suffix2TierComboBox);
+        setupModifierSelectionListener(view.suffix3ComboBox, view.suffix3TierComboBox);
     }
 
     private void handleCategorySelection() {
@@ -110,28 +118,12 @@ public class ItemSelectionController {
                     view.prefix3ComboBox
             };
 
-            // Prefix tier combo boxes
-            @SuppressWarnings("unchecked")
-            ComboBox<String>[] prefixTierBoxes = new ComboBox[] {
-                    view.prefix1TierComboBox,
-                    view.prefix1TierComboBox,
-                    view.prefix1TierComboBox
-            };
-
             // Suffix combo boxes
             @SuppressWarnings("unchecked")
             ComboBox<String>[] suffixBoxes = new ComboBox[] {
                     view.suffix1ComboBox,
                     view.suffix2ComboBox,
                     view.suffix3ComboBox
-            };
-
-            // Suffix tier combo boxes
-            @SuppressWarnings("unchecked")
-            ComboBox<String>[] suffixTierBoxes = new ComboBox[] {
-                    view.suffix1TierComboBox,
-                    view.suffix1TierComboBox,
-                    view.suffix1TierComboBox
             };
 
             if (view.desecratedModifierCheckBox.isSelected()
@@ -165,7 +157,7 @@ public class ItemSelectionController {
 
     private void setupUniqueSelection(ComboBox<String>[] boxes) {
         for (ComboBox<String> box : boxes) {
-            final String[] previousSelection = { null }; // track previous selection for this box
+            final String[] previousSelection = { null };
 
             box.setOnAction(e -> {
                 String selected = box.getValue();
@@ -188,7 +180,7 @@ public class ItemSelectionController {
                     }
                 }
 
-                previousSelection[0] = selected; // update previous selection
+                previousSelection[0] = selected; // Update previous selection
             });
         }
     }
@@ -230,4 +222,92 @@ public class ItemSelectionController {
         // Refresh the combo boxes with the current item class and desecrated state
         populateModifiers(selectedItemClass);
     }
+
+    private void setupModifierSelectionListener(ComboBox<String> comboBox, ComboBox<String> comboBoxTier) {
+        comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                Modifier mod = getModifierFromValue(selectedItemClass, newVal);
+                if (mod.tiers != null && !mod.tiers.isEmpty()) {
+                    System.out.println("✅ Selected Modifier Tiers:");
+
+                    // Clear the ModifierTierBox before populating
+                    comboBoxTier.getItems().clear();
+
+                    for (ModifierTier tier : mod.tiers) {
+                        StringBuilder tierDisplayBuilder = new StringBuilder();
+
+                        // Dynamically check each minMax field
+                        if (tier.minMax1 != null) {
+                            tierDisplayBuilder.append(tier.minMax1.first()).append(" - ").append(tier.minMax1.second());
+                        }
+                        if (tier.minMax2 != null) {
+                            tierDisplayBuilder.append(" / ").append(tier.minMax2.first()).append(" - ")
+                                    .append(tier.minMax2.second());
+                        }
+                        if (tier.minMax3 != null) {
+                            tierDisplayBuilder.append(" / ").append(tier.minMax3.first()).append(" - ")
+                                    .append(tier.minMax3.second());
+                        }
+                        if (tier.minMax4 != null) {
+                            tierDisplayBuilder.append(" / ").append(tier.minMax4.first()).append(" - ")
+                                    .append(tier.minMax4.second());
+                        }
+
+                        String tierDisplay = tierDisplayBuilder.toString();
+                        comboBoxTier.getItems().add(tierDisplay);
+                        System.out.println(" - " + tierDisplay);
+                    }
+                    System.out.println("Modifier Type: " + mod.type);
+                } else {
+                    System.out.println("⚠️ No tiers available for the selected modifier.");
+                    comboBoxTier.getItems().clear(); // Clear if no tiers are available
+                }
+            }
+            printSelectedModifiers();
+        });
+    }
+
+    private Modifier getModifierFromValue(Class<?> itemClass, String value) {
+        if (value == null || itemClass == null)
+            return null;
+
+        try {
+            Object itemInstance = itemClass.getDeclaredConstructor().newInstance();
+
+            Field[] fields = {
+                    itemClass.getSuperclass().getDeclaredField("Normal_allowedPrefixes"),
+                    itemClass.getSuperclass().getDeclaredField("Normal_allowedSuffixes"),
+                    itemClass.getSuperclass().getDeclaredField("Desecrated_allowedPrefixes"),
+                    itemClass.getSuperclass().getDeclaredField("Desecrated_allowedSuffixes")
+            };
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+                @SuppressWarnings("unchecked")
+                List<Modifier> mods = (List<Modifier>) field.get(itemInstance);
+                for (Modifier mod : mods) {
+                    if (mod.text.equals(value)) {
+                        return mod;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void printSelectedModifiers() {
+        String p1 = view.prefix1ComboBox.getValue();
+        String p2 = view.prefix2ComboBox.getValue();
+        String p3 = view.prefix3ComboBox.getValue();
+        String s1 = view.suffix1ComboBox.getValue();
+        String s2 = view.suffix2ComboBox.getValue();
+        String s3 = view.suffix3ComboBox.getValue();
+
+        System.out.println("Selected Modifiers:");
+        System.out.println("Prefixes: " + p1 + ", " + p2 + ", " + p3);
+        System.out.println("Suffixes: " + s1 + ", " + s2 + ", " + s3);
+    }
+
 }

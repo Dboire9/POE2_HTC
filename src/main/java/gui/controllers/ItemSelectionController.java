@@ -213,9 +213,9 @@ public class ItemSelectionController {
 	private void essencepopulateComboBoxes(ComboBox<String> box, List<Modifier> modifiers) {
 		if (modifiers != null) {
 			for (Modifier mod : modifiers) {
-				System.out.println("Modifiers: " + mod.text);
-				if (!box.getItems().contains(mod.text)) { // Check if the item is not already in the ComboBox
-					box.getItems().add(mod.text);
+				if (!box.getItems().contains(mod.text)) {
+					String Essencetxt = "Essence : " + mod.text;
+					box.getItems().add(Essencetxt);
 				}
 			}
 		}
@@ -305,6 +305,10 @@ public class ItemSelectionController {
 	private Modifier getModifierFromValue(Class<?> itemClass, String value) {
 		if (value == null || itemClass == null)
 			return null;
+
+		if (value.startsWith("Essence : ")) {
+			value = value.substring("Essence : ".length());
+		}
 
 		try {
 			Object itemInstance = itemClass.getDeclaredConstructor().newInstance();

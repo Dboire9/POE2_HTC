@@ -205,7 +205,7 @@ public class Modifiers_normal {
 				ModifierType.SUFFIX,
 				ModifierSource.NORMAL,
 				"Strength",
-				"# to Strength");
+				"+# to Strength");
 
 		REDUCED_ATTRIBUTE_REQUIREMENTS = new Modifier(
 				"reduced_attribute_requirements",

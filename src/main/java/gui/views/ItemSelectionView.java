@@ -20,6 +20,13 @@ public class ItemSelectionView extends VBox {
     private final ComboBox<String> suffix2ComboBox;
     private final ComboBox<String> suffix3ComboBox;
 
+    private final ComboBox<String> prefix1TierComboBox;
+    private final ComboBox<String> prefix2TierComboBox;
+    private final ComboBox<String> prefix3TierComboBox;
+    private final ComboBox<String> suffix1TierComboBox;
+    private final ComboBox<String> suffix2TierComboBox;
+    private final ComboBox<String> suffix3TierComboBox;
+
     private final CheckBox desecratedModifierCheckBox;
     private final ComboBox<String> modifierTypeComboBox;
 
@@ -43,17 +50,28 @@ public class ItemSelectionView extends VBox {
         suffix2ComboBox = new ComboBox<>();
         suffix3ComboBox = new ComboBox<>();
 
-        desecratedModifierCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                // Show the ComboBox and populate it with options
-                modifierTypeComboBox.setItems(FXCollections.observableArrayList("Prefix", "Suffix"));
-                modifierTypeComboBox.setVisible(true);
-            } else {
-                // Hide the ComboBox when the checkbox is unticked
-                modifierTypeComboBox.setVisible(false);
-                modifierTypeComboBox.getSelectionModel().clearSelection();
-            }
-        });
+        prefix1TierComboBox = new ComboBox<>();
+        prefix2TierComboBox = new ComboBox<>();
+        prefix3TierComboBox = new ComboBox<>();
+        suffix1TierComboBox = new ComboBox<>();
+        suffix2TierComboBox = new ComboBox<>();
+        suffix3TierComboBox = new ComboBox<>();
+
+        prefix1TierComboBox.setPromptText("Tier 1");
+        prefix2TierComboBox.setPromptText("Tier 2");
+        prefix3TierComboBox.setPromptText("Tier 3");
+        suffix1TierComboBox.setPromptText("Tier 1");
+        suffix2TierComboBox.setPromptText("Tier 2");
+        suffix3TierComboBox.setPromptText("Tier 3");
+
+        prefix1TierComboBox.setVisible(false);
+        prefix2TierComboBox.setVisible(false);
+        prefix3TierComboBox.setVisible(false);
+        suffix1TierComboBox.setVisible(false);
+        suffix2TierComboBox.setVisible(false);
+        suffix3TierComboBox.setVisible(false);
+
+        ObservableList<String> tierOptions = FXCollections.observableArrayList("Tier 1", "Tier 2", "Tier 3", "Tier 4");
 
         prefix1ComboBox.setPromptText("Prefix 1");
         prefix2ComboBox.setPromptText("Prefix 2");
@@ -62,8 +80,52 @@ public class ItemSelectionView extends VBox {
         suffix2ComboBox.setPromptText("Suffix 2");
         suffix3ComboBox.setPromptText("Suffix 3");
 
-        HBox prefixBox = new HBox(10, prefix1ComboBox, prefix2ComboBox, prefix3ComboBox);
-        HBox suffixBox = new HBox(10, suffix1ComboBox, suffix2ComboBox, suffix3ComboBox);
+        prefix1ComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            prefix1TierComboBox.setVisible(newValue != null);
+            if (newValue != null) {
+                prefix1TierComboBox.setItems(tierOptions);
+            }
+        });
+
+        prefix2ComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            prefix2TierComboBox.setVisible(newValue != null);
+            if (newValue != null) {
+                prefix2TierComboBox.setItems(tierOptions);
+            }
+        });
+
+        prefix3ComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            prefix3TierComboBox.setVisible(newValue != null);
+            if (newValue != null) {
+                prefix3TierComboBox.setItems(tierOptions);
+            }
+        });
+
+        suffix1ComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            suffix1TierComboBox.setVisible(newValue != null);
+            if (newValue != null) {
+                suffix1TierComboBox.setItems(tierOptions);
+            }
+        });
+
+        suffix2ComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            suffix2TierComboBox.setVisible(newValue != null);
+            if (newValue != null) {
+                suffix2TierComboBox.setItems(tierOptions);
+            }
+        });
+
+        suffix3ComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            suffix3TierComboBox.setVisible(newValue != null);
+            if (newValue != null) {
+                suffix3TierComboBox.setItems(tierOptions);
+            }
+        });
+
+        HBox prefixBox = new HBox(10, prefix1ComboBox, prefix1TierComboBox, prefix2ComboBox, prefix2TierComboBox,
+                prefix3ComboBox, prefix3TierComboBox);
+        HBox suffixBox = new HBox(10, suffix1ComboBox, suffix1TierComboBox, suffix2ComboBox, suffix2TierComboBox,
+                suffix3ComboBox, suffix3TierComboBox);
 
         this.getChildren().addAll(categoryComboBox, subCategoryComboBox, prefixBox, suffixBox,
                 desecratedModifierCheckBox, modifierTypeComboBox);

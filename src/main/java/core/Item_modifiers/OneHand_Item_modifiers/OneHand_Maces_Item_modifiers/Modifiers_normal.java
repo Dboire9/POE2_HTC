@@ -338,7 +338,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"CriticalStrikeChanceIncrease",
-				"++#% to Critical Hit Chance");
+				"+#% to Critical Hit Chance");
 
 		CRITICAL_DAMAGE_BONUS = new Modifier(
 				"critical_damage_bonus",

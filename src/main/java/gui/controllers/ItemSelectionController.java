@@ -213,7 +213,8 @@ public class ItemSelectionController {
 	private void essencepopulateComboBoxes(ComboBox<String> box, List<Modifier> modifiers) {
 		if (modifiers != null) {
 			for (Modifier mod : modifiers) {
-				if (!box.getItems().contains(mod.text)) {
+				if (!box.getItems().contains(mod.text) && mod.text != "+# to Strength" && mod.text != "+# to Dexterity"
+						&& mod.text != "+# to Intelligence") {
 					String Essencetxt = "Essence : " + mod.text;
 					box.getItems().add(Essencetxt);
 				}

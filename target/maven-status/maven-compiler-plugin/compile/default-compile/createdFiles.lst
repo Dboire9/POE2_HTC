@@ -71,7 +71,6 @@ core/ItemManager.class
 core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_desecrated.class
 core/Items/Gloves/Gloves_str_dex/Gloves_str_dex.class
 core/Items/Body_Armours/Body_Armours_dex/Body_Armours_dex.class
-core/Items/OneHandMaces/OneHand_Maces.class
 core/Item_modifiers/TwoHand_Item_modifiers/Staves_Item_modifiers/Modifiers_normal.class
 core/Items/Body_Armours/Body_Armours_str/Body_Armours_str.class
 core/Item_modifiers/Off_Hand_Item_modifiers/Foci_Item_modifiers/Modifiers_desecrated.class
@@ -116,7 +115,6 @@ core/Item_modifiers/TwoHand_Item_modifiers/TwoHandMaces_Items_modifiers/Modifier
 core/Item_modifiers/Boots_Item_modifiers/Boots_Normal_Item_modifiers/Modifiers_normal.class
 core/Items/Spears/Spears.class
 core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_desecrated.class
-core/Items/TwoHandMaces/TwoHand_Maces.class
 core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifiers/Modifiers_normal.class
 core/Item_modifiers/Gloves_Item_modifiers/Gloves_Normal_Item_modifiers/Modifiers_essences.class
 core/Items/Boots/Boots_str_dex/Boots_str_dex.class

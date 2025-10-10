@@ -206,7 +206,7 @@ public class Modifiers_normal {
 				ModifierType.SUFFIX,
 				ModifierSource.NORMAL,
 				"Strength",
-				"# to Strength");
+				"+# to Strength");
 
 		DEXTERITY = new Modifier(
 				"dexterity",

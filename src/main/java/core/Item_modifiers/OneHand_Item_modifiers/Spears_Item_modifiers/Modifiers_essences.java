@@ -96,7 +96,7 @@ public class Modifiers_essences {
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
 				"IncreasedAccuracy",
-				"# to Accuracy Rating");
+				"+# to Accuracy Rating");
 
 		ESSENCE_WEAPON_GAINED_DAMAGE_PHYSICAL = new Modifier(
 				"essence_weapon_gained_damage_physical",
@@ -172,7 +172,7 @@ public class Modifiers_essences {
 				ModifierType.SUFFIX,
 				ModifierSource.ESSENCE,
 				"Strength",
-				"# to Strength, Dexterity or Intelligence");
+				"+# to Strength");
 
 		ESSENCE_ATTRIBUTES_DEXTERITY = new Modifier(
 				"essence_attributes",
@@ -184,7 +184,7 @@ public class Modifiers_essences {
 				ModifierType.SUFFIX,
 				ModifierSource.ESSENCE,
 				"Dexterity",
-				"# to Strength, Dexterity or Intelligence");
+				"+# to Dexterity");
 
 		ESSENCE_ATTRIBUTES_INTELLIGENCE = new Modifier(
 				"essence_attributes",
@@ -196,7 +196,7 @@ public class Modifiers_essences {
 				ModifierType.SUFFIX,
 				ModifierSource.ESSENCE,
 				"Intelligence",
-				"# to Strength, Dexterity or Intelligence");
+				"+# to Intelligence");
 
 		ESSENCE_ALL_ATTACK_SKILL_LEVEL = new Modifier(
 				"essence_all_attack_skill_level",

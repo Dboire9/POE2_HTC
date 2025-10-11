@@ -43,14 +43,14 @@ public class Gloves_str extends Item_base {
         Desecrated_allowedPrefixes = new ArrayList<>();
         
         Desecrated_allowedSuffixes = new ArrayList<>();
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_INTELLIGENCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_DEXTERITY);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DAZE_ON_HIT);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_INSTANT_LEECH_PERCENT);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DEXTERITY_AND_INTELLIGENCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_MANA_COST_EFFICIENCY);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_INTELLIGENCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_DEXTERITY);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_DAZE_ON_HIT);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_INSTANT_LEECH_PERCENT);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_DEXTERITY_AND_INTELLIGENCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_MANA_COST_EFFICIENCY);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_INCREASED_MAGNITUDE_AILMENT_EFFECT);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_BLEED_CHANCE_INCREASE);

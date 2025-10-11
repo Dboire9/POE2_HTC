@@ -53,7 +53,7 @@ public class Modifiers_essences {
 						new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79))),
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
-				"DefencesPercentArmour",
+				"DefencesPercent",
 				"#% increased Armour");
 
 		ESSENCE_INCREASED_PERCENT_EVASION = new Modifier(
@@ -65,7 +65,7 @@ public class Modifiers_essences {
 						new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79))),
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
-				"DefencesPercentEvasion",
+				"DefencesPercent",
 				"#% increased Evasion");
 
 		ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD = new Modifier(
@@ -77,7 +77,7 @@ public class Modifiers_essences {
 						new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79))),
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
-				"DefencesPercentEnergyShield",
+				"DefencesPercent",
 				"#% increased Energy Shield");
 
 		ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT = new Modifier(
@@ -109,7 +109,7 @@ public class Modifiers_essences {
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
 				"Thorns",
-				"Adds # to # Physical Thorns damage");
+				"# to # Physical Thorns damage");
 
 		ESSENCE_RANDOM_NOTABLE_PASSIVE = new Modifier(
 				"essence_random_notable_passive",

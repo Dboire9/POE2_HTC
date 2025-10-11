@@ -109,35 +109,35 @@ public class Modifiers_essences {
 			"DefencesPercent",
 			"#% increased Armour and Evasion");
 
-			ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD = new Modifier(
-				"increased_percent_armour", "increased_percent_energy_shield",
-				List.of("defences"),
-				List.of(
-						new ModifierTier("Lesser Essence of Enhancement", 16, 1, new Pair<>(27, 42), new Pair<>(27, 42),
-								"increased_percent_armour", "increased_percent_energy_shield"),
-						new ModifierTier("Essence of Enhancement", 46, 1, new Pair<>(56, 67), new Pair<>(56, 67),
-								"increased_percent_armour", "increased_percent_energy_shield"),
-						new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79), new Pair<>(68, 79),
-								"increased_percent_armour", "increased_percent_energy_shield")),
-				Modifier.ModifierType.PREFIX,
-				Modifier.ModifierSource.ESSENCE,
-				"DefencesPercent",
-				"#% increased Armour and Energy Shield");
+		ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD = new Modifier(
+			"increased_percent_armour", "increased_percent_energy_shield",
+			List.of("defences"),
+			List.of(
+					new ModifierTier("Lesser Essence of Enhancement", 16, 1, new Pair<>(27, 42), new Pair<>(27, 42),
+							"increased_percent_armour", "increased_percent_energy_shield"),
+					new ModifierTier("Essence of Enhancement", 46, 1, new Pair<>(56, 67), new Pair<>(56, 67),
+							"increased_percent_armour", "increased_percent_energy_shield"),
+					new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79), new Pair<>(68, 79),
+							"increased_percent_armour", "increased_percent_energy_shield")),
+			Modifier.ModifierType.PREFIX,
+			Modifier.ModifierSource.ESSENCE,
+			"DefencesPercent",
+			"#% increased Armour and Energy Shield");
 
-			ESSENCE_HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD = new Modifier(
-				"increased_percent_evasion", "increased_percent_energy_shield",
-				List.of("defences"),
-				List.of(
-						new ModifierTier("Lesser Essence of Enhancement", 16, 1, new Pair<>(27, 42), new Pair<>(27, 42),
-								"increased_percent_evasion", "increased_percent_energy_shield"),
-						new ModifierTier("Essence of Enhancement", 46, 1, new Pair<>(56, 67), new Pair<>(56, 67),
-								"increased_percent_evasion", "increased_percent_energy_shield"),
-						new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79), new Pair<>(68, 79),
-								"increased_percent_evasion", "increased_percent_energy_shield")),
-				Modifier.ModifierType.PREFIX,
-				Modifier.ModifierSource.ESSENCE,
-				"DefencesPercent",
-				"#% increased Evasion and Energy Shield");
+		ESSENCE_HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD = new Modifier(
+			"increased_percent_evasion", "increased_percent_energy_shield",
+			List.of("defences"),
+			List.of(
+					new ModifierTier("Lesser Essence of Enhancement", 16, 1, new Pair<>(27, 42), new Pair<>(27, 42),
+							"increased_percent_evasion", "increased_percent_energy_shield"),
+					new ModifierTier("Essence of Enhancement", 46, 1, new Pair<>(56, 67), new Pair<>(56, 67),
+							"increased_percent_evasion", "increased_percent_energy_shield"),
+					new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79), new Pair<>(68, 79),
+							"increased_percent_evasion", "increased_percent_energy_shield")),
+			Modifier.ModifierType.PREFIX,
+			Modifier.ModifierSource.ESSENCE,
+			"DefencesPercent",
+			"#% increased Evasion and Energy Shield");
 
 		ESSENCE_INCREASED_MOVEMENT_SPEED = new Modifier(
 				"increased_movement_speed",

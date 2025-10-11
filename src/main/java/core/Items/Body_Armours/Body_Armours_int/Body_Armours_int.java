@@ -35,15 +35,15 @@ public class Body_Armours_int extends Item_base {
         Desecrated_allowedPrefixes = new ArrayList<>();
         
         Desecrated_allowedSuffixes = new ArrayList<>();
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_INTELLIGENCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_DEXTERITY);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_SPIRIT_RESERVATION_EFFICIENCY);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DEXTERITY_AND_INTELLIGENCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DAMAGE_RECOUPED_AS_MANA);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_INTELLIGENCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_DEXTERITY);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_SPIRIT_RESERVATION_EFFICIENCY);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_DEXTERITY_AND_INTELLIGENCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_DAMAGE_RECOUPED_AS_MANA);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION);
 

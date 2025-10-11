@@ -21,12 +21,13 @@ public class ItemSelectionController {
 
 	private final ValidateButton validateButton;
 
-	Modifier prefix1store;
-	Modifier prefix2store;
-	Modifier prefix3store;
-	Modifier suffix1store;
-	Modifier suffix2store;
-	Modifier suffix3store;
+	private Modifier prefix1store;
+	private Modifier prefix2store;
+	private Modifier prefix3store;
+	private Modifier suffix1store;
+	private Modifier suffix2store;
+	private Modifier suffix3store;
+
 
 	public ItemSelectionController(ItemSelectionView view, ItemManager manager) {
 		this.view = view;
@@ -60,18 +61,22 @@ public class ItemSelectionController {
 		setupModifierComboBoxListener(view.suffix3ComboBox, "suffix3");
 	
 		view.validateButton.setOnAction(event -> {
-			if(validateButton.areAllModifiersAndTiersSelected())
-			{
-				System.out.println("Prefix 1: " + (prefix1store.text));
-				System.out.println("Prefix 2: " + (prefix2store.text));
-				System.out.println("Prefix 3: " + (prefix3store.text));
-				System.out.println("Suffix 1: " + (suffix1store.text));
-				System.out.println("Suffix 2: " + (suffix2store.text));
-				System.out.println("Suffix 3: " + (suffix3store.text));
-
-			}
-			else
+			if (validateButton.areAllModifiersAndTiersSelected()) {
+				int prefix1Tier = Integer.parseInt(view.prefix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+				int prefix2Tier = Integer.parseInt(view.prefix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+				int prefix3Tier = Integer.parseInt(view.prefix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+				int suffix1Tier = Integer.parseInt(view.suffix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+				int suffix2Tier = Integer.parseInt(view.suffix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+				int suffix3Tier = Integer.parseInt(view.suffix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+				System.out.println("Prefix 1: " + (prefix1store.text) + "Tier : " + prefix1Tier);
+				System.out.println("Prefix 2: " + (prefix2store.text) + "Tier : " + prefix2Tier);
+				System.out.println("Prefix 3: " + (prefix3store.text) + "Tier : " + prefix3Tier);
+				System.out.println("Suffix 1: " + (suffix1store.text) + "Tier : " + suffix1Tier);
+				System.out.println("Suffix 2: " + (suffix2store.text) + "Tier : " + suffix2Tier);
+				System.out.println("Suffix 3: " + (suffix3store.text) + "Tier : " + suffix3Tier);
+			} else {
 				view.messageLabel.setText("Please select all six modifiers and their tiers");
+			}
 		});
 	}
 
@@ -378,7 +383,7 @@ public class ItemSelectionController {
 		comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
 				Modifier mod = getModifiersFromValue(selectedItemClass, newVal);
-				System.out.println("Debug: mod = " + mod);
+				// System.out.println("Debug: mod = " + mod);
 				if (mod.tiers != null && !mod.tiers.isEmpty()) {
 					System.out.println("✅ Selected Modifier Tiers:");
 

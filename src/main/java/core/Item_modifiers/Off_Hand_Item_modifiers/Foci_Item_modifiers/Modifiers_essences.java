@@ -54,7 +54,7 @@ public class Modifiers_essences {
 						new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79))),
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
-				"DefencesPercentArmour",
+				"DefencesPercent",
 				"#% increased Armour");
 
 		ESSENCE_INCREASED_PERCENT_EVASION = new Modifier(
@@ -66,7 +66,7 @@ public class Modifiers_essences {
 						new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79))),
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
-				"DefencesPercentEvasion",
+				"DefencesPercent",
 				"#% increased Evasion");
 
 		ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD = new Modifier(
@@ -78,7 +78,7 @@ public class Modifiers_essences {
 						new ModifierTier("Greater Essence of Enhancement", 54, 1, new Pair<>(68, 79))),
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
-				"DefencesPercentEnergyShield",
+				"DefencesPercent",
 				"#% increased Energy Shield");
 
 		ESSENCE_INCREASED_SPELL_DAMAGE = new Modifier(

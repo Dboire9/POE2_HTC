@@ -85,6 +85,7 @@
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Gloves_Item_modifiers/Gloves_Hybrid_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Items/Gloves/Gloves_str/Gloves_str.java
 /root/POE2craft_java/src/main/java/core/Items/Gloves/Gloves_dex_int/Gloves_dex_int.java
+/root/POE2craft_java/src/main/java/core/Items/Item_storage_modifiers.java
 /root/POE2craft_java/src/main/java/core/Items/Body_Armours/Body_Armours_str_dex/Body_Armours_str_dex.java
 /root/POE2craft_java/src/main/java/core/Items/Quarterstaves/Quarterstaves.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_normal.java

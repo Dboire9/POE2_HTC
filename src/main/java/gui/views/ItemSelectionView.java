@@ -2,8 +2,10 @@ package gui.views;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -13,6 +15,8 @@ public class ItemSelectionView extends VBox {
 
 	public final ComboBox<String> categoryComboBox;
 	public final ComboBox<String> subCategoryComboBox;
+
+	public Button validateButton = new Button("Validate"); // Add this field
 
 	public final ComboBox<String> prefix1ComboBox;
 	public final ComboBox<String> prefix2ComboBox;
@@ -93,14 +97,29 @@ public class ItemSelectionView extends VBox {
 		suffix2TierComboBox.setPromptText("Suffix 2 Tier");
 		suffix3TierComboBox.setPromptText("Suffix 3 Tier");
 
-		HBox prefixBox = new HBox(10, prefix1ComboBox, prefix1TierComboBox, prefix2ComboBox, prefix2TierComboBox,
-				prefix3ComboBox, prefix3TierComboBox);
-		HBox suffixBox = new HBox(10, suffix1ComboBox, suffix1TierComboBox, suffix2ComboBox, suffix2TierComboBox,
-				suffix3ComboBox, suffix3TierComboBox);
+        // Group category and subcategory components
+        VBox categoryBox = new VBox(10, categoryComboBox, subCategoryComboBox);
+        categoryBox.setAlignment(Pos.CENTER_LEFT);
 
-		this.getChildren().addAll(categoryComboBox, subCategoryComboBox, prefixBox, suffixBox,
-				desecratedModifierCheckBox, modifierTypeComboBox, messageLabel);
-		this.setSpacing(10);
-	}
+        // Group prefix and suffix components
+        HBox prefixBox = new HBox(10, prefix1ComboBox, prefix2ComboBox, prefix3ComboBox);
+        HBox prefixTierBox = new HBox(10, prefix1TierComboBox, prefix2TierComboBox, prefix3TierComboBox);
+        HBox suffixBox = new HBox(10, suffix1ComboBox, suffix2ComboBox, suffix3ComboBox);
+        HBox suffixTierBox = new HBox(10, suffix1TierComboBox, suffix2TierComboBox, suffix3TierComboBox);
 
+        VBox modifierBox = new VBox(10, prefixBox, prefixTierBox, suffixBox, suffixTierBox, desecratedModifierCheckBox, modifierTypeComboBox);
+        modifierBox.setAlignment(Pos.CENTER_LEFT);
+
+        // Group validation components
+        HBox validationBox = new HBox(10, messageLabel, validateButton);
+        validationBox.setAlignment(Pos.CENTER);
+
+        // Add all groups to the main layout
+        VBox mainLayout = new VBox(20, categoryBox, modifierBox, validationBox);
+        mainLayout.setAlignment(Pos.CENTER);
+
+        // Set the main layout as the root
+        this.getChildren().add(mainLayout);
+        this.setSpacing(10);
+    }
 }

@@ -5,6 +5,7 @@ import core.Modifier_class.*;
 import core.Items.*;
 import gui.views.ItemSelectionView;
 import javafx.collections.FXCollections;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 
 import java.lang.reflect.Field;
@@ -40,6 +41,10 @@ public class ItemSelectionController {
 		setupModifierSelectionListener(view.suffix1ComboBox, view.suffix1TierComboBox);
 		setupModifierSelectionListener(view.suffix2ComboBox, view.suffix2TierComboBox);
 		setupModifierSelectionListener(view.suffix3ComboBox, view.suffix3TierComboBox);
+		view.validateButton.setOnAction(event -> {
+			// Add your validation logic here
+			System.out.println("Validation button clicked!");
+		});
 	}
 
 	private void handleCategorySelection() {

@@ -2,6 +2,7 @@ package gui.controllers;
 
 import core.ItemManager;
 import core.Modifier_class.*;
+import core.Items.*;
 import gui.views.ItemSelectionView;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;

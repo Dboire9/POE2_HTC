@@ -32,6 +32,10 @@ public class Sceptres extends Item_base {
         Normal_allowedSuffixes.add(Modifiers_normal.INCREASED_PRESENCE_RADIUS);
         Normal_allowedSuffixes.add(Modifiers_normal.MINIONS_INCREASED_LIFE);
 
+		Desecrated_allowedPrefixes = new ArrayList<>();
+
+		Desecrated_allowedSuffixes = new ArrayList<>();
+
         Essences_allowedPrefixes = new ArrayList<>();
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ALLIES_INCREASED_DAMAGE);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);

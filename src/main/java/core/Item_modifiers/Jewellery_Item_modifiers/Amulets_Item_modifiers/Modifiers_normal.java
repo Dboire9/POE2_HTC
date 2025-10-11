@@ -118,7 +118,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"IncreasedPhysicalDamageReductionRatingPercent",
-				"(#)% increased Armour");
+				"#% increased Armour");
 
 		INCREASED_PERCENT_EVASION = new Modifier(
 				"increased_percent_evasion",
@@ -134,7 +134,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EvasionRatingPercent",
-				"(#)% increased Evasion Rating");
+				"#% increased Evasion Rating");
 
 		INCREASED_PERCENT_ENERGY_SHIELD = new Modifier(
 				"increased_percent_energy_shield",
@@ -150,7 +150,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EnergyShieldPercent",
-				"(#)% increased Energy Shield");
+				"#% increased Energy Shield");
 
 		ACCURACY_RATING = new Modifier(
 				"accuracy_rating",
@@ -181,7 +181,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"ItemFoundRarityIncreasePrefix",
-				"(#)% increased Rarity of Items found");
+				"#% increased Rarity of Items found");
 
 		BASE_SPIRIT = new Modifier(
 				"base_spirit",
@@ -444,7 +444,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"LifeRegeneration",
-				"(#) Life Regeneration per second");
+				"# Life Regeneration per second");
 
 		INCREASED_CRITICAL_HIT_CHANCE = new Modifier(
 				"increased_critical_hit_chance",
@@ -459,7 +459,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"CriticalStrikeChanceIncrease",
-				"(#)% increased Critical Hit Chance");
+				"#% increased Critical Hit Chance");
 
 		INCREASED_CRITICAL_DAMAGE_BONUS_FOR_ATTACKS = new Modifier(
 				"critical_damage_bonus_for_attacks",

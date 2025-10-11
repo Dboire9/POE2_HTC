@@ -203,7 +203,7 @@ public class Modifiers_essences {
 				ModifierType.SUFFIX,
 				ModifierSource.ESSENCE,
 				"ColdDamageTakenRecoupedAsLife",
-				"(#)% of Cold Damage taken Recouped as Life");
+				"#% of Cold Damage taken Recouped as Life");
 
 		ESSENCE_LIGHTNING_RESISTANCE = new Modifier(
 				"lightning_resistance",

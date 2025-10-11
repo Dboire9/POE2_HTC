@@ -132,7 +132,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Armour and Evasion");
+				"#% increased Armour and Evasion");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD = new Modifier(
 				"increased_percent_armour", "increased_percent_energy_shield",
@@ -157,7 +157,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Armour and Energy Shield");
+				"#% increased Armour and Energy Shield");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_AND_STUN = new Modifier(
 				"increased_percent_armour", "increased_percent_evasion", "base_stun_threshold",
@@ -183,7 +183,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercentAndStunThreshold",
-				"(#)% increased Armour and Evasion\n+# to Stun Threshold");
+				"#% increased Armour and Evasion\n+# to Stun Threshold");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_STUN = new Modifier(
 				"increased_percent_armour", "increased_percent_energy_shield", "base_stun_threshold",
@@ -210,7 +210,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercentAndStunThreshold",
-				"(#)% increased Armour and Energy Shield\n+# to Stun Threshold");
+				"#% increased Armour and Energy Shield\n+# to Stun Threshold");
 
 		PHYSICAL_THORNS_DAMAGE = new Modifier(
 				"physical_thorns_damage",
@@ -226,7 +226,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"Thorns",
-				"(#) to (#) Physical Thorns damage");
+				"# to # Physical Thorns damage");
 
 		INCREASED_SHIELD_BLOCK_CHANCE = new Modifier(
 				"increased_shield_block_chance",
@@ -493,7 +493,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EvasionAppliesToDeflection",
-				"Gain Deflection Rating equal to (#)% of Evasion Rating");
+				"Gain Deflection Rating equal to #% of Evasion Rating");
 
 		ENERGY_SHIELD_RECHARGE_RATE = new Modifier(
 				"energy_shield_recharge_rate",
@@ -508,7 +508,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EnergyShieldRegeneration",
-				"(#)% increased Energy Shield Recharge Rate");
+				"#% increased Energy Shield Recharge Rate");
 
 	}
 }

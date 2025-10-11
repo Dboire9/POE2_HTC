@@ -165,7 +165,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Armour and Evasion");
+				"#% increased Armour and Evasion");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD = new Modifier(
 				"increased_percent_armour", "increased_percent_energy_shield",
@@ -190,7 +190,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Armour and Energy Shield");
+				"#% increased Armour and Energy Shield");
 
 		HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD = new Modifier(
 				"increased_percent_evasion", "increased_percent_energy_shield",
@@ -215,7 +215,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Evasion and Energy Shield");
+				"#% increased Evasion and Energy Shield");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_LIFE = new Modifier(
 				"increased_percent_armour", "increased_percent_evasion", "base_maximum_life",
@@ -240,7 +240,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndLife",
-				"(#)% increased Armour and Evasion\n+# to maximum Life");
+				"#% increased Armour and Evasion\n+# to maximum Life");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_LIFE = new Modifier(
 				"increased_percent_armour", "increased_percent_energy_shield", "base_maximum_life",
@@ -266,7 +266,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndLife",
-				"(#)% increased Armour and Energy Shield\n+# to maximum Life");
+				"#% increased Armour and Energy Shield\n+# to maximum Life");
 
 		HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_LIFE = new Modifier(
 				"increased_percent_evasion", "increased_percent_energy_shield", "base_maximum_life",
@@ -291,7 +291,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndLife",
-				"(#)% increased Evasion and Energy Shield\n+# to maximum Life");
+				"#% increased Evasion and Energy Shield\n+# to maximum Life");
 
 		HYBRID_BASE_AND_PERCENT_ARMOUR_EVASION = new Modifier(
 				"base_armour", "base_evasion", "increased_percent_armour", "increased_percent_evasion",
@@ -318,7 +318,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndDefencePercent",
-				"+# to Armour\n+# to Evasion Rating\n(#)% increased Armour and Evasion");
+				"+# to Armour\n+# to Evasion Rating\n#% increased Armour and Evasion");
 
 		HYBRID_BASE_AND_PERCENT_ARMOUR_ENERGY_SHIELD = new Modifier(
 				"base_armour", "base_energy_shield", "increased_percent_armour", "increased_percent_energy_shield",
@@ -345,7 +345,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndDefencePercent",
-				"+# to Armour\n+# to maximum Energy Shield\n(#)% increased Armour and Energy Shield");
+				"+# to Armour\n+# to maximum Energy Shield\n#% increased Armour and Energy Shield");
 
 		HYBRID_BASE_AND_PERCENT_EVASION_ENERGY_SHIELD = new Modifier(
 				"base_evasion", "base_energy_shield", "increased_percent_evasion", "increased_percent_energy_shield",
@@ -372,7 +372,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndDefencePercent",
-				"+# to Evasion Rating\n+# to maximum Energy Shield\n(#)% increased Evasion and Energy Shield");
+				"+# to Evasion Rating\n+# to maximum Energy Shield\n#% increased Evasion and Energy Shield");
 
 		PHYSICAL_THORNS_DAMAGE = new Modifier(
 				"physical_thorns_damage",
@@ -388,7 +388,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"Thorns",
-				"(#) to (#) Physical Thorns damage");
+				"# to # Physical Thorns damage");
 
 		BASE_SPIRIT = new Modifier(
 				"base_spirit",
@@ -578,7 +578,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"LifeRegeneration",
-				"(#) Life Regeneration per second");
+				"# Life Regeneration per second");
 
 		REDUCED_BLEEDING_DURATION_ON_SELF = new Modifier(
 				"reduced_bleeding_duration_on_self",
@@ -592,7 +592,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"ReducedBleedingDuration",
-				"(#)% reduced Duration of Bleeding on You");
+				"#% reduced Duration of Bleeding on You");
 
 		REDUCED_POISON_DURATION_ON_SELF = new Modifier(
 				"reduced_poison_duration_on_self",
@@ -606,7 +606,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"ReducedPoisonDuration",
-				"(#)% reduced Poison Duration on You");
+				"#% reduced Poison Duration on You");
 
 		REDUCED_IGNITE_DURATION_ON_SELF = new Modifier(
 				"reduced_ignite_duration_on_self",
@@ -620,7 +620,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"ReducedIgniteDuration",
-				"(#)% reduced Ignite Duration on You");
+				"#% reduced Ignite Duration on You");
 
 		ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE = new Modifier(
 				"armour_applies_to_elemental_damage",
@@ -650,7 +650,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EvasionAppliesToDeflection",
-				"Gain Deflection Rating equal to (#)% of Evasion Rating");
+				"Gain Deflection Rating equal to #% of Evasion Rating");
 
 		ENERGY_SHIELD_FASTER_START_RECHARGE = new Modifier(
 				"energy_shield_faster_start_recharge",
@@ -665,7 +665,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EnergyShieldDelay",
-				"(#)% faster start of Energy Shield Recharge");
+				"#% faster start of Energy Shield Recharge");
 
 	}
 }

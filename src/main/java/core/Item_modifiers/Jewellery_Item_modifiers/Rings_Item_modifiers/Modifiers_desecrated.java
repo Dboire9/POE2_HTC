@@ -44,7 +44,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"RemnantEffect",
-				"Remnants have (#)% increased effect");
+				"Remnants have #% increased effect");
 
 		DESECRATED_INCREASED_IGNITE_MAGNITUDE_IF_ENDURANCE = new Modifier(
 				"increased_ignite_magnitude_if_endurance",
@@ -54,7 +54,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ElementalAilmentEffect",
-				"(#)% increased Magnitude of Ignite if you've consumed an Endurance Charge Recently");
+				"#% increased Magnitude of Ignite if you've consumed an Endurance Charge Recently");
 
 		DESECRATED_INCREASED_FREEZE_BUILDUP_IF_POWER = new Modifier(
 				"increased_freeze_buildup_if_power",
@@ -64,7 +64,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ElementalAilmentEffect",
-				"(#)% increased Freeze Buildup if you've consumed a Power Charge Recently");
+				"#% increased Freeze Buildup if you've consumed a Power Charge Recently");
 
 		DESECRATED_INCREASED_SHOCK_MAGNITUDE_IF_FRENZY = new Modifier(
 				"increased_shock_magnitude_if_frenzy",
@@ -74,7 +74,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ElementalAilmentEffect",
-				"(#)% increased Magnitude of Shock if you've consumed a Frenzy Charge Recently");
+				"#% increased Magnitude of Shock if you've consumed a Frenzy Charge Recently");
 
 		DESECRATED_INCREASED_MINION_DAMAGE_IF_YOU_HIT_ENEMY = new Modifier(
 				"increased_minion_damage_if_you_hit_enemy",
@@ -84,7 +84,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"IncreasedMinionDamageIfYouHitEnemy",
-				"Minions deal (#)% increased Damage if you've Hit Recently");
+				"Minions deal #% increased Damage if you've Hit Recently");
 
 		DESECRATED_INCREASED_SPELL_DAMAGE_ON_FULL_ENERGY_SHIELD = new Modifier(
 				"increased_spell_damage_on_full_energy_shield",
@@ -94,7 +94,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"IncreasedSpellDamageOnFullEnergyShield",
-				"(#)% increased Spell Damage while on Full Energy Shield");
+				"#% increased Spell Damage while on Full Energy Shield");
 
 		DESECRATED_ATTACK_DAMAGE_LOW_LIFE = new Modifier(
 				"attack_damage_low_life",
@@ -104,7 +104,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"AttackDamage",
-				"(#)% increased Attack Damage while on Low Life");
+				"#% increased Attack Damage while on Low Life");
 
 		// SUFFIXES
 
@@ -138,7 +138,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"SkillEffectDuration",
-				"(#)% increased Skill Effect Duration");
+				"#% increased Skill Effect Duration");
 
 		DESECRATED_REMNANT_PICKUP_RADIUS = new Modifier(
 				"remnant_pickup_radius",
@@ -148,7 +148,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"RemnantPickupRadius",
-				"Remnants can be collected from (#)% further away");
+				"Remnants can be collected from #% further away");
 
 		DESECRATED_LIFE_LEECH_AMOUNT = new Modifier(
 				"life_leech_amount",
@@ -158,7 +158,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"LifeLeech",
-				"(#)% increased amount of Life Leeched");
+				"#% increased amount of Life Leeched");
 
 		DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"fire_resistance", "chaos_resistance",
@@ -190,7 +190,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ExposureEffect",
-				"(#)% increased Exposure Effect");
+				"#% increased Exposure Effect");
 
 		DESECRATED_COOLDOWN_RECOVERY = new Modifier(
 				"cooldown_recovery",
@@ -200,7 +200,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"CooldownRecovery",
-				"(#)% increased Cooldown Recovery Rate");
+				"#% increased Cooldown Recovery Rate");
 
 		DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"cold_resistance", "chaos_resistance",
@@ -221,7 +221,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ManaGainedOnKillPercentage",
-				"Recover (#)% of maximum Mana on Kill");
+				"Recover #% of maximum Mana on Kill");
 
 		DESECRATED_MANA_LEECH_AMOUNT = new Modifier(
 				"mana_leech_amount",
@@ -231,7 +231,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ManaLeechAmount",
-				"(#)% increased amount of Mana Leeched");
+				"#% increased amount of Mana Leeched");
 
 		DESECRATED_INCREASED_SKILL_SPEED = new Modifier(
 				"increased_skill_speed",
@@ -241,7 +241,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"IncreasedSpeed",
-				"(#)% increased Skill Speed");
+				"#% increased Skill Speed");
 
 		DESECRATED_RECOVER_PERCENT_MAX_LIFE_ON_KILL = new Modifier(
 				"recover_percent_max_life_on_kill",
@@ -251,7 +251,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"RecoverPercentMaxLifeOnKill",
-				"Recover (#)% of maximum Life on Kill");
+				"Recover #% of maximum Life on Kill");
 
 		DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"lightning_resistance", "chaos_resistance",

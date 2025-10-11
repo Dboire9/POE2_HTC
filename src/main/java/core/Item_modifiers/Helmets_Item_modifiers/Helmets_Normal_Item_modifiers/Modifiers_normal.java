@@ -149,7 +149,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Armour");
+				"#% increased Armour");
 
 		INCREASED_PERCENT_EVASION = new Modifier(
 				"increased_percent_evasion",
@@ -165,7 +165,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Evasion Rating");
+				"#% increased Evasion Rating");
 
 		INCREASED_PERCENT_ENERGY_SHIELD = new Modifier(
 				"increased_percent_energy_shield",
@@ -181,7 +181,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Energy Shield");
+				"#% increased Energy Shield");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE = new Modifier(
 				"increased_percent_armour", "base_maximum_life",
@@ -202,7 +202,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndLife",
-				"(#)% increased Armour\n+# to maximum Life");
+				"#% increased Armour\n+# to maximum Life");
 
 		HYBRID_INCREASED_PERCENT_EVASION_AND_LIFE = new Modifier(
 				"increased_percent_evasion", "base_maximum_life",
@@ -223,7 +223,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndLife",
-				"(#)% increased Evasion Rating\n+# to maximum Life");
+				"#% increased Evasion Rating\n+# to maximum Life");
 
 		HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_LIFE = new Modifier(
 				"increased_percent_energy_shield", "base_life",
@@ -244,7 +244,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndLife",
-				"(#)% increased Energy Shield\n+# to maximum Life");
+				"#% increased Energy Shield\n+# to maximum Life");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_AND_MANA = new Modifier(
 				"increased_percent_armour", "base_maximum_mana",
@@ -265,7 +265,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndMana",
-				"(#)% increased Armour\n+# to maximum Mana");
+				"#% increased Armour\n+# to maximum Mana");
 
 		HYBRID_INCREASED_PERCENT_EVASION_AND_MANA = new Modifier(
 				"increased_percent_evasion", "base_maximum_mana",
@@ -286,7 +286,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndMana",
-				"(#)% increased Evasion Rating\n+# to maximum Mana");
+				"#% increased Evasion Rating\n+# to maximum Mana");
 
 		HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_MANA = new Modifier(
 				"increased_percent_energy_shield", "base_maximum_mana",
@@ -307,7 +307,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndMana",
-				"(#)% increased Energy Shield\n+# to maximum Mana");
+				"#% increased Energy Shield\n+# to maximum Mana");
 
 		ACCURACY_RATING = new Modifier(
 				"accuracy_rating",
@@ -339,7 +339,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"ItemFoundRarityIncreasePrefix",
-				"(#)% increased Rarity of Items found");
+				"#% increased Rarity of Items found");
 
 		// SUFFIXES
 
@@ -501,7 +501,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"LifeRegeneration",
-				"(#) Life Regeneration per second");
+				"# Life Regeneration per second");
 
 		INCREASED_CRITICAL_HIT_CHANCE = new Modifier(
 				"increased_critical_hit_chance",
@@ -515,7 +515,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"CriticalStrikeChanceIncrease",
-				"(#)% increased Critical Hit Chance");
+				"#% increased Critical Hit Chance");
 
 		ITEM_FOUND_RARITY_INCREASE = new Modifier(
 				"item_found_rarity_increase",
@@ -572,7 +572,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EvasionAppliesToDeflection",
-				"Gain Deflection Rating equal to (#)% of Evasion Rating");
+				"Gain Deflection Rating equal to #% of Evasion Rating");
 
 		ENERGY_SHIELD_RECHARGE_RATE = new Modifier(
 				"energy_shield_recharge_rate",
@@ -585,7 +585,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EnergyShieldRegeneration",
-				"(#)% increased Energy Shield Recharge Rate");
+				"#% increased Energy Shield Recharge Rate");
 
 	}
 }

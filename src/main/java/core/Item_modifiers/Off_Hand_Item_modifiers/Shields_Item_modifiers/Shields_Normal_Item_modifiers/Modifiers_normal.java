@@ -88,7 +88,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Armour");
+				"#% increased Armour");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_AND_STUN = new Modifier(
 				"increased_percent_armour", "base_stun_threshold",
@@ -109,7 +109,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercentAndStunThreshold",
-				"(#)% increased Armour\n+# to Stun Threshold");
+				"#% increased Armour\n+# to Stun Threshold");
 
 		PHYSICAL_THORNS_DAMAGE = new Modifier(
 				"physical_thorns_damage",
@@ -125,7 +125,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"Thorns",
-				"(#) to (#) Physical Thorns damage");
+				"# to # Physical Thorns damage");
 
 		INCREASED_SHIELD_BLOCK_CHANCE = new Modifier(
 				"increased_shield_block_chance",

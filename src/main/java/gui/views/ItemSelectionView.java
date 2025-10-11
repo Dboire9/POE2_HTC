@@ -99,7 +99,7 @@ public class ItemSelectionView extends VBox {
 				suffix3ComboBox, suffix3TierComboBox);
 
 		this.getChildren().addAll(categoryComboBox, subCategoryComboBox, prefixBox, suffixBox,
-				desecratedModifierCheckBox, modifierTypeComboBox);
+				desecratedModifierCheckBox, modifierTypeComboBox, messageLabel);
 		this.setSpacing(10);
 	}
 

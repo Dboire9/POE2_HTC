@@ -88,7 +88,7 @@ public class ItemSelectionController {
 	private void populateModifiers(Class<?> itemClass) {
 		if (itemClass == null)
 			return;
-
+		view.messageLabel.setText("");
 		try {
 			Object itemInstance = itemClass.getDeclaredConstructor().newInstance();
 
@@ -142,7 +142,6 @@ public class ItemSelectionController {
 
 			} else if (view.desecratedModifierCheckBox.isSelected()
 					&& view.modifierTypeComboBox.getValue() == "Suffix") {
-				System.out.println("DesecratednormalSuffixes: " + DesecratednormalSuffixes);
 				populateComboBoxes(suffixBoxes[0], DesecratednormalSuffixes);
 				populateComboBoxes(prefixBoxes[0], normalPrefixes);
 				essencepopulateComboBoxes(prefixBoxes[0], EssencenormalPrefixes);
@@ -203,12 +202,14 @@ public class ItemSelectionController {
 	}
 
 	private void populateComboBoxes(ComboBox<String> box, List<Modifier> modifiers) {
-		box.getItems().clear();
-		if (modifiers != null) {
+		if (modifiers != null && !modifiers.isEmpty()) {
+			box.getItems().clear();
 			for (Modifier mod : modifiers) {
-				System.out.println(mod.text);
 				box.getItems().add(mod.text);
 			}
+		}
+		else{
+			view.messageLabel.setText("No modifiers available.");
 		}
 	}
 

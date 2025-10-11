@@ -47,9 +47,7 @@ public class Quivers extends Item_base {
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
 
         Essences_allowedSuffixes = new ArrayList<>();
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_STRENGTH);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_DEXTERITY);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_INTELLIGENCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
     }
 }

@@ -2,12 +2,11 @@ package gui.controllers;
 
 import core.ItemManager;
 import core.Modifier_class.*;
-import core.Items.*;
 import gui.views.ItemSelectionView;
 import javafx.collections.FXCollections;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 
+import gui.utils.*;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -20,9 +19,20 @@ public class ItemSelectionController {
 	private String selectedSubCategory;
 	private Class<?> selectedItemClass;
 
+	private final ValidateButton validateButton;
+
+	Modifier prefix1store;
+	Modifier prefix2store;
+	Modifier prefix3store;
+	Modifier suffix1store;
+	Modifier suffix2store;
+	Modifier suffix3store;
+
 	public ItemSelectionController(ItemSelectionView view, ItemManager manager) {
 		this.view = view;
 		this.manager = manager;
+		this.validateButton = new ValidateButton(view);
+
 		initialize(); // entry point
 	}
 
@@ -41,9 +51,27 @@ public class ItemSelectionController {
 		setupModifierSelectionListener(view.suffix1ComboBox, view.suffix1TierComboBox);
 		setupModifierSelectionListener(view.suffix2ComboBox, view.suffix2TierComboBox);
 		setupModifierSelectionListener(view.suffix3ComboBox, view.suffix3TierComboBox);
+
+		setupModifierComboBoxListener(view.prefix1ComboBox, "prefix1");
+		setupModifierComboBoxListener(view.prefix2ComboBox, "prefix2");
+		setupModifierComboBoxListener(view.prefix3ComboBox, "prefix3");
+		setupModifierComboBoxListener(view.suffix1ComboBox, "suffix1");
+		setupModifierComboBoxListener(view.suffix2ComboBox, "suffix2");
+		setupModifierComboBoxListener(view.suffix3ComboBox, "suffix3");
+	
 		view.validateButton.setOnAction(event -> {
-			// Add your validation logic here
-			System.out.println("Validation button clicked!");
+			if(validateButton.areAllModifiersAndTiersSelected())
+			{
+				System.out.println("Prefix 1: " + (prefix1store.text));
+				System.out.println("Prefix 2: " + (prefix2store.text));
+				System.out.println("Prefix 3: " + (prefix3store.text));
+				System.out.println("Suffix 1: " + (suffix1store.text));
+				System.out.println("Suffix 2: " + (suffix2store.text));
+				System.out.println("Suffix 3: " + (suffix3store.text));
+
+			}
+			else
+				view.messageLabel.setText("Please select all six modifiers and their tiers");
 		});
 	}
 
@@ -349,7 +377,7 @@ public class ItemSelectionController {
 	private void setupModifierSelectionListener(ComboBox<String> comboBox, ComboBox<String> comboBoxTier) {
 		comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
-				Modifier mod = getModifierFromValue(selectedItemClass, newVal);
+				Modifier mod = getModifiersFromValue(selectedItemClass, newVal);
 				System.out.println("Debug: mod = " + mod);
 				if (mod.tiers != null && !mod.tiers.isEmpty()) {
 					System.out.println("✅ Selected Modifier Tiers:");
@@ -398,10 +426,28 @@ public class ItemSelectionController {
 		});
 	}
 
-	private Modifier getModifierFromValue(Class<?> itemClass, String value) {
-		if (value == null || itemClass == null)
-			return null;
+	private void setupModifierComboBoxListener(ComboBox<String> comboBox, String modifierSlot) {
+		comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+			if (newVal != null) {
+				Modifier modifier = getModifiersFromValue(selectedItemClass, newVal);
+				switch (modifierSlot) {
+					case "prefix1" -> this.prefix1store = modifier;
+					case "prefix2" -> this.prefix2store = modifier;
+					case "prefix3" -> this.prefix3store = modifier;
+					case "suffix1" -> this.suffix1store = modifier;
+					case "suffix2" -> this.suffix2store = modifier;
+					case "suffix3" -> this.suffix3store = modifier;
+				}
+			}
+		});
+	}
 
+
+	private Modifier getModifiersFromValue(Class<?> itemClass, String value) {
+		if (value == null || itemClass == null){
+			System.out.println("[DEBUG] getModifiersFromValue: itemClass or value is null");
+			return null;
+		}
 		if (value.startsWith("Essence : ")) {
 			value = value.substring("Essence : ".length());
 		}

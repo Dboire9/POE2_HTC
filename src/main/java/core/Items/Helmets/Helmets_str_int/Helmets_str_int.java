@@ -38,18 +38,18 @@ public class Helmets_str_int extends Item_base {
         Desecrated_allowedPrefixes = new ArrayList<>();
         
         Desecrated_allowedSuffixes = new ArrayList<>();
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_INTELLIGENCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_DEXTERITY);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_GLORY_GENERATION);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_PRESENCE_RADIUS);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_INTELLIGENCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_STRENGTH_AND_DEXTERITY);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_GLORY_GENERATION);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_PRESENCE_RADIUS);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_SPIRIT_RESERVATION_EFFICIENCY);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_DEXTERITY_AND_INTELLIGENCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_DEXTERITY_AND_INTELLIGENCE);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_ARMOUR_APPLIES_TO_CHAOS_DAMAGE);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD);
-        Desecrated_allowedPrefixes.add(Modifiers_desecrated.DESECRATED_MANA_COST_EFFICIENCY);
+        Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_MANA_COST_EFFICIENCY);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_ARCANE_SURGE_EFFECT);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE);
         Desecrated_allowedSuffixes.add(Modifiers_desecrated.DESECRATED_LIFE_COST_EFFICIENCY);

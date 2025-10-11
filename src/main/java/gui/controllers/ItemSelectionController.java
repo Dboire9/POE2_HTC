@@ -20,6 +20,8 @@ public class ItemSelectionController {
 	private String selectedSubCategory;
 	private Class<?> selectedItemClass;
 
+	private boolean essenceSelected = false;
+
 	public ItemSelectionController(ItemSelectionView view, ItemManager manager) {
 		this.view = view;
 		this.manager = manager;
@@ -158,44 +160,111 @@ public class ItemSelectionController {
 			essencepopulateComboBoxes(prefixBoxes[1], EssencenormalPrefixes);
 			populateComboBoxes(prefixBoxes[2], normalPrefixes);
 			essencepopulateComboBoxes(prefixBoxes[2], EssencenormalPrefixes);
-			setupUniqueSelection(prefixBoxes);
-
+			
 			populateComboBoxes(suffixBoxes[1], normalSuffixes);
 			essencepopulateComboBoxes(suffixBoxes[1], EssencenormalSuffixes);
 			populateComboBoxes(suffixBoxes[2], normalSuffixes);
 			essencepopulateComboBoxes(suffixBoxes[2], EssencenormalSuffixes);
-			setupUniqueSelection(suffixBoxes);
-
+			setupUniqueSelection(prefixBoxes, suffixBoxes);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void setupUniqueSelection(ComboBox<String>[] boxes) {
-		for (ComboBox<String> box : boxes) {
+	private void setupUniqueSelection(ComboBox<String>[] prefixboxes, ComboBox<String>[] suffixboxes) {
+		for (ComboBox<String> box : prefixboxes) {
 			final String[] previousSelection = { null };
-
+	
 			box.setOnAction(e -> {
 				String selected = box.getValue();
-
+	
 				// If there was a previous selection, add it back to other boxes
 				if (previousSelection[0] != null) {
-					for (ComboBox<String> otherBox : boxes) {
+					for (ComboBox<String> otherBox : prefixboxes) {
 						if (otherBox != box && !otherBox.getItems().contains(previousSelection[0])) {
 							otherBox.getItems().add(previousSelection[0]);
 						}
 					}
+					for (ComboBox<String> otherBox : suffixboxes) {
+						if (!otherBox.getItems().contains(previousSelection[0])) {
+							otherBox.getItems().add(previousSelection[0]);
+						}
+					}
 				}
-
+	
 				// Remove the newly selected value from other boxes
 				if (selected != null) {
-					for (ComboBox<String> otherBox : boxes) {
+					for (ComboBox<String> otherBox : prefixboxes) {
 						if (otherBox != box) {
 							otherBox.getItems().remove(selected);
 						}
 					}
+					for (ComboBox<String> otherBox : suffixboxes) {
+						otherBox.getItems().remove(selected);
+					}
+	
+					// If the selected item is an essence modifier, remove all other essence modifiers
+					if (selected.startsWith("Essence : ")) {
+						for (ComboBox<String> otherBox : prefixboxes) {
+							if (otherBox != box) {
+								otherBox.getItems().removeIf(item -> item.startsWith("Essence : ") && !item.equals(selected));
+							}
+						}
+						for (ComboBox<String> otherBox : suffixboxes) {
+							otherBox.getItems().removeIf(item -> item.startsWith("Essence : ") && !item.equals(selected));
+						}
+					}
 				}
-
+	
+				previousSelection[0] = selected; // Update previous selection
+			});
+		}
+	
+		for (ComboBox<String> box : suffixboxes) {
+			final String[] previousSelection = { null };
+	
+			box.setOnAction(e -> {
+				String selected = box.getValue();
+	
+				// If there was a previous selection, add it back to other boxes
+				if (previousSelection[0] != null) {
+					for (ComboBox<String> otherBox : suffixboxes) {
+						if (otherBox != box && !otherBox.getItems().contains(previousSelection[0])) {
+							otherBox.getItems().add(previousSelection[0]);
+						}
+					}
+					for (ComboBox<String> otherBox : prefixboxes) {
+						if (!otherBox.getItems().contains(previousSelection[0])) {
+							otherBox.getItems().add(previousSelection[0]);
+						}
+					}
+				}
+	
+				// Remove the newly selected value from other boxes
+				if (selected != null) {
+					for (ComboBox<String> otherBox : suffixboxes) {
+						if (otherBox != box) {
+							otherBox.getItems().remove(selected);
+						}
+					}
+					for (ComboBox<String> otherBox : prefixboxes) {
+						otherBox.getItems().remove(selected);
+					}
+	
+					// If the selected item is an essence modifier, remove all other essence modifiers
+					if (selected.startsWith("Essence : ")) {
+						for (ComboBox<String> otherBox : suffixboxes) {
+							if (otherBox != box) {
+								otherBox.getItems().removeIf(item -> item.startsWith("Essence : ") && !item.equals(selected));
+							}
+						}
+						for (ComboBox<String> otherBox : prefixboxes) {
+							otherBox.getItems().removeIf(item -> item.startsWith("Essence : ") && !item.equals(selected));
+						}
+					}
+				}
+	
 				previousSelection[0] = selected; // Update previous selection
 			});
 		}
@@ -294,14 +363,14 @@ public class ItemSelectionController {
 						comboBoxTier.getItems().add(tierDisplay);
 						System.out.println(" - " + tierDisplay);
 
-						currentTier--; // Decrement the tier number for the next iteration
+						currentTier--;
 					}
-				} else {
+				}
+				else {
 					System.out.println("⚠️ No tiers available for the selected modifier.");
 					comboBoxTier.getItems().clear(); // Clear if no tiers are available
 				}
 			}
-			printSelectedModifiers();
 		});
 	}
 
@@ -340,18 +409,4 @@ public class ItemSelectionController {
 		}
 		return null;
 	}
-
-	private void printSelectedModifiers() {
-		String p1 = view.prefix1ComboBox.getValue();
-		String p2 = view.prefix2ComboBox.getValue();
-		String p3 = view.prefix3ComboBox.getValue();
-		String s1 = view.suffix1ComboBox.getValue();
-		String s2 = view.suffix2ComboBox.getValue();
-		String s3 = view.suffix3ComboBox.getValue();
-
-		System.out.println("Selected Modifiers:");
-		System.out.println("Prefixes: " + p1 + ", " + p2 + ", " + p3);
-		System.out.println("Suffixes: " + s1 + ", " + s2 + ", " + s3);
-	}
-
 }

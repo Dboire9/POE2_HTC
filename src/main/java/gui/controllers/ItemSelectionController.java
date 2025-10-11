@@ -7,9 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.control.ComboBox;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ItemSelectionController {
 
@@ -19,8 +17,6 @@ public class ItemSelectionController {
 	private String selectedCategory;
 	private String selectedSubCategory;
 	private Class<?> selectedItemClass;
-
-	private boolean essenceSelected = false;
 
 	public ItemSelectionController(ItemSelectionView view, ItemManager manager) {
 		this.view = view;
@@ -309,15 +305,35 @@ public class ItemSelectionController {
 	}
 
 	private void resetAllModifiers() {
-		// Clear selections for all prefixes and suffixes
+		// Clear selections and items for all prefixes and suffixes
 		view.prefix1ComboBox.getSelectionModel().clearSelection();
+		view.prefix1ComboBox.getItems().clear();
 		view.prefix2ComboBox.getSelectionModel().clearSelection();
+		view.prefix2ComboBox.getItems().clear();
 		view.prefix3ComboBox.getSelectionModel().clearSelection();
-
+		view.prefix3ComboBox.getItems().clear();
+	
 		view.suffix1ComboBox.getSelectionModel().clearSelection();
+		view.suffix1ComboBox.getItems().clear();
 		view.suffix2ComboBox.getSelectionModel().clearSelection();
+		view.suffix2ComboBox.getItems().clear();
 		view.suffix3ComboBox.getSelectionModel().clearSelection();
-
+		view.suffix3ComboBox.getItems().clear();
+	
+		view.prefix1TierComboBox.getSelectionModel().clearSelection();
+		view.prefix1TierComboBox.getItems().clear();
+		view.prefix2TierComboBox.getSelectionModel().clearSelection();
+		view.prefix2TierComboBox.getItems().clear();
+		view.prefix3TierComboBox.getSelectionModel().clearSelection();
+		view.prefix3TierComboBox.getItems().clear();
+	
+		view.suffix1TierComboBox.getSelectionModel().clearSelection();
+		view.suffix1TierComboBox.getItems().clear();
+		view.suffix2TierComboBox.getSelectionModel().clearSelection();
+		view.suffix2TierComboBox.getItems().clear();
+		view.suffix3TierComboBox.getSelectionModel().clearSelection();
+		view.suffix3TierComboBox.getItems().clear();
+	
 		// Refresh the combo boxes with the current item class and desecrated state
 		populateModifiers(selectedItemClass);
 	}

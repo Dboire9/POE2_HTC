@@ -48,6 +48,7 @@ public class ItemSelectionController {
 	}
 
 	private void handleCategorySelection() {
+		resetAllModifiers();
 		selectedCategory = view.categoryComboBox.getValue();
 		if (selectedCategory == null)
 			return;

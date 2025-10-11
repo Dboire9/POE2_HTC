@@ -70,7 +70,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"SpiritReservationEfficiency",
-				"(#)% increased Spirit Reservation Efficiency of Skills");
+				"#% increased Spirit Reservation Efficiency of Skills");
 
 		DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF = new Modifier(
 				"reduced_curse_effect_on_self",
@@ -80,7 +80,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ReducedCurseEffect",
-				"(#)% reduced effect of Curses on you");
+				"#% reduced effect of Curses on you");
 
 		DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"cold_resistance", "chaos_resistance",
@@ -112,7 +112,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"PercentDamageGoesToMana",
-				"(#)% of Damage taken Recouped as Mana");
+				"#% of Damage taken Recouped as Mana");
 
 		DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"lightning_resistance", "chaos_resistance",
@@ -133,7 +133,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ChanceToTakeCriticalStrike",
-				"Hits have (#)% reduced Critical Hit Chance against you");
+				"Hits have #% reduced Critical Hit Chance against you");
 
 		// DEX SUFFIXES
 
@@ -145,7 +145,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"CompanionReservationEfficiency",
-				"(#)% increased Reservation Efficiency of Companion Skills");
+				"#% increased Reservation Efficiency of Companion Skills");
 
 		DESECRATED_PREVENT_DEFLECT_DAMAGE_TAKEN = new Modifier(
 				"deflect_damage_taken",
@@ -155,7 +155,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"DeflectDamageTaken",
-				"Prevent +(#)% of Damage from Deflected Hits");
+				"Prevent +#% of Damage from Deflected Hits");
 
 		// INT SUFFIXES
 
@@ -167,7 +167,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"DamageRemovedFromManaBeforeLife",
-				"(#)% of Damage is taken from Mana before Life");
+				"#% of Damage is taken from Mana before Life");
 
 	}
 }

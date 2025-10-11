@@ -151,7 +151,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Armour and Evasion");
+				"#% increased Armour and Evasion");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD = new Modifier(
 				"increased_percent_armour", "increased_percent_energy_shield",
@@ -174,7 +174,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Armour and Energy Shield");
+				"#% increased Armour and Energy Shield");
 
 		HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD = new Modifier(
 				"increased_percent_evasion", "increased_percent_energy_shield",
@@ -197,7 +197,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Evasion and Energy Shield");
+				"#% increased Evasion and Energy Shield");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_AND_STUN = new Modifier(
 				"increased_percent_armour", "increased_percent_evasion", "base_stun_threshold",
@@ -223,7 +223,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercentAndStunThreshold",
-				"(#)% increased Armour and Evasion\n+# to Stun Threshold");
+				"#% increased Armour and Evasion\n+# to Stun Threshold");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_STUN = new Modifier(
 				"increased_percent_armour", "increased_percent_energy_shield", "base_stun_threshold",
@@ -250,7 +250,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercentAndStunThreshold",
-				"(#)% increased Armour and Energy Shield\n+# to Stun Threshold");
+				"#% increased Armour and Energy Shield\n+# to Stun Threshold");
 
 		HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_AND_STUN = new Modifier(
 				"increased_percent_evasion", "increased_percent_energy_shield", "base_stun_threshold",
@@ -276,7 +276,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercentAndStunThreshold",
-				"(#)% increased Evasion and Energy Shield\n+# to Stun Threshold");
+				"#% increased Evasion and Energy Shield\n+# to Stun Threshold");
 
 		MOVEMENT_SPEED = new Modifier(
 				"movement_speed",
@@ -291,7 +291,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"MovementVelocity",
-				"(#)% increased Movement Speed");
+				"#% increased Movement Speed");
 
 		// SUFFIXES
 
@@ -462,7 +462,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"LifeRegeneration",
-				"(#) Life Regeneration per second");
+				"# Life Regeneration per second");
 
 		ITEM_FOUND_RARITY_INCREASE = new Modifier(
 				"item_found_rarity_increase",
@@ -546,7 +546,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EvasionAppliesToDeflection",
-				"Gain Deflection Rating equal to (#)% of Evasion Rating");
+				"Gain Deflection Rating equal to #% of Evasion Rating");
 
 		ENERGY_SHIELD_RECHARGE_RATE = new Modifier(
 				"energy_shield_recharge_rate",
@@ -559,7 +559,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EnergyShieldRegeneration",
-				"(#)% increased Energy Shield Recharge Rate");
+				"#% increased Energy Shield Recharge Rate");
 
 	}
 }

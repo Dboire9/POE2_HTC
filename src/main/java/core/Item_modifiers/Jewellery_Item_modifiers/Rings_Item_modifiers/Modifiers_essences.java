@@ -59,7 +59,7 @@ public class Modifiers_essences {
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
 				"MaximumManaIncreasePercent",
-				"(#)% increased maximum Mana");
+				"#% increased maximum Mana");
 
 		ESSENCE_ABYSS_PREFIX = new Modifier(
 				"essence_abyss",

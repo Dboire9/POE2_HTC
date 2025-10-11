@@ -176,7 +176,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"CurseAreaOfEffect",
-				"(#)% increased Area of Effect of Curses");
+				"#% increased Area of Effect of Curses");
 
 		DESECRATED_IMMOBILISE = new Modifier(
 				"immobilisation_buildup",
@@ -186,7 +186,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"Immobilise",
-				"(#)% increased Immobilisation buildup");
+				"#% increased Immobilisation buildup");
 
 		// GLOVES INT SUFFIXES
 
@@ -198,7 +198,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ArcaneSurgeOnCrit",
-				"(#)% chance to Gain Arcane Surge when you deal a Critical Hit");
+				"#% chance to Gain Arcane Surge when you deal a Critical Hit");
 
 		DESECRATED_INCREASED_CAST_SPEED_ON_FULL_LIFE = new Modifier(
 				"increased_cast_speed_on_full_life",
@@ -208,7 +208,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"CastSpeedOnFullLife",
-				"(#)% increased Cast Speed when on Full Life");
+				"#% increased Cast Speed when on Full Life");
 
 		DESECRATED_INCREASED_SKILL_SPEED_ON_FRENZY_CONSUMPTION = new Modifier(
 				"increased_skill_speed_on_frenzy_consumption",
@@ -218,7 +218,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"IncreasedSpeed",
-				"(#)% increased Skill Speed if you've consumed a Frenzy Charge Recently");
+				"#% increased Skill Speed if you've consumed a Frenzy Charge Recently");
 
 		DESECRATED_INCISION_CHANCE = new Modifier(
 				"incision_chance",
@@ -228,7 +228,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"IncisionChance",
-				"(#)% chance for Attack Hits to apply Incision");
+				"#% chance for Attack Hits to apply Incision");
 
 	}
 }

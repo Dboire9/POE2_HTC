@@ -87,7 +87,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Evasion Rating");
+				"#% increased Evasion Rating");
 
 		HYBRID_INCREASED_PERCENT_EVASION_AND_STUN = new Modifier(
 				"increased_percent_evasion", "base_stun_threshold",
@@ -108,7 +108,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercentAndStunThreshold",
-				"(#)% increased Evasion Rating\n+# to Stun Threshold");
+				"#% increased Evasion Rating\n+# to Stun Threshold");
 
 		PHYSICAL_THORNS_DAMAGE = new Modifier(
 				"physical_thorns_damage",
@@ -124,7 +124,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"Thorns",
-				"(#) to (#) Physical Thorns damage");
+				"# to # Physical Thorns damage");
 
 		INCREASED_SHIELD_BLOCK_CHANCE = new Modifier(
 				"increased_shield_block_chance",
@@ -328,7 +328,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EvasionAppliesToDeflection",
-				"Gain Deflection Rating equal to (#)% of Evasion Rating");
+				"Gain Deflection Rating equal to #% of Evasion Rating");
 
 	}
 }

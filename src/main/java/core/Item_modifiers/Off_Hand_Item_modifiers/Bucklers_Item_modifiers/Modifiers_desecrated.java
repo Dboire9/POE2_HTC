@@ -75,7 +75,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ReducedCurseEffect",
-				"(#)% reduced effect of Curses on you");
+				"#% reduced effect of Curses on you");
 
 		DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"cold_resistance", "chaos_resistance",
@@ -107,7 +107,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"PercentDamageGoesToMana",
-				"(#)% of Damage taken Recouped as Mana");
+				"#% of Damage taken Recouped as Mana");
 
 		DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"lightning_resistance", "chaos_resistance",
@@ -128,7 +128,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ChanceToTakeCriticalStrike",
-				"Hits have (#)% reduced Critical Hit Chance against you");
+				"Hits have #% reduced Critical Hit Chance against you");
 
 		DESECRATED_MAXIMUM_BLOCK_CHANCE = new Modifier(
 				"maximum_block_chance",

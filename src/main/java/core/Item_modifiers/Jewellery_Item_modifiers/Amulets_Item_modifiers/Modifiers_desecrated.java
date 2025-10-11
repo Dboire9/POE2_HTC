@@ -51,7 +51,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"AllDefences",
-				"(#)% increased Global Defences");
+				"#% increased Global Defences");
 
 		DESECRATED_REMNANT_EFFECT = new Modifier(
 				"remnant_effect",
@@ -61,7 +61,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"RemnantEffect",
-				"Remnants have (#)% increased effect");
+				"Remnants have #% increased effect");
 
 		DESECRATED_INCREASED_MINION_DAMAGE_IF_YOU_HIT_ENEMY = new Modifier(
 				"increased_minion_damage_if_you_hit_enemy",
@@ -71,7 +71,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"IncreasedMinionDamageIfYouHitEnemy",
-				"Minions deal (#)% increased Damage if you've Hit Recently");
+				"Minions deal #% increased Damage if you've Hit Recently");
 
 		DESECRATED_BODY_ARMOUR_FROM_BODY_ARMOUR = new Modifier(
 				"body_armour_from_body_armour",
@@ -81,7 +81,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"BodyArmourFromBodyArmour",
-				"(#)% increased Armour from Equipped Body Armour");
+				"#% increased Armour from Equipped Body Armour");
 
 		DESECRATED_INCREASED_SPELL_DAMAGE_ON_FULL_ENERGY_SHIELD = new Modifier(
 				"increased_spell_damage_on_full_energy_shield",
@@ -91,7 +91,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"IncreasedSpellDamageOnFullEnergyShield",
-				"(#)% increased Spell Damage while on Full Energy Shield");
+				"#% increased Spell Damage while on Full Energy Shield");
 
 		DESECRATED_INVOCATED_SPELL_HALF_ENERGY_CHANCE = new Modifier(
 				"invocated_spell_half_energy_chance",
@@ -101,7 +101,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"InvocatedSpellHalfEnergyChance",
-				"Invocated Spells have (#)% chance to consume half as much Energy");
+				"Invocated Spells have #% chance to consume half as much Energy");
 
 		DESECRATED_MAXIMUM_ENERGY_SHIELD_FROM_BODY_ARMOUR = new Modifier(
 				"maximum_energy_shield_from_body_armour",
@@ -111,7 +111,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"MaximumEnergyShieldFromBodyArmour",
-				"(#)% increased Energy Shield from Equipped Body Armour");
+				"#% increased Energy Shield from Equipped Body Armour");
 
 		DESECRATED_GLORY_CHANCE_TO_NOT_CONSUME = new Modifier(
 				"glory_chance_to_not_consume",
@@ -121,7 +121,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"GloryChanceToNotConsume",
-				"Skills have a (#)% chance to not consume Glory");
+				"Skills have a #% chance to not consume Glory");
 
 		DESECRATED_EVASION_RATING_FROM_BODY_ARMOUR = new Modifier(
 				"evasion_rating_from_body_armour",
@@ -131,7 +131,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"EvasionRatingFromBodyArmour",
-				"(#)% increased Evasion Rating from Equipped Body Armour");
+				"#% increased Evasion Rating from Equipped Body Armour");
 
 		DESECRATED_ATTACK_DAMAGE_LOW_LIFE = new Modifier(
 				"attack_damage_low_life",
@@ -141,7 +141,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"AttackDamage",
-				"(#)% increased Attack Damage while on Low Life");
+				"#% increased Attack Damage while on Low Life");
 
 		DESECRATED_INCREASED_DEFLECTION_RATING = new Modifier(
 				"increased_deflection_rating",
@@ -151,7 +151,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"GlobalDeflectionRating",
-				"(#)% increased Deflection Rating");
+				"#% increased Deflection Rating");
 
 		// SUFFIXES
 
@@ -185,7 +185,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"SkillEffectDuration",
-				"(#)% increased Skill Effect Duration");
+				"#% increased Skill Effect Duration");
 
 		DESECRATED_REMNANT_PICKUP_RADIUS = new Modifier(
 				"remnant_pickup_radius",
@@ -195,7 +195,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"RemnantPickupRadius",
-				"Remnants can be collected from (#)% further away");
+				"Remnants can be collected from #% further away");
 
 		DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"fire_resistance", "chaos_resistance",
@@ -216,7 +216,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"AuraEffect",
-				"Aura Skills have (#)% increased Magnitudes");
+				"Aura Skills have #% increased Magnitudes");
 
 		DESECRATED_GLOBAL_ITEM_ATTRIBUTE_REQUIREMENTS = new Modifier(
 				"global_item_attribute_requirements",
@@ -226,7 +226,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"GlobalItemAttributeRequirements",
-				"Equipment and Skill Gems have (#)% reduced Attribute Requirements");
+				"Equipment and Skill Gems have #% reduced Attribute Requirements");
 
 		DESECRATED_MANA_GAINED_ON_KILL_PERCENTAGE = new Modifier(
 				"mana_gained_on_kill_percentage",
@@ -236,7 +236,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ManaGainedOnKillPercentage",
-				"Recover (#)% of maximum Mana on Kill");
+				"Recover #% of maximum Mana on Kill");
 
 		DESECRATED_EXPOSURE_EFFECT = new Modifier(
 				"exposure_effect",
@@ -246,7 +246,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ExposureEffect",
-				"(#)% increased Exposure Effect");
+				"#% increased Exposure Effect");
 
 		DESECRATED_COOLDOWN_RECOVERY = new Modifier(
 				"cooldown_recovery",
@@ -256,7 +256,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"CooldownRecovery",
-				"(#)% increased Cooldown Recovery Rate");
+				"#% increased Cooldown Recovery Rate");
 
 		DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"cold_resistance", "chaos_resistance",
@@ -288,7 +288,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"GlobalSkillGemQuality",
-				"+(#)% to Quality of all Skills");
+				"+#% to Quality of all Skills");
 
 		DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE = new Modifier(
 				"damage_removed_from_mana_before_life",
@@ -298,7 +298,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"DamageRemovedFromManaBeforeLife",
-				"(#)% of Damage is taken from Mana before Life");
+				"#% of Damage is taken from Mana before Life");
 
 		DESECRATED_MINION_COOLDOWN = new Modifier(
 				"minion_cooldown",
@@ -308,7 +308,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"MinionCooldown",
-				"Minions have (#)% increased Cooldown Recovery Rate");
+				"Minions have #% increased Cooldown Recovery Rate");
 
 		DESECRATED_INCREASED_SKILL_SPEED = new Modifier(
 				"increased_skill_speed",
@@ -318,7 +318,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"IncreasedSpeed",
-				"(#)% increased Skill Speed");
+				"#% increased Skill Speed");
 
 		DESECRATED_RECOVER_PERCENT_MAX_LIFE_ON_KILL = new Modifier(
 				"recover_percent_max_life_on_kill",
@@ -328,7 +328,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"RecoverPercentMaxLifeOnKill",
-				"Recover (#)% of maximum Life on Kill");
+				"Recover #% of maximum Life on Kill");
 
 		DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"lightning_resistance", "chaos_resistance",
@@ -349,7 +349,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"HeraldReservationEfficiency",
-				"(#)% increased Reservation Efficiency of Herald Skills");
+				"#% increased Reservation Efficiency of Herald Skills");
 
 		DESECRATED_LEVEL_ALL_SKILLS = new Modifier(
 				"level_all_skills",

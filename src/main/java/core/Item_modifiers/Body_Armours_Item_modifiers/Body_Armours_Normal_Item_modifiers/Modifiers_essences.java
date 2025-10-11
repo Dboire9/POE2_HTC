@@ -88,7 +88,7 @@ public class Modifiers_essences {
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
 				"MaximumLifeIncreasePercent",
-				"(#)% increased maximum Life");
+				"#% increased maximum Life");
 
 		ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS = new Modifier(
 				"physical_damage_taken_as_chaos",
@@ -98,7 +98,7 @@ public class Modifiers_essences {
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
 				"PhysicalDamageTakenAsChaos",
-				"(#)% of Physical Damage from Hits taken as Chaos Damage");
+				"#% of Physical Damage from Hits taken as Chaos Damage");
 
 		ESSENCE_PHYSICAL_THORNS_DAMAGE = new Modifier(
 				"physical_thorns_damage",
@@ -109,7 +109,7 @@ public class Modifiers_essences {
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
 				"Thorns",
-				"Adds (#) to (#) Physical Thorns damage");
+				"Adds # to # Physical Thorns damage");
 
 		ESSENCE_RANDOM_NOTABLE_PASSIVE = new Modifier(
 				"essence_random_notable_passive",
@@ -189,7 +189,7 @@ public class Modifiers_essences {
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
 				"ReducedCriticalStrikeDamageTaken",
-				"Hits against you have (#)% reduced Critical Damage Bonus");
+				"Hits against you have #% reduced Critical Damage Bonus");
 
 		ESSENCE_ABYSS_SUFFIX = new Modifier(
 				"essence_abyss",

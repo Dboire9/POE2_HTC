@@ -74,7 +74,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"SpiritReservationEfficiency",
-				"(#)% increased Spirit Reservation Efficiency of Skills");
+				"#% increased Spirit Reservation Efficiency of Skills");
 
 		DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE = new Modifier(
 				"damage_taken_recouped_as_life",
@@ -84,7 +84,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"DamageTakenGainedAsLife",
-				"(#)% of Damage taken Recouped as Life");
+				"#% of Damage taken Recouped as Life");
 
 		DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"cold_resistance", "chaos_resistance",
@@ -116,7 +116,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"GloryGeneration",
-				"(#)% increased Glory generation");
+				"#% increased Glory generation");
 
 		DESECRATED_PRESENCE_RADIUS = new Modifier(
 				"presence_radius",
@@ -126,7 +126,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"PresenceRadius",
-				"(#)% increased Presence Area of Effect");
+				"#% increased Presence Area of Effect");
 
 		DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE = new Modifier(
 				"lightning_resistance", "chaos_resistance",
@@ -147,7 +147,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ArmourAppliesToChaosDamage",
-				"+(#)% of Armour also applies to Chaos Damage");
+				"+#% of Armour also applies to Chaos Damage");
 
 		DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD = new Modifier(
 				"elemental_damage_recouped_as_energy_shield",
@@ -157,7 +157,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ElementalDamageTakenRecoupedAsEnergyShield",
-				"(#)% of Elemental Damage taken Recouped as Energy Shield");
+				"#% of Elemental Damage taken Recouped as Energy Shield");
 
 		DESECRATED_MANA_COST_EFFICIENCY = new Modifier(
 				"mana_cost_efficiency",
@@ -177,7 +177,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"LifeCostEfficiency",
-				"(#)% increased Life Cost Efficiency");
+				"#% increased Life Cost Efficiency");
 
 		// DEX SUFFIXES
 
@@ -189,7 +189,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"CriticalStrikeMultiplier",
-				"(#)% increased Critical Damage Bonus");
+				"#% increased Critical Damage Bonus");
 
 		DESECRATED_MARK_DAMAGE = new Modifier(
 				"mark_damage",
@@ -199,7 +199,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"MarkDamage",
-				"Enemies you Mark take (#)% increased Damage");
+				"Enemies you Mark take #% increased Damage");
 
 		// INT SUFFIXES
 
@@ -211,7 +211,7 @@ public class Modifiers_desecrated {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.DESECRATED,
 				"ArcaneSurgeEffect",
-				"(#)% increased effect of Arcane Surge on you");
+				"#% increased effect of Arcane Surge on you");
 
 	}
 }

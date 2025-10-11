@@ -63,7 +63,7 @@ public class Modifiers_essences {
 				ModifierType.PREFIX,
 				ModifierSource.ESSENCE,
 				"AllDefences",
-				"(#)% increased Global Defences");
+				"#% increased Global Defences");
 
 		ESSENCE_ABYSS_PREFIX = new Modifier(
 				"essence_abyss",
@@ -143,7 +143,7 @@ public class Modifiers_essences {
 				ModifierType.SUFFIX,
 				ModifierSource.ESSENCE,
 				"PercentageStrength",
-				"(#)% increased Strength");
+				"#% increased Strength");
 
 		ESSENCE_PERCENTAGE_ATTRIBUTES_DEXTERITY = new Modifier(
 				"percentage_dexterity",
@@ -153,7 +153,7 @@ public class Modifiers_essences {
 				ModifierType.SUFFIX,
 				ModifierSource.ESSENCE,
 				"PercentageDexterity",
-				"(#)% increased Dexterity");
+				"#% increased Dexterity");
 
 		ESSENCE_PERCENTAGE_ATTRIBUTES_INTELLIGENCE = new Modifier(
 				"percentage_intelligence",
@@ -163,7 +163,7 @@ public class Modifiers_essences {
 				ModifierType.SUFFIX,
 				ModifierSource.ESSENCE,
 				"PercentageIntelligence",
-				"(#)% increased Intelligence");
+				"#% increased Intelligence");
 
 		ESSENCE_DAMAGE_TAKEN_RECOUPED_AS_LIFE = new Modifier(
 				"damage_taken_recouped_as_life",
@@ -173,7 +173,7 @@ public class Modifiers_essences {
 				ModifierType.SUFFIX,
 				ModifierSource.ESSENCE,
 				"DamageTakenGainedAsLife",
-				"(#)% of Damage taken Recouped as Life");
+				"#% of Damage taken Recouped as Life");
 
 		ESSENCE_FIRE_RESISTANCE = new Modifier(
 				"fire_resistance",

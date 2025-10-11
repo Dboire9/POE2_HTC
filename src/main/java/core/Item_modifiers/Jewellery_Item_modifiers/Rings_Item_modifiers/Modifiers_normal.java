@@ -204,7 +204,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"ItemFoundRarityIncreasePrefix",
-				"(#)% increased Rarity of Items found");
+				"#% increased Rarity of Items found");
 
 		INCREASED_FIRE_DAMAGE = new Modifier(
 				"increased_fire_damage",
@@ -436,7 +436,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"LifeRegeneration",
-				"(#) Life Regeneration per second");
+				"# Life Regeneration per second");
 
 		MANA_REGENERATION_RATE = new Modifier(
 				"mana_regeneration_rate",

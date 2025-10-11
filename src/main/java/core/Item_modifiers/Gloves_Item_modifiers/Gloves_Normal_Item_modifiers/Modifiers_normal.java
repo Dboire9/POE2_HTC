@@ -148,7 +148,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Armour");
+				"#% increased Armour");
 
 		INCREASED_PERCENT_EVASION = new Modifier(
 				"increased_percent_evasion",
@@ -164,7 +164,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Evasion Rating");
+				"#% increased Evasion Rating");
 
 		INCREASED_PERCENT_ENERGY_SHIELD = new Modifier(
 				"increased_percent_energy_shield",
@@ -180,7 +180,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Energy Shield");
+				"#% increased Energy Shield");
 
 		HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE = new Modifier(
 				"increased_percent_armour", "base_maximum_life",
@@ -201,7 +201,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndLife",
-				"(#)% increased Armour +# to maximum Life");
+				"#% increased Armour +# to maximum Life");
 
 		HYBRID_INCREASED_PERCENT_EVASION_AND_LIFE = new Modifier(
 				"increased_percent_evasion", "base_maximum_life",
@@ -222,7 +222,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndLife",
-				"(#)% increased Evasion Rating +# to maximum Life");
+				"#% increased Evasion Rating +# to maximum Life");
 
 		HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_LIFE = new Modifier(
 				"increased_percent_energy_shield", "base_maximum_life",
@@ -243,7 +243,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndLife",
-				"(#)% increased Energy Shield +# to maximum Life");
+				"#% increased Energy Shield +# to maximum Life");
 
 		PHYSICAL_DAMAGE_FLAT = new Modifier(
 				"physical_damage_flat",
@@ -622,7 +622,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EvasionAppliesToDeflection",
-				"Gain Deflection Rating equal to (#)% of Evasion Rating");
+				"Gain Deflection Rating equal to #% of Evasion Rating");
 
 		ENERGY_SHIELD_RECHARGE_RATE = new Modifier(
 				"energy_shield_recharge_rate",
@@ -635,7 +635,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EnergyShieldRegeneration",
-				"(#)% increased Energy Shield Recharge Rate");
+				"#% increased Energy Shield Recharge Rate");
 
 	}
 }

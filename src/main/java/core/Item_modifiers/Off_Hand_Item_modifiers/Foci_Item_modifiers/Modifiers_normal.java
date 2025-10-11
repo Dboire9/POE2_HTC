@@ -92,7 +92,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"DefencesPercent",
-				"(#)% increased Energy Shield");
+				"#% increased Energy Shield");
 
 		HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_MANA = new Modifier(
 				"increased_percent_energy_shield", "base_maximum_mana",
@@ -113,7 +113,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
 				"BaseLocalDefencesAndMana",
-				"(#)% increased Energy Shield\n+# to maximum Mana");
+				"#% increased Energy Shield\n+# to maximum Mana");
 
 		INCREASED_SPELL_DAMAGE = new Modifier(
 				"increased_spell_damage",
@@ -398,7 +398,7 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EnergyShieldRegeneration",
-				"(#)% increased Energy Shield Recharge Rate");
+				"#% increased Energy Shield Recharge Rate");
 
 		ENERGY_SHIELD_FASTER_START_RECHARGE = new Modifier(
 				"energy_shield_faster_start_recharge",
@@ -413,6 +413,6 @@ public class Modifiers_normal {
 				Modifier.ModifierType.SUFFIX,
 				Modifier.ModifierSource.NORMAL,
 				"EnergyShieldDelay",
-				"(#)% faster start of Energy Shield Recharge");
+				"#% faster start of Energy Shield Recharge");
 	}
 }

@@ -3,6 +3,7 @@ package gui.views;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -30,6 +31,8 @@ public class ItemSelectionView extends VBox {
 	public final CheckBox desecratedModifierCheckBox;
 	public final ComboBox<String> modifierTypeComboBox;
 
+	public final Label messageLabel;
+
 	public ItemSelectionView(List<String> categories) {
 		categoryComboBox = new ComboBox<>(FXCollections.observableArrayList(categories));
 		categoryComboBox.setPromptText("Select Category");
@@ -56,6 +59,13 @@ public class ItemSelectionView extends VBox {
 		suffix1TierComboBox = new ComboBox<>();
 		suffix2TierComboBox = new ComboBox<>();
 		suffix3TierComboBox = new ComboBox<>();
+
+		
+		// Label for displaying messages
+		messageLabel = new Label();
+		messageLabel.setText(""); // Default to empty
+		messageLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;"); // Optional styling
+
 
 		desecratedModifierCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue) {

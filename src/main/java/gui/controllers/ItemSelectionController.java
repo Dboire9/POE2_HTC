@@ -142,6 +142,7 @@ public class ItemSelectionController {
 
 			} else if (view.desecratedModifierCheckBox.isSelected()
 					&& view.modifierTypeComboBox.getValue() == "Suffix") {
+				System.out.println("DesecratednormalSuffixes: " + DesecratednormalSuffixes);
 				populateComboBoxes(suffixBoxes[0], DesecratednormalSuffixes);
 				populateComboBoxes(prefixBoxes[0], normalPrefixes);
 				essencepopulateComboBoxes(prefixBoxes[0], EssencenormalPrefixes);
@@ -205,6 +206,7 @@ public class ItemSelectionController {
 		box.getItems().clear();
 		if (modifiers != null) {
 			for (Modifier mod : modifiers) {
+				System.out.println(mod.text);
 				box.getItems().add(mod.text);
 			}
 		}
@@ -213,8 +215,7 @@ public class ItemSelectionController {
 	private void essencepopulateComboBoxes(ComboBox<String> box, List<Modifier> modifiers) {
 		if (modifiers != null) {
 			for (Modifier mod : modifiers) {
-				if (!box.getItems().contains(mod.text) && mod.text != "+# to Strength" && mod.text != "+# to Dexterity"
-						&& mod.text != "+# to Intelligence") {
+				if (!box.getItems().contains(mod.text)) {
 					String Essencetxt = "Essence : " + mod.text;
 					box.getItems().add(Essencetxt);
 				}

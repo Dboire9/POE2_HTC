@@ -31,6 +31,7 @@ core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifie
 core/Item_modifiers/Gloves_Item_modifiers/Gloves_Hybrid_Item_modifiers/Modifiers_normal.class
 gui/views/ItemSelectionView.class
 core/Items/Helmets/Helmets_str_int/Helmets_str_int.class
+gui/utils/ValidateButton.class
 core/Items/Bows/Bows.class
 core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_essences.class
 core/Items/Helmets/Helmets_dex_int/Helmets_dex_int.class
@@ -59,8 +60,10 @@ core/Item_modifiers/OneHand_Item_modifiers/Bows_Item_modifiers/Modifiers_normal.
 core/Items/Shields/Shields_str_dex/Shields_str_dex.class
 core/Item_modifiers/TwoHand_Item_modifiers/Staves_Item_modifiers/Modifiers_desecrated.class
 core/Item_modifiers/TwoHand_Item_modifiers/TwoHandMaces_Items_modifiers/Modifiers_normal.class
+core/Items/OneHand_Maces/OneHand_Maces.class
 core/Items/Helmets/Helmets_dex/Helmets_dex.class
 core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_normal.class
+core/Items/CraftingItem.class
 core/Items/Helmets/Helmets_str/Helmets_str.class
 core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_essences.class
 core/Items/Helmets/Helmets_int/Helmets_int.class
@@ -95,12 +98,15 @@ core/Items/Boots/Boots_str/Boots_str.class
 core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Normal_Item_modifiers/Modifiers_normal.class
 core/Item_modifiers/Helmets_Item_modifiers/Helmets_Hybrid_Item_modifiers/Modifiers_desecrated.class
 core/Item_modifiers/Off_Hand_Item_modifiers/Foci_Item_modifiers/Modifiers_essences.class
+core/Items/TwoHand_Maces/TwoHand_Maces.class
 core/Item_modifiers/TwoHand_Item_modifiers/Staves_Item_modifiers/Modifiers_essences.class
 core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_normal.class
 core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_normal.class
 core/Items/Boots/Boots_dex_int/Boots_dex_int.class
+core/Currency/Omen.class
 core/Items/Gloves/Gloves_int/Gloves_int.class
 core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_desecrated.class
+core/Currency/Currency_Items.class
 core/Items/Boots/Boots_dex/Boots_dex.class
 core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifiers/Modifiers_essences.class
 core/Items/Boots/Boots_int/Boots_int.class
@@ -109,6 +115,7 @@ core/Item_modifiers/OneHand_Item_modifiers/OneHand_Maces_Item_modifiers/Modifier
 core/Items/Gloves/Gloves_str/Gloves_str.class
 core/Item_modifiers/Helmets_Item_modifiers/Helmets_Hybrid_Item_modifiers/Modifiers_essences.class
 core/Item_modifiers/OneHand_Item_modifiers/Sceptres_Item_modifiers/Modifiers_essences.class
+core/Items/CraftingItem$Rarity.class
 core/Item_modifiers/OneHand_Item_modifiers/Spears_Item_modifiers/Modifiers_normal.class
 core/Items/Helmets/Helmets_str_dex/Helmets_str_dex.class
 core/Item_modifiers/TwoHand_Item_modifiers/TwoHandMaces_Items_modifiers/Modifiers_essences.class

@@ -41,6 +41,7 @@
 /root/POE2craft_java/src/main/java/core/Items/Amulets/Amulets.java
 /root/POE2craft_java/src/main/java/core/Items/Helmets/Helmets_str_dex/Helmets_str_dex.java
 /root/POE2craft_java/src/main/java/core/Items/Body_Armours/Body_Armours_dex/Body_Armours_dex.java
+/root/POE2craft_java/src/main/java/core/Currency/Omen.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/TwoHandMaces_Items_modifiers/Modifiers_normal.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Gloves_Item_modifiers/Gloves_Normal_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_desecrated.java
@@ -71,6 +72,7 @@
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/TwoHandMaces_Items_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Items/Wands/Wands.java
+/root/POE2craft_java/src/main/java/core/Currency/Currency_Items.java
 /root/POE2craft_java/src/main/java/gui/Main.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Crossbows_Items_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Items/Shields/Shields_str_dex/Shields_str_dex.java
@@ -85,7 +87,6 @@
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Gloves_Item_modifiers/Gloves_Hybrid_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Items/Gloves/Gloves_str/Gloves_str.java
 /root/POE2craft_java/src/main/java/core/Items/Gloves/Gloves_dex_int/Gloves_dex_int.java
-/root/POE2craft_java/src/main/java/core/Items/Item_storage_modifiers.java
 /root/POE2craft_java/src/main/java/core/Items/Body_Armours/Body_Armours_str_dex/Body_Armours_str_dex.java
 /root/POE2craft_java/src/main/java/core/Items/Quarterstaves/Quarterstaves.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_normal.java
@@ -119,4 +120,5 @@
 /root/POE2craft_java/src/main/java/core/Items/Item_base.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Spears_Item_modifiers/Modifiers_normal.java
 /root/POE2craft_java/src/main/java/core/Items/Gloves/Gloves_str_int/Gloves_str_int.java
+/root/POE2craft_java/src/main/java/core/Items/CraftingItem.java
 /root/POE2craft_java/src/main/java/core/Items/OneHand_Maces/OneHand_Maces.java

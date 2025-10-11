@@ -109,10 +109,11 @@ public class ItemSelectionView extends VBox {
 
         VBox modifierBox = new VBox(10, prefixBox, prefixTierBox, suffixBox, suffixTierBox, desecratedModifierCheckBox, modifierTypeComboBox);
         modifierBox.setAlignment(Pos.CENTER_LEFT);
-
-        // Group validation components
-        HBox validationBox = new HBox(10, messageLabel, validateButton);
-        validationBox.setAlignment(Pos.CENTER);
+		
+		VBox validationBox = new VBox(10);
+		validationBox.getChildren().add(messageLabel);
+		validationBox.getChildren().add(validateButton);
+		validationBox.setAlignment(Pos.CENTER);
 
         // Add all groups to the main layout
         VBox mainLayout = new VBox(20, categoryBox, modifierBox, validationBox);

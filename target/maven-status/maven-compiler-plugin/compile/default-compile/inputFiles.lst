@@ -106,6 +106,7 @@
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Normal_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Items/Spears/Spears.java
+/root/POE2craft_java/src/main/java/gui/utils/ValidateButton.java
 /root/POE2craft_java/src/main/java/core/Items/Gloves/Gloves_str_dex/Gloves_str_dex.java
 /root/POE2craft_java/src/main/java/core/Items/Helmets/Helmets_dex_int/Helmets_dex_int.java
 /root/POE2craft_java/src/main/java/core/Items/Gloves/Gloves_int/Gloves_int.java

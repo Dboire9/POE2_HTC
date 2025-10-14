@@ -10,6 +10,17 @@ public class AugmentationOrb implements Crafting_Action {
 
     private double cost = 1.0;
 
+    public enum CurrencyTier {
+        BASE, GREATER, PERFECT
+    }
+
+    public final CurrencyTier tier;
+
+    // Constructor to specify tier
+    public AugmentationOrb(CurrencyTier tier) {
+        this.tier = tier;
+    }
+
     @Override
     public Crafting_Item apply(Crafting_Item item) {
         // Only works on MAGIC items with at least one free slot
@@ -18,22 +29,31 @@ public class AugmentationOrb implements Crafting_Action {
 
         Item_base base = item.base;
 
-        // Use utility to select a weighted modifier
+        // Determine minimum level based on currency tier
+        int minLevel;
+        switch (tier) {
+            case GREATER -> minLevel = 55;
+            case PERFECT -> minLevel = 70;
+            default -> minLevel = 0;
+        }
+
+        // Use utility to select a weighted modifier, filtering by minLevel
         ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
             item,
             base.getNormalAllowedPrefixes(),
-            base.getNormalAllowedSuffixes()
+            base.getNormalAllowedSuffixes(),
+            minLevel // only include tiers >= minLevel
         );
 
         if (chosen == null) return item; // no eligible modifier
 
         // Apply the chosen modifier and tier
         Modifier mod = chosen.getModifier();
-        ModifierTier tier = chosen.getTier();
+        ModifierTier tierSelected = chosen.getTier();
         if (base.getNormalAllowedPrefixes().contains(mod)) {
-            item.addPrefix(mod, tier);
+            item.addPrefix(mod, tierSelected);
         } else {
-            item.addSuffix(mod, tier);
+            item.addSuffix(mod, tierSelected);
         }
 
         return item;
@@ -46,6 +66,6 @@ public class AugmentationOrb implements Crafting_Action {
 
     @Override
     public String getName() {
-        return "Orb of Augmentation";
+        return "Orb of Augmentation (" + tier + ")";
     }
 }

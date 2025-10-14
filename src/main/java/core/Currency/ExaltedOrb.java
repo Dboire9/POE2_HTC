@@ -10,6 +10,17 @@ public class ExaltedOrb implements Crafting_Action {
 
     private double cost = 1.0;
 
+    public enum CurrencyTier {
+        BASE, GREATER, PERFECT
+    }
+
+    public final CurrencyTier tier;
+
+    // Constructor to specify the tier
+    public ExaltedOrb(CurrencyTier tier) {
+        this.tier = tier;
+    }
+
     @Override
     public Crafting_Item apply(Crafting_Item item) {
         // No free slot? Return item unchanged
@@ -17,22 +28,31 @@ public class ExaltedOrb implements Crafting_Action {
 
         Item_base base = item.base;
 
-        // Use utility function to pick a weighted modifier tier
+        // Determine minimum tier level based on Exalted Orb tier
+        int minLevel;
+        switch (tier) {
+            case GREATER -> minLevel = 35;
+            case PERFECT -> minLevel = 50;
+            default -> minLevel = 0;
+        }
+
+        // Use utility function to pick a weighted modifier tier above minLevel
         ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
             item,
             base.getNormalAllowedPrefixes(),
-            base.getNormalAllowedSuffixes()
+            base.getNormalAllowedSuffixes(),
+            minLevel
         );
 
         if (chosen == null) return item; // no eligible modifier
 
         // Add chosen modifier and tier to the correct slot
         Modifier mod = chosen.getModifier();
-        ModifierTier tier = chosen.getTier();
+        ModifierTier modifierTier = chosen.getTier();
         if (base.getNormalAllowedPrefixes().contains(mod)) {
-            item.addPrefix(mod, tier);
+            item.addPrefix(mod, modifierTier);
         } else {
-            item.addSuffix(mod, tier);
+            item.addSuffix(mod, modifierTier);
         }
 
         return item;
@@ -45,6 +65,6 @@ public class ExaltedOrb implements Crafting_Action {
 
     @Override
     public String getName() {
-        return "Exalted Orb";
+        return "Exalted Orb (" + tier + ")";
     }
 }

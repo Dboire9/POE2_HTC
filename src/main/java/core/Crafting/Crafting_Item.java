@@ -5,6 +5,7 @@ import java.util.Arrays;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 
+
 public class Crafting_Item {
 
     public Item_base base;
@@ -18,6 +19,9 @@ public class Crafting_Item {
     public Modifier[] currentPrefixes = new Modifier[3];
     public Modifier[] currentSuffixes = new Modifier[3];
 
+    // Store the applied tier for each modifier
+    public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
+    public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
 
     // Constructor
     public Crafting_Item(Item_base base) {
@@ -30,7 +34,7 @@ public class Crafting_Item {
         for (int i = 0; i < currentPrefixes.length; i++) {
             if (currentPrefixes[i] == null) {
                 currentPrefixes[i] = mod;
-                mod.tiers = Arrays.asList(tier);
+                currentPrefixTiers[i] = tier; // store applied tier separately
                 return;
             }
         }
@@ -42,7 +46,7 @@ public class Crafting_Item {
         for (int i = 0; i < currentSuffixes.length; i++) {
             if (currentSuffixes[i] == null) {
                 currentSuffixes[i] = mod;
-                mod.tiers = Arrays.asList(tier);
+                currentSuffixTiers[i] = tier; // store applied tier separately
                 return;
             }
         }

@@ -9,7 +9,20 @@ import java.util.Random;
 
 public class AddRandomMod {
 
-    public static ModifierTierWrapper selectWeightedModifier(Crafting_Item item, List<Modifier> allowedPrefixes, List<Modifier> allowedSuffixes) {
+    /**
+     * Select a weighted modifier from allowed prefixes/suffixes, avoiding duplicates.
+     * @param item The item to modify
+     * @param allowedPrefixes List of allowed prefixes
+     * @param allowedSuffixes List of allowed suffixes
+     * @param minLevel Minimum tier level to consider (0 for no restriction)
+     * @return A selected ModifierTierWrapper, or null if none available
+     */
+    public static ModifierTierWrapper selectWeightedModifier(
+            Crafting_Item item,
+            List<Modifier> allowedPrefixes,
+            List<Modifier> allowedSuffixes,
+            int minLevel
+    ) {
         Item_base base = item.base;
         List<Modifier> possibleMods = new ArrayList<>();
 
@@ -43,18 +56,20 @@ public class AddRandomMod {
 
         if (possibleMods.isEmpty()) return null;
 
-        // Flatten all tiers into weighted list
+        // Flatten tiers into weighted list, filtering by minLevel
         List<WeightedItem<ModifierTierWrapper>> weightedTiers = new ArrayList<>();
         for (Modifier mod : possibleMods) {
             if (mod.tiers == null) continue;
             for (ModifierTier tier : mod.tiers) {
-                weightedTiers.add(new WeightedItem<>(new ModifierTierWrapper(mod, tier), tier.weight));
+                if (tier.level >= minLevel) {  // Only consider tiers above minLevel
+                    weightedTiers.add(new WeightedItem<>(new ModifierTierWrapper(mod, tier), tier.weight));
+                }
             }
         }
 
         if (weightedTiers.isEmpty()) return null;
 
-        // Weighted RNG selection
+        // Weighted random selection
         int totalWeight = weightedTiers.stream().mapToInt(WeightedItem::getWeight).sum();
         Random rng = new Random();
         int r = rng.nextInt(totalWeight);
@@ -65,5 +80,14 @@ public class AddRandomMod {
         }
 
         return null;
+    }
+
+    // Overload for backward compatibility (no minLevel filter)
+    public static ModifierTierWrapper selectWeightedModifier(
+            Crafting_Item item,
+            List<Modifier> allowedPrefixes,
+            List<Modifier> allowedSuffixes
+    ) {
+        return selectWeightedModifier(item, allowedPrefixes, allowedSuffixes, 0);
     }
 }

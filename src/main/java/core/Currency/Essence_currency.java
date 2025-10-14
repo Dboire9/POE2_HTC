@@ -4,6 +4,8 @@ package core.Currency;
 import core.Crafting.Crafting_Item;
 import core.Items.*;
 import core.Modifier_class.*;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -52,21 +54,40 @@ public abstract class Essence_currency {
 		// Step 2: find the modifier matching the essence
 		Modifier targetModifier = null;
 		boolean isPrefix = false;
-	
-		for (Modifier m : possiblePrefixModifiers) {
-			if (m.text.equals(guaranteedModifier)) {
-				targetModifier = m;
-				isPrefix = true;
-				break;
+		if (guaranteedModifier.contains("Strength, Dexterity or Intelligence")) {
+			// Collect allowed infinite modifiers for this item
+			List<Modifier> availableMods = new ArrayList<>();
+			for (Modifier m : item.base.getEssencesAllowedSuffixes()) {
+				if (m.text.contains("Strength") || m.text.contains("Dexterity") || m.text.contains("Intelligence")) {
+					availableMods.add(m);
+				}
 			}
-		}
-	
-		if (targetModifier == null) {
-			for (Modifier m : possibleSuffixModifiers) {
+
+			if (availableMods.isEmpty()) {
+				System.out.println("No applicable attribute modifiers for this item.");
+				return;
+			}
+
+			// Pick one randomly among the available
+			targetModifier = availableMods.get((int) (Math.random() * availableMods.size()));
+			isPrefix = false; // all are suffixes
+		} 
+		else {
+			for (Modifier m : possiblePrefixModifiers) {
 				if (m.text.equals(guaranteedModifier)) {
 					targetModifier = m;
-					isPrefix = false;
+					isPrefix = true;
 					break;
+				}
+			}
+		
+			if (targetModifier == null) {
+				for (Modifier m : possibleSuffixModifiers) {
+					if (m.text.equals(guaranteedModifier)) {
+						targetModifier = m;
+						isPrefix = false;
+						break;
+					}
 				}
 			}
 		}

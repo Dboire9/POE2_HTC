@@ -3,6 +3,13 @@
   "configurations": [
 	{
 		"type": "java",
+		"name": "TestEssence",
+		"request": "launch",
+		"mainClass": "core.Test.TestEssence",
+		"projectName": "poe-crafter"
+	},
+	{
+		"type": "java",
 		"name": "TestOrbs",
 		"request": "launch",
 		"mainClass": "core.Test.TestOrbs",

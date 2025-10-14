@@ -1,56 +1,47 @@
 package core.Test;
 
-import core.Currency.*;
+import core.Currency.Essence_currency;
+import core.Currency.Essence_currency.EssenceTier;
+import core.Currency.TransmutationOrb;
+import core.Currency.Essences.*;
 import core.Crafting.*;
-import core.Items.Quivers.Quivers;
+import core.Items.Boots.Boots_dex.Boots_dex;
 import core.Modifier_class.*;
 
-public class TestOrbs {
+public class TestEssence {
 
     public static void main(String[] args) {
 
-        // 1️⃣ Create base item
-        Quivers testItem = new Quivers();
+        // 1️⃣ Create base item (Boots)
+        Boots_dex testItem = new Boots_dex();
         Crafting_Item item = new Crafting_Item(testItem);
 
-        // 2️⃣ Create Orbs (PERFECT tier for testing)
-        TransmutationOrb trans = new TransmutationOrb(TransmutationOrb.CurrencyTier.PERFECT);
-        AugmentationOrb aug = new AugmentationOrb(AugmentationOrb.CurrencyTier.PERFECT);
-        RegalOrb regal = new RegalOrb(RegalOrb.CurrencyTier.PERFECT);
-        ExaltedOrb exalt = new ExaltedOrb(ExaltedOrb.CurrencyTier.PERFECT);
-        ChaosOrb chaos = new ChaosOrb(ChaosOrb.CurrencyTier.PERFECT);
-        AnnulmentOrb annul = new AnnulmentOrb();
+        System.out.println("Starting essence application sequence on Boots...");
 
-        System.out.println("Starting crafting sequence...");
+        // 2️⃣ Create Essences
+        Essence_currency lesserMind = new EssenceOfTheBody(EssenceTier.LESSER);
+        Essence_currency normalMind = new EssenceOfTheBody(EssenceTier.NORMAL);
+        Essence_currency greaterMind = new EssenceOfTheBody(EssenceTier.GREATER);
 
-        // Apply each orb and show changes
-        applyAndShowChanges(item, trans, "Transmutation Orb → Magic");
-        applyAndShowChanges(item, aug, "Augmentation Orb");
-        applyAndShowChanges(item, regal, "Regal Orb → Rare");
-        applyAndShowChanges(item, annul, "Orb of Annulment");
-        printItem(item, "Full item after Annulment");
+		TransmutationOrb trans = new TransmutationOrb(TransmutationOrb.CurrencyTier.BASE);
 
-        while (!item.isFull()) {
-            applyAndShowChanges(item, exalt, "Exalted Orb");
-        }
+        // 3️⃣ Apply Essences to the item
+		trans.apply(item);
+        applyAndShowChanges(item, lesserMind, "Lesser Essence of the Mind");
+        applyAndShowChanges(item, normalMind, "Essence of the Mind");
+        applyAndShowChanges(item, greaterMind, "Greater Essence of the Mind");
 
-        // Full item after initial crafting
-        printItem(item, "Full item");
-
-        // Apply Chaos Orbs
-        for (int i = 1; i <= 2; i++) {
-            applyAndShowChanges(item, chaos, "Chaos Orb " + i);
-            printItem(item, "Full item");
-        }
+        // 4️⃣ Print final item
+        printItem(item, "Final Boots after all Mind Essences");
     }
 
     // -------------------
-    // Apply orb and show only changed mods
+    // Apply essence and show only changed mods
     // -------------------
-    private static void applyAndShowChanges(Crafting_Item item, Crafting_Action orb, String orbName) {
+    private static void applyAndShowChanges(Crafting_Item item, Essence_currency essence, String essenceName) {
         Crafting_Item snapshot = cloneItem(item);
-        orb.apply(item);
-        printItemChanges(snapshot, item, orbName);
+        essence.applyTo(item);
+        printItemChanges(snapshot, item, essenceName);
     }
 
     // -------------------

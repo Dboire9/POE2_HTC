@@ -5,7 +5,7 @@ import core.Currency.Essence_currency.EssenceTier;
 import core.Currency.TransmutationOrb;
 import core.Currency.Essences.*;
 import core.Crafting.*;
-import core.Items.Boots.Boots_dex.Boots_dex;
+import core.Items.Boots.Boots_str_dex.Boots_str_dex;
 import core.Modifier_class.*;
 
 public class TestEssence {
@@ -13,23 +13,23 @@ public class TestEssence {
     public static void main(String[] args) {
 
         // 1️⃣ Create base item (Boots)
-        Boots_dex testItem = new Boots_dex();
+        Boots_str_dex testItem = new Boots_str_dex();
         Crafting_Item item = new Crafting_Item(testItem);
 
         System.out.println("Starting essence application sequence on Boots...");
 
         // 2️⃣ Create Essences
-        Essence_currency lesserMind = new EssenceOfTheBody(EssenceTier.LESSER);
-        Essence_currency normalMind = new EssenceOfTheBody(EssenceTier.NORMAL);
-        Essence_currency greaterMind = new EssenceOfTheBody(EssenceTier.GREATER);
+        // Essence_currency lesserMind = new Essences.EssenceOfTheBody(EssenceTier.LESSER);
+        Essence_currency normaless = new Essences.EssenceOfInfinite(EssenceTier.NORMAL);
+        // Essence_currency greaterMind = new Essences.EssenceOfTheBody(EssenceTier.GREATER);
 
 		TransmutationOrb trans = new TransmutationOrb(TransmutationOrb.CurrencyTier.BASE);
 
         // 3️⃣ Apply Essences to the item
 		trans.apply(item);
-        applyAndShowChanges(item, lesserMind, "Lesser Essence of the Mind");
-        applyAndShowChanges(item, normalMind, "Essence of the Mind");
-        applyAndShowChanges(item, greaterMind, "Greater Essence of the Mind");
+        // applyAndShowChanges(item, lesserMind, "Lesser Essence of the Mind");
+        applyAndShowChanges(item, normaless, "Essence of the Infinite");
+        // applyAndShowChanges(item, greaterMind, "Greater Essence of the Mind");
 
         // 4️⃣ Print final item
         printItem(item, "Final Boots after all Mind Essences");

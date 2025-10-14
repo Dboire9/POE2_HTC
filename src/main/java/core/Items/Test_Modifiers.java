@@ -1,5 +1,6 @@
 package core.Items;
 
+import core.Crafting.*;
 import core.Items.Amulets.*;
 import core.Modifier_class.*;
 
@@ -7,12 +8,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class TestModifiers {
+public class Test_Modifiers {
     public static void main(String[] args) {
         // Create a new amulet item
         Amulets testItem = new Amulets();
 
-		Crafting_Item Crafting_test_Item = new Crafting_Item();
+		Crafting_Item Crafting_test_Item = new Crafting_Item(testItem);
 
         // For simplicity, pick normal allowed modifiers
         List<Modifier> availablePrefixes = testItem.Normal_allowedPrefixes;
@@ -30,7 +31,7 @@ public class TestModifiers {
 
         // Add random modifiers 6 times
         for (int i = 0; i < 6; i++) {
-            Crafting_test_Item.addRandomModifier(availablePrefixes, availableSuffixes);
+            // Crafting_test_Item.addRandomModifier(availablePrefixes, availableSuffixes);
         }
 
         // Print results

@@ -53,6 +53,29 @@ public class Crafting_Item {
         System.out.println("No suffix slot available!");
     }
 
+
+	// Add the modifier passed in parameters
+	public void addModifier(ModifierTier tier, Modifier parent, boolean isPrefix) {
+		if (isPrefix) {
+			for (int i = 0; i < currentPrefixes.length; i++) {
+				if (currentPrefixes[i] == null) {
+					currentPrefixes[i] = parent;
+					currentPrefixTiers[i] = tier;
+					return;
+				}
+			}
+		} else {
+			for (int i = 0; i < currentSuffixes.length; i++) {
+				if (currentSuffixes[i] == null) {
+					currentSuffixes[i] = parent;
+					currentSuffixTiers[i] = tier;
+					return;
+				}
+			}
+		}
+	}
+	
+
     // Checking if the item has all modifiers filled
     public boolean isFull() {
         return Arrays.stream(currentPrefixes).noneMatch(m -> m == null)

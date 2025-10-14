@@ -17,6 +17,7 @@ public class TestOrbs {
         AugmentationOrb aug = new AugmentationOrb();
         RegalOrb regal = new RegalOrb();
         ExaltedOrb exalt = new ExaltedOrb();
+        ChaosOrb chaos = new ChaosOrb();
 
         System.out.println("Starting crafting sequence...");
 
@@ -40,38 +41,44 @@ public class TestOrbs {
             System.out.println("Applied Exalted Orb");
         }
 
-        // 6️⃣ Display final result
-        System.out.println("\nFinal item:");
+        // 6️⃣ Display full item
+        printItem(item, "Full item");
+
+        // 7️⃣ Apply Chaos Orbs
+        for (int i = 1; i <= 2; i++) {
+            chaos.apply(item);
+            printItem(item, "After Chaos Orb " + i);
+        }
+    }
+
+    // Helper method to print item details
+    private static void printItem(Crafting_Item item, String title) {
+        System.out.println("\n" + title + ":");
         System.out.println("Rarity: " + item.rarity);
+
         System.out.println("Prefixes:");
-        for (int i = 0; i < item.currentPrefixes.length; i++) {
-            Modifier m = item.currentPrefixes[i];
+        for (Modifier m : item.currentPrefixes) {
             if (m != null) {
-                System.out.print(" - " + m.text);
-                for (ModifierTier tier : m.tiers)
-                {
-                    System.out.println(" - " + tier.minMax1);
-                    if (tier.minMax2 != null) System.out.println(" - " + tier.minMax2);
-                    if (tier.minMax3 != null)System.out.println(" - " + tier.minMax3);
-                    if (tier.minMax4 != null)System.out.println(" - " + tier.minMax4);
+                System.out.println(" - " + m.text);
+                for (ModifierTier tier : m.tiers) {
+                    System.out.println("   Tier minMax1: " + tier.minMax1);
+                    if (tier.minMax2 != null) System.out.println("   Tier minMax2: " + tier.minMax2);
+                    if (tier.minMax3 != null) System.out.println("   Tier minMax3: " + tier.minMax3);
+                    if (tier.minMax4 != null) System.out.println("   Tier minMax4: " + tier.minMax4);
                 }
-                System.out.println();
             }
         }
 
         System.out.println("Suffixes:");
-        for (int i = 0; i < item.currentSuffixes.length; i++) {
-            Modifier m = item.currentSuffixes[i];
+        for (Modifier m : item.currentSuffixes) {
             if (m != null) {
-                System.out.print(" - " + m.text);
-                for (ModifierTier tier : m.tiers)
-                {
-                    System.out.println(" - " + tier.minMax1);
-                    if (tier.minMax2 != null) System.out.println(" - " + tier.minMax2);
-                    if (tier.minMax3 != null)System.out.println(" - " + tier.minMax3);
-                    if (tier.minMax4 != null)System.out.println(" - " + tier.minMax4);
+                System.out.println(" - " + m.text);
+                for (ModifierTier tier : m.tiers) {
+                    System.out.println("   Tier minMax1: " + tier.minMax1);
+                    if (tier.minMax2 != null) System.out.println("   Tier minMax2: " + tier.minMax2);
+                    if (tier.minMax3 != null) System.out.println("   Tier minMax3: " + tier.minMax3);
+                    if (tier.minMax4 != null) System.out.println("   Tier minMax4: " + tier.minMax4);
                 }
-                System.out.println();
             }
         }
     }

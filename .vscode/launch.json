@@ -3,6 +3,20 @@
   "configurations": [
 	{
 		"type": "java",
+		"name": "TestOrbs",
+		"request": "launch",
+		"mainClass": "core.Test.TestOrbs",
+		"projectName": "poe-crafter"
+	},
+	{
+		"type": "java",
+		"name": "TestExaltedOrb",
+		"request": "launch",
+		"mainClass": "core.Test.TestExaltedOrb",
+		"projectName": "poe-crafter"
+	},
+	{
+		"type": "java",
 		"name": "TestModifiers",
 		"request": "launch",
 		"mainClass": "core.Items.TestModifiers",

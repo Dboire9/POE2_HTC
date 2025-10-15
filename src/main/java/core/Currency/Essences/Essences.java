@@ -55,7 +55,7 @@ public class Essences {
 
 	public static class EssenceOfAbrasion extends Essence_currency {
 		public EssenceOfAbrasion(EssenceTier tier) {
-			super("Abrasion", tier); // Replace with your Modifier text used in your system
+			super("Abrasion", tier);
 		}
 	
 		@Override
@@ -71,7 +71,7 @@ public class Essences {
 
 	public static class EssenceOfFlames extends Essence_currency {
 		public EssenceOfFlames(EssenceTier tier) {
-			super("Flames", tier); // Replace with the exact Modifier text from your system
+			super("Flames", tier); 
 		}
 	
 		@Override
@@ -87,7 +87,7 @@ public class Essences {
 
 	public static class EssenceOfIce extends Essence_currency {
 		public EssenceOfIce(EssenceTier tier) {
-			super("Ice", tier); // Replace with the exact Modifier text from your system
+			super("Ice", tier); 
 		}
 	
 		@Override
@@ -103,7 +103,7 @@ public class Essences {
 
 	public static class EssenceOfElectricity extends Essence_currency {
 		public EssenceOfElectricity(EssenceTier tier) {
-			super("Electricity", tier); // Replace with the exact Modifier text from your system
+			super("Electricity", tier); 
 		}
 	
 		@Override
@@ -119,7 +119,7 @@ public class Essences {
 
 	public static class EssenceOfRuin extends Essence_currency {
 		public EssenceOfRuin(EssenceTier tier) {
-			super("Ruin", tier); // Replace with exact Modifier text if different
+			super("Ruin", tier);
 		}
 	
 		@Override
@@ -135,7 +135,7 @@ public class Essences {
 
 	public static class EssenceOfBattle extends Essence_currency {
 		public EssenceOfBattle(EssenceTier tier) {
-			super("Battle", tier); // Replace with the exact Modifier text from your system
+			super("Battle", tier); 
 		}
 	
 		@Override
@@ -151,7 +151,7 @@ public class Essences {
 
 	public static class EssenceOfSorcery extends Essence_currency {
 		public EssenceOfSorcery(EssenceTier tier) {
-			super("Sorcery", tier); // Replace with the exact Modifier text from your system
+			super("Sorcery", tier); 
 		}
 	
 		@Override
@@ -167,7 +167,7 @@ public class Essences {
 
 	public static class EssenceOfHaste extends Essence_currency {
 		public EssenceOfHaste(EssenceTier tier) {
-			super("Haste", tier); // Replace with the exact Modifier text from your system
+			super("Haste", tier); 
 		}
 	
 		@Override
@@ -183,7 +183,7 @@ public class Essences {
 
 	public static class EssenceOfInfinite extends Essence_currency {
 		public EssenceOfInfinite(EssenceTier tier) {
-			super("Infinite", tier); // Replace with the exact Modifier text from your system
+			super("Infinite", tier); 
 		}
 	
 		@Override
@@ -199,7 +199,7 @@ public class Essences {
 
 	public static class EssenceOfCommand extends Essence_currency {
 		public EssenceOfCommand(EssenceTier tier) {
-			super("Command", tier); // Replace with the exact Modifier text from your system
+			super("Command", tier); 
 		}
 	
 		@Override
@@ -215,7 +215,7 @@ public class Essences {
 
 	public static class EssenceOfAlacrity extends Essence_currency {
 		public EssenceOfAlacrity(EssenceTier tier) {
-			super("Alacrity", tier); // Replace with the exact Modifier text from your system
+			super("Alacrity", tier); 
 		}
 	
 		@Override
@@ -231,7 +231,7 @@ public class Essences {
 
 	public static class EssenceOfSeeking extends Essence_currency {
 		public EssenceOfSeeking(EssenceTier tier) {
-			super("Seeking", tier); // Replace with the exact Modifier text from your system
+			super("Seeking", tier); 
 		}
 	
 		@Override
@@ -247,7 +247,7 @@ public class Essences {
 
 	public static class EssenceOfOpulence extends Essence_currency {
 		public EssenceOfOpulence(EssenceTier tier) {
-			super("Opulence", tier); // Replace with the exact Modifier text from your system
+			super("Opulence", tier); 
 		}
 	
 		@Override
@@ -263,7 +263,7 @@ public class Essences {
 
 	public static class EssenceOfGrounding extends Essence_currency {
 		public EssenceOfGrounding(EssenceTier tier) {
-			super("Grounding", tier); // Replace with the exact Modifier text from your system
+			super("Grounding", tier); 
 		}
 	
 		@Override
@@ -279,7 +279,7 @@ public class Essences {
 
 	public static class EssenceOfInsulation extends Essence_currency {
 		public EssenceOfInsulation(EssenceTier tier) {
-			super("Insulation", tier); // Replace with the exact Modifier text from your system
+			super("Insulation", tier); 
 		}
 	
 		@Override
@@ -295,7 +295,7 @@ public class Essences {
 
 	public static class EssenceOfThawing extends Essence_currency {
 		public EssenceOfThawing(EssenceTier tier) {
-			super("Thawing", tier); // Replace with the exact Modifier text from your system
+			super("Thawing", tier); 
 		}
 	
 		@Override

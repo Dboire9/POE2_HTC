@@ -32,19 +32,28 @@ public class AugmentationOrb implements Crafting_Action {
 
         Item_base base = item.base;
 
+
+		// Checking if there is already a prefix or a suffix to add the opposite type
 		int prefixCount = 0;
 		int suffixCount = 0;
 		for (Modifier m : item.currentPrefixes) if (m != null) prefixCount++;
 		for (Modifier m : item.currentSuffixes) if (m != null) suffixCount++;
 
 		boolean addPrefix = false;
-		if (prefixCount == 0 && suffixCount > 0) {
+		if (prefixCount == 0 && suffixCount > 0)
+		{
 			addPrefix = true;
-		} else if (suffixCount == 0 && prefixCount > 0) {
+		}
+		else if (suffixCount == 0 && prefixCount > 0) {
 			addPrefix = false;
 		}
+		else
+		{
+			System.out.println("Item has already two modifiers for the magic rarity");
+			return item;
+		}
 
-		    // Filter allowed mods based on type
+		// Filter allowed mods based on type
     	List<Modifier> allowedModifiers = addPrefix
         ? base.getNormalAllowedPrefixes()
         : base.getNormalAllowedSuffixes();

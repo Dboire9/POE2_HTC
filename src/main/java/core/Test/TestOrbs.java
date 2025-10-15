@@ -24,7 +24,7 @@ public class TestOrbs {
         AnnulmentOrb annul = new AnnulmentOrb();
 
         // 3️⃣ Create Perfect Essences
-        Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.NORMAL);
+        Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.PERFECT);
         // Essence_currency perfectMind = new Essences.EssenceOfTheMind(Essence_currency.EssenceTier.PERFECT);
         // Essence_currency perfectFlames = new Essences.EssenceOfFlames(Essence_currency.EssenceTier.PERFECT);
         // Essence_currency perfectEnhancement = new Essences.EssenceOfEnhancement(Essence_currency.EssenceTier.PERFECT);
@@ -36,13 +36,15 @@ public class TestOrbs {
 		printItem(item, "Full item");
         applyAndShowChanges(item, aug, "Augmentation Orb");
 		printItem(item, "Full item");
-        // applyAndShowChanges(item, regal, "Regal Orb → Rare");
-		// printItem(item, "Full item");
-		// applyAndShowChanges(item, exalt, "Exalt");
-		// printItem(item, "Full item");
+        applyAndShowChanges(item, regal, "Regal Orb → Rare");
+		printItem(item, "Full item");
+		applyAndShowChanges(item, exalt, "Exalt");
+		printItem(item, "Full item");
+		applyAndShowChanges(item, exalt, "Exalt");
+		printItem(item, "Full item");
 
         // Apply Perfect Essences
-		applyAndShowChangesEssences(item, perfectBody, "Greater Essence of the Body");
+		applyAndShowChangesEssences(item, perfectBody, "Perfect Essence of the Body");
 		// applyPerfectEssenceIfSupported(item, perfectMind, "Perfect Essence of the Mind");
 		// applyPerfectEssenceIfSupported(item, perfectFlames, "Perfect Essence of the Flames");
 		// applyPerfectEssenceIfSupported(item, perfectEnhancement, "Perfect Essence of Enhancement");
@@ -56,7 +58,7 @@ public class TestOrbs {
         // }
 
         // Full item after initial crafting
-        printItem(item, "Full item");
+        // printItem(item, "Full item");
 
         // Apply Chaos Orbs
         // for (int i = 1; i <= 2; i++) {

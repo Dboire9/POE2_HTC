@@ -16,34 +16,7 @@ public class AnnulmentOrb implements Crafting_Action {
         // Only works on MAGIC or RARE items
         if (item.rarity == Crafting_Item.ItemRarity.NORMAL) return item;
 
-        List<Modifier> existingMods = new ArrayList<>();
-        for (Modifier m : item.currentPrefixes) if (m != null) existingMods.add(m);
-        for (Modifier m : item.currentSuffixes) if (m != null) existingMods.add(m);
-
-        if (existingMods.isEmpty()) return item;
-
-        // Pick one modifier randomly to remove
-        Random rng = new Random();
-        Modifier toRemove = existingMods.get(rng.nextInt(existingMods.size()));
-
-        // Remove from prefixes
-        for (int i = 0; i < item.currentPrefixes.length; i++) {
-            if (item.currentPrefixes[i] != null && item.currentPrefixes[i].equals(toRemove)) {
-                item.currentPrefixes[i] = null;
-                item.currentPrefixTiers[i] = null;
-                return item;
-            }
-        }
-
-        // Remove from suffixes
-        for (int i = 0; i < item.currentSuffixes.length; i++) {
-            if (item.currentSuffixes[i] != null && item.currentSuffixes[i].equals(toRemove)) {
-                item.currentSuffixes[i] = null;
-                item.currentSuffixTiers[i] = null;
-                return item;
-            }
-        }
-
+		item.removeRandomModifier();
         return item;
     }
 

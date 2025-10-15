@@ -1,7 +1,9 @@
 package core.Currency;
 
 import core.Crafting.Crafting_Item;
+import core.Items.Item_base;
 import core.Modifier_class.*;
+import core.Utils.AddRandomMod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,20 +100,71 @@ public class Desecrated_currency {
      * Step 2: Apply the desecrated modifier once the slot is blocked.
      * This could either roll a normal modifier or a "desecrated" special one.
      */
-    public void applyDesecration(Crafting_Item item) {
-        if (blockedSlotType == null) {
-            System.out.println("⚠ Cannot apply desecration — no slot blocked yet!");
-            return;
+    public void applyNormalDesecration(Crafting_Item item) 
+	{
+        if (item.isFull()) return ;
+
+        Item_base base = item.base;
+
+		Modifier blockModifier = null;
+		Modifier.ModifierType blockType = null;
+
+		String blocker = "";
+
+		// Search in prefix slots
+		for (int i = 0; i < item.currentPrefixes.length; i++) {
+			Modifier m = item.currentPrefixes[i];
+			if (m != null && "block".equalsIgnoreCase(m.family)) {
+				blockModifier = m;
+				blockType = Modifier.ModifierType.PREFIX;
+				blocker = "Block_Suffix";
+				item.currentPrefixes[i] = null;
+				break;
+			}
+		}
+
+		// If not found, search in suffix slots
+		if (blockModifier == null) {
+			for (int i = 0; i < item.currentSuffixes.length; i++) {
+				Modifier m = item.currentSuffixes[i];
+				if (m != null && "block".equalsIgnoreCase(m.family)) {
+					blockModifier = m;
+					blockType = Modifier.ModifierType.SUFFIX;
+					blocker = "Block_Prefix";
+					item.currentSuffixes[i] = null;
+					break;
+				}
+			}
+		}
+	
+		if (blockModifier != null) {
+			System.out.println("Found a block modifier in " + blockType + " slots.");
+		} else {
+			System.out.println("No block modifier found on this item.");
+		}
+	
+		System.out.println("☠ Desecration consumes the block modifier... transforming it!");
+
+
+        // Use utility function to pick a weighted modifier tier above minLevel
+        ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
+            item,
+            base.getNormalAllowedPrefixes(),
+            base.getNormalAllowedSuffixes(),
+            0,
+			blocker
+        );
+
+        if (chosen == null) return ; // no eligible modifier
+
+        // Add chosen modifier and tier to the correct slot
+        Modifier mod = chosen.getModifier();
+        ModifierTier modifierTier = chosen.getTier();
+        if (base.getNormalAllowedPrefixes().contains(mod)) {
+            item.addPrefix(mod, modifierTier);
+        } else {
+            item.addSuffix(mod, modifierTier);
         }
-
-        System.out.println("☠ Finalizing desecration on " + item.base.getClass().getSimpleName()
-            + " (" + blockedSlotType + " slot)...");
-
-        boolean isDesecratedMod = new Random().nextDouble() < 0.3; // 30% chance for a desecrated mod
-        String modType = isDesecratedMod ? "Desecrated modifier" : "Normal modifier";
-
-        // Here you would later pick a modifier from the right pool depending on the blocked slot type
-        System.out.println("→ Applied " + modType + " to " + blockedSlotType + " slot.");
     }
 
     public SlotType getBlockedSlotType() {

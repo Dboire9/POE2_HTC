@@ -41,7 +41,8 @@ public class ExaltedOrb implements Crafting_Action {
             item,
             base.getNormalAllowedPrefixes(),
             base.getNormalAllowedSuffixes(),
-            minLevel
+            minLevel,
+			""
         );
 
         if (chosen == null) return item; // no eligible modifier

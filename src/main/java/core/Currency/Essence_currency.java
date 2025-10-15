@@ -159,8 +159,10 @@ public abstract class Essence_currency {
 				for (int i = 0; i < item.currentPrefixes.length; i++) if (item.currentPrefixes[i] != null) allFilledIndexes.add(i);
 				for (int i = 0; i < item.currentSuffixes.length; i++) if (item.currentSuffixes[i] != null) allFilledIndexes.add(i + item.currentPrefixes.length);
 
+				// Choosing which modifier will be deleted
 				int globalIndex = allFilledIndexes.get((int) (Math.random() * allFilledIndexes.size()));
 
+				// Checking if it will be a prefix or a suffix
 				if (globalIndex < item.currentPrefixes.length) {
 					removeIndex = globalIndex;
 					removedMod = item.currentPrefixes[removeIndex];

@@ -3,6 +3,7 @@ package core.Crafting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import core.Currency.Essence_currency;
 import core.Items.Item_base;
@@ -56,6 +57,39 @@ public class Crafting_Item {
         }
         System.out.println("No suffix slot available!");
     }
+
+	// Remove a random modifier (prefix or suffix) from the item
+	public Crafting_Item removeRandomModifier() {
+		List<Modifier> existingMods = new ArrayList<>();
+		for (Modifier m : currentPrefixes) if (m != null) existingMods.add(m);
+		for (Modifier m : currentSuffixes) if (m != null) existingMods.add(m);
+
+		if (existingMods.isEmpty()) return this;
+
+		// Pick one modifier randomly to remove
+		Random rng = new Random();
+		Modifier toRemove = existingMods.get(rng.nextInt(existingMods.size()));
+
+		// Remove from prefixes
+		for (int i = 0; i < currentPrefixes.length; i++) {
+			if (currentPrefixes[i] != null && currentPrefixes[i].equals(toRemove)) {
+				currentPrefixes[i] = null;
+				currentPrefixTiers[i] = null;
+				return this;
+			}
+		}
+
+		// Remove from suffixes
+		for (int i = 0; i < currentSuffixes.length; i++) {
+			if (currentSuffixes[i] != null && currentSuffixes[i].equals(toRemove)) {
+				currentSuffixes[i] = null;
+				currentSuffixTiers[i] = null;
+				return this;
+			}
+		}
+
+		return this;
+	}
 
 
 	// Add the modifier passed in parameters

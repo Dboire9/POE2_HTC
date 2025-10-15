@@ -72,6 +72,7 @@ public abstract class Essence_currency {
 				}
 		
 				item.addModifier(matchedTier, mod, modIsPrefix);
+				item.rarity = item.rarity.RARE;
 		
 				System.out.println("Applied " + getName() + " (" + tier + ") as "
 					+ (modIsPrefix ? "prefix" : "suffix") + " to item: " + item.base.getClass().getSimpleName());
@@ -79,11 +80,145 @@ public abstract class Essence_currency {
 				break; // stop after applying one matching essence
 			}
 		}
+
+		// Handle perfect essences
+		else if ((tier == EssenceTier.PERFECT) && item.rarity == Crafting_Item.ItemRarity.RARE) {
+			ModifierTier chosenTier = null;
+			List<Modifier> currentModifiers = new ArrayList<>();
+			boolean modIsPrefix = false;
+			Modifier targetMod = null;
 		
-		else if ((tier == EssenceTier.PERFECT) && item.rarity == Crafting_Item.ItemRarity.RARE)
-		{
+			// Retrieving the modifier from the item class
+			for (Modifier mod : allModifiers) {
+				// Only consider PERFECT_ESSENCE modifiers
+				if (mod.source != ModifierSource.PERFECT_ESSENCE) continue;
+		
+				// Collect currently applied modifiers
+				currentModifiers.clear();
+				for (Modifier m : item.currentPrefixes) if (m != null) currentModifiers.add(m);
+				for (Modifier m : item.currentSuffixes) if (m != null) currentModifiers.add(m);
+		
+				// Skip if this family is already applied
+				boolean alreadyApplied = currentModifiers.stream()
+					.anyMatch(m -> m.family.equalsIgnoreCase(mod.family));
+				if (alreadyApplied) continue;
+		
+				chosenTier = mod.tiers.get(0);
+				if (chosenTier == null) {
+					System.out.println("⚠ Could not find Perfect Essence tier for family: " + mod.family);
+					continue;
+				}
+		
+				modIsPrefix = item.base.getEssencesAllowedPrefixes().contains(mod);
+				targetMod = mod;
+				break; // stop after finding the first applicable Perfect Essence
+			}
+		
+			if (targetMod == null || chosenTier == null) {
+				System.out.println("⚠ No applicable Perfect Essence found for item: " + item.base.getClass().getSimpleName());
+				return;
+			}
+		
+			Modifier[] targetSlots = modIsPrefix ? item.currentPrefixes : item.currentSuffixes;
+		
+			// Remove a modifier of the same family if any, else remove a random slot
+			List<Integer> sameFamilyIndexes = new ArrayList<>();
+			for (int i = 0; i < targetSlots.length; i++) {
+				if (targetSlots[i] != null && targetSlots[i].family.equalsIgnoreCase(targetMod.family)) {
+					sameFamilyIndexes.add(i);
+				}
+			}
+		
+			int removeIndex;
+			if (!sameFamilyIndexes.isEmpty()) {
+				removeIndex = sameFamilyIndexes.get((int) (Math.random() * sameFamilyIndexes.size()));
+			} else {
+				List<Integer> allFilledIndexes = new ArrayList<>();
+				for (int i = 0; i < item.currentPrefixes.length; i++) if (item.currentPrefixes[i] != null) allFilledIndexes.add(i);
+				for (int i = 0; i < item.currentSuffixes.length; i++) if (item.currentSuffixes[i] != null) allFilledIndexes.add(i + item.currentPrefixes.length);
+				removeIndex = allFilledIndexes.get((int) (Math.random() * allFilledIndexes.size()));
+				if (removeIndex >= item.currentPrefixes.length) removeIndex -= item.currentPrefixes.length;
+			}
+		
+			// Determine which array and actual index
+			Modifier removedMod;
+			if (!sameFamilyIndexes.isEmpty()) {
+				removeIndex = sameFamilyIndexes.get((int) (Math.random() * sameFamilyIndexes.size()));
+				removedMod = targetSlots[removeIndex];
+			} else {
+				// All filled slots across prefixes and suffixes
+				List<Integer> allFilledIndexes = new ArrayList<>();
+				for (int i = 0; i < item.currentPrefixes.length; i++) if (item.currentPrefixes[i] != null) allFilledIndexes.add(i);
+				for (int i = 0; i < item.currentSuffixes.length; i++) if (item.currentSuffixes[i] != null) allFilledIndexes.add(i + item.currentPrefixes.length);
 
+				int globalIndex = allFilledIndexes.get((int) (Math.random() * allFilledIndexes.size()));
+
+				if (globalIndex < item.currentPrefixes.length) {
+					removeIndex = globalIndex;
+					removedMod = item.currentPrefixes[removeIndex];
+					modIsPrefix = true;
+				} else {
+					removeIndex = globalIndex - item.currentPrefixes.length;
+					removedMod = item.currentSuffixes[removeIndex];
+					modIsPrefix = false;
+				}
+
+				targetSlots = modIsPrefix ? item.currentPrefixes : item.currentSuffixes;
+			}
+
+			// Decide which modifier to remove
+			if (!sameFamilyIndexes.isEmpty()) {
+				// Remove a modifier of the same family in the correct slot
+				removeIndex = sameFamilyIndexes.get((int) (Math.random() * sameFamilyIndexes.size()));
+				removedMod = targetSlots[removeIndex];
+				System.out.println("Removing modifier: " + removedMod.family + " (" + removedMod.text + ") from "
+					+ (modIsPrefix ? "prefix" : "suffix") + " slot " + removeIndex);
+			} else {
+				// Remove a random modifier across all slots
+				List<Integer> allFilledIndexes = new ArrayList<>();
+				for (int i = 0; i < item.currentPrefixes.length; i++) if (item.currentPrefixes[i] != null) allFilledIndexes.add(i);
+				for (int i = 0; i < item.currentSuffixes.length; i++) if (item.currentSuffixes[i] != null) allFilledIndexes.add(i + item.currentPrefixes.length);
+
+				int globalIndex = allFilledIndexes.get((int) (Math.random() * allFilledIndexes.size()));
+
+				if (globalIndex < item.currentPrefixes.length) {
+					removeIndex = globalIndex;
+					removedMod = item.currentPrefixes[removeIndex];
+					modIsPrefix = true;
+				} else {
+					removeIndex = globalIndex - item.currentPrefixes.length;
+					removedMod = item.currentSuffixes[removeIndex];
+					modIsPrefix = false;
+				}
+
+				targetSlots = modIsPrefix ? item.currentPrefixes : item.currentSuffixes;
+
+				System.out.println("Removing modifier: " + removedMod.family + " (" + removedMod.text + ") from "
+					+ (modIsPrefix ? "prefix" : "suffix") + " slot " + removeIndex);
+			}
+			modIsPrefix = item.base.getEssencesAllowedPrefixes().contains(targetMod);
+			// Remove the selected modifier
+			targetSlots[removeIndex] = null;
+			if (modIsPrefix) item.currentPrefixTiers[removeIndex] = null;
+			else item.currentSuffixTiers[removeIndex] = null;
+			System.out.println("\nRemoved a modifier to make space for Perfect Essence.");
+
+			// Set the target slots **according to the essence type**
+			targetSlots = null;
+			targetSlots = modIsPrefix ? item.currentPrefixes : item.currentSuffixes;
+
+			// Apply Perfect Essence in first empty slot of correct type
+			for (int i = 0; i < targetSlots.length; i++) {
+				if (targetSlots[i] == null) {
+					targetSlots[i] = targetMod;
+					if (modIsPrefix) item.currentPrefixTiers[i] = chosenTier;
+					else item.currentSuffixTiers[i] = chosenTier;
+
+					System.out.println("Applied Perfect Essence: " + targetMod.family + " (" + chosenTier.name + ") as "
+						+ (modIsPrefix ? "prefix" : "suffix") + " to item: " + item.base.getClass().getSimpleName());
+					break;
+				}
+			}
 		}
-
 	}
 }

@@ -6,9 +6,9 @@ public class Essences {
 
 	public static class EssenceOfTheBody extends Essence_currency {
 		public EssenceOfTheBody(EssenceTier tier) {
-			super("+# to maximum Life", tier);
+			super("Body", tier);
 		}
-
+	
 		@Override
 		public String getName() {
 			return switch (tier) {
@@ -21,24 +21,24 @@ public class Essences {
 	}
 
 	public static class EssenceOfTheMind extends Essence_currency {
-        public EssenceOfTheMind(EssenceTier tier) {
-            super("+# to maximum Mana", tier);
-        }
-
-        @Override
-        public String getName() {
-            return switch (tier) {
-                case LESSER -> "Lesser Essence of the Mind";
-                case NORMAL -> "Essence of the Mind";
-                case GREATER -> "Greater Essence of the Mind";
-                case PERFECT -> "Perfect Essence of the Mind";
-            };
-        }
-    }
+		public EssenceOfTheMind(EssenceTier tier) {
+			super("Mind", tier);
+		}
+	
+		@Override
+		public String getName() {
+			return switch (tier) {
+				case LESSER -> "Lesser Essence of the Mind";
+				case NORMAL -> "Essence of the Mind";
+				case GREATER -> "Greater Essence of the Mind";
+				case PERFECT -> "Perfect Essence of the Mind";
+			};
+		}
+	}
 
 	public static class EssenceOfEnhancement extends Essence_currency {
         public EssenceOfEnhancement(EssenceTier tier) {
-            super("% increased Armour, Evasion or Energy Shield", tier);
+            super("Enhancement", tier);
         }
 
         @Override
@@ -47,14 +47,14 @@ public class Essences {
                 case LESSER -> "Lesser Essence of Enhancement";
                 case NORMAL -> "Essence of Enhancement";
                 case GREATER -> "Greater Essence of Enhancement";
-                case PERFECT -> "Perfect Essence of Enhancement";
+				case PERFECT -> "Perfect Essence of Enhancement";
             };
         }
     }
 
 	public static class EssenceOfAbrasion extends Essence_currency {
 		public EssenceOfAbrasion(EssenceTier tier) {
-			super("Adds # to # Physical Damage", tier); // Replace with your Modifier text used in your system
+			super("Abrasion", tier); // Replace with your Modifier text used in your system
 		}
 	
 		@Override
@@ -70,7 +70,7 @@ public class Essences {
 
 	public static class EssenceOfFlames extends Essence_currency {
 		public EssenceOfFlames(EssenceTier tier) {
-			super("Adds # to # Fire Damage", tier); // Replace with the exact Modifier text from your system
+			super("Flames", tier); // Replace with the exact Modifier text from your system
 		}
 	
 		@Override
@@ -86,7 +86,7 @@ public class Essences {
 
 	public static class EssenceOfIce extends Essence_currency {
 		public EssenceOfIce(EssenceTier tier) {
-			super("Adds # to # Cold Damage", tier); // Replace with the exact Modifier text from your system
+			super("Ice", tier); // Replace with the exact Modifier text from your system
 		}
 	
 		@Override
@@ -102,7 +102,7 @@ public class Essences {
 
 	public static class EssenceOfElectricity extends Essence_currency {
 		public EssenceOfElectricity(EssenceTier tier) {
-			super("Adds # to # Lightning Damage", tier); // Replace with the exact Modifier text from your system
+			super("Electricity", tier); // Replace with the exact Modifier text from your system
 		}
 	
 		@Override
@@ -118,7 +118,7 @@ public class Essences {
 
 	public static class EssenceOfRuin extends Essence_currency {
 		public EssenceOfRuin(EssenceTier tier) {
-			super("+# to Chaos Resistance", tier); // Replace with exact Modifier text if different
+			super("Ruin", tier); // Replace with exact Modifier text if different
 		}
 	
 		@Override
@@ -134,7 +134,7 @@ public class Essences {
 
 	public static class EssenceOfBattle extends Essence_currency {
 		public EssenceOfBattle(EssenceTier tier) {
-			super("+# to Accuracy Rating", tier); // Replace with the exact Modifier text from your system
+			super("Battle", tier); // Replace with the exact Modifier text from your system
 		}
 	
 		@Override
@@ -150,7 +150,7 @@ public class Essences {
 
 	public static class EssenceOfSorcery extends Essence_currency {
 		public EssenceOfSorcery(EssenceTier tier) {
-			super("#% increased Spell Damage", tier); // Replace with the exact Modifier text from your system
+			super("Sorcery", tier); // Replace with the exact Modifier text from your system
 		}
 	
 		@Override
@@ -166,7 +166,7 @@ public class Essences {
 
 	public static class EssenceOfHaste extends Essence_currency {
 		public EssenceOfHaste(EssenceTier tier) {
-			super("#% increased Attack Speed", tier); // Replace with the exact Modifier text from your system
+			super("Haste", tier); // Replace with the exact Modifier text from your system
 		}
 	
 		@Override
@@ -182,7 +182,7 @@ public class Essences {
 
 	public static class EssenceOfInfinite extends Essence_currency {
 		public EssenceOfInfinite(EssenceTier tier) {
-			super("Strength, Dexterity or Intelligence", tier); // Replace with the exact Modifier text from your system
+			super("Infinite", tier); // Replace with the exact Modifier text from your system
 		}
 	
 		@Override
@@ -195,5 +195,119 @@ public class Essences {
 			};
 		}
 	}
+
+	public static class EssenceOfCommand extends Essence_currency {
+		public EssenceOfCommand(EssenceTier tier) {
+			super("Command", tier); // Replace with the exact Modifier text from your system
+		}
+	
+		@Override
+		public String getName() {
+			return switch (tier) {
+				case LESSER -> "Lesser Essence of Command";
+				case NORMAL -> "Essence of the Command";
+				case GREATER -> "Greater Essence of Command";
+				case PERFECT -> "Perfect Essence of Command";
+			};
+		}
+	}
+
+	public static class EssenceOfAlacrity extends Essence_currency {
+		public EssenceOfAlacrity(EssenceTier tier) {
+			super("Alacrity", tier); // Replace with the exact Modifier text from your system
+		}
+	
+		@Override
+		public String getName() {
+			return switch (tier) {
+				case LESSER -> "Lesser Essence of Alacrity";
+				case NORMAL -> "Essence of the Alacrity";
+				case GREATER -> "Greater Essence of Alacrity";
+				case PERFECT -> "Perfect Essence of Alacrity";
+			};
+		}
+	}
+
+	public static class EssenceOfSeeking extends Essence_currency {
+		public EssenceOfSeeking(EssenceTier tier) {
+			super("Seeking", tier); // Replace with the exact Modifier text from your system
+		}
+	
+		@Override
+		public String getName() {
+			return switch (tier) {
+				case LESSER -> "Lesser Essence of Seeking";
+				case NORMAL -> "Essence of the Seeking";
+				case GREATER -> "Greater Essence of Seeking";
+				case PERFECT -> "Perfect Essence of Seeking";
+			};
+		}
+	}
+
+	public static class EssenceOfOpulence extends Essence_currency {
+		public EssenceOfOpulence(EssenceTier tier) {
+			super("Opulence", tier); // Replace with the exact Modifier text from your system
+		}
+	
+		@Override
+		public String getName() {
+			return switch (tier) {
+				case LESSER -> "Lesser Essence of Opulence";
+				case NORMAL -> "Essence of the Opulence";
+				case GREATER -> "Greater Essence of Opulence";
+				case PERFECT -> "Perfect Essence of Opulence";
+			};
+		}
+	}
+
+	public static class EssenceOfGrounding extends Essence_currency {
+		public EssenceOfGrounding(EssenceTier tier) {
+			super("Grounding", tier); // Replace with the exact Modifier text from your system
+		}
+	
+		@Override
+		public String getName() {
+			return switch (tier) {
+				case LESSER -> "Lesser Essence of Grounding";
+				case NORMAL -> "Essence of the Grounding";
+				case GREATER -> "Greater Essence of Grounding";
+				case PERFECT -> "Perfect Essence of Grounding";
+			};
+		}
+	}
+
+	public static class EssenceOfInsulation extends Essence_currency {
+		public EssenceOfInsulation(EssenceTier tier) {
+			super("Insulation", tier); // Replace with the exact Modifier text from your system
+		}
+	
+		@Override
+		public String getName() {
+			return switch (tier) {
+				case LESSER -> "Lesser Essence of Insulation";
+				case NORMAL -> "Essence of the Insulation";
+				case GREATER -> "Greater Essence of Insulation";
+				case PERFECT -> "Perfect Essence of Insulation";
+			};
+		}
+	}
+
+	public static class EssenceOfThawing extends Essence_currency {
+		public EssenceOfThawing(EssenceTier tier) {
+			super("Thawing", tier); // Replace with the exact Modifier text from your system
+		}
+	
+		@Override
+		public String getName() {
+			return switch (tier) {
+				case LESSER -> "Lesser Essence of Thawing";
+				case NORMAL -> "Essence of the Thawing";
+				case GREATER -> "Greater Essence of Thawing";
+				case PERFECT -> "Perfect Essence of Thawing";
+			};
+		}
+	}
+
+
 	
 }

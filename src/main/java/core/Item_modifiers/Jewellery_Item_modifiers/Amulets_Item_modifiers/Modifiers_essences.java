@@ -61,7 +61,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Enhancement", 72, 1, new Pair<>(20, 30))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"AllDefences",
 				"#% increased Global Defences");
 
@@ -141,7 +141,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of the Infinite", 72, 1, new Pair<>(7, 10))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"PercentageStrength",
 				"#% increased Strength");
 
@@ -151,7 +151,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of the Infinite", 72, 1, new Pair<>(7, 10))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"PercentageDexterity",
 				"#% increased Dexterity");
 
@@ -161,7 +161,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of the Infinite", 72, 1, new Pair<>(7, 10))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"PercentageIntelligence",
 				"#% increased Intelligence");
 

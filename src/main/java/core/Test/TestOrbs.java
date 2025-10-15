@@ -2,7 +2,9 @@ package core.Test;
 
 import core.Currency.*;
 import core.Crafting.*;
-import core.Items.Quivers.Quivers;
+import core.Currency.Essences.*;
+import core.Items.Boots.Boots_str_dex.*;
+import core.Items.Body_Armours.Body_Armours_dex.*;
 import core.Modifier_class.*;
 
 public class TestOrbs {
@@ -10,47 +12,83 @@ public class TestOrbs {
     public static void main(String[] args) {
 
         // 1️⃣ Create base item
-        Quivers testItem = new Quivers();
+        Body_Armours_dex testItem = new Body_Armours_dex();
         Crafting_Item item = new Crafting_Item(testItem);
 
         // 2️⃣ Create Orbs (PERFECT tier for testing)
-        TransmutationOrb trans = new TransmutationOrb(TransmutationOrb.CurrencyTier.PERFECT);
-        AugmentationOrb aug = new AugmentationOrb(AugmentationOrb.CurrencyTier.PERFECT);
-        RegalOrb regal = new RegalOrb(RegalOrb.CurrencyTier.PERFECT);
-        ExaltedOrb exalt = new ExaltedOrb(ExaltedOrb.CurrencyTier.PERFECT);
-        ChaosOrb chaos = new ChaosOrb(ChaosOrb.CurrencyTier.PERFECT);
+        TransmutationOrb trans = new TransmutationOrb(TransmutationOrb.CurrencyTier.BASE);
+        AugmentationOrb aug = new AugmentationOrb(AugmentationOrb.CurrencyTier.BASE);
+        RegalOrb regal = new RegalOrb(RegalOrb.CurrencyTier.BASE);
+        ExaltedOrb exalt = new ExaltedOrb(ExaltedOrb.CurrencyTier.BASE);
+        ChaosOrb chaos = new ChaosOrb(ChaosOrb.CurrencyTier.BASE);
         AnnulmentOrb annul = new AnnulmentOrb();
 
-        System.out.println("Starting crafting sequence...");
+        // 3️⃣ Create Perfect Essences
+        Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.NORMAL);
+        // Essence_currency perfectMind = new Essences.EssenceOfTheMind(Essence_currency.EssenceTier.PERFECT);
+        // Essence_currency perfectFlames = new Essences.EssenceOfFlames(Essence_currency.EssenceTier.PERFECT);
+        // Essence_currency perfectEnhancement = new Essences.EssenceOfEnhancement(Essence_currency.EssenceTier.PERFECT);
+
+        System.out.println("Starting crafting and essence sequence...");
 
         // Apply each orb and show changes
         applyAndShowChanges(item, trans, "Transmutation Orb → Magic");
+		printItem(item, "Full item");
         applyAndShowChanges(item, aug, "Augmentation Orb");
-        applyAndShowChanges(item, regal, "Regal Orb → Rare");
-        applyAndShowChanges(item, annul, "Orb of Annulment");
-        printItem(item, "Full item after Annulment");
+		printItem(item, "Full item");
+        // applyAndShowChanges(item, regal, "Regal Orb → Rare");
+		// printItem(item, "Full item");
+		// applyAndShowChanges(item, exalt, "Exalt");
+		// printItem(item, "Full item");
 
-        while (!item.isFull()) {
-            applyAndShowChanges(item, exalt, "Exalted Orb");
-        }
+        // Apply Perfect Essences
+		applyAndShowChangesEssences(item, perfectBody, "Greater Essence of the Body");
+		// applyPerfectEssenceIfSupported(item, perfectMind, "Perfect Essence of the Mind");
+		// applyPerfectEssenceIfSupported(item, perfectFlames, "Perfect Essence of the Flames");
+		// applyPerfectEssenceIfSupported(item, perfectEnhancement, "Perfect Essence of Enhancement");
+
+        // Apply Orb of Annulment
+        // applyAndShowChanges(item, annul, "Orb of Annulment");
+        // printItem(item, "Full item after Annulment");
+
+        // while (!item.isFull()) {
+        //     applyAndShowChanges(item, exalt, "Exalted Orb");
+        // }
 
         // Full item after initial crafting
         printItem(item, "Full item");
 
         // Apply Chaos Orbs
-        for (int i = 1; i <= 2; i++) {
-            applyAndShowChanges(item, chaos, "Chaos Orb " + i);
-            printItem(item, "Full item");
-        }
+        // for (int i = 1; i <= 2; i++) {
+        //     applyAndShowChanges(item, chaos, "Chaos Orb " + i);
+        //     printItem(item, "Full item");
+        // }
     }
 
     // -------------------
-    // Apply orb and show only changed mods
+    // Apply orb/essence and show only changed mods
     // -------------------
     private static void applyAndShowChanges(Crafting_Item item, Crafting_Action orb, String orbName) {
         Crafting_Item snapshot = cloneItem(item);
         orb.apply(item);
         printItemChanges(snapshot, item, orbName);
+    }
+
+	private static void applyPerfectEssenceIfSupported(Crafting_Item item, Essence_currency essence, String name)
+	{
+		if (item.supportsPerfectEssence(essence)) {
+			applyAndShowChangesEssences(item, essence, name);
+		} else {
+			System.out.println("❌ " + name + " not applicable for this item type (" + item.base.getClass() + ")");
+		}
+	}
+
+    private static void applyAndShowChangesEssences(Crafting_Item item, Essence_currency essence, String essenceName) {
+        Crafting_Item snapshot = cloneItem(item);
+		// System.out.println("here");
+        essence.applyTo(item);
+        printItemChanges(snapshot, item, essenceName);
+        printItem(item, "Full item after " + essenceName);
     }
 
     // -------------------
@@ -86,7 +124,7 @@ public class TestOrbs {
     }
 
     // -------------------
-    // Print only changed mods between old and new item
+    // Print only changed mods
     // -------------------
     private static void printItemChanges(Crafting_Item oldItem, Crafting_Item newItem, String title) {
         System.out.println("\n" + title + " (changed mods):");

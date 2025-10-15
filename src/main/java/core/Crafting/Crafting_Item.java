@@ -1,9 +1,13 @@
 package core.Crafting;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import core.Currency.Essence_currency;
 import core.Items.Item_base;
 import core.Modifier_class.*;
+import core.Modifier_class.Modifier.ModifierSource;
 
 
 public class Crafting_Item {
@@ -73,6 +77,50 @@ public class Crafting_Item {
 				}
 			}
 		}
+	}
+
+	public boolean supportsPerfectEssence(Essence_currency essence) {
+		List<Modifier> allMods = new ArrayList<>();
+		allMods.addAll(this.base.getEssencesAllowedPrefixes());
+		allMods.addAll(this.base.getEssencesAllowedSuffixes());
+	
+		String family = essence.getEssenceFamily().toLowerCase();
+	
+		System.out.println("\n🔍 Checking if " + base.getClass().getSimpleName()
+			+ " supports any Essence of the " + family);
+	
+		boolean foundNormalEssence = false;
+		boolean foundPerfectEssence = false;
+	
+		for (Modifier mod : allMods) {
+			System.out.println("  → Modifier: " + mod.text 
+				+ " | Source: " + mod.source 
+				+ " | Tiers: " + mod.tiers.stream().map(t -> t.name).toList());
+	
+			boolean matchesFamily = mod.tiers.stream()
+				.anyMatch(t -> t.name.toLowerCase().contains("essence of the " + family));
+	
+			if (matchesFamily) {
+				if (mod.source == ModifierSource.PERFECT_ESSENCE) {
+					foundPerfectEssence = true;
+					System.out.println("✅ Found perfect essence support: " + mod.text);
+				} else {
+					foundNormalEssence = true;
+					System.out.println("ℹ Found normal essence support: " + mod.text);
+				}
+			}
+		}
+	
+		// ✅ Improved final summary
+		if (foundPerfectEssence) {
+			System.out.println("✅ Item supports the Perfect Essence of the " + family);
+		} else if (foundNormalEssence) {
+			System.out.println("⚠ Item supports normal essences of the " + family + ", but not the Perfect one");
+		} else {
+			System.out.println("❌ No essence modifiers found for: " + family);
+		}
+	
+		return foundPerfectEssence;
 	}
 	
 

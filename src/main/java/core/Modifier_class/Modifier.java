@@ -20,7 +20,7 @@ public class Modifier {
 	}
 
 	public enum ModifierSource {
-		NORMAL, DESECRATED, ESSENCE
+		NORMAL, DESECRATED, ESSENCE, PERFECT_ESSENCE
 	}
 
 	// Constructor for a single-category modifier

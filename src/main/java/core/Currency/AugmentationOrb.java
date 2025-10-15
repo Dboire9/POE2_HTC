@@ -1,6 +1,9 @@
 package core.Currency;
 
 import core.Crafting.Crafting_Item;
+
+import java.util.List;
+
 import core.Crafting.Crafting_Action;
 import core.Items.Item_base;
 import core.Modifier_class.*;
@@ -29,6 +32,23 @@ public class AugmentationOrb implements Crafting_Action {
 
         Item_base base = item.base;
 
+		int prefixCount = 0;
+		int suffixCount = 0;
+		for (Modifier m : item.currentPrefixes) if (m != null) prefixCount++;
+		for (Modifier m : item.currentSuffixes) if (m != null) suffixCount++;
+
+		boolean addPrefix = false;
+		if (prefixCount == 0 && suffixCount > 0) {
+			addPrefix = true;
+		} else if (suffixCount == 0 && prefixCount > 0) {
+			addPrefix = false;
+		}
+
+		    // Filter allowed mods based on type
+    	List<Modifier> allowedModifiers = addPrefix
+        ? base.getNormalAllowedPrefixes()
+        : base.getNormalAllowedSuffixes();
+
         // Determine minimum level based on currency tier
         int minLevel;
         switch (tier) {
@@ -37,24 +57,26 @@ public class AugmentationOrb implements Crafting_Action {
             default -> minLevel = 0;
         }
 
-        // Use utility to select a weighted modifier, filtering by minLevel
-        ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
-            item,
-            base.getNormalAllowedPrefixes(),
-            base.getNormalAllowedSuffixes(),
-            minLevel // only include tiers >= minLevel
-        );
+		// Select a random modifier and tier 
+		ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
+			item,
+			addPrefix ? allowedModifiers : null,
+			addPrefix ? null : allowedModifiers,
+			minLevel
+		);
 
         if (chosen == null) return item; // no eligible modifier
 
         // Apply the chosen modifier and tier
         Modifier mod = chosen.getModifier();
         ModifierTier tierSelected = chosen.getTier();
-        if (base.getNormalAllowedPrefixes().contains(mod)) {
-            item.addPrefix(mod, tierSelected);
-        } else {
-            item.addSuffix(mod, tierSelected);
-        }
+		if (addPrefix) {
+			item.addPrefix(mod, tierSelected);
+			System.out.println("Augmentation Orb added PREFIX: " + mod.text + " (Tier " + (mod.tiers.size() - mod.tiers.indexOf(tierSelected)) + ")");
+		} else {
+			item.addSuffix(mod, tierSelected);
+			System.out.println("Augmentation Orb added SUFFIX: " + mod.text + " (Tier " + (mod.tiers.size() - mod.tiers.indexOf(tierSelected)) + ")");
+		}
 
         return item;
     }

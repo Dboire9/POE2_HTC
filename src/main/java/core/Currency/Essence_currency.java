@@ -47,11 +47,12 @@ public abstract class Essence_currency {
 		&& item.rarity == Crafting_Item.ItemRarity.MAGIC) 
 		{
 			for (Modifier mod : allModifiers) {
-		
+				// Retrieving all the modifiers currently on the item
 				List<Modifier> currentModifiers = new ArrayList<>();
 				for (Modifier m : item.currentPrefixes) if (m != null) currentModifiers.add(m);
 				for (Modifier m : item.currentSuffixes) if (m != null) currentModifiers.add(m);
 		
+				// Checking if the Type is Prefix or Suffix
 				boolean modIsPrefix = item.base.getEssencesAllowedPrefixes().contains(mod);
 		
 				// Check if modifier is already applied by family
@@ -70,9 +71,11 @@ public abstract class Essence_currency {
 					System.out.println("⚠ Modifier " + mod.text + " does not have tier " + tierIndex);
 					continue;
 				}
-		
+				
+				// Add the essence modifier and its tier
 				item.addModifier(matchedTier, mod, modIsPrefix);
-				item.rarity = item.rarity.RARE;
+				// Changing the item rarity to rare after applying the Modifier
+				item.rarity = Crafting_Item.ItemRarity.RARE;
 		
 				System.out.println("Applied " + getName() + " (" + tier + ") as "
 					+ (modIsPrefix ? "prefix" : "suffix") + " to item: " + item.base.getClass().getSimpleName());
@@ -103,12 +106,14 @@ public abstract class Essence_currency {
 					.anyMatch(m -> m.family.equalsIgnoreCase(mod.family));
 				if (alreadyApplied) continue;
 		
+				// Perfect essence only have one modifier tier
 				chosenTier = mod.tiers.get(0);
 				if (chosenTier == null) {
 					System.out.println("⚠ Could not find Perfect Essence tier for family: " + mod.family);
 					continue;
 				}
 		
+				// Checking whether the perfect essence is a prefix or a suffix
 				modIsPrefix = item.base.getEssencesAllowedPrefixes().contains(mod);
 				targetMod = mod;
 				break; // stop after finding the first applicable Perfect Essence
@@ -121,17 +126,20 @@ public abstract class Essence_currency {
 		
 			Modifier[] targetSlots = modIsPrefix ? item.currentPrefixes : item.currentSuffixes;
 		
-			// Remove a modifier of the same family if any, else remove a random slot
+			// Replace the modifier by the one of the item
 			List<Integer> sameFamilyIndexes = new ArrayList<>();
 			for (int i = 0; i < targetSlots.length; i++) {
-				if (targetSlots[i] != null && targetSlots[i].family.equalsIgnoreCase(targetMod.family)) {
+				if (targetSlots[i] != null  && targetSlots[i].family.equalsIgnoreCase(targetMod.family)) {
 					sameFamilyIndexes.add(i);
 				}
 			}
 		
+
 			int removeIndex;
+			// Checking if we already have the modifier
 			if (!sameFamilyIndexes.isEmpty()) {
-				removeIndex = sameFamilyIndexes.get((int) (Math.random() * sameFamilyIndexes.size()));
+				System.out.println("The Item has already a mod of this type");
+				return;
 			} else {
 				List<Integer> allFilledIndexes = new ArrayList<>();
 				for (int i = 0; i < item.currentPrefixes.length; i++) if (item.currentPrefixes[i] != null) allFilledIndexes.add(i);
@@ -168,13 +176,13 @@ public abstract class Essence_currency {
 
 			// Decide which modifier to remove
 			if (!sameFamilyIndexes.isEmpty()) {
-				// Remove a modifier of the same family in the correct slot
+				// Remove a modifier of the same family in the correct slot if the modifier type slots are full 
 				removeIndex = sameFamilyIndexes.get((int) (Math.random() * sameFamilyIndexes.size()));
 				removedMod = targetSlots[removeIndex];
 				System.out.println("Removing modifier: " + removedMod.family + " (" + removedMod.text + ") from "
 					+ (modIsPrefix ? "prefix" : "suffix") + " slot " + removeIndex);
 			} else {
-				// Remove a random modifier across all slots
+				// Remove a random modifier across all slots if there is open modifiers slots in the type of the modifier
 				List<Integer> allFilledIndexes = new ArrayList<>();
 				for (int i = 0; i < item.currentPrefixes.length; i++) if (item.currentPrefixes[i] != null) allFilledIndexes.add(i);
 				for (int i = 0; i < item.currentSuffixes.length; i++) if (item.currentSuffixes[i] != null) allFilledIndexes.add(i + item.currentPrefixes.length);
@@ -203,7 +211,7 @@ public abstract class Essence_currency {
 			else item.currentSuffixTiers[removeIndex] = null;
 			System.out.println("\nRemoved a modifier to make space for Perfect Essence.");
 
-			// Set the target slots **according to the essence type**
+			// Set the target slots according to the essence type to put it in the right slots the modifier has its type
 			targetSlots = null;
 			targetSlots = modIsPrefix ? item.currentPrefixes : item.currentSuffixes;
 

@@ -26,6 +26,10 @@ public class Desecrated_currency {
      * This only marks the item as "partially desecrated".
      */
 	public void blockSlot(Crafting_Item item) {
+
+		// Cannot desecrate an item that is already desecrated
+		if(item.desecrated) return;
+
 		int filledPrefixes = 0;
 		int filledSuffixes = 0;
 	
@@ -48,7 +52,7 @@ public class Desecrated_currency {
 			blockedSlotType = new Random().nextBoolean() ? SlotType.PREFIX : SlotType.SUFFIX;
 		}
 	
-		// Apply the block
+		// Apply the block on prefix or on suffix
 		if (blockedSlotType == SlotType.PREFIX)
 		{
 			Modifier block_modifier = new Modifier(
@@ -90,19 +94,17 @@ public class Desecrated_currency {
 			}
 		}
 	
-		System.out.println("💀 Desecration begins... Blocked a " + blockedSlotType + " slot on " 
+		System.out.println("Desecration begins... Blocked a " + blockedSlotType + " slot on " 
 			+ item.base.getClass().getSimpleName() + " (Prefixes filled: " + filledPrefixes 
 			+ ", Suffixes filled: " + filledSuffixes + ")");
+		item.desecrated = true;
 	}
 	
 
-    /**
-     * Step 2: Apply the desecrated modifier once the slot is blocked.
-     * This could either roll a normal modifier or a "desecrated" special one.
-     */
     public void applyNormalDesecration(Crafting_Item item) 
 	{
-        if (item.isFull()) return ;
+		// If item is not already desecrated return
+        if (!item.desecrated) return ;
 
         Item_base base = item.base;
 
@@ -157,7 +159,7 @@ public class Desecrated_currency {
 
         if (chosen == null) return ; // no eligible modifier
 
-        // Add chosen modifier and tier to the correct slot
+        // Add chosen modifier and tier to the correct block slot
         Modifier mod = chosen.getModifier();
         ModifierTier modifierTier = chosen.getTier();
         if (base.getNormalAllowedPrefixes().contains(mod)) {
@@ -165,6 +167,7 @@ public class Desecrated_currency {
         } else {
             item.addSuffix(mod, modifierTier);
         }
+		item.desecrated = true;
     }
 
     public SlotType getBlockedSlotType() {

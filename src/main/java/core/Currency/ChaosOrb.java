@@ -2,11 +2,9 @@ package core.Currency;
 
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Action;
+import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Utils.AddRandomMod;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class ChaosOrb implements Crafting_Action {
 
@@ -26,35 +24,12 @@ public class ChaosOrb implements Crafting_Action {
     @Override
     public Crafting_Item apply(Crafting_Item item) {
         // Only works on RARE items
-        if (item.rarity != Crafting_Item.ItemRarity.RARE) return item;
+        if (item.rarity == Crafting_Item.ItemRarity.NORMAL) return item;
 
-        // Collect all existing modifiers
-        List<Modifier> existingMods = new ArrayList<>();
-        for (Modifier m : item.currentPrefixes) if (m != null) existingMods.add(m);
-        for (Modifier m : item.currentSuffixes) if (m != null) existingMods.add(m);
+		Item_base base = item.base;
 
-        if (existingMods.isEmpty()) return item;
-
-        // Pick one modifier randomly to reroll
-        Random rng = new Random();
-        Modifier toReroll = existingMods.get(rng.nextInt(existingMods.size()));
-
-        boolean isPrefix = false;
-        for (int i = 0; i < item.currentPrefixes.length; i++) {
-            if (item.currentPrefixes[i] != null && item.currentPrefixes[i].equals(toReroll)) {
-                isPrefix = true;
-                item.currentPrefixes[i] = null; // remove old
-                break;
-            }
-        }
-        if (!isPrefix) {
-            for (int i = 0; i < item.currentSuffixes.length; i++) {
-                if (item.currentSuffixes[i] != null && item.currentSuffixes[i].equals(toReroll)) {
-                    item.currentSuffixes[i] = null; // remove old
-                    break;
-                }
-            }
-        }
+		// Removing a random modifier (like orb of annul)
+		item.removeRandomModifier();
 
         // Determine minimum tier level based on Chaos Orb tier
         int minLevel;
@@ -64,20 +39,25 @@ public class ChaosOrb implements Crafting_Action {
             default -> minLevel = 0;
         }
 
-        // Pick a new modifier for the same slot using the utility
+        // Use utility function to pick a weighted modifier tier above minLevel
         ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
             item,
-            isPrefix ? item.base.getNormalAllowedPrefixes() : null,
-            isPrefix ? null : item.base.getNormalAllowedSuffixes(),
+            base.getNormalAllowedPrefixes(),
+            base.getNormalAllowedSuffixes(),
             minLevel,
 			""
         );
 
-        if (chosen == null) return item; // no eligible modifiers
+        if (chosen == null) return item; // no eligible modifier
 
-        // Apply the new modifier
-        if (isPrefix) item.addPrefix(chosen.getModifier(), chosen.getTier());
-        else item.addSuffix(chosen.getModifier(), chosen.getTier());
+        // Add chosen modifier and tier to the correct slot
+        Modifier mod = chosen.getModifier();
+        ModifierTier modifierTier = chosen.getTier();
+        if (base.getNormalAllowedPrefixes().contains(mod)) {
+            item.addPrefix(mod, modifierTier);
+        } else {
+            item.addSuffix(mod, modifierTier);
+        }
 
         return item;
     }

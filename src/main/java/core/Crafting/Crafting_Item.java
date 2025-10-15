@@ -15,6 +15,7 @@ public class Crafting_Item {
 
     public Item_base base;
     public ItemRarity rarity;
+	public boolean desecrated = false;
 
     public enum ItemRarity {
         NORMAL, MAGIC, RARE

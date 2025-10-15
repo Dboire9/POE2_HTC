@@ -22,6 +22,7 @@ public class TestOrbs {
         ExaltedOrb exalt = new ExaltedOrb(ExaltedOrb.CurrencyTier.BASE);
         ChaosOrb chaos = new ChaosOrb(ChaosOrb.CurrencyTier.BASE);
         AnnulmentOrb annul = new AnnulmentOrb();
+		Desecrated_currency des = new Desecrated_currency(null);
 
         // 3️⃣ Create Perfect Essences
         Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.PERFECT);
@@ -40,11 +41,15 @@ public class TestOrbs {
 		printItem(item, "Full item");
 		applyAndShowChanges(item, exalt, "Exalt");
 		printItem(item, "Full item");
-		applyAndShowChanges(item, exalt, "Exalt");
+		// applyAndShowChanges(item, exalt, "Exalt");
+		// printItem(item, "Full item");
+		// applyAndShowChanges(item, exalt, "Exalt");
+		// printItem(item, "Full item");
+		BlockAndShowChangesDesecrate(item, des, "block");
 		printItem(item, "Full item");
 
         // Apply Perfect Essences
-		applyAndShowChangesEssences(item, perfectBody, "Perfect Essence of the Body");
+		// applyAndShowChangesEssences(item, perfectBody, "Perfect Essence of the Body");
 		// applyPerfectEssenceIfSupported(item, perfectMind, "Perfect Essence of the Mind");
 		// applyPerfectEssenceIfSupported(item, perfectFlames, "Perfect Essence of the Flames");
 		// applyPerfectEssenceIfSupported(item, perfectEnhancement, "Perfect Essence of Enhancement");
@@ -74,16 +79,8 @@ public class TestOrbs {
         Crafting_Item snapshot = cloneItem(item);
         orb.apply(item);
         printItemChanges(snapshot, item, orbName);
+		// printItem(item, "Full item after " + orbName);
     }
-
-	private static void applyPerfectEssenceIfSupported(Crafting_Item item, Essence_currency essence, String name)
-	{
-		if (item.supportsPerfectEssence(essence)) {
-			applyAndShowChangesEssences(item, essence, name);
-		} else {
-			System.out.println("❌ " + name + " not applicable for this item type (" + item.base.getClass() + ")");
-		}
-	}
 
     private static void applyAndShowChangesEssences(Crafting_Item item, Essence_currency essence, String essenceName) {
         Crafting_Item snapshot = cloneItem(item);
@@ -91,6 +88,14 @@ public class TestOrbs {
         essence.applyTo(item);
         printItemChanges(snapshot, item, essenceName);
         printItem(item, "Full item after " + essenceName);
+    }
+
+	private static void BlockAndShowChangesDesecrate(Crafting_Item item, Desecrated_currency des, String desString) {
+        Crafting_Item snapshot = cloneItem(item);
+		// System.out.println("here");
+        des.blockSlot(item);
+        printItemChanges(snapshot, item, desString);
+        // printItem(item, "Full item after " + desString);
     }
 
     // -------------------

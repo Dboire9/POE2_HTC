@@ -86,7 +86,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of the Body", 72, 1, new Pair<>(8, 10))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"MaximumLifeIncreasePercent",
 				"#% increased maximum Life");
 
@@ -96,7 +96,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Ruin", 72, 1, new Pair<>(10, 15))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"PhysicalDamageTakenAsChaos",
 				"#% of Physical Damage from Hits taken as Chaos Damage");
 
@@ -187,7 +187,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Seeking", 72, 1, new Pair<>(40, 50))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"ReducedCriticalStrikeDamageTaken",
 				"Hits against you have #% reduced Critical Damage Bonus");
 

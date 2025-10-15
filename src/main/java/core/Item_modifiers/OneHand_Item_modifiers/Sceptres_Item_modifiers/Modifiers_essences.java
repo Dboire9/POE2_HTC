@@ -99,7 +99,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Command", 72, 1, new Pair<>(15, 20))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"AuraEffect",
 				"Aura Skills have (#–#)% increased Magnitudes");
 	}

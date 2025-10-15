@@ -1,111 +1,89 @@
 package core.Currency;
 
-
 import core.Crafting.Crafting_Item;
-import core.Items.*;
 import core.Modifier_class.*;
+import core.Modifier_class.Modifier.ModifierSource;
+import core.Currency.Essence_currency.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public abstract class Essence_currency {
-    protected final String guaranteedModifier;
-    protected final EssenceTier tier;
+    public enum EssenceTier { LESSER, NORMAL, GREATER, PERFECT }
 
-	public abstract String getName();
+    protected String essenceFamily;  // e.g. "Body", "Mind", "Flames"
+    protected EssenceTier tier;
 
-	public enum EssenceTier {
-		LESSER,
-		NORMAL,
-		GREATER,
-		PERFECT; // optional if you plan to support perfect essences later
-	
-		public int getIndex() {
-			return switch (this) {
-				case LESSER -> 0;
-				case NORMAL -> 1;
-				case GREATER -> 2;
-				case PERFECT -> 3;
-			};
-		}
-	}
-
-    public Essence_currency(String guaranteedModifier, EssenceTier tier) {
-        this.guaranteedModifier = guaranteedModifier;
+    public Essence_currency(String essenceFamily, EssenceTier tier) {
+        this.essenceFamily = essenceFamily;
         this.tier = tier;
     }
 
-	public void applyTo(Crafting_Item item) {
+    public String getEssenceFamily() {
+        return essenceFamily;
+    }
 
-		if (tier == EssenceTier.PERFECT && item.rarity != Crafting_Item.ItemRarity.RARE) {
-			System.out.println("Perfect essence can only be applied to Rare items.");
-			return;
-		} else if ((tier == EssenceTier.LESSER || tier == EssenceTier.NORMAL || tier == EssenceTier.GREATER)
-				&& item.rarity != Crafting_Item.ItemRarity.MAGIC) {
-			System.out.println(tier + " essence can only be applied to Magic items.");
-			return;
-		}
-	
-		// Step 1: decide which list to check (prefix or suffix)
-		List<Modifier> possiblePrefixModifiers = item.base.getEssencesAllowedPrefixes();
-		List<Modifier> possibleSuffixModifiers = item.base.getEssencesAllowedSuffixes();
-	
-		// Step 2: find the modifier matching the essence
-		Modifier targetModifier = null;
-		boolean isPrefix = false;
-		if (guaranteedModifier.contains("Strength, Dexterity or Intelligence")) {
-			// Collect allowed infinite modifiers for this item
-			List<Modifier> availableMods = new ArrayList<>();
-			for (Modifier m : item.base.getEssencesAllowedSuffixes()) {
-				if (m.text.contains("Strength") || m.text.contains("Dexterity") || m.text.contains("Intelligence")) {
-					availableMods.add(m);
-				}
-			}
+    public EssenceTier getTier() {
+        return tier;
+    }
 
-			if (availableMods.isEmpty()) {
-				System.out.println("No applicable attribute modifiers for this item.");
-				return;
-			}
+    public abstract String getName();
 
-			// Pick one randomly among the available
-			targetModifier = availableMods.get((int) (Math.random() * availableMods.size()));
-			isPrefix = false; // all are suffixes
-		} 
-		else {
-			for (Modifier m : possiblePrefixModifiers) {
-				if (m.text.equals(guaranteedModifier)) {
-					targetModifier = m;
-					isPrefix = true;
-					break;
-				}
-			}
+    public void applyTo(Crafting_Item item) {
+		List<Modifier> allModifiers = new ArrayList<>();
+        allModifiers.addAll(item.base.getEssencesAllowedPrefixes());
+        allModifiers.addAll(item.base.getEssencesAllowedSuffixes());
+
+		int tierIndex = switch (tier) {
+			case LESSER -> 0;
+			case NORMAL -> 1;
+			case GREATER -> 2;
+			case PERFECT -> 3; // handle Perfect separately later
+		};
 		
-			if (targetModifier == null) {
-				for (Modifier m : possibleSuffixModifiers) {
-					if (m.text.equals(guaranteedModifier)) {
-						targetModifier = m;
-						isPrefix = false;
-						break;
-					}
+
+		// Handling lesser, normal and greater essences
+		if ((tier == EssenceTier.LESSER || tier == EssenceTier.NORMAL || tier == EssenceTier.GREATER)
+		&& item.rarity == Crafting_Item.ItemRarity.MAGIC) 
+		{
+			for (Modifier mod : allModifiers) {
+		
+				List<Modifier> currentModifiers = new ArrayList<>();
+				for (Modifier m : item.currentPrefixes) if (m != null) currentModifiers.add(m);
+				for (Modifier m : item.currentSuffixes) if (m != null) currentModifiers.add(m);
+		
+				boolean modIsPrefix = item.base.getEssencesAllowedPrefixes().contains(mod);
+		
+				// Check if modifier is already applied by family
+				boolean alreadyApplied = currentModifiers.stream()
+					.anyMatch(m -> m.family.equalsIgnoreCase(mod.family));
+				if (alreadyApplied) {
+					System.out.println(getName() + " (" + tier + ") is already applied to this item.");
+					return;
 				}
+		
+				// Safely get the tier
+				ModifierTier matchedTier = null;
+				if (tierIndex < mod.tiers.size()) {
+					matchedTier = mod.tiers.get(tierIndex);
+				} else {
+					System.out.println("⚠ Modifier " + mod.text + " does not have tier " + tierIndex);
+					continue;
+				}
+		
+				item.addModifier(matchedTier, mod, modIsPrefix);
+		
+				System.out.println("Applied " + getName() + " (" + tier + ") as "
+					+ (modIsPrefix ? "prefix" : "suffix") + " to item: " + item.base.getClass().getSimpleName());
+		
+				break; // stop after applying one matching essence
 			}
 		}
-	
-		if (targetModifier == null) {
-			System.out.println("No essence modifier found for: " + guaranteedModifier);
-			return;
+		
+		else if ((tier == EssenceTier.PERFECT) && item.rarity == Crafting_Item.ItemRarity.RARE)
+		{
+
 		}
-	
-		// Step 4: pick the correct tier from the target Modifier
-		int index = Math.min(tier.getIndex(), targetModifier.tiers.size() - 1);
-		ModifierTier chosenTier = targetModifier.tiers.get(index);
-	
-		// Step 5: apply deterministically
-		item.addModifier(chosenTier, targetModifier, isPrefix);
-		item.rarity = Crafting_Item.ItemRarity.RARE;
-	
-		System.out.println("Applied " + getName() + " (" + tier + ") to item: " + guaranteedModifier);
+
 	}
-	
 }

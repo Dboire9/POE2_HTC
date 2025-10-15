@@ -105,7 +105,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Abrasion", 72, 1, new Pair<>(25, 33))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"MartialWeaponGainedDamage",
 				"Gain # % of Damage as Extra Physical Damage");
 
@@ -115,7 +115,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Flames", 72, 1, new Pair<>(25, 33))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"MartialWeaponGainedDamage",
 				"Gain # % of Damage as Extra Fire Damage");
 
@@ -125,7 +125,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Ice", 72, 1, new Pair<>(25, 33))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"MartialWeaponGainedDamage",
 				"Gain # % of Damage as Extra Cold Damage");
 
@@ -135,7 +135,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Electricity", 72, 1, new Pair<>(25, 33))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"MartialWeaponGainedDamage",
 				"Gain # % of Damage as Extra Lightning Damage");
 
@@ -205,7 +205,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Battle", 72, 1, new Pair<>(6, 6))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"IncreaseSocketedGemLevel",
 				"+# to Level of all Attack Skills");
 
@@ -215,7 +215,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Haste", 72, 1, new Pair<>(20, 25))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"Onslaught",
 				"#% chance to gain Onslaught on Killing Hits with this Weapon");
 

@@ -236,7 +236,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Grounding", 72, 1, new Pair<>(26, 30))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"LightningDamageTakenRecoupedAsLife",
 				"#% of Lightning Damage taken Recouped as Life");
 
@@ -258,7 +258,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Opulence", 72, 1, new Pair<>(10, 15))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"EssenceGoldDropped",
 				"#% increased Quantity of Gold Dropped by Slain Enemies");
 

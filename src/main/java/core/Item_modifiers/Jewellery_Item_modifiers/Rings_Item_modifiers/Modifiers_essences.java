@@ -57,7 +57,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of the Mind", 72, 1, new Pair<>(4, 6))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"MaximumManaIncreasePercent",
 				"#% increased maximum Mana");
 

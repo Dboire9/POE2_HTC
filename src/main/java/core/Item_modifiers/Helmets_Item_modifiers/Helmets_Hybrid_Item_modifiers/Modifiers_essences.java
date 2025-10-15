@@ -249,7 +249,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Perfect Essence of Thawing", 72, 1, new Pair<>(26, 30))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"ColdDamageTakenRecoupedAsLife",
 				"#% of Cold Damage taken Recouped as Life");
 

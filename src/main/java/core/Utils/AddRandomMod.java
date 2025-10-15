@@ -21,13 +21,14 @@ public class AddRandomMod {
             Crafting_Item item,
             List<Modifier> allowedPrefixes,
             List<Modifier> allowedSuffixes,
-            int minLevel
+            int minLevel,
+			String ModifierListBlocker
     ) {
         Item_base base = item.base;
         List<Modifier> possibleMods = new ArrayList<>();
 
         // Collect allowed prefixes not already present
-        if (!item.isPrefixFull() && allowedPrefixes != null) {
+        if (!item.isPrefixFull() && allowedPrefixes != null && ModifierListBlocker != "Block_Prefix") {
             for (Modifier m : allowedPrefixes) {
                 boolean alreadyHas = false;
                 for (Modifier existing : item.currentPrefixes) {
@@ -41,7 +42,7 @@ public class AddRandomMod {
         }
 
         // Collect allowed suffixes not already present
-        if (!item.isSuffixFull() && allowedSuffixes != null) {
+        if (!item.isSuffixFull() && allowedSuffixes != null && ModifierListBlocker != "Block_Suffix") {
             for (Modifier m : allowedSuffixes) {
                 boolean alreadyHas = false;
                 for (Modifier existing : item.currentSuffixes) {

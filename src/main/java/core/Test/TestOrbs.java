@@ -47,6 +47,8 @@ public class TestOrbs {
 		// printItem(item, "Full item");
 		BlockAndShowChangesDesecrate(item, des, "block");
 		printItem(item, "Full item");
+		ApplyAndShowChangesDesecrate(item, des, "des apply");
+		printItem(item, "Full item");
 
         // Apply Perfect Essences
 		// applyAndShowChangesEssences(item, perfectBody, "Perfect Essence of the Body");
@@ -94,6 +96,14 @@ public class TestOrbs {
         Crafting_Item snapshot = cloneItem(item);
 		// System.out.println("here");
         des.blockSlot(item);
+        printItemChanges(snapshot, item, desString);
+        // printItem(item, "Full item after " + desString);
+    }
+
+	private static void ApplyAndShowChangesDesecrate(Crafting_Item item, Desecrated_currency des, String desString) {
+        Crafting_Item snapshot = cloneItem(item);
+		// System.out.println("here");
+        des.applyNormalDesecration(item);
         printItemChanges(snapshot, item, desString);
         // printItem(item, "Full item after " + desString);
     }

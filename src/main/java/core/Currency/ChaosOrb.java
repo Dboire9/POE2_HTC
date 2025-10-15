@@ -69,7 +69,8 @@ public class ChaosOrb implements Crafting_Action {
             item,
             isPrefix ? item.base.getNormalAllowedPrefixes() : null,
             isPrefix ? null : item.base.getNormalAllowedSuffixes(),
-            minLevel
+            minLevel,
+			""
         );
 
         if (chosen == null) return item; // no eligible modifiers

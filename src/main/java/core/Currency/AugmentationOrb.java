@@ -62,7 +62,8 @@ public class AugmentationOrb implements Crafting_Action {
 			item,
 			addPrefix ? allowedModifiers : null,
 			addPrefix ? null : allowedModifiers,
-			minLevel
+			minLevel,
+			""
 		);
 
         if (chosen == null) return item; // no eligible modifier

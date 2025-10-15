@@ -3,3 +3,4 @@ Issues :
 	- Desecration : 
 		- Because we do not know the weight of desecrated modifiers, i decided to not include them when desecrating normally without omens, so normal desecration are like an exalted orb, but the percentage is divided by 3 in the calculus because you have 3 choices(* will be when i do the algo).
 		So the percentage might be a bit skewed because of this. 
+		Handling the Mark of the Abyss is missing

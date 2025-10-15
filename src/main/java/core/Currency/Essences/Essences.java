@@ -1,5 +1,6 @@
 package core.Currency.Essences;
 
+import core.Crafting.Crafting_Item;
 import core.Currency.Essence_currency;
 
 public class Essences {
@@ -307,6 +308,75 @@ public class Essences {
 			};
 		}
 	}
+
+	public static class EssenceOfDelirium extends Essence_currency {
+
+		public EssenceOfDelirium() {
+			super("Delirium", EssenceTier.PERFECT); // Only perfect essence exists
+		}
+
+		@Override
+		public String getName() {
+			return "Perfect Essence of Delirium";
+		}
+
+		@Override
+		public void applyTo(Crafting_Item item) {
+			super.applyTo(item);
+		}
+	}
+
+	public static class EssenceOfHorror extends Essence_currency {
+
+		public EssenceOfHorror() {
+			super("Horror", EssenceTier.PERFECT); // Only perfect essence exists
+		}
+
+		@Override
+		public String getName() {
+			return "Perfect Essence of Horror";
+		}
+
+		@Override
+		public void applyTo(Crafting_Item item) {
+			super.applyTo(item);
+		}
+	}
+
+	public static class EssenceOfHysteria extends Essence_currency {
+
+		public EssenceOfHysteria() {
+			super("Hysteria", EssenceTier.PERFECT); // Only perfect essence exists
+		}
+
+		@Override
+		public String getName() {
+			return "Perfect Essence of Hysteria";
+		}
+
+		@Override
+		public void applyTo(Crafting_Item item) {
+			super.applyTo(item);
+		}
+	}
+
+	public static class EssenceOfAbyss extends Essence_currency {
+
+		public EssenceOfAbyss() {
+			super("Abyss", EssenceTier.PERFECT); // Only perfect essence exists
+		}
+
+		@Override
+		public String getName() {
+			return "Perfect Essence of the Abyss";
+		}
+
+		@Override
+		public void applyTo(Crafting_Item item) {
+			super.applyTo(item);
+		}
+	}
+
 
 
 	

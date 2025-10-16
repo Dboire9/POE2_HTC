@@ -33,7 +33,7 @@ public abstract class Essence_currency {
 
 	public abstract String getName();
 
-	private ModType forcedType = ModType.ANY;
+	private ModType forcedType = null;
 
 	public void setForcedType(ModType type) {
 		this.forcedType = type;
@@ -98,18 +98,9 @@ public abstract class Essence_currency {
 
 		// Handle perfect essences
 		else if ((tier == EssenceTier.PERFECT) && item.rarity == Crafting_Item.ItemRarity.RARE) {
-			List<Modifier> currentModifiers = new ArrayList<>();
 			Modifier[] targetSlots = null;
 
-			// Retrieving the modifier from the item class
-			for (Modifier mod : allModifiers) {
-				// Only consider PERFECT_ESSENCE modifiers
-				if (mod.source != ModifierSource.PERFECT_ESSENCE)
-					continue;
-				else
-					currentModifiers.add(mod);
-			}
-
+			// Retrieving the perfect essence
 			Modifier targetMod = allModifiers.stream()
 					.filter(mod -> mod.source == ModifierSource.PERFECT_ESSENCE)
 					.filter(mod -> mod.tiers.stream().anyMatch(tier -> tier.name.equalsIgnoreCase(this.getName())))
@@ -142,13 +133,24 @@ public abstract class Essence_currency {
 				}
 			}
 
-			if (filledCount == 3) {
-				if (targetMod.type == ModifierType.PREFIX)
-					forcedType = ModType.PREFIX_ONLY;
-				else if (targetMod.type == ModifierType.SUFFIX)
-					forcedType = ModType.SUFFIX_ONLY;
-			} else
-				forcedType = ModType.ANY;
+			// Checking if there is a forced_type already applied (If an omen is active)
+			if (forcedType == null) {
+				if (filledCount == 3) {
+					if (targetMod.type == ModifierType.PREFIX)
+						forcedType = ModType.PREFIX_ONLY;
+					else if (targetMod.type == ModifierType.SUFFIX)
+						forcedType = ModType.SUFFIX_ONLY;
+				} else
+					forcedType = ModType.ANY;
+			}
+			// We check if the filled count is 3, if it is the case the omen is useless
+			// because we know which affix it would remote, and if it was the other one it
+			// would have not worked
+			else {
+				if (filledCount == 3) {
+					return;
+				}
+			}
 
 			// Remove a mod with a forcedtype to remove (or not)
 			item.removeRandomModifier(forcedType);
@@ -169,6 +171,7 @@ public abstract class Essence_currency {
 					break;
 				}
 			}
+			forcedType = null;
 		}
 	}
 }

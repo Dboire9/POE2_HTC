@@ -4,7 +4,9 @@ import core.Currency.*;
 import core.Crafting.*;
 import core.Currency.Essences.*;
 import core.Currency.Omens_currency.Omen;
+import core.Currency.Omens_currency.OmenOfDextralErasure;
 import core.Currency.Omens_currency.OmenOfGreaterExaltation;
+import core.Currency.Omens_currency.OmenOfSinistralErasure;
 import core.Currency.Omens_currency.OmenOfSinistralExaltation;
 import core.Currency.Omens_currency.OmenOfDextralExaltation;
 import core.Items.Boots.Boots_str_dex.*;
@@ -33,6 +35,9 @@ public class TestOmens {
         Omen omenSinistralExalt = new OmenOfSinistralExaltation();
         Omen omenDextralExalt = new OmenOfDextralExaltation();
 
+		Omen omenSinistralErasure = new OmenOfSinistralErasure();
+		Omen omenDextralErasure = new OmenOfDextralErasure();
+
         // Apply changes and print results
         applyAndShowChanges(item, trans, "Transmutation Orb → Magic");
         printItem(item, "Full item");
@@ -47,7 +52,7 @@ public class TestOmens {
 		System.out.println("active omens : " + item.getActiveOmens());
 		printItem(item, "Full item");
 		// item.addActiveOmen(omenDextralExalt);
-		// item.addActiveOmen(omenGreaterExalt);
+		item.addActiveOmen(omenGreaterExalt);
 		applyAndShowChanges(item, annul, "Annul");
         applyAndShowChanges(item, annul, "Annul");
 		printItem(item, "Full item after annul");
@@ -55,5 +60,13 @@ public class TestOmens {
 		System.out.println("active omens : " + item.getActiveOmens());
 		item.applyAction(item, exalt);
 		printItem(item, "Full item after redoing omens");
+
+		item.addActiveOmen(omenDextralErasure);
+		System.out.println("active omens chaos : " + item.getActiveOmens());
+		item.applyAction(item, chaos);
+		printItem(item, "Full item after dex erasure omens");
+		item.addActiveOmen(omenSinistralErasure);
+		item.applyAction(item, chaos);
+		printItem(item, "Full item after sin erasure omens");
     }
 }

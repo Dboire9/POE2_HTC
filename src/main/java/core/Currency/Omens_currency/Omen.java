@@ -1,4 +1,4 @@
-package core.Currency.Omens;
+package core.Currency.Omens_currency;
 
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
@@ -11,15 +11,13 @@ import core.Crafting.Crafting_Item;
 public abstract class Omen implements Crafting_Action {
 
     protected String name;
-    protected boolean consumed = false;
+    public boolean consumed = false;
+	protected int priority = 0;
 
-    public String getName() {
-        return name;
-    }
+    public String getName() {return name;}
 
-    public boolean isConsumed() {
-        return consumed;
-    }
+    public boolean isConsumed() {return consumed;}
+	public int getPriority() { return priority; }
 
     /**
      * Called when the omen modifies another action (e.g., ExaltedOrb).
@@ -32,7 +30,7 @@ public abstract class Omen implements Crafting_Action {
      */
     @Override
     public Crafting_Item apply(Crafting_Item item) {
-        item.setActiveOmen(this);
+        item.addActiveOmen(this);
         return item;
     }
 

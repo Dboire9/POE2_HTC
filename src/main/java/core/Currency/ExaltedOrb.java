@@ -6,11 +6,17 @@ import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Utils.AddRandomMod;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class ExaltedOrb implements Crafting_Action {
 
-    private double cost = 1.0;
+    public enum ModType {
+        ANY, PREFIX_ONLY, SUFFIX_ONLY
+    }
 
-    public enum CurrencyTier {
+    private double cost = 1.0;
+	public enum CurrencyTier {
         BASE, GREATER, PERFECT
     }
 
@@ -20,15 +26,22 @@ public class ExaltedOrb implements Crafting_Action {
     public ExaltedOrb(CurrencyTier tier) {
         this.tier = tier;
     }
+    private ModType forcedType = null; // default behavior
+
+    public void setForcedType(ModType type) {
+        this.forcedType = type;
+    }
+
+    public ModType getForcedType() {
+        return forcedType;
+    }
 
     @Override
     public Crafting_Item apply(Crafting_Item item) {
-        // No free slot? Return item unchanged
         if (item.isFull()) return item;
 
         Item_base base = item.base;
 
-        // Determine minimum tier level based on Exalted Orb tier
         int minLevel;
         switch (tier) {
             case GREATER -> minLevel = 35;
@@ -36,24 +49,45 @@ public class ExaltedOrb implements Crafting_Action {
             default -> minLevel = 0;
         }
 
-        // Use utility function to pick a weighted modifier tier above minLevel
-        ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
-            item,
-            base.getNormalAllowedPrefixes(),
-            base.getNormalAllowedSuffixes(),
-            minLevel,
-			""
-        );
+        // Select the appropriate mod pool based on forcedType
+		List<Modifier> allowedPrefixes = null;
+		List<Modifier> allowedSuffixes = null;
+		switch (forcedType) {
+			case PREFIX_ONLY -> allowedPrefixes = base.getNormalAllowedPrefixes();
+			case SUFFIX_ONLY -> allowedSuffixes = base.getNormalAllowedSuffixes();
+			case ANY -> {
+				allowedPrefixes = base.getNormalAllowedPrefixes();
+				allowedSuffixes = base.getNormalAllowedSuffixes();
+			}
+		}
 
-        if (chosen == null) return item; // no eligible modifier
+		String blockType;
+		System.out.println("Forced type"+forcedType);
+		switch (forcedType) {
+			case PREFIX_ONLY -> blockType = "Block_Suffix"; // only allow prefixes
+			case SUFFIX_ONLY -> blockType = "Block_Prefix"; // only allow suffixes
+			default -> blockType = ""; // allow everything
+		}
+		
+		// Call the utility function
+		ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
+			item,
+			allowedPrefixes,
+			allowedSuffixes,
+			minLevel,
+			blockType 
+		);
 
-        // Add chosen modifier and tier to the correct slot
+        if (chosen == null) return item;
+
         Modifier mod = chosen.getModifier();
-        ModifierTier modifierTier = chosen.getTier();
+        ModifierTier tier = chosen.getTier();
+
+        // Add based on forced type or default
         if (base.getNormalAllowedPrefixes().contains(mod)) {
-            item.addPrefix(mod, modifierTier);
+            item.addPrefix(mod, tier);
         } else {
-            item.addSuffix(mod, modifierTier);
+            item.addSuffix(mod, tier);
         }
 
         return item;

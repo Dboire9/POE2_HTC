@@ -10,30 +10,35 @@ import java.util.Random;
 
 public class AnnulmentOrb implements Crafting_Action {
 
-    private double cost = 1.0;
+	private double cost = 1.0;
 
-	private ModType forcedType = null;
+	private ModType forcedType = ModType.ANY;
 
-    public void setForcedType(ModType type) {
-        this.forcedType = type;
-    }
+	public void setForcedType(ModType type) {
+		this.forcedType = type;
+	}
 
-    public ModType getForcedType() {
-        return forcedType;
-    }
+	public ModType getForcedType() {
+		return forcedType;
+	}
 
-    @Override
-    public Crafting_Item apply(Crafting_Item item) {
-        // Only works on MAGIC or RARE items
-        if (item.rarity == Crafting_Item.ItemRarity.NORMAL) return item;
+	@Override
+	public Crafting_Item apply(Crafting_Item item) {
+		// Only works on MAGIC or RARE items
+		if (item.rarity == Crafting_Item.ItemRarity.NORMAL)
+			return item;
 
 		item.removeRandomModifier(forcedType);
-        return item;
-    }
+		return item;
+	}
 
-    @Override
-    public double getCost() { return cost; }
+	@Override
+	public double getCost() {
+		return cost;
+	}
 
-    @Override
-    public String getName() { return "Orb of Annulment"; }
+	@Override
+	public String getName() {
+		return "Orb of Annulment";
+	}
 }

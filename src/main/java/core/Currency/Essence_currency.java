@@ -1,5 +1,6 @@
 package core.Currency;
 
+import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Item.ModType;
 import core.Modifier_class.*;
@@ -10,7 +11,7 @@ import core.Currency.Essence_currency.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Essence_currency {
+public abstract class Essence_currency implements Crafting_Action {
 	public enum EssenceTier {
 		LESSER, NORMAL, GREATER, PERFECT
 	}
@@ -39,7 +40,8 @@ public abstract class Essence_currency {
 		this.forcedType = type;
 	}
 
-	public void applyTo(Crafting_Item item) {
+	@Override
+	public Crafting_Item apply(Crafting_Item item) {
 		List<Modifier> allModifiers = new ArrayList<>();
 		allModifiers.addAll(item.base.getEssencesAllowedPrefixes());
 		allModifiers.addAll(item.base.getEssencesAllowedSuffixes());
@@ -72,7 +74,7 @@ public abstract class Essence_currency {
 						.anyMatch(m -> m.family.equalsIgnoreCase(mod.family));
 				if (alreadyApplied) {
 					System.out.println(getName() + " (" + tier + ") is already applied to this item.");
-					return;
+					return item;
 				}
 
 				// Safely get the tier
@@ -99,6 +101,7 @@ public abstract class Essence_currency {
 		// Handle perfect essences
 		else if ((tier == EssenceTier.PERFECT) && item.rarity == Crafting_Item.ItemRarity.RARE) {
 			Modifier[] targetSlots = null;
+			System.out.println("Forced type already here : " + forcedType);
 
 			// Retrieving the perfect essence
 			Modifier targetMod = allModifiers.stream()
@@ -110,7 +113,7 @@ public abstract class Essence_currency {
 			if (targetMod == null) {
 				System.out.println(
 						"⚠ No applicable Perfect Essence found for item: " + item.base.getClass().getSimpleName());
-				return;
+				return item;
 			}
 			boolean modIsPrefix;
 			int filledCount = 0;
@@ -148,7 +151,9 @@ public abstract class Essence_currency {
 			// would have not worked
 			else {
 				if (filledCount == 3) {
-					return;
+					System.out.println(
+							"Omen either removing deterministically a modifier or the omen is not removing the affix to let space to the mod");
+					return item;
 				}
 			}
 
@@ -173,5 +178,6 @@ public abstract class Essence_currency {
 			}
 			forcedType = null;
 		}
+		return item;
 	}
 }

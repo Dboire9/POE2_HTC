@@ -2,6 +2,7 @@ package core.Currency.Omens_currency;
 
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
+import core.Crafting.Crafting_Item.*;
 import core.Currency.*;
 
 public class OmenOfSinistralExaltation extends Omen {
@@ -16,9 +17,14 @@ public class OmenOfSinistralExaltation extends Omen {
 		if (!(action instanceof ExaltedOrb exalted)) {
 			return item;
 		}
+
+		if (item.hasOmen(OmenOfDextralExaltation.class)) {
+			System.out.println("Cannot activate Sinistral while Dextral is active!");
+			return item;
+		}
 	
 		// Modify the ExaltedOrb behavior to only add prefixes
-		exalted.setForcedType(ExaltedOrb.ModType.PREFIX_ONLY);
+		exalted.setForcedType(ModType.PREFIX_ONLY);
 	
 		// Mark this omen as consumed
 		// this.consumed = true;

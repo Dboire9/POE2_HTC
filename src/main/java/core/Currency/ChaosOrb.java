@@ -1,5 +1,6 @@
 package core.Currency;
 
+import core.Crafting.Crafting_Item.*;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Action;
 import core.Items.Item_base;
@@ -21,6 +22,16 @@ public class ChaosOrb implements Crafting_Action {
         this.tier = tier;
     }
 
+	private ModType forcedType = null; // default behavior
+
+    public void setForcedType(ModType type) {
+        this.forcedType = type;
+    }
+
+    public ModType getForcedType() {
+        return forcedType;
+    }
+
     @Override
     public Crafting_Item apply(Crafting_Item item) {
         // Only works on RARE items
@@ -29,7 +40,7 @@ public class ChaosOrb implements Crafting_Action {
 		Item_base base = item.base;
 
 		// Removing a random modifier (like orb of annul)
-		item.removeRandomModifier();
+		item.removeRandomModifier(ModType.ANY);
 
         // Determine minimum tier level based on Chaos Orb tier
         int minLevel;

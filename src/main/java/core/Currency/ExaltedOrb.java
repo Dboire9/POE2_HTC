@@ -1,6 +1,7 @@
 package core.Currency;
 
 import core.Crafting.Crafting_Item;
+import core.Crafting.Crafting_Item.*;
 import core.Crafting.Crafting_Action;
 import core.Items.Item_base;
 import core.Modifier_class.*;
@@ -10,10 +11,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class ExaltedOrb implements Crafting_Action {
-
-    public enum ModType {
-        ANY, PREFIX_ONLY, SUFFIX_ONLY
-    }
 
     private double cost = 1.0;
 	public enum CurrencyTier {

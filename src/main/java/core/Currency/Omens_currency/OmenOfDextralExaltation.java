@@ -2,6 +2,7 @@ package core.Currency.Omens_currency;
 
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
+import core.Crafting.Crafting_Item.*;
 import core.Currency.ExaltedOrb;
 
 public class OmenOfDextralExaltation extends Omen {
@@ -17,8 +18,13 @@ public class OmenOfDextralExaltation extends Omen {
             return item;
         }
 
+		if (item.hasOmen(OmenOfSinistralExaltation.class)) {
+			System.out.println("Cannot activate Dextral while Sinistral is active!");
+			return item;
+		}
+
         // Force the orb to only add suffixes
-        exalted.setForcedType(ExaltedOrb.ModType.SUFFIX_ONLY);
+        exalted.setForcedType(ModType.SUFFIX_ONLY);
         System.out.println("Setting to suffix lock");
 
         // Mark this omen as consumed

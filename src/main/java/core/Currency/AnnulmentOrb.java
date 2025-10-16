@@ -1,6 +1,7 @@
 package core.Currency;
 
 import core.Crafting.Crafting_Item;
+import core.Crafting.Crafting_Item.*;
 import core.Crafting.Crafting_Action;
 import core.Modifier_class.Modifier;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class AnnulmentOrb implements Crafting_Action {
         // Only works on MAGIC or RARE items
         if (item.rarity == Crafting_Item.ItemRarity.NORMAL) return item;
 
-		item.removeRandomModifier();
+		item.removeRandomModifier(ModType.ANY);
         return item;
     }
 

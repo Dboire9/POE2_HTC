@@ -25,6 +25,10 @@ public class Crafting_Item {
         NORMAL, MAGIC, RARE
     }
 
+	public enum ModType {
+		ANY, PREFIX_ONLY, SUFFIX_ONLY
+	}
+
     // Current modifiers
     public Modifier[] currentPrefixes = new Modifier[3];
     public Modifier[] currentSuffixes = new Modifier[3];
@@ -63,17 +67,24 @@ public class Crafting_Item {
         System.out.println("No suffix slot available!");
     }
 
-	// Remove a random modifier (prefix or suffix) from the item
-	public Crafting_Item removeRandomModifier() {
-		List<Modifier> existingMods = new ArrayList<>();
-		for (Modifier m : currentPrefixes) if (m != null) existingMods.add(m);
-		for (Modifier m : currentSuffixes) if (m != null) existingMods.add(m);
+	// Remove a random modifier from the item
+	public Crafting_Item removeRandomModifier(ModType forcedType) {
+		List<Modifier> candidates = new ArrayList<>();
 
-		if (existingMods.isEmpty()) return this;
+        if (forcedType == ModType.ANY || forcedType == ModType.PREFIX_ONLY) {
+            for (Modifier m : currentPrefixes)
+                if (m != null) candidates.add(m);
+        }
+        if (forcedType == ModType.ANY || forcedType == ModType.SUFFIX_ONLY) {
+            for (Modifier m : currentSuffixes)
+                if (m != null) candidates.add(m);
+        }
+
+		if (candidates.isEmpty()) return this;
 
 		// Pick one modifier randomly to remove
 		Random rng = new Random();
-		Modifier toRemove = existingMods.get(rng.nextInt(existingMods.size()));
+		Modifier toRemove = candidates.get(rng.nextInt(candidates.size()));
 
 		// Remove from prefixes
 		for (int i = 0; i < currentPrefixes.length; i++) {

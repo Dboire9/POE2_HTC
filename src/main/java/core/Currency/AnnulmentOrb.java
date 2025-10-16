@@ -12,12 +12,22 @@ public class AnnulmentOrb implements Crafting_Action {
 
     private double cost = 1.0;
 
+	private ModType forcedType = null;
+
+    public void setForcedType(ModType type) {
+        this.forcedType = type;
+    }
+
+    public ModType getForcedType() {
+        return forcedType;
+    }
+
     @Override
     public Crafting_Item apply(Crafting_Item item) {
         // Only works on MAGIC or RARE items
         if (item.rarity == Crafting_Item.ItemRarity.NORMAL) return item;
 
-		item.removeRandomModifier(ModType.ANY);
+		item.removeRandomModifier(forcedType);
         return item;
     }
 

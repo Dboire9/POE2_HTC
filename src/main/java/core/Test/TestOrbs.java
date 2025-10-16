@@ -96,7 +96,7 @@ public class TestOrbs {
 	public static void applyAndShowChangesEssences(Crafting_Item item, Essence_currency essence, String essenceName) {
 		Crafting_Item snapshot = cloneItem(item);
 		// System.out.println("here");
-		essence.applyTo(item);
+		essence.apply(item);
 		printItemChanges(snapshot, item, essenceName);
 		printItem(item, "Full item after " + essenceName);
 	}

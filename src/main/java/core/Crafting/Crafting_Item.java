@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import core.Currency.Essence_currency;
-import core.Currency.Omens.*;
+import core.Currency.Omens_currency.Omen;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierSource;
@@ -216,37 +216,54 @@ public class Crafting_Item {
 
 
 
-	// Omen Handling
+	// -------------------------------------
+	// OMEN HANDLING SECTION
+	// -------------------------------------
 
-	private Omen activeOmen;
+	// Keep a list so multiple omens can be active together
+	private final List<Omen> activeOmens = new ArrayList<>();
 
-	public void setActiveOmen(Omen omen) {
-		this.activeOmen = omen;
-	}
-	
-	public Omen getActiveOmen() {
-		return activeOmen;
-	}
-	
-	public void clearOmen() {
-		this.activeOmen = null;
+
+	//Add a new active omen to the item.
+	public void addActiveOmen(Omen omen) {
+		activeOmens.add(omen);
 	}
 
+
+	//Get all active omens currently attached to this item.
+	public List<Omen> getActiveOmens() {
+		return activeOmens;
+	}
+
+	/**
+	 * Remove omens that have been consumed.
+	 */
+	public void clearConsumedOmens() {
+		activeOmens.removeIf(Omen::isConsumed);
+	}
+
+	// Apply a crafting action to this item.
+	// If omens are active, they modify the behavior of the action.
     public Crafting_Item applyAction(Crafting_Item item, Crafting_Action action) {
-        Omen omen = item.getActiveOmen();
+        List<Omen> omens = item.getActiveOmens();
+		omens.sort((o1, o2) -> Integer.compare(o2.getPriority(), o1.getPriority()));
 
-        if (omen != null) {
-            item = omen.applyEffect(item, action);
 
-            if (omen.isConsumed()) {
-                item.clearOmen();
+        if (!omens.isEmpty()) {
+            for (Omen omen : omens) {
+                item = omen.applyEffect(item, action);
             }
+			for (Omen omen : omens) {
+                omen.consumed = true;
+            }
+            item.clearConsumedOmens(); // remove used omens
         } else {
             item = action.apply(item);
         }
 
         return item;
     }
+
 	
 	
 }

@@ -1,4 +1,4 @@
-package core.Currency.Omens;
+package core.Currency.Omens_currency;
 
 import core.Crafting.*;
 import core.Currency.*;
@@ -7,6 +7,7 @@ public class OmenOfGreaterExaltation extends Omen {
 
     public OmenOfGreaterExaltation() {
         this.name = "Omen of Greater Exaltation";
+		this.priority = 0;
     }
 
     @Override
@@ -18,7 +19,9 @@ public class OmenOfGreaterExaltation extends Omen {
 		System.out.println("In greaterexalt omen");
 
         // Apply the exalted orb twice
+		System.out.println(item.getActiveOmens());
         exalted.apply(item);
+		System.out.println(item.getActiveOmens());
         exalted.apply(item);
 
         // Consume the omen

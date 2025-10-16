@@ -82,13 +82,4 @@ public class AddRandomMod {
 
         return null;
     }
-
-    // Overload for backward compatibility (no minLevel filter)
-    public static ModifierTierWrapper selectWeightedModifier(
-            Crafting_Item item,
-            List<Modifier> allowedPrefixes,
-            List<Modifier> allowedSuffixes
-    ) {
-        return selectWeightedModifier(item, allowedPrefixes, allowedSuffixes, 0);
-    }
 }

@@ -40,7 +40,7 @@ public class ChaosOrb implements Crafting_Action {
 		Item_base base = item.base;
 
 		// Removing a random modifier (like orb of annul)
-		item.removeRandomModifier(ModType.ANY);
+		item.removeRandomModifier(forcedType);
 
         // Determine minimum tier level based on Chaos Orb tier
         int minLevel;

@@ -26,6 +26,7 @@ public class TestOrbs {
 
 		// 3️⃣ Create Perfect Essences
 		Essence_currency perfectSeeking = new Essences.EssenceOfSeeking(Essence_currency.EssenceTier.PERFECT);
+		Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.PERFECT);
 		// Essence_currency perfectMind = new
 		// Essences.EssenceOfTheMind(Essence_currency.EssenceTier.PERFECT);
 		// Essence_currency perfectFlames = new
@@ -54,13 +55,13 @@ public class TestOrbs {
 		printItem(item, "Full item");
 
 		// Apply Perfect Essences
-		// applyAndShowChangesEssences(item, perfectBody, "Perfect Essence of the
-		// Body");
+		applyAndShowChangesEssences(item, perfectBody, "Perfect Essence of the Body");
 		// applyPerfectEssenceIfSupported(item, perfectMind, "Perfect Essence of the
 		// Mind");
 		// applyPerfectEssenceIfSupported(item, perfectFlames, "Perfect Essence of the
 		// Flames");
-		applyAndShowChangesEssences(item, perfectSeeking, "Perfect Essence of Seeking");
+		// applyAndShowChangesEssences(item, perfectSeeking, "Perfect Essence of
+		// Seeking");
 		// printItem(item, "Full item");
 
 		// Apply Orb of Annulment

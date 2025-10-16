@@ -15,7 +15,6 @@ import core.Items.Boots.Boots_str_dex.*;
 import core.Items.Body_Armours.Body_Armours_dex.*;
 import core.Modifier_class.*;
 import static core.Test.TestOrbs.applyAndShowChanges;
-import static core.Test.TestOrbs.applyAndShowChangesEssences;
 import static core.Test.TestOrbs.printItem;
 
 public class TestOmens {

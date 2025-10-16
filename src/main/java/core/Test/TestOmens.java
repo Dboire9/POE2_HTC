@@ -51,14 +51,6 @@ public class TestOmens {
         // applyAndShowChanges(item, regal, "Regal Orb → Rare");
         // printItem(item, "Full item");
 
-		// item.addActiveOmen(OmenOfDextralCoronation);
-		// item.applyAction(item, regal);
-		// printItem(item, "Full item after regal dextral");
-
-
-		item.addActiveOmen(OmenOfSinistralCoronation);
-		item.applyAction(item, regal);
-		printItem(item, "Full item after regal dextral");
 		// // item.addActiveOmen(omenGreaterExalt);
 		// item.addActiveOmen(omenDextralExalt);
 		// item.applyAction(item, exalt);

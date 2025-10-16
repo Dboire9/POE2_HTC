@@ -1,6 +1,10 @@
 package core.Currency;
 
 import core.Crafting.Crafting_Item;
+import core.Crafting.Crafting_Item.ModType;
+
+import java.util.List;
+
 import core.Crafting.Crafting_Action;
 import core.Items.Item_base;
 import core.Modifier_class.*;
@@ -21,6 +25,16 @@ public class RegalOrb implements Crafting_Action {
         this.tier = tier;
     }
 
+	    private ModType forcedType = null; // default behavior
+
+    public void setForcedType(ModType type) {
+        this.forcedType = type;
+    }
+
+    public ModType getForcedType() {
+        return forcedType;
+    }
+
     @Override
     public Crafting_Item apply(Crafting_Item item) {
         // Only works on MAGIC items that are not full
@@ -36,16 +50,36 @@ public class RegalOrb implements Crafting_Action {
             default -> minLevel = 0;
         }
 
-        // Pick one weighted modifier above the minimum level
-        ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
-            item,
-            base.getNormalAllowedPrefixes(),
-            base.getNormalAllowedSuffixes(),
-            minLevel,
-			""
-        );
+		// Select allowed pools based on forcedType (like with ExaltedOrb)
+		List<Modifier> allowedPrefixes = null;
+		List<Modifier> allowedSuffixes = null;
+		switch (forcedType) {
+			case PREFIX_ONLY -> allowedPrefixes = base.getNormalAllowedPrefixes();
+			case SUFFIX_ONLY -> allowedSuffixes = base.getNormalAllowedSuffixes();
+			case ANY -> {
+				allowedPrefixes = base.getNormalAllowedPrefixes();
+				allowedSuffixes = base.getNormalAllowedSuffixes();
+			}
+		}
 
-        if (chosen == null) return item;
+		// Determine block type string for AddRandomMod
+		String blockType;
+		switch (forcedType) {
+			case PREFIX_ONLY -> blockType = "Block_Suffix"; // only allow prefixes
+			case SUFFIX_ONLY -> blockType = "Block_Prefix"; // only allow suffixes
+			default -> blockType = ""; // allow both
+		}
+
+		// Pick one weighted modifier above the minimum level
+		ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
+			item,
+			allowedPrefixes,
+			allowedSuffixes,
+			minLevel,
+			blockType
+		);
+
+			if (chosen == null) return item;
 
         // Upgrade item to RARE
         item.rarity = Crafting_Item.ItemRarity.RARE;

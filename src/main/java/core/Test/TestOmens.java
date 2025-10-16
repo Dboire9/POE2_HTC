@@ -38,35 +38,49 @@ public class TestOmens {
 		Omen omenSinistralErasure = new OmenOfSinistralErasure();
 		Omen omenDextralErasure = new OmenOfDextralErasure();
 
+		Omen OmenOfSinistralCoronation = new core.Currency.Omens_currency.OmenOfSinistralCoronation();
+		Omen OmenOfDextralCoronation = new core.Currency.Omens_currency.OmenOfDextralCoronation();
+
         // Apply changes and print results
         applyAndShowChanges(item, trans, "Transmutation Orb → Magic");
         printItem(item, "Full item");
         applyAndShowChanges(item, aug, "Augmentation Orb");
         printItem(item, "Full item");
-        applyAndShowChanges(item, regal, "Regal Orb → Rare");
-        printItem(item, "Full item");
 
-		// item.addActiveOmen(omenGreaterExalt);
-		item.addActiveOmen(omenDextralExalt);
-		item.applyAction(item, exalt);
-		System.out.println("active omens : " + item.getActiveOmens());
-		printItem(item, "Full item");
+
+        // applyAndShowChanges(item, regal, "Regal Orb → Rare");
+        // printItem(item, "Full item");
+
+		// item.addActiveOmen(OmenOfDextralCoronation);
+		// item.applyAction(item, regal);
+		// printItem(item, "Full item after regal dextral");
+
+
+		item.addActiveOmen(OmenOfSinistralCoronation);
+		item.applyAction(item, regal);
+		printItem(item, "Full item after regal dextral");
+		// // item.addActiveOmen(omenGreaterExalt);
 		// item.addActiveOmen(omenDextralExalt);
-		item.addActiveOmen(omenGreaterExalt);
-		applyAndShowChanges(item, annul, "Annul");
-        applyAndShowChanges(item, annul, "Annul");
-		printItem(item, "Full item after annul");
-		item.addActiveOmen(omenSinistralExalt);
-		System.out.println("active omens : " + item.getActiveOmens());
-		item.applyAction(item, exalt);
-		printItem(item, "Full item after redoing omens");
+		// item.applyAction(item, exalt);
+		// System.out.println("active omens : " + item.getActiveOmens());
 
-		item.addActiveOmen(omenDextralErasure);
-		System.out.println("active omens chaos : " + item.getActiveOmens());
-		item.applyAction(item, chaos);
-		printItem(item, "Full item after dex erasure omens");
-		item.addActiveOmen(omenSinistralErasure);
-		item.applyAction(item, chaos);
-		printItem(item, "Full item after sin erasure omens");
+		// printItem(item, "Full item");
+		// // item.addActiveOmen(omenDextralExalt);
+		// item.addActiveOmen(omenGreaterExalt);
+		// applyAndShowChanges(item, annul, "Annul");
+        // applyAndShowChanges(item, annul, "Annul");
+		// printItem(item, "Full item after annul");
+		// item.addActiveOmen(omenSinistralExalt);
+		// System.out.println("active omens : " + item.getActiveOmens());
+		// item.applyAction(item, exalt);
+		// printItem(item, "Full item after redoing omens");
+
+		// item.addActiveOmen(omenDextralErasure);
+		// System.out.println("active omens chaos : " + item.getActiveOmens());
+		// item.applyAction(item, chaos);
+		// printItem(item, "Full item after dex erasure omens");
+		// item.addActiveOmen(omenSinistralErasure);
+		// item.applyAction(item, chaos);
+		// printItem(item, "Full item after sin erasure omens");
     }
 }

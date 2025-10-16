@@ -24,8 +24,6 @@ public class OmenOfGreaterExaltation extends Omen {
 		System.out.println(item.getActiveOmens());
         exalted.apply(item);
 
-        // Consume the omen
-        this.consumed = true;
         return item;
     }
 }

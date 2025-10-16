@@ -7,10 +7,10 @@ import core.Currency.*;
 
 public class OmenOfSinistralExaltation extends Omen {
 
-    public OmenOfSinistralExaltation() {
-        this.name = "Omen of Sinistral Exaltation";
+	public OmenOfSinistralExaltation() {
+		this.name = "Omen of Sinistral Exaltation";
 		this.priority = 1;
-    }
+	}
 
 	@Override
 	public Crafting_Item applyEffect(Crafting_Item item, Crafting_Action action) {
@@ -22,12 +22,10 @@ public class OmenOfSinistralExaltation extends Omen {
 			System.out.println("Cannot activate Sinistral while Dextral is active!");
 			return item;
 		}
-	
+
 		// Modify the ExaltedOrb behavior to only add prefixes
 		exalted.setForcedType(ModType.PREFIX_ONLY);
-	
-		// Mark this omen as consumed
-		// this.consumed = true;
+
 		return item;
 	}
 }

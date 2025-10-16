@@ -83,6 +83,7 @@ core/Item_modifiers/OneHand_Item_modifiers/Bows_Item_modifiers/Modifiers_normal.
 core/Items/Shields/Shields_str_dex/Shields_str_dex.class
 core/Currency/Essences/Essences$EssenceOfAbrasion.class
 core/Item_modifiers/TwoHand_Item_modifiers/Staves_Item_modifiers/Modifiers_desecrated.class
+core/Currency/Omens_currency/OmenOfDextralExaltation.class
 core/Item_modifiers/TwoHand_Item_modifiers/TwoHandMaces_Items_modifiers/Modifiers_normal.class
 core/Items/OneHand_Maces/OneHand_Maces.class
 core/Items/Helmets/Helmets_dex/Helmets_dex.class

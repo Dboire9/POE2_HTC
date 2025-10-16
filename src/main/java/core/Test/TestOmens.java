@@ -6,6 +6,7 @@ import core.Currency.Essences.*;
 import core.Currency.Omens_currency.Omen;
 import core.Currency.Omens_currency.OmenOfGreaterExaltation;
 import core.Currency.Omens_currency.OmenOfSinistralExaltation;
+import core.Currency.Omens_currency.OmenOfDextralExaltation;
 import core.Items.Boots.Boots_str_dex.*;
 import core.Items.Body_Armours.Body_Armours_dex.*;
 import core.Modifier_class.*;
@@ -30,6 +31,7 @@ public class TestOmens {
 
         Omen omenGreaterExalt = new OmenOfGreaterExaltation();
         Omen omenSinistralExalt = new OmenOfSinistralExaltation();
+        Omen omenDextralExalt = new OmenOfDextralExaltation();
 
         // Apply changes and print results
         applyAndShowChanges(item, trans, "Transmutation Orb → Magic");
@@ -39,9 +41,19 @@ public class TestOmens {
         applyAndShowChanges(item, regal, "Regal Orb → Rare");
         printItem(item, "Full item");
 
-		item.addActiveOmen(omenGreaterExalt);
-		item.addActiveOmen(omenSinistralExalt);
+		// item.addActiveOmen(omenGreaterExalt);
+		item.addActiveOmen(omenDextralExalt);
 		item.applyAction(item, exalt);
+		System.out.println("active omens : " + item.getActiveOmens());
 		printItem(item, "Full item");
+		// item.addActiveOmen(omenDextralExalt);
+		// item.addActiveOmen(omenGreaterExalt);
+		applyAndShowChanges(item, annul, "Annul");
+        applyAndShowChanges(item, annul, "Annul");
+		printItem(item, "Full item after annul");
+		item.addActiveOmen(omenSinistralExalt);
+		System.out.println("active omens : " + item.getActiveOmens());
+		item.applyAction(item, exalt);
+		printItem(item, "Full item after redoing omens");
     }
 }

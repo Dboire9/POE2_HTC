@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Random;
 
 import core.Currency.Essence_currency;
+import core.Currency.ExaltedOrb;
 import core.Currency.Omens_currency.Omen;
+import core.Currency.Omens_currency.OmenOfDextralExaltation;
+import core.Currency.Omens_currency.OmenOfSinistralExaltation;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierSource;
@@ -226,6 +229,23 @@ public class Crafting_Item {
 
 	//Add a new active omen to the item.
 	public void addActiveOmen(Omen omen) {
+
+		if (hasOmen(omen.getClass())) {
+			System.out.println(omen.getName() + " is already active!");
+			return;
+		}
+
+		// Prevent mutually exclusive omens
+		if (omen instanceof OmenOfDextralExaltation && hasOmen(OmenOfSinistralExaltation.class)) {
+			System.out.println("Cannot activate Dextral while Sinistral is active!");
+			return;
+		}
+		if (omen instanceof OmenOfSinistralExaltation && hasOmen(OmenOfDextralExaltation.class)) {
+			System.out.println("Cannot activate Sinistral while Dextral is active!");
+			return;
+		}
+
+
 		activeOmens.add(omen);
 	}
 
@@ -240,6 +260,7 @@ public class Crafting_Item {
 	 */
 	public void clearConsumedOmens() {
 		activeOmens.removeIf(Omen::isConsumed);
+		// System.out.println(activeOmens);
 	}
 
 	// Apply a crafting action to this item.
@@ -248,9 +269,9 @@ public class Crafting_Item {
         List<Omen> omens = item.getActiveOmens();
 		omens.sort((o1, o2) -> Integer.compare(o2.getPriority(), o1.getPriority()));
 
-
         if (!omens.isEmpty()) {
             for (Omen omen : omens) {
+				System.out.println(omen);
                 item = omen.applyEffect(item, action);
             }
 			for (Omen omen : omens) {
@@ -260,10 +281,14 @@ public class Crafting_Item {
         } else {
             item = action.apply(item);
         }
-
+		item = action.apply(item);
         return item;
     }
 
-	
-	
+	public boolean hasOmen(Class<? extends Omen> omenClass) {
+		for (Omen o : activeOmens) {
+			if (omenClass.isInstance(o)) return true;
+		}
+		return false;
+	}
 }

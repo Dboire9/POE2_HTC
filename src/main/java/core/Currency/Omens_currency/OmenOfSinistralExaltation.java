@@ -19,7 +19,6 @@ public class OmenOfSinistralExaltation extends Omen {
 	
 		// Modify the ExaltedOrb behavior to only add prefixes
 		exalted.setForcedType(ExaltedOrb.ModType.PREFIX_ONLY);
-		System.out.println("Setting to prefix lock");
 	
 		// Mark this omen as consumed
 		// this.consumed = true;

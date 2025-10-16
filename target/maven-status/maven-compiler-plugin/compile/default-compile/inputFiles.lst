@@ -86,6 +86,7 @@
 /root/POE2craft_java/src/main/java/core/Items/Wands/Wands.java
 /root/POE2craft_java/src/main/java/core/Currency/Omens_currency/OmenOfSinistralExaltation.java
 /root/POE2craft_java/src/main/java/gui/Main.java
+/root/POE2craft_java/src/main/java/core/Currency/Omens_currency/OmenOfDextralExaltation.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Crossbows_Items_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Items/Shields/Shields_str_dex/Shields_str_dex.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_essences.java

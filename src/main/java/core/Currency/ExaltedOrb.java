@@ -12,41 +12,44 @@ import java.util.ArrayList;
 
 public class ExaltedOrb implements Crafting_Action {
 
-    private double cost = 1.0;
+	private double cost = 1.0;
+
 	public enum CurrencyTier {
-        BASE, GREATER, PERFECT
-    }
+		BASE, GREATER, PERFECT
+	}
 
-    public final CurrencyTier tier;
+	public final CurrencyTier tier;
 
-    // Constructor to specify the tier
-    public ExaltedOrb(CurrencyTier tier) {
-        this.tier = tier;
-    }
-    private ModType forcedType = null; // default behavior
+	// Constructor to specify the tier
+	public ExaltedOrb(CurrencyTier tier) {
+		this.tier = tier;
+	}
 
-    public void setForcedType(ModType type) {
-        this.forcedType = type;
-    }
+	private ModType forcedType = ModType.ANY; // default behavior
 
-    public ModType getForcedType() {
-        return forcedType;
-    }
+	public void setForcedType(ModType type) {
+		this.forcedType = type;
+	}
 
-    @Override
-    public Crafting_Item apply(Crafting_Item item) {
-        if (item.isFull()) return item;
+	public ModType getForcedType() {
+		return forcedType;
+	}
 
-        Item_base base = item.base;
+	@Override
+	public Crafting_Item apply(Crafting_Item item) {
+		if (item.isFull())
+			return item;
 
-        int minLevel;
-        switch (tier) {
-            case GREATER -> minLevel = 35;
-            case PERFECT -> minLevel = 50;
-            default -> minLevel = 0;
-        }
+		Item_base base = item.base;
 
-        // Select the appropriate mod pool based on forcedType
+		int minLevel;
+		switch (tier) {
+			case GREATER -> minLevel = 35;
+			case PERFECT -> minLevel = 50;
+			default -> minLevel = 0;
+		}
+
+		// Select the appropriate mod pool based on forcedType
 		List<Modifier> allowedPrefixes = null;
 		List<Modifier> allowedSuffixes = null;
 		switch (forcedType) {
@@ -59,44 +62,44 @@ public class ExaltedOrb implements Crafting_Action {
 		}
 
 		String blockType;
-		System.out.println("Forced type"+forcedType);
+		System.out.println("Forced type" + forcedType);
 		switch (forcedType) {
 			case PREFIX_ONLY -> blockType = "Block_Suffix"; // only allow prefixes
 			case SUFFIX_ONLY -> blockType = "Block_Prefix"; // only allow suffixes
 			default -> blockType = ""; // allow everything
 		}
-		
+
 		// Call the utility function
 		ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
-			item,
-			allowedPrefixes,
-			allowedSuffixes,
-			minLevel,
-			blockType 
-		);
+				item,
+				allowedPrefixes,
+				allowedSuffixes,
+				minLevel,
+				blockType);
 
-        if (chosen == null) return item;
+		if (chosen == null)
+			return item;
 
-        Modifier mod = chosen.getModifier();
-        ModifierTier tier = chosen.getTier();
+		Modifier mod = chosen.getModifier();
+		ModifierTier tier = chosen.getTier();
 
-        // Add based on forced type or default
-        if (base.getNormalAllowedPrefixes().contains(mod)) {
-            item.addPrefix(mod, tier);
-        } else {
-            item.addSuffix(mod, tier);
-        }
+		// Add based on forced type or default
+		if (base.getNormalAllowedPrefixes().contains(mod)) {
+			item.addPrefix(mod, tier);
+		} else {
+			item.addSuffix(mod, tier);
+		}
 
-        return item;
-    }
+		return item;
+	}
 
-    @Override
-    public double getCost() {
-        return cost;
-    }
+	@Override
+	public double getCost() {
+		return cost;
+	}
 
-    @Override
-    public String getName() {
-        return "Exalted Orb (" + tier + ")";
-    }
+	@Override
+	public String getName() {
+		return "Exalted Orb (" + tier + ")";
+	}
 }

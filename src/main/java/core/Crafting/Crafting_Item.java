@@ -172,6 +172,20 @@ public class Crafting_Item {
 	
 		return foundPerfectEssence;
 	}
+
+	public boolean hasFamily(String family) {
+		for (Modifier mod : currentPrefixes) {
+			if (mod != null && mod.family.equalsIgnoreCase(family)) {
+				return true;
+			}
+		}
+		for (Modifier mod : currentSuffixes) {
+			if (mod != null && mod.family.equalsIgnoreCase(family)) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 
     // Checking if the item has all modifiers filled

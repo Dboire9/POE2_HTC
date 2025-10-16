@@ -77,14 +77,15 @@ public class TestOrbs {
     // -------------------
     // Apply orb/essence and show only changed mods
     // -------------------
-    private static void applyAndShowChanges(Crafting_Item item, Crafting_Action orb, String orbName) {
+    public static void applyAndShowChanges(Crafting_Item item, Crafting_Action orb, String orbName) {
         Crafting_Item snapshot = cloneItem(item);
         orb.apply(item);
         printItemChanges(snapshot, item, orbName);
 		// printItem(item, "Full item after " + orbName);
+		return;
     }
 
-    private static void applyAndShowChangesEssences(Crafting_Item item, Essence_currency essence, String essenceName) {
+    public static void applyAndShowChangesEssences(Crafting_Item item, Essence_currency essence, String essenceName) {
         Crafting_Item snapshot = cloneItem(item);
 		// System.out.println("here");
         essence.applyTo(item);
@@ -92,7 +93,7 @@ public class TestOrbs {
         printItem(item, "Full item after " + essenceName);
     }
 
-	private static void BlockAndShowChangesDesecrate(Crafting_Item item, Desecrated_currency des, String desString) {
+	public static void BlockAndShowChangesDesecrate(Crafting_Item item, Desecrated_currency des, String desString) {
         Crafting_Item snapshot = cloneItem(item);
 		// System.out.println("here");
         des.blockSlot(item);
@@ -100,7 +101,7 @@ public class TestOrbs {
         // printItem(item, "Full item after " + desString);
     }
 
-	private static void ApplyAndShowChangesDesecrate(Crafting_Item item, Desecrated_currency des, String desString) {
+	public static void ApplyAndShowChangesDesecrate(Crafting_Item item, Desecrated_currency des, String desString) {
         Crafting_Item snapshot = cloneItem(item);
 		// System.out.println("here");
         des.applyNormalDesecration(item);
@@ -111,7 +112,7 @@ public class TestOrbs {
     // -------------------
     // Print full item
     // -------------------
-    private static void printItem(Crafting_Item item, String title) {
+    public static void printItem(Crafting_Item item, String title) {
         System.out.println("\n" + title + ":");
         System.out.println("Rarity: " + item.rarity);
 
@@ -143,7 +144,7 @@ public class TestOrbs {
     // -------------------
     // Print only changed mods
     // -------------------
-    private static void printItemChanges(Crafting_Item oldItem, Crafting_Item newItem, String title) {
+    public static void printItemChanges(Crafting_Item oldItem, Crafting_Item newItem, String title) {
         System.out.println("\n" + title + " (changed mods):");
 
         System.out.println("Prefixes changed:");
@@ -176,7 +177,7 @@ public class TestOrbs {
     // -------------------
     // Clone item helper
     // -------------------
-    private static Crafting_Item cloneItem(Crafting_Item item) {
+    public static Crafting_Item cloneItem(Crafting_Item item) {
         Crafting_Item clone = new Crafting_Item(item.base);
         clone.rarity = item.rarity;
 

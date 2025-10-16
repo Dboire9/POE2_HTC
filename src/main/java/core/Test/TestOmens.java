@@ -1,0 +1,44 @@
+package core.Test;
+
+import core.Currency.*;
+import core.Crafting.*;
+import core.Currency.Essences.*;
+import core.Currency.Omens.Omen;
+import core.Currency.Omens.OmenOfGreaterExaltation;
+import core.Items.Boots.Boots_str_dex.*;
+import core.Items.Body_Armours.Body_Armours_dex.*;
+import core.Modifier_class.*;
+import static core.Test.TestOrbs.applyAndShowChanges;
+import static core.Test.TestOrbs.printItem;
+
+public class TestOmens {
+
+    public static void main(String[] args) {
+        // 1️⃣ Create base item
+        Body_Armours_dex testItem = new Body_Armours_dex();
+        Crafting_Item item = new Crafting_Item(testItem);
+
+        // 2️⃣ Create Orbs (PERFECT tier for testing)
+        TransmutationOrb trans = new TransmutationOrb(TransmutationOrb.CurrencyTier.BASE);
+        AugmentationOrb aug = new AugmentationOrb(AugmentationOrb.CurrencyTier.BASE);
+        RegalOrb regal = new RegalOrb(RegalOrb.CurrencyTier.BASE);
+        ExaltedOrb exalt = new ExaltedOrb(ExaltedOrb.CurrencyTier.BASE);
+        ChaosOrb chaos = new ChaosOrb(ChaosOrb.CurrencyTier.BASE);
+        AnnulmentOrb annul = new AnnulmentOrb();
+        Desecrated_currency des = new Desecrated_currency(null);
+
+        Omen omen = new OmenOfGreaterExaltation();
+
+        // Apply changes and print results
+        applyAndShowChanges(item, trans, "Transmutation Orb → Magic");
+        printItem(item, "Full item");
+        applyAndShowChanges(item, aug, "Augmentation Orb");
+        printItem(item, "Full item");
+        applyAndShowChanges(item, regal, "Regal Orb → Rare");
+        printItem(item, "Full item");
+
+		omen.apply(item);
+		item.applyAction(item, exalt);
+		printItem(item, "Full item");
+    }
+}

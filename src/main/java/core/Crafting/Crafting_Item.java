@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import core.Currency.Essence_currency;
+import core.Currency.Omens.*;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierSource;
@@ -211,4 +212,41 @@ public class Crafting_Item {
 
         return sb.toString();
     }
+
+
+
+
+	// Omen Handling
+
+	private Omen activeOmen;
+
+	public void setActiveOmen(Omen omen) {
+		this.activeOmen = omen;
+	}
+	
+	public Omen getActiveOmen() {
+		return activeOmen;
+	}
+	
+	public void clearOmen() {
+		this.activeOmen = null;
+	}
+
+    public Crafting_Item applyAction(Crafting_Item item, Crafting_Action action) {
+        Omen omen = item.getActiveOmen();
+
+        if (omen != null) {
+            item = omen.applyEffect(item, action);
+
+            if (omen.isConsumed()) {
+                item.clearOmen();
+            }
+        } else {
+            item = action.apply(item);
+        }
+
+        return item;
+    }
+	
+	
 }

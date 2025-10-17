@@ -8,6 +8,7 @@ import core.Currency.Omens_currency.OmenOfDextralCrystallisation;
 import core.Currency.Omens_currency.OmenOfDextralErasure;
 import core.Currency.Omens_currency.OmenOfGreaterExaltation;
 import core.Currency.Omens_currency.OmenOfHomogenisingCoronation;
+import core.Currency.Omens_currency.OmenOfHomogenisingExaltation;
 import core.Currency.Omens_currency.OmenOfSinistralCrystallisation;
 import core.Currency.Omens_currency.OmenOfSinistralErasure;
 import core.Currency.Omens_currency.OmenOfSinistralExaltation;
@@ -39,6 +40,7 @@ public class TestOmens {
 		Omen omenGreaterExalt = new OmenOfGreaterExaltation();
 		Omen omenSinistralExalt = new OmenOfSinistralExaltation();
 		Omen omenDextralExalt = new OmenOfDextralExaltation();
+		Omen omenHomogExalt = new OmenOfHomogenisingExaltation();
 
 		Omen omenSinistralErasure = new OmenOfSinistralErasure();
 		Omen omenDextralErasure = new OmenOfDextralErasure();
@@ -57,21 +59,24 @@ public class TestOmens {
 		item.addActiveOmen(omencoronation);
 		item.applyAction(item, regal);
 		System.out.println("active omens : " + item.getActiveOmens());
+		applyAndShowChanges(item, regal, "Regal Orb → Rare");
 		printItem(item, "Full item after regal and before exalt");
-		// applyAndShowChanges(item, regal, "Regal Orb → Rare");
 		
 
 
 
+		item.addActiveOmen(omenHomogExalt);
+		item.addActiveOmen(omenSinistralExalt);
 		item.addActiveOmen(omenGreaterExalt);
-		// System.out.println("active omens : " + item.getActiveOmens());
-		// item.addActiveOmen(omenDextralExalt);
 		System.out.println("active omens : " + item.getActiveOmens());
 		item.applyAction(item, exalt);
+		applyAndShowChanges(item, exalt, "Exalt");
+		// item.addActiveOmen(omenDextralExalt);
+		// System.out.println("active omens : " + item.getActiveOmens());
 		printItem(item, "Full item after greater exalt omen");
 
-		item.applyAction(item, exalt);
-		printItem(item, "Full item");
+		// item.applyAction(item, exalt);
+		// printItem(item, "Full item");
 
 		// item.addActiveOmen(omendexCrystal);
 		// item.applyAction(item, perfectBody);

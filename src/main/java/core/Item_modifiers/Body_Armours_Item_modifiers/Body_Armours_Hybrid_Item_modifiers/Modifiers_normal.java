@@ -404,7 +404,7 @@ public class Modifiers_normal {
 						new ModifierTier("Queen's", 78, 100, new Pair<>(57, 61))),
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
-				"BaseSpirit",
+				"",
 				"+# to Spirit");
 
 		// SUFFIXES

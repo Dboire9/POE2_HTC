@@ -2,8 +2,11 @@ package core.Crafting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 
 import core.Currency.Essence_currency;
 import core.Currency.ExaltedOrb;
@@ -14,73 +17,75 @@ import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierSource;
 
-
 public class Crafting_Item {
 
-    public Item_base base;
-    public ItemRarity rarity;
+	public Item_base base;
+	public ItemRarity rarity;
 	public boolean desecrated = false;
 
-    public enum ItemRarity {
-        NORMAL, MAGIC, RARE
-    }
+	public enum ItemRarity {
+		NORMAL, MAGIC, RARE
+	}
 
 	public enum ModType {
 		ANY, PREFIX_ONLY, SUFFIX_ONLY
 	}
 
-    // Current modifiers
-    public Modifier[] currentPrefixes = new Modifier[3];
-    public Modifier[] currentSuffixes = new Modifier[3];
+	// Current modifiers
+	public Modifier[] currentPrefixes = new Modifier[3];
+	public Modifier[] currentSuffixes = new Modifier[3];
 
-    // Store the applied tier for each modifier
-    public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
-    public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
+	// Store the applied tier for each modifier
+	public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
+	public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
 
-    // Constructor
-    public Crafting_Item(Item_base base) {
-        this.base = base;
-        this.rarity = ItemRarity.NORMAL;
-    }
+	// Constructor
+	public Crafting_Item(Item_base base) {
+		this.base = base;
+		this.rarity = ItemRarity.NORMAL;
+	}
 
-    // Adding a prefix with tier
-    public void addPrefix(Modifier mod, ModifierTier tier) {
-        for (int i = 0; i < currentPrefixes.length; i++) {
-            if (currentPrefixes[i] == null) {
-                currentPrefixes[i] = mod;
-                currentPrefixTiers[i] = tier; // store applied tier separately
-                return;
-            }
-        }
-        System.out.println("No prefix slot available!");
-    }
+	// Adding a prefix with tier
+	public void addPrefix(Modifier mod, ModifierTier tier) {
+		for (int i = 0; i < currentPrefixes.length; i++) {
+			if (currentPrefixes[i] == null) {
+				currentPrefixes[i] = mod;
+				currentPrefixTiers[i] = tier; // store applied tier separately
+				return;
+			}
+		}
+		System.out.println("No prefix slot available!");
+	}
 
-    // Adding a suffix with tier
-    public void addSuffix(Modifier mod, ModifierTier tier) {
-        for (int i = 0; i < currentSuffixes.length; i++) {
-            if (currentSuffixes[i] == null) {
-                currentSuffixes[i] = mod;
-                currentSuffixTiers[i] = tier; // store applied tier separately
-                return;
-            }
-        }
-        System.out.println("No suffix slot available!");
-    }
+	// Adding a suffix with tier
+	public void addSuffix(Modifier mod, ModifierTier tier) {
+		for (int i = 0; i < currentSuffixes.length; i++) {
+			if (currentSuffixes[i] == null) {
+				currentSuffixes[i] = mod;
+				currentSuffixTiers[i] = tier; // store applied tier separately
+				return;
+			}
+		}
+		System.out.println("No suffix slot available!");
+	}
 
 	// Remove a random modifier from the item
 	public Crafting_Item removeRandomModifier(ModType forcedType) {
 		List<Modifier> candidates = new ArrayList<>();
 
-        if (forcedType == ModType.ANY || forcedType == ModType.PREFIX_ONLY) {
-            for (Modifier m : currentPrefixes)
-                if (m != null) candidates.add(m);
-        }
-        if (forcedType == ModType.ANY || forcedType == ModType.SUFFIX_ONLY) {
-            for (Modifier m : currentSuffixes)
-                if (m != null) candidates.add(m);
-        }
+		if (forcedType == ModType.ANY || forcedType == ModType.PREFIX_ONLY) {
+			for (Modifier m : currentPrefixes)
+				if (m != null)
+					candidates.add(m);
+		}
+		if (forcedType == ModType.ANY || forcedType == ModType.SUFFIX_ONLY) {
+			for (Modifier m : currentSuffixes)
+				if (m != null)
+					candidates.add(m);
+		}
 
-		if (candidates.isEmpty()) return this;
+		if (candidates.isEmpty())
+			return this;
 
 		// Pick one modifier randomly to remove
 		Random rng = new Random();
@@ -107,7 +112,6 @@ public class Crafting_Item {
 		return this;
 	}
 
-
 	// Add the modifier passed in parameters
 	public void addModifier(ModifierTier tier, Modifier parent, boolean isPrefix) {
 		if (isPrefix) {
@@ -133,23 +137,23 @@ public class Crafting_Item {
 		List<Modifier> allMods = new ArrayList<>();
 		allMods.addAll(this.base.getEssencesAllowedPrefixes());
 		allMods.addAll(this.base.getEssencesAllowedSuffixes());
-	
+
 		String family = essence.getEssenceFamily().toLowerCase();
-	
+
 		System.out.println("\n🔍 Checking if " + base.getClass().getSimpleName()
-			+ " supports any Essence of the " + family);
-	
+				+ " supports any Essence of the " + family);
+
 		boolean foundNormalEssence = false;
 		boolean foundPerfectEssence = false;
-	
+
 		for (Modifier mod : allMods) {
-			System.out.println("  → Modifier: " + mod.text 
-				+ " | Source: " + mod.source 
-				+ " | Tiers: " + mod.tiers.stream().map(t -> t.name).toList());
-	
+			System.out.println("  → Modifier: " + mod.text
+					+ " | Source: " + mod.source
+					+ " | Tiers: " + mod.tiers.stream().map(t -> t.name).toList());
+
 			boolean matchesFamily = mod.tiers.stream()
-				.anyMatch(t -> t.name.toLowerCase().contains("essence of the " + family));
-	
+					.anyMatch(t -> t.name.toLowerCase().contains("essence of the " + family));
+
 			if (matchesFamily) {
 				if (mod.source == ModifierSource.PERFECT_ESSENCE) {
 					foundPerfectEssence = true;
@@ -160,7 +164,7 @@ public class Crafting_Item {
 				}
 			}
 		}
-	
+
 		// ✅ Improved final summary
 		if (foundPerfectEssence) {
 			System.out.println("✅ Item supports the Perfect Essence of the " + family);
@@ -169,7 +173,7 @@ public class Crafting_Item {
 		} else {
 			System.out.println("❌ No essence modifiers found for: " + family);
 		}
-	
+
 		return foundPerfectEssence;
 	}
 
@@ -186,63 +190,89 @@ public class Crafting_Item {
 		}
 		return false;
 	}
-	
 
-    // Checking if the item has all modifiers filled
-    public boolean isFull() {
-        return Arrays.stream(currentPrefixes).noneMatch(m -> m == null)
-            && Arrays.stream(currentSuffixes).noneMatch(m -> m == null);
-    }
+	// Checking if the item has all modifiers filled
+	public boolean isFull() {
+		return Arrays.stream(currentPrefixes).noneMatch(m -> m == null)
+				&& Arrays.stream(currentSuffixes).noneMatch(m -> m == null);
+	}
 
-    public boolean isPrefixFull() {
-        return Arrays.stream(currentPrefixes).noneMatch(m -> m == null);
-    }
+	public boolean isPrefixFull() {
+		return Arrays.stream(currentPrefixes).noneMatch(m -> m == null);
+	}
 
-    public boolean isSuffixFull() {
-        return Arrays.stream(currentSuffixes).noneMatch(m -> m == null);
-    }
+	public boolean isSuffixFull() {
+		return Arrays.stream(currentSuffixes).noneMatch(m -> m == null);
+	}
 
-    // Removing modifiers
-    public void removePrefix(int index) { 
-        currentPrefixes[index] = null; 
-    }
+	// Removing modifiers
+	public void removePrefix(int index) {
+		currentPrefixes[index] = null;
+	}
 
-    public void removeSuffix(int index) { 
-        currentSuffixes[index] = null;  
-    }
+	public void removeSuffix(int index) {
+		currentSuffixes[index] = null;
+	}
 
-    public void clearModifiers() {
-        Arrays.fill(currentPrefixes, null);
-        Arrays.fill(currentSuffixes, null);
-    }
+	public void clearModifiers() {
+		Arrays.fill(currentPrefixes, null);
+		Arrays.fill(currentSuffixes, null);
+	}
 
-    // Debug
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(base.getClass().getSimpleName())
-          .append(" [").append(rarity).append("]\nPrefixes:\n");
+	// Debug
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(base.getClass().getSimpleName())
+				.append(" [").append(rarity).append("]\nPrefixes:\n");
 
-        for (int i = 0; i < currentPrefixes.length; i++) {
-            if (currentPrefixes[i] != null) {
-                sb.append(" - ").append(currentPrefixes[i].text);
-                sb.append("\n");
-            }
-        }
+		for (int i = 0; i < currentPrefixes.length; i++) {
+			if (currentPrefixes[i] != null) {
+				sb.append(" - ").append(currentPrefixes[i].text);
+				sb.append("\n");
+			}
+		}
 
-        sb.append("Suffixes:\n");
-        for (int i = 0; i < currentSuffixes.length; i++) {
-            if (currentSuffixes[i] != null) {
-                sb.append(" - ").append(currentSuffixes[i].text);
-                sb.append("\n");
-            }
-        }
+		sb.append("Suffixes:\n");
+		for (int i = 0; i < currentSuffixes.length; i++) {
+			if (currentSuffixes[i] != null) {
+				sb.append(" - ").append(currentSuffixes[i].text);
+				sb.append("\n");
+			}
+		}
 
-        return sb.toString();
-    }
+		return sb.toString();
+	}
 
+	// Utils for getting the tags for homog omens
+	public Set<String> getAllTagsFromModifiers() {
+		Set<String> tags = new HashSet<>();
+		for (Modifier m : this.getAllCurrentModifiers()) {
+			if (m != null && m.tags != null)
+				tags.addAll(m.tags);
+		}
+		return tags;
+	}
 
+	public List<Modifier> getAllCurrentModifiers() {
+		List<Modifier> mods = new ArrayList<>();
 
+		if (currentPrefixes != null) {
+			for (Modifier m : currentPrefixes) {
+				if (m != null)
+					mods.add(m);
+			}
+		}
+
+		if (currentSuffixes != null) {
+			for (Modifier m : currentSuffixes) {
+				if (m != null)
+					mods.add(m);
+			}
+		}
+
+		return mods;
+	}
 
 	// -------------------------------------
 	// OMEN HANDLING SECTION
@@ -251,8 +281,7 @@ public class Crafting_Item {
 	// Keep a list so multiple omens can be active together
 	private final List<Omen> activeOmens = new ArrayList<>();
 
-
-	//Add a new active omen to the item.
+	// Add a new active omen to the item.
 	public void addActiveOmen(Omen omen) {
 
 		if (hasOmen(omen.getClass())) {
@@ -270,12 +299,10 @@ public class Crafting_Item {
 			return;
 		}
 
-
 		activeOmens.add(omen);
 	}
 
-
-	//Get all active omens currently attached to this item.
+	// Get all active omens currently attached to this item.
 	public List<Omen> getActiveOmens() {
 		return activeOmens;
 	}
@@ -290,30 +317,87 @@ public class Crafting_Item {
 
 	// Apply a crafting action to this item.
 	// If omens are active, they modify the behavior of the action.
-    public Crafting_Item applyAction(Crafting_Item item, Crafting_Action action) {
-        List<Omen> omens = item.getActiveOmens();
+	public Crafting_Item applyAction(Crafting_Item item, Crafting_Action action) {
+		List<Omen> omens = item.getActiveOmens();
 		omens.sort((o1, o2) -> Integer.compare(o2.getPriority(), o1.getPriority()));
 
-        if (!omens.isEmpty()) {
-            for (Omen omen : omens) {
-				System.out.println(omen);
-                item = omen.applyEffect(item, action);
-            }
+		if (!omens.isEmpty()) {
 			for (Omen omen : omens) {
-                omen.consumed = true;
-            }
-            item.clearConsumedOmens(); // remove used omens
-        } else {
-            item = action.apply(item);
-        }
+				System.out.println(omen);
+				item = omen.applyEffect(item, action);
+			}
+			for (Omen omen : omens) {
+				omen.consumed = true;
+			}
+			item.clearConsumedOmens(); // remove used omens
+		} else {
+			item = action.apply(item);
+		}
 		item = action.apply(item);
-        return item;
-    }
+		return item;
+	}
 
 	public boolean hasOmen(Class<? extends Omen> omenClass) {
 		for (Omen o : activeOmens) {
-			if (omenClass.isInstance(o)) return true;
+			if (omenClass.isInstance(o))
+				return true;
 		}
 		return false;
+	}
+
+	public List<Modifier> getAllModifiers()
+	{
+		List<Modifier> all = new ArrayList<>();
+		all.addAll(Arrays.asList(currentPrefixes));
+		all.addAll(Arrays.asList(currentSuffixes));
+
+		return all.stream().filter(Objects::nonNull).toList();
+	}
+
+
+
+	// Homogenising handling
+
+	public List<Modifier> homogeniseModifiers(List<Modifier> allowedModifiers, Modifier[] currentPrefixModifiers, Modifier[] currentSuffixModifiers) {
+		Set<String> existingTags = new HashSet<>();
+		List<Modifier> finalModifiers = new ArrayList<>();
+
+		// 🔹 Gather tags from current prefixes
+		for (Modifier m : currentPrefixModifiers) {
+			if (m != null && m.tags != null)
+				existingTags.addAll(m.tags);
+		}
+
+		// 🔹 Gather tags from current suffixes
+		for (Modifier m : currentSuffixModifiers) {
+			if (m != null && m.tags != null)
+				existingTags.addAll(m.tags);
+		}
+
+		// If no tags corresponds, return null
+		if (existingTags.isEmpty()){
+			System.out.println("⚠ No existing tags on item — homogenising skipped.");
+			finalModifiers.addAll(allowedModifiers);
+			return finalModifiers;
+		}
+
+		System.out.println("existingTags" + existingTags);
+
+		// Retrieving the modifiers with the same tags
+		for (Modifier mod : allowedModifiers) {
+			if (mod != null && mod.tags != null &&
+				mod.tags.stream().anyMatch(existingTags::contains)) {
+				finalModifiers.add(mod);
+				System.out.println("✅ Corresponding mod found: " + mod.text);
+				System.out.println("With tags" + mod.tags);
+			}
+		}
+
+		if (finalModifiers.isEmpty()) {
+			System.out.println("⚠ No matching modifiers found — using all allowed ones.");
+			return null;
+		}
+
+		return finalModifiers;
 	}
 }

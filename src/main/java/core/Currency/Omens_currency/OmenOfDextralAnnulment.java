@@ -9,7 +9,7 @@ public class OmenOfDextralAnnulment extends Omen {
 
     public OmenOfDextralAnnulment() {
         this.name = "Omen of Dextral Annulment";
-        this.priority = 80;
+        this.priority = 1;
     }
 
     @Override

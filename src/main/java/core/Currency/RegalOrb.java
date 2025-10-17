@@ -2,18 +2,24 @@ package core.Currency;
 
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Item.ModType;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import core.Crafting.Crafting_Action;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Utils.AddRandomMod;
 
 public class RegalOrb implements Crafting_Action {
-
+	
 	private double cost = 1.0;
-
+	
 	public enum CurrencyTier {
 		BASE, GREATER, PERFECT
 	}
+	
+	public boolean homogenising = false;
 
 	public final CurrencyTier tier;
 
@@ -48,11 +54,33 @@ public class RegalOrb implements Crafting_Action {
 			default -> minLevel = 0;
 		}
 
+
+		List<Modifier> finalPrefixes = new ArrayList<>();
+		List<Modifier> finalSuffixes = new ArrayList<>();
+
+		if(homogenising)
+		{
+			System.out.println("Homog active");
+			System.out.println("Prefix");
+			finalPrefixes = item.homogeniseModifiers(base.getNormalAllowedPrefixes(), item.currentPrefixes, item.currentSuffixes);
+			System.out.println("Suffix");
+			finalSuffixes = item.homogeniseModifiers(base.getNormalAllowedSuffixes(), item.currentSuffixes, item.currentPrefixes);
+		}
+
+		if(finalPrefixes.isEmpty() && finalSuffixes.isEmpty())
+		{
+			finalPrefixes = base.getNormalAllowedPrefixes();
+			finalSuffixes = base.getNormalAllowedSuffixes();
+		}
+
+
+
+
 		// Pick one weighted modifier above the minimum level
 		ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
 				item,
-				base.getNormalAllowedPrefixes(),
-				base.getNormalAllowedSuffixes(),
+				finalPrefixes,
+				finalSuffixes,
 				minLevel,
 				"");
 
@@ -61,6 +89,7 @@ public class RegalOrb implements Crafting_Action {
 
 		// Upgrade item to RARE
 		item.rarity = Crafting_Item.ItemRarity.RARE;
+		this.homogenising = false;
 
 		// Apply chosen modifier and tier
 		Modifier mod = chosen.getModifier();

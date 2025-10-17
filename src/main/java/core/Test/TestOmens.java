@@ -39,7 +39,8 @@ public class TestOmens {
 		AnnulmentOrb annul = new AnnulmentOrb();
 		Desecrated_currency des = new Desecrated_currency(null);
 
-		Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.PERFECT);
+		// This is giving me an error but it works
+		// Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.PERFECT);
 
 		Omen omenGreaterExalt = new OmenOfGreaterExaltation();
 		Omen omenSinistralExalt = new OmenOfSinistralExaltation();

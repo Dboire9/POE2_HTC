@@ -1,3 +1,4 @@
+/root/POE2craft_java/src/main/java/core/Currency/Omens_currency/OmenOfTheLiege.java
 /root/POE2craft_java/src/main/java/core/Items/Foci/Foci.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Foci_Item_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Items/Sceptres/Sceptres.java
@@ -36,6 +37,7 @@
 /root/POE2craft_java/src/main/java/core/Items/Helmets/Helmets_str_int/Helmets_str_int.java
 /root/POE2craft_java/src/main/java/core/Currency/TransmutationOrb.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Rings_Item_modifiers/Modifiers_normal.java
+/root/POE2craft_java/src/main/java/core/Currency/Omens_currency/OmenOfTheBlackblooded.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Hybrid_Item_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Staves_Item_modifiers/Modifiers_normal.java
 /root/POE2craft_java/src/main/java/core/Items/Rings/Rings.java
@@ -110,6 +112,7 @@
 /root/POE2craft_java/src/main/java/core/Items/Quarterstaves/Quarterstaves.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_normal.java
 /root/POE2craft_java/src/main/java/core/Items/Body_Armours/Body_Armours_int/Body_Armours_int.java
+/root/POE2craft_java/src/main/java/core/Currency/Omens_currency/OmenOfDesecratedAnnulment.java
 /root/POE2craft_java/src/main/java/core/Items/Helmets/Helmets_str/Helmets_str.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Staves_Item_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Sceptres_Item_modifiers/Modifiers_normal.java
@@ -143,6 +146,7 @@
 /root/POE2craft_java/src/main/java/core/Currency/ChaosOrb.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Spears_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Items/Bows/Bows.java
+/root/POE2craft_java/src/main/java/core/Currency/Omens_currency/OmenOfTheSovereign.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/TwoHandMaces_Items_modifiers/Modifiers_essences.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Gloves_Item_modifiers/Gloves_Hybrid_Item_modifiers/Modifiers_normal.java

@@ -17,6 +17,12 @@ public class Desecrated_currency implements Crafting_Action{
 		PREFIX, SUFFIX
 	}
 
+	public enum guaranteedDesecratedModifier {
+		KURGAL, AMANAMU, ULAMAN, ANY
+	}
+
+	public guaranteedDesecratedModifier guaranteed_des_mod = guaranteedDesecratedModifier.ANY;
+
 	private int cost = 1;
 
 

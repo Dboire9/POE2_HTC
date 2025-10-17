@@ -89,7 +89,7 @@ public class RegalOrb implements Crafting_Action {
 
 		// Upgrade item to RARE
 		item.rarity = Crafting_Item.ItemRarity.RARE;
-		this.homogenising = false;
+		// this.homogenising = false;
 
 		// Apply chosen modifier and tier
 		Modifier mod = chosen.getModifier();

@@ -323,7 +323,7 @@ public class Crafting_Item {
 
 		if (!omens.isEmpty()) {
 			for (Omen omen : omens) {
-				System.out.println(omen);
+				System.out.println("Applying : " + omen);
 				item = omen.applyEffect(item, action);
 			}
 			for (Omen omen : omens) {
@@ -333,7 +333,6 @@ public class Crafting_Item {
 		} else {
 			item = action.apply(item);
 		}
-		item = action.apply(item);
 		return item;
 	}
 

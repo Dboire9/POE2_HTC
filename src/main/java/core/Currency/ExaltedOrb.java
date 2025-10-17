@@ -83,6 +83,8 @@ public class ExaltedOrb implements Crafting_Action {
 		Modifier mod = chosen.getModifier();
 		ModifierTier tier = chosen.getTier();
 
+		System.out.println("Adding : " + chosen.getModifier().text);
+
 		// Add based on forced type or default
 		if (base.getNormalAllowedPrefixes().contains(mod)) {
 			item.addPrefix(mod, tier);

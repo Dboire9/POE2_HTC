@@ -112,7 +112,7 @@ public class TestOrbs {
 	public static void ApplyAndShowChangesDesecrate(Crafting_Item item, Desecrated_currency des, String desString) {
 		Crafting_Item snapshot = cloneItem(item);
 		// System.out.println("here");
-		des.applyNormalDesecration(item);
+		des.apply(item);
 		printItemChanges(snapshot, item, desString);
 		// printItem(item, "Full item after " + desString);
 	}

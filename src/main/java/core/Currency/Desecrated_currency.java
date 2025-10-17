@@ -1,19 +1,33 @@
 package core.Currency;
 
+import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
+import core.Crafting.Crafting_Item.ItemRarity;
+import core.Crafting.Crafting_Item.ModType;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Utils.AddRandomMod;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class Desecrated_currency {
+public class Desecrated_currency implements Crafting_Action{
 
 	public enum SlotType {
 		PREFIX, SUFFIX
+	}
+
+	private double cost = 1.0;
+
+
+	private ModType forcedType = ModType.ANY; // default behavior
+
+	public void setForcedType(ModType type) {
+		this.forcedType = type;
+	}
+
+	public ModType getForcedType() {
+		return forcedType;
 	}
 
 	private final String name;
@@ -23,6 +37,16 @@ public class Desecrated_currency {
 		this.name = name;
 	}
 
+	@Override
+	public double getCost() {
+		return cost;
+	}
+
+	@Override
+	public String getName() {
+		return "Desecrated currency";
+	}
+
 	/**
 	 * Step 1: Block a random slot type (prefix or suffix).
 	 * This only marks the item as "partially desecrated".
@@ -30,8 +54,11 @@ public class Desecrated_currency {
 	public void blockSlot(Crafting_Item item) {
 
 		// Cannot desecrate an item that is already desecrated
-		if (item.desecrated)
+		if (item.desecrated || item.rarity != ItemRarity.RARE)
+		{
+			System.out.println("Item already desecrated or not rare");
 			return;
+		}
 
 		int filledPrefixes = 0;
 		int filledSuffixes = 0;
@@ -46,19 +73,20 @@ public class Desecrated_currency {
 				filledSuffixes++;
 		}
 
-		// Determine what to block
-		if (filledSuffixes >= item.currentSuffixes.length && filledPrefixes < item.currentPrefixes.length) {
-			blockedSlotType = SlotType.PREFIX;
-		} else if (filledPrefixes >= item.currentPrefixes.length && filledSuffixes < item.currentSuffixes.length) {
-			blockedSlotType = SlotType.SUFFIX;
-		} else {
-			blockedSlotType = new Random().nextBoolean() ? SlotType.PREFIX : SlotType.SUFFIX;
+		if(forcedType == ModType.ANY)
+		{
+			if(filledPrefixes == 3 && filledSuffixes < 3)
+				forcedType = ModType.SUFFIX_ONLY;
+			else if (filledPrefixes < 3 && filledSuffixes == 3)
+				forcedType = ModType.PREFIX_ONLY;
+			else
+			forcedType = new Random().nextBoolean() ? ModType.PREFIX_ONLY : ModType.SUFFIX_ONLY;
 		}
 
 		item.desecrated = true;
 
 		// Apply the block on prefix or on suffix
-		if (blockedSlotType == SlotType.PREFIX) {
+		if (forcedType == ModType.PREFIX_ONLY) {
 			Modifier block_modifier = new Modifier(
 					"block",
 					List.of("block"),
@@ -73,10 +101,13 @@ public class Desecrated_currency {
 				if (item.currentPrefixes[i] == null) {
 					item.currentPrefixes[i] = block_modifier;
 					item.currentPrefixTiers[i] = block_modifier.tiers.get(0);
+					System.out.println("Blocked a prefix");
 					return;
 				}
 			}
-		} else {
+		} 
+		else 
+		{
 			Modifier block_modifier = new Modifier(
 					"block",
 					List.of("block"),
@@ -91,21 +122,18 @@ public class Desecrated_currency {
 				if (item.currentSuffixes[i] == null) {
 					item.currentSuffixes[i] = block_modifier;
 					item.currentSuffixTiers[i] = block_modifier.tiers.get(0);
+					System.out.println("Blocked a suffix");
 					return;
 				}
 			}
 		}
-
-		System.out.println("Desecration begins... Blocked a " + blockedSlotType + " slot on "
-				+ item.base.getClass().getSimpleName() + " (Prefixes filled: " + filledPrefixes
-				+ ", Suffixes filled: " + filledSuffixes + ")");
-		item.desecrated = true;
 	}
 
-	public void applyNormalDesecration(Crafting_Item item) {
+	@Override
+	public Crafting_Item apply(Crafting_Item item) {
 		// If item is not already desecrated return
 		if (!item.desecrated)
-			return;
+			return item;
 
 		Item_base base = item.base;
 
@@ -157,7 +185,7 @@ public class Desecrated_currency {
 				blocker);
 
 		if (chosen == null)
-			return; // no eligible modifier
+			return item; // no eligible modifier
 
 		// Add chosen modifier and tier to the correct block slot
 		Modifier mod = chosen.getModifier();
@@ -168,13 +196,10 @@ public class Desecrated_currency {
 			item.addSuffix(mod, modifierTier);
 		}
 		item.desecrated = true;
+		return item;
 	}
 
 	public SlotType getBlockedSlotType() {
 		return blockedSlotType;
-	}
-
-	public String getName() {
-		return name;
 	}
 }

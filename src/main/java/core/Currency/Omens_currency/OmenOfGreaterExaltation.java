@@ -16,12 +16,12 @@ public class OmenOfGreaterExaltation extends Omen {
             // Not relevant for this omen
             return item;
         }
-		// System.out.println("In greaterexalt omen");
+		System.out.println("In greaterexalt omen");
 
         // Apply the exalted orb twice
-		System.out.println(item.getActiveOmens());
+		System.out.println("Added a mod");
         exalted.apply(item);
-		System.out.println(item.getActiveOmens());
+		System.out.println("Added a mod");
         exalted.apply(item);
 
         return item;

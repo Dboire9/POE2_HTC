@@ -56,18 +56,24 @@ public class TestOmens {
 
 		item.addActiveOmen(omencoronation);
 		item.applyAction(item, regal);
+		System.out.println("active omens : " + item.getActiveOmens());
+		printItem(item, "Full item after regal and before exalt");
 		// applyAndShowChanges(item, regal, "Regal Orb → Rare");
+		
+
+
+
+		item.addActiveOmen(omenGreaterExalt);
+		// System.out.println("active omens : " + item.getActiveOmens());
+		// item.addActiveOmen(omenDextralExalt);
+		System.out.println("active omens : " + item.getActiveOmens());
+		item.applyAction(item, exalt);
+		printItem(item, "Full item after greater exalt omen");
+
+		item.applyAction(item, exalt);
 		printItem(item, "Full item");
 
-
-
-
-		// item.addActiveOmen(omenGreaterExalt);
-		// item.addActiveOmen(omenDextralExalt);
-		// item.applyAction(item, exalt);
-
 		// item.addActiveOmen(omendexCrystal);
-		// System.out.println("active omens : " + item.getActiveOmens());
 		// item.applyAction(item, perfectBody);
 		// printItem(item, "Full item");
 

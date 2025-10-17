@@ -12,17 +12,6 @@ public class OmenOfHomogenisingCoronation extends Omen {
     }
 
     @Override
-    public String getDescription() {
-        return "While this item is active in your inventory your next Regal Orb "
-             + "will add a Modifier of the same type as an existing Modifier on the Item";
-    }
-
-    @Override
-    public int getWeight() {
-        return 75;
-    }
-
-    @Override
     public Crafting_Item applyEffect(Crafting_Item item, Crafting_Action action) {
         if (action instanceof RegalOrb regal) {
             regal.homogenising = true; // ✅ activate homogenising behavior

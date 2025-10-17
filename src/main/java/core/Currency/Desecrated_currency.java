@@ -182,13 +182,36 @@ public class Desecrated_currency implements Crafting_Action{
 
 		System.out.println("☠ Desecration consumes the block modifier... transforming it!");
 
+
+		List<Modifier> allowedPrefixes = null;
+		List<Modifier> allowedSuffixes = null;
+		ModifierTierWrapper chosen = null;
+		switch (guaranteed_des_mod) {
+			case KURGAL -> {
+				for (Modifier m : base.getDesecratedAllowedPrefixes()) if (m.family.equals("kurgal_mod")) allowedPrefixes.add(m);
+				for (Modifier m : base.getDesecratedAllowedSuffixes()) if (m.family.equals("kurgal_mod")) allowedSuffixes.add(m);
+			}
+			case AMANAMU -> {
+				for (Modifier m : base.getDesecratedAllowedPrefixes()) if (m.family.equals("amanamu_mod")) allowedPrefixes.add(m);
+				for (Modifier m : base.getDesecratedAllowedSuffixes()) if (m.family.equals("amanamu_mod")) allowedSuffixes.add(m);
+			}
+			case ULAMAN -> {
+				for (Modifier m : base.getDesecratedAllowedPrefixes()) if (m.family.equals("ulaman_mod")) allowedPrefixes.add(m);
+				for (Modifier m : base.getDesecratedAllowedSuffixes()) if (m.family.equals("ulaman_mod")) allowedSuffixes.add(m);
+			}
+			default -> {
+				allowedPrefixes = base.getDesecratedAllowedPrefixes();
+				allowedSuffixes = base.getDesecratedAllowedSuffixes();
+			}
+		}
 		// Use utility function to pick a weighted modifier tier above minLevel
-		ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
+		chosen = AddRandomMod.selectWeightedModifier(
 				item,
-				base.getNormalAllowedPrefixes(),
-				base.getNormalAllowedSuffixes(),
+				allowedPrefixes,
+				allowedSuffixes,
 				0,
 				blocker);
+
 
 		if (chosen == null)
 			return item; // no eligible modifier

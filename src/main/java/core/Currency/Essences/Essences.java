@@ -19,6 +19,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of the Body";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfTheMind extends Essence_currency {
@@ -35,6 +37,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of the Mind";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfEnhancement extends Essence_currency {
@@ -51,6 +55,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Enhancement";
             };
         }
+		@Override
+		public int getCost(){return 1;}
     }
 
 	public static class EssenceOfAbrasion extends Essence_currency {
@@ -67,6 +73,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Abrasion";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfFlames extends Essence_currency {
@@ -83,6 +91,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Flames";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfIce extends Essence_currency {
@@ -99,6 +109,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Ice";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfElectricity extends Essence_currency {
@@ -115,6 +127,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Electricity";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfRuin extends Essence_currency {
@@ -131,6 +145,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Ruin";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfBattle extends Essence_currency {
@@ -147,6 +163,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Battle";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfSorcery extends Essence_currency {
@@ -163,6 +181,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Sorcery";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfHaste extends Essence_currency {
@@ -179,6 +199,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Haste";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfInfinite extends Essence_currency {
@@ -195,6 +217,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Infinite";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfCommand extends Essence_currency {
@@ -211,6 +235,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Command";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfAlacrity extends Essence_currency {
@@ -227,6 +253,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Alacrity";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfSeeking extends Essence_currency {
@@ -243,6 +271,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Seeking";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfOpulence extends Essence_currency {
@@ -259,6 +289,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Opulence";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfGrounding extends Essence_currency {
@@ -275,6 +307,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Grounding";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfInsulation extends Essence_currency {
@@ -291,6 +325,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Insulation";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfThawing extends Essence_currency {
@@ -307,6 +343,8 @@ public class Essences {
 				case PERFECT -> "Perfect Essence of Thawing";
 			};
 		}
+		@Override
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfDelirium extends Essence_currency {
@@ -321,9 +359,7 @@ public class Essences {
 		}
 
 		@Override
-		public void applyTo(Crafting_Item item) {
-			super.applyTo(item);
-		}
+		public int getCost(){return 1;}
 	}
 
 	public static class EssenceOfHorror extends Essence_currency {
@@ -338,9 +374,8 @@ public class Essences {
 		}
 
 		@Override
-		public void applyTo(Crafting_Item item) {
-			super.applyTo(item);
-		}
+		public int getCost(){return 1;}
+
 	}
 
 	public static class EssenceOfHysteria extends Essence_currency {
@@ -355,9 +390,8 @@ public class Essences {
 		}
 
 		@Override
-		public void applyTo(Crafting_Item item) {
-			super.applyTo(item);
-		}
+		public int getCost(){return 1;}
+
 	}
 
 	public static class EssenceOfAbyss extends Essence_currency {
@@ -372,9 +406,7 @@ public class Essences {
 		}
 
 		@Override
-		public void applyTo(Crafting_Item item) {
-			super.applyTo(item);
-		}
+		public int getCost(){return 1;}
 	}
 
 

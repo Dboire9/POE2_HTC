@@ -1,6 +1,7 @@
 package core.Test;
 
 import core.Currency.*;
+import core.Currency.Essence_currency.EssenceTier;
 import core.Crafting.*;
 import core.Currency.Essences.*;
 import core.Items.Boots.Boots_str_dex.*;
@@ -25,8 +26,10 @@ public class TestOrbs {
 		Desecrated_currency des = new Desecrated_currency(null);
 
 		// 3️⃣ Create Perfect Essences
-		Essence_currency perfectSeeking = new Essences.EssenceOfSeeking(Essence_currency.EssenceTier.PERFECT);
-		Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.PERFECT);
+		Essences essences = new Essences(); // Create an instance of Essences
+		Essences.EssenceOfTheBody body = new Essences.EssenceOfTheBody(EssenceTier.GREATER);
+		Essences.EssenceOfTheMind mind = new Essences.EssenceOfTheMind(EssenceTier.PERFECT);
+		Essences.EssenceOfEnhancement enhance = new Essences.EssenceOfEnhancement(EssenceTier.LESSER);
 		// Essence_currency perfectMind = new
 		// Essences.EssenceOfTheMind(Essence_currency.EssenceTier.PERFECT);
 		// Essence_currency perfectFlames = new
@@ -55,7 +58,7 @@ public class TestOrbs {
 		printItem(item, "Full item");
 
 		// Apply Perfect Essences
-		applyAndShowChangesEssences(item, perfectBody, "Perfect Essence of the Body");
+		// applyAndShowChangesEssences(item, perfectBody, "Perfect Essence of the Body");
 		// applyPerfectEssenceIfSupported(item, perfectMind, "Perfect Essence of the
 		// Mind");
 		// applyPerfectEssenceIfSupported(item, perfectFlames, "Perfect Essence of the

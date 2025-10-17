@@ -17,7 +17,7 @@ public class Desecrated_currency implements Crafting_Action{
 		PREFIX, SUFFIX
 	}
 
-	private double cost = 1.0;
+	private int cost = 1;
 
 
 	private ModType forcedType = ModType.ANY; // default behavior
@@ -38,7 +38,7 @@ public class Desecrated_currency implements Crafting_Action{
 	}
 
 	@Override
-	public double getCost() {
+	public int getCost() {
 		return cost;
 	}
 

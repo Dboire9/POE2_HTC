@@ -35,7 +35,7 @@ public abstract class Omen implements Crafting_Action {
     }
 
     @Override
-    public double getCost() {
+    public int getCost() {
         return 0; // or set a specific cost if you want
     }
 }

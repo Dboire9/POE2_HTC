@@ -11,7 +11,7 @@ import core.Utils.AddRandomMod;
 
 public class AugmentationOrb implements Crafting_Action {
 
-    private double cost = 1.0;
+    private int cost = 1;
 
     public enum CurrencyTier {
         BASE, GREATER, PERFECT
@@ -92,7 +92,7 @@ public class AugmentationOrb implements Crafting_Action {
     }
 
     @Override
-    public double getCost() {
+    public int getCost() {
         return cost;
     }
 

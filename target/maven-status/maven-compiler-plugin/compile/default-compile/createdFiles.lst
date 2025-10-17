@@ -6,6 +6,7 @@ core/Currency/Essence_currency.class
 core/Currency/TransmutationOrb$CurrencyTier.class
 core/Utils/WeightedItem.class
 core/Item_modifiers/Gloves_Item_modifiers/Gloves_Normal_Item_modifiers/Modifiers_desecrated.class
+core/Currency/Omens_currency/OmenOfDextralAnnulment.class
 core/Items/Gloves/Gloves_dex_int/Gloves_dex_int.class
 core/Item_modifiers/TwoHand_Item_modifiers/Crossbows_Items_modifiers/Modifiers_desecrated.class
 core/Item_modifiers/OneHand_Item_modifiers/OneHand_Maces_Item_modifiers/Modifiers_desecrated.class
@@ -13,6 +14,7 @@ core/Items/Wands/Wands.class
 core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_essences.class
 core/Currency/Essences/Essences$EssenceOfInfinite.class
 core/Item_modifiers/OneHand_Item_modifiers/Sceptres_Item_modifiers/Modifiers_normal.class
+core/Currency/Omens_currency/OmenOfSinistralNecromancy.class
 core/Currency/ExaltedOrb$CurrencyTier.class
 core/Item_modifiers/OneHand_Item_modifiers/OneHand_Maces_Item_modifiers/Modifiers_normal.class
 core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Hybrid_Item_modifiers/Modifiers_essences.class
@@ -34,6 +36,7 @@ core/Items/Quarterstaves/Quarterstaves.class
 core/Currency/RegalOrb$CurrencyTier.class
 core/Item_modifiers/Off_Hand_Item_modifiers/Foci_Item_modifiers/Modifiers_normal.class
 core/Item_modifiers/Gloves_Item_modifiers/Gloves_Normal_Item_modifiers/Modifiers_normal.class
+core/Currency/Omens_currency/OmenOfHomogenisingCoronation.class
 core/Item_modifiers/TwoHand_Item_modifiers/Crossbows_Items_modifiers/Modifiers_normal.class
 core/Item_modifiers/OneHand_Item_modifiers/Wands_Item_modifiers/Modifiers_desecrated.class
 core/Currency/Essences/Essences$EssenceOfCommand.class
@@ -42,15 +45,18 @@ core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifie
 core/Currency/Essences/Essences$EssenceOfHaste.class
 core/Currency/RegalOrb.class
 core/Utils/AddRandomMod.class
+core/Currency/ExaltedOrb$1.class
 core/Item_modifiers/Gloves_Item_modifiers/Gloves_Hybrid_Item_modifiers/Modifiers_normal.class
 gui/views/ItemSelectionView.class
 core/Items/Helmets/Helmets_str_int/Helmets_str_int.class
 gui/utils/ValidateButton.class
+core/Crafting/Crafting_Item$ModType.class
 core/Items/Bows/Bows.class
 core/Currency/Essence_currency$EssenceTier.class
 core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_essences.class
 core/Crafting/Crafting_Item$ItemRarity.class
 core/Items/Helmets/Helmets_dex_int/Helmets_dex_int.class
+core/Currency/Omens_currency/OmenOfDextralErasure.class
 core/Item_modifiers/Off_Hand_Item_modifiers/Quivers_Item_modifiers/Modifiers_desecrated.class
 core/Items/Sceptres/Sceptres.class
 core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Normal_Item_modifiers/Modifiers_desecrated.class
@@ -63,7 +69,6 @@ core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Normal_Item_modifie
 core/Crafting/Crafting_Action.class
 core/Items/Boots/Boots_str_int/Boots_str_int.class
 core/Currency/AugmentationOrb.class
-core/Currency/ExaltedOrb$ModType.class
 core/Currency/Essences/Essences$EssenceOfIce.class
 core/Item_modifiers/Jewellery_Item_modifiers/Rings_Item_modifiers/Modifiers_essences.class
 core/Currency/Essences/Essences$EssenceOfElectricity.class
@@ -75,9 +80,11 @@ core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Hybri
 core/Modifier_class/Modifier.class
 core/Item_modifiers/OneHand_Item_modifiers/Bows_Item_modifiers/Modifiers_essences.class
 core/Item_modifiers/Jewellery_Item_modifiers/Rings_Item_modifiers/Modifiers_normal.class
+core/Currency/Omens_currency/OmenOfSinistralErasure.class
 core/Currency/Essences/Essences$EssenceOfBattle.class
 core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Hybrid_Item_modifiers/Modifiers_desecrated.class
 core/Items/Rings/Rings.class
+core/Currency/Omens_currency/OmenOfDextralNecromancy.class
 core/Currency/Essences/Essences$EssenceOfSeeking.class
 core/Item_modifiers/OneHand_Item_modifiers/Bows_Item_modifiers/Modifiers_normal.class
 core/Items/Shields/Shields_str_dex/Shields_str_dex.class
@@ -91,6 +98,7 @@ core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifie
 core/Items/Test_Modifiers.class
 core/Items/Helmets/Helmets_str/Helmets_str.class
 core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_essences.class
+core/Currency/Omens_currency/OmenOfHomogenisingExaltation.class
 core/Items/Helmets/Helmets_int/Helmets_int.class
 core/Item_modifiers/OneHand_Item_modifiers/Spears_Item_modifiers/Modifiers_desecrated.class
 core/Currency/Omens_currency/OmenOfSinistralExaltation.class
@@ -130,6 +138,8 @@ core/Test/TestOmens.class
 core/Currency/Essences/Essences$EssenceOfDelirium.class
 core/Crafting/Crafting_Item.class
 core/Items/Crossbows/Crossbows.class
+core/Currency/Omens_currency/OmenOfDextralCrystallisation.class
+core/Currency/Omens_currency/OmenOfSinistralAnnulment.class
 core/Items/Body_Armours/Body_Armours_dex_int/Body_Armours_dex_int.class
 core/Item_modifiers/Jewellery_Item_modifiers/Rings_Item_modifiers/Modifiers_desecrated.class
 core/Crafting/CraftEvent.class
@@ -155,6 +165,7 @@ core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_de
 core/Currency/Essences/Essences$EssenceOfFlames.class
 core/Currency/Essences/Essences$EssenceOfAlacrity.class
 core/Modifier_class/ModifierTierWrapper.class
+core/Currency/Omens_currency/OmenOfSinistralCrystallisation.class
 core/Items/Boots/Boots_dex/Boots_dex.class
 core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifiers/Modifiers_essences.class
 core/Items/Boots/Boots_int/Boots_int.class

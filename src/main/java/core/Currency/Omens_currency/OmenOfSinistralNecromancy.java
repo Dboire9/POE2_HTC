@@ -20,6 +20,7 @@ public class OmenOfSinistralNecromancy extends Omen {
         // Prevent conflicting omen
 		if (!(action instanceof Desecrated_currency des)) return item;
 		
+		// There is something wrong here that does not detect if the other omen was applied
         if (item.hasOmen(OmenOfDextralNecromancy.class)) {
             System.out.println("Cannot activate Sinistral Desecration while Dextral is active!");
             return item;

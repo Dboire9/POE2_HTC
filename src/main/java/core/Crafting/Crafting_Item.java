@@ -392,6 +392,19 @@ public class Crafting_Item {
 			}
 		}
 
+		
+		// Remove a modifier in final modifiers if it has the same family has another
+		for (Modifier current : currentPrefixModifiers) {
+			if (current == null) continue;
+			finalModifiers.removeIf(mod -> mod.family != null && mod.family.equals(current.family));
+		}
+		
+		// Remove modifiers from finalModifiers that have the same family as any current suffix
+		for (Modifier current : currentSuffixModifiers) {
+			if (current == null) continue;
+			finalModifiers.removeIf(mod -> mod.family != null && mod.family.equals(current.family));
+		}
+		
 		if (finalModifiers.isEmpty()) {
 			System.out.println("⚠ No matching modifiers found — using all allowed ones.");
 			return null;

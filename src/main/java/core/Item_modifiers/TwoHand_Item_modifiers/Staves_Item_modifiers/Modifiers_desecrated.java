@@ -35,7 +35,7 @@ public class Modifiers_desecrated {
             ),
             ModifierType.PREFIX,
             ModifierSource.DESECRATED,
-            "BaseSpirit",
+            "",
             "+# to Spirit"
         );
 

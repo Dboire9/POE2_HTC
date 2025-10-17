@@ -7,6 +7,7 @@ import core.Currency.Omens_currency.Omen;
 import core.Currency.Omens_currency.OmenOfDextralCrystallisation;
 import core.Currency.Omens_currency.OmenOfDextralErasure;
 import core.Currency.Omens_currency.OmenOfGreaterExaltation;
+import core.Currency.Omens_currency.OmenOfHomogenisingCoronation;
 import core.Currency.Omens_currency.OmenOfSinistralCrystallisation;
 import core.Currency.Omens_currency.OmenOfSinistralErasure;
 import core.Currency.Omens_currency.OmenOfSinistralExaltation;
@@ -45,23 +46,30 @@ public class TestOmens {
 		Omen omendexCrystal = new OmenOfDextralCrystallisation();
 		Omen omensinCrystal = new OmenOfSinistralCrystallisation();
 
+		Omen omencoronation = new OmenOfHomogenisingCoronation();
+
 		// Apply changes and print results
 		applyAndShowChanges(item, trans, "Transmutation Orb → Magic");
 		printItem(item, "Full item");
 		applyAndShowChanges(item, aug, "Augmentation Orb");
 		printItem(item, "Full item");
 
-		applyAndShowChanges(item, regal, "Regal Orb → Rare");
+		item.addActiveOmen(omencoronation);
+		item.applyAction(item, regal);
+		// applyAndShowChanges(item, regal, "Regal Orb → Rare");
 		printItem(item, "Full item");
+
+
+
 
 		// item.addActiveOmen(omenGreaterExalt);
 		// item.addActiveOmen(omenDextralExalt);
 		// item.applyAction(item, exalt);
 
-		item.addActiveOmen(omendexCrystal);
-		System.out.println("active omens : " + item.getActiveOmens());
-		item.applyAction(item, perfectBody);
-		printItem(item, "Full item");
+		// item.addActiveOmen(omendexCrystal);
+		// System.out.println("active omens : " + item.getActiveOmens());
+		// item.applyAction(item, perfectBody);
+		// printItem(item, "Full item");
 
 		// // item.addActiveOmen(omenDextralExalt);
 		// item.addActiveOmen(omenGreaterExalt);

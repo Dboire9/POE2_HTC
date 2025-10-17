@@ -194,7 +194,7 @@ public class Modifiers_normal {
 						new ModifierTier("Countess'", 54, 400, new Pair<>(47, 50))),
 				Modifier.ModifierType.PREFIX,
 				Modifier.ModifierSource.NORMAL,
-				"BaseSpirit",
+				"",
 				"+# to Spirit");
 
 		INCREASED_SPELL_DAMAGE = new Modifier(

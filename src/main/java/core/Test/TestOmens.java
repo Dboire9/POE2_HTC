@@ -12,11 +12,15 @@ import core.Currency.Omens_currency.OmenOfHomogenisingExaltation;
 import core.Currency.Omens_currency.OmenOfSinistralCrystallisation;
 import core.Currency.Omens_currency.OmenOfSinistralErasure;
 import core.Currency.Omens_currency.OmenOfSinistralExaltation;
+import core.Currency.Omens_currency.OmenOfSinistralNecromancy;
 import core.Currency.Omens_currency.OmenOfDextralExaltation;
+import core.Currency.Omens_currency.OmenOfDextralNecromancy;
 import core.Items.Boots.Boots_str_dex.*;
 import core.Items.Body_Armours.Body_Armours_dex.*;
 import core.Modifier_class.*;
 import static core.Test.TestOrbs.applyAndShowChanges;
+import static core.Test.TestOrbs.ApplyAndShowChangesDesecrate;
+import static core.Test.TestOrbs.BlockAndShowChangesDesecrate;
 import static core.Test.TestOrbs.printItem;
 
 public class TestOmens {
@@ -50,6 +54,9 @@ public class TestOmens {
 
 		Omen omencoronation = new OmenOfHomogenisingCoronation();
 
+		Omen omendexnecro = new OmenOfDextralNecromancy();
+		Omen omensinnecro = new OmenOfSinistralNecromancy();
+
 		// Apply changes and print results
 		applyAndShowChanges(item, trans, "Transmutation Orb → Magic");
 		printItem(item, "Full item");
@@ -63,17 +70,26 @@ public class TestOmens {
 		printItem(item, "Full item after regal and before exalt");
 		
 
+		item.addActiveOmen(omensinnecro);
+		item.applyAction(item, des);
+		BlockAndShowChangesDesecrate(item, des, "block");
+		printItem(item, "Full item");
+		ApplyAndShowChangesDesecrate(item, des, "des apply");
+		// printItem(item, "Full item");
 
 
-		item.addActiveOmen(omenHomogExalt);
-		item.addActiveOmen(omenSinistralExalt);
-		item.addActiveOmen(omenGreaterExalt);
-		System.out.println("active omens : " + item.getActiveOmens());
-		item.applyAction(item, exalt);
-		applyAndShowChanges(item, exalt, "Exalt");
-		// item.addActiveOmen(omenDextralExalt);
+
+
+
+		// item.addActiveOmen(omenHomogExalt);
+		// item.addActiveOmen(omenSinistralExalt);
+		// item.addActiveOmen(omenGreaterExalt);
 		// System.out.println("active omens : " + item.getActiveOmens());
-		printItem(item, "Full item after greater exalt omen");
+		// item.applyAction(item, exalt);
+		// applyAndShowChanges(item, exalt, "Exalt");
+		// // item.addActiveOmen(omenDextralExalt);
+		// // System.out.println("active omens : " + item.getActiveOmens());
+		// printItem(item, "Full item after greater exalt omen");
 
 		// item.applyAction(item, exalt);
 		// printItem(item, "Full item");

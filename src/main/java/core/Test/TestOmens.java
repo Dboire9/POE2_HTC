@@ -76,8 +76,11 @@ public class TestOmens {
 		item.addActiveOmen(omendexnecro);
 		item.applyAction(item, des);
 		BlockAndShowChangesDesecrate(item, des, "block");
+		BlockAndShowChangesDesecrate(item, des, "block");
 		printItem(item, "Full item");
 		ApplyAndShowChangesDesecrate(item, des, "des apply");
+		ApplyAndShowChangesDesecrate(item, des, "des apply");
+		printItem(item, "Full item");
 		// printItem(item, "Full item");
 
 

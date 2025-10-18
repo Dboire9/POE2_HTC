@@ -5,4 +5,4 @@ Issues :
 		So the percentage might be a bit skewed because of this. 
 		Handling the Mark of the Abyss is missing
 
-Missing omens to add last, whittling and homog
+Missing omens to add whittling

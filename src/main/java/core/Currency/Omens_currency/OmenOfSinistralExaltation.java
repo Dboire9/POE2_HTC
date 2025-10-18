@@ -9,7 +9,7 @@ public class OmenOfSinistralExaltation extends Omen {
 
 	public OmenOfSinistralExaltation() {
 		this.name = "Omen of Sinistral Exaltation";
-		this.associatedCurrency = new ExaltedOrb();
+		this.associatedCurrency = ExaltedOrb.class;
 		this.priority = 1;
 	}
 

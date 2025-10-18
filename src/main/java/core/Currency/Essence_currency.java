@@ -32,8 +32,7 @@ public abstract class Essence_currency implements Crafting_Action {
 
 	// Default constructor
 	public Essence_currency() {
-		this.essenceFamily = "";
-		this.tier = EssenceTier.LESSER;
+		super();
 	}
 
 	public String getEssenceFamily() {

@@ -10,7 +10,7 @@ public class OmenOfSinistralCrystallisation extends Omen {
 
 	public OmenOfSinistralCrystallisation() {
 		this.name = "Omen of Sinistral Crystallisation";
-		this.associatedCurrency = new Essences.EssenceOfEnhancement(Essence_currency.EssenceTier.LESSER);
+		this.associatedCurrency = Essence_currency.class;
 		this.priority = 75;
 	}
 

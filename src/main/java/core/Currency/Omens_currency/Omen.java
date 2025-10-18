@@ -1,5 +1,8 @@
 package core.Currency.Omens_currency;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
 
@@ -19,7 +22,39 @@ public abstract class Omen implements Crafting_Action {
     public boolean isConsumed() {return consumed;}
 	public int getPriority() { return priority; }
 
-	public Crafting_Action associatedCurrency;
+	public Class<? extends Crafting_Action> associatedCurrency;
+
+	private static final List<Omen> allOmens = new ArrayList<>();
+
+	// Getting all the omens
+
+	static {
+        allOmens.add(new OmenOfDesecratedAnnulment());
+        allOmens.add(new OmenOfDextralAnnulment());
+        allOmens.add(new OmenOfDextralCrystallisation());
+        allOmens.add(new OmenOfDextralErasure());
+        allOmens.add(new OmenOfDextralExaltation());
+        allOmens.add(new OmenOfDextralNecromancy());
+        allOmens.add(new OmenOfGreaterExaltation());
+        allOmens.add(new OmenOfHomogenisingCoronation());
+        allOmens.add(new OmenOfHomogenisingExaltation());
+        allOmens.add(new OmenOfSinistralAnnulment());
+        allOmens.add(new OmenOfSinistralCrystallisation());
+        allOmens.add(new OmenOfSinistralErasure());
+        allOmens.add(new OmenOfSinistralExaltation());
+        allOmens.add(new OmenOfSinistralNecromancy());
+        allOmens.add(new OmenOfTheBlackblooded());
+        allOmens.add(new OmenOfTheLiege());
+        allOmens.add(new OmenOfTheSovereign());
+    }
+
+    public static List<Omen> getAllOmens() {
+        return new ArrayList<>(allOmens);
+    }
+
+
+
+
 
     /**
      * Called when the omen modifies another action (e.g., ExaltedOrb).

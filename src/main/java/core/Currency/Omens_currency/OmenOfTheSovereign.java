@@ -9,6 +9,7 @@ import core.Currency.Desecrated_currency.guaranteedDesecratedModifier;
 public class OmenOfTheSovereign extends Omen {
     public OmenOfTheSovereign() {
         this.name = "Omen of the Sovereign";
+		this.associatedCurrency = new Desecrated_currency();
         this.priority = 1;
     }
 

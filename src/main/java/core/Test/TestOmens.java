@@ -1,6 +1,7 @@
 package core.Test;
 
 import core.Currency.*;
+import core.Currency.Essence_currency.EssenceTier;
 import core.Crafting.*;
 import core.Currency.Essences.*;
 import core.Currency.Omens_currency.Omen;
@@ -41,6 +42,12 @@ public class TestOmens {
 
 		// This is giving me an error but it works
 		// Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.PERFECT);
+
+		String type = Essence_currency.pickRandomEssenceType();
+		EssenceTier tier = Essence_currency.pickTierForItemLevel();
+		Essence_currency essence = Essence_currency.create(type, tier);
+
+		System.out.println(essence);
 
 		Omen omenGreaterExalt = new OmenOfGreaterExaltation();
 		Omen omenSinistralExalt = new OmenOfSinistralExaltation();
@@ -87,11 +94,11 @@ public class TestOmens {
 
 
 
-		// item.addActiveOmen(omenHomogExalt);
-		// item.addActiveOmen(omenSinistralExalt);
-		// item.addActiveOmen(omenGreaterExalt);
-		// System.out.println("active omens : " + item.getActiveOmens());
-		// item.applyAction(item, exalt);
+		item.addActiveOmen(omenHomogExalt);
+		item.addActiveOmen(omenSinistralExalt);
+		item.addActiveOmen(omenGreaterExalt);
+		item.applyAction(item, exalt);
+		System.out.println("active omens : " + item.getActiveOmens());
 		// applyAndShowChanges(item, exalt, "Exalt");
 		// // item.addActiveOmen(omenDextralExalt);
 		// // System.out.println("active omens : " + item.getActiveOmens());

@@ -21,6 +21,10 @@ public class TransmutationOrb implements Crafting_Action {
         this.tier = tier;
     }
 
+	public TransmutationOrb() {
+        this.tier = CurrencyTier.BASE;
+    }
+
     @Override
     public Crafting_Item apply(Crafting_Item item) {
         // Only works on NORMAL items

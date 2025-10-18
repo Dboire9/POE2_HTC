@@ -10,7 +10,7 @@ public class OmenOfDextralExaltation extends Omen {
 
 	public OmenOfDextralExaltation() {
 		this.name = "Omen of Dextral Exaltation";
-		this.associatedCurrency = new ExaltedOrb();
+		this.associatedCurrency = ExaltedOrb.class;
 		this.priority = 1; // high priority so it applies before GreaterExaltation
 	}
 

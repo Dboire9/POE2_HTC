@@ -9,7 +9,7 @@ public class OmenOfHomogenisingExaltation extends Omen {
 
     public OmenOfHomogenisingExaltation() {
         this.name = "Omen of Homogenising Exaltation";
-        this.associatedCurrency = new ExaltedOrb(); // 🟢 Link it to RegalOrb for your OmenPicker logic
+        this.associatedCurrency = ExaltedOrb.class; // 🟢 Link it to RegalOrb for your OmenPicker logic
     }
 
     @Override

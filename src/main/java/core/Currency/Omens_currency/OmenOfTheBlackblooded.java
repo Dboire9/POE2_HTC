@@ -10,7 +10,7 @@ public class OmenOfTheBlackblooded extends Omen {
 
     public OmenOfTheBlackblooded() {
         this.name = "Omen of the Blackblooded";
-		this.associatedCurrency = new Desecrated_currency();
+		this.associatedCurrency = Desecrated_currency.class;
         this.priority = 1;
     }
 

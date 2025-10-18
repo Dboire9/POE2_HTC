@@ -1,8 +1,6 @@
 package core.Crafting;
 
-import core.Crafting.*;
 import core.Currency.*;
-import core.Modifier_class.*;
 import core.Currency.Omens_currency.*;
 
 import java.util.ArrayList;
@@ -21,11 +19,12 @@ public class CraftingOmenPicker {
      */
     public static Omen pickRandomOmen(Crafting_Item item, List<Omen> allOmens) {
         List<Omen> possibleOmens = new ArrayList<>();
+		Omen finalOmen; 
 
         switch (item.rarity) {
             case MAGIC -> {
                 for (Omen omen : allOmens) {
-                    if (omen.getAssociatedCurrency() instanceof RegalOrb) {
+                    if (omen.associatedCurrency == RegalOrb.class) {
                         possibleOmens.add(omen);
                     }
                 }
@@ -39,6 +38,8 @@ public class CraftingOmenPicker {
             return null; // nothing to pick
         }
 
-        return possibleOmens.get(RNG.nextInt(possibleOmens.size()));
+		finalOmen = possibleOmens.get(RNG.nextInt(possibleOmens.size()));
+
+        return finalOmen;
     }
 }

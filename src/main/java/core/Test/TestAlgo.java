@@ -2,9 +2,14 @@ package core.Test;
 
 
 import core.Currency.*;
+import core.Currency.Omens_currency.Omen;
 import core.Crafting.*;
 import core.Crafting.Crafting_Item.CraftingActionType;
 import core.Items.Body_Armours.Body_Armours_dex.*;
+
+
+import static core.Test.TestOrbs.applyAndShowChanges;
+import static core.Test.TestOrbs.printItem;
 
 public class TestAlgo {
 
@@ -38,9 +43,29 @@ public class TestAlgo {
 		AnnulmentOrb annul = new AnnulmentOrb();
 		Desecrated_currency des = new Desecrated_currency(null);
 
+
+		applyAndShowChanges(item, trans_greater, "Transmutation Orb → Magic");
+		// printItem(item, "Full item");
+		applyAndShowChanges(item, aug_greater, "Augmentation Orb");
+		
+		item.applyAction(item, regal_greater);
+		printItem(item, "Full item");
+
+
+
 		CraftingActionType action = CraftingActionPicker.pickRandomActionType(item);
 
 		System.out.println("Picked action: " + action);
+
+		Omen applyingOmen = CraftingOmenPicker.pickRandomOmen(item, Omen.getAllOmens());
+		System.out.println(applyingOmen);
+		item.addActiveOmen(applyingOmen);
+
+		Crafting_Action currency = CraftingCurrencyPicker.pickRandomCurrency(item);
+		System.out.println(currency);
+
+		Crafting_Action applyingEssence = CraftingEssencePicker.pickRandomEssence();
+		System.out.println(applyingEssence);
 	}
 	
 }

@@ -8,7 +8,7 @@ public class OmenOfHomogenisingCoronation extends Omen {
 
     public OmenOfHomogenisingCoronation() {
         this.name = "Omen of Homogenising Coronation";
-        this.associatedCurrency = new RegalOrb(); // 🟢 Link it to RegalOrb for your OmenPicker logic
+        this.associatedCurrency = RegalOrb.class;
     }
 
     @Override

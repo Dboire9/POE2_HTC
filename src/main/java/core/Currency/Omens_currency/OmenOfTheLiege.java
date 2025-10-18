@@ -8,7 +8,7 @@ import core.Currency.Desecrated_currency.guaranteedDesecratedModifier;
 public class OmenOfTheLiege extends Omen {
     public OmenOfTheLiege() {
         this.name = "Omen of the Liege";
-		this.associatedCurrency = new Desecrated_currency();
+		this.associatedCurrency = Desecrated_currency.class;
         this.priority = 1;
     }
 

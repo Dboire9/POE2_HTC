@@ -12,7 +12,7 @@ public class OmenOfSinistralNecromancy extends Omen {
 
 	public OmenOfSinistralNecromancy() {
 		this.name = "Omen Of Sinistral Necromancy";
-		this.associatedCurrency = new Desecrated_currency();
+		this.associatedCurrency = Desecrated_currency.class;
 		this.priority = 1;
 	}
 

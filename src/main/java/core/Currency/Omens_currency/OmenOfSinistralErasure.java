@@ -8,7 +8,7 @@ public class OmenOfSinistralErasure extends Omen {
 
     public OmenOfSinistralErasure() {
         this.name = "Omen of Sinistral Erasure";
-		this.associatedCurrency = new ChaosOrb();
+		this.associatedCurrency = ChaosOrb.class;
         this.priority = 1; // high priority to apply before default orb behavior
     }
 

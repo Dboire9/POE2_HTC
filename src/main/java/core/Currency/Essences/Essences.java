@@ -1,6 +1,5 @@
 package core.Currency.Essences;
 
-import core.Crafting.Crafting_Item;
 import core.Currency.Essence_currency;
 
 public class Essences {

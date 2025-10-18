@@ -3,12 +3,16 @@ package core.Currency.Omens_currency;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Item.*;
+import core.Currency.AnnulmentOrb;
 import core.Currency.Essence_currency;
+import core.Currency.Essences.Essences;
 
 public class OmenOfDextralCrystallisation extends Omen {
 
 	public OmenOfDextralCrystallisation() {
 		this.name = "Omen of Dextral Crystallisation";
+		// Using a random essence just to get the type of the currency we are doing
+		this.associatedCurrency = new Essences.EssenceOfEnhancement(Essence_currency.EssenceTier.LESSER);
 		this.priority = 75;
 	}
 

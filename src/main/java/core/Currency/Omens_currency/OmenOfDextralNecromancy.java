@@ -4,6 +4,7 @@ import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Item.ModType;
 import core.Currency.Desecrated_currency;
+import core.Currency.ExaltedOrb;
 
 
 public class OmenOfDextralNecromancy extends Omen {
@@ -11,6 +12,7 @@ public class OmenOfDextralNecromancy extends Omen {
 
 	public OmenOfDextralNecromancy() {
 		this.name = "Omen Of Dextral Necromancy";
+		this.associatedCurrency = new Desecrated_currency();
 		this.priority = 1;
 	}
 	

@@ -4,11 +4,13 @@ import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Item.*;
 import core.Currency.Essence_currency;
+import core.Currency.Essences.Essences;
 
 public class OmenOfSinistralCrystallisation extends Omen {
 
 	public OmenOfSinistralCrystallisation() {
 		this.name = "Omen of Sinistral Crystallisation";
+		this.associatedCurrency = new Essences.EssenceOfEnhancement(Essence_currency.EssenceTier.LESSER);
 		this.priority = 75;
 	}
 

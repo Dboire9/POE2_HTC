@@ -7,6 +7,7 @@ import java.util.List;
 import core.Crafting.Crafting_Action;
 import core.Items.Item_base;
 import core.Modifier_class.*;
+import core.Modifier_class.Modifier.ModifierType;
 import core.Utils.AddRandomMod;
 
 public class AugmentationOrb implements Crafting_Action {
@@ -23,6 +24,11 @@ public class AugmentationOrb implements Crafting_Action {
     public AugmentationOrb(CurrencyTier tier) {
         this.tier = tier;
     }
+
+	// Default constructor
+	public AugmentationOrb() {
+		this.tier = CurrencyTier.BASE;
+	}
 
     @Override
     public Crafting_Item apply(Crafting_Item item) {

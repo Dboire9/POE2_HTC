@@ -22,12 +22,32 @@ public class Crafting_Item {
 	public ItemRarity rarity;
 	public boolean desecrated = false;
 
+	// Making it so that the algorithm knows what he applied previously to apply something in relation most of the time
+	private Crafting_Action lastAppliedCurrency = null;
+
+	public void setLastAppliedCurrency(Crafting_Action currency) {
+		this.lastAppliedCurrency = currency;
+	}
+
+	public Crafting_Action getLastAppliedCurrency() {
+		return lastAppliedCurrency;
+	}
+
+	// Keep a list so multiple omens can be active together
+	private final List<Omen> activeOmens = new ArrayList<>();
+
 	public enum ItemRarity {
 		NORMAL, MAGIC, RARE
 	}
 
 	public enum ModType {
 		ANY, PREFIX_ONLY, SUFFIX_ONLY
+	}
+
+	public enum CraftingActionType {
+		ESSENCE,
+		CURRENCY,
+		OMEN
 	}
 
 	// Current modifiers
@@ -132,50 +152,6 @@ public class Crafting_Item {
 		}
 	}
 
-	public boolean supportsPerfectEssence(Essence_currency essence) {
-		List<Modifier> allMods = new ArrayList<>();
-		allMods.addAll(this.base.getEssencesAllowedPrefixes());
-		allMods.addAll(this.base.getEssencesAllowedSuffixes());
-
-		String family = essence.getEssenceFamily().toLowerCase();
-
-		System.out.println("\n🔍 Checking if " + base.getClass().getSimpleName()
-				+ " supports any Essence of the " + family);
-
-		boolean foundNormalEssence = false;
-		boolean foundPerfectEssence = false;
-
-		for (Modifier mod : allMods) {
-			System.out.println("  → Modifier: " + mod.text
-					+ " | Source: " + mod.source
-					+ " | Tiers: " + mod.tiers.stream().map(t -> t.name).toList());
-
-			boolean matchesFamily = mod.tiers.stream()
-					.anyMatch(t -> t.name.toLowerCase().contains("essence of the " + family));
-
-			if (matchesFamily) {
-				if (mod.source == ModifierSource.PERFECT_ESSENCE) {
-					foundPerfectEssence = true;
-					System.out.println("✅ Found perfect essence support: " + mod.text);
-				} else {
-					foundNormalEssence = true;
-					System.out.println("ℹ Found normal essence support: " + mod.text);
-				}
-			}
-		}
-
-		// ✅ Improved final summary
-		if (foundPerfectEssence) {
-			System.out.println("✅ Item supports the Perfect Essence of the " + family);
-		} else if (foundNormalEssence) {
-			System.out.println("⚠ Item supports normal essences of the " + family + ", but not the Perfect one");
-		} else {
-			System.out.println("❌ No essence modifiers found for: " + family);
-		}
-
-		return foundPerfectEssence;
-	}
-
 	public boolean hasFamily(String family) {
 		for (Modifier mod : currentPrefixes) {
 			if (mod != null && mod.family.equalsIgnoreCase(family)) {
@@ -276,10 +252,7 @@ public class Crafting_Item {
 	// -------------------------------------
 	// OMEN HANDLING SECTION
 	// -------------------------------------
-
-	// Keep a list so multiple omens can be active together
-	private final List<Omen> activeOmens = new ArrayList<>();
-
+	
 	// Add a new active omen to the item.
 	public void addActiveOmen(Omen omen) {
 

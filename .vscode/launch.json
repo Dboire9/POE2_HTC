@@ -3,6 +3,13 @@
   "configurations": [
 	{
 		"type": "java",
+		"name": "TestAlgo",
+		"request": "launch",
+		"mainClass": "core.Test.TestAlgo",
+		"projectName": "poe-crafter"
+	},
+	{
+		"type": "java",
 		"name": "Main",
 		"request": "launch",
 		"mainClass": "gui.Main",

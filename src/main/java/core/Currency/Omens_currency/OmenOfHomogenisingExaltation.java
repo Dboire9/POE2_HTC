@@ -3,12 +3,13 @@ package core.Currency.Omens_currency;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Action;
 import core.Currency.ExaltedOrb;
+import core.Currency.RegalOrb;
 
 public class OmenOfHomogenisingExaltation extends Omen {
 
-    @Override
-    public String getName() {
-        return "Omen of Homogenising Coronation";
+    public OmenOfHomogenisingExaltation() {
+        this.name = "Omen of Homogenising Exaltation";
+        this.associatedCurrency = new ExaltedOrb(); // 🟢 Link it to RegalOrb for your OmenPicker logic
     }
 
     @Override

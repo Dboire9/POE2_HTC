@@ -23,7 +23,8 @@ public class AddRandomMod {
             List<Modifier> allowedSuffixes,
             int minLevel,
 			String ModifierListBlocker
-    ) {
+    )
+	{
         Item_base base = item.base;
         List<Modifier> possibleMods = new ArrayList<>();
 

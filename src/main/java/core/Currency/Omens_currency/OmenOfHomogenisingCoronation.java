@@ -6,9 +6,9 @@ import core.Currency.RegalOrb;
 
 public class OmenOfHomogenisingCoronation extends Omen {
 
-    @Override
-    public String getName() {
-        return "Omen of Homogenising Coronation";
+    public OmenOfHomogenisingCoronation() {
+        this.name = "Omen of Homogenising Coronation";
+        this.associatedCurrency = new RegalOrb(); // 🟢 Link it to RegalOrb for your OmenPicker logic
     }
 
     @Override

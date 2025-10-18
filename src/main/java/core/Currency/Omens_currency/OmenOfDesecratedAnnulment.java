@@ -3,12 +3,14 @@ package core.Currency.Omens_currency;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
 import core.Currency.AnnulmentOrb;
+import core.Currency.RegalOrb;
 import core.Modifier_class.Modifier;
 
 public class OmenOfDesecratedAnnulment extends Omen {
 
     public OmenOfDesecratedAnnulment() {
         this.name = "Omen of Desecrated Annulment";
+		this.associatedCurrency = new AnnulmentOrb();
         this.priority = 1;
     }
 

@@ -43,6 +43,11 @@ public class Desecrated_currency implements Crafting_Action{
 		this.name = name;
 	}
 
+	// Default constructor
+	public Desecrated_currency() {
+		this.name = "";
+	}
+
 	@Override
 	public int getCost() {
 		return cost;

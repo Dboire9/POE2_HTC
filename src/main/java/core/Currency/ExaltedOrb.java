@@ -28,6 +28,11 @@ public class ExaltedOrb implements Crafting_Action {
 		this.tier = tier;
 	}
 
+	// Default constructor
+	public ExaltedOrb() {
+		this.tier = CurrencyTier.BASE;
+	}
+
 	private ModType forcedType = ModType.ANY; // default behavior
 
 	public void setForcedType(ModType type) {

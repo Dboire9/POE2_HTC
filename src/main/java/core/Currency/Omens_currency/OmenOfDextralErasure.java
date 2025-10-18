@@ -2,12 +2,14 @@ package core.Currency.Omens_currency;
 
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
+import core.Currency.AnnulmentOrb;
 import core.Currency.ChaosOrb;
 
 public class OmenOfDextralErasure extends Omen {
 
     public OmenOfDextralErasure() {
         this.name = "Omen of Dextral Erasure";
+		this.associatedCurrency = new ChaosOrb();
         this.priority = 1; // high priority to apply before default orb behavior
     }
 

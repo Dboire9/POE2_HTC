@@ -3,12 +3,14 @@ package core.Currency.Omens_currency;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Item.*;
+import core.Currency.AnnulmentOrb;
 import core.Currency.ExaltedOrb;
 
 public class OmenOfDextralExaltation extends Omen {
 
 	public OmenOfDextralExaltation() {
 		this.name = "Omen of Dextral Exaltation";
+		this.associatedCurrency = new ExaltedOrb();
 		this.priority = 1; // high priority so it applies before GreaterExaltation
 	}
 

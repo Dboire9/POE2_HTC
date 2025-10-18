@@ -19,6 +19,8 @@ public abstract class Omen implements Crafting_Action {
     public boolean isConsumed() {return consumed;}
 	public int getPriority() { return priority; }
 
+	public Crafting_Action associatedCurrency;
+
     /**
      * Called when the omen modifies another action (e.g., ExaltedOrb).
      */

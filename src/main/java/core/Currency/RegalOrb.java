@@ -28,6 +28,11 @@ public class RegalOrb implements Crafting_Action {
 		this.tier = tier;
 	}
 
+	// default constructor
+	public RegalOrb() {
+		this.tier = CurrencyTier.BASE; // or whichever tier makes sense as default
+	}
+
 	private ModType forcedType = ModType.ANY; // default behavior
 
 	public void setForcedType(ModType type) {

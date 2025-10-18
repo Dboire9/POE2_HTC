@@ -158,7 +158,6 @@ core/ItemManager.class
 core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_desecrated.class
 core/Items/Gloves/Gloves_str_dex/Gloves_str_dex.class
 core/Items/Body_Armours/Body_Armours_dex/Body_Armours_dex.class
-core/Crafting/CraftEvent$CraftEventType.class
 core/Items/Body_Armours/Body_Armours_str/Body_Armours_str.class
 core/Item_modifiers/Boots_Item_modifiers/Boots_Normal_Item_modifiers/Modifiers_desecrated.class
 core/Item_modifiers/Off_Hand_Item_modifiers/Bucklers_Item_modifiers/Modifiers_normal.class
@@ -171,7 +170,6 @@ core/Currency/Essences/Essences$EssenceOfDelirium.class
 core/Items/Crossbows/Crossbows.class
 core/Items/Body_Armours/Body_Armours_dex_int/Body_Armours_dex_int.class
 core/Item_modifiers/Jewellery_Item_modifiers/Rings_Item_modifiers/Modifiers_desecrated.class
-core/Crafting/CraftEvent.class
 core/Items/Amulets/Amulets.class
 core/Items/Boots/Boots_str/Boots_str.class
 core/Currency/Desecrated_currency$SlotType.class

@@ -2,11 +2,10 @@ package core.Currency;
 
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
-import core.Crafting.Crafting_Item.ModType;
+import core.Crafting.Crafting_Item.ModType; // Ensure this import is correct
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierSource;
 import core.Modifier_class.Modifier.ModifierType;
-import core.Currency.Essence_currency.*;
 
 import java.util.ArrayList;
 import java.util.List;

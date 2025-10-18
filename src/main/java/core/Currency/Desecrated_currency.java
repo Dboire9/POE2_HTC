@@ -139,7 +139,10 @@ public class Desecrated_currency implements Crafting_Action{
 	public Crafting_Item apply(Crafting_Item item) {
 		// If item is not already desecrated return
 		if (!item.desecrated)
+		{
+			System.out.println("Item is not desecrated");
 			return item;
+		}
 
 		Item_base base = item.base;
 

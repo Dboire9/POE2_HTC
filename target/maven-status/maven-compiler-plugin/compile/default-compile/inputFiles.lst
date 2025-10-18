@@ -17,7 +17,6 @@
 /root/POE2craft_java/src/main/java/core/Items/Boots/Boots_dex_int/Boots_dex_int.java
 /root/POE2craft_java/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Bucklers_Item_modifiers/Modifiers_desecrated.java
 /root/POE2craft_java/src/main/java/core/Items/Body_Armours/Body_Armours_str_int/Body_Armours_str_int.java
-/root/POE2craft_java/src/main/java/core/Crafting/CraftEvent.java
 /root/POE2craft_java/src/main/java/core/Modifier_class/ModifierTierWrapper.java
 /root/POE2craft_java/src/main/java/core/Currency/RegalOrb.java
 /root/POE2craft_java/src/main/java/core/Currency/ExaltedOrb.java

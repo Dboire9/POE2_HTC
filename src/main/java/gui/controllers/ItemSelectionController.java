@@ -83,8 +83,6 @@ public class ItemSelectionController {
 	private void handleCategorySelection() {
 		resetAllModifiers();
 		selectedCategory = view.categoryComboBox.getValue();
-		if (selectedCategory == null)
-			return;
 
 		List<String> subcategories = manager.getSubCategories(selectedCategory);
 
@@ -95,6 +93,13 @@ public class ItemSelectionController {
 		} else {
 			view.subCategoryComboBox.setItems(FXCollections.observableArrayList(subcategories));
 			view.subCategoryComboBox.setVisible(true);
+			// Automatically select the first subcategory
+			selectedSubCategory = subcategories.get(0);
+			view.subCategoryComboBox.getSelectionModel().select(0);
+	
+			// Update the selected item class and populate modifiers
+			selectedItemClass = getItemClass(selectedCategory, selectedSubCategory);
+			populateModifiers(selectedItemClass);
 		}
 	}
 

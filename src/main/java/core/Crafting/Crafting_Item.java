@@ -9,7 +9,6 @@ import java.util.Random;
 import java.util.Set;
 
 import core.Currency.Essence_currency;
-import core.Currency.ExaltedOrb;
 import core.Currency.Omens_currency.Omen;
 import core.Currency.Omens_currency.OmenOfDextralExaltation;
 import core.Currency.Omens_currency.OmenOfSinistralExaltation;

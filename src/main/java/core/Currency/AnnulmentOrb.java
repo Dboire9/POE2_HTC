@@ -4,11 +4,6 @@ import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Item.*;
 import core.Crafting.Crafting_Action;
 import core.Modifier_class.Modifier;
-import core.Modifier_class.Modifier.ModifierSource;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class AnnulmentOrb implements Crafting_Action {
 

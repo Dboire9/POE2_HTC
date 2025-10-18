@@ -3,6 +3,13 @@
   "configurations": [
 	{
 		"type": "java",
+		"name": "Main",
+		"request": "launch",
+		"mainClass": "gui.Main",
+		"projectName": "poe-crafter"
+	},
+	{
+		"type": "java",
 		"name": "TestOmens",
 		"request": "launch",
 		"mainClass": "core.Test.TestOmens",

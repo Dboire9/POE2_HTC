@@ -43,11 +43,11 @@ public class TestOmens {
 		// This is giving me an error but it works
 		// Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.PERFECT);
 
-		String type = Essence_currency.pickRandomEssenceType();
+		// String type = Essence_currency.pickRandomEssenceType();
 		EssenceTier tier = Essence_currency.pickTierForItemLevel();
-		Essence_currency essence = Essence_currency.create(type, tier);
+		// Essence_currency essence = Essence_currency.create(type, tier);
 
-		System.out.println(essence);
+		// System.out.println(essence);
 
 		Omen omenGreaterExalt = new OmenOfGreaterExaltation();
 		Omen omenSinistralExalt = new OmenOfSinistralExaltation();

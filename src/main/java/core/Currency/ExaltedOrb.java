@@ -90,7 +90,7 @@ public class ExaltedOrb implements Crafting_Action {
 		}
 
 		String blockType;
-		System.out.println("Forced type" + forcedType);
+		// System.out.println("Forced type" + forcedType);
 		switch (forcedType) {
 			case PREFIX_ONLY -> blockType = "Block_Suffix"; // only allow prefixes
 			case SUFFIX_ONLY -> blockType = "Block_Prefix"; // only allow suffixes

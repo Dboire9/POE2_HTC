@@ -29,41 +29,37 @@ public class Crafting_Item {
 	// Store the applied tier for each modifier
 	public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
 	public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
-
 	public Crafting_Item copy() {
 		Crafting_Item clone = new Crafting_Item(this.base);
 		clone.rarity = this.rarity;
 		clone.desecrated = this.desecrated;
 	
-		// Copy current prefixes and suffixes
+		// Deep copy current prefixes
 		for (int i = 0; i < currentPrefixes.length; i++) {
 			if (this.currentPrefixes[i] != null) {
-				clone.currentPrefixes[i] = this.currentPrefixes[i];
+				clone.currentPrefixes[i] = new Modifier(this.currentPrefixes[i]); // Deep copy
 			}
 			if (this.currentPrefixTiers[i] != null) {
-				clone.currentPrefixTiers[i] = this.currentPrefixTiers[i];
+				clone.currentPrefixTiers[i] = new ModifierTier(this.currentPrefixTiers[i]); // Deep copy
 			}
 		}
 	
+		// Deep copy current suffixes
 		for (int i = 0; i < currentSuffixes.length; i++) {
 			if (this.currentSuffixes[i] != null) {
-				clone.currentSuffixes[i] = this.currentSuffixes[i];
+				clone.currentSuffixes[i] = new Modifier(this.currentSuffixes[i]); // Deep copy
 			}
 			if (this.currentSuffixTiers[i] != null) {
-				clone.currentSuffixTiers[i] = this.currentSuffixTiers[i];
+				clone.currentSuffixTiers[i] = new ModifierTier(this.currentSuffixTiers[i]); // Deep copy
 			}
 		}
 	
-		// Copy last applied currency reference (not deep, because it’s stateless)
+		// Copy last applied currency reference (stateless, so shallow copy fine)
 		clone.lastAppliedCurrency = this.lastAppliedCurrency;
-	
-		// Copy omens (create new list but same instances)
-		for (Omen omen : this.activeOmens) {
-			clone.activeOmens.add(omen);
-		}
 	
 		return clone;
 	}
+	
 
 	
 	// Making it so that the algorithm knows what he applied previously to apply something in relation most of the time

@@ -29,17 +29,19 @@ public class TestAlgo {
 		List<Modifier> PossiblePrefixes = testItem.getNormalAllowedPrefixes();
 		List<Modifier> PossibleSuffixes = testItem.getNormalAllowedSuffixes();
 
-		List<ModifierTier> desiredMods = new ArrayList<>();
+		List<ModifierTier> desiredModTier = new ArrayList<>();
+		List<Modifier> desiredMod = new ArrayList<>();
 		Random random = new Random();
 
 		// Pick up to 3 random prefix tiers
 		for (int i = 0; i < 3 && !PossiblePrefixes.isEmpty(); i++) {
 			Modifier mod = PossiblePrefixes.get(random.nextInt(PossiblePrefixes.size()));
+			desiredMod.add(mod);
 			List<ModifierTier> tiers = mod.tiers;
 			if (!tiers.isEmpty()) {
 				int rngNumber = random.nextInt(tiers.size()); // Generate the random number
 				ModifierTier chosenTier = tiers.get(rngNumber); // Use the random number to get the tier
-				desiredMods.add(chosenTier);
+				desiredModTier.add(chosenTier);
 				System.out.println(" - " + mod.text + " (Tier " + rngNumber + ")");
 			}
 		}
@@ -47,22 +49,17 @@ public class TestAlgo {
 		// Pick up to 3 random suffix tiers
 		for (int i = 0; i < 3 && !PossibleSuffixes.isEmpty(); i++) {
 			Modifier mod = PossibleSuffixes.get(random.nextInt(PossibleSuffixes.size()));
+			desiredMod.add(mod);
 			List<ModifierTier> tiers = mod.tiers;
 			if (!tiers.isEmpty()) {
 				int rngNumber = random.nextInt(tiers.size()); // Generate the random number
 				ModifierTier chosenTier = tiers.get(rngNumber); // Use the random number to get the tier
-				desiredMods.add(chosenTier);
+				desiredModTier.add(chosenTier);
 				System.out.println(" - " + mod.text + " (Tier " + rngNumber + ")");
 			}
 		}
 
-		Crafting_Simulator.runCraftingSimulation(item, 100, desiredMods);
-
-
-
-
-
-
+		Crafting_Algorithm.optimizeCrafting(item, desiredMod, desiredModTier, 1000);
 	}
 	
 }

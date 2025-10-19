@@ -21,7 +21,51 @@ public class Crafting_Item {
 	public Item_base base;
 	public ItemRarity rarity;
 	public boolean desecrated = false;
+	
+	// Current modifiers
+	public Modifier[] currentPrefixes = new Modifier[3];
+	public Modifier[] currentSuffixes = new Modifier[3];
 
+	// Store the applied tier for each modifier
+	public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
+	public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
+
+	public Crafting_Item copy() {
+		Crafting_Item clone = new Crafting_Item(this.base);
+		clone.rarity = this.rarity;
+		clone.desecrated = this.desecrated;
+	
+		// Copy current prefixes and suffixes
+		for (int i = 0; i < currentPrefixes.length; i++) {
+			if (this.currentPrefixes[i] != null) {
+				clone.currentPrefixes[i] = this.currentPrefixes[i];
+			}
+			if (this.currentPrefixTiers[i] != null) {
+				clone.currentPrefixTiers[i] = this.currentPrefixTiers[i];
+			}
+		}
+	
+		for (int i = 0; i < currentSuffixes.length; i++) {
+			if (this.currentSuffixes[i] != null) {
+				clone.currentSuffixes[i] = this.currentSuffixes[i];
+			}
+			if (this.currentSuffixTiers[i] != null) {
+				clone.currentSuffixTiers[i] = this.currentSuffixTiers[i];
+			}
+		}
+	
+		// Copy last applied currency reference (not deep, because it’s stateless)
+		clone.lastAppliedCurrency = this.lastAppliedCurrency;
+	
+		// Copy omens (create new list but same instances)
+		for (Omen omen : this.activeOmens) {
+			clone.activeOmens.add(omen);
+		}
+	
+		return clone;
+	}
+
+	
 	// Making it so that the algorithm knows what he applied previously to apply something in relation most of the time
 	private Crafting_Action lastAppliedCurrency = null;
 
@@ -50,13 +94,6 @@ public class Crafting_Item {
 		OMEN
 	}
 
-	// Current modifiers
-	public Modifier[] currentPrefixes = new Modifier[3];
-	public Modifier[] currentSuffixes = new Modifier[3];
-
-	// Store the applied tier for each modifier
-	public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
-	public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
 
 	// Constructor
 	public Crafting_Item(Item_base base) {
@@ -180,7 +217,6 @@ public class Crafting_Item {
 					// Same stat (family) name, and same or better tier level
 					if (currentTier.name.equals(desiredTier.name) &&
 						currentTier.level >= desiredTier.level) {
-
 						matched++;
 						break; // Prevent double counting the same desired tier
 					}

@@ -1,6 +1,11 @@
 package core.Crafting;
 
+import core.Crafting.Crafting_Item.ItemRarity;
 import core.Currency.Essence_currency;
+import core.Currency.Essence_currency.EssenceTier;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class CraftingEssencePicker {
@@ -9,24 +14,30 @@ public class CraftingEssencePicker {
      * Picks a random essence based on the available essence registry.
      * @return A randomly generated Essence_currency.
      */
-    public static Essence_currency pickRandomEssence() {
-        // 🎲 Pick a random essence type
-        String essenceType = Essence_currency.pickRandomEssenceType();
+    public static Essence_currency pickRandomEssence(Crafting_Item item) {
 
-        // 🎲 Pick a random tier (you can later make this depend on item level)
-        Essence_currency.EssenceTier tier = pickRandomTier();
+		// Select the tier
+		Essence_currency.EssenceTier tier = EssenceTier.PERFECT;
+        if(item.rarity != ItemRarity.RARE)
+        	tier = pickRandomTier();
+
+        // 🎲 Pick a random essence type
+		String essenceType = Essence_currency.pickRandomEssenceType(item);
+		
+
 
         // 🧩 Create the essence using your registry
         return Essence_currency.create(essenceType, tier);
     }
 
-    /**
-     * Picks a random tier (equal probability for now).
-     */
-    private static Essence_currency.EssenceTier pickRandomTier() {
-        Essence_currency.EssenceTier[] tiers = Essence_currency.EssenceTier.values();
-        return tiers[new Random().nextInt(tiers.length)];
-    }
+	// Pick a random tier that is not perfect
+	private static Essence_currency.EssenceTier pickRandomTier() {
+		Essence_currency.EssenceTier[] allTiers = Essence_currency.EssenceTier.values();
+		List<Essence_currency.EssenceTier> filteredTiers = Arrays.stream(allTiers)
+			.filter(tier -> !tier.name().equalsIgnoreCase("perfect")) // Exclude "perfect"
+			.toList();
+		return filteredTiers.get(new Random().nextInt(filteredTiers.size()));
+	}
 
     /**
      * Picks a random tier weighted toward higher tiers for high item levels.

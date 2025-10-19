@@ -30,9 +30,13 @@ public class CraftingOmenPicker {
                 }
             }
             case RARE -> {
-                possibleOmens.addAll(allOmens);
-            }
-        }
+                for (Omen omen : allOmens) {
+                    if (omen.associatedCurrency != RegalOrb.class) {
+                        possibleOmens.add(omen);
+                    }
+                }
+			}
+		}
 
         if (possibleOmens.isEmpty()) {
             return null; // nothing to pick

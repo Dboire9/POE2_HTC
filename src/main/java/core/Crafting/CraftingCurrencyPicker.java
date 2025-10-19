@@ -75,7 +75,7 @@ public class CraftingCurrencyPicker {
 		
 		if (chosenClass == Essence_currency.class) {
 			// Create a random essence using your existing helper
-			String randomType = Essence_currency.pickRandomEssenceType();
+			String randomType = Essence_currency.pickRandomEssenceType(item);
 			Essence_currency.EssenceTier randomTier = Essence_currency.pickTierForItemLevel();
 			return Essence_currency.create(randomType, randomTier);
 		}

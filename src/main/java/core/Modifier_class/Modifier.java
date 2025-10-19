@@ -1,5 +1,6 @@
 package core.Modifier_class;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // Class representing a complete modifier with multiple tiers
@@ -21,6 +22,20 @@ public class Modifier {
 
 	public enum ModifierSource {
 		NORMAL, DESECRATED, ESSENCE, PERFECT_ESSENCE
+	}
+
+	// Copy constructor
+	public Modifier(Modifier other) {
+		this.primaryCategory = other.primaryCategory;
+		this.secondaryCategory = other.secondaryCategory;
+		this.thirdCategory = other.thirdCategory;
+		this.fourthCategory = other.fourthCategory;
+		this.tiers = new ArrayList<>(other.tiers); // Deep copy of the list
+		this.type = other.type;
+		this.tags = new ArrayList<>(other.tags); // Deep copy of the list
+		this.source = other.source;
+		this.family = other.family;
+		this.text = other.text;
 	}
 
 	// Constructor for a single-category modifier

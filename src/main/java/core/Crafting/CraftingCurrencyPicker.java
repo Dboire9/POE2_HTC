@@ -23,7 +23,7 @@ public class CraftingCurrencyPicker {
     /**
      * Pick a random currency depending on item rarity and context.
      */
-    public static Crafting_Action pickRandomCurrency(Crafting_Item item) {
+    public static Crafting_Action pickRandomCurrency(Crafting_Item item, boolean isDesecrated) {
         Class<? extends Crafting_Action> chosenClass = null;
 
 
@@ -38,7 +38,6 @@ public class CraftingCurrencyPicker {
 			}
 		}
 
-
 		if (chosenClass == null)
 		{
 
@@ -52,21 +51,31 @@ public class CraftingCurrencyPicker {
 
 				case MAGIC -> {
 					// For blue (magic) items: augments, regals, augmentation, essence
-					chosenClass = weightedPick(Map.of(
-						AugmentationOrb.class, 50,
-						RegalOrb.class, 20,
-						Essence_currency.class, 20
-					));
+					if(item.getAllModifiers().size() == 2)
+						chosenClass = weightedPick(Map.of(
+							RegalOrb.class, 20
+						));
+					else
+						chosenClass = weightedPick(Map.of(
+							AugmentationOrb.class, 80,
+							RegalOrb.class, 20
+						));
+
 				}
 
 				case RARE -> {
-					// For yellow (rare) items: exalt, annul, chaos
+					if(isDesecrated)
+						chosenClass = weightedPick(Map.of(
+							ExaltedOrb.class, 50,
+							AnnulmentOrb.class, 10,
+							ChaosOrb.class, 5,
+							Desecrated_currency.class, 20
+						));
+					else
 					chosenClass = weightedPick(Map.of(
 						ExaltedOrb.class, 50,
 						AnnulmentOrb.class, 10,
-						ChaosOrb.class, 30,
-						Essence_currency.class, 20,
-						Desecrated_currency.class, 20
+						ChaosOrb.class, 5
 					));
 				}
 			}

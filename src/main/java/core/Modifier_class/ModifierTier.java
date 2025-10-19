@@ -14,6 +14,21 @@ public class ModifierTier {
 	public String stat3; // optional, for third stat with hybrid
 	public String stat4; // optional, for double hybrid
 
+	// Copy constructor
+	public ModifierTier(ModifierTier other) {
+		this.name = other.name;
+		this.level = other.level;
+		this.weight = other.weight;
+		this.minMax1 = other.minMax1; // Assuming Pair is immutable, direct copy is fine
+		this.minMax2 = other.minMax2; // Assuming Pair is immutable, direct copy is fine
+		this.minMax3 = other.minMax3; // Assuming Pair is immutable, direct copy is fine
+		this.minMax4 = other.minMax4; // Assuming Pair is immutable, direct copy is fine
+		this.stat1 = other.stat1;
+		this.stat2 = other.stat2;
+		this.stat3 = other.stat3;
+		this.stat4 = other.stat4;
+	}
+
 	// Single-value mods (percent or flat)
 	public ModifierTier(String name, int level, int weight, Pair<Number, Number> minMax1) {
 		this.name = name;

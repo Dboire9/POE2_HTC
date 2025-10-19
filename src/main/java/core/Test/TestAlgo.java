@@ -13,8 +13,10 @@ import static core.Test.TestOrbs.applyAndShowChanges;
 import static core.Test.TestOrbs.printItem;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class TestAlgo {
 
@@ -33,10 +35,17 @@ public class TestAlgo {
 		List<Modifier> desiredMod = new ArrayList<>();
 		Random random = new Random();
 
+		Set<String> usedModifiers = new HashSet<>();
+
 		// Pick up to 3 random prefix tiers
 		for (int i = 0; i < 3 && !PossiblePrefixes.isEmpty(); i++) {
 			Modifier mod = PossiblePrefixes.get(random.nextInt(PossiblePrefixes.size()));
+			if (usedModifiers.contains(mod.text)) {
+				i--;
+				continue;
+			}
 			desiredMod.add(mod);
+			usedModifiers.add(mod.text);
 			List<ModifierTier> tiers = mod.tiers;
 			if (!tiers.isEmpty()) {
 				int rngNumber = random.nextInt(tiers.size()); // Generate the random number
@@ -49,7 +58,12 @@ public class TestAlgo {
 		// Pick up to 3 random suffix tiers
 		for (int i = 0; i < 3 && !PossibleSuffixes.isEmpty(); i++) {
 			Modifier mod = PossibleSuffixes.get(random.nextInt(PossibleSuffixes.size()));
+			if (usedModifiers.contains(mod.text)) {
+				i--;
+				continue;
+			}
 			desiredMod.add(mod);
+			usedModifiers.add(mod.text);
 			List<ModifierTier> tiers = mod.tiers;
 			if (!tiers.isEmpty()) {
 				int rngNumber = random.nextInt(tiers.size()); // Generate the random number
@@ -59,7 +73,7 @@ public class TestAlgo {
 			}
 		}
 
-		Crafting_Algorithm.optimizeCrafting(item, desiredMod, desiredModTier, 1000);
+		Crafting_Algorithm.optimizeCrafting(item, desiredMod, desiredModTier, 50, 100000);
 	}
 	
 }

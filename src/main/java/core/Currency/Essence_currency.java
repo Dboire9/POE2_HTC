@@ -147,7 +147,7 @@ public abstract class Essence_currency implements Crafting_Action {
 				boolean alreadyApplied = currentModifiers.stream()
 						.anyMatch(m -> m.family.equalsIgnoreCase(mod.family));
 				if (alreadyApplied) {
-					System.out.println(getName() + " (" + tier + ") is already applied to this item.");
+					// System.out.println(getName() + " (" + tier + ") is already applied to this item.");
 					return item;
 				}
 
@@ -165,8 +165,8 @@ public abstract class Essence_currency implements Crafting_Action {
 				// Changing the item rarity to rare after applying the Modifier
 				item.rarity = Crafting_Item.ItemRarity.RARE;
 
-				System.out.println("Applied " + getName() + " (" + tier + ") as "
-						+ (modIsPrefix ? "prefix" : "suffix") + " to item: " + item.base.getClass().getSimpleName());
+				// System.out.println("Applied " + getName() + " (" + tier + ") as "
+				// 		+ (modIsPrefix ? "prefix" : "suffix") + " to item: " + item.base.getClass().getSimpleName());
 
 				break; // stop after applying one matching essence
 			}

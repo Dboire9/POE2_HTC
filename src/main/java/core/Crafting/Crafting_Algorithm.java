@@ -1,87 +1,132 @@
 package core.Crafting;
 
 import java.util.*;
-import core.Crafting.Crafting_Item.CraftingActionType;
+import core.Crafting.Crafting_Item.CraftingActionType; // Ensure this is the correct path
+import core.Crafting.Crafting_Item.ItemRarity;
 import core.Currency.Omens_currency.Omen;
 import core.Modifier_class.*;
+import core.Modifier_class.Modifier.ModifierSource;
 
 public class Crafting_Algorithm {
 
-	public static Crafting_Item optimizeCrafting(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, int maxSteps) {
-		int bestScore = heuristic(item, desiredMods, desiredModTiers);
-		System.out.println("🧠 Starting optimized crafting with initial score: " + bestScore);
+	public static Crafting_Item optimizeCrafting(
+        Crafting_Item baseItem,
+        List<Modifier> desiredMods,
+        List<ModifierTier> desiredModTiers,
+        int maxStepsPerRun,
+        int numRestarts) {
 
-		for (int step = 1; step <= maxSteps; step++) {
-			Crafting_Item bestCandidate = null;
-			int bestCandidateScore = bestScore;
+    Crafting_Item globalBest = baseItem.copy();
+    int globalBestScore = 0;
 
-			// Try N random possible actions
-			for (int i = 0; i < 10000; i++) {
-				Crafting_Item testCopy = item.copy();
+	boolean isPerfectEssence = false;
+	boolean isDesecrated = false;
+	for (Modifier mods : desiredMods)
+	{
+		if(mods.source == Modifier.ModifierSource.PERFECT_ESSENCE)
+			isPerfectEssence = true;
+		if (mods.source == Modifier.ModifierSource.DESECRATED)
+			isDesecrated = true;
+	}
 
-				// Pick a random action (ESSENCE / CURRENCY / OMEN)
-				CraftingActionType action = CraftingActionPicker.pickRandomActionType(testCopy);
+    System.out.println("🧠 Starting multi-run optimization...");
+    System.out.println("Initial heuristic score: " + globalBestScore);
 
-				switch (action) {
-					case ESSENCE -> {
-						Crafting_Action essence = CraftingEssencePicker.pickRandomEssence(testCopy);
-						// System.out.println("💎 Testing essence: " + essence.getName());
-						testCopy = essence.apply(testCopy);
-					}
-					case CURRENCY -> {
-						Crafting_Action currency = CraftingCurrencyPicker.pickRandomCurrency(testCopy);
-						if (currency != null) {
-							// System.out.println("💰 Testing currency: " + currency.getName());
-							testCopy.applyAction(testCopy, currency);
-							testCopy = currency.apply(testCopy);
-						}
-					}
-					case OMEN -> {
-						Omen omen = CraftingOmenPicker.pickRandomOmen(testCopy, Omen.getAllOmens());
-						if (omen != null) {
-							// System.out.println("🧿 Testing omen: " + omen.getName());
-							omen.apply(testCopy);
-						}
-					}
-				}
+    // 🔁 Repeat the whole crafting simulation multiple times (different random paths)
+    for (int run = 1; run <= numRestarts; run++) {
+        Crafting_Item currentItem;
+		currentItem = baseItem.copy();
+        int currentBestScore = heuristic(currentItem, desiredMods, desiredModTiers);
 
-				// Evaluate result
-				int score = heuristic(testCopy, desiredMods, desiredModTiers);
-				if (score > bestCandidateScore) {
-					bestCandidate = testCopy;
-					bestCandidateScore = score;
-				}
+        System.out.println("\n🌟 Run " + run + " started | Score: " + currentBestScore);
+
+        // 🔄 Each run simulates multiple crafting steps
+        for (int step = 1; step <= maxStepsPerRun; step++) {
+            Crafting_Item bestCandidate = null;
+            int bestCandidateScore = currentBestScore;
+
+			// As the normal and magic steps are small, reduce the steps for optimization
+			int N = 30;
+			if(currentItem.rarity == ItemRarity.NORMAL)
+			{
+				N = 1;
 			}
-
-			// No improvement? stop
-			if (bestCandidate == null) {
-				System.out.println("⚖️ No better state found, stopping early.");
-				break;
+			if(currentItem.rarity == ItemRarity.MAGIC)
+			{
+				N = 5;
 			}
+            // Test N random possible actions this step
+            for (int i = 0; i < N; i++) {
+                Crafting_Item testCopy = currentItem.copy();
 
-			// Accept improvement
-			item = bestCandidate;
-			bestScore = bestCandidateScore;
-			System.out.println("Step " + step + " | New best score: " + bestScore);
+                // Random crafting action
+                CraftingActionType action = CraftingActionPicker.pickRandomActionType(testCopy, isPerfectEssence);
+				// System.out.println("  ➤ Run " + run + " | Step " + step + " | Action: " + action);
+                testCopy = applyRandomAction(testCopy, action, isDesecrated);
 
-			// Stop if finished
-			if (Crafting_Item.isFinished(item, desiredModTiers)) {
-				System.out.println("🏁 Desired modifiers reached!");
-				break;
-			}
+                // Score the result
+                int score = heuristic(testCopy, desiredMods, desiredModTiers);
+                if (score > bestCandidateScore) {
+                    bestCandidate = testCopy;
+                    bestCandidateScore = score;
+                }
+            }
+
+            // ✅ Accept the best improvement
+            if (bestCandidate != null) {
+                currentItem = bestCandidate;
+                currentBestScore = bestCandidateScore;
+                System.out.println("Step " + step + " | Score: " + currentBestScore);
+            }
+
+            // 🏁 Check if goal reached
+            if (Crafting_Item.isFinished(currentItem, desiredModTiers)) {
+                System.out.println("✅ Finished item found at step " + step + "!");
+                break;
+            }
+        }
+
+        // 🔝 Compare this run with the global best
+        if (currentBestScore > globalBestScore) {
+            globalBest = currentItem;
+            globalBestScore = currentBestScore;
+            System.out.println("🔥 New global best found (score: " + globalBestScore + ")");
+        }
+    }
+
+	System.out.println("🔥 global best (score: " + globalBestScore + ")");
+    System.out.println("\n🏁 Best item after " + numRestarts + " runs: " + globalBest);
+		for(Modifier mods : desiredMods)
+		{
+			System.out.println("Desired mods" + mods.text);
 		}
+    return globalBest;
+}
 
-		System.out.println("✅ Final optimized item: " + item);
-		for (Modifier mods : desiredMods) {
-			System.out.println("Desired mods and tiers:");
-			System.out.println("Modifier: " + mods.text); // Assuming Modifier has a 'name' field
-		
-			// for (ModifierTier tier : desiredModTiers) {
-			// 	System.out.println("  Tier Name: " + tier.name + ", Level: " + tier.level);
-			// }
+	private static Crafting_Item applyRandomAction(Crafting_Item item, CraftingActionType action, boolean isDesecrated)
+	{
+		switch (action) {
+			case ESSENCE -> {
+				Crafting_Action essence = CraftingEssencePicker.pickRandomEssence(item);
+				item = essence.apply(item);
+			}
+			case CURRENCY -> {
+				Crafting_Action currency = CraftingCurrencyPicker.pickRandomCurrency(item, isDesecrated);
+				if (currency != null) {
+					// System.out.println("Applying : " + currency);
+					item.applyAction(item, currency);
+					item = currency.apply(item);
+				}
+			}
+			case OMEN -> {
+				Omen omen = CraftingOmenPicker.pickRandomOmen(item, Omen.getAllOmens());
+				if (omen != null)
+					omen.apply(item);
+			}
 		}
 		return item;
 	}
+
 
 	/**
 	 * Heuristic: assign high points for exact or higher-tier matches,
@@ -93,34 +138,40 @@ public class Crafting_Algorithm {
 
 		for (Modifier mod : currentMods) {
 			boolean matched = false;
+			boolean matchedTag = false;
 
 			// 🎯 Exact tier match
 			for (ModifierTier currentTier : mod.tiers) {
 				for (ModifierTier desiredTier : desiredModTier) {
 					if (currentTier.name.equals(desiredTier.name) &&
 						currentTier.level >= desiredTier.level) {
-						score += 100;
+						// System.out.println("Current tier name : " + currentTier.name + " Desired tier name : " + desiredTier.name);
+						score += 500;
 						matched = true;
 						break;
 					}
+					// System.out.println("Current tier name : " + currentTier.name + " Desired tier name : " + desiredTier.name);
 				}
 			}
+			// System.out.println("Score : " + score);
 
 			// 🏷️ Tag match
 			for (Modifier desired : desiredMods) {
 				if (mod.tags != null && desired.tags != null) {
 					for (String tag : mod.tags) {
 						if (desired.tags.contains(tag)) {
-							score += 50;
+							score += 100;
+							matchedTag = true;
 							break;
 						}
 					}
 				}
+				if (matchedTag) break;
 			}
 
 			// ❌ Penalty for useless mods
 			if (!matched)
-				score -= 50;
+				score -= 25;
 		}
 
 		return score;

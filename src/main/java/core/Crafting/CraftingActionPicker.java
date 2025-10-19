@@ -10,7 +10,7 @@ public class CraftingActionPicker {
 
     private static final Random RNG = new Random();
 
-    public static CraftingActionType pickRandomActionType(Crafting_Item item) {
+    public static CraftingActionType pickRandomActionType(Crafting_Item item, boolean isPerfectEssence) {
         Map<CraftingActionType, Integer> weights = new EnumMap<>(CraftingActionType.class);
 
         // Adjust weights based on item rarity (can be tuned a bit)
@@ -26,9 +26,10 @@ public class CraftingActionPicker {
                 weights.put(CraftingActionType.CURRENCY, 20);  // always good, less important here
             }
             case RARE -> {
-                weights.put(CraftingActionType.ESSENCE, 5);   // good
-                weights.put(CraftingActionType.OMEN, 40);      // very good
-                weights.put(CraftingActionType.CURRENCY, 30);  // still always useful
+				if(isPerfectEssence)
+                	weights.put(CraftingActionType.ESSENCE, 10);   // good
+                weights.put(CraftingActionType.OMEN, 30);      // very good
+                weights.put(CraftingActionType.CURRENCY, 80);  // still always useful
             }
         }
 

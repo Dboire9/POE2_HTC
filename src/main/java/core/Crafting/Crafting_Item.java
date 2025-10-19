@@ -334,8 +334,6 @@ public class Crafting_Item {
 				omen.consumed = true;
 			}
 			item.clearConsumedOmens(); // remove used omens
-		} else {
-			item = action.apply(item);
 		}
 		return item;
 	}

@@ -26,7 +26,7 @@ public class CraftingActionPicker {
                 weights.put(CraftingActionType.CURRENCY, 20);  // always good, less important here
             }
             case RARE -> {
-                weights.put(CraftingActionType.ESSENCE, 20);   // good
+                weights.put(CraftingActionType.ESSENCE, 5);   // good
                 weights.put(CraftingActionType.OMEN, 40);      // very good
                 weights.put(CraftingActionType.CURRENCY, 30);  // still always useful
             }

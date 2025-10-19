@@ -108,7 +108,7 @@ public abstract class Essence_currency implements Crafting_Action {
 
 	// Pick a random essence to apply for the algo
 
-    public static String pickRandomEssenceType() {
+    public static String pickRandomEssenceType(Crafting_Item item) {
         List<String> keys = new ArrayList<>(registry.keySet());
         return keys.get(new Random().nextInt(keys.size()));
     }

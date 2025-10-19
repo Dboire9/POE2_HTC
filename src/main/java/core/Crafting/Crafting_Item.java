@@ -166,6 +166,38 @@ public class Crafting_Item {
 		return false;
 	}
 
+
+	// Check if the item has all desired modifier tiers
+	public static boolean isFinished(Crafting_Item item, List<ModifierTier> desiredMods) {
+		if (desiredMods == null || desiredMods.isEmpty()) return false;
+
+		int matched = 0;
+		List<Modifier> currentMods = item.getAllCurrentModifiers();
+
+		for (Modifier mod : currentMods) {
+			for (ModifierTier currentTier : mod.tiers) {
+				for (ModifierTier desiredTier : desiredMods) {
+					// Same stat (family) name, and same or better tier level
+					if (currentTier.name.equals(desiredTier.name) &&
+						currentTier.level >= desiredTier.level) {
+
+						matched++;
+						break; // Prevent double counting the same desired tier
+					}
+				}
+			}
+		}
+
+		if (matched >= desiredMods.size()) {
+			System.out.println("✨ All desired modifier tiers found!");
+			return true;
+		}
+
+		return false;
+	}
+
+	
+
 	// Checking if the item has all modifiers filled
 	public boolean isFull() {
 		return Arrays.stream(currentPrefixes).noneMatch(m -> m == null)

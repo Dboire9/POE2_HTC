@@ -63,7 +63,7 @@ public class CraftingCurrencyPicker {
 					// For yellow (rare) items: exalt, annul, chaos
 					chosenClass = weightedPick(Map.of(
 						ExaltedOrb.class, 50,
-						AnnulmentOrb.class, 30,
+						AnnulmentOrb.class, 10,
 						ChaosOrb.class, 30,
 						Essence_currency.class, 20,
 						Desecrated_currency.class, 20

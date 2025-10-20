@@ -1,14 +1,13 @@
 package core.Crafting;
 
 import java.util.*;
-import core.Crafting.Crafting_Item.CraftingActionType; // Ensure this is the correct path
+import core.Crafting.Crafting_Item.CraftingActionType;
 import core.Crafting.Crafting_Item.ItemRarity;
 import core.Currency.Omens_currency.Omen;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierSource;
 
 public class Crafting_Algorithm {
-
 	public static Crafting_Item optimizeCrafting(
         Crafting_Item baseItem,
         List<Modifier> desiredMods,
@@ -38,7 +37,7 @@ public class Crafting_Algorithm {
 		currentItem = baseItem.copy();
         int currentBestScore = heuristic(currentItem, desiredMods, desiredModTiers);
 
-        System.out.println("\n🌟 Run " + run + " started | Score: " + currentBestScore);
+        System.out.println("\n Run " + run + " started | Score: " + currentBestScore);
 
         // 🔄 Each run simulates multiple crafting steps
         for (int step = 1; step <= maxStepsPerRun; step++) {
@@ -103,77 +102,112 @@ public class Crafting_Algorithm {
     return globalBest;
 }
 
-	private static Crafting_Item applyRandomAction(Crafting_Item item, CraftingActionType action, boolean isDesecrated)
+    private static Crafting_Item applyRandomAction(Crafting_Item item, CraftingActionType action, boolean isDesecrated) {
+        switch (action) {
+            case ESSENCE -> {
+                Crafting_Action essence = CraftingEssencePicker.pickRandomEssence(item);
+                item = essence.apply(item);
+            }
+            case CURRENCY -> {
+                Crafting_Action currency = CraftingCurrencyPicker.pickRandomCurrency(item, isDesecrated);
+                if (currency != null) {
+                    item.applyAction(item, currency);
+                    item = currency.apply(item);
+                }
+            }
+            case OMEN -> {
+                Omen omen = CraftingOmenPicker.pickRandomOmen(item, Omen.getAllOmens());
+                if (omen != null)
+                    omen.apply(item);
+            }
+        }
+        return item;
+    }
+
+
+	private static int heuristic(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTier)
 	{
-		switch (action) {
-			case ESSENCE -> {
-				Crafting_Action essence = CraftingEssencePicker.pickRandomEssence(item);
-				item = essence.apply(item);
-			}
-			case CURRENCY -> {
-				Crafting_Action currency = CraftingCurrencyPicker.pickRandomCurrency(item, isDesecrated);
-				if (currency != null) {
-					// System.out.println("Applying : " + currency);
-					item.applyAction(item, currency);
-					item = currency.apply(item);
+		int score = 0;
+		List<Modifier> PrefixCurrentMods = item.getAllCurrentPrefixModifiers();
+		List<Modifier> SuffixCurrentMods = item.getAllCurrentSuffixModifiers();
+		List<Modifier> AllCurrentMods = item.getAllCurrentModifiers();
+
+		// Calculating score by checking if we have the modifiers we want
+		score += calculateAffixScore(PrefixCurrentMods, desiredModTier);
+		score += calculateAffixScore(SuffixCurrentMods, desiredModTier);
+
+		// Adding score if a modifier has same tags as one we are searching for
+		score += calculateTagsScore(AllCurrentMods, desiredMods);
+
+		return score;
+	}
+
+	private static int calculateTagsScore(List<Modifier> AffixCurrentMods, List<Modifier> desiredMods)
+	{
+		int score = 0;
+		Set<String> usedTags = new HashSet<>();
+		int commonTags = 0;
+		int freeAffixslots = 6;
+
+		for(Modifier currentmods: AffixCurrentMods)
+		{
+			for(Modifier desiredmods : desiredMods)
+			{
+				// Count how many tags they share
+				for (String tag : currentmods.tags)
+				{
+					if (desiredmods.tags.contains(tag) && !usedTags.contains(tag))
+						commonTags++;
+						usedTags.add(tag);
 				}
 			}
-			case OMEN -> {
-				Omen omen = CraftingOmenPicker.pickRandomOmen(item, Omen.getAllOmens());
-				if (omen != null)
-					omen.apply(item);
-			}
+			freeAffixslots--;
 		}
-		return item;
+		if(commonTags > 0)
+			score += 300 * (commonTags * freeAffixslots);
+		else
+			score -= 1000;
+
+		return score;
 	}
 
 
-	/**
-	 * Heuristic: assign high points for exact or higher-tier matches,
-	 * medium for tag matches, and penalties for irrelevant modifiers.
-	 */
-	private static int heuristic(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTier) {
+
+
+	public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<ModifierTier> desiredModTier) {
 		int score = 0;
-		List<Modifier> currentMods = item.getAllCurrentModifiers();
-
-		for (Modifier mod : currentMods) {
+		int matched_modifiers = 0;
+		int affix_slots = 0;
+	
+		// Checking the prefix modifiers
+		for (Modifier mods : AffixCurrentMods) {
 			boolean matched = false;
-			boolean matchedTag = false;
-
-			// 🎯 Exact tier match
-			for (ModifierTier currentTier : mod.tiers) {
+			for (ModifierTier currentTier : mods.tiers) {
 				for (ModifierTier desiredTier : desiredModTier) {
+					// If the family is the same and the tier is the same or above
 					if (currentTier.name.equals(desiredTier.name) &&
 						currentTier.level >= desiredTier.level) {
-						// System.out.println("Current tier name : " + currentTier.name + " Desired tier name : " + desiredTier.name);
 						score += 500;
 						matched = true;
+						matched_modifiers++;
 						break;
 					}
-					// System.out.println("Current tier name : " + currentTier.name + " Desired tier name : " + desiredTier.name);
 				}
+				// If it is a match, break to move on
+				if (matched) break;
 			}
-			// System.out.println("Score : " + score);
-
-			// 🏷️ Tag match
-			for (Modifier desired : desiredMods) {
-				if (mod.tags != null && desired.tags != null) {
-					for (String tag : mod.tags) {
-						if (desired.tags.contains(tag)) {
-							score += 100;
-							matchedTag = true;
-							break;
-						}
-					}
-				}
-				if (matchedTag) break;
-			}
-
-			// ❌ Penalty for useless mods
-			if (!matched)
-				score -= 25;
+			affix_slots++;
 		}
-
+	
+		// If matched modifiers are equal to the slots in the item, add score
+		if (matched_modifiers == affix_slots) {
+			score += 500 * (matched_modifiers + affix_slots);
+		}
+		// Multiplicative point loss for the number of prefix slots and non-matched modifiers
+		else if (matched_modifiers < affix_slots) {
+			score -= 100 * (affix_slots + (3 - matched_modifiers));
+		}
+	
 		return score;
 	}
 }

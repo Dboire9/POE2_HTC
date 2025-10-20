@@ -21,6 +21,7 @@ public class Crafting_Item {
 	public Item_base base;
 	public ItemRarity rarity;
 	public boolean desecrated = false;
+	int tempScore = 0;
 	
 	// Current modifiers
 	public Modifier[] currentPrefixes = new Modifier[3];
@@ -310,6 +311,30 @@ public class Crafting_Item {
 			}
 		}
 
+		return mods;
+	}
+
+	public List<Modifier> getAllCurrentPrefixModifiers() {
+		List<Modifier> mods = new ArrayList<>();
+
+		if (currentPrefixes != null) {
+			for (Modifier m : currentPrefixes) {
+				if (m != null)
+					mods.add(m);
+			}
+		}
+		return mods;
+	}
+
+	public List<Modifier> getAllCurrentSuffixModifiers() {
+		List<Modifier> mods = new ArrayList<>();
+
+		if (currentSuffixes != null) {
+			for (Modifier m : currentSuffixes) {
+				if (m != null)
+					mods.add(m);
+			}
+		}
 		return mods;
 	}
 

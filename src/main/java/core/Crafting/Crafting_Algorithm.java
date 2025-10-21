@@ -6,6 +6,8 @@ import core.Crafting.Crafting_Item.ItemRarity;
 import core.Currency.RegalOrb;
 import core.Currency.Omens_currency.Omen;
 import core.Modifier_class.*;
+import core.Crafting.Utils.BestItems_Util;
+import core.Crafting.Utils.Heuristic_Util;
 
 public class Crafting_Algorithm {
 	public static Crafting_Item optimizeCrafting(
@@ -20,7 +22,7 @@ public class Crafting_Algorithm {
 		int globalBestScore = 0;
 		
 		// Retrieving the tags and counting how many we have on every modifiers
-		Map<String, Integer> CountDesiredModifierTags = CreateCountModifierTags(desiredMods);
+		Map<String, Integer> CountDesiredModifierTags = Heuristic_Util.CreateCountModifierTags(desiredMods);
 
 		boolean isPerfectEssence = false;
 		boolean isDesecrated = false;
@@ -85,7 +87,8 @@ public class Crafting_Algorithm {
 					globalBest = currentItem;
 					globalBestScore = currentBestScore;
 				}
-				addToTopItems(topItemsMap, currentBestScore, currentItem);
+
+				BestItems_Util.addToTopItems(topItemsMap, currentBestScore, currentItem);
 			}
 
 		}
@@ -132,20 +135,6 @@ public class Crafting_Algorithm {
         return item;
     }
 
-	// Getting all the tags of all the modifiers, and counting how many of them there are
-	private static Map<String, Integer> CreateCountModifierTags (List<Modifier> desiredMods)
-	{
-		Map<String, Integer> CountDesiredModifierTags = new HashMap<>();
-
-		for(Modifier mods : desiredMods)
-			for(String Modtags : mods.tags)
-				if (!Modtags.isEmpty())
-                	CountDesiredModifierTags.put(Modtags, CountDesiredModifierTags.getOrDefault(Modtags, 0) + 1);
-
-		return CountDesiredModifierTags;
-	}
-
-
 	private static int heuristic(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTier, Map<String, Integer> CountDesiredModifierTags)
 	{
 		int score = 0;
@@ -153,131 +142,9 @@ public class Crafting_Algorithm {
 		List<Modifier> SuffixCurrentMods = item.getAllCurrentSuffixModifiers();
 
 		// Calculating score by checking if we have the modifiers we want
-		score += calculateAffixScore(PrefixCurrentMods, desiredModTier, CountDesiredModifierTags);
-		score += calculateAffixScore(SuffixCurrentMods, desiredModTier, CountDesiredModifierTags);
-
+		score += Heuristic_Util.calculateAffixScore(PrefixCurrentMods, desiredModTier, CountDesiredModifierTags);
+		score += Heuristic_Util.calculateAffixScore(SuffixCurrentMods, desiredModTier, CountDesiredModifierTags);
 
 		return score;
-	}
-
-	public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<ModifierTier> desiredModTier, Map<String, Integer> CountDesiredModifierTags) {
-		int score = 0;
-		int matched_modifiers = 0;
-		int affix_slots = 0;
-	
-		// Checking the prefix modifiers
-		for (Modifier mods : AffixCurrentMods) {
-			boolean matched = false;
-			for (ModifierTier currentTier : mods.tiers) {
-				for (ModifierTier desiredTier : desiredModTier) {
-					// If the family is the same and the tier is the same or above
-					if (currentTier.name.equals(desiredTier.name) &&
-						currentTier.level >= desiredTier.level) {
-						matched = true;
-						matched_modifiers++;
-						break;
-					}
-				}
-				// If it is a match, break to move on
-				if (matched) break;
-			}
-			affix_slots++;
-		}
-
-		Map<String, Integer> CountModifierTags = CreateCountModifierTags(AffixCurrentMods);
-
-		score += ScoringTags(CountDesiredModifierTags, CountModifierTags);
-	
-		// If matched modifiers are equal to the slots in the item, add score, so 6000 is the goal to reach
-		if (matched_modifiers == affix_slots) {
-			score += 1000 * matched_modifiers;
-		}
-		// Multiplicative point loss for the number of prefix slots and non-matched modifiers
-		else if (matched_modifiers < affix_slots) {
-			score -= 1000 * (3 - affix_slots);
-		}
-	
-		return score;
-	}
-
-	private static int ScoringTags(Map<String, Integer> CountDesiredModifierTags, Map<String, Integer> CountModifierTags)
-	{
-		int score = 0;
-
-		for (Map.Entry<String, Integer> entry : CountModifierTags.entrySet()) {
-			String tag = entry.getKey();
-			int currentCount = entry.getValue();
-		
-			if (CountDesiredModifierTags.containsKey(tag)) {
-				int desiredCount = CountDesiredModifierTags.get(tag);
-		
-				if (currentCount < desiredCount && currentCount > 0) {
-					// If current count is less than desired, but not 0, increase score significantly
-					score += 500;
-				} else if (currentCount == desiredCount) {
-					// If current count matches desired count, increase score slightly
-					score += 250;
-				} else {
-					// If current count is more than desired, decrease score significantly
-					score -= 1000;
-				}
-			}
-		}
-		return score;
-	}
-
-	// Utils for keeping the best scores
-	private static int countTotalItems(TreeMap<Integer, List<Crafting_Item>> map) {
-		int count = 0;
-		for (List<Crafting_Item> list : map.values()) {
-			count += list.size();
-		}
-		return count;
-	}
-
-	private static boolean sameModifiers(Crafting_Item a, Crafting_Item b) {
-		List<Modifier> modsA = a.getAllModifiers();
-		List<Modifier> modsB = b.getAllModifiers();
-	
-		if (modsA.size() != modsB.size()) return false;
-	
-		int matchCount = 0;
-		for (Modifier ma : modsA) {
-			for (Modifier mb : modsB) {
-				if (ma.text.equals(mb.text)) {
-					matchCount++;
-					break;
-				}
-			}
-		}
-	
-		// If all modifiers match, consider items the same
-		return matchCount == modsA.size();
-	}
-
-	private static void addToTopItems(TreeMap<Integer, List<Crafting_Item>> topItemsMap, int score, Crafting_Item item) {
-		topItemsMap.computeIfAbsent(score, k -> new ArrayList<>());
-	
-		List<Crafting_Item> list = topItemsMap.get(score);
-	
-		// Check for duplicates
-		for (Crafting_Item existing : list) {
-			if (sameModifiers(existing, item)) {
-				return; // already exists, don’t add
-			}
-		}
-	
-		// Unique — add
-		list.add(item.copy());
-	
-		// Keep only top 10 items overall
-		while (countTotalItems(topItemsMap) > 10) {
-			Integer lastKey = topItemsMap.lastKey(); // smallest score
-			List<Crafting_Item> l = topItemsMap.get(lastKey);
-			if (!l.isEmpty()) {
-				l.remove(l.size() - 1);
-			}
-			if (l.isEmpty()) topItemsMap.remove(lastKey);
-		}
 	}
 }

@@ -33,7 +33,7 @@ public class Crafting_Algorithm {
 		}
 		
 		// Keep the best scores
-		TreeMap<Integer, Set<Crafting_Item>> topItemsMap = new TreeMap<>(Collections.reverseOrder());
+		TreeMap<Integer, List<Crafting_Item>> topItemsMap = new TreeMap<>(Collections.reverseOrder());
 
 		// Start of a NEW BASE
 		for (int run = 1; run <= numRestarts; run++) {
@@ -85,28 +85,13 @@ public class Crafting_Algorithm {
 					globalBest = currentItem;
 					globalBestScore = currentBestScore;
 				}
-
-				topItemsMap.computeIfAbsent(currentBestScore, k -> new HashSet<>()).add(currentItem.copy());
-
-				// Keep only top 10 items (count total unique items)
-				while (countTotalItems(topItemsMap) > 10) {
-					Integer lastKey = topItemsMap.lastKey(); // smallest score
-					Set<Crafting_Item> set = topItemsMap.get(lastKey);
-					
-					Iterator<Crafting_Item> it = set.iterator();
-					if (it.hasNext())
-						it.next();   // Move to first element
-						it.remove(); // Remove it safely
-					
-					if (set.isEmpty())
-						topItemsMap.remove(lastKey);
-				}
+				addToTopItems(topItemsMap, currentBestScore, currentItem);
 			}
 
 		}
 
 		System.out.println("🔥 Top 10 outcomes:");
-		for (Map.Entry<Integer, Set<Crafting_Item>> entry : topItemsMap.entrySet()) {
+		for (Map.Entry<Integer, List<Crafting_Item>> entry : topItemsMap.entrySet()) {
 			int scoreKey = entry.getKey();
 		
 			for (Crafting_Item item : entry.getValue()) {
@@ -241,10 +226,58 @@ public class Crafting_Algorithm {
 		return score;
 	}
 
-	private static int countTotalItems(TreeMap<Integer, Set<Crafting_Item>> map) {
+	// Utils for keeping the best scores
+	private static int countTotalItems(TreeMap<Integer, List<Crafting_Item>> map) {
 		int count = 0;
-		for (Set<Crafting_Item> set : map.values())
-			count += set.size();
+		for (List<Crafting_Item> list : map.values()) {
+			count += list.size();
+		}
 		return count;
+	}
+
+	private static boolean sameModifiers(Crafting_Item a, Crafting_Item b) {
+		List<Modifier> modsA = a.getAllModifiers();
+		List<Modifier> modsB = b.getAllModifiers();
+	
+		if (modsA.size() != modsB.size()) return false;
+	
+		int matchCount = 0;
+		for (Modifier ma : modsA) {
+			for (Modifier mb : modsB) {
+				if (ma.text.equals(mb.text)) {
+					matchCount++;
+					break;
+				}
+			}
+		}
+	
+		// If all modifiers match, consider items the same
+		return matchCount == modsA.size();
+	}
+
+	private static void addToTopItems(TreeMap<Integer, List<Crafting_Item>> topItemsMap, int score, Crafting_Item item) {
+		topItemsMap.computeIfAbsent(score, k -> new ArrayList<>());
+	
+		List<Crafting_Item> list = topItemsMap.get(score);
+	
+		// Check for duplicates
+		for (Crafting_Item existing : list) {
+			if (sameModifiers(existing, item)) {
+				return; // already exists, don’t add
+			}
+		}
+	
+		// Unique — add
+		list.add(item.copy());
+	
+		// Keep only top 10 items overall
+		while (countTotalItems(topItemsMap) > 10) {
+			Integer lastKey = topItemsMap.lastKey(); // smallest score
+			List<Crafting_Item> l = topItemsMap.get(lastKey);
+			if (!l.isEmpty()) {
+				l.remove(l.size() - 1);
+			}
+			if (l.isEmpty()) topItemsMap.remove(lastKey);
+		}
 	}
 }

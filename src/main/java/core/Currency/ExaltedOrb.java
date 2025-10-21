@@ -14,19 +14,16 @@ public class ExaltedOrb implements Crafting_Action {
 
 	private int cost = 1;
 
-	public enum CurrencyTier {
-		BASE, GREATER, PERFECT
-	}
-
-	public final CurrencyTier tier;
 
 	public boolean homogenising = false;
 	public boolean greaterexalt = false;
 
 	// Constructor to specify the tier
+	public Crafting_Action.CurrencyTier tier;
+	
 	public ExaltedOrb(CurrencyTier tier) {
-		this.tier = tier;
-	}
+			this.tier = tier;
+		}
 
 	// Default constructor
 	public ExaltedOrb() {

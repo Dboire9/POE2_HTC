@@ -14,11 +14,7 @@ public class AugmentationOrb implements Crafting_Action {
 
     private int cost = 1;
 
-    public enum CurrencyTier {
-        BASE, GREATER, PERFECT
-    }
-
-    public final CurrencyTier tier;
+	public Crafting_Action.CurrencyTier tier;
 
     // Constructor to specify tier
     public AugmentationOrb(CurrencyTier tier) {

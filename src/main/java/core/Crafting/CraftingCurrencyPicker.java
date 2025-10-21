@@ -104,11 +104,11 @@ public class CraftingCurrencyPicker {
 					if (randomTier == Crafting_Action.CurrencyTier.BASE) {
 						return chosenClass.getDeclaredConstructor().newInstance();
 					} else if (randomTier == Crafting_Action.CurrencyTier.GREATER) {
-						return chosenClass.getDeclaredConstructor(Crafting_Action.CurrencyTier.class)
-										  .newInstance(Crafting_Action.CurrencyTier.GREATER);
+						return chosenClass.getConstructor(Crafting_Action.CurrencyTier.class)
+						.newInstance(Crafting_Action.CurrencyTier.GREATER);
 					} else if (randomTier == Crafting_Action.CurrencyTier.PERFECT) {
-						return chosenClass.getDeclaredConstructor(Crafting_Action.CurrencyTier.class)
-										  .newInstance(Crafting_Action.CurrencyTier.PERFECT);
+						return chosenClass.getConstructor(Crafting_Action.CurrencyTier.class)
+							.newInstance(Crafting_Action.CurrencyTier.PERFECT);
 					} else {
 						throw new IllegalStateException("Unexpected CurrencyTier: " + randomTier);
 					}

@@ -6,7 +6,6 @@ import core.Crafting.Crafting_Item.ItemRarity;
 import core.Currency.RegalOrb;
 import core.Currency.Omens_currency.Omen;
 import core.Modifier_class.*;
-import core.Modifier_class.Modifier.ModifierSource;
 
 public class Crafting_Algorithm {
 	public static Crafting_Item optimizeCrafting(
@@ -20,8 +19,8 @@ public class Crafting_Algorithm {
 		Crafting_Item globalBest = baseItem.copy();
 		int globalBestScore = 0;
 		
-		Map<String, Integer> CountModifierTags = CreateCountModifierTags(desiredMods);
-		System.out.println(CountModifierTags);
+		// Retrieving the tags and counting how many we have on every modifiers
+		Map<String, Integer> CountDesiredModifierTags = CreateCountModifierTags(desiredMods);
 
 		boolean isPerfectEssence = false;
 		boolean isDesecrated = false;
@@ -38,7 +37,7 @@ public class Crafting_Algorithm {
 		for (int run = 1; run <= numRestarts; run++) {
 			Crafting_Item currentItem;
 			currentItem = baseItem.copy(); //Taking the base of the item we want to craft
-			int currentBestScore = heuristic(currentItem, desiredMods, desiredModTiers);
+			int currentBestScore = heuristic(currentItem, desiredMods, desiredModTiers, CountDesiredModifierTags);
 
 			Crafting_Item bestCandidate = null;
 			int bestCandidateScore = currentBestScore;
@@ -66,7 +65,7 @@ public class Crafting_Algorithm {
 				testCopy = applyRandomAction(testCopy, action, isDesecrated);
 
 				// Score the result
-				int score = heuristic(testCopy, desiredMods, desiredModTiers);
+				int score = heuristic(testCopy, desiredMods, desiredModTiers, CountDesiredModifierTags);
 				if (score > bestCandidateScore) {
 					bestCandidate = testCopy;
 					bestCandidateScore = score;
@@ -123,32 +122,32 @@ public class Crafting_Algorithm {
 	// Getting all the tags of all the modifiers, and counting how many of them there are
 	private static Map<String, Integer> CreateCountModifierTags (List<Modifier> desiredMods)
 	{
-		Map<String, Integer> CountModifierTags = new HashMap<>();
+		Map<String, Integer> CountDesiredModifierTags = new HashMap<>();
 
 		for(Modifier mods : desiredMods)
 			for(String Modtags : mods.tags)
 				if (!Modtags.isEmpty())
-                	CountModifierTags.put(Modtags, CountModifierTags.getOrDefault(Modtags, 0) + 1);
+                	CountDesiredModifierTags.put(Modtags, CountDesiredModifierTags.getOrDefault(Modtags, 0) + 1);
 
-		return CountModifierTags;
+		return CountDesiredModifierTags;
 	}
 
 
-	private static int heuristic(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTier)
+	private static int heuristic(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTier, Map<String, Integer> CountDesiredModifierTags)
 	{
 		int score = 0;
 		List<Modifier> PrefixCurrentMods = item.getAllCurrentPrefixModifiers();
 		List<Modifier> SuffixCurrentMods = item.getAllCurrentSuffixModifiers();
 
 		// Calculating score by checking if we have the modifiers we want
-		score += calculateAffixScore(PrefixCurrentMods, desiredModTier);
-		score += calculateAffixScore(SuffixCurrentMods, desiredModTier);
+		score += calculateAffixScore(PrefixCurrentMods, desiredModTier, CountDesiredModifierTags);
+		score += calculateAffixScore(SuffixCurrentMods, desiredModTier, CountDesiredModifierTags);
 
 
 		return score;
 	}
 
-	public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<ModifierTier> desiredModTier) {
+	public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<ModifierTier> desiredModTier, Map<String, Integer> CountDesiredModifierTags) {
 		int score = 0;
 		int matched_modifiers = 0;
 		int affix_slots = 0;
@@ -171,6 +170,10 @@ public class Crafting_Algorithm {
 			}
 			affix_slots++;
 		}
+
+		Map<String, Integer> CountModifierTags = CreateCountModifierTags(AffixCurrentMods);
+
+		score += ScoringTags(CountDesiredModifierTags, CountModifierTags);
 	
 		// If matched modifiers are equal to the slots in the item, add score, so 6000 is the goal to reach
 		if (matched_modifiers == affix_slots) {
@@ -181,6 +184,32 @@ public class Crafting_Algorithm {
 			score -= 1000 * (3 - affix_slots);
 		}
 	
+		return score;
+	}
+
+	private static int ScoringTags(Map<String, Integer> CountDesiredModifierTags, Map<String, Integer> CountModifierTags)
+	{
+		int score = 0;
+
+		for (Map.Entry<String, Integer> entry : CountModifierTags.entrySet()) {
+			String tag = entry.getKey();
+			int currentCount = entry.getValue();
+		
+			if (CountDesiredModifierTags.containsKey(tag)) {
+				int desiredCount = CountDesiredModifierTags.get(tag);
+		
+				if (currentCount < desiredCount && currentCount > 0) {
+					// If current count is less than desired, but not 0, increase score significantly
+					score += 500;
+				} else if (currentCount == desiredCount) {
+					// If current count matches desired count, increase score slightly
+					score += 250;
+				} else {
+					// If current count is more than desired, decrease score significantly
+					score -= 1000;
+				}
+			}
+		}
 		return score;
 	}
 }

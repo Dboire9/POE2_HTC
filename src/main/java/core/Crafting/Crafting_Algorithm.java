@@ -32,6 +32,8 @@ public class Crafting_Algorithm {
 				isDesecrated = true;
 		}
 		
+		// Keep the best scores
+		TreeMap<Integer, Set<Crafting_Item>> topItemsMap = new TreeMap<>(Collections.reverseOrder());
 
 		// Start of a NEW BASE
 		for (int run = 1; run <= numRestarts; run++) {
@@ -41,6 +43,7 @@ public class Crafting_Algorithm {
 
 			Crafting_Item bestCandidate = null;
 			int bestCandidateScore = currentBestScore;
+
 
 			// Test random possible actions until the item becomes rare
 			Crafting_Item testCopy = currentItem.copy(); // Resetting to the original modifiers it was just before this step
@@ -82,16 +85,41 @@ public class Crafting_Algorithm {
 					globalBest = currentItem;
 					globalBestScore = currentBestScore;
 				}
+
+				topItemsMap.computeIfAbsent(currentBestScore, k -> new HashSet<>()).add(currentItem.copy());
+
+				// Keep only top 10 items (count total unique items)
+				while (countTotalItems(topItemsMap) > 10) {
+					Integer lastKey = topItemsMap.lastKey(); // smallest score
+					Set<Crafting_Item> set = topItemsMap.get(lastKey);
+					
+					Iterator<Crafting_Item> it = set.iterator();
+					if (it.hasNext())
+						it.next();   // Move to first element
+						it.remove(); // Remove it safely
+					
+					if (set.isEmpty())
+						topItemsMap.remove(lastKey);
+				}
 			}
 
 		}
 
-		System.out.println("🔥 global best (score: " + globalBestScore + ")");
-		System.out.println("\n🏁 Best item after " + numRestarts + " runs: " + globalBest);
-			for(Modifier mods : desiredMods)
-			{
-				System.out.println("Desired mods" + mods.text);
+		System.out.println("🔥 Top 10 outcomes:");
+		for (Map.Entry<Integer, Set<Crafting_Item>> entry : topItemsMap.entrySet()) {
+			int scoreKey = entry.getKey();
+		
+			for (Crafting_Item item : entry.getValue()) {
+				System.out.println("Score: " + scoreKey);
+				System.out.println("Item modifiers:");
+				for (Modifier mod : item.getAllModifiers()) {
+					System.out.println("  - " + mod.text);
+				}
+				System.out.println(); // Empty line between items
 			}
+		}
+			for(Modifier mods : desiredMods)
+				System.out.println("Desired mods" + mods.text);
 		return globalBest;
 	}
 
@@ -211,5 +239,12 @@ public class Crafting_Algorithm {
 			}
 		}
 		return score;
+	}
+
+	private static int countTotalItems(TreeMap<Integer, Set<Crafting_Item>> map) {
+		int count = 0;
+		for (Set<Crafting_Item> set : map.values())
+			count += set.size();
+		return count;
 	}
 }

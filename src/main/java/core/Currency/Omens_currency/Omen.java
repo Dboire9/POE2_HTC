@@ -24,7 +24,7 @@ public abstract class Omen implements Crafting_Action {
 
 	public Class<? extends Crafting_Action> associatedCurrency;
 
-	private static final List<Omen> allOmens = new ArrayList<>();
+	public static final List<Omen> allOmens = new ArrayList<>();
 
 	// Getting all the omens
 

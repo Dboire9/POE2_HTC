@@ -15,7 +15,7 @@ public class OmenOfTheSovereign extends Omen {
 
     @Override
     public Crafting_Item applyEffect(Crafting_Item item, Crafting_Action action) {
-        if (!(action instanceof Desecrated_currency des)) return item;
+        if (!(action instanceof Desecrated_currency des) || !item.desecrated) return item;
 
 		if (item.hasOmen(OmenOfTheBlackblooded.class) || item.hasOmen(OmenOfTheLiege.class)) {
 			System.out.println("Cannot activate Blackblooded Omen while Liege or Sovereign is active!");

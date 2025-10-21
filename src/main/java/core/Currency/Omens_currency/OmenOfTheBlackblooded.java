@@ -16,7 +16,7 @@ public class OmenOfTheBlackblooded extends Omen {
 
     @Override
     public Crafting_Item applyEffect(Crafting_Item item, Crafting_Action action) {
-        if (!(action instanceof Desecrated_currency des)) 
+        if (!(action instanceof Desecrated_currency des) || !item.desecrated) 
             return item;
 
 		if (item.hasOmen(OmenOfTheLiege.class) || item.hasOmen(OmenOfTheSovereign.class)) {

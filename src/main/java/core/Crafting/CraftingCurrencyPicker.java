@@ -10,16 +10,6 @@ public class CraftingCurrencyPicker {
 
     private static final Random random = new Random();
 
-    // 🎲 Register available currencies here
-    private static final List<Class<? extends Crafting_Action>> currencyPool = List.of(
-        TransmutationOrb.class,
-        AugmentationOrb.class,
-        RegalOrb.class,
-        ExaltedOrb.class,
-        ChaosOrb.class,
-        AnnulmentOrb.class
-    );
-
     /**
      * Pick a random currency depending on item rarity and context.
      */
@@ -43,10 +33,8 @@ public class CraftingCurrencyPicker {
 
 			switch (item.rarity) {
 				case NORMAL -> {
-					// For white (normal) items: Only transmute for now
-					chosenClass = weightedPick(Map.of(
-						TransmutationOrb.class, 50
-					));
+					// For white (normal) items: Only transmute
+					chosenClass = TransmutationOrb.class;
 				}
 
 				case MAGIC -> {

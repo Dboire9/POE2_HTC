@@ -84,10 +84,10 @@ public class AugmentationOrb implements Crafting_Action {
         ModifierTier tierSelected = chosen.getTier();
 		if (addPrefix) {
 			item.addPrefix(mod, tierSelected);
-			System.out.println("Augmentation Orb added PREFIX: " + mod.text + " (Tier " + (mod.tiers.size() - mod.tiers.indexOf(tierSelected)) + ")");
+			// System.out.println("Augmentation Orb added PREFIX: " + mod.text + " (Tier " + (mod.tiers.size() - mod.tiers.indexOf(tierSelected)) + ")");
 		} else {
 			item.addSuffix(mod, tierSelected);
-			System.out.println("Augmentation Orb added SUFFIX: " + mod.text + " (Tier " + (mod.tiers.size() - mod.tiers.indexOf(tierSelected)) + ")");
+			// System.out.println("Augmentation Orb added SUFFIX: " + mod.text + " (Tier " + (mod.tiers.size() - mod.tiers.indexOf(tierSelected)) + ")");
 		}
 
         return item;

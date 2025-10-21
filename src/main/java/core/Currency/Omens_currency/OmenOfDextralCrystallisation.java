@@ -13,7 +13,7 @@ public class OmenOfDextralCrystallisation extends Omen {
 		this.name = "Omen of Dextral Crystallisation";
 		// Using a random essence just to get the type of the currency we are doing
 		this.associatedCurrency = Essence_currency.class;
-		this.priority = 75;
+		this.priority = 1;
 	}
 
 	@Override

@@ -21,14 +21,14 @@ public class CraftingActionPicker {
                 weights.put(CraftingActionType.CURRENCY, 100);  // Always use currency when normal item (always transmut)
 			}
             case MAGIC -> {
-                weights.put(CraftingActionType.ESSENCE, 20);   
-                weights.put(CraftingActionType.OMEN, 30);      
-                weights.put(CraftingActionType.CURRENCY, 50); 
+                weights.put(CraftingActionType.ESSENCE, 15);
+                weights.put(CraftingActionType.OMEN, 25);
+                weights.put(CraftingActionType.CURRENCY, 60);
             }
             case RARE -> {
 				if(isPerfectEssence)
                 	weights.put(CraftingActionType.ESSENCE, 10);   // good
-                weights.put(CraftingActionType.OMEN, 30);      // very good
+                weights.put(CraftingActionType.OMEN, 40);      // very good
                 weights.put(CraftingActionType.CURRENCY, 60);  // still always useful
             }
         }
@@ -42,6 +42,7 @@ public class CraftingActionPicker {
 		for (Map.Entry<CraftingActionType, Integer> entry : weights.entrySet()) {
 			cumulative += entry.getValue();
 			if (roll < cumulative) {
+				// System.out.println(entry.getKey());
 				return entry.getKey();
 			}
 		}

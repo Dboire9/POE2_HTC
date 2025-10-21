@@ -207,7 +207,6 @@ public class Crafting_Item {
 		}
 
 		if (matched >= desiredMods.size()) {
-			System.out.println("✨ All desired modifier tiers found!");
 			return true;
 		}
 
@@ -242,31 +241,6 @@ public class Crafting_Item {
 	public void clearModifiers() {
 		Arrays.fill(currentPrefixes, null);
 		Arrays.fill(currentSuffixes, null);
-	}
-
-	// Debug
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(base.getClass().getSimpleName())
-				.append(" [").append(rarity).append("]\nPrefixes:\n");
-
-		for (int i = 0; i < currentPrefixes.length; i++) {
-			if (currentPrefixes[i] != null) {
-				sb.append(" - ").append(currentPrefixes[i].text);
-				sb.append("\n");
-			}
-		}
-
-		sb.append("Suffixes:\n");
-		for (int i = 0; i < currentSuffixes.length; i++) {
-			if (currentSuffixes[i] != null) {
-				sb.append(" - ").append(currentSuffixes[i].text);
-				sb.append("\n");
-			}
-		}
-
-		return sb.toString();
 	}
 
 	// Utils for getting the tags for homog omens

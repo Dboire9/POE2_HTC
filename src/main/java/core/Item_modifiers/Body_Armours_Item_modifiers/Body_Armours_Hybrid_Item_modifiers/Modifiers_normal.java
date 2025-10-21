@@ -392,7 +392,7 @@ public class Modifiers_normal {
 
 		BASE_SPIRIT = new Modifier(
 				"base_spirit",
-				List.of("spirit"),
+				List.of(""),
 				List.of(
 						new ModifierTier("Lady's", 16, 500, new Pair<>(30, 33)),
 						new ModifierTier("Baronness'", 25, 500, new Pair<>(34, 37)),

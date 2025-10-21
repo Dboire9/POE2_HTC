@@ -17,8 +17,6 @@ At the beginning, start with 6 bases with one desired modifier, because we wil a
 
 What to do : 
 
-
-
 -Separate each step by modifiers
 -Make it so that we have at max 12 steps (for using 6 annuls max)
 -Cannot use 2 annuls back to back (?) or without an omen (?)

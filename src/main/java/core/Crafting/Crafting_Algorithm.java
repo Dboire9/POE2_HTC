@@ -28,10 +28,7 @@ public class Crafting_Algorithm {
 			isDesecrated = true;
 	}
 
-    System.out.println("🧠 Starting multi-run optimization...");
-    System.out.println("Initial heuristic score: " + globalBestScore);
-
-    // 🔁 Repeat the whole crafting simulation multiple times (different random paths)
+    // Repeat the whole crafting simulation multiple times (different random paths)
     for (int run = 1; run <= numRestarts; run++) {
         Crafting_Item currentItem;
 		currentItem = baseItem.copy();
@@ -60,7 +57,7 @@ public class Crafting_Algorithm {
 
                 // Random crafting action
                 CraftingActionType action = CraftingActionPicker.pickRandomActionType(testCopy, isPerfectEssence);
-				// System.out.println("  ➤ Run " + run + " | Step " + step + " | Action: " + action);
+				// System.out.println("  ➤ Run " + run + " | Step " + step + " | Action: " + action + " | Item rarity: " + testCopy.rarity);
                 testCopy = applyRandomAction(testCopy, action, isDesecrated);
 
                 // Score the result
@@ -130,46 +127,43 @@ public class Crafting_Algorithm {
 		int score = 0;
 		List<Modifier> PrefixCurrentMods = item.getAllCurrentPrefixModifiers();
 		List<Modifier> SuffixCurrentMods = item.getAllCurrentSuffixModifiers();
-		List<Modifier> AllCurrentMods = item.getAllCurrentModifiers();
 
 		// Calculating score by checking if we have the modifiers we want
 		score += calculateAffixScore(PrefixCurrentMods, desiredModTier);
 		score += calculateAffixScore(SuffixCurrentMods, desiredModTier);
 
-		// Adding score if a modifier has same tags as one we are searching for
-		score += calculateTagsScore(AllCurrentMods, desiredMods);
 
 		return score;
 	}
 
-	private static int calculateTagsScore(List<Modifier> AffixCurrentMods, List<Modifier> desiredMods)
-	{
-		int score = 0;
-		Set<String> usedTags = new HashSet<>();
-		int commonTags = 0;
-		int freeAffixslots = 6;
 
-		for(Modifier currentmods: AffixCurrentMods)
-		{
-			for(Modifier desiredmods : desiredMods)
-			{
-				// Count how many tags they share
-				for (String tag : currentmods.tags)
-				{
-					if (desiredmods.tags.contains(tag) && !usedTags.contains(tag))
-						commonTags++;
-						usedTags.add(tag);
-				}
-			}
-			freeAffixslots--;
-		}
-		if(commonTags > 0)
-			score += 300 * (commonTags * freeAffixslots);
-		else
-			score -= 1000;
+	// Modifying score for how many tags the item has in common, need to be reworked
+	// private static int calculateTagsScore(List<Modifier> AffixCurrentMods, List<Modifier> desiredMods)
+	// {
+	// 	int score = 0;
+	// 	Set<String> usedTags = new HashSet<>();
+	// 	int commonTags = 0;
 
-		return score;
-	}
+	// 	for(Modifier currentmods: AffixCurrentMods)
+	// 	{
+	// 		for(Modifier desiredmods : desiredMods)
+	// 		{
+	// 			// Count how many tags they share
+	// 			for (String tag : currentmods.tags)
+	// 			{
+	// 				if (desiredmods.tags.contains(tag) && !usedTags.contains(tag))
+	// 					commonTags++;
+	// 					usedTags.add(tag);
+	// 			}
+	// 		}
+	// 	}
+	// 	if(commonTags > 0)
+	// 		score += 300 * (commonTags);
+	// 	else
+	// 		score -= 1000;
+
+	// 	return score;
+	// }
 
 
 
@@ -187,7 +181,6 @@ public class Crafting_Algorithm {
 					// If the family is the same and the tier is the same or above
 					if (currentTier.name.equals(desiredTier.name) &&
 						currentTier.level >= desiredTier.level) {
-						score += 500;
 						matched = true;
 						matched_modifiers++;
 						break;
@@ -199,13 +192,13 @@ public class Crafting_Algorithm {
 			affix_slots++;
 		}
 	
-		// If matched modifiers are equal to the slots in the item, add score
+		// If matched modifiers are equal to the slots in the item, add score, so 6000 is the goal to reach
 		if (matched_modifiers == affix_slots) {
-			score += 500 * (matched_modifiers + affix_slots);
+			score += 1000 * matched_modifiers;
 		}
 		// Multiplicative point loss for the number of prefix slots and non-matched modifiers
 		else if (matched_modifiers < affix_slots) {
-			score -= 100 * (affix_slots + (3 - matched_modifiers));
+			score -= 1000 * (3 - affix_slots);
 		}
 	
 		return score;

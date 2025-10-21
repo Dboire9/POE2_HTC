@@ -73,7 +73,7 @@ public class TestAlgo {
 			}
 		}
 
-		Crafting_Algorithm.optimizeCrafting(item, desiredMod, desiredModTier, 20, 50000);
+		Crafting_Algorithm.optimizeCrafting(item, desiredMod, desiredModTier, 500, 500);
 	}
 	
 }

@@ -130,7 +130,7 @@ public class ExaltedOrb implements Crafting_Action {
 		Modifier mod = chosen.getModifier();
 		ModifierTier tier = chosen.getTier();
 
-		System.out.println("Adding : " + chosen.getModifier().text);
+		// System.out.println("Adding : " + chosen.getModifier().text);
 
 		// Add based on forced type or default and remove it for the greater exalt to not try to reapply it 
 		if (base.getNormalAllowedPrefixes().contains(mod)) {
@@ -166,7 +166,7 @@ public class ExaltedOrb implements Crafting_Action {
 			mod = chosen.getModifier();
 			tier = chosen.getTier();
 
-			System.out.println("Adding : " + chosen.getModifier().text);
+			// System.out.println("Adding : " + chosen.getModifier().text);
 
 			// Add based on forced type or default
 			if (base.getNormalAllowedPrefixes().contains(mod)) {

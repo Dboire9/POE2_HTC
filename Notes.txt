@@ -6,3 +6,17 @@ Issues :
 		Handling the Mark of the Abyss is missing
 
 Missing omens to add whittling
+
+For the algorithm, check the potential max count the item can have for Magic or early Rare, and build from it
+For Heuristic, would be good if 6 mods item done = 60 000
+1 modifier = 10 000 
+
+At the beginning, start with 6 bases with one desired modifier, because we wil always have at least one modifier of the final item at first (?)
+
+-Separate each step by modifiers
+-Make it so that we have at max 12 steps (for using 6 annuls max)
+-Cannot use 2 annuls back to back (?) or without an omen (?)
+-Cannot use annuls without omens (?)
+-If the item has slot full, only use annuls or annuls related omens
+-On magic items, reduce essence to the desired modifier or essence that has a family tag
+-On normal item, start with the desired modifier or a modifier that has the same family tag (?)

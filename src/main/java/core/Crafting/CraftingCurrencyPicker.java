@@ -10,9 +10,6 @@ public class CraftingCurrencyPicker {
 
     private static final Random random = new Random();
 
-    /**
-     * Pick a random currency depending on item rarity and context.
-     */
     public static Crafting_Action pickRandomCurrency(Crafting_Item item, boolean isDesecrated) {
         Class<? extends Crafting_Action> chosenClass = null;
 

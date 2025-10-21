@@ -3,6 +3,7 @@ package core.Crafting;
 import java.util.*;
 import core.Crafting.Crafting_Item.CraftingActionType;
 import core.Crafting.Crafting_Item.ItemRarity;
+import core.Currency.RegalOrb;
 import core.Currency.Omens_currency.Omen;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierSource;
@@ -31,48 +32,50 @@ public class Crafting_Algorithm {
     // Repeat the whole crafting simulation multiple times (different random paths)
     for (int run = 1; run <= numRestarts; run++) {
         Crafting_Item currentItem;
-		currentItem = baseItem.copy();
+		currentItem = baseItem.copy(); //Taking the base of the item we want to craft
         int currentBestScore = heuristic(currentItem, desiredMods, desiredModTiers);
 
-        System.out.println("\n Run " + run + " started | Score: " + currentBestScore);
+        // System.out.println("\n Run " + run + " started | Score: " + currentBestScore);
 
         // 🔄 Each run simulates multiple crafting steps
         for (int step = 1; step <= maxStepsPerRun; step++) {
             Crafting_Item bestCandidate = null;
             int bestCandidateScore = currentBestScore;
 
-			// As the normal and magic steps are small, reduce the steps for optimization
-			int N = 30;
-			if(currentItem.rarity == ItemRarity.NORMAL)
-			{
-				N = 1;
-			}
-			if(currentItem.rarity == ItemRarity.MAGIC)
-			{
-				N = 5;
-			}
-            // Test N random possible actions this step
-            for (int i = 0; i < N; i++) {
-                Crafting_Item testCopy = currentItem.copy();
+			// Test random possible actions until the item becomes rare
+			Crafting_Item testCopy = currentItem.copy(); // Resetting to the original modifiers it was just before this step
 
-                // Random crafting action
-                CraftingActionType action = CraftingActionPicker.pickRandomActionType(testCopy, isPerfectEssence);
-				// System.out.println("  ➤ Run " + run + " | Step " + step + " | Action: " + action + " | Item rarity: " + testCopy.rarity);
-                testCopy = applyRandomAction(testCopy, action, isDesecrated);
+			// Doing steps until the Item become RARE
+			while (testCopy.rarity != ItemRarity.RARE) {
+				CraftingActionType action = null;
+				//If the magic item has an omen activated, force the simulator to use the related currency
+				if (!testCopy.getActiveOmens().isEmpty()) {
+					Omen firstOmen = testCopy.getActiveOmens().get(0);
+					if (firstOmen.associatedCurrency == RegalOrb.class)
+						action = CraftingActionType.CURRENCY;
+					else
+						action = CraftingActionType.ESSENCE;
+					
+				}
+				// Randomly choosing what we are going to do (Currency, Omen or Essence)
+				if(action == null)
+					action = CraftingActionPicker.pickRandomActionType(testCopy, isPerfectEssence);
 
-                // Score the result
-                int score = heuristic(testCopy, desiredMods, desiredModTiers);
-                if (score > bestCandidateScore) {
-                    bestCandidate = testCopy;
-                    bestCandidateScore = score;
-                }
-            }
+				testCopy = applyRandomAction(testCopy, action, isDesecrated);
+
+				// Score the result
+				int score = heuristic(testCopy, desiredMods, desiredModTiers);
+				if (score > bestCandidateScore) {
+					bestCandidate = testCopy;
+					bestCandidateScore = score;
+				}
+			}
 
             // ✅ Accept the best improvement
             if (bestCandidate != null) {
                 currentItem = bestCandidate;
                 currentBestScore = bestCandidateScore;
-                System.out.println("Step " + step + " | Score: " + currentBestScore);
+                // System.out.println("Step " + step + " | Score: " + currentBestScore);
             }
 
             // 🏁 Check if goal reached
@@ -103,19 +106,21 @@ public class Crafting_Algorithm {
         switch (action) {
             case ESSENCE -> {
                 Crafting_Action essence = CraftingEssencePicker.pickRandomEssence(item);
+				item = item.applyOmens(item, essence); // Applying the omen for the essence
                 item = essence.apply(item);
             }
             case CURRENCY -> {
                 Crafting_Action currency = CraftingCurrencyPicker.pickRandomCurrency(item, isDesecrated);
                 if (currency != null) {
-                    item.applyAction(item, currency);
+                    item = item.applyOmens(item, currency); // Applying the omens for currency
                     item = currency.apply(item);
                 }
             }
             case OMEN -> {
                 Omen omen = CraftingOmenPicker.pickRandomOmen(item, Omen.getAllOmens());
+				// System.out.println("Applying omen : " + omen);
                 if (omen != null)
-                    omen.apply(item);
+                    item = omen.apply(item);
             }
         }
         return item;

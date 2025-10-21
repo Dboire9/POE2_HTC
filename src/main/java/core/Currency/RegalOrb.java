@@ -69,7 +69,7 @@ public class RegalOrb implements Crafting_Action {
 			finalSuffixes = item.homogeniseModifiers(base.getNormalAllowedSuffixes(), item.currentSuffixes, item.currentPrefixes);
 		}
 
-		if(finalPrefixes.isEmpty() && finalSuffixes.isEmpty())
+		if(finalPrefixes == null && finalSuffixes == null)
 		{
 			finalPrefixes = base.getNormalAllowedPrefixes();
 			finalSuffixes = base.getNormalAllowedSuffixes();

@@ -30,6 +30,7 @@ public class Crafting_Item {
 	// Store the applied tier for each modifier
 	public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
 	public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
+
 	public Crafting_Item copy() {
 		Crafting_Item clone = new Crafting_Item(this.base);
 		clone.rarity = this.rarity;
@@ -55,23 +56,7 @@ public class Crafting_Item {
 			}
 		}
 	
-		// Copy last applied currency reference (stateless, so shallow copy fine)
-		clone.lastAppliedCurrency = this.lastAppliedCurrency;
-	
 		return clone;
-	}
-	
-
-	
-	// Making it so that the algorithm knows what he applied previously to apply something in relation most of the time
-	private Crafting_Action lastAppliedCurrency = null;
-
-	public void setLastAppliedCurrency(Crafting_Action currency) {
-		this.lastAppliedCurrency = currency;
-	}
-
-	public Crafting_Action getLastAppliedCurrency() {
-		return lastAppliedCurrency;
 	}
 
 	// Keep a list so multiple omens can be active together
@@ -378,7 +363,7 @@ public class Crafting_Item {
 
 	// Apply a crafting action to this item.
 	// If omens are active, they modify the behavior of the action.
-	public Crafting_Item applyAction(Crafting_Item item, Crafting_Action action) {
+	public Crafting_Item applyOmens(Crafting_Item item, Crafting_Action action) {
 		List<Omen> omens = item.getActiveOmens();
 		omens.sort((o1, o2) -> Integer.compare(o2.getPriority(), o1.getPriority()));
 

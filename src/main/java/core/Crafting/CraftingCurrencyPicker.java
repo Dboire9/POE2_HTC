@@ -88,15 +88,37 @@ public class CraftingCurrencyPicker {
 			Essence_currency.EssenceTier randomTier = Essence_currency.pickTierForItemLevel();
 			return Essence_currency.create(randomType, randomTier);
 		}
+		// Choosing what tier the currency will be
 		try {
-			return chosenClass.getDeclaredConstructor().newInstance();
-		} catch (Exception e) {
-			System.err.println("⚠️ Cannot instantiate the class: " + chosenClass.getName());
-			e.printStackTrace();
-			return null;
-		}
+			if(chosenClass == AnnulmentOrb.class || chosenClass == Desecrated_currency.class)
+				return chosenClass.getDeclaredConstructor().newInstance();
+				else 
+				{
+					// RNG for CurrencyTier
+					Crafting_Action.CurrencyTier[] tiers = Crafting_Action.CurrencyTier.values();
+					Random random = new Random();
+					int randomIndex = random.nextInt(tiers.length);
+					Crafting_Action.CurrencyTier randomTier = tiers[randomIndex];
+			
+					// Construct the object based on the random tier
+					if (randomTier == Crafting_Action.CurrencyTier.BASE) {
+						return chosenClass.getDeclaredConstructor().newInstance();
+					} else if (randomTier == Crafting_Action.CurrencyTier.GREATER) {
+						return chosenClass.getDeclaredConstructor(Crafting_Action.CurrencyTier.class)
+										  .newInstance(Crafting_Action.CurrencyTier.GREATER);
+					} else if (randomTier == Crafting_Action.CurrencyTier.PERFECT) {
+						return chosenClass.getDeclaredConstructor(Crafting_Action.CurrencyTier.class)
+										  .newInstance(Crafting_Action.CurrencyTier.PERFECT);
+					} else {
+						throw new IllegalStateException("Unexpected CurrencyTier: " + randomTier);
+					}
+				}
+			} catch (Exception e) {
+				System.err.println("⚠️ Cannot instantiate the class: " + chosenClass.getName());
+				e.printStackTrace();
+				return null;
+			}
 	}
-		
 
     /**
      * Weighted random selection helper.

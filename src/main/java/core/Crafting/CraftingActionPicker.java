@@ -21,15 +21,15 @@ public class CraftingActionPicker {
                 weights.put(CraftingActionType.CURRENCY, 100);  // Always use currency when normal item (always transmut)
 			}
             case MAGIC -> {
-                weights.put(CraftingActionType.ESSENCE, 50);   // very good
-                weights.put(CraftingActionType.OMEN, 30);      // good
-                weights.put(CraftingActionType.CURRENCY, 20);  // always good, less important here
+                weights.put(CraftingActionType.ESSENCE, 20);   
+                weights.put(CraftingActionType.OMEN, 30);      
+                weights.put(CraftingActionType.CURRENCY, 50); 
             }
             case RARE -> {
 				if(isPerfectEssence)
                 	weights.put(CraftingActionType.ESSENCE, 10);   // good
                 weights.put(CraftingActionType.OMEN, 30);      // very good
-                weights.put(CraftingActionType.CURRENCY, 80);  // still always useful
+                weights.put(CraftingActionType.CURRENCY, 60);  // still always useful
             }
         }
 

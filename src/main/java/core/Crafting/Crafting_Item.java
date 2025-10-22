@@ -92,7 +92,7 @@ public class Crafting_Item {
 				return;
 			}
 		}
-		System.out.println("No prefix slot available!");
+		// System.out.println("No prefix slot available!");
 	}
 
 	// Adding a suffix with tier
@@ -104,7 +104,7 @@ public class Crafting_Item {
 				return;
 			}
 		}
-		System.out.println("No suffix slot available!");
+		// System.out.println("No suffix slot available!");
 	}
 
 	// Remove a random modifier from the item
@@ -305,17 +305,17 @@ public class Crafting_Item {
 	public void addActiveOmen(Omen omen) {
 
 		if (hasOmen(omen.getClass())) {
-			System.out.println(omen.getName() + " is already active!");
+			// System.out.println(omen.getName() + " is already active!");
 			return;
 		}
 
 		// Prevent mutually exclusive omens
 		if (omen instanceof OmenOfDextralExaltation && hasOmen(OmenOfSinistralExaltation.class)) {
-			System.out.println("Cannot activate Dextral while Sinistral is active!");
+			// System.out.println("Cannot activate Dextral while Sinistral is active!");
 			return;
 		}
 		if (omen instanceof OmenOfSinistralExaltation && hasOmen(OmenOfDextralExaltation.class)) {
-			System.out.println("Cannot activate Sinistral while Dextral is active!");
+			// System.out.println("Cannot activate Sinistral while Dextral is active!");
 			return;
 		}
 
@@ -343,7 +343,7 @@ public class Crafting_Item {
 
 		if (!omens.isEmpty()) {
 			for (Omen omen : omens) {
-				System.out.println("Applying : " + omen);
+				// System.out.println("Applying : " + omen);
 				item = omen.applyEffect(item, action);
 			}
 			for (Omen omen : omens) {
@@ -393,20 +393,20 @@ public class Crafting_Item {
 
 		// If no tags corresponds, return null
 		if (existingTags.isEmpty()){
-			System.out.println("⚠ No existing tags on item — homogenising skipped.");
+			// System.out.println("⚠ No existing tags on item — homogenising skipped.");
 			finalModifiers.addAll(allowedModifiers);
 			return finalModifiers;
 		}
 
-		System.out.println("existingTags" + existingTags);
+		// System.out.println("existingTags" + existingTags);
 
 		// Retrieving the modifiers with the same tags
 		for (Modifier mod : allowedModifiers) {
 			if (mod != null && mod.tags != null &&
 				mod.tags.stream().anyMatch(existingTags::contains)) {
 				finalModifiers.add(mod);
-				System.out.println("✅ Corresponding mod found: " + mod.text);
-				System.out.println("With tags" + mod.tags);
+				// System.out.println("✅ Corresponding mod found: " + mod.text);
+				// System.out.println("With tags" + mod.tags);
 			}
 		}
 
@@ -424,7 +424,7 @@ public class Crafting_Item {
 		}
 		
 		if (finalModifiers.isEmpty()) {
-			System.out.println("⚠ No matching modifiers found — using all allowed ones.");
+			// System.out.println("⚠ No matching modifiers found — using all allowed ones.");
 			return null;
 		}
 

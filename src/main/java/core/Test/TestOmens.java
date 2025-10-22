@@ -44,7 +44,6 @@ public class TestOmens {
 		// Essence_currency perfectBody = new Essences.EssenceOfTheBody(Essence_currency.EssenceTier.PERFECT);
 
 		// String type = Essence_currency.pickRandomEssenceType();
-		EssenceTier tier = Essence_currency.pickTierForItemLevel();
 		// Essence_currency essence = Essence_currency.create(type, tier);
 
 		// System.out.println(essence);

@@ -13,19 +13,21 @@ public class Crafting_Algorithm {
         Crafting_Item baseItem,
         List<Modifier> desiredMods,
         List<ModifierTier> desiredModTiers,
-        int maxStepsPerRun,
         int numRestarts)
 	{
 
 		Crafting_Item globalBest = baseItem.copy();
 		int globalBestScore = 0;
 		int minTargetScore = 0;
+		int uniquecombinations = 0;
 		
 		// Retrieving the tags and counting how many we have on every modifiers
 		Map<String, Integer> CountDesiredModifierTags = Heuristic_Util.CreateCountModifierTags(desiredMods);
 
 		boolean isPerfectEssence = false;
 		boolean isDesecrated = false;
+
+		//Checking if there is a special essence or a desecrated mod
 		for (Modifier mods : desiredMods)
 		{
 			if(mods.source == Modifier.ModifierSource.PERFECT_ESSENCE)
@@ -37,16 +39,15 @@ public class Crafting_Algorithm {
 		// Keep the best scores
 		TreeMap<Integer, List<Crafting_Item>> topItemsMap = new TreeMap<>(Collections.reverseOrder());
 
-		// For 3 modifiers items, we target 3000 as it is 3 exact modifiers, and 20 is the most unique combinations of 3 modifiers you can make from 6 unique ones
-		minTargetScore = 3000;
 
 		//We might change the minTargetScore for desecrated or perfect essence items
 		//minTargetScore = ?;
 
 		// Start of a NEW BASE
 		Crafting_Item currentItem;
-		
-		while (BestItems_Util.countTotalItems(topItemsMap) < 20 || topItemsMap.lastKey() < minTargetScore){
+
+		// Looping until we have 20 bases with a minimum score to proceed with
+		for(int i = 0; i < numRestarts; i++){
 			currentItem = baseItem.copy(); //Taking the base of the item we want to craf
 			currentItem = CraftingStep_Util.runUntilRare(
 				currentItem,
@@ -59,23 +60,42 @@ public class Crafting_Algorithm {
 				globalBestScore,
 				topItemsMap
 			);
+			// System.out.println(topItemsMap.size());
 		}
 
-		System.out.println("Top 20 outcomes:");
+		Map<Integer, List<Crafting_Item>> topItemsMapCopy = new HashMap<>();
 		for (Map.Entry<Integer, List<Crafting_Item>> entry : topItemsMap.entrySet()) {
-			int scoreKey = entry.getKey();
-		
-			for (Crafting_Item item : entry.getValue()) {
-				System.out.println("Score: " + scoreKey);
-				System.out.println("Item modifiers:");
-				for (Modifier mod : item.getAllModifiers()) {
-					System.out.println("  - " + mod.text);
+			topItemsMapCopy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+}
+
+
+		// For each of the best modifier base we have, try on each of them the number of restart
+		for (Map.Entry<Integer, List<Crafting_Item>> entry : topItemsMapCopy.entrySet()) {
+			for(Crafting_Item best_item_base : entry.getValue())
+			{
+				currentItem = best_item_base.copy();
+				for(int i = 0; i < numRestarts; i++)
+				{
+					CraftingStep_Util.runUntilDone(
+					best_item_base,
+					desiredMods,
+					desiredModTiers,
+					CountDesiredModifierTags,
+					isPerfectEssence,
+					isDesecrated,
+					globalBest,
+					globalBestScore,
+					topItemsMap
+					);
+
 				}
-				System.out.println(); // Empty line between items
 			}
 		}
-			for(Modifier mods : desiredMods)
-				System.out.println("Desired mods" + mods.text);
+		
+		printBestOutcomes(topItemsMap);
+
+		for(Modifier mods : desiredMods)
+			System.out.println("Desired mods" + mods.text);
 		return globalBest;
 	}
 
@@ -114,5 +134,23 @@ public class Crafting_Algorithm {
 		score += Heuristic_Util.calculateAffixScore(SuffixCurrentMods, desiredModTier, CountDesiredModifierTags);
 
 		return score;
+	}
+
+
+	private static void printBestOutcomes(TreeMap<Integer, List<Crafting_Item>> topItemsMap)
+	{
+		System.out.println("Top 20 outcomes:");
+		for (Map.Entry<Integer, List<Crafting_Item>> entry : topItemsMap.entrySet()) {
+			int scoreKey = entry.getKey();
+		
+			for (Crafting_Item item : entry.getValue()) {
+				System.out.println("Score: " + scoreKey);
+				System.out.println("Item modifiers:");
+				for (Modifier mod : item.getAllModifiers()) {
+					System.out.println("  - " + mod.text);
+				}
+				System.out.println(); // Empty line between items
+			}
+		}
 	}
 }

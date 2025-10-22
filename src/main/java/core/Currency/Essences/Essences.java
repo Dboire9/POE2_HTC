@@ -348,7 +348,7 @@ public class Essences {
 
 	public static class EssenceOfDelirium extends Essence_currency {
 
-		public EssenceOfDelirium() {
+		public EssenceOfDelirium(EssenceTier tier) {
 			super("Delirium", EssenceTier.PERFECT); // Only perfect essence exists
 		}
 
@@ -363,7 +363,7 @@ public class Essences {
 
 	public static class EssenceOfHorror extends Essence_currency {
 
-		public EssenceOfHorror() {
+		public EssenceOfHorror(EssenceTier tier) {
 			super("Horror", EssenceTier.PERFECT); // Only perfect essence exists
 		}
 
@@ -379,7 +379,7 @@ public class Essences {
 
 	public static class EssenceOfHysteria extends Essence_currency {
 
-		public EssenceOfHysteria() {
+		public EssenceOfHysteria(EssenceTier tier) {
 			super("Hysteria", EssenceTier.PERFECT); // Only perfect essence exists
 		}
 
@@ -395,7 +395,7 @@ public class Essences {
 
 	public static class EssenceOfAbyss extends Essence_currency {
 
-		public EssenceOfAbyss() {
+		public EssenceOfAbyss(EssenceTier tier) {
 			super("Abyss", EssenceTier.PERFECT); // Only perfect essence exists
 		}
 

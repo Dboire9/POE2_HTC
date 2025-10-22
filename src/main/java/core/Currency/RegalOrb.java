@@ -62,10 +62,10 @@ public class RegalOrb implements Crafting_Action {
 
 		if(homogenising)
 		{
-			System.out.println("Homog active");
-			System.out.println("Prefix");
+			// System.out.println("Homog active");
+// 			System.out.println("Prefix");
 			finalPrefixes = item.homogeniseModifiers(base.getNormalAllowedPrefixes(), item.currentPrefixes, item.currentSuffixes);
-			System.out.println("Suffix");
+			// System.out.println("Suffix");
 			finalSuffixes = item.homogeniseModifiers(base.getNormalAllowedSuffixes(), item.currentSuffixes, item.currentPrefixes);
 		}
 

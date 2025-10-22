@@ -19,12 +19,14 @@ public class CraftingCurrencyPicker {
 			Omen activeOmen = item.getActiveOmens().get(0); // You can pick the first or choose by priority
 
 			if (activeOmen.associatedCurrency != null) {
-				System.out.println("🧿 Active omen detected: " + activeOmen.getName());
-				System.out.println("💰 Using associated currency: " + activeOmen.associatedCurrency.getSimpleName());
+				// System.out.println("🧿 Active omen detected: " + activeOmen.getName());
+// 				System.out.println("💰 Using associated currency: " + activeOmen.associatedCurrency.getSimpleName());
 				chosenClass = activeOmen.associatedCurrency;
 			}
 		}
 
+
+		// Not allowing chaos orb ? 
 		if (chosenClass == null)
 		{
 
@@ -53,14 +55,14 @@ public class CraftingCurrencyPicker {
 						chosenClass = weightedPick(Map.of(
 							ExaltedOrb.class, 50,
 							AnnulmentOrb.class, 10,
-							ChaosOrb.class, 5,
+							// ChaosOrb.class, 5,
 							Desecrated_currency.class, 20
 						));
 					else
 					chosenClass = weightedPick(Map.of(
 						ExaltedOrb.class, 50,
-						AnnulmentOrb.class, 10,
-						ChaosOrb.class, 5
+						AnnulmentOrb.class, 10
+						// ChaosOrb.class, 5
 					));
 				}
 			}
@@ -99,7 +101,7 @@ public class CraftingCurrencyPicker {
 					}
 				}
 			} catch (Exception e) {
-				System.err.println("⚠️ Cannot instantiate the class: " + chosenClass.getName());
+				// System.err.println("⚠️ Cannot instantiate the class: " + chosenClass.getName());
 				e.printStackTrace();
 				return null;
 			}

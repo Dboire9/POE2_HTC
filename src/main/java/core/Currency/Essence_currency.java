@@ -69,16 +69,17 @@ public abstract class Essence_currency implements Crafting_Action {
         registry.put("Haste", Essences.EssenceOfHaste::new);
         registry.put("Infinite", Essences.EssenceOfInfinite::new);
         registry.put("Command", Essences.EssenceOfCommand::new);
-        registry.put("Seeking", Essences.EssenceOfAlacrity::new);
+        registry.put("Seeking", Essences.EssenceOfSeeking::new);
+        registry.put("Alacrity", Essences.EssenceOfAlacrity::new);
         registry.put("Opulence", Essences.EssenceOfOpulence::new);
         registry.put("Grounding", Essences.EssenceOfGrounding::new);
         registry.put("Insulation", Essences.EssenceOfInsulation::new);
         registry.put("Thawing", Essences.EssenceOfThawing::new);
-        // registry.put("Delirium", Essences.EssenceOfDelirium::new);
-        // registry.put("Horror", Essences.EssenceOfHorror::new);
-        // registry.put("Hysteria", Essences.EssenceOfHysteria::new);
+        registry.put("Abyss", Essences.EssenceOfSorcery::new);
+        registry.put("Horror", Essences.EssenceOfHorror::new);
+        registry.put("Hysteria", Essences.EssenceOfHysteria::new);
         // registry.put("Sorcery", Essences.EssenceOfAbyss::new);
-        // registry.put("Abyss", Essences.EssenceOfSorcery::new);
+        // registry.put("Delirium", Essences.EssenceOfDelirium::new);
 
     }
 
@@ -91,26 +92,41 @@ public abstract class Essence_currency implements Crafting_Action {
     }
 
 	
+	//!!! THIS NEEDS TO BE REWORKED
     public static Essence_currency.EssenceTier pickTierForItemLevel() {
 		// If item level is always 81, we can ignore it
 		Random RNG = new Random();
         int roll = RNG.nextInt(100); // 0–99
 
         if (roll < 10)
+            return Essence_currency.EssenceTier.LESSER;
+		if (roll < 40)
             return Essence_currency.EssenceTier.NORMAL;
-        else if (roll < 40)
-            return Essence_currency.EssenceTier.GREATER;
         else
-            return Essence_currency.EssenceTier.PERFECT;
+            return Essence_currency.EssenceTier.GREATER;
     }
 
 
 	// Pick a random essence to apply for the algo
-
     public static String pickRandomEssenceType(Crafting_Item item) {
         List<String> keys = new ArrayList<>(registry.keySet());
+		// System.out.println("Keys : " + keys);
         return keys.get(new Random().nextInt(keys.size()));
     }
+
+
+	//!!! Might need to redo that
+	// Picking a perfect essence tha tis on the pool of the item
+	public static String pickRandomPerfectEssenceType(List<Modifier> perfectEssenceModifiers) {
+		if (perfectEssenceModifiers.isEmpty())
+			return null;
+		Random random = new Random();
+		Modifier randomModifier = perfectEssenceModifiers.get(random.nextInt(perfectEssenceModifiers.size()));
+		String text = randomModifier.tiers.getFirst().name;
+		String finalWord = text.substring(text.lastIndexOf(" ") + 1);
+		return finalWord;
+	}
+
 
 
 	@Override

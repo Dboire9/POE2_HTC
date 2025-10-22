@@ -3,7 +3,12 @@ package core.Crafting;
 import core.Crafting.Crafting_Item.ItemRarity;
 import core.Currency.Essence_currency;
 import core.Currency.Essence_currency.EssenceTier;
+import core.Items.Item_base;
+import core.Items.Body_Armours.Body_Armours_dex.Body_Armours_dex;
+import core.Modifier_class.*;
+import core.Modifier_class.Modifier.ModifierSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -17,14 +22,39 @@ public class CraftingEssencePicker {
     public static Essence_currency pickRandomEssence(Crafting_Item item) {
 
 		// Select the tier
+		String essenceType = "";
 		Essence_currency.EssenceTier tier = EssenceTier.PERFECT;
         if(item.rarity != ItemRarity.RARE)
+		{
         	tier = pickRandomTier();
+			// 🎲 Pick a random essence type
+			essenceType = Essence_currency.pickRandomEssenceType(item);
+		}
+		else
+		{
+			// Retrieving the base and the essences, and searching for perfect essences
+			Item_base testItemClass = item.base;
+			List<Modifier>EssencePrefix = testItemClass.getEssencesAllowedPrefixes();
+			List<Modifier>EssenceSuffix = testItemClass.getEssencesAllowedSuffixes();
 
-        // 🎲 Pick a random essence type
-		String essenceType = Essence_currency.pickRandomEssenceType(item);
-		
+			List<Modifier> perfectEssenceModifiers = new ArrayList<>();
 
+			for (Modifier modifier : EssencePrefix) {
+				if (modifier.source == ModifierSource.PERFECT_ESSENCE) {
+					perfectEssenceModifiers.add(modifier);
+				}
+			}
+
+			// Loop through suffixes
+			for (Modifier modifier : EssenceSuffix) {
+				if (modifier.source == ModifierSource.PERFECT_ESSENCE) {
+					perfectEssenceModifiers.add(modifier);
+				}
+			}
+
+			// Will always take a perfect essence that is on the item
+			essenceType = Essence_currency.pickRandomPerfectEssenceType(perfectEssenceModifiers);
+		}
 
         // 🧩 Create the essence using your registry
         return Essence_currency.create(essenceType, tier);
@@ -38,21 +68,4 @@ public class CraftingEssencePicker {
 			.toList();
 		return filteredTiers.get(new Random().nextInt(filteredTiers.size()));
 	}
-
-    /**
-     * Picks a random tier weighted toward higher tiers for high item levels.
-     * (You can expand this if you want more realism later)
-     */
-    public static Essence_currency.EssenceTier pickTierForItemLevel(int itemLevel) {
-        if (itemLevel >= 75) {
-            // Higher chance for greater/perfect
-            int roll = new Random().nextInt(100);
-            if (roll < 50) return Essence_currency.EssenceTier.GREATER;
-            else return Essence_currency.EssenceTier.PERFECT;
-        } else if (itemLevel >= 50) {
-            return Essence_currency.EssenceTier.NORMAL;
-        } else {
-            return Essence_currency.EssenceTier.LESSER;
-        }
-    }
 }

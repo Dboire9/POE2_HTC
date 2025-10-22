@@ -24,7 +24,7 @@ public class CraftingOmenPicker {
         switch (item.rarity) {
             case MAGIC -> {
                 for (Omen omen : allOmens) {
-                    if (omen.associatedCurrency == RegalOrb.class || omen.associatedCurrency == Essence_currency.class) {
+                    if (omen.associatedCurrency == RegalOrb.class) {
                         possibleOmens.add(omen);
                     }
                 }

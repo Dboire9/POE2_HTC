@@ -41,7 +41,7 @@ public class AnnulmentOrb implements Crafting_Action {
 				for (int i = 0; i < item.currentPrefixes.length; i++) {
 					Modifier mods = item.currentPrefixes[i];
 					if (mods != null && mods.source == Modifier.ModifierSource.DESECRATED) {
-						System.out.println("Removing Desecrated Prefix: " + mods.text);
+						// System.out.println("Removing Desecrated Prefix: " + mods.text);
 						item.currentPrefixes[i] = null; // remove modifier
 						item.currentPrefixTiers[i] = null; // clear tier link
 						item.desecrated = false;
@@ -51,7 +51,7 @@ public class AnnulmentOrb implements Crafting_Action {
 				for (int i = 0; i < item.currentSuffixes.length; i++) {
 					Modifier mods = item.currentSuffixes[i];
 					if (mods != null && mods.source == Modifier.ModifierSource.DESECRATED) {
-						System.out.println("Removing Desecrated Suffix: " + mods.text);
+						// System.out.println("Removing Desecrated Suffix: " + mods.text);
 						item.currentSuffixes[i] = null; // remove modifier
 						item.currentPrefixTiers[i] = null; // clear tier link
 						item.desecrated = false;
@@ -59,8 +59,8 @@ public class AnnulmentOrb implements Crafting_Action {
 					}
 				}
 			}
-			else
-				System.out.println("Item is not desecrated");
+			// else
+				// System.out.println("Item is not desecrated");
 		}
 
 		item.removeRandomModifier(forcedType);

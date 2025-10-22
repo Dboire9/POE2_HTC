@@ -20,13 +20,13 @@ public class OmenOfSinistralCrystallisation extends Omen {
 		if (action instanceof Essence_currency essence) {
 			// Prevent activating if Dextral Crystallisation is already active
 			if (item.hasOmen(OmenOfDextralCrystallisation.class)) {
-				System.out.println("Cannot activate Sinistral Crystallisation while Dextral is active!");
+				// System.out.println("Cannot activate Sinistral Crystallisation while Dextral is active!");
 				return item;
 			}
 
 			// Restrict essence removal/applying to PREFIX only
 			essence.setForcedType(ModType.PREFIX_ONLY);
-			System.out.println("Sinistral Crystallisation active: only prefixes will be affected.");
+			// System.out.println("Sinistral Crystallisation active: only prefixes will be affected.");
 		}
 		return item;
 	}

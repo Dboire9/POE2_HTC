@@ -95,7 +95,7 @@ public class ExaltedOrb implements Crafting_Action {
 		}
 
 		if (homogenising) {
-			System.out.println("Homogenising Exalted Orb active!");
+			// System.out.println("Homogenising Exalted Orb active!");
 			allowedPrefixes = item.homogeniseModifiers(
 				base.getNormalAllowedPrefixes(),
 				item.currentPrefixes,
@@ -145,10 +145,12 @@ public class ExaltedOrb implements Crafting_Action {
 				tier = null;
 
 				// If we had removed the last modifier with the homog, we allow all the modifiers
-				if(allowedPrefixes.isEmpty())
-					allowedPrefixes = base.getNormalAllowedPrefixes();
-				if(allowedSuffixes.isEmpty())
-					allowedSuffixes = base.getNormalAllowedSuffixes();
+				if(allowedPrefixes != null)
+					if(allowedPrefixes.isEmpty())
+						allowedPrefixes = base.getNormalAllowedPrefixes();
+				if(allowedSuffixes != null)
+					if(allowedSuffixes.isEmpty())
+						allowedSuffixes = base.getNormalAllowedSuffixes();
 				// Call the utility function
 				chosen = AddRandomMod.selectWeightedModifier(
 					item,

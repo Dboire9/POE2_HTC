@@ -21,13 +21,13 @@ public class OmenOfDextralExaltation extends Omen {
 		}
 
 		if (item.hasOmen(OmenOfSinistralExaltation.class)) {
-			System.out.println("Cannot activate Dextral while Sinistral is active!");
+			// System.out.println("Cannot activate Dextral while Sinistral is active!");
 			return item;
 		}
 
 		// Force the orb to only add suffixes
 		exalted.setForcedType(ModType.SUFFIX_ONLY);
-		System.out.println("Setting to suffix lock");
+		// System.out.println("Setting to suffix lock");
 
 		return item;
 	}

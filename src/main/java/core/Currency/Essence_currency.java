@@ -116,7 +116,7 @@ public abstract class Essence_currency implements Crafting_Action {
 
 
 	//!!! Might need to redo that
-	// Picking a perfect essence tha tis on the pool of the item
+	// Picking a perfect essence tha tis on the pool of the
 	public static String pickRandomPerfectEssenceType(List<Modifier> perfectEssenceModifiers) {
 		if (perfectEssenceModifiers.isEmpty())
 			return null;
@@ -171,7 +171,7 @@ public abstract class Essence_currency implements Crafting_Action {
 				if (tierIndex < mod.tiers.size()) {
 					matchedTier = mod.tiers.get(tierIndex);
 				} else {
-					System.out.println("⚠ Modifier " + mod.text + " does not have tier " + tierIndex);
+					// System.out.println("⚠ Modifier " + mod.text + " does not have tier " + tierIndex);
 					continue;
 				}
 
@@ -190,7 +190,7 @@ public abstract class Essence_currency implements Crafting_Action {
 		// Handle perfect essences
 		else if ((tier == EssenceTier.PERFECT) && item.rarity == Crafting_Item.ItemRarity.RARE) {
 			Modifier[] targetSlots = null;
-			System.out.println("Forced type already here : " + forcedType);
+			// System.out.println("Forced type already here : " + forcedType);
 
 			// Retrieving the perfect essence
 			Modifier targetMod = allModifiers.stream()
@@ -200,8 +200,8 @@ public abstract class Essence_currency implements Crafting_Action {
 					.orElse(null);
 
 			if (targetMod == null) {
-				System.out.println(
-						"⚠ No applicable Perfect Essence found for item: " + item.base.getClass().getSimpleName());
+				// System.out.println(
+						// "⚠ No applicable Perfect Essence found for item: " + item.base.getClass().getSimpleName());
 				return item;
 			}
 			boolean modIsPrefix;
@@ -240,8 +240,8 @@ public abstract class Essence_currency implements Crafting_Action {
 			// would have not worked
 			else {
 				if (filledCount == 3) {
-					System.out.println(
-							"Omen either removing deterministically a modifier or the omen is not removing the affix to let space to the mod");
+					// System.out.println(
+					// 		"Omen either removing deterministically a modifier or the omen is not removing the affix to let space to the mod");
 					return item;
 				}
 			}
@@ -258,10 +258,10 @@ public abstract class Essence_currency implements Crafting_Action {
 					else
 						item.currentSuffixTiers[i] = targetMod.tiers.get(0);
 
-					System.out.println("Applied Perfect Essence: " + targetMod.family + " ("
-							+ targetMod.tiers.get(0).name + ") as "
-							+ (modIsPrefix ? "prefix" : "suffix") + " to item: "
-							+ item.base.getClass().getSimpleName());
+					// System.out.println("Applied Perfect Essence: " + targetMod.family + " ("
+					// 		+ targetMod.tiers.get(0).name + ") as "
+					// 		+ (modIsPrefix ? "prefix" : "suffix") + " to item: "
+					// 		+ item.base.getClass().getSimpleName());
 					break;
 				}
 			}

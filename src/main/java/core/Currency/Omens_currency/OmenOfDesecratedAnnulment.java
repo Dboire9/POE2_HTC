@@ -21,7 +21,7 @@ public class OmenOfDesecratedAnnulment extends Omen {
         // Activate desecrated-only behavior
         annul.setDesecratedOnly(true);
 
-        System.out.println("💀 Omen of Desecrated Annulment active: Only Desecrated modifiers will be removed.");
+        // System.out.println("💀 Omen of Desecrated Annulment active: Only Desecrated modifiers will be removed.");
         return item;
     }
 

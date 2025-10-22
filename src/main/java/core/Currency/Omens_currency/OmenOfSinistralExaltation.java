@@ -20,7 +20,7 @@ public class OmenOfSinistralExaltation extends Omen {
 		}
 
 		if (item.hasOmen(OmenOfDextralExaltation.class)) {
-			System.out.println("Cannot activate Sinistral while Dextral is active!");
+			// System.out.println("Cannot activate Sinistral while Dextral is active!");
 			return item;
 		}
 

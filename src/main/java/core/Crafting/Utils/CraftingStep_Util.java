@@ -99,13 +99,16 @@ public class CraftingStep_Util {
 		Crafting_Item currentItem = baseItem.copy();
 		Crafting_Item bestCandidate = null;
         int currentBestScore = Crafting_Algorithm.heuristic(currentItem, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		// System.out.println(currentBestScore);
         int bestCandidateScore = currentBestScore;
 
 		Crafting_Item testCopy = currentItem.copy();
 
-		int run = 10;
+		int modsize = currentItem.getAllCurrentModifiers().size();
+
+		topItemsMap.clear();
 		
-        for(int i = 0; i < run; i++) {
+        while(currentItem.getAllCurrentModifiers().size() != modsize + 1) {
             CraftingActionType action = null;
 
             // If the magic item has an omen activated, force the simulator to use a regal next
@@ -126,6 +129,8 @@ public class CraftingStep_Util {
 
             // Score the result
             int score = Crafting_Algorithm.heuristic(testCopy, desiredMods, desiredModTiers, CountDesiredModifierTags);
+
+			// System.out.println(score);
             if (score > bestCandidateScore) {
                 bestCandidate = testCopy;
                 bestCandidateScore = score;
@@ -141,20 +146,12 @@ public class CraftingStep_Util {
             if (currentBestScore > globalBestScore) {
                 globalBest = currentItem;
                 globalBestScore = currentBestScore;
+				// System.out.println("Better score in rare");
             }
 
             // Keep best 10/20 items
             BestItems_Util.addToTopItems(topItemsMap, currentBestScore, currentItem);
-
-			if(score == 6000)
-				break;
         }
-
-
-
-
-
-
 		return currentItem;
 	}
 }

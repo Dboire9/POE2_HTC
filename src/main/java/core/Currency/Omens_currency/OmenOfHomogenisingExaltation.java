@@ -16,7 +16,7 @@ public class OmenOfHomogenisingExaltation extends Omen {
     public Crafting_Item applyEffect(Crafting_Item item, Crafting_Action action) {
         if (action instanceof ExaltedOrb exalt) {
             exalt.homogenising = true; // ✅ activate homogenising behavior
-            System.out.println("🌀 Homogenising Omen active: Exalted Orb will add a modifier of a similar type.");
+            // System.out.println("🌀 Homogenising Omen active: Exalted Orb will add a modifier of a similar type.");
         }
         return item;
     }

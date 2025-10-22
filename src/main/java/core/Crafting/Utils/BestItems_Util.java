@@ -5,6 +5,7 @@ import java.util.*;
 import core.Crafting.Crafting_Item;
 import core.Modifier_class.*;
 
+
 public class BestItems_Util {
 	  
 	// Count total items in the TreeMap
@@ -36,7 +37,7 @@ public class BestItems_Util {
 		return matchCount == modsA.size();
 	}
 
-	// Add item to top items if unique, keep only top 10
+	// Add item to top items if unique, keep only top 20 because there are 20 unique combinations of 3 modifiers you can make from 6 unique ones
 	public static void addToTopItems(TreeMap<Integer, List<Crafting_Item>> topItemsMap, int score, Crafting_Item item) {
 		topItemsMap.computeIfAbsent(score, k -> new ArrayList<>());
 		List<Crafting_Item> list = topItemsMap.get(score);
@@ -52,7 +53,7 @@ public class BestItems_Util {
 		list.add(item.copy());
 
 		// Keep only top 10 items overall
-		while (countTotalItems(topItemsMap) > 10) {
+		while (countTotalItems(topItemsMap) > 20) {
 			Integer lastKey = topItemsMap.lastKey(); // smallest score
 			List<Crafting_Item> l = topItemsMap.get(lastKey);
 			if (!l.isEmpty()) {

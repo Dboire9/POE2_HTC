@@ -17,11 +17,11 @@ public class OmenOfDextralAnnulment extends Omen {
     public Crafting_Item applyEffect(Crafting_Item item, Crafting_Action action) {
         if (action instanceof AnnulmentOrb annul) {
 			if (item.hasOmen(OmenOfSinistralAnnulment.class)) {
-				System.out.println("Cannot activate Dextral Annulment while Sinistral is active!");
+				// System.out.println("Cannot activate Dextral Annulment while Sinistral is active!");
 				return item;
 			}
             annul.setForcedType(ModType.SUFFIX_ONLY);
-            System.out.println("Dextral Annulment active: only suffixes will be removed.");
+            // System.out.println("Dextral Annulment active: only suffixes will be removed.");
         }
         return item;
     }

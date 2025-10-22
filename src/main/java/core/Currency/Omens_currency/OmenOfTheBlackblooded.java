@@ -20,14 +20,14 @@ public class OmenOfTheBlackblooded extends Omen {
             return item;
 
 		if (item.hasOmen(OmenOfTheLiege.class) || item.hasOmen(OmenOfTheSovereign.class)) {
-			System.out.println("Cannot activate Blackblooded Omen while Liege or Sovereign is active!");
+			// System.out.println("Cannot activate Blackblooded Omen while Liege or Sovereign is active!");
 			return item;
 		}
 
         // Filter allowed modifiers to only Kurgal family
         des.guaranteed_des_mod = guaranteedDesecratedModifier.KURGAL;
 
-        System.out.println("Omen active: Next Weapon or Jewellery Desecration will guarantee a Kurgal modifier.");
+        // System.out.println("Omen active: Next Weapon or Jewellery Desecration will guarantee a Kurgal modifier.");
         return item;
     }
 

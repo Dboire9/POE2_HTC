@@ -67,7 +67,7 @@ public class Desecrated_currency implements Crafting_Action{
 		// Cannot desecrate an item that is already desecrated
 		if (item.desecrated || item.rarity != ItemRarity.RARE)
 		{
-			System.out.println("Item already desecrated or not rare");
+			// System.out.println("Item already desecrated or not rare");
 			return;
 		}
 
@@ -112,7 +112,7 @@ public class Desecrated_currency implements Crafting_Action{
 				if (item.currentPrefixes[i] == null) {
 					item.currentPrefixes[i] = block_modifier;
 					item.currentPrefixTiers[i] = block_modifier.tiers.get(0);
-					System.out.println("Blocked a prefix");
+					// System.out.println("Blocked a prefix");
 					return;
 				}
 			}
@@ -133,7 +133,7 @@ public class Desecrated_currency implements Crafting_Action{
 				if (item.currentSuffixes[i] == null) {
 					item.currentSuffixes[i] = block_modifier;
 					item.currentSuffixTiers[i] = block_modifier.tiers.get(0);
-					System.out.println("Blocked a suffix");
+					// System.out.println("Blocked a suffix");
 					return;
 				}
 			}
@@ -145,7 +145,7 @@ public class Desecrated_currency implements Crafting_Action{
 		// If item is not already desecrated return
 		if (!item.desecrated)
 		{
-			System.out.println("Item is not desecrated");
+			// System.out.println("Item is not desecrated");
 			return item;
 		}
 
@@ -181,14 +181,14 @@ public class Desecrated_currency implements Crafting_Action{
 				}
 			}
 		}
-		System.out.println("Here in desecration");
+		// System.out.println("Here in desecration");
 		if (blockModifier != null) {
-			System.out.println("Found a block modifier in " + blockType + " slots.");
+			// System.out.println("Found a block modifier in " + blockType + " slots.");
 		} else {
-			System.out.println("No block modifier found on this item.");
+			// System.out.println("No block modifier found on this item.");
 		}
 
-		System.out.println("☠ Desecration consumes the block modifier... transforming it!");
+		// System.out.println("☠ Desecration consumes the block modifier... transforming it!");
 
 
 		List<Modifier> allowedPrefixes = null;

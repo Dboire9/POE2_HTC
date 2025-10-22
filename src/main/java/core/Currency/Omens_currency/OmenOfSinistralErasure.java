@@ -19,13 +19,13 @@ public class OmenOfSinistralErasure extends Omen {
 
         // Check that Dextral Erasure is not active
         if (item.hasOmen(OmenOfDextralErasure.class)) {
-            System.out.println("Cannot activate Sinistral while Dextral is active!");
+            // System.out.println("Cannot activate Sinistral while Dextral is active!");
             return item;
         }
 
         // Force the orb to remove only prefixes
         chaos.setForcedType(Crafting_Item.ModType.PREFIX_ONLY);
-        System.out.println("Sinistral Erasure active: removing only prefixes");
+        // System.out.println("Sinistral Erasure active: removing only prefixes");
 
         return item;
     }

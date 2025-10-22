@@ -17,7 +17,7 @@ public class OmenOfGreaterExaltation extends Omen {
             // Not relevant for this omen
             return item;
         }
-		System.out.println("In greaterexalt omen");
+		// System.out.println("In greaterexalt omen");
 
 		exalted.greaterexalt = true;
 

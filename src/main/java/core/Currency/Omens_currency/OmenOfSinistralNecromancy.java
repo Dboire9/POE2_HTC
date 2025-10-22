@@ -23,13 +23,13 @@ public class OmenOfSinistralNecromancy extends Omen {
 		
 		// There is something wrong here that does not detect if the other omen was applied
         if (item.hasOmen(OmenOfDextralNecromancy.class)) {
-            System.out.println("Cannot activate Sinistral Desecration while Dextral is active!");
+            // System.out.println("Cannot activate Sinistral Desecration while Dextral is active!");
             return item;
         }
 
         // Force next desecration to only affect prefixes
         des.setForcedType(ModType.PREFIX_ONLY);
-        System.out.println("Sinistral Desecration active: only prefixes will be blocked next.");
+        // System.out.println("Sinistral Desecration active: only prefixes will be blocked next.");
 		return item;
     }
 

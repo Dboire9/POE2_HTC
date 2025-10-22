@@ -47,7 +47,7 @@ public class Crafting_Algorithm {
 		Crafting_Item currentItem;
 
 		// Looping until we have 20 bases with a minimum score to proceed with
-		for(int i = 0; i < numRestarts; i++){
+		for(int i = 0; i < 1000; i++){
 			currentItem = baseItem.copy(); //Taking the base of the item we want to craf
 			currentItem = CraftingStep_Util.runUntilRare(
 				currentItem,
@@ -66,8 +66,11 @@ public class Crafting_Algorithm {
 		Map<Integer, List<Crafting_Item>> topItemsMapCopy = new HashMap<>();
 		for (Map.Entry<Integer, List<Crafting_Item>> entry : topItemsMap.entrySet()) {
 			topItemsMapCopy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
-}
+		}
 
+
+
+		// Do we just do one step (+1 modifier on the item) and repeat x times with the x best bases ? 
 
 		// For each of the best modifier base we have, try on each of them the number of restart
 		for (Map.Entry<Integer, List<Crafting_Item>> entry : topItemsMapCopy.entrySet()) {
@@ -91,6 +94,7 @@ public class Crafting_Algorithm {
 				}
 			}
 		}
+		
 		
 		printBestOutcomes(topItemsMap);
 
@@ -140,7 +144,8 @@ public class Crafting_Algorithm {
 	private static void printBestOutcomes(TreeMap<Integer, List<Crafting_Item>> topItemsMap)
 	{
 		System.out.println("Top 20 outcomes:");
-		for (Map.Entry<Integer, List<Crafting_Item>> entry : topItemsMap.entrySet()) {
+		// Iterate in descending order of keys
+		for (Map.Entry<Integer, List<Crafting_Item>> entry : topItemsMap.descendingMap().entrySet()) {
 			int scoreKey = entry.getKey();
 		
 			for (Crafting_Item item : entry.getValue()) {

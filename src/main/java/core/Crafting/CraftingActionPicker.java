@@ -28,8 +28,8 @@ public class CraftingActionPicker {
             case RARE -> {
 				if(isPerfectEssence)
                 	weights.put(CraftingActionType.ESSENCE, 10);   // good
-                weights.put(CraftingActionType.OMEN, 40);      // very good
-                weights.put(CraftingActionType.CURRENCY, 60);  // still always useful
+                weights.put(CraftingActionType.OMEN, 80);      // very good
+                weights.put(CraftingActionType.CURRENCY, 10);  // still always useful
             }
         }
 

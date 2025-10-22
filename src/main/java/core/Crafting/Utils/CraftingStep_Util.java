@@ -50,7 +50,7 @@ public class CraftingStep_Util {
                 action = CraftingActionPicker.pickRandomActionType(testCopy, isPerfectEssence);
 
             // Apply random action
-            testCopy = Crafting_Algorithm.applyRandomAction(testCopy, action, isDesecrated);
+            // testCopy = Crafting_Algorithm.applyRandomAction(testCopy, action, isDesecrated);
 
             // Score the result
             int score = Crafting_Algorithm.heuristic(testCopy, desiredMods, desiredModTiers, CountDesiredModifierTags);
@@ -76,82 +76,4 @@ public class CraftingStep_Util {
         }
 		return currentItem;
     }
-
-
-
-
-
-
-
-
-	public static Crafting_Item runUntilDone(
-		Crafting_Item baseItem,
-		List<Modifier> desiredMods,
-		List<ModifierTier> desiredModTiers,
-		Map<String, Integer> CountDesiredModifierTags,
-		boolean isPerfectEssence,
-		boolean isDesecrated,
-		Crafting_Item globalBest,
-		int globalBestScore,
-		TreeMap<Integer, List<Crafting_Item>> topItemsMap
-	)
-	{
-		Crafting_Item currentItem = baseItem.copy();
-		Crafting_Item bestCandidate = null;
-        int currentBestScore = Crafting_Algorithm.heuristic(currentItem, desiredMods, desiredModTiers, CountDesiredModifierTags);
-		// System.out.println(currentBestScore);
-        int bestCandidateScore = currentBestScore;
-
-		Crafting_Item testCopy = currentItem.copy();
-
-		int modsize = currentItem.getAllCurrentModifiers().size();
-
-		topItemsMap.clear();
-		
-        while(currentItem.getAllCurrentModifiers().size() != modsize + 1) {
-            CraftingActionType action = null;
-
-            // If the magic item has an omen activated, force the simulator to use a regal next
-            if (!testCopy.getActiveOmens().isEmpty()) {
-                Omen firstOmen = testCopy.getActiveOmens().get(0);
-                if (firstOmen.associatedCurrency == AnnulmentOrb.class)
-                    action = CraftingActionType.CURRENCY;
-				if (firstOmen.associatedCurrency == Essence_currency.class)
-					action = CraftingActionType.ESSENCE;
-            }
-
-            // Randomly choosing what we are going to do (Currency, Omen or Essence)
-            if (action == null)
-                action = CraftingActionPicker.pickRandomActionType(testCopy, isPerfectEssence);
-
-            // Apply random action
-            testCopy = Crafting_Algorithm.applyRandomAction(testCopy, action, isDesecrated);
-
-            // Score the result
-            int score = Crafting_Algorithm.heuristic(testCopy, desiredMods, desiredModTiers, CountDesiredModifierTags);
-
-			// System.out.println(score);
-            if (score > bestCandidateScore) {
-                bestCandidate = testCopy;
-                bestCandidateScore = score;
-            }
-
-            // Accept the best improvement
-            if (bestCandidate != null) {
-                currentItem = bestCandidate;
-                currentBestScore = bestCandidateScore;
-            }
-
-            // Track global best
-            if (currentBestScore > globalBestScore) {
-                globalBest = currentItem;
-                globalBestScore = currentBestScore;
-				// System.out.println("Better score in rare");
-            }
-
-            // Keep best 10/20 items
-            BestItems_Util.addToTopItems(topItemsMap, currentBestScore, currentItem);
-        }
-		return currentItem;
-	}
 }

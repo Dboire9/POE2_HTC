@@ -39,10 +39,6 @@ public class Heuristic_Util {
 		if (matched_modifiers == affix_slots) {
 			score += 1000 * matched_modifiers;
 		}
-		// Multiplicative point loss for the number of prefix slots and non-matched modifiers
-		else if (matched_modifiers < affix_slots) {
-			score -= 1000 * (3 - affix_slots);
-		}
 	
 		return score;
 	}
@@ -60,13 +56,13 @@ public class Heuristic_Util {
 		
 				if (currentCount < desiredCount && currentCount > 0) {
 					// If current count is less than desired, but not 0, increase score significantly
-					score += 500;
+					score += 250;
 				} else if (currentCount == desiredCount) {
 					// If current count matches desired count, increase score slightly
-					score += 250;
+					score += 100;
 				} else {
 					// If current count is more than desired, decrease score significantly
-					score -= 1000;
+					score -= 500;
 				}
 			}
 		}

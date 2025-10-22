@@ -8,20 +8,23 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
+import core.Crafting.Crafting_Action.CurrencyTier;
 import core.Currency.Essence_currency;
+import core.Currency.TransmutationOrb;
 import core.Currency.Omens_currency.Omen;
 import core.Currency.Omens_currency.OmenOfDextralExaltation;
 import core.Currency.Omens_currency.OmenOfSinistralExaltation;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierSource;
+import core.Modifier_class.Modifier.ModifierType;
+
 
 public class Crafting_Item {
 
 	public Item_base base;
 	public ItemRarity rarity;
 	public boolean desecrated = false;
-	int tempScore = 0;
 	
 	// Current modifiers
 	public Modifier[] currentPrefixes = new Modifier[3];
@@ -81,6 +84,48 @@ public class Crafting_Item {
 	public Crafting_Item(Item_base base) {
 		this.base = base;
 		this.rarity = ItemRarity.NORMAL;
+	}
+
+
+	// Adding a prefix with tier
+	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, CurrencyTier currency_tier)
+	{
+		List<Crafting_Item> Items_List = new ArrayList<>();
+		// Looping through all the modifiers and modifiers tiers
+		for(Modifier m : mod)
+		{
+			for(ModifierTier mod_tiers : m.tiers)
+			{
+				// resetting to the item base each time
+				Crafting_Item new_item = item.copy();
+				if(currency_tier == CurrencyTier.BASE)
+				{
+					//Apllying the modifier and modifier tier
+					if(m.type == ModifierType.PREFIX)
+						new_item.addPrefix(m, mod_tiers);
+					else
+						new_item.addSuffix(m, mod_tiers);
+					Items_List.add(new_item);
+				}
+			}
+		}
+		return Items_List;
+	}
+	
+	// List<Crafting_Action> ca = new ArrayList<>();
+	// Crafting_Candidate potential_candidate = new Crafting_Candidate(base, 0, ca);
+
+	// Getting the total weight of an affix
+	public int get_Base_Affix_Total_Weight(List<Modifier> Modifiers)
+	{
+		int total_weight = 0;
+
+		for(Modifier m : Modifiers)
+		{
+			for(ModifierTier tiers : m.tiers)
+				total_weight += tiers.weight;
+		}
+		return total_weight;
 	}
 
 	// Adding a prefix with tier

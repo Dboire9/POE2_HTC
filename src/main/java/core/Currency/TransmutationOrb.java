@@ -1,10 +1,14 @@
 package core.Currency;
 
+import java.util.*;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Algorithm;
+import core.Crafting.Crafting_Candidate;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Utils.AddRandomMod;
+import core.Crafting.Crafting_Action.CurrencyTier;
 
 public class TransmutationOrb implements Crafting_Action {
 
@@ -22,44 +26,48 @@ public class TransmutationOrb implements Crafting_Action {
     }
 
     @Override
-    public Crafting_Item apply(Crafting_Item item) {
+    public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
         // Only works on NORMAL items
-        if (item.rarity != Crafting_Item.ItemRarity.NORMAL || item.isFull()) return item;
+        if (item.rarity != Crafting_Item.ItemRarity.NORMAL || item.isFull()) return CandidateList;
 
         Item_base base = item.base;
+		List<Crafting_Item> Item_Evaluation;
 
-        // Determine minimum tier level based on currency tier
-        int minLevel;
-        switch (tier) {
-            case GREATER -> minLevel = 55;
-            case PERFECT -> minLevel = 70;
-            default -> minLevel = 0;
-        }
+		// We retrieve all the modifiers 
+		List<Modifier> all_Prefix_modifiers = base.getNormalAllowedPrefixes();
+		List<Modifier> all_Suffix_Modifiers = base.getNormalAllowedSuffixes();
+		
+		int score = 0;
 
-        // Pick one weighted modifier above the minimum level
-        ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
-            item,
-            base.getNormalAllowedPrefixes(),
-            base.getNormalAllowedSuffixes(),
-            minLevel,
-			""
-        );
+		Item_Evaluation = item.addAffixes(all_Prefix_modifiers, item, CurrencyTier.BASE);
+		for(Crafting_Item items: Item_Evaluation)
+		{
+			score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
+			if(score > 0)
+			{
+				// Do a function to add to candidate
+			}
 
-        if (chosen == null) return item;
+		}
+		
+		Item_Evaluation.clear();
+		Item_Evaluation = item.addAffixes(all_Suffix_Modifiers, item, CurrencyTier.BASE);
+		
+		Item_Evaluation.clear();
+		Item_Evaluation = item.addAffixes(all_Prefix_modifiers, item, CurrencyTier.GREATER);
+		
+		Item_Evaluation.clear();
+		Item_Evaluation = item.addAffixes(all_Suffix_Modifiers, item, CurrencyTier.GREATER);
 
-        // Convert item to MAGIC
-        item.rarity = Crafting_Item.ItemRarity.MAGIC;
+		Item_Evaluation = item.addAffixes(all_Prefix_modifiers, item, CurrencyTier.PERFECT);
+		
+		Item_Evaluation.clear();
+		Item_Evaluation = item.addAffixes(all_Suffix_Modifiers, item, CurrencyTier.PERFECT);
 
-        // Apply chosen modifier
-        Modifier mod = chosen.getModifier();
-        ModifierTier modifierTier = chosen.getTier();
-        if (base.getNormalAllowedPrefixes().contains(mod)) {
-            item.addPrefix(mod, modifierTier);
-        } else {
-            item.addSuffix(mod, modifierTier);
-        }
-
-        return item;
+		// Convert item to MAGIC
+		item.rarity = Crafting_Item.ItemRarity.MAGIC;
+		
+        return CandidateList;
     }
 
     @Override

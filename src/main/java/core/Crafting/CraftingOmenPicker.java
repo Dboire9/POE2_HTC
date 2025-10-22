@@ -33,6 +33,12 @@ public class CraftingOmenPicker {
                 for (Omen omen : allOmens) {
                     if (omen.associatedCurrency != RegalOrb.class) {
                         possibleOmens.add(omen);
+						// For now, the best 
+						if (omen.equals(OmenOfHomogenisingExaltation.class)) {
+							for (int i = 0; i < 50; i++) { // Adjust the multiplier as needed
+								possibleOmens.add(omen);
+							}
+						}
                     }
                 }
 			}

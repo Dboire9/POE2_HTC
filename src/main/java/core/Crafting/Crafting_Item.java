@@ -101,18 +101,21 @@ public class Crafting_Item {
 		for (Modifier m : mod) {
 			// Take only the lowest tier
 			ModifierTier lowestTier = m.tiers.get(0);
+			//Check if the family is already on the item
+			if(!Item_family.contains(m.family))
+			{
+				// Create a copy of the item
+				Crafting_Item new_item = item.copy();
 
-			// Create a copy of the item
-			Crafting_Item new_item = item.copy();
+				// Apply the modifier with the lowest tier
+				if (m.type == ModifierType.PREFIX)
+					new_item.addPrefix(m, lowestTier);
+				else
+					new_item.addSuffix(m, lowestTier);
 
-			// Apply the modifier with the lowest tier
-			if (m.type == ModifierType.PREFIX)
-				new_item.addPrefix(m, lowestTier);
-			else
-				new_item.addSuffix(m, lowestTier);
-
-			// Add the new item to the list
-			Items_List.add(new_item);
+				// Add the new item to the list
+				Items_List.add(new_item);
+			}
 		}
 		return Items_List;
 	}

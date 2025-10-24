@@ -1,114 +1,58 @@
-// package core.Currency;
+package core.Currency;
 
-// import core.Crafting.Crafting_Item;
-// import core.Crafting.Crafting_Item.ModType;
+import core.Crafting.Crafting_Item;
+import core.Crafting.Crafting_Item.ModType;
+import core.Currency.Omens_currency.Omen;
 
-// import java.util.ArrayList;
-// import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-// import core.Crafting.Crafting_Action;
-// import core.Items.Item_base;
-// import core.Modifier_class.*;
-// import core.Utils.AddRandomMod;
+import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Candidate;
+import core.Modifier_class.*;
 
-// public class RegalOrb implements Crafting_Action {
+public class RegalOrb implements Crafting_Action {
 	
-// 	private int cost = 1;
-	
-	
-// 	public boolean homogenising = false;
+	public CurrencyTier tier;
+	public List<Omen> Omens = new ArrayList<>();
 
-// 	public Crafting_Action.CurrencyTier tier;
+	@Override
+    public Crafting_Action copy() {
+        return new RegalOrb(this.tier);
+    }
 
-// 	// Constructor to specify tier
-// 	public RegalOrb(CurrencyTier tier) {
-// 		this.tier = tier;
-// 	}
+	@Override
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags)
+	{
+		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
-// 	// default constructor
-// 	public RegalOrb() {
-// 		this.tier = CurrencyTier.BASE; // or whichever tier makes sense as default
-// 	}
+		List<Modifier> all_Prefix_modifiers = item.base.getNormalAllowedPrefixes();
+		List<Modifier> all_Suffix_Modifiers = item.base.getNormalAllowedSuffixes();
+		
+		CandidateListCopy.addAll(evaluateAffixes(all_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
+		CandidateListCopy.addAll(evaluateAffixes(all_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
 
-// 	private ModType forcedType = ModType.ANY; // default behavior
-
-// 	public void setForcedType(ModType type) {
-// 		this.forcedType = type;
-// 	}
-
-// 	public ModType getForcedType() {
-// 		return forcedType;
-// 	}
-
-// 	@Override
-// 	public Crafting_Item apply(Crafting_Item item) {
-// 		// Only works on MAGIC items that are not full
-// 		if (item.rarity != Crafting_Item.ItemRarity.MAGIC || item.isFull())
-// 			return item;
-
-// 		Item_base base = item.base;
-
-// 		// Determine minimum tier level based on Regal Orb tier
-// 		int minLevel;
-// 		switch (tier) {
-// 			case GREATER -> minLevel = 35;
-// 			case PERFECT -> minLevel = 50;
-// 			default -> minLevel = 0;
-// 		}
+        return CandidateListCopy;
+	}
 
 
-// 		List<Modifier> finalPrefixes = new ArrayList<>();
-// 		List<Modifier> finalSuffixes = new ArrayList<>();
+	// Constructor to specify tier
+	public RegalOrb(CurrencyTier tier) {
+		this.tier = tier;
+	}
 
-// 		if(homogenising)
-// 		{
-// 			// System.out.println("Homog active");
-// // 			System.out.println("Prefix");
-// 			finalPrefixes = item.homogeniseModifiers(base.getNormalAllowedPrefixes(), item.currentPrefixes, item.currentSuffixes);
-// 			// System.out.println("Suffix");
-// 			finalSuffixes = item.homogeniseModifiers(base.getNormalAllowedSuffixes(), item.currentSuffixes, item.currentPrefixes);
-// 		}
+	// Default constructor
+	public RegalOrb() {
+		this.tier = CurrencyTier.BASE;
+	}
 
-// 		if(finalPrefixes == null && finalSuffixes == null)
-// 		{
-// 			finalPrefixes = base.getNormalAllowedPrefixes();
-// 			finalSuffixes = base.getNormalAllowedSuffixes();
-// 		}
+	public RegalOrb(Omen new_omen) {
+		this.Omens.add(new_omen);
+	}
 
-// 		// Pick one weighted modifier above the minimum level
-// 		ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
-// 				item,
-// 				finalPrefixes,
-// 				finalSuffixes,
-// 				minLevel,
-// 				"");
-
-// 		if (chosen == null)
-// 			return item;
-
-// 		// Upgrade item to RARE
-// 		item.rarity = Crafting_Item.ItemRarity.RARE;
-// 		this.homogenising = false;
-
-// 		// Apply chosen modifier and tier
-// 		Modifier mod = chosen.getModifier();
-// 		ModifierTier modifierTier = chosen.getTier();
-// 		if (base.getNormalAllowedPrefixes().contains(mod)) {
-// 			item.addPrefix(mod, modifierTier);
-// 		} else {
-// 			item.addSuffix(mod, modifierTier);
-// 		}
-
-// 		return item;
-// 	}
-
-// 	@Override
-// 	public int getCost() {
-// 		return cost;
-// 	}
-
-// 	@Override
-// 	public String getName() {
-// 		return "Regal Orb (" + tier + ")";
-// 	}
-// }
+	@Override
+	public String getName() {
+		return "Regal Orb (" + tier + ")";
+	}
+}

@@ -30,14 +30,6 @@ public interface Crafting_Action {
             score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
             if (score > 0) {
                 Crafting_Candidate new_Candidate = Crafting_Candidate.AddCraftingCandidate(items, score, this);
-				double weight = 0;
-				if(isPrefix)
-					weight = new_Candidate.currentPrefixTiers[0].weight;
-				else
-					weight = new_Candidate.currentSuffixTiers[0].weight;
-				double totalWeight = item.get_Base_Affix_Total_Weight(modifiers);
-				new_Candidate.percentage = (weight / totalWeight) * 100;
-				new_Candidate.score = score;
                 CandidateList.add(new_Candidate);
             }
         }
@@ -64,14 +56,6 @@ public interface Crafting_Action {
 				score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
 				if (score > candidate.score) {
 					Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
-					double weight = 0;
-					if(isPrefix)
-						weight = newCandidate.currentPrefixTiers[0].weight;
-					else
-						weight = newCandidate.currentSuffixTiers[0].weight;
-					double totalWeight = item.get_Base_Affix_Total_Weight(modifiers);
-					stepProbability = (weight / totalWeight);
-					newCandidate.percentage = candidate.percentage + stepProbability - (candidate.percentage * stepProbability);
 					newCandidate.actions.add(this);
 					CandidateListCopy.add(newCandidate);
 				}

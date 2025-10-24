@@ -18,8 +18,7 @@ public class Heuristic_Util {
 			for (ModifierTier currentTier : mods.tiers) {
 				for (ModifierTier desiredTier : desiredModTier) {
 					// If the family is the same and the tier is the same or above
-					if (currentTier.name.equals(desiredTier.name) &&
-						currentTier.level >= desiredTier.level) {
+					if (currentTier.name.equals(desiredTier.name)) {
 						matched = true;
 						matched_modifiers++;
 						break;

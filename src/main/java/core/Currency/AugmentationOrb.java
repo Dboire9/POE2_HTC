@@ -2,9 +2,12 @@ package core.Currency;
 
 import core.Crafting.Crafting_Item;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Candidate;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierType;
@@ -12,9 +15,47 @@ import core.Utils.AddRandomMod;
 
 public class AugmentationOrb implements Crafting_Action {
 
-    private int cost = 1;
-
 	public Crafting_Action.CurrencyTier tier;
+
+
+    @Override
+    public Crafting_Action copy() {
+        return new AugmentationOrb(this.tier);
+    }
+
+    public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags)
+	{
+		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
+
+		List<Modifier> all_Prefix_modifiers = item.base.getNormalAllowedPrefixes();
+		List<Modifier> all_Suffix_Modifiers = item.base.getNormalAllowedSuffixes();
+		
+
+		CandidateListCopy.addAll(evaluateAffixesFromPreviousOnes(all_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
+		CandidateListCopy.addAll(evaluateAffixesFromPreviousOnes(all_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
+
+
+		List<Modifier> all_Greater_Prefix_modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.GREATER, all_Prefix_modifiers);
+		List<Modifier> all_Greater_Suffix_Modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.GREATER, all_Suffix_Modifiers);
+		
+		this.tier = CurrencyTier.GREATER;
+		CandidateListCopy.addAll(evaluateAffixesFromPreviousOnes(all_Greater_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
+		CandidateListCopy.addAll(evaluateAffixesFromPreviousOnes(all_Greater_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
+
+
+		List<Modifier> all_Perfect_Prefix_modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.PERFECT, all_Prefix_modifiers);
+		List<Modifier> all_Perfect_Suffix_Modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.PERFECT, all_Suffix_Modifiers);
+		
+		this.tier = CurrencyTier.PERFECT;
+		CandidateListCopy.addAll(evaluateAffixesFromPreviousOnes(all_Perfect_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
+		CandidateListCopy.addAll(evaluateAffixesFromPreviousOnes(all_Perfect_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
+
+		// Convert item to MAGIC
+		item.rarity = Crafting_Item.ItemRarity.MAGIC;
+		
+        return CandidateListCopy;
+    }
+
 
     // Constructor to specify tier
     public AugmentationOrb(CurrencyTier tier) {
@@ -25,78 +66,6 @@ public class AugmentationOrb implements Crafting_Action {
 	public AugmentationOrb() {
 		this.tier = CurrencyTier.BASE;
 	}
-
-    @Override
-    public Crafting_Item apply(Crafting_Item item) {
-        // Only works on MAGIC items with at least one free slot
-        if (item.rarity != Crafting_Item.ItemRarity.MAGIC || item.isFull())
-            return item;
-
-        Item_base base = item.base;
-
-
-		// Checking if there is already a prefix or a suffix to add the opposite type
-		int prefixCount = 0;
-		int suffixCount = 0;
-		for (Modifier m : item.currentPrefixes) if (m != null) prefixCount++;
-		for (Modifier m : item.currentSuffixes) if (m != null) suffixCount++;
-
-		boolean addPrefix = false;
-		if (prefixCount == 0 && suffixCount > 0)
-		{
-			addPrefix = true;
-		}
-		else if (suffixCount == 0 && prefixCount > 0) {
-			addPrefix = false;
-		}
-		else
-		{
-			System.out.println("Item has already two modifiers for the magic rarity");
-			return item;
-		}
-
-		// Filter allowed mods based on type
-    	List<Modifier> allowedModifiers = addPrefix
-        ? base.getNormalAllowedPrefixes()
-        : base.getNormalAllowedSuffixes();
-
-        // Determine minimum level based on currency tier
-        int minLevel;
-        switch (tier) {
-            case GREATER -> minLevel = 55;
-            case PERFECT -> minLevel = 70;
-            default -> minLevel = 0;
-        }
-
-		// Select a random modifier and tier 
-		ModifierTierWrapper chosen = AddRandomMod.selectWeightedModifier(
-			item,
-			addPrefix ? allowedModifiers : null,
-			addPrefix ? null : allowedModifiers,
-			minLevel,
-			""
-		);
-
-        if (chosen == null) return item; // no eligible modifier
-
-        // Apply the chosen modifier and tier
-        Modifier mod = chosen.getModifier();
-        ModifierTier tierSelected = chosen.getTier();
-		if (addPrefix) {
-			item.addPrefix(mod, tierSelected);
-			// System.out.println("Augmentation Orb added PREFIX: " + mod.text + " (Tier " + (mod.tiers.size() - mod.tiers.indexOf(tierSelected)) + ")");
-		} else {
-			item.addSuffix(mod, tierSelected);
-			// System.out.println("Augmentation Orb added SUFFIX: " + mod.text + " (Tier " + (mod.tiers.size() - mod.tiers.indexOf(tierSelected)) + ")");
-		}
-
-        return item;
-    }
-
-    @Override
-    public int getCost() {
-        return cost;
-    }
 
     @Override
     public String getName() {

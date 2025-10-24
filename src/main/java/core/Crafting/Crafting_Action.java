@@ -1,5 +1,6 @@
 package core.Crafting;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,13 +12,15 @@ public interface Crafting_Action {
 		BASE, GREATER, PERFECT
 	}
 
+	Crafting_Action copy();
+
 
     List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags); // transforms the item
-    int getCost();                        // relative cost of using this action
+
     String getName();                        // name for display
 
     // Default method for evaluateAffixes
-    default void evaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
+    default void CreateListAndEvaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
         int score;
 		boolean isPrefix = false;
         List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item);
@@ -34,10 +37,44 @@ public interface Crafting_Action {
 					weight = new_Candidate.currentSuffixTiers[0].weight;
 				double totalWeight = item.get_Base_Affix_Total_Weight(modifiers);
 				new_Candidate.percentage = (weight / totalWeight) * 100;
+				new_Candidate.score = score;
                 CandidateList.add(new_Candidate);
             }
         }
         Item_Evaluation.clear();
     }
 	
+
+	    default List<Crafting_Candidate> evaluateAffixesFromPreviousOnes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
+        int score;
+		double stepProbability;
+		boolean isPrefix = false;
+		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
+
+		for (Crafting_Candidate candidate : CandidateList)
+		{
+			item = candidate.copy();
+			List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item);
+			if(modifiers != null && modifiers.get(0).type == ModifierType.PREFIX)
+				isPrefix = true;
+			for (Crafting_Item items : Item_Evaluation) {
+				score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
+				if (score > candidate.score) {
+					Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
+					double weight = 0;
+					if(isPrefix)
+						weight = newCandidate.currentPrefixTiers[0].weight;
+					else
+						weight = newCandidate.currentSuffixTiers[0].weight;
+					double totalWeight = item.get_Base_Affix_Total_Weight(modifiers);
+					stepProbability = (weight / totalWeight);
+					newCandidate.percentage = candidate.percentage + stepProbability - (candidate.percentage * stepProbability);
+					newCandidate.actions.add(this);
+					CandidateListCopy.add(newCandidate);
+				}
+			}
+			Item_Evaluation.clear();
+        }
+		return CandidateListCopy;
+    }
 }

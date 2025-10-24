@@ -25,6 +25,7 @@ public class Crafting_Item {
 	public Item_base base;
 	public ItemRarity rarity;
 	public boolean desecrated = false;
+	public double score;
 	
 	// Current modifiers
 	public Modifier[] currentPrefixes = new Modifier[3];
@@ -86,25 +87,33 @@ public class Crafting_Item {
 		this.rarity = ItemRarity.NORMAL;
 	}
 
+	public Crafting_Item() {};
+
 
 	// Adding a prefix with tier
 	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item)
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
+		List<String> Item_family = new ArrayList<>();
+		for(Modifier currentAffixes : item.getAllCurrentModifiers())
+			Item_family.add(currentAffixes.family);
 		// Looping through all the modifiers and modifiers tiers
 		for(Modifier m : mod)
 		{
-			for(ModifierTier mod_tiers : m.tiers)
+			if(!Item_family.contains(m.family))
 			{
-				// resetting to the item base each time
-				Crafting_Item new_item = new Crafting_Item(item.base);
-					//Apllying the modifier and modifier tier
-					if(m.type == ModifierType.PREFIX)
-						new_item.addPrefix(m, mod_tiers);
-					else
-						new_item.addSuffix(m, mod_tiers);
-					//Adding to the List all the items with the new modifier each time
-					Items_List.add(new_item);
+				for(ModifierTier mod_tiers : m.tiers)
+				{
+					// resetting to the item base each time
+					Crafting_Item new_item = item.copy();
+						//Apllying the modifier and modifier tier
+						if(m.type == ModifierType.PREFIX)
+							new_item.addPrefix(m, mod_tiers);
+						else
+							new_item.addSuffix(m, mod_tiers);
+						//Adding to the List all the items with the new modifier each time
+						Items_List.add(new_item);
+				}
 			}
 		}
 		return Items_List;

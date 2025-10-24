@@ -3,6 +3,7 @@ package core.Crafting;
 import java.util.*;
 import core.Modifier_class.*;
 import core.Crafting.Utils.Heuristic_Util;
+import core.Currency.AugmentationOrb;
 import core.Currency.TransmutationOrb;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Action.CurrencyTier;
@@ -25,11 +26,22 @@ public class Crafting_Algorithm {
 		// Creating the first List of Crafting_Candidate
 		List<Crafting_Candidate> CandidateList = new ArrayList<>();
 
-		// Transmuting the item
+		// Transmuting the item (first step)
 		TransmutationOrb transmutationOrb = new TransmutationOrb();
-		transmutationOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		CandidateList = transmutationOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
 
-		System.out.println(CandidateList);
+		//Making a copy of all the candidate list to use after
+		
+
+		
+		// Second step (augmentation, or regal or essence)
+		AugmentationOrb augmentationOrb = new AugmentationOrb();
+		CandidateList = augmentationOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+
+
+		// Do a for of the crafting_candidate that are not rare to apply regal or essence
+
+		// System.out.println(CandidateList);
 
 
 

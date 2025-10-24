@@ -4,10 +4,10 @@ import java.util.*;
 import core.Modifier_class.*;
 import core.Crafting.Utils.Heuristic_Util;
 import core.Currency.AugmentationOrb;
+import core.Currency.RegalOrb;
 import core.Currency.Essence_currency;
 import core.Currency.TransmutationOrb;
-import core.Crafting.Crafting_Candidate;
-import core.Crafting.Crafting_Action.CurrencyTier;
+import core.Currency.Omens_currency.*;
 
 public class Crafting_Algorithm {
 	public static Crafting_Item optimizeCrafting(
@@ -38,20 +38,40 @@ public class Crafting_Algorithm {
 			CandidateListCopy.add(candidate.copy());
 		}
 
-		
 		// Second step (augmentation, or regal or essence)
 		AugmentationOrb augmentationOrb = new AugmentationOrb();
 		CandidateList = augmentationOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		// Adding the list : Transmut -> Augment
+		listOfCandidateLists.add(new ArrayList<>(CandidateList));
 
-		listOfCandidateLists.add(CandidateList);
-
-		List<Essence_currency> essences = Essence_currency.createEssences();
-		for (Essence_currency essence : essences) {
-			CandidateList = essence.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		CandidateList.clear();
+		// Candidate list here gets the list after the transmute
+		for (Crafting_Candidate candidate : CandidateListCopy) {
+			CandidateList.add(candidate.copy());
 		}
+		CandidateListCopy.clear();
+
+		Essence_currency essence = new Essence_currency();
+		List<Crafting_Candidate> temp = essence.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		CandidateListCopy.addAll(temp);
+		// Adding the list : Transmut -> Essences
+		listOfCandidateLists.add(new ArrayList<>(CandidateListCopy));
+
+		CandidateListCopy.clear();
+
+		// Applying a normal RegalOrb
+		RegalOrb regalOrb = new RegalOrb();
+		CandidateListCopy = regalOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		listOfCandidateLists.add(new ArrayList<>(CandidateListCopy));
 
 
-		// Do a for of the crafting_candidate that are not rare to apply regal or essence
+		
+		CandidateListCopy.clear();
+		
+		// CURRENTLY NOT DOING OMENS OR CURRENCY TIER WE WILL DO IT AT THE END WHEN CALCULATING PROBABILITIES
+
+
+		
 
 		// System.out.println(CandidateList);
 

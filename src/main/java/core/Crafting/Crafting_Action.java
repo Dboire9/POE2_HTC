@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import core.Crafting.Crafting_Item.ItemRarity;
+import core.Currency.Omens_currency.Omen;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierType;
 public interface Crafting_Action {
@@ -12,8 +14,9 @@ public interface Crafting_Action {
 		BASE, GREATER, PERFECT
 	}
 
-	Crafting_Action copy();
+	
 
+	Crafting_Action copy();
 
     List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags); // transforms the item
 
@@ -27,6 +30,7 @@ public interface Crafting_Action {
             score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
             if (score > 0) {
                 Crafting_Candidate new_Candidate = Crafting_Candidate.AddCraftingCandidate(items, score, this);
+				new_Candidate.rarity = ItemRarity.MAGIC;
                 CandidateList.add(new_Candidate);
             }
         }
@@ -53,6 +57,28 @@ public interface Crafting_Action {
 				if (score > candidate.score) {
 					Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
 					newCandidate.actions.add(this);
+					CandidateListCopy.add(newCandidate);
+				}
+			}
+			Item_Evaluation.clear();
+        }
+		return CandidateListCopy;
+    }
+
+	default List<Crafting_Candidate> evaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
+        int score;
+		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
+
+		for (Crafting_Candidate candidate : CandidateList)
+		{
+			item = candidate.copy();
+			List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item);
+			for (Crafting_Item items : Item_Evaluation) {
+				score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
+				if (score > candidate.score) {
+					Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
+					newCandidate.actions.add(this);
+					newCandidate.rarity = ItemRarity.RARE;
 					CandidateListCopy.add(newCandidate);
 				}
 			}

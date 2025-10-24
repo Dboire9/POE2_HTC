@@ -97,24 +97,22 @@ public class Crafting_Item {
 		List<String> Item_family = new ArrayList<>();
 		for(Modifier currentAffixes : item.getAllCurrentModifiers())
 			Item_family.add(currentAffixes.family);
-		// Looping through all the modifiers and modifiers tiers
-		for(Modifier m : mod)
-		{
-			if(!Item_family.contains(m.family))
-			{
-				for(ModifierTier mod_tiers : m.tiers)
-				{
-					// resetting to the item base each time
-					Crafting_Item new_item = item.copy();
-						//Apllying the modifier and modifier tier
-						if(m.type == ModifierType.PREFIX)
-							new_item.addPrefix(m, mod_tiers);
-						else
-							new_item.addSuffix(m, mod_tiers);
-						//Adding to the List all the items with the new modifier each time
-						Items_List.add(new_item);
-				}
-			}
+		// Looping through all the modifiers and the lowest modifier tier
+		for (Modifier m : mod) {
+			// Take only the lowest tier
+			ModifierTier lowestTier = m.tiers.get(0);
+
+			// Create a copy of the item
+			Crafting_Item new_item = item.copy();
+
+			// Apply the modifier with the lowest tier
+			if (m.type == ModifierType.PREFIX)
+				new_item.addPrefix(m, lowestTier);
+			else
+				new_item.addSuffix(m, lowestTier);
+
+			// Add the new item to the list
+			Items_List.add(new_item);
 		}
 		return Items_List;
 	}

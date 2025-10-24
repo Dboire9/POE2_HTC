@@ -40,7 +40,7 @@ public class TransmutationOrb implements Crafting_Action {
 
 		List<Modifier> all_Prefix_modifiers = item.base.getNormalAllowedPrefixes();
 		List<Modifier> all_Suffix_Modifiers = item.base.getNormalAllowedSuffixes();
-		
+
 		CreateListAndEvaluateAffixes(all_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
 		CreateListAndEvaluateAffixes(all_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
 

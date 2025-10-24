@@ -5,6 +5,7 @@ import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Item.ModType; // Ensure this import is correct
 import core.Currency.Essences.Essences;
+import core.Currency.Omens_currency.Omen;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierSource;
 import core.Modifier_class.Modifier.ModifierType;
@@ -37,7 +38,7 @@ public class Essence_currency implements Crafting_Action {
 
 	@Override
 	public Essence_currency copy() {
-		return Essence_currency.create(this.essenceFamily, this.tier);
+		return new Essence_currency(this.essenceFamily, this.tier);
 	}
 
 	public static List<Essence_currency> createEssences() {
@@ -89,16 +90,8 @@ public class Essence_currency implements Crafting_Action {
 		// registry.put("Delirium", Essences.EssenceOfDelirium::new);
 	}
 
-	public static Essence_currency create(String essenceName, Essence_currency.EssenceTier tier) {
-		Function<Essence_currency.EssenceTier, Essence_currency> constructor = registry.get(essenceName);
-		if (constructor == null) {
-			throw new IllegalArgumentException("Unknown essence type: " + essenceName);
-		}
-		return constructor.apply(tier);
-	}
-
 	@Override
-	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen) {
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
 		List<Modifier> allEssences = new ArrayList<>();
@@ -117,8 +110,8 @@ public class Essence_currency implements Crafting_Action {
 				}
 			}
 		}
-		
-		CandidateListCopy = evaluateAffixes(greaterEssences, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		for (Crafting_Candidate candidate : CandidateList)
+			CandidateListCopy.add(evaluateAffixes(greaterEssences, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
 
 		// Convert item to MAGIC
 

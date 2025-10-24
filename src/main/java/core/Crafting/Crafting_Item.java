@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.Set;
 
 import core.Crafting.Crafting_Action.CurrencyTier;
+import core.Crafting.Utils.ModifierEvent;
 import core.Currency.Essence_currency;
 import core.Currency.TransmutationOrb;
 import core.Currency.Omens_currency.Omen;
@@ -35,6 +36,11 @@ public class Crafting_Item {
 	public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
 	public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
 
+	public List<ModifierEvent> modifierHistory = new ArrayList<>();
+
+	// To know which modifier was added when
+	public List<Modifier> modifierOrder = new ArrayList<>();
+
 	public Crafting_Item copy() {
 		Crafting_Item clone = new Crafting_Item(this.base);
 		clone.rarity = this.rarity;
@@ -59,9 +65,16 @@ public class Crafting_Item {
 				clone.currentSuffixTiers[i] = new ModifierTier(this.currentSuffixTiers[i]); // Deep copy
 			}
 		}
+
+		clone.modifierOrder = new ArrayList<>();
+		for (Modifier mod : this.modifierOrder) {
+			clone.modifierOrder.add(new Modifier(mod)); // Ensure you have a proper Modifier copy constructor
+		}
 	
 		return clone;
 	}
+
+	
 
 	// Keep a list so multiple omens can be active together
 	private final List<Omen> activeOmens = new ArrayList<>();
@@ -91,7 +104,7 @@ public class Crafting_Item {
 
 
 	// Adding a prefix with tier
-	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item)
+	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, Crafting_Action action)
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
 		List<String> Item_family = new ArrayList<>();
@@ -107,6 +120,8 @@ public class Crafting_Item {
 				// Create a copy of the item
 				Crafting_Item new_item = item.copy();
 
+				modifierOrder.add(m);
+
 				// Apply the modifier with the lowest tier
 				if (m.type == ModifierType.PREFIX)
 					new_item.addPrefix(m, lowestTier);
@@ -114,6 +129,7 @@ public class Crafting_Item {
 					new_item.addSuffix(m, lowestTier);
 
 				// Add the new item to the list
+				modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
 				Items_List.add(new_item);
 			}
 		}
@@ -238,6 +254,8 @@ public class Crafting_Item {
 		return false;
 	}
 
+	
+
 
 	// Check if the item has all desired modifier tiers
 	public static boolean isFinished(Crafting_Item item, List<ModifierTier> desiredMods) {
@@ -350,61 +368,10 @@ public class Crafting_Item {
 		return mods;
 	}
 
-	// -------------------------------------
-	// OMEN HANDLING SECTION
-	// -------------------------------------
-	
-	// Add a new active omen to the item.
-	public void addActiveOmen(Omen omen) {
-
-		if (hasOmen(omen.getClass())) {
-			// System.out.println(omen.getName() + " is already active!");
-			return;
-		}
-
-		// Prevent mutually exclusive omens
-		if (omen instanceof OmenOfDextralExaltation && hasOmen(OmenOfSinistralExaltation.class)) {
-			// System.out.println("Cannot activate Dextral while Sinistral is active!");
-			return;
-		}
-		if (omen instanceof OmenOfSinistralExaltation && hasOmen(OmenOfDextralExaltation.class)) {
-			// System.out.println("Cannot activate Sinistral while Dextral is active!");
-			return;
-		}
-
-		activeOmens.add(omen);
-	}
 
 	// Get all active omens currently attached to this item.
 	public List<Omen> getActiveOmens() {
 		return activeOmens;
-	}
-
-	/**
-	 * Remove omens that have been consumed.
-	 */
-	public void clearConsumedOmens() {
-		activeOmens.removeIf(Omen::isConsumed);
-		// System.out.println(activeOmens);
-	}
-
-	// Apply a crafting action to this item.
-	// If omens are active, they modify the behavior of the action.
-	public Crafting_Item applyOmens(Crafting_Item item, Crafting_Action action) {
-		List<Omen> omens = item.getActiveOmens();
-		omens.sort((o1, o2) -> Integer.compare(o2.getPriority(), o1.getPriority()));
-
-		if (!omens.isEmpty()) {
-			for (Omen omen : omens) {
-				// System.out.println("Applying : " + omen);
-				item = omen.applyEffect(item, action);
-			}
-			for (Omen omen : omens) {
-				omen.consumed = true;
-			}
-			item.clearConsumedOmens(); // remove used omens
-		}
-		return item;
 	}
 
 	public boolean hasOmen(Class<? extends Omen> omenClass) {
@@ -427,60 +394,4 @@ public class Crafting_Item {
 
 
 	// Homogenising handling
-
-	public List<Modifier> homogeniseModifiers(List<Modifier> allowedModifiers, Modifier[] currentPrefixModifiers, Modifier[] currentSuffixModifiers) {
-		Set<String> existingTags = new HashSet<>();
-		List<Modifier> finalModifiers = new ArrayList<>();
-
-		// 🔹 Gather tags from current prefixes
-		for (Modifier m : currentPrefixModifiers) {
-			if (m != null && m.tags != null)
-				existingTags.addAll(m.tags);
-		}
-
-		// 🔹 Gather tags from current suffixes
-		for (Modifier m : currentSuffixModifiers) {
-			if (m != null && m.tags != null)
-				existingTags.addAll(m.tags);
-		}
-
-		// If no tags corresponds, return null
-		if (existingTags.isEmpty()){
-			// System.out.println("⚠ No existing tags on item — homogenising skipped.");
-			finalModifiers.addAll(allowedModifiers);
-			return finalModifiers;
-		}
-
-		// System.out.println("existingTags" + existingTags);
-
-		// Retrieving the modifiers with the same tags
-		for (Modifier mod : allowedModifiers) {
-			if (mod != null && mod.tags != null &&
-				mod.tags.stream().anyMatch(existingTags::contains)) {
-				finalModifiers.add(mod);
-				// System.out.println("✅ Corresponding mod found: " + mod.text);
-				// System.out.println("With tags" + mod.tags);
-			}
-		}
-
-		
-		// Remove a modifier in final modifiers if it has the same family has another
-		for (Modifier current : currentPrefixModifiers) {
-			if (current == null) continue;
-			finalModifiers.removeIf(mod -> mod.family != null && mod.family.equals(current.family));
-		}
-		
-		// Remove modifiers from finalModifiers that have the same family as any current suffix
-		for (Modifier current : currentSuffixModifiers) {
-			if (current == null) continue;
-			finalModifiers.removeIf(mod -> mod.family != null && mod.family.equals(current.family));
-		}
-		
-		if (finalModifiers.isEmpty()) {
-			// System.out.println("⚠ No matching modifiers found — using all allowed ones.");
-			return null;
-		}
-
-		return finalModifiers;
-	}
 }

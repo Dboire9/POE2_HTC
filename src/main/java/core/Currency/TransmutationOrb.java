@@ -31,44 +31,46 @@ public class TransmutationOrb implements Crafting_Action {
         if (item.rarity != Crafting_Item.ItemRarity.NORMAL || item.isFull()) return CandidateList;
 
         Item_base base = item.base;
+		//Crating a list of the item we will applyt the modifiers on 
 		List<Crafting_Item> Item_Evaluation;
 
-		// We retrieve all the modifiers 
+
+		
+
+
+		// We retrieve all the modifiers for all the currency tier
+
+
 		List<Modifier> all_Prefix_modifiers = base.getNormalAllowedPrefixes();
 		List<Modifier> all_Suffix_Modifiers = base.getNormalAllowedSuffixes();
 		
-		int score = 0;
+		evaluateAffixes(all_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		evaluateAffixes(all_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
 
-		Item_Evaluation = item.addAffixes(all_Prefix_modifiers, item, CurrencyTier.BASE);
-		for(Crafting_Item items: Item_Evaluation)
-		{
-			score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
-			if(score > 0)
-			{
-				// Do a function to add to candidate
-			}
 
-		}
+		List<Modifier> all_Greater_Prefix_modifiers = base.getNormalTierAllowedAffixes(CurrencyTier.GREATER, all_Prefix_modifiers);
+		List<Modifier> all_Greater_Suffix_Modifiers = base.getNormalTierAllowedAffixes(CurrencyTier.GREATER, all_Suffix_Modifiers);
 		
-		Item_Evaluation.clear();
-		Item_Evaluation = item.addAffixes(all_Suffix_Modifiers, item, CurrencyTier.BASE);
-		
-		Item_Evaluation.clear();
-		Item_Evaluation = item.addAffixes(all_Prefix_modifiers, item, CurrencyTier.GREATER);
-		
-		Item_Evaluation.clear();
-		Item_Evaluation = item.addAffixes(all_Suffix_Modifiers, item, CurrencyTier.GREATER);
+		this.tier = CurrencyTier.GREATER;
+		evaluateAffixes(all_Greater_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		evaluateAffixes(all_Greater_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
 
-		Item_Evaluation = item.addAffixes(all_Prefix_modifiers, item, CurrencyTier.PERFECT);
+
+		List<Modifier> all_Perfect_Prefix_modifiers = base.getNormalTierAllowedAffixes(CurrencyTier.PERFECT, all_Prefix_modifiers);
+		List<Modifier> all_Perfect_Suffix_Modifiers = base.getNormalTierAllowedAffixes(CurrencyTier.PERFECT, all_Suffix_Modifiers);
 		
-		Item_Evaluation.clear();
-		Item_Evaluation = item.addAffixes(all_Suffix_Modifiers, item, CurrencyTier.PERFECT);
+		this.tier = CurrencyTier.PERFECT;
+		evaluateAffixes(all_Perfect_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		evaluateAffixes(all_Perfect_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
 
 		// Convert item to MAGIC
 		item.rarity = Crafting_Item.ItemRarity.MAGIC;
 		
         return CandidateList;
     }
+
+
+
 
     @Override
     public int getCost() {

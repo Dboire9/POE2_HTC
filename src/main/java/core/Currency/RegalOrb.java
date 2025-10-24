@@ -23,16 +23,21 @@ public class RegalOrb implements Crafting_Action {
     }
 
 	@Override
-	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags)
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
+		
+		
+		
 		List<Modifier> all_Prefix_modifiers = item.base.getNormalAllowedPrefixes();
 		List<Modifier> all_Suffix_Modifiers = item.base.getNormalAllowedSuffixes();
-		
-		CandidateListCopy.addAll(evaluateAffixes(all_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
-		CandidateListCopy.addAll(evaluateAffixes(all_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
 
+		for (Crafting_Candidate candidate : CandidateList)
+		{
+			CandidateListCopy.add(evaluateAffixes(all_Prefix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
+			CandidateListCopy.add(evaluateAffixes(all_Suffix_Modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
+		}
         return CandidateListCopy;
 	}
 

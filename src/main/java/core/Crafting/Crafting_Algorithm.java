@@ -65,10 +65,10 @@ public class Crafting_Algorithm {
 		listOfCandidateLists.add(new ArrayList<>(CandidateListCopy));
 
 
-		// Omen regalhomog = new OmenOfHomogenisingCoronation();
-		// RegalOrb homogregalOrb = new RegalOrb(regalhomog);
-		// CandidateListCopy = homogregalOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
-		// listOfCandidateLists.add(new ArrayList<>(CandidateListCopy));
+		Omen regalhomog = new OmenOfHomogenisingCoronation();
+		RegalOrb homogregalOrb = new RegalOrb(regalhomog);
+		CandidateListCopy = homogregalOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, regalhomog);
+		listOfCandidateLists.add(new ArrayList<>(CandidateListCopy));
 
 
 		

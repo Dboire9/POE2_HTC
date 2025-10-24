@@ -3,6 +3,7 @@ package core.Currency;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Item.ModType;
 import core.Currency.Omens_currency.Omen;
+import core.Currency.Omens_currency.OmenOfHomogenisingCoronation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +28,19 @@ public class RegalOrb implements Crafting_Action {
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
+		List<Modifier> all_Affix_modifiers = new ArrayList<>();
 		
-		
-		
-		List<Modifier> all_Prefix_modifiers = item.base.getNormalAllowedPrefixes();
-		List<Modifier> all_Suffix_Modifiers = item.base.getNormalAllowedSuffixes();
+		all_Affix_modifiers.addAll(item.base.getNormalAllowedPrefixes());
+		all_Affix_modifiers.addAll(item.base.getNormalAllowedSuffixes());
 
 		for (Crafting_Candidate candidate : CandidateList)
 		{
-			CandidateListCopy.add(evaluateAffixes(all_Prefix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
-			CandidateListCopy.add(evaluateAffixes(all_Suffix_Modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
+			if(new_omen instanceof OmenOfHomogenisingCoronation)
+				all_Affix_modifiers = new_omen.getHomogAffixes(item, candidate);
+			Crafting_Candidate result = evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen);
+			if (result != null) {
+				CandidateListCopy.add(result);
+			}
 		}
         return CandidateListCopy;
 	}

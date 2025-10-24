@@ -64,22 +64,4 @@ public class Crafting_Algorithm {
 		return score;
 	}
 
-
-	private static void printBestOutcomes(TreeMap<Integer, List<Crafting_Item>> topItemsMap)
-	{
-		System.out.println("Top 20 outcomes:");
-		// Iterate in descending order of keys
-		for (Map.Entry<Integer, List<Crafting_Item>> entry : topItemsMap.descendingMap().entrySet()) {
-			int scoreKey = entry.getKey();
-		
-			for (Crafting_Item item : entry.getValue()) {
-				System.out.println("Score: " + scoreKey);
-				System.out.println("Item modifiers:");
-				for (Modifier mod : item.getAllModifiers()) {
-					System.out.println("  - " + mod.text);
-				}
-				System.out.println(); // Empty line between items
-			}
-		}
-	}
 }

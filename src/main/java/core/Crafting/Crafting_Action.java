@@ -27,10 +27,13 @@ public interface Crafting_Action {
             score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
             if (score > 0) {
                 Crafting_Candidate new_Candidate = Crafting_Candidate.AddCraftingCandidate(items, score, this);
+				double weight = 0;
 				if(isPrefix)
-               		new_Candidate.percentage = (new_Candidate.currentPrefixTiers[0].weight / item.get_Base_Affix_Total_Weight(modifiers)) * 100;
+					weight = new_Candidate.currentPrefixTiers[0].weight;
 				else
-					new_Candidate.percentage = (new_Candidate.currentSuffixTiers[0].weight / item.get_Base_Affix_Total_Weight(modifiers)) * 100;
+					weight = new_Candidate.currentSuffixTiers[0].weight;
+				double totalWeight = item.get_Base_Affix_Total_Weight(modifiers);
+				new_Candidate.percentage = (weight / totalWeight) * 100;
                 CandidateList.add(new_Candidate);
             }
         }

@@ -88,7 +88,7 @@ public class Crafting_Item {
 
 
 	// Adding a prefix with tier
-	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, CurrencyTier currency_tier)
+	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item)
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
 		// Looping through all the modifiers and modifiers tiers
@@ -97,16 +97,14 @@ public class Crafting_Item {
 			for(ModifierTier mod_tiers : m.tiers)
 			{
 				// resetting to the item base each time
-				Crafting_Item new_item = item.copy();
-				if(currency_tier == CurrencyTier.BASE)
-				{
+				Crafting_Item new_item = new Crafting_Item(item.base);
 					//Apllying the modifier and modifier tier
 					if(m.type == ModifierType.PREFIX)
 						new_item.addPrefix(m, mod_tiers);
 					else
 						new_item.addSuffix(m, mod_tiers);
+					//Adding to the List all the items with the new modifier each time
 					Items_List.add(new_item);
-				}
 			}
 		}
 		return Items_List;

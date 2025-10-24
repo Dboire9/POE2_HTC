@@ -99,4 +99,19 @@ public class Modifier {
 		this.text = text;
 	}
 
+
+	// Creating a modifier copy with or without the modifier Tiers
+	public Modifier(Modifier other, boolean excludeTiers) {
+		this.primaryCategory = other.primaryCategory;
+		this.secondaryCategory = other.secondaryCategory;
+		this.thirdCategory = other.thirdCategory;
+		this.fourthCategory = other.fourthCategory;
+		this.tiers = excludeTiers ? new ArrayList<>() : new ArrayList<>(other.tiers);
+		this.type = other.type;
+		this.tags = new ArrayList<>(other.tags);
+		this.source = other.source;
+		this.family = other.family;
+		this.text = other.text;
+	}
+
 }

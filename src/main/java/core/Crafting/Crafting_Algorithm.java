@@ -5,6 +5,7 @@ import core.Modifier_class.*;
 import core.Crafting.Utils.Heuristic_Util;
 import core.Currency.TransmutationOrb;
 import core.Crafting.Crafting_Candidate;
+import core.Crafting.Crafting_Action.CurrencyTier;
 
 public class Crafting_Algorithm {
 	public static Crafting_Item optimizeCrafting(
@@ -15,24 +16,11 @@ public class Crafting_Algorithm {
 	{
 
 		Crafting_Item globalBest = baseItem.copy();
-		int globalBestScore = 0;
-		int minTargetScore = 0;
-		int uniquecombinations = 0;
 		
 		// Retrieving the tags and counting how many we have on every modifiers
 		Map<String, Integer> CountDesiredModifierTags = Heuristic_Util.CreateCountModifierTags(desiredMods);
 
-		boolean isPerfectEssence = false;
-		boolean isDesecrated = false;
-
-		//Checking if there is a special essence or a desecrated mod
-		for (Modifier mods : desiredMods)
-		{
-			if(mods.source == Modifier.ModifierSource.PERFECT_ESSENCE)
-				isPerfectEssence = true;
-			if (mods.source == Modifier.ModifierSource.DESECRATED)
-				isDesecrated = true;
-		}
+		
 
 		// Creating the first List of Crafting_Candidate
 		List<Crafting_Candidate> CandidateList = new ArrayList<>();
@@ -41,7 +29,7 @@ public class Crafting_Algorithm {
 		TransmutationOrb transmutationOrb = new TransmutationOrb();
 		transmutationOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
 
-
+		System.out.println(CandidateList);
 
 
 

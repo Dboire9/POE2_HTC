@@ -34,22 +34,6 @@ public class AugmentationOrb implements Crafting_Action {
 		CandidateListCopy.addAll(evaluateAffixeswithAug(all_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
 		CandidateListCopy.addAll(evaluateAffixeswithAug(all_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
 
-
-		List<Modifier> all_Greater_Prefix_modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.GREATER, all_Prefix_modifiers);
-		List<Modifier> all_Greater_Suffix_Modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.GREATER, all_Suffix_Modifiers);
-		
-		this.tier = CurrencyTier.GREATER;
-		CandidateListCopy.addAll(evaluateAffixeswithAug(all_Greater_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
-		CandidateListCopy.addAll(evaluateAffixeswithAug(all_Greater_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
-
-
-		List<Modifier> all_Perfect_Prefix_modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.PERFECT, all_Prefix_modifiers);
-		List<Modifier> all_Perfect_Suffix_Modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.PERFECT, all_Suffix_Modifiers);
-		
-		this.tier = CurrencyTier.PERFECT;
-		CandidateListCopy.addAll(evaluateAffixeswithAug(all_Perfect_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
-		CandidateListCopy.addAll(evaluateAffixeswithAug(all_Perfect_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags));
-
 		// Convert item to MAGIC
 		item.rarity = Crafting_Item.ItemRarity.MAGIC;
 		

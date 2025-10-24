@@ -44,22 +44,6 @@ public class TransmutationOrb implements Crafting_Action {
 		CreateListAndEvaluateAffixes(all_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
 		CreateListAndEvaluateAffixes(all_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
 
-
-		List<Modifier> all_Greater_Prefix_modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.GREATER, all_Prefix_modifiers);
-		List<Modifier> all_Greater_Suffix_Modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.GREATER, all_Suffix_Modifiers);
-		
-		this.tier = CurrencyTier.GREATER;
-		CreateListAndEvaluateAffixes(all_Greater_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
-		CreateListAndEvaluateAffixes(all_Greater_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
-
-
-		List<Modifier> all_Perfect_Prefix_modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.PERFECT, all_Prefix_modifiers);
-		List<Modifier> all_Perfect_Suffix_Modifiers = item.base.getNormalTierAllowedAffixes(CurrencyTier.PERFECT, all_Suffix_Modifiers);
-		
-		this.tier = CurrencyTier.PERFECT;
-		CreateListAndEvaluateAffixes(all_Perfect_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
-		CreateListAndEvaluateAffixes(all_Perfect_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
-
 		// Convert item to MAGIC
 		item.rarity = Crafting_Item.ItemRarity.MAGIC;
 		

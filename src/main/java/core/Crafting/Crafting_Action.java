@@ -22,10 +22,7 @@ public interface Crafting_Action {
     // Default method for evaluateAffixes
     default void CreateListAndEvaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
         int score;
-		boolean isPrefix = false;
         List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item);
-		if(modifiers != null && modifiers.get(0).type == ModifierType.PREFIX)
-			isPrefix = true;
         for (Crafting_Item items : Item_Evaluation) {
             score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
             if (score > 0) {
@@ -39,7 +36,6 @@ public interface Crafting_Action {
 
 	    default List<Crafting_Candidate> evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
         int score;
-		double stepProbability;
 		boolean isPrefix = false;
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 

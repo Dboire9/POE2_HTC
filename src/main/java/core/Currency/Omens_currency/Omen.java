@@ -2,77 +2,87 @@ package core.Currency.Omens_currency;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
+import core.Modifier_class.*;
 
-/**
- * Base class for all Omens.
- * Omens modify the behavior of another crafting action (like an Exalted Orb)
- * and are consumed once their effect has been applied.
- */
-public abstract class Omen implements Crafting_Action {
+
+public class Omen implements Crafting_Action {
 
     protected String name;
-    public boolean consumed = false;
-	protected int priority = 0;
 
-    public String getName() {return name;}
+    public String getName() { return name; }
 
-    public boolean isConsumed() {return consumed;}
-	public int getPriority() { return priority; }
+    public static final List<Omen> All = new ArrayList<>();
 
-	public Class<? extends Crafting_Action> associatedCurrency;
-
-	public static final List<Omen> allOmens = new ArrayList<>();
-
-	// Getting all the omens
+	@Override
+	public Crafting_Action copy() {
+		try {
+			return (Omen) this.getClass().getDeclaredConstructor().newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to copy Omen", e);
+		}
+	}
 
 	static {
-        allOmens.add(new OmenOfDesecratedAnnulment());
-        allOmens.add(new OmenOfDextralAnnulment());
-        allOmens.add(new OmenOfDextralCrystallisation());
-        allOmens.add(new OmenOfDextralErasure());
-        allOmens.add(new OmenOfDextralExaltation());
-        allOmens.add(new OmenOfDextralNecromancy());
-        allOmens.add(new OmenOfGreaterExaltation());
-        allOmens.add(new OmenOfHomogenisingCoronation());
-        allOmens.add(new OmenOfHomogenisingExaltation());
-        allOmens.add(new OmenOfSinistralAnnulment());
-        allOmens.add(new OmenOfSinistralCrystallisation());
-        allOmens.add(new OmenOfSinistralErasure());
-        allOmens.add(new OmenOfSinistralExaltation());
-        allOmens.add(new OmenOfSinistralNecromancy());
-        allOmens.add(new OmenOfTheBlackblooded());
-        allOmens.add(new OmenOfTheLiege());
-        allOmens.add(new OmenOfTheSovereign());
+        // All.add(new OmenOfDesecratedAnnulment());
+        // All.add(new OmenOfDextralAnnulment());
+        // All.add(new OmenOfDextralCrystallisation());
+        // All.add(new OmenOfDextralErasure());
+        // All.add(new OmenOfDextralExaltation());
+        // All.add(new OmenOfDextralNecromancy());
+        // All.add(new OmenOfGreaterExaltation());
+        All.add(new OmenOfHomogenisingCoronation());
+        // All.add(new OmenOfHomogenisingExaltation());
+        // All.add(new OmenOfSinistralAnnulment());
+        // All.add(new OmenOfSinistralCrystallisation());
+        // All.add(new OmenOfSinistralErasure());
+        // All.add(new OmenOfSinistralExaltation());
+        // All.add(new OmenOfSinistralNecromancy());
+        // All.add(new OmenOfTheBlackblooded());
+        // All.add(new OmenOfTheLiege());
+        // All.add(new OmenOfTheSovereign());
     }
 
-    public static List<Omen> getAllOmens() {
-        return new ArrayList<>(allOmens);
-    }
+	@Override
+	public List<Crafting_Candidate> apply(
+		Crafting_Item item,
+		List<Crafting_Candidate> CandidateList,
+		List<Modifier> desiredMods,
+		List<ModifierTier> desiredModTiers,
+		Map<String, Integer> CountDesiredModifierTags,
+		Omen omen  // <-- include this!
+	) {
+		return CandidateList;
+	}
 
 
+	public List<Modifier> getHomogAffixes(Crafting_Item item, Crafting_Candidate candidate) {
+		List<Modifier> AffixList = new ArrayList<>();
+	
+		List<Modifier> allAffixes = item.base.getNormalAllowedPrefixes();
+		allAffixes.addAll(item.base.getNormalAllowedSuffixes());
+		List<Modifier> candidateAffixes = candidate.getAllCurrentModifiers();
+	
+		for (Modifier item_mod : allAffixes) {
+			boolean added = false;
+			for (Modifier candidate_mod : candidateAffixes) {
+				for (String tag : item_mod.tags) {
+					if (candidate_mod.tags.contains(tag) && candidate_mod.family != item_mod.family) {
+						if (!AffixList.contains(item_mod)) {
+							AffixList.add(item_mod);
+						}
+						added = true;
+						break;
+					}
+				}
+				if (added) break;
+			}
+		}
+		return AffixList;
+	}
 
-
-
-    /**
-     * Called when the omen modifies another action (e.g., ExaltedOrb).
-     */
-    public abstract Crafting_Item applyEffect(Crafting_Item item, Crafting_Action action);
-
-    /**
-     * Default `apply()` implementation (since Omens are not direct item actions).
-     * It can simply attach itself to the item.
-     */
-    @Override
-    public Crafting_Item apply(Crafting_Item item) {
-        item.addActiveOmen(this);
-        return item;
-    }
-
-    @Override
-    public int getCost() {
-        return 0; // or set a specific cost if you want
-    }
 }

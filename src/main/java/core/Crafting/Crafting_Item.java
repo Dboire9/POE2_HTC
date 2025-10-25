@@ -39,9 +39,6 @@ public class Crafting_Item {
 
 	public List<ModifierEvent> modifierHistory = new ArrayList<>();
 
-	// To know which modifier was added when
-	public List<Modifier> modifierOrder = new ArrayList<>();
-
 	public Crafting_Item copy() {
 		Crafting_Item clone = new Crafting_Item(this.base);
 		clone.rarity = this.rarity;
@@ -67,10 +64,11 @@ public class Crafting_Item {
 			}
 		}
 
-		clone.modifierOrder = new ArrayList<>();
-		for (Modifier mod : this.modifierOrder) {
-			clone.modifierOrder.add(new Modifier(mod)); // Ensure you have a proper Modifier copy constructor
+		clone.modifierHistory = new ArrayList<>();
+		for (ModifierEvent event : this.modifierHistory) {
+			clone.modifierHistory.add(event.copy()); // Ensure ModifierEvent has a copy method
 		}
+
 	
 		return clone;
 	}
@@ -121,8 +119,6 @@ public class Crafting_Item {
 				// Create a copy of the item
 				Crafting_Item new_item = item.copy();
 
-				modifierOrder.add(m);
-
 				// Apply the modifier with the lowest tier
 				if (m.type == ModifierType.PREFIX)
 					new_item.addPrefix(m, lowestTier);
@@ -130,7 +126,7 @@ public class Crafting_Item {
 					new_item.addSuffix(m, lowestTier);
 
 				// Add the new item to the list
-				modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
+				new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
 				Items_List.add(new_item);
 			}
 		}

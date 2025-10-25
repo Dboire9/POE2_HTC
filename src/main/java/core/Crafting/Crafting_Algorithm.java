@@ -75,15 +75,15 @@ public class Crafting_Algorithm {
 		return globalBest;
 	}
 
-	public static int heuristic(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTier, Map<String, Integer> CountDesiredModifierTags)
+	public static double heuristic(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTier, Map<String, Integer> CountDesiredModifierTags)
 	{
-		int score = 0;
+		double score = 0;
 		List<Modifier> PrefixCurrentMods = item.getAllCurrentPrefixModifiers();
 		List<Modifier> SuffixCurrentMods = item.getAllCurrentSuffixModifiers();
 
 		// Calculating score by checking if we have the modifiers we want
-		score += Heuristic_Util.calculateAffixScore(PrefixCurrentMods, desiredModTier, CountDesiredModifierTags);
-		score += Heuristic_Util.calculateAffixScore(SuffixCurrentMods, desiredModTier, CountDesiredModifierTags);
+		score += Heuristic_Util.calculateAffixScore(PrefixCurrentMods, desiredMods, CountDesiredModifierTags);
+		score += Heuristic_Util.calculateAffixScore(SuffixCurrentMods, desiredMods, CountDesiredModifierTags);
 
 		return score;
 	}

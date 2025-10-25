@@ -11,19 +11,31 @@ public class ModifierEvent {
         CHANGED
     }
 
+	
     public final Modifier modifier;
     public final ModifierTier tier;
     public final Crafting_Action source;
     public final ActionType type;
-    public final long timestamp;
-
+	public double score;
+    public long timestamp;
+	
+	
     public ModifierEvent(Modifier modifier, ModifierTier tier, Crafting_Action source, ActionType type) {
         this.modifier = modifier;
+		this.score = 0;
         this.tier = tier;
         this.source = source;
         this.type = type;
         this.timestamp = System.currentTimeMillis();
     }
+
+	public ModifierEvent copy() {
+		// Create a new instance and copy the fields
+		ModifierEvent copy = new ModifierEvent(this.modifier, this.tier, this.source, this.type);
+		copy.timestamp = this.timestamp;
+		copy.score = this.score;
+		return copy;
+	}
 
     @Override
     public String toString() {

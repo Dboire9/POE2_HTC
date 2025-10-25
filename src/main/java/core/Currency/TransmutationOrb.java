@@ -36,9 +36,6 @@ public class TransmutationOrb implements Crafting_Action {
         // Only works on NORMAL items
         if (item.rarity != Crafting_Item.ItemRarity.NORMAL || item.isFull()) return CandidateList;
 
-		// We retrieve all the modifiers for all the currency tier
-
-		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
 		List<Modifier> all_Prefix_modifiers = item.base.getNormalAllowedPrefixes();
 		List<Modifier> all_Suffix_Modifiers = item.base.getNormalAllowedSuffixes();

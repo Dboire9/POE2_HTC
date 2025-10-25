@@ -39,12 +39,10 @@ public interface Crafting_Action {
     }
 	
 
-	    default Crafting_Candidate evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
+	    default List<Crafting_Candidate> evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
         int score;
 		boolean isPrefix = false;
-		Crafting_Candidate CandidateListCopy = null;
-
-
+		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 		if(modifiers != null && modifiers.get(0).type == ModifierType.PREFIX)
 			isPrefix = true;
 		//For the augmentation orb, we check that we are not applying a modifier on an affix already occupied, so we have only candidates with a prefix and a suffix
@@ -57,6 +55,7 @@ public interface Crafting_Action {
 			if (score > candidate.score) {
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
 				newCandidate.actions.add(this);
+				CandidateListCopy.add(newCandidate);
 			}
 		}
 		Item_Evaluation.clear();

@@ -111,7 +111,7 @@ public class Essence_currency implements Crafting_Action {
 			}
 		}
 		for (Crafting_Candidate candidate : CandidateList)
-			CandidateListCopy.add(evaluateAffixes(greaterEssences, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
+			CandidateListCopy.addAll(evaluateAffixes(greaterEssences, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
 
 		// Convert item to MAGIC
 

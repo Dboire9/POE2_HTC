@@ -63,7 +63,8 @@ public class Omen implements Crafting_Action {
 	public List<Modifier> getHomogAffixes(Crafting_Item item, Crafting_Candidate candidate) {
 		List<Modifier> AffixList = new ArrayList<>();
 	
-		List<Modifier> allAffixes = item.base.getNormalAllowedPrefixes();
+		List<Modifier> allAffixes = new ArrayList<>();
+		allAffixes.addAll(item.base.getNormalAllowedPrefixes());
 		allAffixes.addAll(item.base.getNormalAllowedSuffixes());
 		List<Modifier> candidateAffixes = candidate.getAllCurrentModifiers();
 	

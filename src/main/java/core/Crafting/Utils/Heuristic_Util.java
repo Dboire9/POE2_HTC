@@ -27,24 +27,15 @@ public class Heuristic_Util {
             affix_slots++;
         }
 
-		// you can compute score here however you want
-		score = matched_modifiers * 100 / (affix_slots == 0 ? 1 : affix_slots);
-
-		Map<String, Integer> CountModifierTags = CreateCountModifierTags(AffixCurrentMods);
-
+		
 		// If matched modifiers are equal to the slots in the item, add score, so 6000 is the goal to reach
 		if (matched_modifiers == affix_slots) {
 			score += 1000 * matched_modifiers;
 		}
 		else
 		{
+			Map<String, Integer> CountModifierTags = CreateCountModifierTags(AffixCurrentMods);
 			score += ScoringTags(CountDesiredModifierTags, CountModifierTags);
-			int unmatched_modifiers = affix_slots - matched_modifiers;
-			if (unmatched_modifiers == 2) {
-				score -= 50; // Apply a penalty for 2 unmatched modifiers
-			} else if (unmatched_modifiers == 3) {
-				score -= 200; // Apply a larger penalty for 3 unmatched modifiers
-			}
 		}
 	
 		
@@ -64,11 +55,8 @@ public class Heuristic_Util {
 		
 				if (currentCount < desiredCount && currentCount > 0) {
 					// If current count is less than desired, but not 0, increase score significantly
-					score += 250;
-				} else if (currentCount == desiredCount) {
-					// If current count matches desired count, increase score slightly
-					score += 100;
-				} else {
+					score += 250 * (desiredCount - currentCount);
+				}else {
 					// If current count is more than desired, decrease score significantly
 					score -= 500;
 				}

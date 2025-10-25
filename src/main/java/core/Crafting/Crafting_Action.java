@@ -24,14 +24,16 @@ public interface Crafting_Action {
     String getName();                        // name for display
 
     // Default method for evaluateAffixes
-    default void CreateListAndEvaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
-        int score;
+    default void CreateListAndEvaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags)
+	{
         List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, this);
         for (Crafting_Item items : Item_Evaluation) {
-            score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
+			double score = 0;
+            score += Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
             if (score > 0) {
-                Crafting_Candidate new_Candidate = Crafting_Candidate.AddCraftingCandidate(items, score, this);
+				Crafting_Candidate new_Candidate = Crafting_Candidate.AddCraftingCandidate(items, score, this);
 				new_Candidate.rarity = ItemRarity.MAGIC;
+				new_Candidate.modifierHistory.get(0).score = score;
                 CandidateList.add(new_Candidate);
             }
         }
@@ -40,22 +42,23 @@ public interface Crafting_Action {
 	
 
 	    default List<Crafting_Candidate> evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags) {
-        int score;
 		boolean isPrefix = false;
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 		if(modifiers != null && modifiers.get(0).type == ModifierType.PREFIX)
-			isPrefix = true;
+		isPrefix = true;
 		//For the augmentation orb, we check that we are not applying a modifier on an affix already occupied, so we have only candidates with a prefix and a suffix
 		if((isPrefix && candidate.currentPrefixes[0] != null) || !isPrefix && candidate.currentSuffixes[0] != null)
-			return CandidateListCopy;
+		return CandidateListCopy;
 		item = candidate.copy();
 		List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, this);
 		for (Crafting_Item items : Item_Evaluation) {
-			score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
+			double score = 0;
+			score += Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
 			if (score > candidate.score) {
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
 				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);
+				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score; 
 				CandidateListCopy.add(newCandidate);
 			}
 		}
@@ -65,17 +68,18 @@ public interface Crafting_Action {
 
 	default List<Crafting_Candidate> evaluateAffixes(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
 	{
-        int score;
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
 		item = candidate.copy();
 		List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, this);
 		for (Crafting_Item items : Item_Evaluation) {
-			score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
+			double score = 0;
+			score += Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
 			if (score > candidate.score) {
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
 				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);
+				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
 				newCandidate.rarity = ItemRarity.RARE;
 				CandidateListCopy.add(newCandidate);
 			}

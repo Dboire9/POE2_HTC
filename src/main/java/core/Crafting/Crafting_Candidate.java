@@ -2,6 +2,8 @@ package core.Crafting;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import core.Crafting.Utils.ModifierEvent;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 
@@ -52,6 +54,11 @@ public class Crafting_Candidate extends Crafting_Item {
 			for (Crafting_Action action : this.actions) {
 				copy.actions.add(action.copy());
 			}
+
+			copy.modifierHistory = new ArrayList<>();
+			for (ModifierEvent History : this.modifierHistory) {
+				copy.modifierHistory.add(History.copy());
+			}
 		
 			return copy;
 		}
@@ -66,6 +73,7 @@ public class Crafting_Candidate extends Crafting_Item {
 			this.currentSuffixes = new_item.currentSuffixes;
 			this.currentSuffixTiers = new_item.currentSuffixTiers;
 			this.rarity = new_item.rarity;
+			this.modifierHistory = new_item.modifierHistory;
 		}
 
 		public static Crafting_Candidate AddCraftingCandidate(Crafting_Item item, double score, Crafting_Action action)
@@ -74,7 +82,7 @@ public class Crafting_Candidate extends Crafting_Item {
 			return new_Crafting_Candidate;
 		}
 
-		public Crafting_Candidate NewStep(Crafting_Candidate oldCraftingCandidate, Crafting_Item new_item, int score, Crafting_Action action)
+		public Crafting_Candidate NewStep(Crafting_Candidate oldCraftingCandidate, Crafting_Item new_item, double score, Crafting_Action action)
 		{
 			Crafting_Candidate new_Crafting_Candidate = (Crafting_Candidate) new_item.copy();
 			new_Crafting_Candidate.score = score;

@@ -9,25 +9,23 @@ import java.util.stream.Collectors;
 import core.Modifier_class.*;
 
 public class Heuristic_Util {
-		public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<ModifierTier> desiredModTier, Map<String, Integer> CountDesiredModifierTags) {
+		public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<Modifier> desiredModTier, Map<String, Integer> CountDesiredModifierTags) {
 		int score = 0;
 		int matched_modifiers = 0;
 		int affix_slots = 0;
 
-		// Build a set of desired tier names for faster lookup
-		Set<String> desiredTierNames = desiredModTier.stream()
-				.map(t -> t.name)
-				.collect(Collectors.toSet());
+		// Build a set of desired names for faster lookup
+        Set<String> desiredModifierTexts = desiredModTier.stream()
+                .map(t -> t.text) // Use the text field instead of name
+                .collect(Collectors.toSet());
 
-		for (Modifier mod : AffixCurrentMods) {
-			for (ModifierTier tier : mod.tiers) {
-				if (desiredTierNames.contains(tier.name)) {
-					matched_modifiers++;
-					break; // stop after the first match
-				}
-			}
-			affix_slots++;
-		}
+		// Comparing with text, so that the essences can match
+        for (Modifier mod : AffixCurrentMods) {
+            if (desiredModifierTexts.contains(mod.text)) {
+                matched_modifiers++;
+            }
+            affix_slots++;
+        }
 
 		// you can compute score here however you want
 		score = matched_modifiers * 100 / (affix_slots == 0 ? 1 : affix_slots);
@@ -49,7 +47,7 @@ public class Heuristic_Util {
 			}
 		}
 	
-	
+		
 		return score;
 	}
 

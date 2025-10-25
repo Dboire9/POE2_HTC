@@ -56,10 +56,12 @@ public class Heuristic_Util {
 				if (currentCount < desiredCount && currentCount > 0) {
 					// If current count is less than desired, but not 0, increase score significantly
 					score += 250 * (desiredCount - currentCount);
-				}else {
+				}
+				else if (currentCount == desiredCount)
+					score += 50;
+				else 
 					// If current count is more than desired, decrease score significantly
 					score -= 500;
-				}
 			}
 		}
 		return score;

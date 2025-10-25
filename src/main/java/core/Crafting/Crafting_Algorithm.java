@@ -25,63 +25,43 @@ public class Crafting_Algorithm {
 		
 
 		// Creating the first List of Crafting_Candidate
-		List<Crafting_Candidate> CandidateList = new ArrayList<>();
-		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
+		List<Crafting_Candidate> FirstCandidateList = new ArrayList<>();
+		List<Crafting_Candidate> AugCandidateList = new ArrayList<>();
+		List<Crafting_Candidate> FirstCandidateListCopy = new ArrayList<>();
 		List<List<Crafting_Candidate>> listOfCandidateLists = new ArrayList<>();
 
 		// Transmuting the item (first step)
 		TransmutationOrb transmutationOrb = new TransmutationOrb();
-		CandidateList.addAll(transmutationOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null));
+		FirstCandidateList.addAll(transmutationOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null));
 
 		//Making a copy of all the candidate list to use after
-		for (Crafting_Candidate candidate : CandidateList) {
-			CandidateListCopy.add(candidate.copy());
+		for (Crafting_Candidate candidate : FirstCandidateList) {
+			FirstCandidateListCopy.add(candidate.copy());
 		}
 
 		// Second step (augmentation, or regal or essence)
 		AugmentationOrb augmentationOrb = new AugmentationOrb();
-		CandidateList = augmentationOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		FirstCandidateList = augmentationOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
 		// Adding the list : Transmut -> Augment
-		listOfCandidateLists.add(new ArrayList<>(CandidateList));
+		listOfCandidateLists.add(new ArrayList<>(FirstCandidateList));
 
-		CandidateList.clear();
-		// Candidate list here gets the list after the transmute
-		for (Crafting_Candidate candidate : CandidateListCopy) {
-			CandidateList.add(candidate.copy());
+		// Adding the list after aug to AugCandidateList
+		for (Crafting_Candidate candidate : FirstCandidateList) {
+			AugCandidateList.add(candidate.copy());
 		}
-		CandidateListCopy.clear();
 
-		Essence_currency essence = new Essence_currency();
-		List<Crafting_Candidate> temp = essence.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
-		CandidateListCopy.addAll(temp);
-		// Adding the list : Transmut -> Essences
-		listOfCandidateLists.add(new ArrayList<>(CandidateListCopy));
+		// We apply the essences and regal with and without omens to the magic bases 
+		generateCandidateLists(baseItem, FirstCandidateListCopy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
+		generateCandidateLists(baseItem, AugCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
 
-		CandidateListCopy.clear();
-
-		// Applying a normal RegalOrb
-		RegalOrb regalOrb = new RegalOrb();
-		CandidateListCopy = regalOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
-		listOfCandidateLists.add(new ArrayList<>(CandidateListCopy));
-
-
-		Omen regalhomog = new OmenOfHomogenisingCoronation();
-		RegalOrb homogregalOrb = new RegalOrb(regalhomog);
-		CandidateListCopy = homogregalOrb.apply(baseItem, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, regalhomog);
-		listOfCandidateLists.add(new ArrayList<>(CandidateListCopy));
-
-
-		
-		CandidateListCopy.clear();
-		
-		// CURRENTLY NOT DOING OMENS OR CURRENCY TIER WE WILL DO IT AT THE END WHEN CALCULATING PROBABILITIES
+		// Need to do regal with and wihtout omens on candidate_list for augs and we are good for the normal to rare
 
 		// We might need to do omens
 
 
 
 
-		// System.out.println(CandidateList);
+		// System.out.println(FirstCandidateList);
 
 
 
@@ -104,4 +84,38 @@ public class Crafting_Algorithm {
 		return score;
 	}
 
+
+
+
+	private static void generateCandidateLists(
+		Crafting_Item baseItem,
+		List<Crafting_Candidate> FirstCandidateList,
+		List<Modifier> desiredMods,
+		List<ModifierTier> desiredModTiers,
+		Map<String, Integer> CountDesiredModifierTags,
+		List<List<Crafting_Candidate>> listOfCandidateLists
+	)
+	{
+		// Applying Essence_currency
+		Essence_currency essence = new Essence_currency();
+		List<Crafting_Candidate> FirstCandidateListCopy = new ArrayList<>();
+		List<Crafting_Candidate> temp = essence.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		FirstCandidateListCopy.addAll(temp);
+		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
+		FirstCandidateListCopy.clear();
+	
+		// Applying a normal RegalOrb
+		RegalOrb regalOrb = new RegalOrb();
+		FirstCandidateListCopy = regalOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
+		FirstCandidateListCopy.clear();
+	
+		// Applying RegalOrb with OmenOfHomogenisingCoronation
+		Omen regalhomog = new OmenOfHomogenisingCoronation();
+		RegalOrb homogregalOrb = new RegalOrb(regalhomog);
+		FirstCandidateListCopy = homogregalOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, regalhomog);
+		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
+		FirstCandidateListCopy.clear();
+		
+	}
 }

@@ -33,8 +33,8 @@ public class AugmentationOrb implements Crafting_Action {
 		
 		for (Crafting_Candidate candidate : CandidateList)
 		{
-			CandidateListCopy.add(evaluateAffixeswithAug(all_Prefix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags));
-			CandidateListCopy.add(evaluateAffixeswithAug(all_Suffix_Modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags));
+			CandidateListCopy.addAll(evaluateAffixeswithAug(all_Prefix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags));
+			CandidateListCopy.addAll(evaluateAffixeswithAug(all_Suffix_Modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags));
 		}
 
 		// Convert item to MAGIC

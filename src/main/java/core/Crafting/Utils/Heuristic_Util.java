@@ -3,6 +3,8 @@ package core.Crafting.Utils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import core.Modifier_class.*;
 
@@ -11,25 +13,25 @@ public class Heuristic_Util {
 		int score = 0;
 		int matched_modifiers = 0;
 		int affix_slots = 0;
-	
-		// Checking the prefix modifiers
-		for (Modifier mods : AffixCurrentMods) {
-			boolean matched = false;
-			for (ModifierTier currentTier : mods.tiers) {
-				for (ModifierTier desiredTier : desiredModTier) {
-					// If the family is the same and the tier is the same or above
-					if (currentTier.name.equals(desiredTier.name)) {
-						matched = true;
-						matched_modifiers++;
-						break;
-					}
+
+		// Build a set of desired tier names for faster lookup
+		Set<String> desiredTierNames = desiredModTier.stream()
+				.map(t -> t.name)
+				.collect(Collectors.toSet());
+
+		for (Modifier mod : AffixCurrentMods) {
+			for (ModifierTier tier : mod.tiers) {
+				if (desiredTierNames.contains(tier.name)) {
+					matched_modifiers++;
+					break; // stop after the first match
 				}
-				// If it is a match, break to move on
-				if (matched) break;
 			}
 			affix_slots++;
 		}
 
+		// you can compute score here however you want
+		score = matched_modifiers * 100 / (affix_slots == 0 ? 1 : affix_slots);
+		
 		Map<String, Integer> CountModifierTags = CreateCountModifierTags(AffixCurrentMods);
 
 		score += ScoringTags(CountDesiredModifierTags, CountModifierTags);

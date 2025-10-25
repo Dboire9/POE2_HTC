@@ -44,6 +44,7 @@ public class Crafting_Candidate extends Crafting_Item {
 		
 			// Copy Crafting_Candidate-specific fields
 			copy.score = this.score;
+			copy.prev_score = this.prev_score;
 			copy.percentage = this.percentage;
 		
 			// Deep copy actions
@@ -75,7 +76,7 @@ public class Crafting_Candidate extends Crafting_Item {
 
 		public Crafting_Candidate NewStep(Crafting_Candidate oldCraftingCandidate, Crafting_Item new_item, int score, Crafting_Action action)
 		{
-			Crafting_Candidate new_Crafting_Candidate = this.copy();
+			Crafting_Candidate new_Crafting_Candidate = (Crafting_Candidate) new_item.copy();
 			new_Crafting_Candidate.score = score;
 			new_Crafting_Candidate.currentPrefixes = new_item.currentPrefixes.clone();
 			new_Crafting_Candidate.currentPrefixTiers = new_item.currentPrefixTiers.clone();

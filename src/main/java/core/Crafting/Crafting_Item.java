@@ -27,6 +27,7 @@ public class Crafting_Item {
 	public ItemRarity rarity;
 	public boolean desecrated = false;
 	public double score;
+	public double prev_score;
 	
 	// Current modifiers
 	public Modifier[] currentPrefixes = new Modifier[3];

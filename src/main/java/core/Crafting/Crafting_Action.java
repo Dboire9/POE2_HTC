@@ -54,6 +54,7 @@ public interface Crafting_Action {
 			score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
 			if (score > candidate.score) {
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
+				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);
 				CandidateListCopy.add(newCandidate);
 			}
@@ -62,10 +63,10 @@ public interface Crafting_Action {
 		return CandidateListCopy;
     }
 
-	default Crafting_Candidate evaluateAffixes(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
+	default List<Crafting_Candidate> evaluateAffixes(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
 	{
         int score;
-		Crafting_Candidate CandidateListCopy = null;
+		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
 		item = candidate.copy();
 		List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, this);
@@ -73,9 +74,10 @@ public interface Crafting_Action {
 			score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
 			if (score > candidate.score) {
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
+				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);
 				newCandidate.rarity = ItemRarity.RARE;
-				CandidateListCopy = newCandidate.copy();
+				CandidateListCopy.add(newCandidate);
 			}
 		}
 		Item_Evaluation.clear();

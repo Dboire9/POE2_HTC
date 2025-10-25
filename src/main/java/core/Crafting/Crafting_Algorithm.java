@@ -52,11 +52,15 @@ public class Crafting_Algorithm {
 
 		// We apply the essences and regal with and without omens to the magic bases 
 		generateCandidateLists(baseItem, FirstCandidateListCopy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
+		for (Crafting_Candidate candidate : FirstCandidateList) {
+			FirstCandidateListCopy.add(candidate.copy());
+		}
 		generateCandidateLists(baseItem, AugCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
 
-		// Need to do regal with and wihtout omens on candidate_list for augs and we are good for the normal to rare
 
-		// We might need to do omens
+		// Now we need to take all these 6 magic bases and finish them
+		// We have exalted orbs with omens, Desecration, annuls, perfect essences
+		// Annuls has 6 omens (one in synergy with desecrated currency), exalt has 4 omens, but we can apply 3 at a time, essence has 2
 
 
 
@@ -116,6 +120,5 @@ public class Crafting_Algorithm {
 		FirstCandidateListCopy = homogregalOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, regalhomog);
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
 		FirstCandidateListCopy.clear();
-		
 	}
 }

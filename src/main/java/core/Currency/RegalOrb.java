@@ -37,10 +37,7 @@ public class RegalOrb implements Crafting_Action {
 		{
 			if(new_omen instanceof OmenOfHomogenisingCoronation)
 				all_Affix_modifiers = new_omen.getHomogAffixes(item, candidate);
-			Crafting_Candidate result = evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen);
-			if (result != null) {
-				CandidateListCopy.add(result);
-			}
+			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
 		}
         return CandidateListCopy;
 	}

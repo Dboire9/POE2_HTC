@@ -133,8 +133,33 @@ public class Crafting_Item {
 		return Items_List;
 	}
 	
-	// List<Crafting_Action> ca = new ArrayList<>();
-	// Crafting_Candidate potential_candidate = new Crafting_Candidate(base, 0, ca);
+	public List<Crafting_Item> removeAffixes(Crafting_Item item, Crafting_Action action)
+	{
+		List<Crafting_Item> Items_List = new ArrayList<>();
+	
+		// Loop through all current affixes on the item
+		for (Modifier currentAffix : item.getAllCurrentModifiers()) {
+	
+			// Create a copy of the item
+			Crafting_Item new_item = item.copy();
+	
+			// Remove the modifier depending on its type
+			if (currentAffix.type == ModifierType.PREFIX)
+				new_item.removePrefix(currentAffix);
+			else
+				new_item.removeSuffix(currentAffix);
+	
+			// Record the removal event
+			new_item.modifierHistory.add(
+				new ModifierEvent(currentAffix, null, action, ModifierEvent.ActionType.REMOVED)
+			);
+	
+			// Add the modified item to the result list
+			Items_List.add(new_item);
+		}
+		return Items_List;
+	}
+
 
 	// Getting the total weight of an affix
 	public int get_Base_Affix_Total_Weight(List<Modifier> Modifiers)
@@ -147,6 +172,30 @@ public class Crafting_Item {
 				total_weight += tiers.weight;
 		}
 		return total_weight;
+	}
+
+	// Removing a prefix
+	public void removePrefix(Modifier mod) {
+		for (int i = 0; i < currentPrefixes.length; i++) {
+			if (currentPrefixes[i].text != null && currentPrefixes[i].text.equals(mod.text)) {
+				currentPrefixes[i] = null;
+				currentPrefixTiers[i] = null; // clear the tier as well
+				return;
+			}
+		}
+		// System.out.println("Prefix not found to remove!");
+	}
+
+	// Removing a suffix
+	public void removeSuffix(Modifier mod) {
+		for (int i = 0; i < currentSuffixes.length; i++) {
+			if (currentSuffixes[i].text != null && currentSuffixes[i].text.equals(mod.text)) {
+				currentSuffixes[i] = null;
+				currentSuffixTiers[i] = null; // clear the tier as well
+				return;
+			}
+		}
+		// System.out.println("Suffix not found to remove!");
 	}
 
 	// Adding a prefix with tier
@@ -171,49 +220,6 @@ public class Crafting_Item {
 			}
 		}
 		// System.out.println("No suffix slot available!");
-	}
-
-	// Remove a random modifier from the item
-	public Crafting_Item removeRandomModifier(ModType forcedType) {
-		List<Modifier> candidates = new ArrayList<>();
-
-		if (forcedType == ModType.ANY || forcedType == ModType.PREFIX_ONLY) {
-			for (Modifier m : currentPrefixes)
-				if (m != null)
-					candidates.add(m);
-		}
-		if (forcedType == ModType.ANY || forcedType == ModType.SUFFIX_ONLY) {
-			for (Modifier m : currentSuffixes)
-				if (m != null)
-					candidates.add(m);
-		}
-
-		if (candidates.isEmpty())
-			return this;
-
-		// Pick one modifier randomly to remove
-		Random rng = new Random();
-		Modifier toRemove = candidates.get(rng.nextInt(candidates.size()));
-
-		// Remove from prefixes
-		for (int i = 0; i < currentPrefixes.length; i++) {
-			if (currentPrefixes[i] != null && currentPrefixes[i].equals(toRemove)) {
-				currentPrefixes[i] = null;
-				currentPrefixTiers[i] = null;
-				return this;
-			}
-		}
-
-		// Remove from suffixes
-		for (int i = 0; i < currentSuffixes.length; i++) {
-			if (currentSuffixes[i] != null && currentSuffixes[i].equals(toRemove)) {
-				currentSuffixes[i] = null;
-				currentSuffixTiers[i] = null;
-				return this;
-			}
-		}
-
-		return this;
 	}
 
 	// Add the modifier passed in parameters

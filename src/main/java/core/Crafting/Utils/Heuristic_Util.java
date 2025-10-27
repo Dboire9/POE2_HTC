@@ -29,7 +29,7 @@ public class Heuristic_Util {
 
 		
 		// If matched modifiers are equal to the slots in the item, add score, so 6000 is the goal to reach
-		if (matched_modifiers == affix_slots) {
+		if (matched_modifiers > 0) {
 			score += 1000 * matched_modifiers;
 		}
 		else
@@ -61,6 +61,9 @@ public class Heuristic_Util {
 					score += 50;
 				else 
 					// If current count is more than desired, decrease score significantly
+					// We should take in count that we might want to annul after an homog, so the tags we want may be at +1
+					// But this should be good because, if we have the modifier we want with an homog, it will not go in there and apply a -500 but the +1000
+					// And the next time it is calculated because we have currentCount == desiredCount it will +50 and make the annul works
 					score -= 500;
 			}
 		}

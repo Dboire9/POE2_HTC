@@ -13,9 +13,7 @@ public interface Crafting_Action {
 
 	public enum CurrencyTier {
 		BASE, GREATER, PERFECT
-	}
-
-	
+	}	
 
 	Crafting_Action copy();
 
@@ -87,4 +85,27 @@ public interface Crafting_Action {
 		Item_Evaluation.clear();
 		return CandidateListCopy;
     }
+
+	default List<Crafting_Candidate> evaluateAffixeswithAnnul(Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags)
+	{
+		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
+		item = candidate.copy();
+		List<Crafting_Item> Item_Evaluation = item.removeAffixes(item, this); // here we should have remove affixes
+		for (Crafting_Item items : Item_Evaluation)
+		{
+			double score = 0;
+			score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags); // Might be changed for the annuls
+			if (score > candidate.score)
+			{
+				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
+				newCandidate.prev_score = candidate.score;
+				newCandidate.actions.add(this);
+				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
+				newCandidate.rarity = ItemRarity.RARE;
+				CandidateListCopy.add(newCandidate);
+			}
+		}
+		Item_Evaluation.clear();
+		return CandidateListCopy;
+	}
 }

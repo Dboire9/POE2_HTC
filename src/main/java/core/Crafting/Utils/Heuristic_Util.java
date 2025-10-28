@@ -53,12 +53,10 @@ public class Heuristic_Util {
 				}
 				else if (currentCount == desiredCount)
 					score += 50;
-				// else 
-				// 	// If current count is more than desired, decrease score significantly
-				// 	// We should take in count that we might want to annul after an homog, so the tags we want may be at +1
-				// 	// But this should be good because, if we have the modifier we want with an homog, it will not go in there and apply a -500 but the +1000
-				// 	// And the next time it is calculated because we have currentCount == desiredCount it will +50 and make the annul works
-				// 	score -= 500;
+				else if ((desiredCount - currentCount) > 1)
+					score -= 500;
+					// If current count is more than desired, decrease score significantly
+					// We tolerate a tag more than what we want because of annul, but no more
 			}
 		}
 		return score;

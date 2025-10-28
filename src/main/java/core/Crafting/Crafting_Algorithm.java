@@ -153,10 +153,8 @@ public class Crafting_Algorithm {
 		List<List<Crafting_Candidate>> copy = new ArrayList<>(listOfCandidateLists);
 		List<Crafting_Candidate> newList = new ArrayList<>();
 		for (List<Crafting_Candidate> candidateList : copy) {
-			boolean skip = false;
-			for (Crafting_Candidate candidate : candidateList) {
-				if (!candidate.modifierHistory.isEmpty()) {
-					ModifierEvent lastEvent = candidate.modifierHistory.get(candidate.modifierHistory.size() - 1);
+				if (!candidateList.get(0).modifierHistory.isEmpty()) {
+					ModifierEvent lastEvent = candidateList.get(0).modifierHistory.get(candidateList.get(0).modifierHistory.size() - 1);
 
 					if(hasHomogenisingRemoval(lastEvent))
 					{
@@ -174,17 +172,13 @@ public class Crafting_Algorithm {
 
 						// Copy results into a new list
 					}
-					else
-					{
-						skip = true;
-						break;
-					}
+				}
+				if(!newList.isEmpty())
+				{
+					listOfCandidateLists.add(new ArrayList<>(newList));
+					newList.clear();
 				}
 			}
-			if (skip) continue; // next candidateList
-			if(!newList.isEmpty())
-				listOfCandidateLists.add(new ArrayList<>(newList));
-		}
 	}
 
 	private static boolean hasHomogenisingRemoval(ModifierEvent lastEvent)

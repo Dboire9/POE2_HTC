@@ -8,6 +8,8 @@ import core.Crafting.Crafting_Item.CraftingActionType;
 import core.Items.Body_Armours.Body_Armours_dex.*;
 import core.Modifier_class.*;
 
+import java.util.concurrent.*;
+
 
 import static core.Test.TestOrbs.applyAndShowChanges;
 import static core.Test.TestOrbs.printItem;
@@ -73,7 +75,12 @@ public class TestAlgo {
 			}
 		}
 
-		Crafting_Algorithm.optimizeCrafting(item, desiredMod, desiredModTier);
+		// Try and catching if there is thread errors
+		try {
+			Crafting_Algorithm.optimizeCrafting(item, desiredMod, desiredModTier);
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

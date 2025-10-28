@@ -1,7 +1,7 @@
 package core.Crafting;
 
 import java.util.*;
-
+import java.util.concurrent.*;
 import core.Modifier_class.*;
 import core.Crafting.Utils.Heuristic_Util;
 import core.Crafting.Utils.ModifierEvent;
@@ -10,11 +10,15 @@ import core.Currency.Omens_currency.*;
 
 public class Crafting_Algorithm {
 	public static Crafting_Item optimizeCrafting(
-        Crafting_Item baseItem,
-        List<Modifier> desiredMods,
-        List<ModifierTier> desiredModTiers
-		)
-	{
+			Crafting_Item baseItem,
+			List<Modifier> desiredMods,
+			List<ModifierTier> desiredModTiers
+			) throws InterruptedException, ExecutionException
+		{
+
+		// Initializing the threads based on the user specs
+		int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
+		ExecutorService thread_executor = Executors.newFixedThreadPool(threads);
 
 		Crafting_Item globalBest = baseItem.copy();
 		
@@ -66,37 +70,48 @@ public class Crafting_Algorithm {
 
 		// Removing the two first lists(transmutation and transmutation/augmentation)
 		listOfCandidateLists.subList(0, 2).clear();
-		List<List<Crafting_Candidate>> listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists);
+		List<List<Crafting_Candidate>> listOfCandidateLists_copy = new ArrayList<>();
+		for (List<Crafting_Candidate> innerList : listOfCandidateLists) {
+			List<Crafting_Candidate> newInnerList = new ArrayList<>(innerList);
+			listOfCandidateLists_copy.add(newInnerList);
+		}
 
 
 		List<List<Crafting_Candidate>> listOfCandidateLists_exalt_copy = new ArrayList<>();
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy);
+			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
 		listOfCandidateLists_copy.clear();
-		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
-
-		listOfCandidateLists_exalt_copy.clear();
-
-		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		{
-			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy);
+		for (List<Crafting_Candidate> innerList : listOfCandidateLists_exalt_copy) {
+			List<Crafting_Candidate> newInnerList = new ArrayList<>(innerList);
+			listOfCandidateLists_copy.add(newInnerList);
 		}
 
-		listOfCandidateLists_copy.clear();
-		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+		// listOfCandidateLists_exalt_copy.clear();
 
-		listOfCandidateLists_exalt_copy.clear();
+		// for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		// {
+		// 	List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+		// 	RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		// }
 
-		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		{
-			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy);
-		}
+		// listOfCandidateLists_copy.clear();
+		// listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+
+		// listOfCandidateLists_exalt_copy.clear();
+
+		// for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		// {
+		// 	List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+		// 	RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		// }
+
+		// Threads should not be utilized anymore, shutting them down
+		thread_executor.shutdown();
+		thread_executor.awaitTermination(1, TimeUnit.MINUTES);
 
 		List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
 
@@ -107,6 +122,8 @@ public class Crafting_Algorithm {
 				}
 			}
 		}
+
+
 
 
 		// Now we need to take all these 6 magic bases and finish them
@@ -133,6 +150,7 @@ public class Crafting_Algorithm {
 		for(Modifier mods : desiredMods)
 			System.out.println("Desired mods" + mods.text);
 		return globalBest;
+
 	}
 
 	public static double heuristic(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTier, Map<String, Integer> CountDesiredModifierTags)
@@ -189,27 +207,44 @@ public class Crafting_Algorithm {
 		List<ModifierTier> desiredModTiers,
 		Map<String, Integer> CountDesiredModifierTags,
 		List<List<Crafting_Candidate>> listOfCandidateLists,
-		List<List<Crafting_Candidate>> listOfCandidateLists_exalt
-	)
-	{
-		// Applying Essence_currency
-		ExaltedOrb exalt = new ExaltedOrb();
-		List<Crafting_Candidate> FirstCandidateListCopy = new ArrayList<>();
-		List<Crafting_Candidate> temp = exalt.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
-		FirstCandidateListCopy.addAll(temp);
-		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
-		listOfCandidateLists_exalt.add(new ArrayList<>(FirstCandidateListCopy));
+		List<List<Crafting_Candidate>> listOfCandidateLists_exalt,
+		ExecutorService executor
+	) throws InterruptedException, ExecutionException {
+		
+		Callable<List<Crafting_Candidate>> task1 = () -> {
+			ExaltedOrb exalt = new ExaltedOrb();
+			return exalt.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		};
+	
+		Callable<List<Crafting_Candidate>> task2 = () -> {
+			Omen exalt_homog = new OmenOfHomogenisingExaltation();
+			ExaltedOrb exalthomogOrb = new ExaltedOrb(exalt_homog);
+			return exalthomogOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, exalt_homog);
+		};
 
-		FirstCandidateListCopy.clear();
-
-		// Applying Essence_currency with homog
-		Omen exalt_homog = new OmenOfHomogenisingExaltation();
-		ExaltedOrb exalthomogOrb = new ExaltedOrb(exalt_homog);
-		List<Crafting_Candidate> temp_homog = exalthomogOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, exalt_homog);
-		FirstCandidateListCopy.addAll(temp_homog);
-		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
-		listOfCandidateLists_exalt.add(new ArrayList<>(FirstCandidateListCopy));
-		FirstCandidateListCopy.clear();
+		Callable<List<Crafting_Candidate>> task3 = () -> {
+			Desecrated_currency des_currency = new Desecrated_currency();
+			return des_currency.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		};
+	
+		List<Callable<List<Crafting_Candidate>>> tasks = Arrays.asList(task1, task2, task3);
+		List<Future<List<Crafting_Candidate>>> results = executor.invokeAll(tasks);
+	
+		List<Crafting_Candidate> result1 = results.get(0).get();
+		List<Crafting_Candidate> result2 = results.get(1).get();
+		List<Crafting_Candidate> result3 = results.get(2).get();
+	
+		synchronized (listOfCandidateLists) {
+			listOfCandidateLists.add(new ArrayList<>(result1));
+			listOfCandidateLists.add(new ArrayList<>(result2));
+			listOfCandidateLists.add(new ArrayList<>(result3));
+		}
+	
+		synchronized (listOfCandidateLists_exalt) {
+			listOfCandidateLists_exalt.add(new ArrayList<>(result1));
+			listOfCandidateLists_exalt.add(new ArrayList<>(result2));
+			listOfCandidateLists_exalt.add(new ArrayList<>(result3));
+		}
 	}
 
 	

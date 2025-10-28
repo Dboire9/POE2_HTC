@@ -34,6 +34,7 @@ public class TransmutationOrb implements Crafting_Action {
     @Override
     public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen) {
         // Only works on NORMAL items
+		
         if (item.rarity != Crafting_Item.ItemRarity.NORMAL || item.isFull()) return CandidateList;
 
 

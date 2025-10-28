@@ -1,15 +1,11 @@
 package core.Crafting;
 
 import java.util.*;
+
 import core.Modifier_class.*;
 import core.Crafting.Utils.Heuristic_Util;
 import core.Crafting.Utils.ModifierEvent;
-import core.Currency.AnnulmentOrb;
-import core.Currency.AugmentationOrb;
-import core.Currency.RegalOrb;
-import core.Currency.Essence_currency;
-import core.Currency.ExaltedOrb;
-import core.Currency.TransmutationOrb;
+import core.Currency.*;
 import core.Currency.Omens_currency.*;
 
 public class Crafting_Algorithm {
@@ -65,7 +61,52 @@ public class Crafting_Algorithm {
 		// We apply the essences and regal to the bases with trasnmutes and aug
 		generateCandidateLists(baseItem, AugCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
 
-		RareLoop(baseItem, AugCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
+		CheckingAndApplyingAnnul(baseItem, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
+		// Here the first steps are finished, we need to loop until the end with : Exalted orb, Perfect Essences and Desecrated Mods
+
+		// Removing the two first lists(transmutation and transmutation/augmentation)
+		listOfCandidateLists.subList(0, 2).clear();
+		List<List<Crafting_Candidate>> listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists);
+
+
+		List<List<Crafting_Candidate>> listOfCandidateLists_exalt_copy = new ArrayList<>();
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy);
+		}
+
+		listOfCandidateLists_copy.clear();
+		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+
+		listOfCandidateLists_exalt_copy.clear();
+
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy);
+		}
+
+		listOfCandidateLists_copy.clear();
+		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+
+		listOfCandidateLists_exalt_copy.clear();
+
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy);
+		}
+
+		List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
+
+		for (List<Crafting_Candidate> candidateList : listOfCandidateLists) {
+			for (Crafting_Candidate candidate : candidateList) {
+				if (candidate.score >= 6000) { // or >= 6000 if you want threshold
+					highScoreCandidates.add(candidate);
+				}
+			}
+		}
 
 
 		// Now we need to take all these 6 magic bases and finish them
@@ -134,9 +175,9 @@ public class Crafting_Algorithm {
 		FirstCandidateListCopy.clear();
 	
 		// Applying RegalOrb with OmenOfHomogenisingCoronation
-		Omen regalhomog = new OmenOfHomogenisingCoronation();
-		RegalOrb homogregalOrb = new RegalOrb(regalhomog);
-		FirstCandidateListCopy = homogregalOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, regalhomog);
+		Omen regal_homog = new OmenOfHomogenisingCoronation();
+		RegalOrb homogregalOrb = new RegalOrb(regal_homog);
+		FirstCandidateListCopy = homogregalOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, regal_homog);
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
 		FirstCandidateListCopy.clear();
 	}
@@ -144,6 +185,37 @@ public class Crafting_Algorithm {
 	private static void RareLoop(
 		Crafting_Item baseItem,
 		List<Crafting_Candidate> FirstCandidateList,
+		List<Modifier> desiredMods,
+		List<ModifierTier> desiredModTiers,
+		Map<String, Integer> CountDesiredModifierTags,
+		List<List<Crafting_Candidate>> listOfCandidateLists,
+		List<List<Crafting_Candidate>> listOfCandidateLists_exalt
+	)
+	{
+		// Applying Essence_currency
+		ExaltedOrb exalt = new ExaltedOrb();
+		List<Crafting_Candidate> FirstCandidateListCopy = new ArrayList<>();
+		List<Crafting_Candidate> temp = exalt.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		FirstCandidateListCopy.addAll(temp);
+		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
+		listOfCandidateLists_exalt.add(new ArrayList<>(FirstCandidateListCopy));
+
+		FirstCandidateListCopy.clear();
+
+		// Applying Essence_currency with homog
+		Omen exalt_homog = new OmenOfHomogenisingExaltation();
+		ExaltedOrb exalthomogOrb = new ExaltedOrb(exalt_homog);
+		List<Crafting_Candidate> temp_homog = exalthomogOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, exalt_homog);
+		FirstCandidateListCopy.addAll(temp_homog);
+		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
+		listOfCandidateLists_exalt.add(new ArrayList<>(FirstCandidateListCopy));
+		FirstCandidateListCopy.clear();
+	}
+
+	
+
+	private static void CheckingAndApplyingAnnul(
+		Crafting_Item baseItem,
 		List<Modifier> desiredMods,
 		List<ModifierTier> desiredModTiers,
 		Map<String, Integer> CountDesiredModifierTags,

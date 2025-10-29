@@ -17,14 +17,14 @@ public class Heuristic_Util {
 
 		// Build a set of desired names for faster lookup
         Set<String> desiredModifierTexts = desiredModTier.stream()
-                .map(t -> t.text) // Use the text field instead of name
+                .map(t -> t.family) // Use the text field instead of name
                 .collect(Collectors.toSet());
 
 		List<Modifier> unmatchedMods = new ArrayList<>();
 
 		// Comparing with text, so that the essences can match
         for (Modifier mod : AffixCurrentMods) {
-            if (desiredModifierTexts.contains(mod.text))
+            if (desiredModifierTexts.contains(mod.family))
                 matched_modifiers++;
 			else
 				unmatchedMods.add(mod);
@@ -33,6 +33,7 @@ public class Heuristic_Util {
 
 		
 			// If matched modifiers are equal to the slots in the item, add score, so 6000 is the goal to reach(?)
+			// We should need to check the tags also because of annuls (?)
 			score += 1000 * matched_modifiers;
 			if(matched_modifiers != affix_slots)
 			{
@@ -59,12 +60,12 @@ public class Heuristic_Util {
 					// If current count is less than desired, but not 0, increase score significantly
 					score += 250 * (desiredCount - currentCount);
 				else if (currentCount == desiredCount)
-					//The more affix we have the more penalty we want to apply to this
-					score += 50 - (20 * affix_slots);
+					score += 50;
+				else if ((desiredCount - currentCount) > 1)
+					//We allow for one tag more than what we want because of annuls
+					score -= 500;
 				else
 					score -= 900;
-					// If current count is more than desired, decrease score significantly
-					// We tolerate a tag more than what we want because of annul, but no more
 			}
 		}
 		return score;

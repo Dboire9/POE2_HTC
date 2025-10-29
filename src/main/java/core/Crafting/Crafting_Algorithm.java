@@ -65,11 +65,13 @@ public class Crafting_Algorithm {
 		// We apply the essences and regal to the bases with trasnmutes and aug
 		generateCandidateLists(baseItem, AugCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
 
-		CheckingAndApplyingAnnul(baseItem, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
-		// Here the first steps are finished, we need to loop until the end with : Exalted orb, Perfect Essences and Desecrated Mods
-
-		// Removing the two first lists(transmutation and transmutation/augmentation)
+		
+		// Removing the two first lists(transmutation and transmutation/augmentation) as we do not want to annul them
 		listOfCandidateLists.subList(0, 2).clear();
+
+
+		// Here the first steps are finished, we need to loop until the end with : Exalted orb, Perfect Essences and Desecrated Mods and annuls sometimes
+
 		List<List<Crafting_Candidate>> listOfCandidateLists_copy = new ArrayList<>();
 		for (List<Crafting_Candidate> innerList : listOfCandidateLists) {
 			List<Crafting_Candidate> newInnerList = new ArrayList<>(innerList);
@@ -84,7 +86,6 @@ public class Crafting_Algorithm {
 			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
-		CheckingAndApplyingAnnul(baseItem, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists_exalt_copy);
 
 		// We do not annul after a desecration, we just annul after an homog
 
@@ -102,6 +103,7 @@ public class Crafting_Algorithm {
 			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
+
 		listOfCandidateLists_copy.clear();
 		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
 
@@ -111,6 +113,32 @@ public class Crafting_Algorithm {
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
 			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		}
+
+
+		listOfCandidateLists_copy.clear();
+		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+
+		listOfCandidateLists_exalt_copy.clear();
+
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+			if(!candidate_copy.isEmpty() && !candidate_copy.get(0).isFull())
+				RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		}
+
+		listOfCandidateLists_copy.clear();
+		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+
+		listOfCandidateLists_exalt_copy.clear();
+
+
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+			if(!candidate_copy.isEmpty() && !candidate_copy.get(0).isFull())
+				RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
 		listOfCandidateLists_copy.clear();
@@ -133,12 +161,10 @@ public class Crafting_Algorithm {
 
 		for (List<Crafting_Candidate> candidateList : listOfCandidateLists) {
 			for (Crafting_Candidate candidate : candidateList) {
-				if (isFinished(candidate, desiredMods)) { // or >= 6000 if you want threshold
+				if (candidate.score >= 6000)
 					highScoreCandidates.add(candidate);
-				}
 			}
 		}
-
 
 		// Need to implement perfect essences
 
@@ -206,68 +232,50 @@ public class Crafting_Algorithm {
 			ExaltedOrb exalt = new ExaltedOrb();
 			return exalt.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
 		};
-
-
+	
 		Callable<List<Crafting_Candidate>> task2 = () -> {
-			if (!FirstCandidateList.isEmpty() && FirstCandidateList.get(0).desecrated) {
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated) {
 				Desecrated_currency des_currency = new Desecrated_currency();
 				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
 			}
 			return new ArrayList<>();
 		};
 	
-		List<Callable<List<Crafting_Candidate>>> tasks = Arrays.asList(task1, task2);
+		Callable<List<Crafting_Candidate>> task3 = () -> {
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty()) {
+				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory
+						.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
+				if (isExaltorRegalorDes(lastEvent)) {
+					AnnulmentOrb annul = new AnnulmentOrb();
+					return annul.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+				}
+			}
+			return new ArrayList<>();
+		};
+	
+		// Run all tasks concurrently
+		List<Callable<List<Crafting_Candidate>>> tasks = Arrays.asList(task1, task2, task3);
 		List<Future<List<Crafting_Candidate>>> results = executor.invokeAll(tasks);
 	
+		// Collect all results
 		List<Crafting_Candidate> result1 = results.get(0).get();
 		List<Crafting_Candidate> result2 = results.get(1).get();
+		List<Crafting_Candidate> result3 = results.get(2).get();
 	
 		synchronized (listOfCandidateLists) {
-			listOfCandidateLists.add(new ArrayList<>(result1));
-			if(!result2.isEmpty())
-				listOfCandidateLists.add(new ArrayList<>(result2));
+			if (!result1.isEmpty()) listOfCandidateLists.add(new ArrayList<>(result1));
+			if (!result2.isEmpty()) listOfCandidateLists.add(new ArrayList<>(result2));
+			if (!result3.isEmpty()) listOfCandidateLists.add(new ArrayList<>(result3));
 		}
 	
 		synchronized (listOfCandidateLists_exalt) {
-			listOfCandidateLists_exalt.add(new ArrayList<>(result1));
-			if(!result2.isEmpty())
-				listOfCandidateLists_exalt.add(new ArrayList<>(result2));
+			if (!result1.isEmpty()) listOfCandidateLists_exalt.add(new ArrayList<>(result1));
+			if (!result2.isEmpty()) listOfCandidateLists_exalt.add(new ArrayList<>(result2));
+			if (!result3.isEmpty()) listOfCandidateLists_exalt.add(new ArrayList<>(result3));
 		}
 	}
 
-	
-
-	private static void CheckingAndApplyingAnnul(
-		Crafting_Item baseItem,
-		List<Modifier> desiredMods,
-		List<ModifierTier> desiredModTiers,
-		Map<String, Integer> CountDesiredModifierTags,
-		List<List<Crafting_Candidate>> listOfCandidateLists
-	)
-	{
-		List<List<Crafting_Candidate>> copy = new ArrayList<>(listOfCandidateLists);
-		List<Crafting_Candidate> newList = new ArrayList<>();
-		for (List<Crafting_Candidate> candidateList : copy) {
-			// Apply AnnulmentOrb
-			AnnulmentOrb annul = new AnnulmentOrb();
-			List<Crafting_Candidate> temp = annul.apply(
-				baseItem,
-				candidateList,
-				desiredMods,
-				desiredModTiers,
-				CountDesiredModifierTags,
-				null
-			);
-			newList.addAll(temp);
-			if(!newList.isEmpty())
-			{
-				listOfCandidateLists.add(new ArrayList<>(newList));
-				newList.clear();
-			}
-		}
-	}
-
-	private static boolean hasHomogenisingRemoval(ModifierEvent lastEvent)
+	private static boolean isExaltorRegalorDes(ModifierEvent lastEvent)
 	{
 		if (lastEvent == null || lastEvent.source == null)
 			return false;
@@ -277,15 +285,8 @@ public class Crafting_Algorithm {
 			return false;
 
 		// Check RegalOrb and if it was homog
-		if (lastEvent.source instanceof RegalOrb regal) {
-			return regal.Omens.stream()
-				.anyMatch(o -> o instanceof OmenOfHomogenisingCoronation);
-		}
-
-		// Check ExaltedOrb and if it was homog
-		if (lastEvent.source instanceof ExaltedOrb exalted) {
-			return exalted.Omens.stream()
-				.anyMatch(o -> o instanceof OmenOfHomogenisingExaltation);
+		if (lastEvent.source instanceof RegalOrb || lastEvent.source instanceof ExaltedOrb || lastEvent.source instanceof Desecrated_currency) {
+			return true;
 		}
 
 		return false;

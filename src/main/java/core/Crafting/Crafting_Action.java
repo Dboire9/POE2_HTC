@@ -67,13 +67,29 @@ public interface Crafting_Action {
 	default List<Crafting_Candidate> evaluateAffixes(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
-
 		item = candidate.copy();
+		int affixes = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size();
 		List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, this);
-		for (Crafting_Item items : Item_Evaluation) {
+		for (Crafting_Item items : Item_Evaluation)
+		{
 			double score = 0;
 			score += Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags);
 			if (score > candidate.score) {
+			// When the item has at least 3 modifiers, we have a threshold for not keeping candidate with scores too low
+			// We might need to tweak this a lot to find the better option
+				switch (affixes) {
+					case 3:
+						if (score < 1900)
+							break;
+						break;
+					case 4:
+						if (score < 2900)
+							break;
+						break;
+					case 5:
+						if (score < 3900)
+							break;
+				}
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
 				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);
@@ -90,13 +106,18 @@ public interface Crafting_Action {
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 		item = candidate.copy();
+		int affixes = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size();
 		List<Crafting_Item> Item_Evaluation = item.removeAffixes(item, this); // here we should have remove affixes
 		for (Crafting_Item items : Item_Evaluation)
 		{
-			double score = 0;
-			score = Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags); // Might be changed for the annuls
+			// Bonus for the annuls, as removing a modifier is generally good if it does not remove a modifier we want
+			double score = 500;
+			score += Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags); // Might be changed for the annuls
 			if (score > candidate.score)
 			{
+				// When the item has at least 3 modifiers, we have a threshold for not keeping candidate with scores too low
+				if(affixes >= 3 && score < 600 * affixes)
+					break;
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
 				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);

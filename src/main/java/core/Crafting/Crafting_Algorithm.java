@@ -234,6 +234,7 @@ public class Crafting_Algorithm {
 		};
 	
 		Callable<List<Crafting_Candidate>> task2 = () -> {
+			// Checking if it is not already desecrated
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated) {
 				Desecrated_currency des_currency = new Desecrated_currency();
 				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);

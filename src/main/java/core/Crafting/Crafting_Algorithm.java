@@ -84,30 +84,46 @@ public class Crafting_Algorithm {
 			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
+		CheckingAndApplyingAnnul(baseItem, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists_exalt_copy);
+
+		// We do not annul after a desecration, we just annul after an homog
+
 		listOfCandidateLists_copy.clear();
 		for (List<Crafting_Candidate> innerList : listOfCandidateLists_exalt_copy) {
 			List<Crafting_Candidate> newInnerList = new ArrayList<>(innerList);
 			listOfCandidateLists_copy.add(newInnerList);
 		}
 
-		// listOfCandidateLists_exalt_copy.clear();
+		listOfCandidateLists_exalt_copy.clear();
 
-		// for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		// {
-		// 	List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-		// 	RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
-		// }
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		}
 
-		// listOfCandidateLists_copy.clear();
-		// listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+		listOfCandidateLists_copy.clear();
+		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
 
-		// listOfCandidateLists_exalt_copy.clear();
+		listOfCandidateLists_exalt_copy.clear();
 
-		// for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		// {
-		// 	List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-		// 	RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
-		// }
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		}
+
+		listOfCandidateLists_copy.clear();
+		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+
+		listOfCandidateLists_exalt_copy.clear();
+
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
+			if(!candidate_copy.isEmpty() && !candidate_copy.get(0).isFull())
+				RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		}
 
 		// Threads should not be utilized anymore, shutting them down
 		thread_executor.shutdown();
@@ -117,32 +133,14 @@ public class Crafting_Algorithm {
 
 		for (List<Crafting_Candidate> candidateList : listOfCandidateLists) {
 			for (Crafting_Candidate candidate : candidateList) {
-				if (candidate.score >= 6000) { // or >= 6000 if you want threshold
+				if (isFinished(candidate, desiredMods)) { // or >= 6000 if you want threshold
 					highScoreCandidates.add(candidate);
 				}
 			}
 		}
 
 
-
-
-		// Now we need to take all these 6 magic bases and finish them
-		// We have exalted orbs with omens, Desecration, annuls, perfect essences
-		// Annuls has 6 omens (one in synergy with desecrated currency), exalt has 4 omens, but we can apply 3 at a time, essence has 2
-
-		// For annuls. do we only annuls modifiers with a tag that was matching but is too much anymore ? And only after homog ? 
-		// If las action was homog, and 
-
-		// For annuls omens, if we erase a tag modifier, score up ?
-		
-
-
-		// (?)System where the item is 6000 points at the begiining, if modifier is a good modifier do not change points, if it is a good tag modifier remove only 800, if it is a 1 good tag modifier, remove 900
-		// Do we try every base and then see if the omen could have done that ? 
-
-
-
-		// System.out.println(FirstCandidateList);
+		// Need to implement perfect essences
 
 
 
@@ -223,8 +221,11 @@ public class Crafting_Algorithm {
 		};
 
 		Callable<List<Crafting_Candidate>> task3 = () -> {
-			Desecrated_currency des_currency = new Desecrated_currency();
-			return des_currency.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+			if (!FirstCandidateList.isEmpty() && FirstCandidateList.get(0).desecrated) {
+				Desecrated_currency des_currency = new Desecrated_currency();
+				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+			}
+			return new ArrayList<>();
 		};
 	
 		List<Callable<List<Crafting_Candidate>>> tasks = Arrays.asList(task1, task2, task3);
@@ -236,14 +237,18 @@ public class Crafting_Algorithm {
 	
 		synchronized (listOfCandidateLists) {
 			listOfCandidateLists.add(new ArrayList<>(result1));
-			listOfCandidateLists.add(new ArrayList<>(result2));
-			listOfCandidateLists.add(new ArrayList<>(result3));
+			if(!result2.isEmpty())
+				listOfCandidateLists.add(new ArrayList<>(result2));
+			if(!result3.isEmpty())
+				listOfCandidateLists.add(new ArrayList<>(result3));
 		}
 	
 		synchronized (listOfCandidateLists_exalt) {
 			listOfCandidateLists_exalt.add(new ArrayList<>(result1));
-			listOfCandidateLists_exalt.add(new ArrayList<>(result2));
-			listOfCandidateLists_exalt.add(new ArrayList<>(result3));
+			if(!result2.isEmpty())
+				listOfCandidateLists_exalt.add(new ArrayList<>(result2));
+			if(!result3.isEmpty())
+				listOfCandidateLists_exalt.add(new ArrayList<>(result3));
 		}
 	}
 
@@ -306,7 +311,30 @@ public class Crafting_Algorithm {
 		// Check ExaltedOrb and if it was homog
 		if (lastEvent.source instanceof ExaltedOrb exalted) {
 			return exalted.Omens.stream()
-				.anyMatch(o -> o instanceof OmenOfHomogenisingCoronation);
+				.anyMatch(o -> o instanceof OmenOfHomogenisingExaltation);
+		}
+
+		return false;
+	}
+
+	// Check if the item has all desired modifier tiers
+	public static boolean isFinished(Crafting_Candidate item, List<Modifier> desiredMods) {
+		if (desiredMods == null || desiredMods.isEmpty()) return false;
+
+		int matched = 0;
+		List<Modifier> currentMods = item.getAllCurrentModifiers();
+
+		for (Modifier mod : currentMods) {
+			for (Modifier desiredMod : desiredMods) {
+				if (mod.family.equals(desiredMod.family)) {
+					matched++;
+					break; // Prevent double counting the same desired tier
+				}
+			}
+		}
+
+		if (matched >= desiredMods.size()) {
+			return true;
 		}
 
 		return false;

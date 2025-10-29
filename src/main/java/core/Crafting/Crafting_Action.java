@@ -115,9 +115,19 @@ public interface Crafting_Action {
 			score += Crafting_Algorithm.heuristic(items, desiredMods, desiredModTiers, CountDesiredModifierTags); // Might be changed for the annuls
 			if (score > candidate.score)
 			{
-				// When the item has at least 3 modifiers, we have a threshold for not keeping candidate with scores too low
-				if(affixes >= 3 && score < 600 * affixes)
-					break;
+				switch (affixes) {
+					case 3:
+						if (score < 1900)
+							break;
+						break;
+					case 4:
+						if (score < 2900)
+							break;
+						break;
+					case 5:
+						if (score < 3900)
+							break;
+				}
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
 				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);

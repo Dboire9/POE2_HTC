@@ -30,7 +30,10 @@ public class Desecrated_currency implements Crafting_Action{
 		all_Affix_modifiers.addAll(item.base.getDesecratedAllowedSuffixes());
 
 		for (Crafting_Candidate candidate : CandidateList)
+		{
+			candidate.desecrated = true;
 			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
+		}
         return CandidateListCopy;
 	}
 

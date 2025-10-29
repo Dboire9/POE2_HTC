@@ -177,7 +177,7 @@ public class Crafting_Item {
 	// Removing a prefix
 	public void removePrefix(Modifier mod) {
 		for (int i = 0; i < currentPrefixes.length; i++) {
-			if (currentPrefixes[i].text != null && currentPrefixes[i].text.equals(mod.text)) {
+			if (currentPrefixes[i] != null && currentPrefixes[i].text != null && currentPrefixes[i].text.equals(mod.text)) {
 				currentPrefixes[i] = null;
 				currentPrefixTiers[i] = null; // clear the tier as well
 				return;
@@ -189,7 +189,7 @@ public class Crafting_Item {
 	// Removing a suffix
 	public void removeSuffix(Modifier mod) {
 		for (int i = 0; i < currentSuffixes.length; i++) {
-			if (currentSuffixes[i].text != null && currentSuffixes[i].text.equals(mod.text)) {
+			if (currentSuffixes[i] != null && currentSuffixes[i].text != null && currentSuffixes[i].text.equals(mod.text)) {
 				currentSuffixes[i] = null;
 				currentSuffixTiers[i] = null; // clear the tier as well
 				return;
@@ -260,32 +260,7 @@ public class Crafting_Item {
 	
 
 
-	// Check if the item has all desired modifier tiers
-	public static boolean isFinished(Crafting_Item item, List<ModifierTier> desiredMods) {
-		if (desiredMods == null || desiredMods.isEmpty()) return false;
 
-		int matched = 0;
-		List<Modifier> currentMods = item.getAllCurrentModifiers();
-
-		for (Modifier mod : currentMods) {
-			for (ModifierTier currentTier : mod.tiers) {
-				for (ModifierTier desiredTier : desiredMods) {
-					// Same stat (family) name, and same or better tier level
-					if (currentTier.name.equals(desiredTier.name) &&
-						currentTier.level >= desiredTier.level) {
-						matched++;
-						break; // Prevent double counting the same desired tier
-					}
-				}
-			}
-		}
-
-		if (matched >= desiredMods.size()) {
-			return true;
-		}
-
-		return false;
-	}
 
 	
 

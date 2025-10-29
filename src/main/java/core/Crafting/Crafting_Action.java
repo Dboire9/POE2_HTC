@@ -80,15 +80,15 @@ public interface Crafting_Action {
 				switch (affixes) {
 					case 3:
 						if (score < 1900)
-							break;
+							continue;
 						break;
 					case 4:
 						if (score < 2900)
-							break;
+							continue;
 						break;
 					case 5:
 						if (score < 3900)
-							break;
+							continue;
 				}
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
 				newCandidate.prev_score = candidate.score;
@@ -118,15 +118,15 @@ public interface Crafting_Action {
 				switch (affixes) {
 					case 3:
 						if (score < 1900)
-							break;
+							continue;
 						break;
 					case 4:
 						if (score < 2900)
-							break;
+							continue;
 						break;
 					case 5:
 						if (score < 3900)
-							break;
+							continue;
 				}
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
 				newCandidate.prev_score = candidate.score;

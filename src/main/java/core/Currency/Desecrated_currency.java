@@ -31,6 +31,7 @@ public class Desecrated_currency implements Crafting_Action{
 
 		for (Crafting_Candidate candidate : CandidateList)
 		{
+			// As we cannot have two desecrated mods
 			candidate.desecrated = true;
 			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
 		}

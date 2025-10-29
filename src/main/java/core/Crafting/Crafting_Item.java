@@ -137,8 +137,14 @@ public class Crafting_Item {
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
 	
+		Modifier LastMod = item.modifierHistory.get(0).modifier;
 		// Loop through all current affixes on the item
 		for (Modifier currentAffix : item.getAllCurrentModifiers()) {
+	
+			// Skip removal if the current affix is the last modifier, there is no point in removing a mod we just put on
+			if (currentAffix.equals(LastMod)) {
+				continue;
+			}
 	
 			// Create a copy of the item
 			Crafting_Item new_item = item.copy();

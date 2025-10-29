@@ -189,13 +189,6 @@ public class Crafting_Algorithm {
 		FirstCandidateListCopy = regalOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
 		FirstCandidateListCopy.clear();
-	
-		// Applying RegalOrb with OmenOfHomogenisingCoronation
-		Omen regal_homog = new OmenOfHomogenisingCoronation();
-		RegalOrb homogregalOrb = new RegalOrb(regal_homog);
-		FirstCandidateListCopy = homogregalOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, regal_homog);
-		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
-		FirstCandidateListCopy.clear();
 	}
 
 	private static void RareLoop(
@@ -213,14 +206,9 @@ public class Crafting_Algorithm {
 			ExaltedOrb exalt = new ExaltedOrb();
 			return exalt.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
 		};
-	
-		Callable<List<Crafting_Candidate>> task2 = () -> {
-			Omen exalt_homog = new OmenOfHomogenisingExaltation();
-			ExaltedOrb exalthomogOrb = new ExaltedOrb(exalt_homog);
-			return exalthomogOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, exalt_homog);
-		};
 
-		Callable<List<Crafting_Candidate>> task3 = () -> {
+
+		Callable<List<Crafting_Candidate>> task2 = () -> {
 			if (!FirstCandidateList.isEmpty() && FirstCandidateList.get(0).desecrated) {
 				Desecrated_currency des_currency = new Desecrated_currency();
 				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
@@ -228,27 +216,22 @@ public class Crafting_Algorithm {
 			return new ArrayList<>();
 		};
 	
-		List<Callable<List<Crafting_Candidate>>> tasks = Arrays.asList(task1, task2, task3);
+		List<Callable<List<Crafting_Candidate>>> tasks = Arrays.asList(task1, task2);
 		List<Future<List<Crafting_Candidate>>> results = executor.invokeAll(tasks);
 	
 		List<Crafting_Candidate> result1 = results.get(0).get();
 		List<Crafting_Candidate> result2 = results.get(1).get();
-		List<Crafting_Candidate> result3 = results.get(2).get();
 	
 		synchronized (listOfCandidateLists) {
 			listOfCandidateLists.add(new ArrayList<>(result1));
 			if(!result2.isEmpty())
 				listOfCandidateLists.add(new ArrayList<>(result2));
-			if(!result3.isEmpty())
-				listOfCandidateLists.add(new ArrayList<>(result3));
 		}
 	
 		synchronized (listOfCandidateLists_exalt) {
 			listOfCandidateLists_exalt.add(new ArrayList<>(result1));
 			if(!result2.isEmpty())
 				listOfCandidateLists_exalt.add(new ArrayList<>(result2));
-			if(!result3.isEmpty())
-				listOfCandidateLists_exalt.add(new ArrayList<>(result3));
 		}
 	}
 
@@ -265,32 +248,23 @@ public class Crafting_Algorithm {
 		List<List<Crafting_Candidate>> copy = new ArrayList<>(listOfCandidateLists);
 		List<Crafting_Candidate> newList = new ArrayList<>();
 		for (List<Crafting_Candidate> candidateList : copy) {
-				if (!candidateList.get(0).modifierHistory.isEmpty()) {
-					ModifierEvent lastEvent = candidateList.get(0).modifierHistory.get(candidateList.get(0).modifierHistory.size() - 1);
-
-					if(hasHomogenisingRemoval(lastEvent))
-					{
-						// Apply AnnulmentOrb
-						AnnulmentOrb annul = new AnnulmentOrb();
-						List<Crafting_Candidate> temp = annul.apply(
-							baseItem,
-							candidateList,
-							desiredMods,
-							desiredModTiers,
-							CountDesiredModifierTags,
-							null
-						);
-						newList.addAll(temp);
-
-						// Copy results into a new list
-					}
-				}
-				if(!newList.isEmpty())
-				{
-					listOfCandidateLists.add(new ArrayList<>(newList));
-					newList.clear();
-				}
+			// Apply AnnulmentOrb
+			AnnulmentOrb annul = new AnnulmentOrb();
+			List<Crafting_Candidate> temp = annul.apply(
+				baseItem,
+				candidateList,
+				desiredMods,
+				desiredModTiers,
+				CountDesiredModifierTags,
+				null
+			);
+			newList.addAll(temp);
+			if(!newList.isEmpty())
+			{
+				listOfCandidateLists.add(new ArrayList<>(newList));
+				newList.clear();
 			}
+		}
 	}
 
 	private static boolean hasHomogenisingRemoval(ModifierEvent lastEvent)

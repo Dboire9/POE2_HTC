@@ -6,6 +6,7 @@ import java.util.Map;
 
 import core.Crafting.Crafting_Item.ItemRarity;
 import core.Currency.Desecrated_currency;
+import core.Currency.Essence_currency;
 import core.Currency.Omens_currency.Omen;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierType;
@@ -66,13 +67,17 @@ public interface Crafting_Action {
 
 	default List<Crafting_Candidate> evaluateAffixes(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
 	{
+		int affixes = 0;
+		List<Crafting_Item> Item_Evaluation = null;
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 		item = candidate.copy();
-		// +1 because we have not yet applied the modifier
-		int affixes = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size() + 1;
-		List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, this);
+		if(this instanceof Essence_currency)
+			Item_Evaluation = item.addPerfectEssenceAffixes(modifiers, item, this);
+		else
+			Item_Evaluation = item.addAffixes(modifiers, item, this);
 		for (Crafting_Item items : Item_Evaluation)
 		{
+			affixes = items.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size();
 			double score = 0;
 			score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags);
 			if (score > candidate.score) {

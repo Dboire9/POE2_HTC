@@ -1,21 +1,18 @@
 package core.Currency;
 
-import core.Crafting.Crafting_Action;
-import core.Crafting.Crafting_Candidate;
-import core.Crafting.Crafting_Item;
-import core.Crafting.Crafting_Item.ModType; // Ensure this import is correct
-import core.Currency.Essences.Essences;
-import core.Currency.Omens_currency.Omen;
-import core.Modifier_class.*;
-import core.Modifier_class.Modifier.ModifierSource;
-import core.Modifier_class.Modifier.ModifierType;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.Map; // Ensure this import is correct
 import java.util.function.Function;
+
+import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Candidate;
+import core.Crafting.Crafting_Item;
+import core.Currency.Essences.Essences;
+import core.Currency.Omens_currency.Omen;
+import core.Modifier_class.Modifier;
+import core.Modifier_class.ModifierTier;
 
 public class Essence_currency implements Crafting_Action {
 	
@@ -96,22 +93,22 @@ public class Essence_currency implements Crafting_Action {
 
 		List<Modifier> allEssences = new ArrayList<>();
 
-		List<Modifier> greaterEssences = new ArrayList<>();
+		List<Modifier> perfectEssences = new ArrayList<>();
 
 		allEssences.addAll(item.base.getEssencesAllowedPrefixes());
 		allEssences.addAll(item.base.getEssencesAllowedSuffixes());
 
 		for (Modifier m : allEssences) {
 			for (ModifierTier tier : m.tiers) {
-				if (tier.name.contains("Greater")) {
+				if (tier.name.contains("Perfect")) {
 					Modifier modCopy = new Modifier(m);
 					modCopy.tiers = List.of(tier);
-					greaterEssences.add(modCopy);
+					perfectEssences.add(modCopy);
 				}
 			}
 		}
 		for (Crafting_Candidate candidate : CandidateList)
-			CandidateListCopy.addAll(evaluateAffixes(greaterEssences, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
+			CandidateListCopy.addAll(evaluateAffixes(perfectEssences, item, candidate, desiredMods, CountDesiredModifierTags, new_omen));
 
 		// Convert item to MAGIC
 

@@ -5,20 +5,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 
-import core.Crafting.Crafting_Action.CurrencyTier;
 import core.Crafting.Utils.ModifierEvent;
-import core.Currency.Essence_currency;
-import core.Currency.TransmutationOrb;
 import core.Currency.Omens_currency.Omen;
-import core.Currency.Omens_currency.OmenOfDextralExaltation;
-import core.Currency.Omens_currency.OmenOfSinistralExaltation;
 import core.Items.Item_base;
-import core.Modifier_class.*;
-import core.Modifier_class.Modifier.ModifierSource;
+import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierType;
+import core.Modifier_class.ModifierTier;
 
 
 public class Crafting_Item {
@@ -142,7 +136,8 @@ public class Crafting_Item {
 		for (Modifier currentAffix : item.getAllCurrentModifiers()) {
 	
 			// Skip removal if the current affix is the last modifier, there is no point in removing a mod we just put on
-			if (currentAffix.equals(LastMod)) {
+			// Skip the removal of a desired mod
+			if (currentAffix.equals(LastMod) || currentAffix.is_desired_mod) {
 				continue;
 			}
 	

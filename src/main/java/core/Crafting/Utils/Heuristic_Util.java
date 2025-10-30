@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import core.Modifier_class.*;
+import core.Modifier_class.Modifier;
 
 public class Heuristic_Util {
 		public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<Modifier> desiredModTier, Map<String, Integer> CountDesiredModifierTags) {
@@ -24,8 +24,11 @@ public class Heuristic_Util {
 
 		// Comparing with text, so that the essences can match
         for (Modifier mod : AffixCurrentMods) {
-            if (desiredModifierTexts.contains(mod.family))
-                matched_modifiers++;
+            if (mod.is_desired_mod || desiredModifierTexts.contains(mod.family))
+            {
+				mod.is_desired_mod = true;
+				matched_modifiers++;
+            }
 			else
 				unmatchedMods.add(mod);
             affix_slots++;

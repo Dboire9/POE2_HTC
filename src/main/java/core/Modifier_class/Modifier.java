@@ -15,6 +15,9 @@ public class Modifier {
 	public ModifierSource source;
 	public String family;
 	public String text;
+	
+	// Used for the algorithm
+	public boolean is_desired_mod = false;
 
 	public enum ModifierType {
 		PREFIX, SUFFIX

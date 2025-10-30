@@ -1,15 +1,14 @@
 package core.Currency;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
 import core.Currency.Omens_currency.Omen;
-import core.Currency.Omens_currency.OmenOfHomogenisingExaltation;
-import core.Modifier_class.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import core.Modifier_class.Modifier;
 
 public class Desecrated_currency implements Crafting_Action{
 
@@ -20,7 +19,7 @@ public class Desecrated_currency implements Crafting_Action{
     }
 
 	@Override
-	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
@@ -33,7 +32,7 @@ public class Desecrated_currency implements Crafting_Action{
 		{
 			// As we cannot have two desecrated mods
 			candidate.desecrated = true;
-			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
+			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags, new_omen));
 		}
         return CandidateListCopy;
 	}

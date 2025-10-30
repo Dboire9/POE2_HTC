@@ -91,7 +91,7 @@ public class Essence_currency implements Crafting_Action {
 	}
 
 	@Override
-	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen) {
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, Omen new_omen) {
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
 		List<Modifier> allEssences = new ArrayList<>();

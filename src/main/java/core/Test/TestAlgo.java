@@ -1,24 +1,18 @@
 package core.Test;
 
 
-import core.Currency.*;
-import core.Currency.Omens_currency.Omen;
-import core.Crafting.*;
-import core.Crafting.Crafting_Item.CraftingActionType;
-import core.Items.Body_Armours.Body_Armours_dex.*;
-import core.Modifier_class.*;
-
-import java.util.concurrent.*;
-
-
-import static core.Test.TestOrbs.applyAndShowChanges;
-import static core.Test.TestOrbs.printItem;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+
+import core.Crafting.Crafting_Algorithm;
+import core.Crafting.Crafting_Item;
+import core.Items.Body_Armours.Body_Armours_dex.Body_Armours_dex;
+import core.Modifier_class.Modifier;
+import core.Modifier_class.ModifierTier;
 
 public class TestAlgo {
 
@@ -77,7 +71,7 @@ public class TestAlgo {
 
 		// Try and catching if there is thread errors
 		try {
-			Crafting_Algorithm.optimizeCrafting(item, desiredMod, desiredModTier);
+			Crafting_Algorithm.optimizeCrafting(item, desiredMod);
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}

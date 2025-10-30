@@ -129,9 +129,12 @@ public class Crafting_Item {
 	
 	public List<Crafting_Item> removeAffixes(Crafting_Item item, Crafting_Action action)
 	{
-		List<Crafting_Item> Items_List = new ArrayList<>();
 	
-		Modifier LastMod = item.modifierHistory.get(0).modifier;
+		List<Crafting_Item> Items_List = new ArrayList<>();
+		if(item.score >= 6000)
+			return Items_List;
+	
+		Modifier LastMod = item.modifierHistory.get(item.modifierHistory.size() - 1).modifier;
 		// Loop through all current affixes on the item
 		for (Modifier currentAffix : item.getAllCurrentModifiers()) {
 	

@@ -202,13 +202,15 @@ public class Crafting_Algorithm {
 		List<List<Crafting_Candidate>> listOfCandidateLists
 	)
 	{
-		// Applying Essence_currency
-		Essence_currency essence = new Essence_currency();
 		List<Crafting_Candidate> FirstCandidateListCopy = new ArrayList<>();
-		List<Crafting_Candidate> temp = essence.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
-		FirstCandidateListCopy.addAll(temp);
-		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
-		FirstCandidateListCopy.clear();
+
+		// Not doing essences as regal can do every of them
+		// Applying Essence_currency
+		// Essence_currency essence = new Essence_currency();
+		// List<Crafting_Candidate> temp = essence.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		// FirstCandidateListCopy.addAll(temp);
+		// listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
+		// FirstCandidateListCopy.clear();
 	
 		// Applying a normal RegalOrb
 		RegalOrb regalOrb = new RegalOrb();

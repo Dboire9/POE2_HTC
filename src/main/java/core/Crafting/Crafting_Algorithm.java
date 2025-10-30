@@ -16,10 +16,12 @@ import core.Crafting.Utils.ModifierEvent;
 import core.Currency.AnnulmentOrb;
 import core.Currency.AugmentationOrb;
 import core.Currency.Desecrated_currency;
+import core.Currency.Essence_currency;
 import core.Currency.ExaltedOrb;
 import core.Currency.RegalOrb;
 import core.Currency.TransmutationOrb;
 import core.Modifier_class.Modifier;
+
 
 public class Crafting_Algorithm {
 	public static Crafting_Item optimizeCrafting(
@@ -267,26 +269,38 @@ public class Crafting_Algorithm {
 			}
 			return new ArrayList<>();
 		};
+		
+		Callable<List<Crafting_Candidate>> task4 = () -> {
+			// Checking if it is not already desecrated
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated && !FirstCandidateList.get(0).isFull()) {
+				Essence_currency essence_currency = new Essence_currency();
+				return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
+			}
+			return new ArrayList<>();
+		};
 	
 		// Run all tasks concurrently
-		List<Callable<List<Crafting_Candidate>>> tasks = Arrays.asList(task1, task2, task3);
+		List<Callable<List<Crafting_Candidate>>> tasks = Arrays.asList(task1, task2, task3, task4);
 		List<Future<List<Crafting_Candidate>>> results = executor.invokeAll(tasks);
 	
 		// Collect all results
 		List<Crafting_Candidate> result1 = results.get(0).get();
 		List<Crafting_Candidate> result2 = results.get(1).get();
 		List<Crafting_Candidate> result3 = results.get(2).get();
+		List<Crafting_Candidate> result4 = results.get(3).get();
 	
 		synchronized (listOfCandidateLists) {
 			if (!result1.isEmpty()) listOfCandidateLists.add(new ArrayList<>(result1));
 			if (!result2.isEmpty()) listOfCandidateLists.add(new ArrayList<>(result2));
 			if (!result3.isEmpty()) listOfCandidateLists.add(new ArrayList<>(result3));
+			if (!result4.isEmpty()) listOfCandidateLists.add(new ArrayList<>(result4));
 		}
 	
 		synchronized (listOfCandidateLists_exalt) {
 			if (!result1.isEmpty()) listOfCandidateLists_exalt.add(new ArrayList<>(result1));
 			if (!result2.isEmpty()) listOfCandidateLists_exalt.add(new ArrayList<>(result2));
 			if (!result3.isEmpty()) listOfCandidateLists_exalt.add(new ArrayList<>(result3));
+			if (!result4.isEmpty()) listOfCandidateLists_exalt.add(new ArrayList<>(result4));
 		}
 	}
 

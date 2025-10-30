@@ -96,7 +96,7 @@ public class Crafting_Item {
 	public Crafting_Item() {};
 
 
-	// Adding a prefix with tier
+	// Adding an affix 
 	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, Crafting_Action action)
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
@@ -122,6 +122,61 @@ public class Crafting_Item {
 				// Add the new item to the list
 				new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
 				Items_List.add(new_item);
+			}
+		}
+		return Items_List;
+	}
+	
+	// Adding a perfect essence affix
+	public List<Crafting_Item> addPerfectEssenceAffixes(List<Modifier> mod, Crafting_Item item, Crafting_Action action)
+	{
+		List<Crafting_Item> Items_List = new ArrayList<>();
+		List<String> Item_family = new ArrayList<>();
+		for(Modifier currentAffixes : item.getAllCurrentModifiers())
+			Item_family.add(currentAffixes.family);
+		// Looping through all the modifiers and the lowest modifier tier
+		for (Modifier m : mod) {
+			// Take only the lowest tier
+			ModifierTier lowestTier = m.tiers.get(0);
+			//Check if the family is already on the item
+			if(!Item_family.contains(m.family))
+			{
+				// Create a copy of the item
+				Crafting_Item new_item = item.copy();
+
+				// If we want to apply a perfect essence that goes on a prefix but prefixes are full, we only remove and add on prefixes
+				if (m.type == ModifierType.PREFIX && item.getAllCurrentPrefixModifiers().size() >= 3)
+					for(int i = 0; i < 3; i++)
+					{
+						new_item.addPerfectEssencePrefixOnly(m, lowestTier, i);
+						new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						Items_List.add(new_item);
+					}
+				else if (m.type == ModifierType.SUFFIX && item.getAllCurrentSuffixModifiers().size() >= 3)
+					for(int i = 0; i < 3; i++)
+					{
+						new_item.addPerfectEssenceSuffixOnly(m, lowestTier, i);
+						new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						Items_List.add(new_item);
+					}
+				else
+				{
+				
+					// We need to look for the modifier type and add the perfect essence only on it, but removing all the affixes we can
+					for(int i = 0; i <= item.getAllCurrentPrefixModifiers().size() - 1; i++)
+					{
+						Crafting_Item new_item_copy = new_item.copy();
+						new_item_copy.addPerfectEssencePrefixOnly(m, lowestTier, i);
+						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						Items_List.add(new_item_copy);
+					}
+					for(int i = 0; i <= item.getAllCurrentSuffixModifiers().size() - 1; i++)
+					{
+						new_item.addPerfectEssenceSuffixOnly(m, lowestTier, i);
+						new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						Items_List.add(new_item);
+					}
+				}
 			}
 		}
 		return Items_List;
@@ -216,6 +271,30 @@ public class Crafting_Item {
 
 	// Adding a suffix with tier
 	public void addSuffix(Modifier mod, ModifierTier tier) {
+		for (int i = 0; i < currentSuffixes.length; i++) {
+			if (currentSuffixes[i] == null) {
+				currentSuffixes[i] = mod;
+				currentSuffixTiers[i] = tier; // store applied tier separately
+				return;
+			}
+		}
+		// System.out.println("No suffix slot available!");
+	}
+	
+	// Replacing the mod for the perfect essence
+	public void addPerfectEssencePrefixOnly(Modifier mod, ModifierTier tier, int i) {
+		currentPrefixes[i] = mod;
+		currentPrefixTiers[i] = tier; // store applied tier separately
+		// System.out.println("No prefix slot available!");
+	}
+	
+	public void addPerfectEssenceSuffixOnly(Modifier mod, ModifierTier tier, int i) {
+				currentSuffixes[i] = mod;
+				currentSuffixTiers[i] = tier;
+		// System.out.println("No suffix slot available!");
+	}
+	
+	public void addPerfectEssence(Modifier mod, ModifierTier tier) {
 		for (int i = 0; i < currentSuffixes.length; i++) {
 			if (currentSuffixes[i] == null) {
 				currentSuffixes[i] = mod;

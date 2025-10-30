@@ -64,5 +64,7 @@
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
 "C_Cpp_Runner.msvcSecureNoWarnings": false,
-"java.debug.settings.onBuildFailureProceed": true
+"java.debug.settings.onBuildFailureProceed": true,
+"java.debug.settings.showStaticVariables": true,
+"java.debug.settings.showQualifiedNames": false
 }

@@ -1,18 +1,30 @@
 package core.Crafting;
 
-import java.util.*;
-import java.util.concurrent.*;
-import core.Modifier_class.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import core.Crafting.Utils.Heuristic_Util;
 import core.Crafting.Utils.ModifierEvent;
-import core.Currency.*;
-import core.Currency.Omens_currency.*;
+import core.Currency.AnnulmentOrb;
+import core.Currency.AugmentationOrb;
+import core.Currency.Desecrated_currency;
+import core.Currency.ExaltedOrb;
+import core.Currency.RegalOrb;
+import core.Currency.TransmutationOrb;
+import core.Modifier_class.Modifier;
 
 public class Crafting_Algorithm {
 	public static Crafting_Item optimizeCrafting(
 			Crafting_Item baseItem,
-			List<Modifier> desiredMods,
-			List<ModifierTier> desiredModTiers
+			List<Modifier> desiredMods
 			) throws InterruptedException, ExecutionException
 		{
 
@@ -35,7 +47,7 @@ public class Crafting_Algorithm {
 
 		// Transmuting the item (first step)
 		TransmutationOrb transmutationOrb = new TransmutationOrb();
-		FirstCandidateList = transmutationOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		FirstCandidateList = transmutationOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateList));
 
 		//Making a copy of all the candidate list to use after
@@ -45,7 +57,7 @@ public class Crafting_Algorithm {
 
 		// Second step (augmentation, or regal or essence)
 		AugmentationOrb augmentationOrb = new AugmentationOrb();
-		FirstCandidateList = augmentationOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		FirstCandidateList = augmentationOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
 		// Adding the list : Transmut -> Augment
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateList));
 
@@ -55,7 +67,7 @@ public class Crafting_Algorithm {
 		}
 
 		// We apply the essences and regal to the bases with just transmutes
-		generateCandidateLists(baseItem, FirstCandidateListCopy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
+		generateCandidateLists(baseItem, FirstCandidateListCopy, desiredMods, CountDesiredModifierTags, listOfCandidateLists);
 
 
 		for (Crafting_Candidate candidate : FirstCandidateList) {
@@ -63,7 +75,7 @@ public class Crafting_Algorithm {
 		}
 
 		// We apply the essences and regal to the bases with trasnmutes and aug
-		generateCandidateLists(baseItem, AugCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists);
+		generateCandidateLists(baseItem, AugCandidateList, desiredMods, CountDesiredModifierTags, listOfCandidateLists);
 
 		
 		// Removing the two first lists(transmutation and transmutation/augmentation) as we do not want to annul them
@@ -83,7 +95,7 @@ public class Crafting_Algorithm {
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+			RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
 
@@ -100,7 +112,7 @@ public class Crafting_Algorithm {
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+			RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
 
@@ -112,7 +124,7 @@ public class Crafting_Algorithm {
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+			RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
 
@@ -125,7 +137,7 @@ public class Crafting_Algorithm {
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
 			if(!candidate_copy.isEmpty() && !candidate_copy.get(0).isFull())
-				RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+				RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
 		listOfCandidateLists_copy.clear();
@@ -138,7 +150,7 @@ public class Crafting_Algorithm {
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
 			if(!candidate_copy.isEmpty() && !candidate_copy.get(0).isFull())
-				RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+				RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
 		listOfCandidateLists_copy.clear();
@@ -146,11 +158,13 @@ public class Crafting_Algorithm {
 
 		listOfCandidateLists_exalt_copy.clear();
 
+
+		// we doing a last loop here ? If 6 mods, apply an annul and exalt after (?)
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
 			if(!candidate_copy.isEmpty() && !candidate_copy.get(0).isFull())
-				RareLoop(baseItem, candidate_copy, desiredMods, desiredModTiers, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+				RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
 		// Threads should not be utilized anymore, shutting them down
@@ -177,7 +191,7 @@ public class Crafting_Algorithm {
 
 	}
 
-	public static double heuristic(Crafting_Item item, List<Modifier> desiredMods, List<ModifierTier> desiredModTier, Map<String, Integer> CountDesiredModifierTags)
+	public static double heuristic(Crafting_Item item, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags)
 	{
 		double score = 0;
 		List<Modifier> PrefixCurrentMods = item.getAllCurrentPrefixModifiers();
@@ -197,7 +211,6 @@ public class Crafting_Algorithm {
 		Crafting_Item baseItem,
 		List<Crafting_Candidate> FirstCandidateList,
 		List<Modifier> desiredMods,
-		List<ModifierTier> desiredModTiers,
 		Map<String, Integer> CountDesiredModifierTags,
 		List<List<Crafting_Candidate>> listOfCandidateLists
 	)
@@ -207,14 +220,14 @@ public class Crafting_Algorithm {
 		// Not doing essences as regal can do every of them
 		// Applying Essence_currency
 		// Essence_currency essence = new Essence_currency();
-		// List<Crafting_Candidate> temp = essence.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		// List<Crafting_Candidate> temp = essence.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
 		// FirstCandidateListCopy.addAll(temp);
 		// listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
 		// FirstCandidateListCopy.clear();
 	
 		// Applying a normal RegalOrb
 		RegalOrb regalOrb = new RegalOrb();
-		FirstCandidateListCopy = regalOrb.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+		FirstCandidateListCopy = regalOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
 		FirstCandidateListCopy.clear();
 	}
@@ -223,7 +236,6 @@ public class Crafting_Algorithm {
 		Crafting_Item baseItem,
 		List<Crafting_Candidate> FirstCandidateList,
 		List<Modifier> desiredMods,
-		List<ModifierTier> desiredModTiers,
 		Map<String, Integer> CountDesiredModifierTags,
 		List<List<Crafting_Candidate>> listOfCandidateLists,
 		List<List<Crafting_Candidate>> listOfCandidateLists_exalt,
@@ -232,14 +244,14 @@ public class Crafting_Algorithm {
 		
 		Callable<List<Crafting_Candidate>> task1 = () -> {
 			ExaltedOrb exalt = new ExaltedOrb();
-			return exalt.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+			return exalt.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
 		};
 	
 		Callable<List<Crafting_Candidate>> task2 = () -> {
 			// Checking if it is not already desecrated
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated) {
 				Desecrated_currency des_currency = new Desecrated_currency();
-				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
 			}
 			return new ArrayList<>();
 		};
@@ -250,7 +262,7 @@ public class Crafting_Algorithm {
 						.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
 				if (isExaltorRegalorDes(lastEvent)) {
 					AnnulmentOrb annul = new AnnulmentOrb();
-					return annul.apply(baseItem, FirstCandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags, null);
+					return annul.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
 				}
 			}
 			return new ArrayList<>();

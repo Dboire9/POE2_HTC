@@ -1,19 +1,15 @@
 package core.Currency;
 
-import core.Crafting.Crafting_Item;
-import core.Crafting.Crafting_Item.*;
-import core.Currency.Omens_currency.Omen;
-import core.Currency.Omens_currency.OmenOfHomogenisingCoronation;
-import core.Currency.Omens_currency.OmenOfHomogenisingExaltation;
-import core.Crafting.Crafting_Action;
-import core.Crafting.Crafting_Candidate;
-import core.Items.Item_base;
-import core.Modifier_class.*;
-import core.Utils.AddRandomMod;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
+
+import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Candidate;
+import core.Crafting.Crafting_Item;
+import core.Currency.Omens_currency.Omen;
+import core.Currency.Omens_currency.OmenOfHomogenisingExaltation;
+import core.Modifier_class.Modifier;
 
 public class ExaltedOrb implements Crafting_Action {
 
@@ -26,7 +22,7 @@ public class ExaltedOrb implements Crafting_Action {
     }
 
 	@Override
-	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
@@ -39,7 +35,7 @@ public class ExaltedOrb implements Crafting_Action {
 		{
 			if(new_omen instanceof OmenOfHomogenisingExaltation)
 				all_Affix_modifiers = new_omen.getHomogAffixes(item, candidate);
-			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, desiredModTiers, CountDesiredModifierTags, new_omen));
+			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags, new_omen));
 		}
         return CandidateListCopy;
 	}

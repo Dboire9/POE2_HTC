@@ -32,7 +32,7 @@ public class TransmutationOrb implements Crafting_Action {
     }
 
     @Override
-    public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen) {
+    public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, Omen new_omen) {
         // Only works on NORMAL items
 		
         if (item.rarity != Crafting_Item.ItemRarity.NORMAL || item.isFull()) return CandidateList;
@@ -41,8 +41,8 @@ public class TransmutationOrb implements Crafting_Action {
 		List<Modifier> all_Prefix_modifiers = item.base.getNormalAllowedPrefixes();
 		List<Modifier> all_Suffix_Modifiers = item.base.getNormalAllowedSuffixes();
 
-		CreateListAndEvaluateAffixes(all_Prefix_modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
-		CreateListAndEvaluateAffixes(all_Suffix_Modifiers, item, CandidateList, desiredMods, desiredModTiers, CountDesiredModifierTags);
+		CreateListAndEvaluateAffixes(all_Prefix_modifiers, item, CandidateList, desiredMods, CountDesiredModifierTags);
+		CreateListAndEvaluateAffixes(all_Suffix_Modifiers, item, CandidateList, desiredMods, CountDesiredModifierTags);
 
 		// Convert item to MAGIC
 		item.rarity = Crafting_Item.ItemRarity.MAGIC;

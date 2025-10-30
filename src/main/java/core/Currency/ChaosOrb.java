@@ -1,18 +1,14 @@
 package core.Currency;
 
-import core.Crafting.Crafting_Item.*;
-import core.Currency.Omens_currency.Omen;
-import core.Crafting.Crafting_Item;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
-import core.Items.Item_base;
-import core.Modifier_class.*;
-import core.Utils.AddRandomMod;
+import core.Crafting.Crafting_Item;
+import core.Currency.Omens_currency.Omen;
+import core.Modifier_class.Modifier;
 
 public class ChaosOrb implements Crafting_Action
 {
@@ -25,7 +21,7 @@ public class ChaosOrb implements Crafting_Action
     }
 
 	@Override
-	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, List<ModifierTier> desiredModTiers, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 

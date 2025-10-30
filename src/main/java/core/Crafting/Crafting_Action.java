@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import core.Crafting.Crafting_Item.ItemRarity;
+import core.Currency.Desecrated_currency;
 import core.Currency.Omens_currency.Omen;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierType;
@@ -99,6 +100,8 @@ public interface Crafting_Action {
 				newCandidate.actions.add(this);
 				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
 				newCandidate.rarity = ItemRarity.RARE;
+				if(this instanceof Desecrated_currency)
+					newCandidate.desecrated = true;
 				CandidateListCopy.add(newCandidate);
 			}
 		}

@@ -140,7 +140,7 @@ public class Crafting_Item {
 	
 			// Skip removal if the current affix is the last modifier, there is no point in removing a mod we just put on
 			// Skip the removal of a desired mod
-			if (currentAffix.equals(LastMod) || currentAffix.is_desired_mod) {
+			if (currentAffix.text.equals(LastMod.text) || currentAffix.is_desired_mod) {
 				continue;
 			}
 	

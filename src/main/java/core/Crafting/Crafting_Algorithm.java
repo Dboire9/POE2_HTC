@@ -241,15 +241,18 @@ public class Crafting_Algorithm {
 		List<List<Crafting_Candidate>> listOfCandidateLists_exalt,
 		ExecutorService executor
 	) throws InterruptedException, ExecutionException {
-		
 		Callable<List<Crafting_Candidate>> task1 = () -> {
-			ExaltedOrb exalt = new ExaltedOrb();
-			return exalt.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
+			if(!FirstCandidateList.get(0).isFull())
+			{
+				ExaltedOrb exalt = new ExaltedOrb();
+				return exalt.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
+			}
+			return new ArrayList<>();
 		};
 	
 		Callable<List<Crafting_Candidate>> task2 = () -> {
 			// Checking if it is not already desecrated
-			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated) {
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated && !FirstCandidateList.get(0).isFull()) {
 				Desecrated_currency des_currency = new Desecrated_currency();
 				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
 			}

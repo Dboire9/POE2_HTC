@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import core.Crafting.Crafting_Item.ItemRarity;
-import core.Crafting.Utils.ModifierEvent;
 import core.Currency.Omens_currency.Omen;
-import core.Modifier_class.*;
+import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierType;
+import core.Modifier_class.ModifierTier;
 public interface Crafting_Action {
 
 	public enum CurrencyTier {

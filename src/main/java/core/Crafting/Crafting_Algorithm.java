@@ -182,9 +182,6 @@ public class Crafting_Algorithm {
 
 		// Need to implement perfect essences
 
-
-
-
 		for(Modifier mods : desiredMods)
 			System.out.println("Desired mods" + mods.text);
 		return globalBest;

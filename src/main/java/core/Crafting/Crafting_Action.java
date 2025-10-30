@@ -92,7 +92,8 @@ public interface Crafting_Action {
 							continue;
 						break;
 					case 6:
-						if (score < 4900)
+						// 5 desired mods and a mod we want to have ?
+						if (score < 5200)
 							continue;
 				}
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
@@ -118,7 +119,8 @@ public interface Crafting_Action {
 		for (Crafting_Item items : Item_Evaluation)
 		{
 			// Bonus for the annuls, as removing a modifier is generally good if it does not remove a modifier we want
-			double score = 500;
+			// +60 because removing a one of one that is not desired is good, and will not prioritize the removing of modifiers with tags we really want
+			double score = 60;
 			score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags); // Might be changed for the annuls
 			if (score > candidate.score)
 			{

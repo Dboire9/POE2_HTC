@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import core.Crafting.Utils.ModifierEvent;
-import core.Items.Item_base;
-import core.Modifier_class.*;
+import core.Modifier_class.Modifier;
+import core.Modifier_class.ModifierTier;
 
 
 // Crafting_Candidate are used to score the actions we are doing on an item, and retain the actions
@@ -14,6 +14,7 @@ import core.Modifier_class.*;
 public class Crafting_Candidate extends Crafting_Item {
         public List<Crafting_Action> actions = new ArrayList<>();
 		public double percentage;
+		public boolean stopAnnul = false;
 
 		public Crafting_Candidate(){};
 

@@ -154,6 +154,8 @@ public interface Crafting_Action {
 				CandidateListCopy.add(newCandidate);
 			}
 		}
+		if(item.getAllCurrentModifiers().size() >= 6 && CandidateListCopy.isEmpty())
+			candidate.stopAnnul = true;
 		Item_Evaluation.clear();
 		return CandidateListCopy;
 	}

@@ -52,7 +52,6 @@ public class Omen implements Crafting_Action {
 		Crafting_Item item,
 		List<Crafting_Candidate> CandidateList,
 		List<Modifier> desiredMods,
-		List<ModifierTier> desiredModTiers,
 		Map<String, Integer> CountDesiredModifierTags,
 		Omen omen  // <-- include this!
 	) {

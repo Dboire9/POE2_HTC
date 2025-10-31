@@ -138,7 +138,7 @@ public class Crafting_Algorithm {
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			if(!candidate_copy.isEmpty() && !candidate_copy.get(0).isFull())
+			if(!candidate_copy.isEmpty())
 				RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
@@ -151,7 +151,7 @@ public class Crafting_Algorithm {
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			if(!candidate_copy.isEmpty() && !candidate_copy.get(0).isFull())
+			if(!candidate_copy.isEmpty())
 				RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 
@@ -165,20 +165,30 @@ public class Crafting_Algorithm {
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 		{
 			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			if(!candidate_copy.isEmpty() && !candidate_copy.get(0).isFull())
+			if(!candidate_copy.isEmpty())
 				RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
+		
 
 		// Threads should not be utilized anymore, shutting them down
 		thread_executor.shutdown();
 		thread_executor.awaitTermination(1, TimeUnit.MINUTES);
 
 		List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
+		
+		for (List<Crafting_Candidate> candidateList : listOfCandidateLists_exalt_copy) {
+			for (Crafting_Candidate candidate : candidateList) {
+				if(candidate.getAllCurrentModifiers().size() < 6)
+					System.out.println("Not finished");
+			}
+		}
 
 		for (List<Crafting_Candidate> candidateList : listOfCandidateLists) {
 			for (Crafting_Candidate candidate : candidateList) {
 				if (candidate.score >= 6000)
 					highScoreCandidates.add(candidate);
+				if(candidate.getAllCurrentModifiers().size() <= 6)
+					System.out.println("Not finished");
 			}
 		}
 

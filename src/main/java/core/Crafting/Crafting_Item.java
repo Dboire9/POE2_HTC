@@ -161,20 +161,36 @@ public class Crafting_Item {
 					}
 				else
 				{
-				
 					// We need to look for the modifier type and add the perfect essence only on it, but removing all the affixes we can
 					for(int i = 0; i <= item.getAllCurrentPrefixModifiers().size() - 1; i++)
 					{
 						Crafting_Item new_item_copy = new_item.copy();
-						new_item_copy.addPerfectEssencePrefixOnly(m, lowestTier, i);
+						if(currentPrefixes[i] != null && currentPrefixes[i].text != null)
+						{
+							new_item_copy.currentPrefixes[i] = null;
+							new_item_copy.currentPrefixTiers[i] = null;
+						}
+						if(m.type == ModifierType.PREFIX)
+							new_item_copy.addPrefix(m, lowestTier);
+						else
+							new_item_copy.addSuffix(m, lowestTier);
 						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
 						Items_List.add(new_item_copy);
 					}
 					for(int i = 0; i <= item.getAllCurrentSuffixModifiers().size() - 1; i++)
 					{
-						new_item.addPerfectEssenceSuffixOnly(m, lowestTier, i);
-						new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
-						Items_List.add(new_item);
+						Crafting_Item new_item_copy = new_item.copy();
+						if(currentSuffixes[i] != null && currentSuffixes[i].text != null)
+						{
+							new_item_copy.currentSuffixes[i] = null;
+							new_item_copy.currentSuffixTiers[i] = null;
+						}
+						if(m.type == ModifierType.PREFIX)
+							new_item_copy.addPrefix(m, lowestTier);
+						else
+							new_item_copy.addSuffix(m, lowestTier);
+						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						Items_List.add(new_item_copy);
 					}
 				}
 			}

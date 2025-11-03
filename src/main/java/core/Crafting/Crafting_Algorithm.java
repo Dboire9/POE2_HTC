@@ -95,13 +95,8 @@ public class Crafting_Algorithm {
 
 		List<List<Crafting_Candidate>> listOfCandidateLists_exalt_copy = new ArrayList<>();
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		{
-			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
-		}
+			RareLoop(baseItem, candidates, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 
-
-		// We do not annul after a desecration, we just annul after an homog
 
 		listOfCandidateLists_copy.clear();
 		for (List<Crafting_Candidate> innerList : listOfCandidateLists_exalt_copy) {
@@ -112,10 +107,7 @@ public class Crafting_Algorithm {
 		listOfCandidateLists_exalt_copy.clear();
 
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		{
-			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
-		}
+			RareLoop(baseItem, candidates, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 
 
 		listOfCandidateLists_copy.clear();
@@ -124,10 +116,7 @@ public class Crafting_Algorithm {
 		listOfCandidateLists_exalt_copy.clear();
 
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		{
-			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
-		}
+			RareLoop(baseItem, candidates, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 
 
 		listOfCandidateLists_copy.clear();
@@ -136,11 +125,8 @@ public class Crafting_Algorithm {
 		listOfCandidateLists_exalt_copy.clear();
 
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		{
-			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			if(!candidate_copy.isEmpty())
-				RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
-		}
+			if(!candidates.isEmpty())
+				RareLoop(baseItem, candidates, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 
 		listOfCandidateLists_copy.clear();
 		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
@@ -149,46 +135,49 @@ public class Crafting_Algorithm {
 
 
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		{
-			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			if(!candidate_copy.isEmpty())
-				RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
-		}
+			if(!candidates.isEmpty())
+				RareLoop(baseItem, candidates, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 
 		listOfCandidateLists_copy.clear();
 		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
 
 		listOfCandidateLists_exalt_copy.clear();
+
+
+		// // we doing a last loop here ? If 6 mods, apply an annul and exalt after (?)
+		// for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		// 	if(!candidates.isEmpty())
+		// 		RareLoop(baseItem, candidates, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+				
+		// listOfCandidateLists_copy.clear();
+		// listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+
+		// listOfCandidateLists_exalt_copy.clear();
 
 
 		// we doing a last loop here ? If 6 mods, apply an annul and exalt after (?)
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-		{
-			List<Crafting_Candidate> candidate_copy = new ArrayList<>(candidates);
-			if(!candidate_copy.isEmpty())
-				RareLoop(baseItem, candidate_copy, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+			if(!candidates.isEmpty())
+				RareLoop(baseItem, candidates, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+
+
+
+		for (List<Crafting_Candidate> candidateList : listOfCandidateLists_exalt_copy) {
+			if(candidateList.get(0).getAllCurrentModifiers().size() < 6)
+				RareLoop(baseItem, candidateList, desiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		}
 		
-
 		// Threads should not be utilized anymore, shutting them down
 		thread_executor.shutdown();
 		thread_executor.awaitTermination(1, TimeUnit.MINUTES);
 
 		List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
 		
-		for (List<Crafting_Candidate> candidateList : listOfCandidateLists_exalt_copy) {
-			for (Crafting_Candidate candidate : candidateList) {
-				if(candidate.getAllCurrentModifiers().size() < 6)
-					System.out.println("Not finished");
-			}
-		}
 
 		for (List<Crafting_Candidate> candidateList : listOfCandidateLists) {
 			for (Crafting_Candidate candidate : candidateList) {
 				if (candidate.score >= 6000)
 					highScoreCandidates.add(candidate);
-				if(candidate.getAllCurrentModifiers().size() <= 6)
-					System.out.println("Not finished");
 			}
 		}
 

@@ -84,19 +84,18 @@ public interface Crafting_Action {
 			// We might need to tweak this a lot to find the better option
 				switch (affixes) {
 					case 3:
-						if (score < 1900)
+						if (score < 2200)
 							continue;
 						break;
 					case 4:
-						if (score < 2900)
+						if (score < 3200)
 							continue;
 						break;
 					case 5:
-						if (score < 3900)
+						if (score < 4200)
 							continue;
 						break;
 					case 6:
-						// 5 desired mods and a mod we want to have ?
 						if (score < 5200)
 							continue;
 				}
@@ -120,7 +119,7 @@ public interface Crafting_Action {
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 		item = candidate.copy();
-		int affixes = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size();
+		int affixes = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size() - 1;
 		List<Crafting_Item> Item_Evaluation = item.removeAffixes(item, this); // here we should have remove affixes
 		for (Crafting_Item items : Item_Evaluation)
 		{
@@ -132,15 +131,15 @@ public interface Crafting_Action {
 			{
 				switch (affixes) {
 					case 3:
-						if (score < 1900)
+						if (score < 2200)
 							continue;
 						break;
 					case 4:
-						if (score < 2900)
+						if (score < 3200)
 							continue;
 						break;
 					case 5:
-						if (score < 3900)
+						if (score < 4200)
 							continue;
 						break;
 					case 6:

@@ -7,7 +7,7 @@ import java.util.Map;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
-import core.Currency.Omens_currency.Omen;
+
 import core.Modifier_class.Modifier;
 
 public class Desecrated_currency implements Crafting_Action{
@@ -19,7 +19,7 @@ public class Desecrated_currency implements Crafting_Action{
     }
 
 	@Override
-	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
@@ -31,7 +31,7 @@ public class Desecrated_currency implements Crafting_Action{
 		for (Crafting_Candidate candidate : CandidateList)
 		{
 			// As we cannot have two desecrated mods
-			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags, new_omen));
+			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags, undesiredMods));
 		}
         return CandidateListCopy;
 	}

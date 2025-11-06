@@ -29,6 +29,7 @@ public class TestAlgo {
 
 		List<ModifierTier> desiredModTier = new ArrayList<>();
 		List<Modifier> desiredMod = new ArrayList<>();
+		List<Modifier> undesiredMod = new ArrayList<>();
 		Random random = new Random();
 
 		Set<String> usedModifiers = new HashSet<>();
@@ -71,7 +72,7 @@ public class TestAlgo {
 
 		// Try and catching if there is thread errors
 		try {
-			Crafting_Algorithm.optimizeCrafting(item, desiredMod);
+			Crafting_Algorithm.optimizeCrafting(item, desiredMod, undesiredMod);
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}

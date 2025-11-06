@@ -7,14 +7,12 @@ import java.util.Map;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
-import core.Currency.Omens_currency.Omen;
-import core.Currency.Omens_currency.OmenOfHomogenisingExaltation;
+
 import core.Modifier_class.Modifier;
 
 public class ExaltedOrb implements Crafting_Action {
 
 	public CurrencyTier tier;
-	public List<Omen> Omens = new ArrayList<>();
 
 	@Override
     public Crafting_Action copy() {
@@ -22,7 +20,7 @@ public class ExaltedOrb implements Crafting_Action {
     }
 
 	@Override
-	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
@@ -32,7 +30,7 @@ public class ExaltedOrb implements Crafting_Action {
 		all_Affix_modifiers.addAll(item.base.getNormalAllowedSuffixes());
 
 		for (Crafting_Candidate candidate : CandidateList)
-			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags, new_omen));
+			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags, undesiredMods));
         return CandidateListCopy;
 	}
 
@@ -45,10 +43,6 @@ public class ExaltedOrb implements Crafting_Action {
 	// Default constructor
 	public ExaltedOrb() {
 		this.tier = CurrencyTier.BASE;
-	}
-
-	public ExaltedOrb(Omen new_omen) {
-		this.Omens.add(new_omen);
 	}
 
 	@Override

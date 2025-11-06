@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import core.Crafting.Crafting_Algorithm;
+import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
 import core.Items.Body_Armours.Body_Armours_dex.Body_Armours_dex;
 import core.Modifier_class.Modifier;
@@ -72,7 +73,16 @@ public class TestAlgo {
 
 		// Try and catching if there is thread errors
 		try {
-			Crafting_Algorithm.optimizeCrafting(item, desiredMod, undesiredMod);
+			List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
+			long startTime = System.nanoTime(); // start timing
+
+			highScoreCandidates = Crafting_Algorithm.optimizeCrafting(item, desiredMod, undesiredMod);
+
+			long endTime = System.nanoTime();   // end timing
+			long durationInMillis = (endTime - startTime) / 1_000_000; // convert to ms
+
+			System.out.println("optimizeCrafting executed in " + durationInMillis + " ms");
+			System.out.println("End");
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}

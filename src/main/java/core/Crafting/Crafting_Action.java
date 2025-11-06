@@ -143,7 +143,7 @@ public interface Crafting_Action {
 							continue;
 						break;
 					case 6:
-						if (score < 4900)
+						if (score < 5200)
 							continue;
 				}
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);

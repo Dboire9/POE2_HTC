@@ -161,7 +161,7 @@ public class Crafting_Algorithm {
 		// we doing a last loop here ? If 6 mods, apply an annul and exalt after (?)
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 			if(!candidates.isEmpty())
-			RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+				RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		
 		listOfCandidateLists_copy.clear();
 		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
@@ -180,6 +180,24 @@ public class Crafting_Algorithm {
 
 
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+			if(!candidates.isEmpty() && candidates.get(0).getAllCurrentModifiers().size() < 6)
+				RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		
+		listOfCandidateLists_copy.clear();
+		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+
+		listOfCandidateLists_exalt_copy.clear();
+
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+			if(!candidates.isEmpty() && candidates.get(0).getAllCurrentModifiers().size() < 6)
+				RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		
+		listOfCandidateLists_copy.clear();
+		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
+
+		listOfCandidateLists_exalt_copy.clear();
+
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
 			if(!candidates.isEmpty())
 				RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 		
@@ -188,7 +206,14 @@ public class Crafting_Algorithm {
 
 		listOfCandidateLists_exalt_copy.clear();
 
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+			if(!candidates.isEmpty())
+				RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		
+		listOfCandidateLists_copy.clear();
+		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
 
+		listOfCandidateLists_exalt_copy.clear();
 
 		
 		// Threads should not be utilized anymore, shutting them down
@@ -288,7 +313,7 @@ public class Crafting_Algorithm {
 		ExecutorService executor
 	) throws InterruptedException, ExecutionException {
 		Callable<List<Crafting_Candidate>> task1 = () -> {
-			if(!FirstCandidateList.get(0).isFull())
+			if(FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6)
 			{
 				ExaltedOrb exalt = new ExaltedOrb();
 				return exalt.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
@@ -298,7 +323,7 @@ public class Crafting_Algorithm {
 	
 		Callable<List<Crafting_Candidate>> task2 = () -> {
 			// Checking if it is not already desecrated
-			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated && !FirstCandidateList.get(0).isFull()) {
+			if (!FirstCandidateList.get(0).desecrated && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6) {
 				Desecrated_currency des_currency = new Desecrated_currency();
 				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
 			}

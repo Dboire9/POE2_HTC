@@ -14,6 +14,7 @@ import core.Crafting.Crafting_Item;
 import core.Items.Body_Armours.Body_Armours_dex.Body_Armours_dex;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
+import core.Crafting.Probability;
 
 public class TestAlgo {
 
@@ -83,6 +84,10 @@ public class TestAlgo {
 
 			System.out.println("optimizeCrafting executed in " + durationInMillis + " ms");
 			System.out.println("End");
+
+
+			// Calculating the sum of percentage to lead to the full 6 modifiers. Need to check for omens in some cases
+			Probability.CalculatingProbability(highScoreCandidates, desiredMod);
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}

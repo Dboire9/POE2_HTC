@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import core.Crafting.Utils.ModifierEvent;
-import core.Currency.Omens_currency.Omen;
+
 import core.Items.Item_base;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierType;
@@ -67,11 +67,6 @@ public class Crafting_Item {
 		return clone;
 	}
 
-	
-
-	// Keep a list so multiple omens can be active together
-	private final List<Omen> activeOmens = new ArrayList<>();
-
 	public enum ItemRarity {
 		NORMAL, MAGIC, RARE
 	}
@@ -97,7 +92,7 @@ public class Crafting_Item {
 
 
 	// Adding an affix 
-	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, Crafting_Action action)
+	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, Crafting_Action action, List<Modifier> undesiredMods)
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
 		List<String> Item_family = new ArrayList<>();
@@ -107,8 +102,8 @@ public class Crafting_Item {
 		for (Modifier m : mod) {
 			// Take only the lowest tier
 			ModifierTier lowestTier = m.tiers.get(0);
-			//Check if the family is already on the item
-			if(!Item_family.contains(m.family))
+			//Check if the family is already on the item, and if it is a mod that we don't want
+			if (!Item_family.contains(m.family) && (undesiredMods == null || !undesiredMods.contains(m))) 
 			{
 				// Create a copy of the item
 				Crafting_Item new_item = item.copy();
@@ -445,19 +440,6 @@ public class Crafting_Item {
 		return mods;
 	}
 
-
-	// Get all active omens currently attached to this item.
-	public List<Omen> getActiveOmens() {
-		return activeOmens;
-	}
-
-	public boolean hasOmen(Class<? extends Omen> omenClass) {
-		for (Omen o : activeOmens) {
-			if (omenClass.isInstance(o))
-				return true;
-		}
-		return false;
-	}
 
 	public List<Modifier> getAllModifiers()
 	{

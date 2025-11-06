@@ -7,7 +7,7 @@ import java.util.Map;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
-import core.Currency.Omens_currency.Omen;
+
 import core.Modifier_class.Modifier;
 
 public class AugmentationOrb implements Crafting_Action {
@@ -20,7 +20,7 @@ public class AugmentationOrb implements Crafting_Action {
         return new AugmentationOrb(this.tier);
     }
 
-	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, Omen new_omen)
+	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
 	{
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
@@ -29,8 +29,8 @@ public class AugmentationOrb implements Crafting_Action {
 		
 		for (Crafting_Candidate candidate : CandidateList)
 		{
-			CandidateListCopy.addAll(evaluateAffixeswithAug(all_Prefix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags));
-			CandidateListCopy.addAll(evaluateAffixeswithAug(all_Suffix_Modifiers, item, candidate, desiredMods, CountDesiredModifierTags));
+			CandidateListCopy.addAll(evaluateAffixeswithAug(all_Prefix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags, undesiredMods));
+			CandidateListCopy.addAll(evaluateAffixeswithAug(all_Suffix_Modifiers, item, candidate, desiredMods, CountDesiredModifierTags, undesiredMods));
 		}
 
 		// Convert item to MAGIC

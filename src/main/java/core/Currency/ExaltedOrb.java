@@ -32,11 +32,7 @@ public class ExaltedOrb implements Crafting_Action {
 		all_Affix_modifiers.addAll(item.base.getNormalAllowedSuffixes());
 
 		for (Crafting_Candidate candidate : CandidateList)
-		{
-			if(new_omen instanceof OmenOfHomogenisingExaltation)
-				all_Affix_modifiers = new_omen.getHomogAffixes(item, candidate);
 			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags, new_omen));
-		}
         return CandidateListCopy;
 	}
 

@@ -37,13 +37,15 @@ public class Probability {
 				if(action instanceof RegalOrb)
 					ComputeRegal(candidate, event, desiredMod, FinalPath);
 				if(action instanceof ExaltedOrb)
-					ComputeExalt(candidate, event, desiredMod, FinalPath);
+				{}
+					// ComputeExalt(candidate, event, desiredMod, FinalPath);
 				if(action instanceof AnnulmentOrb)
-					ComputeAnnul(candidate, event, desiredMod, FinalPath);
+				{}	// ComputeAnnul(candidate, event, desiredMod, FinalPath);
 				if(action instanceof Essence_currency)
-					ComputeEssence(candidate, event, desiredMod, FinalPath);
+				{}	// ComputeEssence(candidate, event, desiredMod, FinalPath);
 			}
 		}
+		return ;
 	}
 
 	public static void ComputeRegal(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, List<Crafting_Action> FinalPath)
@@ -78,20 +80,20 @@ public class Probability {
 		}
 	}
 
-	public static void ComputeExalt(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, List<Crafting_Action> FinalPath)
-	{
+	// public static void ComputeExalt(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, )
+	// {
 		
-	}
+	// }
 
-	public static void ComputeAnnul(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, List<Crafting_Action> FinalPath)
-	{
+	// public static void ComputeAnnul(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, )
+	// {
 		
-	}
+	// }
 
-	public static void ComputeEssence(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, List<Crafting_Action> FinalPath)
-	{
+	// public static void ComputeEssence(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, )
+	// {
 		
-	}
+	// }
 
 
 

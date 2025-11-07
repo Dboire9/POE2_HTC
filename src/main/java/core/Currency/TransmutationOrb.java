@@ -8,7 +8,6 @@ import core.Crafting.Crafting_Algorithm;
 import core.Crafting.Crafting_Candidate;
 import core.Items.Item_base;
 import core.Modifier_class.*;
-import core.Utils.AddRandomMod;
 import core.Crafting.Crafting_Action.CurrencyTier;
 
 public class TransmutationOrb implements Crafting_Action {
@@ -35,7 +34,7 @@ public class TransmutationOrb implements Crafting_Action {
     public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
         // Only works on NORMAL items
 		
-        if (item.rarity != Crafting_Item.ItemRarity.NORMAL || item.isFull()) return CandidateList;
+        if (item.rarity != Crafting_Item.ItemRarity.NORMAL) return CandidateList;
 
 
 		List<Modifier> all_Prefix_modifiers = item.base.getNormalAllowedPrefixes();

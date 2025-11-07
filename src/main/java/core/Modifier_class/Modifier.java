@@ -10,6 +10,7 @@ public class Modifier {
 	public String thirdCategory;
 	public String fourthCategory;
 	public List<ModifierTier> tiers;
+	public int chosenTier = 0;
 	public ModifierType type;
 	public List<String> tags;
 	public ModifierSource source;

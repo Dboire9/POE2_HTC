@@ -50,6 +50,7 @@ public class TestAlgo {
 				int rngNumber = random.nextInt(tiers.size()); // Generate the random number
 				ModifierTier chosenTier = tiers.get(rngNumber); // Use the random number to get the tier
 				desiredModTier.add(chosenTier);
+				mod.chosenTier = rngNumber;
 				System.out.println(" - " + mod.text + " (Tier " + rngNumber + ")");
 			}
 		}
@@ -68,6 +69,7 @@ public class TestAlgo {
 				int rngNumber = random.nextInt(tiers.size()); // Generate the random number
 				ModifierTier chosenTier = tiers.get(rngNumber); // Use the random number to get the tier
 				desiredModTier.add(chosenTier);
+				mod.chosenTier = rngNumber;
 				System.out.println(" - " + mod.text + " (Tier " + rngNumber + ")");
 			}
 		}

@@ -12,10 +12,10 @@ public class ModifierEvent {
     }
 
 	
-    public final Modifier modifier;
-    public final ModifierTier tier;
-    public final Crafting_Action source;
-    public final ActionType type;
+    public Modifier modifier;
+    public ModifierTier tier;
+    public Crafting_Action source;
+    public ActionType type;
 	public double score;
     public long timestamp;
 	

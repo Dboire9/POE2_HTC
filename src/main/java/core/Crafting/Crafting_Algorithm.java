@@ -206,7 +206,7 @@ public class Crafting_Algorithm {
 		// FirstCandidateListCopy.addAll(temp);
 		// listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
 		// FirstCandidateListCopy.clear();
-	
+
 		// Applying a normal RegalOrb
 		RegalOrb regalOrb = new RegalOrb();
 		FirstCandidateListCopy = regalOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);

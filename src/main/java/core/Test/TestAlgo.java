@@ -89,7 +89,7 @@ public class TestAlgo {
 
 
 			// Calculating the sum of percentage to lead to the full 6 modifiers. Need to check for omens in some cases
-			Probability.CalculatingProbability(highScoreCandidates, desiredMod);
+			Probability.CalculatingProbability(highScoreCandidates, desiredMod, item);
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}

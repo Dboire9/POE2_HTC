@@ -1,9 +1,6 @@
 package core.Items;
 
 import core.Modifier_class.*;
-import core.Crafting.Crafting_Action.*; // Importing CurrencyTier class
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Item_base {

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import core.Crafting.Crafting_Action.CurrencyTier;
 import core.Crafting.Utils.ModifierEvent;
 
 import core.Items.Item_base;
@@ -232,15 +233,14 @@ public class Crafting_Item {
 
 
 	// Getting the total weight of an affix
-	public int get_Base_Affix_Total_Weight(List<Modifier> Modifiers)
+	public int get_Base_Affixes_Total_Weight_By_Tier(List<Modifier> Modifiers, int ilvl)
 	{
 		int total_weight = 0;
 
 		for(Modifier m : Modifiers)
-		{
 			for(ModifierTier tiers : m.tiers)
-				total_weight += tiers.weight;
-		}
+				if(tiers.level >= ilvl)
+					total_weight += tiers.weight;
 		return total_weight;
 	}
 

@@ -31,7 +31,7 @@ public class ModifierEvent {
 
 	public ModifierEvent copy() {
 		// Create a new instance and copy the fields
-		ModifierEvent copy = new ModifierEvent(this.modifier, this.tier, this.source, this.type);
+		ModifierEvent copy = new ModifierEvent(this.modifier, this.tier, this.source.copy(), this.type);
 		copy.timestamp = this.timestamp;
 		copy.score = this.score;
 		return copy;

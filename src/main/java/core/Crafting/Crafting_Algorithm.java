@@ -256,7 +256,7 @@ public class Crafting_Algorithm {
 		
 		Callable<List<Crafting_Candidate>> task4 = () -> {
 			// Checking if it is not already desecrated
-			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated && !FirstCandidateList.get(0).isFull()) {
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6) {
 				Essence_currency essence_currency = new Essence_currency();
 				return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
 			}
@@ -299,29 +299,6 @@ public class Crafting_Algorithm {
 
 		// Check RegalOrb and if it was homog
 		if (lastEvent.source instanceof RegalOrb || lastEvent.source instanceof ExaltedOrb || lastEvent.source instanceof Desecrated_currency) {
-			return true;
-		}
-
-		return false;
-	}
-
-	// Check if the item has all desired modifier tiers
-	public static boolean isFinished(Crafting_Candidate item, List<Modifier> desiredMods) {
-		if (desiredMods == null || desiredMods.isEmpty()) return false;
-
-		int matched = 0;
-		List<Modifier> currentMods = item.getAllCurrentModifiers();
-
-		for (Modifier mod : currentMods) {
-			for (Modifier desiredMod : desiredMods) {
-				if (mod.family.equals(desiredMod.family)) {
-					matched++;
-					break; // Prevent double counting the same desired tier
-				}
-			}
-		}
-
-		if (matched >= desiredMods.size()) {
 			return true;
 		}
 

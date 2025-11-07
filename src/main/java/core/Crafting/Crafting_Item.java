@@ -316,62 +316,6 @@ public class Crafting_Item {
 		// System.out.println("No suffix slot available!");
 	}
 
-	// Add the modifier passed in parameters
-	public void addModifier(ModifierTier tier, Modifier parent, boolean isPrefix) {
-		if (isPrefix) {
-			for (int i = 0; i < currentPrefixes.length; i++) {
-				if (currentPrefixes[i] == null) {
-					currentPrefixes[i] = parent;
-					currentPrefixTiers[i] = tier;
-					return;
-				}
-			}
-		} else {
-			for (int i = 0; i < currentSuffixes.length; i++) {
-				if (currentSuffixes[i] == null) {
-					currentSuffixes[i] = parent;
-					currentSuffixTiers[i] = tier;
-					return;
-				}
-			}
-		}
-	}
-
-	public boolean hasFamily(String family) {
-		for (Modifier mod : currentPrefixes) {
-			if (mod != null && mod.family.equalsIgnoreCase(family)) {
-				return true;
-			}
-		}
-		for (Modifier mod : currentSuffixes) {
-			if (mod != null && mod.family.equalsIgnoreCase(family)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	
-
-
-
-
-	
-
-	// Checking if the item has all modifiers filled
-	public boolean isFull() {
-		return Arrays.stream(currentPrefixes).noneMatch(m -> m == null)
-				&& Arrays.stream(currentSuffixes).noneMatch(m -> m == null);
-	}
-
-	public boolean isPrefixFull() {
-		return Arrays.stream(currentPrefixes).noneMatch(m -> m == null);
-	}
-
-	public boolean isSuffixFull() {
-		return Arrays.stream(currentSuffixes).noneMatch(m -> m == null);
-	}
-
 	// Removing modifiers
 	public void removePrefix(int index) {
 		currentPrefixes[index] = null;
@@ -399,19 +343,8 @@ public class Crafting_Item {
 	public List<Modifier> getAllCurrentModifiers() {
 		List<Modifier> mods = new ArrayList<>();
 
-		if (currentPrefixes != null) {
-			for (Modifier m : currentPrefixes) {
-				if (m != null)
-					mods.add(m);
-			}
-		}
-
-		if (currentSuffixes != null) {
-			for (Modifier m : currentSuffixes) {
-				if (m != null)
-					mods.add(m);
-			}
-		}
+		mods.addAll(getAllCurrentPrefixModifiers());
+		mods.addAll(getAllCurrentSuffixModifiers());
 
 		return mods;
 	}
@@ -439,18 +372,4 @@ public class Crafting_Item {
 		}
 		return mods;
 	}
-
-
-	public List<Modifier> getAllModifiers()
-	{
-		List<Modifier> all = new ArrayList<>();
-		all.addAll(Arrays.asList(currentPrefixes));
-		all.addAll(Arrays.asList(currentSuffixes));
-
-		return all.stream().filter(Objects::nonNull).toList();
-	}
-
-
-
-	// Homogenising handling
 }

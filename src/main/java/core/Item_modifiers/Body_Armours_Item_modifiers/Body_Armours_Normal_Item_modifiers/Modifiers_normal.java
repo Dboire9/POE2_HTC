@@ -595,6 +595,5 @@ public class Modifiers_normal {
 				Modifier.ModifierSource.NORMAL,
 				"EnergyShieldDelay",
 				"#% faster start of Energy Shield Recharge");
-
 	}
 }

@@ -21,9 +21,9 @@ public class Essence_currency implements Crafting_Action {
 	}
 
 	protected String essenceFamily;
-	protected EssenceTier tier;
+	protected ModifierTier tier;
 
-	public Essence_currency(String essenceFamily, EssenceTier tier) {
+	public Essence_currency(String essenceFamily, ModifierTier tier) {
 		this.essenceFamily = essenceFamily;
 		this.tier = tier;
 	}

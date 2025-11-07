@@ -39,7 +39,8 @@ public interface Crafting_Action {
     }
 	
 
-	    default List<Crafting_Candidate> evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
+	default List<Crafting_Candidate> evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
+	{
 		boolean isPrefix = false;
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 		if(modifiers != null && modifiers.get(0).type == ModifierType.PREFIX)

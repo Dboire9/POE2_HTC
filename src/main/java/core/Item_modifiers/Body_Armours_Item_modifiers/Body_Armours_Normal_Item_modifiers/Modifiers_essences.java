@@ -236,7 +236,5 @@ public class Modifiers_essences {
 				ModifierSource.ESSENCE,
 				"LightningResistance",
 				"+#% to Lightning Resistance");
-
 	}
-
 }

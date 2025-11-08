@@ -38,9 +38,9 @@ public class Probability {
 
 				// Not doing aug for now, want to see a 100% prob if it is possible
 				if(action instanceof RegalOrb)
-					ComputeRegal(candidate, desiredMod, baseItem, i);
+					ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
 				if(action instanceof ExaltedOrb)
-				{}
+					ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
 					// ComputeExalt(candidate, event, desiredMod);
 				if(action instanceof AnnulmentOrb)
 				{}	// ComputeAnnul(candidate, event, desiredMod);
@@ -52,7 +52,7 @@ public class Probability {
 		return ;
 	}
 
-	public static void ComputeRegal(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	public static void ComputeRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
 	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
@@ -85,7 +85,8 @@ public class Probability {
 			}
 		
 			applyTiersAndCompute(baseItem, candidate, event, levels, tiers, i);
-			canBeEssence(baseItem, candidate, event, level, realtier, i);
+			if (candidate.modifierHistory.get(i).source.keySet().iterator().next() instanceof RegalOrb)
+				canBeEssence(baseItem, candidate, event, level, realtier, i);
 		}
 	}
 

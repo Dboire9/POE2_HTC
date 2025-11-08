@@ -1,6 +1,7 @@
 package core.Crafting;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,9 @@ public interface Crafting_Action {
     // Default method for evaluateAffixes
     default void CreateListAndEvaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
 	{
-        List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, this, undesiredMods);
+		Map<Crafting_Action, Double> actionMap = new HashMap<>();
+		actionMap.put(this, 0.0);
+        List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, actionMap, undesiredMods);
         for (Crafting_Item items : Item_Evaluation) {
 			double score = 0;
             score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
@@ -42,6 +45,8 @@ public interface Crafting_Action {
 	default List<Crafting_Candidate> evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
 	{
 		boolean isPrefix = false;
+		Map<Crafting_Action, Double> actionMap = new HashMap<>();
+		actionMap.put(this, 0.0);
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 		if(modifiers != null && modifiers.get(0).type == ModifierType.PREFIX)
 		isPrefix = true;
@@ -49,12 +54,12 @@ public interface Crafting_Action {
 		if((isPrefix && candidate.currentPrefixes[0] != null) || (!isPrefix && candidate.currentSuffixes[0] != null))
 			return CandidateListCopy;
 		item = candidate.copy();
-		List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, this, null);
+		List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, actionMap, null);
 		for (Crafting_Item items : Item_Evaluation) {
 			double score = 0;
 			score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
 			if (score > candidate.score) {
-				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
+				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
 				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);
 				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score; 
@@ -70,11 +75,13 @@ public interface Crafting_Action {
 		int affixes = 0;
 		List<Crafting_Item> Item_Evaluation = null;
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
+		Map<Crafting_Action, Double> actionMap = new HashMap<>();
+		actionMap.put(this, 0.0);
 		item = candidate.copy();
 		if(this instanceof Essence_currency)
-			Item_Evaluation = item.addPerfectEssenceAffixes(modifiers, item, this);
+			Item_Evaluation = item.addPerfectEssenceAffixes(modifiers, item, actionMap);
 		else
-			Item_Evaluation = item.addAffixes(modifiers, item, this, undesiredMods);
+			Item_Evaluation = item.addAffixes(modifiers, item, actionMap, undesiredMods);
 		for (Crafting_Item items : Item_Evaluation)
 		{
 			affixes = items.getAllCurrentPrefixModifiers().size() + items.getAllCurrentSuffixModifiers().size();
@@ -102,7 +109,7 @@ public interface Crafting_Action {
 				}
 				// if (score < 5200)
 				// 	System.out.println("here");
-				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
+				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
 				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);
 				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
@@ -121,7 +128,9 @@ public interface Crafting_Action {
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 		item = candidate.copy();
 		int affixes = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size() - 1;
-		List<Crafting_Item> Item_Evaluation = item.removeAffixes(item, this); // here we should have remove affixes
+		Map<Crafting_Action, Double> actionMap = new HashMap<>();
+		actionMap.put(this, 0.0);
+		List<Crafting_Item> Item_Evaluation = item.removeAffixes(item, actionMap); // here we should have remove affixes
 		for (Crafting_Item items : Item_Evaluation)
 		{
 			// Bonus for the annuls, as removing a modifier is generally good if it does not remove a modifier we want
@@ -147,7 +156,7 @@ public interface Crafting_Action {
 						if (score < 5200)
 							continue;
 				}
-				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score, this);
+				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
 				newCandidate.prev_score = candidate.score;
 				newCandidate.actions.add(this);
 				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;

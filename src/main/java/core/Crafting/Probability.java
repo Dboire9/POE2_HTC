@@ -81,10 +81,11 @@ public class Probability {
 		
 			if (candidate.modifierHistory.get(i).source.keySet().iterator().next() instanceof RegalOrb)
 			{
-				for (RegalOrb.Omen omen : RegalOrb.Omen.values())
-					applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, omen);
+				applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i);
 				canBeEssence(baseItem, candidate, event, level, realtier, i);
 			}
+			if (candidate.modifierHistory.get(i).source.keySet().iterator().next() instanceof ExaltedOrb)
+				applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i);
 		}
 	}
 
@@ -131,7 +132,7 @@ public class Probability {
 		}
 		if (omen instanceof ExaltedOrb.Omen exaltOmen)
 		{
-			ExaltedOrb orb = (ExaltedOrb) event.source;
+			ExaltedOrb orb = (ExaltedOrb) event.source.keySet().iterator().next();;
 			switch(exaltOmen)
 			{
 				case None : 
@@ -187,24 +188,23 @@ public class Probability {
 		List<Modifier> FinalPossibleAffixes = new ArrayList<>();
 		List<String> ItemAffixTags = new ArrayList<>();
 
-		for(String tags : event.modifier.tags)
-			ItemAffixTags.add(tags);
-
 		for(int j = 0; j <= i; j++)
 		{
 			// Retrieving the tags 
 			for(String tags : candidate.modifierHistory.get(j).modifier.tags)
-				if(tags != "")	
+				if(!tags.isEmpty() && !ItemAffixTags.contains(tags))	
 					ItemAffixTags.add(tags);
 		}
 
 		for(Modifier PossibleModifier : PossibleAffixes) // Looping through all modifiers passed in arguments
 			for (String tag : PossibleModifier.tags) // Looping through every tags the modifiers we got has
-				if (ItemAffixTags.contains(tag)) // If the modifier has a tag that we already have from the current Item Affixes, we add it to the list of Affixes we could have rolled (for the weight)
-					FinalPossibleAffixes.add(PossibleModifier);
-
-
-		return PossibleAffixes;
+				if (ItemAffixTags.contains(tag) && !tag.isEmpty()) // If the modifier has a tag that we already have from the current Item Affixes, we add it to the list of Affixes we could have rolled (for the weight)
+				{
+					if (!FinalPossibleAffixes.contains(PossibleModifier)) // Checking for not adding duplicates
+						FinalPossibleAffixes.add(PossibleModifier);
+					break;
+				}
+		return FinalPossibleAffixes;
 	}
 
 	public static double NormalCompute(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl, int i, List<Modifier> PossiblePrefixes, List<Modifier> PossibleSuffixes)
@@ -214,8 +214,8 @@ public class Probability {
 
 		double percentage = 0;
 
-		int TotalPrefixWeight = 0;
-		int TotalSuffixWeight = 0;
+		double TotalPrefixWeight = 0;
+		double TotalSuffixWeight = 0;
 
 		// We need to omens here
 
@@ -264,8 +264,7 @@ public class Probability {
 		ModifierEvent event,
 		int[] levels,
 		Crafting_Action.CurrencyTier[] tiers,
-		int i,
-		Enum<?> omen
+		int i
 	) 
 	{
 		// Computing the percentage for the modifier and then applying the currency tier without omens
@@ -281,9 +280,19 @@ public class Probability {
 				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values())
 				{
 					percentage = ComputePercentage(baseItem, candidate, event, levels[j], currentOmen, i);
-					candidate.modifierHistory.get(i).source.put(new RegalOrb(tiers[j], currentOmen), percentage);
+					if(percentage != 0)
+						candidate.modifierHistory.get(i).source.put(new RegalOrb(tiers[j], currentOmen), percentage);
 				}
-			} 
+			}
+			if(action instanceof ExaltedOrb)
+			{
+				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values())
+				{
+					percentage = ComputePercentage(baseItem, candidate, event, levels[j], currentOmen, i);
+					if(percentage != 0)
+						candidate.modifierHistory.get(i).source.put(new ExaltedOrb(tiers[j], currentOmen), percentage);
+				}
+			}
 		}
 	}
 

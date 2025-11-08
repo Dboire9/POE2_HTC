@@ -33,7 +33,7 @@ public class ExaltedOrb implements Crafting_Action {
 
 	@Override
     public Crafting_Action copy() {
-        return new ExaltedOrb(this.tier);
+        return new ExaltedOrb(this.tier, this.omens);
     }
 
 	@Override
@@ -53,10 +53,16 @@ public class ExaltedOrb implements Crafting_Action {
 
 
 	// Constructor to specify tier
-	public ExaltedOrb(CurrencyTier tier) {
+	public ExaltedOrb(CurrencyTier tier, Omen omen) {
 		this.tier = tier;
 		this.omens = new HashSet<>();
-        this.omens.add(Omen.None);
+        this.omens.add(omen);
+	}
+
+	public ExaltedOrb(CurrencyTier tier, Set<Omen> omen) {
+		this.tier = tier;
+		this.omens = new HashSet<>();
+        this.omens = omen;
 	}
 
 	// Default constructor

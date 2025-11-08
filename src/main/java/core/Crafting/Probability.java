@@ -111,15 +111,15 @@ public class Probability {
 		{
 			switch(regalOmen)
 			{
-				case None -> 
+				case None:
 				{
 					List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
 					List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
 					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
 				}
-				case OmenofHomogenisingCoronation ->
+				case OmenofHomogenisingCoronation :
 				{
-
+					
 				}
 			}
 		}
@@ -127,13 +127,33 @@ public class Probability {
 		{
 			switch(exaltOmen)
 			{
-				case None -> 
+				case None : 
 				{
-					return NormalCompute(baseItem, candidate, event, ilvl, i);
+					List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
+					List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
+					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
 				}
-				case OmenofHomogenisingExaltation ->
+				case OmenofHomogenisingExaltation :
 				{
-
+					return 0;
+				}
+				case OmenofSinistralExaltation :
+				{
+					if(event.modifier.type == ModifierType.PREFIX)
+					{
+						List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
+						return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null);
+					}
+					break ;
+				}
+				case OmenofDextralExaltation :
+				{
+					if(event.modifier.type == ModifierType.SUFFIX)
+					{
+						List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
+						return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes);
+					}
+					break;
 				}
 			}
 		}
@@ -147,12 +167,17 @@ public class Probability {
 
 		double percentage = 0;
 
+		int TotalPrefixWeight = 0;
+		int TotalSuffixWeight = 0;
+
 		// We need to omens here
 
 		// If there is room for both a prefix or a suffix, the total weight might be both combined
-		int TotalPrefixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossiblePrefixes, ilvl);
+		if(PossiblePrefixes != null)
+			TotalPrefixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossiblePrefixes, ilvl);
 
-		double TotalSuffixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossibleSuffixes, ilvl);
+		if(PossibleSuffixes != null)
+			TotalSuffixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossibleSuffixes, ilvl);
 
 		for(int j = 0; j < i; j++)
 		{
@@ -163,7 +188,7 @@ public class Probability {
 		}
 
 		// here we compute the percentage with the total weight of all normal modifiers, because it could have landed on either a prefix or a suffix 
-		if(prefixesFilled < 3 && suffixesFilled < 3)
+		if(prefixesFilled < 3 && suffixesFilled < 3 && PossiblePrefixes != null && PossibleSuffixes != null) // We check for null because of the omens
 		{
 			double TotalWeight = TotalPrefixWeight + TotalSuffixWeight;
 			percentage = event.tier.weight / TotalWeight;
@@ -171,14 +196,14 @@ public class Probability {
 		}
 
 		// If the modifier was a prefix and we know all the suffixes were filleds, we calculate only for TotalPrefixWeight because it could have ony roll a prefix
-		if(event.modifier.type == ModifierType.PREFIX && suffixesFilled >= 3)
+		if(event.modifier.type == ModifierType.PREFIX && (suffixesFilled >= 3 || PossibleSuffixes == null))
 		{
 			percentage = event.tier.weight / TotalPrefixWeight;
 			return percentage;
 		}
 
 		// Same for suffixes
-		if(event.modifier.type == ModifierType.SUFFIX && prefixesFilled >= 3)
+		if(event.modifier.type == ModifierType.SUFFIX && (prefixesFilled >= 3 || PossiblePrefixes == null))
 		{
 			percentage = event.tier.weight / TotalSuffixWeight;
 			return percentage;

@@ -243,9 +243,9 @@ public class Crafting_Algorithm {
 		};
 	
 		Callable<List<Crafting_Candidate>> task3 = () -> {
-			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty()) {
-				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory
-						.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty())
+			{
+				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
 				if (isExaltorRegalorDes(lastEvent) && !FirstCandidateList.get(0).stopAnnul) {
 					AnnulmentOrb annul = new AnnulmentOrb();
 					return annul.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);

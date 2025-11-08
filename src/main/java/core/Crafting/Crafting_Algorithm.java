@@ -298,7 +298,7 @@ public class Crafting_Algorithm {
 			return false;
 
 		// Check RegalOrb and if it was homog
-		if (lastEvent.source instanceof RegalOrb || lastEvent.source instanceof ExaltedOrb || lastEvent.source instanceof Desecrated_currency) {
+		if (lastEvent.source.keySet().iterator().next() instanceof RegalOrb || lastEvent.source.keySet().iterator().next() instanceof ExaltedOrb || lastEvent.source.keySet().iterator().next() instanceof Desecrated_currency) {
 			return true;
 		}
 

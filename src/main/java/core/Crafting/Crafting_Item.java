@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -63,7 +64,6 @@ public class Crafting_Item {
 		for (ModifierEvent event : this.modifierHistory) {
 			clone.modifierHistory.add(event.copy()); // Ensure ModifierEvent has a copy method
 		}
-
 	
 		return clone;
 	}
@@ -93,7 +93,7 @@ public class Crafting_Item {
 
 
 	// Adding an affix 
-	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, Crafting_Action action, List<Modifier> undesiredMods)
+	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, Map<Crafting_Action, Double> action, List<Modifier> undesiredMods)
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
 		List<String> Item_family = new ArrayList<>();
@@ -124,7 +124,7 @@ public class Crafting_Item {
 	}
 	
 	// Adding a perfect essence affix
-	public List<Crafting_Item> addPerfectEssenceAffixes(List<Modifier> mod, Crafting_Item item, Crafting_Action action)
+	public List<Crafting_Item> addPerfectEssenceAffixes(List<Modifier> mod, Crafting_Item item, Map<Crafting_Action, Double> action)
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
 		List<String> Item_family = new ArrayList<>();
@@ -194,7 +194,7 @@ public class Crafting_Item {
 		return Items_List;
 	}
 	
-	public List<Crafting_Item> removeAffixes(Crafting_Item item, Crafting_Action action)
+	public List<Crafting_Item> removeAffixes(Crafting_Item item, Map<Crafting_Action, Double> action)
 	{
 	
 		List<Crafting_Item> Items_List = new ArrayList<>();

@@ -3,6 +3,7 @@ package core.Crafting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import core.Crafting.Crafting_Action.*;
 import core.Crafting.Crafting_Action.CurrencyTier;
@@ -23,35 +24,35 @@ public class Probability {
 
 	public static void CalculatingProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem)
 	{
-		List<Crafting_Candidate> FinalPath = new ArrayList<>();
-
 		for (Crafting_Candidate candidate : completedPaths) 
 		{
 			// We implement i to get the event in all our candidates, so that we can replace it easier
 			int i = 0;
+			// We do all at once, we do not care about the order
 			for (ModifierEvent event : candidate.modifierHistory)
 			{
-				Crafting_Action action = event.source;
+				// Retrieving the first action to know what it is
+				Crafting_Action action = event.source.keySet().iterator().next();
 
 				//Not doing the transmutation
 
 				// Not doing aug for now, want to see a 100% prob if it is possible
 				if(action instanceof RegalOrb)
-					ComputeRegal(candidate, desiredMod, FinalPath, baseItem, i);
+					ComputeRegal(candidate, desiredMod, baseItem, i);
 				if(action instanceof ExaltedOrb)
 				{}
-					// ComputeExalt(candidate, event, desiredMod, FinalPath);
+					// ComputeExalt(candidate, event, desiredMod);
 				if(action instanceof AnnulmentOrb)
-				{}	// ComputeAnnul(candidate, event, desiredMod, FinalPath);
+				{}	// ComputeAnnul(candidate, event, desiredMod);
 				if(action instanceof Essence_currency)
-				{}	// ComputeEssence(candidate, event, desiredMod, FinalPath);
+				{}	// ComputeEssence(candidate, event, desiredMod);
 				i++;
 			}
 		}
 		return ;
 	}
 
-	public static void ComputeRegal(Crafting_Candidate candidate, List<Modifier> desiredMod, List<Crafting_Candidate> FinalPath, Crafting_Item baseItem, int i)
+	public static void ComputeRegal(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
 	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
@@ -83,8 +84,8 @@ public class Probability {
 				tiers = new Crafting_Action.CurrencyTier[]{CurrencyTier.BASE, CurrencyTier.GREATER, CurrencyTier.PERFECT};
 			}
 		
-			applyTiersAndCompute(baseItem, candidate, event, levels, tiers, FinalPath, i);
-			canBeEssence(baseItem, candidate, event, level, realtier, FinalPath, i);
+			applyTiersAndCompute(baseItem, candidate, event, levels, tiers, i);
+			canBeEssence(baseItem, candidate, event, level, realtier, i);
 		}
 	}
 
@@ -103,7 +104,7 @@ public class Probability {
 		
 	// }
 
-	public static void ComputePercentage(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl)
+	public static double ComputePercentage(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl)
 	{
 		// For prefixes
 		if(event.modifier.type == ModifierType.PREFIX)
@@ -111,7 +112,8 @@ public class Probability {
 			List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
 			double TotalPrefixWeight = 0;
 			TotalPrefixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossiblePrefixes, ilvl);
-			candidate.percentage += event.tier.weight / TotalPrefixWeight;
+			double percentage = event.tier.weight / TotalPrefixWeight;
+			return percentage;
 		}
 
 		// For suffixes
@@ -121,8 +123,10 @@ public class Probability {
 		
 			double TotalSuffixWeight = 0;
 			TotalSuffixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossibleSuffixes, ilvl);
-			candidate.percentage += event.tier.weight / TotalSuffixWeight;
+			double percentage = event.tier.weight / TotalSuffixWeight;
+			return percentage;
 		}
+		return 0;
 	}
 
 	private static void applyTiersAndCompute(
@@ -131,28 +135,24 @@ public class Probability {
 		ModifierEvent event,
 		int[] levels,
 		Crafting_Action.CurrencyTier[] tiers,
-		List<Crafting_Candidate> FinalPath,
 		int i
 	) 
 	{
 		// Computing the percentage for the modifier and then applying the currency tier
 		for (int j = 0; j < levels.length; j++)
 		{
-			Crafting_Candidate c = candidate.copy();
-			c.percentage = 0;
+			double percentage = 0;
 
-			ComputePercentage(baseItem, c, event, levels[j]);
+			percentage = ComputePercentage(baseItem, candidate, event, levels[j]);
 
-			if (c.modifierHistory.get(i).source instanceof RegalOrb regal)
-				regal.tier = tiers[j];
-			if (c.modifierHistory.get(i).source instanceof ExaltedOrb exalt)
-				exalt.tier = tiers[j];
-
-			FinalPath.add(c);
+			if (candidate.modifierHistory.get(i).source.keySet().iterator().next() instanceof RegalOrb)
+				candidate.modifierHistory.get(i).source.put(new RegalOrb(tiers[j]), percentage);
+			if (candidate.modifierHistory.get(i).source.keySet().iterator().next() instanceof ExaltedOrb)
+				candidate.modifierHistory.get(i).source.put(new ExaltedOrb(tiers[j]), percentage);
 		}
 	}
 
-	private static void canBeEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int level, int realtier, List<Crafting_Candidate> FinalPath, int i)
+	private static void canBeEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int level, int realtier, int i)
 	{
 		if(event.modifier.type == ModifierType.PREFIX)
 		{
@@ -165,15 +165,7 @@ public class Probability {
 				{
 					for(ModifierTier mtiers : m.tiers)
 						if(mtiers.level == level)
-						{
-							Crafting_Candidate c = candidate.copy();
-							// Not doing the augs for now so we hard code
-							c.percentage = 100;
-							c.modifierHistory.get(i).source = new Essence_currency(m.family, mtiers);
-							FinalPath.add(c);
-						}
-
-
+							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 100.0);
 					break;
 				}
 			}
@@ -190,21 +182,10 @@ public class Probability {
 				{
 					for(ModifierTier mtiers : m.tiers)
 						if(mtiers.level == level)
-						{
-							Crafting_Candidate c = candidate.copy();
-							// Not doing the augs for now so we hard code
-							c.percentage = 100;
-							c.modifierHistory.get(i).source = new Essence_currency(m.family, mtiers);
-							FinalPath.add(c);
-						}
-
-
+							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 100.0);
 					break;
 				}
 			}
 		}
 	}
-
-
-
 }

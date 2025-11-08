@@ -2,6 +2,7 @@ package core.Crafting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import core.Crafting.Utils.ModifierEvent;
 import core.Modifier_class.Modifier;
@@ -83,7 +84,7 @@ public class Crafting_Candidate extends Crafting_Item {
 			return new_Crafting_Candidate;
 		}
 
-		public Crafting_Candidate NewStep(Crafting_Candidate oldCraftingCandidate, Crafting_Item new_item, double score, Crafting_Action action)
+		public Crafting_Candidate NewStep(Crafting_Candidate oldCraftingCandidate, Crafting_Item new_item, double score)
 		{
 			Crafting_Candidate new_Crafting_Candidate = (Crafting_Candidate) new_item.copy();
 			new_Crafting_Candidate.score = score;

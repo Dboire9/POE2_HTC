@@ -84,13 +84,14 @@ public class TestAlgo {
 			long endTime = System.nanoTime();   // end timing
 			long durationInMillis = (endTime - startTime) / 1_000_000; // convert to ms
 
-			System.out.println("optimizeCrafting executed in " + durationInMillis + " ms");
-			System.out.println("End");
-
-
+			
 			// Calculating the sum of percentage to lead to the full 6 modifiers. Need to check for omens in some cases
 			Probability.CalculatingProbability(highScoreCandidates, desiredMod, item);
-		} catch (InterruptedException | ExecutionException e) {
+			System.out.println("optimizeCrafting executed in " + durationInMillis + " ms");
+			System.out.println("End");
+		}
+		catch (InterruptedException | ExecutionException e)
+		{
 			e.printStackTrace();
 		}
 	}

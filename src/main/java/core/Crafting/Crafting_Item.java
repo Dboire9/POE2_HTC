@@ -72,17 +72,6 @@ public class Crafting_Item {
 		NORMAL, MAGIC, RARE
 	}
 
-	public enum ModType {
-		ANY, PREFIX_ONLY, SUFFIX_ONLY
-	}
-
-	public enum CraftingActionType {
-		ESSENCE,
-		CURRENCY,
-		OMEN
-	}
-
-
 	// Constructor
 	public Crafting_Item(Item_base base) {
 		this.base = base;

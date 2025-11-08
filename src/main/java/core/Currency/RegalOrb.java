@@ -7,11 +7,24 @@ import java.util.Map;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
+import core.Currency.ExaltedOrb.Omen;
 import core.Modifier_class.Modifier;
 
 public class RegalOrb implements Crafting_Action {
 	
 	public CurrencyTier tier;
+	public Omen omen;
+
+
+	public enum Omen {
+        None,
+        OmenofHomogenisingCoronation
+    }
+	
+    @Override
+    public Enum<?>[] getAvailableOmens() {
+        return Omen.values();
+    }
 
 	@Override
     public Crafting_Action copy() {
@@ -37,11 +50,18 @@ public class RegalOrb implements Crafting_Action {
 	// Constructor to specify tier
 	public RegalOrb(CurrencyTier tier) {
 		this.tier = tier;
+		this.omen = Omen.None;
+	}
+
+	public RegalOrb(CurrencyTier tier, Omen omen) {
+		this.tier = tier;
+		this.omen = omen;
 	}
 
 	// Default constructor
 	public RegalOrb() {
 		this.tier = CurrencyTier.BASE;
+		this.omen = Omen.None;
 	}
 
 	@Override

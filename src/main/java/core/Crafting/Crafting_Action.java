@@ -14,7 +14,9 @@ public interface Crafting_Action {
 
 	public enum CurrencyTier {
 		BASE, GREATER, PERFECT
-	}	
+	}
+
+	Enum<?>[] getAvailableOmens();
 
 	Crafting_Action copy();
 

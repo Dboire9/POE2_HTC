@@ -12,9 +12,21 @@ import core.Modifier_class.Modifier;
 
 public class AnnulmentOrb implements Crafting_Action {
 
+
+	public enum Omen { // Need to implement the real ones
+        None,
+        OmenofHomogenisingCoronation
+    }
+
+
 	@Override
     public Crafting_Action copy() {
         return new AnnulmentOrb();
+    }
+
+	@Override
+    public Enum<?>[] getAvailableOmens() {
+        return Omen.values();
     }
 
 

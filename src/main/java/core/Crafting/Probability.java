@@ -33,18 +33,19 @@ public class Probability {
 			{
 				// Retrieving the first action to know what it is
 				Crafting_Action action = event.source.keySet().iterator().next();
+				if(candidate.actions.size()>6)
+					System.out.println("Here");
 
 				//Not doing the transmutation
 
 				// Not doing aug for now, want to see a 100% prob if it is possible
 				if(action instanceof RegalOrb)
 					ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
-				if(action instanceof ExaltedOrb)
+				else if(action instanceof ExaltedOrb)
 					ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
-					// ComputeExalt(candidate, event, desiredMod);
-				if(action instanceof AnnulmentOrb)
-				{}	// ComputeAnnul(candidate, event, desiredMod);
-				if(action instanceof Essence_currency)
+				else if(action instanceof AnnulmentOrb)
+					ComputeAnnul(candidate, desiredMod, baseItem, i);
+				else if(action instanceof Essence_currency)
 				{}	// ComputeEssence(candidate, event, desiredMod);
 				i++;
 			}
@@ -56,7 +57,6 @@ public class Probability {
 	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
-		// Check if it is a desired mod
 		Modifier foundModifier = candidate.modifierHistory.get(i).modifier;
 
 		// Checking the level so that we apply the good currency tiers
@@ -90,12 +90,14 @@ public class Probability {
 		}
 	}
 
-	// public static void ComputeExalt(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, )
-	// {
-		
-	// }
+	public static void ComputeAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	{
+		ModifierEvent event = candidate.modifierHistory.get(i);
 
-	// public static void ComputeAnnul(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, )
+
+	}
+
+	// public static void ComputeExalt(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, )
 	// {
 		
 	// }

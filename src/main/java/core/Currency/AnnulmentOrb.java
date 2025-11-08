@@ -15,8 +15,11 @@ public class AnnulmentOrb implements Crafting_Action {
 
 	public enum Omen { // Need to implement the real ones
         None,
-        OmenofHomogenisingCoronation
+        OmenofSinistralAnnulment,
+		OmenofDextralAnnulment
     }
+
+	public Omen omen;
 
 
 	@Override
@@ -28,6 +31,14 @@ public class AnnulmentOrb implements Crafting_Action {
     public Enum<?>[] getAvailableOmens() {
         return Omen.values();
     }
+
+	public AnnulmentOrb(Omen omen) {
+		this.omen = omen;
+	}
+
+	public AnnulmentOrb() {
+		this.omen = Omen.None;
+	}
 
 
 	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)

@@ -13,6 +13,21 @@ import core.Modifier_class.Modifier;
 public class ExaltedOrb implements Crafting_Action {
 
 	public CurrencyTier tier;
+	public Omen omen;
+	public enum Omen
+	{
+		None,
+		OmenofHomogenisingExaltation,
+		OmenofSinistralExaltation,
+		OmenofDextralExaltation,
+		// Not putting greater exaltation for now
+	};
+
+	@Override
+    public Enum<?>[] getAvailableOmens() {
+        return Omen.values();
+    }
+
 
 	@Override
     public Crafting_Action copy() {
@@ -38,11 +53,13 @@ public class ExaltedOrb implements Crafting_Action {
 	// Constructor to specify tier
 	public ExaltedOrb(CurrencyTier tier) {
 		this.tier = tier;
+		this.omen = Omen.None;
 	}
 
 	// Default constructor
 	public ExaltedOrb() {
 		this.tier = CurrencyTier.BASE;
+		this.omen = Omen.None;
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package core.Crafting;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -119,12 +120,18 @@ public class Probability {
 				}
 				case OmenofHomogenisingCoronation :
 				{
-					
+					// If the modifier of the event has no tags we break
+					if(event.modifier.tags.get(0) == "")
+						break ;
+					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
+					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
+					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
 				}
 			}
 		}
 		if (omen instanceof ExaltedOrb.Omen exaltOmen)
 		{
+			ExaltedOrb orb = (ExaltedOrb) event.source;
 			switch(exaltOmen)
 			{
 				case None : 
@@ -135,7 +142,22 @@ public class Probability {
 				}
 				case OmenofHomogenisingExaltation :
 				{
-					return 0;
+					// If the modifier of the event has no tags we break
+					if(event.modifier.tags.get(0) == "")
+						break ;
+					if(event.modifier.type == ModifierType.PREFIX)
+					{
+						List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
+						orb.addOmen(ExaltedOrb.Omen.OmenofSinistralExaltation);
+						return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null);
+					}
+					if(event.modifier.type == ModifierType.SUFFIX)
+					{
+						List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
+						orb.addOmen(ExaltedOrb.Omen.OmenofDextralExaltation);
+						return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes);
+					}
+					break;
 				}
 				case OmenofSinistralExaltation :
 				{
@@ -157,7 +179,32 @@ public class Probability {
 				}
 			}
 		}
-	return 0;
+		return 0;
+	}
+
+	public static List<Modifier> GetHomogAffixes(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, List<Modifier> PossibleAffixes, int i)
+	{
+		List<Modifier> FinalPossibleAffixes = new ArrayList<>();
+		List<String> ItemAffixTags = new ArrayList<>();
+
+		for(String tags : event.modifier.tags)
+			ItemAffixTags.add(tags);
+
+		for(int j = 0; j <= i; j++)
+		{
+			// Retrieving the tags 
+			for(String tags : candidate.modifierHistory.get(j).modifier.tags)
+				if(tags != "")	
+					ItemAffixTags.add(tags);
+		}
+
+		for(Modifier PossibleModifier : PossibleAffixes) // Looping through all modifiers passed in arguments
+			for (String tag : PossibleModifier.tags) // Looping through every tags the modifiers we got has
+				if (ItemAffixTags.contains(tag)) // If the modifier has a tag that we already have from the current Item Affixes, we add it to the list of Affixes we could have rolled (for the weight)
+					FinalPossibleAffixes.add(PossibleModifier);
+
+
+		return PossibleAffixes;
 	}
 
 	public static double NormalCompute(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl, int i, List<Modifier> PossiblePrefixes, List<Modifier> PossibleSuffixes)

@@ -20,7 +20,7 @@ public class RegalOrb implements Crafting_Action {
         None,
         OmenofHomogenisingCoronation
     }
-	
+
     @Override
     public Enum<?>[] getAvailableOmens() {
         return Omen.values();

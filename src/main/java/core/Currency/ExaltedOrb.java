@@ -1,8 +1,10 @@
 package core.Currency;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
@@ -13,7 +15,7 @@ import core.Modifier_class.Modifier;
 public class ExaltedOrb implements Crafting_Action {
 
 	public CurrencyTier tier;
-	public Omen omen;
+	public Set<Omen> omens;
 	public enum Omen
 	{
 		None,
@@ -53,17 +55,36 @@ public class ExaltedOrb implements Crafting_Action {
 	// Constructor to specify tier
 	public ExaltedOrb(CurrencyTier tier) {
 		this.tier = tier;
-		this.omen = Omen.None;
+		this.omens = new HashSet<>();
+        this.omens.add(Omen.None);
 	}
 
 	// Default constructor
 	public ExaltedOrb() {
 		this.tier = CurrencyTier.BASE;
-		this.omen = Omen.None;
+		this.omens = new HashSet<>();
+        this.omens.add(Omen.None);
 	}
 
 	@Override
 	public String getName() {
 		return "Exalted Orb (" + tier + ")";
+	}
+
+	public void addOmen(Omen omen) {
+		// If we are adding Sinistral, remove Dextral if present
+		if (omen == Omen.OmenofSinistralExaltation && omens.contains(Omen.OmenofDextralExaltation))
+			omens.remove(Omen.OmenofDextralExaltation);
+	
+		// If we are adding Dextral, remove Sinistral if present
+		if (omen == Omen.OmenofDextralExaltation && omens.contains(Omen.OmenofSinistralExaltation))
+			omens.remove(Omen.OmenofSinistralExaltation);
+	
+		// If adding a real omen (not None), remove None from the set
+		if (omen != Omen.None)
+			omens.remove(Omen.None);
+	
+		// Finally, add the new omen
+		omens.add(omen);
 	}
 }

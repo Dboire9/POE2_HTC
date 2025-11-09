@@ -2,7 +2,7 @@ package core.Currency;
 
 import java.util.*;
 import core.Crafting.Crafting_Item;
-
+import core.Currency.ExaltedOrb.Omen;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Algorithm;
 import core.Crafting.Crafting_Candidate;
@@ -53,5 +53,10 @@ public class TransmutationOrb implements Crafting_Action {
     @Override
     public String getName() {
         return "Orb of Transmutation (" + tier + ")";
+    }
+
+	@Override
+    public Enum<?>[] getAvailableOmens() {
+        return Omen.values();
     }
 }

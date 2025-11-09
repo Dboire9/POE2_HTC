@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import core.Crafting.Utils.Heuristic_Util;
 import core.Crafting.Utils.ModifierEvent;
+import core.Crafting.Utils.ModifierEvent.ActionType;
 import core.Currency.AnnulmentOrb;
 import core.Currency.AugmentationOrb;
 import core.Currency.Desecrated_currency;
@@ -199,13 +200,7 @@ public class Crafting_Algorithm {
 	{
 		List<Crafting_Candidate> FirstCandidateListCopy = new ArrayList<>();
 
-		// Not doing essences as regal can do every of them
-		// Applying Essence_currency
-		// Essence_currency essence = new Essence_currency();
-		// List<Crafting_Candidate> temp = essence.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, null);
-		// FirstCandidateListCopy.addAll(temp);
-		// listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
-		// FirstCandidateListCopy.clear();
+		// Not doing essences as regal can do every of them, we will check if they can be essences later
 
 		// Applying a normal RegalOrb
 		RegalOrb regalOrb = new RegalOrb();
@@ -246,7 +241,7 @@ public class Crafting_Algorithm {
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty())
 			{
 				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
-				if (isExaltorRegalorDes(lastEvent) && !FirstCandidateList.get(0).stopAnnul) {
+				if (lastEvent.type != ActionType.REMOVED && !FirstCandidateList.get(0).stopAnnul) {
 					AnnulmentOrb annul = new AnnulmentOrb();
 					return annul.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
 				}
@@ -255,8 +250,9 @@ public class Crafting_Algorithm {
 		};
 		
 		Callable<List<Crafting_Candidate>> task4 = () -> {
-			// Checking if it is not already desecrated
-			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6) {
+			// Like the annul we check if the last thing we applied was not a essence
+			ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
+			if (!FirstCandidateList.isEmpty() && lastEvent.type != ActionType.CHANGED) {
 				Essence_currency essence_currency = new Essence_currency();
 				return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
 			}
@@ -286,22 +282,5 @@ public class Crafting_Algorithm {
 			if (!result3.isEmpty()) listOfCandidateLists_exalt.add(new ArrayList<>(result3));
 			if (!result4.isEmpty()) listOfCandidateLists_exalt.add(new ArrayList<>(result4));
 		}
-	}
-
-	private static boolean isExaltorRegalorDes(ModifierEvent lastEvent)
-	{
-		if (lastEvent == null || lastEvent.source == null)
-			return false;
-
-		// Only proceed if the action before was not a removal
-		if (lastEvent.type == ModifierEvent.ActionType.REMOVED)
-			return false;
-
-		// Check RegalOrb and if it was homog
-		if (lastEvent.source.keySet().iterator().next() instanceof RegalOrb || lastEvent.source.keySet().iterator().next() instanceof ExaltedOrb || lastEvent.source.keySet().iterator().next() instanceof Desecrated_currency) {
-			return true;
-		}
-
-		return false;
 	}
 }

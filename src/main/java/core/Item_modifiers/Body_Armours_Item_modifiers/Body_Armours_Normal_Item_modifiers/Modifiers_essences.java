@@ -186,7 +186,7 @@ public class Modifiers_essences {
 				List.of(),
 				List.of(
 						new ModifierTier("Perfect Essence of Seeking", 72, 1, new Pair<>(40, 50))),
-				ModifierType.PREFIX,
+				ModifierType.SUFFIX,
 				ModifierSource.PERFECT_ESSENCE,
 				"ReducedCriticalStrikeDamageTaken",
 				"Hits against you have #% reduced Critical Damage Bonus");

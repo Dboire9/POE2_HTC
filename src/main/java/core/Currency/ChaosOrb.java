@@ -7,7 +7,7 @@ import java.util.Map;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
-
+import core.Currency.ExaltedOrb.Omen;
 import core.Modifier_class.Modifier;
 
 public class ChaosOrb implements Crafting_Action
@@ -53,4 +53,8 @@ public class ChaosOrb implements Crafting_Action
 	public String getName() {
 		return "Chaos Orb (" + tier + ")";
 	}
+	@Override
+    public Enum<?>[] getAvailableOmens() {
+        return Omen.values();
+    }
 }

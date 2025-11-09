@@ -29,6 +29,9 @@ public class TestAlgo {
 		List<Modifier> PossiblePrefixes = testItem.getNormalAllowedPrefixes();
 		List<Modifier> PossibleSuffixes = testItem.getNormalAllowedSuffixes();
 
+		// List<Modifier> PossibleEssencePrefixes = testItem.getEssencesAllowedPrefixes();
+		List<Modifier> PossibleEssenceSuffixes = testItem.getEssencesAllowedSuffixes();
+
 		List<ModifierTier> desiredModTier = new ArrayList<>();
 		List<Modifier> desiredMod = new ArrayList<>();
 		List<Modifier> undesiredMod = new ArrayList<>();
@@ -56,7 +59,7 @@ public class TestAlgo {
 		}
 
 		// Pick up to 3 random suffix tiers
-		for (int i = 0; i < 3 && !PossibleSuffixes.isEmpty(); i++) {
+		for (int i = 0; i < 2 && !PossibleSuffixes.isEmpty(); i++) {
 			Modifier mod = PossibleSuffixes.get(random.nextInt(PossibleSuffixes.size()));
 			if (usedModifiers.contains(mod.text)) {
 				i--;
@@ -73,6 +76,13 @@ public class TestAlgo {
 				System.out.println(" - " + mod.text + " (Tier " + rngNumber + ")");
 			}
 		}
+		Modifier mod = PossibleEssenceSuffixes.get(2);
+		desiredMod.add(mod);
+		List<ModifierTier> tiers = mod.tiers;
+		ModifierTier chosenTier = tiers.get(0);
+		desiredModTier.add(chosenTier);
+		mod.chosenTier = 0;
+		System.out.println(" - " + mod.text + " (Tier " + 0 + ")");
 
 		// Try and catching if there is thread errors
 		try {

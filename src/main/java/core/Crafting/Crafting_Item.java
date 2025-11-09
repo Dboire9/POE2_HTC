@@ -93,7 +93,7 @@ public class Crafting_Item {
 			// Take only the lowest tier
 			ModifierTier lowestTier = m.tiers.get(0);
 			//Check if the family is already on the item, and if it is a mod that we don't want
-			if (!Item_family.contains(m.family) && (undesiredMods == null || !undesiredMods.contains(m))) 
+			if (!Item_family.contains(m.family) && (undesiredMods == null || !undesiredMods.contains(m)))
 			{
 				// Create a copy of the item
 				Crafting_Item new_item = item.copy();
@@ -149,7 +149,8 @@ public class Crafting_Item {
 					// We need to look for the modifier type and add the perfect essence only on it, but removing all the affixes we can
 					for(int i = 0; i <= item.getAllCurrentPrefixModifiers().size() - 1; i++)
 					{
-						Crafting_Item new_item_copy = new_item.copy();
+						Crafting_Item new_item_copy = new Crafting_Item();
+						new_item_copy = new_item.copy();
 						if(currentPrefixes[i] != null && currentPrefixes[i].text != null)
 						{
 							new_item_copy.currentPrefixes[i] = null;
@@ -164,7 +165,8 @@ public class Crafting_Item {
 					}
 					for(int i = 0; i <= item.getAllCurrentSuffixModifiers().size() - 1; i++)
 					{
-						Crafting_Item new_item_copy = new_item.copy();
+						Crafting_Item new_item_copy = new Crafting_Item();
+						new_item_copy = new_item.copy();
 						if(currentSuffixes[i] != null && currentSuffixes[i].text != null)
 						{
 							new_item_copy.currentSuffixes[i] = null;

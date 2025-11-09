@@ -42,7 +42,7 @@ public class Probability {
 				else if(action instanceof AnnulmentOrb)
 					ComputeAnnul(candidate, desiredMod, baseItem, i);
 				else if(action instanceof Essence_currency)
-				{}	// ComputeEssence(candidate, event, desiredMod);
+					ComputeEssence(candidate, desiredMod, baseItem, i);
 				i++;
 			}
 		}
@@ -111,15 +111,73 @@ public class Probability {
 
 	}
 
-	// public static void ComputeExalt(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, )
-	// {
-		
-	// }
+	public static void ComputeEssence(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	{
+		ModifierEvent event = candidate.modifierHistory.get(i);
 
-	// public static void ComputeEssence(Crafting_Candidate candidate, ModifierEvent event, List<Modifier> desiredMod, )
-	// {
-		
-	// }
+		double percentage = 0;
+		Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
+		Crafting_Action action = source.keySet().iterator().next();
+
+		if (action instanceof Essence_currency)
+		{
+			for (Essence_currency.Omen currentOmen : Essence_currency.Omen.values())
+			{
+				percentage = ComputePercentageEssence(baseItem, candidate, event, currentOmen, i);
+				if(percentage != 0)
+					candidate.modifierHistory.get(i).source.put(new Essence_currency(currentOmen), percentage);
+			}
+		}
+	}
+
+	public static double ComputePercentageEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i)
+	{
+		double prefixesFilled = 0;
+		double suffixesFilled = 0;
+
+		for(int j = 0; j < i; j++)
+		{
+			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+				prefixesFilled++;
+			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+				suffixesFilled++;
+			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+				prefixesFilled--;
+			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+				suffixesFilled++;
+		}
+
+		if (omen instanceof Essence_currency.Omen essenceOmen)
+		{
+			switch(essenceOmen)
+			{
+				case None:
+				{
+					if(event.modifier.type == ModifierType.PREFIX && suffixesFilled == 0)
+						return 1 / prefixesFilled;
+					if(event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0)
+						return 1 / suffixesFilled;
+					else
+						return 1 / (prefixesFilled + suffixesFilled); // We have a chance out of all the modifiers on the item
+				}
+				case OmenofSinistralCrystallisation:
+				{
+					if(event.modifier.type == ModifierType.PREFIX)
+						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all the prefix modifiers
+					break; // Break if it is a suffix 
+				}
+				case OmenofDextralCrystallisation:
+				{
+					if(event.modifier.type == ModifierType.SUFFIX)
+						return 1 / suffixesFilled; //same
+					break;
+				}
+			}
+		}
+
+
+		return 0;
+	}
 
 	public static double ComputePercentageAnnul(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i)
 	{
@@ -160,8 +218,8 @@ public class Probability {
 				case OmenofDextralAnnulment:
 				{
 					if(event.modifier.type == ModifierType.SUFFIX)
-					return 1 / suffixesFilled; //same
-				break;
+						return 1 / suffixesFilled; //same
+					break;
 				}
 			}
 		}
@@ -184,7 +242,7 @@ public class Probability {
 				case OmenofHomogenisingCoronation :
 				{
 					// If the modifier of the event has no tags we break
-					if(event.modifier.tags.get(0) == "")
+					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null || event.modifier.tags.get(0).isEmpty())
 						break ;
 					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
 					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
@@ -206,7 +264,7 @@ public class Probability {
 				case OmenofHomogenisingExaltation :
 				{
 					// If the modifier of the event has no tags we break
-					if(event.modifier.tags == null || event.modifier.tags.get(0) == "")
+					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null || event.modifier.tags.get(0).isEmpty())
 						break ;
 					if(event.modifier.type == ModifierType.PREFIX)
 					{

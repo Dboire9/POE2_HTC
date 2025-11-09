@@ -20,12 +20,30 @@ public class Essence_currency implements Crafting_Action {
 		LESSER, NORMAL, GREATER, PERFECT
 	}
 
+	public Omen omen;
+
+
+	public enum Omen {
+        None,
+        OmenofSinistralCrystallisation,
+		OmenofDextralCrystallisation
+    }
+
+	@Override
+    public Enum<?>[] getAvailableOmens() {
+        return Omen.values();
+    }
+
 	protected String essenceFamily;
 	protected ModifierTier tier;
 
 	public Essence_currency(String essenceFamily, ModifierTier tier) {
 		this.essenceFamily = essenceFamily;
 		this.tier = tier;
+	}
+
+	public Essence_currency(Omen omen) {
+		this.omen = omen;
 	}
 
 	// Default constructor

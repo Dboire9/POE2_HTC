@@ -4,7 +4,6 @@
 /root/POE2_HTC/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Wands_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Items/Boots/Boots_str_dex/Boots_str_dex.java
 /root/POE2_HTC/src/main/java/core/Items/Body_Armours/Body_Armours_dex/Body_Armours_dex.java
-/root/POE2_HTC/src/main/java/core/Test/TestOmens.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Quivers_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Rings_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Currency/Desecrated_currency.java
@@ -46,7 +45,6 @@
 /root/POE2_HTC/src/main/java/core/Items/Quarterstaves/Quarterstaves.java
 /root/POE2_HTC/src/main/java/core/Modifier_class/ModifierTierWrapper.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Hybrid_Item_modifiers/Modifiers_essences.java
-/root/POE2_HTC/src/main/java/core/Test/TestOrbs.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Bows_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Hybrid_Item_modifiers/Modifiers_normal.java
 /root/POE2_HTC/src/main/java/core/Crafting/Utils/Heuristic_Util.java

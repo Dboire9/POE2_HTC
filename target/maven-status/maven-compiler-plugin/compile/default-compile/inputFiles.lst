@@ -6,6 +6,7 @@
 /root/POE2_HTC/src/main/java/core/Items/Body_Armours/Body_Armours_dex/Body_Armours_dex.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Quivers_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Rings_Item_modifiers/Modifiers_desecrated.java
+/root/POE2_HTC/src/main/java/core/Crafting/CraftingExecutor.java
 /root/POE2_HTC/src/main/java/core/Currency/Desecrated_currency.java
 /root/POE2_HTC/src/main/java/core/Modifier_class/Pair.java
 /root/POE2_HTC/src/main/java/core/Items/Boots/Boots_dex_int/Boots_dex_int.java
@@ -114,6 +115,7 @@
 /root/POE2_HTC/src/main/java/gui/utils/ValidateButton.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Sceptres_Item_modifiers/Modifiers_normal.java
 /root/POE2_HTC/src/main/java/core/Currency/TransmutationOrb.java
+/root/POE2_HTC/src/main/java/core/Crafting/Probability_Analyzer.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Items/Shields/Shields_str_dex/Shields_str_dex.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Rings_Item_modifiers/Modifiers_essences.java

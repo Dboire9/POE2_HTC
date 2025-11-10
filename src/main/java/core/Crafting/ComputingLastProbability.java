@@ -19,18 +19,8 @@ import core.Modifier_class.ModifierTier;
 
 public class ComputingLastProbability {
 
-	public static double GLOBAL_THRESHOLD = 0.50;
-
-	public static void setGlobalThreshold(double newValue) {
-        GLOBAL_THRESHOLD = newValue;
-    }
-
-	public static double getGlobalThreshold() {
-        return GLOBAL_THRESHOLD;
-    }
-
-	public static void ComputingLastEventProbability(List<Crafting_Candidate> completedPaths,
-			List<Modifier> desiredMod, Crafting_Item baseItem) {
+	public static void ComputingLastEventProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem, double GLOBAL_THRESHOLD)
+	{
 
 		// Thread-safe list to collect candidates that should be removed
 		List<Crafting_Candidate> toRemove = Collections.synchronizedList(new ArrayList<>());
@@ -45,14 +35,16 @@ public class ComputingLastProbability {
 			Crafting_Action action = event.source.keySet().iterator().next();
 			boolean keep = true;
 
+			// System.out.println(GLOBAL_THRESHOLD);
+
 			if (action instanceof RegalOrb || action instanceof ExaltedOrb)
-				keep = ComputeLastRegalAndExalted(candidate, desiredMod, baseItem, i);
+				keep = ComputeLastRegalAndExalted(candidate, desiredMod, baseItem, i, GLOBAL_THRESHOLD);
 			else if (action instanceof AnnulmentOrb)
-				keep = ComputeLastAnnul(candidate, desiredMod, baseItem, i);
+				keep = ComputeLastAnnul(candidate, desiredMod, baseItem, i, GLOBAL_THRESHOLD);
 			else if (action instanceof Essence_currency)
-				keep = ComputeLastEssence(candidate, desiredMod, baseItem, i);
+				keep = ComputeLastEssence(candidate, desiredMod, baseItem, i, GLOBAL_THRESHOLD);
 			else if (action instanceof Desecrated_currency)
-				keep = ComputeLastDes(candidate, desiredMod, baseItem, i);
+				keep = ComputeLastDes(candidate, desiredMod, baseItem, i, GLOBAL_THRESHOLD);
 
 			if (!keep) 
 				toRemove.add(candidate);
@@ -62,9 +54,7 @@ public class ComputingLastProbability {
 		completedPaths.removeAll(toRemove);
 	}
 
-	public static boolean ComputeLastDes(Crafting_Candidate candidate, List<Modifier> desiredMod,
-			Crafting_Item baseItem,
-			int i) {
+	public static boolean ComputeLastDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i, double GLOBAL_THRESHOLD) {
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
 		double percentage = 0;
@@ -82,7 +72,7 @@ public class ComputingLastProbability {
 		return false;
 	}
 
-	public static boolean ComputeLastRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	public static boolean ComputeLastRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i, double GLOBAL_THRESHOLD)
 	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 		Modifier foundModifier = event.modifier;
@@ -112,7 +102,7 @@ public class ComputingLastProbability {
 
 			Crafting_Action action = event.source.keySet().iterator().next();
 
-			if (applyLastTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired))
+			if (applyLastTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired, GLOBAL_THRESHOLD))
 				return true;
 			if (action instanceof RegalOrb)
 				return canBeEssence(baseItem, candidate, event, level, realtier, i);
@@ -120,7 +110,7 @@ public class ComputingLastProbability {
 		return false;
 	}
 
-	public static boolean ComputeLastAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	public static boolean ComputeLastAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i, double GLOBAL_THRESHOLD)
 	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
@@ -186,7 +176,8 @@ public class ComputingLastProbability {
 			int[] levels,
 			Crafting_Action.CurrencyTier[] tiers,
 			int i,
-			boolean isDesired) {
+			boolean isDesired,
+			double GLOBAL_THRESHOLD) {
 		Map<Crafting_Action, Double> source = event.source;
 		Crafting_Action action = source.keySet().iterator().next();
 		// Computing the percentage for the modifier and then applying the currency tier
@@ -217,7 +208,7 @@ public class ComputingLastProbability {
 		return false;
 	}
 
-	public static boolean ComputeLastEssence(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	public static boolean ComputeLastEssence(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i, double GLOBAL_THRESHOLD)
 	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 

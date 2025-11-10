@@ -112,26 +112,26 @@ public class ItemSelectionController {
 				try {
 					List<Probability_Analyzer.CandidateProbability> results;
 					
-					int maxRetries = 50; // limit to avoid infinite looping
-					int attempt = 0;
+					double maxRetries = 100; // limit to avoid infinite looping
+					double attempt = 0;
 					List<Modifier> undesiredModifiers = new ArrayList<>();
-					results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers);
+					System.out.println(maxRetries / 100);
+					results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, maxRetries / 100);
 					
-					while (results.isEmpty() && attempt < maxRetries)
+					while (results.isEmpty() && maxRetries > 0)
 					{
 							System.out.println("Deadge (attempt " + (attempt + 1) + ")");
 							// decrease global threshold but not below 0
-							System.out.println("Current threshold: " + ComputingLastProbability.getGlobalThreshold());
-							double newThreshold = Math.max(0, ComputingLastProbability.getGlobalThreshold() - 0.01);
-							ComputingLastProbability.setGlobalThreshold(newThreshold);
-							System.out.println("New threshold: " + ComputingLastProbability.getGlobalThreshold());
-							results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers);
+							System.out.println(maxRetries / 100);
+							results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, maxRetries / 100);
+							maxRetries--;
 							attempt++;
 					}
 					if (results.isEmpty()) {
-						System.out.println("No valid results after " + maxRetries + " attempts.");
+						System.out.println("No valid results after " + attempt + " attempts.");
 					} else {
 						// results.forEach(System.out::println);
+						
 						for (int i = 0; i < Math.min(10, results.size()); i++) {
 							Probability_Analyzer.CandidateProbability cp = results.get(i);
 							System.out.println("Result #" + (i + 1) + " — Final %: " + cp.finalPercentage());
@@ -140,6 +140,7 @@ public class ItemSelectionController {
 								System.out.println("  " + action + " → " + (percentage * 100) + "%");
 							});
 							System.out.println("-----------------------------------");
+							System.out.println(maxRetries / 100);
 						}
 					}
 

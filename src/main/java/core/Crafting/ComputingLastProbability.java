@@ -21,7 +21,6 @@ public class ComputingLastProbability {
 
 	public static void ComputingLastEventProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem, double GLOBAL_THRESHOLD)
 	{
-
 		// Thread-safe list to collect candidates that should be removed
 		List<Crafting_Candidate> toRemove = Collections.synchronizedList(new ArrayList<>());
 
@@ -36,6 +35,7 @@ public class ComputingLastProbability {
 			boolean keep = true;
 
 			// System.out.println(GLOBAL_THRESHOLD);
+			System.err.println("We in ?");
 
 			if (action instanceof RegalOrb || action instanceof ExaltedOrb)
 				keep = ComputeLastRegalAndExalted(candidate, desiredMod, baseItem, i, GLOBAL_THRESHOLD);

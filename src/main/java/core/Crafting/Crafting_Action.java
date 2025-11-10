@@ -89,7 +89,11 @@ public interface Crafting_Action {
 			affixes = items.getAllCurrentPrefixModifiers().size() + items.getAllCurrentSuffixModifiers().size();
 			double score = 0;
 			score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
-			if (score > candidate.score) {
+			if (Double.isInfinite(score)) {
+				System.out.println("Wtf");
+			}
+			if (score > candidate.score)
+			{
 			// When the item has at least 3 modifiers, we have a threshold for not keeping candidate with scores too low
 			// We might need to tweak this a lot to find the better option
 				switch (affixes) {

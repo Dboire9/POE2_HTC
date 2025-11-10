@@ -23,7 +23,8 @@ public class Heuristic_Util {
 		List<Modifier> unmatchedMods = new ArrayList<>();
 
 		// Comparing with text, so that the essences can match
-        for (Modifier mod : AffixCurrentMods) {
+        for (Modifier mod : AffixCurrentMods)
+		{
             if (mod.is_desired_mod || desiredModifierTexts.contains(mod.family))
             {
 				mod.is_desired_mod = true;
@@ -44,7 +45,6 @@ public class Heuristic_Util {
 				Map<String, Integer> CountModifierTags = CreateCountModifierTags(unmatchedMods);
 				score += ScoringTags(CountDesiredModifierTags, CountModifierTags, affix_slots);
 			}
-
 		return score;
 	}
 
@@ -52,7 +52,8 @@ public class Heuristic_Util {
 	{
 		int score = 0;
 
-		for (Map.Entry<String, Integer> entry : CountModifierTags.entrySet()) {
+		for (Map.Entry<String, Integer> entry : CountModifierTags.entrySet())
+		{
 			String tag = entry.getKey();
 			int currentCount = entry.getValue();
 		

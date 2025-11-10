@@ -51,6 +51,13 @@
 		"projectName": "poe-crafter"
 	},
 	{
+		"type": "java",
+		"name": "JavaFX Remote Debug",
+		"request": "attach",
+		"hostName": "localhost",
+		"port": 5005
+	},
+	{
 		"name": "C/C++ Runner: Debug Session",
 		"type": "cppdbg",
 		"request": "launch",

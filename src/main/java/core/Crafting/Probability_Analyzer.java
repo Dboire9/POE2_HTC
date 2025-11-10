@@ -9,9 +9,6 @@ import core.Crafting.Utils.ModifierEvent;
 
 public class Probability_Analyzer {
 
-
-
-
 	public record CandidateProbability(
     Crafting_Candidate candidate,
     Map<Crafting_Action, Double> bestPath,

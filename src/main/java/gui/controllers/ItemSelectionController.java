@@ -1,6 +1,10 @@
 package gui.controllers;
 
 import core.ItemManager;
+import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Item;
+import core.Crafting.Probability_Analyzer;
+import core.Items.Item_base;
 import core.Modifier_class.*;
 import gui.views.ItemSelectionView;
 import javafx.collections.FXCollections;
@@ -8,7 +12,14 @@ import javafx.scene.control.ComboBox;
 
 import gui.utils.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import core.Crafting.CraftingExecutor; // Ensure this import is present
 
 public class ItemSelectionController {
 
@@ -62,18 +73,64 @@ public class ItemSelectionController {
 	
 		view.validateButton.setOnAction(event -> {
 			if (validateButton.areAllModifiersAndTiersSelected()) {
+				// 1. Collect the tiers
 				int prefix1Tier = Integer.parseInt(view.prefix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int prefix2Tier = Integer.parseInt(view.prefix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int prefix3Tier = Integer.parseInt(view.prefix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int suffix1Tier = Integer.parseInt(view.suffix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int suffix2Tier = Integer.parseInt(view.suffix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int suffix3Tier = Integer.parseInt(view.suffix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
-				System.out.println("Prefix 1: " + (prefix1store.text) + "Tier : " + prefix1Tier);
-				System.out.println("Prefix 2: " + (prefix2store.text) + "Tier : " + prefix2Tier);
-				System.out.println("Prefix 3: " + (prefix3store.text) + "Tier : " + prefix3Tier);
-				System.out.println("Suffix 1: " + (suffix1store.text) + "Tier : " + suffix1Tier);
-				System.out.println("Suffix 2: " + (suffix2store.text) + "Tier : " + suffix2Tier);
-				System.out.println("Suffix 3: " + (suffix3store.text) + "Tier : " + suffix3Tier);
+
+				Item_base itemBase = null;
+				Crafting_Item item = null;
+
+				try {
+					selectedItemClass = getItemClass(selectedCategory, selectedSubCategory);
+					Object selectedItemInstance = selectedItemClass.getDeclaredConstructor().newInstance();
+					itemBase = (Item_base) selectedItemInstance;
+					item = new Crafting_Item(itemBase);
+				} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+					e.printStackTrace();
+				}
+				System.out.println(item);
+				System.out.println(itemBase);
+				
+				// 2. Collect the modifiers
+				List<Modifier> desiredModifiers = Arrays.asList(
+					prefix1store, prefix2store, prefix3store,
+					suffix1store, suffix2store, suffix3store
+				);
+
+				// 3. Build tiers in objects if needed
+				prefix1store.chosenTier = prefix1Tier;
+				prefix2store.chosenTier = prefix2Tier;
+				prefix3store.chosenTier = prefix3Tier;
+				suffix1store.chosenTier = suffix1Tier;
+				suffix2store.chosenTier = suffix2Tier;
+				suffix3store.chosenTier = suffix3Tier;
+
+				try {
+					List<Modifier> undesiredModifiers = new ArrayList<>();
+
+					// 4. Call your executor to run the algorithm
+					List<Probability_Analyzer.CandidateProbability> results =
+						CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers);
+					
+					System.out.println("Okay");
+					for (int i = 0; i < Math.min(10, results.size()); i++) {
+						Probability_Analyzer.CandidateProbability cp = results.get(i);
+						System.out.println("Result #" + (i + 1) + " — Final %: " + cp.finalPercentage());
+						System.out.println("Best Path:");
+						cp.bestPath().forEach((action, percentage) -> {
+							System.out.println("  " + action + " → " + (percentage * 100) + "%");
+						});
+						System.out.println("-----------------------------------");
+					}
+
+				} catch (InterruptedException | ExecutionException e) {
+					e.printStackTrace();
+				}
+
 			} else {
 				view.messageLabel.setText("Please select all six modifiers and their tiers");
 			}
@@ -245,20 +302,7 @@ public class ItemSelectionController {
 					for (ComboBox<String> otherBox : suffixboxes) {
 						otherBox.getItems().remove(selected);
 					}
-	
-					// If the selected item is an essence modifier, remove all other essence modifiers
-					if (selected.startsWith("Essence : ")) {
-						for (ComboBox<String> otherBox : prefixboxes) {
-							if (otherBox != box) {
-								otherBox.getItems().removeIf(item -> item.startsWith("Essence : ") && !item.equals(selected));
-							}
-						}
-						for (ComboBox<String> otherBox : suffixboxes) {
-							otherBox.getItems().removeIf(item -> item.startsWith("Essence : ") && !item.equals(selected));
-						}
-					}
 				}
-	
 				previousSelection[0] = selected; // Update previous selection
 			});
 		}
@@ -292,18 +336,6 @@ public class ItemSelectionController {
 					}
 					for (ComboBox<String> otherBox : prefixboxes) {
 						otherBox.getItems().remove(selected);
-					}
-	
-					// If the selected item is an essence modifier, remove all other essence modifiers
-					if (selected.startsWith("Essence : ")) {
-						for (ComboBox<String> otherBox : suffixboxes) {
-							if (otherBox != box) {
-								otherBox.getItems().removeIf(item -> item.startsWith("Essence : ") && !item.equals(selected));
-							}
-						}
-						for (ComboBox<String> otherBox : prefixboxes) {
-							otherBox.getItems().removeIf(item -> item.startsWith("Essence : ") && !item.equals(selected));
-						}
 					}
 				}
 	

@@ -21,7 +21,7 @@ public class Probability {
 	
 
 
-	public static void CalculatingProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem)
+	public static void ComputingProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem)
 	{
 		for (Crafting_Candidate candidate : completedPaths) 
 		{
@@ -254,6 +254,9 @@ public class Probability {
 				percentage = ComputePercentageEssence(baseItem, candidate, event, currentOmen, i);
 				if(percentage != 0)
 					candidate.modifierHistory.get(i).source.put(new Essence_currency(currentOmen), percentage);
+				if (Double.isInfinite(percentage)) {
+						System.out.println("Wtf");
+					}
 			}
 		}
 	}
@@ -265,13 +268,13 @@ public class Probability {
 
 		for(int j = 0; j < i; j++)
 		{
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
-				prefixesFilled++;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
-				suffixesFilled++;
 			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				prefixesFilled--;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			else if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+				suffixesFilled--;
+			else if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX)
+				prefixesFilled++;
+			else if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX)
 				suffixesFilled++;
 		}
 
@@ -281,29 +284,27 @@ public class Probability {
 			{
 				case None:
 				{
-					if(event.modifier.type == ModifierType.PREFIX && suffixesFilled == 0)
+					if(event.modifier.type == ModifierType.PREFIX && suffixesFilled == 0 && prefixesFilled != 0)
 						return 1 / prefixesFilled;
-					if(event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0)
+					if(event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0 && suffixesFilled != 0)
 						return 1 / suffixesFilled;
 					else
 						return 1 / (prefixesFilled + suffixesFilled); // We have a chance out of all the modifiers on the item
 				}
 				case OmenofSinistralCrystallisation:
 				{
-					if(event.modifier.type == ModifierType.PREFIX)
+					if(event.modifier.type == ModifierType.PREFIX && prefixesFilled != 0)
 						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all the prefix modifiers
 					break; // Break if it is a suffix 
 				}
 				case OmenofDextralCrystallisation:
 				{
-					if(event.modifier.type == ModifierType.SUFFIX)
+					if(event.modifier.type == ModifierType.SUFFIX && suffixesFilled != 0)
 						return 1 / suffixesFilled; //same
 					break;
 				}
 			}
 		}
-
-
 		return 0;
 	}
 
@@ -561,7 +562,7 @@ public class Probability {
 				{
 					for(ModifierTier mtiers : m.tiers)
 						if(mtiers.level == level)
-							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 100.0);
+							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 1.0);
 					break;
 				}
 			}
@@ -578,7 +579,7 @@ public class Probability {
 				{
 					for(ModifierTier mtiers : m.tiers)
 						if(mtiers.level == level)
-							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 100.0);
+							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 1.0);
 					break;
 				}
 			}

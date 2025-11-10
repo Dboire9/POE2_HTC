@@ -15,6 +15,7 @@ import core.Items.Body_Armours.Body_Armours_dex.Body_Armours_dex;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
 import core.Crafting.Probability;
+import core.Crafting.Probability_Analyzer;
 
 public class TestAlgo {
 
@@ -59,7 +60,7 @@ public class TestAlgo {
 		}
 
 		// Pick up to 3 random suffix tiers
-		for (int i = 0; i < 2 && !PossibleSuffixes.isEmpty(); i++) {
+		for (int i = 0; i < 3 && !PossibleSuffixes.isEmpty(); i++) {
 			Modifier mod = PossibleSuffixes.get(random.nextInt(PossibleSuffixes.size()));
 			if (usedModifiers.contains(mod.text)) {
 				i--;
@@ -76,13 +77,13 @@ public class TestAlgo {
 				System.out.println(" - " + mod.text + " (Tier " + rngNumber + ")");
 			}
 		}
-		Modifier mod = PossibleEssenceSuffixes.get(2);
-		desiredMod.add(mod);
-		List<ModifierTier> tiers = mod.tiers;
-		ModifierTier chosenTier = tiers.get(0);
-		desiredModTier.add(chosenTier);
-		mod.chosenTier = 0;
-		System.out.println(" - " + mod.text + " (Tier " + 0 + ")");
+		// Modifier mod = PossibleEssenceSuffixes.get(2);
+		// desiredMod.add(mod);
+		// List<ModifierTier> tiers = mod.tiers;
+		// ModifierTier chosenTier = tiers.get(0);
+		// desiredModTier.add(chosenTier);
+		// mod.chosenTier = 0;
+		// System.out.println(" - " + mod.text + " (Tier " + 0 + ")");
 
 		// Try and catching if there is thread errors
 		try {
@@ -96,7 +97,8 @@ public class TestAlgo {
 
 			
 			// Calculating the sum of percentage to lead to the full 6 modifiers. Need to check for omens in some cases
-			Probability.CalculatingProbability(highScoreCandidates, desiredMod, item);
+			Probability.ComputingProbability(highScoreCandidates, desiredMod, item);
+			Probability_Analyzer.Analyze(highScoreCandidates);
 			System.out.println("optimizeCrafting executed in " + durationInMillis + " ms");
 			System.out.println("End");
 		}

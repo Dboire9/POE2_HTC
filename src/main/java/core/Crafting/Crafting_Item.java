@@ -5,10 +5,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
-import core.Crafting.Crafting_Action.CurrencyTier;
 import core.Crafting.Utils.ModifierEvent;
 
 import core.Items.Item_base;

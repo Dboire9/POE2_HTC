@@ -163,10 +163,12 @@ public class Crafting_Algorithm {
 
 		// Calculating score by checking if we have the modifiers we want
 		scorePrefix += Heuristic_Util.calculateAffixScore(PrefixCurrentMods, desiredMods, CountDesiredModifierTags);
-		// We want to put the last ADDED modifier in the list 
+		// We want to put the last ADDED modifier in the list
+		// It will only add modifiers from the first batch of transmutes, becauses when the score goes up it will never go back to 0. 
+		// It is okay because we throw tags that are not desired or never will have common tags with the ones we want (It may be a flaw?)
 		if (lastEvent.modifier.type == ModifierType.PREFIX 
 			&& lastEvent.type == ModifierEvent.ActionType.ADDED 
-			&& scorePrefix == 0 
+			&& scorePrefix == 0
 			&& (undesiredMods == null || !undesiredMods.contains(lastEvent.modifier))
 		)
 				undesiredMods.add(lastEvent.modifier);
@@ -230,7 +232,8 @@ public class Crafting_Algorithm {
 	
 		Callable<List<Crafting_Candidate>> task2 = () -> {
 			// Checking if it is not already desecrated
-			if (!FirstCandidateList.get(0).desecrated && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6) {
+			if (!FirstCandidateList.get(0).desecrated && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6)
+			{
 				Desecrated_currency des_currency = new Desecrated_currency();
 				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
 			}
@@ -241,7 +244,8 @@ public class Crafting_Algorithm {
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty())
 			{
 				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
-				if (lastEvent.type != ActionType.REMOVED && !FirstCandidateList.get(0).stopAnnul) {
+				if (lastEvent.type != ActionType.REMOVED && !FirstCandidateList.get(0).stopAnnul)
+				{
 					AnnulmentOrb annul = new AnnulmentOrb();
 					return annul.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
 				}
@@ -252,7 +256,14 @@ public class Crafting_Algorithm {
 		Callable<List<Crafting_Candidate>> task4 = () -> {
 			// Like the annul we check if the last thing we applied was not a essence
 			ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
-			if (!FirstCandidateList.isEmpty() && lastEvent.type != ActionType.CHANGED) {
+			// if(FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6 && FirstCandidateList.get(0).getAllCurrentModifiers().size() > 4 && lastEvent.type == ActionType.CHANGED)
+			// {
+			// 	System.err.println(FirstCandidateList.get(0).modifierHistory);
+			// 	System.err.println("\n");
+			// 	System.err.println(FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1));
+			// }
+			if (!FirstCandidateList.isEmpty() && lastEvent.type != ActionType.CHANGED)
+			{
 				Essence_currency essence_currency = new Essence_currency();
 				return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
 			}

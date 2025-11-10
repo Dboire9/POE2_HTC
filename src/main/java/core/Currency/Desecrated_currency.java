@@ -32,7 +32,8 @@ public class Desecrated_currency implements Crafting_Action{
 	};
 
 	public Desecrated_currency(Omen omen) {
-		this.omens = new HashSet<>();
+		if(this.omens == null)
+			this.omens = new HashSet<>();
         this.omens.add(omen);
 	}
 
@@ -69,7 +70,10 @@ public class Desecrated_currency implements Crafting_Action{
 
 
 	// Constructor to specify tier
-	public Desecrated_currency() {};
+	public Desecrated_currency()
+	{
+		this.omens = new HashSet<>();
+	};
 
 	@Override
 	public String getName() {

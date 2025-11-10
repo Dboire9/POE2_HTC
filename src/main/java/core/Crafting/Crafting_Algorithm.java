@@ -53,6 +53,7 @@ public class Crafting_Algorithm {
 		FirstCandidateList = transmutationOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateList));
 
+
 		//Making a copy of all the candidate list to use after
 		for (Crafting_Candidate candidate : FirstCandidateList) {
 			FirstCandidateListCopy.add(candidate.copy());
@@ -84,7 +85,6 @@ public class Crafting_Algorithm {
 		// Removing the two first lists(transmutation and transmutation/augmentation) as we do not want to annul them
 		listOfCandidateLists.subList(0, 2).clear();
 
-
 		// Here the first steps are finished, we need to loop until the end with : Exalted orb, Perfect Essences and Desecrated Mods and annuls sometimes
 
 		List<List<Crafting_Candidate>> listOfCandidateLists_copy = new ArrayList<>();
@@ -95,8 +95,12 @@ public class Crafting_Algorithm {
 
 
 		List<List<Crafting_Candidate>> listOfCandidateLists_exalt_copy = new ArrayList<>();
-			for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-				RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			Probability.ComputingLastEventProbability(candidates, desiredMods, baseItem);
+			RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+			// System.out.println();
+		}
 
 
 		listOfCandidateLists_copy.clear();
@@ -108,7 +112,11 @@ public class Crafting_Algorithm {
 		listOfCandidateLists_exalt_copy.clear();
 
 		for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+		{
+			Probability.ComputingLastEventProbability(candidates, desiredMods, baseItem);
 			RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+			System.out.println();
+		}
 
 
 		listOfCandidateLists_copy.clear();
@@ -119,8 +127,15 @@ public class Crafting_Algorithm {
 		while(listOfCandidateLists_copy.size() != 0)
 		{
 			for(List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+			{
 				if(!candidates.isEmpty())
+				{
+					// Probability.ComputingLastEventProbability(candidates, desiredMods, baseItem);
 					RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
+				}
+				// System.out.println();
+			}
+			
 			
 			listOfCandidateLists_copy.clear();
 			listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
@@ -181,15 +196,12 @@ public class Crafting_Algorithm {
 			&& scoreSuffix == 0 
 			&& (undesiredMods == null || !undesiredMods.contains(lastEvent.modifier))
 		) 
-				undesiredMods.add(lastEvent.modifier);
+		undesiredMods.add(lastEvent.modifier);
 
 		score += scorePrefix + scoreSuffix;
 
 		return score;
 	}
-
-
-
 
 	private static void generateCandidateLists(
 		Crafting_Item baseItem,
@@ -211,6 +223,8 @@ public class Crafting_Algorithm {
 		FirstCandidateListCopy.clear();
 	}
 
+	
+
 	private static void RareLoop(
 		Crafting_Item baseItem,
 		List<Crafting_Candidate> FirstCandidateList,
@@ -222,7 +236,7 @@ public class Crafting_Algorithm {
 		ExecutorService executor
 	) throws InterruptedException, ExecutionException {
 		Callable<List<Crafting_Candidate>> task1 = () -> {
-			if(FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6)
+			if(!FirstCandidateList.isEmpty() && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6)
 			{
 				ExaltedOrb exalt = new ExaltedOrb();
 				return exalt.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
@@ -232,7 +246,7 @@ public class Crafting_Algorithm {
 	
 		Callable<List<Crafting_Candidate>> task2 = () -> {
 			// Checking if it is not already desecrated
-			if (!FirstCandidateList.get(0).desecrated && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6)
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6)
 			{
 				Desecrated_currency des_currency = new Desecrated_currency();
 				return des_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
@@ -255,14 +269,13 @@ public class Crafting_Algorithm {
 		
 		Callable<List<Crafting_Candidate>> task4 = () -> {
 			// Like the annul we check if the last thing we applied was not a essence
-			ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
 			// if(FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6 && FirstCandidateList.get(0).getAllCurrentModifiers().size() > 4 && lastEvent.type == ActionType.CHANGED)
 			// {
 			// 	System.err.println(FirstCandidateList.get(0).modifierHistory);
 			// 	System.err.println("\n");
 			// 	System.err.println(FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1));
 			// }
-			if (!FirstCandidateList.isEmpty() && lastEvent.type != ActionType.CHANGED)
+			if (!FirstCandidateList.isEmpty())
 			{
 				Essence_currency essence_currency = new Essence_currency();
 				return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);

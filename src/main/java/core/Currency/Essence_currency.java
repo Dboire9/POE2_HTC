@@ -9,8 +9,7 @@ import java.util.function.Function;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
-
-
+import core.Crafting.Utils.ModifierEvent;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
 
@@ -81,6 +80,8 @@ public class Essence_currency implements Crafting_Action {
 	public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
 		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
 
+		ModifierEvent lastEvent = CandidateList.get(0).modifierHistory.get(CandidateList.get(0).modifierHistory.size() - 1);
+
 		List<Modifier> allEssences = new ArrayList<>();
 
 		List<Modifier> perfectEssences = new ArrayList<>();
@@ -90,7 +91,8 @@ public class Essence_currency implements Crafting_Action {
 
 		for (Modifier m : allEssences) {
 			for (ModifierTier tier : m.tiers) {
-				if (tier.name.contains("Perfect")) {
+				if (tier.name.contains("Perfect") && m != lastEvent.modifier) // We can reapply perfect essences but not the same has just before
+				{
 					Modifier modCopy = new Modifier(m);
 					modCopy.tiers = List.of(tier);
 					perfectEssences.add(modCopy);

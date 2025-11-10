@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutionException;
 import core.Crafting.Crafting_Algorithm;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
-import core.Items.Body_Armours.Body_Armours_dex.Body_Armours_dex;
+import core.Items.Bows.Bows;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
 import core.Crafting.Probability;
@@ -22,7 +22,7 @@ public class TestAlgo {
 
 		public static void main (String[] args){
 
-		Body_Armours_dex testItem = new Body_Armours_dex();
+		Bows testItem = new Bows();
 		Crafting_Item item = new Crafting_Item(testItem);
 
 
@@ -31,7 +31,7 @@ public class TestAlgo {
 		List<Modifier> PossibleSuffixes = testItem.getNormalAllowedSuffixes();
 
 		// List<Modifier> PossibleEssencePrefixes = testItem.getEssencesAllowedPrefixes();
-		List<Modifier> PossibleEssenceSuffixes = testItem.getEssencesAllowedSuffixes();
+		// List<Modifier> PossibleEssenceSuffixes = testItem.getEssencesAllowedSuffixes();
 
 		List<ModifierTier> desiredModTier = new ArrayList<>();
 		List<Modifier> desiredMod = new ArrayList<>();

@@ -2,6 +2,7 @@ package core.Crafting;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -17,13 +18,14 @@ import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
 import core.Modifier_class.Modifier.ModifierType;
 
+import java.util.Iterator;
 public class Probability {
 	
 
 
 	public static void ComputingProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem)
 	{
-		for (Crafting_Candidate candidate : completedPaths) 
+		for (Crafting_Candidate candidate : completedPaths)
 		{
 			// We implement i to get the event in all our candidates, so that we can replace it easier
 			int i = 0;
@@ -36,10 +38,8 @@ public class Probability {
 				//Not doing the transmutation
 
 				// Not doing aug for now, want to see a 100% prob if it is possible
-				if(action instanceof RegalOrb)
-					ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
-				else if(action instanceof ExaltedOrb)
-					ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
+				if(action instanceof RegalOrb || action instanceof ExaltedOrb)
+				ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
 				else if(action instanceof AnnulmentOrb)
 					ComputeAnnul(candidate, desiredMod, baseItem, i);
 				else if(action instanceof Essence_currency)
@@ -52,11 +52,38 @@ public class Probability {
 		return ;
 	}
 
+	public static void ComputingLastEventProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem) {
+		List<Crafting_Candidate> toRemove = Collections.synchronizedList(new ArrayList<>());
+
+		// Threading it
+		completedPaths.parallelStream().forEach(candidate -> {
+			ModifierEvent event = candidate.modifierHistory.get(candidate.modifierHistory.size() - 1);
+			int i = candidate.modifierHistory.size() - 1;
+
+			Crafting_Action action = event.source.keySet().iterator().next();
+
+			if(action instanceof RegalOrb || action instanceof ExaltedOrb)
+				ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
+			else if(action instanceof AnnulmentOrb)
+				ComputeAnnul(candidate, desiredMod, baseItem, i);
+			else if(action instanceof Essence_currency)
+				ComputeEssence(candidate, desiredMod, baseItem, i);
+			else if(action instanceof Desecrated_currency)
+				ComputeDes(candidate, desiredMod, baseItem, i);
+
+			double bestPercentage = event.source.values().stream().max(Double::compare).orElse(0.0);
+			if(bestPercentage <= 0.07)
+				toRemove.add(candidate);
+		});
+
+		// Remove low probability candidates after parallel processing
+		completedPaths.removeAll(toRemove);
+	}
+
 	public static void ComputeRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
 	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
-
-		Modifier foundModifier = candidate.modifierHistory.get(i).modifier;
+		Modifier foundModifier = event.modifier;
 
 		// Checking the level so that we apply the good currency tiers
 		if (foundModifier != null)
@@ -82,13 +109,15 @@ public class Probability {
 				levels = new int[]{0, 35, 50};
 				tiers = new Crafting_Action.CurrencyTier[]{CurrencyTier.BASE, CurrencyTier.GREATER, CurrencyTier.PERFECT};
 			}
+
+			Crafting_Action action = event.source.keySet().iterator().next();
 		
-			if (candidate.modifierHistory.get(i).source.keySet().iterator().next() instanceof RegalOrb)
+			if (action instanceof RegalOrb)
 			{
 				applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i);
 				canBeEssence(baseItem, candidate, event, level, realtier, i);
 			}
-			if (candidate.modifierHistory.get(i).source.keySet().iterator().next() instanceof ExaltedOrb)
+			if (action instanceof ExaltedOrb)
 				applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i);
 		}
 	}
@@ -357,6 +386,7 @@ public class Probability {
 
 	public static double ComputePercentage(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl, Enum<?> omen, int i)
 	{
+		Crafting_Action action = event.source.keySet().iterator().next();
 
 		if (omen instanceof RegalOrb.Omen regalOmen)
 		{
@@ -372,7 +402,7 @@ public class Probability {
 				{
 					// If the modifier of the event has no tags we break
 					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null || event.modifier.tags.get(0).isEmpty())
-						break ;
+						return 0;
 					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
 					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
 					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
@@ -381,7 +411,7 @@ public class Probability {
 		}
 		if (omen instanceof ExaltedOrb.Omen exaltOmen)
 		{
-			ExaltedOrb orb = (ExaltedOrb) event.source.keySet().iterator().next();
+			ExaltedOrb orb = (ExaltedOrb) action;
 			switch(exaltOmen)
 			{
 				case None : 
@@ -394,7 +424,7 @@ public class Probability {
 				{
 					// If the modifier of the event has no tags we break
 					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null || event.modifier.tags.get(0).isEmpty())
-						break ;
+						return 0;
 					if(event.modifier.type == ModifierType.PREFIX)
 					{
 						List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
@@ -520,30 +550,30 @@ public class Probability {
 		int i
 	) 
 	{
+		Map<Crafting_Action, Double> source = event.source;
+		Crafting_Action action = source.keySet().iterator().next();
 		// Computing the percentage for the modifier and then applying the currency tier without omens
+		
 		for (int j = 0; j < levels.length; j++)
 		{
-			double percentage = 0;
-			Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
-			Crafting_Action action = source.keySet().iterator().next();
-
+			int level = levels[j];
+			Crafting_Action.CurrencyTier tier = tiers[j];
+	
 			if (action instanceof RegalOrb)
 			{
-				// Doing all the omens (and None) for the current currency tier, and repeating it
 				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values())
 				{
-					percentage = ComputePercentage(baseItem, candidate, event, levels[j], currentOmen, i);
-					if(percentage != 0)
-						candidate.modifierHistory.get(i).source.put(new RegalOrb(tiers[j], currentOmen), percentage);
+					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i);
+					if (percentage != 0)
+						source.put(new RegalOrb(tier, currentOmen), percentage);
 				}
-			}
-			if(action instanceof ExaltedOrb) // For exalt, we need to take in count the desecrations also
+			} else if (action instanceof ExaltedOrb)
 			{
 				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values())
 				{
-					percentage = ComputePercentage(baseItem, candidate, event, levels[j], currentOmen, i);
-					if(percentage != 0)
-						candidate.modifierHistory.get(i).source.put(new ExaltedOrb(tiers[j], currentOmen), percentage);
+					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i);
+					if (percentage != 0)
+						source.put(new ExaltedOrb(tier, currentOmen), percentage);
 				}
 			}
 		}

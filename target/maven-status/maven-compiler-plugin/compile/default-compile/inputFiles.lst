@@ -93,6 +93,7 @@
 /root/POE2_HTC/src/main/java/core/Items/Amulets/Amulets.java
 /root/POE2_HTC/src/main/java/core/Crafting/Crafting_Item.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_essences.java
+/root/POE2_HTC/src/main/java/core/Crafting/ComputingLastProbability.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Bucklers_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Normal_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Crafting/Crafting_Action.java

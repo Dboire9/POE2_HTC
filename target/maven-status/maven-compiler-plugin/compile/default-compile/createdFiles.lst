@@ -90,6 +90,7 @@ core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_d
 core/Crafting/Utils/ModifierEvent$ActionType.class
 core/Items/Gloves/Gloves_str_dex/Gloves_str_dex.class
 core/Crafting/Probability_Analyzer.class
+core/Crafting/ComputingLastProbability.class
 core/Currency/RegalOrb$Omen.class
 core/Items/Body_Armours/Body_Armours_dex/Body_Armours_dex.class
 core/Crafting/Crafting_Candidate.class

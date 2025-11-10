@@ -94,6 +94,7 @@ public class Crafting_Algorithm {
 
 		List<List<Crafting_Candidate>> listOfCandidateLists_exalt_copy = new ArrayList<>();
 		for (List<Crafting_Candidate> candidates : listOfCandidateLists_copy) {
+			System.out.println("we in in");
 			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, GLOBAL_THRESHOLD);
 			RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists,
 					listOfCandidateLists_exalt_copy, thread_executor);

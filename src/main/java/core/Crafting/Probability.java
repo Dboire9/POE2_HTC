@@ -49,10 +49,12 @@ public class Probability {
 		return;
 	}
 
-	public static void ComputeRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod,
-			Crafting_Item baseItem, int i) {
+	public static void ComputeRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 		Modifier foundModifier = event.modifier;
+		boolean isDesired = desiredMod.contains(foundModifier);
+
 
 		// Checking the level so that we apply the good currency tiers
 		if (foundModifier != null) {
@@ -76,7 +78,7 @@ public class Probability {
 
 			Crafting_Action action = event.source.keySet().iterator().next();
 
-			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i);
+			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired);
 			if (action instanceof RegalOrb)
 				canBeEssence(baseItem, candidate, event, level, realtier, i);
 		}
@@ -180,14 +182,11 @@ public class Probability {
 					break;
 				case OmenoftheBlackblooded: {
 					if (event.modifier.tags.contains("kurgal_mod"))
-						percentage = 1 / kurgal_modTotal; // We have a guarantee to have a random kurgal modifier so 1
-															// out of the total of them
+						percentage = 1 / kurgal_modTotal; // We have a guarantee to have a random kurgal modifier so 1 out of the total of them
 					else
 						break; // If no kurgal_mod break it will do nothing
 					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty()
-							&& event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and
-																			// the mod we add is a suffix, we apply the
-																			// omen for only suffix
+							&& event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
 						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
 					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty()
 							&& event.modifier.type == ModifierType.PREFIX) // Opposite here
@@ -200,9 +199,7 @@ public class Probability {
 					else
 						break;
 					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty()
-							&& event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and
-																			// the mod we add is a suffix, we apply the
-																			// omen for only suffix
+							&& event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
 						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
 					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty()
 							&& event.modifier.type == ModifierType.PREFIX) // Opposite here
@@ -342,8 +339,7 @@ public class Probability {
 		return 0;
 	}
 
-	public static double ComputePercentage(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
-			int ilvl, Enum<?> omen, int i) {
+	public static double ComputePercentage(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl, Enum<?> omen, int i, boolean isDesired) {
 		Crafting_Action action = event.source.keySet().iterator().next();
 
 		if (omen instanceof RegalOrb.Omen regalOmen) {
@@ -351,9 +347,10 @@ public class Probability {
 				case None: {
 					List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
 					List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
-					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
+					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
 				}
-				case OmenofHomogenisingCoronation: {
+				case OmenofHomogenisingCoronation:
+				{
 					// If the modifier of the event has no tags we break
 					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null
 							|| event.modifier.tags.get(0).isEmpty())
@@ -362,17 +359,18 @@ public class Probability {
 							baseItem.base.getNormalAllowedPrefixes(), i);
 					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
 							baseItem.base.getNormalAllowedSuffixes(), i);
-					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
+					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
 				}
 			}
 		}
-		if (omen instanceof ExaltedOrb.Omen exaltOmen) {
+		if (omen instanceof ExaltedOrb.Omen exaltOmen)
+		{
 			ExaltedOrb orb = (ExaltedOrb) action;
 			switch (exaltOmen) {
 				case None: {
 					List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
 					List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
-					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
+					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
 				}
 				case OmenofHomogenisingExaltation: {
 					// If the modifier of the event has no tags we break
@@ -380,30 +378,28 @@ public class Probability {
 							|| event.modifier.tags.get(0).isEmpty())
 						return 0;
 					if (event.modifier.type == ModifierType.PREFIX) {
-						List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
-								baseItem.base.getNormalAllowedPrefixes(), i);
+						List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
 						orb.addOmen(ExaltedOrb.Omen.OmenofSinistralExaltation);
-						return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null);
+						return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
 					}
 					if (event.modifier.type == ModifierType.SUFFIX) {
-						List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
-								baseItem.base.getNormalAllowedSuffixes(), i);
+						List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
 						orb.addOmen(ExaltedOrb.Omen.OmenofDextralExaltation);
-						return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes);
+						return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
 					}
 					break;
 				}
 				case OmenofSinistralExaltation: {
 					if (event.modifier.type == ModifierType.PREFIX) {
 						List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
-						return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null);
+						return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
 					}
 					break;
 				}
 				case OmenofDextralExaltation: {
 					if (event.modifier.type == ModifierType.SUFFIX) {
 						List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
-						return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes);
+						return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
 					}
 					break;
 				}
@@ -426,10 +422,7 @@ public class Probability {
 
 		for (Modifier PossibleModifier : PossibleAffixes) // Looping through all modifiers passed in arguments
 			for (String tag : PossibleModifier.tags) // Looping through every tags the modifiers we got has
-				if (ItemAffixTags.contains(tag) && !tag.isEmpty()) // If the modifier has a tag that we already have
-																	// from the current Item Affixes, we add it to the
-																	// list of Affixes we could have rolled (for the
-																	// weight)
+				if (ItemAffixTags.contains(tag) && !tag.isEmpty()) // If the modifier has a tag that we already have from the current Item Affixes, we add it to the list of Affixes we could have rolled (for the weight)
 				{
 					if (!FinalPossibleAffixes.contains(PossibleModifier)) // Checking for not adding duplicates
 						FinalPossibleAffixes.add(PossibleModifier);
@@ -439,7 +432,8 @@ public class Probability {
 	}
 
 	public static double NormalCompute(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
-			int ilvl, int i, List<Modifier> PossiblePrefixes, List<Modifier> PossibleSuffixes) {
+			int ilvl, int i, List<Modifier> PossiblePrefixes, List<Modifier> PossibleSuffixes, boolean isDesired)
+	{
 		int prefixesFilled = 0;
 		int suffixesFilled = 0;
 
@@ -447,6 +441,16 @@ public class Probability {
 
 		double TotalPrefixWeight = 0;
 		double TotalSuffixWeight = 0;
+
+		double weight = 0;
+
+		if(!isDesired) // Here we check if the mod is a desired one, if not it is a mod we only care for the tags, so it doesn't matter the tier
+		{
+			for(ModifierTier tiers : event.modifier.tiers) // So we loop through all tiers and sum all of them
+				weight += tiers.weight;
+		}
+		else
+			weight = event.tier.weight; // If it is desired we just take it
 
 		// We need to omens here
 
@@ -475,30 +479,23 @@ public class Probability {
 
 		// here we compute the percentage with the total weight of all normal modifiers,
 		// because it could have landed on either a prefix or a suffix
-		if (prefixesFilled < 3 && suffixesFilled < 3 && PossiblePrefixes != null && PossibleSuffixes != null) // We
-																												// check
-																												// for
-																												// null
-																												// because
-																												// of
-																												// the
-																												// omens
+		if (prefixesFilled < 3 && suffixesFilled < 3 && PossiblePrefixes != null && PossibleSuffixes != null) // We check for null because of the omens
 		{
 			double TotalWeight = TotalPrefixWeight + TotalSuffixWeight;
-			percentage = event.tier.weight / TotalWeight;
+			percentage = weight / TotalWeight;
 			return percentage;
 		}
 
 		// If the modifier was a prefix and we know all the suffixes were filleds, we
 		// calculate only for TotalPrefixWeight because it could have ony roll a prefix
 		if (event.modifier.type == ModifierType.PREFIX && (suffixesFilled >= 3 || PossibleSuffixes == null)) {
-			percentage = event.tier.weight / TotalPrefixWeight;
+			percentage = weight / TotalPrefixWeight;
 			return percentage;
 		}
 
 		// Same for suffixes
 		if (event.modifier.type == ModifierType.SUFFIX && (prefixesFilled >= 3 || PossiblePrefixes == null)) {
-			percentage = event.tier.weight / TotalSuffixWeight;
+			percentage = weight / TotalSuffixWeight;
 			return percentage;
 		}
 		return 0;
@@ -510,25 +507,31 @@ public class Probability {
 			ModifierEvent event,
 			int[] levels,
 			Crafting_Action.CurrencyTier[] tiers,
-			int i) {
+			int i,
+			boolean isDesired) {
 		Map<Crafting_Action, Double> source = event.source;
 		Crafting_Action action = source.keySet().iterator().next();
-		// Computing the percentage for the modifier and then applying the currency tier
-		// without omens
+		// Computing the percentage for the modifier and then applying the currency tier without omens
 
-		for (int j = 0; j < levels.length; j++) {
+		for (int j = 0; j < levels.length; j++)
+		{
 			int level = levels[j];
 			Crafting_Action.CurrencyTier tier = tiers[j];
 
-			if (action instanceof RegalOrb) {
-				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values()) {
-					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i);
+			if (action instanceof RegalOrb)
+			{
+				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values())
+				{
+					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
 					if (percentage != 0)
 						source.put(new RegalOrb(tier, currentOmen), percentage);
 				}
-			} else if (action instanceof ExaltedOrb) {
-				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values()) {
-					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i);
+			}
+			else if (action instanceof ExaltedOrb)
+			{
+				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values())
+				{
+					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
 					if (percentage != 0)
 						source.put(new ExaltedOrb(tier, currentOmen), percentage);
 				}

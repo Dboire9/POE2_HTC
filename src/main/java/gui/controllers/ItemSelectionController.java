@@ -39,7 +39,6 @@ public class ItemSelectionController {
 	private Modifier suffix2store;
 	private Modifier suffix3store;
 
-
 	public ItemSelectionController(ItemSelectionView view, ItemManager manager) {
 		this.view = view;
 		this.manager = manager;
@@ -70,7 +69,7 @@ public class ItemSelectionController {
 		setupModifierComboBoxListener(view.suffix1ComboBox, "suffix1");
 		setupModifierComboBoxListener(view.suffix2ComboBox, "suffix2");
 		setupModifierComboBoxListener(view.suffix3ComboBox, "suffix3");
-	
+
 		view.validateButton.setOnAction(event -> {
 			if (validateButton.areAllModifiersAndTiersSelected()) {
 				// 1. Collect the tiers
@@ -89,17 +88,17 @@ public class ItemSelectionController {
 					Object selectedItemInstance = selectedItemClass.getDeclaredConstructor().newInstance();
 					itemBase = (Item_base) selectedItemInstance;
 					item = new Crafting_Item(itemBase);
-				} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+				} catch (InstantiationException | IllegalAccessException | InvocationTargetException
+						| NoSuchMethodException e) {
 					e.printStackTrace();
 				}
 				System.out.println(item);
 				System.out.println(itemBase);
-				
+
 				// 2. Collect the modifiers
 				List<Modifier> desiredModifiers = Arrays.asList(
-					prefix1store, prefix2store, prefix3store,
-					suffix1store, suffix2store, suffix3store
-				);
+						prefix1store, prefix2store, prefix3store,
+						suffix1store, suffix2store, suffix3store);
 
 				// 3. Build tiers in objects if needed
 				prefix1store.chosenTier = prefix1Tier;
@@ -113,10 +112,12 @@ public class ItemSelectionController {
 					List<Modifier> undesiredModifiers = new ArrayList<>();
 
 					// 4. Call your executor to run the algorithm
-					List<Probability_Analyzer.CandidateProbability> results =
-						CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers);
-					
-					System.out.println("Okay");
+					List<Probability_Analyzer.CandidateProbability> results = CraftingExecutor.runCrafting(item,
+							desiredModifiers, undesiredModifiers);
+
+					if (results.isEmpty())
+						System.out.println("Deadge");
+
 					for (int i = 0; i < Math.min(10, results.size()); i++) {
 						Probability_Analyzer.CandidateProbability cp = results.get(i);
 						System.out.println("Result #" + (i + 1) + " — Final %: " + cp.finalPercentage());
@@ -153,7 +154,7 @@ public class ItemSelectionController {
 			// Automatically select the first subcategory
 			selectedSubCategory = subcategories.get(0);
 			view.subCategoryComboBox.getSelectionModel().select(0);
-	
+
 			// Update the selected item class and populate modifiers
 			selectedItemClass = getItemClass(selectedCategory, selectedSubCategory);
 			populateModifiers(selectedItemClass);
@@ -259,13 +260,13 @@ public class ItemSelectionController {
 			essencepopulateComboBoxes(prefixBoxes[1], EssencenormalPrefixes);
 			populateComboBoxes(prefixBoxes[2], normalPrefixes);
 			essencepopulateComboBoxes(prefixBoxes[2], EssencenormalPrefixes);
-			
+
 			populateComboBoxes(suffixBoxes[1], normalSuffixes);
 			essencepopulateComboBoxes(suffixBoxes[1], EssencenormalSuffixes);
 			populateComboBoxes(suffixBoxes[2], normalSuffixes);
 			essencepopulateComboBoxes(suffixBoxes[2], EssencenormalSuffixes);
 			setupUniqueSelection(prefixBoxes, suffixBoxes);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -274,10 +275,10 @@ public class ItemSelectionController {
 	private void setupUniqueSelection(ComboBox<String>[] prefixboxes, ComboBox<String>[] suffixboxes) {
 		for (ComboBox<String> box : prefixboxes) {
 			final String[] previousSelection = { null };
-	
+
 			box.setOnAction(e -> {
 				String selected = box.getValue();
-	
+
 				// If there was a previous selection, add it back to other boxes
 				if (previousSelection[0] != null) {
 					for (ComboBox<String> otherBox : prefixboxes) {
@@ -291,7 +292,7 @@ public class ItemSelectionController {
 						}
 					}
 				}
-	
+
 				// Remove the newly selected value from other boxes
 				if (selected != null) {
 					for (ComboBox<String> otherBox : prefixboxes) {
@@ -306,13 +307,13 @@ public class ItemSelectionController {
 				previousSelection[0] = selected; // Update previous selection
 			});
 		}
-	
+
 		for (ComboBox<String> box : suffixboxes) {
 			final String[] previousSelection = { null };
-	
+
 			box.setOnAction(e -> {
 				String selected = box.getValue();
-	
+
 				// If there was a previous selection, add it back to other boxes
 				if (previousSelection[0] != null) {
 					for (ComboBox<String> otherBox : suffixboxes) {
@@ -326,7 +327,7 @@ public class ItemSelectionController {
 						}
 					}
 				}
-	
+
 				// Remove the newly selected value from other boxes
 				if (selected != null) {
 					for (ComboBox<String> otherBox : suffixboxes) {
@@ -338,7 +339,7 @@ public class ItemSelectionController {
 						otherBox.getItems().remove(selected);
 					}
 				}
-	
+
 				previousSelection[0] = selected; // Update previous selection
 			});
 		}
@@ -350,8 +351,7 @@ public class ItemSelectionController {
 			for (Modifier mod : modifiers) {
 				box.getItems().add(mod.text);
 			}
-		}
-		else{
+		} else {
 			view.messageLabel.setText("No modifiers available.");
 		}
 	}
@@ -390,28 +390,28 @@ public class ItemSelectionController {
 		view.prefix2ComboBox.getItems().clear();
 		view.prefix3ComboBox.getSelectionModel().clearSelection();
 		view.prefix3ComboBox.getItems().clear();
-	
+
 		view.suffix1ComboBox.getSelectionModel().clearSelection();
 		view.suffix1ComboBox.getItems().clear();
 		view.suffix2ComboBox.getSelectionModel().clearSelection();
 		view.suffix2ComboBox.getItems().clear();
 		view.suffix3ComboBox.getSelectionModel().clearSelection();
 		view.suffix3ComboBox.getItems().clear();
-	
+
 		view.prefix1TierComboBox.getSelectionModel().clearSelection();
 		view.prefix1TierComboBox.getItems().clear();
 		view.prefix2TierComboBox.getSelectionModel().clearSelection();
 		view.prefix2TierComboBox.getItems().clear();
 		view.prefix3TierComboBox.getSelectionModel().clearSelection();
 		view.prefix3TierComboBox.getItems().clear();
-	
+
 		view.suffix1TierComboBox.getSelectionModel().clearSelection();
 		view.suffix1TierComboBox.getItems().clear();
 		view.suffix2TierComboBox.getSelectionModel().clearSelection();
 		view.suffix2TierComboBox.getItems().clear();
 		view.suffix3TierComboBox.getSelectionModel().clearSelection();
 		view.suffix3TierComboBox.getItems().clear();
-	
+
 		// Refresh the combo boxes with the current item class and desecrated state
 		populateModifiers(selectedItemClass);
 	}
@@ -459,8 +459,7 @@ public class ItemSelectionController {
 
 						currentTier--;
 					}
-				}
-				else {
+				} else {
 					System.out.println("⚠️ No tiers available for the selected modifier.");
 					comboBoxTier.getItems().clear(); // Clear if no tiers are available
 				}
@@ -484,9 +483,8 @@ public class ItemSelectionController {
 		});
 	}
 
-
 	private Modifier getModifiersFromValue(Class<?> itemClass, String value) {
-		if (value == null || itemClass == null){
+		if (value == null || itemClass == null) {
 			System.out.println("[DEBUG] getModifiersFromValue: itemClass or value is null");
 			return null;
 		}

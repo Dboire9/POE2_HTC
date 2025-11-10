@@ -1,6 +1,5 @@
 package core.Crafting;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,151 +18,106 @@ import core.Modifier_class.ModifierTier;
 import core.Modifier_class.Modifier.ModifierType;
 
 import java.util.Iterator;
+
 public class Probability {
-	
 
-
-	public static void ComputingProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem)
-	{
-		for (Crafting_Candidate candidate : completedPaths)
-		{
-			// We implement i to get the event in all our candidates, so that we can replace it easier
+	public static void ComputingProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod,
+			Crafting_Item baseItem) {
+		for (Crafting_Candidate candidate : completedPaths) {
+			// We implement i to get the event in all our candidates, so that we can replace
+			// it easier
 			int i = 0;
 			// We do all at once, we do not care about the order
-			for (ModifierEvent event : candidate.modifierHistory)
-			{
+			for (ModifierEvent event : candidate.modifierHistory) {
 				// Retrieving the first action to know what it is
 				Crafting_Action action = event.source.keySet().iterator().next();
 
-				//Not doing the transmutation
+				// Not doing the transmutation
 
 				// Not doing aug for now, want to see a 100% prob if it is possible
-				if(action instanceof RegalOrb || action instanceof ExaltedOrb)
-				ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
-				else if(action instanceof AnnulmentOrb)
+				if (action instanceof RegalOrb || action instanceof ExaltedOrb)
+					ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
+				else if (action instanceof AnnulmentOrb)
 					ComputeAnnul(candidate, desiredMod, baseItem, i);
-				else if(action instanceof Essence_currency)
+				else if (action instanceof Essence_currency)
 					ComputeEssence(candidate, desiredMod, baseItem, i);
-				else if(action instanceof Desecrated_currency)
+				else if (action instanceof Desecrated_currency)
 					ComputeDes(candidate, desiredMod, baseItem, i);
 				i++;
 			}
 		}
-		return ;
+		return;
 	}
 
-	public static void ComputingLastEventProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem) {
-		List<Crafting_Candidate> toRemove = Collections.synchronizedList(new ArrayList<>());
-
-		// Threading it
-		completedPaths.parallelStream().forEach(candidate -> {
-			ModifierEvent event = candidate.modifierHistory.get(candidate.modifierHistory.size() - 1);
-			int i = candidate.modifierHistory.size() - 1;
-
-			Crafting_Action action = event.source.keySet().iterator().next();
-
-			if(action instanceof RegalOrb || action instanceof ExaltedOrb)
-				ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
-			else if(action instanceof AnnulmentOrb)
-				ComputeAnnul(candidate, desiredMod, baseItem, i);
-			else if(action instanceof Essence_currency)
-				ComputeEssence(candidate, desiredMod, baseItem, i);
-			else if(action instanceof Desecrated_currency)
-				ComputeDes(candidate, desiredMod, baseItem, i);
-
-			double bestPercentage = event.source.values().stream().max(Double::compare).orElse(0.0);
-			if(bestPercentage <= 0.07)
-				toRemove.add(candidate);
-		});
-
-		// Remove low probability candidates after parallel processing
-		completedPaths.removeAll(toRemove);
-	}
-
-	public static void ComputeRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
-	{
+	public static void ComputeRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod,
+			Crafting_Item baseItem, int i) {
 		ModifierEvent event = candidate.modifierHistory.get(i);
 		Modifier foundModifier = event.modifier;
 
 		// Checking the level so that we apply the good currency tiers
-		if (foundModifier != null)
-		{
+		if (foundModifier != null) {
 			int realtier = foundModifier.tiers.size() - foundModifier.chosenTier - 1;
 			int level = foundModifier.tiers.get(realtier).level;
 
 			int[] levels;
 			Crafting_Action.CurrencyTier[] tiers;
-		
-			if (level < 35)
-			{
-				levels = new int[]{0};
-				tiers = new Crafting_Action.CurrencyTier[]{CurrencyTier.BASE};
-			}
-			else if (level < 50)
-			{
-				levels = new int[]{0, 35};
-				tiers = new Crafting_Action.CurrencyTier[]{CurrencyTier.BASE, CurrencyTier.GREATER};
-			}
-			else
-			{
-				levels = new int[]{0, 35, 50};
-				tiers = new Crafting_Action.CurrencyTier[]{CurrencyTier.BASE, CurrencyTier.GREATER, CurrencyTier.PERFECT};
+
+			if (level < 35) {
+				levels = new int[] { 0 };
+				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE };
+			} else if (level < 50) {
+				levels = new int[] { 0, 35 };
+				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER };
+			} else {
+				levels = new int[] { 0, 35, 50 };
+				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER,
+						CurrencyTier.PERFECT };
 			}
 
 			Crafting_Action action = event.source.keySet().iterator().next();
-		
+
+			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i);
 			if (action instanceof RegalOrb)
-			{
-				applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i);
 				canBeEssence(baseItem, candidate, event, level, realtier, i);
-			}
-			if (action instanceof ExaltedOrb)
-				applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i);
 		}
 	}
 
-	public static void ComputeAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
-	{
+	public static void ComputeAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem,
+			int i) {
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
 		double percentage = 0;
 		Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
 		Crafting_Action action = source.keySet().iterator().next();
 
-		if (action instanceof AnnulmentOrb)
-		{
-			for (AnnulmentOrb.Omen currentOmen : AnnulmentOrb.Omen.values())
-			{
+		if (action instanceof AnnulmentOrb) {
+			for (AnnulmentOrb.Omen currentOmen : AnnulmentOrb.Omen.values()) {
 				percentage = ComputePercentageAnnul(baseItem, candidate, event, currentOmen, i);
-				if(percentage != 0)
+				if (percentage != 0)
 					candidate.modifierHistory.get(i).source.put(new AnnulmentOrb(currentOmen), percentage);
 			}
 		}
-
-
 	}
 
-	public static void ComputeDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
-	{
+	public static void ComputeDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem,
+			int i) {
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
 		double percentage = 0;
 		Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
 		Crafting_Action action = source.keySet().iterator().next();
 
-		if (action instanceof Desecrated_currency)
-		{
-			for (Desecrated_currency.Omen currentOmen : Desecrated_currency.Omen.values())
-			{
+		if (action instanceof Desecrated_currency) {
+			for (Desecrated_currency.Omen currentOmen : Desecrated_currency.Omen.values()) {
 				percentage = ComputePercentageDesecrated_currency(baseItem, candidate, event, currentOmen, i);
-				if(percentage != 0)
+				if (percentage != 0)
 					candidate.modifierHistory.get(i).source.put(new Desecrated_currency(currentOmen), percentage);
 			}
 		}
 	}
 
-	public static double ComputePercentageDesecrated_currency(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i)
-	{
+	public static double ComputePercentageDesecrated_currency(Crafting_Item baseItem, Crafting_Candidate candidate,
+			ModifierEvent event, Enum<?> omen, int i) {
 		double prefixesFilled = 0;
 		double suffixesFilled = 0;
 
@@ -176,160 +130,164 @@ public class Probability {
 		List<Modifier> PossiblePrefixes = baseItem.base.getDesecratedAllowedPrefixes();
 		List<Modifier> PossibleSuffixes = baseItem.base.getDesecratedAllowedSuffixes();
 
-		/* Here we check which type it is, because for the omens we need to do 1 out of all the desecrated family modifiers, but if we have prefix and suffix, the omens help us keep the percentage the same, 
-			we just add the omen if there is both affixes */
-		if(event.modifier.type == ModifierType.PREFIX) 
-		{
-			for(Modifier m : PossiblePrefixes)
-			{
-				if(m.tags.contains("kurgal_mod"))
+		/*
+		 * Here we check which type it is, because for the omens we need to do 1 out of
+		 * all the desecrated family modifiers, but if we have prefix and suffix, the
+		 * omens help us keep the percentage the same,
+		 * we just add the omen if there is both affixes
+		 */
+		if (event.modifier.type == ModifierType.PREFIX) {
+			for (Modifier m : PossiblePrefixes) {
+				if (m.tags.contains("kurgal_mod"))
 					kurgal_modTotal++;
-				if(m.tags.contains("amanamu_mod"))
+				if (m.tags.contains("amanamu_mod"))
 					amanamu_modTotal++;
-				if(m.tags.contains("ulaman_mod"))
+				if (m.tags.contains("ulaman_mod"))
+					ulaman_modTotal++;
+			}
+		} else {
+			for (Modifier m : PossibleSuffixes) {
+				if (m.tags.contains("kurgal_mod"))
+					kurgal_modTotal++;
+				if (m.tags.contains("amanamu_mod"))
+					amanamu_modTotal++;
+				if (m.tags.contains("ulaman_mod"))
 					ulaman_modTotal++;
 			}
 		}
-		else
-		{
-			for(Modifier m : PossibleSuffixes)
-			{
-				if(m.tags.contains("kurgal_mod"))
-					kurgal_modTotal++;
-				if(m.tags.contains("amanamu_mod"))
-					amanamu_modTotal++;
-				if(m.tags.contains("ulaman_mod"))
-					ulaman_modTotal++;
-			}
-		}
-		
 
-		for(int j = 0; j < i; j++)
-		{
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+		for (int j = 0; j < i; j++) {
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.ADDED)
 				prefixesFilled++;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.ADDED)
 				suffixesFilled++;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				prefixesFilled--;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				suffixesFilled++;
 		}
 
-		if (omen instanceof Desecrated_currency.Omen desOmen)
-		{
+		if (omen instanceof Desecrated_currency.Omen desOmen) {
 			Desecrated_currency orb = (Desecrated_currency) event.source.keySet().iterator().next();
-			switch(desOmen)
-			{
+			switch (desOmen) {
 				case OmenofSinistralNecromancy:
-					break; 
+					break;
 				case OmenofDextralNecromancy:
 					break;
-				case OmenoftheBlackblooded:
-				{
-					if(event.modifier.tags.contains("kurgal_mod"))
-						percentage = 1 / kurgal_modTotal; // We have a guarantee to have a random kurgal modifier so 1 out of the total of them
+				case OmenoftheBlackblooded: {
+					if (event.modifier.tags.contains("kurgal_mod"))
+						percentage = 1 / kurgal_modTotal; // We have a guarantee to have a random kurgal modifier so 1
+															// out of the total of them
 					else
 						break; // If no kurgal_mod break it will do nothing
-					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
+					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty()
+							&& event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and
+																			// the mod we add is a suffix, we apply the
+																			// omen for only suffix
 						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
-					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX) // Opposite here
+					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty()
+							&& event.modifier.type == ModifierType.PREFIX) // Opposite here
 						orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
 					break;
 				}
-				case OmenoftheLiege:
-				{
-					if(event.modifier.tags.contains("amanamu_mod"))
+				case OmenoftheLiege: {
+					if (event.modifier.tags.contains("amanamu_mod"))
 						percentage = 1 / amanamu_modTotal;
 					else
 						break;
-					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
+					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty()
+							&& event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and
+																			// the mod we add is a suffix, we apply the
+																			// omen for only suffix
 						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
-					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX) // Opposite here
+					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty()
+							&& event.modifier.type == ModifierType.PREFIX) // Opposite here
 						orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
 					break;
 				}
-				case OmenoftheSovereign:
-				{
-					if(event.modifier.tags.contains("ulaman_mod"))
+				case OmenoftheSovereign: {
+					if (event.modifier.tags.contains("ulaman_mod"))
 						percentage = 1 / ulaman_modTotal;
 					else
 						break;
-					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
+					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty()
+							&& event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and
+																			// the mod we add is a suffix, we apply the
+																			// omen for only suffix
 						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
-					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX) // Opposite here
+					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty()
+							&& event.modifier.type == ModifierType.PREFIX) // Opposite here
 						orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
 					break;
 				}
 			}
 		}
-
 
 		return percentage;
 	}
 
-	public static void ComputeEssence(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
-	{
+	public static void ComputeEssence(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem,
+			int i) {
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
 		double percentage = 0;
 		Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
 		Crafting_Action action = source.keySet().iterator().next();
 
-		if (action instanceof Essence_currency)
-		{
-			for (Essence_currency.Omen currentOmen : Essence_currency.Omen.values())
-			{
+		if (action instanceof Essence_currency) {
+			for (Essence_currency.Omen currentOmen : Essence_currency.Omen.values()) {
 				percentage = ComputePercentageEssence(baseItem, candidate, event, currentOmen, i);
-				if(percentage != 0)
+				if (percentage != 0)
 					candidate.modifierHistory.get(i).source.put(new Essence_currency(currentOmen), percentage);
 				if (Double.isInfinite(percentage)) {
-						System.out.println("Wtf");
-					}
+					System.out.println("Wtf");
+				}
 			}
 		}
 	}
 
-	public static double ComputePercentageEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i)
-	{
+	public static double ComputePercentageEssence(Crafting_Item baseItem, Crafting_Candidate candidate,
+			ModifierEvent event, Enum<?> omen, int i) {
 		double prefixesFilled = 0;
 		double suffixesFilled = 0;
 
-		for(int j = 0; j < i; j++)
-		{
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+		for (int j = 0; j < i; j++) {
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				prefixesFilled--;
-			else if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				suffixesFilled--;
-			else if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX)
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX)
 				prefixesFilled++;
-			else if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX)
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX)
 				suffixesFilled++;
 		}
 
-		if (omen instanceof Essence_currency.Omen essenceOmen)
-		{
-			switch(essenceOmen)
-			{
-				case None:
-				{
-					if(event.modifier.type == ModifierType.PREFIX && suffixesFilled == 0 && prefixesFilled != 0)
+		if (omen instanceof Essence_currency.Omen essenceOmen) {
+			switch (essenceOmen) {
+				case None: {
+					if (event.modifier.type == ModifierType.PREFIX && suffixesFilled == 0 && prefixesFilled != 0)
 						return 1 / prefixesFilled;
-					if(event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0 && suffixesFilled != 0)
+					if (event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0 && suffixesFilled != 0)
 						return 1 / suffixesFilled;
 					else
-						return 1 / (prefixesFilled + suffixesFilled); // We have a chance out of all the modifiers on the item
+						return 1 / (prefixesFilled + suffixesFilled); // We have a chance out of all the modifiers on
+																		// the item
 				}
-				case OmenofSinistralCrystallisation:
-				{
-					if(event.modifier.type == ModifierType.PREFIX && prefixesFilled != 0)
-						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all the prefix modifiers
-					break; // Break if it is a suffix 
+				case OmenofSinistralCrystallisation: {
+					if (event.modifier.type == ModifierType.PREFIX && prefixesFilled != 0)
+						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all
+													// the prefix modifiers
+					break; // Break if it is a suffix
 				}
-				case OmenofDextralCrystallisation:
-				{
-					if(event.modifier.type == ModifierType.SUFFIX && suffixesFilled != 0)
-						return 1 / suffixesFilled; //same
+				case OmenofDextralCrystallisation: {
+					if (event.modifier.type == ModifierType.SUFFIX && suffixesFilled != 0)
+						return 1 / suffixesFilled; // same
 					break;
 				}
 			}
@@ -337,46 +295,46 @@ public class Probability {
 		return 0;
 	}
 
-	public static double ComputePercentageAnnul(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i)
-	{
+	public static double ComputePercentageAnnul(Crafting_Item baseItem, Crafting_Candidate candidate,
+			ModifierEvent event, Enum<?> omen, int i) {
 		double prefixesFilled = 0;
 		double suffixesFilled = 0;
 
-		for(int j = 0; j < i; j++)
-		{
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+		for (int j = 0; j < i; j++) {
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.ADDED)
 				prefixesFilled++;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.ADDED)
 				suffixesFilled++;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				prefixesFilled--;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				suffixesFilled++;
 		}
 
-		if (omen instanceof AnnulmentOrb.Omen annulOmen)
-		{
-			switch(annulOmen)
-			{
-				case None:
-				{
-					if(event.modifier.type == ModifierType.PREFIX && suffixesFilled == 0)
+		if (omen instanceof AnnulmentOrb.Omen annulOmen) {
+			switch (annulOmen) {
+				case None: {
+					if (event.modifier.type == ModifierType.PREFIX && suffixesFilled == 0)
 						return 1 / prefixesFilled;
-					if(event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0)
+					if (event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0)
 						return 1 / suffixesFilled;
 					else
-						return 1 / (prefixesFilled + suffixesFilled); // We have a chance out of all the modifiers on the item
+						return 1 / (prefixesFilled + suffixesFilled); // We have a chance out of all the modifiers on
+																		// the item
 				}
-				case OmenofSinistralAnnulment:
-				{
-					if(event.modifier.type == ModifierType.PREFIX)
-						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all the prefix modifiers
-					break; // Break if it is a suffix 
+				case OmenofSinistralAnnulment: {
+					if (event.modifier.type == ModifierType.PREFIX)
+						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all
+													// the prefix modifiers
+					break; // Break if it is a suffix
 				}
-				case OmenofDextralAnnulment:
-				{
-					if(event.modifier.type == ModifierType.SUFFIX)
-						return 1 / suffixesFilled; //same
+				case OmenofDextralAnnulment: {
+					if (event.modifier.type == ModifierType.SUFFIX)
+						return 1 / suffixesFilled; // same
 					break;
 				}
 			}
@@ -384,74 +342,66 @@ public class Probability {
 		return 0;
 	}
 
-	public static double ComputePercentage(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl, Enum<?> omen, int i)
-	{
+	public static double ComputePercentage(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
+			int ilvl, Enum<?> omen, int i) {
 		Crafting_Action action = event.source.keySet().iterator().next();
 
-		if (omen instanceof RegalOrb.Omen regalOmen)
-		{
-			switch(regalOmen)
-			{
-				case None:
-				{
+		if (omen instanceof RegalOrb.Omen regalOmen) {
+			switch (regalOmen) {
+				case None: {
 					List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
 					List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
 					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
 				}
-				case OmenofHomogenisingCoronation :
-				{
+				case OmenofHomogenisingCoronation: {
 					// If the modifier of the event has no tags we break
-					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null || event.modifier.tags.get(0).isEmpty())
+					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null
+							|| event.modifier.tags.get(0).isEmpty())
 						return 0;
-					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
-					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
+					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
+							baseItem.base.getNormalAllowedPrefixes(), i);
+					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
+							baseItem.base.getNormalAllowedSuffixes(), i);
 					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
 				}
 			}
 		}
-		if (omen instanceof ExaltedOrb.Omen exaltOmen)
-		{
+		if (omen instanceof ExaltedOrb.Omen exaltOmen) {
 			ExaltedOrb orb = (ExaltedOrb) action;
-			switch(exaltOmen)
-			{
-				case None : 
-				{
+			switch (exaltOmen) {
+				case None: {
 					List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
 					List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
 					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes);
 				}
-				case OmenofHomogenisingExaltation :
-				{
+				case OmenofHomogenisingExaltation: {
 					// If the modifier of the event has no tags we break
-					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null || event.modifier.tags.get(0).isEmpty())
+					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null
+							|| event.modifier.tags.get(0).isEmpty())
 						return 0;
-					if(event.modifier.type == ModifierType.PREFIX)
-					{
-						List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
+					if (event.modifier.type == ModifierType.PREFIX) {
+						List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
+								baseItem.base.getNormalAllowedPrefixes(), i);
 						orb.addOmen(ExaltedOrb.Omen.OmenofSinistralExaltation);
 						return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null);
 					}
-					if(event.modifier.type == ModifierType.SUFFIX)
-					{
-						List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
+					if (event.modifier.type == ModifierType.SUFFIX) {
+						List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
+								baseItem.base.getNormalAllowedSuffixes(), i);
 						orb.addOmen(ExaltedOrb.Omen.OmenofDextralExaltation);
 						return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes);
 					}
 					break;
 				}
-				case OmenofSinistralExaltation :
-				{
-					if(event.modifier.type == ModifierType.PREFIX)
-					{
+				case OmenofSinistralExaltation: {
+					if (event.modifier.type == ModifierType.PREFIX) {
 						List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
 						return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null);
 					}
-					break ;
+					break;
 				}
-				case OmenofDextralExaltation :
-				{
-					if(event.modifier.type == ModifierType.SUFFIX)
-					{
+				case OmenofDextralExaltation: {
+					if (event.modifier.type == ModifierType.SUFFIX) {
 						List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
 						return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes);
 					}
@@ -462,22 +412,24 @@ public class Probability {
 		return 0;
 	}
 
-	public static List<Modifier> GetHomogAffixes(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, List<Modifier> PossibleAffixes, int i)
-	{
+	public static List<Modifier> GetHomogAffixes(Crafting_Item baseItem, Crafting_Candidate candidate,
+			ModifierEvent event, List<Modifier> PossibleAffixes, int i) {
 		List<Modifier> FinalPossibleAffixes = new ArrayList<>();
 		List<String> ItemAffixTags = new ArrayList<>();
 
-		for(int j = 0; j <= i; j++)
-		{
-			// Retrieving the tags 
-			for(String tags : candidate.modifierHistory.get(j).modifier.tags)
-				if(!tags.isEmpty() && !ItemAffixTags.contains(tags))	
+		for (int j = 0; j <= i; j++) {
+			// Retrieving the tags
+			for (String tags : candidate.modifierHistory.get(j).modifier.tags)
+				if (!tags.isEmpty() && !ItemAffixTags.contains(tags))
 					ItemAffixTags.add(tags);
 		}
 
-		for(Modifier PossibleModifier : PossibleAffixes) // Looping through all modifiers passed in arguments
+		for (Modifier PossibleModifier : PossibleAffixes) // Looping through all modifiers passed in arguments
 			for (String tag : PossibleModifier.tags) // Looping through every tags the modifiers we got has
-				if (ItemAffixTags.contains(tag) && !tag.isEmpty()) // If the modifier has a tag that we already have from the current Item Affixes, we add it to the list of Affixes we could have rolled (for the weight)
+				if (ItemAffixTags.contains(tag) && !tag.isEmpty()) // If the modifier has a tag that we already have
+																	// from the current Item Affixes, we add it to the
+																	// list of Affixes we could have rolled (for the
+																	// weight)
 				{
 					if (!FinalPossibleAffixes.contains(PossibleModifier)) // Checking for not adding duplicates
 						FinalPossibleAffixes.add(PossibleModifier);
@@ -486,8 +438,8 @@ public class Probability {
 		return FinalPossibleAffixes;
 	}
 
-	public static double NormalCompute(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl, int i, List<Modifier> PossiblePrefixes, List<Modifier> PossibleSuffixes)
-	{
+	public static double NormalCompute(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
+			int ilvl, int i, List<Modifier> PossiblePrefixes, List<Modifier> PossibleSuffixes) {
 		int prefixesFilled = 0;
 		int suffixesFilled = 0;
 
@@ -498,43 +450,54 @@ public class Probability {
 
 		// We need to omens here
 
-		// If there is room for both a prefix or a suffix, the total weight might be both combined
-		if(PossiblePrefixes != null)
+		// If there is room for both a prefix or a suffix, the total weight might be
+		// both combined
+		if (PossiblePrefixes != null)
 			TotalPrefixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossiblePrefixes, ilvl);
 
-		if(PossibleSuffixes != null)
+		if (PossibleSuffixes != null)
 			TotalSuffixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossibleSuffixes, ilvl);
 
-		for(int j = 0; j < i; j++)
-		{
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+		for (int j = 0; j < i; j++) {
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.ADDED)
 				prefixesFilled++;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.ADDED)
 				suffixesFilled++;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				prefixesFilled--;
-			if(candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				suffixesFilled++;
 		}
 
-		// here we compute the percentage with the total weight of all normal modifiers, because it could have landed on either a prefix or a suffix 
-		if(prefixesFilled < 3 && suffixesFilled < 3 && PossiblePrefixes != null && PossibleSuffixes != null) // We check for null because of the omens
+		// here we compute the percentage with the total weight of all normal modifiers,
+		// because it could have landed on either a prefix or a suffix
+		if (prefixesFilled < 3 && suffixesFilled < 3 && PossiblePrefixes != null && PossibleSuffixes != null) // We
+																												// check
+																												// for
+																												// null
+																												// because
+																												// of
+																												// the
+																												// omens
 		{
 			double TotalWeight = TotalPrefixWeight + TotalSuffixWeight;
 			percentage = event.tier.weight / TotalWeight;
 			return percentage;
 		}
 
-		// If the modifier was a prefix and we know all the suffixes were filleds, we calculate only for TotalPrefixWeight because it could have ony roll a prefix
-		if(event.modifier.type == ModifierType.PREFIX && (suffixesFilled >= 3 || PossibleSuffixes == null))
-		{
+		// If the modifier was a prefix and we know all the suffixes were filleds, we
+		// calculate only for TotalPrefixWeight because it could have ony roll a prefix
+		if (event.modifier.type == ModifierType.PREFIX && (suffixesFilled >= 3 || PossibleSuffixes == null)) {
 			percentage = event.tier.weight / TotalPrefixWeight;
 			return percentage;
 		}
 
 		// Same for suffixes
-		if(event.modifier.type == ModifierType.SUFFIX && (prefixesFilled >= 3 || PossiblePrefixes == null))
-		{
+		if (event.modifier.type == ModifierType.SUFFIX && (prefixesFilled >= 3 || PossiblePrefixes == null)) {
 			percentage = event.tier.weight / TotalSuffixWeight;
 			return percentage;
 		}
@@ -542,35 +505,29 @@ public class Probability {
 	}
 
 	private static void applyTiersAndComputeRegals(
-		Crafting_Item baseItem,
-		Crafting_Candidate candidate,
-		ModifierEvent event,
-		int[] levels,
-		Crafting_Action.CurrencyTier[] tiers,
-		int i
-	) 
-	{
+			Crafting_Item baseItem,
+			Crafting_Candidate candidate,
+			ModifierEvent event,
+			int[] levels,
+			Crafting_Action.CurrencyTier[] tiers,
+			int i) {
 		Map<Crafting_Action, Double> source = event.source;
 		Crafting_Action action = source.keySet().iterator().next();
-		// Computing the percentage for the modifier and then applying the currency tier without omens
-		
-		for (int j = 0; j < levels.length; j++)
-		{
+		// Computing the percentage for the modifier and then applying the currency tier
+		// without omens
+
+		for (int j = 0; j < levels.length; j++) {
 			int level = levels[j];
 			Crafting_Action.CurrencyTier tier = tiers[j];
-	
-			if (action instanceof RegalOrb)
-			{
-				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values())
-				{
+
+			if (action instanceof RegalOrb) {
+				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values()) {
 					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i);
 					if (percentage != 0)
 						source.put(new RegalOrb(tier, currentOmen), percentage);
 				}
-			} else if (action instanceof ExaltedOrb)
-			{
-				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values())
-				{
+			} else if (action instanceof ExaltedOrb) {
+				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values()) {
 					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i);
 					if (percentage != 0)
 						source.put(new ExaltedOrb(tier, currentOmen), percentage);
@@ -579,36 +536,32 @@ public class Probability {
 		}
 	}
 
-	private static void canBeEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int level, int realtier, int i)
-	{
-		if(event.modifier.type == ModifierType.PREFIX)
-		{
+	private static void canBeEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
+			int level, int realtier, int i) {
+		if (event.modifier.type == ModifierType.PREFIX) {
 			List<Modifier> PossiblePrefixes = baseItem.base.getEssencesAllowedPrefixes();
 
-			// Loop until we find the same family, then check the ilvl to see if we can apply the essence
-			for (Modifier m : PossiblePrefixes)
-			{
-				if (m.family.equals(event.modifier.family))
-				{
-					for(ModifierTier mtiers : m.tiers)
-						if(mtiers.level == level)
+			// Loop until we find the same family, then check the ilvl to see if we can
+			// apply the essence
+			for (Modifier m : PossiblePrefixes) {
+				if (m.family.equals(event.modifier.family)) {
+					for (ModifierTier mtiers : m.tiers)
+						if (mtiers.level == level)
 							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 1.0);
 					break;
 				}
 			}
 		}
 
-		if(event.modifier.type == ModifierType.SUFFIX)
-		{
+		if (event.modifier.type == ModifierType.SUFFIX) {
 			List<Modifier> PossibleSuffixes = baseItem.base.getEssencesAllowedSuffixes();
 
-			// Loop until we find the same family, then check the ilvl to see if we can apply the essence
-			for (Modifier m : PossibleSuffixes)
-			{
-				if (m.family.equals(event.modifier.family))
-				{
-					for(ModifierTier mtiers : m.tiers)
-						if(mtiers.level == level)
+			// Loop until we find the same family, then check the ilvl to see if we can
+			// apply the essence
+			for (Modifier m : PossibleSuffixes) {
+				if (m.family.equals(event.modifier.family)) {
+					for (ModifierTier mtiers : m.tiers)
+						if (mtiers.level == level)
 							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 1.0);
 					break;
 				}

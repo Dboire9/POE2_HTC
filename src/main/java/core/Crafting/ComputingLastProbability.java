@@ -37,19 +37,17 @@ public class ComputingLastProbability {
 			Crafting_Action action = event.source.keySet().iterator().next();
 			boolean keep = true;
 
-			if (action instanceof RegalOrb || action instanceof ExaltedOrb) {
+			if (action instanceof RegalOrb || action instanceof ExaltedOrb)
 				keep = ComputeLastRegalAndExalted(candidate, desiredMod, baseItem, i);
-			} else if (action instanceof AnnulmentOrb) {
+			else if (action instanceof AnnulmentOrb)
 				keep = ComputeLastAnnul(candidate, desiredMod, baseItem, i);
-			} else if (action instanceof Essence_currency) {
+			else if (action instanceof Essence_currency)
 				keep = ComputeLastEssence(candidate, desiredMod, baseItem, i);
-			} else if (action instanceof Desecrated_currency) {
+			else if (action instanceof Desecrated_currency)
 				keep = ComputeLastDes(candidate, desiredMod, baseItem, i);
-			}
 
-			if (!keep) {
+			if (!keep) 
 				toRemove.add(candidate);
-			}
 		});
 
 		// Remove all candidates that failed the check
@@ -76,13 +74,16 @@ public class ComputingLastProbability {
 		return false;
 	}
 
-	public static boolean ComputeLastRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod,
-			Crafting_Item baseItem, int i) {
+	public static boolean ComputeLastRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 		Modifier foundModifier = event.modifier;
 
+		boolean isDesired = desiredMod.contains(foundModifier);
+
 		// Checking the level so that we apply the good currency tiers
-		if (foundModifier != null) {
+		if (foundModifier != null)
+		{
 			int realtier = foundModifier.tiers.size() - foundModifier.chosenTier - 1;
 			int level = foundModifier.tiers.get(realtier).level;
 
@@ -103,7 +104,7 @@ public class ComputingLastProbability {
 
 			Crafting_Action action = event.source.keySet().iterator().next();
 
-			if (applyLastTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i))
+			if (applyLastTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired))
 				return true;
 			if (action instanceof RegalOrb)
 				return canBeEssence(baseItem, candidate, event, level, realtier, i);
@@ -111,17 +112,18 @@ public class ComputingLastProbability {
 		return false;
 	}
 
-	public static boolean ComputeLastAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod,
-			Crafting_Item baseItem,
-			int i) {
+	public static boolean ComputeLastAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
 		double percentage = 0;
 		Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
 		Crafting_Action action = source.keySet().iterator().next();
 
-		if (action instanceof AnnulmentOrb) {
-			for (AnnulmentOrb.Omen currentOmen : AnnulmentOrb.Omen.values()) {
+		if (action instanceof AnnulmentOrb)
+		{
+			for (AnnulmentOrb.Omen currentOmen : AnnulmentOrb.Omen.values())
+			{
 				percentage = Probability.ComputePercentageAnnul(baseItem, candidate, event, currentOmen, i);
 				if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
 					return true;
@@ -130,15 +132,18 @@ public class ComputingLastProbability {
 		return false;
 	}
 
-	private static boolean canBeEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
-			int level, int realtier, int i) {
-		if (event.modifier.type == ModifierType.PREFIX) {
+	private static boolean canBeEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int level, int realtier, int i)
+	{
+		if (event.modifier.type == ModifierType.PREFIX)
+		{
 			List<Modifier> PossiblePrefixes = baseItem.base.getEssencesAllowedPrefixes();
 
 			// Loop until we find the same family, then check the ilvl to see if we can
 			// apply the essence
-			for (Modifier m : PossiblePrefixes) {
-				if (m.family.equals(event.modifier.family)) {
+			for (Modifier m : PossiblePrefixes)
+			{
+				if (m.family.equals(event.modifier.family))
+				{
 					for (ModifierTier mtiers : m.tiers)
 						if (mtiers.level == level)
 							return true;
@@ -152,8 +157,10 @@ public class ComputingLastProbability {
 
 			// Loop until we find the same family, then check the ilvl to see if we can
 			// apply the essence
-			for (Modifier m : PossibleSuffixes) {
-				if (m.family.equals(event.modifier.family)) {
+			for (Modifier m : PossibleSuffixes)
+			{
+				if (m.family.equals(event.modifier.family))
+				{
 					for (ModifierTier mtiers : m.tiers)
 						if (mtiers.level == level)
 							return true;
@@ -170,7 +177,8 @@ public class ComputingLastProbability {
 			ModifierEvent event,
 			int[] levels,
 			Crafting_Action.CurrencyTier[] tiers,
-			int i) {
+			int i,
+			boolean isDesired) {
 		Map<Crafting_Action, Double> source = event.source;
 		Crafting_Action action = source.keySet().iterator().next();
 		// Computing the percentage for the modifier and then applying the currency tier
@@ -178,19 +186,21 @@ public class ComputingLastProbability {
 
 		for (int j = 0; j < levels.length; j++) {
 			int level = levels[j];
-			Crafting_Action.CurrencyTier tier = tiers[j];
 
-			if (action instanceof RegalOrb) {
-				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values()) {
-					double percentage = Probability.ComputePercentage(baseItem, candidate, event, level, currentOmen,
-							i);
+			if (action instanceof RegalOrb)
+			{
+				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values())
+				{
+					double percentage = Probability.ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
 					if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
 						return true;
 				}
-			} else if (action instanceof ExaltedOrb) {
-				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values()) {
-					double percentage = Probability.ComputePercentage(baseItem, candidate, event, level, currentOmen,
-							i);
+			}
+			else if (action instanceof ExaltedOrb)
+			{
+				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values())
+				{
+					double percentage = Probability.ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
 					if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
 						return true;
 				}
@@ -199,9 +209,8 @@ public class ComputingLastProbability {
 		return false;
 	}
 
-	public static boolean ComputeLastEssence(Crafting_Candidate candidate, List<Modifier> desiredMod,
-			Crafting_Item baseItem,
-			int i) {
+	public static boolean ComputeLastEssence(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
+	{
 		ModifierEvent event = candidate.modifierHistory.get(i);
 
 		double percentage = 0;

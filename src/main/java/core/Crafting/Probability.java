@@ -273,16 +273,16 @@ public class Probability {
 					if (event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0 && suffixesFilled != 0)
 						return 1 / suffixesFilled;
 					else
-						return 1 / (prefixesFilled + suffixesFilled); // We have a chance out of all the modifiers on
-																		// the item
+						return 1 / (prefixesFilled + suffixesFilled); // We have a chance out of all the modifiers on the item
 				}
-				case OmenofSinistralCrystallisation: {
+				case OmenofSinistralCrystallisation:
+				{
 					if (event.modifier.type == ModifierType.PREFIX && prefixesFilled != 0)
-						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all
-													// the prefix modifiers
+						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all the prefix modifiers
 					break; // Break if it is a suffix
 				}
-				case OmenofDextralCrystallisation: {
+				case OmenofDextralCrystallisation:
+				{
 					if (event.modifier.type == ModifierType.SUFFIX && suffixesFilled != 0)
 						return 1 / suffixesFilled; // same
 					break;
@@ -292,8 +292,8 @@ public class Probability {
 		return 0;
 	}
 
-	public static double ComputePercentageAnnul(Crafting_Item baseItem, Crafting_Candidate candidate,
-			ModifierEvent event, Enum<?> omen, int i) {
+	public static double ComputePercentageAnnul(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i)
+	{
 		double prefixesFilled = 0;
 		double suffixesFilled = 0;
 
@@ -315,22 +315,23 @@ public class Probability {
 		if (omen instanceof AnnulmentOrb.Omen annulOmen) {
 			switch (annulOmen) {
 				case None: {
-					if (event.modifier.type == ModifierType.PREFIX && suffixesFilled == 0)
+					if (event.modifier.type == ModifierType.PREFIX && suffixesFilled == 0 && prefixesFilled != 0)
 						return 1 / prefixesFilled;
-					if (event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0)
+					if (event.modifier.type == ModifierType.SUFFIX && prefixesFilled == 0 && suffixesFilled != 0)
 						return 1 / suffixesFilled;
 					else
 						return 1 / (prefixesFilled + suffixesFilled); // We have a chance out of all the modifiers on
 																		// the item
 				}
-				case OmenofSinistralAnnulment: {
-					if (event.modifier.type == ModifierType.PREFIX)
-						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all
-													// the prefix modifiers
+				case OmenofSinistralAnnulment:
+				{
+					if (event.modifier.type == ModifierType.PREFIX && prefixesFilled != 0)
+						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all the prefix modifiers
 					break; // Break if it is a suffix
 				}
-				case OmenofDextralAnnulment: {
-					if (event.modifier.type == ModifierType.SUFFIX)
+				case OmenofDextralAnnulment:
+				{
+					if (event.modifier.type == ModifierType.SUFFIX && suffixesFilled != 0)
 						return 1 / suffixesFilled; // same
 					break;
 				}

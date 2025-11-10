@@ -12,11 +12,13 @@ public class CraftingExecutor {
     public static List<CandidateProbability> runCrafting(
             Crafting_Item baseItem,
             List<Modifier> desiredMod,
-            List<Modifier> undesiredMod
+            List<Modifier> undesiredMod,
+			double GLOBAL_THRESHOLD
     ) throws InterruptedException, ExecutionException {
-
+	
+		System.out.println("we in");
         // Run your crafting optimizer
-        List<Crafting_Candidate> candidates = Crafting_Algorithm.optimizeCrafting(baseItem, desiredMod, undesiredMod);
+        List<Crafting_Candidate> candidates = Crafting_Algorithm.optimizeCrafting(baseItem, desiredMod, undesiredMod, GLOBAL_THRESHOLD);
 
         // Compute probabilities
         Probability.ComputingProbability(candidates, desiredMod, baseItem);

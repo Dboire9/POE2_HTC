@@ -86,26 +86,26 @@ public class TestAlgo {
 		// System.out.println(" - " + mod.text + " (Tier " + 0 + ")");
 
 		// Try and catching if there is thread errors
-		try {
-			List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
-			long startTime = System.nanoTime(); // start timing
+		// try {
+		// 	List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
+		// 	long startTime = System.nanoTime(); // start timing
 
-			highScoreCandidates = Crafting_Algorithm.optimizeCrafting(item, desiredMod, undesiredMod);
+		// 	// highScoreCandidates = Crafting_Algorithm.optimizeCrafting(item, desiredMod, undesiredMod);
 
-			long endTime = System.nanoTime();   // end timing
-			long durationInMillis = (endTime - startTime) / 1_000_000; // convert to ms
+		// 	long endTime = System.nanoTime();   // end timing
+		// 	long durationInMillis = (endTime - startTime) / 1_000_000; // convert to ms
 
 			
-			// Calculating the sum of percentage to lead to the full 6 modifiers. Need to check for omens in some cases
-			Probability.ComputingProbability(highScoreCandidates, desiredMod, item);
-			Probability_Analyzer.Analyze(highScoreCandidates);
-			System.out.println("optimizeCrafting executed in " + durationInMillis + " ms");
-			System.out.println("End");
-		}
-		catch (InterruptedException | ExecutionException e)
-		{
-			e.printStackTrace();
-		}
+		// 	// Calculating the sum of percentage to lead to the full 6 modifiers. Need to check for omens in some cases
+		// 	Probability.ComputingProbability(highScoreCandidates, desiredMod, item);
+		// 	Probability_Analyzer.Analyze(highScoreCandidates);
+		// 	System.out.println("optimizeCrafting executed in " + durationInMillis + " ms");
+		// 	System.out.println("End");
+		// }
+		// catch (InterruptedException | ExecutionException e)
+		// {
+		// 	e.printStackTrace();
+		// }
 	}
 	
 }

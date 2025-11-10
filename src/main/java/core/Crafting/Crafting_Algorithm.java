@@ -28,7 +28,8 @@ public class Crafting_Algorithm {
 	public static List<Crafting_Candidate> optimizeCrafting(
 			Crafting_Item baseItem,
 			List<Modifier> desiredMods,
-			List<Modifier> undesiredMods) throws InterruptedException, ExecutionException {
+			List<Modifier> undesiredMods,
+			double GLOBAL_THRESHOLD) throws InterruptedException, ExecutionException {
 
 		// Initializing the threads based on the user specs
 		int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
@@ -93,7 +94,7 @@ public class Crafting_Algorithm {
 
 		List<List<Crafting_Candidate>> listOfCandidateLists_exalt_copy = new ArrayList<>();
 		for (List<Crafting_Candidate> candidates : listOfCandidateLists_copy) {
-			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem);
+			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, GLOBAL_THRESHOLD);
 			RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists,
 					listOfCandidateLists_exalt_copy, thread_executor);
 			// System.out.println();
@@ -108,7 +109,7 @@ public class Crafting_Algorithm {
 		listOfCandidateLists_exalt_copy.clear();
 
 		for (List<Crafting_Candidate> candidates : listOfCandidateLists_copy) {
-			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem);
+			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, GLOBAL_THRESHOLD);
 			RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists,
 					listOfCandidateLists_exalt_copy, thread_executor);
 			// System.out.println();
@@ -122,7 +123,7 @@ public class Crafting_Algorithm {
 		while (listOfCandidateLists_copy.size() != 0) {
 			for (List<Crafting_Candidate> candidates : listOfCandidateLists_copy) {
 				if (!candidates.isEmpty()) {
-					ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem);
+					ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, GLOBAL_THRESHOLD);
 					RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags,
 							listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
 				}
@@ -143,7 +144,7 @@ public class Crafting_Algorithm {
 
 		for (List<Crafting_Candidate> candidateList : listOfCandidateLists) {
 			for (Crafting_Candidate candidate : candidateList) {
-				if (candidate.score >= 6000)
+				if (candidate.score >= 6000 && candidate.getAllCurrentModifiers().size() >= 6)
 					highScoreCandidates.add(candidate);
 			}
 		}

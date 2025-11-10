@@ -19,7 +19,15 @@ import core.Modifier_class.ModifierTier;
 
 public class ComputingLastProbability {
 
-	public static final double GLOBAL_THRESHOLD = 0.15;
+	public static double GLOBAL_THRESHOLD = 0.50;
+
+	public static void setGlobalThreshold(double newValue) {
+        GLOBAL_THRESHOLD = newValue;
+    }
+
+	public static double getGlobalThreshold() {
+        return GLOBAL_THRESHOLD;
+    }
 
 	public static void ComputingLastEventProbability(List<Crafting_Candidate> completedPaths,
 			List<Modifier> desiredMod, Crafting_Item baseItem) {

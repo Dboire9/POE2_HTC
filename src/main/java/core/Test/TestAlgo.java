@@ -13,6 +13,7 @@ import core.Crafting.Crafting_Algorithm;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
 import core.Items.Amulets.Amulets;
+import core.Items.Bows.Bows;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
 import core.Crafting.Probability;
@@ -23,7 +24,7 @@ public class TestAlgo {
 
 		public static void main (String[] args){
 
-		Amulets testItem = new Amulets();
+		Bows testItem = new Bows();
 		Crafting_Item item = new Crafting_Item(testItem);
 
 

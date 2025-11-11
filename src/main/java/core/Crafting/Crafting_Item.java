@@ -11,7 +11,7 @@ import core.Crafting.Utils.ModifierEvent;
 
 import core.Items.Item_base;
 import core.Modifier_class.Modifier;
-import core.Modifier_class.Modifier.ModifierType;
+import core.Modifier_class.Modifier.*;
 import core.Modifier_class.ModifierTier;
 
 
@@ -216,11 +216,12 @@ public class Crafting_Item {
 				new_item.removePrefix(currentAffix);
 			else
 				new_item.removeSuffix(currentAffix);
+			
+			if(currentAffix.source == ModifierSource.DESECRATED) // If we remove a desecrated mod, it can be appleid desecration again
+				new_item.desecrated = false;
 	
 			// Record the removal event
-			new_item.modifierHistory.add(
-				new ModifierEvent(currentAffix, null, action, ModifierEvent.ActionType.REMOVED)
-			);
+			new_item.modifierHistory.add( new ModifierEvent(currentAffix, null, action, ModifierEvent.ActionType.REMOVED));
 	
 			// Add the modified item to the result list
 			Items_List.add(new_item);

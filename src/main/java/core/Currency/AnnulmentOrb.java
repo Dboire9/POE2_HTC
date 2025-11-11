@@ -16,7 +16,8 @@ public class AnnulmentOrb implements Crafting_Action {
 	public enum Omen { // Need to implement the real ones
         None,
         OmenofSinistralAnnulment,
-		OmenofDextralAnnulment
+		OmenofDextralAnnulment,
+		OmenofLight
     }
 
 	public Omen omen;

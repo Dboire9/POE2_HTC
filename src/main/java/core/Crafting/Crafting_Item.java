@@ -302,17 +302,6 @@ public class Crafting_Item {
 				currentSuffixTiers[i] = tier;
 		// System.out.println("No suffix slot available!");
 	}
-	
-	public void addPerfectEssence(Modifier mod, ModifierTier tier) {
-		for (int i = 0; i < currentSuffixes.length; i++) {
-			if (currentSuffixes[i] == null) {
-				currentSuffixes[i] = mod;
-				currentSuffixTiers[i] = tier; // store applied tier separately
-				return;
-			}
-		}
-		// System.out.println("No suffix slot available!");
-	}
 
 	// Removing modifiers
 	public void removePrefix(int index) {
@@ -321,11 +310,6 @@ public class Crafting_Item {
 
 	public void removeSuffix(int index) {
 		currentSuffixes[index] = null;
-	}
-
-	public void clearModifiers() {
-		Arrays.fill(currentPrefixes, null);
-		Arrays.fill(currentSuffixes, null);
 	}
 
 	// Utils for getting the tags for homog omens

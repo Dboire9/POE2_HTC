@@ -46,8 +46,7 @@ public class Crafting_Algorithm {
 
 		// Transmuting the item (first step)
 		TransmutationOrb transmutationOrb = new TransmutationOrb();
-		FirstCandidateList = transmutationOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
-				undesiredMods);
+		FirstCandidateList = transmutationOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateList));
 
 		// Making a copy of all the candidate list to use after

@@ -112,19 +112,22 @@ public class ItemSelectionController {
 				try {
 					List<Probability_Analyzer.CandidateProbability> results;
 					
-					double maxRetries = 100; // limit to avoid infinite looping
+					double maxRetries = 50; // limit to avoid infinite looping
 					double attempt = 0;
+					double GLOBALTHRESHOLD = 50;
 					List<Modifier> undesiredModifiers = new ArrayList<>();
-					System.out.println(maxRetries / 100);
-					results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, maxRetries / 100);
+					System.out.println(GLOBALTHRESHOLD / 100);
+					results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, GLOBALTHRESHOLD / 100);
 					
-					while (results.isEmpty() && maxRetries > 0)
+					while (results.isEmpty() && attempt < maxRetries)
 					{
+							item.rarity = Crafting_Item.ItemRarity.NORMAL;
+							undesiredModifiers.clear();
 							System.out.println("Deadge (attempt " + (attempt + 1) + ")");
 							// decrease global threshold but not below 0
-							System.out.println(maxRetries / 100);
-							results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, maxRetries / 100);
-							maxRetries--;
+							System.out.println(GLOBALTHRESHOLD / 100);
+							results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, GLOBALTHRESHOLD / 100);
+							GLOBALTHRESHOLD--;
 							attempt++;
 					}
 					if (results.isEmpty()) {
@@ -140,7 +143,7 @@ public class ItemSelectionController {
 								System.out.println("  " + action + " → " + (percentage * 100) + "%");
 							});
 							System.out.println("-----------------------------------");
-							System.out.println(maxRetries / 100);
+							System.out.println(GLOBALTHRESHOLD / 100);
 						}
 					}
 

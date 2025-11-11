@@ -273,10 +273,15 @@ public class Crafting_Algorithm {
 		};
 
 		Callable<List<Crafting_Candidate>> task4 = () -> {
-			if (!FirstCandidateList.isEmpty()) {
-				Essence_currency essence_currency = new Essence_currency();
-				return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
-						undesiredMods);
+			// Like the annul we check if the last thing we applied was not a essence
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty())
+			{
+				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
+				if (lastEvent.type != ActionType.CHANGED) {
+					Essence_currency essence_currency = new Essence_currency();
+					return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
+							undesiredMods);
+				}
 			}
 			return new ArrayList<>();
 		};

@@ -30,6 +30,8 @@ public class TestAlgo {
         // Get allowed prefixes and suffixes for the item
         List<Modifier> possiblePrefixes = testItem.getNormalAllowedPrefixes();
         List<Modifier> possibleSuffixes = testItem.getNormalAllowedSuffixes();
+		List<Modifier> possibleEssencesPrefixes = testItem.getEssencesAllowedPrefixes();
+        List<Modifier> possibleEssencesSuffixes = testItem.getEssencesAllowedSuffixes();
 
         List<ModifierTier> desiredModTier = new ArrayList<>();
         List<Modifier> desiredMods = new ArrayList<>();
@@ -39,10 +41,30 @@ public class TestAlgo {
 
         // --- RANDOM MODIFIER SELECTION ---
         // Randomly select up to 3 prefixes
-        selectRandomModifiers(possiblePrefixes, desiredMods, desiredModTier, usedModifiers, random);
+        // selectRandomModifiers(possiblePrefixes, desiredMods, desiredModTier, usedModifiers, random);
 
         // Randomly select up to 3 suffixes
-        selectRandomModifiers(possibleSuffixes, desiredMods, desiredModTier, usedModifiers, random);
+        // selectRandomModifiers(possibleSuffixes, desiredMods, desiredModTier, usedModifiers, random);
+
+		desiredMods.add(possiblePrefixes.get(0));
+		desiredModTier.add(possiblePrefixes.get(0).tiers.get(0));
+		System.out.println(possiblePrefixes.get(0).text);
+		desiredMods.add(possiblePrefixes.get(4));
+		desiredModTier.add(possiblePrefixes.get(4).tiers.get(0));
+		System.out.println(possiblePrefixes.get(4).text);
+		desiredMods.add(possibleEssencesPrefixes.get(8));
+		desiredModTier.add(possibleEssencesPrefixes.get(8).tiers.get(0));
+		System.out.println(possibleEssencesPrefixes.get(8).text);
+		desiredMods.add(possibleEssencesSuffixes.get(4));
+		desiredModTier.add(possibleEssencesSuffixes.get(4).tiers.get(0));
+		System.out.println(possibleEssencesSuffixes.get(4).text);
+		desiredMods.add(possibleEssencesSuffixes.get(5));
+		desiredModTier.add(possibleEssencesSuffixes.get(5).tiers.get(0));
+		System.out.println(possibleEssencesSuffixes.get(5).text);
+		desiredMods.add(possibleSuffixes.get(9));
+		desiredModTier.add(possibleSuffixes.get(9).tiers.get(0));
+		System.out.println(possibleSuffixes.get(9).text);
+
 
         // --- CRAFTING EXECUTION SECTION ---
         double GLOBALTHRESHOLD = 20;
@@ -114,7 +136,7 @@ public class TestAlgo {
                                        double threshold,
                                        List<Modifier> desiredMods)
 	{
-        for (int i = 0; i < Math.min(10, results.size()); i++) {
+        for (int i = 0; i < Math.min(1, results.size()); i++) {
             Probability_Analyzer.CandidateProbability cp = results.get(i);
             System.out.println("Result #" + (i + 1) + " — Final %: " + cp.finalPercentage());
             System.out.println("Best Path:");

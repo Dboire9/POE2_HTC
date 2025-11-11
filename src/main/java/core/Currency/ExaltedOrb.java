@@ -43,8 +43,14 @@ public class ExaltedOrb implements Crafting_Action {
 
 		List<Modifier> all_Affix_modifiers = new ArrayList<>();
 		
-		all_Affix_modifiers.addAll(item.base.getNormalAllowedPrefixes());
-		all_Affix_modifiers.addAll(item.base.getNormalAllowedSuffixes());
+		if(item.getAllCurrentPrefixModifiers().size() != 3)
+			all_Affix_modifiers.addAll(item.base.getNormalAllowedPrefixes());
+		if(item.getAllCurrentSuffixModifiers().size() != 3)
+			all_Affix_modifiers.addAll(item.base.getNormalAllowedSuffixes());
+		
+		if(all_Affix_modifiers.isEmpty())
+			return CandidateListCopy;
+
 
 		for (Crafting_Candidate candidate : CandidateList)
 			CandidateListCopy.addAll(evaluateAffixes(all_Affix_modifiers, item, candidate, desiredMods, CountDesiredModifierTags, undesiredMods));

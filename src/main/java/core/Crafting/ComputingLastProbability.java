@@ -64,8 +64,7 @@ public class ComputingLastProbability {
 
 		if (action instanceof Desecrated_currency) {
 			for (Desecrated_currency.Omen currentOmen : Desecrated_currency.Omen.values()) {
-				percentage = Probability.ComputePercentageDesecrated_currency(baseItem, candidate, event, currentOmen,
-						i);
+				percentage = Probability.ComputePercentageDesecrated_currency(baseItem, candidate, event, currentOmen, i);
 				if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
 					return true;
 			}
@@ -222,9 +221,6 @@ public class ComputingLastProbability {
 				percentage = Probability.ComputePercentageEssence(baseItem, candidate, event, currentOmen, i);
 				if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
 					return true;
-				if (Double.isInfinite(percentage)) {
-					System.out.println("Wtf");
-				}
 			}
 		}
 		return false;

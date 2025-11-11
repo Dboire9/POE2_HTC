@@ -8,10 +8,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import core.Crafting.CraftingExecutor;
 import core.Crafting.Crafting_Algorithm;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
-import core.Items.Bows.Bows;
+import core.Items.Amulets.Amulets;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
 import core.Crafting.Probability;
@@ -22,7 +23,7 @@ public class TestAlgo {
 
 		public static void main (String[] args){
 
-		Bows testItem = new Bows();
+		Amulets testItem = new Amulets();
 		Crafting_Item item = new Crafting_Item(testItem);
 
 
@@ -90,24 +91,34 @@ public class TestAlgo {
 		try {
 			List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
 			long startTime = System.nanoTime(); // start timing
+			List<Probability_Analyzer.CandidateProbability> results;
+			results = CraftingExecutor.runCrafting(item, desiredMod, undesiredMod, GLOBALTHRESHOLD / 100);
 
-			while(highScoreCandidates.isEmpty())
+			while(results.isEmpty())
 			{
-				highScoreCandidates = Crafting_Algorithm.optimizeCrafting(item, desiredMod, undesiredMod, GLOBALTHRESHOLD / 100);
 				item.rarity = Crafting_Item.ItemRarity.NORMAL;
-				undesiredMod.clear();
 				GLOBALTHRESHOLD--;
+				undesiredMod.clear();
+				results = CraftingExecutor.runCrafting(item, desiredMod, undesiredMod, GLOBALTHRESHOLD / 100);
 			}
 
 			long endTime = System.nanoTime();   // end timing
 			long durationInMillis = (endTime - startTime) / 1_000_000; // convert to ms
 
-			
-			// Calculating the sum of percentage to lead to the full 6 modifiers. Need to check for omens in some cases
-			Probability.ComputingProbability(highScoreCandidates, desiredMod, item);
-			Probability_Analyzer.Analyze(highScoreCandidates);
 			System.out.println("optimizeCrafting executed in " + durationInMillis + " ms");
 			System.out.println("End");
+
+			for (int i = 0; i < Math.min(10, results.size()); i++) {
+				Probability_Analyzer.CandidateProbability cp = results.get(i);
+				System.out.println("Result #" + (i + 1) + " — Final %: " + cp.finalPercentage());
+				System.out.println("Best Path:");
+				cp.bestPath().forEach((action, percentage) -> {
+					System.out.println("  " + action + " → " + (percentage * 100) + "%");
+				});
+				System.out.println("-----------------------------------");
+				System.out.println(GLOBALTHRESHOLD / 100);
+			}
+			System.out.println("Finished");
 		}
 		catch (InterruptedException | ExecutionException e)
 		{

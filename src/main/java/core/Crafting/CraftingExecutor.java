@@ -16,7 +16,6 @@ public class CraftingExecutor {
 			double GLOBAL_THRESHOLD
     ) throws InterruptedException, ExecutionException {
 	
-		System.out.println("we in");
         // Run your crafting optimizer
         List<Crafting_Candidate> candidates = Crafting_Algorithm.optimizeCrafting(baseItem, desiredMod, undesiredMod, GLOBAL_THRESHOLD);
 

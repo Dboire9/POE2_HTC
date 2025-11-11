@@ -105,9 +105,9 @@ public class Crafting_Item {
 				Crafting_Item new_item = item.copy();
 
 				// Apply the modifier with the lowest tier
-				if (m.type == ModifierType.PREFIX)
+				if (m.type == ModifierType.PREFIX && item.getAllCurrentPrefixModifiers().size() != 3)
 					new_item.addPrefix(m, lowestTier);
-				else
+				else if (item.getAllCurrentSuffixModifiers().size() != 3)
 					new_item.addSuffix(m, lowestTier);
 
 				// Add the new item to the list
@@ -141,6 +141,8 @@ public class Crafting_Item {
 							continue;
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = item.copy();
+						if(new_item_copy.currentPrefixes[i].source == ModifierSource.DESECRATED)
+							new_item_copy.desecrated = false;
 						new_item_copy.currentPrefixes[i] = null;
 						new_item_copy.currentPrefixTiers[i] = null;
 						new_item_copy.addPrefix(m, lowestTier);
@@ -154,6 +156,8 @@ public class Crafting_Item {
 							continue;
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = item.copy();
+						if(new_item_copy.currentSuffixes[i].source == ModifierSource.DESECRATED)
+							new_item_copy.desecrated = false;
 						new_item_copy.currentSuffixes[i] = null;
 						new_item_copy.currentSuffixTiers[i] = null;
 						new_item_copy.addSuffix(m, lowestTier);
@@ -169,6 +173,8 @@ public class Crafting_Item {
 							continue;
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = item.copy();
+						if(new_item_copy.currentPrefixes[i].source == ModifierSource.DESECRATED)
+							new_item_copy.desecrated = false;
 						new_item_copy.currentPrefixes[i] = null;
 						new_item_copy.currentPrefixTiers[i] = null;
 						if(m.type == ModifierType.PREFIX)
@@ -184,6 +190,8 @@ public class Crafting_Item {
 							continue;
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = item.copy();
+						if(new_item_copy.currentSuffixes[i].source == ModifierSource.DESECRATED)
+							new_item_copy.desecrated = false;
 						new_item_copy.currentSuffixes[i] = null;
 						new_item_copy.currentSuffixTiers[i] = null;
 						if(m.type == ModifierType.PREFIX)

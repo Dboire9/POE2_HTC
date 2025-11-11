@@ -67,7 +67,7 @@ public class TestAlgo {
 
 
         // --- CRAFTING EXECUTION SECTION ---
-        double GLOBALTHRESHOLD = 20;
+        double GLOBALTHRESHOLD = 50;
 
         try {
             long startTime = System.nanoTime();

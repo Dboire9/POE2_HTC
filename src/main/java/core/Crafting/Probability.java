@@ -246,14 +246,17 @@ public class Probability {
 				}
 				case OmenofSinistralCrystallisation:
 				{
-					if (event.modifier.type == ModifierType.PREFIX && prefixesFilled != 0)
-						return 1 / prefixesFilled; // We only calculate the chance of removing the modifier out of all the prefix modifiers
-					break; // Break if it is a suffix
+					// Removes only PREFIX modifiers → ignore suffixes
+					if (prefixesFilled != 0)
+						return 1.0 / prefixesFilled;
+					break;
 				}
+				
 				case OmenofDextralCrystallisation:
 				{
-					if (event.modifier.type == ModifierType.SUFFIX && suffixesFilled != 0)
-						return 1 / suffixesFilled; // same
+					// Removes only SUFFIX modifiers → ignore prefixes
+					if (suffixesFilled != 0)
+						return 1.0 / suffixesFilled;
 					break;
 				}
 			}

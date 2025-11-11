@@ -89,14 +89,13 @@ public class TestAlgo {
 		// Try and catching if there is thread errors
 		double GLOBALTHRESHOLD = 80;
 		try {
-			List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
 			long startTime = System.nanoTime(); // start timing
 			List<Probability_Analyzer.CandidateProbability> results;
 			results = CraftingExecutor.runCrafting(item, desiredMod, undesiredMod, GLOBALTHRESHOLD / 100);
 
 			while(results.isEmpty())
 			{
-				item.rarity = Crafting_Item.ItemRarity.NORMAL;
+				item.reset();
 				GLOBALTHRESHOLD--;
 				undesiredMod.clear();
 				results = CraftingExecutor.runCrafting(item, desiredMod, undesiredMod, GLOBALTHRESHOLD / 100);
@@ -118,6 +117,9 @@ public class TestAlgo {
 				System.out.println("-----------------------------------");
 				System.out.println(GLOBALTHRESHOLD / 100);
 			}
+
+			for (Modifier mods : desiredMod)
+				System.out.println("Desired mods" + mods.text);
 			System.out.println("Finished");
 		}
 		catch (InterruptedException | ExecutionException e)

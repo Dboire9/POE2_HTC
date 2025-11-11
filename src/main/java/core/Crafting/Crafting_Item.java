@@ -78,6 +78,14 @@ public class Crafting_Item {
 
 	public Crafting_Item() {};
 
+	public void reset()
+	{
+		this.rarity = ItemRarity.NORMAL;
+		this.desecrated = false;
+		this.score = 0;
+		this.prev_score = 0;
+	}
+
 
 	// Adding an affix 
 	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, Map<Crafting_Action, Double> action, List<Modifier> undesiredMods)

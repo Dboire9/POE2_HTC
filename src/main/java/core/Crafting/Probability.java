@@ -196,7 +196,7 @@ public class Probability {
 			}
 		}
 
-		return percentage;
+		return 1;
 	}
 
 	public static void ComputeEssence(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem,
@@ -212,9 +212,6 @@ public class Probability {
 				percentage = ComputePercentageEssence(baseItem, candidate, event, currentOmen, i);
 				if (percentage != 0)
 					candidate.modifierHistory.get(i).source.put(new Essence_currency(currentOmen), percentage);
-				if (Double.isInfinite(percentage)) {
-					System.out.println("Wtf");
-				}
 			}
 		}
 	}
@@ -364,7 +361,8 @@ public class Probability {
 					 */
 					if(candidate.desecrated == false && (ilvl == 0 || ilvl == 40))
 					{
-						percentage = 1 - Math.pow(1 - percentage, 3);
+						// percentage = 1 - Math.pow(1 - percentage, 3);
+						percentage = 1; // 100% chance because we can go again each time ? 
 						event.modifier.source = ModifierSource.DESECRATED;
 						candidate.desecrated = true;
 					}
@@ -397,7 +395,8 @@ public class Probability {
 						percentage =  NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
 						if(candidate.desecrated == false) // If we do not have a desecration on the item, here we simulate the fact of having the modifier with a desecration
 						{
-							percentage = 1 - Math.pow(1 - percentage, 3);
+							// percentage = 1 - Math.pow(1 - percentage, 3);
+							percentage = 1;
 							event.modifier.source = ModifierSource.DESECRATED;
 							candidate.desecrated = true;
 						}
@@ -413,7 +412,8 @@ public class Probability {
 						percentage =  NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
 						if(candidate.desecrated == false) // If we do not have a desecration on the item, here we simulate the fact of having the modifier with a desecration
 						{
-							percentage = 1 - Math.pow(1 - percentage, 3);
+							// percentage = 1 - Math.pow(1 - percentage, 3);
+							percentage = 1;
 							event.modifier.source = ModifierSource.DESECRATED;
 							candidate.desecrated = true;
 						}

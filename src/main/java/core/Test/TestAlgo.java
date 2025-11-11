@@ -80,7 +80,8 @@ public class TestAlgo {
                                               List<Modifier> desiredMods,
                                               List<ModifierTier> desiredModTier,
                                               Set<String> usedModifiers,
-                                              Random random) {
+                                              Random random)
+	{
         for (int i = 0; i < 3 && !possibleMods.isEmpty(); i++) {
             Modifier mod = possibleMods.get(random.nextInt(possibleMods.size()));
             if (usedModifiers.contains(mod.text)) {
@@ -111,8 +112,8 @@ public class TestAlgo {
      */
     private static void displayResults(List<Probability_Analyzer.CandidateProbability> results,
                                        double threshold,
-                                       List<Modifier> desiredMods) {
-
+                                       List<Modifier> desiredMods)
+	{
         for (int i = 0; i < Math.min(10, results.size()); i++) {
             Probability_Analyzer.CandidateProbability cp = results.get(i);
             System.out.println("Result #" + (i + 1) + " — Final %: " + cp.finalPercentage());

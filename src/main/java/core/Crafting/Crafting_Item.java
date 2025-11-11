@@ -153,7 +153,7 @@ public class Crafting_Item {
 				else
 				{
 					// We need to look for the modifier type and add the perfect essence only on it, but removing all the affixes we can
-					for(int i = 0; i <= item.getAllCurrentPrefixModifiers().size() - 1; i++)
+					for(int i = 0; i < 3; i++)
 					{
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = new_item.copy();
@@ -162,6 +162,8 @@ public class Crafting_Item {
 							new_item_copy.currentPrefixes[i] = null;
 							new_item_copy.currentPrefixTiers[i] = null;
 						}
+						else
+							continue;
 						if(m.type == ModifierType.PREFIX)
 							new_item_copy.addPrefix(m, lowestTier);
 						else
@@ -169,7 +171,7 @@ public class Crafting_Item {
 						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
 						Items_List.add(new_item_copy);
 					}
-					for(int i = 0; i <= item.getAllCurrentSuffixModifiers().size() - 1; i++)
+					for(int i = 0; i < 3; i++)
 					{
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = new_item.copy();
@@ -178,6 +180,8 @@ public class Crafting_Item {
 							new_item_copy.currentSuffixes[i] = null;
 							new_item_copy.currentSuffixTiers[i] = null;
 						}
+						else
+							continue;
 						if(m.type == ModifierType.PREFIX)
 							new_item_copy.addPrefix(m, lowestTier);
 						else
@@ -270,8 +274,8 @@ public class Crafting_Item {
 	public void addPrefix(Modifier mod, ModifierTier tier) {
 		for (int i = 0; i < currentPrefixes.length; i++) {
 			if (currentPrefixes[i] == null) {
-				currentPrefixes[i] = mod;
-				currentPrefixTiers[i] = tier; // store applied tier separately
+				this.currentPrefixes[i] = mod;
+				this.currentPrefixTiers[i] = tier; // store applied tier separately
 				return;
 			}
 		}
@@ -282,8 +286,8 @@ public class Crafting_Item {
 	public void addSuffix(Modifier mod, ModifierTier tier) {
 		for (int i = 0; i < currentSuffixes.length; i++) {
 			if (currentSuffixes[i] == null) {
-				currentSuffixes[i] = mod;
-				currentSuffixTiers[i] = tier; // store applied tier separately
+				this.currentSuffixes[i] = mod;
+				this.currentSuffixTiers[i] = tier; // store applied tier separately
 				return;
 			}
 		}
@@ -292,14 +296,14 @@ public class Crafting_Item {
 	
 	// Replacing the mod for the perfect essence
 	public void addPerfectEssencePrefixOnly(Modifier mod, ModifierTier tier, int i) {
-		currentPrefixes[i] = mod;
-		currentPrefixTiers[i] = tier; // store applied tier separately
+		this.currentPrefixes[i] = mod;
+		this.currentPrefixTiers[i] = tier; // store applied tier separately
 		// System.out.println("No prefix slot available!");
 	}
 	
 	public void addPerfectEssenceSuffixOnly(Modifier mod, ModifierTier tier, int i) {
-				currentSuffixes[i] = mod;
-				currentSuffixTiers[i] = tier;
+				this.currentSuffixes[i] = mod;
+				this.currentSuffixTiers[i] = tier;
 		// System.out.println("No suffix slot available!");
 	}
 
@@ -309,7 +313,7 @@ public class Crafting_Item {
 	}
 
 	public void removeSuffix(int index) {
-		currentSuffixes[index] = null;
+		this.currentSuffixes[index] = null;
 	}
 
 	// Utils for getting the tags for homog omens

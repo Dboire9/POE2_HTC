@@ -273,16 +273,6 @@ public class Crafting_Algorithm {
 		};
 
 		Callable<List<Crafting_Candidate>> task4 = () -> {
-			// Like the annul we check if the last thing we applied was not a essence
-			// if(FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6 &&
-			// FirstCandidateList.get(0).getAllCurrentModifiers().size() > 4 &&
-			// lastEvent.type == ActionType.CHANGED)
-			// {
-			// System.err.println(FirstCandidateList.get(0).modifierHistory);
-			// System.err.println("\n");
-			// System.err.println(FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size()
-			// - 1));
-			// }
 			if (!FirstCandidateList.isEmpty()) {
 				Essence_currency essence_currency = new Essence_currency();
 				return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,

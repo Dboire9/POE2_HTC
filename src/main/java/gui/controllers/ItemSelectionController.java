@@ -112,9 +112,9 @@ public class ItemSelectionController {
 				try {
 					List<Probability_Analyzer.CandidateProbability> results;
 					
-					double maxRetries = 50; // limit to avoid infinite looping
+					double maxRetries = 25; // limit to avoid infinite looping
 					double attempt = 0;
-					double GLOBALTHRESHOLD = 50;
+					double GLOBALTHRESHOLD = 25;
 					List<Modifier> undesiredModifiers = new ArrayList<>();
 					System.out.println(GLOBALTHRESHOLD / 100);
 					results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, GLOBALTHRESHOLD / 100);

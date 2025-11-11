@@ -81,6 +81,13 @@ public interface Crafting_Action {
 		Map<Crafting_Action, Double> actionMap = new HashMap<>();
 		actionMap.put(this, 0.0);
 		item = candidate.copy();
+
+		// if(item.currentSuffixes[0] != null && item.currentSuffixes[1] != null && item.currentSuffixes[2] != null)
+		// 	if(item.currentSuffixes[0].family.contains(desiredMods.get(3).family) && item.currentSuffixes[1].family.contains(desiredMods.get(4).family) && item.currentSuffixes[2].family.contains(desiredMods.get(5).family))
+		// 		System.out.println( desiredMods.get(4).family);
+
+
+
 		if(this instanceof Essence_currency)
 			Item_Evaluation = item.addPerfectEssenceAffixes(modifiers, item, actionMap, desiredMods);
 		else

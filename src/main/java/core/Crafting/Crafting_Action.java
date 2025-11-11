@@ -96,19 +96,19 @@ public interface Crafting_Action {
 			// We might need to tweak this a lot to find the better option
 				switch (affixes) {
 					case 3:
-						if (score < 2100)
+						if (score < 1900)
 							continue;
 						break;
 					case 4:
-						if (score < 3100)
+						if (score < 2900)
 							continue;
 						break;
 					case 5:
-						if (score < 4100)
+						if (score < 3900)
 							continue;
 						break;
 					case 6:
-						if (score < 5100)
+						if (score < 4900)
 							continue;
 				}
 				// if (score < 5200)
@@ -145,19 +145,19 @@ public interface Crafting_Action {
 			{
 				switch (affixes) {
 					case 3:
-						if (score < 2100)
+						if (score < 1900)
 							continue;
 						break;
 					case 4:
-						if (score < 3100)
+						if (score < 2900)
 							continue;
 						break;
 					case 5:
-						if (score < 4100)
+						if (score < 3900)
 							continue;
 						break;
 					case 6:
-						if (score < 5100)
+						if (score < 4900)
 							continue;
 				}
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);

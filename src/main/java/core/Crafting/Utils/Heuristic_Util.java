@@ -10,30 +10,31 @@ import java.util.stream.Collectors;
 import core.Modifier_class.Modifier;
 
 public class Heuristic_Util {
-		public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<Modifier> desiredModTier, Map<String, Integer> CountDesiredModifierTags) {
-		int score = 0;
-		int matched_modifiers = 0;
-		int affix_slots = 0;
-
-		// Build a set of desired names for faster lookup
-        Set<String> desiredModifierTexts = desiredModTier.stream()
-                .map(t -> t.text) // Use the text field instead of name
-                .collect(Collectors.toSet());
-
-		List<Modifier> unmatchedMods = new ArrayList<>();
-
-		// Comparing with text, so that the essences can match
-        for (Modifier mod : AffixCurrentMods)
+		public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<Modifier> desiredModTier, Map<String, Integer> CountDesiredModifierTags)
 		{
-            if (mod.is_desired_mod || desiredModifierTexts.contains(mod.text))
-            {
-				mod.is_desired_mod = true;
-				matched_modifiers++;
-            }
-			else
-				unmatchedMods.add(mod);
-            affix_slots++;
-        }
+			int score = 0;
+			int matched_modifiers = 0;
+			int affix_slots = 0;
+
+			// Build a set of desired names for faster lookup
+			Set<String> desiredModifierTexts = desiredModTier.stream()
+					.map(t -> t.text) // Use the text field instead of name
+					.collect(Collectors.toSet());
+
+			List<Modifier> unmatchedMods = new ArrayList<>();
+
+			// Comparing with text, so that the essences can match
+			for (Modifier mod : AffixCurrentMods)
+			{
+				if (mod.is_desired_mod || desiredModifierTexts.contains(mod.text))
+				{
+					mod.is_desired_mod = true;
+					matched_modifiers++;
+				}
+				else
+					unmatchedMods.add(mod);
+				affix_slots++;
+			}
 
 		
 			// If matched modifiers are equal to the slots in the item, add score, so 6000 is the goal to reach(?)

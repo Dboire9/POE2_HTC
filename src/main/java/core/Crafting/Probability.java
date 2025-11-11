@@ -362,7 +362,7 @@ public class Probability {
 					if(candidate.desecrated == false && (ilvl == 0 || ilvl == 40))
 					{
 						// percentage = 1 - Math.pow(1 - percentage, 3);
-						percentage = 1; // 100% chance because we can go again each time ? 
+						percentage = 2; // 100% chance because we can go again each time ? 
 						event.modifier.source = ModifierSource.DESECRATED;
 						candidate.desecrated = true;
 					}
@@ -396,7 +396,7 @@ public class Probability {
 						if(candidate.desecrated == false) // If we do not have a desecration on the item, here we simulate the fact of having the modifier with a desecration
 						{
 							// percentage = 1 - Math.pow(1 - percentage, 3);
-							percentage = 1;
+							percentage = 2;
 							event.modifier.source = ModifierSource.DESECRATED;
 							candidate.desecrated = true;
 						}
@@ -413,7 +413,7 @@ public class Probability {
 						if(candidate.desecrated == false) // If we do not have a desecration on the item, here we simulate the fact of having the modifier with a desecration
 						{
 							// percentage = 1 - Math.pow(1 - percentage, 3);
-							percentage = 1;
+							percentage = 2;
 							event.modifier.source = ModifierSource.DESECRATED;
 							candidate.desecrated = true;
 						}
@@ -534,6 +534,9 @@ public class Probability {
 			int level = levels[j];
 			Crafting_Action.CurrencyTier tier = tiers[j];
 
+			if(tier == Crafting_Action.CurrencyTier.DES_CURRENCY && candidate.desecrated)
+				return;
+
 			if (action instanceof RegalOrb)
 			{
 				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values())
@@ -548,7 +551,9 @@ public class Probability {
 				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values())
 				{
 					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
-					if (percentage != 0)
+					if(percentage == 2)
+						source.put(new ExaltedOrb(Crafting_Action.CurrencyTier.DES_CURRENCY, currentOmen), percentage); // Doing this the ugly way for now
+					else if (percentage != 0)
 						source.put(new ExaltedOrb(tier, currentOmen), percentage);
 				}
 			}

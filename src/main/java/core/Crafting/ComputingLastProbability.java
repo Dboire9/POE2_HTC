@@ -92,16 +92,15 @@ public class ComputingLastProbability {
 				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE };
 			} else if (level < 50) {
 				levels = new int[] { 0, 35, 40 };
-				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER };
+				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER, CurrencyTier.DES_CURRENCY };
 			} else {
 				levels = new int[] { 0, 35, 40, 50 };
-				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER,
-						CurrencyTier.PERFECT };
+				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER, CurrencyTier.DES_CURRENCY, CurrencyTier.PERFECT };
 			}
 
 			Crafting_Action action = event.source.keySet().iterator().next();
 
-			if (applyLastTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired, GLOBAL_THRESHOLD))
+			if (applyLastTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired, GLOBAL_THRESHOLD, null))
 				return true;
 			if (action instanceof RegalOrb)
 				return canBeEssence(baseItem, candidate, event, level, realtier, i);
@@ -176,7 +175,8 @@ public class ComputingLastProbability {
 			Crafting_Action.CurrencyTier[] tiers,
 			int i,
 			boolean isDesired,
-			double GLOBAL_THRESHOLD) {
+			double GLOBAL_THRESHOLD, 
+			Crafting_Action.CurrencyTier tier) {
 		Map<Crafting_Action, Double> source = event.source;
 		Crafting_Action action = source.keySet().iterator().next();
 		// Computing the percentage for the modifier and then applying the currency tier

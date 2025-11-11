@@ -119,7 +119,7 @@ public class Crafting_Item {
 	}
 	
 	// Adding a perfect essence affix
-	public List<Crafting_Item> addPerfectEssenceAffixes(List<Modifier> mod, Crafting_Item item, Map<Crafting_Action, Double> action)
+	public List<Crafting_Item> addPerfectEssenceAffixes(List<Modifier> mod, Crafting_Item item, Map<Crafting_Action, Double> action, List<Modifier> desiredMods)
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
 		List<String> Item_family = new ArrayList<>();
@@ -132,38 +132,45 @@ public class Crafting_Item {
 			//Check if the family is already on the item
 			if(!Item_family.contains(m.family))
 			{
-				// Create a copy of the item
-				Crafting_Item new_item = item.copy();
 
 				// If we want to apply a perfect essence that goes on a prefix but prefixes are full, we only remove and add on prefixes
 				if (m.type == ModifierType.PREFIX && item.getAllCurrentPrefixModifiers().size() >= 3)
 					for(int i = 0; i < 3; i++)
 					{
-						new_item.addPerfectEssencePrefixOnly(m, lowestTier, i);
-						new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
-						Items_List.add(new_item);
+						if(desiredMods.contains(currentPrefixes[i]))
+							continue;
+						Crafting_Item new_item_copy = new Crafting_Item();
+						new_item_copy = item.copy();
+						new_item_copy.currentPrefixes[i] = null;
+						new_item_copy.currentPrefixTiers[i] = null;
+						new_item_copy.addPrefix(m, lowestTier);
+						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						Items_List.add(new_item_copy);
 					}
 				else if (m.type == ModifierType.SUFFIX && item.getAllCurrentSuffixModifiers().size() >= 3)
 					for(int i = 0; i < 3; i++)
 					{
-						new_item.addPerfectEssenceSuffixOnly(m, lowestTier, i);
-						new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
-						Items_List.add(new_item);
+						if(desiredMods.contains(currentSuffixes[i]))
+							continue;
+						Crafting_Item new_item_copy = new Crafting_Item();
+						new_item_copy = item.copy();
+						new_item_copy.currentSuffixes[i] = null;
+						new_item_copy.currentSuffixTiers[i] = null;
+						new_item_copy.addSuffix(m, lowestTier);
+						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						Items_List.add(new_item_copy);
 					}
 				else
 				{
 					// We need to look for the modifier type and add the perfect essence only on it, but removing all the affixes we can
 					for(int i = 0; i < 3; i++)
 					{
-						Crafting_Item new_item_copy = new Crafting_Item();
-						new_item_copy = new_item.copy();
-						if(currentPrefixes[i] != null && currentPrefixes[i].text != null)
-						{
-							new_item_copy.currentPrefixes[i] = null;
-							new_item_copy.currentPrefixTiers[i] = null;
-						}
-						else
+						if(currentPrefixes[i] == null || desiredMods.contains(currentPrefixes[i]))
 							continue;
+						Crafting_Item new_item_copy = new Crafting_Item();
+						new_item_copy = item.copy();
+						new_item_copy.currentPrefixes[i] = null;
+						new_item_copy.currentPrefixTiers[i] = null;
 						if(m.type == ModifierType.PREFIX)
 							new_item_copy.addPrefix(m, lowestTier);
 						else
@@ -173,15 +180,12 @@ public class Crafting_Item {
 					}
 					for(int i = 0; i < 3; i++)
 					{
-						Crafting_Item new_item_copy = new Crafting_Item();
-						new_item_copy = new_item.copy();
-						if(currentSuffixes[i] != null && currentSuffixes[i].text != null)
-						{
-							new_item_copy.currentSuffixes[i] = null;
-							new_item_copy.currentSuffixTiers[i] = null;
-						}
-						else
+						if(currentSuffixes[i] == null || desiredMods.contains(currentSuffixes[i]))
 							continue;
+						Crafting_Item new_item_copy = new Crafting_Item();
+						new_item_copy = item.copy();
+						new_item_copy.currentSuffixes[i] = null;
+						new_item_copy.currentSuffixTiers[i] = null;
 						if(m.type == ModifierType.PREFIX)
 							new_item_copy.addPrefix(m, lowestTier);
 						else

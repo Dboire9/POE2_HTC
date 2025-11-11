@@ -82,7 +82,7 @@ public interface Crafting_Action {
 		actionMap.put(this, 0.0);
 		item = candidate.copy();
 		if(this instanceof Essence_currency)
-			Item_Evaluation = item.addPerfectEssenceAffixes(modifiers, item, actionMap);
+			Item_Evaluation = item.addPerfectEssenceAffixes(modifiers, item, actionMap, desiredMods);
 		else
 			Item_Evaluation = item.addAffixes(modifiers, item, actionMap, undesiredMods);
 		for (Crafting_Item items : Item_Evaluation)

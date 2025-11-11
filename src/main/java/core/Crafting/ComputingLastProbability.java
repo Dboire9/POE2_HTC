@@ -35,7 +35,7 @@ public class ComputingLastProbability {
 			boolean keep = true;
 
 			// System.out.println(GLOBAL_THRESHOLD);
-			System.err.println("We in ?");
+			// System.err.println("We in ?" + GLOBAL_THRESHOLD);
 
 			if (action instanceof RegalOrb || action instanceof ExaltedOrb)
 				keep = ComputeLastRegalAndExalted(candidate, desiredMod, baseItem, i, GLOBAL_THRESHOLD);
@@ -52,6 +52,7 @@ public class ComputingLastProbability {
 
 		// Remove all candidates that failed the check
 		completedPaths.removeAll(toRemove);
+		toRemove.clear();
 	}
 
 	public static boolean ComputeLastDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i, double GLOBAL_THRESHOLD) {

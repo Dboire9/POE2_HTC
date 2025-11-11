@@ -28,6 +28,9 @@ public class Probability_Analyzer {
 				{
 					double percentage = entry.getValue();
 
+					if(percentage == 2) // Modifying because of the ugly way we handled it !!TOREMOVE!!
+						entry.setValue(1.0);
+
 					if (percentage >= bestPercentage)
 					{
 						bestPercentage = percentage;

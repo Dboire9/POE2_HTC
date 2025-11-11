@@ -145,6 +145,7 @@ public class Crafting_Algorithm {
 		for (List<Crafting_Candidate> candidateList : listOfCandidateLists) {
 			for (Crafting_Candidate candidate : candidateList) 
 			{
+				candidate.desecrated = false;
 				if(candidate.score < 6000)
 					continue;
 				List<Modifier> current = candidate.getAllCurrentModifiers();
@@ -260,7 +261,9 @@ public class Crafting_Algorithm {
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty()) {
 				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory
 						.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
-				if (lastEvent.type != ActionType.REMOVED && !FirstCandidateList.get(0).stopAnnul) {
+				ModifierEvent lastlastEvent = FirstCandidateList.get(0).modifierHistory
+						.get(FirstCandidateList.get(0).modifierHistory.size() - 2);
+				if (lastEvent.type != ActionType.REMOVED && !FirstCandidateList.get(0).stopAnnul && isExaltorRegalorDes(lastEvent, lastlastEvent) ) {
 					AnnulmentOrb annul = new AnnulmentOrb();
 					return annul.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
 							undesiredMods);
@@ -319,5 +322,23 @@ public class Crafting_Algorithm {
 			if (!result4.isEmpty())
 				listOfCandidateLists_exalt.add(new ArrayList<>(result4));
 		}
+	}
+
+	private static boolean isExaltorRegalorDes(ModifierEvent lastEvent, ModifierEvent lastlastEvent)
+	{
+		if (lastEvent == null || lastEvent.source == null)
+			return false;
+
+		// Only proceed if the action before was not a removal
+		if (lastEvent.type == ModifierEvent.ActionType.REMOVED)
+			return false;
+
+		
+		// Check if the last two were homog or regals, else it can annul an exalt that was just applied
+		if (lastEvent.source instanceof RegalOrb || lastEvent.source instanceof ExaltedOrb || lastEvent.source instanceof Desecrated_currency)
+			if (lastlastEvent.source instanceof RegalOrb || lastlastEvent.source instanceof ExaltedOrb || lastlastEvent.source instanceof Desecrated_currency)
+				return true;
+
+		return false;
 	}
 }

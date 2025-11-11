@@ -145,12 +145,16 @@ public class ItemSelectionController {
 								double percentage = entry.getValue();
 								System.out.println("  " + action + " → " + (percentage * 100) + "%");
 								System.out.println(cp.candidate().modifierHistory.get(k));
+								System.out.println(cp.candidate().modifierHistory.get(k).source.entrySet());
 								System.out.println();
 								k++;
 							}
 							System.out.println("-----------------------------------");
 							System.out.println(GLOBALTHRESHOLD / 100);
 						}
+						for (Modifier mods : desiredModifiers)
+						System.out.println("Desired mods" + mods.text);
+						System.out.println("Finished");
 					}
 
 

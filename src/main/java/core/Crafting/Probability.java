@@ -356,10 +356,8 @@ public class Probability {
 					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null
 							|| event.modifier.tags.get(0).isEmpty())
 						return 0;
-					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
-							baseItem.base.getNormalAllowedPrefixes(), i);
-					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
-							baseItem.base.getNormalAllowedSuffixes(), i);
+					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
+					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
 					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
 				}
 			}
@@ -449,6 +447,7 @@ public class Probability {
 		{
 			for(ModifierTier tiers : event.modifier.tiers) // So we loop through all tiers and sum all of them
 				weight += tiers.weight;
+			ilvl = 0;
 		}
 		else
 			weight = event.tier.weight; // If it is desired we just take it
@@ -457,6 +456,7 @@ public class Probability {
 
 		// If there is room for both a prefix or a suffix, the total weight might be
 		// both combined
+
 		if (PossiblePrefixes != null)
 			TotalPrefixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossiblePrefixes, ilvl);
 
@@ -464,17 +464,13 @@ public class Probability {
 			TotalSuffixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossibleSuffixes, ilvl);
 
 		for (int j = 0; j < i; j++) {
-			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
-					&& candidate.modifierHistory.get(j).type == ActionType.ADDED)
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
 				prefixesFilled++;
-			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
-					&& candidate.modifierHistory.get(j).type == ActionType.ADDED)
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
 				suffixesFilled++;
-			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
-					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				prefixesFilled--;
-			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
-					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
 				suffixesFilled++;
 		}
 

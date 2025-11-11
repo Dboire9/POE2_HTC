@@ -13,7 +13,7 @@ import core.Modifier_class.Modifier.ModifierType;
 public interface Crafting_Action {
 
 	public enum CurrencyTier {
-		BASE, GREATER, PERFECT
+		BASE, GREATER, DES_CURRENCY, PERFECT
 	}
 
 	Enum<?>[] getAvailableOmens();

@@ -92,10 +92,10 @@ public class ComputingLastProbability {
 				levels = new int[] { 0 };
 				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE };
 			} else if (level < 50) {
-				levels = new int[] { 0, 35 };
+				levels = new int[] { 0, 35, 40 };
 				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER };
 			} else {
-				levels = new int[] { 0, 35, 50 };
+				levels = new int[] { 0, 35, 40, 50 };
 				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER,
 						CurrencyTier.PERFECT };
 			}
@@ -185,6 +185,8 @@ public class ComputingLastProbability {
 
 		for (int j = 0; j < levels.length; j++) {
 			int level = levels[j];
+			if(level == 40 && candidate.desecrated == true) // No point in checking for descration currency on an item already desecrated
+				continue;
 
 			if (action instanceof RegalOrb)
 			{

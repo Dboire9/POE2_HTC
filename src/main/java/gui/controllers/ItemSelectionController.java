@@ -121,7 +121,7 @@ public class ItemSelectionController {
 					
 					while (results.isEmpty() && attempt < maxRetries)
 					{
-							item.rarity = Crafting_Item.ItemRarity.NORMAL;
+							item.reset();
 							undesiredModifiers.clear();
 							System.out.println("Deadge (attempt " + (attempt + 1) + ")");
 							// decrease global threshold but not below 0

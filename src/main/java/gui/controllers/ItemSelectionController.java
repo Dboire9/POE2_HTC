@@ -139,9 +139,15 @@ public class ItemSelectionController {
 							Probability_Analyzer.CandidateProbability cp = results.get(i);
 							System.out.println("Result #" + (i + 1) + " — Final %: " + cp.finalPercentage());
 							System.out.println("Best Path:");
-							cp.bestPath().forEach((action, percentage) -> {
+							int k = 0;
+							for (Map.Entry<Crafting_Action, Double> entry : cp.bestPath().entrySet()) {
+								Crafting_Action action = entry.getKey();
+								double percentage = entry.getValue();
 								System.out.println("  " + action + " → " + (percentage * 100) + "%");
-							});
+								System.out.println(cp.candidate().modifierHistory.get(k));
+								System.out.println();
+								k++;
+							}
 							System.out.println("-----------------------------------");
 							System.out.println(GLOBALTHRESHOLD / 100);
 						}

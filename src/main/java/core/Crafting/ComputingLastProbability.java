@@ -25,8 +25,8 @@ public class ComputingLastProbability {
 		List<Crafting_Candidate> toRemove = Collections.synchronizedList(new ArrayList<>());
 
 		completedPaths.parallelStream().forEach(candidate -> {
-			if (candidate.modifierHistory.isEmpty())
-				return; // skip empty candidates
+			if (candidate.modifierHistory.isEmpty() || candidate.score >= 6000)
+				return; // skip empty candidates or if they are finished
 
 			ModifierEvent event = candidate.modifierHistory.get(candidate.modifierHistory.size() - 1);
 			int i = candidate.modifierHistory.size() - 1;
@@ -52,7 +52,6 @@ public class ComputingLastProbability {
 
 		// Remove all candidates that failed the check
 		completedPaths.removeAll(toRemove);
-		toRemove.clear();
 	}
 
 	public static boolean ComputeLastDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i, double GLOBAL_THRESHOLD) {
@@ -136,11 +135,11 @@ public class ComputingLastProbability {
 		{
 			List<Modifier> PossiblePrefixes = baseItem.base.getEssencesAllowedPrefixes();
 
-			// Loop until we find the same family, then check the ilvl to see if we can
+			// Loop until we find the same text, then check the ilvl to see if we can
 			// apply the essence
 			for (Modifier m : PossiblePrefixes)
 			{
-				if (m.family.equals(event.modifier.family))
+				if (m.text.equals(event.modifier.text))
 				{
 					for (ModifierTier mtiers : m.tiers)
 						if (mtiers.level == level)
@@ -153,11 +152,11 @@ public class ComputingLastProbability {
 		if (event.modifier.type == ModifierType.SUFFIX) {
 			List<Modifier> PossibleSuffixes = baseItem.base.getEssencesAllowedSuffixes();
 
-			// Loop until we find the same family, then check the ilvl to see if we can
+			// Loop until we find the same text, then check the ilvl to see if we can
 			// apply the essence
 			for (Modifier m : PossibleSuffixes)
 			{
-				if (m.family.equals(event.modifier.family))
+				if (m.text.equals(event.modifier.text))
 				{
 					for (ModifierTier mtiers : m.tiers)
 						if (mtiers.level == level)

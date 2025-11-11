@@ -9,6 +9,7 @@ import core.Crafting.Crafting_Item.ItemRarity;
 import core.Currency.Desecrated_currency;
 import core.Currency.Essence_currency;
 import core.Modifier_class.Modifier;
+import core.Modifier_class.Modifier.ModifierSource;
 import core.Modifier_class.Modifier.ModifierType;
 public interface Crafting_Action {
 
@@ -95,19 +96,19 @@ public interface Crafting_Action {
 			// We might need to tweak this a lot to find the better option
 				switch (affixes) {
 					case 3:
-						if (score < 1900)
+						if (score < 2100)
 							continue;
 						break;
 					case 4:
-						if (score < 2900)
+						if (score < 3100)
 							continue;
 						break;
 					case 5:
-						if (score < 3900)
+						if (score < 4100)
 							continue;
 						break;
 					case 6:
-						if (score < 4900)
+						if (score < 5100)
 							continue;
 				}
 				// if (score < 5200)
@@ -144,19 +145,19 @@ public interface Crafting_Action {
 			{
 				switch (affixes) {
 					case 3:
-						if (score < 1900)
+						if (score < 2100)
 							continue;
 						break;
 					case 4:
-						if (score < 2900)
+						if (score < 3100)
 							continue;
 						break;
 					case 5:
-						if (score < 3900)
+						if (score < 4100)
 							continue;
 						break;
 					case 6:
-						if (score < 4900)
+						if (score < 5100)
 							continue;
 				}
 				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
@@ -164,6 +165,8 @@ public interface Crafting_Action {
 				newCandidate.actions.add(this);
 				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
 				newCandidate.rarity = ItemRarity.RARE;
+				if(newCandidate.modifierHistory.get(item.modifierHistory.size()).modifier.source == ModifierSource.DESECRATED) // If the mod we removed was desecrated we put desecrated to false
+					newCandidate.desecrated = false;
 				CandidateListCopy.add(newCandidate);
 			}
 		}

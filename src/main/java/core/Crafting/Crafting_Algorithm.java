@@ -120,7 +120,8 @@ public class Crafting_Algorithm {
 		listOfCandidateLists_exalt_copy.clear();
 
 		while (listOfCandidateLists_copy.size() != 0) {
-			for (List<Crafting_Candidate> candidates : listOfCandidateLists_copy) {
+			for (List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
+			{
 				if (!candidates.isEmpty()) {
 					ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, GLOBAL_THRESHOLD);
 					RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags,
@@ -142,9 +143,25 @@ public class Crafting_Algorithm {
 		List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
 
 		for (List<Crafting_Candidate> candidateList : listOfCandidateLists) {
-			for (Crafting_Candidate candidate : candidateList) {
-				if (candidate.score >= 6000 && candidate.getAllCurrentModifiers().size() >= 6)
-					highScoreCandidates.add(candidate);
+			for (Crafting_Candidate candidate : candidateList) 
+			{
+				if(candidate.score < 6000)
+					continue;
+				List<Modifier> current = candidate.getAllCurrentModifiers();
+				if (current.size() >= 6) {
+					int matchCount = 0;
+					for (Modifier m : current) {
+						for (Modifier desired_m : desiredMods) {
+							if (m.text.equals(desired_m.text)) {
+								matchCount++;
+								break; // found a match, go to next m
+							}
+						}
+					}
+					if (matchCount == 6) {
+						highScoreCandidates.add(candidate);
+					}
+				}
 			}
 		}
 

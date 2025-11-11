@@ -17,7 +17,7 @@ public class Heuristic_Util {
 
 		// Build a set of desired names for faster lookup
         Set<String> desiredModifierTexts = desiredModTier.stream()
-                .map(t -> t.family) // Use the text field instead of name
+                .map(t -> t.text) // Use the text field instead of name
                 .collect(Collectors.toSet());
 
 		List<Modifier> unmatchedMods = new ArrayList<>();
@@ -25,7 +25,7 @@ public class Heuristic_Util {
 		// Comparing with text, so that the essences can match
         for (Modifier mod : AffixCurrentMods)
 		{
-            if (mod.is_desired_mod || desiredModifierTexts.contains(mod.family))
+            if (mod.is_desired_mod || desiredModifierTexts.contains(mod.text))
             {
 				mod.is_desired_mod = true;
 				matched_modifiers++;
@@ -62,7 +62,7 @@ public class Heuristic_Util {
 		
 				if (currentCount < desiredCount && currentCount > 0)
 					// If current count is less than desired, but not 0, increase score significantly
-					score += 250 * (desiredCount - currentCount);
+					score += 250;
 				else if (currentCount == desiredCount)
 					score += 50;
 				else if ((desiredCount - currentCount) > 1)

@@ -560,10 +560,10 @@ public class Probability {
 		if (event.modifier.type == ModifierType.PREFIX) {
 			List<Modifier> PossiblePrefixes = baseItem.base.getEssencesAllowedPrefixes();
 
-			// Loop until we find the same family, then check the ilvl to see if we can
+			// Loop until we find the same text, then check the ilvl to see if we can
 			// apply the essence
 			for (Modifier m : PossiblePrefixes) {
-				if (m.family.equals(event.modifier.family)) {
+				if (m.text.equals(event.modifier.text)) {
 					for (ModifierTier mtiers : m.tiers)
 						if (mtiers.level == level)
 							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 1.0);
@@ -575,10 +575,10 @@ public class Probability {
 		if (event.modifier.type == ModifierType.SUFFIX) {
 			List<Modifier> PossibleSuffixes = baseItem.base.getEssencesAllowedSuffixes();
 
-			// Loop until we find the same family, then check the ilvl to see if we can
+			// Loop until we find the same text, then check the ilvl to see if we can
 			// apply the essence
 			for (Modifier m : PossibleSuffixes) {
-				if (m.family.equals(event.modifier.family)) {
+				if (m.text.equals(event.modifier.text)) {
 					for (ModifierTier mtiers : m.tiers)
 						if (mtiers.level == level)
 							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 1.0);

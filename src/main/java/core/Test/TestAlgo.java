@@ -90,7 +90,7 @@ public class TestAlgo {
 		// System.out.println(" - " + mod.text + " (Tier " + 0 + ")");
 
 		// Try and catching if there is thread errors
-		double GLOBALTHRESHOLD = 80;
+		double GLOBALTHRESHOLD = 20;
 		try {
 			long startTime = System.nanoTime(); // start timing
 			List<Probability_Analyzer.CandidateProbability> results;
@@ -123,6 +123,8 @@ public class TestAlgo {
 					System.out.println();
 					k++;
 				}
+				for(Modifier m : cp.candidate().getAllCurrentModifiers())
+					System.out.println(m.text + "\n");
 				System.out.println("-----------------------------------");
 				System.out.println(GLOBALTHRESHOLD / 100);
 			}

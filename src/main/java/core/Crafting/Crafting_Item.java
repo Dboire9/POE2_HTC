@@ -1,7 +1,6 @@
 package core.Crafting;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,116 +12,185 @@ import core.Items.Item_base;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.*;
 import core.Modifier_class.ModifierTier;
-
-
+/**
+ * Represents a crafting item with various properties such as base item, rarity,
+ * modifiers, and crafting history. This class provides functionality to manage
+ * and manipulate crafting items, including copying, resetting, and adding affixes.
+ */
 public class Crafting_Item {
 
-	public Item_base base;
-	public ItemRarity rarity;
-	public boolean desecrated = false;
-	public double score;
-	public double prev_score;
-	
-	// Current modifiers
-	public Modifier[] currentPrefixes = new Modifier[3];
-	public Modifier[] currentSuffixes = new Modifier[3];
+    /**
+     * The base item associated with this crafting item.
+     */
+    public Item_base base;
 
-	// Store the applied tier for each modifier
-	public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
-	public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
+    /**
+     * The rarity of the crafting item (e.g., NORMAL, MAGIC, RARE).
+     */
+    public ItemRarity rarity;
 
-	public List<ModifierEvent> modifierHistory = new ArrayList<>();
+    /**
+     * A flag indicating whether the item is desecrated.
+     */
+    public boolean desecrated = false;
 
-	public Crafting_Item copy() {
-		Crafting_Item clone = new Crafting_Item(this.base);
-		clone.rarity = this.rarity;
-		clone.desecrated = this.desecrated;
-	
-		// Deep copy current prefixes
-		for (int i = 0; i < currentPrefixes.length; i++) {
-			if (this.currentPrefixes[i] != null) {
-				clone.currentPrefixes[i] = new Modifier(this.currentPrefixes[i]); // Deep copy
-			}
-			if (this.currentPrefixTiers[i] != null) {
-				clone.currentPrefixTiers[i] = new ModifierTier(this.currentPrefixTiers[i]); // Deep copy
-			}
-		}
-	
-		// Deep copy current suffixes
-		for (int i = 0; i < currentSuffixes.length; i++) {
-			if (this.currentSuffixes[i] != null) {
-				clone.currentSuffixes[i] = new Modifier(this.currentSuffixes[i]); // Deep copy
-			}
-			if (this.currentSuffixTiers[i] != null) {
-				clone.currentSuffixTiers[i] = new ModifierTier(this.currentSuffixTiers[i]); // Deep copy
-			}
-		}
+    /**
+     * The current score of the crafting item.
+     */
+    public double score;
 
-		clone.modifierHistory = new ArrayList<>();
-		for (ModifierEvent event : this.modifierHistory) {
-			clone.modifierHistory.add(event.copy()); // Ensure ModifierEvent has a copy method
-		}
-	
-		return clone;
-	}
+    /**
+     * The previous score of the crafting item.
+     */
+    public double prev_score;
 
-	public enum ItemRarity {
-		NORMAL, MAGIC, RARE
-	}
+    /**
+     * The current prefix modifiers applied to the item.
+     */
+    public Modifier[] currentPrefixes = new Modifier[3];
 
-	// Constructor
-	public Crafting_Item(Item_base base) {
-		this.base = base;
-		this.rarity = ItemRarity.NORMAL;
-	}
+    /**
+     * The current suffix modifiers applied to the item.
+     */
+    public Modifier[] currentSuffixes = new Modifier[3];
 
-	public Crafting_Item() {};
+    /**
+     * The tiers of the current prefix modifiers.
+     */
+    public ModifierTier[] currentPrefixTiers = new ModifierTier[3];
 
-	public void reset()
-	{
-		this.rarity = ItemRarity.NORMAL;
-		this.desecrated = false;
-		this.score = 0;
-		this.prev_score = 0;
-	}
+    /**
+     * The tiers of the current suffix modifiers.
+     */
+    public ModifierTier[] currentSuffixTiers = new ModifierTier[3];
 
+    /**
+     * The history of modifier events applied to this item.
+     */
+    public List<ModifierEvent> modifierHistory = new ArrayList<>();
 
-	// Adding an affix 
-	public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, Map<Crafting_Action, Double> action, List<Modifier> undesiredMods)
-	{
-		List<Crafting_Item> Items_List = new ArrayList<>();
-		List<String> Item_family = new ArrayList<>();
-		for(Modifier currentAffixes : item.getAllCurrentModifiers())
-			Item_family.add(currentAffixes.family);
-		// Looping through all the modifiers and the lowest modifier tier
-		for (Modifier m : mod) {
-			// Take only the lowest tier
-			ModifierTier lowestTier = m.tiers.get(0);
-			//Check if the family is already on the item, and if it is a mod that we don't want
-			if (!Item_family.contains(m.family) && (undesiredMods == null || !undesiredMods.contains(m)))
-			{
-				// Create a copy of the item
-				Crafting_Item new_item = item.copy();
+    /**
+     * Creates a deep copy of the current `Crafting_Item` instance.
+     *
+     * @return A new `Crafting_Item` instance that is a deep copy of the current instance.
+     */
+    public Crafting_Item copy() {
+        Crafting_Item clone = new Crafting_Item(this.base);
+        clone.rarity = this.rarity;
+        clone.desecrated = this.desecrated;
 
-				// Apply the modifier with the lowest tier
-				if (m.type == ModifierType.PREFIX && item.getAllCurrentPrefixModifiers().size() < 3)
-				{
-					new_item.addPrefix(m, lowestTier);
-					new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
-					Items_List.add(new_item);
-				}
-				else if (m.type == ModifierType.SUFFIX && item.getAllCurrentSuffixModifiers().size() < 3)
-				{
-					new_item.addSuffix(m, lowestTier);
-					new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
-					Items_List.add(new_item);
-				}
-			}
-		}
-		return Items_List;
-	}
-	
-	// Adding a perfect essence affix
+        // Deep copy current prefixes
+        for (int i = 0; i < currentPrefixes.length; i++) {
+            if (this.currentPrefixes[i] != null) {
+                clone.currentPrefixes[i] = new Modifier(this.currentPrefixes[i]); // Deep copy
+            }
+            if (this.currentPrefixTiers[i] != null) {
+                clone.currentPrefixTiers[i] = new ModifierTier(this.currentPrefixTiers[i]); // Deep copy
+            }
+        }
+
+        // Deep copy current suffixes
+        for (int i = 0; i < currentSuffixes.length; i++) {
+            if (this.currentSuffixes[i] != null) {
+                clone.currentSuffixes[i] = new Modifier(this.currentSuffixes[i]); // Deep copy
+            }
+            if (this.currentSuffixTiers[i] != null) {
+                clone.currentSuffixTiers[i] = new ModifierTier(this.currentSuffixTiers[i]); // Deep copy
+            }
+        }
+
+        // Deep copy modifier history
+        clone.modifierHistory = new ArrayList<>();
+        for (ModifierEvent event : this.modifierHistory) {
+            clone.modifierHistory.add(event.copy()); // Ensure ModifierEvent has a copy method
+        }
+
+        return clone;
+    }
+
+    /**
+     * Enum representing the rarity levels of a crafting item.
+     */
+    public enum ItemRarity {
+        NORMAL, MAGIC, RARE
+    }
+
+    /**
+     * Constructs a new `Crafting_Item` with the specified base item.
+     *
+     * @param base The base item associated with this crafting item.
+     */
+    public Crafting_Item(Item_base base) {
+        this.base = base;
+        this.rarity = ItemRarity.NORMAL;
+    }
+
+    /**
+     * Default constructor for `Crafting_Item`.
+     */
+    public Crafting_Item() {}
+
+    /**
+     * Resets the crafting item to its default state.
+     */
+    public void reset() {
+        this.rarity = ItemRarity.NORMAL;
+        this.desecrated = false;
+        this.score = 0;
+        this.prev_score = 0;
+    }
+
+    /**
+     * Adds affixes to the crafting item based on the provided modifiers, actions, and undesired modifiers.
+     *
+     * @param mod The list of modifiers to consider for adding.
+     * @param item The crafting item to which affixes will be added.
+     * @param action A map of crafting actions and their associated probabilities.
+     * @param undesiredMods A list of modifiers that should not be added.
+     * @return A list of new `Crafting_Item` instances with the added affixes.
+     */
+    public List<Crafting_Item> addAffixes(List<Modifier> mod, Crafting_Item item, Map<Crafting_Action, Double> action, List<Modifier> undesiredMods) {
+        List<Crafting_Item> Items_List = new ArrayList<>();
+        List<String> Item_family = new ArrayList<>();
+
+        // Collect the families of all current modifiers
+        for (Modifier currentAffixes : item.getAllCurrentModifiers()) {
+            Item_family.add(currentAffixes.family);
+        }
+
+        // Loop through all modifiers and their lowest tiers
+        for (Modifier m : mod) {
+            ModifierTier lowestTier = m.tiers.get(0);
+
+            // Check if the family is not already on the item and is not undesired
+            if (!Item_family.contains(m.family) && (undesiredMods == null || !undesiredMods.contains(m))) {
+                Crafting_Item new_item = item.copy();
+
+                // Apply the modifier based on its type
+                if (m.type == ModifierType.PREFIX && item.getAllCurrentPrefixModifiers().size() < 3) {
+                    new_item.addPrefix(m, lowestTier);
+                    new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
+                    Items_List.add(new_item);
+                } else if (m.type == ModifierType.SUFFIX && item.getAllCurrentSuffixModifiers().size() < 3) {
+                    new_item.addSuffix(m, lowestTier);
+                    new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
+                    Items_List.add(new_item);
+                }
+            }
+        }
+
+        return Items_List;
+    }
+
+	/**
+     * Adds perfect essence affixes to the crafting item.
+     *
+     * @param mod          List of modifiers to apply.
+     * @param item         The crafting item to modify.
+     * @param action       Map of crafting actions and their probabilities.
+     * @param desiredMods  List of desired modifiers to avoid removing.
+     * @return A list of crafting items with the applied perfect essence affixes.
+     */
 	public List<Crafting_Item> addPerfectEssenceAffixes(List<Modifier> mod, Crafting_Item item, Map<Crafting_Action, Double> action, List<Modifier> desiredMods)
 	{
 		List<Crafting_Item> Items_List = new ArrayList<>();
@@ -219,6 +287,13 @@ public class Crafting_Item {
 		return Items_List;
 	}
 	
+    /**
+     * Removes affixes from the crafting item.
+     *
+     * @param item   The crafting item to modify.
+     * @param action Map of crafting actions and their probabilities.
+     * @return A list of crafting items with removed affixes.
+     */
 	public List<Crafting_Item> removeAffixes(Crafting_Item item, Map<Crafting_Action, Double> action)
 	{
 	
@@ -258,7 +333,14 @@ public class Crafting_Item {
 	}
 
 
-	// Getting the total weight of an affix
+
+    /**
+     * Calculates the total weight of affixes by tier and item level.
+     *
+     * @param Modifiers List of modifiers to calculate weight for.
+     * @param ilvl      The item level to filter tiers.
+     * @return The total weight of affixes.
+     */
 	public int get_Base_Affixes_Total_Weight_By_Tier(List<Modifier> Modifiers, int ilvl)
 	{
 		int total_weight = 0;
@@ -270,7 +352,11 @@ public class Crafting_Item {
 		return total_weight;
 	}
 
-	// Removing a prefix
+    /**
+     * Removes a prefix modifier from the crafting item.
+     *
+     * @param mod The modifier to remove.
+     */
 	public void removePrefix(Modifier mod) {
 		for (int i = 0; i < this.currentPrefixes.length; i++) {
 			if (this.currentPrefixes[i] != null && this.currentPrefixes[i].text != null && this.currentPrefixes[i].text.equals(mod.text)) {
@@ -282,7 +368,11 @@ public class Crafting_Item {
 		// System.out.println("Prefix not found to remove!");
 	}
 
-	// Removing a suffix
+    /**
+     * Removes a suffix modifier from the crafting item.
+     *
+     * @param mod The modifier to remove.
+     */
 	public void removeSuffix(Modifier mod) {
 		for (int i = 0; i < this.currentSuffixes.length; i++) {
 			if (this.currentSuffixes[i] != null && this.currentSuffixes[i].text != null && this.currentSuffixes[i].text.equals(mod.text)) {
@@ -294,7 +384,12 @@ public class Crafting_Item {
 		// System.out.println("Suffix not found to remove!");
 	}
 
-	// Adding a prefix with tier
+    /**
+     * Adds a prefix modifier with a specific tier to the crafting item.
+     *
+     * @param mod  The modifier to add.
+     * @param tier The tier of the modifier.
+     */
 	public void addPrefix(Modifier mod, ModifierTier tier) {
 		for (int i = 0; i < this.currentPrefixes.length; i++) {
 			if (currentPrefixes[i] == null) {
@@ -306,7 +401,12 @@ public class Crafting_Item {
 		// System.out.println("No prefix slot available!");
 	}
 
-	// Adding a suffix with tier
+    /**
+     * Adds a suffix modifier with a specific tier to the crafting item.
+     *
+     * @param mod  The modifier to add.
+     * @param tier The tier of the modifier.
+     */
 	public void addSuffix(Modifier mod, ModifierTier tier) {
 		for (int i = 0; i < this.currentSuffixes.length; i++) {
 			if (currentSuffixes[i] == null) {
@@ -317,30 +417,12 @@ public class Crafting_Item {
 		}
 		// System.out.println("No suffix slot available!");
 	}
-	
-	// Replacing the mod for the perfect essence
-	public void addPerfectEssencePrefixOnly(Modifier mod, ModifierTier tier, int i) {
-		this.currentPrefixes[i] = mod;
-		this.currentPrefixTiers[i] = tier; // store applied tier separately
-		// System.out.println("No prefix slot available!");
-	}
-	
-	public void addPerfectEssenceSuffixOnly(Modifier mod, ModifierTier tier, int i) {
-				this.currentSuffixes[i] = mod;
-				this.currentSuffixTiers[i] = tier;
-		// System.out.println("No suffix slot available!");
-	}
 
-	// Utils for getting the tags for homog omens
-	public Set<String> getAllTagsFromModifiers() {
-		Set<String> tags = new HashSet<>();
-		for (Modifier m : this.getAllCurrentModifiers()) {
-			if (m != null && m.tags != null)
-				tags.addAll(m.tags);
-		}
-		return tags;
-	}
-
+	/**
+     * Retrieves all current modifiers (prefixes and suffixes).
+     *
+     * @return A list of all current modifiers.
+     */
 	public List<Modifier> getAllCurrentModifiers() {
 		List<Modifier> mods = new ArrayList<>();
 
@@ -350,6 +432,11 @@ public class Crafting_Item {
 		return mods;
 	}
 
+	/**
+     * Retrieves all current modifiers (prefixes).
+     *
+     * @return A list of all current modifiers.
+     */
 	public List<Modifier> getAllCurrentPrefixModifiers() {
 		List<Modifier> mods = new ArrayList<>();
 
@@ -362,6 +449,12 @@ public class Crafting_Item {
 		return mods;
 	}
 
+
+	/**
+     * Retrieves all current modifiers (suffixes).
+     *
+     * @return A list of all current modifiers.
+     */
 	public List<Modifier> getAllCurrentSuffixModifiers() {
 		List<Modifier> mods = new ArrayList<>();
 

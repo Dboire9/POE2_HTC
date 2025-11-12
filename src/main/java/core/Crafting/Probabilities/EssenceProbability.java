@@ -1,4 +1,4 @@
-package core.Crafting.Proba;
+package core.Crafting.Probabilities;
 
 import java.util.List;
 import java.util.Map;

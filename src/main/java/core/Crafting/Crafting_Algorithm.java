@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import core.Crafting.Proba.ComputingLastProbability;
+import core.Crafting.Probabilities.ComputingLastProbability;
 import core.Crafting.Utils.Heuristic_Util;
 import core.Crafting.Utils.ModifierEvent;
 import core.Crafting.Utils.ModifierEvent.ActionType;

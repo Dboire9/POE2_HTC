@@ -3,9 +3,9 @@ package core.Crafting;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import core.Crafting.Proba.Probability;
-import core.Crafting.Proba.Probability_Analyzer;
-import core.Crafting.Proba.Probability_Analyzer.*;
+import core.Crafting.Probabilities.Probability;
+import core.Crafting.Probabilities.Probability_Analyzer;
+import core.Crafting.Probabilities.Probability_Analyzer.*;
 import core.Modifier_class.*;
 
 /**

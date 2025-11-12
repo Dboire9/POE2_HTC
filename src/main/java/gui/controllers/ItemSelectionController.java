@@ -3,7 +3,7 @@ package gui.controllers;
 import core.ItemManager;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
-import core.Crafting.Proba.Probability_Analyzer;
+import core.Crafting.Probabilities.Probability_Analyzer;
 import core.Crafting.Utils.ModifierEvent;
 import core.Currency.AnnulmentOrb;
 import core.Currency.Desecrated_currency;

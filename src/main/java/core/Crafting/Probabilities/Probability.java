@@ -1,4 +1,4 @@
-package core.Crafting.Proba;
+package core.Crafting.Probabilities;
 
 import java.util.List;
 
@@ -15,9 +15,21 @@ import core.Currency.RegalOrb;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierType;
 
-
+/**
+ * The {@code Probability} class provides methods to compute probabilities
+ * for crafting actions and track the state of prefixes and suffixes
+ * during crafting processes.
+ */
 public class Probability {
 
+    /**
+     * Computes the probabilities for crafting actions based on the given
+     * crafting candidates, desired modifiers, and the base item.
+     *
+     * @param completedPaths a list of crafting candidates representing completed crafting paths
+     * @param desiredMod a list of desired modifiers to be achieved
+     * @param baseItem the base crafting item being modified
+     */
 	public static void ComputingProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod,
 			Crafting_Item baseItem) {
 		for (Crafting_Candidate candidate : completedPaths) {

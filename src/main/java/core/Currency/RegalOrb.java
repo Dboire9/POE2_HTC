@@ -7,6 +7,7 @@ import java.util.Map;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
+import core.Crafting.Crafting_Item.ItemRarity;
 import core.Modifier_class.Modifier;
 
 /**
@@ -84,14 +85,15 @@ public class RegalOrb implements Crafting_Action {
 
         // Evaluate affixes for each candidate
         for (Crafting_Candidate candidate : CandidateList) {
-            CandidateListCopy.addAll(evaluateAffixes(
-                    all_Affix_modifiers,
-                    item,
-                    candidate,
-                    desiredMods,
-                    CountDesiredModifierTags,
-                    undesiredMods
-            ));
+			CandidateListCopy.addAll(evaluateAffixes(
+				all_Affix_modifiers,
+				item,
+				candidate,
+				desiredMods,
+				CountDesiredModifierTags,
+				undesiredMods
+				));
+			candidate.rarity = ItemRarity.RARE;
         }
         return CandidateListCopy;
     }

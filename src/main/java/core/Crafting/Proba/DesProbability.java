@@ -7,112 +7,130 @@ import core.Crafting.*;
 import core.Currency.*;
 import core.Crafting.Utils.ModifierEvent;
 
+/**
+ * The `DesProbability` class is responsible for computing probabilities
+ * associated with the use of Desecrated currency during the crafting process.
+ */
 public class DesProbability {
 
-	/**
-     * Handles Desecrated currency computations.
-     * This function computes probability tiers for desecrated outcomes.
+    /**
+     * Computes the desecration probabilities for a given crafting candidate and updates
+     * the candidate's modifier history with the calculated probabilities.
+     *
+     * @param candidate The crafting candidate whose probabilities are being computed.
+     * @param desiredMod A list of desired modifiers to aim for during crafting.
+     * @param baseItem The base crafting item being modified.
+     * @param i The index of the current modifier event in the candidate's modifier history.
      */
-	public static void ComputeDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i) {
-		ModifierEvent event = candidate.modifierHistory.get(i);
+    public static void ComputeDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i) {
+        ModifierEvent event = candidate.modifierHistory.get(i);
 
-		double percentage = 0;
-		Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
-		Crafting_Action action = source.keySet().iterator().next();
+        double percentage = 0;
+        Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
+        Crafting_Action action = source.keySet().iterator().next();
 
-		if (action instanceof Desecrated_currency) {
-			for (Desecrated_currency.Omen currentOmen : Desecrated_currency.Omen.values()) {
-				percentage = ComputePercentageDesecrated_currency(baseItem, candidate, event, currentOmen, i);
-				if (percentage != 0)
-					candidate.modifierHistory.get(i).source.put(new Desecrated_currency(currentOmen), percentage);
-			}
-		}
-	}
+        if (action instanceof Desecrated_currency) {
+            for (Desecrated_currency.Omen currentOmen : Desecrated_currency.Omen.values()) {
+                percentage = ComputePercentageDesecrated_currency(baseItem, candidate, event, currentOmen, i);
+                if (percentage != 0)
+                    candidate.modifierHistory.get(i).source.put(new Desecrated_currency(currentOmen), percentage);
+            }
+        }
+    }
 
-	    /**
-     * Performs the detailed desecrated probability computation.
+    /**
+     * Computes the probability of a desecration event based on the current state of the crafting item,
+     * the candidate's modifier history, and the type of omen being used.
+     *
+     * @param baseItem The base crafting item being modified.
+     * @param candidate The crafting candidate whose probabilities are being computed.
+     * @param event The current modifier event being analyzed.
+     * @param omen The type of omen being used for the desecration.
+     * @param i The index of the current modifier event in the candidate's modifier history.
+     * @return The computed probability of the desecration event.
      */
-	public static double ComputePercentageDesecrated_currency(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i) {
+    public static double ComputePercentageDesecrated_currency(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i) {
 
-		double kurgal_modTotal = 0;
-		double amanamu_modTotal = 0;
-		double ulaman_modTotal = 0;
+        double kurgal_modTotal = 0;
+        double amanamu_modTotal = 0;
+        double ulaman_modTotal = 0;
 
-		double percentage = 0;
+        double percentage = 0;
 
-		List<Modifier> PossiblePrefixes = baseItem.base.getDesecratedAllowedPrefixes();
-		List<Modifier> PossibleSuffixes = baseItem.base.getDesecratedAllowedSuffixes();
+        List<Modifier> PossiblePrefixes = baseItem.base.getDesecratedAllowedPrefixes();
+        List<Modifier> PossibleSuffixes = baseItem.base.getDesecratedAllowedSuffixes();
 
-		/*
-		 * Here we check which type it is, because for the omens we need to do 1 out of
-		 * all the desecrated family modifiers, but if we have prefix and suffix, the
-		 * omens help us keep the percentage the same,
-		 * we just add the omen if there is both affixes
-		 */
-		if (event.modifier.type == ModifierType.PREFIX) {
-			for (Modifier m : PossiblePrefixes) {
-				if (m.tags.contains("kurgal_mod"))
-					kurgal_modTotal++;
-				if (m.tags.contains("amanamu_mod"))
-					amanamu_modTotal++;
-				if (m.tags.contains("ulaman_mod"))
-					ulaman_modTotal++;
-			}
-		} else {
-			for (Modifier m : PossibleSuffixes) {
-				if (m.tags.contains("kurgal_mod"))
-					kurgal_modTotal++;
-				if (m.tags.contains("amanamu_mod"))
-					amanamu_modTotal++;
-				if (m.tags.contains("ulaman_mod"))
-					ulaman_modTotal++;
-			}
-		}
+        /*
+         * Computes the total number of modifiers for each desecration family (kurgal, amanamu, ulaman)
+         * based on the type of modifier (prefix or suffix).
+         */
+        if (event.modifier.type == ModifierType.PREFIX) {
+            for (Modifier m : PossiblePrefixes) {
+                if (m.tags.contains("kurgal_mod"))
+                    kurgal_modTotal++;
+                if (m.tags.contains("amanamu_mod"))
+                    amanamu_modTotal++;
+                if (m.tags.contains("ulaman_mod"))
+                    ulaman_modTotal++;
+            }
+        } else {
+            for (Modifier m : PossibleSuffixes) {
+                if (m.tags.contains("kurgal_mod"))
+                    kurgal_modTotal++;
+                if (m.tags.contains("amanamu_mod"))
+                    amanamu_modTotal++;
+                if (m.tags.contains("ulaman_mod"))
+                    ulaman_modTotal++;
+            }
+        }
 
-		if (omen instanceof Desecrated_currency.Omen desOmen) {
-			Desecrated_currency orb = (Desecrated_currency) event.source.keySet().iterator().next();
-			switch (desOmen) {
-				case OmenofSinistralNecromancy:
-					break;
-				case OmenofDextralNecromancy:
-					break;
-				case OmenoftheBlackblooded: {
-					if (event.modifier.tags.contains("kurgal_mod"))
-						percentage = 1 / kurgal_modTotal; // We have a guarantee to have a random kurgal modifier so 1 out of the total of them
-					else
-						break; // If no kurgal_mod break it will do nothing
-					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
-						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
-					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX) // Opposite here
-						orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
-					break;
-				}
-				case OmenoftheLiege: {
-					if (event.modifier.tags.contains("amanamu_mod"))
-						percentage = 1 / amanamu_modTotal;
-					else
-						break;
-					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
-						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
-					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX) // Opposite here
-						orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
-					break;
-				}
-				case OmenoftheSovereign: {
-					if (event.modifier.tags.contains("ulaman_mod"))
-						percentage = 1 / ulaman_modTotal;
-					else
-						break;
-					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
-						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
-					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX) // Opposite here
-						orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
-					break;
-				}
-			}
-		}
+        /*
+         * Computes the probability of the desecration event based on the omen type
+         * and updates the crafting candidate's modifier history accordingly.
+         */
+        if (omen instanceof Desecrated_currency.Omen desOmen) {
+            Desecrated_currency orb = (Desecrated_currency) event.source.keySet().iterator().next();
+            switch (desOmen) {
+                case OmenofSinistralNecromancy:
+                    break;
+                case OmenofDextralNecromancy:
+                    break;
+                case OmenoftheBlackblooded: {
+                    if (event.modifier.tags.contains("kurgal_mod"))
+                        percentage = 1 / kurgal_modTotal; // Probability of selecting a random kurgal modifier
+                    else
+                        break; // No kurgal_mod, do nothing
+                    if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX)
+                        orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
+                    else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX)
+                        orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
+                    break;
+                }
+                case OmenoftheLiege: {
+                    if (event.modifier.tags.contains("amanamu_mod"))
+                        percentage = 1 / amanamu_modTotal; // Probability of selecting a random amanamu modifier
+                    else
+                        break;
+                    if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX)
+                        orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
+                    else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX)
+                        orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
+                    break;
+                }
+                case OmenoftheSovereign: {
+                    if (event.modifier.tags.contains("ulaman_mod"))
+                        percentage = 1 / ulaman_modTotal; // Probability of selecting a random ulaman modifier
+                    else
+                        break;
+                    if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX)
+                        orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
+                    else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX)
+                        orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
+                    break;
+                }
+            }
+        }
 
-		return percentage;
-	}
-	
+        return percentage;
+    }
 }

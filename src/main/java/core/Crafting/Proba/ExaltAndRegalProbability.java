@@ -7,7 +7,6 @@ import core.Crafting.*;
 import core.Crafting.Crafting_Action.CurrencyTier;
 import core.Currency.*;
 import core.Crafting.Utils.ModifierEvent;
-import core.Crafting.Utils.ModifierEvent.ActionType;
 
 public class ExaltAndRegalProbability {
 
@@ -247,8 +246,6 @@ public class ExaltAndRegalProbability {
 	public static double NormalCompute(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
 	int ilvl, int i, List<Modifier> PossiblePrefixes, List<Modifier> PossibleSuffixes, boolean isDesired)
 	{
-		int prefixesFilled = 0;
-		int suffixesFilled = 0;
 
 		double percentage = 0;
 
@@ -277,16 +274,10 @@ public class ExaltAndRegalProbability {
 		if (PossibleSuffixes != null)
 			TotalSuffixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossibleSuffixes, ilvl);
 
-		for (int j = 0; j < i; j++) {
-			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
-				prefixesFilled++;
-			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
-				suffixesFilled++;
-			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
-				prefixesFilled--;
-			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
-				suffixesFilled++;
-		}
+        // Calculate the number of prefixes and suffixes filled based on the modifier history.
+		double[] affixCount = Probability.countAffixesFilled(candidate, i);
+		double prefixesFilled = affixCount[0];
+		double suffixesFilled = affixCount[1];
 
 		// here we compute the percentage with the total weight of all normal modifiers,
 		// because it could have landed on either a prefix or a suffix

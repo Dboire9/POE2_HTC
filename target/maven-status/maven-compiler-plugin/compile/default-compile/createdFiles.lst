@@ -82,7 +82,6 @@ core/Crafting/Crafting_Algorithm.class
 core/Items/OneHand_Maces/OneHand_Maces.class
 core/Items/Helmets/Helmets_dex/Helmets_dex.class
 core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_normal.class
-core/Items/Test_Modifiers.class
 core/Items/Helmets/Helmets_str/Helmets_str.class
 core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_essences.class
 core/Items/Helmets/Helmets_int/Helmets_int.class
@@ -142,7 +141,6 @@ core/Items/Gloves/Gloves_int/Gloves_int.class
 core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_desecrated.class
 core/Currency/ExaltedOrb$Omen.class
 core/Crafting/Proba/Probability_Analyzer.class
-core/Modifier_class/ModifierTierWrapper.class
 core/Items/Boots/Boots_dex/Boots_dex.class
 core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifiers/Modifiers_essences.class
 core/Items/Boots/Boots_int/Boots_int.class

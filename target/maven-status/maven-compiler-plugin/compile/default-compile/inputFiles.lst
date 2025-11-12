@@ -31,7 +31,6 @@
 /root/POE2_HTC/src/main/java/gui/controllers/ItemSelectionController.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Normal_Item_modifiers/Modifiers_normal.java
 /root/POE2_HTC/src/main/java/core/Items/Helmets/Helmets_str_int/Helmets_str_int.java
-/root/POE2_HTC/src/main/java/core/Items/Test_Modifiers.java
 /root/POE2_HTC/src/main/java/core/Items/Boots/Boots_str/Boots_str.java
 /root/POE2_HTC/src/main/java/core/Items/Gloves/Gloves_str_int/Gloves_str_int.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Normal_Item_modifiers/Modifiers_essences.java
@@ -44,7 +43,6 @@
 /root/POE2_HTC/src/main/java/core/Items/Gloves/Gloves_dex/Gloves_dex.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Items/Quarterstaves/Quarterstaves.java
-/root/POE2_HTC/src/main/java/core/Modifier_class/ModifierTierWrapper.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Hybrid_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Bows_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Hybrid_Item_modifiers/Modifiers_normal.java

@@ -1,6 +1,5 @@
 package gui.utils;
 
-import core.Modifier_class.*;
 import gui.views.ItemSelectionView;
 import javafx.scene.control.ComboBox;
 

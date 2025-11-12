@@ -14,6 +14,7 @@ import core.Items.Item_base;
 import core.Modifier_class.*;
 import gui.views.ItemSelectionView;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.scene.control.ComboBox;
 
 import gui.utils.*;
@@ -79,16 +80,14 @@ public class ItemSelectionController {
     /**
      * Initializes event listeners for category, subcategory, modifier selection, and the validate button.
      */
-
 	private void initialize() {
+		// Setup combo box listeners
 		view.categoryComboBox.setOnAction(e -> handleCategorySelection());
 		view.subCategoryComboBox.setOnAction(e -> handleSubCategorySelection());
-		view.desecratedModifierCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> {
-			resetAllModifiers();
-		});
-		view.modifierTypeComboBox.valueProperty().addListener((obs, oldValue, newValue) -> {
-			resetAllModifiers();
-		});
+		view.desecratedModifierCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> resetAllModifiers());
+		view.modifierTypeComboBox.valueProperty().addListener((obs, oldValue, newValue) -> resetAllModifiers());
+
+		// Setup modifier selection listeners
 		setupModifierSelectionListener(view.prefix1ComboBox, view.prefix1TierComboBox);
 		setupModifierSelectionListener(view.prefix2ComboBox, view.prefix2TierComboBox);
 		setupModifierSelectionListener(view.prefix3ComboBox, view.prefix3TierComboBox);
@@ -103,94 +102,120 @@ public class ItemSelectionController {
 		setupModifierComboBoxListener(view.suffix2ComboBox, "suffix2");
 		setupModifierComboBoxListener(view.suffix3ComboBox, "suffix3");
 
-		// Validate button action handler
+		view.clearButton.setOnAction(e -> {
+			// Reset all combo boxes
+			view.prefix1ComboBox.getSelectionModel().clearSelection();
+			view.prefix2ComboBox.getSelectionModel().clearSelection();
+			view.prefix3ComboBox.getSelectionModel().clearSelection();
+			view.suffix1ComboBox.getSelectionModel().clearSelection();
+			view.suffix2ComboBox.getSelectionModel().clearSelection();
+			view.suffix3ComboBox.getSelectionModel().clearSelection();
+			view.prefix1TierComboBox.getSelectionModel().clearSelection();
+			view.prefix2TierComboBox.getSelectionModel().clearSelection();
+			view.prefix3TierComboBox.getSelectionModel().clearSelection();
+			view.suffix1TierComboBox.getSelectionModel().clearSelection();
+			view.suffix2TierComboBox.getSelectionModel().clearSelection();
+			view.suffix3TierComboBox.getSelectionModel().clearSelection();
+		
+			// Reset checkboxes
+			view.desecratedModifierCheckBox.setSelected(false);
+			view.modifierTypeComboBox.getSelectionModel().clearSelection();
+		
+			// Reset progress bar
+			view.progressBar.progressProperty().unbind();
+			view.progressBar.setVisible(false);
+			view.progressBar.setProgress(0);
+		
+			// Reset labels
+			view.displayLabel.setText("Output will appear here...");
+			view.messageLabel.setText("");
+		});
+
+		// Validate button with background task
 		view.validateButton.setOnAction(validateEvent -> {
-			view.messageLabel.setText(""); // clear previous messages
-			StringBuilder output = new StringBuilder(); // collect display content
-		
-			if (validateButton.areAllModifiersAndTiersSelected()) {
-				// Collect tiers
-				int prefix1Tier = Integer.parseInt(view.prefix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
-				int prefix2Tier = Integer.parseInt(view.prefix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
-				int prefix3Tier = Integer.parseInt(view.prefix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
-				int suffix1Tier = Integer.parseInt(view.suffix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
-				int suffix2Tier = Integer.parseInt(view.suffix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
-				int suffix3Tier = Integer.parseInt(view.suffix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
-		
-				Item_base itemBase = null;
-				Crafting_Item item = null;
-		
-				try {
-					selectedItemClass = getItemClass(selectedCategory, selectedSubCategory);
-					Object selectedItemInstance = selectedItemClass.getDeclaredConstructor().newInstance();
-					itemBase = (Item_base) selectedItemInstance;
-					item = new Crafting_Item(itemBase);
-				} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-					e.printStackTrace();
-					output.append("Error creating item: ").append(e.getMessage()).append("\n");
-				}
-		
-				output.append("Item: ").append(item).append("\n");
-				output.append("ItemBase: ").append(itemBase).append("\n");
-		
-				// Collect modifiers
-				List<Modifier> desiredModifiers = Arrays.asList(prefix1store, prefix2store, prefix3store,
-																suffix1store, suffix2store, suffix3store);
-		
-				// Set chosen tiers
-				prefix1store.chosenTier = prefix1Tier;
-				prefix2store.chosenTier = prefix2Tier;
-				prefix3store.chosenTier = prefix3Tier;
-				suffix1store.chosenTier = suffix1Tier;
-				suffix2store.chosenTier = suffix2Tier;
-				suffix3store.chosenTier = suffix3Tier;
-				
+			view.messageLabel.setText("");
+			view.progressBar.setVisible(true);
+			view.progressBar.setProgress(0);
 
+			Task<String> craftingTask = new Task<>() {
+				@Override
+				protected String call() throws Exception {
+					StringBuilder output = new StringBuilder();
 
+					if (!validateButton.areAllModifiersAndTiersSelected()) {
+						return "Please select all six modifiers and their tiers\n";
+					}
 
-				/**
-				 * Running the program until we have a result
-				 */
+					// Collect tiers
+					int prefix1Tier = Integer.parseInt(view.prefix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+					int prefix2Tier = Integer.parseInt(view.prefix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+					int prefix3Tier = Integer.parseInt(view.prefix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+					int suffix1Tier = Integer.parseInt(view.suffix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+					int suffix2Tier = Integer.parseInt(view.suffix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
+					int suffix3Tier = Integer.parseInt(view.suffix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 
-				try {
-					List<Probability_Analyzer.CandidateProbability> results;
-		
+					// Instantiate item
+					Item_base itemBase;
+					Crafting_Item item;
+					try {
+						selectedItemClass = getItemClass(selectedCategory, selectedSubCategory);
+						Object selectedItemInstance = selectedItemClass.getDeclaredConstructor().newInstance();
+						itemBase = (Item_base) selectedItemInstance;
+						item = new Crafting_Item(itemBase);
+					} catch (Exception e) {
+						e.printStackTrace();
+						return "Error creating item: " + e.getMessage();
+					}
+
+					output.append("Item: ").append(item).append("\n");
+					output.append("ItemBase: ").append(itemBase).append("\n");
+
+					// Collect modifiers
+					List<Modifier> desiredModifiers = Arrays.asList(prefix1store, prefix2store, prefix3store,
+																	suffix1store, suffix2store, suffix3store);
+
+					// Set chosen tiers
+					prefix1store.chosenTier = prefix1Tier;
+					prefix2store.chosenTier = prefix2Tier;
+					prefix3store.chosenTier = prefix3Tier;
+					suffix1store.chosenTier = suffix1Tier;
+					suffix2store.chosenTier = suffix2Tier;
+					suffix3store.chosenTier = suffix3Tier;
+
+					// Run crafting attempts
 					double maxRetries = 25;
 					double attempt = 0;
 					double GLOBALTHRESHOLD = 25;
 					List<Modifier> undesiredModifiers = new ArrayList<>();
-		
-					results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, GLOBALTHRESHOLD / 100);
-		
-					while (results.isEmpty() && attempt < maxRetries) {
+					List<Probability_Analyzer.CandidateProbability> results = new ArrayList<>();
+
+					while ((results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, GLOBALTHRESHOLD / 100)).isEmpty() && attempt < maxRetries) {
 						item.reset();
 						undesiredModifiers.clear();
-						// output.append("Deadge (attempt ").append(attempt + 1).append(")\n");
-						results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, GLOBALTHRESHOLD / 100);
 						GLOBALTHRESHOLD--;
 						attempt++;
+						updateProgress(attempt, maxRetries); // update progress bar
 					}
-		
+
 					if (results.isEmpty()) {
-						output.append("No valid results after ").append(attempt).append(" attempts.\n");
+						output.append("No valid results after ").append((int) attempt).append(" attempts.\n");
 					} else {
 						for (int i = 0; i < Math.min(1, results.size()); i++) {
 							Probability_Analyzer.CandidateProbability cp = results.get(i);
 							output.append("Result #").append(i + 1).append(" — Final %: ").append(cp.finalPercentage()).append("\n");
 							output.append("Best Path:\n");
-		
+
 							for (var entry : cp.bestPath().entrySet()) {
 								Crafting_Action action = entry.getKey();
 								ModifierEvent modifierEvent = entry.getValue();
-		
 								Double probability = modifierEvent.source.get(action);
-		
+
 								output.append("Action: ").append(action).append("\n");
 								output.append("  → Probability: ").append(probability != null ? (probability * 100) : 0).append("%\n");
-		
+
 								if (modifierEvent.modifier != null)
 									output.append("  → Modifier: ").append(modifierEvent.modifier.text).append("\n");
-		
+
 								if (action instanceof ExaltedOrb currency) {
 									output.append("  Tier: ").append(currency.tier).append("\n");
 									if (currency.omens != null) output.append("  Omen: ").append(currency.omens).append("\n");
@@ -204,23 +229,30 @@ public class ItemSelectionController {
 								} else if (action instanceof Essence_currency currency && currency.omen != null) {
 									output.append("  Omen: ").append(currency.omen).append("\n");
 								}
-		
+
 								output.append("\n");
 							}
 						}
 					}
-		
-				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
-					output.append("Error during crafting: ").append(e.getMessage()).append("\n");
+
+					return output.toString();
 				}
-		
-			} else {
-				output.append("Please select all six modifiers and their tiers\n");
-			}
-		
-			// Update the display box with all collected output
-			view.displayLabel.setText(output.toString());
+			};
+
+			// Bind progress bar
+			view.progressBar.progressProperty().bind(craftingTask.progressProperty());
+
+			craftingTask.setOnSucceeded(workerStateEvent -> {
+				view.displayLabel.setText(craftingTask.getValue());
+				view.progressBar.setVisible(false);
+			});
+
+			craftingTask.setOnFailed(workerStateEvent -> {
+				view.displayLabel.setText("Error during crafting.");
+				view.progressBar.setVisible(false);
+			});
+
+			new Thread(craftingTask).start();
 		});
 	}
 
@@ -569,7 +601,7 @@ public class ItemSelectionController {
 			if (newVal != null) {
 				Modifier mod = getModifiersFromValue(selectedItemClass, newVal);
 				// System.out.println("Debug: mod = " + mod);
-				if (mod.tiers != null && !mod.tiers.isEmpty()) {
+				if (mod != null && mod.tiers != null && !mod.tiers.isEmpty()) {
 					System.out.println("✅ Selected Modifier Tiers:");
 
 					// Clear the ModifierTierBox before populating
@@ -625,14 +657,17 @@ public class ItemSelectionController {
 	private void setupModifierComboBoxListener(ComboBox<String> comboBox, String modifierSlot) {
 		comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
-				Modifier modifier = getModifiersFromValue(selectedItemClass, newVal);
-				switch (modifierSlot) {
-					case "prefix1" -> this.prefix1store = modifier;
-					case "prefix2" -> this.prefix2store = modifier;
-					case "prefix3" -> this.prefix3store = modifier;
-					case "suffix1" -> this.suffix1store = modifier;
-					case "suffix2" -> this.suffix2store = modifier;
-					case "suffix3" -> this.suffix3store = modifier;
+				if(getModifiersFromValue(selectedItemClass, newVal) != null)
+				{
+					Modifier modifier = getModifiersFromValue(selectedItemClass, newVal);
+					switch (modifierSlot) {
+						case "prefix1" -> this.prefix1store = modifier;
+						case "prefix2" -> this.prefix2store = modifier;
+						case "prefix3" -> this.prefix3store = modifier;
+						case "suffix1" -> this.suffix1store = modifier;
+						case "suffix2" -> this.suffix2store = modifier;
+						case "suffix3" -> this.suffix3store = modifier;
+					}
 				}
 			}
 		});

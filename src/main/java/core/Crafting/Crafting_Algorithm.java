@@ -24,7 +24,23 @@ import core.Currency.TransmutationOrb;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierType;
 
+/**
+ * The Crafting_Algorithm class provides methods to optimize crafting
+ * processes for a given base item and desired/undesired modifiers.
+ */
 public class Crafting_Algorithm {
+
+	/**
+     * Optimizes the crafting process for a given base item and desired/undesired modifiers.
+     *
+     * @param baseItem        The base item to be crafted.
+     * @param desiredMods     A list of desired modifiers to aim for.
+     * @param undesiredMods   A list of undesired modifiers to avoid.
+     * @param GLOBAL_THRESHOLD The global threshold for crafting optimization.
+     * @return A list of optimized crafting candidates.
+     * @throws InterruptedException If the thread execution is interrupted.
+     * @throws ExecutionException   If an error occurs during thread execution.
+     */
 	public static List<Crafting_Candidate> optimizeCrafting(
         Crafting_Item baseItem,
         List<Modifier> desiredMods,
@@ -78,7 +94,7 @@ public class Crafting_Algorithm {
 				next.clear();
 			}
 
-			// Continue processing until stabilization
+			// Continue processing until we do not find anymore candidates
 			while (!current.isEmpty()) {
 				processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
 						allCandidateLists, next, executor);
@@ -94,6 +110,21 @@ public class Crafting_Algorithm {
 			return extractHighScoreCandidates(allCandidateLists, desiredMods);
 	}
 	
+    /**
+     * Processes candidate lists to refine crafting results.
+     *
+     * @param baseItem        The base item being crafted.
+     * @param currentLists    The current lists of crafting candidates.
+     * @param desiredMods     The desired modifiers.
+     * @param undesiredMods   The undesired modifiers.
+     * @param tagCount        The precomputed tag counts for desired modifiers.
+     * @param globalThreshold The global threshold for crafting optimization.
+     * @param masterList      The master list of all candidates.
+     * @param nextLists       The next iteration of candidate lists.
+     * @param executor        The thread pool executor.
+     * @throws InterruptedException If the thread execution is interrupted.
+     * @throws ExecutionException   If an error occurs during thread execution.
+     */
 	private static void processCandidateLists(
 			Crafting_Item baseItem,
 			List<List<Crafting_Candidate>> currentLists,
@@ -113,6 +144,14 @@ public class Crafting_Algorithm {
 		}
 	}
 	
+
+	/**
+     * Extracts high-score crafting candidates from the list of all candidates at the end.
+     *
+     * @param allCandidateLists The list of all crafting candidates.
+     * @param desiredMods       The desired modifiers.
+     * @return A list of high-score crafting candidates.
+     */
 	private static List<Crafting_Candidate> extractHighScoreCandidates(
 			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods) {
 	
@@ -138,6 +177,15 @@ public class Crafting_Algorithm {
 	}
 	
 
+	/**
+	 * Calculates the heuristic score for a crafting item based on desired and undesired modifiers.
+	 *
+	 * @param item The crafting item being evaluated.
+	 * @param desiredMods A list of desired modifiers.
+	 * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+	 * @param undesiredMods A list of undesired modifiers.
+	 * @return The heuristic score for the crafting item.
+	 */
 	public static double heuristic(Crafting_Item item, List<Modifier> desiredMods,
 			Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
 		double score = 0;
@@ -175,6 +223,16 @@ public class Crafting_Algorithm {
 		return score;
 	}
 
+	/**
+	 * Generates candidate lists for crafting by applying a RegalOrb to the base item.
+	 *
+	 * @param baseItem The base crafting item.
+	 * @param FirstCandidateList The initial list of crafting candidates.
+	 * @param desiredMods A list of desired modifiers.
+	 * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+	 * @param listOfCandidateLists A list to store generated candidate lists.
+	 * @param undesiredMods A list of undesired modifiers.
+	 */
 	private static void generateCandidateLists(
 			Crafting_Item baseItem,
 			List<Crafting_Candidate> FirstCandidateList,
@@ -195,6 +253,20 @@ public class Crafting_Algorithm {
 		FirstCandidateListCopy.clear();
 	}
 
+	/**
+	 * Executes a crafting loop for rare items, applying various crafting orbs concurrently.
+	 *
+	 * @param baseItem The base crafting item.
+	 * @param FirstCandidateList The initial list of crafting candidates.
+	 * @param desiredMods A list of desired modifiers.
+	 * @param undesiredMods A list of undesired modifiers.
+	 * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+	 * @param listOfCandidateLists A list to store generated candidate lists.
+	 * @param listOfCandidateLists_exalt A list to store exalted candidate lists.
+	 * @param executor The executor service for running tasks concurrently.
+	 * @throws InterruptedException If the thread is interrupted while waiting for tasks to complete.
+	 * @throws ExecutionException If a task execution throws an exception.
+	 */
 	private static void RareLoop(
 			Crafting_Item baseItem,
 			List<Crafting_Candidate> FirstCandidateList,
@@ -204,6 +276,7 @@ public class Crafting_Algorithm {
 			List<List<Crafting_Candidate>> listOfCandidateLists,
 			List<List<Crafting_Candidate>> listOfCandidateLists_exalt,
 			ExecutorService executor) throws InterruptedException, ExecutionException {
+		// Task 1: Apply an Exalted Orb if the first candidate has less than 6 modifiers
 		Callable<List<Crafting_Candidate>> task1 = () -> {
 			if (!FirstCandidateList.isEmpty() && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6) {
 				ExaltedOrb exalt = new ExaltedOrb();
@@ -212,8 +285,8 @@ public class Crafting_Algorithm {
 			return new ArrayList<>();
 		};
 
+		// Task 2: Apply Desecrated Currency if the first candidate is not desecrated and has less than 6 modifiers
 		Callable<List<Crafting_Candidate>> task2 = () -> {
-			// Checking if it is not already desecrated
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated
 					&& FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6) {
 				Desecrated_currency des_currency = new Desecrated_currency();
@@ -223,7 +296,9 @@ public class Crafting_Algorithm {
 			return new ArrayList<>();
 		};
 
+		// Task 3: Apply an Annulment Orb if the last two modifier events meet specific conditions (The last two actions were ADDED)
 		Callable<List<Crafting_Candidate>> task3 = () -> {
+		// We need to REDO this section it is so ugly
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty()) {
 				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory
 						.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
@@ -238,16 +313,14 @@ public class Crafting_Algorithm {
 			return new ArrayList<>();
 		};
 
+		// Task 4: Apply Essence Currency
 		Callable<List<Crafting_Candidate>> task4 = () -> {
-			// Like the annul we check if the last thing we applied was not a essence
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty())
 			{
-				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
-				if (lastEvent.type != ActionType.CHANGED) {
-					Essence_currency essence_currency = new Essence_currency();
-					return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
-							undesiredMods);
-				}
+				// ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
+				Essence_currency essence_currency = new Essence_currency();
+				return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
+						undesiredMods);
 			}
 			return new ArrayList<>();
 		};
@@ -285,9 +358,19 @@ public class Crafting_Algorithm {
 		}
 	}
 
+	/**
+	 * Checks if the last two modifier events were applied by specific crafting orbs (Regal, Exalted, or Desecrated).
+	 * This ensures that an Annulment Orb is not applied immediately after an Exalted Orb, Regal Orb, or Desecrated Currency.
+	 *
+	 * @param lastEvent The most recent modifier event.
+	 * @param lastlastEvent The second most recent modifier event.
+	 * @return true if both events were applied by RegalOrb, ExaltedOrb, or Desecrated_currency; false otherwise.
+	 */
 	private static boolean isExaltorRegalorDes(ModifierEvent lastEvent, ModifierEvent lastlastEvent)
 	{
-		if (lastEvent == null || lastEvent.source == null)
+
+		// TO REDO
+		if (lastEvent == null || lastEvent.source == null || lastlastEvent == null || lastlastEvent.source == null)
 			return false;
 
 		// Only proceed if the action before was not a removal
@@ -303,12 +386,26 @@ public class Crafting_Algorithm {
 		return false;
 	}
 
+	/**
+	 * Copies a list of crafting candidates from the source list to the destination list.
+	 * Each candidate is deep-copied to ensure no shared references between the two lists.
+	 *
+	 * @param source The source list of crafting candidates.
+	 * @param destination The destination list where the copied candidates will be added.
+	 */
 	private static void copyCandidates(List<Crafting_Candidate> source, List<Crafting_Candidate> destination) {
 		for (Crafting_Candidate candidate : source) {
 			destination.add(candidate.copy());
 		}
 	}
 	
+	/**
+	 * Creates a deep copy of a list of lists of crafting candidates.
+	 * Each inner list and its elements are copied to ensure no shared references with the original structure.
+	 *
+	 * @param original The original list of lists of crafting candidates to be copied.
+	 * @return A new list of lists containing deep copies of the original crafting candidates.
+	 */
 	private static List<List<Crafting_Candidate>> deepCopy(List<List<Crafting_Candidate>> original) {
 		List<List<Crafting_Candidate>> copy = new ArrayList<>();
 		for (List<Crafting_Candidate> inner : original) {

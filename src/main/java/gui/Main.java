@@ -45,6 +45,12 @@ public class Main extends Application {
         ItemSelectionView view = new ItemSelectionView(manager.getCategories());
         new ItemSelectionController(view, manager);
 
+		// Initialize progress bar state
+		view.progressBar.setVisible(false);
+		view.progressBar.setProgress(0);
+
+		new ItemSelectionController(view, manager);
+
         HBox root = new HBox(20, view); // Add the view, not the controller
 
         Scene scene = new Scene(root, 1800, 1000);

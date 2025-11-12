@@ -2,10 +2,7 @@ package gui.views;
 
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -20,62 +17,53 @@ import java.util.List;
  *     <li>Display prefix and suffix modifier ComboBoxes along with their tier selectors.</li>
  *     <li>Handle the desecrated modifier checkbox and modifier type selection.</li>
  *     <li>Provide a validate button for confirming selections.</li>
- *     <li>Show messages and output related to the crafting selection.</li>
+ *     <li>Show messages, output, and a progress bar during crafting.</li>
  * </ul>
  */
 public class ItemSelectionView extends VBox {
 
-    /** ComboBox for selecting the item category */
+    // Category selectors
     public final ComboBox<String> categoryComboBox;
-
-    /** ComboBox for selecting the item subcategory (hidden if no subcategories exist) */
     public final ComboBox<String> subCategoryComboBox;
 
-    /** Button to validate the current selection */
-    public Button validateButton = new Button("Validate");
-
-    /** ComboBoxes for selecting prefix modifiers */
+    // Modifier selectors
     public final ComboBox<String> prefix1ComboBox;
     public final ComboBox<String> prefix2ComboBox;
     public final ComboBox<String> prefix3ComboBox;
-
-    /** ComboBoxes for selecting suffix modifiers */
     public final ComboBox<String> suffix1ComboBox;
     public final ComboBox<String> suffix2ComboBox;
     public final ComboBox<String> suffix3ComboBox;
 
-    /** ComboBoxes for selecting prefix tiers */
+    // Tier selectors
     public final ComboBox<String> prefix1TierComboBox;
     public final ComboBox<String> prefix2TierComboBox;
     public final ComboBox<String> prefix3TierComboBox;
-
-    /** ComboBoxes for selecting suffix tiers */
     public final ComboBox<String> suffix1TierComboBox;
     public final ComboBox<String> suffix2TierComboBox;
     public final ComboBox<String> suffix3TierComboBox;
 
-    /** CheckBox to indicate a desecrated modifier */
+    // Desecrated modifier controls
     public final CheckBox desecratedModifierCheckBox;
-
-    /** ComboBox for selecting modifier type (prefix/suffix) when desecrated modifier is selected */
     public final ComboBox<String> modifierTypeComboBox;
 
-    /** Label for showing messages (e.g., validation errors) */
+    // Labels and buttons
     public final Label messageLabel;
-
-    /** Label for displaying output */
     public final Label displayLabel;
-
-    /** Container for the display label */
+    public final Button validateButton;
+	public final Button clearButton = new Button("Clear");
     public final HBox displayBox;
 
+    // Progress bar
+    public final ProgressBar progressBar;
+
     /**
-     * Constructs the ItemSelectionView.
+     * Constructs the ItemSelectionView with all controls and layout.
      *
-     * @param categories a list of item categories to populate the category ComboBox
+     * @param categories the list of available item categories
      */
     public ItemSelectionView(List<String> categories) {
-        // Category combo boxes
+
+        // Initialize category combo boxes
         categoryComboBox = new ComboBox<>(FXCollections.observableArrayList(categories));
         categoryComboBox.setPromptText("Select Category");
 
@@ -83,7 +71,7 @@ public class ItemSelectionView extends VBox {
         subCategoryComboBox.setPromptText("Select Subcategory");
         subCategoryComboBox.setVisible(false);
 
-        // Desecrated modifier and type
+        // Initialize desecrated modifier controls
         desecratedModifierCheckBox = new CheckBox("Desecrated Modifier");
         modifierTypeComboBox = new ComboBox<>();
         modifierTypeComboBox.setPromptText("Select Modifier Type");
@@ -99,7 +87,7 @@ public class ItemSelectionView extends VBox {
             }
         });
 
-        // Prefix and suffix combo boxes
+        // Initialize modifier combo boxes
         prefix1ComboBox = new ComboBox<>();
         prefix2ComboBox = new ComboBox<>();
         prefix3ComboBox = new ComboBox<>();
@@ -114,7 +102,7 @@ public class ItemSelectionView extends VBox {
         suffix2TierComboBox = new ComboBox<>();
         suffix3TierComboBox = new ComboBox<>();
 
-        // Prompt texts
+        // Set prompt texts
         prefix1ComboBox.setPromptText("Prefix 1");
         prefix2ComboBox.setPromptText("Prefix 2");
         prefix3ComboBox.setPromptText("Prefix 3");
@@ -129,23 +117,25 @@ public class ItemSelectionView extends VBox {
         suffix2TierComboBox.setPromptText("Suffix 2 Tier");
         suffix3TierComboBox.setPromptText("Suffix 3 Tier");
 
+        // Initialize validate button
+        validateButton = new Button("Validate");
+
         // Message label
         messageLabel = new Label();
-        messageLabel.setText("");
         messageLabel.setStyle("-fx-text-fill: red; -fx-font-size: 12px;");
 
-        // Display box setup
+        // Display label
         displayLabel = new Label("Output will appear here...");
         displayLabel.setStyle("-fx-font-size: 12px;");
         displayBox = new HBox(displayLabel);
         displayBox.setAlignment(Pos.CENTER_LEFT);
-        displayBox.setStyle(
-            "-fx-background-color: transparent;" + 
-            "-fx-border-color: transparent;" +
-            "-fx-padding: 5;"
-        );
+        displayBox.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 5;");
 
-        // Layout groups
+        // Progress bar
+        progressBar = new ProgressBar(0);
+        progressBar.setVisible(false);
+
+        // Layout containers
         VBox categoryBox = new VBox(10, categoryComboBox, subCategoryComboBox);
         categoryBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -154,14 +144,13 @@ public class ItemSelectionView extends VBox {
         HBox suffixBox = new HBox(10, suffix1ComboBox, suffix2ComboBox, suffix3ComboBox);
         HBox suffixTierBox = new HBox(10, suffix1TierComboBox, suffix2TierComboBox, suffix3TierComboBox);
 
-        VBox modifierBox = new VBox(10, prefixBox, prefixTierBox, suffixBox, suffixTierBox, desecratedModifierCheckBox, modifierTypeComboBox);
+        VBox modifierBox = new VBox(10, prefixBox, prefixTierBox, suffixBox, suffixTierBox,
+                                     desecratedModifierCheckBox, modifierTypeComboBox);
         modifierBox.setAlignment(Pos.CENTER_LEFT);
 
-        // Validation section
-        VBox validationBox = new VBox(10, validateButton, displayBox, messageLabel);
+        VBox validationBox = new VBox(10, validateButton, clearButton, progressBar, displayBox, messageLabel);
         validationBox.setAlignment(Pos.CENTER);
 
-        // Main layout
         VBox mainLayout = new VBox(20, categoryBox, modifierBox, validationBox);
         mainLayout.setAlignment(Pos.CENTER);
 

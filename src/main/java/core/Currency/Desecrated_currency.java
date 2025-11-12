@@ -57,8 +57,10 @@ public class Desecrated_currency implements Crafting_Action{
 
 		List<Modifier> all_Affix_modifiers = new ArrayList<>();
 		
-		all_Affix_modifiers.addAll(item.base.getDesecratedAllowedPrefixes());
-		all_Affix_modifiers.addAll(item.base.getDesecratedAllowedSuffixes());
+		if(item.getAllCurrentPrefixModifiers().size() != 3)
+			all_Affix_modifiers.addAll(item.base.getDesecratedAllowedPrefixes());
+		if(item.getAllCurrentSuffixModifiers().size() != 3)
+			all_Affix_modifiers.addAll(item.base.getDesecratedAllowedSuffixes());
 
 		for (Crafting_Candidate candidate : CandidateList)
 		{

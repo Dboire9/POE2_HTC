@@ -16,6 +16,7 @@ public class ModifierEvent {
 
 	
     public Modifier modifier;
+	public Modifier changed_modifier;
     public ModifierTier tier;
     public Map<Crafting_Action, Double> source;
     public ActionType type;
@@ -32,9 +33,20 @@ public class ModifierEvent {
         this.timestamp = System.currentTimeMillis();
     }
 
+	public ModifierEvent(Modifier modifier, ModifierTier tier, Map<Crafting_Action, Double> source, ActionType type, Modifier changed_modifier)
+	{
+        this.modifier = modifier;
+		this.changed_modifier = changed_modifier;
+		this.score = 0;
+        this.tier = tier;
+        this.source = new HashMap<>(source);
+        this.type = type;
+        this.timestamp = System.currentTimeMillis();
+    }
+
 	public ModifierEvent copy() {
 		// Create a new instance and copy the fields
-		ModifierEvent copy = new ModifierEvent(this.modifier, this.tier, this.source, this.type);
+		ModifierEvent copy = new ModifierEvent(this.modifier, this.tier, this.source, this.type, this.changed_modifier);
 		copy.timestamp = this.timestamp;
 		copy.score = this.score;
 		return copy;

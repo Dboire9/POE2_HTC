@@ -183,7 +183,7 @@ public class ExaltAndRegalProbability {
     }
 
     /**
-     * Adds essence currency sources for a prefix modifier if applicable.
+     * Adds essence currency sources for an affix modifier if applicable.
      *
      * @param baseItem  The item being crafted
      * @param candidate The crafting candidate
@@ -192,20 +192,38 @@ public class ExaltAndRegalProbability {
      * @param realtier  The real tier index
      * @param i         Index in the modifier history
      */
-    private static void canBeEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
-                                     int level, int realtier, int i) {
-        if (event.modifier.type == ModifierType.PREFIX) {
-            List<Modifier> PossiblePrefixes = baseItem.base.getEssencesAllowedPrefixes();
-            for (Modifier m : PossiblePrefixes) {
-                if (m.text.equals(event.modifier.text)) {
-                    for (ModifierTier mtiers : m.tiers)
-                        if (mtiers.level == level)
-                            candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 1.0);
-                    break;
-                }
-            }
-        }
-    }
+	private static void canBeEssence(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
+			int level, int realtier, int i) {
+		if (event.modifier.type == ModifierType.PREFIX) {
+			List<Modifier> PossiblePrefixes = baseItem.base.getEssencesAllowedPrefixes();
+
+			// Loop until we find the same text, then check the ilvl to see if we can
+			// apply the essence
+			for (Modifier m : PossiblePrefixes) {
+				if (m.text.equals(event.modifier.text)) {
+					for (ModifierTier mtiers : m.tiers)
+						if (mtiers.level == level)
+							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 1.0);
+					break;
+				}
+			}
+		}
+
+		if (event.modifier.type == ModifierType.SUFFIX) {
+			List<Modifier> PossibleSuffixes = baseItem.base.getEssencesAllowedSuffixes();
+
+			// Loop until we find the same text, then check the ilvl to see if we can
+			// apply the essence
+			for (Modifier m : PossibleSuffixes) {
+				if (m.text.equals(event.modifier.text)) {
+					for (ModifierTier mtiers : m.tiers)
+						if (mtiers.level == level)
+							candidate.modifierHistory.get(i).source.put(new Essence_currency(m.family, mtiers), 1.0);
+					break;
+				}
+			}
+		}
+	}
 
     /**
      * Retrieves the modifiers that can match homogenising omen effects.

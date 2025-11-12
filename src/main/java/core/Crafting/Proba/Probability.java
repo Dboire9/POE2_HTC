@@ -6,12 +6,14 @@ import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Utils.ModifierEvent;
+import core.Crafting.Utils.ModifierEvent.ActionType;
 import core.Currency.AnnulmentOrb;
 import core.Currency.Desecrated_currency;
 import core.Currency.Essence_currency;
 import core.Currency.ExaltedOrb;
 import core.Currency.RegalOrb;
 import core.Modifier_class.Modifier;
+import core.Modifier_class.Modifier.ModifierType;
 
 
 public class Probability {
@@ -42,5 +44,49 @@ public class Probability {
 			}
 		}
 		return;
+	}
+
+	/**
+	 * Calculates the current number of prefixes and suffixes filled
+	 * based on the modifier history up to index 'limitIndex'.
+	 *
+	 * @param candidate the crafting candidate containing the modifier history
+	 * @param limitIndex exclusive upper bound in the history (usually the current i)
+	 * @return an int array where [0] = prefixesFilled, [1] = suffixesFilled
+	 */
+	public static double[] countAffixesFilled(Crafting_Candidate candidate, int limitIndex) {
+		double prefixesFilled = 0;
+		double suffixesFilled = 0;
+
+		for (int j = 0; j < limitIndex; j++) {
+			var entry = candidate.modifierHistory.get(j);
+			var modifier = entry.modifier;
+			ModifierType type = modifier.type;
+			ActionType action = entry.type;
+
+			switch (action) {
+				case REMOVED -> {
+					if (type == ModifierType.PREFIX) prefixesFilled--;
+					else if (type == ModifierType.SUFFIX) suffixesFilled--;
+				}
+				case ADDED -> {
+					if (type == ModifierType.PREFIX) prefixesFilled++;
+					else if (type == ModifierType.SUFFIX) suffixesFilled++;
+				}
+				case CHANGED -> {
+					ModifierType newType = entry.changed_modifier.type;
+					if (type == ModifierType.SUFFIX && newType == ModifierType.PREFIX) {
+						suffixesFilled++;
+						prefixesFilled--;
+					} else if (type == ModifierType.PREFIX && newType == ModifierType.SUFFIX) {
+						suffixesFilled--;
+						prefixesFilled++;
+					}
+				}
+				default -> { /* ignore other types */ }
+			}
+		}
+
+		return new double[]{prefixesFilled, suffixesFilled};
 	}
 }

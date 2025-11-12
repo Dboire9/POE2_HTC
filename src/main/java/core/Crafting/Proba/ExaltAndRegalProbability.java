@@ -98,7 +98,20 @@ public class ExaltAndRegalProbability {
                     if (percentage == 2)
                         source.put(new ExaltedOrb(Crafting_Action.CurrencyTier.DES_CURRENCY, currentOmen), percentage);
                     else if (percentage != 0)
-                        source.put(new ExaltedOrb(tier, currentOmen), percentage);
+					{
+						if(currentOmen == ExaltedOrb.Omen.OmenofHomogenisingExaltation)
+						{
+							Set<ExaltedOrb.Omen> newOmens = new HashSet<>();
+							newOmens.add(ExaltedOrb.Omen.OmenofHomogenisingExaltation);
+							if(event.modifier.type == ModifierType.PREFIX)
+								newOmens.add(ExaltedOrb.Omen.OmenofSinistralExaltation);
+							else if (event.modifier.type == ModifierType.SUFFIX)
+								newOmens.add(ExaltedOrb.Omen.OmenofDextralExaltation);
+							source.put(new ExaltedOrb(tier, newOmens), percentage);
+						}
+						else
+							source.put(new ExaltedOrb(tier, currentOmen), percentage);
+					}
                 }
             }
         }
@@ -145,19 +158,19 @@ public class ExaltAndRegalProbability {
                     List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
                     List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
                     percentage = NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
-                    if (!candidate.desecrated && (ilvl == 0 || ilvl == 40)) percentage = 1 - Math.pow(1 - percentage, 3);
-                    	return percentage;
+					// We mutliply by 3 the probability of having this modifier because we can have it by desecration
+					// Removing it for now
+                    // if (!candidate.desecrated && (ilvl == 0 || ilvl == 40)) percentage = 1 - Math.pow(1 - percentage, 3);
+					return percentage;
                 }
                 case OmenofHomogenisingExaltation -> {
-                    if (event.modifier.tags.isEmpty() || ilvl == 40) return 0;
+                    if (ilvl == 40) return 0;
                     if (event.modifier.type == ModifierType.PREFIX) {
                         List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
-                        orb.addOmen(ExaltedOrb.Omen.OmenofSinistralExaltation);
                         	return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
                     }
                     if (event.modifier.type == ModifierType.SUFFIX) {
                         List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
-                        orb.addOmen(ExaltedOrb.Omen.OmenofDextralExaltation);
                         	return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
                     }
                 }
@@ -165,16 +178,20 @@ public class ExaltAndRegalProbability {
                     if (event.modifier.type == ModifierType.PREFIX) {
                         List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
                         percentage = NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
-                        if (!candidate.desecrated) percentage = 1 - Math.pow(1 - percentage, 3);
-                        	return percentage;
+						// We mutliply by 3 the probability of having this modifier because we can have it by desecration
+						// Removing it for now
+                        // if (!candidate.desecrated) percentage = 1 - Math.pow(1 - percentage, 3);
+						return percentage;
                     }
                 }
                 case OmenofDextralExaltation -> {
                     if (event.modifier.type == ModifierType.SUFFIX) {
                         List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
                         percentage = NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
-                        if (!candidate.desecrated) percentage = 1 - Math.pow(1 - percentage, 3);
-                        	return percentage;
+						// We mutliply by 3 the probability of having this modifier because we can have it by desecration
+						// Removing it for now
+                        // if (!candidate.desecrated) percentage = 1 - Math.pow(1 - percentage, 3);
+						return percentage;
                     }
                 }
             }

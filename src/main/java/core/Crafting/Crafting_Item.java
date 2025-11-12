@@ -105,14 +105,18 @@ public class Crafting_Item {
 				Crafting_Item new_item = item.copy();
 
 				// Apply the modifier with the lowest tier
-				if (m.type == ModifierType.PREFIX && item.getAllCurrentPrefixModifiers().size() != 3)
+				if (m.type == ModifierType.PREFIX && item.getAllCurrentPrefixModifiers().size() < 3)
+				{
 					new_item.addPrefix(m, lowestTier);
-				else if (item.getAllCurrentSuffixModifiers().size() != 3)
+					new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
+					Items_List.add(new_item);
+				}
+				else if (m.type == ModifierType.SUFFIX && item.getAllCurrentSuffixModifiers().size() < 3)
+				{
 					new_item.addSuffix(m, lowestTier);
-
-				// Add the new item to the list
-				new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
-				Items_List.add(new_item);
+					new_item.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.ADDED));
+					Items_List.add(new_item);
+				}
 			}
 		}
 		return Items_List;
@@ -137,31 +141,35 @@ public class Crafting_Item {
 				if (m.type == ModifierType.PREFIX && item.getAllCurrentPrefixModifiers().size() >= 3)
 					for(int i = 0; i < 3; i++)
 					{
+						Modifier changed_modifier;
 						if(desiredMods.contains(currentPrefixes[i]))
 							continue;
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = item.copy();
 						if(new_item_copy.currentPrefixes[i].source == ModifierSource.DESECRATED)
 							new_item_copy.desecrated = false;
+						changed_modifier = new_item_copy.currentPrefixes[i];
 						new_item_copy.currentPrefixes[i] = null;
 						new_item_copy.currentPrefixTiers[i] = null;
 						new_item_copy.addPrefix(m, lowestTier);
-						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED, changed_modifier));
 						Items_List.add(new_item_copy);
 					}
 				else if (m.type == ModifierType.SUFFIX && item.getAllCurrentSuffixModifiers().size() >= 3)
 					for(int i = 0; i < 3; i++)
 					{
+						Modifier changed_modifier;
 						if(desiredMods.contains(currentSuffixes[i]))
 							continue;
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = item.copy();
 						if(new_item_copy.currentSuffixes[i].source == ModifierSource.DESECRATED)
 							new_item_copy.desecrated = false;
+						changed_modifier = new_item_copy.currentSuffixes[i];
 						new_item_copy.currentSuffixes[i] = null;
 						new_item_copy.currentSuffixTiers[i] = null;
 						new_item_copy.addSuffix(m, lowestTier);
-						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED, changed_modifier));
 						Items_List.add(new_item_copy);
 					}
 				else
@@ -169,36 +177,40 @@ public class Crafting_Item {
 					// We need to look for the modifier type and add the perfect essence only on it, but removing all the affixes we can
 					for(int i = 0; i < 3; i++)
 					{
+						Modifier changed_modifier;
 						if(currentPrefixes[i] == null || desiredMods.contains(currentPrefixes[i]))
 							continue;
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = item.copy();
 						if(new_item_copy.currentPrefixes[i].source == ModifierSource.DESECRATED)
 							new_item_copy.desecrated = false;
+						changed_modifier = new_item_copy.currentPrefixes[i];
 						new_item_copy.currentPrefixes[i] = null;
 						new_item_copy.currentPrefixTiers[i] = null;
 						if(m.type == ModifierType.PREFIX)
 							new_item_copy.addPrefix(m, lowestTier);
 						else
 							new_item_copy.addSuffix(m, lowestTier);
-						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED, changed_modifier));
 						Items_List.add(new_item_copy);
 					}
 					for(int i = 0; i < 3; i++)
 					{
+						Modifier changed_modifier;
 						if(currentSuffixes[i] == null || desiredMods.contains(currentSuffixes[i]))
 							continue;
 						Crafting_Item new_item_copy = new Crafting_Item();
 						new_item_copy = item.copy();
 						if(new_item_copy.currentSuffixes[i].source == ModifierSource.DESECRATED)
 							new_item_copy.desecrated = false;
+						changed_modifier = new_item_copy.currentSuffixes[i];
 						new_item_copy.currentSuffixes[i] = null;
 						new_item_copy.currentSuffixTiers[i] = null;
 						if(m.type == ModifierType.PREFIX)
 							new_item_copy.addPrefix(m, lowestTier);
 						else
 							new_item_copy.addSuffix(m, lowestTier);
-						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED));
+						new_item_copy.modifierHistory.add(new ModifierEvent(m, lowestTier, action, ModifierEvent.ActionType.CHANGED, changed_modifier));
 						Items_List.add(new_item_copy);
 					}
 				}
@@ -260,10 +272,10 @@ public class Crafting_Item {
 
 	// Removing a prefix
 	public void removePrefix(Modifier mod) {
-		for (int i = 0; i < currentPrefixes.length; i++) {
-			if (currentPrefixes[i] != null && currentPrefixes[i].text != null && currentPrefixes[i].text.equals(mod.text)) {
-				currentPrefixes[i] = null;
-				currentPrefixTiers[i] = null; // clear the tier as well
+		for (int i = 0; i < this.currentPrefixes.length; i++) {
+			if (this.currentPrefixes[i] != null && this.currentPrefixes[i].text != null && this.currentPrefixes[i].text.equals(mod.text)) {
+				this.currentPrefixes[i] = null;
+				this.currentPrefixTiers[i] = null; // clear the tier as well
 				return;
 			}
 		}
@@ -272,10 +284,10 @@ public class Crafting_Item {
 
 	// Removing a suffix
 	public void removeSuffix(Modifier mod) {
-		for (int i = 0; i < currentSuffixes.length; i++) {
-			if (currentSuffixes[i] != null && currentSuffixes[i].text != null && currentSuffixes[i].text.equals(mod.text)) {
-				currentSuffixes[i] = null;
-				currentSuffixTiers[i] = null; // clear the tier as well
+		for (int i = 0; i < this.currentSuffixes.length; i++) {
+			if (this.currentSuffixes[i] != null && this.currentSuffixes[i].text != null && this.currentSuffixes[i].text.equals(mod.text)) {
+				this.currentSuffixes[i] = null;
+				this.currentSuffixTiers[i] = null; // clear the tier as well
 				return;
 			}
 		}
@@ -284,7 +296,7 @@ public class Crafting_Item {
 
 	// Adding a prefix with tier
 	public void addPrefix(Modifier mod, ModifierTier tier) {
-		for (int i = 0; i < currentPrefixes.length; i++) {
+		for (int i = 0; i < this.currentPrefixes.length; i++) {
 			if (currentPrefixes[i] == null) {
 				this.currentPrefixes[i] = mod;
 				this.currentPrefixTiers[i] = tier; // store applied tier separately
@@ -296,7 +308,7 @@ public class Crafting_Item {
 
 	// Adding a suffix with tier
 	public void addSuffix(Modifier mod, ModifierTier tier) {
-		for (int i = 0; i < currentSuffixes.length; i++) {
+		for (int i = 0; i < this.currentSuffixes.length; i++) {
 			if (currentSuffixes[i] == null) {
 				this.currentSuffixes[i] = mod;
 				this.currentSuffixTiers[i] = tier; // store applied tier separately
@@ -317,15 +329,6 @@ public class Crafting_Item {
 				this.currentSuffixes[i] = mod;
 				this.currentSuffixTiers[i] = tier;
 		// System.out.println("No suffix slot available!");
-	}
-
-	// Removing modifiers
-	public void removePrefix(int index) {
-		currentPrefixes[index] = null;
-	}
-
-	public void removeSuffix(int index) {
-		this.currentSuffixes[index] = null;
 	}
 
 	// Utils for getting the tags for homog omens
@@ -350,8 +353,8 @@ public class Crafting_Item {
 	public List<Modifier> getAllCurrentPrefixModifiers() {
 		List<Modifier> mods = new ArrayList<>();
 
-		if (currentPrefixes != null) {
-			for (Modifier m : currentPrefixes) {
+		if (this.currentPrefixes != null) {
+			for (Modifier m : this.currentPrefixes) {
 				if (m != null)
 					mods.add(m);
 			}
@@ -362,8 +365,8 @@ public class Crafting_Item {
 	public List<Modifier> getAllCurrentSuffixModifiers() {
 		List<Modifier> mods = new ArrayList<>();
 
-		if (currentSuffixes != null) {
-			for (Modifier m : currentSuffixes) {
+		if (this.currentSuffixes != null) {
+			for (Modifier m : this.currentSuffixes) {
 				if (m != null)
 					mods.add(m);
 			}

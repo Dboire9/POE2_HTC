@@ -83,8 +83,23 @@ public interface Crafting_Action {
 		item = candidate.copy();
 
 		// if(item.currentSuffixes[0] != null && item.currentSuffixes[1] != null && item.currentSuffixes[2] != null)
-		// 	if(item.currentSuffixes[0].family.contains(desiredMods.get(3).family) && item.currentSuffixes[1].family.contains(desiredMods.get(4).family) && item.currentSuffixes[2].family.contains(desiredMods.get(5).family))
-		// 		System.out.println( desiredMods.get(4).family);
+		// 	if(item.currentSuffixes[0].family.contains(desiredMods.get(3).family) && item.currentSuffixes[1].family.contains(desiredMods.get(4).family) && item.currentSuffixes[2].family.contains(desiredMods.get(5).family)){}
+		// System.out.println( desiredMods.get(0).family);
+		// System.out.println( desiredMods.get(1).family);
+		// System.out.println( desiredMods.get(2).family);
+		// System.out.println( desiredMods.get(3).family);
+		// System.out.println( desiredMods.get(4).family);
+		// System.out.println( desiredMods.get(5).family);
+
+		// if (item.modifierHistory != null && item.modifierHistory.size() >= 5) {
+		// 	if (item.modifierHistory.get(0).modifier.family.contains("PhysicalDamage") &&
+		// 		item.modifierHistory.get(1).modifier.family.contains("CriticalStrikeChanceIncrease") &&
+		// 		item.modifierHistory.get(2).modifier.family.contains("IncreasedAttackSpeed") &&
+		// 		item.modifierHistory.get(3).modifier.family.contains("IncreaseSocketedGemLevel") &&
+		// 		item.modifierHistory.get(4).modifier.family.contains("ManaCostEfficiency")) {
+		// 		System.out.println("Here");
+		// 	}
+		// }
 
 
 

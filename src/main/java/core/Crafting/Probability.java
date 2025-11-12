@@ -196,7 +196,7 @@ public class Probability {
 			}
 		}
 
-		return 1;
+		return percentage;
 	}
 
 	public static void ComputeEssence(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem,
@@ -232,6 +232,17 @@ public class Probability {
 				prefixesFilled++;
 			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX)
 				suffixesFilled++;
+			// Here if we applied a perfect essence that change a prefix into a suffix we need to increment and decrement accordingly
+			else if (candidate.modifierHistory.get(j).type == ActionType.CHANGED && candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).changed_modifier.type == ModifierType.PREFIX)
+			{
+				suffixesFilled++;
+				prefixesFilled--;
+			}
+			else if (candidate.modifierHistory.get(j).type == ActionType.CHANGED && candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).changed_modifier.type == ModifierType.SUFFIX)
+			{
+				suffixesFilled--;
+				prefixesFilled++;
+			}
 		}
 
 		if (omen instanceof Essence_currency.Omen essenceOmen) {
@@ -247,7 +258,7 @@ public class Probability {
 				case OmenofSinistralCrystallisation:
 				{
 					// Removes only PREFIX modifiers → ignore suffixes
-					if (prefixesFilled != 0)
+					if (candidate.modifierHistory.get(i).changed_modifier.type == ModifierType.PREFIX)
 						return 1.0 / prefixesFilled;
 					break;
 				}
@@ -255,7 +266,7 @@ public class Probability {
 				case OmenofDextralCrystallisation:
 				{
 					// Removes only SUFFIX modifiers → ignore prefixes
-					if (suffixesFilled != 0)
+					if (candidate.modifierHistory.get(i).changed_modifier.type == ModifierType.SUFFIX)
 						return 1.0 / suffixesFilled;
 					break;
 				}
@@ -364,17 +375,17 @@ public class Probability {
 					 */
 					if(candidate.desecrated == false && (ilvl == 0 || ilvl == 40))
 					{
-						// percentage = 1 - Math.pow(1 - percentage, 3);
-						percentage = 2; // 100% chance because we can go again each time ? 
-						event.modifier.source = ModifierSource.DESECRATED;
-						candidate.desecrated = true;
+						percentage = 1 - Math.pow(1 - percentage, 3);
+						// percentage = 2; // 100% chance because we can go again each time ? 
+						// event.modifier.source = ModifierSource.DESECRATED;
+						// candidate.desecrated = true;
 					}
 					return percentage;
 				}
 				case OmenofHomogenisingExaltation:
 				{
 					// If the modifier of the event has no tags we break
-					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null || event.modifier.tags.get(0).isEmpty() || ilvl == 40)
+					if (event.modifier.tags.isEmpty() || event.modifier.tags.isEmpty() || ilvl == 40)
 						return 0;
 					if (event.modifier.type == ModifierType.PREFIX)
 					{
@@ -398,10 +409,10 @@ public class Probability {
 						percentage =  NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
 						if(candidate.desecrated == false) // If we do not have a desecration on the item, here we simulate the fact of having the modifier with a desecration
 						{
-							// percentage = 1 - Math.pow(1 - percentage, 3);
-							percentage = 2;
-							event.modifier.source = ModifierSource.DESECRATED;
-							candidate.desecrated = true;
+							percentage = 1 - Math.pow(1 - percentage, 3);
+							// percentage = 2;
+							// event.modifier.source = ModifierSource.DESECRATED;
+							// candidate.desecrated = true;
 						}
 						return percentage;
 					}
@@ -415,10 +426,10 @@ public class Probability {
 						percentage =  NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
 						if(candidate.desecrated == false) // If we do not have a desecration on the item, here we simulate the fact of having the modifier with a desecration
 						{
-							// percentage = 1 - Math.pow(1 - percentage, 3);
-							percentage = 2;
-							event.modifier.source = ModifierSource.DESECRATED;
-							candidate.desecrated = true;
+							percentage = 1 - Math.pow(1 - percentage, 3);
+							// percentage = 2;
+							// event.modifier.source = ModifierSource.DESECRATED;
+							// candidate.desecrated = true;
 						}
 						return percentage;
 					}

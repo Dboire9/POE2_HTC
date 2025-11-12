@@ -9,41 +9,18 @@ import java.util.List;
  * properties of the modifier.
  */
 public class Modifier {
-    /** The primary category of the modifier. */
-    public String primaryCategory;
-
-    /** The secondary category of the modifier (optional). */
-    public String secondaryCategory;
-
-    /** The third category of the modifier (optional). */
-    public String thirdCategory;
-
-    /** The fourth category of the modifier (optional). */
-    public String fourthCategory;
-
-    /** The list of tiers associated with the modifier. */
-    public List<ModifierTier> tiers;
-
-    /** The currently chosen tier for the modifier. */
-    public int chosenTier = 0;
-
-    /** The type of the modifier (PREFIX or SUFFIX). */
-    public ModifierType type;
-
-    /** The tags associated with the modifier. */
-    public List<String> tags;
-
-    /** The source of the modifier (e.g., NORMAL, DESECRATED, ESSENCE). */
-    public ModifierSource source;
-
-    /** The family to which the modifier belongs. */
-    public String family;
-
-    /** The descriptive text of the modifier. */
-    public String text;
-
-    /** Indicates whether the modifier is desired for the algorithm. */
-    public boolean is_desired_mod = false;
+    public String primaryCategory; // Primary category of the modifier
+    public String secondaryCategory; // Secondary category of the modifier (optional)
+    public String thirdCategory; // Third category of the modifier (optional)
+    public String fourthCategory; // Fourth category of the modifier (optional)
+    public List<ModifierTier> tiers; // List of tiers associated with the modifier
+    public int chosenTier = 0; // Currently chosen tier for the modifier
+    public ModifierType type; // Type of the modifier (PREFIX or SUFFIX)
+    public List<String> tags; // Tags associated with the modifier
+    public ModifierSource source; // Source of the modifier (e.g., NORMAL, DESECRATED, ESSENCE)
+    public String family; // Family to which the modifier belongs
+    public String text; // Descriptive text of the modifier
+    public boolean is_desired_mod = false; // Indicates whether the modifier is desired for the algorithm
 
     /**
      * Enum representing the type of the modifier.

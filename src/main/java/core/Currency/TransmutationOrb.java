@@ -13,10 +13,7 @@ import core.Modifier_class.*;
  */
 public class TransmutationOrb implements Crafting_Action {
 
-    /**
-     * The tier of the Transmutation Orb, which determines its strength.
-     */
-    public Crafting_Action.CurrencyTier tier;
+    public Crafting_Action.CurrencyTier tier; // The tier of the Transmutation Orb
 
     /**
      * Creates a copy of the current Transmutation Orb.

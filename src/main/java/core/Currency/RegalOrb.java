@@ -17,15 +17,9 @@ import core.Modifier_class.Modifier;
  */
 public class RegalOrb implements Crafting_Action {
 
-    /**
-     * The tier of the Regal Orb, which determines its strength.
-     */
-    public CurrencyTier tier;
+    public CurrencyTier tier; 
 
-    /**
-     * The omen associated with this Regal Orb.
-     */
-    public Omen omen;
+    public Omen omen; // The omen associated with this Regal Orb.
 
     /**
      * Enum representing the different omens that can influence the crafting process.

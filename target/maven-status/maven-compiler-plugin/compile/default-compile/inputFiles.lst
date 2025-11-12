@@ -13,6 +13,7 @@
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Items/Gloves/Gloves_str_dex/Gloves_str_dex.java
 /root/POE2_HTC/src/main/java/core/Items/Bucklers/Bucklers.java
+/root/POE2_HTC/src/main/java/core/Crafting/Proba/ExaltAndRegalProbability.java
 /root/POE2_HTC/src/main/java/core/Items/Boots/Boots_dex/Boots_dex.java
 /root/POE2_HTC/src/main/java/core/Items/Spears/Spears.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Shields_Item_modifiers/Shields_Normal_Item_modifiers/Modifiers_essences.java
@@ -24,7 +25,6 @@
 /root/POE2_HTC/src/main/java/core/Items/Body_Armours/Body_Armours_int/Body_Armours_int.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Normal_Item_modifiers/Modifiers_normal.java
-/root/POE2_HTC/src/main/java/core/Crafting/Probability.java
 /root/POE2_HTC/src/main/java/core/Currency/AnnulmentOrb.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Crossbows_Items_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Items/Shields/Shields_str_int/Shields_str_int.java
@@ -35,8 +35,8 @@
 /root/POE2_HTC/src/main/java/core/Items/Boots/Boots_str/Boots_str.java
 /root/POE2_HTC/src/main/java/core/Items/Gloves/Gloves_str_int/Gloves_str_int.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Normal_Item_modifiers/Modifiers_essences.java
-/root/POE2_HTC/src/main/java/core/Currency/ChaosOrb.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_normal.java
+/root/POE2_HTC/src/main/java/core/Crafting/Proba/Probability_Analyzer.java
 /root/POE2_HTC/src/main/java/core/Items/Helmets/Helmets_int/Helmets_int.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Sceptres_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Items/Gloves/Gloves_dex_int/Gloves_dex_int.java
@@ -55,6 +55,7 @@
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Normal_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Quivers_Item_modifiers/Modifiers_normal.java
 /root/POE2_HTC/src/main/java/core/Items/Helmets/Helmets_str_dex/Helmets_str_dex.java
+/root/POE2_HTC/src/main/java/core/Crafting/Proba/DesProbability.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_normal.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifiers/Modifiers_desecrated.java
@@ -67,6 +68,7 @@
 /root/POE2_HTC/src/main/java/core/Items/Boots/Boots_str_int/Boots_str_int.java
 /root/POE2_HTC/src/main/java/core/Items/Helmets/Helmets_str/Helmets_str.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Bucklers_Item_modifiers/Modifiers_desecrated.java
+/root/POE2_HTC/src/main/java/core/Crafting/Proba/ComputingLastProbability.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/TwoHandMaces_Items_modifiers/Modifiers_normal.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Foci_Item_modifiers/Modifiers_normal.java
@@ -85,15 +87,16 @@
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Amulets_Item_modifiers/Modifiers_normal.java
 /root/POE2_HTC/src/main/java/core/Items/Body_Armours/Body_Armours_str_dex/Body_Armours_str_dex.java
 /root/POE2_HTC/src/main/java/core/Currency/ExaltedOrb.java
+/root/POE2_HTC/src/main/java/core/Crafting/Proba/Probability.java
 /root/POE2_HTC/src/main/java/core/Items/Gloves/Gloves_str/Gloves_str.java
 /root/POE2_HTC/src/main/java/core/Items/Wands/Wands.java
 /root/POE2_HTC/src/main/java/core/Items/Body_Armours/Body_Armours_dex_int/Body_Armours_dex_int.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Body_Armours_Item_modifiers/Body_Armours_Hybrid_Item_modifiers/Modifiers_normal.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_normal.java
+/root/POE2_HTC/src/main/java/core/Crafting/Proba/AnnulProbability.java
 /root/POE2_HTC/src/main/java/core/Items/Amulets/Amulets.java
 /root/POE2_HTC/src/main/java/core/Crafting/Crafting_Item.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Helmets_Item_modifiers/Helmets_Normal_Item_modifiers/Modifiers_essences.java
-/root/POE2_HTC/src/main/java/core/Crafting/ComputingLastProbability.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Off_Hand_Item_modifiers/Bucklers_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Normal_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Crafting/Crafting_Action.java
@@ -104,6 +107,7 @@
 /root/POE2_HTC/src/main/java/core/Items/Foci/Foci.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Staves_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Spears_Item_modifiers/Modifiers_essences.java
+/root/POE2_HTC/src/main/java/core/Crafting/Proba/EssenceProbability.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/TwoHand_Item_modifiers/Staves_Item_modifiers/Modifiers_essences.java
 /root/POE2_HTC/src/main/java/core/Items/Bows/Bows.java
 /root/POE2_HTC/src/main/java/core/Items/Gloves/Gloves_int/Gloves_int.java
@@ -116,7 +120,6 @@
 /root/POE2_HTC/src/main/java/gui/utils/ValidateButton.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/OneHand_Item_modifiers/Sceptres_Item_modifiers/Modifiers_normal.java
 /root/POE2_HTC/src/main/java/core/Currency/TransmutationOrb.java
-/root/POE2_HTC/src/main/java/core/Crafting/Probability_Analyzer.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Boots_Item_modifiers/Boots_Hybrid_Item_modifiers/Modifiers_desecrated.java
 /root/POE2_HTC/src/main/java/core/Items/Shields/Shields_str_dex/Shields_str_dex.java
 /root/POE2_HTC/src/main/java/core/Item_modifiers/Jewellery_Item_modifiers/Rings_Item_modifiers/Modifiers_essences.java

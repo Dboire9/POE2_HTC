@@ -3,36 +3,94 @@ package core.Items;
 import core.Modifier_class.*;
 import java.util.List;
 
+/**
+ * The {@code Item_base} class represents the base structure of an item in the game.
+ * It defines the allowed prefixes and suffixes for different crafting methods such as
+ * normal crafting, desecration, and essences.
+ */
 public class Item_base {
+
+    /**
+     * List of prefixes allowed for normal crafting.
+     */
     protected List<Modifier> Normal_allowedPrefixes;
+
+    /**
+     * List of suffixes allowed for normal crafting.
+     */
     protected List<Modifier> Normal_allowedSuffixes;
+
+    /**
+     * List of prefixes allowed for desecration crafting.
+     */
     protected List<Modifier> Desecrated_allowedPrefixes;
+
+    /**
+     * List of suffixes allowed for desecration crafting.
+     */
     protected List<Modifier> Desecrated_allowedSuffixes;
+
+    /**
+     * List of prefixes allowed for essence crafting.
+     */
     protected List<Modifier> Essences_allowedPrefixes;
+
+    /**
+     * List of suffixes allowed for essence crafting.
+     */
     protected List<Modifier> Essences_allowedSuffixes;
 
+    /**
+     * Retrieves the list of prefixes allowed for normal crafting.
+     *
+     * @return A list of {@code Modifier} objects representing the allowed prefixes.
+     */
+    public List<Modifier> getNormalAllowedPrefixes() {
+        return Normal_allowedPrefixes;
+    }
 
-	public List<Modifier> getNormalAllowedPrefixes() {
-		return Normal_allowedPrefixes;
-	}
-	
-	public List<Modifier> getNormalAllowedSuffixes() {
-		return Normal_allowedSuffixes;
-	}
-	
-	public List<Modifier> getDesecratedAllowedPrefixes() {
-		return Desecrated_allowedPrefixes;
-	}
-	
-	public List<Modifier> getDesecratedAllowedSuffixes() {
-		return Desecrated_allowedSuffixes;
-	}
-	
-	public List<Modifier> getEssencesAllowedPrefixes() {
-		return Essences_allowedPrefixes;
-	}
-	
-	public List<Modifier> getEssencesAllowedSuffixes() {
-		return Essences_allowedSuffixes;
-	}
+    /**
+     * Retrieves the list of suffixes allowed for normal crafting.
+     *
+     * @return A list of {@code Modifier} objects representing the allowed suffixes.
+     */
+    public List<Modifier> getNormalAllowedSuffixes() {
+        return Normal_allowedSuffixes;
+    }
+
+    /**
+     * Retrieves the list of prefixes allowed for desecration crafting.
+     *
+     * @return A list of {@code Modifier} objects representing the allowed prefixes.
+     */
+    public List<Modifier> getDesecratedAllowedPrefixes() {
+        return Desecrated_allowedPrefixes;
+    }
+
+    /**
+     * Retrieves the list of suffixes allowed for desecration crafting.
+     *
+     * @return A list of {@code Modifier} objects representing the allowed suffixes.
+     */
+    public List<Modifier> getDesecratedAllowedSuffixes() {
+        return Desecrated_allowedSuffixes;
+    }
+
+    /**
+     * Retrieves the list of prefixes allowed for essence crafting.
+     *
+     * @return A list of {@code Modifier} objects representing the allowed prefixes.
+     */
+    public List<Modifier> getEssencesAllowedPrefixes() {
+        return Essences_allowedPrefixes;
+    }
+
+    /**
+     * Retrieves the list of suffixes allowed for essence crafting.
+     *
+     * @return A list of {@code Modifier} objects representing the allowed suffixes.
+     */
+    public List<Modifier> getEssencesAllowedSuffixes() {
+        return Essences_allowedSuffixes;
+    }
 }

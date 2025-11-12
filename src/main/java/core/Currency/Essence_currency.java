@@ -1,10 +1,8 @@
 package core.Currency;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;

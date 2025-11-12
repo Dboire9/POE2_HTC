@@ -1,6 +1,5 @@
 package core.Crafting;
 
-import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 

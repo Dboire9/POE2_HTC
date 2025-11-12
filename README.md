@@ -11,8 +11,8 @@ This project will continue to be updated alongside new content from GGG, with up
 Contributions to this project are very welcome!
 
 
-(*I started this project to showcase it on my resume while searching for an internship, but it won't be finished in time before January.  
-If you are looking for an intern in software development or AI for January (preferably in France), feel free to view my other projects and contact me.*)
+(*I started this project a month ago to showcase it on my resume while searching for an internship, but it won't be finished in time before early December and the new season.
+So if you are looking for an intern in software development or AI for January (preferably in France), feel free to view my other projects and contact me.*)
 
 
 **Topics:** Java, JavaFX, POE2, Crafting, BeamSearch, GameTools, OpenSource

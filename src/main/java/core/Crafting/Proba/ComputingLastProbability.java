@@ -85,7 +85,7 @@ public class ComputingLastProbability {
 
         if (action instanceof Desecrated_currency) {
             for (Desecrated_currency.Omen currentOmen : Desecrated_currency.Omen.values()) {
-                percentage = Probability.ComputePercentageDesecrated_currency(baseItem, candidate, event, currentOmen, i);
+                percentage = DesProbability.ComputePercentageDesecrated_currency(baseItem, candidate, event, currentOmen, i);
                 if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
                     return true;
             }
@@ -238,13 +238,13 @@ public class ComputingLastProbability {
 
             if (action instanceof RegalOrb) {
                 for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values()) {
-                    double percentage = Probability.ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
+                    double percentage = ExaltAndRegalProbability.ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
                     if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
                         return true;
                 }
             } else if (action instanceof ExaltedOrb) {
                 for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values()) {
-                    double percentage = Probability.ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
+                    double percentage = ExaltAndRegalProbability.ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
                     if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
                         return true;
                 }

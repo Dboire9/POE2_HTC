@@ -1,16 +1,15 @@
 package core.Crafting.Proba;
 
 import java.util.*;
-import core.Items.*;
 import core.Modifier_class.*;
 import core.Modifier_class.Modifier.ModifierType;
 import core.Crafting.*;
 import core.Crafting.Crafting_Action.CurrencyTier;
 import core.Currency.*;
-import core.Crafting.Proba.Probability;
 import core.Crafting.Utils.ModifierEvent;
+import core.Crafting.Utils.ModifierEvent.ActionType;
 
-public class DesecratedAndRegalProbability {
+public class ExaltAndRegalProbability {
 
     /**
      * Handles Regal and Exalted orb computations.
@@ -47,26 +46,6 @@ public class DesecratedAndRegalProbability {
 			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired);
 			if (action instanceof RegalOrb)
 				canBeEssence(baseItem, candidate, event, level, realtier, i);
-		}
-	}
-
-    /**
-     * Handles Desecrated currency computations.
-     * This function computes probability tiers for desecrated outcomes.
-     */
-	public static void ComputeDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i) {
-		ModifierEvent event = candidate.modifierHistory.get(i);
-
-		double percentage = 0;
-		Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
-		Crafting_Action action = source.keySet().iterator().next();
-
-		if (action instanceof Desecrated_currency) {
-			for (Desecrated_currency.Omen currentOmen : Desecrated_currency.Omen.values()) {
-				percentage = ComputePercentageDesecrated_currency(baseItem, candidate, event, currentOmen, i);
-				if (percentage != 0)
-					candidate.modifierHistory.get(i).source.put(new Desecrated_currency(currentOmen), percentage);
-			}
 		}
 	}
 
@@ -114,92 +93,6 @@ public class DesecratedAndRegalProbability {
 	}
 
     /**
-     * Performs the detailed desecrated probability computation.
-     */
-	public static double ComputePercentageDesecrated_currency(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i) {
-
-		double kurgal_modTotal = 0;
-		double amanamu_modTotal = 0;
-		double ulaman_modTotal = 0;
-
-		double percentage = 0;
-
-		List<Modifier> PossiblePrefixes = baseItem.base.getDesecratedAllowedPrefixes();
-		List<Modifier> PossibleSuffixes = baseItem.base.getDesecratedAllowedSuffixes();
-
-		/*
-		 * Here we check which type it is, because for the omens we need to do 1 out of
-		 * all the desecrated family modifiers, but if we have prefix and suffix, the
-		 * omens help us keep the percentage the same,
-		 * we just add the omen if there is both affixes
-		 */
-		if (event.modifier.type == ModifierType.PREFIX) {
-			for (Modifier m : PossiblePrefixes) {
-				if (m.tags.contains("kurgal_mod"))
-					kurgal_modTotal++;
-				if (m.tags.contains("amanamu_mod"))
-					amanamu_modTotal++;
-				if (m.tags.contains("ulaman_mod"))
-					ulaman_modTotal++;
-			}
-		} else {
-			for (Modifier m : PossibleSuffixes) {
-				if (m.tags.contains("kurgal_mod"))
-					kurgal_modTotal++;
-				if (m.tags.contains("amanamu_mod"))
-					amanamu_modTotal++;
-				if (m.tags.contains("ulaman_mod"))
-					ulaman_modTotal++;
-			}
-		}
-
-		if (omen instanceof Desecrated_currency.Omen desOmen) {
-			Desecrated_currency orb = (Desecrated_currency) event.source.keySet().iterator().next();
-			switch (desOmen) {
-				case OmenofSinistralNecromancy:
-					break;
-				case OmenofDextralNecromancy:
-					break;
-				case OmenoftheBlackblooded: {
-					if (event.modifier.tags.contains("kurgal_mod"))
-						percentage = 1 / kurgal_modTotal; // We have a guarantee to have a random kurgal modifier so 1 out of the total of them
-					else
-						break; // If no kurgal_mod break it will do nothing
-					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
-						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
-					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX) // Opposite here
-						orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
-					break;
-				}
-				case OmenoftheLiege: {
-					if (event.modifier.tags.contains("amanamu_mod"))
-						percentage = 1 / amanamu_modTotal;
-					else
-						break;
-					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
-						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
-					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX) // Opposite here
-						orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
-					break;
-				}
-				case OmenoftheSovereign: {
-					if (event.modifier.tags.contains("ulaman_mod"))
-						percentage = 1 / ulaman_modTotal;
-					else
-						break;
-					if (PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && event.modifier.type == ModifierType.SUFFIX) // If we have desecrated prefix modifiers and the mod we add is a suffix, we apply the omen for only suffix
-						orb.addOmen(Desecrated_currency.Omen.OmenofDextralNecromancy);
-					else if (PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && event.modifier.type == ModifierType.PREFIX) // Opposite here
-						orb.addOmen(Desecrated_currency.Omen.OmenofSinistralNecromancy);
-					break;
-				}
-			}
-		}
-
-		return percentage;
-	}
-
-    /**
      * Computes chance for a single tier in desecrated computations.
      */
 	public static double ComputePercentage(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl, Enum<?> omen, int i, boolean isDesired)
@@ -215,7 +108,7 @@ public class DesecratedAndRegalProbability {
 				{
 					List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
 					List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
-					percentage =  Probability.NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
+					percentage =  NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
 					return percentage;
 				}
 				case OmenofHomogenisingCoronation:
@@ -223,9 +116,9 @@ public class DesecratedAndRegalProbability {
 					// If the modifier of the event has no tags we break
 					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null || event.modifier.tags.get(0).isEmpty())
 						return 0;
-					List<Modifier> PossiblePrefixes = Probability.GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
-					List<Modifier> PossibleSuffixes = Probability.GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
-					percentage =  Probability.NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
+					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
+					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
+					percentage =  NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
 					return percentage;
 				}
 			}
@@ -239,7 +132,7 @@ public class DesecratedAndRegalProbability {
 				{
 					List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
 					List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
-					percentage =  Probability.NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
+					percentage =  NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
 					/* If we do not have a desecration on the item, here we simulate the fact of having the modifier with a desecration
 					 * We also just do it on base tiers, as there is no tier
 					 */
@@ -259,15 +152,15 @@ public class DesecratedAndRegalProbability {
 						return 0;
 					if (event.modifier.type == ModifierType.PREFIX)
 					{
-						List<Modifier> PossiblePrefixes = Probability.GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
+						List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
 						orb.addOmen(ExaltedOrb.Omen.OmenofSinistralExaltation);
-						return Probability.NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
+						return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
 					}
 					if (event.modifier.type == ModifierType.SUFFIX)
 					{
-						List<Modifier> PossibleSuffixes = Probability.GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
+						List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
 						orb.addOmen(ExaltedOrb.Omen.OmenofDextralExaltation);
-						return Probability.NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
+						return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
 					}
 					break;
 				}
@@ -276,7 +169,7 @@ public class DesecratedAndRegalProbability {
 					if (event.modifier.type == ModifierType.PREFIX)
 					{
 						List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
-						percentage =  Probability.NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
+						percentage =  NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
 						if(candidate.desecrated == false) // If we do not have a desecration on the item, here we simulate the fact of having the modifier with a desecration
 						{
 							percentage = 1 - Math.pow(1 - percentage, 3);
@@ -293,7 +186,7 @@ public class DesecratedAndRegalProbability {
 					if (event.modifier.type == ModifierType.SUFFIX)
 					{
 						List<Modifier> PossibleSuffixes = baseItem.base.getNormalAllowedSuffixes();
-						percentage =  Probability.NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
+						percentage =  NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
 						if(candidate.desecrated == false) // If we do not have a desecration on the item, here we simulate the fact of having the modifier with a desecration
 						{
 							percentage = 1 - Math.pow(1 - percentage, 3);
@@ -326,5 +219,96 @@ public class DesecratedAndRegalProbability {
 				}
 			}
 		}
+	}
+
+	public static List<Modifier> GetHomogAffixes(Crafting_Item baseItem, Crafting_Candidate candidate,
+	ModifierEvent event, List<Modifier> PossibleAffixes, int i) {
+		List<Modifier> FinalPossibleAffixes = new ArrayList<>();
+		List<String> ItemAffixTags = new ArrayList<>();
+
+		for (int j = 0; j <= i; j++) {
+			// Retrieving the tags
+			for (String tags : candidate.modifierHistory.get(j).modifier.tags)
+				if (!tags.isEmpty() && !ItemAffixTags.contains(tags))
+					ItemAffixTags.add(tags);
+		}
+
+		for (Modifier PossibleModifier : PossibleAffixes) // Looping through all modifiers passed in arguments
+			for (String tag : PossibleModifier.tags) // Looping through every tags the modifiers we got has
+				if (ItemAffixTags.contains(tag) && !tag.isEmpty()) // If the modifier has a tag that we already have from the current Item Affixes, we add it to the list of Affixes we could have rolled (for the weight)
+				{
+					if (!FinalPossibleAffixes.contains(PossibleModifier)) // Checking for not adding duplicates
+						FinalPossibleAffixes.add(PossibleModifier);
+					break;
+				}
+		return FinalPossibleAffixes;
+		}
+
+	public static double NormalCompute(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event,
+	int ilvl, int i, List<Modifier> PossiblePrefixes, List<Modifier> PossibleSuffixes, boolean isDesired)
+	{
+		int prefixesFilled = 0;
+		int suffixesFilled = 0;
+
+		double percentage = 0;
+
+		double TotalPrefixWeight = 0;
+		double TotalSuffixWeight = 0;
+
+		double weight = 0;
+
+		if(!isDesired) // Here we check if the mod is a desired one, if not it is a mod we only care for the tags, so it doesn't matter the tier
+		{
+			for(ModifierTier tiers : event.modifier.tiers) // So we loop through all tiers and sum all of them
+				weight += tiers.weight;
+			ilvl = 0;
+		}
+		else
+			weight = event.tier.weight; // If it is desired we just take it
+
+		// We need to omens here
+
+		// If there is room for both a prefix or a suffix, the total weight might be
+		// both combined
+
+		if (PossiblePrefixes != null)
+			TotalPrefixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossiblePrefixes, ilvl);
+
+		if (PossibleSuffixes != null)
+			TotalSuffixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossibleSuffixes, ilvl);
+
+		for (int j = 0; j < i; j++) {
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+				prefixesFilled++;
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.ADDED)
+				suffixesFilled++;
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+				prefixesFilled--;
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+				suffixesFilled++;
+		}
+
+		// here we compute the percentage with the total weight of all normal modifiers,
+		// because it could have landed on either a prefix or a suffix
+		if (prefixesFilled < 3 && suffixesFilled < 3 && PossiblePrefixes != null && PossibleSuffixes != null) // We check for null because of the omens
+		{
+			double TotalWeight = TotalPrefixWeight + TotalSuffixWeight;
+			percentage = weight / TotalWeight;
+			return percentage;
+		}
+
+		// If the modifier was a prefix and we know all the suffixes were filleds, we
+		// calculate only for TotalPrefixWeight because it could have ony roll a prefix
+		if (event.modifier.type == ModifierType.PREFIX && (suffixesFilled >= 3 || PossibleSuffixes == null)) {
+			percentage = weight / TotalPrefixWeight;
+			return percentage;
+		}
+
+		// Same for suffixes
+		if (event.modifier.type == ModifierType.SUFFIX && (prefixesFilled >= 3 || PossiblePrefixes == null)) {
+			percentage = weight / TotalSuffixWeight;
+			return percentage;
+		}
+		return 0;
 	}
 }

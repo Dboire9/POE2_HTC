@@ -253,6 +253,7 @@ public class ItemSelectionController {
 			});
 
 			new Thread(craftingTask).start();
+			view.progressBar.progressProperty().unbind();
 		});
 	}
 

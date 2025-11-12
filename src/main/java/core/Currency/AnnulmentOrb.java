@@ -28,16 +28,10 @@ public class AnnulmentOrb implements Crafting_Action {
         OmenofLight
     }
 
-    /**
-     * The omen currently applied to the Annulment Orb.
-     */
-    public Omen omen;
+    public Omen omen; // The omen currently applied to the Annulment Orb.
 
-    /**
-     * Default constructor that initializes the Annulment Orb with no omen.
-     */
     public AnnulmentOrb() {
-        this.omen = Omen.None;
+        this.omen = Omen.None; // Default constructor
     }
 
     /**

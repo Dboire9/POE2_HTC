@@ -17,10 +17,7 @@ import core.Modifier_class.Modifier;
  */
 public class AugmentationOrb implements Crafting_Action {
 
-    /**
-     * The tier of the currency, which can affect the behavior of the crafting action.
-     */
-    public Crafting_Action.CurrencyTier tier;
+    public Crafting_Action.CurrencyTier tier; // The tier of the currency, which can affect the behavior of the crafting action.
 
     /**
      * Creates a copy of the current Augmentation Orb instance.

@@ -11,188 +11,224 @@ import core.Currency.Essence_currency;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierSource;
 import core.Modifier_class.Modifier.ModifierType;
+
+/**
+ * Interface representing crafting actions that can be applied to crafting items.
+ */
 public interface Crafting_Action {
 
-	public enum CurrencyTier {
-		BASE, GREATER, DES_CURRENCY, PERFECT
-	}
+    /**
+     * Enum representing the tiers of currency used in crafting.
+     */
+    public enum CurrencyTier {
+        BASE, GREATER, DES_CURRENCY, PERFECT
+    }
 
-	Enum<?>[] getAvailableOmens();
+    /**
+     * Retrieves the available omens for this crafting action.
+     *
+     * @return An array of available omens.
+     */
+    Enum<?>[] getAvailableOmens();
 
-	Crafting_Action copy();
+    /**
+     * Creates a copy of the current crafting action.
+     *
+     * @return A new instance of the crafting action.
+     */
+    Crafting_Action copy();
 
-    public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods); // transforms the item
+    /**
+     * Applies the crafting action to a given item and generates a list of crafting candidates.
+     *
+     * @param item The crafting item to transform.
+     * @param CandidateList The list of crafting candidates to update.
+     * @param desiredMods The list of desired modifiers.
+     * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+     * @param undesiredMods The list of undesired modifiers.
+     * @return A list of updated crafting candidates.
+     */
+    public List<Crafting_Candidate> apply(Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods);
 
-    String getName();                        // name for display
+    /**
+     * Retrieves the name of the crafting action for display purposes.
+     *
+     * @return The name of the crafting action.
+     */
+    String getName();
 
-    // Default method for evaluateAffixes
-    default void CreateListAndEvaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
-	{
-		Map<Crafting_Action, Double> actionMap = new HashMap<>();
-		actionMap.put(this, 0.0);
+    /**
+     * Creates a list of modifiers, evaluates affixes, and updates the candidate list.
+     *
+     * @param modifiers The list of modifiers to apply.
+     * @param item The crafting item to evaluate.
+     * @param CandidateList The list of crafting candidates to update.
+     * @param desiredMods The list of desired modifiers.
+     * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+     * @param undesiredMods The list of undesired modifiers.
+     */
+    default void CreateListAndEvaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
+        Map<Crafting_Action, Double> actionMap = new HashMap<>();
+        actionMap.put(this, 0.0);
         List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, actionMap, undesiredMods);
         for (Crafting_Item items : Item_Evaluation) {
-			double score = 0;
+            double score = 0;
             score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
             if (score > 0) {
-				Crafting_Candidate new_Candidate = Crafting_Candidate.AddCraftingCandidate(items, score, this);
-				new_Candidate.rarity = ItemRarity.MAGIC;
-				new_Candidate.modifierHistory.get(0).score = score;
+                Crafting_Candidate new_Candidate = Crafting_Candidate.AddCraftingCandidate(items, score, this);
+                new_Candidate.rarity = ItemRarity.MAGIC;
+                new_Candidate.modifierHistory.get(0).score = score;
                 CandidateList.add(new_Candidate);
             }
         }
         Item_Evaluation.clear();
     }
-	
 
-	default List<Crafting_Candidate> evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
-	{
-		boolean isPrefix = false;
-		Map<Crafting_Action, Double> actionMap = new HashMap<>();
-		actionMap.put(this, 0.0);
-		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
-		if(modifiers != null && modifiers.get(0).type == ModifierType.PREFIX)
-		isPrefix = true;
-		//For the augmentation orb, we check that we are not applying a modifier on an affix already occupied, so we have only candidates with a prefix and a suffix
-		if((isPrefix && candidate.currentPrefixes[0] != null) || (!isPrefix && candidate.currentSuffixes[0] != null))
-			return CandidateListCopy;
-		item = candidate.copy();
-		List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, actionMap, null);
-		for (Crafting_Item items : Item_Evaluation) {
-			double score = 0;
-			score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
-			if (score > candidate.score) {
-				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
-				newCandidate.prev_score = candidate.score;
-				newCandidate.actions.add(this);
-				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score; 
-				CandidateListCopy.add(newCandidate);
-			}
-		}
-		Item_Evaluation.clear();
-		return CandidateListCopy;
+    /**
+     * Evaluates affixes with augmentation and generates a list of crafting candidates.
+     *
+     * @param modifiers The list of modifiers to apply.
+     * @param item The crafting item to evaluate.
+     * @param candidate The current crafting candidate.
+     * @param desiredMods The list of desired modifiers.
+     * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+     * @param undesiredMods The list of undesired modifiers.
+     * @return A list of updated crafting candidates.
+     */
+    default List<Crafting_Candidate> evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
+        boolean isPrefix = false;
+        Map<Crafting_Action, Double> actionMap = new HashMap<>();
+        actionMap.put(this, 0.0);
+        List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
+        if (modifiers != null && modifiers.get(0).type == ModifierType.PREFIX)
+            isPrefix = true;
+        if ((isPrefix && candidate.currentPrefixes[0] != null) || (!isPrefix && candidate.currentSuffixes[0] != null))
+            return CandidateListCopy;
+        item = candidate.copy();
+        List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, actionMap, null);
+        for (Crafting_Item items : Item_Evaluation) {
+            double score = 0;
+            score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
+            if (score > candidate.score) {
+                Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
+                newCandidate.prev_score = candidate.score;
+                newCandidate.actions.add(this);
+                newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
+                CandidateListCopy.add(newCandidate);
+            }
+        }
+        Item_Evaluation.clear();
+        return CandidateListCopy;
     }
 
-	default List<Crafting_Candidate> evaluateAffixes(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
-	{
-		int affixes = 0;
-		List<Crafting_Item> Item_Evaluation = null;
-		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
-		Map<Crafting_Action, Double> actionMap = new HashMap<>();
-		actionMap.put(this, 0.0);
-		item = candidate.copy();
+    /**
+     * Evaluates affixes and generates a list of crafting candidates.
+     *
+     * @param modifiers The list of modifiers to apply.
+     * @param item The crafting item to evaluate.
+     * @param candidate The current crafting candidate.
+     * @param desiredMods The list of desired modifiers.
+     * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+     * @param undesiredMods The list of undesired modifiers.
+     * @return A list of updated crafting candidates.
+     */
+    default List<Crafting_Candidate> evaluateAffixes(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
+        int affixes = 0;
+        List<Crafting_Item> Item_Evaluation = null;
+        List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
+        Map<Crafting_Action, Double> actionMap = new HashMap<>();
+        actionMap.put(this, 0.0);
+        item = candidate.copy();
 
-		// if(item.currentSuffixes[0] != null && item.currentSuffixes[1] != null && item.currentSuffixes[2] != null)
-		// 	if(item.currentSuffixes[0].family.contains(desiredMods.get(3).family) && item.currentSuffixes[1].family.contains(desiredMods.get(4).family) && item.currentSuffixes[2].family.contains(desiredMods.get(5).family)){}
-		// System.out.println( desiredMods.get(0).family);
-		// System.out.println( desiredMods.get(1).family);
-		// System.out.println( desiredMods.get(2).family);
-		// System.out.println( desiredMods.get(3).family);
-		// System.out.println( desiredMods.get(4).family);
-		// System.out.println( desiredMods.get(5).family);
-
-		// if (item.modifierHistory != null && item.modifierHistory.size() >= 5) {
-		// 	if (item.modifierHistory.get(0).modifier.family.contains("PhysicalDamage") &&
-		// 		item.modifierHistory.get(1).modifier.family.contains("CriticalStrikeChanceIncrease") &&
-		// 		item.modifierHistory.get(2).modifier.family.contains("IncreasedAttackSpeed") &&
-		// 		item.modifierHistory.get(3).modifier.family.contains("IncreaseSocketedGemLevel") &&
-		// 		item.modifierHistory.get(4).modifier.family.contains("ManaCostEfficiency")) {
-		// 		System.out.println("Here");
-		// 	}
-		// }
-
-
-
-		if(this instanceof Essence_currency)
-			Item_Evaluation = item.addPerfectEssenceAffixes(modifiers, item, actionMap, desiredMods);
-		else
-			Item_Evaluation = item.addAffixes(modifiers, item, actionMap, undesiredMods);
-		for (Crafting_Item items : Item_Evaluation)
-		{
-			affixes = items.getAllCurrentPrefixModifiers().size() + items.getAllCurrentSuffixModifiers().size();
-			double score = 0;
-			score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
-			if (score > candidate.score)
-			{
-			// When the item has at least 3 modifiers, we have a threshold for not keeping candidate with scores too low
-			// We might need to tweak this a lot to find the better option
-				switch (affixes) {
-					case 3:
-						if (score < 1900)
-							continue;
-						break;
-					case 4:
-						if (score < 2900)
-							continue;
-						break;
-					case 5:
-						if (score < 3900)
-							continue;
-						break;
-					case 6:
-						if (score < 4900)
-							continue;
-				}
-				// if (score < 5200)
-				// 	System.out.println("here");
-				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
-				newCandidate.prev_score = candidate.score;
-				newCandidate.actions.add(this);
-				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
-				newCandidate.rarity = ItemRarity.RARE;
-				if(this instanceof Desecrated_currency)
-					newCandidate.desecrated = true;
-				CandidateListCopy.add(newCandidate);
-			}
-		}
-		Item_Evaluation.clear();
-		return CandidateListCopy;
+        if (this instanceof Essence_currency)
+            Item_Evaluation = item.addPerfectEssenceAffixes(modifiers, item, actionMap, desiredMods);
+        else
+            Item_Evaluation = item.addAffixes(modifiers, item, actionMap, undesiredMods);
+        for (Crafting_Item items : Item_Evaluation) {
+            affixes = items.getAllCurrentPrefixModifiers().size() + items.getAllCurrentSuffixModifiers().size();
+            double score = 0;
+            score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
+            if (score > candidate.score) {
+                switch (affixes) {
+                    case 3:
+                        if (score < 1900)
+                            continue;
+                        break;
+                    case 4:
+                        if (score < 2900)
+                            continue;
+                        break;
+                    case 5:
+                        if (score < 3900)
+                            continue;
+                        break;
+                    case 6:
+                        if (score < 4900)
+                            continue;
+                }
+                Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
+                newCandidate.prev_score = candidate.score;
+                newCandidate.actions.add(this);
+                newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
+                newCandidate.rarity = ItemRarity.RARE;
+                if (this instanceof Desecrated_currency)
+                    newCandidate.desecrated = true;
+                CandidateListCopy.add(newCandidate);
+            }
+        }
+        Item_Evaluation.clear();
+        return CandidateListCopy;
     }
 
-	default List<Crafting_Candidate> evaluateAffixeswithAnnul(Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods)
-	{
-		List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
-		item = candidate.copy();
-		int affixes = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size() - 1;
-		Map<Crafting_Action, Double> actionMap = new HashMap<>();
-		actionMap.put(this, 0.0);
-		List<Crafting_Item> Item_Evaluation = item.removeAffixes(item, actionMap); // here we should have remove affixes
-		for (Crafting_Item items : Item_Evaluation)
-		{
-			// Bonus for the annuls, as removing a modifier is generally good if it does not remove a modifier we want
-			// +60 because removing a one of one that is not desired is good, and will not prioritize the removing of modifiers with tags we really want
-			double score = 60;
-			score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods); // Might be changed for the annuls
-			if (score > candidate.score)
-			{
-				switch (affixes) {
-					case 3:
-						if (score < 1900)
-							continue;
-						break;
-					case 4:
-						if (score < 2900)
-							continue;
-						break;
-					case 5:
-						if (score < 3900)
-							continue;
-						break;
-					case 6:
-						if (score < 4900)
-							continue;
-				}
-				Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
-				newCandidate.prev_score = candidate.score;
-				newCandidate.actions.add(this);
-				newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
-				newCandidate.rarity = ItemRarity.RARE;
-				if(newCandidate.modifierHistory.get(item.modifierHistory.size()).modifier.source == ModifierSource.DESECRATED) // If the mod we removed was desecrated we put desecrated to false
-					newCandidate.desecrated = false;
-				CandidateListCopy.add(newCandidate);
-			}
-		}
-		Item_Evaluation.clear();
-		return CandidateListCopy;
-	}
+    /**
+     * Evaluates affixes with annulment and generates a list of crafting candidates.
+     *
+     * @param item The crafting item to evaluate.
+     * @param candidate The current crafting candidate.
+     * @param desiredMods The list of desired modifiers.
+     * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+     * @param undesiredMods The list of undesired modifiers.
+     * @return A list of updated crafting candidates.
+     */
+    default List<Crafting_Candidate> evaluateAffixeswithAnnul(Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
+        List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
+        item = candidate.copy();
+        int affixes = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size() - 1;
+        Map<Crafting_Action, Double> actionMap = new HashMap<>();
+        actionMap.put(this, 0.0);
+        List<Crafting_Item> Item_Evaluation = item.removeAffixes(item, actionMap);
+        for (Crafting_Item items : Item_Evaluation) {
+            double score = 60;
+            score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
+            if (score > candidate.score) {
+                switch (affixes) {
+                    case 3:
+                        if (score < 1900)
+                            continue;
+                        break;
+                    case 4:
+                        if (score < 2900)
+                            continue;
+                        break;
+                    case 5:
+                        if (score < 3900)
+                            continue;
+                        break;
+                    case 6:
+                        if (score < 4900)
+                            continue;
+                }
+                Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
+                newCandidate.prev_score = candidate.score;
+                newCandidate.actions.add(this);
+                newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
+                newCandidate.rarity = ItemRarity.RARE;
+                if (newCandidate.modifierHistory.get(item.modifierHistory.size()).modifier.source == ModifierSource.DESECRATED)
+                    newCandidate.desecrated = false;
+                CandidateListCopy.add(newCandidate);
+            }
+        }
+        Item_Evaluation.clear();
+        return CandidateListCopy;
+    }
 }

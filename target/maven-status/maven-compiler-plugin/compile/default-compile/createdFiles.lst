@@ -46,6 +46,7 @@ core/Items/Helmets/Helmets_str_int/Helmets_str_int.class
 gui/utils/ValidateButton.class
 core/Items/Bows/Bows.class
 core/Currency/Essence_currency$EssenceTier.class
+gui/controllers/ItemSelectionController$1.class
 core/Item_modifiers/TwoHand_Item_modifiers/Quarterstaves_Items_modifiers/Modifiers_essences.class
 core/Crafting/Crafting_Item$ItemRarity.class
 core/Items/Helmets/Helmets_dex_int/Helmets_dex_int.class

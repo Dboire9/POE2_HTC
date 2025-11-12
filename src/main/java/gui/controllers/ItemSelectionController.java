@@ -218,7 +218,12 @@ public class ItemSelectionController {
 
 								if (action instanceof ExaltedOrb currency) {
 									output.append("  Tier: ").append(currency.tier).append("\n");
-									if (currency.omens != null) output.append("  Omen: ").append(currency.omens).append("\n");
+									if (currency.omens != null && !currency.omens.isEmpty()) {
+										output.append("  Omens:\n");
+										for (ExaltedOrb.Omen omen : currency.omens) {
+											output.append("    - ").append(omen.toString()).append("\n");
+										}
+									}
 								} else if (action instanceof RegalOrb currency) {
 									output.append("  Tier: ").append(currency.tier).append("\n");
 									if (currency.omen != null) output.append("  Omen: ").append(currency.omen).append("\n");

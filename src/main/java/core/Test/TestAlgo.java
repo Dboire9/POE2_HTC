@@ -43,29 +43,29 @@ public class TestAlgo {
 
         // --- RANDOM MODIFIER SELECTION ---
         // Randomly select up to 3 prefixes
-        // selectRandomModifiers(possiblePrefixes, desiredMods, desiredModTier, usedModifiers, random);
+        selectRandomModifiers(possiblePrefixes, desiredMods, desiredModTier, usedModifiers, random);
 
         // Randomly select up to 3 suffixes
-        // selectRandomModifiers(possibleSuffixes, desiredMods, desiredModTier, usedModifiers, random);
+        selectRandomModifiers(possibleSuffixes, desiredMods, desiredModTier, usedModifiers, random);
 
-		desiredMods.add(possiblePrefixes.get(0));
-		desiredModTier.add(possiblePrefixes.get(0).tiers.get(0));
-		System.out.println(possiblePrefixes.get(0).text);
-		desiredMods.add(possiblePrefixes.get(4));
-		desiredModTier.add(possiblePrefixes.get(4).tiers.get(0));
-		System.out.println(possiblePrefixes.get(4).text);
-		desiredMods.add(possibleEssencesPrefixes.get(8));
-		desiredModTier.add(possibleEssencesPrefixes.get(8).tiers.get(0));
-		System.out.println(possibleEssencesPrefixes.get(8).text);
-		desiredMods.add(possibleEssencesSuffixes.get(4));
-		desiredModTier.add(possibleEssencesSuffixes.get(4).tiers.get(0));
-		System.out.println(possibleEssencesSuffixes.get(4).text);
-		desiredMods.add(possibleEssencesSuffixes.get(5));
-		desiredModTier.add(possibleEssencesSuffixes.get(5).tiers.get(0));
-		System.out.println(possibleEssencesSuffixes.get(5).text);
-		desiredMods.add(possibleSuffixes.get(9));
-		desiredModTier.add(possibleSuffixes.get(9).tiers.get(0));
-		System.out.println(possibleSuffixes.get(9).text);
+		// desiredMods.add(possiblePrefixes.get(0));
+		// desiredModTier.add(possiblePrefixes.get(0).tiers.get(0));
+		// System.out.println(possiblePrefixes.get(0).text);
+		// desiredMods.add(possiblePrefixes.get(4));
+		// desiredModTier.add(possiblePrefixes.get(4).tiers.get(0));
+		// System.out.println(possiblePrefixes.get(4).text);
+		// desiredMods.add(possibleEssencesPrefixes.get(8));
+		// desiredModTier.add(possibleEssencesPrefixes.get(8).tiers.get(0));
+		// System.out.println(possibleEssencesPrefixes.get(8).text);
+		// desiredMods.add(possibleEssencesSuffixes.get(4));
+		// desiredModTier.add(possibleEssencesSuffixes.get(4).tiers.get(0));
+		// System.out.println(possibleEssencesSuffixes.get(4).text);
+		// desiredMods.add(possibleEssencesSuffixes.get(5));
+		// desiredModTier.add(possibleEssencesSuffixes.get(5).tiers.get(0));
+		// System.out.println(possibleEssencesSuffixes.get(5).text);
+		// desiredMods.add(possibleSuffixes.get(9));
+		// desiredModTier.add(possibleSuffixes.get(9).tiers.get(0));
+		// System.out.println(possibleSuffixes.get(9).text);
 
 
         // --- CRAFTING EXECUTION SECTION ---

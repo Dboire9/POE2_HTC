@@ -7,6 +7,7 @@ import java.util.List;
  * The {@code Modifier} class represents a complete modifier with multiple tiers.
  * It includes various categories, tags, and metadata to define the behavior and
  * properties of the modifier.
+ * See examples in Items_modifiers
  */
 public class Modifier {
     public String primaryCategory; // Primary category of the modifier

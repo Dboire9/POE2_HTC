@@ -22,11 +22,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import core.Crafting.ComputingLastProbability;
-import core.Crafting.CraftingExecutor; // Ensure this import is present
+import core.Crafting.CraftingExecutor;
+
+
+/**
+ * Controller class for the Item Selection view in the POE2 Reverse Crafter GUI.
+ * 
+ * Responsibilities:
+ * - Handle category and subcategory selection
+ * - Populate modifier combo boxes based on the selected item class
+ * - Track modifier and tier selections
+ * - Run crafting calculations when the validate button is pressed
+ * - Display crafting results in the GUI instead of the console
+ * 
+ * This class uses reflection to dynamically load item classes and their modifiers.
+ */
 
 public class ItemSelectionController {
 
@@ -46,6 +58,15 @@ public class ItemSelectionController {
 	private Modifier suffix2store;
 	private Modifier suffix3store;
 
+
+	    /**
+     * Constructor for the ItemSelectionController.
+     * Initializes event listeners and sets up the validate button logic.
+     *
+     * @param view The ItemSelectionView associated with this controller
+     * @param manager The ItemManager responsible for providing item and modifier data
+     */
+
 	public ItemSelectionController(ItemSelectionView view, ItemManager manager) {
 		this.view = view;
 		this.manager = manager;
@@ -53,6 +74,11 @@ public class ItemSelectionController {
 
 		initialize(); // entry point
 	}
+
+	
+    /**
+     * Initializes event listeners for category, subcategory, modifier selection, and the validate button.
+     */
 
 	private void initialize() {
 		view.categoryComboBox.setOnAction(e -> handleCategorySelection());
@@ -77,6 +103,7 @@ public class ItemSelectionController {
 		setupModifierComboBoxListener(view.suffix2ComboBox, "suffix2");
 		setupModifierComboBoxListener(view.suffix3ComboBox, "suffix3");
 
+		// Validate button action handler
 		view.validateButton.setOnAction(validateEvent -> {
 			view.messageLabel.setText(""); // clear previous messages
 			StringBuilder output = new StringBuilder(); // collect display content
@@ -117,7 +144,14 @@ public class ItemSelectionController {
 				suffix1store.chosenTier = suffix1Tier;
 				suffix2store.chosenTier = suffix2Tier;
 				suffix3store.chosenTier = suffix3Tier;
-		
+				
+
+
+
+				/**
+				 * Running the program until we have a result
+				 */
+
 				try {
 					List<Probability_Analyzer.CandidateProbability> results;
 		
@@ -190,6 +224,7 @@ public class ItemSelectionController {
 		});
 	}
 
+	/** Handles selection changes in the category combo box */
 	private void handleCategorySelection() {
 		resetAllModifiers();
 		selectedCategory = view.categoryComboBox.getValue();
@@ -213,6 +248,7 @@ public class ItemSelectionController {
 		}
 	}
 
+	/** Handles selection changes in the subcategory combo box */
 	private void handleSubCategorySelection() {
 		resetAllModifiers();
 		selectedSubCategory = view.subCategoryComboBox.getValue();
@@ -239,6 +275,18 @@ public class ItemSelectionController {
 		}
 	}
 
+	/**
+	 * Populates the prefix and suffix combo boxes in the GUI based on the selected item class.
+	 * 
+	 * Responsibilities:
+	 * - Dynamically loads the selected item class using reflection.
+	 * - Retrieves normal, desecrated, and essence modifiers from the item's superclass.
+	 * - Populates each prefix and suffix combo box with the appropriate modifiers.
+	 * - Applies desecrated or essence modifiers based on the state of the checkboxes.
+	 * - Ensures uniqueness of selections across all prefix and suffix boxes.
+	 * 
+	 * @param itemClass The class of the item for which to populate modifiers. If null, the method returns immediately.
+	 */
 	private void populateModifiers(Class<?> itemClass) {
 		if (itemClass == null)
 			return;
@@ -324,6 +372,16 @@ public class ItemSelectionController {
 		}
 	}
 
+
+	/**
+	 * Ensures that each selected modifier in the prefix and suffix combo boxes
+	 * is unique across all boxes. When a selection changes:
+	 *  - The previous selection is restored to other boxes.
+	 *  - The newly selected value is removed from all other boxes.
+	 * 
+	 * @param prefixboxes Array of ComboBoxes for prefix modifiers.
+	 * @param suffixboxes Array of ComboBoxes for suffix modifiers.
+	 */
 	private void setupUniqueSelection(ComboBox<String>[] prefixboxes, ComboBox<String>[] suffixboxes) {
 		for (ComboBox<String> box : prefixboxes) {
 			final String[] previousSelection = { null };
@@ -397,6 +455,14 @@ public class ItemSelectionController {
 		}
 	}
 
+	/**
+	 * Populates a single ComboBox with a list of modifiers.
+	 * Clears any previous items first. If no modifiers are provided,
+	 * a message is displayed to the user.
+	 * 
+	 * @param box The ComboBox to populate.
+	 * @param modifiers List of Modifier objects to display.
+	 */
 	private void populateComboBoxes(ComboBox<String> box, List<Modifier> modifiers) {
 		if (modifiers != null && !modifiers.isEmpty()) {
 			box.getItems().clear();
@@ -408,6 +474,14 @@ public class ItemSelectionController {
 		}
 	}
 
+	/**
+	 * Populates a ComboBox with essence modifiers. Each modifier is prefixed
+	 * with "Essence : " to differentiate it from normal modifiers. Ensures
+	 * that duplicate entries are not added.
+	 * 
+	 * @param box The ComboBox to populate with essence modifiers.
+	 * @param modifiers List of Modifier objects representing essence modifiers.
+	 */
 	private void essencepopulateComboBoxes(ComboBox<String> box, List<Modifier> modifiers) {
 		if (modifiers != null) {
 			for (Modifier mod : modifiers) {
@@ -419,6 +493,16 @@ public class ItemSelectionController {
 		}
 	}
 
+	/**
+	 * Dynamically loads the class of an item based on its category and optional subcategory.
+	 * The class name is constructed following the convention:
+	 * - If subcategory is null or empty: "core.Items.<Category>.<Category>"
+	 * - Otherwise: "core.Items.<Category>.<Subcategory>.<Subcategory>"
+	 * 
+	 * @param category The main category of the item.
+	 * @param subcategory The optional subcategory of the item.
+	 * @return The Class object corresponding to the item, or null if loading fails.
+	 */
 	private Class<?> loadItemClass(String category, String subcategory) {
 		try {
 			String className = (subcategory == null || subcategory.isEmpty())
@@ -434,6 +518,11 @@ public class ItemSelectionController {
 		}
 	}
 
+	/**
+	 * Resets all modifier and tier selections for prefixes and suffixes.
+	 * Clears the ComboBox selections and items, then repopulates them
+	 * based on the currently selected item class and desecrated state.
+	 */
 	private void resetAllModifiers() {
 		// Clear selections and items for all prefixes and suffixes
 		view.prefix1ComboBox.getSelectionModel().clearSelection();
@@ -468,6 +557,13 @@ public class ItemSelectionController {
 		populateModifiers(selectedItemClass);
 	}
 
+	/**
+	 * Sets up a listener for a modifier ComboBox and its corresponding tier ComboBox.
+	 * When a modifier is selected, the corresponding tiers are populated dynamically.
+	 * 
+	 * @param comboBox The ComboBox for selecting a modifier.
+	 * @param comboBoxTier The ComboBox for selecting the tier of the chosen modifier.
+	 */
 	private void setupModifierSelectionListener(ComboBox<String> comboBox, ComboBox<String> comboBoxTier) {
 		comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
@@ -519,6 +615,13 @@ public class ItemSelectionController {
 		});
 	}
 
+	/**
+	 * Sets up a listener for a modifier ComboBox to update the stored Modifier
+	 * object corresponding to the given slot (prefix1, prefix2, suffix1, etc.).
+	 * 
+	 * @param comboBox The ComboBox for selecting a modifier.
+	 * @param modifierSlot The identifier for which modifier slot this ComboBox represents.
+	 */
 	private void setupModifierComboBoxListener(ComboBox<String> comboBox, String modifierSlot) {
 		comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal != null) {
@@ -535,6 +638,14 @@ public class ItemSelectionController {
 		});
 	}
 
+	/**
+	 * Retrieves a Modifier object corresponding to a given display value from the
+	 * item class. Handles both normal and essence-prefixed modifiers.
+	 * 
+	 * @param itemClass The class of the item being modified.
+	 * @param value The text value of the modifier selected in the ComboBox.
+	 * @return The Modifier object matching the value, or null if not found.
+	 */
 	private Modifier getModifiersFromValue(Class<?> itemClass, String value) {
 		if (value == null || itemClass == null) {
 			System.out.println("[DEBUG] getModifiersFromValue: itemClass or value is null");

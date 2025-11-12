@@ -1,10 +1,13 @@
-package core.Crafting;
+package core.Crafting.Proba;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Candidate;
+import core.Crafting.Crafting_Item;
 import core.Crafting.Crafting_Action.CurrencyTier;
 import core.Crafting.Utils.ModifierEvent;
 import core.Currency.AnnulmentOrb;

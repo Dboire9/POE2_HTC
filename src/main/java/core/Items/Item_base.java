@@ -10,35 +10,12 @@ import java.util.List;
  */
 public class Item_base {
 
-    /**
-     * List of prefixes allowed for normal crafting.
-     */
-    protected List<Modifier> Normal_allowedPrefixes;
-
-    /**
-     * List of suffixes allowed for normal crafting.
-     */
-    protected List<Modifier> Normal_allowedSuffixes;
-
-    /**
-     * List of prefixes allowed for desecration crafting.
-     */
-    protected List<Modifier> Desecrated_allowedPrefixes;
-
-    /**
-     * List of suffixes allowed for desecration crafting.
-     */
-    protected List<Modifier> Desecrated_allowedSuffixes;
-
-    /**
-     * List of prefixes allowed for essence crafting.
-     */
-    protected List<Modifier> Essences_allowedPrefixes;
-
-    /**
-     * List of suffixes allowed for essence crafting.
-     */
-    protected List<Modifier> Essences_allowedSuffixes;
+	protected List<Modifier> Normal_allowedPrefixes;    // List of normal prefixes allowed for crafting.
+	protected List<Modifier> Normal_allowedSuffixes;    // List of normal suffixes allowed for crafting.
+	protected List<Modifier> Desecrated_allowedPrefixes; // List of desecrated prefixes allowed for crafting.
+	protected List<Modifier> Desecrated_allowedSuffixes; // List of desecrated suffixes allowed for crafting.
+	protected List<Modifier> Essences_allowedPrefixes;  // List of essence prefixes allowed for crafting.
+	protected List<Modifier> Essences_allowedSuffixes;  // List of essence suffixes allowed for crafting.
 
     /**
      * Retrieves the list of prefixes allowed for normal crafting.

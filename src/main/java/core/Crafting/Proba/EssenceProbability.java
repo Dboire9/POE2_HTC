@@ -7,7 +7,6 @@ import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Utils.ModifierEvent;
-import core.Crafting.Utils.ModifierEvent.ActionType;
 import core.Currency.Essence_currency;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierType;

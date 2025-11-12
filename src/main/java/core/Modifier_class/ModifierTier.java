@@ -10,7 +10,7 @@ public class ModifierTier {
     public int level; // Level of the modifier tier
     public int weight; // Weight of the modifier tier, used for balancing
     public Pair<Number, Number> minMax1; // First min-max range
-    public Pair<Number, Number> minMax2; // Second min-max range (optional)
+    public Pair<Number, Number> minMax2; // Second min-max range (optional) 
     public Pair<Number, Number> minMax3; // Third min-max range (optional)
     public Pair<Number, Number> minMax4; // Fourth min-max range (optional)
     public String stat1; // First stat associated with the modifier (optional)

@@ -19,7 +19,7 @@ public class Main extends Application {
 
 		HBox root = new HBox(20, view); // Add the view, not the controller
 
-		Scene scene = new Scene(root, 1800, 400);
+		Scene scene = new Scene(root, 1800, 1000);
 		primaryStage.setTitle("POE2 Reverse Crafter");
 		primaryStage.setScene(scene);
 		primaryStage.show();

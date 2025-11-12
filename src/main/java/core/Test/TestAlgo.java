@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import core.Crafting.*;
+import core.Crafting.Utils.ModifierEvent;
 import core.Items.Bows.Bows;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
@@ -142,30 +143,34 @@ public class TestAlgo {
             System.out.println("Best Path:");
 
             int z = 0;
-            for (Map.Entry<Crafting_Action, Double> entry : cp.bestPath().entrySet()) {
-                Crafting_Action action = entry.getKey();
-                double percentage = entry.getValue();
+			for (Map.Entry<Crafting_Action, ModifierEvent> entry : cp.bestPath().entrySet()) {
+				Crafting_Action action = entry.getKey();
+				ModifierEvent event = entry.getValue();
 
-                System.out.println(cp.candidate().modifierHistory.get(z));
-                System.out.println("Action: " + action);
-                System.out.println("  → Probability: " + (percentage * 100) + "%");
+				// Get probability directly from the event’s source map
+				double percentage = event.source.get(action);
 
-                // Display tier and omen details depending on the action type
-                if (action instanceof ExaltedOrb currency) {
-                    System.out.println("  Tier: " + currency.tier);
-                    if (currency.omens != null) System.out.println("  Omen: " + currency.omens);
-                } else if (action instanceof RegalOrb currency) {
-                    System.out.println("  Tier: " + currency.tier);
-                    if (currency.omen != null) System.out.println("  Omen: " + currency.omen);
-                } else if (action instanceof AnnulmentOrb currency && currency.omen != null) {
-                    System.out.println("  Omen: " + currency.omen);
-                } else if (action instanceof Desecrated_currency currency && currency.omens != null) {
-                    System.out.println("  Omen: " + currency.omens);
-                } else if (action instanceof Essence_currency currency && currency.omen != null) {
-                    System.out.println("  Omen: " + currency.omen);
-                }
-                z++;
-            }
+				System.out.println(cp.candidate().modifierHistory.get(z));
+				System.out.println("Action: " + action);
+				System.out.println("  → Probability: " + (percentage * 100) + "%");
+
+				// Display tier and omen details depending on the action type
+				if (action instanceof ExaltedOrb currency) {
+					System.out.println("  Tier: " + currency.tier);
+					if (currency.omens != null) System.out.println("  Omen: " + currency.omens);
+				} else if (action instanceof RegalOrb currency) {
+					System.out.println("  Tier: " + currency.tier);
+					if (currency.omen != null) System.out.println("  Omen: " + currency.omen);
+				} else if (action instanceof AnnulmentOrb currency && currency.omen != null) {
+					System.out.println("  Omen: " + currency.omen);
+				} else if (action instanceof Desecrated_currency currency && currency.omens != null) {
+					System.out.println("  Omen: " + currency.omens);
+				} else if (action instanceof Essence_currency currency && currency.omen != null) {
+					System.out.println("  Omen: " + currency.omen);
+				}
+
+				z++;
+			}
 
             // Print resulting modifiers
             for (Modifier m : cp.candidate().getAllCurrentModifiers())

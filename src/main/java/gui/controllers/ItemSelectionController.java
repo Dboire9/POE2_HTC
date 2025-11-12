@@ -4,6 +4,12 @@ import core.ItemManager;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
 import core.Crafting.Probability_Analyzer;
+import core.Crafting.Utils.ModifierEvent;
+import core.Currency.AnnulmentOrb;
+import core.Currency.Desecrated_currency;
+import core.Currency.Essence_currency;
+import core.Currency.ExaltedOrb;
+import core.Currency.RegalOrb;
 import core.Items.Item_base;
 import core.Modifier_class.*;
 import gui.views.ItemSelectionView;
@@ -71,100 +77,116 @@ public class ItemSelectionController {
 		setupModifierComboBoxListener(view.suffix2ComboBox, "suffix2");
 		setupModifierComboBoxListener(view.suffix3ComboBox, "suffix3");
 
-		view.validateButton.setOnAction(event -> {
+		view.validateButton.setOnAction(validateEvent -> {
+			view.messageLabel.setText(""); // clear previous messages
+			StringBuilder output = new StringBuilder(); // collect display content
+		
 			if (validateButton.areAllModifiersAndTiersSelected()) {
-				// 1. Collect the tiers
+				// Collect tiers
 				int prefix1Tier = Integer.parseInt(view.prefix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int prefix2Tier = Integer.parseInt(view.prefix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int prefix3Tier = Integer.parseInt(view.prefix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int suffix1Tier = Integer.parseInt(view.suffix1TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int suffix2Tier = Integer.parseInt(view.suffix2TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
 				int suffix3Tier = Integer.parseInt(view.suffix3TierComboBox.getValue().split(" ")[1].split(":")[0]) - 1;
-
+		
 				Item_base itemBase = null;
 				Crafting_Item item = null;
-
+		
 				try {
 					selectedItemClass = getItemClass(selectedCategory, selectedSubCategory);
 					Object selectedItemInstance = selectedItemClass.getDeclaredConstructor().newInstance();
 					itemBase = (Item_base) selectedItemInstance;
 					item = new Crafting_Item(itemBase);
-				} catch (InstantiationException | IllegalAccessException | InvocationTargetException
-						| NoSuchMethodException e) {
+				} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 					e.printStackTrace();
+					output.append("Error creating item: ").append(e.getMessage()).append("\n");
 				}
-				System.out.println(item);
-				System.out.println(itemBase);
-
-				// 2. Collect the modifiers
-				List<Modifier> desiredModifiers = Arrays.asList(
-						prefix1store, prefix2store, prefix3store,
-						suffix1store, suffix2store, suffix3store);
-
-				// 3. Build tiers in objects if needed
+		
+				output.append("Item: ").append(item).append("\n");
+				output.append("ItemBase: ").append(itemBase).append("\n");
+		
+				// Collect modifiers
+				List<Modifier> desiredModifiers = Arrays.asList(prefix1store, prefix2store, prefix3store,
+																suffix1store, suffix2store, suffix3store);
+		
+				// Set chosen tiers
 				prefix1store.chosenTier = prefix1Tier;
 				prefix2store.chosenTier = prefix2Tier;
 				prefix3store.chosenTier = prefix3Tier;
 				suffix1store.chosenTier = suffix1Tier;
 				suffix2store.chosenTier = suffix2Tier;
 				suffix3store.chosenTier = suffix3Tier;
-
+		
 				try {
 					List<Probability_Analyzer.CandidateProbability> results;
-					
-					double maxRetries = 25; // limit to avoid infinite looping
+		
+					double maxRetries = 25;
 					double attempt = 0;
 					double GLOBALTHRESHOLD = 25;
 					List<Modifier> undesiredModifiers = new ArrayList<>();
-					System.out.println(GLOBALTHRESHOLD / 100);
+		
 					results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, GLOBALTHRESHOLD / 100);
-					
-					while (results.isEmpty() && attempt < maxRetries)
-					{
-							item.reset();
-							undesiredModifiers.clear();
-							System.out.println("Deadge (attempt " + (attempt + 1) + ")");
-							// decrease global threshold but not below 0
-							System.out.println(GLOBALTHRESHOLD / 100);
-							results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, GLOBALTHRESHOLD / 100);
-							GLOBALTHRESHOLD--;
-							attempt++;
+		
+					while (results.isEmpty() && attempt < maxRetries) {
+						item.reset();
+						undesiredModifiers.clear();
+						// output.append("Deadge (attempt ").append(attempt + 1).append(")\n");
+						results = CraftingExecutor.runCrafting(item, desiredModifiers, undesiredModifiers, GLOBALTHRESHOLD / 100);
+						GLOBALTHRESHOLD--;
+						attempt++;
 					}
+		
 					if (results.isEmpty()) {
-						System.out.println("No valid results after " + attempt + " attempts.");
+						output.append("No valid results after ").append(attempt).append(" attempts.\n");
 					} else {
-						// results.forEach(System.out::println);
-						
-						for (int i = 0; i < Math.min(10, results.size()); i++) {
+						for (int i = 0; i < Math.min(1, results.size()); i++) {
 							Probability_Analyzer.CandidateProbability cp = results.get(i);
-							System.out.println("Result #" + (i + 1) + " — Final %: " + cp.finalPercentage());
-							System.out.println("Best Path:");
-							int k = 0;
-							for (Map.Entry<Crafting_Action, Double> entry : cp.bestPath().entrySet()) {
+							output.append("Result #").append(i + 1).append(" — Final %: ").append(cp.finalPercentage()).append("\n");
+							output.append("Best Path:\n");
+		
+							for (var entry : cp.bestPath().entrySet()) {
 								Crafting_Action action = entry.getKey();
-								double percentage = entry.getValue();
-								System.out.println("  " + action + " → " + (percentage * 100) + "%");
-								System.out.println(cp.candidate().modifierHistory.get(k));
-								System.out.println(cp.candidate().modifierHistory.get(k).source.entrySet());
-								System.out.println();
-								k++;
+								ModifierEvent modifierEvent = entry.getValue();
+		
+								Double probability = modifierEvent.source.get(action);
+		
+								output.append("Action: ").append(action).append("\n");
+								output.append("  → Probability: ").append(probability != null ? (probability * 100) : 0).append("%\n");
+		
+								if (modifierEvent.modifier != null)
+									output.append("  → Modifier: ").append(modifierEvent.modifier.text).append("\n");
+		
+								if (action instanceof ExaltedOrb currency) {
+									output.append("  Tier: ").append(currency.tier).append("\n");
+									if (currency.omens != null) output.append("  Omen: ").append(currency.omens).append("\n");
+								} else if (action instanceof RegalOrb currency) {
+									output.append("  Tier: ").append(currency.tier).append("\n");
+									if (currency.omen != null) output.append("  Omen: ").append(currency.omen).append("\n");
+								} else if (action instanceof AnnulmentOrb currency && currency.omen != null) {
+									output.append("  Omen: ").append(currency.omen).append("\n");
+								} else if (action instanceof Desecrated_currency currency && currency.omens != null) {
+									output.append("  Omen: ").append(currency.omens).append("\n");
+								} else if (action instanceof Essence_currency currency && currency.omen != null) {
+									output.append("  Omen: ").append(currency.omen).append("\n");
+								}
+		
+								output.append("\n");
 							}
-							System.out.println("-----------------------------------");
-							System.out.println(GLOBALTHRESHOLD / 100);
 						}
-						for (Modifier mods : desiredModifiers)
-						System.out.println("Desired mods" + mods.text);
-						System.out.println("Finished");
 					}
-
-
+		
 				} catch (InterruptedException | ExecutionException e) {
 					e.printStackTrace();
+					output.append("Error during crafting: ").append(e.getMessage()).append("\n");
 				}
-
+		
 			} else {
-				view.messageLabel.setText("Please select all six modifiers and their tiers");
+				output.append("Please select all six modifiers and their tiers\n");
 			}
+		
+			// Update the display box with all collected output
+			view.displayLabel.setText(output.toString());
 		});
 	}
 

@@ -11,7 +11,7 @@ This project will continue to be updated alongside new content from GGG, with up
 Contributions to this project are very welcome!
 
 
-(*I started this project a month ago to showcase it on my resume while searching for an internship, but it won't be finished in time before early December and the new season.
+(*I started this project a month ago to showcase it on my resume while searching for an internship, but it won't be finished in time if I do it alone before early December and the new season.
 So if you are looking for an intern in software development or AI for January (preferably in France), feel free to view my other projects and contact me.*)
 
 

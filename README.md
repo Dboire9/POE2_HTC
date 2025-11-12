@@ -6,6 +6,7 @@
 
 POE2 How To Craft is a JavaFX software that computes the most deterministic paths to craft desired items in **Path of Exile 2**.
 
+
 **Status:** Work in progress (~80% complete), functional but still lacks some features and polishing before releasing it in 1.0.  
 This project will continue to be updated alongside new content from GGG, with updates expected each league/season, making it a long-term project.  
 Contributions to this project are very welcome!

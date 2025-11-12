@@ -95,6 +95,8 @@ Special handling for Normal mods obtained by desecrations is implemented with ap
 <img src="screenshots/Example1.PNG" width="400">
 <img src="screenshots/Example2.PNG" width="400">
 
+Transmute and Augment probabilities are set to 0 because the program starts calculating the percentage probabilities only after the Regal step.
+
 ---
 
 

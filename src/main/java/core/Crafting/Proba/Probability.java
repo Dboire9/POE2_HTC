@@ -58,34 +58,30 @@ public class Probability {
 		double prefixesFilled = 0;
 		double suffixesFilled = 0;
 
-		for (int j = 0; j < limitIndex; j++) {
-			var entry = candidate.modifierHistory.get(j);
-			var modifier = entry.modifier;
-			ModifierType type = modifier.type;
-			ActionType action = entry.type;
-
-			switch (action) {
-				case REMOVED -> {
-					if (type == ModifierType.PREFIX) prefixesFilled--;
-					else if (type == ModifierType.SUFFIX) suffixesFilled--;
-				}
-				case ADDED -> {
-					if (type == ModifierType.PREFIX) prefixesFilled++;
-					else if (type == ModifierType.SUFFIX) suffixesFilled++;
-				}
-				case CHANGED -> {
-					ModifierType newType = entry.changed_modifier.type;
-					if (type == ModifierType.SUFFIX && newType == ModifierType.PREFIX) {
-						suffixesFilled++;
-						prefixesFilled--;
-					} else if (type == ModifierType.PREFIX && newType == ModifierType.SUFFIX) {
-						suffixesFilled--;
-						prefixesFilled++;
-					}
-				}
-				default -> { /* ignore other types */ }
-			}
-		}
+        for (int j = 0; j < limitIndex; j++) {
+            if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+                    && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+                prefixesFilled--;
+            else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+                    && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+                suffixesFilled--;
+            else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX)
+                prefixesFilled++;
+            else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX)
+                suffixesFilled++;
+            // Handle cases where a modifier changes from prefix to suffix or vice versa because of Perfect Essences.
+            else if (candidate.modifierHistory.get(j).type == ActionType.CHANGED
+                    && candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+                    && candidate.modifierHistory.get(j).changed_modifier.type == ModifierType.PREFIX) {
+                suffixesFilled++;
+                prefixesFilled--;
+            } else if (candidate.modifierHistory.get(j).type == ActionType.CHANGED
+                    && candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+                    && candidate.modifierHistory.get(j).changed_modifier.type == ModifierType.SUFFIX) {
+                suffixesFilled--;
+                prefixesFilled++;
+            }
+        }
 
 		return new double[]{prefixesFilled, suffixesFilled};
 	}

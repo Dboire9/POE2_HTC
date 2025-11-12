@@ -156,7 +156,7 @@ public class ComputingLastProbability {
 
         if (action instanceof AnnulmentOrb) {
             for (AnnulmentOrb.Omen currentOmen : AnnulmentOrb.Omen.values()) {
-                percentage = Probability.ComputePercentageAnnul(baseItem, candidate, event, currentOmen, i);
+                percentage = AnnulProbability.ComputePercentageAnnul(baseItem, candidate, event, currentOmen, i);
                 if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
                     return true;
             }
@@ -273,7 +273,7 @@ public class ComputingLastProbability {
 
 		if (action instanceof Essence_currency) {
 			for (Essence_currency.Omen currentOmen : Essence_currency.Omen.values()){
-				percentage = Probability.ComputePercentageEssence(baseItem, candidate, event, currentOmen, i);
+				percentage = EssenceProbability.ComputePercentageEssence(baseItem, candidate, event, currentOmen, i);
 				if (percentage != 0 && percentage >= GLOBAL_THRESHOLD)
 					return true;
 			}

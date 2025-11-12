@@ -26,151 +26,117 @@ import core.Modifier_class.Modifier.ModifierType;
 
 public class Crafting_Algorithm {
 	public static List<Crafting_Candidate> optimizeCrafting(
+        Crafting_Item baseItem,
+        List<Modifier> desiredMods,
+        List<Modifier> undesiredMods,
+        double GLOBAL_THRESHOLD) throws InterruptedException, ExecutionException
+		{
+
+			// Initialize thread pool
+			int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
+			ExecutorService executor = Executors.newFixedThreadPool(threads);
+
+			// Precompute desired tag counts
+			Map<String, Integer> tagCount = Heuristic_Util.CreateCountModifierTags(desiredMods);
+
+			// Base candidate lists
+			List<Crafting_Candidate> transmuteCandidates = new ArrayList<>();
+			List<Crafting_Candidate> augmentCandidates = new ArrayList<>();
+			List<Crafting_Candidate> baseCopies = new ArrayList<>();
+			List<List<Crafting_Candidate>> allCandidateLists = new ArrayList<>();
+
+			// Step 1: Transmutation
+			TransmutationOrb transmute = new TransmutationOrb();
+			transmuteCandidates = transmute.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
+			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
+			copyCandidates(transmuteCandidates, baseCopies);
+
+			// Step 2: Augmentation
+			AugmentationOrb augment = new AugmentationOrb();
+			transmuteCandidates = augment.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
+			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
+			copyCandidates(transmuteCandidates, augmentCandidates);
+
+			// Step 3: Apply regal and essence to base candidates
+			generateCandidateLists(baseItem, baseCopies, desiredMods, tagCount, allCandidateLists, undesiredMods);
+			copyCandidates(transmuteCandidates, baseCopies);
+			generateCandidateLists(baseItem, augmentCandidates, desiredMods, tagCount, allCandidateLists, undesiredMods);
+
+			// Skip first two lists (transmute and augment)
+			if (allCandidateLists.size() > 2)
+				allCandidateLists.subList(0, 2).clear();
+
+			// Step 4: Iterative refinement loop
+			List<List<Crafting_Candidate>> current = deepCopy(allCandidateLists);
+			List<List<Crafting_Candidate>> next = new ArrayList<>();
+
+			// Perform two initial passes
+			for (int i = 0; i < 2; i++) {
+				processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
+						allCandidateLists, next, executor);
+				current = deepCopy(next);
+				next.clear();
+			}
+
+			// Continue processing until stabilization
+			while (!current.isEmpty()) {
+				processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
+						allCandidateLists, next, executor);
+				current = deepCopy(next);
+				next.clear();
+			}
+
+			// Shutdown thread pool
+			executor.shutdown();
+			executor.awaitTermination(1, TimeUnit.MINUTES);
+
+			// Final filtering
+			return extractHighScoreCandidates(allCandidateLists, desiredMods);
+	}
+	
+	private static void processCandidateLists(
 			Crafting_Item baseItem,
+			List<List<Crafting_Candidate>> currentLists,
 			List<Modifier> desiredMods,
 			List<Modifier> undesiredMods,
-			double GLOBAL_THRESHOLD) throws InterruptedException, ExecutionException {
-
-		// Initializing the threads based on the user specs
-		int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
-		ExecutorService thread_executor = Executors.newFixedThreadPool(threads);
-
-		// Retrieving the tags and counting how many we have on every modifiers
-		Map<String, Integer> CountDesiredModifierTags = Heuristic_Util.CreateCountModifierTags(desiredMods);
-
-		// Creating the first List of Crafting_Candidate
-		List<Crafting_Candidate> FirstCandidateList = new ArrayList<>();
-		List<Crafting_Candidate> AugCandidateList = new ArrayList<>();
-		List<Crafting_Candidate> FirstCandidateListCopy = new ArrayList<>();
-		List<List<Crafting_Candidate>> listOfCandidateLists = new ArrayList<>();
-
-		// Transmuting the item (first step)
-		TransmutationOrb transmutationOrb = new TransmutationOrb();
-		FirstCandidateList = transmutationOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags, undesiredMods);
-		listOfCandidateLists.add(new ArrayList<>(FirstCandidateList));
-
-		// Making a copy of all the candidate list to use after
-		for (Crafting_Candidate candidate : FirstCandidateList) {
-			FirstCandidateListCopy.add(candidate.copy());
+			Map<String, Integer> tagCount,
+			double globalThreshold,
+			List<List<Crafting_Candidate>> masterList,
+			List<List<Crafting_Candidate>> nextLists,
+			ExecutorService executor) throws InterruptedException, ExecutionException {
+	
+		for (List<Crafting_Candidate> candidates : currentLists) {
+			if (candidates.isEmpty()) continue;
+	
+			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, globalThreshold);
+			RareLoop(baseItem, candidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor);
 		}
-
-		// Second step (augmentation, or regal or essence)
-		AugmentationOrb augmentationOrb = new AugmentationOrb();
-		FirstCandidateList = augmentationOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
-				undesiredMods);
-		// Adding the list : Transmut -> Augment
-		listOfCandidateLists.add(new ArrayList<>(FirstCandidateList));
-
-		// Adding the list after aug to AugCandidateList
-		for (Crafting_Candidate candidate : FirstCandidateList) {
-			AugCandidateList.add(candidate.copy());
-		}
-
-		// We apply the essences and regal to the bases with just transmutes
-		generateCandidateLists(baseItem, FirstCandidateListCopy, desiredMods, CountDesiredModifierTags,
-				listOfCandidateLists, undesiredMods);
-
-		for (Crafting_Candidate candidate : FirstCandidateList) {
-			FirstCandidateListCopy.add(candidate.copy());
-		}
-
-		// We apply the essences and regal to the bases with trasnmutes and aug
-		generateCandidateLists(baseItem, AugCandidateList, desiredMods, CountDesiredModifierTags, listOfCandidateLists,
-				undesiredMods);
-
-		// Removing the two first lists(transmutation and transmutation/augmentation) as
-		// we do not want to annul them
-		listOfCandidateLists.subList(0, 2).clear();
-
-		// Here the first steps are finished, we need to loop until the end with :
-		// Exalted orb, Perfect Essences and Desecrated Mods and annuls sometimes
-
-		List<List<Crafting_Candidate>> listOfCandidateLists_copy = new ArrayList<>();
-		for (List<Crafting_Candidate> innerList : listOfCandidateLists) {
-			List<Crafting_Candidate> newInnerList = new ArrayList<>(innerList);
-			listOfCandidateLists_copy.add(newInnerList);
-		}
-
-		List<List<Crafting_Candidate>> listOfCandidateLists_exalt_copy = new ArrayList<>();
-		for (List<Crafting_Candidate> candidates : listOfCandidateLists_copy) {
-			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, GLOBAL_THRESHOLD);
-			RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists,
-					listOfCandidateLists_exalt_copy, thread_executor);
-			// System.out.println();
-		}
-
-		listOfCandidateLists_copy.clear();
-		for (List<Crafting_Candidate> innerList : listOfCandidateLists_exalt_copy) {
-			List<Crafting_Candidate> newInnerList = new ArrayList<>(innerList);
-			listOfCandidateLists_copy.add(newInnerList);
-		}
-
-		listOfCandidateLists_exalt_copy.clear();
-
-		for (List<Crafting_Candidate> candidates : listOfCandidateLists_copy) {
-			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, GLOBAL_THRESHOLD);
-			RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags, listOfCandidateLists,
-					listOfCandidateLists_exalt_copy, thread_executor);
-			// System.out.println();
-		}
-
-		listOfCandidateLists_copy.clear();
-		listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
-
-		listOfCandidateLists_exalt_copy.clear();
-
-		while (listOfCandidateLists_copy.size() != 0) {
-			for (List<Crafting_Candidate> candidates : listOfCandidateLists_copy)
-			{
-				if (!candidates.isEmpty()) {
-					ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, GLOBAL_THRESHOLD);
-					RareLoop(baseItem, candidates, desiredMods, undesiredMods, CountDesiredModifierTags,
-							listOfCandidateLists, listOfCandidateLists_exalt_copy, thread_executor);
-				}
-				// System.out.println();
-			}
-
-			listOfCandidateLists_copy.clear();
-			listOfCandidateLists_copy = new ArrayList<>(listOfCandidateLists_exalt_copy);
-
-			listOfCandidateLists_exalt_copy.clear();
-		}
-
-		// Threads should not be utilized anymore, shutting them down
-		thread_executor.shutdown();
-		thread_executor.awaitTermination(1, TimeUnit.MINUTES);
-
-		List<Crafting_Candidate> highScoreCandidates = new ArrayList<>();
-
-		for (List<Crafting_Candidate> candidateList : listOfCandidateLists) {
-			for (Crafting_Candidate candidate : candidateList) 
-			{
-				candidate.desecrated = false;
-				if(candidate.score < 6000)
-					continue;
-				List<Modifier> current = candidate.getAllCurrentModifiers();
-				if (current.size() >= 6) {
-					int matchCount = 0;
-					for (Modifier m : current) {
-						for (Modifier desired_m : desiredMods) {
-							if (m.text.equals(desired_m.text)) {
-								matchCount++;
-								break; // found a match, go to next m
-							}
-						}
-					}
-					if (matchCount == 6) {
-						highScoreCandidates.add(candidate);
-					}
-				}
-			}
-		}
-
-		// Need to implement perfect essences
-
-		return highScoreCandidates;
-
 	}
+	
+	private static List<Crafting_Candidate> extractHighScoreCandidates(
+			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods) {
+	
+		List<Crafting_Candidate> result = new ArrayList<>();
+	
+		for (List<Crafting_Candidate> list : allCandidateLists) {
+			for (Crafting_Candidate candidate : list) {
+				candidate.desecrated = false;
+	
+				if (candidate.score < 6000) continue;
+	
+				List<Modifier> current = candidate.getAllCurrentModifiers();
+				if (current.size() < 6) continue;
+	
+				long matchCount = current.stream()
+						.filter(m -> desiredMods.stream().anyMatch(d -> d.text.equals(m.text)))
+						.count();
+	
+				if (matchCount == 6) result.add(candidate);
+			}
+		}
+		return result;
+	}
+	
 
 	public static double heuristic(Crafting_Item item, List<Modifier> desiredMods,
 			Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
@@ -335,5 +301,19 @@ public class Crafting_Algorithm {
 				return true;
 
 		return false;
+	}
+
+	private static void copyCandidates(List<Crafting_Candidate> source, List<Crafting_Candidate> destination) {
+		for (Crafting_Candidate candidate : source) {
+			destination.add(candidate.copy());
+		}
+	}
+	
+	private static List<List<Crafting_Candidate>> deepCopy(List<List<Crafting_Candidate>> original) {
+		List<List<Crafting_Candidate>> copy = new ArrayList<>();
+		for (List<Crafting_Candidate> inner : original) {
+			copy.add(new ArrayList<>(inner));
+		}
+		return copy;
 	}
 }

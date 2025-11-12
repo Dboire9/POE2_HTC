@@ -49,6 +49,7 @@ So if you are looking for an intern in software development or AI for January (p
 ## Getting Started
 <img src="screenshots/poe2-login-poe2.gif" width="200">
 
+The files you might want to look for are in src/main/java
 Follow these steps to set up and launch the project locally:
 
 1. **Clone the repository**

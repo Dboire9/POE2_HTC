@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import core.Crafting.*;
+import core.Crafting.Proba.Probability_Analyzer;
 import core.Crafting.Utils.ModifierEvent;
 import core.Items.Bows.Bows;
 import core.Modifier_class.Modifier;

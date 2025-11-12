@@ -1,10 +1,12 @@
-package core.Crafting;
+package core.Crafting.Proba;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Candidate;
 import core.Crafting.Utils.ModifierEvent;
 
 /**

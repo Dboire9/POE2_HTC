@@ -1,11 +1,12 @@
-package core.Crafting;
+package core.Crafting.Proba;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import core.Crafting.Crafting_Action.CurrencyTier;
+import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Candidate;
+import core.Crafting.Crafting_Item;
 import core.Crafting.Utils.ModifierEvent;
 import core.Crafting.Utils.ModifierEvent.ActionType;
 import core.Currency.AnnulmentOrb;
@@ -18,7 +19,6 @@ import core.Modifier_class.ModifierTier;
 import core.Modifier_class.Modifier.ModifierSource;
 import core.Modifier_class.Modifier.ModifierType;
 
-import java.util.Iterator;
 
 public class Probability {
 
@@ -37,7 +37,7 @@ public class Probability {
 
 				// Not doing aug for now, want to see a 100% prob if it is possible
 				if (action instanceof RegalOrb || action instanceof ExaltedOrb)
-					ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
+					DesecratedAndRegalProbability.ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
 				else if (action instanceof AnnulmentOrb)
 					ComputeAnnul(candidate, desiredMod, baseItem, i);
 				else if (action instanceof Essence_currency)
@@ -50,39 +50,7 @@ public class Probability {
 		return;
 	}
 
-	public static void ComputeRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i)
-	{
-		ModifierEvent event = candidate.modifierHistory.get(i);
-		Modifier foundModifier = event.modifier;
-		boolean isDesired = desiredMod.contains(foundModifier);
 
-
-		// Checking the level so that we apply the good currency tiers
-		if (foundModifier != null) {
-			int realtier = foundModifier.tiers.size() - foundModifier.chosenTier - 1;
-			int level = foundModifier.tiers.get(realtier).level;
-
-			int[] levels;
-			Crafting_Action.CurrencyTier[] tiers;
-
-			if (level < 35) {
-				levels = new int[] { 0 };
-				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE};
-			} else if (level < 50) {
-				levels = new int[] { 0, 35, 40 };
-				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER, CurrencyTier.DES_CURRENCY};
-			} else {
-				levels = new int[] { 0, 35, 40, 50 };
-				tiers = new Crafting_Action.CurrencyTier[] { CurrencyTier.BASE, CurrencyTier.GREATER, CurrencyTier.DES_CURRENCY, CurrencyTier.PERFECT};
-			}
-
-			Crafting_Action action = event.source.keySet().iterator().next();
-
-			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired);
-			if (action instanceof RegalOrb)
-				canBeEssence(baseItem, candidate, event, level, realtier, i);
-		}
-	}
 
 	public static void ComputeAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i) {
 		ModifierEvent event = candidate.modifierHistory.get(i);

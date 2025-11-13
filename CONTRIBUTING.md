@@ -54,4 +54,4 @@ Commit your changes with a clear message, then push them to your branch.
 ## Questions
 
 If you have questions about the project or contributions:  
-- Discord: `.doboy9`  
+- Discord: `.doboy9`

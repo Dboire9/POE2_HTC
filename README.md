@@ -51,7 +51,7 @@ Contributions to this project are very welcome!
 
 The application uses a modern architecture separating concerns:
 
-\`\`\`
+```
 ┌─────────────────────────────────────────┐
 │  Frontend: Electron + React + shadcn/ui │
 │  - Item Selection                       │
@@ -65,7 +65,7 @@ The application uses a modern architecture separating concerns:
 │  - Crafting Logic                       │
 │  - Probability Calculation              │
 └─────────────────────────────────────────┘
-\`\`\`
+```
 
 ---
 

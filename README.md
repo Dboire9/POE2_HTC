@@ -216,7 +216,7 @@ Special handling for Normal mods obtained by desecrations is implemented with ap
 
 ## Project Structure
 
-\`\`\`
+```
 ├── electron/              # Electron main process
 │   ├── main.ts           # Main process & IPC handlers
 │   └── preload.ts        # Preload script for secure IPC
@@ -231,7 +231,7 @@ Special handling for Normal mods obtained by desecrations is implemented with ap
 │   └── pom.xml
 ├── vite.config.ts       # Vite configuration
 └── tsconfig.json        # TypeScript configuration
-\`\`\`
+```
 
 ---
 

@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 10% 18%;
+    --foreground: 240 10% 92%;
+    --card: 220 10% 20%;
+    --card-foreground: 240 10% 92%;
+    --popover: 220 10% 20%;
+    --popover-foreground: 240 10% 92%;
+    --primary: 295 10% 56%;
+    --primary-foreground: 167 10% 92%;
+    --secondary: 220 10% 24%;
+    --secondary-foreground: 240 10% 92%;
+    --muted: 220 10% 24%;
+    --muted-foreground: 240 5% 71%;
+    --accent: 220 10% 26%;
+    --accent-foreground: 240 10% 92%;
+    --destructive: 0 62% 31%;
+    --destructive-foreground: 0 85% 94%;
+    --border: 220 10% 28%;
+    --input: 220 10% 26%;
+    --ring: 295 10% 56%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Subtle gradient background overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: 
+    radial-gradient(1200px 600px at 10% -10%, hsl(220 10% 24%) 0%, transparent 60%),
+    radial-gradient(1200px 600px at 110% 10%, hsl(220 10% 28%) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Selection color */
+::selection {
+  background: hsl(var(--primary) / 0.3);
+  color: hsl(var(--primary-foreground));
+}
+
+/* Nice minimal scrollbar */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: hsl(220 10% 30%);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(220 10% 36%);
+}
+
+/* Custom scrollbar for results history */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: hsl(220 10% 20%);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(295 10% 56% / 0.5);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(295 10% 56% / 0.8);
+}

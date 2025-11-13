@@ -3,26 +3,32 @@
 ![License](https://img.shields.io/badge/license-GPLv3-blue)
 ![Java](https://img.shields.io/badge/Java-21+-green)
 ![Build](https://img.shields.io/badge/build-Maven-brightgreen)
+![Electron](https://img.shields.io/badge/Electron-latest-blue)
+![React](https://img.shields.io/badge/React-19-blue)
 
-POE2 How To Craft is a JavaFX software that computes the most deterministic paths to craft desired items in **Path of Exile 2**.
+POE2 How To Craft is a modern desktop application that computes the most deterministic paths to craft desired items in **Path of Exile 2**.
 
+Built with **Electron + React + shadcn/ui** frontend and **Java** backend for high-performance crafting calculations.
 
 **Status:** Work in progress (~80% complete), functional but still lacks some features and polishing before releasing it in 1.0.  
 This project will continue to be updated alongside new content from GGG, with updates expected each league/season, making it a long-term project.  
 Contributions to this project are very welcome!
 
+---
 
-(*I started this project a month ago to showcase it on my resume while searching for an internship, but it won't be finished in time if I do it alone before early December and the new season.
-So if you are looking for an intern in software development or AI for January (preferably in France), feel free to view my other projects and contact me.*)
+## 👥 Contributors
 
-## Table of Contents
+- **[Dboire](https://github.com/Dboire9)** - Backend & Algorithm (Java, Crafting Logic, Beam Search)
+- **[fZpHr](https://github.com/fZpHr)** - Frontend & Integration (React, Electron, UI/UX)
+
+---
 - [Features](#features)
+- [Architecture](#architecture)
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
+- [Development](#development)
 - [How It Works](#how-it-works)
-- [Screenshots of the GUI](#screenshots-of-the-gui)
 - [Contributing](#contributing)
-- [To Improve / Fix / Test](#to-improve--fix--test)
 - [Bug Reporting](#bug-reporting)
 - [License](#license)
 - [Contact](#contact)
@@ -34,48 +40,165 @@ So if you are looking for an intern in software development or AI for January (p
 - Determine the optimal crafting paths for items  
 - Compute modifier probabilities and best paths  
 - Support all currencies and omens  
-- Multithreaded computation for faster processing  
+- Multithreaded computation for faster processing
+- Modern, responsive UI with dark mode support
+- Real-time simulation and probability calculation
+- Cross-platform desktop application (Windows, macOS, Linux)
+
+---
+
+## Architecture
+
+The application uses a modern architecture separating concerns:
+
+\`\`\`
+┌─────────────────────────────────────────┐
+│  Frontend: Electron + React + shadcn/ui │
+│  - Item Selection                       │
+│  - Currency Management                  │
+│  - Results Visualization                │
+└────────────┬────────────────────────────┘
+             │ IPC / HTTP
+┌────────────▼────────────────────────────┐
+│  Backend: Java (POE2_HTC)               │
+│  - Beam Search Algorithm                │
+│  - Crafting Logic                       │
+│  - Probability Calculation              │
+└─────────────────────────────────────────┘
+\`\`\`
 
 ---
 
 ## Requirements
 
+**Frontend:**
+- Node.js 18+ (recommended: 20+)
+- pnpm (recommended) or npm
+- Git
+
+**Backend:**
 - Java 21+  
-- JavaFX 21+  
-- Apache Maven 3.8+  
+- Apache Maven 3.8+
+- JavaFX modules (for GUI - optional)
 
 ---
 
 ## Getting Started
-<img src="screenshots/poe2-login-poe2.gif" width="200">
 
-The files you might want to look for are in src/main/java
-Follow these steps to set up and launch the project locally:
+### 🚀 Quick Start (Recommended)
 
-1. **Clone the repository**
+#### 1. Clone the repository
 ```bash
-git clone https://github.com/<your-username>/POE2-How-To-Craft.git
-cd POE2-How-To-Craft
+git clone https://github.com/Dboire9/POE2_HTC.git
+cd POE2_HTC
 ```
 
-2. **Check Java and Maven versions**
+#### 2. Install frontend dependencies
+Using pnpm (recommended):
 ```bash
-java -version
-mvn -v
+pnpm install
 ```
 
-Make sure Java 21+ and Maven 3.8+ are installed.
-
-3. **Clean and build the project**
+Or using npm:
 ```bash
-mvn clean
+npm install
 ```
 
-4. **Run `the project**
+#### 3. Build the Java backend
+Build the backend with all dependencies included:
 ```bash
-mvn javafx:run
+mvn clean package
 ```
-	
+
+This creates `target/poe-crafter-1.0-SNAPSHOT-jar-with-dependencies.jar` which includes all required libraries.
+
+#### 4. Run the application
+Start both frontend and backend in development mode:
+```bash
+npm run dev
+```
+
+This command will:
+- ✅ Build the Electron main process
+- ✅ Start the Vite dev server on `http://localhost:5173`
+- ✅ Launch the Java backend server on `http://localhost:8080`
+- ✅ Open the Electron desktop application
+
+The backend will automatically start when you run `npm run dev` - no need to start it separately!
+
+---
+
+### 📦 Alternative: Manual Backend Start
+
+If you prefer to run the backend separately:
+
+```bash
+# Terminal 1 - Start Java backend
+java -jar target/poe-crafter-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+# Terminal 2 - Start frontend
+npm run dev
+```
+
+---
+
+### 🏗️ Build for Production
+
+To create a distributable application:
+
+```bash
+# Build frontend
+npm run build
+
+# The application will be packaged in the dist folder
+```
+
+---
+
+## Development
+
+Start the development environment with hot reload:
+
+```bash
+npm run dev
+```
+
+This will:
+- Start Vite dev server on http://localhost:5173
+- Launch Electron with the app
+- Start Java backend on http://localhost:8080
+
+### Build for Production
+```bash
+npm run build
+```
+
+Creates distributable executables in the `dist` folder.
+
+---
+
+## Troubleshooting
+
+### ❌ Backend fails to start
+- **Check Java version:** Run `java -version` (needs Java 21+)
+- **Rebuild backend:** Run `mvn clean package` again
+- **Check port 8080:** Make sure port 8080 is not already in use
+
+### ❌ Frontend can't connect to backend
+- **Wait for backend:** The backend takes a few seconds to start
+- **Check logs:** Look for "Backend health check" in the console
+- **Manual start:** Try starting the backend manually (see Alternative section above)
+
+### ❌ Electron window doesn't open
+- **Node version:** Run `node -v` (needs Node 18+)
+- **Reinstall deps:** Delete `node_modules` and run `pnpm install` again
+- **Check logs:** Look for errors in the terminal
+
+### ❌ Build errors with Maven
+- **Maven version:** Run `mvn -v` (needs Maven 3.8+)
+- **Clean build:** Run `mvn clean` then `mvn package`
+- **Dependencies:** Make sure all Maven dependencies download correctly
+
 ---
 
 ## How It Works
@@ -83,7 +206,7 @@ mvn javafx:run
 The software uses a **beam search algorithm**:
 
 1. Score all possible modifier outcomes (desired modifiers = 1000 points, undesired modifiers with relevant tags = 250 points).
-2. Keep top candidates at each step: Transmute → Augment → Regal -> etc...  
+2. Keep top candidates at each step: Transmute → Augment → Regal → etc...  
 3. Calculate probabilities for each path.  
 4. Continue until 6-modifier items are found and sorted by probability.  
 
@@ -91,15 +214,26 @@ Special handling for Normal mods obtained by desecrations is implemented with ap
 
 ---
 
-## Screenshots of the GUI
+## Project Structure
 
-<img src="screenshots/Example1.PNG" width="400">
-<img src="screenshots/Example2.PNG" width="400">
-
-Transmute and Augment probabilities are set to 0 because the program starts calculating the percentage probabilities only after the Regal step.
+\`\`\`
+├── electron/              # Electron main process
+│   ├── main.ts           # Main process & IPC handlers
+│   └── preload.ts        # Preload script for secure IPC
+├── src/
+│   ├── components/       # React components
+│   │   └── ui/          # shadcn/ui components
+│   ├── hooks/           # Custom React hooks
+│   ├── App.tsx          # Main application
+│   └── main.tsx         # React entry point
+├── java/                # Java POE2_HTC backend
+│   ├── src/main/java/
+│   └── pom.xml
+├── vite.config.ts       # Vite configuration
+└── tsconfig.json        # TypeScript configuration
+\`\`\`
 
 ---
-
 
 ## Contributing
 
@@ -108,23 +242,13 @@ Transmute and Augment probabilities are set to 0 because the program starts calc
 3. Make changes, add features, fix bugs  
 4. Create a pull request  
 
-If you’re new, start with small things like:
-- Fixing typos in the GUI or database
-- Adding docstrings
-- Improving existing functions for clarity
+If you're new, start with:
+- Adding new React components
+- Improving the UI/UX
+- Fixing bugs in the backend algorithm
+- Optimizing performance
 
-Please follow coding standards and add docstrings where possible.  
-
----
-
-## To Improve / Fix / Test
-<img src="screenshots/path-of-exile-poe.gif" width="50">
-
-- Bug Testing / Bug Fixing
-- Checking the database for discrepancies
-- Improve GUI
-- Improve the probability part
-- Optimize the beam search algorithm for better performance
+Please follow coding standards and add JSDoc/JavaDoc where possible.
 
 ---
 
@@ -134,16 +258,14 @@ If you find a bug or encounter unexpected behavior:
 
 1. Go to the [Issues](https://github.com/Dboire9/POE2_HTC/issues) tab.
 2. Click **New Issue** and describe the problem clearly.
-3. Include steps to reproduce the bug, screenshots, and your system info if possible.
-4. We’ll track and fix it as soon as possible!
-
-Contributors can submit pull requests to fix reported bugs.
+3. Include steps to reproduce, screenshots, and system info.
+4. We'll track and fix it as soon as possible!
 
 ---
 
 ## License
 
-This project is licensed under **GPLv3**. See the LICENSE file for details.  
+This project is licensed under **GPLv3**. See the LICENSE file for details.
 
 ---
 

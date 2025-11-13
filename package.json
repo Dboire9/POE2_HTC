@@ -1,0 +1,44 @@
+{
+  "name": "poe2-htc",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/main.cjs",
+  "scripts": {
+    "dev": "concurrently \"npm:build:electron -- --watch\" \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "build:electron": "esbuild electron/main.ts --bundle --platform=node --format=cjs --outfile=dist/main.cjs --external:electron",
+    "postinstall": "electron-builder install-app-deps",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "electron-is-dev": "^3.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@radix-ui/react-checkbox": "^1.3.3",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-slider": "^1.3.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "^10.4.22",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "concurrently": "^9.0.0",
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.0",
+    "esbuild": "^0.23.0",
+    "lucide-react": "^0.553.0",
+    "postcss": "^8.5.6",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.6.0",
+    "vite": "^7.2.0",
+    "wait-on": "^7.2.0"
+  }
+}

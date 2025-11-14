@@ -7,7 +7,7 @@
 ![Node](https://img.shields.io/badge/Node-20+-green?logo=node.js)
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![Electron](https://img.shields.io/badge/Electron-32-blue?logo=electron)
-![Build](https://img.shields.io/badge/build-Maven-brightgreen?logo=apachemaven)
+![Build](https://img.shields.io/badge/build-Maven-brightgreen?logo=apache-maven)
 ![Status](https://img.shields.io/badge/Status-Beta%20(80%25)-yellow)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 

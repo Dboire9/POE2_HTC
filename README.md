@@ -1,10 +1,15 @@
 # POE2 How To Craft
 
-![License](https://img.shields.io/badge/license-GPLv3-blue)
-![Java](https://img.shields.io/badge/Java-21+-green)
-![Build](https://img.shields.io/badge/build-Maven-brightgreen)
-![Electron](https://img.shields.io/badge/Electron-latest-blue)
-![React](https://img.shields.io/badge/React-19-blue)
+![CI](https://github.com/Dboire9/POE2_HTC/actions/workflows/ci.yml/badge.svg)
+![CodeQL](https://github.com/Dboire9/POE2_HTC/actions/workflows/codeql.yml/badge.svg)
+![License](https://img.shields.io/github/license/Dboire9/POE2_HTC)
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
+![Node](https://img.shields.io/badge/Node-20+-green?logo=node.js)
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![Electron](https://img.shields.io/badge/Electron-32-blue?logo=electron)
+![Build](https://img.shields.io/badge/build-Maven-brightgreen?logo=apache-maven)
+![Status](https://img.shields.io/badge/Status-Beta%20(80%25)-yellow)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
 POE2 How To Craft is a modern desktop application that computes the most deterministic paths to craft desired items in **Path of Exile 2**.
 

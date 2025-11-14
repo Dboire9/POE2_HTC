@@ -16,6 +16,7 @@ yarn.lock
 /dist
 /dist-electron
 out/
+bin/
 
 # Maven
 target/

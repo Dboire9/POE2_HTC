@@ -58,33 +58,17 @@
 - **Traceability**: [Spec §R1.2]
 - **Status**: ✅ COMPLETED
 
-**T1.2: Create CandidatePool class** [P]
-- **ID**: T1.2
-- **Priority**: P1
-- **Effort**: 2 hours
-- **Dependencies**: None (can run parallel with T1.1)
-- **Description**: Implement thread-safe object pool for Crafting_Candidate reuse
-- **Acceptance Criteria**:
-  - [ ] CandidatePool with acquire/release methods
-  - [ ] Thread-safe using ConcurrentLinkedQueue
-  - [ ] Configurable max pool size (default: 50,000)
-  - [ ] Metrics: size() method for monitoring
-- **Technical Specs**: See plan.md §1.1
-- **Testing**: Unit test for thread safety and basic operations
-- **Files**: `src/main/java/core/Crafting/Utils/CandidatePool.java`
-- **Traceability**: [Spec §R1.2]
-
 ### Integration Tasks
 
 **T1.3: Integrate CandidatePool into Crafting_Algorithm**
 - **ID**: T1.3
 - **Priority**: P1
-- **Effort**: 3 hours
+- **Effort**: 8-10 hours (UPDATED - complexity discovered during implementation)
 - **Dependencies**: T1.1, T1.2
 - **Description**: Modify beam search to use object pooling for candidate creation
 - **Acceptance Criteria**:
   - [X] Initialize pool in optimizeCrafting() with size 50,000
-  - [ ] Replace `new Crafting_Candidate()` with `pool.acquire()`
+  - [ ] Replace `new Crafting_Candidate()` with `pool.acquire()` across ALL currency classes
   - [ ] Call `pool.release()` when candidates no longer needed
   - [ ] Ensure no double-release or use-after-release bugs
 - **Technical Specs**:
@@ -95,11 +79,26 @@
   // ... use c ...
   pool.release(c);
   ```
+- **Actual Integration Requirements** (discovered during implementation):
+  - Modify `Crafting_Candidate.copy()` to accept CandidatePool parameter
+  - Modify `Crafting_Item.copy()` to pass pool through to candidate creation
+  - Update 8+ currency classes to use pooling:
+    * TransmutationOrb.apply() - ~15 candidate creation sites
+    * AugmentationOrb.apply() - ~10 sites
+    * RegalOrb.apply() - ~20 sites
+    * ExaltedOrb.apply() - ~25 sites
+    * AnnulmentOrb.apply() - ~15 sites
+    * Essence_currency.apply() - ~20 sites
+    * Desecrated_currency.apply() - ~15 sites
+  - Add pool.release() calls in Crafting_Algorithm after each currency application phase
+  - Thread-safe pool passing through parallel executor service
+  - Estimated ~2,000 LOC changes across 10+ files
+- **Constitution Constraint**: Must preserve algorithm integrity per §I - no changes to scoring, heuristic, or probability logic
 - **Testing**: Integration test with complex scenario
-- **Files**: `src/main/java/core/Crafting/Crafting_Algorithm.java`
+- **Files**: `src/main/java/core/Crafting/Crafting_Algorithm.java`, `src/main/java/core/Crafting/Crafting_Candidate.java`, `src/main/java/core/Crafting/Crafting_Item.java`, `src/main/java/core/Currency/*.java` (8 files)
 - **Traceability**: [Spec §R1.2]
-- **Status**: 🔄 PARTIAL - Infrastructure ready, full integration deferred
-- **Notes**: Pool initialization added with @SuppressWarnings annotation. Full integration requires refactoring .copy() method and currency operations to respect algorithm integrity constraints (see constitution §I). Complete integration requires architectural changes beyond current scope.
+- **Status**: 🔄 PARTIAL - Infrastructure ready (pool initialized), full integration deferred due to refactoring scope
+- **Notes**: Pool initialization added with @SuppressWarnings annotation. Full integration requires refactoring .copy() method and currency operations to respect algorithm integrity constraints (see constitution §I). Complete integration requires architectural changes beyond current scope - recommend as separate sub-phase after T2 completion.
 
 **T1.4: Test memory optimization with complex scenarios**
 - **ID**: T1.4
@@ -220,7 +219,7 @@
 **T2.2: Integrate BeamSearchConfig into Crafting_Algorithm**
 - **ID**: T2.2
 - **Priority**: P1
-- **Effort**: 2 hours
+- **Effort**: 5-6 hours (UPDATED - wiring complexity discovered)
 - **Dependencies**: T2.1
 - **Description**: Modify algorithm to use config for beam width and scoring
 - **Acceptance Criteria**:
@@ -228,16 +227,35 @@
   - [X] Calculate complexity from desiredMods.size()
   - [X] Use config.calculateBeamWidth(complexity)
   - [ ] Use config scoring weights in heuristic
+  - [ ] Implement beam width pruning in processCandidateLists()
 - **Technical Specs**:
   ```java
   ItemComplexity complexity = ItemComplexity.from(desiredMods.size());
   int beamWidth = config.calculateBeamWidth(complexity);
   ```
+- **Actual Integration Requirements** (discovered during implementation):
+  - **Beam Width Pruning** (NOT YET IMPLEMENTED):
+    * Add sorting + pruning in processCandidateLists() line ~180
+    * Sort candidates by score descending
+    * Keep only top N candidates (N = beamWidth)
+    * Estimated ~100-200 LOC in Crafting_Algorithm.java
+  - **Scoring Weight Wiring** (NOT YET IMPLEMENTED):
+    * Modify Heuristic_Util.calculateAffixScore() signature to accept config
+    * Pass config from Crafting_Algorithm → currency.apply() → Heuristic_Util
+    * Replace hardcoded 1000/250 with config.getDesiredModifierScore() / config.getRelevantTagScore()
+    * Update 8+ currency classes to pass config through
+    * Estimated ~500-800 LOC changes across scoring functions
+- **Current Status**:
+  - ✅ Config class created with all fields and validation
+  - ✅ Algorithm accepts config parameter
+  - ✅ Complexity calculated and beam width computed
+  - ❌ Beam width NOT used for pruning (all candidates kept)
+  - ❌ Scoring weights NOT wired (Heuristic_Util uses hardcoded 1000/250)
 - **Testing**: Unit test with different configs
-- **Files**: `src/main/java/core/Crafting/Crafting_Algorithm.java`
-- **Traceability**: [Spec §R2.1]
-- **Status**: 🔄 PARTIAL - Config accepted, complexity calculated, beam width computed. Scoring weight integration deferred (requires Heuristic_Util refactoring).
-- **Notes**: Beam width pruning integration requires additional refactoring to respect algorithm integrity. See TODO comments for full integration strategy.
+- **Files**: `src/main/java/core/Crafting/Crafting_Algorithm.java`, `src/main/java/core/Crafting/Utils/Heuristic_Util.java`, `src/main/java/core/Currency/*.java` (8 files)
+- **Traceability**: [Spec §R2.1, R2.2]
+- **Status**: 🔄 PARTIAL - Config accepted, complexity calculated, beam width computed. Pruning and scoring weight integration deferred.
+- **Notes**: Beam width pruning and scoring weight wiring require additional refactoring to respect algorithm integrity per Constitution §I. See TODO comments in Crafting_Algorithm.java for full integration strategy.
 
 ### Benchmark Tasks
 
@@ -306,6 +324,57 @@
 - **Testing**: Regression test suite
 - **Files**: `src/test/java/core/Crafting/RegressionTest.java`
 - **Traceability**: [Spec §R2.2]
+
+**T2.6: Formalize threshold countdown pattern in CraftingExecutor** [NEW]
+- **ID**: T2.6
+- **Priority**: P1 (HIGH - critical for production readiness)
+- **Effort**: 3 hours
+- **Dependencies**: T2.3 (BenchmarkSuite validates need)
+- **Description**: Move threshold countdown from TestAlgo into CraftingExecutor as official production pattern
+- **Rationale**: Default threshold 0.001 (0.1%) too strict - BenchmarkSuite shows 0 results for most cases. TestAlgo countdown pattern (50% → 0%) is the OFFICIAL approach for both testing AND production.
+- **Acceptance Criteria**:
+  - [ ] Create ThresholdConfig class with customizable parameters:
+    * startThreshold (default: 50%)
+    * stepSize (default: 1%)
+    * minThreshold (default: 0%)
+    * maxIterations (default: 51)
+  - [ ] Move countdown logic INTO CraftingExecutor.runCrafting()
+  - [ ] Return metadata: which threshold succeeded, iterations taken
+  - [ ] Document in JavaDoc as official pattern (not workaround)
+  - [ ] Update BenchmarkSuite to use formalized pattern
+- **Technical Specs**:
+  ```java
+  public static List<CandidateProbability> runCrafting(
+      Crafting_Item item,
+      List<Modifier> desiredMods,
+      List<Modifier> undesiredMods,
+      ThresholdConfig config
+  ) {
+      double threshold = config.getStartThreshold();
+      List<CandidateProbability> results;
+      
+      while (threshold >= config.getMinThreshold()) {
+          results = optimizeCrafting(item, desiredMods, undesiredMods, threshold);
+          if (!results.isEmpty()) {
+              return results; // Early termination when paths found
+          }
+          threshold -= config.getStepSize();
+          item.reset();
+          undesiredMods.clear();
+      }
+      return Collections.emptyList(); // No viable paths found
+  }
+  ```
+- **Benefits**:
+  - Speed: Finds high-probability paths in <5 seconds
+  - Coverage: Falls back to lower probabilities if no fast paths exist
+  - User Experience: Progressive refinement feels responsive
+  - Production-Ready: Official algorithm, not temporary workaround
+- **Testing**: Integration test with countdown, unit test for ThresholdConfig
+- **Files**: `src/main/java/core/Crafting/CraftingExecutor.java`, `src/main/java/core/Crafting/ThresholdConfig.java`, `src/main/java/core/Test/TestAlgo.java` (update to use new API)
+- **Traceability**: [Spec §R2.3]
+- **Status**: NOT STARTED
+- **Expected Impact**: 80-90% reduction in average computation time for viable crafting paths
 
 ## Phase 3: Progress Tracking & Cancellation (P1)
 

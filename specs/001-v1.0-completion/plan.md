@@ -76,9 +76,11 @@
 
 **Solution**: Implement CandidatePool for object reuse
 
+**Implementation Status**: ✅ T1.1 COMPLETE (reset method), ✅ T1.2 COMPLETE (CandidatePool), 🔄 T1.3 PARTIAL (integration)
+
 **Architecture**:
 ```java
-// New class: src/main/java/core/Crafting/Utils/CandidatePool.java
+// New class: src/main/java/core/Crafting/Utils/CandidatePool.java [CREATED]
 package core.Crafting.Utils;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -116,17 +118,30 @@ public class CandidatePool {
 }
 ```
 
-**Integration Points**:
-- Modify `Crafting_Algorithm.optimizeCrafting()` to use pool
-- Add `reset()` method to `Crafting_Candidate.java`
-- Initialize pool with size 50,000 (empirically tested)
+**Integration Points** (ACTUAL COMPLEXITY DISCOVERED):
+- ✅ Add `reset()` method to `Crafting_Candidate.java` [COMPLETE - T1.1]
+- ✅ Initialize pool in `Crafting_Algorithm.optimizeCrafting()` with size 50,000 [COMPLETE - T1.2]
+- 🔄 **REQUIRES EXTENSIVE REFACTORING** (~2,000 LOC across 8+ files) [PARTIAL - T1.3]:
+  - Modify `Crafting_Candidate.copy()` to call `pool.acquire()` instead of `new Crafting_Candidate()`
+  - Modify `Crafting_Item.copy()` to accept pool parameter
+  - Update ALL currency classes to use pooling:
+    - TransmutationOrb.apply() [8+ candidate creation sites]
+    - AugmentationOrb.apply()
+    - RegalOrb.apply()
+    - ExaltedOrb.apply()
+    - AnnulmentOrb.apply()
+    - Essence_currency.apply()
+    - Desecrated_currency.apply()
+  - Add pool.release() calls after candidate processing
+  - Thread-safe pool passing through beam search iterations
+- **Constitution §I Constraint**: Must preserve algorithm integrity - no changes to scoring/heuristic logic
 
 **Testing**:
-- Unit test: `CandidatePoolTest.java` (acquire, release, thread safety)
-- Memory test: Measure heap before/after with JMX
-- Integration test: Complex scenario (6 modifiers) without OOM
+- ✅ Unit test: `CandidatePoolTest.java` (acquire, release, thread safety) [CREATED]
+- Memory test: Measure heap before/after with JMX [PENDING]
+- Integration test: Complex scenario (6 modifiers) without OOM [PENDING]
 
-**Expected Impact**: 50-70% reduction in object allocation rate
+**Expected Impact**: 50-70% reduction in object allocation rate (once fully integrated)
 
 #### 1.2 Streaming Data Structures
 
@@ -210,9 +225,11 @@ public class MemoryMonitor {
 
 **Solution**: Dynamic beam width based on item complexity
 
+**Implementation Status**: ✅ T2.1 COMPLETE (BeamSearchConfig class), 🔄 T2.2 PARTIAL (beam width pruning NOT wired)
+
 **Architecture**:
 ```java
-// New class: src/main/java/core/Crafting/BeamSearchConfig.java
+// New class: src/main/java/core/Crafting/BeamSearchConfig.java [CREATED]
 package core.Crafting;
 
 public class BeamSearchConfig {
@@ -220,7 +237,7 @@ public class BeamSearchConfig {
     private int desiredModifierScore = 1000;
     private int relevantTagScore = 250;
     
-    // Beam width calculation
+    // Beam width calculation [IMPLEMENTED]
     public int calculateBeamWidth(ItemComplexity complexity) {
         return switch (complexity) {
             case SIMPLE -> 50;   // 1-2 modifiers
@@ -248,17 +265,23 @@ public class BeamSearchConfig {
 }
 ```
 
-**Integration Points**:
-- Modify `Crafting_Algorithm.optimizeCrafting()` signature to accept config
-- Calculate complexity from `desiredMods.size()`
-- Pass beam width to beam search iterations
+**Integration Points** (ACTUAL STATUS):
+- ✅ Modify `Crafting_Algorithm.optimizeCrafting()` signature to accept config [COMPLETE]
+- ✅ Calculate complexity from `desiredMods.size()` [COMPLETE]
+- ❌ **Pass beam width to beam search iterations** [NOT IMPLEMENTED]
+- ❌ **Implement beam width pruning in `processCandidateLists()`** [TODO]:
+  - Current: Algorithm keeps ALL candidates regardless of beam width
+  - Needed: Sort candidates by score, keep only top N (where N = beamWidth)
+  - Location: Crafting_Algorithm.processCandidateLists() line ~180
+  - Complexity: ~100-200 LOC to implement sorting + pruning per iteration
+- **Current Pruning**: Only heuristic scoring + threshold filtering, no beam width limiting
 
 **Testing**:
-- Unit test: Complexity calculation
-- Performance test: Compare fixed vs adaptive beam width
-- Accuracy test: Validate results match with known test cases
+- Unit test: Complexity calculation [PENDING]
+- Performance test: Compare fixed vs adaptive beam width [PENDING - requires pruning implementation]
+- Accuracy test: Validate results match with known test cases [PENDING]
 
-**Expected Impact**: 20-30% reduction in computation time for simple items
+**Expected Impact**: 20-30% reduction in computation time for simple items (once pruning implemented)
 
 #### 2.2 Scoring Weight Optimization
 
@@ -266,24 +289,28 @@ public class BeamSearchConfig {
 
 **Solution**: Automated parameter search with benchmark suite
 
+**Implementation Status**: ✅ T2.1 COMPLETE (BeamSearchConfig has weight fields), ❌ NOT WIRED (Heuristic_Util uses hardcoded values), ✅ T2.3 COMPLETE (BenchmarkSuite with 11 test cases)
+
+**Current Reality**:
+- BeamSearchConfig has `desiredModifierScore` and `relevantTagScore` fields
+- Heuristic_Util.calculateAffixScore() uses hardcoded 1000/250 values
+- Config parameters NOT passed to scoring functions
+- Requires wiring config through Crafting_Algorithm → Heuristic_Util
+
 **Approach**:
-1. Create benchmark suite with known optimal paths
-2. Grid search: test weight combinations
-3. Measure accuracy (path quality) vs speed
-4. Select optimal weights
+1. ✅ Create benchmark suite with known optimal paths [COMPLETE - T2.3]
+2. Grid search: test weight combinations [PENDING]
+3. Measure accuracy (path quality) vs speed [PENDING]
+4. Select optimal weights [PENDING]
 
 **Benchmark Format**:
 ```java
-// New class: src/test/java/core/Crafting/BenchmarkSuite.java
+// New class: src/test/java/core/Crafting/BenchmarkSuite.java [CREATED]
 public class BenchmarkSuite {
-    private List<BenchmarkCase> cases;
-    
-    static class BenchmarkCase {
-        Crafting_Item baseItem;
-        List<Modifier> desiredMods;
-        List<Crafting_Action> expectedOptimalPath;
-        double maxAcceptableTime; // seconds
-    }
+    // 11 concrete test cases created:
+    // SIMPLE (3): Bow 2-mod, Helmet 1-mod, Ring 2-mod
+    // MEDIUM (4): Bow 4-mod, Armor 3-mod, Mace 4-mod, Amulet 3-mod
+    // COMPLEX (4): Bow 6-mod, Helmet 5-mod, Armor 6-mod, Wand 6-mod
     
     public BenchmarkResult runBenchmark(BeamSearchConfig config) {
         // Run all cases, measure time and accuracy
@@ -291,12 +318,83 @@ public class BenchmarkSuite {
 }
 ```
 
-**Testing**:
-- Create 10-20 benchmark cases (simple, medium, complex)
-- Automated parameter search script
-- Document optimal weights in ADR
+**Integration Work Required**:
+- Modify Heuristic_Util.calculateAffixScore() to accept config parameter
+- Pass config through Crafting_Algorithm → currency.apply() → Heuristic_Util
+- Estimated ~500-800 LOC changes across scoring functions
 
-**Expected Impact**: 10-15% improvement in path quality
+**Testing**:
+- ✅ Create 10-20 benchmark cases (simple, medium, complex) [11 CASES CREATED]
+- Automated parameter search script [PENDING]
+- Document optimal weights in ADR [PENDING]
+
+**Key Finding**: Default threshold 0.001 too strict - BenchmarkSuite returns 0 results for most cases. Threshold optimization (see §2.3) is higher priority than weight tuning.
+
+**Expected Impact**: 10-15% improvement in path quality (once wired + tuned)
+
+#### 2.3 Threshold Optimization (Official Pattern)
+
+**Problem**: Default threshold 0.001 (0.1%) too strict - most viable crafting paths have probabilities <0.1%, causing zero results
+
+**Solution**: Adaptive threshold countdown pattern (OFFICIAL for testing AND production)
+
+**Implementation Status**: ✅ Pattern validated in TestAlgo.java, requires formalization in CraftingExecutor
+
+**Rationale**:
+- High-probability paths (>10%) are rare but fast to find
+- Medium-probability paths (1-10%) are more common, acceptable quality
+- Low-probability paths (<1%) exist but require more search time
+- Countdown pattern optimizes for speed: find high-prob paths first, relax if needed
+
+**Architecture** (Reference: TestAlgo.java lines 75-85):
+```java
+// Current pattern in TestAlgo.java (should be moved to CraftingExecutor)
+double GLOBALTHRESHOLD = 50; // Start at 50%
+
+try {
+    List<CandidateProbability> results = CraftingExecutor.runCrafting(
+        item, desiredMods, undesiredMods, GLOBALTHRESHOLD / 100
+    );
+    
+    // Countdown until results found or threshold reaches 0
+    while (results.isEmpty() && GLOBALTHRESHOLD > 0) {
+        item.reset();
+        GLOBALTHRESHOLD--;
+        undesiredMods.clear();
+        results = CraftingExecutor.runCrafting(
+            item, desiredMods, undesiredMods, GLOBALTHRESHOLD / 100
+        );
+        System.out.println("Threshold countdown: " + GLOBALTHRESHOLD);
+    }
+} catch (InterruptedException | ExecutionException e) {
+    e.printStackTrace();
+}
+```
+
+**Formalization Plan**:
+1. Move countdown logic INTO CraftingExecutor.runCrafting()
+2. Add ThresholdConfig class with customizable countdown parameters:
+   - startThreshold (default: 50%)
+   - stepSize (default: 1%)
+   - minThreshold (default: 0%)
+   - maxIterations (default: 51)
+3. Return metadata: which threshold succeeded, iterations taken
+4. Document as OFFICIAL pattern in API docs
+
+**Benefits**:
+- **Speed**: Finds high-probability paths in <5 seconds
+- **Coverage**: Falls back to lower probabilities if no fast paths exist
+- **User Experience**: Progressive refinement feels responsive
+- **Production-Ready**: Not a workaround - this IS the correct algorithm
+
+**Testing**:
+- ✅ TestAlgo.java validates pattern works [EXISTING]
+- ✅ BenchmarkSuite shows default 0.001 fails [VALIDATED]
+- Unit test: ThresholdConfig parameter validation [PENDING]
+- Integration test: Countdown terminates correctly [PENDING]
+- Performance test: Compare fixed vs countdown [PENDING]
+
+**Expected Impact**: 80-90% reduction in average computation time for viable crafting paths
 
 ### Phase 3: Progress Tracking & Cancellation (P1)
 

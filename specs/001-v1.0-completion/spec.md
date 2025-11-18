@@ -19,6 +19,41 @@ This specification aligns with POE2_HTC Constitution v1.1.0:
 - **Testing Standards**: ✅ Comprehensive unit, integration, memory, and performance tests
 - **User Experience**: ✅ Real-time progress tracking, instant cancellation, polished UI
 
+## Implementation Notes (Updated After T1-T2 Partial Completion)
+
+### Algorithm Architecture Findings
+
+**Beam Search Flow (Validated)**:
+```
+Normal Item
+  ↓ TransmutationOrb → adds 1 mod (PREFIX or SUFFIX) → Magic Item
+  ↓ AugmentationOrb → adds 1 mod (fills empty slot) → Magic Item (2 mods)
+  ↓ RegalOrb/Essences → adds 1 mod → Rare Item (3 mods)
+  ↓ [Iterative Refinement Loop - 2 initial passes + continue until exhausted]
+      ExaltedOrb → adds mods (up to 6 total)
+      AnnulmentOrb → removes mods
+      Desecrated → modifies tiers
+  ↓ extractHighScoreCandidates() → filters score ≥ 6000 + exactly 6 mods
+```
+
+**Pruning Mechanisms (Dual-Layer)**:
+1. **Heuristic Scoring**: During currency.apply(), filters candidates with score below threshold
+2. **Probability Threshold**: ComputingLastEventProbability() filters candidates whose last action has probability < GLOBAL_THRESHOLD
+3. **Beam Width Limiting**: TODO - Not yet implemented (see R2.1)
+
+**Probability Computation (Post-Search)**:
+- During beam search: ModifierEvent.source = {Currency → 1.0} (placeholder)
+- After search completes: Probability.ComputingProbability() populates source maps with ALL possible actions and their probabilities
+- Probability_Analyzer.Analyze() selects best action per event, multiplies probabilities for final percentage
+
+**Threshold Countdown Pattern (Official)**:
+- Default 0.001 threshold too strict for production use
+- TestAlgo.java demonstrates countdown: 50% → 0% until results found
+- Pattern reduces computation time by finding high-probability paths first
+- Should be formalized in CraftingExecutor as official production pattern
+
+**Memory Growth**: Algorithm explores ALL possible paths simultaneously (no beam width pruning yet), causing exponential growth with 6-mod scenarios. Object pooling infrastructure exists but requires ~2,000 LOC integration work.
+
 ## Problem Statement
 
 ### Current State (~80% Complete)
@@ -69,6 +104,12 @@ This specification aligns with POE2_HTC Constitution v1.1.0:
   - Thread-safe implementation using ConcurrentLinkedQueue
   - Reset method to prevent data leakage between uses
   - 50% reduction in object allocation rate during beam search
+- **Implementation Complexity**: Infrastructure complete (CandidatePool, reset() method), but full integration requires:
+  - Refactoring `.copy()` method in Crafting_Candidate and Crafting_Item to use pool
+  - Updating all 8+ currency classes (TransmutationOrb, RegalOrb, ExaltedOrb, etc.) to call acquire/release
+  - Estimated ~2,000 LOC refactoring across beam search algorithm
+  - Must preserve algorithm integrity per Constitution §I
+- **Implementation Status**: T1.1 ✅ reset() method, T1.2 ✅ CandidatePool class, T1.3 🔄 integration partial
 - **Technical Specs**: See Implementation Pattern in speckit.implement.prompt.md
 
 **R1.3 Memory Profiling**
@@ -90,7 +131,13 @@ This specification aligns with POE2_HTC Constitution v1.1.0:
   - Medium items (3-4 modifiers): beam width = 100
   - Complex items (5-6 modifiers): beam width = 200
   - Configurable via BeamSearchConfig class
+  - Pruning logic in processCandidateLists() to limit candidate count per iteration
   - Algorithm structure preserved (NON-NEGOTIABLE)
+- **Implementation Status**: BeamSearchConfig class ✅ complete with complexity calculation, BUT beam width pruning NOT YET WIRED into processCandidateLists(). Current algorithm keeps ALL candidates regardless of configured beam width. Requires integration work in Crafting_Algorithm.java.
+- **Current Pruning Mechanisms**: 
+  1. Heuristic scoring filters low-potential paths during currency.apply()
+  2. ComputingLastEventProbability() filters candidates with last action probability < threshold
+  3. Beam width limiting (TODO): Not yet implemented
 - **Constitutional Ref**: [Constitution §I - Algorithm Integrity]
 
 **R2.2 Scoring Weight Tuning**
@@ -100,9 +147,24 @@ This specification aligns with POE2_HTC Constitution v1.1.0:
   - Current: 1000 (desired), 250 (tags) → Tune via empirical testing
   - Test cases with known optimal paths validate accuracy
   - No regression in calculation quality
+- **Implementation Status**: BeamSearchConfig has weight fields (desiredModWeight, tagWeight), BUT Heuristic_Util.calculateAffixScore() uses hardcoded values (1000/250). Requires wiring BeamSearchConfig parameters into scoring functions.
+- **Note**: Constitution §I allows score modifications with approval - scoring weight tuning falls within acceptable optimization scope.
 - **Constitutional Ref**: [Constitution §I - Algorithm Integrity]
 
-**R2.3 Heuristic Refinement**
+**R2.3 Threshold Optimization**
+- **Priority**: P1
+- **Requirement**: Implement adaptive threshold countdown pattern for efficient path finding
+- **Rationale**: Default threshold 0.001 (0.1%) is too strict - most viable crafting paths have probabilities <0.1%. Countdown pattern (50% → 0%) dramatically reduces computation time by finding high-probability paths first, then progressively relaxing constraints if needed.
+- **Acceptance Criteria**:
+  - Start threshold: 50% (0.5), countdown to 0% if no results found
+  - Progressive relaxation: 50 → 40 → 30 → ... → 1 → 0
+  - Early termination: Stop countdown when viable paths found
+  - Documented as OFFICIAL testing AND production pattern (not workaround)
+  - TestAlgo.java demonstrates reference implementation
+- **Implementation Status**: Pattern validated in TestAlgo.java, needs formalization in CraftingExecutor
+- **Constitutional Ref**: [Constitution §II - Performance First]
+
+**R2.4 Heuristic Refinement**
 - **Priority**: P2
 - **Requirement**: Improve heuristic scoring for better path prediction
 - **Acceptance Criteria**:

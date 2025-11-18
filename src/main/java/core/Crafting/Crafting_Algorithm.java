@@ -16,6 +16,8 @@ import core.Crafting.Utils.CandidatePool;
 import core.Crafting.Utils.Heuristic_Util;
 import core.Crafting.Utils.ModifierEvent;
 import core.Crafting.Utils.ModifierEvent.ActionType;
+import core.Crafting.ProgressTracker;
+import core.Crafting.ProgressTracker.SessionProgress;
 import core.Currency.AnnulmentOrb;
 import core.Currency.AugmentationOrb;
 import core.Currency.Desecrated_currency;
@@ -49,7 +51,7 @@ public class Crafting_Algorithm {
         List<Modifier> undesiredMods,
         double GLOBAL_THRESHOLD) throws InterruptedException, ExecutionException
 		{
-			return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD, new BeamSearchConfig());
+			return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD, new BeamSearchConfig(), null);
 	}
 	
     /**
@@ -72,27 +74,63 @@ public class Crafting_Algorithm {
         double GLOBAL_THRESHOLD,
         BeamSearchConfig config) throws InterruptedException, ExecutionException
 		{
-
-			// Initialize object pool for memory optimization
-			// Pool size of 50,000 based on empirical testing (see spec R1.2)
-			// TODO: Full integration requires refactoring .copy() method and currency operations
-			// to use pool.acquire() and pool.release(). This preserves algorithm integrity
-			// while the pooling infrastructure is established for future optimization.
-			// See plan.md §1.1 for full integration strategy.
-			@SuppressWarnings("unused")
-			CandidatePool pool = new CandidatePool(50000);
+			return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD, config, null);
+	}
+	
+    /**
+     * Optimizes the crafting process for a given base item and desired/undesired modifiers.
+     * This overload accepts a BeamSearchConfig and sessionId for progress tracking.
+     *
+     * @param baseItem        The base item to be crafted.
+     * @param desiredMods     A list of desired modifiers to aim for.
+     * @param undesiredMods   A list of undesired modifiers to avoid.
+     * @param GLOBAL_THRESHOLD The global threshold for crafting optimization.
+     * @param config          Configuration for beam search parameters (scoring weights, beam width).
+     * @param sessionId       Optional session ID for progress tracking (null to disable).
+     * @return A list of optimized crafting candidates.
+     * @throws InterruptedException If the thread execution is interrupted.
+     * @throws ExecutionException   If an error occurs during thread execution.
+     * @throws CancelledException   If the user cancels the computation via progress tracker.
+     */
+	public static List<Crafting_Candidate> optimizeCrafting(
+        Crafting_Item baseItem,
+        List<Modifier> desiredMods,
+        List<Modifier> undesiredMods,
+        double GLOBAL_THRESHOLD,
+        BeamSearchConfig config,
+        String sessionId) throws InterruptedException, ExecutionException
+		{
+			// Initialize progress tracking if sessionId provided
+			// Estimate iterations: 2 initial passes + estimated refinement iterations (heuristic: 10-20)
+			// Actual iterations may vary, but this provides reasonable progress feedback
+			int estimatedIterations = 2 + 15; // Conservative estimate
+			boolean trackProgress = (sessionId != null && !sessionId.trim().isEmpty());
 			
-			// Calculate complexity and optimal beam width
-			// TODO: Integrate beam width pruning into processCandidateLists (see plan.md §2.1)
-			// Current implementation keeps all candidates; future optimization will apply
-			// adaptive pruning based on complexity to reduce memory footprint.
-			BeamSearchConfig.ItemComplexity complexity = BeamSearchConfig.ItemComplexity.from(desiredMods.size());
-			@SuppressWarnings("unused")
-			int beamWidth = config.calculateBeamWidth(complexity);
+			if (trackProgress) {
+				ProgressTracker.startSession(sessionId, estimatedIterations);
+			}
+			
+			try {
+				// Initialize object pool for memory optimization
+				// Pool size of 50,000 based on empirical testing (see spec R1.2)
+				// TODO: Full integration requires refactoring .copy() method and currency operations
+				// to use pool.acquire() and pool.release(). This preserves algorithm integrity
+				// while the pooling infrastructure is established for future optimization.
+				// See plan.md §1.1 for full integration strategy.
+				@SuppressWarnings("unused")
+				CandidatePool pool = new CandidatePool(50000);
+				
+				// Calculate complexity and optimal beam width
+				// TODO: Integrate beam width pruning into processCandidateLists (see plan.md §2.1)
+				// Current implementation keeps all candidates; future optimization will apply
+				// adaptive pruning based on complexity to reduce memory footprint.
+				BeamSearchConfig.ItemComplexity complexity = BeamSearchConfig.ItemComplexity.from(desiredMods.size());
+				@SuppressWarnings("unused")
+				int beamWidth = config.calculateBeamWidth(complexity);
 
-			// Initialize thread pool
-			int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
-			ExecutorService executor = Executors.newFixedThreadPool(threads);			// Precompute desired tag counts
+				// Initialize thread pool
+				int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
+				ExecutorService executor = Executors.newFixedThreadPool(threads);			// Precompute desired tag counts
 			Map<String, Integer> tagCount = Heuristic_Util.CreateCountModifierTags(desiredMods);
 
 			// Base candidate lists
@@ -126,28 +164,61 @@ public class Crafting_Algorithm {
 			List<List<Crafting_Candidate>> current = deepCopy(allCandidateLists);
 			List<List<Crafting_Candidate>> next = new ArrayList<>();
 
-			// Perform two initial passes
-			for (int i = 0; i < 2; i++) {
-				processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
-						allCandidateLists, next, executor);
-				current = deepCopy(next);
-				next.clear();
+				// Perform two initial passes
+				for (int i = 0; i < 2; i++) {
+					// Check for cancellation
+					if (trackProgress) {
+						SessionProgress progress = ProgressTracker.getProgress(sessionId);
+						if (progress != null && progress.isCancelled()) {
+							throw new CancelledException("User cancelled crafting computation (initial passes)");
+						}
+					}
+					
+					processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
+							allCandidateLists, next, executor);
+					current = deepCopy(next);
+					next.clear();
+					
+					// Increment progress
+					if (trackProgress) {
+						ProgressTracker.incrementProgress(sessionId);
+					}
+				}
+
+				// Continue processing until we do not find anymore candidates
+				while (!current.isEmpty()) {
+					// Check for cancellation
+					if (trackProgress) {
+						SessionProgress progress = ProgressTracker.getProgress(sessionId);
+						if (progress != null && progress.isCancelled()) {
+							throw new CancelledException("User cancelled crafting computation (refinement loop)");
+						}
+					}
+					
+					processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
+							allCandidateLists, next, executor);
+					current = deepCopy(next);
+					next.clear();
+					
+					// Increment progress
+					if (trackProgress) {
+						ProgressTracker.incrementProgress(sessionId);
+					}
+				}
+
+				// Shutdown thread pool
+				executor.shutdown();
+				executor.awaitTermination(1, TimeUnit.MINUTES);
+
+				// Final filtering
+				return extractHighScoreCandidates(allCandidateLists, desiredMods);
+				
+			} finally {
+				// Always end the session, even if computation fails or is cancelled
+				if (trackProgress) {
+					ProgressTracker.endSession(sessionId);
+				}
 			}
-
-			// Continue processing until we do not find anymore candidates
-			while (!current.isEmpty()) {
-				processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
-						allCandidateLists, next, executor);
-				current = deepCopy(next);
-				next.clear();
-			}
-
-			// Shutdown thread pool
-			executor.shutdown();
-			executor.awaitTermination(1, TimeUnit.MINUTES);
-
-			// Final filtering
-			return extractHighScoreCandidates(allCandidateLists, desiredMods);
 	}
 	
     /**

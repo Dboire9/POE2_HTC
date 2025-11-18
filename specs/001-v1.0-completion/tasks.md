@@ -325,14 +325,14 @@
 - **Files**: `src/test/java/core/Crafting/RegressionTest.java`
 - **Traceability**: [Spec §R2.2]
 
-**T2.6: Formalize threshold countdown pattern in CraftingExecutor** [NEW]
+**T2.6: Formalize threshold countdown pattern in CraftingExecutor** [NEW] ✅ 100% COMPLETE (7c5658c)
 - **ID**: T2.6
 - **Priority**: P1 (HIGH - critical for production readiness)
-- **Effort**: 3 hours
+- **Effort**: 3 hours (actual: 3 hours)
 - **Dependencies**: T2.3 (BenchmarkSuite validates need)
 - **Description**: Move threshold countdown from TestAlgo into CraftingExecutor as official production pattern
 - **Rationale**: Default threshold 0.001 (0.1%) too strict - BenchmarkSuite shows 0 results for most cases. TestAlgo countdown pattern (50% → 0%) is the OFFICIAL approach for both testing AND production.
-- **Acceptance Criteria**:
+- **Acceptance Criteria**: ✅ ALL COMPLETE
   - [X] Create ThresholdConfig class with customizable parameters:
     * startThreshold (default: 50%)
     * stepSize (default: 1%)
@@ -342,8 +342,8 @@
   - [X] Return metadata: which threshold succeeded, iterations taken
   - [X] Document in JavaDoc as official pattern (not workaround)
   - [X] Update TestAlgo to use formalized API
-  - [ ] Update BenchmarkSuite to use formalized pattern
-  - [ ] Unit tests for ThresholdConfig parameter validation
+  - [X] Update BenchmarkSuite to use formalized pattern
+  - [X] Unit tests for ThresholdConfig parameter validation (20 tests, 100% pass)
 - **Technical Specs**:
   ```java
   public static CraftingResult runCrafting(
@@ -356,23 +356,28 @@
       // Returns CraftingResult with paths + execution metadata
   }
   ```
-- **Implementation Status**: ✅ MOSTLY COMPLETE
+- **Implementation Status**: ✅ 100% COMPLETE (7c5658c)
   - ✅ ThresholdConfig class with standard/fast/thorough/fixed presets
   - ✅ CraftingExecutor.runCrafting() with ThresholdConfig parameter
   - ✅ CraftingResult metadata tracking (threshold, iterations, duration, success)
   - ✅ TestAlgo migrated to use new API
   - ✅ Legacy runCrafting(double) marked @Deprecated for backward compat
-  - ⏳ BenchmarkSuite integration (straightforward, just use ThresholdConfig.standard())
-  - ⏳ Unit tests for ThresholdConfig (validation, edge cases, iteration logic)
+  - ✅ BenchmarkSuite integration (uses ThresholdConfig.standard(), extracts from CraftingResult)
+  - ✅ Unit tests for ThresholdConfig (20 tests, 100% pass rate, comprehensive validation)
 - **Benefits**:
   - Speed: Finds high-probability paths in <5 seconds
   - Coverage: Falls back to lower probabilities if no fast paths exist
   - User Experience: Progressive refinement feels responsive
   - Production-Ready: Official algorithm, not temporary workaround
-- **Testing**: Integration test with countdown, unit test for ThresholdConfig
-- **Files**: `src/main/java/core/Crafting/CraftingExecutor.java`, `src/main/java/core/Crafting/ThresholdConfig.java`, `src/main/java/core/Test/TestAlgo.java` (updated)
+- **Testing**: ✅ TestThresholdConfig (20 tests, 100% pass), TestAlgo integration, BenchmarkSuite validation
+- **Files**: 
+  - `src/main/java/core/Crafting/CraftingExecutor.java` (complete)
+  - `src/main/java/core/Crafting/ThresholdConfig.java` (complete, presets fixed)
+  - `src/main/java/core/Crafting/BenchmarkSuite.java` (integrated)
+  - `src/main/java/core/Test/TestAlgo.java` (migrated)
+  - `src/main/java/core/Test/TestThresholdConfig.java` (NEW - 263 lines, 20 tests)
 - **Traceability**: [Spec §R2.3]
-- **Status**: ✅ COMPLETE (core implementation), ⏳ TESTS PENDING
+- **Status**: ✅ 100% COMPLETE (all acceptance criteria met)
 - **Expected Impact**: 80-90% reduction in average computation time for viable crafting paths
 
 ## Phase 3: Progress Tracking & Cancellation (P1)

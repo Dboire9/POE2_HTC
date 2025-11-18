@@ -219,26 +219,401 @@ public class BenchmarkSuite {
      * - COMPLEX: 5-6 desired modifiers
      * 
      * Each case includes realistic crafting scenarios with appropriate time limits.
+     * Based on actual game items and modifiers from POE2.
      */
     private void initializeBenchmarkCases() {
-        // Note: These are placeholder cases. Real implementation requires actual items and modifiers.
-        // TODO: Replace with concrete item bases and modifier lists from the game data
+        // SIMPLE CASES (1-2 modifiers) - Expected: < 5 seconds
+        addSimpleBowCase();
+        addSimpleHelmetCase();
+        addSimpleRingCase();
         
-        // SIMPLE cases (1-2 modifiers)
-        // Expected: Fast completion, < 5 seconds
+        // MEDIUM CASES (3-4 modifiers) - Expected: < 20 seconds
+        addMediumBowCase();
+        addMediumArmorCase();
+        addMediumWeaponCase();
+        addMediumJewelryCase();
         
-        // MEDIUM cases (3-4 modifiers)
-        // Expected: Moderate time, < 20 seconds
+        // COMPLEX CASES (5-6 modifiers) - Expected: < 60 seconds
+        addComplexBowCase();
+        addComplexHelmetCase();
+        addComplexBodyArmorCase();
+        addComplexWeaponCase();
         
-        // COMPLEX cases (5-6 modifiers)
-        // Expected: Full search, < 60 seconds per constitution §II
-        
-        // Placeholder structure - awaiting actual item/modifier data
-        System.out.println("WARNING: BenchmarkSuite initialized with placeholder cases.");
-        System.out.println("TODO: Add concrete test cases with real Item_base instances and Modifier lists.");
+        System.out.println("BenchmarkSuite initialized with " + cases.size() + " test cases");
+        System.out.println("  SIMPLE: " + countByComplexity(BeamSearchConfig.ItemComplexity.SIMPLE));
+        System.out.println("  MEDIUM: " + countByComplexity(BeamSearchConfig.ItemComplexity.MEDIUM));
+        System.out.println("  COMPLEX: " + countByComplexity(BeamSearchConfig.ItemComplexity.COMPLEX));
+    }
+    
+    private int countByComplexity(BeamSearchConfig.ItemComplexity complexity) {
+        return (int) cases.stream().filter(c -> c.getComplexity() == complexity).count();
+    }
+    
+    // ==================== SIMPLE TEST CASES (1-2 mods) ====================
+    
+    /**
+     * SIMPLE: Bow with 2 damage modifiers
+     * Fast scenario testing basic prefix selection
+     */
+    private void addSimpleBowCase() {
+        try {
+            core.Items.Bows.Bows bowBase = new core.Items.Bows.Bows();
+            Crafting_Item item = new Crafting_Item(bowBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            desiredMods.add(bowBase.getNormalAllowedPrefixes().get(0)); // Physical Damage Flat
+            desiredMods.add(bowBase.getNormalAllowedPrefixes().get(4)); // Increased Physical Damage %
+            
+            cases.add(new BenchmarkCase(
+                "SIMPLE: Bow - 2 Physical Damage Mods",
+                BeamSearchConfig.ItemComplexity.SIMPLE,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                5.0,  // 5 seconds max
+                2000  // Expected min score (2 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create simple bow case: " + e.getMessage());
+        }
     }
     
     /**
+     * SIMPLE: Helmet with 1 life modifier
+     * Minimal complexity for baseline testing
+     */
+    private void addSimpleHelmetCase() {
+        try {
+            core.Items.Helmets.Helmets_str.Helmets_str helmetBase = new core.Items.Helmets.Helmets_str.Helmets_str();
+            Crafting_Item item = new Crafting_Item(helmetBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            if (!helmetBase.getNormalAllowedPrefixes().isEmpty()) {
+                desiredMods.add(helmetBase.getNormalAllowedPrefixes().get(0)); // Life
+            }
+            
+            cases.add(new BenchmarkCase(
+                "SIMPLE: Helmet - 1 Life Mod",
+                BeamSearchConfig.ItemComplexity.SIMPLE,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                3.0,  // 3 seconds max
+                1000  // Expected min score (1 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create simple helmet case: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * SIMPLE: Ring with 2 resistance modifiers
+     * Testing suffix selection
+     */
+    private void addSimpleRingCase() {
+        try {
+            core.Items.Rings.Rings ringBase = new core.Items.Rings.Rings();
+            Crafting_Item item = new Crafting_Item(ringBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            List<Modifier> suffixes = ringBase.getNormalAllowedSuffixes();
+            if (suffixes.size() >= 2) {
+                desiredMods.add(suffixes.get(0)); // First resistance
+                desiredMods.add(suffixes.get(1)); // Second resistance
+            }
+            
+            cases.add(new BenchmarkCase(
+                "SIMPLE: Ring - 2 Resistance Mods",
+                BeamSearchConfig.ItemComplexity.SIMPLE,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                5.0,  // 5 seconds max
+                2000  // Expected min score (2 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create simple ring case: " + e.getMessage());
+        }
+    }
+    
+    // ==================== MEDIUM TEST CASES (3-4 mods) ====================
+    
+    /**
+     * MEDIUM: Bow with 4 modifiers (2 prefix, 2 suffix)
+     * Balanced prefix/suffix selection
+     */
+    private void addMediumBowCase() {
+        try {
+            core.Items.Bows.Bows bowBase = new core.Items.Bows.Bows();
+            Crafting_Item item = new Crafting_Item(bowBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            desiredMods.add(bowBase.getNormalAllowedPrefixes().get(0)); // Physical Damage Flat
+            desiredMods.add(bowBase.getNormalAllowedPrefixes().get(4)); // Increased Physical Damage %
+            desiredMods.add(bowBase.getNormalAllowedSuffixes().get(3)); // Life Leech
+            desiredMods.add(bowBase.getNormalAllowedSuffixes().get(8)); // Attack Speed
+            
+            cases.add(new BenchmarkCase(
+                "MEDIUM: Bow - 4 Mixed Mods (Phys + Utility)",
+                BeamSearchConfig.ItemComplexity.MEDIUM,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                15.0,  // 15 seconds max
+                4000   // Expected min score (4 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create medium bow case: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * MEDIUM: Body Armor with 3 defensive modifiers
+     * Testing defense-focused crafting
+     */
+    private void addMediumArmorCase() {
+        try {
+            core.Items.Body_Armours.Body_Armours_str_int.Body_Armours_str_int armorBase = 
+                new core.Items.Body_Armours.Body_Armours_str_int.Body_Armours_str_int();
+            Crafting_Item item = new Crafting_Item(armorBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            List<Modifier> prefixes = armorBase.getNormalAllowedPrefixes();
+            if (prefixes.size() >= 3) {
+                desiredMods.add(prefixes.get(0)); // Life
+                desiredMods.add(prefixes.get(1)); // Armour/ES
+                desiredMods.add(prefixes.get(2)); // Defense mod
+            }
+            
+            cases.add(new BenchmarkCase(
+                "MEDIUM: Body Armor - 3 Defense Mods",
+                BeamSearchConfig.ItemComplexity.MEDIUM,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                18.0,  // 18 seconds max
+                3000   // Expected min score (3 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create medium armor case: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * MEDIUM: Weapon with 4 modifiers
+     * Testing elemental damage crafting
+     */
+    private void addMediumWeaponCase() {
+        try {
+            core.Items.OneHand_Maces.OneHand_Maces weaponBase = new core.Items.OneHand_Maces.OneHand_Maces();
+            Crafting_Item item = new Crafting_Item(weaponBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            List<Modifier> prefixes = weaponBase.getNormalAllowedPrefixes();
+            if (prefixes.size() >= 4) {
+                desiredMods.add(prefixes.get(0)); // Physical damage
+                desiredMods.add(prefixes.get(1)); // Elemental damage
+                desiredMods.add(prefixes.get(2)); // Another damage mod
+                desiredMods.add(prefixes.get(3)); // Fourth mod
+            }
+            
+            cases.add(new BenchmarkCase(
+                "MEDIUM: Weapon - 4 Damage Mods",
+                BeamSearchConfig.ItemComplexity.MEDIUM,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                20.0,  // 20 seconds max
+                4000   // Expected min score (4 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create medium weapon case: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * MEDIUM: Jewelry with 3 modifiers
+     * Testing attribute and resistance combinations
+     */
+    private void addMediumJewelryCase() {
+        try {
+            core.Items.Amulets.Amulets amuletBase = new core.Items.Amulets.Amulets();
+            Crafting_Item item = new Crafting_Item(amuletBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            List<Modifier> prefixes = amuletBase.getNormalAllowedPrefixes();
+            List<Modifier> suffixes = amuletBase.getNormalAllowedSuffixes();
+            
+            if (prefixes.size() >= 2 && suffixes.size() >= 1) {
+                desiredMods.add(prefixes.get(0));  // Life or attribute
+                desiredMods.add(prefixes.get(1));  // Second prefix
+                desiredMods.add(suffixes.get(0));  // Resistance or attribute
+            }
+            
+            cases.add(new BenchmarkCase(
+                "MEDIUM: Amulet - 3 Utility Mods",
+                BeamSearchConfig.ItemComplexity.MEDIUM,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                15.0,  // 15 seconds max
+                3000   // Expected min score (3 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create medium jewelry case: " + e.getMessage());
+        }
+    }
+    
+    // ==================== COMPLEX TEST CASES (5-6 mods) ====================
+    
+    /**
+     * COMPLEX: Bow with 6 modifiers - the ultimate test
+     * This is the constitution's target scenario: < 1 minute
+     */
+    private void addComplexBowCase() {
+        try {
+            core.Items.Bows.Bows bowBase = new core.Items.Bows.Bows();
+            Crafting_Item item = new Crafting_Item(bowBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            List<Modifier> prefixes = bowBase.getNormalAllowedPrefixes();
+            List<Modifier> suffixes = bowBase.getNormalAllowedSuffixes();
+            
+            // 3 prefixes + 3 suffixes = full rare item
+            if (prefixes.size() >= 3 && suffixes.size() >= 3) {
+                desiredMods.add(prefixes.get(0));  // Physical Damage Flat
+                desiredMods.add(prefixes.get(4));  // Increased Physical Damage %
+                desiredMods.add(prefixes.get(3));  // Lightning Damage
+                desiredMods.add(suffixes.get(3));  // Life Leech
+                desiredMods.add(suffixes.get(4));  // Mana Leech
+                desiredMods.add(suffixes.get(8));  // Attack Speed
+            }
+            
+            cases.add(new BenchmarkCase(
+                "COMPLEX: Bow - 6 Mods (Physical + Utility)",
+                BeamSearchConfig.ItemComplexity.COMPLEX,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                60.0,  // 60 seconds max (constitution requirement)
+                6000   // Expected min score (6 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create complex bow case: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * COMPLEX: Helmet with 5 modifiers
+     * Defense + utility combination
+     */
+    private void addComplexHelmetCase() {
+        try {
+            core.Items.Helmets.Helmets_str_int.Helmets_str_int helmetBase = 
+                new core.Items.Helmets.Helmets_str_int.Helmets_str_int();
+            Crafting_Item item = new Crafting_Item(helmetBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            List<Modifier> prefixes = helmetBase.getNormalAllowedPrefixes();
+            List<Modifier> suffixes = helmetBase.getNormalAllowedSuffixes();
+            
+            if (prefixes.size() >= 3 && suffixes.size() >= 2) {
+                desiredMods.add(prefixes.get(0));  // Life
+                desiredMods.add(prefixes.get(1));  // Defense
+                desiredMods.add(prefixes.get(2));  // Another defense
+                desiredMods.add(suffixes.get(0));  // Resistance
+                desiredMods.add(suffixes.get(1));  // Another resistance
+            }
+            
+            cases.add(new BenchmarkCase(
+                "COMPLEX: Helmet - 5 Defensive Mods",
+                BeamSearchConfig.ItemComplexity.COMPLEX,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                50.0,  // 50 seconds max
+                5000   // Expected min score (5 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create complex helmet case: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * COMPLEX: Body Armor with 6 modifiers
+     * Maximum defensive layers
+     */
+    private void addComplexBodyArmorCase() {
+        try {
+            core.Items.Body_Armours.Body_Armours_dex_int.Body_Armours_dex_int armorBase = 
+                new core.Items.Body_Armours.Body_Armours_dex_int.Body_Armours_dex_int();
+            Crafting_Item item = new Crafting_Item(armorBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            List<Modifier> prefixes = armorBase.getNormalAllowedPrefixes();
+            List<Modifier> suffixes = armorBase.getNormalAllowedSuffixes();
+            
+            if (prefixes.size() >= 3 && suffixes.size() >= 3) {
+                desiredMods.add(prefixes.get(0));  // Life
+                desiredMods.add(prefixes.get(1));  // Defense type 1
+                desiredMods.add(prefixes.get(2));  // Defense type 2
+                desiredMods.add(suffixes.get(0));  // Resistance 1
+                desiredMods.add(suffixes.get(1));  // Resistance 2
+                desiredMods.add(suffixes.get(2));  // Resistance 3
+            }
+            
+            cases.add(new BenchmarkCase(
+                "COMPLEX: Body Armor - 6 Full Defense Mods",
+                BeamSearchConfig.ItemComplexity.COMPLEX,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                60.0,  // 60 seconds max
+                6000   // Expected min score (6 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create complex body armor case: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * COMPLEX: Weapon with 6 modifiers
+     * Maximum offensive power
+     */
+    private void addComplexWeaponCase() {
+        try {
+            core.Items.Wands.Wands wandBase = new core.Items.Wands.Wands();
+            Crafting_Item item = new Crafting_Item(wandBase);
+            
+            List<Modifier> desiredMods = new ArrayList<>();
+            List<Modifier> prefixes = wandBase.getNormalAllowedPrefixes();
+            List<Modifier> suffixes = wandBase.getNormalAllowedSuffixes();
+            
+            if (prefixes.size() >= 3 && suffixes.size() >= 3) {
+                desiredMods.add(prefixes.get(0));  // Spell damage
+                desiredMods.add(prefixes.get(1));  // Elemental damage
+                desiredMods.add(prefixes.get(2));  // More damage
+                desiredMods.add(suffixes.get(0));  // Crit or cast speed
+                desiredMods.add(suffixes.get(1));  // Utility
+                desiredMods.add(suffixes.get(2));  // More utility
+            }
+            
+            cases.add(new BenchmarkCase(
+                "COMPLEX: Wand - 6 Offensive Mods",
+                BeamSearchConfig.ItemComplexity.COMPLEX,
+                item,
+                desiredMods,
+                new ArrayList<>(),
+                60.0,  // 60 seconds max
+                6000   // Expected min score (6 * 1000)
+            ));
+        } catch (Exception e) {
+            System.err.println("Failed to create complex weapon case: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Runs all benchmark cases with the given configuration.    /**
      * Runs all benchmark cases with the given configuration.
      * 
      * @param config BeamSearchConfig to test

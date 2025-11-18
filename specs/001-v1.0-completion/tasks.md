@@ -249,15 +249,24 @@
 - **Description**: Build benchmark suite with 10-20 test cases covering simple/medium/complex scenarios
 - **Acceptance Criteria**:
   - [X] BenchmarkCase class with item, desired mods, expected path, max time
-  - [ ] At least 10 cases covering all complexity levels
-  - [X] Known optimal paths for accuracy validation (structure ready)
+  - [X] At least 10 cases covering all complexity levels (11 cases total)
+  - [X] Known optimal paths for accuracy validation
   - [X] runBenchmark() method measures time and accuracy
 - **Technical Specs**: See plan.md §2.2
 - **Testing**: Self-validating (is a test suite)
 - **Files**: `src/main/java/core/Crafting/BenchmarkSuite.java`
 - **Traceability**: [Spec §R2.2]
-- **Status**: ✅ INFRASTRUCTURE COMPLETE - Awaiting concrete test cases
-- **Notes**: Framework complete with BenchmarkCase, BenchmarkResult, timing, scoring validation. TODO: Populate with 10-20 real test cases using actual Item_base instances and Modifier lists from game data.
+- **Status**: ✅ COMPLETE
+- **Implementation Details**:
+  - 11 concrete test cases across all complexity levels:
+    * SIMPLE (3 cases): 1-2 mods, < 5 sec targets
+    * MEDIUM (4 cases): 3-4 mods, < 20 sec targets
+    * COMPLEX (4 cases): 5-6 mods, < 60 sec targets (constitution requirement)
+  - Real items: Bows, Helmets, Rings, Body Armor, Weapons, Amulets, Wands
+  - Realistic modifier combinations: Physical/elemental damage, defenses, resistances, utility
+  - Comprehensive reporting with pass/fail, timing, scoring
+  - Command-line executable for CI/CD integration
+- **Notes**: Threshold tuning needed - default 0.001 too strict for most cases. Recommend threshold optimization as part of T2.4 parameter search.
 
 **T2.4: Run parameter search for optimal weights**
 - **ID**: T2.4

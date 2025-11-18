@@ -69,27 +69,34 @@ public class TestAlgo {
 
 
         // --- CRAFTING EXECUTION SECTION ---
-        double GLOBALTHRESHOLD = 50;
+        // Use the formalized threshold countdown pattern (official production API)
+        ThresholdConfig config = ThresholdConfig.standard(); // 50% → 0% in 1% steps
 
         try {
             long startTime = System.nanoTime();
-            List<Probability_Analyzer.CandidateProbability> results =
-                    CraftingExecutor.runCrafting(item, desiredMods, undesiredMods, GLOBALTHRESHOLD / 100);
-
-            // Retry until we get valid results or threshold reaches zero
-            while (results.isEmpty() && GLOBALTHRESHOLD > 0) {
-                item.reset();
-                GLOBALTHRESHOLD--;
-                undesiredMods.clear();
-                results = CraftingExecutor.runCrafting(item, desiredMods, undesiredMods, GLOBALTHRESHOLD / 100);
-                System.out.println("Threshold countdown: " + GLOBALTHRESHOLD);
-            }
+            
+            // Run crafting with adaptive threshold countdown
+            CraftingExecutor.CraftingResult result = 
+                CraftingExecutor.runCrafting(item, desiredMods, undesiredMods, config);
 
             long durationInMillis = (System.nanoTime() - startTime) / 1_000_000;
+            
+            // Display execution metadata
+            System.out.println("=== Execution Metadata ===");
+            System.out.println(result);
             System.out.println("optimizeCrafting executed in " + durationInMillis + " ms\n");
 
             // --- RESULTS DISPLAY SECTION ---
-            displayResults(results, GLOBALTHRESHOLD, desiredMods);
+            if (result.foundPaths()) {
+                displayResults(result.getPaths(), result.getSuccessfulThreshold(), desiredMods);
+            } else {
+                System.out.println("No viable crafting paths found after " + 
+                    result.getIterationCount() + " iterations");
+                System.out.println("Try:");
+                System.out.println("  - Reducing number of desired modifiers");
+                System.out.println("  - Allowing more flexible modifier combinations");
+                System.out.println("  - Using ThresholdConfig.thorough() for exhaustive search");
+            }
 
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -178,7 +185,7 @@ public class TestAlgo {
                 System.out.println(m.text);
 
             System.out.println("-----------------------------------");
-            System.out.println("Threshold used: " + (threshold / 100) + "\n");
+            System.out.println("Threshold used: " + threshold + "\n");
         }
 
         // Display the desired modifiers summary

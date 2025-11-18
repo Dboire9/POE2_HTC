@@ -248,14 +248,16 @@
 - **Dependencies**: None (can run parallel)
 - **Description**: Build benchmark suite with 10-20 test cases covering simple/medium/complex scenarios
 - **Acceptance Criteria**:
-  - [ ] BenchmarkCase class with item, desired mods, expected path, max time
+  - [X] BenchmarkCase class with item, desired mods, expected path, max time
   - [ ] At least 10 cases covering all complexity levels
-  - [ ] Known optimal paths for accuracy validation
-  - [ ] runBenchmark() method measures time and accuracy
+  - [X] Known optimal paths for accuracy validation (structure ready)
+  - [X] runBenchmark() method measures time and accuracy
 - **Technical Specs**: See plan.md §2.2
 - **Testing**: Self-validating (is a test suite)
-- **Files**: `src/test/java/core/Crafting/BenchmarkSuite.java`
+- **Files**: `src/main/java/core/Crafting/BenchmarkSuite.java`
 - **Traceability**: [Spec §R2.2]
+- **Status**: ✅ INFRASTRUCTURE COMPLETE - Awaiting concrete test cases
+- **Notes**: Framework complete with BenchmarkCase, BenchmarkResult, timing, scoring validation. TODO: Populate with 10-20 real test cases using actual Item_base instances and Modifier lists from game data.
 
 **T2.4: Run parameter search for optimal weights**
 - **ID**: T2.4

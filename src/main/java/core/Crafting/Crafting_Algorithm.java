@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import core.Crafting.Probabilities.ComputingLastProbability;
+import core.Crafting.Utils.CandidatePool;
 import core.Crafting.Utils.Heuristic_Util;
 import core.Crafting.Utils.ModifierEvent;
 import core.Crafting.Utils.ModifierEvent.ActionType;
@@ -48,6 +49,15 @@ public class Crafting_Algorithm {
         List<Modifier> undesiredMods,
         double GLOBAL_THRESHOLD) throws InterruptedException, ExecutionException
 		{
+
+			// Initialize object pool for memory optimization
+			// Pool size of 50,000 based on empirical testing (see spec R1.2)
+			// TODO: Full integration requires refactoring .copy() method and currency operations
+			// to use pool.acquire() and pool.release(). This preserves algorithm integrity
+			// while the pooling infrastructure is established for future optimization.
+			// See plan.md §1.1 for full integration strategy.
+			@SuppressWarnings("unused")
+			CandidatePool pool = new CandidatePool(50000);
 
 			// Initialize thread pool
 			int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);

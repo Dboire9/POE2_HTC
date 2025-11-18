@@ -137,4 +137,22 @@ public class Crafting_Candidate extends Crafting_Item {
         new_Crafting_Candidate.currentSuffixTiers = new_item.currentSuffixTiers.clone();
         return new_Crafting_Candidate;
     }
+
+    /**
+     * Resets all fields of this candidate to their default values for object pooling reuse.
+     * This prevents data leakage when candidates are returned to the pool.
+     * 
+     * CRITICAL: This method must clear ALL mutable state to prevent bugs.
+     * Overrides parent reset() to also clear Crafting_Candidate-specific fields.
+     */
+    @Override
+    public void reset() {
+        // Call parent reset first
+        super.reset();
+        
+        // Clear Crafting_Candidate-specific fields
+        this.actions.clear();
+        this.percentage = 0.0;
+        this.stopAnnul = false;
+    }
 }

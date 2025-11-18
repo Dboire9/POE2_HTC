@@ -656,17 +656,23 @@ public class BenchmarkSuite {
         long startTime = System.nanoTime();
         
         try {
-            // Use config's global threshold, not hardcoded
-            List<Crafting_Candidate> results = Crafting_Algorithm.optimizeCrafting(
+            // Use official threshold countdown pattern (CraftingExecutor + ThresholdConfig)
+            // standard() preset: 50% → 0% in 1% steps (optimal balance speed/coverage)
+            CraftingExecutor.CraftingResult craftingResult = CraftingExecutor.runCrafting(
                 testCase.getBaseItem(),
                 testCase.getDesiredMods(),
                 testCase.getUndesiredMods(),
-                config.getGlobalThreshold(),
-                config
+                ThresholdConfig.standard()
             );
             
             long endTime = System.nanoTime();
             double elapsedSeconds = (endTime - startTime) / 1_000_000_000.0;
+            
+            // Extract candidates from CraftingResult paths
+            List<Crafting_Candidate> results = new java.util.ArrayList<>();
+            for (core.Crafting.Probabilities.Probability_Analyzer.CandidateProbability cp : craftingResult.getPaths()) {
+                results.add(cp.candidate());
+            }
             
             int bestScore = results.stream()
                 .mapToInt(c -> (int) c.score)

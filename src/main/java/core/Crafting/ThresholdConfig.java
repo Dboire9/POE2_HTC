@@ -82,23 +82,23 @@ public class ThresholdConfig {
     }
     
     /**
-     * Creates fast config: 30% → 0% in 2% steps (15 iterations max).
+     * Creates fast config: 30% → 0% in 2% steps (16 iterations max).
      * Use when speed is critical and lower-quality paths are acceptable.
      * 
      * @return Fast threshold countdown configuration
      */
     public static ThresholdConfig fast() {
-        return new ThresholdConfig(0.3, 0.02, 0.0, 15);
+        return new ThresholdConfig(0.3, 0.02, 0.0, 16);
     }
     
     /**
-     * Creates thorough config: 70% → 0% in 0.5% steps (140 iterations max).
+     * Creates thorough config: 70% → 0% in 0.5% steps (141 iterations max).
      * Use when path quality is critical and computation time is not constrained.
      * 
      * @return Thorough threshold countdown configuration
      */
     public static ThresholdConfig thorough() {
-        return new ThresholdConfig(0.7, 0.005, 0.0, 140);
+        return new ThresholdConfig(0.7, 0.005, 0.0, 141);
     }
     
     /**

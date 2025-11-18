@@ -11,6 +11,7 @@ import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
 import core.Crafting.CraftingExecutor;
+import core.Crafting.ProgressTracker;
 import core.Crafting.Probabilities.Probability_Analyzer;
 import core.Crafting.Utils.ModifierEvent;
 import core.Items.Item_base;
@@ -44,6 +45,12 @@ public class ServerMain {
 
             // Crafting endpoint (stub)
             server.createContext("/api/crafting", new CraftingHandler());
+
+            // Progress tracking endpoint
+            server.createContext("/api/progress/", new ProgressHandler());
+
+            // Cancellation endpoint
+            server.createContext("/api/cancel/", new CancelHandler());
 
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
@@ -423,6 +430,90 @@ public class ServerMain {
                 System.err.println("Error processing crafting request: " + e.getMessage());
                 e.printStackTrace();
                 sendJson(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
+        }
+    }
+
+    /**
+     * Handles GET /api/progress/{sessionId} requests.
+     * Returns JSON with progress data: percent, elapsedMs, estimatedRemainingMs, cancelled.
+     * Returns 404 if session not found.
+     */
+    static class ProgressHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJson(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
+                return;
+            }
+
+            // Extract sessionId from URL path: /api/progress/{sessionId}
+            String path = exchange.getRequestURI().getPath();
+            String[] segments = path.split("/");
+            
+            if (segments.length < 4 || segments[3].trim().isEmpty()) {
+                sendJson(exchange, 400, "{\"error\":\"sessionId required in path: /api/progress/{sessionId}\"}");
+                return;
+            }
+            
+            String sessionId = segments[3];
+            
+            // Check if session exists
+            if (!ProgressTracker.hasSession(sessionId)) {
+                sendJson(exchange, 404, "{\"error\":\"Session not found: " + escapeJson(sessionId) + "\"}");
+                return;
+            }
+            
+            // Get progress and serialize to JSON
+            ProgressTracker.SessionProgress progress = ProgressTracker.getProgress(sessionId);
+            if (progress == null) {
+                // Race condition: session ended between hasSession and getProgress
+                sendJson(exchange, 404, "{\"error\":\"Session not found: " + escapeJson(sessionId) + "\"}");
+                return;
+            }
+            
+            String json = progress.toJson();
+            sendJson(exchange, 200, json);
+        }
+    }
+
+    /**
+     * Handles POST /api/cancel/{sessionId} requests.
+     * Cancels the computation for the given sessionId.
+     * Returns 404 if session not found, 200 with success=true if cancelled successfully.
+     */
+    static class CancelHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJson(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
+                return;
+            }
+
+            // Extract sessionId from URL path: /api/cancel/{sessionId}
+            String path = exchange.getRequestURI().getPath();
+            String[] segments = path.split("/");
+            
+            if (segments.length < 4 || segments[3].trim().isEmpty()) {
+                sendJson(exchange, 400, "{\"error\":\"sessionId required in path: /api/cancel/{sessionId}\"}");
+                return;
+            }
+            
+            String sessionId = segments[3];
+            
+            // Check if session exists
+            if (!ProgressTracker.hasSession(sessionId)) {
+                sendJson(exchange, 404, "{\"error\":\"Session not found: " + escapeJson(sessionId) + "\"}");
+                return;
+            }
+            
+            // Cancel the session
+            try {
+                ProgressTracker.cancelSession(sessionId);
+                sendJson(exchange, 200, "{\"success\":true,\"sessionId\":\"" + escapeJson(sessionId) + "\"}");
+            } catch (IllegalStateException e) {
+                // Session was removed between hasSession and cancelSession
+                sendJson(exchange, 404, "{\"error\":\"Session not found: " + escapeJson(sessionId) + "\"}");
             }
         }
     }

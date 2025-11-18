@@ -32,7 +32,7 @@ import core.Modifier_class.Modifier.ModifierType;
  */
 public class Crafting_Algorithm {
 
-	/**
+    /**
      * Optimizes the crafting process for a given base item and desired/undesired modifiers.
      *
      * @param baseItem        The base item to be crafted.
@@ -49,6 +49,29 @@ public class Crafting_Algorithm {
         List<Modifier> undesiredMods,
         double GLOBAL_THRESHOLD) throws InterruptedException, ExecutionException
 		{
+			return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD, new BeamSearchConfig());
+	}
+	
+    /**
+     * Optimizes the crafting process for a given base item and desired/undesired modifiers.
+     * This overload accepts a BeamSearchConfig for customizable algorithm parameters.
+     *
+     * @param baseItem        The base item to be crafted.
+     * @param desiredMods     A list of desired modifiers to aim for.
+     * @param undesiredMods   A list of undesired modifiers to avoid.
+     * @param GLOBAL_THRESHOLD The global threshold for crafting optimization.
+     * @param config          Configuration for beam search parameters (scoring weights, beam width).
+     * @return A list of optimized crafting candidates.
+     * @throws InterruptedException If the thread execution is interrupted.
+     * @throws ExecutionException   If an error occurs during thread execution.
+     */
+	public static List<Crafting_Candidate> optimizeCrafting(
+        Crafting_Item baseItem,
+        List<Modifier> desiredMods,
+        List<Modifier> undesiredMods,
+        double GLOBAL_THRESHOLD,
+        BeamSearchConfig config) throws InterruptedException, ExecutionException
+		{
 
 			// Initialize object pool for memory optimization
 			// Pool size of 50,000 based on empirical testing (see spec R1.2)
@@ -58,12 +81,18 @@ public class Crafting_Algorithm {
 			// See plan.md §1.1 for full integration strategy.
 			@SuppressWarnings("unused")
 			CandidatePool pool = new CandidatePool(50000);
+			
+			// Calculate complexity and optimal beam width
+			// TODO: Integrate beam width pruning into processCandidateLists (see plan.md §2.1)
+			// Current implementation keeps all candidates; future optimization will apply
+			// adaptive pruning based on complexity to reduce memory footprint.
+			BeamSearchConfig.ItemComplexity complexity = BeamSearchConfig.ItemComplexity.from(desiredMods.size());
+			@SuppressWarnings("unused")
+			int beamWidth = config.calculateBeamWidth(complexity);
 
 			// Initialize thread pool
 			int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
-			ExecutorService executor = Executors.newFixedThreadPool(threads);
-
-			// Precompute desired tag counts
+			ExecutorService executor = Executors.newFixedThreadPool(threads);			// Precompute desired tag counts
 			Map<String, Integer> tagCount = Heuristic_Util.CreateCountModifierTags(desiredMods);
 
 			// Base candidate lists

@@ -224,9 +224,9 @@
 - **Dependencies**: T2.1
 - **Description**: Modify algorithm to use config for beam width and scoring
 - **Acceptance Criteria**:
-  - [ ] Accept BeamSearchConfig as parameter (optional, defaults to standard config)
-  - [ ] Calculate complexity from desiredMods.size()
-  - [ ] Use config.calculateBeamWidth(complexity)
+  - [X] Accept BeamSearchConfig as parameter (optional, defaults to standard config)
+  - [X] Calculate complexity from desiredMods.size()
+  - [X] Use config.calculateBeamWidth(complexity)
   - [ ] Use config scoring weights in heuristic
 - **Technical Specs**:
   ```java
@@ -236,6 +236,8 @@
 - **Testing**: Unit test with different configs
 - **Files**: `src/main/java/core/Crafting/Crafting_Algorithm.java`
 - **Traceability**: [Spec §R2.1]
+- **Status**: 🔄 PARTIAL - Config accepted, complexity calculated, beam width computed. Scoring weight integration deferred (requires Heuristic_Util refactoring).
+- **Notes**: Beam width pruning integration requires additional refactoring to respect algorithm integrity. See TODO comments for full integration strategy.
 
 ### Benchmark Tasks
 

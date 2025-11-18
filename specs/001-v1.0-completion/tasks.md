@@ -207,14 +207,15 @@
 - **Dependencies**: None
 - **Description**: Implement configuration class for beam width and scoring weights
 - **Acceptance Criteria**:
-  - [ ] ItemComplexity enum (SIMPLE, MEDIUM, COMPLEX)
-  - [ ] calculateBeamWidth() based on complexity
-  - [ ] Getters/setters for scoring weights
-  - [ ] Immutable by default, builder pattern for testing
+  - [X] ItemComplexity enum (SIMPLE, MEDIUM, COMPLEX)
+  - [X] calculateBeamWidth() based on complexity
+  - [X] Getters/setters for scoring weights
+  - [X] Immutable by default, builder pattern for testing
 - **Technical Specs**: See plan.md §2.1
 - **Testing**: Unit test for complexity calculation
 - **Files**: `src/main/java/core/Crafting/BeamSearchConfig.java`
 - **Traceability**: [Spec §R2.1]
+- **Status**: ✅ COMPLETED
 
 **T2.2: Integrate BeamSearchConfig into Crafting_Algorithm**
 - **ID**: T2.2

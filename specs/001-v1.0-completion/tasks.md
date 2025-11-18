@@ -333,47 +333,46 @@
 - **Description**: Move threshold countdown from TestAlgo into CraftingExecutor as official production pattern
 - **Rationale**: Default threshold 0.001 (0.1%) too strict - BenchmarkSuite shows 0 results for most cases. TestAlgo countdown pattern (50% → 0%) is the OFFICIAL approach for both testing AND production.
 - **Acceptance Criteria**:
-  - [ ] Create ThresholdConfig class with customizable parameters:
+  - [X] Create ThresholdConfig class with customizable parameters:
     * startThreshold (default: 50%)
     * stepSize (default: 1%)
     * minThreshold (default: 0%)
     * maxIterations (default: 51)
-  - [ ] Move countdown logic INTO CraftingExecutor.runCrafting()
-  - [ ] Return metadata: which threshold succeeded, iterations taken
-  - [ ] Document in JavaDoc as official pattern (not workaround)
+  - [X] Move countdown logic INTO CraftingExecutor.runCrafting()
+  - [X] Return metadata: which threshold succeeded, iterations taken
+  - [X] Document in JavaDoc as official pattern (not workaround)
+  - [X] Update TestAlgo to use formalized API
   - [ ] Update BenchmarkSuite to use formalized pattern
+  - [ ] Unit tests for ThresholdConfig parameter validation
 - **Technical Specs**:
   ```java
-  public static List<CandidateProbability> runCrafting(
+  public static CraftingResult runCrafting(
       Crafting_Item item,
       List<Modifier> desiredMods,
       List<Modifier> undesiredMods,
       ThresholdConfig config
   ) {
-      double threshold = config.getStartThreshold();
-      List<CandidateProbability> results;
-      
-      while (threshold >= config.getMinThreshold()) {
-          results = optimizeCrafting(item, desiredMods, undesiredMods, threshold);
-          if (!results.isEmpty()) {
-              return results; // Early termination when paths found
-          }
-          threshold -= config.getStepSize();
-          item.reset();
-          undesiredMods.clear();
-      }
-      return Collections.emptyList(); // No viable paths found
+      // Progressive threshold relaxation with early termination
+      // Returns CraftingResult with paths + execution metadata
   }
   ```
+- **Implementation Status**: ✅ MOSTLY COMPLETE
+  - ✅ ThresholdConfig class with standard/fast/thorough/fixed presets
+  - ✅ CraftingExecutor.runCrafting() with ThresholdConfig parameter
+  - ✅ CraftingResult metadata tracking (threshold, iterations, duration, success)
+  - ✅ TestAlgo migrated to use new API
+  - ✅ Legacy runCrafting(double) marked @Deprecated for backward compat
+  - ⏳ BenchmarkSuite integration (straightforward, just use ThresholdConfig.standard())
+  - ⏳ Unit tests for ThresholdConfig (validation, edge cases, iteration logic)
 - **Benefits**:
   - Speed: Finds high-probability paths in <5 seconds
   - Coverage: Falls back to lower probabilities if no fast paths exist
   - User Experience: Progressive refinement feels responsive
   - Production-Ready: Official algorithm, not temporary workaround
 - **Testing**: Integration test with countdown, unit test for ThresholdConfig
-- **Files**: `src/main/java/core/Crafting/CraftingExecutor.java`, `src/main/java/core/Crafting/ThresholdConfig.java`, `src/main/java/core/Test/TestAlgo.java` (update to use new API)
+- **Files**: `src/main/java/core/Crafting/CraftingExecutor.java`, `src/main/java/core/Crafting/ThresholdConfig.java`, `src/main/java/core/Test/TestAlgo.java` (updated)
 - **Traceability**: [Spec §R2.3]
-- **Status**: NOT STARTED
+- **Status**: ✅ COMPLETE (core implementation), ⏳ TESTS PENDING
 - **Expected Impact**: 80-90% reduction in average computation time for viable crafting paths
 
 ## Phase 3: Progress Tracking & Cancellation (P1)

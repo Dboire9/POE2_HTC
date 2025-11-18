@@ -413,19 +413,33 @@
 - **Priority**: P1
 - **Effort**: 2 hours
 - **Dependencies**: None (can run parallel with T3.1)
+- **Status**: ✅ COMPLETE
 - **Description**: Implement HTTP endpoints for progress querying and cancellation
 - **Acceptance Criteria**:
-  - [ ] GET /api/progress/{sessionId} returns JSON progress data
-  - [ ] POST /api/cancel/{sessionId} cancels computation
-  - [ ] Proper error handling (404 if session not found)
+  - [X] GET /api/progress/{sessionId} returns JSON progress data
+  - [X] POST /api/cancel/{sessionId} cancels computation
+  - [X] Proper error handling (404 if session not found, 400 for bad requests)
 - **Technical Specs**:
   ```java
   // GET /api/progress/{sessionId}
-  // Returns: { "percent": 45.2, "elapsedMs": 12000, "estimatedRemainingMs": 14500 }
+  // Returns: { "percent": 45.2, "elapsedMs": 12000, "estimatedRemainingMs": 14500, "cancelled": false }
+  
+  // POST /api/cancel/{sessionId}
+  // Returns: { "success": true, "sessionId": "..." }
   ```
 - **Testing**: Integration test with mock requests
-- **Files**: `src/main/java/core/ServerMain.java`
+- **Files**: `src/main/java/core/ServerMain.java`, `src/main/java/core/Test/TestProgressEndpoints.java`
 - **Traceability**: [Spec §R3.2, R3.3]
+- **Implementation Notes**:
+  - ✅ ProgressHandler class (43 lines): GET /api/progress/{sessionId} → JSON response
+  - ✅ CancelHandler class (45 lines): POST /api/cancel/{sessionId} → cancels session
+  - ✅ URL path parsing: Extracts sessionId from path segments
+  - ✅ Error handling: 400 (bad request), 404 (not found), 405 (method not allowed)
+  - ✅ TestProgressEndpoints.java (365 lines, 7 tests): Integration tests for endpoint validation
+  - ✅ Manual testing: curl verified all status codes (404, 400, 405)
+  - ✅ Build: mvn compile successful
+  - ✅ Commit: d3721eb "feat(api): Add progress tracking and cancellation HTTP endpoints..."
+  - 📝 Ready for T3.3 (algorithm integration) and T3.4 (frontend hook)
 
 **T3.3: Integrate ProgressTracker into Crafting_Algorithm**
 - **ID**: T3.3

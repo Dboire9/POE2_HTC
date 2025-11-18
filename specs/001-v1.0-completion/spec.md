@@ -19,6 +19,28 @@ This specification aligns with POE2_HTC Constitution v1.1.0:
 - **Testing Standards**: ✅ Comprehensive unit, integration, memory, and performance tests
 - **User Experience**: ✅ Real-time progress tracking, instant cancellation, polished UI
 
+## Frontend Implementation Freedom
+
+**IMPORTANT**: The frontend (Electron + React + TypeScript) can be **freely refactored, restructured, or rewritten** as needed to implement the requirements. The existing React components (`App.tsx`, `CraftingSimulator.tsx`, etc.) are **reference implementations only** and should be modified/replaced to:
+
+- Implement progress tracking UI (T3.4-T3.6)
+- Improve user experience and responsiveness
+- Add better error handling and validation
+- Optimize component structure and state management
+- Enhance styling and visual feedback
+
+**Backend Constraints (STRICT)**:
+- Java algorithm code (`Crafting_Algorithm.java`, currency classes, etc.) must preserve core logic
+- HTTP API contracts (`/api/calculate`, `/api/progress`, `/api/cancel`) must remain compatible
+- Constitution §I (Algorithm Integrity) applies to backend only
+
+**Frontend Guidelines (FLEXIBLE)**:
+- Use modern React patterns (hooks, composition, context)
+- Maintain TypeScript strict mode
+- Keep shadcn/ui components but feel free to customize
+- Refactor component structure as needed for clarity
+- Add new components, hooks, utilities freely
+
 ## Implementation Notes (Updated After T1-T2 Partial Completion)
 
 ### Algorithm Architecture Findings

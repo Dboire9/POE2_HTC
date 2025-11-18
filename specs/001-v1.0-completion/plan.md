@@ -43,20 +43,22 @@
 
 ### Technology Stack (ESTABLISHED)
 
-**Frontend:**
+**Frontend (FLEXIBLE - CAN BE FREELY REFACTORED):**
 - **Framework**: Electron 32+ (desktop app)
 - **UI Library**: React 19 with TypeScript (strict mode)
-- **Component Library**: shadcn/ui (Radix UI primitives)
+- **Component Library**: shadcn/ui (Radix UI primitives) - can be customized/extended
 - **Styling**: Tailwind CSS 3.4+
 - **Build Tool**: Vite 7+ with esbuild
-- **State Management**: React hooks (useState, useEffect, useRef)
+- **State Management**: React hooks (useState, useEffect, useRef) - can add Context, Zustand, etc.
+- **Note**: Existing components (`App.tsx`, `CraftingSimulator.tsx`, etc.) are reference implementations and can be completely restructured/rewritten as needed for better UX, progress tracking, and maintainability.
 
-**Backend:**
+**Backend (STRICT - PRESERVE ALGORITHM INTEGRITY):**
 - **Language**: Java 21+ (production), Java 17 (dev minimum)
 - **Build Tool**: Maven 3.8+
 - **Concurrency**: ExecutorService with thread pool
 - **JSON**: Gson 2.10.1
 - **HTTP Server**: Custom implementation (ServerMain.java)
+- **Note**: Core algorithm logic (`Crafting_Algorithm.java`, currency classes) must preserve beam search structure and scoring mechanisms per Constitution §I.
 
 **IPC:**
 - **Protocol**: HTTP REST

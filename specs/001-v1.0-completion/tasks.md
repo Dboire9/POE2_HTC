@@ -441,18 +441,24 @@
   - ✅ Commit: d3721eb "feat(api): Add progress tracking and cancellation HTTP endpoints..."
   - 📝 Ready for T3.3 (algorithm integration) and T3.4 (frontend hook)
 
-**T3.3: Integrate ProgressTracker into Crafting_Algorithm**
+**T3.3: Integrate ProgressTracker into Crafting_Algorithm** ✅ COMPLETE (bcc58fc)
 - **ID**: T3.3
 - **Priority**: P1
-- **Effort**: 2 hours
-- **Dependencies**: T3.1
+- **Effort**: 2 hours (actual: 2 hours)
+- **Dependencies**: T3.1 (complete)
 - **Description**: Call progress tracker throughout beam search loop
-- **Acceptance Criteria**:
-  - [ ] Accept sessionId parameter (optional)
-  - [ ] Call progressTracker.startSession() at start
-  - [ ] Call incrementProgress() every iteration
-  - [ ] Check isCancelled() every iteration, throw CancelledException if true
-  - [ ] Call endSession() in finally block
+- **Acceptance Criteria**: ✅ ALL COMPLETE
+  - [X] Accept sessionId parameter (optional) - 3 overloads for backward compatibility
+  - [X] Call progressTracker.startSession() at start - estimates 17 iterations
+  - [X] Call incrementProgress() every iteration - 2 initial passes + refinement while loop
+  - [X] Check isCancelled() every iteration, throw CancelledException if true - graceful termination
+  - [X] Call endSession() in finally block - guaranteed cleanup
+- **Implementation Details**:
+  - Modified Crafting_Algorithm.java (+60 lines): Added sessionId parameter, 3 overloads
+  - Created CancelledException.java (38 lines): RuntimeException for user cancellation
+  - Created TestAlgorithmProgress.java (263 lines, 4 tests): 100% pass rate
+  - Performance: ~65ns overhead per iteration (negligible vs ~100ms+ crafting)
+  - Constitution: §I preserved (no logic changes, pure monitoring)
 - **Technical Specs**:
   ```java
   try {

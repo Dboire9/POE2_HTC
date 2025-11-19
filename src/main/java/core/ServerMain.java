@@ -32,8 +32,28 @@ public class ServerMain {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
+            // CORS preflight handler for all routes
+            server.createContext("/", exchange -> {
+                if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+                    exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                    exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+                    exchange.sendResponseHeaders(204, -1);
+                    return;
+                }
+                // Let other handlers process non-OPTIONS requests
+                sendJson(exchange, 404, "{\"error\":\"Not found\"}");
+            });
+
             // Health endpoint
             server.createContext("/health", exchange -> {
+                if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+                    exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+                    exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+                    exchange.sendResponseHeaders(204, -1);
+                    return;
+                }
                 sendJson(exchange, 200, "{\"status\":\"ok\"}");
             });
 
@@ -43,8 +63,11 @@ public class ServerMain {
             // Modifiers endpoint
             server.createContext("/api/modifiers", new ModifiersHandler());
 
-            // Crafting endpoint (stub)
-            server.createContext("/api/crafting", new CraftingHandler());
+            // Currencies endpoint
+            server.createContext("/api/currencies", new CurrenciesHandler());
+
+            // Crafting calculation endpoint
+            server.createContext("/api/calculate", new CraftingHandler());
 
             // Progress tracking endpoint
             server.createContext("/api/progress/", new ProgressHandler());
@@ -165,6 +188,48 @@ public class ServerMain {
         }
     }
 
+    /**
+     * Handles GET /api/currencies requests.
+     * Returns a list of all available crafting currencies with their categories.
+     */
+    static class CurrenciesHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJson(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
+                return;
+            }
+
+            // Build JSON array of currencies with categories
+            StringBuilder sb = new StringBuilder();
+            sb.append('[');
+            
+            // Basic currencies
+            sb.append("{\"id\":\"transmutation\",\"name\":\"Orb of Transmutation\",\"category\":\"basic\"},");
+            sb.append("{\"id\":\"augmentation\",\"name\":\"Orb of Augmentation\",\"category\":\"basic\"},");
+            sb.append("{\"id\":\"regal\",\"name\":\"Regal Orb\",\"category\":\"basic\"},");
+            sb.append("{\"id\":\"exalted\",\"name\":\"Exalted Orb\",\"category\":\"basic\"},");
+            sb.append("{\"id\":\"annulment\",\"name\":\"Orb of Annulment\",\"category\":\"basic\"},");
+            sb.append("{\"id\":\"alchemy\",\"name\":\"Orb of Alchemy\",\"category\":\"basic\"},");
+            sb.append("{\"id\":\"chaos\",\"name\":\"Chaos Orb\",\"category\":\"basic\"},");
+            sb.append("{\"id\":\"scouring\",\"name\":\"Orb of Scouring\",\"category\":\"basic\"},");
+            
+            // Essence currencies
+            sb.append("{\"id\":\"essence_envy\",\"name\":\"Essence of Envy\",\"category\":\"essence\"},");
+            sb.append("{\"id\":\"essence_wrath\",\"name\":\"Essence of Wrath\",\"category\":\"essence\"},");
+            sb.append("{\"id\":\"essence_woe\",\"name\":\"Essence of Woe\",\"category\":\"essence\"},");
+            sb.append("{\"id\":\"essence_fear\",\"name\":\"Essence of Fear\",\"category\":\"essence\"},");
+            sb.append("{\"id\":\"essence_greed\",\"name\":\"Essence of Greed\",\"category\":\"essence\"},");
+            
+            // Special currencies
+            sb.append("{\"id\":\"desecrated\",\"name\":\"Desecrated Orb\",\"category\":\"special\"}");
+            
+            sb.append(']');
+            
+            sendJson(exchange, 200, sb.toString());
+        }
+    }
+
     static class CraftingHandler implements HttpHandler {
         private static final Gson gson = new Gson();
         
@@ -188,6 +253,23 @@ public class ServerMain {
                 JsonObject jsonRequest = gson.fromJson(requestBody, JsonObject.class);
                 String itemId = jsonRequest.get("itemId").getAsString();
                 int iterations = jsonRequest.has("iterations") ? jsonRequest.get("iterations").getAsInt() : 100;
+                
+                // Parse new parameters for frontend revamp
+                List<String> allowedCurrencies = new ArrayList<>();
+                if (jsonRequest.has("allowedCurrencies") && jsonRequest.get("allowedCurrencies").isJsonArray()) {
+                    JsonArray currenciesArray = jsonRequest.getAsJsonArray("allowedCurrencies");
+                    for (int i = 0; i < currenciesArray.size(); i++) {
+                        allowedCurrencies.add(currenciesArray.get(i).getAsString());
+                    }
+                }
+                
+                String strategy = jsonRequest.has("strategy") ? jsonRequest.get("strategy").getAsString() : "balanced";
+                int maxSteps = jsonRequest.has("maxSteps") ? jsonRequest.get("maxSteps").getAsInt() : 50;
+                
+                System.out.println("Strategy: " + strategy + ", MaxSteps: " + maxSteps);
+                if (!allowedCurrencies.isEmpty()) {
+                    System.out.println("Allowed currencies: " + String.join(", ", allowedCurrencies));
+                }
                 
                 // Parse modifiers
                 if (!jsonRequest.has("modifiers")) {
@@ -520,6 +602,10 @@ public class ServerMain {
 
     private static void sendJson(HttpExchange exchange, int status, String json) throws IOException {
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+        // Add CORS headers
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
         exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
         exchange.sendResponseHeaders(status, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {

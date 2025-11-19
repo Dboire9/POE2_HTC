@@ -575,147 +575,734 @@ export function ProgressBar({ percent, elapsedMs, estimatedRemainingMs, onCancel
 - Generate unique sessionId (UUID)
 - Pass sessionId to backend in calculation request
 
-### Phase 4: Frontend State Management (P2)
+### Phase 4: Frontend Architecture Revamp (P1)
 
-**Goal**: Proper state management with TypeScript strict mode  
-**Constitutional Alignment**: [Constitution §III - Code Quality]
+**Goal**: Complete redesign of frontend for professional, feature-rich UX  
+**Constitutional Alignment**: [Constitution §V - User Experience]
 
-#### 4.1 Crafting State Hook
+#### 4.1 Enhanced API Layer & Type System
 
-**Architecture**:
-```typescript
-// File: src/hooks/useCraftingSimulator.ts
-import { useState, useRef } from 'react';
+**Problem**: Current API lacks currency selection, strategy options, and proper TypeScript types
 
-interface CraftingState {
-  isCalculating: boolean;
-  sessionId: string | null;
-  results: CraftingResult | null;
-  error: CraftingError | null;
-}
+**Solution**: Comprehensive API redesign with full type safety
 
-interface CraftingRequest {
-  itemId: string;
-  desiredModifiers: string[];
-  undesiredModifiers: string[];
-  iterations: number;
-}
+**New API Architecture**:
 
-interface CraftingResult {
-  path: CraftingAction[];
-  probability: number;
-  averageSteps: number;
-}
+**Backend Enhancements** (ServerMain.java):
 
-interface CraftingError {
-  type: 'HeapSpaceError' | 'TimeoutError' | 'NetworkError' | 'UnknownError';
-  message: string;
-  suggestions: string[];
-}
-
-export function useCraftingSimulator() {
-  const [state, setState] = useState<CraftingState>({
-    isCalculating: false,
-    sessionId: null,
-    results: null,
-    error: null,
-  });
-  
-  const cancelRef = useRef<AbortController>();
-  
-  const calculate = async (request: CraftingRequest) => {
-    const sessionId = crypto.randomUUID();
-    cancelRef.current = new AbortController();
-    
-    setState(s => ({ 
-      ...s, 
-      isCalculating: true, 
-      sessionId,
-      error: null 
-    }));
-    
-    try {
-      const response = await fetch('http://localhost:8080/api/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...request, sessionId }),
-        signal: cancelRef.current.signal,
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Calculation failed');
-      }
-      
-      const results = await response.json();
-      setState(s => ({ ...s, isCalculating: false, results, sessionId: null }));
-    } catch (err) {
-      const craftingError = mapError(err);
-      setState(s => ({ ...s, isCalculating: false, error: craftingError, sessionId: null }));
+```java
+// NEW ENDPOINT: GET /api/currencies
+// Handler: CurrenciesHandler
+class CurrenciesHandler implements HttpHandler {
+    @Override
+    public void handle(HttpExchange exchange) throws IOException {
+        if (!"GET".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(405, -1);
+            return;
+        }
+        
+        List<CurrencyInfo> currencies = Arrays.asList(
+            new CurrencyInfo("transmutation", "Orb of Transmutation", "basic"),
+            new CurrencyInfo("augmentation", "Orb of Augmentation", "basic"),
+            new CurrencyInfo("regal", "Regal Orb", "basic"),
+            new CurrencyInfo("exalted", "Exalted Orb", "basic"),
+            new CurrencyInfo("annulment", "Orb of Annulment", "basic"),
+            // Essences...
+            new CurrencyInfo("desecrated", "Desecrated Orb", "special")
+        );
+        
+        String json = gson.toJson(currencies);
+        sendJson(exchange, 200, json);
     }
-  };
-  
-  const cancel = async () => {
-    if (!state.sessionId) return;
-    
-    cancelRef.current?.abort();
-    
-    try {
-      await fetch(`http://localhost:8080/api/cancel/${state.sessionId}`, {
-        method: 'POST',
-      });
-    } catch (err) {
-      console.error('Cancel request failed:', err);
-    }
-    
-    setState(s => ({ ...s, isCalculating: false, sessionId: null }));
-  };
-  
-  return { state, calculate, cancel };
 }
 
-function mapError(err: unknown): CraftingError {
-  if (err instanceof Error) {
-    if (err.message.includes('OutOfMemoryError')) {
-      return {
-        type: 'HeapSpaceError',
-        message: 'Calculation too complex',
-        suggestions: [
-          'Try reducing the number of desired modifiers',
-          'Simplify the item requirements',
-          'Increase the Java heap size (-Xmx flag)',
-        ],
-      };
-    }
-    if (err.message.includes('timeout')) {
-      return {
-        type: 'TimeoutError',
-        message: 'Calculation timed out',
-        suggestions: [
-          'Adjust your requirements to be less complex',
-          'Try a simpler item type',
-        ],
-      };
-    }
-  }
-  
-  return {
-    type: 'UnknownError',
-    message: err instanceof Error ? err.message : 'Unknown error occurred',
-    suggestions: ['Check the console for more details', 'Try restarting the application'],
-  };
+// ENHANCED: POST /api/calculate (CraftingHandler)
+// Now accepts:
+// - allowedCurrencies: String[] (filter which currencies to use)
+// - strategy: String ("fastest" | "cheapest" | "balanced")
+// - maxSteps: int (limit crafting path length)
+
+class CraftingRequest {
+    String sessionId;
+    String itemId;
+    List<String> desiredModifiers;
+    List<String> undesiredModifiers;
+    List<String> allowedCurrencies; // NEW
+    String strategy; // NEW: "fastest", "cheapest", "balanced"
+    int maxSteps; // NEW: limit path length
+    double threshold;
+}
+
+// Response includes alternative paths
+class CraftingResponse {
+    boolean success;
+    List<CraftingStep> path;
+    double totalProbability;
+    double averageCost; // NEW
+    int estimatedAttempts; // NEW
+    List<AlternativePath> alternatives; // NEW: 3-5 alternative strategies
 }
 ```
 
-**Integration Points**:
-- Refactor `CraftingSimulator.tsx` to use hook
-- Remove inline state management
-- Add error display component
+**Frontend Type Definitions** (types/api.ts):
 
-**Testing**:
-- Unit test: State transitions
-- Integration test: Full calculation flow
-- Error handling test: All error types
+```typescript
+export interface Item {
+  id: string;
+  name: string;
+  baseType: string;
+  category: string;
+  implicits?: Modifier[];
+}
+
+export interface Modifier {
+  id: string;
+  name: string;
+  tier: number;
+  tags: string[];
+  weight: number;
+  type: 'PREFIX' | 'SUFFIX';
+}
+
+export interface Currency {
+  id: string;
+  name: string;
+  category: 'basic' | 'essence' | 'special';
+  description?: string;
+  icon?: string;
+}
+
+export interface CraftingRequest {
+  sessionId: string;
+  itemId: string;
+  desiredModifiers: string[];
+  undesiredModifiers?: string[];
+  allowedCurrencies?: string[];
+  strategy?: 'fastest' | 'cheapest' | 'balanced';
+  maxSteps?: number;
+  threshold?: number;
+}
+
+export interface CraftingStep {
+  currencyId: string;
+  currencyName: string;
+  probability: number;
+  resultingModifiers: string[];
+  description: string;
+}
+
+export interface CraftingResult {
+  sessionId: string;
+  success: boolean;
+  path: CraftingStep[];
+  totalProbability: number;
+  averageCost: number;
+  estimatedAttempts: number;
+  alternatives?: AlternativePath[];
+}
+
+export interface AlternativePath {
+  steps: CraftingStep[];
+  probability: number;
+  cost: number;
+  quality: number;
+  label: string; // "Faster", "Cheaper", etc.
+}
+
+export interface ProgressData {
+  sessionId: string;
+  percent: number;
+  elapsedMs: number;
+  estimatedRemainingMs: number;
+  currentPhase: string;
+  message?: string;
+}
+```
+
+**API Service Layer** (services/api.ts):
+
+```typescript
+class CraftingAPI {
+  private baseURL = 'http://localhost:8080/api';
+  
+  async getItems(): Promise<Item[]> {
+    const response = await fetch(`${this.baseURL}/items`);
+    if (!response.ok) throw new Error('Failed to fetch items');
+    return response.json();
+  }
+  
+  async getCurrencies(): Promise<Currency[]> {
+    const response = await fetch(`${this.baseURL}/currencies`);
+    if (!response.ok) throw new Error('Failed to fetch currencies');
+    return response.json();
+  }
+  
+  async getModifiers(itemId: string): Promise<Modifier[]> {
+    const response = await fetch(`${this.baseURL}/modifiers?itemId=${itemId}`);
+    if (!response.ok) throw new Error('Failed to fetch modifiers');
+    return response.json();
+  }
+  
+  async calculate(request: CraftingRequest, signal?: AbortSignal): Promise<CraftingResult> {
+    const response = await fetch(`${this.baseURL}/calculate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+      signal
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new CraftingError(error.type, error.message, error.suggestions);
+    }
+    
+    return response.json();
+  }
+  
+  async getProgress(sessionId: string): Promise<ProgressData> {
+    const response = await fetch(`${this.baseURL}/progress/${sessionId}`);
+    if (!response.ok) throw new Error('Failed to fetch progress');
+    return response.json();
+  }
+  
+  async cancel(sessionId: string): Promise<void> {
+    await fetch(`${this.baseURL}/cancel/${sessionId}`, { method: 'POST' });
+  }
+}
+
+export const api = new CraftingAPI();
+```
+
+**Implementation Tasks**:
+- Add CurrenciesHandler to ServerMain.java
+- Enhance CraftingRequest with allowedCurrencies, strategy, maxSteps
+- Calculate alternative paths in Crafting_Algorithm
+- Implement cost estimation logic
+- Create complete TypeScript type definitions
+- Build API service layer (remove Electron IPC wrapper)
+
+**Files**:
+- Backend: `src/main/java/core/ServerMain.java` (add CurrenciesHandler)
+- Frontend: `src/types/api.ts`, `src/services/api.ts`
+
+---
+
+#### 4.2 Currency Selection & Strategy System
+
+**Goal**: Allow users to customize which currencies to use and optimization strategy
+
+**Component: CurrencyStrategyPanel**
+
+```typescript
+// src/components/CurrencyStrategyPanel.tsx
+interface Props {
+  currencies: Currency[];
+  selectedCurrencies: string[];
+  onCurrencyToggle: (id: string) => void;
+  strategy: 'fastest' | 'cheapest' | 'balanced';
+  onStrategyChange: (strategy: string) => void;
+}
+
+export function CurrencyStrategyPanel({
+  currencies,
+  selectedCurrencies,
+  onCurrencyToggle,
+  strategy,
+  onStrategyChange
+}: Props) {
+  const basicCurrencies = currencies.filter(c => c.category === 'basic');
+  const essences = currencies.filter(c => c.category === 'essence');
+  const special = currencies.filter(c => c.category === 'special');
+  
+  return (
+    <Card className="p-4 space-y-4">
+      <div>
+        <Label className="text-lg font-semibold">Crafting Strategy</Label>
+        <RadioGroup value={strategy} onValueChange={onStrategyChange}>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="fastest" id="fastest" />
+            <Label htmlFor="fastest">⚡ Fastest Path</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="cheapest" id="cheapest" />
+            <Label htmlFor="cheapest">💰 Cheapest</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="balanced" id="balanced" />
+            <Label htmlFor="balanced">⚖️ Balanced</Label>
+          </div>
+        </RadioGroup>
+      </div>
+      
+      <Separator />
+      
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <Label className="text-lg font-semibold">Allowed Currencies</Label>
+          <div className="space-x-2">
+            <Button size="sm" variant="ghost" onClick={selectAll}>All</Button>
+            <Button size="sm" variant="ghost" onClick={selectEssentials}>Essentials</Button>
+            <Button size="sm" variant="ghost" onClick={selectNone}>None</Button>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          <div>
+            <Label className="text-sm text-muted-foreground">Basic Currencies</Label>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              {basicCurrencies.map(currency => (
+                <div key={currency.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={currency.id}
+                    checked={selectedCurrencies.includes(currency.id)}
+                    onCheckedChange={() => onCurrencyToggle(currency.id)}
+                  />
+                  <Label htmlFor={currency.id} className="text-sm">{currency.name}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <Label className="text-sm text-muted-foreground">Essences</Label>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              {essences.map(currency => (
+                <div key={currency.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={currency.id}
+                    checked={selectedCurrencies.includes(currency.id)}
+                    onCheckedChange={() => onCurrencyToggle(currency.id)}
+                  />
+                  <Label htmlFor={currency.id} className="text-sm">{currency.name}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <Label className="text-sm text-muted-foreground">Special</Label>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              {special.map(currency => (
+                <div key={currency.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={currency.id}
+                    checked={selectedCurrencies.includes(currency.id)}
+                    onCheckedChange={() => onCurrencyToggle(currency.id)}
+                  />
+                  <Label htmlFor={currency.id} className="text-sm">{currency.name}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+```
+
+**Features**:
+- Strategy selection: Fastest / Cheapest / Balanced
+- Currency checkboxes grouped by category
+- Quick presets: All / Essentials Only / None
+- Tooltips explaining each strategy
+- Persist preferences to localStorage
+
+**Files**: `src/components/CurrencyStrategyPanel.tsx`
+
+---
+
+#### 4.3 Enhanced Results Display
+
+**Goal**: Rich, informative results with multiple paths and cost analysis
+
+**Component: EnhancedResultCard**
+
+```typescript
+// src/components/EnhancedResultCard.tsx
+interface Props {
+  result: CraftingResult;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onSave?: () => void;
+  onRetry?: () => void;
+}
+
+export function EnhancedResultCard({
+  result,
+  isExpanded,
+  onToggle,
+  onSave,
+  onRetry
+}: Props) {
+  const getRarityColor = (step: string) => {
+    if (step.includes('Normal')) return 'text-gray-400';
+    if (step.includes('Magic')) return 'text-blue-400';
+    if (step.includes('Rare')) return 'text-yellow-400';
+    return 'text-white';
+  };
+  
+  return (
+    <Card className="overflow-hidden">
+      <div className="p-4 cursor-pointer" onClick={onToggle}>
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              {result.success ? (
+                <CheckCircle2 className="w-5 h-5 text-green-500" />
+              ) : (
+                <XCircle className="w-5 h-5 text-red-500" />
+              )}
+              <h3 className="font-semibold">
+                {result.success ? 'SUCCESS' : 'NO PATH FOUND'}
+              </h3>
+              <span className="text-sm text-muted-foreground">
+                {result.totalProbability.toFixed(2)}% probability
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              {result.path.length} steps • ~{result.averageCost}c cost • 
+              1 in {result.estimatedAttempts} attempts
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {onSave && (
+              <Button size="sm" variant="ghost" onClick={e => {
+                e.stopPropagation();
+                onSave();
+              }}>
+                <Save className="w-4 h-4" />
+              </Button>
+            )}
+            {onRetry && (
+              <Button size="sm" variant="ghost" onClick={e => {
+                e.stopPropagation();
+                onRetry();
+              }}>
+                <RotateCcw className="w-4 h-4" />
+              </Button>
+            )}
+            {isExpanded ? <ChevronUp /> : <ChevronDown />}
+          </div>
+        </div>
+      </div>
+      
+      {isExpanded && (
+        <div className="border-t p-4 space-y-4">
+          {/* Primary Path */}
+          <div>
+            <Label className="font-semibold mb-2">Crafting Path</Label>
+            <div className="space-y-2">
+              {result.path.map((step, idx) => (
+                <div key={idx} className="flex items-start gap-3 p-2 rounded bg-muted/50">
+                  <span className="text-muted-foreground font-mono text-sm">
+                    {idx + 1}
+                  </span>
+                  <div className="flex-1">
+                    <div className="font-medium">{step.currencyName}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {step.description}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {(step.probability * 100).toFixed(1)}% probability
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Alternative Paths */}
+          {result.alternatives && result.alternatives.length > 0 && (
+            <div>
+              <Label className="font-semibold mb-2">Alternative Strategies</Label>
+              <Accordion type="single" collapsible>
+                {result.alternatives.map((alt, idx) => (
+                  <AccordionItem key={idx} value={`alt-${idx}`}>
+                    <AccordionTrigger>
+                      <div className="flex items-center justify-between w-full pr-4">
+                        <span>{alt.label}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {alt.probability.toFixed(2)}% • {alt.cost}c
+                        </span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-1 text-sm">
+                        {alt.steps.map((step, stepIdx) => (
+                          <div key={stepIdx} className="text-muted-foreground">
+                            {stepIdx + 1}. {step.currencyName}
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          )}
+          
+          {/* Cost Breakdown */}
+          <div>
+            <Label className="font-semibold mb-2">Cost Analysis</Label>
+            <div className="text-sm space-y-1">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Average per attempt:</span>
+                <span className="font-mono">{result.averageCost}c</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Expected attempts:</span>
+                <span className="font-mono">{result.estimatedAttempts}</span>
+              </div>
+              <div className="flex justify-between font-semibold pt-1 border-t">
+                <span>Total expected cost:</span>
+                <span className="font-mono">
+                  {(result.averageCost * result.estimatedAttempts).toFixed(1)}c
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+```
+
+**Features**:
+- Expandable/collapsible cards
+- Visual step-by-step path display
+- Multiple alternative strategies
+- Detailed cost breakdown
+- Save/retry actions
+- Color-coded rarity transitions
+
+**Files**: `src/components/EnhancedResultCard.tsx`
+
+---
+
+#### 4.4 Modern State Management with Context
+
+**Goal**: Centralized, type-safe state management
+
+**Architecture**:
+
+```typescript
+// contexts/CraftingContext.tsx
+interface CraftingState {
+  // Data
+  items: Item[];
+  currencies: Currency[];
+  modifiers: Modifier[];
+  
+  // Selection
+  selectedItem: Item | null;
+  selectedModifiers: string[];
+  selectedCurrencies: string[];
+  strategy: 'fastest' | 'cheapest' | 'balanced';
+  
+  // Calculation
+  isCalculating: boolean;
+  currentSessionId: string | null;
+  progress: ProgressData | null;
+  
+  // Results
+  results: CraftingResult[];
+  expandedResults: Set<number>;
+  
+  // UI
+  error: CraftingError | null;
+}
+
+interface CraftingActions {
+  selectItem: (item: Item) => void;
+  toggleModifier: (modifierId: string) => void;
+  toggleCurrency: (currencyId: string) => void;
+  setStrategy: (strategy: string) => void;
+  startCalculation: () => Promise<void>;
+  cancelCalculation: () => Promise<void>;
+  toggleResultExpansion: (index: number) => void;
+}
+
+export const CraftingContext = createContext<{
+  state: CraftingState;
+  actions: CraftingActions;
+} | null>(null);
+
+export function CraftingProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<CraftingState>(initialState);
+  
+  const actions: CraftingActions = {
+    selectItem: (item) => {
+      setState(s => ({ ...s, selectedItem: item, modifiers: [] }));
+      // Load modifiers for item
+      api.getModifiers(item.id).then(mods => {
+        setState(s => ({ ...s, modifiers: mods }));
+      });
+    },
+    
+    toggleModifier: (modifierId) => {
+      setState(s => ({
+        ...s,
+        selectedModifiers: s.selectedModifiers.includes(modifierId)
+          ? s.selectedModifiers.filter(id => id !== modifierId)
+          : [...s.selectedModifiers, modifierId]
+      }));
+    },
+    
+    startCalculation: async () => {
+      const sessionId = crypto.randomUUID();
+      setState(s => ({ ...s, isCalculating: true, currentSessionId: sessionId }));
+      
+      try {
+        const result = await api.calculate({
+          sessionId,
+          itemId: state.selectedItem!.id,
+          desiredModifiers: state.selectedModifiers,
+          allowedCurrencies: state.selectedCurrencies,
+          strategy: state.strategy
+        });
+        
+        setState(s => ({
+          ...s,
+          isCalculating: false,
+          currentSessionId: null,
+          results: [result, ...s.results],
+          expandedResults: new Set([0])
+        }));
+      } catch (error) {
+        setState(s => ({
+          ...s,
+          isCalculating: false,
+          currentSessionId: null,
+          error: error as CraftingError
+        }));
+      }
+    },
+    
+    // ... other actions
+  };
+  
+  return (
+    <CraftingContext.Provider value={{ state, actions }}>
+      {children}
+    </CraftingContext.Provider>
+  );
+}
+
+export function useCrafting() {
+  const context = useContext(CraftingContext);
+  if (!context) throw new Error('useCrafting must be used within CraftingProvider');
+  return context;
+}
+```
+
+**Custom Hooks**:
+
+```typescript
+// hooks/useProgress.ts
+export function useProgress(sessionId: string | null) {
+  const [progress, setProgress] = useState<ProgressData | null>(null);
+  
+  useEffect(() => {
+    if (!sessionId) return;
+    
+    const interval = setInterval(async () => {
+      const data = await api.getProgress(sessionId);
+      setProgress(data);
+    }, 100);
+    
+    return () => clearInterval(interval);
+  }, [sessionId]);
+  
+  return progress;
+}
+```
+
+**Files**: 
+- `src/contexts/CraftingContext.tsx`
+- `src/hooks/useProgress.ts`
+
+---
+
+#### 4.5 Professional UI Layout
+
+**Goal**: Modern, intuitive three-column layout
+
+**Main Layout Structure**:
+
+```typescript
+// src/App.tsx - New layout
+<div className="flex h-screen bg-background">
+  {/* Left Sidebar - Configuration */}
+  <aside className="w-80 border-r overflow-y-auto p-4 space-y-4">
+    <ItemSelector />
+    <ModifierSelector />
+    <CurrencyStrategyPanel />
+    <Button onClick={actions.startCalculation} disabled={!canCalculate}>
+      Run Simulation
+    </Button>
+  </aside>
+  
+  {/* Main Content - Results & Progress */}
+  <main className="flex-1 overflow-y-auto p-6">
+    {state.isCalculating && (
+      <ProgressDisplay
+        progress={progress}
+        onCancel={actions.cancelCalculation}
+      />
+    )}
+    
+    <div className="space-y-4">
+      {state.results.map((result, idx) => (
+        <EnhancedResultCard
+          key={idx}
+          result={result}
+          isExpanded={state.expandedResults.has(idx)}
+          onToggle={() => actions.toggleResultExpansion(idx)}
+        />
+      ))}
+    </div>
+  </main>
+  
+  {/* Right Sidebar - Info & Help */}
+  <aside className="w-64 border-l overflow-y-auto p-4">
+    <QuickStartGuide />
+    <ConfigurationSummary />
+  </aside>
+</div>
+```
+
+**Files**: `src/App.tsx` (complete rewrite)
+
+---
+
+### Phase 4 Summary
+
+**Deliverables**:
+1. ✅ Enhanced API layer with currency/strategy support
+2. ✅ Currency selection UI component
+3. ✅ Enhanced results display with alternatives
+4. ✅ Modern state management (Context + hooks)
+5. ✅ Professional three-column layout
+6. ✅ Complete TypeScript strict mode compliance
+
+**Files to Create/Modify**:
+- Backend: `ServerMain.java` (add CurrenciesHandler)
+- Types: `src/types/api.ts`
+- Services: `src/services/api.ts`
+- Components: `src/components/CurrencyStrategyPanel.tsx`, `src/components/EnhancedResultCard.tsx`
+- Context: `src/contexts/CraftingContext.tsx`
+- Hooks: `src/hooks/useProgress.ts`
+- Layout: `src/App.tsx` (rewrite)
+
+**Expected Impact**:
+- Professional, feature-rich UI
+- User control over crafting strategies
+- Multiple path visualization
+- Improved error handling
+- Better state management
 
 ### Phase 5: Testing & Quality Assurance (P1/P2)
 

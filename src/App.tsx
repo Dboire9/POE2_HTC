@@ -1,230 +1,250 @@
-"use client"
+/**
+ * Main App Component - Refactored with CraftingProvider and Three-Column Layout
+ */
 
-import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
-import { ItemSelector } from "@/components/ItemSelector"
-import { CurrencySelector } from "@/components/CurrencySelector"
-import { ModifierSelector } from "@/components/ModifierSelector"
-import { Results } from "@/components/Results"
+import { useEffect } from 'react';
+import { CraftingProvider, useCrafting } from './contexts/CraftingContext';
+import { useCalculation } from './hooks/useCalculation';
+import { api } from './services/api';
+import { ItemSelector } from './components/ItemSelector';
+import { ModifierSelector } from './components/ModifierSelector';
+import { EnhancedResults } from './components/EnhancedResults';
+import { ErrorBanner } from './components/ErrorBanner';
+import { Button } from './components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
+import { Loader2 } from 'lucide-react';
 
-export default function App() {
-  const [selectedItem, setSelectedItem] = useState(null)
-  const [craftingHistory, setCraftingHistory] = useState<any[]>([])
-  const [selectedModifiers, setSelectedModifiers] = useState(null)
-  const [expandedResults, setExpandedResults] = useState<Set<number>>(new Set([0]))
-  const [isLoading, setIsLoading] = useState(false)
+function AppContent() {
+  const {
+    selectedItem,
+    availableModifiers,
+    selectedModifiers,
+    isCalculating,
+    progress,
+    result,
+    error,
+    setSelectedItem,
+    setAvailableModifiers,
+    addModifier,
+    removeModifier,
+    updateModifierTier,
+    setError,
+  } = useCrafting();
+
+  const { calculate, cancel } = useCalculation();
+
+  // Load modifiers when item changes
   useEffect(() => {
-    // Initialize app
-    loadItems()
-  }, [])
-
-  const loadItems = async () => {
-    try {
-      const items = await window.electronAPI.invoke("api:items")
-      console.log("Items loaded:", items)
-    } catch (error) {
-      console.error("Failed to load items:", error)
+    if (!selectedItem) {
+      setAvailableModifiers([]);
+      return;
     }
-  }
 
-  const handleStartCrafting = async (craftingData: any) => {
-    console.log("🚀 Starting crafting with data:", craftingData)
-    setIsLoading(true)
-    try {
-      const results = await window.electronAPI.invoke("api:crafting", craftingData)
-      console.log("✅ Crafting results received:", results)
-      
-      // Add new result to history at the beginning
-      const newResult = {
-        id: Date.now(),
-        timestamp: new Date().toLocaleString(),
-        data: results
+    const loadModifiers = async () => {
+      try {
+        const data = await api.getModifiers(selectedItem.id);
+        setAvailableModifiers(data);
+      } catch (err) {
+        console.error('Failed to load modifiers:', err);
       }
-      setCraftingHistory(prev => [newResult, ...prev])
-      
-      // Expand the new result and collapse others
-      setExpandedResults(new Set([0]))
-    } catch (error) {
-      console.error("❌ Crafting failed:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    };
+    loadModifiers();
+  }, [selectedItem, setAvailableModifiers]);
 
-  const toggleExpanded = (index: number) => {
-    setExpandedResults(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(index)) {
-        newSet.delete(index)
-      } else {
-        newSet.add(index)
-      }
-      return newSet
-    })
-  }
+  const canCalculate =
+    selectedItem &&
+    (selectedModifiers.prefixes.length > 0 || selectedModifiers.suffixes.length > 0) &&
+    !isCalculating;
 
   return (
-    <div className="min-h-screen text-foreground">
-      {/* Loading overlay */}
-      {isLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-6">
-            <img 
-              src="/screenshots/path-of-exile-poe.gif" 
-              alt="Loading..." 
-              className="w-32 h-32 object-contain"
-            />
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-2">Crafting in Progress...</h2>
-              <p className="text-muted-foreground">Calculating optimal crafting paths</p>
-            </div>
-            <div className="flex gap-2">
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-            </div>
-          </div>
-        </div>
-      )}
-
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Header */}
       <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
-        <div className="container flex items-center justify-between gap-4 py-4">
+        <div className="container mx-auto flex items-center justify-between gap-4 py-4 px-4">
           <div className="flex items-center gap-4">
             <img src="/screenshots/logo.jpg" alt="POE2" className="h-8 w-8 opacity-90" />
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">POE2 Crafting Tool</h1>
-              <p className="text-sm text-muted-foreground">Path of Exile 2 Item Crafting Simulator</p>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                POE2 Crafting Tool
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Path of Exile 2 Item Crafting Simulator
+              </p>
             </div>
           </div>
-          
-          <div className="hidden md:flex flex-col items-end gap-2 text-xs text-muted-foreground">
-            <div className="flex items-center gap-4">
-              <a 
-                href="https://github.com/Dboire9" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:text-primary transition-colors"
-              >
-                <span className="text-[10px] uppercase tracking-wider opacity-70">Backend & Algorithm</span>
-                <span className="font-medium">Dboire</span>
-              </a>
-              <span className="opacity-30">•</span>
-              <a 
-                href="https://github.com/fZpHr" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:text-primary transition-colors"
-              >
-                <span className="text-[10px] uppercase tracking-wider opacity-70">Frontend & Integration</span>
-                <span className="font-medium">fZpHr</span>
-              </a>
+
+          <div className="hidden md:flex flex-col items-end gap-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span className="font-mono">v1.0.0</span>
             </div>
-            <a 
-              href="https://github.com/Dboire9/POE2_HTC" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/30 hover:border-primary/50 transition-all"
-            >
-              <span className="text-[10px] font-mono font-semibold leading-none">v0.1</span>
-              <span className="opacity-30 leading-none">|</span>
-              <span className="text-[10px] leading-none">⭐ Star & Contribute</span>
-            </a>
+            <span>Java Backend + React Frontend</span>
           </div>
         </div>
       </header>
 
-      <main className="container py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left side - Crafting interface */}
-          <div className="space-y-6">
-            <Card className="p-4">
-              <h2 className="text-lg font-semibold mb-3">Select Item</h2>
-              <ItemSelector onItemSelect={setSelectedItem} />
-            </Card>
-            
-            <Card className="p-4">
-              <h2 className="text-lg font-semibold mb-3">Select Modifiers</h2>
-              <ModifierSelector 
-                selectedItem={selectedItem} 
-                onModifiersChange={setSelectedModifiers}
-              />
-            </Card>
-            
-            <Card className="p-4">
-              <h2 className="text-lg font-semibold mb-3">Currency & Start</h2>
-              <CurrencySelector 
-                selectedItem={selectedItem} 
-                onCraft={(data: any) => handleStartCrafting({...data, modifiers: selectedModifiers})} 
-              />
+      {/* Main Content - Three Column Layout */}
+      <main className="container mx-auto p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Left Column - Configuration (3 columns) */}
+          <div className="lg:col-span-3 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Item Selection</CardTitle>
+                <CardDescription>Choose the item type to craft</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ItemSelector
+                  selectedItem={selectedItem}
+                  onItemChange={setSelectedItem}
+                  disabled={isCalculating}
+                />
+              </CardContent>
             </Card>
           </div>
 
-          {/* Right side - Results history with scrollbar */}
-          <div className="space-y-4">
-            <div className="sticky top-4">
-              <h2 className="text-lg font-semibold mb-3">Results History ({craftingHistory.length})</h2>
-              <div className="max-h-[calc(100vh-150px)] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-                {craftingHistory.length === 0 ? (
-                  <Card className="p-8 text-center text-muted-foreground">
-                    <p className="text-lg">No crafting results yet.</p>
-                    <p className="text-sm mt-2">Run a simulation to see results here.</p>
-                  </Card>
-                ) : (
-                  craftingHistory.map((result, index) => (
-                    <Card 
-                      key={result.id}
-                      className={`transition-all duration-300 ${
-                        expandedResults.has(index) 
-                          ? 'p-4 border-2 border-primary/50' 
-                          : 'p-3 border border-border hover:border-primary/30 cursor-pointer'
-                      }`}
-                      onClick={() => !expandedResults.has(index) && toggleExpanded(index)}
+          {/* Center Column - Modifiers & Calculate (6 columns) */}
+          <div className="lg:col-span-6 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Modifier Selection</CardTitle>
+                <CardDescription>
+                  Select desired modifiers and their minimum tiers
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ModifierSelector
+                  availableModifiers={availableModifiers}
+                  selectedModifiers={selectedModifiers}
+                  onAddModifier={addModifier}
+                  onRemoveModifier={removeModifier}
+                  onUpdateTier={updateModifierTier}
+                  disabled={!selectedItem || isCalculating}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Calculate Button */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex flex-col gap-4">
+                  {error && <ErrorBanner error={error} onDismiss={() => setError(null)} />}
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={calculate}
+                      disabled={!canCalculate}
+                      className="flex-1"
+                      size="lg"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          {index === 0 && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400 font-semibold">
-                              Latest
-                            </span>
-                          )}
-                          <span className="text-sm text-muted-foreground">
-                            {result.timestamp}
-                          </span>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            toggleExpanded(index)
-                          }}
-                          className="text-xs px-2 py-1 rounded hover:bg-muted"
-                        >
-                          {expandedResults.has(index) ? '▼ Collapse' : '▶ Expand'}
-                        </button>
-                      </div>
-                      
-                      {expandedResults.has(index) ? (
-                        <Results data={result.data} />
+                      {isCalculating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Calculating... {progress.toFixed(0)}%
+                        </>
                       ) : (
-                        <div className="text-sm text-muted-foreground">
-                          {result.data?.itemId && (
-                            <span>Item: {result.data.itemId} • </span>
-                          )}
-                          {result.data?.modifierCount && (
-                            <span>{result.data.modifierCount} modifiers • </span>
-                          )}
-                          {result.data?.results && (
-                            <span>{result.data.results.length} paths found</span>
-                          )}
-                        </div>
+                        'Calculate Crafting Path'
                       )}
-                    </Card>
-                  ))
-                )}
+                    </Button>
+
+                    {isCalculating && (
+                      <Button onClick={cancel} variant="destructive" size="lg">
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+
+                  {isCalculating && (
+                    <div className="space-y-2">
+                      <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary transition-all duration-200"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-center text-muted-foreground">
+                        Analyzing crafting paths...
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Results */}
+            {result && (
+              <div>
+                <EnhancedResults result={result} />
               </div>
-            </div>
+            )}
+          </div>
+
+          {/* Right Column - Info Panel (3 columns) */}
+          <div className="lg:col-span-3 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Guide</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm space-y-3">
+                <div>
+                  <h4 className="font-semibold mb-1">1. Select Item</h4>
+                  <p className="text-muted-foreground">Choose the base item type to craft</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">2. Choose Strategy</h4>
+                  <p className="text-muted-foreground">
+                    Pick optimization goal and allowed currencies
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">3. Select Modifiers</h4>
+                  <p className="text-muted-foreground">Pick desired mods and minimum tiers</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">4. Calculate</h4>
+                  <p className="text-muted-foreground">
+                    Run simulation to find optimal crafting paths
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Selected Configuration</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm space-y-3">
+                <div>
+                  <p className="font-semibold">Item</p>
+                  <p className="text-muted-foreground">
+                    {selectedItem?.name || 'None selected'}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-semibold">Modifiers</p>
+                  <p className="text-muted-foreground">
+                    {selectedModifiers.prefixes.length + selectedModifiers.suffixes.length} selected
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border mt-8 py-4">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>POE2 Crafting Tool • Open Source • Made with ❤️ for the POE2 community</p>
+        </div>
+      </footer>
     </div>
-  )
+  );
+}
+
+export default function App() {
+  return (
+    <CraftingProvider>
+      <AppContent />
+    </CraftingProvider>
+  );
 }

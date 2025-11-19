@@ -226,37 +226,647 @@ Normal Item
   - Cleanup: Release resources on cancellation
 - **Constitutional Ref**: [Constitution §II - Performance First]
 
-### R4: Frontend Architecture (P2)
+### R4: Frontend Architecture Revamp (P1)
 
-**R4.1 State Management**
-- **Priority**: P2
-- **Requirement**: Implement proper state management for crafting simulator
-- **Acceptance Criteria**:
-  - useCraftingSimulator hook with CraftingState interface
-  - Clean separation: UI components vs business logic
-  - TypeScript strict mode (no 'any' types)
-  - Reactive patterns following React best practices
-- **Technical Specs**: See State Management Pattern in speckit.implement.prompt.md
+**IMPORTANT NOTE**: The current frontend serves as a basic prototype. This requirement section defines a comprehensive redesign to create a professional, feature-rich crafting optimization tool.
 
-**R4.2 Error Handling**
-- **Priority**: P2
-- **Requirement**: User-friendly, actionable error messages
-- **Acceptance Criteria**:
-  - HeapSpaceError → "Calculation too complex, try reducing modifiers"
-  - TimeoutError → "Calculation timed out, adjust requirements"
-  - Generic errors → Display error message with context
-  - Error boundary component catches React errors
-- **Technical Specs**: See Error Handling Pattern in speckit.implement.prompt.md
+**Core Design Principles**:
+1. **Keep What Works**: Item selection → Modifier selection → Results history flow
+2. **Add Missing Features**: Currency selection, crafting strategies, advanced filtering
+3. **Enhance UX**: Professional design, intuitive interactions, real-time feedback
+4. **Modernize Architecture**: Proper state management, error handling, TypeScript strict mode
 
-**R4.3 UI Polish**
-- **Priority**: P3
-- **Requirement**: Professional, polished interface
-- **Acceptance Criteria**:
-  - Dark mode fully implemented
-  - Smooth transitions and animations
-  - Responsive layout for different window sizes
-  - Consistent shadcn/ui component usage
-- **Constitutional Ref**: [Constitution §V - User Experience]
+---
+
+#### R4.1 Enhanced API Layer (P1)
+
+**Priority**: P1  
+**Requirement**: Redesign API layer for better type safety and feature support
+
+**Current API Issues**:
+- Missing `/api/currencies` endpoint
+- No currency-specific crafting paths
+- Limited error handling
+- Electron IPC wrapper adds unnecessary complexity
+
+**New API Architecture**:
+
+```typescript
+// types/api.ts - Comprehensive type definitions
+export interface Item {
+  id: string;
+  name: string;
+  baseType: string;
+  category: string;
+  implicits?: Modifier[];
+}
+
+export interface Modifier {
+  id: string;
+  name: string;
+  tier: number;
+  tags: string[];
+  weight: number;
+  type: 'PREFIX' | 'SUFFIX';
+}
+
+export interface Currency {
+  id: string;
+  name: string;
+  description: string;
+  icon?: string;
+  category: 'basic' | 'essence' | 'special';
+}
+
+export interface CraftingRequest {
+  sessionId: string;
+  itemId: string;
+  desiredModifiers: string[];
+  undesiredModifiers?: string[];
+  allowedCurrencies?: string[]; // NEW: User can restrict currencies
+  strategy?: 'fastest' | 'cheapest' | 'balanced'; // NEW: Optimization goal
+  maxSteps?: number;
+  threshold?: number;
+}
+
+export interface CraftingStep {
+  currencyId: string;
+  currencyName: string;
+  probability: number;
+  resultingModifiers: string[];
+  description: string;
+}
+
+export interface CraftingResult {
+  sessionId: string;
+  success: boolean;
+  path: CraftingStep[];
+  totalProbability: number;
+  averageCost: number;
+  estimatedAttempts: number;
+  averageSteps: number;
+  alternativePaths?: CraftingPath[];
+}
+
+export interface CraftingPath {
+  steps: CraftingStep[];
+  probability: number;
+  cost: number;
+  quality: number;
+}
+
+export interface ProgressData {
+  sessionId: string;
+  percent: number;
+  elapsedMs: number;
+  estimatedRemainingMs: number;
+  currentPhase: string;
+  message?: string;
+}
+```
+
+**Backend API Enhancements** (ServerMain.java additions):
+
+```java
+// NEW ENDPOINT: GET /api/currencies
+// Returns: List of all available currencies with metadata
+[
+  { "id": "transmutation", "name": "Orb of Transmutation", "category": "basic" },
+  { "id": "augmentation", "name": "Orb of Augmentation", "category": "basic" },
+  { "id": "regal", "name": "Regal Orb", "category": "basic" },
+  { "id": "exalted", "name": "Exalted Orb", "category": "basic" },
+  { "id": "annulment", "name": "Orb of Annulment", "category": "basic" },
+  { "id": "essence_*", "name": "Essence of [Type]", "category": "essence" },
+  { "id": "desecrated", "name": "Desecrated Orb", "category": "special" }
+]
+
+// ENHANCED ENDPOINT: POST /api/calculate
+// Request body now includes:
+// - allowedCurrencies: string[] (optional, restricts currency usage)
+// - strategy: 'fastest' | 'cheapest' | 'balanced' (optimization goal)
+// - maxSteps: number (limit crafting path length)
+
+// Response now includes:
+// - alternativePaths: CraftingPath[] (top 3-5 alternative strategies)
+// - averageCost: number (estimated currency cost)
+// - estimatedAttempts: number (how many tries to achieve)
+```
+
+**Frontend API Service**:
+
+```typescript
+// services/api.ts - Direct HTTP API (remove Electron wrapper)
+class CraftingAPI {
+  private baseURL = 'http://localhost:8080/api';
+  
+  async getItems(): Promise<Item[]> {
+    const response = await fetch(`${this.baseURL}/items`);
+    if (!response.ok) throw new Error('Failed to fetch items');
+    return response.json();
+  }
+  
+  async getCurrencies(): Promise<Currency[]> {
+    const response = await fetch(`${this.baseURL}/currencies`);
+    if (!response.ok) throw new Error('Failed to fetch currencies');
+    return response.json();
+  }
+  
+  async getModifiers(itemId: string): Promise<Modifier[]> {
+    const response = await fetch(`${this.baseURL}/modifiers?itemId=${itemId}`);
+    if (!response.ok) throw new Error('Failed to fetch modifiers');
+    return response.json();
+  }
+  
+  async calculate(request: CraftingRequest, signal?: AbortSignal): Promise<CraftingResult> {
+    const response = await fetch(`${this.baseURL}/calculate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+      signal
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new CraftingError(error.type, error.message, error.suggestions);
+    }
+    return response.json();
+  }
+  
+  async getProgress(sessionId: string): Promise<ProgressData> {
+    const response = await fetch(`${this.baseURL}/progress/${sessionId}`);
+    if (!response.ok) throw new Error('Failed to fetch progress');
+    return response.json();
+  }
+  
+  async cancel(sessionId: string): Promise<void> {
+    await fetch(`${this.baseURL}/cancel/${sessionId}`, { method: 'POST' });
+  }
+}
+
+export const api = new CraftingAPI();
+```
+
+**Acceptance Criteria**:
+- ✅ All API types defined with TypeScript strict mode
+- ✅ `/api/currencies` endpoint returns currency list
+- ✅ `/api/calculate` accepts `allowedCurrencies` and `strategy` parameters
+- ✅ Direct HTTP communication (remove Electron IPC wrapper)
+- ✅ Proper error typing and handling
+- ✅ AbortController support for cancellation
+
+---
+
+#### R4.2 Currency Selection & Strategy System (P1)
+
+**Priority**: P1  
+**Requirement**: Allow users to customize currency usage and optimization strategy
+
+**Why This Matters**:
+- Different leagues have different currency availability
+- Players may want to avoid expensive currencies (Exalted Orbs)
+- Some players prefer speed over cost efficiency
+- Essence-only crafting is a valid strategy
+
+**UI Component: CurrencyStrategyPanel**
+
+```typescript
+// New component: src/components/CurrencyStrategyPanel.tsx
+interface CurrencyStrategyPanelProps {
+  availableCurrencies: Currency[];
+  selectedCurrencies: string[];
+  onCurrencyToggle: (currencyId: string) => void;
+  strategy: 'fastest' | 'cheapest' | 'balanced';
+  onStrategyChange: (strategy: string) => void;
+}
+
+// Visual Design:
+┌─────────────────────────────────────────────┐
+│ Crafting Strategy                           │
+├─────────────────────────────────────────────┤
+│ Optimization Goal:                          │
+│ ○ Fastest Path     ○ Cheapest     ● Balanced│
+│                                              │
+│ Allowed Currencies:                          │
+│ ☑ Transmutation Orb    ☑ Regal Orb         │
+│ ☑ Augmentation Orb     ☑ Exalted Orb       │
+│ ☐ Essence (Wrath)      ☑ Annulment Orb     │
+│ ☐ Essence (Greed)      ☑ Desecrated Orb    │
+│                                              │
+│ [Select All] [Deselect All] [Essentials]   │
+└─────────────────────────────────────────────┘
+```
+
+**Feature Details**:
+
+1. **Strategy Selection**:
+   - **Fastest**: Prioritize high-probability paths (ignore cost)
+   - **Cheapest**: Minimize currency expenditure (may take more steps)
+   - **Balanced**: Optimize for probability × cost trade-off
+
+2. **Currency Filtering**:
+   - Checkboxes for each currency type
+   - Preset buttons: "Essentials Only" (no Exalted), "All", "None"
+   - Category grouping: Basic | Essence | Special
+   - Visual icons for each currency (if available)
+
+3. **Smart Defaults**:
+   - All currencies enabled by default
+   - Remember user preferences in localStorage
+   - Quick toggle presets for common scenarios
+
+**Acceptance Criteria**:
+- ✅ Currency selection UI with checkboxes
+- ✅ Strategy radio buttons (fastest/cheapest/balanced)
+- ✅ Preset buttons for quick configuration
+- ✅ Selected currencies passed to `/api/calculate`
+- ✅ Preferences persist across sessions (localStorage)
+- ✅ Disabled currencies grayed out in results
+
+---
+
+#### R4.3 Enhanced Results Display (P1)
+
+**Priority**: P1  
+**Requirement**: Richer, more informative results presentation
+
+**Current Issues**:
+- Minimal result details
+- No cost estimation
+- Single path only (no alternatives)
+- Difficult to compare strategies
+
+**New Results Component Architecture**:
+
+```typescript
+// Enhanced: src/components/Results.tsx
+
+interface ResultCardProps {
+  result: CraftingResult;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onRetry: () => void;
+  onSave: () => void;
+}
+
+// Visual Design:
+┌──────────────────────────────────────────────────────────┐
+│ 🎯 Result #1 - Today at 14:32:15          [Expand] [Save]│
+├──────────────────────────────────────────────────────────┤
+│ Item: Thicket Bow (iLvl 72)                              │
+│ Target: +2 Fire Gems, Flat Fire Damage, Attack Speed    │
+│                                                           │
+│ ✓ SUCCESS - 3.45% probability (1 in 29 attempts)        │
+│ 📊 6 steps | ⚡ Balanced strategy | 💰 ~12.3c cost      │
+│                                                           │
+│ [▼] Primary Path (3.45% - Best Balance)                 │
+│   1. ⚪→🔵 Transmutation Orb (100%) → Magic (1 mod)      │
+│   2. 🔵→🔵 Augmentation Orb (85%) → Magic (2 mods)       │
+│   3. 🔵→🟡 Regal Orb (45%) → Rare (+Phys dmg)           │
+│   4. 🟡→🟡 Exalted Orb (22%) → Rare (+Fire gems)        │
+│   5. 🟡→🟡 Exalted Orb (18%) → Rare (+Flat fire)        │
+│   6. 🟡→🟡 Annulment Orb (38%) → Remove unwanted        │
+│                                                           │
+│ [▶] Alternative Path 1 (2.87% - Faster, Higher Cost)    │
+│ [▶] Alternative Path 2 (4.12% - Slower, Lower Cost)     │
+│                                                           │
+│ Cost Breakdown:                                           │
+│ • 1× Transmutation (0.01c) • 1× Augmentation (0.02c)    │
+│ • 1× Regal (0.5c)          • 2× Exalted (10c each)      │
+│ • 1× Annulment (1.8c)                                    │
+│ Total: 12.33c per attempt × 29 attempts = 357.57c avg   │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Enhanced Features**:
+
+1. **Visual Path Representation**:
+   - Color-coded rarity transitions (⚪→🔵→🟡)
+   - Currency icons/emojis
+   - Step-by-step probability breakdown
+   - Cumulative probability tracking
+
+2. **Multiple Path Options**:
+   - Primary path (best match for selected strategy)
+   - 2-4 alternative paths with trade-offs
+   - Sortable by probability, cost, or speed
+   - Compare paths side-by-side
+
+3. **Cost Analysis**:
+   - Per-currency breakdown
+   - Expected attempts calculation
+   - Total cost estimation
+   - Cost warnings for expensive paths
+
+4. **Result Management**:
+   - Expand/collapse individual results
+   - Save favorite crafting paths
+   - Export to clipboard/file
+   - Retry with modified parameters
+
+**Acceptance Criteria**:
+- ✅ Color-coded crafting step visualization
+- ✅ Display 3-5 alternative paths
+- ✅ Cost breakdown with currency icons
+- ✅ Expected attempts calculation
+- ✅ Expand/collapse accordion UI
+- ✅ Save/export functionality
+- ✅ Visual progress animation during calculation
+
+---
+
+#### R4.4 Modern State Management (P1)
+
+**Priority**: P1  
+**Requirement**: Implement robust state management with TypeScript strict mode
+
+**Current Issues**:
+- Ad-hoc useState scattered across components
+- No centralized state
+- Type safety violations (any types)
+- Difficult to track data flow
+
+**Solution: Context + Custom Hooks Pattern**
+
+```typescript
+// contexts/CraftingContext.tsx - Centralized state management
+
+interface CraftingState {
+  // Data
+  items: Item[];
+  currencies: Currency[];
+  modifiers: Modifier[];
+  
+  // Selection
+  selectedItem: Item | null;
+  selectedModifiers: string[];
+  selectedCurrencies: string[];
+  strategy: 'fastest' | 'cheapest' | 'balanced';
+  
+  // Calculation
+  isCalculating: boolean;
+  currentSessionId: string | null;
+  progress: ProgressData | null;
+  
+  // Results
+  results: CraftingResult[];
+  expandedResults: Set<number>;
+  
+  // UI
+  error: CraftingError | null;
+  isLoading: boolean;
+}
+
+interface CraftingActions {
+  // Selection actions
+  selectItem: (item: Item) => void;
+  toggleModifier: (modifierId: string) => void;
+  toggleCurrency: (currencyId: string) => void;
+  setStrategy: (strategy: string) => void;
+  
+  // Calculation actions
+  startCalculation: (request: CraftingRequest) => Promise<void>;
+  cancelCalculation: () => Promise<void>;
+  
+  // Result actions
+  toggleResultExpansion: (index: number) => void;
+  saveResult: (index: number) => void;
+  clearResults: () => void;
+  
+  // Error handling
+  clearError: () => void;
+}
+
+export const CraftingContext = createContext<{
+  state: CraftingState;
+  actions: CraftingActions;
+} | null>(null);
+
+export function useCrafting() {
+  const context = useContext(CraftingContext);
+  if (!context) {
+    throw new Error('useCrafting must be used within CraftingProvider');
+  }
+  return context;
+}
+```
+
+**Custom Hooks for Reusability**:
+
+```typescript
+// hooks/useCalculation.ts - Calculation logic
+export function useCalculation() {
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const abortControllerRef = useRef<AbortController>();
+  
+  const startCalculation = async (request: CraftingRequest) => {
+    const newSessionId = crypto.randomUUID();
+    setSessionId(newSessionId);
+    setIsRunning(true);
+    
+    abortControllerRef.current = new AbortController();
+    
+    try {
+      const result = await api.calculate(
+        { ...request, sessionId: newSessionId },
+        abortControllerRef.current.signal
+      );
+      return result;
+    } finally {
+      setIsRunning(false);
+      setSessionId(null);
+    }
+  };
+  
+  const cancel = async () => {
+    if (sessionId) {
+      abortControllerRef.current?.abort();
+      await api.cancel(sessionId);
+    }
+  };
+  
+  return { sessionId, isRunning, startCalculation, cancel };
+}
+
+// hooks/useProgress.ts - Real-time progress tracking
+export function useProgress(sessionId: string | null) {
+  const [progress, setProgress] = useState<ProgressData | null>(null);
+  
+  useEffect(() => {
+    if (!sessionId) {
+      setProgress(null);
+      return;
+    }
+    
+    const interval = setInterval(async () => {
+      try {
+        const data = await api.getProgress(sessionId);
+        setProgress(data);
+      } catch (error) {
+        console.error('Progress fetch failed:', error);
+      }
+    }, 100); // Poll every 100ms
+    
+    return () => clearInterval(interval);
+  }, [sessionId]);
+  
+  return progress;
+}
+```
+
+**Acceptance Criteria**:
+- ✅ CraftingContext provider with typed state
+- ✅ useCrafting hook for component access
+- ✅ No 'any' types (TypeScript strict mode)
+- ✅ Custom hooks for calculation and progress
+- ✅ Proper error boundaries
+- ✅ LocalStorage persistence for preferences
+
+---
+
+#### R4.5 Professional UI/UX Improvements (P2)
+
+**Priority**: P2  
+**Requirement**: Modernize visual design and interactions
+
+**Visual Enhancements**:
+
+1. **Layout Redesign**:
+```
+┌───────────────────────────────────────────────────────────┐
+│ ⚙️ POE2 Harvest Tool Crafter        [Settings] [Help]    │
+├──────────────┬────────────────────────────────────────────┤
+│              │                                             │
+│ 1️⃣ ITEM      │  ┌──────────────────────────────────────┐ │
+│              │  │ 🎯 Quick Start Guide                │ │
+│ [Thicket Bow]│  │ 1. Select your item type (left)     │ │
+│ iLvl: 72     │  │ 2. Choose desired modifiers         │ │
+│ Rarity: Norm │  │ 3. Configure crafting strategy      │ │
+│              │  │ 4. Run simulation                   │ │
+│ 2️⃣ MODIFIERS │  └──────────────────────────────────────┘ │
+│              │                                             │
+│ Desired:     │  💡 Current Configuration:                │
+│ [+Fire Gems] │  • Item: Thicket Bow (iLvl 72)            │
+│ [+Flat Fire] │  • Modifiers: 3 desired, 1 blocked        │
+│ [+Atk Speed] │  • Strategy: Balanced                     │
+│              │  • Currencies: 7/9 enabled                │
+│ Blocked:     │                                             │
+│ [+Cold Dmg]  │  [Start Crafting Simulation]              │
+│              │                                             │
+│ 3️⃣ STRATEGY  │                                             │
+│              │  ⏱️ Recent Results (3)                     │
+│ ● Balanced   │  ┌─────────────────────────────────────┐ │
+│ ○ Fastest    │  │ ✓ Thicket Bow - 3.45% (6 steps)    │ │
+│ ○ Cheapest   │  │   Today at 14:32 | Cost: ~12.3c    │ │
+│              │  ├─────────────────────────────────────┤ │
+│ 4️⃣ CURRENCIES │  │ ✓ Crystal Belt - 5.12% (4 steps)  │ │
+│              │  │   Today at 13:15 | Cost: ~8.7c     │ │
+│ [7/9 enabled]│  ├─────────────────────────────────────┤ │
+│ [Configure]  │  │ ✓ Steel Ring - 2.33% (8 steps)     │ │
+│              │  │   Yesterday | Cost: ~23.1c         │ │
+└──────────────┴──┴─────────────────────────────────────┴─┘
+```
+
+2. **Component Library Enhancements**:
+   - shadcn/ui base + custom POE2-themed components
+   - Dark mode with accent colors (orange/gold for POE theme)
+   - Smooth transitions (framer-motion)
+   - Tooltips for every element
+   - Loading skeletons during data fetch
+
+3. **Interaction Improvements**:
+   - Drag-to-reorder modifiers by priority
+   - Double-click to quick-select common configurations
+   - Keyboard shortcuts (Enter to calculate, Esc to cancel)
+   - Undo/redo for configuration changes
+   - Copy result summary to clipboard (Ctrl+C)
+
+4. **Accessibility**:
+   - ARIA labels on all interactive elements
+   - Keyboard navigation support
+   - Screen reader friendly
+   - High contrast mode option
+   - Focus indicators
+
+**Acceptance Criteria**:
+- ✅ Three-column layout (config | main | results)
+- ✅ POE2-themed color palette (dark + orange accents)
+- ✅ Smooth animations for transitions
+- ✅ Comprehensive tooltips
+- ✅ Keyboard shortcuts implemented
+- ✅ WCAG 2.1 AA accessibility compliance
+
+---
+
+#### R4.6 Error Handling & User Feedback (P1)
+
+**Priority**: P1  
+**Requirement**: Comprehensive error handling with actionable guidance
+
+**Error Types & Responses**:
+
+```typescript
+// types/errors.ts
+export class CraftingError extends Error {
+  constructor(
+    public type: ErrorType,
+    message: string,
+    public suggestions: string[] = [],
+    public recoverable: boolean = true
+  ) {
+    super(message);
+  }
+}
+
+export type ErrorType =
+  | 'HEAP_SPACE_ERROR'
+  | 'TIMEOUT_ERROR'
+  | 'NETWORK_ERROR'
+  | 'INVALID_REQUEST'
+  | 'NO_PATH_FOUND'
+  | 'UNKNOWN_ERROR';
+```
+
+**Error UI Component**:
+
+```typescript
+// components/ErrorBanner.tsx
+<div className="error-banner" role="alert">
+  <div className="error-header">
+    <AlertCircle className="error-icon" />
+    <h3>Calculation Failed: Out of Memory</h3>
+  </div>
+  <p className="error-message">
+    The crafting calculation is too complex for available memory.
+  </p>
+  <div className="error-suggestions">
+    <strong>Try these solutions:</strong>
+    <ul>
+      <li>✓ Reduce the number of desired modifiers (currently 6)</li>
+      <li>✓ Simplify the item requirements</li>
+      <li>✓ Increase Java heap size: -Xmx8G in launch settings</li>
+    </ul>
+  </div>
+  <div className="error-actions">
+    <Button onClick={retry} variant="primary">
+      Retry with Fewer Modifiers
+    </Button>
+    <Button onClick={openSettings} variant="secondary">
+      Adjust Settings
+    </Button>
+    <Button onClick={dismiss} variant="ghost">
+      Dismiss
+    </Button>
+  </div>
+</div>
+```
+
+**Acceptance Criteria**:
+- ✅ Typed error classes with suggestions
+- ✅ User-friendly error messages (no stack traces)
+- ✅ Actionable recovery suggestions
+- ✅ Retry mechanisms with auto-adjustments
+- ✅ Error logging for debugging
+- ✅ Toast notifications for minor errors
 
 ### R5: Testing & Quality Assurance (P1/P2)
 

@@ -150,6 +150,9 @@ export function useCraftingSimulator() {
       return;
     }
 
+    let progressInterval: ReturnType<typeof setInterval> | null = null;
+    const startTime = Date.now();
+    
     try {
       // Generate unique session ID for progress tracking
       const newSessionId = crypto.randomUUID();
@@ -157,8 +160,29 @@ export function useCraftingSimulator() {
 
       // Create abort controller for cancellation
       abortControllerRef.current = new AbortController();
+      console.log('[useCraftingSimulator] Setting isCalculating to true');
       setIsCalculating(true);
-      setProgress(null);
+      
+      // Simulate progress since backend doesn't report it yet
+      let simulatedProgress = 0;
+      progressInterval = setInterval(() => {
+        simulatedProgress += 1; // Slower increment for smoother animation
+        if (simulatedProgress <= 95) { // Go up to 95% to leave room for completion
+          setProgress({
+            percent: simulatedProgress,
+            elapsedMs: Date.now() - startTime,
+            estimatedRemainingMs: Math.max(0, ((100 - simulatedProgress) / simulatedProgress) * (Date.now() - startTime)),
+            cancelled: false,
+          });
+        }
+      }, 300); // Update every 300ms for smoother animation
+      
+      setProgress({
+        percent: 0,
+        elapsedMs: 0,
+        estimatedRemainingMs: 20000, // Estimate 20 seconds
+        cancelled: false,
+      });
       setError(null);
 
       // Build request with sessionId
@@ -185,8 +209,17 @@ export function useCraftingSimulator() {
         abortControllerRef.current.signal
       );
 
+      if (progressInterval) clearInterval(progressInterval);
+      setProgress({
+        percent: 100,
+        elapsedMs: Date.now() - startTime,
+        estimatedRemainingMs: 0,
+        cancelled: false,
+      });
+      
       setResult(calculationResult);
     } catch (error) {
+      if (progressInterval) clearInterval(progressInterval);
       const craftingError = mapError(error);
       setError(craftingError);
       console.error('Calculation error:', error);

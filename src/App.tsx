@@ -39,6 +39,8 @@ function AppContent() {
     updateModifierTier,
     setError,
   } = state;
+  
+  console.log('[App] isCalculating:', isCalculating, 'progress:', progress, 'result:', result);
 
   // Load modifiers when item changes
   useEffect(() => {
@@ -121,32 +123,53 @@ function AppContent() {
                   onRemoveModifier={removeModifier}
                   onUpdateTier={updateModifierTier}
                   disabled={!selectedItem || isCalculating}
+                  selectedItem={selectedItem}
                 />
               </CardContent>
             </Card>
 
             {/* Calculate Button or Progress Bar */}
-            {isCalculating && progress ? (
-              <ProgressBar progress={progress} onCancel={cancel} />
-            ) : (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex flex-col gap-4">
-                    {/* Error Display - Use new ErrorDisplay component if error exists */}
-                    {error && <ErrorDisplay error={error} onDismiss={() => setError(null)} />}
+            {(() => {
+              console.log('[App Render] isCalculating:', isCalculating, 'progress:', progress);
+              return (isCalculating || progress) ? (
+                progress ? (
+                  <ProgressBar progress={progress} onCancel={cancel} />
+                ) : (
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                          <span className="text-lg font-medium">Calculating optimal crafting path...</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">This may take 10-30 seconds for complex items</p>
+                        <Button onClick={cancel} variant="outline" size="sm">
+                          Cancel
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              ) : (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex flex-col gap-4">
+                      {/* Error Display - Use new ErrorDisplay component if error exists */}
+                      {error && <ErrorDisplay error={error} onDismiss={() => setError(null)} />}
 
-                    <Button
-                      onClick={calculate}
-                      disabled={!canCalculate}
-                      className="w-full"
-                      size="lg"
-                    >
-                      Calculate Crafting Path
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                      <Button
+                        onClick={calculate}
+                        disabled={!canCalculate}
+                        className="w-full"
+                        size="lg"
+                      >
+                        Calculate Crafting Path
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
 
             {/* Results */}
             {result && (

@@ -13,6 +13,7 @@ export interface Item {
 
 export interface Modifier {
   id: string;
+  family: string; // Original family name used by backend
   name: string;
   tier: number;
   tags: string[];
@@ -50,6 +51,9 @@ export interface CraftingRequest {
   probability: number;
   resultingModifiers: string[];
   description: string;
+  tier?: string;
+  omens?: string[];
+  temporaryModifier?: boolean; // True if this modifier will be removed by Perfect Essence in next step
 }
 
 export interface CraftingPath {

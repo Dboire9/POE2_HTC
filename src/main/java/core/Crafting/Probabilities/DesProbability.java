@@ -50,7 +50,6 @@ public class DesProbability {
      * @return The computed probability of the desecration event.
      */
     public static double ComputePercentageDesecrated_currency(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, Enum<?> omen, int i) {
-
         double kurgal_modTotal = 0;
         double amanamu_modTotal = 0;
         double ulaman_modTotal = 0;

@@ -153,7 +153,11 @@ export function CraftingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setIsCalculating = useCallback((isCalculating: boolean) => {
-    setState((prev) => ({ ...prev, isCalculating }));
+    console.log('[CraftingContext] setIsCalculating called with:', isCalculating);
+    setState((prev) => {
+      console.log('[CraftingContext] Previous isCalculating:', prev.isCalculating, 'New:', isCalculating);
+      return { ...prev, isCalculating };
+    });
   }, []);
 
   const setSessionId = useCallback((sessionId: string | null) => {

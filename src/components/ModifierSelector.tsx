@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import type { Modifier } from "../types/api"
+import { api } from "../services/api"
 
 interface ModifierSelectorProps {
   availableModifiers: Modifier[];
@@ -17,6 +18,7 @@ interface ModifierSelectorProps {
   onRemoveModifier: (type: 'prefix' | 'suffix', modifierId: string) => void;
   onUpdateTier: (type: 'prefix' | 'suffix', modifierId: string, tier: number) => void;
   disabled?: boolean;
+  selectedItem: any; // Item object with id property
 }
 
 export function ModifierSelector({
@@ -25,16 +27,59 @@ export function ModifierSelector({
   onAddModifier,
   onRemoveModifier,
   onUpdateTier,
-  disabled = false
+  disabled = false,
+  selectedItem
 }: ModifierSelectorProps) {
   const [selectedPrefixId, setSelectedPrefixId] = useState<string>("");
   const [selectedSuffixId, setSelectedSuffixId] = useState<string>("");
   const [prefixTier, setPrefixTier] = useState<number>(1);
   const [suffixTier, setSuffixTier] = useState<number>(1);
+  const [displayModifiers, setDisplayModifiers] = useState<Modifier[]>([]);
+  const [currentCurrencyType, setCurrentCurrencyType] = useState<string>('normal');
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
+
+  // Determine currency type based on selected tiers
+  const getCurrencyType = (prefTier: number, sufTier: number): string => {
+    // Priority: if EITHER tier is special, use that currency type
+    if (prefTier === 101 || sufTier === 101) return 'desecrated';
+    if (prefTier === 100 || sufTier === 100) return 'essence';
+    return 'normal';
+  };
+
+  // Update displayed modifiers when tier changes to special currency types OR on initial item selection
+  useEffect(() => {
+    if (!selectedItem) {
+      setDisplayModifiers([]);
+      return;
+    }
+    
+    const newCurrencyType = getCurrencyType(prefixTier, suffixTier);
+    
+    // Load modifiers if: initial load OR currency type changed
+    if (!isInitialLoad && newCurrencyType === currentCurrencyType) return;
+    
+    setCurrentCurrencyType(newCurrencyType);
+    if (isInitialLoad) setIsInitialLoad(false);
+    
+    // Reload modifiers for new currency type
+    const loadModifiers = async () => {
+      try {
+        const mods = await api.getModifiers(selectedItem.id, newCurrencyType);
+        setDisplayModifiers(mods);
+        // Reset selections when currency type changes
+        setSelectedPrefixId("");
+        setSelectedSuffixId("");
+      } catch (error) {
+        console.error('Failed to load modifiers for currency type:', error);
+      }
+    };
+    
+    loadModifiers();
+  }, [prefixTier, suffixTier, selectedItem, currentCurrencyType, isInitialLoad]);
 
   // Separate available modifiers by type
-  const prefixes = availableModifiers.filter(m => m.type === 'PREFIX');
-  const suffixes = availableModifiers.filter(m => m.type === 'SUFFIX');
+  const prefixes = displayModifiers.filter(m => m.type === 'PREFIX');
+  const suffixes = displayModifiers.filter(m => m.type === 'SUFFIX');
 
   const handleAddPrefix = () => {
     if (!selectedPrefixId) return;
@@ -85,7 +130,7 @@ export function ModifierSelector({
                 </SelectContent>
               </Select>
             </div>
-            <div className="w-24">
+            <div className="w-32">
               <Select 
                 value={prefixTier.toString()} 
                 onValueChange={(v) => setPrefixTier(parseInt(v))}
@@ -100,6 +145,8 @@ export function ModifierSelector({
                       T{tier}
                     </SelectItem>
                   ))}
+                  <SelectItem value="100">💎 Perfect Essence</SelectItem>
+                  <SelectItem value="101">☠️ Desecrated Currency</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -112,7 +159,12 @@ export function ModifierSelector({
           <div className="space-y-2">
             {selectedModifiers.prefixes.map((item, index) => (
               <div key={`${item.modifier.id}-${index}`} className="flex items-center justify-between bg-muted p-2 rounded">
-                <span className="text-sm">{item.modifier.name} (Tier {item.tier})</span>
+                <span className="text-sm">
+                  {item.modifier.name} 
+                  {item.tier === 100 && <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200">💎 Perfect Essence</span>}
+                  {item.tier === 101 && <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">☠️ Desecrated</span>}
+                  {item.tier < 100 && ` (Tier ${item.tier})`}
+                </span>
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -146,7 +198,7 @@ export function ModifierSelector({
                 </SelectContent>
               </Select>
             </div>
-            <div className="w-24">
+            <div className="w-32">
               <Select 
                 value={suffixTier.toString()} 
                 onValueChange={(v) => setSuffixTier(parseInt(v))}
@@ -161,6 +213,8 @@ export function ModifierSelector({
                       T{tier}
                     </SelectItem>
                   ))}
+                  <SelectItem value="100">💎 Perfect Essence</SelectItem>
+                  <SelectItem value="101">☠️ Desecrated Currency</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -173,7 +227,12 @@ export function ModifierSelector({
           <div className="space-y-2">
             {selectedModifiers.suffixes.map((item, index) => (
               <div key={`${item.modifier.id}-${index}`} className="flex items-center justify-between bg-muted p-2 rounded">
-                <span className="text-sm">{item.modifier.name} (Tier {item.tier})</span>
+                <span className="text-sm">
+                  {item.modifier.name} 
+                  {item.tier === 100 && <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200">💎 Perfect Essence</span>}
+                  {item.tier === 101 && <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">☠️ Desecrated</span>}
+                  {item.tier < 100 && ` (Tier ${item.tier})`}
+                </span>
                 <Button 
                   variant="ghost" 
                   size="sm" 

@@ -50,10 +50,14 @@ class CraftingAPI {
   }
 
   /**
-   * Fetch modifiers for a specific item
+   * Fetch modifiers for a specific item and currency type
+   * @param itemId - The item to get modifiers for
+   * @param currencyType - Type of currency: 'normal', 'essence'/'perfect', or 'desecrated'
    */
-  async getModifiers(itemId: string): Promise<Modifier[]> {
-    const response = await fetch(`${this.baseURL}/modifiers?itemId=${encodeURIComponent(itemId)}`);
+  async getModifiers(itemId: string, currencyType: string = 'normal'): Promise<Modifier[]> {
+    const response = await fetch(
+      `${this.baseURL}/modifiers?itemId=${encodeURIComponent(itemId)}&currencyType=${encodeURIComponent(currencyType)}`
+    );
     
     if (!response.ok) {
       throw new CraftingError(

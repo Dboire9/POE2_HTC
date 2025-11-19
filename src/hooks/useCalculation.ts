@@ -65,11 +65,13 @@ export function useCalculation() {
         itemId: selectedItem.id,
         modifiers: {
           prefixes: selectedModifiers.prefixes.map((m) => ({
-            id: m.modifier.id,
+            // Use family if available, otherwise extract from id (format: "Family_0")
+            id: m.modifier.family || m.modifier.id.split('_').slice(0, -1).join('_'),
             tier: m.tier,
           })),
           suffixes: selectedModifiers.suffixes.map((m) => ({
-            id: m.modifier.id,
+            // Use family if available, otherwise extract from id (format: "Family_0")
+            id: m.modifier.family || m.modifier.id.split('_').slice(0, -1).join('_'),
             tier: m.tier,
           })),
         },

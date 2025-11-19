@@ -1,0 +1,54 @@
+=== Testing User's Optimal Path ===
+
+Prefix 1: Adds # to # Physical Damage (Tier 3)
+Prefix 2: #% increased Physical Damage (Tier 3)
+Prefix 3: Gain # % of Damage as Extra Lightning Damage (Perfect Essence)
+Suffix 1: +# to Level of all Attack Skills (Perfect Essence)
+Suffix 2: #% chance to gain Onslaught on Killing Hits with this Weapon (Perfect Essence)
+Suffix 3: #% increased Attack Speed (Desecrated)
+
+=== User's Optimal Path Logic ===
+Step 1: Transmutation → Get '#% increased Physical Damage' (~probability varies)
+Step 2: Essence → Add 'Adds # to # Physical Damage' T3 (100%)
+Step 3: Perfect Essence of Electricity → Add 'Extra Lightning Damage' (100%)
+   → Now have 3 prefixes ✓
+Step 4: Exalted Orb #1 → Add random suffix (~8-20%)
+Step 5: Exalted Orb #2 → Add random suffix (~8-20%)
+Step 6: Perfect Essence + Suffix Omen → Replace suffix #1 with desired (100%)
+Step 7: Perfect Essence + Suffix Omen → Replace suffix #2 with desired (50%)
+Step 8: Desecrated → Add/replace final suffix (50%)
+
+Expected probability: 0.10 * 1.0 * 1.0 * 0.15 * 0.15 * 1.0 * 0.5 * 0.5 ≈ 0.056% (5.6e-4)
+This is MUCH higher than the 9.66e-24 currently found!
+
+=== Algorithm's Result ===
+CraftingResult[paths=5120, threshold=0.3300, iterations=18, duration=22550ms, success=true]
+Time: 22551 ms
+
+Algorithm's best probability: 1.3534936854489713E-14
+Expected optimal probability: ~5.6e-4 (0.056%)
+
+⚠️  WARNING: Algorithm found suboptimal path!
+Algorithm is 4.137440802424141E10x worse than expected optimal
+
+=== Algorithm's Path ===
+Step 1: TransmutationOrb → ADDED (0.00%)
+         Modifier: #% increased Attack Speed
+Step 2: AugmentationOrb → ADDED (0.00%)
+         Modifier: #% increased Physical Damage
+Step 3: Essence_currency → ADDED (100.00%)
+         Modifier: Adds # to # Physical Damage
+Step 4: Desecrated_currency → ADDED (33.33%)
+         Modifier: #% increased Cost Efficiency of Attacks
+Step 5: Essence_currency → CHANGED (50.00%)
+         Modifier: Gain # % of Damage as Extra Cold Damage
+Step 6: Desecrated_currency → ADDED (33.33%)
+         Modifier: #% increased Cost Efficiency of Attacks
+Step 7: Essence_currency → CHANGED (33.33%)
+         Modifier: +# to Level of all Attack Skills
+Step 8: Essence_currency → CHANGED (33.33%)
+         Modifier: #% chance to gain Onslaught on Killing Hits with this Weapon
+Step 9: Desecrated_currency → ADDED (50.00%)
+         Modifier: Attacks with this Weapon Penetrate #% Lightning Resistance
+Step 10: Essence_currency → CHANGED (25.00%)
+         Modifier: Gain # % of Damage as Extra Lightning Damage

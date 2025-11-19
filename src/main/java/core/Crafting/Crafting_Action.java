@@ -69,7 +69,9 @@ public interface Crafting_Action {
      */
     default void CreateListAndEvaluateAffixes(List<Modifier> modifiers, Crafting_Item item, List<Crafting_Candidate> CandidateList, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
         Map<Crafting_Action, Double> actionMap = new HashMap<>();
-        actionMap.put(this, 0.0);
+        // Calculate probability: 1.0 / number of available modifiers (transmutation pattern)
+        double probability = modifiers.isEmpty() ? 0.0 : 1.0 / modifiers.size();
+        actionMap.put(this, probability);
         List<Crafting_Item> Item_Evaluation = item.addAffixes(modifiers, item, actionMap, undesiredMods);
         for (Crafting_Item items : Item_Evaluation) {
             double score = 0;
@@ -78,6 +80,12 @@ public interface Crafting_Action {
                 Crafting_Candidate new_Candidate = Crafting_Candidate.AddCraftingCandidate(items, score, this);
                 new_Candidate.rarity = ItemRarity.MAGIC;
                 new_Candidate.modifierHistory.get(0).score = score;
+                
+                // Extract probability from last event and update candidate
+                if (!items.modifierHistory.isEmpty() && probability > 0.0) {
+                    new_Candidate.updateProbability(probability);
+                }
+                
                 CandidateList.add(new_Candidate);
             }
         }
@@ -98,7 +106,9 @@ public interface Crafting_Action {
     default List<Crafting_Candidate> evaluateAffixeswithAug(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate, List<Modifier> desiredMods, Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
         boolean isPrefix = false;
         Map<Crafting_Action, Double> actionMap = new HashMap<>();
-        actionMap.put(this, 0.0);
+        // Calculate probability: 1.0 / number of compatible modifiers (augmentation pattern)
+        double probability = (modifiers == null || modifiers.isEmpty()) ? 0.0 : 1.0 / modifiers.size();
+        actionMap.put(this, probability);
         List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
         if (modifiers != null && modifiers.get(0).type == ModifierType.PREFIX)
             isPrefix = true;
@@ -114,6 +124,12 @@ public interface Crafting_Action {
                 newCandidate.prev_score = candidate.score;
                 newCandidate.actions.add(this);
                 newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
+                
+                // Extract probability and update candidate
+                if (probability > 0.0) {
+                    newCandidate.updateProbability(probability);
+                }
+                
                 CandidateListCopy.add(newCandidate);
             }
         }
@@ -137,7 +153,10 @@ public interface Crafting_Action {
         List<Crafting_Item> Item_Evaluation = null;
         List<Crafting_Candidate> CandidateListCopy = new ArrayList<>();
         Map<Crafting_Action, Double> actionMap = new HashMap<>();
-        actionMap.put(this, 0.0);
+        
+        // Calculate probability based on currency type and item state
+        double probability = calculateEvaluateProbability(modifiers, item, candidate);
+        actionMap.put(this, probability);
         item = candidate.copy();
 
         if (this instanceof Essence_currency)
@@ -160,6 +179,12 @@ public interface Crafting_Action {
                 newCandidate.actions.add(this);
                 newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
                 newCandidate.rarity = ItemRarity.RARE;
+                
+                // Extract probability and update candidate
+                if (probability > 0.0) {
+                    newCandidate.updateProbability(probability);
+                }
+                
                 if (this instanceof Desecrated_currency)
                     newCandidate.desecrated = true;
                 CandidateListCopy.add(newCandidate);
@@ -184,7 +209,10 @@ public interface Crafting_Action {
         item = candidate.copy();
         int affixes = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size() - 1;
         Map<Crafting_Action, Double> actionMap = new HashMap<>();
-        actionMap.put(this, 0.0);
+        // Calculate probability: 1.0 / total current modifiers (annulment removes one random mod)
+        int totalMods = item.getAllCurrentPrefixModifiers().size() + item.getAllCurrentSuffixModifiers().size();
+        double probability = totalMods > 0 ? 1.0 / totalMods : 0.0;
+        actionMap.put(this, probability);
         List<Crafting_Item> Item_Evaluation = item.removeAffixes(item, actionMap);
         for (Crafting_Item items : Item_Evaluation) {
             double score = 60;
@@ -201,6 +229,12 @@ public interface Crafting_Action {
                 newCandidate.actions.add(this);
                 newCandidate.modifierHistory.get(item.modifierHistory.size()).score = score;
                 newCandidate.rarity = ItemRarity.RARE;
+                
+                // Extract probability and update candidate
+                if (probability > 0.0) {
+                    newCandidate.updateProbability(probability);
+                }
+                
                 if (newCandidate.modifierHistory.get(item.modifierHistory.size()).modifier.source == ModifierSource.DESECRATED)
                     newCandidate.desecrated = false;
                 CandidateListCopy.add(newCandidate);
@@ -208,5 +242,53 @@ public interface Crafting_Action {
         }
         Item_Evaluation.clear();
         return CandidateListCopy;
+    }
+
+    /**
+     * Calculates the step probability for evaluate methods based on currency type and item state.
+     * Used by ExaltedOrb, RegalOrb, Desecrated_currency, and Essence_currency.
+     *
+     * @param modifiers The list of modifiers being applied
+     * @param item The crafting item
+     * @param candidate The current crafting candidate
+     * @return The probability of this step (0.0 to 1.0)
+     */
+    default double calculateEvaluateProbability(List<Modifier> modifiers, Crafting_Item item, Crafting_Candidate candidate) {
+        if (modifiers == null || modifiers.isEmpty()) {
+            return 0.0;
+        }
+
+        // For Essence_currency: Perfect Essence with omen has complex probability
+        if (this instanceof Essence_currency) {
+            // Perfect Essence ADD (empty slot): 100%
+            // Perfect Essence REPLACE + Omen: depends on filled slots
+            // Check if we're adding to empty slot or replacing
+            Modifier mod = modifiers.get(0);
+            boolean isPrefix = mod.type == ModifierType.PREFIX;
+            int currentCount = isPrefix ? 
+                item.getAllCurrentPrefixModifiers().size() : 
+                item.getAllCurrentSuffixModifiers().size();
+            
+            if (currentCount < 3) {
+                // Adding to empty slot: 100% success
+                return 1.0;
+            } else {
+                // Replacing with omen: probability = 1 / filled_slots
+                // 3 filled → 0.3333 (1/3), 2 filled → 0.5 (1/2), 1 filled → 1.0 (1/1)
+                return 1.0 / currentCount;
+            }
+        }
+        
+        // For ExaltedOrb, RegalOrb, Desecrated_currency: probability = empty_slots / available_mods
+        int emptyPrefixes = 3 - item.getAllCurrentPrefixModifiers().size();
+        int emptySuffixes = 3 - item.getAllCurrentSuffixModifiers().size();
+        int totalEmptySlots = emptyPrefixes + emptySuffixes;
+        
+        if (totalEmptySlots == 0) {
+            return 0.0;
+        }
+        
+        // Probability = empty_slots / total_available_mods
+        return (double) totalEmptySlots / modifiers.size();
     }
 }

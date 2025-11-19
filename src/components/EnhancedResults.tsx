@@ -143,8 +143,8 @@ export function EnhancedResults({ result }: EnhancedResultsProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <Card>
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <Card className="transition-all duration-300 hover:shadow-lg">
         <CardHeader>
           <CardTitle>Crafting Results</CardTitle>
           <CardDescription>
@@ -156,18 +156,18 @@ export function EnhancedResults({ result }: EnhancedResultsProps) {
         <CardContent>
           {/* Summary stats */}
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="space-y-1">
+            <div className="space-y-1 transition-all duration-300 hover:scale-105">
               <p className="text-sm text-muted-foreground">Average Cost</p>
               <p className="text-2xl font-bold">
                 {result.averageCost?.toFixed(1) || 'N/A'}{' '}
                 <span className="text-sm font-normal text-muted-foreground">chaos</span>
               </p>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 transition-all duration-300 hover:scale-105">
               <p className="text-sm text-muted-foreground">Est. Attempts</p>
               <p className="text-2xl font-bold">{result.estimatedAttempts || 'N/A'}</p>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1 transition-all duration-300 hover:scale-105">
               <p className="text-sm text-muted-foreground">Success Rate</p>
               <p className="text-2xl font-bold">
                 {((result.path.successRate || 0) * 100).toFixed(1)}%

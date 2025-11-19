@@ -3,20 +3,26 @@
  */
 
 import { useEffect } from 'react';
-import { CraftingProvider, useCrafting } from './contexts/CraftingContext';
-import { useCalculation } from './hooks/useCalculation';
+import { CraftingProvider } from './contexts/CraftingContext';
+import { useCraftingSimulator } from './hooks/useCraftingSimulator';
 import { useCraftingProgress } from './hooks/useCraftingProgress';
 import { api } from './services/api';
 import { ItemSelector } from './components/ItemSelector';
 import { ModifierSelector } from './components/ModifierSelector';
 import { EnhancedResults } from './components/EnhancedResults';
 import { ErrorBanner } from './components/ErrorBanner';
+import { ErrorDisplay } from './components/ErrorDisplay';
 import { ProgressBar } from './components/ProgressBar';
 import { Button } from './components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
-import { Loader2 } from 'lucide-react';
 
 function AppContent() {
+  const { state, calculate, cancel } = useCraftingSimulator();
+  
+  // Enable progress tracking
+  useCraftingProgress();
+  
+  // Destructure state for cleaner access
   const {
     selectedItem,
     availableModifiers,
@@ -25,18 +31,14 @@ function AppContent() {
     progress,
     result,
     error,
+    canCalculate,
     setSelectedItem,
     setAvailableModifiers,
     addModifier,
     removeModifier,
     updateModifierTier,
     setError,
-  } = useCrafting();
-
-  const { calculate, cancel } = useCalculation();
-  
-  // Enable progress tracking
-  useCraftingProgress();
+  } = state;
 
   // Load modifiers when item changes
   useEffect(() => {
@@ -55,11 +57,6 @@ function AppContent() {
     };
     loadModifiers();
   }, [selectedItem, setAvailableModifiers]);
-
-  const canCalculate =
-    selectedItem &&
-    (selectedModifiers.prefixes.length > 0 || selectedModifiers.suffixes.length > 0) &&
-    !isCalculating;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -135,7 +132,8 @@ function AppContent() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex flex-col gap-4">
-                    {error && <ErrorBanner error={error} onDismiss={() => setError(null)} />}
+                    {/* Error Display - Use new ErrorDisplay component if error exists */}
+                    {error && <ErrorDisplay error={error} onDismiss={() => setError(null)} />}
 
                     <Button
                       onClick={calculate}

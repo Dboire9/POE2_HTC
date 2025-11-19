@@ -155,7 +155,11 @@ public interface Crafting_Action {
         Map<Crafting_Action, Double> actionMap = new HashMap<>();
         
         // Calculate probability based on currency type and item state
-        double probability = calculateEvaluateProbability(modifiers, item, candidate);
+        // For now, use simple formula: empty_slots / total_mods (works for Exalted, Regal, Desecrated)
+        int emptyPrefixes = 3 - item.getAllCurrentPrefixModifiers().size();
+        int emptySuffixes = 3 - item.getAllCurrentSuffixModifiers().size();
+        int totalEmptySlots = emptyPrefixes + emptySuffixes;
+        double probability = (modifiers == null || modifiers.isEmpty() || totalEmptySlots == 0) ? 0.0 : (double) totalEmptySlots / modifiers.size();
         actionMap.put(this, probability);
         item = candidate.copy();
 

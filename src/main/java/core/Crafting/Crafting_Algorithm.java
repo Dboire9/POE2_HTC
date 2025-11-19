@@ -379,22 +379,6 @@ public class Crafting_Algorithm {
 
 		score += scorePrefix + scoreSuffix;
 
-		// Apply probability factor to score (TSK-009)
-		// Multiply score by cube root of cumulative probability to balance exploration vs exploitation
-		if (item instanceof Crafting_Candidate) {
-			Crafting_Candidate candidate = (Crafting_Candidate) item;
-			double cumulativeProb = candidate.getCumulativeProbability();
-			
-			if (cumulativeProb > 0.0) {
-				// Cube root dampening (exponent 0.33): 
-				// 10× prob diff → 2.15× score diff, 100× prob diff → 4.64× score diff
-				// This prevents extremely low probability paths from being completely ignored
-				// while still giving significant advantage to higher probability paths
-				double probabilityBonus = Math.pow(cumulativeProb, 0.33);
-				score *= probabilityBonus;
-			}
-		}
-
 		return score;
 	}
 

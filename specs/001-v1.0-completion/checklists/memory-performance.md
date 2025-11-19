@@ -24,21 +24,21 @@
 
 ## Object Pooling Requirements
 
-- [ ] **MP-2.1**: Object pooling strategy is specified  
+- [X] **MP-2.1**: Object pooling strategy is specified  
   *Traceability*: [Spec §R1.2]  
-  *Validation*: CandidatePool design with acquire/release methods defined
+  *Validation*: CandidatePool design with acquire/release methods defined ✓ CONFIRMED
 
-- [ ] **MP-2.2**: Thread safety requirements are specified  
+- [X] **MP-2.2**: Thread safety requirements are specified  
   *Traceability*: [Spec §R1.2]  
-  *Validation*: Concurrent access scenario described (multi-threaded beam search)
+  *Validation*: Concurrent access scenario described (multi-threaded beam search) ✓ CONFIRMED (ConcurrentLinkedQueue)
 
-- [ ] **MP-2.3**: Object reset mechanism is specified  
+- [X] **MP-2.3**: Object reset mechanism is specified  
   *Traceability*: [Spec §R1.2]  
-  *Validation*: Data clearing requirements defined to prevent leakage
+  *Validation*: Data clearing requirements defined to prevent leakage ✓ CONFIRMED (reset() method)
 
-- [ ] **MP-2.4**: Pool size configuration is specified  
+- [X] **MP-2.4**: Pool size configuration is specified  
   *Traceability*: [Spec §R1.2]  
-  *Validation*: Max pool size and rationale documented (e.g., 50,000 candidates)
+  *Validation*: Max pool size and rationale documented (e.g., 50,000 candidates) ✓ CONFIRMED
 
 - [ ] **MP-2.5**: Memory reduction target is quantified  
   *Traceability*: [Spec §R1.2]  
@@ -82,17 +82,17 @@
 
 ## Progress Tracking Requirements
 
-- [ ] **MP-5.1**: Progress update frequency is specified  
+- [X] **MP-5.1**: Progress update frequency is specified  
   *Traceability*: [Spec §R3.2]  
-  *Validation*: Polling interval defined (e.g., every 100ms)
+  *Validation*: Polling interval defined (e.g., every 100ms) ✓ CONFIRMED (ProgressTracker.java)
 
-- [ ] **MP-5.2**: Progress data format is specified  
+- [X] **MP-5.2**: Progress data format is specified  
   *Traceability*: [Spec §R3.2]  
-  *Validation*: JSON structure with percent, elapsed, estimated remaining defined
+  *Validation*: JSON structure with percent, elapsed, estimated remaining defined ✓ CONFIRMED (SessionProgress class)
 
-- [ ] **MP-5.3**: Progress calculation method is specified  
+- [X] **MP-5.3**: Progress calculation method is specified  
   *Traceability*: [Spec §R3.2]  
-  *Validation*: Formula for calculating % complete and ETA documented
+  *Validation*: Formula for calculating % complete and ETA documented ✓ CONFIRMED
 
 - [ ] **MP-5.4**: Progress tracking overhead is considered  
   *Traceability*: [Spec §R3.2]  
@@ -100,13 +100,13 @@
 
 ## Cancellation Requirements
 
-- [ ] **MP-6.1**: Cancellation response time is specified  
+- [X] **MP-6.1**: Cancellation response time is specified  
   *Traceability*: [Spec §R3.3], [Constitution §II - Performance First]  
-  *Validation*: "Instant" defined with concrete target (e.g., <100ms)
+  *Validation*: "Instant" defined with concrete target (e.g., <100ms) ✓ CONFIRMED
 
-- [ ] **MP-6.2**: Cancellation propagation is specified  
+- [X] **MP-6.2**: Cancellation propagation is specified  
   *Traceability*: [Spec §R3.3]  
-  *Validation*: How cancel signal flows from frontend → backend → algorithm
+  *Validation*: How cancel signal flows from frontend → backend → algorithm ✓ CONFIRMED (CancelledException)
 
 - [ ] **MP-6.3**: Resource cleanup on cancellation is specified  
   *Traceability*: [Spec §R3.3]  
@@ -154,13 +154,13 @@
 
 ## Non-Blocking UI Requirements
 
-- [ ] **MP-9.1**: Non-blocking computation requirement is stated  
+- [X] **MP-9.1**: Non-blocking computation requirement is stated  
   *Traceability*: [Constitution §II - Performance First]  
-  *Validation*: Frontend must remain responsive during backend work
+  *Validation*: Frontend must remain responsive during backend work ✓ CONFIRMED
 
-- [ ] **MP-9.2**: Async operation patterns are specified  
+- [X] **MP-9.2**: Async operation patterns are specified  
   *Traceability*: [Spec §R3.2]  
-  *Validation*: Use of async/await, Promises, AbortController documented
+  *Validation*: Use of async/await, Promises, AbortController documented ✓ CONFIRMED (useCraftingSimulator.ts)
 
 - [ ] **MP-9.3**: UI responsiveness is testable  
   *Traceability*: [Spec §R5.3]  

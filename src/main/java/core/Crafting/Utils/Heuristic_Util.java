@@ -13,6 +13,8 @@ import core.Modifier_class.Modifier;
  * Utility class for heuristic calculations related to crafting modifiers.
  * This class provides methods to calculate scores for affixes and tags
  * based on desired modifiers and their properties.
+ * 
+ * Scoring weights are now configurable via BeamSearchConfig instead of hardcoded.
  */
 public class Heuristic_Util {
 
@@ -23,9 +25,11 @@ public class Heuristic_Util {
      * @param AffixCurrentMods The list of current modifiers on the item.
      * @param desiredModTier The list of desired modifiers with their tiers.
      * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+     * @param desiredModifierScore Score awarded per matched desired modifier (from config)
+     * @param relevantTagScore Score awarded for relevant tag matches (from config)
      * @return The calculated score for the affixes.
      */
-    public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<Modifier> desiredModTier, Map<String, Integer> CountDesiredModifierTags) {
+    public static int calculateAffixScore(List<Modifier> AffixCurrentMods, List<Modifier> desiredModTier, Map<String, Integer> CountDesiredModifierTags, int desiredModifierScore, int relevantTagScore) {
         int score = 0;
         int matched_modifiers = 0;
         int affix_slots = 0;
@@ -49,11 +53,11 @@ public class Heuristic_Util {
         }
 
         // If matched modifiers are equal to the slots in the item, add score
-        score += 1000 * matched_modifiers;
+        score += desiredModifierScore * matched_modifiers;
         if (matched_modifiers != affix_slots) {
             // We do not want to calculate tags of modifiers we know matched
             Map<String, Integer> CountModifierTags = CreateCountModifierTags(unmatchedMods);
-            score += ScoringTags(CountDesiredModifierTags, CountModifierTags, affix_slots);
+            score += ScoringTags(CountDesiredModifierTags, CountModifierTags, affix_slots, relevantTagScore);
         }
         return score;
     }
@@ -64,9 +68,10 @@ public class Heuristic_Util {
      * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
      * @param CountModifierTags A map of current modifier tags and their counts.
      * @param affix_slots The number of affix slots on the item.
+     * @param relevantTagScore Score awarded for relevant tag matches (from config)
      * @return The calculated score for the tags.
      */
-    public static int ScoringTags(Map<String, Integer> CountDesiredModifierTags, Map<String, Integer> CountModifierTags, int affix_slots) {
+    public static int ScoringTags(Map<String, Integer> CountDesiredModifierTags, Map<String, Integer> CountModifierTags, int affix_slots, int relevantTagScore) {
         int score = 0;
 
         for (Map.Entry<String, Integer> entry : CountModifierTags.entrySet()) {
@@ -78,7 +83,7 @@ public class Heuristic_Util {
 
                 if (currentCount < desiredCount && currentCount > 0) {
                     // If current count is less than desired, but not 0, increase score significantly
-                    score += 250;
+                    score += relevantTagScore;
                 } else if (currentCount == desiredCount) {
                     score += 50;
                 } else if ((desiredCount - currentCount) > 1) {

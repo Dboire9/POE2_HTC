@@ -306,15 +306,34 @@ public class Crafting_Algorithm {
 
 	/**
 	 * Calculates the heuristic score for a crafting item based on desired and undesired modifiers.
+	 * This overload uses default scoring weights (1000/250) for backward compatibility.
 	 *
 	 * @param item The crafting item being evaluated.
 	 * @param desiredMods A list of desired modifiers.
 	 * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
 	 * @param undesiredMods A list of undesired modifiers.
 	 * @return The heuristic score for the crafting item.
+	 * @deprecated Use {@link #heuristic(Crafting_Item, List, Map, List, BeamSearchConfig)} with config instead
 	 */
+	@Deprecated
 	public static double heuristic(Crafting_Item item, List<Modifier> desiredMods,
 			Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods) {
+		// Use default config for backward compatibility
+		return heuristic(item, desiredMods, CountDesiredModifierTags, undesiredMods, new BeamSearchConfig());
+	}
+	
+	/**
+	 * Calculates the heuristic score for a crafting item using configurable scoring weights.
+	 *
+	 * @param item The crafting item being evaluated.
+	 * @param desiredMods A list of desired modifiers.
+	 * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
+	 * @param undesiredMods A list of undesired modifiers.
+	 * @param config Configuration containing scoring weights
+	 * @return The heuristic score for the crafting item.
+	 */
+	public static double heuristic(Crafting_Item item, List<Modifier> desiredMods,
+			Map<String, Integer> CountDesiredModifierTags, List<Modifier> undesiredMods, BeamSearchConfig config) {
 		double score = 0;
 		double scorePrefix = 0;
 		double scoreSuffix = 0;
@@ -324,7 +343,8 @@ public class Crafting_Algorithm {
 		ModifierEvent lastEvent = item.modifierHistory.get(item.modifierHistory.size() - 1);
 
 		// Calculating score by checking if we have the modifiers we want
-		scorePrefix += Heuristic_Util.calculateAffixScore(PrefixCurrentMods, desiredMods, CountDesiredModifierTags);
+		scorePrefix += Heuristic_Util.calculateAffixScore(PrefixCurrentMods, desiredMods, CountDesiredModifierTags, 
+			config.getDesiredModifierScore(), config.getRelevantTagScore());
 		// We want to put the last ADDED modifier in the list
 		// It will only add modifiers from the first batch of transmutes, becauses when
 		// the score goes up it will never go back to 0.
@@ -337,7 +357,8 @@ public class Crafting_Algorithm {
 			undesiredMods.add(lastEvent.modifier);
 
 		// Handle SUFFIX
-		scoreSuffix += Heuristic_Util.calculateAffixScore(SuffixCurrentMods, desiredMods, CountDesiredModifierTags);
+		scoreSuffix += Heuristic_Util.calculateAffixScore(SuffixCurrentMods, desiredMods, CountDesiredModifierTags,
+			config.getDesiredModifierScore(), config.getRelevantTagScore());
 
 		if (lastEvent.modifier.type == ModifierType.SUFFIX
 				&& lastEvent.type == ModifierEvent.ActionType.ADDED

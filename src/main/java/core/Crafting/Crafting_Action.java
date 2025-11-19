@@ -149,22 +149,11 @@ public interface Crafting_Action {
             double score = 0;
             score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
             if (score > candidate.score) {
-                switch (affixes) {
-                    case 3:
-                        if (score < 1900)
-                            continue;
-                        break;
-                    case 4:
-                        if (score < 2900)
-                            continue;
-                        break;
-                    case 5:
-                        if (score < 3900)
-                            continue;
-                        break;
-                    case 6:
-                        if (score < 4900)
-                            continue;
+                // Dynamic score threshold: require ~70% of expected score (affixes × 700)
+                // This approximates the original hardcoded thresholds (1900/2900/3900/4900)
+                int minRequiredScore = affixes * 700;
+                if (score < minRequiredScore) {
+                    continue;
                 }
                 Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
                 newCandidate.prev_score = candidate.score;
@@ -201,22 +190,11 @@ public interface Crafting_Action {
             double score = 60;
             score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
             if (score > candidate.score) {
-                switch (affixes) {
-                    case 3:
-                        if (score < 1900)
-                            continue;
-                        break;
-                    case 4:
-                        if (score < 2900)
-                            continue;
-                        break;
-                    case 5:
-                        if (score < 3900)
-                            continue;
-                        break;
-                    case 6:
-                        if (score < 4900)
-                            continue;
+                // Dynamic score threshold: require ~70% of expected score (affixes × 700)
+                // This approximates the original hardcoded thresholds (1900/2900/3900/4900)
+                int minRequiredScore = affixes * 700;
+                if (score < minRequiredScore) {
+                    continue;
                 }
                 Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
                 newCandidate.prev_score = candidate.score;

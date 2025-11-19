@@ -154,7 +154,38 @@ public class TestOptimalPath {
                     ModifierEvent event = entry.getValue();
                     double prob = event.source.get(action) * 100;
                     
-                    System.out.println("Step " + stepNum + ": " + action.getClass().getSimpleName() + 
+                    // Build action description with omen info
+                    StringBuilder actionDesc = new StringBuilder(action.getClass().getSimpleName());
+                    
+                    // Add omen information if available
+                    if (action instanceof ExaltedOrb) {
+                        ExaltedOrb exalt = (ExaltedOrb) action;
+                        if (exalt.omens != null && !exalt.omens.isEmpty() && !exalt.omens.contains(ExaltedOrb.Omen.None)) {
+                            actionDesc.append(" (Omen: ").append(exalt.omens).append(")");
+                        }
+                    } else if (action instanceof Essence_currency) {
+                        Essence_currency essence = (Essence_currency) action;
+                        if (essence.omen != null && essence.omen != Essence_currency.Omen.None) {
+                            actionDesc.append(" + ").append(essence.omen);
+                        }
+                    } else if (action instanceof Desecrated_currency) {
+                        Desecrated_currency desecrated = (Desecrated_currency) action;
+                        if (desecrated.omens != null && !desecrated.omens.isEmpty()) {
+                            actionDesc.append(" (Omens: ").append(desecrated.omens).append(")");
+                        }
+                    } else if (action instanceof RegalOrb) {
+                        RegalOrb regal = (RegalOrb) action;
+                        if (regal.omen != null && regal.omen != RegalOrb.Omen.None) {
+                            actionDesc.append(" + ").append(regal.omen);
+                        }
+                    } else if (action instanceof AnnulmentOrb) {
+                        AnnulmentOrb annul = (AnnulmentOrb) action;
+                        if (annul.omen != null && annul.omen != AnnulmentOrb.Omen.None) {
+                            actionDesc.append(" + ").append(annul.omen);
+                        }
+                    }
+                    
+                    System.out.println("Step " + stepNum + ": " + actionDesc + 
                                      " → " + event.type + " (" + String.format("%.2f", prob) + "%)");
                     if (event.modifier != null) {
                         System.out.println("         Modifier: " + event.modifier.text);

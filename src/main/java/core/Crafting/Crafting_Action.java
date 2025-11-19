@@ -155,11 +155,50 @@ public interface Crafting_Action {
         Map<Crafting_Action, Double> actionMap = new HashMap<>();
         
         // Calculate probability based on currency type and item state
-        // For now, use simple formula: empty_slots / total_mods (works for Exalted, Regal, Desecrated)
-        int emptyPrefixes = 3 - item.getAllCurrentPrefixModifiers().size();
-        int emptySuffixes = 3 - item.getAllCurrentSuffixModifiers().size();
-        int totalEmptySlots = emptyPrefixes + emptySuffixes;
-        double probability = (modifiers == null || modifiers.isEmpty() || totalEmptySlots == 0) ? 0.0 : (double) totalEmptySlots / modifiers.size();
+        // NOTE: Use candidate to get current state, not item parameter (which is often empty/base state)
+        double probability;
+        if (this instanceof Essence_currency) {
+            // Special handling for Essence_currency
+            if (modifiers != null && !modifiers.isEmpty()) {
+                Essence_currency essence = (Essence_currency) this;
+                boolean hasOmen = essence.omen != null && essence.omen != Essence_currency.Omen.None;
+                
+                Modifier mod = modifiers.get(0);
+                boolean isPrefix = mod.type == ModifierType.PREFIX;
+                int prefixCount = candidate.getAllCurrentPrefixModifiers().size();
+                int suffixCount = candidate.getAllCurrentSuffixModifiers().size();
+                int essenceTypeCount = isPrefix ? prefixCount : suffixCount;
+                int otherTypeCount = isPrefix ? suffixCount : prefixCount;
+                int totalMods = prefixCount + suffixCount;
+                
+                if (essenceTypeCount < 3) {
+                    // Case 1: Essence's type has empty slots
+                    if (hasOmen) {
+                        // With omen: Only replaces same type, probability = 1 / filled_slots_of_same_type
+                        probability = essenceTypeCount > 0 ? 1.0 / essenceTypeCount : 1.0;
+                    } else {
+                        // Without omen: Can replace ANY modifier (prefix or suffix)
+                        probability = totalMods > 0 ? 1.0 / totalMods : 1.0;
+                    }
+                } else if (otherTypeCount < 3) {
+                    // Case 2: Essence's type is FULL but other type has empty slots
+                    // Must remove from its own type only (omen doesn't matter here)
+                    probability = 1.0 / essenceTypeCount; // 1/3 typically
+                } else {
+                    // Case 3: ALL slots full (3 prefixes + 3 suffixes)
+                    // Randomly removes one modifier of the same type (omen doesn't matter here)
+                    probability = 1.0 / essenceTypeCount; // 1/3
+                }
+            } else {
+                probability = 0.0;
+            }
+        } else {
+            // For Exalted, Regal, Desecrated: probability = empty_slots / available_mods
+            int emptyPrefixes = 3 - item.getAllCurrentPrefixModifiers().size();
+            int emptySuffixes = 3 - item.getAllCurrentSuffixModifiers().size();
+            int totalEmptySlots = emptyPrefixes + emptySuffixes;
+            probability = (modifiers == null || modifiers.isEmpty() || totalEmptySlots == 0) ? 0.0 : (double) totalEmptySlots / modifiers.size();
+        }
         actionMap.put(this, probability);
         item = candidate.copy();
 

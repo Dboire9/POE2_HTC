@@ -658,11 +658,13 @@ public class BenchmarkSuite {
         try {
             // Use official threshold countdown pattern (CraftingExecutor + ThresholdConfig)
             // standard() preset: 50% → 0% in 1% steps (optimal balance speed/coverage)
+            // Pass BeamSearchConfig to use custom scoring weights
             CraftingExecutor.CraftingResult craftingResult = CraftingExecutor.runCrafting(
                 testCase.getBaseItem(),
                 testCase.getDesiredMods(),
                 testCase.getUndesiredMods(),
-                ThresholdConfig.standard()
+                ThresholdConfig.standard(),
+                config  // Use provided BeamSearchConfig for scoring weights
             );
             
             long endTime = System.nanoTime();

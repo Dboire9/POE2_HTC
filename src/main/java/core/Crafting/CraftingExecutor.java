@@ -54,18 +54,46 @@ public class CraftingExecutor {
             List<Modifier> undesiredMod,
             ThresholdConfig config
     ) throws InterruptedException, ExecutionException {
+        return runCrafting(baseItem, desiredMod, undesiredMod, config, new BeamSearchConfig());
+    }
+    
+    /**
+     * Executes the crafting process with adaptive threshold countdown and custom scoring weights.
+     * This overload accepts a BeamSearchConfig for parameter tuning and optimization.
+     * 
+     * Progressively relaxes the threshold from config.startThreshold to config.minThreshold,
+     * stopping early when viable crafting paths are found. This provides optimal balance
+     * between speed (finds high-probability paths fast) and coverage (falls back to lower
+     * probabilities if needed).
+     *
+     * @param baseItem      The base crafting item to start the crafting process.
+     * @param desiredMod    A list of desired modifiers to be included in the crafting result.
+     * @param undesiredMod  A list of undesired modifiers to be avoided in the crafting result.
+     * @param thresholdConfig Threshold countdown configuration (use ThresholdConfig.standard() for defaults).
+     * @param beamConfig    Beam search configuration for scoring weights and algorithm parameters.
+     * @return A {@code CraftingResult} containing the crafting paths and execution metadata.
+     * @throws InterruptedException If the crafting process is interrupted.
+     * @throws ExecutionException   If an error occurs during the execution of the crafting algorithm.
+     */
+    public static CraftingResult runCrafting(
+            Crafting_Item baseItem,
+            List<Modifier> desiredMod,
+            List<Modifier> undesiredMod,
+            ThresholdConfig thresholdConfig,
+            BeamSearchConfig beamConfig
+    ) throws InterruptedException, ExecutionException {
         
         long startTime = System.nanoTime();
         int iteration = 0;
-        double currentThreshold = config.getStartThreshold();
+        double currentThreshold = thresholdConfig.getStartThreshold();
         
-        while (config.shouldContinue(iteration, currentThreshold)) {
+        while (thresholdConfig.shouldContinue(iteration, currentThreshold)) {
             // Calculate threshold for this iteration
-            currentThreshold = config.getThresholdForIteration(iteration);
+            currentThreshold = thresholdConfig.getThresholdForIteration(iteration);
             
-            // Run optimization with current threshold
+            // Run optimization with current threshold and beam config
             List<Crafting_Candidate> candidates = Crafting_Algorithm.optimizeCrafting(
-                baseItem, desiredMod, undesiredMod, currentThreshold
+                baseItem, desiredMod, undesiredMod, currentThreshold, beamConfig
             );
             
             // If candidates found, compute probabilities and return results
@@ -89,7 +117,7 @@ public class CraftingExecutor {
         long durationMs = (System.nanoTime() - startTime) / 1_000_000;
         return new CraftingResult(
             Collections.emptyList(), 
-            config.getMinThreshold(), 
+            thresholdConfig.getMinThreshold(), 
             iteration, 
             durationMs, 
             false

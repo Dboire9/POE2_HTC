@@ -274,6 +274,13 @@ public class Crafting_Algorithm {
 
 	/**
      * Extracts high-score crafting candidates from the list of all candidates at the end.
+     * 
+     * IMPORTANT: Score threshold and match count are now dynamic based on the number
+     * of desired modifiers. This allows the algorithm to work correctly for items with
+     * 1-6 desired modifiers, not just full 6-mod crafts.
+     * 
+     * Expected score = desiredMods.size() * 1000 (assuming default scoring weight)
+     * Required matches = desiredMods.size()
      *
      * @param allCandidateLists The list of all crafting candidates.
      * @param desiredMods       The desired modifiers.
@@ -283,21 +290,29 @@ public class Crafting_Algorithm {
 			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods) {
 	
 		List<Crafting_Candidate> result = new ArrayList<>();
+		
+		// Dynamic threshold based on number of desired modifiers
+		// Use 1000 per mod as baseline (matches default desiredModifierScore)
+		int requiredScore = desiredMods.size() * 1000;
+		int requiredMatches = desiredMods.size();
 	
 		for (List<Crafting_Candidate> list : allCandidateLists) {
 			for (Crafting_Candidate candidate : list) {
 				candidate.desecrated = false;
 	
-				if (candidate.score < 6000) continue;
+				// Dynamic score threshold instead of hardcoded 6000
+				if (candidate.score < requiredScore) continue;
 	
 				List<Modifier> current = candidate.getAllCurrentModifiers();
-				if (current.size() < 6) continue;
+				// Dynamic mod count instead of hardcoded 6
+				if (current.size() < requiredMatches) continue;
 	
 				long matchCount = current.stream()
 						.filter(m -> desiredMods.stream().anyMatch(d -> d.text.equals(m.text)))
 						.count();
 	
-				if (matchCount == 6) result.add(candidate);
+				// Dynamic match requirement instead of hardcoded 6
+				if (matchCount == requiredMatches) result.add(candidate);
 			}
 		}
 		return result;

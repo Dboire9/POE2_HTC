@@ -48,24 +48,87 @@ public class TestAlgo {
         // // Randomly select up to 3 suffixes
         // selectRandomModifiers(possibleSuffixes, desiredMods, desiredModTier, usedModifiers, random);
 
-		desiredMods.add(possiblePrefixes.get(0));
-		desiredModTier.add(possiblePrefixes.get(0).tiers.get(0));
-		System.out.println(possiblePrefixes.get(0).text);
-		desiredMods.add(possiblePrefixes.get(4));
-		desiredModTier.add(possiblePrefixes.get(4).tiers.get(0));
-		System.out.println(possiblePrefixes.get(4).text);
-		desiredMods.add(possibleEssencesPrefixes.get(8));
-		desiredModTier.add(possibleEssencesPrefixes.get(8).tiers.get(0));
-		System.out.println(possibleEssencesPrefixes.get(8).text);
-		desiredMods.add(possibleEssencesSuffixes.get(4));
-		desiredModTier.add(possibleEssencesSuffixes.get(4).tiers.get(0));
-		System.out.println(possibleEssencesSuffixes.get(4).text);
-		desiredMods.add(possibleEssencesSuffixes.get(5));
-		desiredModTier.add(possibleEssencesSuffixes.get(5).tiers.get(0));
-		System.out.println(possibleEssencesSuffixes.get(5).text);
-		desiredMods.add(possibleSuffixes.get(9));
-		desiredModTier.add(possibleSuffixes.get(9).tiers.get(0));
-		System.out.println(possibleSuffixes.get(9).text);
+		// Test case: User-specified modifiers
+		// Prefixes:
+		// 1. Adds # to # Physical Damage (Tier 1)
+		// 2. #% increased Physical Damage (Tier 3)
+		// 3. Gain # % of Damage as Extra Lightning Damage (Perfect Essence)
+		
+		// Find "Adds # to # Physical Damage" - Tier 1
+		for (Modifier mod : possiblePrefixes) {
+			if (mod.text.contains("Adds") && mod.text.contains("Physical Damage")) {
+				desiredMods.add(mod);
+				desiredModTier.add(mod.tiers.get(2)); // Tier 3
+				mod.chosenTier = 3;
+				System.out.println("Prefix 1: " + mod.text + " (Tier 3)");
+				break;
+			}
+		}
+		
+		// Find "#% increased Physical Damage" - Tier 3
+		for (Modifier mod : possiblePrefixes) {
+			if (mod.text.contains("% increased Physical Damage") && !mod.text.contains("Adds")) {
+				desiredMods.add(mod);
+				if (mod.tiers.size() >= 3) {
+					desiredModTier.add(mod.tiers.get(2)); // Tier 3
+					mod.chosenTier = 2;
+					System.out.println("Prefix 2: " + mod.text + " (Tier 3)");
+				}
+				break;
+			}
+		}
+		
+		// Find "Gain # % of Damage as Extra Lightning Damage" (Perfect Essence)
+		for (Modifier mod : possibleEssencesPrefixes) {
+			if (mod.text.contains("Extra Lightning Damage")) {
+				desiredMods.add(mod);
+				desiredModTier.add(mod.tiers.get(0));
+				mod.chosenTier = 0;
+				System.out.println("Prefix 3: " + mod.text + " (Perfect Essence)");
+				break;
+			}
+		}
+		
+		// Suffixes:
+		// 1. +# to Level of all Attack Skills (Perfect Essence)
+		// 2. #% chance to gain Onslaught on Killing Hits with this Weapon (Perfect Essence)
+		// 3. #% increased Attack Speed (Desecrated - with companion bonus)
+		
+		// Find "+# to Level of all Attack Skills" (Perfect Essence)
+		for (Modifier mod : possibleEssencesSuffixes) {
+			if (mod.text.contains("Level of all Attack Skills")) {
+				desiredMods.add(mod);
+				desiredModTier.add(mod.tiers.get(0));
+				mod.chosenTier = 0;
+				System.out.println("Suffix 1: " + mod.text + " (Perfect Essence)");
+				break;
+			}
+		}
+		
+		// Find "#% chance to gain Onslaught" (Perfect Essence)
+		for (Modifier mod : possibleEssencesSuffixes) {
+			if (mod.text.contains("Onslaught")) {
+				desiredMods.add(mod);
+				desiredModTier.add(mod.tiers.get(0));
+				mod.chosenTier = 0;
+				System.out.println("Suffix 2: " + mod.text + " (Perfect Essence)");
+				break;
+			}
+		}
+		
+		// Find "#% increased Attack Speed" - this should be from Desecrated currency
+		// Note: The "Companions have" part is an additional Desecrated bonus
+		for (Modifier mod : possibleSuffixes) {
+			if (mod.text.contains("% increased Attack Speed") && !mod.text.contains("Companions")) {
+				desiredMods.add(mod);
+				desiredModTier.add(mod.tiers.get(0));
+				mod.chosenTier = 0;
+				System.out.println("Suffix 3: " + mod.text + " (Desecrated)");
+				break;
+			}
+		}
+		
+		System.out.println("\n=== Total desired modifiers: " + desiredMods.size() + " ===\n");
 
 
         // --- CRAFTING EXECUTION SECTION ---

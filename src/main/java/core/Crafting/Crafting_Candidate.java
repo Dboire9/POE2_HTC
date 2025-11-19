@@ -30,9 +30,35 @@ public class Crafting_Candidate extends Crafting_Item {
     public boolean stopAnnul = false;
 
     /**
+     * The cumulative probability of achieving this candidate state.
+     * Starts at 1.0 and multiplies by each step's probability.
+     * Used by heuristic to prefer high-probability paths.
+     */
+    public double cumulativeProbability = 1.0;
+
+    /**
      * Default constructor for `Crafting_Candidate`.
      */
     public Crafting_Candidate() {}
+
+    /**
+     * Updates the cumulative probability by multiplying with the given step probability.
+     * This tracks the overall likelihood of achieving this candidate state.
+     * 
+     * @param stepProbability The probability of the most recent crafting step (0.0 to 1.0)
+     */
+    public void updateProbability(double stepProbability) {
+        this.cumulativeProbability *= stepProbability;
+    }
+
+    /**
+     * Gets the cumulative probability of this candidate.
+     * 
+     * @return The cumulative probability (product of all step probabilities)
+     */
+    public double getCumulativeProbability() {
+        return this.cumulativeProbability;
+    }
 
     /**
      * Creates a deep copy of the current `Crafting_Candidate` instance.
@@ -72,6 +98,7 @@ public class Crafting_Candidate extends Crafting_Item {
         copy.score = this.score;
         copy.prev_score = this.prev_score;
         copy.percentage = this.percentage;
+        copy.cumulativeProbability = this.cumulativeProbability;
 
         // Deep copy actions
         copy.actions = new ArrayList<>();
@@ -133,6 +160,7 @@ public class Crafting_Candidate extends Crafting_Item {
         // Copy Crafting_Candidate-specific fields
         this.percentage = source.percentage;
         this.stopAnnul = source.stopAnnul;
+        this.cumulativeProbability = source.cumulativeProbability;
 
         // Shallow copy actions list - actions are immutable so we can share references
         this.actions.clear();
@@ -211,5 +239,6 @@ public class Crafting_Candidate extends Crafting_Item {
         this.actions.clear();
         this.percentage = 0.0;
         this.stopAnnul = false;
+        this.cumulativeProbability = 1.0;
     }
 }

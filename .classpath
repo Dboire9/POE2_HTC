@@ -1,1 +1,15 @@
-/root/.m2/repository/org/openjfx/javafx-controls/17/javafx-controls-17.jar:/root/.m2/repository/org/openjfx/javafx-controls/17/javafx-controls-17-linux.jar:/root/.m2/repository/org/openjfx/javafx-graphics/17/javafx-graphics-17.jar:/root/.m2/repository/org/openjfx/javafx-graphics/17/javafx-graphics-17-linux.jar:/root/.m2/repository/org/openjfx/javafx-base/17/javafx-base-17.jar:/root/.m2/repository/org/openjfx/javafx-base/17/javafx-base-17-linux.jar:/root/.m2/repository/org/openjfx/javafx-fxml/17/javafx-fxml-17.jar:/root/.m2/repository/org/openjfx/javafx-fxml/17/javafx-fxml-17-linux.jar:/root/.m2/repository/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+  <classpathentry kind="var" path="M2_REPO/org/openjfx/javafx-controls/17/javafx-controls-17.jar" sourcepath="M2_REPO/org/openjfx/javafx-controls/17/javafx-controls-17-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/openjfx/javafx-controls/17/javafx-controls-17-linux.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/openjfx/javafx-graphics/17/javafx-graphics-17.jar" sourcepath="M2_REPO/org/openjfx/javafx-graphics/17/javafx-graphics-17-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/openjfx/javafx-graphics/17/javafx-graphics-17-linux.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/openjfx/javafx-base/17/javafx-base-17.jar" sourcepath="M2_REPO/org/openjfx/javafx-base/17/javafx-base-17-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/openjfx/javafx-base/17/javafx-base-17-linux.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/openjfx/javafx-fxml/17/javafx-fxml-17.jar" sourcepath="M2_REPO/org/openjfx/javafx-fxml/17/javafx-fxml-17-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/openjfx/javafx-fxml/17/javafx-fxml-17-linux.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar" sourcepath="M2_REPO/com/google/code/gson/gson/2.10.1/gson-2.10.1-sources.jar"/>
+</classpath>

@@ -120,10 +120,9 @@ public class Crafting_Algorithm {
 				@SuppressWarnings("unused")
 				CandidatePool pool = new CandidatePool(50000);
 				
-				// Calculate complexity and optimal beam width
-				// TODO: Integrate beam width pruning into processCandidateLists (see plan.md §2.1)
-				// Current implementation keeps all candidates; future optimization will apply
-				// adaptive pruning based on complexity to reduce memory footprint.
+				// Calculate complexity for potential future optimizations
+				// Note: Beam width pruning intentionally NOT applied - user wants to explore ALL paths
+				// This ensures complete path exploration at the cost of higher memory usage
 				BeamSearchConfig.ItemComplexity complexity = BeamSearchConfig.ItemComplexity.from(desiredMods.size());
 				@SuppressWarnings("unused")
 				int beamWidth = config.calculateBeamWidth(complexity);
@@ -236,6 +235,23 @@ public class Crafting_Algorithm {
      * @throws InterruptedException If the thread execution is interrupted.
      * @throws ExecutionException   If an error occurs during thread execution.
      */
+	/**
+	 * Processes candidate lists by applying ComputingLastProbability and RareLoop.
+	 * 
+	 * Note: Beam width pruning NOT applied - explores all candidate paths for completeness.
+	 * 
+	 * @param baseItem The base crafting item
+	 * @param currentLists Current candidate lists to process
+	 * @param desiredMods Desired modifiers
+	 * @param undesiredMods Undesired modifiers
+	 * @param tagCount Tag counts for desired modifiers
+	 * @param globalThreshold Global probability threshold
+	 * @param masterList Master list of all candidates
+	 * @param nextLists Output list for next iteration candidates
+	 * @param executor ExecutorService for parallel processing
+	 * @throws InterruptedException If thread execution interrupted
+	 * @throws ExecutionException If execution error occurs
+	 */
 	private static void processCandidateLists(
 			Crafting_Item baseItem,
 			List<List<Crafting_Candidate>> currentLists,

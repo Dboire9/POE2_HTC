@@ -227,18 +227,18 @@
   - [X] Calculate complexity from desiredMods.size()
   - [X] Use config.calculateBeamWidth(complexity)
   - [ ] Use config scoring weights in heuristic
-  - [ ] Implement beam width pruning in processCandidateLists()
+  - [ ] ~~Implement beam width pruning~~ (REMOVED - user wants full path exploration)
 - **Technical Specs**:
   ```java
   ItemComplexity complexity = ItemComplexity.from(desiredMods.size());
-  int beamWidth = config.calculateBeamWidth(complexity);
+  int beamWidth = config.calculateBeamWidth(complexity); // Calculated but not used for pruning
   ```
 - **Actual Integration Requirements** (discovered during implementation):
-  - **Beam Width Pruning** (NOT YET IMPLEMENTED):
-    * Add sorting + pruning in processCandidateLists() line ~180
-    * Sort candidates by score descending
-    * Keep only top N candidates (N = beamWidth)
-    * Estimated ~100-200 LOC in Crafting_Algorithm.java
+  - **Beam Width Pruning** (❌ NOT IMPLEMENTED - by design):
+    * User requirement: Explore ALL possible crafting paths without limiting candidates
+    * BeamWidth calculated but intentionally not used for pruning
+    * Algorithm explores complete solution space at cost of higher memory usage
+    * No pruning logic in processCandidateLists() - all candidates evaluated
   - **Scoring Weight Wiring** (NOT YET IMPLEMENTED):
     * Modify Heuristic_Util.calculateAffixScore() signature to accept config
     * Pass config from Crafting_Algorithm → currency.apply() → Heuristic_Util
@@ -249,7 +249,7 @@
   - ✅ Config class created with all fields and validation
   - ✅ Algorithm accepts config parameter
   - ✅ Complexity calculated and beam width computed
-  - ❌ Beam width NOT used for pruning (all candidates kept)
+  - ❌ Beam width NOT used for pruning (intentional - full path exploration)
   - ❌ Scoring weights NOT wired (Heuristic_Util uses hardcoded 1000/250)
 - **Testing**: Unit test with different configs
 - **Files**: `src/main/java/core/Crafting/Crafting_Algorithm.java`, `src/main/java/core/Crafting/Utils/Heuristic_Util.java`, `src/main/java/core/Currency/*.java` (8 files)

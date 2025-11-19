@@ -1,0 +1,141 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [ main, develop, '001-v1.0-completion' ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  benchmark:
+    name: Run Performance Benchmarks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Fetch all history for comparison
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Compile project
+      run: mvn clean compile -B -q
+    
+    - name: Run Benchmark Suite
+      id: benchmark
+      run: |
+        echo "Running benchmarks..."
+        java -cp "target/classes" core.Crafting.BenchmarkSuite > benchmark_results.txt 2>&1
+        
+        # Extract key metrics
+        TOTAL_TIME=$(grep "Total Time:" benchmark_results.txt | awk '{print $3}')
+        AVG_TIME=$(grep "Average:" benchmark_results.txt | awk '{print $2}')
+        PASS_RATE=$(grep "Passed:" benchmark_results.txt | awk '{print $2}')
+        TOTAL_CASES=$(grep "Total Cases:" benchmark_results.txt | awk '{print $3}')
+        
+        echo "total_time=$TOTAL_TIME" >> $GITHUB_OUTPUT
+        echo "avg_time=$AVG_TIME" >> $GITHUB_OUTPUT
+        echo "pass_rate=$PASS_RATE" >> $GITHUB_OUTPUT
+        echo "total_cases=$TOTAL_CASES" >> $GITHUB_OUTPUT
+        
+        # Display results
+        cat benchmark_results.txt
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results-${{ github.sha }}
+        path: benchmark_results.txt
+        retention-days: 90
+    
+    - name: Check for performance regression
+      id: regression_check
+      run: |
+        # Download previous benchmark results if available
+        PREV_RUN=$(gh run list --workflow=performance.yml --status=success --limit=2 --json databaseId,conclusion | jq -r '.[1].databaseId // empty')
+        
+        if [ -n "$PREV_RUN" ]; then
+          echo "Comparing with run $PREV_RUN"
+          gh run download $PREV_RUN -n "benchmark-results-*" -D previous || true
+          
+          if [ -f previous/benchmark_results.txt ]; then
+            PREV_TOTAL=$(grep "Total Time:" previous/benchmark_results.txt | awk '{print $3}' | sed 's/s//')
+            CURR_TOTAL=$(grep "Total Time:" benchmark_results.txt | awk '{print $3}' | sed 's/s//')
+            
+            # Calculate regression percentage (bc for floating point)
+            REGRESSION=$(echo "scale=2; (($CURR_TOTAL - $PREV_TOTAL) / $PREV_TOTAL) * 100" | bc)
+            
+            echo "Previous total time: ${PREV_TOTAL}s"
+            echo "Current total time: ${CURR_TOTAL}s"
+            echo "Change: ${REGRESSION}%"
+            
+            # Alert if regression > 10%
+            THRESHOLD=10
+            if (( $(echo "$REGRESSION > $THRESHOLD" | bc -l) )); then
+              echo "::warning::Performance regression detected: ${REGRESSION}% slower than previous run (threshold: ${THRESHOLD}%)"
+              echo "regression=true" >> $GITHUB_OUTPUT
+              echo "regression_pct=$REGRESSION" >> $GITHUB_OUTPUT
+            else
+              echo "::notice::Performance within acceptable range (${REGRESSION}% change)"
+              echo "regression=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "No previous results found for comparison"
+          fi
+        else
+          echo "This is the first benchmark run, no comparison available"
+        fi
+      env:
+        GH_TOKEN: ${{ github.token }}
+    
+    - name: Comment on PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const results = fs.readFileSync('benchmark_results.txt', 'utf8');
+          
+          // Extract summary
+          const totalTime = '${{ steps.benchmark.outputs.total_time }}';
+          const avgTime = '${{ steps.benchmark.outputs.avg_time }}';
+          const passRate = '${{ steps.benchmark.outputs.pass_rate }}';
+          const totalCases = '${{ steps.benchmark.outputs.total_cases }}';
+          const regression = '${{ steps.regression_check.outputs.regression }}';
+          const regressionPct = '${{ steps.regression_check.outputs.regression_pct }}';
+          
+          let comment = `## 🚀 Performance Benchmark Results\n\n`;
+          comment += `| Metric | Value |\n`;
+          comment += `|--------|-------|\n`;
+          comment += `| Total Cases | ${totalCases} |\n`;
+          comment += `| Passed | ${passRate} |\n`;
+          comment += `| Total Time | ${totalTime} |\n`;
+          comment += `| Average Time | ${avgTime} |\n`;
+          
+          if (regression === 'true') {
+            comment += `\n⚠️ **Performance Regression Detected**: ${regressionPct}% slower than previous run\n`;
+          } else if (regressionPct) {
+            comment += `\n✅ Performance change: ${regressionPct}% (within threshold)\n`;
+          }
+          
+          comment += `\n<details><summary>Full Results</summary>\n\n\`\`\`\n${results}\n\`\`\`\n</details>`;
+          
+          // Post comment
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+    
+    - name: Fail if performance regression detected
+      if: steps.regression_check.outputs.regression == 'true'
+      run: |
+        echo "::error::Performance regression detected: ${{ steps.regression_check.outputs.regression_pct }}% slower"
+        exit 1

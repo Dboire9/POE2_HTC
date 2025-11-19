@@ -15,7 +15,9 @@ export function useCalculation() {
   const {
     selectedItem,
     selectedModifiers,
+    sessionId,
     setIsCalculating,
+    setSessionId,
     setProgress,
     setResult,
     setError,
@@ -47,14 +49,19 @@ export function useCalculation() {
     }
 
     try {
+      // Generate unique session ID for progress tracking
+      const newSessionId = crypto.randomUUID();
+      setSessionId(newSessionId);
+      
       // Create abort controller for cancellation
       abortControllerRef.current = new AbortController();
       setIsCalculating(true);
-      setProgress(0);
+      setProgress(null);
       setError(null);
 
-      // Build request
+      // Build request with sessionId
       const request: CraftingRequest = {
+        sessionId: newSessionId,
         itemId: selectedItem.id,
         modifiers: {
           prefixes: selectedModifiers.prefixes.map((m) => ({
@@ -72,7 +79,6 @@ export function useCalculation() {
       // Call API
       const result = await api.calculate(request, abortControllerRef.current.signal);
       setResult(result);
-      setProgress(100);
     } catch (error) {
       if (error instanceof CraftingError) {
         setError(error);
@@ -93,16 +99,27 @@ export function useCalculation() {
       }
     } finally {
       setIsCalculating(false);
+      setSessionId(null);
       abortControllerRef.current = null;
     }
-  }, [selectedItem, selectedModifiers, setIsCalculating, setProgress, setResult, setError]);
+  }, [selectedItem, selectedModifiers, setIsCalculating, setSessionId, setProgress, setResult, setError]);
 
-  const cancel = useCallback(() => {
+  const cancel = useCallback(async () => {
+    // Call backend cancel endpoint if we have a sessionId
+    if (sessionId) {
+      try {
+        await api.cancel(sessionId);
+      } catch (error) {
+        console.error('Failed to cancel calculation:', error);
+      }
+    }
+    
+    // Also abort the HTTP request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
-  }, []);
+  }, [sessionId]);
 
   return { calculate, cancel };
 }

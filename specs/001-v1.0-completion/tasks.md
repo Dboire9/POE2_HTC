@@ -526,49 +526,76 @@
 
 ### Frontend Tasks
 
-**T3.4: Create useCalculationProgress hook** [P]
+**T3.4: Create useCalculationProgress hook** [P] ✅ COMPLETE
 - **ID**: T3.4
 - **Priority**: P1
 - **Effort**: 2 hours
 - **Dependencies**: None (can run parallel)
 - **Description**: React hook for polling progress from backend
 - **Acceptance Criteria**:
-  - [ ] Poll every 100ms while sessionId active
-  - [ ] Return progress data: percent, elapsed, estimated remaining
-  - [ ] Handle errors gracefully
-  - [ ] Cleanup interval on unmount
+  - [X] Poll every 100ms while sessionId active
+  - [X] Return progress data: percent, elapsed, estimated remaining
+  - [X] Handle errors gracefully
+  - [X] Cleanup interval on unmount
+- **Implementation Details**:
+  - Created useCalculationProgress.ts (117 lines): Polling hook with useEffect
+  - Polls GET /api/progress/{sessionId} every 100ms while calculating
+  - Returns ProgressData | null, error, isPolling
+  - Handles 404 (session completed) gracefully, stops polling
+  - Auto cleanup on unmount or sessionId change
+  - TypeScript strict mode, no 'any' types
 - **Technical Specs**: See plan.md §3.2
 - **Testing**: Component test with mock fetch
 - **Files**: `src/hooks/useCalculationProgress.ts`
 - **Traceability**: [Spec §R3.2]
 
-**T3.5: Create ProgressBar component** [P]
+**T3.5: Create ProgressBar component** [P] ✅ COMPLETE
 - **ID**: T3.5
 - **Priority**: P1
 - **Effort**: 2 hours
 - **Dependencies**: None (can run parallel)
 - **Description**: Visual progress bar with ETA and cancel button
 - **Acceptance Criteria**:
-  - [ ] Progress bar visual with percentage
-  - [ ] Display elapsed time and estimated remaining
-  - [ ] Cancel button always accessible
-  - [ ] Smooth transitions (CSS animations)
+  - [X] Progress bar visual with percentage
+  - [X] Display elapsed time and estimated remaining
+  - [X] Cancel button always accessible
+  - [X] Smooth transitions (CSS animations)
+- **Implementation Details**:
+  - Created ProgressBar.tsx (129 lines): Full-featured progress component
+  - formatTime() helper: Converts ms to "1m 23s" format
+  - Visual progress bar: 0-100% with smooth CSS transitions
+  - Time display: Elapsed and estimated remaining
+  - Cancel button: Disabled when cancelled, onClick handler prop
+  - ARIA labels for accessibility (aria-label, aria-valuenow)
+  - Dark mode support via Tailwind
+  - Uses shadcn/ui components (Button, Card)
 - **Technical Specs**: See plan.md §3.2
 - **Testing**: Component test with Storybook/Vitest
 - **Files**: `src/components/ProgressBar.tsx`
 - **Traceability**: [Spec §R3.2, R3.3]
 
-**T3.6: Integrate progress tracking into CraftingSimulator**
+**T3.6: Integrate progress tracking into CraftingSimulator** ✅ COMPLETE
 - **ID**: T3.6
 - **Priority**: P1
 - **Effort**: 2 hours
 - **Dependencies**: T3.4, T3.5
 - **Description**: Connect progress hook and component to crafting simulator
 - **Acceptance Criteria**:
-  - [ ] Generate unique sessionId (UUID) for each calculation
-  - [ ] Pass sessionId to backend in request
-  - [ ] Display ProgressBar during calculation
-  - [ ] Cancel button calls cancel endpoint
+  - [X] Generate unique sessionId (UUID) for each calculation
+  - [X] Pass sessionId to backend in request
+  - [X] Display ProgressBar during calculation
+  - [X] Cancel button calls cancel endpoint
+- **Implementation Details**:
+  - Created useCraftingProgress.ts (39 lines): Integration hook
+  - Modified CraftingContext.tsx: Added sessionId and ProgressData types
+  - Modified App.tsx: Imported and used ProgressBar, useCraftingProgress
+  - Modified useCalculation.ts: UUID generation, sessionId passing, cancel integration
+  - Modified api.ts types: Added sessionId?: string to CraftingRequest
+  - UUID generation: crypto.randomUUID() in useCalculation
+  - Context flow: sessionId → useCalculationProgress → useCraftingProgress → context.progress
+  - Cancel flow: ProgressBar onCancel → api.cancel(sessionId) → backend cleanup
+  - Conditional rendering: {isCalculating && progress && <ProgressBar {...progress} onCancel={cancel} />}
+  - All 7 files updated successfully, TypeScript compiles without errors
 - **Technical Specs**:
   ```typescript
   const sessionId = crypto.randomUUID();
@@ -577,7 +604,7 @@
   {isCalculating && progress && <ProgressBar {...progress} onCancel={handleCancel} />}
   ```
 - **Testing**: Integration test full flow
-- **Files**: `src/components/CraftingSimulator.tsx`
+- **Files**: `src/contexts/CraftingContext.tsx`, `src/hooks/useCalculation.ts`, `src/hooks/useCraftingProgress.ts`, `src/App.tsx`, `src/types/api.ts`
 - **Traceability**: [Spec §R3.2, R3.3]
 
 ## Phase 4: Frontend State Management (P2)

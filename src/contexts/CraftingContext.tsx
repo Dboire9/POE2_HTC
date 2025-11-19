@@ -5,6 +5,7 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import type { Item, Modifier, CraftingResult } from '../types/api';
 import { CraftingError } from '../types/errors';
+import type { ProgressData } from '../hooks/useCalculationProgress';
 
 interface SelectedModifier {
   modifier: Modifier;
@@ -24,7 +25,8 @@ interface CraftingState {
   
   // Calculation state
   isCalculating: boolean;
-  progress: number;
+  sessionId: string | null;
+  progress: ProgressData | null;
   result: CraftingResult | null;
   error: CraftingError | null;
 }
@@ -42,7 +44,8 @@ interface CraftingActions {
   
   // Calculation actions
   setIsCalculating: (isCalculating: boolean) => void;
-  setProgress: (progress: number) => void;
+  setSessionId: (sessionId: string | null) => void;
+  setProgress: (progress: ProgressData | null) => void;
   setResult: (result: CraftingResult) => void;
   setError: (error: CraftingError | null) => void;
   reset: () => void;
@@ -60,7 +63,8 @@ const initialState: CraftingState = {
     suffixes: [],
   },
   isCalculating: false,
-  progress: 0,
+  sessionId: null,
+  progress: null,
   result: null,
   error: null,
 };
@@ -152,12 +156,16 @@ export function CraftingProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, isCalculating }));
   }, []);
 
-  const setProgress = useCallback((progress: number) => {
+  const setSessionId = useCallback((sessionId: string | null) => {
+    setState((prev) => ({ ...prev, sessionId }));
+  }, []);
+
+  const setProgress = useCallback((progress: ProgressData | null) => {
     setState((prev) => ({ ...prev, progress }));
   }, []);
 
   const setResult = useCallback((result: CraftingResult) => {
-    setState((prev) => ({ ...prev, result, isCalculating: false, progress: 100 }));
+    setState((prev) => ({ ...prev, result, isCalculating: false, progress: null, sessionId: null }));
   }, []);
 
   const setError = useCallback((error: CraftingError | null) => {
@@ -177,6 +185,7 @@ export function CraftingProvider({ children }: { children: ReactNode }) {
     updateModifierTier,
     clearModifiers,
     setIsCalculating,
+    setSessionId,
     setProgress,
     setResult,
     setError,

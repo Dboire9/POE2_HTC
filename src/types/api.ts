@@ -34,6 +34,7 @@ export interface SelectedModifier {
 }
 
 export interface CraftingRequest {
+  sessionId?: string;
   itemId: string;
   modifiers: {
     prefixes: SelectedModifier[];

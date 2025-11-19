@@ -5,11 +5,13 @@
 import { useEffect } from 'react';
 import { CraftingProvider, useCrafting } from './contexts/CraftingContext';
 import { useCalculation } from './hooks/useCalculation';
+import { useCraftingProgress } from './hooks/useCraftingProgress';
 import { api } from './services/api';
 import { ItemSelector } from './components/ItemSelector';
 import { ModifierSelector } from './components/ModifierSelector';
 import { EnhancedResults } from './components/EnhancedResults';
 import { ErrorBanner } from './components/ErrorBanner';
+import { ProgressBar } from './components/ProgressBar';
 import { Button } from './components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 import { Loader2 } from 'lucide-react';
@@ -32,6 +34,9 @@ function AppContent() {
   } = useCrafting();
 
   const { calculate, cancel } = useCalculation();
+  
+  // Enable progress tracking
+  useCraftingProgress();
 
   // Load modifiers when item changes
   useEffect(() => {
@@ -123,52 +128,27 @@ function AppContent() {
               </CardContent>
             </Card>
 
-            {/* Calculate Button */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex flex-col gap-4">
-                  {error && <ErrorBanner error={error} onDismiss={() => setError(null)} />}
+            {/* Calculate Button or Progress Bar */}
+            {isCalculating && progress ? (
+              <ProgressBar progress={progress} onCancel={cancel} />
+            ) : (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col gap-4">
+                    {error && <ErrorBanner error={error} onDismiss={() => setError(null)} />}
 
-                  <div className="flex gap-2">
                     <Button
                       onClick={calculate}
                       disabled={!canCalculate}
-                      className="flex-1"
+                      className="w-full"
                       size="lg"
                     >
-                      {isCalculating ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Calculating... {progress.toFixed(0)}%
-                        </>
-                      ) : (
-                        'Calculate Crafting Path'
-                      )}
+                      Calculate Crafting Path
                     </Button>
-
-                    {isCalculating && (
-                      <Button onClick={cancel} variant="destructive" size="lg">
-                        Cancel
-                      </Button>
-                    )}
                   </div>
-
-                  {isCalculating && (
-                    <div className="space-y-2">
-                      <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary transition-all duration-200"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-center text-muted-foreground">
-                        Analyzing crafting paths...
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Results */}
             {result && (

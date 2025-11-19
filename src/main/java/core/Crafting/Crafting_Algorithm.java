@@ -113,11 +113,7 @@ public class Crafting_Algorithm {
 			try {
 				// Initialize object pool for memory optimization
 				// Pool size of 50,000 based on empirical testing (see spec R1.2)
-				// TODO: Full integration requires refactoring .copy() method and currency operations
-				// to use pool.acquire() and pool.release(). This preserves algorithm integrity
-				// while the pooling infrastructure is established for future optimization.
-				// See plan.md §1.1 for full integration strategy.
-				@SuppressWarnings("unused")
+				// Pool is now actively integrated throughout the algorithm to reduce memory allocations
 				CandidatePool pool = new CandidatePool(50000);
 				
 				// Calculate complexity for potential future optimizations
@@ -142,17 +138,17 @@ public class Crafting_Algorithm {
 			TransmutationOrb transmute = new TransmutationOrb();
 			transmuteCandidates = transmute.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
 			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
-			copyCandidates(transmuteCandidates, baseCopies);
+			copyCandidates(transmuteCandidates, baseCopies, pool);
 
 			// Step 2: Augmentation
 			AugmentationOrb augment = new AugmentationOrb();
 			transmuteCandidates = augment.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
 			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
-			copyCandidates(transmuteCandidates, augmentCandidates);
+			copyCandidates(transmuteCandidates, augmentCandidates, pool);
 
 			// Step 3: Apply regal and essence to base candidates
 			generateCandidateLists(baseItem, baseCopies, desiredMods, tagCount, allCandidateLists, undesiredMods);
-			copyCandidates(transmuteCandidates, baseCopies);
+			copyCandidates(transmuteCandidates, baseCopies, pool);
 			generateCandidateLists(baseItem, augmentCandidates, desiredMods, tagCount, allCandidateLists, undesiredMods);
 
 			// Skip first two lists (transmute and augment)
@@ -160,7 +156,7 @@ public class Crafting_Algorithm {
 				allCandidateLists.subList(0, 2).clear();
 
 			// Step 4: Iterative refinement loop
-			List<List<Crafting_Candidate>> current = deepCopy(allCandidateLists);
+			List<List<Crafting_Candidate>> current = deepCopy(allCandidateLists, pool);
 			List<List<Crafting_Candidate>> next = new ArrayList<>();
 
 				// Perform two initial passes
@@ -175,7 +171,7 @@ public class Crafting_Algorithm {
 					
 					processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
 							allCandidateLists, next, executor);
-					current = deepCopy(next);
+					current = deepCopy(next, pool);
 					next.clear();
 					
 					// Increment progress
@@ -196,7 +192,7 @@ public class Crafting_Algorithm {
 					
 					processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
 							allCandidateLists, next, executor);
-					current = deepCopy(next);
+					current = deepCopy(next, pool);
 					next.clear();
 					
 					// Increment progress
@@ -550,29 +546,39 @@ public class Crafting_Algorithm {
 	}
 
 	/**
-	 * Copies a list of crafting candidates from the source list to the destination list.
-	 * Each candidate is deep-copied to ensure no shared references between the two lists.
+	 * Copies all candidates from the source list to the destination list using object pooling.
+	 * Each candidate is acquired from the pool and populated via copyFrom() to reduce allocations.
 	 *
 	 * @param source The source list of crafting candidates.
 	 * @param destination The destination list where the copied candidates will be added.
+	 * @param pool The CandidatePool to acquire reusable candidate instances from.
 	 */
-	private static void copyCandidates(List<Crafting_Candidate> source, List<Crafting_Candidate> destination) {
+	private static void copyCandidates(List<Crafting_Candidate> source, List<Crafting_Candidate> destination, CandidatePool pool) {
 		for (Crafting_Candidate candidate : source) {
-			destination.add(candidate.copy());
+			Crafting_Candidate pooled = pool.acquire();
+			pooled.copyFrom(candidate);
+			destination.add(pooled);
 		}
 	}
 	
 	/**
-	 * Creates a deep copy of a list of lists of crafting candidates.
-	 * Each inner list and its elements are copied to ensure no shared references with the original structure.
+	 * Creates a deep copy of a list of lists of crafting candidates using object pooling.
+	 * Each inner list's candidates are acquired from pool and populated via copyFrom().
 	 *
 	 * @param original The original list of lists of crafting candidates to be copied.
+	 * @param pool The CandidatePool to acquire reusable candidate instances from.
 	 * @return A new list of lists containing deep copies of the original crafting candidates.
 	 */
-	private static List<List<Crafting_Candidate>> deepCopy(List<List<Crafting_Candidate>> original) {
+	private static List<List<Crafting_Candidate>> deepCopy(List<List<Crafting_Candidate>> original, CandidatePool pool) {
 		List<List<Crafting_Candidate>> copy = new ArrayList<>();
 		for (List<Crafting_Candidate> inner : original) {
-			copy.add(new ArrayList<>(inner));
+			List<Crafting_Candidate> innerCopy = new ArrayList<>();
+			for (Crafting_Candidate candidate : inner) {
+				Crafting_Candidate pooled = pool.acquire();
+				pooled.copyFrom(candidate);
+				innerCopy.add(pooled);
+			}
+			copy.add(innerCopy);
 		}
 		return copy;
 	}

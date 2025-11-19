@@ -89,6 +89,63 @@ public class Crafting_Candidate extends Crafting_Item {
     }
 
     /**
+     * Copies all state from the source candidate into this instance for object pooling.
+     * This is used with CandidatePool to reuse existing instances instead of allocating new ones.
+     * Must replicate all logic from copy() but populate this instance instead of creating new one.
+     *
+     * @param source The candidate to copy state from.
+     */
+    public void copyFrom(Crafting_Candidate source) {
+        // Copy base class fields from source
+        this.base = source.base;
+        this.rarity = source.rarity;
+        this.desecrated = source.desecrated;
+        this.score = source.score;
+        this.prev_score = source.prev_score;
+
+        // Deep copy current prefixes and suffixes
+        for (int i = 0; i < currentPrefixes.length; i++) {
+            if (source.currentPrefixes[i] != null) {
+                this.currentPrefixes[i] = new Modifier(source.currentPrefixes[i]);
+            } else {
+                this.currentPrefixes[i] = null;
+            }
+            
+            if (source.currentPrefixTiers[i] != null) {
+                this.currentPrefixTiers[i] = new ModifierTier(source.currentPrefixTiers[i]);
+            } else {
+                this.currentPrefixTiers[i] = null;
+            }
+            
+            if (source.currentSuffixes[i] != null) {
+                this.currentSuffixes[i] = new Modifier(source.currentSuffixes[i]);
+            } else {
+                this.currentSuffixes[i] = null;
+            }
+            
+            if (source.currentSuffixTiers[i] != null) {
+                this.currentSuffixTiers[i] = new ModifierTier(source.currentSuffixTiers[i]);
+            } else {
+                this.currentSuffixTiers[i] = null;
+            }
+        }
+
+        // Copy Crafting_Candidate-specific fields
+        this.percentage = source.percentage;
+        this.stopAnnul = source.stopAnnul;
+
+        // Shallow copy actions list - actions are immutable so we can share references
+        this.actions.clear();
+        this.actions.addAll(source.actions);
+
+        // Deep copy modifier history list
+        this.modifierHistory.clear();
+        for (ModifierEvent history : source.modifierHistory) {
+            this.modifierHistory.add(history.copy());
+        }
+    }
+
+    /**
      * Constructs a new `Crafting_Candidate` with the given item, score, and action.
      *
      * @param new_item The crafting item to base this candidate on.

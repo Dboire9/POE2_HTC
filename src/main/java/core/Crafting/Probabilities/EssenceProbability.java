@@ -35,6 +35,9 @@ public class EssenceProbability {
         Crafting_Action action = source.keySet().iterator().next();
 
         if (action instanceof Essence_currency) {
+            // Clear the original entry with 0.0 probability
+            source.clear();
+            
             for (Essence_currency.Omen currentOmen : Essence_currency.Omen.values()) {
                 percentage = ComputePercentageEssence(baseItem, candidate, event, currentOmen, i);
                 if (percentage != 0)
@@ -73,14 +76,18 @@ public class EssenceProbability {
                         return 1 / (prefixesFilled + suffixesFilled); // Chance out of all modifiers on the item.
                 }
                 case OmenofSinistralCrystallisation: {
-                    // Removes only PREFIX modifiers → ignore suffixes.
-                    if (candidate.modifierHistory.get(i).changed_modifier.type == ModifierType.PREFIX)
+                    // Omen restricts removal to ONLY prefixes
+                    // Probability = 1 / (number of prefixes that can be removed)
+                    // The added modifier can be either prefix or suffix
+                    if (prefixesFilled > 0)
                         return 1.0 / prefixesFilled;
                     break;
                 }
                 case OmenofDextralCrystallisation: {
-                    // Removes only SUFFIX modifiers → ignore prefixes.
-                    if (candidate.modifierHistory.get(i).changed_modifier.type == ModifierType.SUFFIX)
+                    // Omen restricts removal to ONLY suffixes
+                    // Probability = 1 / (number of suffixes that can be removed)
+                    // The added modifier can be either prefix or suffix
+                    if (suffixesFilled > 0)
                         return 1.0 / suffixesFilled;
                     break;
                 }

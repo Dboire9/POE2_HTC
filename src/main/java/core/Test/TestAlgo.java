@@ -34,6 +34,7 @@ public class TestAlgo {
         List<Modifier> possibleSuffixes = testItem.getNormalAllowedSuffixes();
 		List<Modifier> possibleEssencesPrefixes = testItem.getEssencesAllowedPrefixes();
         List<Modifier> possibleEssencesSuffixes = testItem.getEssencesAllowedSuffixes();
+        List<Modifier> possibleDesecratedSuffixes = testItem.getDesecratedAllowedSuffixes();
 
         List<ModifierTier> desiredModTier = new ArrayList<>();
         List<Modifier> desiredMods = new ArrayList<>();
@@ -41,35 +42,76 @@ public class TestAlgo {
         Random random = new Random();
         Set<String> usedModifiers = new HashSet<>();
 
-        // --- RANDOM MODIFIER SELECTION ---
-        // Randomly select up to 3 prefixes
-        selectRandomModifiers(possiblePrefixes, desiredMods, desiredModTier, usedModifiers, random);
-
-        // Randomly select up to 3 suffixes
-        selectRandomModifiers(possibleSuffixes, desiredMods, desiredModTier, usedModifiers, random);
-
-		// desiredMods.add(possiblePrefixes.get(0));
-		// desiredModTier.add(possiblePrefixes.get(0).tiers.get(0));
-		// System.out.println(possiblePrefixes.get(0).text);
-		// desiredMods.add(possiblePrefixes.get(4));
-		// desiredModTier.add(possiblePrefixes.get(4).tiers.get(0));
-		// System.out.println(possiblePrefixes.get(4).text);
-		// desiredMods.add(possibleEssencesPrefixes.get(8));
-		// desiredModTier.add(possibleEssencesPrefixes.get(8).tiers.get(0));
-		// System.out.println(possibleEssencesPrefixes.get(8).text);
-		// desiredMods.add(possibleEssencesSuffixes.get(4));
-		// desiredModTier.add(possibleEssencesSuffixes.get(4).tiers.get(0));
-		// System.out.println(possibleEssencesSuffixes.get(4).text);
-		// desiredMods.add(possibleEssencesSuffixes.get(5));
-		// desiredModTier.add(possibleEssencesSuffixes.get(5).tiers.get(0));
-		// System.out.println(possibleEssencesSuffixes.get(5).text);
-		// desiredMods.add(possibleSuffixes.get(9));
-		// desiredModTier.add(possibleSuffixes.get(9).tiers.get(0));
-		// System.out.println(possibleSuffixes.get(9).text);
+        // --- MANUAL MODIFIER SELECTION FOR TESTING ---
+        // Find and add: Adds # to # Physical Damage T3
+        for (Modifier mod : possiblePrefixes) {
+            if (mod.text.equals("Adds # to # Physical Damage")) {
+                desiredMods.add(mod);
+                desiredModTier.add(mod.tiers.get(2)); // T3 = index 2
+                mod.chosenTier = 2;
+                System.out.println(" - " + mod.text + " (Tier 3)");
+                break;
+            }
+        }
+        
+        // Find and add: #% increased Physical Damage T3
+        for (Modifier mod : possiblePrefixes) {
+            if (mod.text.equals("#% increased Physical Damage")) {
+                desiredMods.add(mod);
+                desiredModTier.add(mod.tiers.get(2)); // T3 = index 2
+                mod.chosenTier = 2;
+                System.out.println(" - " + mod.text + " (Tier 3)");
+                break;
+            }
+        }
+        
+        // Find and add: Gain #% of Damage as Extra Lightning Damage (Perfect Essence)
+        for (Modifier mod : possibleEssencesPrefixes) {
+            if (mod.text.equals("Gain # % of Damage as Extra Lightning Damage")) {
+                desiredMods.add(mod);
+                desiredModTier.add(mod.tiers.get(0));
+                mod.chosenTier = 0;
+                System.out.println(" - " + mod.text + " (Perfect Essence)");
+                break;
+            }
+        }
+        
+        // Find and add: (20–25)% chance to gain Onslaught (Perfect Essence)
+        for (Modifier mod : possibleEssencesSuffixes) {
+            if (mod.text.contains("chance to gain Onslaught")) {
+                desiredMods.add(mod);
+                desiredModTier.add(mod.tiers.get(0));
+                mod.chosenTier = 0;
+                System.out.println(" - " + mod.text + " (Perfect Essence)");
+                break;
+            }
+        }
+        
+        // Find and add: +4 to Level of all Attack Skills (Perfect Essence)
+        for (Modifier mod : possibleEssencesSuffixes) {
+            if (mod.text.equals("+# to Level of all Attack Skills")) {
+                desiredMods.add(mod);
+                desiredModTier.add(mod.tiers.get(0));
+                mod.chosenTier = 0;
+                System.out.println(" - " + mod.text + " (Perfect Essence)");
+                break;
+            }
+        }
+        
+        // Find and add: #% increased Attack Speed (Desecrated)
+        for (Modifier mod : possibleDesecratedSuffixes) {
+            if (mod.text.equals("#% increased Attack Speed\nCompanions have #% increased Attack Speed")) {
+                desiredMods.add(mod);
+                desiredModTier.add(mod.tiers.get(0));
+                mod.chosenTier = 0;
+                System.out.println(" - " + mod.text + " (Desecrated)");
+                break;
+            }
+        }
 
 
         // --- CRAFTING EXECUTION SECTION ---
-        double GLOBALTHRESHOLD = 50;
+        double GLOBALTHRESHOLD = 33;
 
         try {
             long startTime = System.nanoTime();
@@ -87,6 +129,9 @@ public class TestAlgo {
 
             long durationInMillis = (System.nanoTime() - startTime) / 1_000_000;
             System.out.println("optimizeCrafting executed in " + durationInMillis + " ms\n");
+
+            // --- SEARCH FOR OPTIMAL PATH ---
+            searchForOptimalPath(results);
 
             // --- RESULTS DISPLAY SECTION ---
             displayResults(results, GLOBALTHRESHOLD, desiredMods);
@@ -128,6 +173,128 @@ public class TestAlgo {
     }
 
     /**
+     * Searches through all candidates for the optimal path pattern:
+     * 1. Transmute + Aug (base with physical mods)
+     * 2. Essence → #% increased Physical Damage
+     * 3. Perfect Essence → Extra Lightning Damage with omen (100%)
+     * 4-8. Perfect Essences for remaining mods
+     */
+    private static void searchForOptimalPath(List<Probability_Analyzer.CandidateProbability> results) {
+        System.out.println("\n=== SEARCHING FOR OPTIMAL PATH ===");
+        System.out.println("Looking for the complete optimal sequence:");
+        System.out.println("  1. Transmute → Physical %");
+        System.out.println("  2. Aug → +1 suffix");
+        System.out.println("  3. Essence → Adds Physical flat (keeps suffix)");
+        System.out.println("  4. Perfect Lightning with Dextral omen (100% - removes 1 suffix)");
+        System.out.println("  5. Desecrated → adds throwaway suffix");
+        System.out.println("  6. Perfect Onslaught with Dextral omen (100% - removes 1 suffix)");
+        System.out.println("  7. Desecrated → adds throwaway suffix");
+        System.out.println("  8. Perfect +Level with Dextral omen (50% - removes 1 of 2 suffixes)");
+        System.out.println("  9. Desecrated → Attack Speed (final)\n");
+        
+        List<Probability_Analyzer.CandidateProbability> optimalCandidates = new ArrayList<>();
+        
+        for (Probability_Analyzer.CandidateProbability cp : results) {
+            // Track the complete sequence
+            List<String> sequence = new ArrayList<>();
+            boolean hasOptimalStructure = true;
+            
+            int stepNum = 0;
+            for (Map.Entry<Crafting_Action, ModifierEvent> entry : cp.bestPath().entrySet()) {
+                Crafting_Action action = entry.getKey();
+                ModifierEvent event = entry.getValue();
+                stepNum++;
+                
+                if (event.modifier != null) {
+                    String modText = event.modifier.text;
+                    String actionType = action.getClass().getSimpleName();
+                    
+                    // Build sequence description
+                    String step = String.format("Step %d: %s → %s", stepNum, actionType, modText);
+                    if (action instanceof Essence_currency essence && essence.omen != null) {
+                        step += " (Omen: " + essence.omen + ")";
+                    }
+                    sequence.add(step);
+                }
+            }
+            
+            // Check for the specific optimal pattern
+            boolean hasPhysicalFlat = false;
+            boolean hasPhysicalPercent = false;
+            boolean hasLightningAfterPhysical = false;
+            boolean usedThrowawayBeforeLightning = false;
+            boolean hasOnslaughtAfterThrowaway = false;
+            boolean hasLevelAfterThrowaway = false;
+            int desecratedBeforeFinalCount = 0;
+            
+            for (Map.Entry<Crafting_Action, ModifierEvent> entry : cp.bestPath().entrySet()) {
+                Crafting_Action action = entry.getKey();
+                ModifierEvent event = entry.getValue();
+                
+                if (event.modifier != null) {
+                    String modText = event.modifier.text;
+                    
+                    if (modText.equals("#% increased Physical Damage")) {
+                        hasPhysicalPercent = true;
+                    } else if (modText.equals("Adds # to # Physical Damage")) {
+                        hasPhysicalFlat = true;
+                    } else if (modText.equals("Gain # % of Damage as Extra Lightning Damage")) {
+                        if (hasPhysicalFlat && hasPhysicalPercent) {
+                            hasLightningAfterPhysical = true;
+                            // Check if Lightning was applied with 100% probability (1 suffix removed)
+                            if (action instanceof Essence_currency essence) {
+                                Double prob = event.source.get(action);
+                                if (prob != null && prob == 1.0) {
+                                    usedThrowawayBeforeLightning = true;
+                                }
+                            }
+                        }
+                    } else if (modText.contains("chance to gain Onslaught")) {
+                        if (hasLightningAfterPhysical) {
+                            hasOnslaughtAfterThrowaway = true;
+                        }
+                    } else if (modText.equals("+# to Level of all Attack Skills")) {
+                        if (hasOnslaughtAfterThrowaway) {
+                            hasLevelAfterThrowaway = true;
+                        }
+                    } else if (action instanceof Desecrated_currency) {
+                        if (!modText.contains("Attack Speed")) {
+                            desecratedBeforeFinalCount++;
+                        }
+                    }
+                }
+            }
+            
+            // Check if matches optimal pattern
+            if (hasPhysicalFlat && hasPhysicalPercent && hasLightningAfterPhysical && 
+                usedThrowawayBeforeLightning && hasOnslaughtAfterThrowaway && 
+                hasLevelAfterThrowaway && desecratedBeforeFinalCount >= 2) {
+                
+                double probability = cp.finalPercentage();
+                System.out.println("✓✓✓ FOUND OPTIMAL PATH! ✓✓✓");
+                System.out.println("Final probability: " + probability + "% (" + String.format("%.2e", probability / 100) + ")");
+                System.out.println("\nComplete sequence:");
+                for (String step : sequence) {
+                    System.out.println("  " + step);
+                }
+                System.out.println();
+                
+                optimalCandidates.add(cp);
+            }
+        }
+        
+        if (optimalCandidates.isEmpty()) {
+            System.out.println("❌ OPTIMAL PATH NOT FOUND in " + results.size() + " results");
+            System.out.println("The algorithm did not discover the strategic throwaway-modifier path.\n");
+        } else {
+            System.out.println("✓ Found " + optimalCandidates.size() + " candidate(s) with optimal pattern");
+            System.out.println("Best probability: " + optimalCandidates.stream()
+                .mapToDouble(c -> c.finalPercentage())
+                .max().orElse(0) + "%\n");
+        }
+    }
+
+    /**
      * Displays the crafting results including:
      *  - Final probability
      *  - Sequence of crafting actions (path)
@@ -148,10 +315,16 @@ public class TestAlgo {
 				Crafting_Action action = entry.getKey();
 				ModifierEvent event = entry.getValue();
 
-				// Get probability directly from the event’s source map
+				// Get probability directly from the event's source map
 				double percentage = event.source.get(action);
 
 				System.out.println(cp.candidate().modifierHistory.get(z));
+				
+				// For Perfect Essence (CHANGED), show what modifier is being replaced
+				if (event.type == ModifierEvent.ActionType.CHANGED && event.changed_modifier != null) {
+					System.out.println("  ⟹ Replaces: " + event.changed_modifier.text);
+				}
+				
 				System.out.println("Action: " + action);
 				System.out.println("  → Probability: " + (percentage * 100) + "%");
 

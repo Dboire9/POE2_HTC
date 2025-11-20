@@ -69,10 +69,14 @@ public class Probability_Analyzer {
             }
     
             double finalPercentage = 1.0;
-            for (ModifierEvent event : BestPath.values()) {
-                for (double percentage : event.source.values()) {
-                    if (percentage != 0.0)
-                        finalPercentage *= percentage;
+            for (Map.Entry<Crafting_Action, ModifierEvent> entry : BestPath.entrySet()) {
+                Crafting_Action action = entry.getKey();
+                ModifierEvent event = entry.getValue();
+                
+                // Get the probability for the specific action that was chosen as best
+                Double probability = event.source.get(action);
+                if (probability != null && probability != 0.0) {
+                    finalPercentage *= probability;
                 }
             }
             finalPercentage *= 100; // Convert to percentage

@@ -25,6 +25,27 @@ public class DesProbability {
     public static void ComputeDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i) {
         ModifierEvent event = candidate.modifierHistory.get(i);
 
+        // Check if this modifier will be immediately replaced by a Perfect Essence (CHANGED event)
+        boolean willBeReplacedByEssence = false;
+        if (i + 1 < candidate.modifierHistory.size()) {
+            ModifierEvent nextEvent = candidate.modifierHistory.get(i + 1);
+            if (nextEvent.type == ModifierEvent.ActionType.CHANGED && 
+                nextEvent.changed_modifier != null &&
+                nextEvent.changed_modifier.text.equals(event.modifier.text)) {
+                willBeReplacedByEssence = true;
+            }
+        }
+
+        // If this modifier will be replaced by a Perfect Essence, probability is 100%
+        // because we don't care which specific throwaway modifier we get
+        if (willBeReplacedByEssence) {
+            Map<Crafting_Action, Double> source = event.source;
+            Crafting_Action action = source.keySet().iterator().next();
+            source.clear();
+            source.put(action, 1.0);
+            return;
+        }
+
         double percentage = 0;
         Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
         Crafting_Action action = source.keySet().iterator().next();

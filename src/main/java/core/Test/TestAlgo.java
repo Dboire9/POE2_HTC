@@ -111,7 +111,7 @@ public class TestAlgo {
 
 
         // --- CRAFTING EXECUTION SECTION ---
-        double GLOBALTHRESHOLD = 33;
+        double GLOBALTHRESHOLD = 50;
 
         try {
             long startTime = System.nanoTime();
@@ -209,8 +209,13 @@ public class TestAlgo {
                     String modText = event.modifier.text;
                     String actionType = action.getClass().getSimpleName();
                     
+                    // Get probability for this step
+                    Double stepProbability = event.source.get(action);
+                    String probStr = stepProbability != null ? 
+                        String.format(" [%.2f%%]", stepProbability * 100) : "";
+                    
                     // Build sequence description
-                    String step = String.format("Step %d: %s → %s", stepNum, actionType, modText);
+                    String step = String.format("Step %d: %s → %s%s", stepNum, actionType, modText, probStr);
                     if (action instanceof Essence_currency essence && essence.omen != null) {
                         step += " (Omen: " + essence.omen + ")";
                     }

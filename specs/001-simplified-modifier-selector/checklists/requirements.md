@@ -31,9 +31,9 @@
 
 ## Validation Summary
 
-**Status**: ✅ PASSED
+**Status**: ✅ PASSED (Updated after clarification session)
 
-All checklist items have been validated and passed:
+All checklist items have been validated and passed. Clarifications from 2025-11-21 session have been integrated:
 
 ### Content Quality Analysis
 - ✅ Specification is written in user-centric language without technical jargon
@@ -42,17 +42,22 @@ All checklist items have been validated and passed:
 - ✅ All mandatory sections (User Scenarios, Requirements, Success Criteria) are complete
 
 ### Requirement Completeness Analysis
-- ✅ No [NEEDS CLARIFICATION] markers - all requirements have reasonable defaults
-- ✅ All 16 functional requirements are testable with clear pass/fail criteria
-- ✅ All 6 assumptions are documented, explaining what we're building on
+- ✅ No [NEEDS CLARIFICATION] markers - all ambiguities resolved through clarification session
+- ✅ All 18 functional requirements (FR-001 to FR-018) are testable with clear pass/fail criteria
+- ✅ All 7 assumptions are documented, including new A-007 for modifier incompatibility rules
 - ✅ Success criteria use measurable metrics (time, percentage, count)
 - ✅ Success criteria focus on user outcomes, not system internals
-- ✅ Edge cases identified for rare scenarios (mutual exclusions, low probabilities, crashes)
+- ✅ Edge cases identified and clarified for all rare scenarios
 - ✅ Scope is bounded: item + modifier selection → simulation (no currency selection)
+
+### Clarifications Resolved (Session 2025-11-21)
+1. ✅ **Selection limit behavior**: Prevent selection with warning toast (not auto-replace)
+2. ✅ **Incompatibility handling**: Frontend disables incompatible modifiers proactively
+3. ✅ **Results sorting**: Highest probability first (descending order)
 
 ### Feature Readiness Analysis
 - ✅ 4 user stories with clear priorities (P1 = MVP, P2 = enhancement)
-- ✅ Each user story has acceptance scenarios in Given-When-Then format
+- ✅ Each user story has acceptance scenarios in Given-When-Then format (updated with clarifications)
 - ✅ User stories are independently testable and deliverable
 - ✅ No technology leakage (no mention of React, Context API, Tailwind, etc.)
 

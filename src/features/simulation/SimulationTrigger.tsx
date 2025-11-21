@@ -3,6 +3,7 @@ import { useItems } from '../../contexts/ItemsContext';
 import { useModifiers } from '../../contexts/ModifiersContext';
 import { useSimulation } from '../../contexts/SimulationContext';
 import { Button } from '../../components/ui/button';
+import { Alert, AlertDescription } from '../../components/ui/alert';
 
 // T046: Button component that triggers simulation
 const SimulationTrigger: React.FC = () => {
@@ -12,7 +13,7 @@ const SimulationTrigger: React.FC = () => {
 
   const selectedModifiers = [...selectedPrefixes, ...selectedSuffixes];
   
-  // T050: Validation - disable if no modifiers selected
+  // T050, T060: Validation - disable if no item or no modifiers selected
   const canSimulate = selectedItem && selectedModifiers.length > 0;
 
   const handleClick = () => {
@@ -47,11 +48,14 @@ const SimulationTrigger: React.FC = () => {
         {loading ? 'Simulating...' : 'Start Crafting Simulation'}
       </Button>
 
+      {/* T060: Enhanced validation messages */}
       {!canSimulate && (
-        <p className="text-sm text-muted-foreground text-center">
-          {!selectedItem && 'Select an item first'}
-          {selectedItem && selectedModifiers.length === 0 && 'Select at least one modifier'}
-        </p>
+        <Alert>
+          <AlertDescription>
+            {!selectedItem && 'Please select an item from the list above.'}
+            {selectedItem && selectedModifiers.length === 0 && 'Please select at least one modifier to simulate crafting paths.'}
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );

@@ -1,16 +1,51 @@
 import React from 'react';
 import { useSimulation } from '../../contexts/SimulationContext';
+import { useModifiers } from '../../contexts/ModifiersContext';
 import CraftingPathCard from './CraftingPathCard';
-import { Alert, AlertDescription } from '../../components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
+import { Button } from '../../components/ui/button';
 
 // T049: Main component displaying simulation results
 const ResultsDisplay: React.FC = () => {
-  const { result, error } = useSimulation();
+  const { result, error, clearResults, startSimulation } = useSimulation();
+  const { selectedPrefixes, selectedSuffixes, clearSelections } = useModifiers();
 
+  // T061: Display error with recovery actions
   if (error) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>{error}</AlertDescription>
+        <AlertTitle>Simulation Failed</AlertTitle>
+        <AlertDescription>
+          <p className="mb-3">{error}</p>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => {
+                const selectedModifiers = [...selectedPrefixes, ...selectedSuffixes];
+                if (selectedModifiers.length > 0) {
+                  const itemId = ''; // Will be populated from context
+                  startSimulation({
+                    itemId,
+                    desiredModifiers: selectedModifiers.map(m => m.id),
+                  });
+                }
+              }}
+            >
+              Retry Simulation
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => {
+                clearResults();
+                clearSelections();
+              }}
+            >
+              Reset All
+            </Button>
+          </div>
+        </AlertDescription>
       </Alert>
     );
   }
@@ -28,8 +63,20 @@ const ResultsDisplay: React.FC = () => {
   if (result.paths.length === 0) {
     return (
       <Alert>
+        <AlertTitle>No Path Found</AlertTitle>
         <AlertDescription>
-          No valid crafting path found for the selected modifiers. Try removing one and retrying.
+          <p className="mb-3">
+            No valid crafting path found for the selected modifiers. This may happen if the modifiers are incompatible or too restrictive.
+          </p>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => clearSelections()}
+            >
+              Clear Modifiers & Try Again
+            </Button>
+          </div>
         </AlertDescription>
       </Alert>
     );

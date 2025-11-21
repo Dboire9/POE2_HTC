@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useRef, useMem
 import { SimulationRequest, SimulationResult, SimulationState, SimulationActions } from '../types';
 import { sortPathsByProbability } from '../lib/resultsSorting';
 import { ErrorCode, getErrorMessage } from '../lib/errorMessages';
+import { toast } from 'sonner';
 
 // Context type combining state and actions
 type SimulationContextType = SimulationState & SimulationActions;
@@ -21,6 +22,9 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   // T040: Debounce timer reference
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // T062: Timeout warning timer reference (30 seconds)
+  const timeoutWarningRef = useRef<NodeJS.Timeout | null>(null);
+
   // T041, T042: Start simulation with IPC call and sorting
   const startSimulation = useCallback(async (request: SimulationRequest) => {
     // Clear any existing debounce timer
@@ -39,6 +43,16 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       setLoading(true);
       setError(null);
       setProgress(0);
+
+      // T062: Start timeout warning timer (30 seconds)
+      timeoutWarningRef.current = setTimeout(() => {
+        if (loading) {
+          toast.warning('Simulation taking longer than expected', {
+            description: 'This may indicate a complex crafting path. Please wait...',
+            duration: 5000,
+          });
+        }
+      }, 30000);
 
       try {
         if (!window.electronAPI) {
@@ -73,6 +87,10 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         const errorCode = err instanceof Error ? err.message : ErrorCode.UNKNOWN;
         setError(getErrorMessage(errorCode));
       } finally {
+        // T062: Clear timeout warning timer
+        if (timeoutWarningRef.current) {
+          clearTimeout(timeoutWarningRef.current);
+        }
         setLoading(false);
       }
     }, 500); // 500ms debounce
@@ -85,6 +103,9 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
+    }
+    if (timeoutWarningRef.current) {
+      clearTimeout(timeoutWarningRef.current);
     }
     setLoading(false);
     setProgress(null);

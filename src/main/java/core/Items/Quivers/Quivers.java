@@ -44,10 +44,10 @@ public class Quivers extends Item_base {
         Essences_allowedPrefixes = new ArrayList<>();
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_ACCURACY);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_DAMAGE_WITH_BOW_SKILLS);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
+        
 
         Essences_allowedSuffixes = new ArrayList<>();
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_DEXTERITY);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
+        
     }
 }

@@ -46,20 +46,27 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
   }, [selectedItem])
 
   useEffect(() => {
+    // Helper to get modifier by uniqueId and extract details
+    const getModDetails = (uniqueId: string, type: 'prefix' | 'suffix') => {
+      const list = type === 'prefix' ? prefixes : suffixes
+      const mod = list.find(m => m.uniqueId === uniqueId)
+      return mod ? { id: mod.id, name: mod.name } : null
+    }
+    
     // Notify parent component of changes
     onModifiersChange({
       prefixes: [
-        { id: prefix1, tier: prefix1Tier },
-        { id: prefix2, tier: prefix2Tier },
-        { id: prefix3, tier: prefix3Tier },
-      ].filter(p => p.id),
+        prefix1 ? { ...getModDetails(prefix1, 'prefix'), tier: prefix1Tier } : null,
+        prefix2 ? { ...getModDetails(prefix2, 'prefix'), tier: prefix2Tier } : null,
+        prefix3 ? { ...getModDetails(prefix3, 'prefix'), tier: prefix3Tier } : null,
+      ].filter(p => p !== null),
       suffixes: [
-        { id: suffix1, tier: suffix1Tier },
-        { id: suffix2, tier: suffix2Tier },
-        { id: suffix3, tier: suffix3Tier },
-      ].filter(s => s.id),
+        suffix1 ? { ...getModDetails(suffix1, 'suffix'), tier: suffix1Tier } : null,
+        suffix2 ? { ...getModDetails(suffix2, 'suffix'), tier: suffix2Tier } : null,
+        suffix3 ? { ...getModDetails(suffix3, 'suffix'), tier: suffix3Tier } : null,
+      ].filter(s => s !== null),
     })
-  }, [prefix1, prefix2, prefix3, suffix1, suffix2, suffix3, prefix1Tier, prefix2Tier, prefix3Tier, suffix1Tier, suffix2Tier, suffix3Tier])
+  }, [prefix1, prefix2, prefix3, suffix1, suffix2, suffix3, prefix1Tier, prefix2Tier, prefix3Tier, suffix1Tier, suffix2Tier, suffix3Tier, prefixes, suffixes])
 
   const loadModifiers = async () => {
     if (!selectedItem) return
@@ -69,14 +76,14 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
       const data = await window.electronAPI.invoke("api:modifiers", { itemId: selectedItem })
       console.log("Modifiers loaded:", data)
       
-      // Add unique indices to modifiers to avoid duplicate keys
+      // Add unique IDs based on name (text) which is always unique
       const prefixesWithIndex = (data.prefixes || []).map((mod: Modifier, idx: number) => ({
         ...mod,
-        uniqueId: `${mod.id}_${idx}`
+        uniqueId: `${mod.name}_${idx}`
       }))
       const suffixesWithIndex = (data.suffixes || []).map((mod: Modifier, idx: number) => ({
         ...mod,
-        uniqueId: `${mod.id}_${idx}`
+        uniqueId: `${mod.name}_${idx}`
       }))
       
       setPrefixes(prefixesWithIndex)
@@ -92,10 +99,10 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
     return Array.from({ length: maxTiers }, (_, i) => i + 1)
   }
 
-  const getModifierById = (id: string, type: 'prefix' | 'suffix'): Modifier | undefined => {
+  const getModifierById = (uniqueId: string, type: 'prefix' | 'suffix'): Modifier | undefined => {
     return type === 'prefix' 
-      ? prefixes.find(m => m.id === id)
-      : suffixes.find(m => m.id === id)
+      ? prefixes.find(m => m.uniqueId === uniqueId)
+      : suffixes.find(m => m.uniqueId === uniqueId)
   }
 
   const handleQuickTest = () => {
@@ -113,28 +120,28 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
     }
     
     if (selectedPrefixes[0]) {
-      setPrefix1(selectedPrefixes[0].id)
+      setPrefix1(selectedPrefixes[0].uniqueId!)
       setPrefix1Tier(getBestTier(selectedPrefixes[0]))
     }
     if (selectedPrefixes[1]) {
-      setPrefix2(selectedPrefixes[1].id)
+      setPrefix2(selectedPrefixes[1].uniqueId!)
       setPrefix2Tier(getBestTier(selectedPrefixes[1]))
     }
     if (selectedPrefixes[2]) {
-      setPrefix3(selectedPrefixes[2].id)
+      setPrefix3(selectedPrefixes[2].uniqueId!)
       setPrefix3Tier(getBestTier(selectedPrefixes[2]))
     }
     
     if (selectedSuffixes[0]) {
-      setSuffix1(selectedSuffixes[0].id)
+      setSuffix1(selectedSuffixes[0].uniqueId!)
       setSuffix1Tier(getBestTier(selectedSuffixes[0]))
     }
     if (selectedSuffixes[1]) {
-      setSuffix2(selectedSuffixes[1].id)
+      setSuffix2(selectedSuffixes[1].uniqueId!)
       setSuffix2Tier(getBestTier(selectedSuffixes[1]))
     }
     if (selectedSuffixes[2]) {
-      setSuffix3(selectedSuffixes[2].id)
+      setSuffix3(selectedSuffixes[2].uniqueId!)
       setSuffix3Tier(getBestTier(selectedSuffixes[2]))
     }
   }
@@ -181,7 +188,7 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
                 </SelectTrigger>
                 <SelectContent>
                   {prefixes.map((mod, idx) => (
-                    <SelectItem key={`prefix1-${idx}`} value={mod.id}>
+                    <SelectItem key={`prefix1-${idx}`} value={mod.uniqueId!}>
                       {mod.name}
                     </SelectItem>
                   ))}
@@ -219,7 +226,7 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
                 </SelectTrigger>
                 <SelectContent>
                   {prefixes.map((mod, idx) => (
-                    <SelectItem key={`prefix2-${idx}`} value={mod.id}>
+                    <SelectItem key={`prefix2-${idx}`} value={mod.uniqueId!}>
                       {mod.name}
                     </SelectItem>
                   ))}
@@ -257,7 +264,7 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
                 </SelectTrigger>
                 <SelectContent>
                   {prefixes.map((mod, idx) => (
-                    <SelectItem key={`prefix3-${idx}`} value={mod.id}>
+                    <SelectItem key={`prefix3-${idx}`} value={mod.uniqueId!}>
                       {mod.name}
                     </SelectItem>
                   ))}
@@ -301,7 +308,7 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
                 </SelectTrigger>
                 <SelectContent>
                   {suffixes.map((mod, idx) => (
-                    <SelectItem key={`suffix1-${idx}`} value={mod.id}>
+                    <SelectItem key={`suffix1-${idx}`} value={mod.uniqueId!}>
                       {mod.name}
                     </SelectItem>
                   ))}
@@ -339,7 +346,7 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
                 </SelectTrigger>
                 <SelectContent>
                   {suffixes.map((mod, idx) => (
-                    <SelectItem key={`suffix2-${idx}`} value={mod.id}>
+                    <SelectItem key={`suffix2-${idx}`} value={mod.uniqueId!}>
                       {mod.name}
                     </SelectItem>
                   ))}
@@ -377,7 +384,7 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
                 </SelectTrigger>
                 <SelectContent>
                   {suffixes.map((mod, idx) => (
-                    <SelectItem key={`suffix3-${idx}`} value={mod.id}>
+                    <SelectItem key={`suffix3-${idx}`} value={mod.uniqueId!}>
                       {mod.name}
                     </SelectItem>
                   ))}

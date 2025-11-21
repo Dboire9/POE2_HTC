@@ -95,10 +95,18 @@ async function waitForBackend(url = "http://localhost:8080/health", attempts = 4
 }
 
 app.on("ready", async () => {
-  const started = startJavaBackend()
-  if (started) {
-    const ok = await waitForBackend()
-    if (!ok) console.warn("Backend health check timed out, opening UI anyway…")
+  // In development, assume backend is already running separately
+  // In production, start the backend automatically
+  if (!isDev) {
+    const started = startJavaBackend()
+    if (started) {
+      const ok = await waitForBackend()
+      if (!ok) {
+        console.warn("Backend did not respond in time, but continuing...")
+      }
+    }
+  } else {
+    console.log("Development mode: assuming backend is already running on http://localhost:8080")
   }
   createWindow()
 })

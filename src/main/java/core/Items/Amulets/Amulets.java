@@ -83,7 +83,7 @@ public class Amulets extends Item_base {
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_BASE_MAXIMUM_LIFE);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_BASE_MAXIMUM_MANA);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_GLOBAL_DEFENCES);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
+        
         
         Essences_allowedSuffixes = new ArrayList<>();
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_CHAOS_RESISTANCE);
@@ -94,7 +94,7 @@ public class Amulets extends Item_base {
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_PERCENTAGE_ATTRIBUTES_DEXTERITY);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_PERCENTAGE_ATTRIBUTES_INTELLIGENCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_DAMAGE_TAKEN_RECOUPED_AS_LIFE);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
+        
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_FIRE_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_COLD_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_LIGHTNING_RESISTANCE);

@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/main.cjs",
   "scripts": {
-    "dev": "concurrently \"npm:build:electron -- --watch\" \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev": "concurrently \"npm:build:electron -- --watch\" \"vite\" \"wait-on http://localhost:5173 && electron . --no-sandbox\"",
     "build:electron": "esbuild electron/main.ts --bundle --platform=node --format=cjs --outfile=dist/main.cjs --external:electron",
     "postinstall": "electron-builder install-app-deps",
     "build": "vite build",

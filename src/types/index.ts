@@ -23,9 +23,9 @@ export enum ItemType {
 export interface Item {
   id: string;
   name: string;
-  type: ItemType;
+  type?: ItemType | string;  // Optional, can be ItemType enum or string from backend
   iconPath?: string;
-  baseStats: Record<string, number>;
+  baseStats?: Record<string, number>;  // Optional, defaults to empty object
 }
 
 // ============================================================================
@@ -49,12 +49,13 @@ export interface StatRange {
 
 export interface Modifier {
   id: string;
-  text: string;
-  type: ModifierType;
-  tier: number;
-  statRanges: StatRange[];
-  tags: string[];
-  source: ModifierSource;
+  text: string;              // Display text (may come as 'name' from backend)
+  type?: ModifierType;       // Optional - may not be sent by backend
+  tier?: number;             // Selected tier (1-based)
+  availableTiers?: number;   // Total number of tiers available
+  statRanges?: StatRange[];  // Optional - not always provided
+  tags?: string[];           // Optional - not always provided
+  source?: ModifierSource;   // Optional - not always provided
 }
 
 // ============================================================================
@@ -83,6 +84,9 @@ export interface CraftingStep {
   currencyUsed: string;     // Currency name
   targetModifier?: string;  // Expected modifier result
   probability: number;      // Step-specific probability
+  tier?: string;            // Currency tier (e.g., "TIER1", "TIER5")
+  omen?: string;            // Single omen used (e.g., "DEXTRAL")
+  omens?: string[];         // Multiple omens used
 }
 
 export interface CraftingPath {
@@ -98,7 +102,11 @@ export interface CraftingPath {
 
 export interface SimulationRequest {
   itemId: string;
-  desiredModifiers: string[]; // 1-6 modifier IDs (1-3 prefixes + 1-3 suffixes)
+  modifiers: {
+    prefixes: Array<{ id?: string; text?: string; tier?: number }>;
+    suffixes: Array<{ id?: string; text?: string; tier?: number }>;
+  };
+  iterations?: number; // Optional, defaults to 100
 }
 
 export interface SimulationResult {
@@ -192,9 +200,13 @@ export function isValidSimulationRequest(obj: unknown): obj is SimulationRequest
   return (
     typeof r.itemId === 'string' &&
     r.itemId.length > 0 &&
-    Array.isArray(r.desiredModifiers) &&
-    r.desiredModifiers.length >= 1 &&
-    r.desiredModifiers.length <= 6 &&
-    r.desiredModifiers.every(m => typeof m === 'string')
+    typeof r.modifiers === 'object' &&
+    r.modifiers !== null &&
+    Array.isArray(r.modifiers.prefixes) &&
+    Array.isArray(r.modifiers.suffixes) &&
+    r.modifiers.prefixes.length + r.modifiers.suffixes.length >= 1 &&
+    r.modifiers.prefixes.length + r.modifiers.suffixes.length <= 6 &&
+    r.modifiers.prefixes.every((m: any) => typeof m.id === 'string') &&
+    r.modifiers.suffixes.every((m: any) => typeof m.id === 'string')
   );
 }

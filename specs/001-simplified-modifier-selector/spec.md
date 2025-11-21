@@ -38,7 +38,8 @@ A user who has selected an item now needs to choose which modifiers (prefixes an
 3. **Given** the user wants multiple prefixes, **When** they select up to 3 prefixes, **Then** each selection is highlighted and a counter shows X/3 selected
 4. **Given** the user wants multiple suffixes, **When** they select up to 3 suffixes, **Then** each selection is highlighted and a counter shows X/3 selected
 5. **Given** modifiers are selected, **When** the user deselects a modifier, **Then** it is removed from the selection and the counter updates accordingly
-6. **Given** 3 prefixes are already selected, **When** the user attempts to select a 4th prefix, **Then** the system prevents the selection or automatically deselects the oldest selection
+6. **Given** 3 prefixes are already selected, **When** the user attempts to select a 4th prefix, **Then** the system prevents the selection and displays a warning toast indicating the limit has been reached
+7. **Given** a prefix is selected that conflicts with another modifier, **When** the modifier selector updates, **Then** incompatible modifiers are visually disabled with a tooltip explaining the conflict
 
 ---
 
@@ -55,7 +56,7 @@ A user who has selected an item and desired modifiers can now launch the craftin
 1. **Given** item and modifiers are selected, **When** the user clicks "Start Crafting Simulation", **Then** the simulation begins and a loading indicator appears
 2. **Given** the simulation is running, **When** computation is in progress, **Then** the user sees clear feedback (spinner, progress bar, or status text) indicating the system is working
 3. **Given** the simulation completes successfully, **When** results are available, **Then** optimal crafting paths are displayed with step-by-step currency usage and probability percentages
-4. **Given** results are displayed, **When** the user reviews multiple crafting paths, **Then** paths are ranked by success probability or efficiency
+4. **Given** results are displayed, **When** the user reviews multiple crafting paths, **Then** paths are ranked by success probability (descending) with the most reliable method shown first
 5. **Given** the user wants to try different modifiers, **When** they return to modifier selection, **Then** previous selections are cleared and they can start fresh
 
 ---
@@ -79,11 +80,19 @@ Users receive clear feedback when errors occur or invalid selections are made. T
 
 ### Edge Cases
 
-- What happens when a user selects modifiers that are mutually exclusive or impossible to obtain together?
-- How does the system handle very rare modifier combinations with extremely low probabilities (e.g., < 0.001%)?
-- What happens if the backend crashes mid-simulation?
-- How does the system respond when no valid crafting path exists for the selected modifiers?
-- What happens if the user rapidly changes selections multiple times before simulation completes?
+- What happens when a user selects modifiers that are mutually exclusive or impossible to obtain together? **CLARIFIED**: Frontend will disable incompatible modifiers when one is selected, providing immediate feedback.
+- How does the system handle very rare modifier combinations with extremely low probabilities (e.g., < 0.001%)? System will display all paths regardless of probability, with clear warning indicators for extremely rare combinations.
+- What happens if the backend crashes mid-simulation? Error boundary will catch the failure and display recovery options (retry, reset selections).
+- How does the system respond when no valid crafting path exists for the selected modifiers? Clear message explaining no path exists, with suggestions to try different modifier combinations.
+- What happens if the user rapidly changes selections multiple times before simulation completes? Previous simulation is cancelled, new simulation queued with debouncing to prevent request spam.
+
+## Clarifications
+
+### Session 2025-11-21
+
+- Q: When 3 prefixes are already selected and user attempts to select a 4th prefix, what should happen? → A: Prevent selection and show a warning toast message. User must manually deselect before adding new modifier.
+- Q: Should the frontend proactively prevent selecting incompatible modifiers, or allow selection and let backend validate? → A: Frontend prevents by disabling incompatible modifiers when one is selected, providing immediate visual feedback and better UX.
+- Q: What is the primary sorting criterion for displaying multiple crafting paths - highest success probability or lowest cost/effort? → A: Highest probability first. Paths sorted by success chance (descending) so users see the most reliable methods at the top.
 
 ## Requirements *(mandatory)*
 
@@ -96,13 +105,15 @@ Users receive clear feedback when errors occur or invalid selections are made. T
 - **FR-005**: System MUST allow users to select between 1 and 3 prefixes
 - **FR-006**: System MUST allow users to select between 1 and 3 suffixes
 - **FR-007**: System MUST visually distinguish between selected and unselected modifiers
-- **FR-008**: System MUST prevent selection of more than 3 prefixes or 3 suffixes
+- **FR-008**: System MUST prevent selection of more than 3 prefixes or 3 suffixes and display a warning toast when limit is reached
 - **FR-009**: System MUST allow users to deselect previously selected modifiers
+- **FR-017**: System MUST disable incompatible modifiers when a conflicting modifier is selected
+- **FR-018**: System MUST provide tooltip explanations for why modifiers are disabled due to conflicts
 - **FR-010**: System MUST provide a clear action button to start the crafting simulation
 - **FR-011**: System MUST disable the simulation button when no modifiers are selected
 - **FR-012**: System MUST communicate selected item and modifiers to the backend when simulation starts
 - **FR-013**: System MUST display loading feedback while simulation is running
-- **FR-014**: System MUST display simulation results including crafting steps and probabilities
+- **FR-014**: System MUST display simulation results including crafting steps and probabilities, sorted by success probability (descending)
 - **FR-015**: System MUST handle backend errors gracefully with user-friendly error messages
 - **FR-016**: System MUST allow users to reset selections and start a new simulation
 
@@ -114,6 +125,7 @@ Users receive clear feedback when errors occur or invalid selections are made. T
 - **A-004**: The application runs as an Electron desktop app with IPC communication (per constitution)
 - **A-005**: The backend simulation typically completes within 30 seconds for most modifier combinations
 - **A-006**: Users will primarily craft one item at a time (no batch crafting)
+- **A-007**: Backend provides modifier incompatibility/exclusion rules that frontend can use to disable conflicting selections
 
 ### Key Entities
 

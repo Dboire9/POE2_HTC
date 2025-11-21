@@ -1,17 +1,23 @@
 import React from 'react';
 import { ItemsProvider } from './contexts/ItemsContext';
 import { ModifiersProvider } from './contexts/ModifiersContext';
+import { SimulationProvider } from './contexts/SimulationContext';
 import { Toaster } from './components/ui/toaster';
 import ItemSelector from './features/items/ItemSelector';
 import ModifierSelector from './features/modifiers/ModifierSelector';
+import SimulationTrigger from './features/simulation/SimulationTrigger';
+import SimulationProgress from './features/simulation/SimulationProgress';
+import ResultsDisplay from './features/simulation/ResultsDisplay';
 
 // T018, T019: Integrate ItemsProvider and ItemSelector into App.tsx
 // T035, T036, T037: Integrate ModifiersProvider, ModifierSelector, and Toaster
+// T053, T054: Integrate SimulationProvider and simulation components
 export default function App() {
   return (
     <ItemsProvider>
       <ModifiersProvider>
-        <div className="min-h-screen text-foreground bg-background">
+        <SimulationProvider>
+          <div className="min-h-screen text-foreground bg-background">
           <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
             <div className="container flex items-center justify-between gap-4 py-4">
               <div className="flex items-center gap-4">
@@ -70,11 +76,17 @@ export default function App() {
                 <ModifierSelector />
               </div>
 
-              {/* TODO: Phase 5 - Simulation will be added here */}
+              {/* Phase 5: User Story 3 - Simulation */}
+              <div className="space-y-6">
+                <SimulationTrigger />
+                <SimulationProgress />
+                <ResultsDisplay />
+              </div>
             </div>
           </main>
         </div>
         <Toaster />
+      </SimulationProvider>
       </ModifiersProvider>
     </ItemsProvider>
   );

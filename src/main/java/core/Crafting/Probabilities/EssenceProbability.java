@@ -79,6 +79,15 @@ public class EssenceProbability {
                     // Omen restricts removal to ONLY prefixes
                     // Probability = 1 / (number of prefixes that can be removed)
                     // The added modifier can be either prefix or suffix
+                    
+                    // For CHANGED events, check if the modifier being replaced is actually a prefix
+                    if (event.type == ModifierEvent.ActionType.CHANGED && event.changed_modifier != null) {
+                        // If the omen targets prefixes but the replaced modifier is a suffix, probability is 0
+                        if (event.changed_modifier.type != ModifierType.PREFIX) {
+                            return 0;
+                        }
+                    }
+                    
                     if (prefixesFilled > 0)
                         return 1.0 / prefixesFilled;
                     break;
@@ -87,8 +96,18 @@ public class EssenceProbability {
                     // Omen restricts removal to ONLY suffixes
                     // Probability = 1 / (number of suffixes that can be removed)
                     // The added modifier can be either prefix or suffix
-                    if (suffixesFilled > 0)
+                    
+                    // For CHANGED events, check if the modifier being replaced is actually a suffix
+                    if (event.type == ModifierEvent.ActionType.CHANGED && event.changed_modifier != null) {
+                        // If the omen targets suffixes but the replaced modifier is a prefix, probability is 0
+                        if (event.changed_modifier.type != ModifierType.SUFFIX) {
+                            return 0;
+                        }
+                    }
+                    
+                    if (suffixesFilled > 0) {
                         return 1.0 / suffixesFilled;
+                    }
                     break;
                 }
             }

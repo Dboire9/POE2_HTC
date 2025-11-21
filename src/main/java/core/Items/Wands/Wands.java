@@ -59,7 +59,7 @@ public class Wands extends Item_base {
         
         Essences_allowedPrefixes = new ArrayList<>();
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_SPELL_DAMAGE);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
+        
 
 
         Essences_allowedSuffixes = new ArrayList<>();
@@ -68,7 +68,7 @@ public class Wands extends Item_base {
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_INTELLIGENCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ALL_SPELL_SKILL_LEVEL);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_SPELL_CRIT_CHANCE);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
+        
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_INCREASED_CAST_SPEED);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_MANA_COST_EFFICIENCY);
 

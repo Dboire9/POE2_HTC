@@ -63,7 +63,7 @@ public class Foci extends Item_base{
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_PERCENT_EVASION);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_SPELL_DAMAGE);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
+        
 
         Essences_allowedSuffixes = new ArrayList<>();
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_CHAOS_RESISTANCE);
@@ -73,7 +73,7 @@ public class Foci extends Item_base{
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ALL_SPELL_SKILL_LEVEL);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ENERGY_SHIELD_REGENERATION);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_SPELL_CRITICAL_STRIKE_CHANCE_INCREASE);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
+        
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_FIRE_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_COLD_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_LIGHTNING_RESISTANCE);

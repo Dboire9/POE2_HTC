@@ -28,9 +28,11 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, selected, onClick }) => {
           />
         )}
         <h3 className="text-sm font-medium text-center">{item.name}</h3>
-        <span className="text-xs text-muted-foreground capitalize">
-          {item.type.replace('_', ' ')}
-        </span>
+        {item.type && (
+          <span className="text-xs text-muted-foreground capitalize">
+            {item.type.replace(/_/g, ' ')}
+          </span>
+        )}
       </div>
     </Card>
   );

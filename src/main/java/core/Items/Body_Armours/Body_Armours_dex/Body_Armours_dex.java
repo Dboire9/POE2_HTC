@@ -56,13 +56,13 @@ public class Body_Armours_dex extends Item_base {
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_PHYSICAL_THORNS_DAMAGE);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_RANDOM_NOTABLE_PASSIVE);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
+        
         
         Essences_allowedSuffixes = new ArrayList<>();
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_CHAOS_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_DEXTERITY);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
+        
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_FIRE_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_COLD_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_LIGHTNING_RESISTANCE);

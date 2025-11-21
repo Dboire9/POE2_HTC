@@ -21,7 +21,10 @@ const SimulationTrigger: React.FC = () => {
 
     startSimulation({
       itemId: selectedItem.id,
-      desiredModifiers: selectedModifiers.map(m => m.id),
+      modifiers: {
+        prefixes: selectedPrefixes.map(m => ({ text: m.text, tier: m.tier || 0 })),
+        suffixes: selectedSuffixes.map(m => ({ text: m.text, tier: m.tier || 0 })),
+      },
     });
   };
 

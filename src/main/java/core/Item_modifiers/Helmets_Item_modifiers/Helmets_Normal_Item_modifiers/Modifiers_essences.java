@@ -14,7 +14,7 @@ public class Modifiers_essences {
 	public static final Modifier ESSENCE_INCREASED_PERCENT_ARMOUR;
 	public static final Modifier ESSENCE_INCREASED_PERCENT_EVASION;
 	public static final Modifier ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD;
-	public static final Modifier ESSENCE_ABYSS_PREFIX;
+	
 
 	// SUFFIXES
 	public static final Modifier ESSENCE_CHAOS_RESISTANCE;
@@ -22,7 +22,7 @@ public class Modifiers_essences {
 	public static final Modifier ESSENCE_ATTRIBUTES_DEXTERITY;
 	public static final Modifier ESSENCE_ATTRIBUTES_INTELLIGENCE;
 	public static final Modifier ESSENCE_LEVEL_MINION_SKILL;
-	public static final Modifier ESSENCE_ABYSS_SUFFIX;
+	
 	public static final Modifier ESSENCE_FIRE_RESISTANCE;
 	public static final Modifier ESSENCE_COLD_RESISTANCE;
 	public static final Modifier ESSENCE_COLD_DAMAGE_TAKEN_RECOUPED_AS_LIFE;
@@ -91,15 +91,7 @@ public class Modifiers_essences {
 				"DefencesPercent",
 				"#% increased Energy Shield");
 
-		ESSENCE_ABYSS_PREFIX = new Modifier(
-				"essence_abyss",
-				List.of(),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		// SUFFIXES
 
@@ -161,15 +153,7 @@ public class Modifiers_essences {
 				"IncreaseSocketedGemLevel",
 				"+# to Level of all Minion Skills");
 
-		ESSENCE_ABYSS_SUFFIX = new Modifier(
-				"essence_abyss",
-				List.of("mark_of_abyssal_lord"),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		ESSENCE_FIRE_RESISTANCE = new Modifier(
 				"fire_resistance",

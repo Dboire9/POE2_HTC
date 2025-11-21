@@ -20,11 +20,20 @@ export const ItemsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setError(null);
 
     try {
-      if (!window.electronAPI) {
-        throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
+      let response;
+      
+      // Try Electron IPC first, fallback to direct HTTP
+      if (window.electronAPI) {
+        response = await window.electronAPI.invoke('api:items', {});
+      } else {
+        // Fallback for browser/development mode
+        const httpResponse = await fetch('http://localhost:8080/api/items');
+        if (!httpResponse.ok) {
+          throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
+        }
+        const items = await httpResponse.json();
+        response = { items };
       }
-
-      const response = await window.electronAPI.invoke('api:items', {});
       
       if (response.error) {
         throw new Error(response.error.code || ErrorCode.UNKNOWN);

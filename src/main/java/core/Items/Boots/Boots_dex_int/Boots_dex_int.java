@@ -58,14 +58,14 @@ public class Boots_dex_int extends Item_base {
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_BASE_MAXIMUM_MANA);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_MOVEMENT_SPEED);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
+        
         
         Essences_allowedSuffixes = new ArrayList<>();
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_CHAOS_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_DEXTERITY);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_INTELLIGENCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_SOUL_CORE);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
+        
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_FIRE_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_COLD_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_LIGHTNING_RESISTANCE);

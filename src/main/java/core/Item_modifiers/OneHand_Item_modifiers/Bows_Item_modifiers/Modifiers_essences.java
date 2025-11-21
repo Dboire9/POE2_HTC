@@ -18,7 +18,7 @@ public class Modifiers_essences {
 	public static final Modifier ESSENCE_WEAPON_GAINED_DAMAGE_FIRE;
 	public static final Modifier ESSENCE_WEAPON_GAINED_DAMAGE_COLD;
 	public static final Modifier ESSENCE_WEAPON_GAINED_DAMAGE_LIGHTNING;
-	public static final Modifier ESSENCE_ABYSS_PREFIX;
+	
 
 	// SUFFIXES
 	public static final Modifier ESSENCE_INCREASED_ATTACK_SPEED;
@@ -28,7 +28,7 @@ public class Modifiers_essences {
 	public static final Modifier ESSENCE_ALL_ATTACK_SKILL_LEVEL;
 	public static final Modifier ESSENCE_ONSLAUGHT;
 	public static final Modifier ESSENCE_CRITICAL_STRIKE_CHANCE;
-	public static final Modifier ESSENCE_ABYSS_SUFFIX;
+	
 
 	static {
 
@@ -138,15 +138,7 @@ public class Modifiers_essences {
 				"MartialWeaponGainedDamage",
 				"Gain # % of Damage as Extra Lightning Damage");
 
-		ESSENCE_ABYSS_PREFIX = new Modifier(
-				"essence_abyss",
-				List.of(),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		// SUFFIXES
 
@@ -230,15 +222,7 @@ public class Modifiers_essences {
 				"CriticalStrikeChanceIncrease",
 				"+#% to Critical Hit Chance");
 
-		ESSENCE_ABYSS_SUFFIX = new Modifier(
-				"essence_abyss",
-				List.of("mark_of_abyssal_lord"),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 	}
 

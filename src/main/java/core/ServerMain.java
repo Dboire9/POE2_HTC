@@ -13,8 +13,12 @@ import core.Crafting.Crafting_Item;
 import core.Crafting.CraftingExecutor;
 import core.Crafting.Probabilities.Probability_Analyzer;
 import core.Crafting.Utils.ModifierEvent;
+import core.Currency.Desecrated_currency;
+import core.Currency.Essence_currency;
 import core.Items.Item_base;
 import core.Modifier_class.Modifier;
+import core.DebugLogger;
+import core.DebugLogger.DebugLevel;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +32,18 @@ import java.util.concurrent.Executors;
 
 public class ServerMain {
     public static void main(String[] args) {
+        // Set debug level from environment variable or default to INFO
+        String debugLevel = System.getenv("DEBUG_LEVEL");
+        if (debugLevel != null) {
+            try {
+                DebugLogger.setLevel(DebugLevel.valueOf(debugLevel.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                DebugLogger.setLevel(DebugLevel.INFO);
+            }
+        } else {
+            DebugLogger.setLevel(DebugLevel.INFO);
+        }
+        
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
@@ -57,20 +73,31 @@ public class ServerMain {
     static class ItemsHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // Handle CORS preflight
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJson(exchange, 204, "");
+                return;
+            }
+            
             if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 sendJson(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
                 return;
             }
             ItemManager manager = new ItemManager();
             List<String> categories = manager.getCategories();
-            // Build a simple JSON array of {id,name}
+            // Build a simple JSON array of {id,name,type,baseStats}
             StringBuilder sb = new StringBuilder();
             sb.append('[');
             for (int i = 0; i < categories.size(); i++) {
                 String c = categories.get(i);
+                // Convert category name to type format (e.g., "Body_Armours" -> "body_armour")
+                String type = c.toLowerCase().replace("_", "_").replaceAll("s$", "");
                 sb.append('{')
                   .append("\"id\":\"").append(escapeJson(c)).append("\",")
-                  .append("\"name\":\"").append(escapeJson(c)).append("\"}");
+                  .append("\"name\":\"").append(escapeJson(c)).append("\",")
+                  .append("\"type\":\"").append(escapeJson(type)).append("\",")
+                  .append("\"baseStats\":{}") // Empty for now
+                  .append("}");
                 if (i < categories.size() - 1) sb.append(',');
             }
             sb.append(']');
@@ -81,6 +108,12 @@ public class ServerMain {
     static class ModifiersHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // Handle CORS preflight
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJson(exchange, 204, "");
+                return;
+            }
+            
             if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 sendJson(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
                 return;
@@ -108,43 +141,99 @@ public class ServerMain {
                 String packagePath = "core.Items." + itemId;
                 List<String> subCategories = new ItemManager().getSubCategories(itemId);
                 
-                if (subCategories.isEmpty()) {
-                    sendJson(exchange, 404, "{\"error\":\"No subcategories found for item\"}");
-                    return;
-                }
+                String fullClassName;
                 
-                // Use the first subcategory for now (or we could require it as a parameter)
-                String subCat = subCategories.get(0);
-                String fullClassName = packagePath + "." + subCat + "." + subCat;
+                if (subCategories.isEmpty()) {
+                    // No subcategories - the class is directly in the category folder
+                    // e.g., core.Items.Bows.Bows
+                    fullClassName = packagePath + "." + itemId;
+                } else {
+                    // Has subcategories - use the first one
+                    // e.g., core.Items.Body_Armours.Body_Armours_str.Body_Armours_str
+                    String subCat = subCategories.get(0);
+                    fullClassName = packagePath + "." + subCat + "." + subCat;
+                }
                 
                 Class<?> itemClass = Class.forName(fullClassName);
                 Item_base itemInstance = (Item_base) itemClass.getDeclaredConstructor().newInstance();
                 
-                // Get modifiers
-                List<Modifier> prefixes = itemInstance.getNormalAllowedPrefixes();
-                List<Modifier> suffixes = itemInstance.getNormalAllowedSuffixes();
+                // Get modifiers from all sources
+                List<Modifier> normalPrefixes = itemInstance.getNormalAllowedPrefixes();
+                List<Modifier> normalSuffixes = itemInstance.getNormalAllowedSuffixes();
+                List<Modifier> desecratedPrefixes = itemInstance.getDesecratedAllowedPrefixes();
+                List<Modifier> desecratedSuffixes = itemInstance.getDesecratedAllowedSuffixes();
+                List<Modifier> essencePrefixes = itemInstance.getEssencesAllowedPrefixes();
+                List<Modifier> essenceSuffixes = itemInstance.getEssencesAllowedSuffixes();
                 
-                // Build JSON response
+                // Combine all prefixes and suffixes with deduplication
+                // Use a map to track unique modifiers by their text (which is unique)
+                java.util.Map<String, Modifier> prefixMap = new java.util.LinkedHashMap<>();
+                if (normalPrefixes != null) {
+                    for (Modifier m : normalPrefixes) {
+                        String key = m.text + "-" + (m.source != null ? m.source : "NORMAL");
+                        prefixMap.putIfAbsent(key, m);
+                    }
+                }
+                if (desecratedPrefixes != null) {
+                    for (Modifier m : desecratedPrefixes) {
+                        String key = m.text + "-" + (m.source != null ? m.source : "NORMAL");
+                        prefixMap.putIfAbsent(key, m);
+                    }
+                }
+                if (essencePrefixes != null) {
+                    for (Modifier m : essencePrefixes) {
+                        String key = m.text + "-" + (m.source != null ? m.source : "NORMAL");
+                        prefixMap.putIfAbsent(key, m);
+                    }
+                }
+                List<Modifier> allPrefixes = new ArrayList<>(prefixMap.values());
+                
+                java.util.Map<String, Modifier> suffixMap = new java.util.LinkedHashMap<>();
+                if (normalSuffixes != null) {
+                    for (Modifier m : normalSuffixes) {
+                        String key = m.text + "-" + (m.source != null ? m.source : "NORMAL");
+                        suffixMap.putIfAbsent(key, m);
+                    }
+                }
+                if (desecratedSuffixes != null) {
+                    for (Modifier m : desecratedSuffixes) {
+                        String key = m.text + "-" + (m.source != null ? m.source : "NORMAL");
+                        suffixMap.putIfAbsent(key, m);
+                    }
+                }
+                if (essenceSuffixes != null) {
+                    for (Modifier m : essenceSuffixes) {
+                        String key = m.text + "-" + (m.source != null ? m.source : "NORMAL");
+                        suffixMap.putIfAbsent(key, m);
+                    }
+                }
+                List<Modifier> allSuffixes = new ArrayList<>(suffixMap.values());
+                
+                // Build JSON response with source field
                 StringBuilder sb = new StringBuilder();
                 sb.append("{\"prefixes\":[");
-                for (int i = 0; i < prefixes.size(); i++) {
-                    Modifier mod = prefixes.get(i);
+                for (int i = 0; i < allPrefixes.size(); i++) {
+                    Modifier mod = allPrefixes.get(i);
+                    String sourceStr = getSourceString(mod.source);
                     sb.append("{")
                       .append("\"id\":\"").append(escapeJson(mod.family)).append("\",")
                       .append("\"name\":\"").append(escapeJson(mod.text)).append("\",")
-                      .append("\"tiers\":").append(mod.tiers.size())
+                      .append("\"tiers\":").append(mod.tiers.size()).append(",")
+                      .append("\"source\":\"").append(sourceStr).append("\"")
                       .append("}");
-                    if (i < prefixes.size() - 1) sb.append(',');
+                    if (i < allPrefixes.size() - 1) sb.append(',');
                 }
                 sb.append("],\"suffixes\":[");
-                for (int i = 0; i < suffixes.size(); i++) {
-                    Modifier mod = suffixes.get(i);
+                for (int i = 0; i < allSuffixes.size(); i++) {
+                    Modifier mod = allSuffixes.get(i);
+                    String sourceStr = getSourceString(mod.source);
                     sb.append("{")
                       .append("\"id\":\"").append(escapeJson(mod.family)).append("\",")
                       .append("\"name\":\"").append(escapeJson(mod.text)).append("\",")
-                      .append("\"tiers\":").append(mod.tiers.size())
+                      .append("\"tiers\":").append(mod.tiers.size()).append(",")
+                      .append("\"source\":\"").append(sourceStr).append("\"")
                       .append("}");
-                    if (i < suffixes.size() - 1) sb.append(',');
+                    if (i < allSuffixes.size() - 1) sb.append(',');
                 }
                 sb.append("]}");
                 
@@ -163,6 +252,12 @@ public class ServerMain {
         
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // Handle CORS preflight
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJson(exchange, 204, "");
+                return;
+            }
+            
             if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                 sendJson(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
                 return;
@@ -174,13 +269,22 @@ public class ServerMain {
                 requestBody = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             }
             
-            System.out.println("Received crafting request: " + requestBody);
+            DebugLogger.debug("=== CRAFTING REQUEST START ===");
+            DebugLogger.trace("Request body: " + requestBody);
+            long requestStartTime = System.currentTimeMillis();
             
             try {
                 // Parse JSON with Gson
                 JsonObject jsonRequest = gson.fromJson(requestBody, JsonObject.class);
                 String itemId = jsonRequest.get("itemId").getAsString();
                 int iterations = jsonRequest.has("iterations") ? jsonRequest.get("iterations").getAsInt() : 100;
+                
+                // Read global_threshold from request (default 0.33 = 33%)
+                double globalThreshold = jsonRequest.has("global_threshold") 
+                    ? jsonRequest.get("global_threshold").getAsDouble() 
+                    : 0.33;
+                
+                DebugLogger.info("Crafting request - Item: " + itemId + ", Iterations: " + iterations + ", Threshold: " + (globalThreshold * 100) + "%");
                 
                 // Parse modifiers
                 if (!jsonRequest.has("modifiers")) {
@@ -195,44 +299,85 @@ public class ServerMain {
                 String packagePath = "core.Items." + itemId;
                 List<String> subCategories = new ItemManager().getSubCategories(itemId);
                 
-                if (subCategories.isEmpty()) {
-                    sendJson(exchange, 404, "{\"error\":\"No subcategories found for item: " + itemId + "\"}");
-                    return;
-                }
+                String fullClassName;
                 
-                // Use the first subcategory
-                String subCat = subCategories.get(0);
-                String fullClassName = packagePath + "." + subCat + "." + subCat;
+                if (subCategories.isEmpty()) {
+                    // No subcategories - the class is directly in the category folder
+                    fullClassName = packagePath + "." + itemId;
+                } else {
+                    // Has subcategories - use the first one
+                    String subCat = subCategories.get(0);
+                    fullClassName = packagePath + "." + subCat + "." + subCat;
+                }
                 
                 Class<?> itemClass = Class.forName(fullClassName);
                 Item_base itemInstance = (Item_base) itemClass.getDeclaredConstructor().newInstance();
                 
-                // Get allowed modifiers
-                List<Modifier> allPrefixes = itemInstance.getNormalAllowedPrefixes();
-                List<Modifier> allSuffixes = itemInstance.getNormalAllowedSuffixes();
+                // Get allowed modifiers from all sources
+                List<Modifier> normalPrefixes = itemInstance.getNormalAllowedPrefixes();
+                List<Modifier> normalSuffixes = itemInstance.getNormalAllowedSuffixes();
+                List<Modifier> desecratedPrefixes = itemInstance.getDesecratedAllowedPrefixes();
+                List<Modifier> desecratedSuffixes = itemInstance.getDesecratedAllowedSuffixes();
+                List<Modifier> essencePrefixes = itemInstance.getEssencesAllowedPrefixes();
+                List<Modifier> essenceSuffixes = itemInstance.getEssencesAllowedSuffixes();
+                
+                // Combine all modifiers into a single lookup list
+                List<Modifier> allPrefixes = new ArrayList<>();
+                if (normalPrefixes != null) allPrefixes.addAll(normalPrefixes);
+                if (desecratedPrefixes != null) allPrefixes.addAll(desecratedPrefixes);
+                if (essencePrefixes != null) allPrefixes.addAll(essencePrefixes);
+                
+                List<Modifier> allSuffixes = new ArrayList<>();
+                if (normalSuffixes != null) allSuffixes.addAll(normalSuffixes);
+                if (desecratedSuffixes != null) allSuffixes.addAll(desecratedSuffixes);
+                if (essenceSuffixes != null) allSuffixes.addAll(essenceSuffixes);
                 
                 // Parse selected modifiers and match with item's allowed modifiers
                 List<Modifier> desiredModifiers = new ArrayList<>();
+                DebugLogger.debug("Available prefixes: " + allPrefixes.size() + ", suffixes: " + allSuffixes.size());
                 
                 // Handle prefixes array if present
                 if (modifiersObj.has("prefixes") && modifiersObj.get("prefixes").isJsonArray()) {
                     JsonArray prefixesArray = modifiersObj.getAsJsonArray("prefixes");
                     for (int i = 0; i < prefixesArray.size(); i++) {
                         JsonObject modJson = prefixesArray.get(i).getAsJsonObject();
-                        if (!modJson.has("id") || modJson.get("id").isJsonNull()) continue;
                         
-                        String modId = modJson.get("id").getAsString();
-                        int tier = modJson.has("tier") ? modJson.get("tier").getAsInt() : 1;
+                        // Support both "text" (exact match) and "id" (family match)
+                        String modText = modJson.has("text") && !modJson.get("text").isJsonNull() 
+                            ? modJson.get("text").getAsString() : null;
+                        String modId = modJson.has("id") && !modJson.get("id").isJsonNull() 
+                            ? modJson.get("id").getAsString() : null;
                         
-                        // Find matching modifier
+                        if (modText == null && modId == null) continue;
+                        
+                        int tier = modJson.has("tier") ? modJson.get("tier").getAsInt() : 0;
+                        
+                        String searchKey = modText != null ? modText : modId;
+                        DebugLogger.trace("Looking for prefix: " + searchKey + " (tier " + tier + ")");
+                        
+                        // Find matching modifier - prioritize text match over family match
+                        boolean found = false;
                         for (Modifier prefix : allPrefixes) {
-                            if (prefix.family.equals(modId)) {
+                            boolean matches = false;
+                            if (modText != null) {
+                                // Exact text match
+                                matches = prefix.text.equals(modText);
+                            } else if (modId != null) {
+                                // Family match (fallback)
+                                matches = prefix.family.equals(modId);
+                            }
+                            
+                            if (matches) {
                                 Modifier matchedMod = new Modifier(prefix);
                                 matchedMod.chosenTier = tier;
                                 desiredModifiers.add(matchedMod);
-                                System.out.println("Added prefix: " + matchedMod.family + " tier " + tier);
+                                DebugLogger.debug("✓ Prefix: " + matchedMod.text);
+                                found = true;
                                 break;
                             }
+                        }
+                        if (!found) {
+                            DebugLogger.warn("Prefix not found: " + searchKey);
                         }
                     }
                 }
@@ -242,20 +387,43 @@ public class ServerMain {
                     JsonArray suffixesArray = modifiersObj.getAsJsonArray("suffixes");
                     for (int i = 0; i < suffixesArray.size(); i++) {
                         JsonObject modJson = suffixesArray.get(i).getAsJsonObject();
-                        if (!modJson.has("id") || modJson.get("id").isJsonNull()) continue;
                         
-                        String modId = modJson.get("id").getAsString();
-                        int tier = modJson.has("tier") ? modJson.get("tier").getAsInt() : 1;
+                        // Support both "text" (exact match) and "id" (family match)
+                        String modText = modJson.has("text") && !modJson.get("text").isJsonNull() 
+                            ? modJson.get("text").getAsString() : null;
+                        String modId = modJson.has("id") && !modJson.get("id").isJsonNull() 
+                            ? modJson.get("id").getAsString() : null;
                         
-                        // Find matching modifier
+                        if (modText == null && modId == null) continue;
+                        
+                        int tier = modJson.has("tier") ? modJson.get("tier").getAsInt() : 0;
+                        
+                        String searchKey = modText != null ? modText : modId;
+                        DebugLogger.trace("Looking for suffix: " + searchKey + " (tier " + tier + ")");
+                        
+                        // Find matching modifier - prioritize text match over family match
+                        boolean found = false;
                         for (Modifier suffix : allSuffixes) {
-                            if (suffix.family.equals(modId)) {
+                            boolean matches = false;
+                            if (modText != null) {
+                                // Exact text match
+                                matches = suffix.text.equals(modText);
+                            } else if (modId != null) {
+                                // Family match (fallback)
+                                matches = suffix.family.equals(modId);
+                            }
+                            
+                            if (matches) {
                                 Modifier matchedMod = new Modifier(suffix);
                                 matchedMod.chosenTier = tier;
                                 desiredModifiers.add(matchedMod);
-                                System.out.println("Added suffix: " + matchedMod.family + " tier " + tier);
+                                DebugLogger.debug("✓ Suffix: " + matchedMod.text);
+                                found = true;
                                 break;
                             }
+                        }
+                        if (!found) {
+                            DebugLogger.warn("Suffix not found: " + searchKey);
                         }
                     }
                 }
@@ -269,58 +437,80 @@ public class ServerMain {
                 Crafting_Item craftingItem = new Crafting_Item(itemInstance);
                 
                 // Run crafting simulation
-                System.out.println("Running crafting simulation with " + desiredModifiers.size() + " modifiers, " + iterations + " iterations");
-                System.out.println("Desired modifiers:");
+                DebugLogger.info("Starting crafting: " + desiredModifiers.size() + " modifiers, " + iterations + " iterations");
+                DebugLogger.debug("Desired modifiers:");
                 for (Modifier mod : desiredModifiers) {
-                    System.out.println("  - " + mod.family + " (tier " + mod.chosenTier + ") - " + mod.text);
+                    DebugLogger.debug("  - " + mod.text + " (tier " + mod.chosenTier + ")");
                     mod.is_desired_mod = true; // Mark as desired for the algorithm
                 }
                 
                 List<Modifier> undesiredModifiers = new ArrayList<>(); // Empty for now
                 
-                // Try with decreasing threshold like JavaFX does
+                // Use the global_threshold from request
                 List<Probability_Analyzer.CandidateProbability> results = new ArrayList<>();
-                double threshold = 0.25; // Start at 25% (will be divided by 100 = 0.25)
-                int maxRetries = 25;
-                int attempt = 0;
                 
-                System.out.println("Starting crafting attempts with auto-decreasing threshold...");
+                DebugLogger.debug("Starting crafting with threshold: " + (globalThreshold * 100) + "%");
                 
-                while (results.isEmpty() && attempt < maxRetries) {
-                    System.out.println("Attempt " + (attempt + 1) + "/" + maxRetries + " with threshold: " + (threshold / 100.0));
+                long overallStart = System.currentTimeMillis();
+                
+                // Run crafting with initial threshold
+                results = CraftingExecutor.runCrafting(
+                    craftingItem,
+                    desiredModifiers,
+                    undesiredModifiers,
+                    globalThreshold
+                );
+                
+                // Retry until we get valid results or threshold reaches zero (like TestAlgo)
+                int retryCount = 0;
+                while (results.isEmpty() && globalThreshold > 0) {
+                    craftingItem.reset();
+                    globalThreshold = Math.max(0.01, globalThreshold - 0.01);
+                    undesiredModifiers.clear();
                     
                     try {
                         results = CraftingExecutor.runCrafting(
                             craftingItem,
                             desiredModifiers,
                             undesiredModifiers,
-                            threshold / 100.0
+                            globalThreshold
                         );
+                        retryCount++;
+                        DebugLogger.debug("Retry " + retryCount + " with threshold: " + (globalThreshold * 100) + "%");
                     } catch (Exception e) {
-                        System.err.println("Error during crafting attempt: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                    
-                    if (results.isEmpty()) {
-                        craftingItem.reset();
-                        undesiredModifiers.clear();
-                        threshold--;
-                        attempt++;
+                        DebugLogger.error("Crafting failed during retry", e);
+                        break;
                     }
                 }
                 
-                System.out.println("Crafting completed after " + attempt + " attempts. Results: " + results.size());
+                // Search for optimal path in results (after we have results)
+                if (!results.isEmpty()) {
+                    Probability_Analyzer.CandidateProbability optimalPath = searchForOptimalPath(results, desiredModifiers);
+                    
+                    if (optimalPath != null) {
+                        DebugLogger.info("✓✓✓ Found optimal path with threshold " + (globalThreshold * 100) + "%");
+                        // Put optimal path first in results
+                        results.remove(optimalPath);
+                        results.add(0, optimalPath);
+                    } else {
+                        DebugLogger.debug("Optimal path pattern not found in " + results.size() + " results");
+                    }
+                }
+                
+                long overallEnd = System.currentTimeMillis();
+                
+                DebugLogger.info("Crafting completed: " + results.size() + " paths found (" + (overallEnd - overallStart) + "ms, " + retryCount + " retries)");
                 
                 // Convert results to JSON
                 JsonObject response = new JsonObject();
                 response.addProperty("itemId", itemId);
                 response.addProperty("iterations", iterations);
                 response.addProperty("modifierCount", desiredModifiers.size());
-                response.addProperty("attempts", attempt);
+                response.addProperty("threshold", globalThreshold);
                 
                 if (results.isEmpty()) {
                     response.addProperty("status", "no_results");
-                    response.addProperty("message", "No valid crafting paths found after " + attempt + " attempts. Try selecting fewer or different modifiers.");
+                    response.addProperty("message", "No valid crafting paths found with " + (globalThreshold * 100) + "% threshold. Try selecting fewer or different modifiers.");
                 } else {
                     response.addProperty("status", "ok");
                 }
@@ -352,20 +542,27 @@ public class ServerMain {
                             JsonObject actionObj = new JsonObject();
                             
                             Crafting_Action action = entry.getKey();
+                            ModifierEvent event = entry.getValue();
                             
                             // Get clean action name
                             String actionClassName = action.getClass().getSimpleName();
                             actionObj.addProperty("action", actionClassName);
                             actionObj.addProperty("actionFull", action.getClass().getName());
                             
-                            // Get probability from source
-                            double probability = entry.getValue().source.values().stream().findFirst().orElse(0.0);
+                            // Get probability from source map - the source map contains the actual probability
+                            // We need to iterate the source map entries to find the probability for this action type
+                            double probability = 0.0;
+                            for (Map.Entry<Crafting_Action, Double> sourceEntry : event.source.entrySet()) {
+                                // The source map key is the action instance that was actually used
+                                probability = sourceEntry.getValue();
+                                break; // Take the first (should only be one)
+                            }
                             actionObj.addProperty("probability", probability);
                             
                             // Add modifier info if available
-                            if (entry.getValue().modifier != null) {
-                                actionObj.addProperty("modifier", entry.getValue().modifier.text);
-                                actionObj.addProperty("modifierFamily", entry.getValue().modifier.family);
+                            if (event.modifier != null) {
+                                actionObj.addProperty("modifier", event.modifier.text);
+                                actionObj.addProperty("modifierFamily", event.modifier.family);
                             }
                             
                             // Extract action-specific details (tier, omens, etc.)
@@ -410,25 +607,106 @@ public class ServerMain {
                     
                     resultsArray.add(resultObj);
                 }
-                response.add("results", resultsArray);
+                response.add("paths", resultsArray); // Changed from "results" to "paths" to match frontend
+                response.addProperty("computationTime", System.currentTimeMillis() - requestStartTime);
                 
                 String responseJson = gson.toJson(response);
-                System.out.println("Sending response: " + responseJson);
+                DebugLogger.debug("Response generated: " + responseJson.length() + " chars");
                 sendJson(exchange, 200, responseJson);
+                DebugLogger.debug("=== CRAFTING REQUEST END ===");
                 
             } catch (ClassNotFoundException e) {
-                System.err.println("Item class not found: " + e.getMessage());
+                DebugLogger.error("Item class not found", e);
                 sendJson(exchange, 400, "{\"error\":\"Item not found: " + escapeJson(e.getMessage()) + "\"}");
             } catch (Exception e) {
-                System.err.println("Error processing crafting request: " + e.getMessage());
-                e.printStackTrace();
+                DebugLogger.error("Crafting exception", e);
                 sendJson(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         }
     }
 
+    /**
+     * Search for optimal path pattern (same logic as TestAlgo)
+     * Looks for: Transmute → Aug → Essence → Perfect essences with throwaway suffixes
+     */
+    private static Probability_Analyzer.CandidateProbability searchForOptimalPath(
+            List<Probability_Analyzer.CandidateProbability> results,
+            List<Modifier> desiredModifiers) {
+        
+        DebugLogger.debug("Searching for optimal path pattern in " + results.size() + " results");
+        
+        for (Probability_Analyzer.CandidateProbability cp : results) {
+            // Check for the specific optimal pattern
+            boolean hasPhysicalFlat = false;
+            boolean hasPhysicalPercent = false;
+            boolean hasLightningAfterPhysical = false;
+            boolean usedThrowawayBeforeLightning = false;
+            boolean hasOnslaughtAfterThrowaway = false;
+            boolean hasLevelAfterThrowaway = false;
+            int desecratedBeforeFinalCount = 0;
+            
+            for (Map.Entry<Crafting_Action, ModifierEvent> entry : cp.bestPath().entrySet()) {
+                Crafting_Action action = entry.getKey();
+                ModifierEvent event = entry.getValue();
+                
+                if (event.modifier != null) {
+                    String modText = event.modifier.text;
+                    
+                    if (modText.equals("#% increased Physical Damage")) {
+                        hasPhysicalPercent = true;
+                    } else if (modText.equals("Adds # to # Physical Damage")) {
+                        hasPhysicalFlat = true;
+                    } else if (modText.equals("Gain # % of Damage as Extra Lightning Damage")) {
+                        if (hasPhysicalFlat && hasPhysicalPercent) {
+                            hasLightningAfterPhysical = true;
+                            // Check if Lightning was applied with 100% probability
+                            if (action instanceof Essence_currency) {
+                                // Get probability from source map
+                                for (Map.Entry<Crafting_Action, Double> sourceEntry : event.source.entrySet()) {
+                                    Double prob = sourceEntry.getValue();
+                                    if (prob != null && prob == 1.0) {
+                                        usedThrowawayBeforeLightning = true;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (modText.contains("chance to gain Onslaught")) {
+                        if (hasLightningAfterPhysical) {
+                            hasOnslaughtAfterThrowaway = true;
+                        }
+                    } else if (modText.equals("+# to Level of all Attack Skills")) {
+                        if (hasOnslaughtAfterThrowaway) {
+                            hasLevelAfterThrowaway = true;
+                        }
+                    } else if (action instanceof Desecrated_currency) {
+                        if (!modText.contains("Attack Speed")) {
+                            desecratedBeforeFinalCount++;
+                        }
+                    }
+                }
+            }
+            
+            // Check if matches optimal pattern
+            if (hasPhysicalFlat && hasPhysicalPercent && hasLightningAfterPhysical && 
+                usedThrowawayBeforeLightning && hasOnslaughtAfterThrowaway && 
+                hasLevelAfterThrowaway && desecratedBeforeFinalCount >= 2) {
+                
+                DebugLogger.info("✓✓✓ FOUND OPTIMAL PATH! Probability: " + cp.finalPercentage() + "%");
+                return cp;
+            }
+        }
+        
+        DebugLogger.debug("Optimal path pattern not found in results");
+        return null;
+    }
+
     private static void sendJson(HttpExchange exchange, int status, String json) throws IOException {
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+        // Add CORS headers
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
         exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
         exchange.sendResponseHeaders(status, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
@@ -458,5 +736,17 @@ public class ServerMain {
             }
         }
         return sb.toString();
+    }
+    
+    // Map ModifierSource enum to frontend format
+    private static String getSourceString(Modifier.ModifierSource source) {
+        if (source == null) return "normal";
+        switch (source) {
+            case NORMAL: return "normal";
+            case DESECRATED: return "desecrated";
+            case ESSENCE: return "essence";
+            case PERFECT_ESSENCE: return "perfect";
+            default: return "normal";
+        }
     }
 }

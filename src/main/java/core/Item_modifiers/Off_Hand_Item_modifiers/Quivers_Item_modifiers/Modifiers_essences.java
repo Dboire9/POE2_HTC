@@ -12,13 +12,13 @@ public class Modifiers_essences {
 
 	public static final Modifier ESSENCE_INCREASED_ACCURACY;
 	public static final Modifier ESSENCE_INCREASED_DAMAGE_WITH_BOW_SKILLS;
-	public static final Modifier ESSENCE_ABYSS_PREFIX;
+	
 
 	// SUFFIXES
 	public static final Modifier ESSENCE_ATTRIBUTES_STRENGTH;
 	public static final Modifier ESSENCE_ATTRIBUTES_DEXTERITY;
 	public static final Modifier ESSENCE_ATTRIBUTES_INTELLIGENCE;
-	public static final Modifier ESSENCE_ABYSS_SUFFIX;
+	
 
 	static {
 
@@ -44,15 +44,7 @@ public class Modifiers_essences {
 				"IncreasedDamageWithBowSkillsPercent",
 				"#% increased Damage with Bow Skills");
 
-		ESSENCE_ABYSS_PREFIX = new Modifier(
-				"essence_abyss",
-				List.of(),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		// SUFFIXES
 
@@ -92,15 +84,7 @@ public class Modifiers_essences {
 				"Intelligence",
 				"+# to Intelligence");
 
-		ESSENCE_ABYSS_SUFFIX = new Modifier(
-				"essence_abyss",
-				List.of("mark_of_abyssal_lord"),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 	}
 

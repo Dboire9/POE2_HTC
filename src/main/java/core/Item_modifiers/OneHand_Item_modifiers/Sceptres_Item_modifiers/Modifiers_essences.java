@@ -10,13 +10,13 @@ public class Modifiers_essences {
 
 	// PREFIXES
 	public static final Modifier ESSENCE_ALLIES_INCREASED_DAMAGE;
-	public static final Modifier ESSENCE_ABYSS_PREFIX;
+	
 
 	// SUFFIXES
 	public static final Modifier ESSENCE_ATTRIBUTES_STRENGTH;
 	public static final Modifier ESSENCE_ATTRIBUTES_DEXTERITY;
 	public static final Modifier ESSENCE_ATTRIBUTES_INTELLIGENCE;
-	public static final Modifier ESSENCE_ABYSS_SUFFIX;
+	
 	public static final Modifier ESSENCE_AURA_SKILLS_MAGNITUDE;
 
 	static {
@@ -35,15 +35,7 @@ public class Modifiers_essences {
 				"AllDamage",
 				"Allies in your Presence deal #% increased damage");
 
-		ESSENCE_ABYSS_PREFIX = new Modifier(
-				"essence_abyss",
-				List.of(),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 0, null)),
-				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		// SUFFIXES
 
@@ -83,15 +75,7 @@ public class Modifiers_essences {
 				"Intelligence",
 				"+# to Intelligence");
 
-		ESSENCE_ABYSS_SUFFIX = new Modifier(
-				"essence_abyss",
-				List.of("mark_of_abyssal_lord"),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		ESSENCE_AURA_SKILLS_MAGNITUDE = new Modifier(
 				"aura_skills_magnitudes",

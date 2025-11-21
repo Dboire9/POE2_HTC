@@ -61,13 +61,13 @@ public class Shields_str_int extends Item_base {
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_BASE_MAXIMUM_LIFE);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_SHIELD_BLOCK_PERCENTAGE);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
+        
         
         Essences_allowedSuffixes = new ArrayList<>();
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_CHAOS_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_STRENGTH);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_INTELLIGENCE);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
+        
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_FIRE_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_COLD_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_LIGHTNING_RESISTANCE);

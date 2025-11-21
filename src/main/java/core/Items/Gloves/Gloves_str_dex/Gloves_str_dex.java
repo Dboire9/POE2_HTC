@@ -66,7 +66,7 @@ public class Gloves_str_dex extends Item_base {
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_BASE_MAXIMUM_MANA);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_EVASION);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_INCREASED_ACCURACY);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
+        
         
         Essences_allowedSuffixes = new ArrayList<>();
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_CHAOS_RESISTANCE);
@@ -74,7 +74,7 @@ public class Gloves_str_dex extends Item_base {
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ATTRIBUTES_DEXTERITY);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_CRITICAL_DAMAGE_BONUS);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_SOUL_CORE);
-        Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
+        
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_FIRE_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_COLD_RESISTANCE);
         Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_LIGHTNING_RESISTANCE);

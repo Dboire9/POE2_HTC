@@ -103,15 +103,13 @@ public class Crafting_Algorithm {
 				next.clear();
 			}
 
-			// Shutdown thread pool
-			executor.shutdown();
-			executor.awaitTermination(1, TimeUnit.MINUTES);
+		// Shutdown thread pool
+		executor.shutdown();
+		executor.awaitTermination(1, TimeUnit.MINUTES);
 
-			// Final filtering
-			return extractHighScoreCandidates(allCandidateLists, desiredMods);
-	}
-	
-    /**
+		// Final filtering - pass threshold to scale the score requirement
+		return extractHighScoreCandidates(allCandidateLists, desiredMods, GLOBAL_THRESHOLD);
+}    /**
      * Processes candidate lists to refine crafting results.
      *
      * @param baseItem        The base item being crafted.
@@ -140,7 +138,8 @@ public class Crafting_Algorithm {
 		for (List<Crafting_Candidate> candidates : currentLists) {
 			if (candidates.isEmpty()) continue;
 	
-			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, globalThreshold);
+			if(candidates.get(0).getAllCurrentModifiers().size() < 5) // Not checking the last modifier propbability percentage
+				ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, globalThreshold);
 			RareLoop(baseItem, candidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor);
 		}
 	}
@@ -151,27 +150,36 @@ public class Crafting_Algorithm {
      *
      * @param allCandidateLists The list of all crafting candidates.
      * @param desiredMods       The desired modifiers.
+     * @param globalThreshold   The global threshold to scale score requirement.
      * @return A list of high-score crafting candidates.
      */
 	private static List<Crafting_Candidate> extractHighScoreCandidates(
-			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods) {
+			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods, double globalThreshold) {
 	
 		List<Crafting_Candidate> result = new ArrayList<>();
+		
+		// Dynamic score threshold: higher globalThreshold = MORE lenient filtering
+		// At threshold=0.0 (0%), require minScore=6000
+		// At threshold=0.5 (50%), require minScore=3000
+		// At threshold=1.0 (100%), require minScore=600 (keep minimum to avoid junk)
+		double minScore = 6000 * Math.max(0.1, (1 - globalThreshold));
 	
 		for (List<Crafting_Candidate> list : allCandidateLists) {
 			for (Crafting_Candidate candidate : list) {
 				candidate.desecrated = false;
-	
-				if (candidate.score < 6000) continue;
-	
+
+				if (candidate.score < minScore) continue;
+
 				List<Modifier> current = candidate.getAllCurrentModifiers();
-				if (current.size() < 6) continue;
-	
+				// Changed: Must have at least as many mods as desired, not exactly 6
+				if (current.size() < desiredMods.size()) continue;
+
 				long matchCount = current.stream()
 						.filter(m -> desiredMods.stream().anyMatch(d -> d.text.equals(m.text)))
 						.count();
-	
-				if (matchCount == 6) result.add(candidate);
+
+				// Changed: Match all desired mods, not exactly 6
+				if (matchCount >= desiredMods.size()) result.add(candidate);
 			}
 		}
 		return result;

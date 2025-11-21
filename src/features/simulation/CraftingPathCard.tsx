@@ -37,7 +37,24 @@ const CraftingPathCard: React.FC<CraftingPathCardProps> = ({ path, rank }) => {
             <li key={idx} className="flex items-start gap-2 text-sm">
               <span className="text-muted-foreground font-mono w-6">{step.order}.</span>
               <div className="flex-1">
-                <p className="font-medium">{step.action}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-medium">{step.action}</p>
+                  {step.tier && (
+                    <Badge variant="outline" className="text-xs">
+                      {step.tier}
+                    </Badge>
+                  )}
+                  {step.omen && (
+                    <Badge variant="secondary" className="text-xs">
+                      {step.omen}
+                    </Badge>
+                  )}
+                  {step.omens && step.omens.length > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {step.omens.join(', ')}
+                    </Badge>
+                  )}
+                </div>
                 {step.targetModifier && (
                   <p className="text-xs text-muted-foreground mt-0.5">
                     → {step.targetModifier}

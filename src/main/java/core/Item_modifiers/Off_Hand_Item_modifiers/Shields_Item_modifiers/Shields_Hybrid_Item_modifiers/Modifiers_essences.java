@@ -17,14 +17,14 @@ public class Modifiers_essences {
 	public static final Modifier ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD;
 	public static final Modifier ESSENCE_HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD;
 	public static final Modifier ESSENCE_INCREASED_SHIELD_BLOCK_PERCENTAGE;
-	public static final Modifier ESSENCE_ABYSS_PREFIX;
+	
 
 	// SUFFIXES
 	public static final Modifier ESSENCE_CHAOS_RESISTANCE;
 	public static final Modifier ESSENCE_ATTRIBUTES_STRENGTH;
 	public static final Modifier ESSENCE_ATTRIBUTES_DEXTERITY;
 	public static final Modifier ESSENCE_ATTRIBUTES_INTELLIGENCE;
-	public static final Modifier ESSENCE_ABYSS_SUFFIX;
+	
 	public static final Modifier ESSENCE_FIRE_RESISTANCE;
 	public static final Modifier ESSENCE_COLD_RESISTANCE;
 	public static final Modifier ESSENCE_LIGHTNING_RESISTANCE;
@@ -134,15 +134,7 @@ public class Modifiers_essences {
 				"IncreasedShieldBlockPercentage",
 				"(#–#)% increased Block chance");
 
-		ESSENCE_ABYSS_PREFIX = new Modifier(
-				"essence_abyss",
-				List.of(),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		// SUFFIXES
 
@@ -194,15 +186,7 @@ public class Modifiers_essences {
 				"Intelligence",
 				"+# to Intelligence");
 
-		ESSENCE_ABYSS_SUFFIX = new Modifier(
-				"essence_abyss",
-				List.of("mark_of_abyssal_lord"),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		ESSENCE_FIRE_RESISTANCE = new Modifier(
 				"fire_resistance",

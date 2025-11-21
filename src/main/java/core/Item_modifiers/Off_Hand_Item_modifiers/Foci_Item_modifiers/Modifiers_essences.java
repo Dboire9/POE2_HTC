@@ -14,7 +14,7 @@ public class Modifiers_essences {
 	public static final Modifier ESSENCE_INCREASED_PERCENT_EVASION;
 	public static final Modifier ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD;
 	public static final Modifier ESSENCE_INCREASED_SPELL_DAMAGE;
-	public static final Modifier ESSENCE_ABYSS_PREFIX;
+	
 
 	// SUFFIXES
 	public static final Modifier ESSENCE_CHAOS_RESISTANCE;
@@ -24,7 +24,7 @@ public class Modifiers_essences {
 	public static final Modifier ESSENCE_ALL_SPELL_SKILL_LEVEL;
 	public static final Modifier ESSENCE_ENERGY_SHIELD_REGENERATION;
 	public static final Modifier ESSENCE_SPELL_CRITICAL_STRIKE_CHANCE_INCREASE;
-	public static final Modifier ESSENCE_ABYSS_SUFFIX;
+	
 	public static final Modifier ESSENCE_FIRE_RESISTANCE;
 	public static final Modifier ESSENCE_COLD_RESISTANCE;
 	public static final Modifier ESSENCE_LIGHTNING_RESISTANCE;
@@ -93,15 +93,7 @@ public class Modifiers_essences {
 				"WeaponCasterDamagePrefix",
 				"#% increased Spell Damage");
 
-		ESSENCE_ABYSS_PREFIX = new Modifier(
-				"essence_abyss",
-				List.of(),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		// SUFFIXES
 
@@ -185,15 +177,7 @@ public class Modifiers_essences {
 				"SpellCriticalStrikeChanceIncrease",
 				"#% increased Critical Hit Chance for Spells");
 
-		ESSENCE_ABYSS_SUFFIX = new Modifier(
-				"essence_abyss",
-				List.of("mark_of_abyssal_lord"),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		ESSENCE_FIRE_RESISTANCE = new Modifier(
 				"fire_resistance",

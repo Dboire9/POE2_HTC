@@ -64,7 +64,7 @@ public class TwoHand_Maces extends Item_base {
 		Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_WEAPON_GAINED_DAMAGE_FIRE);
 		Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_WEAPON_GAINED_DAMAGE_COLD);
 		Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_WEAPON_GAINED_DAMAGE_LIGHTNING);
-		Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_ABYSS_PREFIX);
+		
 
 		Essences_allowedSuffixes = new ArrayList<>();
 		Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_INCREASED_ATTACK_SPEED);
@@ -74,6 +74,6 @@ public class TwoHand_Maces extends Item_base {
 		Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ALL_ATTACK_SKILL_LEVEL);
 		Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ONSLAUGHT);
 		Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_CRITICAL_STRIKE_CHANCE);
-		Essences_allowedSuffixes.add(Modifiers_essences.ESSENCE_ABYSS_SUFFIX);
+		
 	}
 }

@@ -10,7 +10,7 @@ public class Modifiers_essences {
 
 	// PREFIXES
 	public static final Modifier ESSENCE_INCREASED_SPELL_DAMAGE;
-	public static final Modifier ESSENCE_ABYSS_PREFIX;
+	
 
 	// SUFFIXES
 	public static final Modifier ESSENCE_ATTRIBUTES_STRENGTH;
@@ -18,7 +18,7 @@ public class Modifiers_essences {
 	public static final Modifier ESSENCE_ATTRIBUTES_INTELLIGENCE;
 	public static final Modifier ESSENCE_ALL_SPELL_SKILL_LEVEL;
 	public static final Modifier ESSENCE_SPELL_CRIT_CHANCE;
-	public static final Modifier ESSENCE_ABYSS_SUFFIX;
+	
 	public static final Modifier ESSENCE_INCREASED_CAST_SPEED;
 	public static final Modifier ESSENCE_MANA_COST_EFFICIENCY;
 
@@ -37,15 +37,7 @@ public class Modifiers_essences {
 				"WeaponCasterDamagePrefix",
 				"#% increased Spell Damage");
 
-		ESSENCE_ABYSS_PREFIX = new Modifier(
-				"essence_abyss",
-				List.of(),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 0, null)),
-				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		// SUFFIXES
 
@@ -107,15 +99,7 @@ public class Modifiers_essences {
 				"SpellCriticalStrikeChanceIncrease",
 				"#% increased Critical Hit Chance for Spells");
 
-		ESSENCE_ABYSS_SUFFIX = new Modifier(
-				"essence_abyss",
-				List.of("mark_of_abyssal_lord"),
-				List.of(
-						new ModifierTier("Essence of the Abyss", 1, 1, new Pair<>(0, 0))),
-				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
-				"EssenceAbyss",
-				"Mark of the Abyssal Lord");
+
 
 		ESSENCE_INCREASED_CAST_SPEED = new Modifier(
 				"essence_increased_cast_speed",

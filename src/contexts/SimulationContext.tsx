@@ -55,12 +55,29 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       }, 30000);
 
       try {
-        if (!window.electronAPI) {
-          throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
+        let response;
+        
+        // Add global_threshold to request (33% like TestAlgo)
+        const requestWithThreshold = {
+          ...request,
+          global_threshold: 0.33, // 33% threshold
+        };
+        
+        // Try Electron IPC first, fallback to direct HTTP
+        if (window.electronAPI) {
+          response = await window.electronAPI.invoke('api:crafting', requestWithThreshold);
+        } else {
+          // Fallback for browser/development mode
+          const httpResponse = await fetch('http://localhost:8080/api/crafting', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestWithThreshold),
+          });
+          if (!httpResponse.ok) {
+            throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
+          }
+          response = await httpResponse.json();
         }
-
-        // T041: Call backend via Electron IPC
-        const response = await window.electronAPI.invoke('api:crafting', request);
         
         // Check if request was aborted
         if (abortControllerRef.current?.signal.aborted) {
@@ -71,10 +88,34 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           throw new Error(response.error.code || ErrorCode.UNKNOWN);
         }
 
+        // Transform backend response to match frontend types
+        const transformedPaths = (response.paths || []).map((path: any, index: number) => {
+          const steps = (path.bestPath?.actions || []).map((action: any, stepIdx: number) => ({
+            order: stepIdx + 1,
+            action: action.action || 'Unknown',
+            currencyUsed: action.action || 'Unknown',
+            targetModifier: action.modifier,
+            probability: action.probability || 0,
+            tier: action.tier,
+            omen: action.omen,
+            omens: action.omens
+          }));
+
+          return {
+            id: `path-${index}`,
+            probability: path.probability || 0,
+            steps: steps,
+            totalCost: {} // TODO: Calculate from steps
+          };
+        });
+
         // T042: Sort results by probability (highest first)
         const sortedResult: SimulationResult = {
-          ...response,
-          paths: sortPathsByProbability(response.paths || []),
+          itemId: response.itemId || '',
+          requestedModifiers: [],
+          paths: sortPathsByProbability(transformedPaths),
+          computationTime: response.computationTime || 0,
+          warnings: []
         };
 
         setResult(sortedResult);

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSimulation } from '../../contexts/SimulationContext';
 import { useModifiers } from '../../contexts/ModifiersContext';
+import { useItems } from '../../contexts/ItemsContext';
 import CraftingPathCard from './CraftingPathCard';
 import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
 import { Button } from '../../components/ui/button';
@@ -9,6 +10,7 @@ import { Button } from '../../components/ui/button';
 const ResultsDisplay: React.FC = () => {
   const { result, error, clearResults, startSimulation } = useSimulation();
   const { selectedPrefixes, selectedSuffixes, clearSelections } = useModifiers();
+  const { selectedItem } = useItems();
 
   // T061: Display error with recovery actions
   if (error) {
@@ -22,12 +24,13 @@ const ResultsDisplay: React.FC = () => {
               size="sm" 
               variant="outline"
               onClick={() => {
-                const selectedModifiers = [...selectedPrefixes, ...selectedSuffixes];
-                if (selectedModifiers.length > 0) {
-                  const itemId = ''; // Will be populated from context
+                if (selectedItem && (selectedPrefixes.length > 0 || selectedSuffixes.length > 0)) {
                   startSimulation({
-                    itemId,
-                    desiredModifiers: selectedModifiers.map(m => m.id),
+                    itemId: selectedItem.id,
+                    modifiers: {
+                      prefixes: selectedPrefixes.map(m => ({ id: m.id, tier: m.tier || 0 })),
+                      suffixes: selectedSuffixes.map(m => ({ id: m.id, tier: m.tier || 0 })),
+                    },
                   });
                 }
               }}

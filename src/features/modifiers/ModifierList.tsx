@@ -6,7 +6,7 @@ interface ModifierListProps {
   title: string;
   modifiers: Modifier[];
   selectedModifiers: Modifier[];
-  onSelect: (modifier: Modifier) => void;
+  onSelect: (modifier: Modifier, tier?: number) => void;
   onDeselect: (modifierId: string) => void;
   isModifierDisabled: (modifierId: string) => boolean;
 }
@@ -28,12 +28,12 @@ const ModifierList: React.FC<ModifierListProps> = ({
     );
   }
 
-  const handleClick = (modifier: Modifier) => {
-    const isSelected = selectedModifiers.some(m => m.id === modifier.id);
+  const handleClick = (modifier: Modifier, tier?: number) => {
+    const isSelected = selectedModifiers.some(m => m.text === modifier.text);
     if (isSelected) {
-      onDeselect(modifier.id);
+      onDeselect(modifier.text);
     } else {
-      onSelect(modifier);
+      onSelect(modifier, tier);
     }
   };
 
@@ -43,15 +43,20 @@ const ModifierList: React.FC<ModifierListProps> = ({
         {title}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-2">
-        {modifiers.map((modifier) => (
-          <ModifierCard
-            key={modifier.id}
-            modifier={modifier}
-            selected={selectedModifiers.some(m => m.id === modifier.id)}
-            disabled={isModifierDisabled(modifier.id)}
-            onClick={handleClick}
-          />
-        ))}
+        {modifiers.map((modifier) => {
+          const selectedMod = selectedModifiers.find(m => m.text === modifier.text);
+          return (
+            <ModifierCard
+              key={`${modifier.text}-${modifier.source || 'normal'}`}
+              modifier={modifier}
+              selected={!!selectedMod}
+              disabled={isModifierDisabled(modifier.id)}
+              onClick={handleClick}
+              selectedTier={selectedMod?.tier}
+              availableTiers={modifier.availableTiers}
+            />
+          );
+        })}
       </div>
     </div>
   );

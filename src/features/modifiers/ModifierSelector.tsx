@@ -4,6 +4,8 @@ import { useModifiers } from '../../contexts/ModifiersContext';
 import ModifierList from './ModifierList';
 import SelectionCounter from './SelectionCounter';
 import { Spinner } from '../../components/ui/spinner';
+import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
+import { Button } from '../../components/ui/button';
 
 // T032: Main modifier selection component
 const ModifierSelector: React.FC = () => {
@@ -28,12 +30,15 @@ const ModifierSelector: React.FC = () => {
     }
   }, [selectedItem, loadModifiers]);
 
-  // Show message if no item selected
+  // T059: Validation check to prevent proceeding without item selection
   if (!selectedItem) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        Please select an item first
-      </div>
+      <Alert>
+        <AlertTitle>Item Required</AlertTitle>
+        <AlertDescription>
+          Please select an item from the list above to view available modifiers.
+        </AlertDescription>
+      </Alert>
     );
   }
 
@@ -46,17 +51,22 @@ const ModifierSelector: React.FC = () => {
     );
   }
 
+  // T061: Enhanced error display with recovery actions
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-destructive mb-4">{error}</p>
-        <button
-          onClick={() => loadModifiers(selectedItem.id)}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-        >
-          Retry
-        </button>
-      </div>
+      <Alert variant="destructive">
+        <AlertTitle>Failed to Load Modifiers</AlertTitle>
+        <AlertDescription>
+          <p className="mb-3">{error}</p>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={() => loadModifiers(selectedItem.id)}
+          >
+            Retry Loading
+          </Button>
+        </AlertDescription>
+      </Alert>
     );
   }
 

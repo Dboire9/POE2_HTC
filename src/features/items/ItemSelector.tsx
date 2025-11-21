@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useItems } from '../../contexts/ItemsContext';
 import ItemList from './ItemList';
 import { Spinner } from '../../components/ui/spinner';
+import { Alert, AlertDescription, AlertTitle } from '../../components/ui/alert';
+import { Button } from '../../components/ui/button';
 
 // T015: Main item selection component
 const ItemSelector: React.FC = () => {
@@ -21,17 +23,18 @@ const ItemSelector: React.FC = () => {
     );
   }
 
+  // T061: Enhanced error display with recovery actions
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-destructive mb-4">{error}</p>
-        <button
-          onClick={loadItems}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-        >
-          Retry
-        </button>
-      </div>
+      <Alert variant="destructive">
+        <AlertTitle>Failed to Load Items</AlertTitle>
+        <AlertDescription>
+          <p className="mb-3">{error}</p>
+          <Button size="sm" variant="outline" onClick={loadItems}>
+            Retry Loading
+          </Button>
+        </AlertDescription>
+      </Alert>
     );
   }
 

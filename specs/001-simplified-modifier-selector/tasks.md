@@ -33,9 +33,9 @@ Single project structure at repository root:
 
 **Duration**: ~1 hour
 
-- [ ] T001 Create complete TypeScript type definitions in src/types/index.ts
-- [ ] T002 [P] Install shadcn/ui Toast component with Sonner library for notifications
-- [ ] T003 [P] Verify tsconfig.json has strict mode enabled with noImplicitAny and strictNullChecks
+- [X] T001 Create complete TypeScript type definitions in src/types/index.ts
+- [X] T002 [P] Install shadcn/ui Toast component with Sonner library for notifications
+- [X] T003 [P] Verify tsconfig.json has strict mode enabled with noImplicitAny and strictNullChecks
 
 ---
 
@@ -47,11 +47,11 @@ Single project structure at repository root:
 
 **Duration**: ~1 hour
 
-- [ ] T004 [P] Create modifier validation utilities in src/lib/modifierValidation.ts
-- [ ] T005 [P] Create results sorting utility in src/lib/resultsSorting.ts
-- [ ] T006 [P] Create error message mapping in src/lib/errorMessages.ts
-- [ ] T007 [P] Add Spinner loading component in src/components/ui/spinner.tsx
-- [ ] T008 Verify window.electronAPI types are defined in src/global.d.ts
+- [X] T004 [P] Create modifier validation utilities in src/lib/modifierValidation.ts
+- [X] T005 [P] Create results sorting utility in src/lib/resultsSorting.ts
+- [X] T006 [P] Create error message mapping in src/lib/errorMessages.ts
+- [X] T007 [P] Add Spinner loading component in src/components/ui/spinner.tsx
+- [X] T008 Verify window.electronAPI types are defined in src/global.d.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,17 +67,17 @@ Single project structure at repository root:
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Create ItemsContext provider in src/contexts/ItemsContext.tsx
-- [ ] T010 [US1] Implement loadItems() function calling window.electronAPI.invoke('api:items')
-- [ ] T011 [US1] Implement selectItem() and clearSelection() actions in ItemsContext
-- [ ] T012 [US1] Export useItems() custom hook from ItemsContext
-- [ ] T013 [P] [US1] Create ItemCard component in src/features/items/ItemCard.tsx
-- [ ] T014 [P] [US1] Create ItemList component in src/features/items/ItemList.tsx
-- [ ] T015 [US1] Create ItemSelector main component in src/features/items/ItemSelector.tsx
-- [ ] T016 [US1] Wrap ItemCard component with React.memo() for performance optimization
-- [ ] T017 [US1] Wrap ItemList component with React.memo() for performance optimization
-- [ ] T018 [US1] Add ItemsProvider to App.tsx context hierarchy
-- [ ] T019 [US1] Integrate ItemSelector into App.tsx layout
+- [X] T009 [US1] Create ItemsContext provider in src/contexts/ItemsContext.tsx
+- [X] T010 [US1] Implement loadItems() function calling window.electronAPI.invoke('api:items')
+- [X] T011 [US1] Implement selectItem() and clearSelection() actions in ItemsContext
+- [X] T012 [US1] Export useItems() custom hook from ItemsContext
+- [X] T013 [P] [US1] Create ItemCard component in src/features/items/ItemCard.tsx
+- [X] T014 [P] [US1] Create ItemList component in src/features/items/ItemList.tsx
+- [X] T015 [US1] Create ItemSelector main component in src/features/items/ItemSelector.tsx
+- [X] T016 [US1] Wrap ItemCard component with React.memo() for performance optimization
+- [X] T017 [US1] Wrap ItemList component with React.memo() for performance optimization
+- [X] T018 [US1] Add ItemsProvider to App.tsx context hierarchy
+- [X] T019 [US1] Integrate ItemSelector into App.tsx layout
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can select items and see visual feedback
 
@@ -93,24 +93,24 @@ Single project structure at repository root:
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Create ModifiersContext provider in src/contexts/ModifiersContext.tsx
-- [ ] T021 [US2] Implement loadModifiers(itemId) calling window.electronAPI.invoke('api:modifiers')
-- [ ] T022 [US2] Build exclusion map using buildExclusionMap() from modifierValidation.ts
-- [ ] T023 [US2] Implement selectModifier() with 3-item limit checking and toast notification
-- [ ] T024 [US2] Implement deselectModifier() action in ModifiersContext
-- [ ] T025 [US2] Implement isModifierDisabled() using exclusion map logic
-- [ ] T026 [US2] Implement clearSelections() action in ModifiersContext
-- [ ] T027 [US2] Export useModifiers() custom hook from ModifiersContext
-- [ ] T028 [P] [US2] Create SelectionCounter badge component in src/features/modifiers/SelectionCounter.tsx
-- [ ] T029 [P] [US2] Create ModifierCard component in src/features/modifiers/ModifierCard.tsx
-- [ ] T030 [US2] Add Tooltip to ModifierCard explaining why modifiers are disabled
-- [ ] T031 [US2] Create ModifierList component in src/features/modifiers/ModifierList.tsx
-- [ ] T032 [US2] Create ModifierSelector main component in src/features/modifiers/ModifierSelector.tsx
-- [ ] T033 [US2] Wrap ModifierCard with React.memo() using custom equality for complex props
-- [ ] T034 [US2] Wrap ModifierList with React.memo() for performance optimization
-- [ ] T035 [US2] Add ModifiersProvider to App.tsx context hierarchy (after ItemsProvider)
-- [ ] T036 [US2] Integrate ModifierSelector into App.tsx layout
-- [ ] T037 [US2] Add Toaster component to App.tsx for toast notifications
+- [X] T020 [US2] Create ModifiersContext provider in src/contexts/ModifiersContext.tsx
+- [X] T021 [US2] Implement loadModifiers(itemId) calling window.electronAPI.invoke('api:modifiers')
+- [X] T022 [US2] Build exclusion map using buildExclusionMap() from modifierValidation.ts
+- [X] T023 [US2] Implement selectModifier() with 3-item limit checking and toast notification
+- [X] T024 [US2] Implement deselectModifier() action in ModifiersContext
+- [X] T025 [US2] Implement isModifierDisabled() using exclusion map logic
+- [X] T026 [US2] Implement clearSelections() action in ModifiersContext
+- [X] T027 [US2] Export useModifiers() custom hook from ModifiersContext
+- [X] T028 [P] [US2] Create SelectionCounter badge component in src/features/modifiers/SelectionCounter.tsx
+- [X] T029 [P] [US2] Create ModifierCard component in src/features/modifiers/ModifierCard.tsx
+- [X] T030 [US2] Add Tooltip to ModifierCard explaining why modifiers are disabled
+- [X] T031 [US2] Create ModifierList component in src/features/modifiers/ModifierList.tsx
+- [X] T032 [US2] Create ModifierSelector main component in src/features/modifiers/ModifierSelector.tsx
+- [X] T033 [US2] Wrap ModifierCard with React.memo() using custom equality for complex props
+- [X] T034 [US2] Wrap ModifierList with React.memo() for performance optimization
+- [X] T035 [US2] Add ModifiersProvider to App.tsx context hierarchy (after ItemsProvider)
+- [X] T036 [US2] Integrate ModifierSelector into App.tsx layout
+- [X] T037 [US2] Add Toaster component to App.tsx for toast notifications
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - full item and modifier selection workflow functional
 
@@ -126,23 +126,23 @@ Single project structure at repository root:
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] Create SimulationContext provider in src/contexts/SimulationContext.tsx
-- [ ] T039 [US3] Implement startSimulation() with AbortController for cancellation support
-- [ ] T040 [US3] Add 500ms debouncing to startSimulation() to prevent request spam
-- [ ] T041 [US3] Call window.electronAPI.invoke('api:crafting') with SimulationRequest payload
-- [ ] T042 [US3] Sort results using sortPathsByProbability() from resultsSorting.ts
-- [ ] T043 [US3] Implement cancelSimulation() action in SimulationContext
-- [ ] T044 [US3] Implement clearResults() action in SimulationContext
-- [ ] T045 [US3] Export useSimulation() custom hook from SimulationContext
-- [ ] T046 [P] [US3] Create SimulationTrigger button component in src/features/simulation/SimulationTrigger.tsx
-- [ ] T047 [P] [US3] Create SimulationProgress loading component in src/features/simulation/SimulationProgress.tsx
-- [ ] T048 [P] [US3] Create CraftingPathCard component in src/features/simulation/CraftingPathCard.tsx
-- [ ] T049 [US3] Create ResultsDisplay main component in src/features/simulation/ResultsDisplay.tsx
-- [ ] T050 [US3] Add validation to SimulationTrigger (disable if no modifiers selected)
-- [ ] T051 [US3] Wrap CraftingPathCard with React.memo() for performance optimization
-- [ ] T052 [US3] Wrap ResultsDisplay with React.memo() for performance optimization
-- [ ] T053 [US3] Add SimulationProvider to App.tsx context hierarchy (after ModifiersProvider)
-- [ ] T054 [US3] Integrate SimulationTrigger and ResultsDisplay into App.tsx layout
+- [X] T038 [US3] Create SimulationContext provider in src/contexts/SimulationContext.tsx
+- [X] T039 [US3] Implement startSimulation() with AbortController for cancellation support
+- [X] T040 [US3] Add 500ms debouncing to startSimulation() to prevent request spam
+- [X] T041 [US3] Call window.electronAPI.invoke('api:crafting') with SimulationRequest payload
+- [X] T042 [US3] Sort results using sortPathsByProbability() from resultsSorting.ts
+- [X] T043 [US3] Implement cancelSimulation() action in SimulationContext
+- [X] T044 [US3] Implement clearResults() action in SimulationContext
+- [X] T045 [US3] Export useSimulation() custom hook from SimulationContext
+- [X] T046 [P] [US3] Create SimulationTrigger button component in src/features/simulation/SimulationTrigger.tsx
+- [X] T047 [P] [US3] Create SimulationProgress loading component in src/features/simulation/SimulationProgress.tsx
+- [X] T048 [P] [US3] Create CraftingPathCard component in src/features/simulation/CraftingPathCard.tsx
+- [X] T049 [US3] Create ResultsDisplay main component in src/features/simulation/ResultsDisplay.tsx
+- [X] T050 [US3] Add validation to SimulationTrigger (disable if no modifiers selected)
+- [X] T051 [US3] Wrap CraftingPathCard with React.memo() for performance optimization
+- [X] T052 [US3] Wrap ResultsDisplay with React.memo() for performance optimization
+- [X] T053 [US3] Add SimulationProvider to App.tsx context hierarchy (after ModifiersProvider)
+- [X] T054 [US3] Integrate SimulationTrigger and ResultsDisplay into App.tsx layout
 
 **Checkpoint**: All P1 user stories complete - Full MVP is now functional (Item → Modifier → Simulate → Results)
 
@@ -158,16 +158,16 @@ Single project structure at repository root:
 
 ### Implementation for User Story 4
 
-- [ ] T055 [US4] Add error state handling to ItemsContext for backend unavailability
-- [ ] T056 [US4] Add error state handling to ModifiersContext for invalid item ID
-- [ ] T057 [US4] Add error state handling to SimulationContext for crafting failures
-- [ ] T058 [US4] Map backend error codes to user-friendly messages using errorMessages.ts
-- [ ] T059 [P] [US4] Add validation check to prevent proceeding without item selection
-- [ ] T060 [P] [US4] Add validation check to prevent simulation without modifiers
-- [ ] T061 [US4] Display error messages with recovery actions (retry, reset) in UI
-- [ ] T062 [US4] Add timeout warning for simulations exceeding 30 seconds
-- [ ] T063 [US4] Test error handling with backend unavailable scenario
-- [ ] T064 [US4] Test error handling with incompatible modifiers scenario
+- [X] T055 [US4] Add error state handling to ItemsContext for backend unavailability
+- [X] T056 [US4] Add error state handling to ModifiersContext for invalid item ID
+- [X] T057 [US4] Add error state handling to SimulationContext for crafting failures
+- [X] T058 [US4] Map backend error codes to user-friendly messages using errorMessages.ts
+- [X] T059 [P] [US4] Add validation check to prevent proceeding without item selection
+- [X] T060 [P] [US4] Add validation check to prevent simulation without modifiers
+- [X] T061 [US4] Display error messages with recovery actions (retry, reset) in UI
+- [X] T062 [US4] Add timeout warning for simulations exceeding 30 seconds
+- [X] T063 [US4] Test error handling with backend unavailable scenario
+- [X] T064 [US4] Test error handling with incompatible modifiers scenario
 
 **Checkpoint**: All user stories complete with robust error handling and validation
 
@@ -179,18 +179,18 @@ Single project structure at repository root:
 
 **Duration**: ~30 minutes
 
-- [ ] T065 [P] Add useCallback to all event handlers across all contexts
-- [ ] T066 [P] Add useMemo to expensive calculations (exclusion map, sorted results)
-- [ ] T067 Verify all components are wrapped with React.memo() per constitution
-- [ ] T068 Remove any console.log statements from production code
-- [ ] T069 Run ESLint and resolve all warnings
-- [ ] T070 Run npm run type-check and verify no TypeScript errors
-- [ ] T071 Validate all 8 constitution principles are satisfied
-- [ ] T072 Execute manual testing checklist from quickstart.md
-- [ ] T073 Performance validation: verify < 16ms re-renders using React DevTools Profiler
-- [ ] T074 Performance validation: verify < 100ms UI response time for interactions
-- [ ] T075 [P] Update README.md with feature documentation
-- [ ] T076 Commit all changes with descriptive commit message
+- [X] T065 [P] Add useCallback to all event handlers across all contexts
+- [X] T066 [P] Add useMemo to expensive calculations (exclusion map, sorted results)
+- [X] T067 Verify all components are wrapped with React.memo() per constitution
+- [X] T068 Remove any console.log statements from production code
+- [X] T069 Run ESLint and resolve all warnings
+- [X] T070 Run npm run type-check and verify no TypeScript errors
+- [X] T071 Validate all 8 constitution principles are satisfied
+- [X] T072 Execute manual testing checklist from quickstart.md
+- [X] T073 Performance validation: verify < 16ms re-renders using React DevTools Profiler
+- [X] T074 Performance validation: verify < 100ms UI response time for interactions
+- [X] T075 [P] Update README.md with feature documentation
+- [X] T076 Commit all changes with descriptive commit message
 
 ---
 

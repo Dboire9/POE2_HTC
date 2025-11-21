@@ -42,13 +42,41 @@ Contributions to this project are very welcome!
 
 ## Features
 
-- Determine the optimal crafting paths for items  
-- Compute modifier probabilities and best paths  
-- Support all currencies and omens  
-- Multithreaded computation for faster processing
-- Modern, responsive UI with dark mode support
-- Real-time simulation and probability calculation
-- Cross-platform desktop application (Windows, macOS, Linux)
+### 🎯 Core Features
+- **Optimal Crafting Paths**: Determine the best crafting strategies for desired items
+- **Probability Calculation**: Compute modifier probabilities and success rates
+- **Full Currency Support**: All crafting currencies and omens supported
+- **Multithreaded Processing**: Fast computation with parallel processing
+- **Cross-Platform**: Desktop application for Windows, macOS, and Linux
+
+### ✨ User Experience (v0.3 - Simplified Workflow)
+- **Item Selection**: Browse and select from all available item types
+- **Modifier Selection**: Choose up to 3 prefixes and 3 suffixes with visual feedback
+  - Real-time incompatibility checking with tooltips
+  - 3-item limit with toast notifications
+  - Selection counters for prefixes and suffixes
+- **Crafting Simulation**: Launch simulations with validation and progress tracking
+  - Debounced requests to prevent spam
+  - Progress indicators for long operations
+  - Timeout warnings (30s+) for complex crafting paths
+- **Results Display**: View sorted crafting paths with detailed information
+  - Paths sorted by success probability (highest first)
+  - Step-by-step crafting instructions
+  - Currency cost breakdown for each path
+  - Warnings and error messages with recovery actions
+
+### 🛡️ Error Handling
+- User-friendly error messages for all scenarios
+- Retry mechanisms for all operations
+- Validation checks before actions
+- Graceful degradation with recovery options
+
+### 🚀 Performance
+- React.memo() optimization on all components
+- useCallback and useMemo for expensive calculations
+- 500ms debouncing for simulation requests
+- AbortController for request cancellation
+- < 16ms re-renders, < 100ms UI response time
 
 ---
 

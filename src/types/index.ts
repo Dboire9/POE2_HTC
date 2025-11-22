@@ -26,6 +26,8 @@ export interface Item {
   type?: ItemType | string;  // Optional, can be ItemType enum or string from backend
   iconPath?: string;
   baseStats?: Record<string, number>;  // Optional, defaults to empty object
+  hasSubcategories?: boolean;  // True if item has hybrid bases (e.g., Body_Armours)
+  subcategory?: string;  // Selected subcategory (e.g., Body_Armours_str)
 }
 
 // ============================================================================
@@ -130,7 +132,8 @@ export interface ItemsState {
 
 export interface ItemsActions {
   loadItems: () => Promise<void>;
-  selectItem: (itemId: string) => void;
+  selectItem: (itemId: string, subcategory?: string) => void;
+  loadSubcategories: (categoryId: string) => Promise<{ id: string; name: string }[]>;
   clearSelection: () => void;
 }
 
@@ -145,8 +148,8 @@ export interface ModifiersState {
 }
 
 export interface ModifiersActions {
-  loadModifiers: (itemId: string) => Promise<void>;
-  selectModifier: (modifier: Modifier) => void;
+  loadModifiers: (itemId: string, subcategory?: string) => Promise<void>;
+  selectModifier: (modifier: Modifier, tier?: number) => void;
   deselectModifier: (modifierId: string) => void;
   isModifierDisabled: (modifierId: string) => boolean;
   clearSelections: () => void;

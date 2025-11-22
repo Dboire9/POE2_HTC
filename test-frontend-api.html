@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Testing Backend API</h1>
+    <button onclick="testAPI()">Test API Call</button>
+    <pre id="output"></pre>
+
+    <script>
+        async function testAPI() {
+            const output = document.getElementById('output');
+            output.textContent = 'Calling API...';
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/crafting', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        itemId: "Boots/Boots_int",
+                        modifiers: {
+                            prefixes: [
+                                {text: "+# to maximum Energy Shield", tier: 0},
+                                {text: "#% increased Energy Shield", tier: 0},
+                                {text: "#% increased Movement Speed", tier: 0}
+                            ],
+                            suffixes: [
+                                {text: "+#% to Cold Resistance", tier: 0},
+                                {text: "+#% to Fire Resistance", tier: 0},
+                                {text: "+#% to Lightning Resistance", tier: 0}
+                            ]
+                        },
+                        global_threshold: 0.10
+                    })
+                });
+                
+                const data = await response.json();
+                output.textContent = JSON.stringify(data, null, 2);
+                console.log('API Response:', data);
+                console.log('Paths count:', data.paths?.length);
+                console.log('First path:', data.paths?.[0]);
+            } catch (error) {
+                output.textContent = 'Error: ' + error.message;
+                console.error('API Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -39,29 +39,6 @@ public class ExaltAndRegalProbability {
 				{
                 	willBeReplacedByEssence = true;
             	}
-			// Check if next event is an ExaltedOrb - if so, we may add OmenofGreaterExaltation
-			if(nextEvent.type == ModifierEvent.ActionType.ADDED && 
-			   !event.source.isEmpty() && 
-			   event.source.keySet().iterator().next() instanceof ExaltedOrb &&
-			   nextEvent.source.keySet().iterator().next() instanceof ExaltedOrb)
-			{
-					ExaltedOrb currentOrb = (ExaltedOrb)event.source.keySet().iterator().next();
-					ExaltedOrb nextOrb = (ExaltedOrb)nextEvent.source.keySet().iterator().next();
-					
-					// If both current and next ExaltedOrb have the same omens (or both have no omens), mark for OmenofGreaterExaltation
-					if(currentOrb.omens != null && nextOrb.omens != null && currentOrb.tier == nextOrb.tier)
-					{
-						boolean currentHasNoOmens = currentOrb.omens.isEmpty() || currentOrb.omens.contains(ExaltedOrb.Omen.None);
-						boolean nextHasNoOmens = nextOrb.omens.isEmpty() || nextOrb.omens.contains(ExaltedOrb.Omen.None);
-						
-						// Both have no omens OR both have same omens
-						if((currentHasNoOmens && nextHasNoOmens) || currentOrb.omens.equals(nextOrb.omens))
-						{
-							// Mark to add OmenofGreaterExaltation
-							event.source.put(currentOrb, -1.0); // Special marker for greater exaltation
-						}
-					}
-			}
         }
 
         // If this modifier will be replaced by a Perfect Essence, probability is 100%
@@ -154,10 +131,12 @@ public class ExaltAndRegalProbability {
 								newOmens.add(ExaltedOrb.Omen.OmenofSinistralExaltation);
 							else if (event.modifier.type == ModifierType.SUFFIX)
 								newOmens.add(ExaltedOrb.Omen.OmenofDextralExaltation);
+							
 							source.put(new ExaltedOrb(tier, newOmens), percentage);
 						}
-						else
+						else {
 							source.put(new ExaltedOrb(tier, currentOmen), percentage);
+						}
 					}
                 }
             }
@@ -221,7 +200,6 @@ public class ExaltAndRegalProbability {
         }
 
         if (omen instanceof ExaltedOrb.Omen exaltOmen) {
-            ExaltedOrb orb = (ExaltedOrb) action;
             switch (exaltOmen) {
                 case None -> {
                     List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();
@@ -234,20 +212,22 @@ public class ExaltAndRegalProbability {
                 }
                 case OmenofHomogenisingExaltation -> {
                     if (ilvl == 40) return 0;
+                    // Filter BOTH prefixes and suffixes by matching tags (like RegalOrb OmenofHomogenisingCoronation)
+                    List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
+                    List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
+                    
+                    // Check if the current modifier is actually in the filtered list
+                    boolean modifierInList = false;
                     if (event.modifier.type == ModifierType.PREFIX) {
-                        List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
-                        // Check if current modifier is in the filtered list
-                        if (!PossiblePrefixes.contains(event.modifier)) 
-							return 0;
-                        return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
+                        modifierInList = PossiblePrefixes.contains(event.modifier);
+                    } else if (event.modifier.type == ModifierType.SUFFIX) {
+                        modifierInList = PossibleSuffixes.contains(event.modifier);
                     }
-                    if (event.modifier.type == ModifierType.SUFFIX) {
-                        List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
-                        // Check if current modifier is in the filtered list
-                        if (!PossibleSuffixes.contains(event.modifier)) 
-							return 0;
-                        return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
+                    if (!modifierInList) {
+                        return 0;
                     }
+                    
+                    return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
                 }
                 case OmenofSinistralExaltation -> {
                     if (event.modifier.type == ModifierType.PREFIX) {
@@ -269,6 +249,10 @@ public class ExaltAndRegalProbability {
 						return percentage;
                     }
                 }
+				case OmenofGreaterExaltation -> {
+					// Not implemented - returns 0
+					return 0;
+				}
             }
         }
         return 0;

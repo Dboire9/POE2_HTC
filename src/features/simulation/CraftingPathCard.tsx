@@ -62,7 +62,7 @@ const CraftingPathCard: React.FC<CraftingPathCardProps> = ({ path, rank }) => {
                 )}
               </div>
               <span className="text-xs text-muted-foreground">
-                {(step.probability * 100).toFixed(1)}%
+                {Math.min(step.probability * 100, 100).toFixed(1)}%
               </span>
             </li>
           ))}

@@ -169,7 +169,29 @@ public class ExaltAndRegalProbability {
                         return 0;
                     List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
                     List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
-                    	return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
+                    
+                    core.DebugLogger.info("[ExaltRegal] OmenofHomogenisingCoronation check:");
+                    core.DebugLogger.info("  Current modifier: " + event.modifier.text + " (tags: " + event.modifier.tags + ")");
+                    core.DebugLogger.info("  Possible prefixes matching existing tags: " + PossiblePrefixes.size());
+                    core.DebugLogger.info("  Possible suffixes matching existing tags: " + PossibleSuffixes.size());
+                    
+					if(PossiblePrefixes.isEmpty() && PossibleSuffixes.isEmpty())
+						return 0;
+					
+					// Check if the current modifier is actually in the filtered list
+					// If not, the omen shouldn't apply (modifier doesn't share tags with existing mods)
+					boolean modifierInList = false;
+					if (event.modifier.type == ModifierType.PREFIX) {
+						modifierInList = PossiblePrefixes.contains(event.modifier);
+					} else if (event.modifier.type == ModifierType.SUFFIX) {
+						modifierInList = PossibleSuffixes.contains(event.modifier);
+					}
+					if (!modifierInList) {
+						core.DebugLogger.info("  Current modifier NOT in filtered list - omen doesn't apply");
+						return 0;
+					}
+					
+					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes, isDesired);
                 }
             }
         }
@@ -190,11 +212,17 @@ public class ExaltAndRegalProbability {
                     if (ilvl == 40) return 0;
                     if (event.modifier.type == ModifierType.PREFIX) {
                         List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
-                        	return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
+                        // Check if current modifier is in the filtered list
+                        if (!PossiblePrefixes.contains(event.modifier)) 
+							return 0;
+                        return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
                     }
                     if (event.modifier.type == ModifierType.SUFFIX) {
                         List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
-                        	return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
+                        // Check if current modifier is in the filtered list
+                        if (!PossibleSuffixes.contains(event.modifier)) 
+							return 0;
+                        return NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
                     }
                 }
                 case OmenofSinistralExaltation -> {
@@ -280,7 +308,9 @@ public class ExaltAndRegalProbability {
         List<Modifier> FinalPossibleAffixes = new ArrayList<>();
         List<String> ItemAffixTags = new ArrayList<>();
 
-        for (int j = 0; j <= i; j++) {
+        // Only collect tags from modifiers BEFORE the current one (j < i, not j <= i)
+        // The current modifier at index i is being added, so we shouldn't include its tags
+        for (int j = 0; j < i; j++) {
             for (String tags : candidate.modifierHistory.get(j).modifier.tags)
                 if (!tags.isEmpty() && !ItemAffixTags.contains(tags))
                     ItemAffixTags.add(tags);

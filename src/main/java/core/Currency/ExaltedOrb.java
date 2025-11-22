@@ -37,8 +37,7 @@ public class ExaltedOrb implements Crafting_Action {
         OmenofHomogenisingExaltation,
         OmenofSinistralExaltation,
         OmenofDextralExaltation,
-        // Not including greater exaltation for now
-		// TODO
+        OmenofGreaterExaltation
     }
 
     /**

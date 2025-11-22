@@ -28,16 +28,40 @@ public class ExaltAndRegalProbability {
     public static void ComputeRegalAndExalted(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i) {
         ModifierEvent event = candidate.modifierHistory.get(i);
         
-        // Check if this modifier will be immediately replaced by a Perfect Essence (CHANGED event)
         boolean willBeReplacedByEssence = false;
         if (i + 1 < candidate.modifierHistory.size()) {
             ModifierEvent nextEvent = candidate.modifierHistory.get(i + 1);
+			// Check if this modifier will be immediately replaced by a Perfect Essence (CHANGED event)
             if (nextEvent.type == ModifierEvent.ActionType.CHANGED && 
                 nextEvent.changed_modifier != null &&
                 event.modifier != null &&
-                nextEvent.changed_modifier.text.equals(event.modifier.text)) {
-                willBeReplacedByEssence = true;
-            }
+                nextEvent.changed_modifier.text.equals(event.modifier.text))
+				{
+                	willBeReplacedByEssence = true;
+            	}
+			// Check if next event is an ExaltedOrb - if so, we may add OmenofGreaterExaltation
+			if(nextEvent.type == ModifierEvent.ActionType.ADDED && 
+			   !event.source.isEmpty() && 
+			   event.source.keySet().iterator().next() instanceof ExaltedOrb &&
+			   nextEvent.source.keySet().iterator().next() instanceof ExaltedOrb)
+			{
+					ExaltedOrb currentOrb = (ExaltedOrb)event.source.keySet().iterator().next();
+					ExaltedOrb nextOrb = (ExaltedOrb)nextEvent.source.keySet().iterator().next();
+					
+					// If both current and next ExaltedOrb have the same omens (or both have no omens), mark for OmenofGreaterExaltation
+					if(currentOrb.omens != null && nextOrb.omens != null && currentOrb.tier == nextOrb.tier)
+					{
+						boolean currentHasNoOmens = currentOrb.omens.isEmpty() || currentOrb.omens.contains(ExaltedOrb.Omen.None);
+						boolean nextHasNoOmens = nextOrb.omens.isEmpty() || nextOrb.omens.contains(ExaltedOrb.Omen.None);
+						
+						// Both have no omens OR both have same omens
+						if((currentHasNoOmens && nextHasNoOmens) || currentOrb.omens.equals(nextOrb.omens))
+						{
+							// Mark to add OmenofGreaterExaltation
+							event.source.put(currentOrb, -1.0); // Special marker for greater exaltation
+						}
+					}
+			}
         }
 
         // If this modifier will be replaced by a Perfect Essence, probability is 100%

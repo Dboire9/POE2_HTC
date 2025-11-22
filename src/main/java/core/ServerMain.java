@@ -271,13 +271,14 @@ public class ServerMain {
             }
             
             DebugLogger.debug("=== CRAFTING REQUEST START ===");
-            DebugLogger.trace("Request body: " + requestBody);
+            DebugLogger.info("Full request body: " + requestBody);
             long requestStartTime = System.currentTimeMillis();
             
             try {
                 // Parse JSON with Gson
                 JsonObject jsonRequest = gson.fromJson(requestBody, JsonObject.class);
                 String itemId = jsonRequest.get("itemId").getAsString();
+                DebugLogger.info("Parsed itemId: " + itemId);
                 int iterations = jsonRequest.has("iterations") ? jsonRequest.get("iterations").getAsInt() : 100;
                 
                 // Read global_threshold from request (default 0.33 = 33%)
@@ -285,7 +286,11 @@ public class ServerMain {
                     ? jsonRequest.get("global_threshold").getAsDouble() 
                     : 0.33;
                 
-                DebugLogger.info("Crafting request - Item: " + itemId + ", Iterations: " + iterations + ", Threshold: " + (globalThreshold * 100) + "%");
+                DebugLogger.info("★★★ CRAFTING REQUEST ★★★");
+                DebugLogger.info("  Item: " + itemId);
+                DebugLogger.info("  Iterations: " + iterations);
+                DebugLogger.info("  Threshold: " + globalThreshold + " (" + (globalThreshold * 100) + "%)");
+                DebugLogger.info("  Has modifiers: " + jsonRequest.has("modifiers"));
                 
                 // Parse modifiers
                 if (!jsonRequest.has("modifiers")) {
@@ -313,6 +318,7 @@ public class ServerMain {
                 
                 Class<?> itemClass = Class.forName(fullClassName);
                 Item_base itemInstance = (Item_base) itemClass.getDeclaredConstructor().newInstance();
+                DebugLogger.debug("Created NEW item instance: " + itemInstance.getClass().getSimpleName() + "@" + System.identityHashCode(itemInstance));
                 
                 // Get allowed modifiers from all sources
                 List<Modifier> normalPrefixes = itemInstance.getNormalAllowedPrefixes();
@@ -335,11 +341,13 @@ public class ServerMain {
                 
                 // Parse selected modifiers and match with item's allowed modifiers
                 List<Modifier> desiredModifiers = new ArrayList<>();
+                DebugLogger.info("★ Parsing modifiers from request...");
                 DebugLogger.debug("Available prefixes: " + allPrefixes.size() + ", suffixes: " + allSuffixes.size());
                 
                 // Handle prefixes array if present
                 if (modifiersObj.has("prefixes") && modifiersObj.get("prefixes").isJsonArray()) {
                     JsonArray prefixesArray = modifiersObj.getAsJsonArray("prefixes");
+                    DebugLogger.info("★ Processing " + prefixesArray.size() + " prefixes from request");
                     for (int i = 0; i < prefixesArray.size(); i++) {
                         JsonObject modJson = prefixesArray.get(i).getAsJsonObject();
                         
@@ -370,10 +378,12 @@ public class ServerMain {
                             }
                             
                             if (matches) {
-                                // Use the ORIGINAL modifier object, not a copy (like TestAlgo does)
+                                // CRITICAL: Set tier and is_desired_mod on original, then add original
+                                // This matches TestAlgo's behavior exactly
                                 prefix.chosenTier = tier;
+                                prefix.is_desired_mod = true;
                                 desiredModifiers.add(prefix);
-                                DebugLogger.debug("✓ Prefix: " + prefix.text);
+                                DebugLogger.debug("✓ Prefix: " + prefix.text + " (tier=" + tier + ")");
                                 found = true;
                                 break;
                             }
@@ -425,10 +435,12 @@ public class ServerMain {
                             }
                             
                             if (matches) {
-                                // Use the ORIGINAL modifier object, not a copy (like TestAlgo does)
+                                // CRITICAL: Set tier and is_desired_mod on original, then add original
+                                // This matches TestAlgo's behavior exactly
                                 suffix.chosenTier = tier;
+                                suffix.is_desired_mod = true;
                                 desiredModifiers.add(suffix);
-                                DebugLogger.debug("✓ Suffix: " + suffix.text);
+                                DebugLogger.debug("✓ Suffix: " + suffix.text + " (tier=" + tier + ")");
                                 found = true;
                                 break;
                             }
@@ -717,7 +729,7 @@ public class ServerMain {
         // Add CORS headers
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Cache-Control, Pragma");
         exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
         exchange.sendResponseHeaders(status, bytes.length);
         try (OutputStream os = exchange.getResponseBody()) {

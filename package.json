@@ -3,16 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "dist/main.cjs",
   "scripts": {
-    "dev": "concurrently \"npm:build:electron -- --watch\" \"vite\" \"wait-on http://localhost:5173 && electron . --no-sandbox\"",
-    "build:electron": "esbuild electron/main.ts --bundle --platform=node --format=cjs --outfile=dist/main.cjs --external:electron",
-    "postinstall": "electron-builder install-app-deps",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "electron-is-dev": "^3.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sonner": "^2.0.7"
@@ -30,10 +26,6 @@
     "autoprefixer": "^10.4.22",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "concurrently": "^9.0.0",
-    "electron": "^32.0.0",
-    "electron-builder": "^25.0.0",
-    "esbuild": "^0.23.0",
     "lucide-react": "^0.553.0",
     "postcss": "^8.5.6",
     "tailwind-merge": "^3.4.0",

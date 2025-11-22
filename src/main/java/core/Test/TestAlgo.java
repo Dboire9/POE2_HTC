@@ -25,8 +25,8 @@ public class TestAlgo {
     public static void main(String[] args) {
 
         // --- ITEM SETUP SECTION ---
-        // Create a test item (Spear here, but can be replaced with another item type)
-        core.Items.Spears.Spears testItem = new core.Items.Spears.Spears();
+        // Create a test item (Boots here for testing)
+        core.Items.Boots.Boots_int.Boots_int testItem = new core.Items.Boots.Boots_int.Boots_int();
         Crafting_Item item = new Crafting_Item(testItem);
 
         // Get allowed prefixes and suffixes for the item
@@ -44,12 +44,12 @@ public class TestAlgo {
         Set<String> usedModifiers = new HashSet<>();
 
         // --- MANUAL MODIFIER SELECTION FOR TESTING ---
-        System.out.println("Selected Modifiers for Spear Crafting:");
+        System.out.println("Selected Modifiers for Boots_int Crafting:");
         System.out.println("Prefixes:");
         
-        // Find and add: Adds # to # Physical Damage T1
+        // Find and add: +# to maximum Energy Shield T1
         for (Modifier mod : possiblePrefixes) {
-            if (mod.text.equals("Adds # to # Physical Damage")) {
+            if (mod.text.equals("+# to maximum Energy Shield")) {
                 desiredMods.add(mod);
                 desiredModTier.add(mod.tiers.get(0)); // T1 = index 0
                 mod.chosenTier = 0;
@@ -58,9 +58,9 @@ public class TestAlgo {
             }
         }
         
-        // Find and add: #% increased Physical Damage +# to Accuracy Rating T1
+        // Find and add: #% increased Energy Shield T1
         for (Modifier mod : possiblePrefixes) {
-            if (mod.text.equals("#% increased Physical Damage\n+# to Accuracy Rating")) {
+            if (mod.text.equals("#% increased Energy Shield")) {
                 desiredMods.add(mod);
                 desiredModTier.add(mod.tiers.get(0)); // T1 = index 0
                 mod.chosenTier = 0;
@@ -69,22 +69,22 @@ public class TestAlgo {
             }
         }
         
-        // Find and add: Attacks with this Weapon Penetrate #% Cold Resistance (Desecrated)
-        for (Modifier mod : possibleDesecratedPrefixes) {
-            if (mod.text.contains("Penetrate #% Cold Resistance")) {
+        // Find and add: #% increased Movement Speed T1
+        for (Modifier mod : possiblePrefixes) {
+            if (mod.text.equals("#% increased Movement Speed")) {
                 desiredMods.add(mod);
                 desiredModTier.add(mod.tiers.get(0));
                 mod.chosenTier = 0;
-                System.out.println(" - " + mod.text + " (Desecrated)");
+                System.out.println(" - " + mod.text + " (Tier 1)");
                 break;
             }
         }
         
         System.out.println("Suffixes:");
         
-        // Find and add: +# to Strength T1
+        // Find and add: +#% to Cold Resistance T1
         for (Modifier mod : possibleSuffixes) {
-            if (mod.text.equals("+# to Strength")) {
+            if (mod.text.equals("+#% to Cold Resistance")) {
                 desiredMods.add(mod);
                 desiredModTier.add(mod.tiers.get(0));
                 mod.chosenTier = 0;
@@ -93,9 +93,9 @@ public class TestAlgo {
             }
         }
         
-        // Find and add: Gain # Life per Enemy Killed T1
+        // Find and add: +#% to Fire Resistance T1
         for (Modifier mod : possibleSuffixes) {
-            if (mod.text.equals("Gain # Life per Enemy Killed")) {
+            if (mod.text.equals("+#% to Fire Resistance")) {
                 desiredMods.add(mod);
                 desiredModTier.add(mod.tiers.get(0));
                 mod.chosenTier = 0;
@@ -104,9 +104,9 @@ public class TestAlgo {
             }
         }
         
-        // Find and add: #% increased Attack Speed T1
+        // Find and add: +#% to Lightning Resistance T1
         for (Modifier mod : possibleSuffixes) {
-            if (mod.text.equals("#% increased Attack Speed")) {
+            if (mod.text.equals("+#% to Lightning Resistance")) {
                 desiredMods.add(mod);
                 desiredModTier.add(mod.tiers.get(0));
                 mod.chosenTier = 0;

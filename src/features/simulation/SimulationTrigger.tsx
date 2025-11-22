@@ -19,8 +19,15 @@ const SimulationTrigger: React.FC = () => {
   const handleClick = () => {
     if (!selectedItem || selectedModifiers.length === 0) return;
 
+    // Format itemId with subcategory if present (e.g., "Boots/Boots_int")
+    const itemId = selectedItem.subcategory 
+      ? `${selectedItem.id}/${selectedItem.subcategory}`
+      : selectedItem.id;
+
+    console.log('🎮 Starting simulation with itemId:', itemId);
+
     startSimulation({
-      itemId: selectedItem.id,
+      itemId,
       modifiers: {
         // Convert 1-based UI tier to 0-based backend tier
         prefixes: selectedPrefixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),

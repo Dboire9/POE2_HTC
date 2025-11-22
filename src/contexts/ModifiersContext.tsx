@@ -106,34 +106,142 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // T023: Select modifier with 3-item limit checking and toast notification
   const selectModifier = useCallback((modifier: Modifier, tier?: number) => {
     const isPrefix = modifier.type === 'prefix';
-    const currentSelections = isPrefix ? selectedPrefixes : selectedSuffixes;
-    const setSelections = isPrefix ? setSelectedPrefixes : setSelectedSuffixes;
     
-    // Check if already selected (use text for unique identification)
-    const existingIndex = currentSelections.findIndex(m => m.text === modifier.text);
-    if (existingIndex !== -1) {
-      // Update tier if already selected
-      if (tier !== undefined) {
-        const updated = [...currentSelections];
-        updated[existingIndex] = { ...updated[existingIndex], tier };
-        setSelections(updated);
-      }
-      return;
-    }
+    // Use functional updates to get the latest state
+    if (isPrefix) {
+      setSelectedPrefixes(currentPrefixes => {
+        // Check if already selected (use text for unique identification)
+        const existingIndex = currentPrefixes.findIndex(m => m.text === modifier.text);
+        if (existingIndex !== -1) {
+          // Update tier if already selected
+          if (tier !== undefined) {
+            const updated = [...currentPrefixes];
+            updated[existingIndex] = { ...updated[existingIndex], tier };
+            return updated;
+          }
+          return currentPrefixes;
+        }
 
-    // Check limit (FR-008)
-    if (currentSelections.length >= 3) {
-      toast.warning(`Maximum 3 ${isPrefix ? 'prefixes' : 'suffixes'} selected`, {
-        description: 'Deselect one to add another',
-        duration: 3000,
+        // Check if this is a desecrated modifier
+        const isDesecrated = modifier.source === 'desecrated';
+        
+        if (isDesecrated) {
+          // Check if there's already a desecrated modifier in prefixes
+          const existingDesecratedIndex = currentPrefixes.findIndex(m => m.source === 'desecrated');
+          
+          if (existingDesecratedIndex !== -1) {
+            // Replace the desecrated prefix
+            const modifierWithTier = { ...modifier, tier: tier !== undefined ? tier : modifier.tier };
+            const updated = [...currentPrefixes];
+            updated[existingDesecratedIndex] = modifierWithTier;
+            
+            toast.info('Replaced desecrated modifier', {
+              description: 'Only one desecrated modifier allowed per item',
+              duration: 3000,
+            });
+            return updated;
+          }
+          
+          // Also check suffixes for desecrated
+          setSelectedSuffixes(currentSuffixes => {
+            const existingDesecratedInSuffixes = currentSuffixes.findIndex(m => m.source === 'desecrated');
+            if (existingDesecratedInSuffixes !== -1) {
+              // Remove from suffixes
+              const updated = [...currentSuffixes];
+              updated.splice(existingDesecratedInSuffixes, 1);
+              
+              toast.info('Replaced desecrated modifier', {
+                description: 'Only one desecrated modifier allowed per item',
+                duration: 3000,
+              });
+              
+              return updated;
+            }
+            return currentSuffixes;
+          });
+        }
+
+        // Check limit (FR-008)
+        if (currentPrefixes.length >= 3) {
+          toast.warning('Maximum 3 prefixes selected', {
+            description: 'Deselect one to add another',
+            duration: 3000,
+          });
+          return currentPrefixes;
+        }
+
+        // Add to selections
+        const modifierWithTier = { ...modifier, tier: tier !== undefined ? tier : modifier.tier };
+        return [...currentPrefixes, modifierWithTier];
       });
-      return;
-    }
+    } else {
+      setSelectedSuffixes(currentSuffixes => {
+        // Check if already selected (use text for unique identification)
+        const existingIndex = currentSuffixes.findIndex(m => m.text === modifier.text);
+        if (existingIndex !== -1) {
+          // Update tier if already selected
+          if (tier !== undefined) {
+            const updated = [...currentSuffixes];
+            updated[existingIndex] = { ...updated[existingIndex], tier };
+            return updated;
+          }
+          return currentSuffixes;
+        }
 
-    // Add to selections with the specified tier (or use modifier's default tier)
-    const modifierWithTier = { ...modifier, tier: tier !== undefined ? tier : modifier.tier };
-    setSelections(prev => [...prev, modifierWithTier]);
-  }, [selectedPrefixes, selectedSuffixes]);
+        // Check if this is a desecrated modifier
+        const isDesecrated = modifier.source === 'desecrated';
+        
+        if (isDesecrated) {
+          // Check if there's already a desecrated modifier in suffixes
+          const existingDesecratedIndex = currentSuffixes.findIndex(m => m.source === 'desecrated');
+          
+          if (existingDesecratedIndex !== -1) {
+            // Replace the desecrated suffix
+            const modifierWithTier = { ...modifier, tier: tier !== undefined ? tier : modifier.tier };
+            const updated = [...currentSuffixes];
+            updated[existingDesecratedIndex] = modifierWithTier;
+            
+            toast.info('Replaced desecrated modifier', {
+              description: 'Only one desecrated modifier allowed per item',
+              duration: 3000,
+            });
+            return updated;
+          }
+          
+          // Also check prefixes for desecrated
+          setSelectedPrefixes(currentPrefixes => {
+            const existingDesecratedInPrefixes = currentPrefixes.findIndex(m => m.source === 'desecrated');
+            if (existingDesecratedInPrefixes !== -1) {
+              // Remove from prefixes
+              const updated = [...currentPrefixes];
+              updated.splice(existingDesecratedInPrefixes, 1);
+              
+              toast.info('Replaced desecrated modifier', {
+                description: 'Only one desecrated modifier allowed per item',
+                duration: 3000,
+              });
+              
+              return updated;
+            }
+            return currentPrefixes;
+          });
+        }
+
+        // Check limit (FR-008)
+        if (currentSuffixes.length >= 3) {
+          toast.warning('Maximum 3 suffixes selected', {
+            description: 'Deselect one to add another',
+            duration: 3000,
+          });
+          return currentSuffixes;
+        }
+
+        // Add to selections
+        const modifierWithTier = { ...modifier, tier: tier !== undefined ? tier : modifier.tier };
+        return [...currentSuffixes, modifierWithTier];
+      });
+    }
+  }, []);
 
   // T024: Deselect modifier (uses text for unique identification)
   const deselectModifier = useCallback((modifierText: string) => {

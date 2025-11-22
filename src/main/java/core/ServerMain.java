@@ -364,18 +364,32 @@ public class ServerMain {
                 JsonObject modifiersObj = jsonRequest.getAsJsonObject("modifiers");
                 
                 // Load item class dynamically with subcategory resolution
-                String packagePath = "core.Items." + itemId;
-                List<String> subCategories = new ItemManager().getSubCategories(itemId);
+                // itemId could be "Boots" or "Boots/Boots_int" format
+                String originalItemId = itemId;
+                String category = itemId;
+                String specificSubCat = null;
+                
+                // Check if itemId contains a slash (e.g., "Boots/Boots_int")
+                if (itemId.contains("/")) {
+                    String[] parts = itemId.split("/");
+                    category = parts[0];
+                    specificSubCat = parts[1];
+                    DebugLogger.info("Parsed itemId: category=" + category + ", subcat=" + specificSubCat);
+                }
+                
+                String packagePath = "core.Items." + category;
+                List<String> subCategories = new ItemManager().getSubCategories(category);
                 
                 String fullClassName;
                 
                 if (subCategories.isEmpty()) {
                     // No subcategories - the class is directly in the category folder
-                    fullClassName = packagePath + "." + itemId;
+                    fullClassName = packagePath + "." + category;
                 } else {
-                    // Has subcategories - use the first one
-                    String subCat = subCategories.get(0);
+                    // Has subcategories - use specific one if provided, otherwise use first
+                    String subCat = specificSubCat != null ? specificSubCat : subCategories.get(0);
                     fullClassName = packagePath + "." + subCat + "." + subCat;
+                    DebugLogger.info("Using subcategory: " + subCat + " -> " + fullClassName);
                 }
                 
                 Class<?> itemClass = Class.forName(fullClassName);
@@ -693,9 +707,10 @@ public class ServerMain {
                 response.addProperty("computationTime", System.currentTimeMillis() - requestStartTime);
                 
                 String responseJson = gson.toJson(response);
-                DebugLogger.debug("Response generated: " + responseJson.length() + " chars");
+                DebugLogger.info("✓✓✓ RESPONSE READY: " + results.size() + " paths, " + responseJson.length() + " chars");
+                DebugLogger.info("   First path probability: " + (results.isEmpty() ? "N/A" : results.get(0).finalPercentage() + "%"));
                 sendJson(exchange, 200, responseJson);
-                DebugLogger.debug("=== CRAFTING REQUEST END ===");
+                DebugLogger.info("=== CRAFTING REQUEST END ===");
                 
             } catch (ClassNotFoundException e) {
                 DebugLogger.error("Item class not found", e);

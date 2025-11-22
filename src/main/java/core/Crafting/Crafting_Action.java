@@ -149,23 +149,45 @@ public interface Crafting_Action {
             double score = 0;
             score += Crafting_Algorithm.heuristic(items, desiredMods, CountDesiredModifierTags, undesiredMods);
             if (score > candidate.score) {
+                boolean passedThreshold = true;
+                String thresholdReason = "";
+                
                 switch (affixes) {
                     case 3:
-                        if (score < 2100)
+                        if (score < 2100) {
+                            passedThreshold = false;
+                            thresholdReason = "score " + score + " < 2100 for 3 affixes";
                             continue;
+                        }
                         break;
                     case 4:
-                        if (score < 3100)
+                        if (score < 3100) {
+                            passedThreshold = false;
+                            thresholdReason = "score " + score + " < 3100 for 4 affixes";
                             continue;
+                        }
                         break;
                     case 5:
-                        if (score < 4100)
+                        if (score < 4100) {
+                            passedThreshold = false;
+                            thresholdReason = "score " + score + " < 4100 for 5 affixes";
                             continue;
+                        }
                         break;
                     case 6:
-                        if (score < 5100)
+                        if (score < 5100) {
+                            passedThreshold = false;
+                            thresholdReason = "score " + score + " < 5100 for 6 affixes";
                             continue;
+                        }
                 }
+                
+                if (passedThreshold) {
+                    core.DebugLogger.trace("[Action] ✓ Passed threshold - affixes: " + affixes + ", score: " + score);
+                } else {
+                    core.DebugLogger.trace("[Action] ✗ Failed threshold - " + thresholdReason);
+                }
+                
                 Crafting_Candidate newCandidate = candidate.NewStep(candidate, items, score);
                 newCandidate.prev_score = candidate.score;
                 newCandidate.actions.add(this);

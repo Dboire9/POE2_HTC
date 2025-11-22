@@ -36,14 +36,32 @@ public class CraftingExecutor {
             double GLOBAL_THRESHOLD
     ) throws InterruptedException, ExecutionException {
     
+        core.DebugLogger.debug("[CraftingExecutor] Starting runCrafting with threshold: " + (GLOBAL_THRESHOLD * 100) + "%");
+        long startTime = System.currentTimeMillis();
+        
         // Run the crafting optimizer to generate crafting candidates
         List<Crafting_Candidate> candidates = Crafting_Algorithm.optimizeCrafting(baseItem, desiredMod, undesiredMod, GLOBAL_THRESHOLD);
+        core.DebugLogger.debug("[CraftingExecutor] Algorithm generated " + candidates.size() + " candidates");
 
         // Compute probabilities for the generated crafting candidates
+        long probStartTime = System.currentTimeMillis();
         Probability.ComputingProbability(candidates, desiredMod, baseItem);
+        core.DebugLogger.debug("[CraftingExecutor] Probability computation completed in " + (System.currentTimeMillis() - probStartTime) + "ms");
 
         // Analyze and sort the best crafting paths based on probabilities
-        return Probability_Analyzer.Analyze(candidates);
+        List<CandidateProbability> results = Probability_Analyzer.Analyze(candidates);
+        
+        core.DebugLogger.info("[CraftingExecutor] Completed: " + results.size() + " paths analyzed (" + (System.currentTimeMillis() - startTime) + "ms total)");
+        
+        // Log top 3 paths for debugging
+        if (!results.isEmpty()) {
+            core.DebugLogger.debug("[CraftingExecutor] Top paths:");
+            for (int i = 0; i < Math.min(3, results.size()); i++) {
+                core.DebugLogger.debug("  #" + (i+1) + ": " + results.get(i).finalPercentage() + "%");
+            }
+        }
+        
+        return results;
     }
 
 }

@@ -61,7 +61,8 @@ public class ServerMain {
             // Crafting endpoint (stub)
             server.createContext("/api/crafting", new CraftingHandler());
 
-            server.setExecutor(Executors.newCachedThreadPool());
+            // Use single-threaded executor for deterministic crafting results
+            server.setExecutor(Executors.newSingleThreadExecutor());
             server.start();
             System.out.println("POE2 backend server started (no UI) on http://localhost:8080");
         } catch (IOException e) {
@@ -342,7 +343,6 @@ public class ServerMain {
                     for (int i = 0; i < prefixesArray.size(); i++) {
                         JsonObject modJson = prefixesArray.get(i).getAsJsonObject();
                         
-                        // Support both "text" (exact match) and "id" (family match)
                         String modText = modJson.has("text") && !modJson.get("text").isJsonNull() 
                             ? modJson.get("text").getAsString() : null;
                         String modId = modJson.has("id") && !modJson.get("id").isJsonNull() 
@@ -355,23 +355,25 @@ public class ServerMain {
                         String searchKey = modText != null ? modText : modId;
                         DebugLogger.trace("Looking for prefix: " + searchKey + " (tier " + tier + ")");
                         
-                        // Find matching modifier - prioritize text match over family match
+                        // Determine which list to search based on tier
+                        // Tier 0 usually indicates Essence or Desecrated
+                        List<Modifier> searchList = (tier == 0) ? essencePrefixes : allPrefixes;
+                        
+                        // Find matching modifier
                         boolean found = false;
-                        for (Modifier prefix : allPrefixes) {
+                        for (Modifier prefix : searchList) {
                             boolean matches = false;
                             if (modText != null) {
-                                // Exact text match
                                 matches = prefix.text.equals(modText);
                             } else if (modId != null) {
-                                // Family match (fallback)
                                 matches = prefix.family.equals(modId);
                             }
                             
                             if (matches) {
-                                Modifier matchedMod = new Modifier(prefix);
-                                matchedMod.chosenTier = tier;
-                                desiredModifiers.add(matchedMod);
-                                DebugLogger.debug("✓ Prefix: " + matchedMod.text);
+                                // Use the ORIGINAL modifier object, not a copy (like TestAlgo does)
+                                prefix.chosenTier = tier;
+                                desiredModifiers.add(prefix);
+                                DebugLogger.debug("✓ Prefix: " + prefix.text);
                                 found = true;
                                 break;
                             }
@@ -388,7 +390,6 @@ public class ServerMain {
                     for (int i = 0; i < suffixesArray.size(); i++) {
                         JsonObject modJson = suffixesArray.get(i).getAsJsonObject();
                         
-                        // Support both "text" (exact match) and "id" (family match)
                         String modText = modJson.has("text") && !modJson.get("text").isJsonNull() 
                             ? modJson.get("text").getAsString() : null;
                         String modId = modJson.has("id") && !modJson.get("id").isJsonNull() 
@@ -401,23 +402,33 @@ public class ServerMain {
                         String searchKey = modText != null ? modText : modId;
                         DebugLogger.trace("Looking for suffix: " + searchKey + " (tier " + tier + ")");
                         
-                        // Find matching modifier - prioritize text match over family match
+                        // Determine which list to search:
+                        // Tier 0 could be Essence or Desecrated - check both
+                        List<Modifier> searchList;
+                        if (tier == 0) {
+                            // First try essence list, then desecrated
+                            searchList = new ArrayList<>();
+                            if (essenceSuffixes != null) searchList.addAll(essenceSuffixes);
+                            if (desecratedSuffixes != null) searchList.addAll(desecratedSuffixes);
+                        } else {
+                            searchList = allSuffixes;
+                        }
+                        
+                        // Find matching modifier
                         boolean found = false;
-                        for (Modifier suffix : allSuffixes) {
+                        for (Modifier suffix : searchList) {
                             boolean matches = false;
                             if (modText != null) {
-                                // Exact text match
                                 matches = suffix.text.equals(modText);
                             } else if (modId != null) {
-                                // Family match (fallback)
                                 matches = suffix.family.equals(modId);
                             }
                             
                             if (matches) {
-                                Modifier matchedMod = new Modifier(suffix);
-                                matchedMod.chosenTier = tier;
-                                desiredModifiers.add(matchedMod);
-                                DebugLogger.debug("✓ Suffix: " + matchedMod.text);
+                                // Use the ORIGINAL modifier object, not a copy (like TestAlgo does)
+                                suffix.chosenTier = tier;
+                                desiredModifiers.add(suffix);
+                                DebugLogger.debug("✓ Suffix: " + suffix.text);
                                 found = true;
                                 break;
                             }
@@ -438,10 +449,10 @@ public class ServerMain {
                 
                 // Run crafting simulation
                 DebugLogger.info("Starting crafting: " + desiredModifiers.size() + " modifiers, " + iterations + " iterations");
-                DebugLogger.debug("Desired modifiers:");
+                DebugLogger.info("Desired modifiers:");
                 for (Modifier mod : desiredModifiers) {
-                    DebugLogger.debug("  - " + mod.text + " (tier " + mod.chosenTier + ")");
-                    mod.is_desired_mod = true; // Mark as desired for the algorithm
+                    DebugLogger.info("  - " + mod.text + " (T" + (mod.chosenTier + 1) + "/index:" + mod.chosenTier + ", source: " + mod.source + ")");
+                    // Don't set is_desired_mod here - let the algorithm handle it
                 }
                 
                 List<Modifier> undesiredModifiers = new ArrayList<>(); // Empty for now

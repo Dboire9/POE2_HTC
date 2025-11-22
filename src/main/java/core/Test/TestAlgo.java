@@ -25,8 +25,8 @@ public class TestAlgo {
     public static void main(String[] args) {
 
         // --- ITEM SETUP SECTION ---
-        // Create a test item (Bow here, but can be replaced with another item type)
-        Bows testItem = new Bows();
+        // Create a test item (Spear here, but can be replaced with another item type)
+        core.Items.Spears.Spears testItem = new core.Items.Spears.Spears();
         Crafting_Item item = new Crafting_Item(testItem);
 
         // Get allowed prefixes and suffixes for the item
@@ -34,6 +34,7 @@ public class TestAlgo {
         List<Modifier> possibleSuffixes = testItem.getNormalAllowedSuffixes();
 		List<Modifier> possibleEssencesPrefixes = testItem.getEssencesAllowedPrefixes();
         List<Modifier> possibleEssencesSuffixes = testItem.getEssencesAllowedSuffixes();
+        List<Modifier> possibleDesecratedPrefixes = testItem.getDesecratedAllowedPrefixes();
         List<Modifier> possibleDesecratedSuffixes = testItem.getDesecratedAllowedSuffixes();
 
         List<ModifierTier> desiredModTier = new ArrayList<>();
@@ -43,68 +44,73 @@ public class TestAlgo {
         Set<String> usedModifiers = new HashSet<>();
 
         // --- MANUAL MODIFIER SELECTION FOR TESTING ---
-        // Find and add: Adds # to # Physical Damage T3
+        System.out.println("Selected Modifiers for Spear Crafting:");
+        System.out.println("Prefixes:");
+        
+        // Find and add: Adds # to # Physical Damage T1
         for (Modifier mod : possiblePrefixes) {
             if (mod.text.equals("Adds # to # Physical Damage")) {
                 desiredMods.add(mod);
-                desiredModTier.add(mod.tiers.get(2)); // T3 = index 2
-                mod.chosenTier = 2;
-                System.out.println(" - " + mod.text + " (Tier 3)");
+                desiredModTier.add(mod.tiers.get(0)); // T1 = index 0
+                mod.chosenTier = 0;
+                System.out.println(" - " + mod.text + " (Tier 1)");
                 break;
             }
         }
         
-        // Find and add: #% increased Physical Damage T3
+        // Find and add: #% increased Physical Damage +# to Accuracy Rating T1
         for (Modifier mod : possiblePrefixes) {
-            if (mod.text.equals("#% increased Physical Damage")) {
+            if (mod.text.equals("#% increased Physical Damage\n+# to Accuracy Rating")) {
                 desiredMods.add(mod);
-                desiredModTier.add(mod.tiers.get(2)); // T3 = index 2
-                mod.chosenTier = 2;
-                System.out.println(" - " + mod.text + " (Tier 3)");
-                break;
-            }
-        }
-        
-        // Find and add: Gain #% of Damage as Extra Lightning Damage (Perfect Essence)
-        for (Modifier mod : possibleEssencesPrefixes) {
-            if (mod.text.equals("Gain # % of Damage as Extra Lightning Damage")) {
-                desiredMods.add(mod);
-                desiredModTier.add(mod.tiers.get(0));
+                desiredModTier.add(mod.tiers.get(0)); // T1 = index 0
                 mod.chosenTier = 0;
-                System.out.println(" - " + mod.text + " (Perfect Essence)");
+                System.out.println(" - " + mod.text + " (Tier 1)");
                 break;
             }
         }
         
-        // Find and add: (20–25)% chance to gain Onslaught (Perfect Essence)
-        for (Modifier mod : possibleEssencesSuffixes) {
-            if (mod.text.contains("chance to gain Onslaught")) {
-                desiredMods.add(mod);
-                desiredModTier.add(mod.tiers.get(0));
-                mod.chosenTier = 0;
-                System.out.println(" - " + mod.text + " (Perfect Essence)");
-                break;
-            }
-        }
-        
-        // Find and add: +4 to Level of all Attack Skills (Perfect Essence)
-        for (Modifier mod : possibleEssencesSuffixes) {
-            if (mod.text.equals("+# to Level of all Attack Skills")) {
-                desiredMods.add(mod);
-                desiredModTier.add(mod.tiers.get(0));
-                mod.chosenTier = 0;
-                System.out.println(" - " + mod.text + " (Perfect Essence)");
-                break;
-            }
-        }
-        
-        // Find and add: #% increased Attack Speed (Desecrated)
-        for (Modifier mod : possibleDesecratedSuffixes) {
-            if (mod.text.equals("#% increased Attack Speed\nCompanions have #% increased Attack Speed")) {
+        // Find and add: Attacks with this Weapon Penetrate #% Cold Resistance (Desecrated)
+        for (Modifier mod : possibleDesecratedPrefixes) {
+            if (mod.text.contains("Penetrate #% Cold Resistance")) {
                 desiredMods.add(mod);
                 desiredModTier.add(mod.tiers.get(0));
                 mod.chosenTier = 0;
                 System.out.println(" - " + mod.text + " (Desecrated)");
+                break;
+            }
+        }
+        
+        System.out.println("Suffixes:");
+        
+        // Find and add: +# to Strength T1
+        for (Modifier mod : possibleSuffixes) {
+            if (mod.text.equals("+# to Strength")) {
+                desiredMods.add(mod);
+                desiredModTier.add(mod.tiers.get(0));
+                mod.chosenTier = 0;
+                System.out.println(" - " + mod.text + " (Tier 1)");
+                break;
+            }
+        }
+        
+        // Find and add: Gain # Life per Enemy Killed T1
+        for (Modifier mod : possibleSuffixes) {
+            if (mod.text.equals("Gain # Life per Enemy Killed")) {
+                desiredMods.add(mod);
+                desiredModTier.add(mod.tiers.get(0));
+                mod.chosenTier = 0;
+                System.out.println(" - " + mod.text + " (Tier 1)");
+                break;
+            }
+        }
+        
+        // Find and add: #% increased Attack Speed T1
+        for (Modifier mod : possibleSuffixes) {
+            if (mod.text.equals("#% increased Attack Speed")) {
+                desiredMods.add(mod);
+                desiredModTier.add(mod.tiers.get(0));
+                mod.chosenTier = 0;
+                System.out.println(" - " + mod.text + " (Tier 1)");
                 break;
             }
         }

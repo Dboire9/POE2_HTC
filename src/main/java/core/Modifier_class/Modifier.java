@@ -53,6 +53,8 @@ public class Modifier {
         this.source = other.source;
         this.family = other.family;
         this.text = other.text;
+        this.chosenTier = other.chosenTier; // Copy the chosen tier
+        this.is_desired_mod = other.is_desired_mod; // Copy the desired mod flag
     }
 
     /**
@@ -179,5 +181,7 @@ public class Modifier {
         this.source = other.source;
         this.family = other.family;
         this.text = other.text;
+        this.chosenTier = other.chosenTier; // Copy the chosen tier
+        this.is_desired_mod = other.is_desired_mod; // Copy the desired mod flag
     }
 }

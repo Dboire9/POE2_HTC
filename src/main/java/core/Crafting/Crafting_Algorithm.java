@@ -48,9 +48,11 @@ public class Crafting_Algorithm {
         List<Modifier> undesiredMods,
         double GLOBAL_THRESHOLD) throws InterruptedException, ExecutionException
 		{
+			core.DebugLogger.debug("[Algorithm] Starting optimizeCrafting with " + desiredMods.size() + " desired mods, threshold: " + (GLOBAL_THRESHOLD * 100) + "%");
 
-			// Initialize thread pool
-			int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
+			// Initialize thread pool - use single thread for deterministic execution
+			int threads = 1; // Force single-threaded for deterministic results
+			core.DebugLogger.debug("[Algorithm] Using " + threads + " thread(s) for processing");
 			ExecutorService executor = Executors.newFixedThreadPool(threads);
 
 			// Precompute desired tag counts
@@ -95,20 +97,27 @@ public class Crafting_Algorithm {
 				next.clear();
 			}
 
-			// Continue processing until we do not find anymore candidates
-			while (!current.isEmpty()) {
-				processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
-						allCandidateLists, next, executor);
-				current = deepCopy(next);
-				next.clear();
-			}
+		// Continue processing until we do not find anymore candidates
+		int iterationCount = 0;
+		while (!current.isEmpty()) {
+			iterationCount++;
+			core.DebugLogger.debug("[Algorithm] Iteration " + iterationCount + ": Processing " + current.stream().mapToInt(List::size).sum() + " candidates");
+			processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
+					allCandidateLists, next, executor);
+			current = deepCopy(next);
+			next.clear();
+		}
+
+		core.DebugLogger.debug("[Algorithm] Completed " + iterationCount + " iterations, total candidates: " + allCandidateLists.stream().mapToInt(List::size).sum());
 
 		// Shutdown thread pool
 		executor.shutdown();
 		executor.awaitTermination(1, TimeUnit.MINUTES);
 
 		// Final filtering
-		return extractHighScoreCandidates(allCandidateLists, desiredMods);
+		List<Crafting_Candidate> finalCandidates = extractHighScoreCandidates(allCandidateLists, desiredMods);
+		core.DebugLogger.debug("[Algorithm] Final filtering: " + finalCandidates.size() + " high-score candidates extracted");
+		return finalCandidates;
 }
 
     /**
@@ -157,23 +166,55 @@ public class Crafting_Algorithm {
 			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods) {
 	
 		List<Crafting_Candidate> result = new ArrayList<>();
+		int totalCandidates = 0;
+		int filteredByScore = 0;
+		int filteredBySize = 0;
+		int filteredByMatch = 0;
 	
 		for (List<Crafting_Candidate> list : allCandidateLists) {
 			for (Crafting_Candidate candidate : list) {
+				totalCandidates++;
 				candidate.desecrated = false;
 
-				if (candidate.score < 6000) continue;
+				if (candidate.score < 6000) {
+					filteredByScore++;
+					continue;
+				}
 
 				List<Modifier> current = candidate.getAllCurrentModifiers();
-				if (current.size() < 6) continue;
+				if (current.size() < 6) {
+					filteredBySize++;
+					continue;
+				}
 
 				long matchCount = current.stream()
 						.filter(m -> desiredMods.stream().anyMatch(d -> d.text.equals(m.text)))
 						.count();
 
-				if (matchCount == 6) result.add(candidate);
+				if (matchCount == 6) {
+					result.add(candidate);
+				} else {
+					filteredByMatch++;
+					if (filteredByMatch <= 3) {  // Log first 3 for debugging
+						core.DebugLogger.trace("[Algorithm] Candidate rejected: matchCount=" + matchCount + ", score=" + candidate.score + ", size=" + current.size());
+					}
+				}
 			}
 		}
+		
+		core.DebugLogger.debug("[Algorithm] extractHighScoreCandidates summary: total=" + totalCandidates + 
+			", filteredByScore=" + filteredByScore + ", filteredBySize=" + filteredBySize + 
+			", filteredByMatch=" + filteredByMatch + ", accepted=" + result.size());
+		
+		// Sort for deterministic ordering
+		result.sort((c1, c2) -> {
+			int scoreCompare = Double.compare(c2.score, c1.score);
+			if (scoreCompare != 0) return scoreCompare;
+			
+			// Secondary sort by history size for consistency
+			return Integer.compare(c1.modifierHistory.size(), c2.modifierHistory.size());
+		});
+		
 		return result;
 	}
 	
@@ -241,15 +282,14 @@ public class Crafting_Algorithm {
 			Map<String, Integer> CountDesiredModifierTags,
 			List<List<Crafting_Candidate>> listOfCandidateLists,
 			List<Modifier> undesiredMods) {
+		core.DebugLogger.debug("[Algorithm] generateCandidateLists: Input " + FirstCandidateList.size() + " candidates");
 		List<Crafting_Candidate> FirstCandidateListCopy = new ArrayList<>();
-
-		// Not doing essences as regal can do every of them, we will check if they can
-		// be essences later
 
 		// Applying a normal RegalOrb
 		RegalOrb regalOrb = new RegalOrb();
 		FirstCandidateListCopy = regalOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
 				undesiredMods);
+		core.DebugLogger.debug("[Algorithm] RegalOrb generated " + FirstCandidateListCopy.size() + " candidates");
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
 		FirstCandidateListCopy.clear();
 	}

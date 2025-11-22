@@ -37,9 +37,10 @@ public class ComputingLastProbability {
      */
     public static void ComputingLastEventProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod, Crafting_Item baseItem, double GLOBAL_THRESHOLD) {
         // Thread-safe list to collect candidates that should be removed
-        List<Crafting_Candidate> toRemove = Collections.synchronizedList(new ArrayList<>());
+        List<Crafting_Candidate> toRemove = new ArrayList<>();  // Changed from Collections.synchronizedList since we're now sequential
 
-        completedPaths.parallelStream().forEach(candidate -> {
+        // Changed from parallelStream() to stream() for deterministic execution
+        completedPaths.stream().forEach(candidate -> {
             if (candidate.modifierHistory.isEmpty() || candidate.score >= 6000)
                 return; // Skip empty candidates or if they are finished
 

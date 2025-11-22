@@ -43,11 +43,26 @@ export const ItemsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, []);
 
-  // T011: Select item by ID
-  const selectItem = useCallback((itemId: string) => {
+  // T010b: Load subcategories for an item category
+  const loadSubcategories = useCallback(async (categoryId: string): Promise<{ id: string; name: string }[]> => {
+    try {
+      const httpResponse = await fetch(`http://localhost:8080/api/subcategories?category=${categoryId}`);
+      if (!httpResponse.ok) {
+        throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
+      }
+      const subcategories = await httpResponse.json();
+      return subcategories || [];
+    } catch (err) {
+      console.error('Failed to load subcategories:', err);
+      return [];
+    }
+  }, []);
+
+  // T011: Select item by ID with optional subcategory
+  const selectItem = useCallback((itemId: string, subcategory?: string) => {
     const item = items.find((i) => i.id === itemId);
     if (item) {
-      setSelectedItem(item);
+      setSelectedItem({ ...item, subcategory });
     }
   }, [items]);
 
@@ -64,6 +79,7 @@ export const ItemsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     error,
     // Actions
     loadItems,
+    loadSubcategories,
     selectItem,
     clearSelection,
   };

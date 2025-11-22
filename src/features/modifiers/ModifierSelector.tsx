@@ -61,7 +61,7 @@ const ModifierSelector: React.FC = () => {
   // Load modifiers when item is selected
   useEffect(() => {
     if (selectedItem) {
-      loadModifiers(selectedItem.id);
+      loadModifiers(selectedItem.id, selectedItem.subcategory);
     }
   }, [selectedItem, loadModifiers]);
 

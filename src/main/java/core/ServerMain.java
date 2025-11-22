@@ -54,6 +54,9 @@ public class ServerMain {
 
             // Items endpoint
             server.createContext("/api/items", new ItemsHandler());
+            
+            // Subcategories endpoint (for items with hybrid bases)
+            server.createContext("/api/subcategories", new SubcategoriesHandler());
 
             // Modifiers endpoint
             server.createContext("/api/modifiers", new ModifiersHandler());
@@ -61,8 +64,8 @@ public class ServerMain {
             // Crafting endpoint (stub)
             server.createContext("/api/crafting", new CraftingHandler());
 
-            // Use single-threaded executor for deterministic crafting results
-            server.setExecutor(Executors.newSingleThreadExecutor());
+            // Use thread pool for concurrent request handling
+            server.setExecutor(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
             server.start();
             System.out.println("POE2 backend server started (no UI) on http://localhost:8080");
         } catch (IOException e) {
@@ -86,20 +89,74 @@ public class ServerMain {
             }
             ItemManager manager = new ItemManager();
             List<String> categories = manager.getCategories();
-            // Build a simple JSON array of {id,name,type,baseStats}
+            // Build a simple JSON array of {id,name,type,baseStats,hasSubcategories}
             StringBuilder sb = new StringBuilder();
             sb.append('[');
             for (int i = 0; i < categories.size(); i++) {
                 String c = categories.get(i);
+                List<String> subCats = manager.getSubCategories(c);
+                boolean hasSubcategories = !subCats.isEmpty();
+                
                 // Convert category name to type format (e.g., "Body_Armours" -> "body_armour")
                 String type = c.toLowerCase().replace("_", "_").replaceAll("s$", "");
                 sb.append('{')
                   .append("\"id\":\"").append(escapeJson(c)).append("\",")
                   .append("\"name\":\"").append(escapeJson(c)).append("\",")
                   .append("\"type\":\"").append(escapeJson(type)).append("\",")
+                  .append("\"hasSubcategories\":").append(hasSubcategories).append(",")
                   .append("\"baseStats\":{}") // Empty for now
                   .append("}");
                 if (i < categories.size() - 1) sb.append(',');
+            }
+            sb.append(']');
+            sendJson(exchange, 200, sb.toString());
+        }
+    }
+    
+    static class SubcategoriesHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            // Handle CORS preflight
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJson(exchange, 204, "");
+                return;
+            }
+            
+            if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                sendJson(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
+                return;
+            }
+            
+            // Parse query parameters: ?category=Body_Armours
+            String query = exchange.getRequestURI().getQuery();
+            String category = "";
+            if (query != null) {
+                for (String param : query.split("&")) {
+                    String[] kv = param.split("=");
+                    if (kv.length == 2 && "category".equals(kv[0])) {
+                        category = kv[1];
+                    }
+                }
+            }
+            
+            if (category.isEmpty()) {
+                sendJson(exchange, 400, "{\"error\":\"category parameter required\"}");
+                return;
+            }
+            
+            ItemManager manager = new ItemManager();
+            List<String> subCategories = manager.getSubCategories(category);
+            
+            // Build JSON array
+            StringBuilder sb = new StringBuilder();
+            sb.append('[');
+            for (int i = 0; i < subCategories.size(); i++) {
+                String subCat = subCategories.get(i);
+                sb.append('{')
+                  .append("\"id\":\"").append(escapeJson(subCat)).append("\",")
+                  .append("\"name\":\"").append(escapeJson(subCat)).append("\"")
+                  .append("}");
+                if (i < subCategories.size() - 1) sb.append(',');
             }
             sb.append(']');
             sendJson(exchange, 200, sb.toString());
@@ -120,14 +177,19 @@ public class ServerMain {
                 return;
             }
             
-            // Parse query parameters: ?itemId=Helmets&subcategory=...
+            // Parse query parameters: ?itemId=Helmets&subcategory=Body_Armours_str
             String query = exchange.getRequestURI().getQuery();
             String itemId = "";
+            String subcategory = "";
             if (query != null) {
                 for (String param : query.split("&")) {
                     String[] kv = param.split("=");
-                    if (kv.length == 2 && "itemId".equals(kv[0])) {
-                        itemId = kv[1];
+                    if (kv.length == 2) {
+                        if ("itemId".equals(kv[0])) {
+                            itemId = kv[1];
+                        } else if ("subcategory".equals(kv[0])) {
+                            subcategory = kv[1];
+                        }
                     }
                 }
             }
@@ -149,9 +211,9 @@ public class ServerMain {
                     // e.g., core.Items.Bows.Bows
                     fullClassName = packagePath + "." + itemId;
                 } else {
-                    // Has subcategories - use the first one
+                    // Has subcategories - use provided subcategory or first one
                     // e.g., core.Items.Body_Armours.Body_Armours_str.Body_Armours_str
-                    String subCat = subCategories.get(0);
+                    String subCat = subcategory.isEmpty() ? subCategories.get(0) : subcategory;
                     fullClassName = packagePath + "." + subCat + "." + subCat;
                 }
                 
@@ -363,16 +425,18 @@ public class ServerMain {
                         String searchKey = modText != null ? modText : modId;
                         DebugLogger.trace("Looking for prefix: " + searchKey + " (tier " + tier + ")");
                         
-                        // Determine which list to search based on tier
-                        // Tier 0 usually indicates Essence or Desecrated
-                        List<Modifier> searchList = (tier == 0) ? essencePrefixes : allPrefixes;
+                        // Search in all prefixes (normal, essence, desecrated)
+                        // We'll match based on text/id, then use the modifier's actual source
                         
                         // Find matching modifier
                         boolean found = false;
-                        for (Modifier prefix : searchList) {
+                        for (Modifier prefix : allPrefixes) {
                             boolean matches = false;
                             if (modText != null) {
-                                matches = prefix.text.equals(modText);
+                                // Normalize both texts: replace newlines with spaces and trim extra whitespace
+                                String normalizedPrefixText = prefix.text.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+                                String normalizedModText = modText.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+                                matches = normalizedPrefixText.equals(normalizedModText);
                             } else if (modId != null) {
                                 matches = prefix.family.equals(modId);
                             }
@@ -412,24 +476,18 @@ public class ServerMain {
                         String searchKey = modText != null ? modText : modId;
                         DebugLogger.trace("Looking for suffix: " + searchKey + " (tier " + tier + ")");
                         
-                        // Determine which list to search:
-                        // Tier 0 could be Essence or Desecrated - check both
-                        List<Modifier> searchList;
-                        if (tier == 0) {
-                            // First try essence list, then desecrated
-                            searchList = new ArrayList<>();
-                            if (essenceSuffixes != null) searchList.addAll(essenceSuffixes);
-                            if (desecratedSuffixes != null) searchList.addAll(desecratedSuffixes);
-                        } else {
-                            searchList = allSuffixes;
-                        }
+                        // Search in all suffixes (normal, essence, desecrated)
+                        // We'll match based on text/id, then use the modifier's actual source
                         
                         // Find matching modifier
                         boolean found = false;
-                        for (Modifier suffix : searchList) {
+                        for (Modifier suffix : allSuffixes) {
                             boolean matches = false;
                             if (modText != null) {
-                                matches = suffix.text.equals(modText);
+                                // Normalize both texts: replace newlines with spaces and trim extra whitespace
+                                String normalizedSuffixText = suffix.text.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+                                String normalizedModText = modText.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+                                matches = normalizedSuffixText.equals(normalizedModText);
                             } else if (modId != null) {
                                 matches = suffix.family.equals(modId);
                             }
@@ -484,11 +542,13 @@ public class ServerMain {
                     globalThreshold
                 );
                 
-                // Retry until we get valid results or threshold reaches zero (like TestAlgo)
+                // Retry until we get valid results or threshold reaches minimum or max retries
                 int retryCount = 0;
-                while (results.isEmpty() && globalThreshold > 0) {
+                int maxRetries = 33; // Maximum 33 retries (from 0.33 down to 0.00)
+                while (results.isEmpty() && globalThreshold > 0 && retryCount < maxRetries) {
                     craftingItem.reset();
-                    globalThreshold = Math.max(0.01, globalThreshold - 0.01);
+                    globalThreshold = globalThreshold - 0.01;
+                    if (globalThreshold < 0) globalThreshold = 0;
                     undesiredModifiers.clear();
                     
                     try {
@@ -573,12 +633,11 @@ public class ServerMain {
                             actionObj.addProperty("actionFull", action.getClass().getName());
                             
                             // Get probability from source map - the source map contains the actual probability
-                            // We need to iterate the source map entries to find the probability for this action type
-                            double probability = 0.0;
-                            for (Map.Entry<Crafting_Action, Double> sourceEntry : event.source.entrySet()) {
-                                // The source map key is the action instance that was actually used
-                                probability = sourceEntry.getValue();
-                                break; // Take the first (should only be one)
+                            // For actions like Desecrated_currency with multiple omens, the source map has multiple entries
+                            // We need to get the probability for the specific action instance used in the best path
+                            Double probability = event.source.get(action);
+                            if (probability == null) {
+                                probability = 0.0;
                             }
                             actionObj.addProperty("probability", probability);
                             

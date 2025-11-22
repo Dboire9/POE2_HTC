@@ -23,7 +23,7 @@ export function Results({ data }: any) {
     const aRate = a.avgSuccessRate ?? a.probability
     const bRate = b.avgSuccessRate ?? b.probability
     return bRate - aRate
-  }) : []
+  }).slice(0, 3) : []  // Display only top 3 best paths
   
   // Reset to best path (index 0) when new results arrive
   if (sortedResults.length > 0 && selectedPath >= sortedResults.length) {
@@ -94,7 +94,9 @@ export function Results({ data }: any) {
           {sortedResults && sortedResults.length > 0 ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-4">
-                <h3 className="font-semibold">Crafting Paths Found: {sortedResults.length}</h3>
+                <h3 className="font-semibold">
+                  Top 3 Crafting Paths {data.results?.length > 3 && `(${data.results.length} total found)`}
+                </h3>
                 <div className="flex items-center gap-2 flex-1 max-w-md">
                   <span className="text-sm text-muted-foreground whitespace-nowrap">Select Path:</span>
                   <Select value={selectedPath.toString()} onValueChange={(v) => setSelectedPath(parseInt(v))}>

@@ -25,15 +25,19 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [exclusionRules]);
 
   // T021: Load modifiers from backend via Electron IPC
-  const loadModifiers = useCallback(async (itemId: string) => {
+  const loadModifiers = useCallback(async (itemId: string, subcategory?: string) => {
     setLoading(true);
     setError(null);
 
     try {
       let response;
       
-      // Direct HTTP API call
-      const httpResponse = await fetch(`http://localhost:8080/api/modifiers?itemId=${itemId}`);
+      // Direct HTTP API call with optional subcategory
+      let url = `http://localhost:8080/api/modifiers?itemId=${itemId}`;
+      if (subcategory) {
+        url += `&subcategory=${subcategory}`;
+      }
+      const httpResponse = await fetch(url);
       if (!httpResponse.ok) {
         throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
       }
@@ -47,13 +51,18 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // Backend sends: {id, name, tiers, source}
       // Frontend expects: {id, text, type, tier, statRanges, tags, source, availableTiers}
       const transformModifier = (mod: any, type: 'prefix' | 'suffix'): Modifier => {
-        // Essence and perfect modifiers use tier 1 (UI value, will be converted to 0 for backend)
-        // Normal modifiers default to tier 3 (UI value, will be converted to 2 for backend)
-        const defaultTier = (mod.source === 'essence' || mod.source === 'perfect') ? 1 : 3;
+        // All modifiers default to tier 1 (UI value, will be converted to 0 for backend)
+        const defaultTier = 1;
+        
+        // Normalize text: replace newlines with spaces and collapse multiple spaces
+        const normalizedText = (mod.name || mod.text || mod.id)
+          .replace(/\n/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
         
         return {
           id: mod.id,
-          text: mod.name || mod.text || mod.id,
+          text: normalizedText,
           type,
           tier: defaultTier,
           availableTiers: mod.tiers || 1,  // Total tiers available
@@ -121,8 +130,9 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return;
     }
 
-    // Add to selections
-    setSelections(prev => [...prev, modifier]);
+    // Add to selections with the specified tier (or use modifier's default tier)
+    const modifierWithTier = { ...modifier, tier: tier !== undefined ? tier : modifier.tier };
+    setSelections(prev => [...prev, modifierWithTier]);
   }, [selectedPrefixes, selectedSuffixes]);
 
   // T024: Deselect modifier (uses text for unique identification)

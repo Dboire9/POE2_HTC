@@ -3,8 +3,8 @@ import ReactDOM from "react-dom/client"
 import App from "./App"
 import "./index.css"
 
-// Force cache clear - version 2.0
-const CACHE_VERSION = '2.0';
+// Force cache clear - version 2.1
+const CACHE_VERSION = '2.1';
 const currentVersion = localStorage.getItem('app_version');
 if (currentVersion !== CACHE_VERSION) {
   localStorage.clear();

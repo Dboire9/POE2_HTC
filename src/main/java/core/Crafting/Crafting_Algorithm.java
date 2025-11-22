@@ -50,8 +50,8 @@ public class Crafting_Algorithm {
 		{
 			core.DebugLogger.debug("[Algorithm] Starting optimizeCrafting with " + desiredMods.size() + " desired mods, threshold: " + (GLOBAL_THRESHOLD * 100) + "%");
 
-			// Initialize thread pool - use single thread for deterministic execution
-			int threads = 1; // Force single-threaded for deterministic results
+			// Initialize thread pool
+			int threads = Runtime.getRuntime().availableProcessors();
 			core.DebugLogger.debug("[Algorithm] Using " + threads + " thread(s) for processing");
 			ExecutorService executor = Executors.newFixedThreadPool(threads);
 
@@ -99,13 +99,18 @@ public class Crafting_Algorithm {
 
 		// Continue processing until we do not find anymore candidates
 		int iterationCount = 0;
-		while (!current.isEmpty()) {
+		int maxIterations = 100; // Safety limit to prevent infinite loops
+		while (!current.isEmpty() && iterationCount < maxIterations) {
 			iterationCount++;
 			core.DebugLogger.debug("[Algorithm] Iteration " + iterationCount + ": Processing " + current.stream().mapToInt(List::size).sum() + " candidates");
 			processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
 					allCandidateLists, next, executor);
 			current = deepCopy(next);
 			next.clear();
+		}
+		
+		if (iterationCount >= maxIterations) {
+			core.DebugLogger.warn("[Algorithm] Reached maximum iterations (" + maxIterations + "), stopping to prevent infinite loop");
 		}
 
 		core.DebugLogger.debug("[Algorithm] Completed " + iterationCount + " iterations, total candidates: " + allCandidateLists.stream().mapToInt(List::size).sum());

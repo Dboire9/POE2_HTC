@@ -37,8 +37,16 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
   selectedTier,
   availableTiers = 1
 }) => {
-  const [tier, setTier] = useState(selectedTier || 1);
+  // Use selectedTier if provided (when selected), otherwise use modifier's default tier
+  const [tier, setTier] = useState(selectedTier || modifier.tier || 1);
   const sourceBadge = getSourceBadge(modifier.source);
+  
+  // Update local tier state when selectedTier changes (sync with context)
+  React.useEffect(() => {
+    if (selectedTier !== undefined) {
+      setTier(selectedTier);
+    }
+  }, [selectedTier]);
   
   const handleTierChange = (newTier: number) => {
     setTier(newTier);

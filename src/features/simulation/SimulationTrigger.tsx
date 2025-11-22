@@ -22,8 +22,9 @@ const SimulationTrigger: React.FC = () => {
     startSimulation({
       itemId: selectedItem.id,
       modifiers: {
-        prefixes: selectedPrefixes.map(m => ({ text: m.text, tier: m.tier || 0 })),
-        suffixes: selectedSuffixes.map(m => ({ text: m.text, tier: m.tier || 0 })),
+        // Convert 1-based UI tier to 0-based backend tier
+        prefixes: selectedPrefixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
+        suffixes: selectedSuffixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
       },
     });
   };

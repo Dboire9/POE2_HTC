@@ -32,35 +32,36 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       let response;
       
-      // Try Electron IPC first, fallback to direct HTTP
-      if (window.electronAPI) {
-        response = await window.electronAPI.invoke('api:modifiers', { itemId });
-      } else {
-        // Fallback for browser/development mode
-        const httpResponse = await fetch(`http://localhost:8080/api/modifiers?itemId=${itemId}`);
-        if (!httpResponse.ok) {
-          throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
-        }
-        response = await httpResponse.json();
+      // Direct HTTP API call
+      const httpResponse = await fetch(`http://localhost:8080/api/modifiers?itemId=${itemId}`);
+      if (!httpResponse.ok) {
+        throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
       }
+      response = await httpResponse.json();
       
       if (response.error) {
         throw new Error(response.error.code || ErrorCode.UNKNOWN);
       }
 
       // Transform backend response to Modifier format
-      // Backend sends: {id, name, tiers}
+      // Backend sends: {id, name, tiers, source}
       // Frontend expects: {id, text, type, tier, statRanges, tags, source, availableTiers}
-      const transformModifier = (mod: any, type: 'prefix' | 'suffix'): Modifier => ({
-        id: mod.id,
-        text: mod.name || mod.text || mod.id,
-        type,
-        tier: 1,  // Default selected tier
-        availableTiers: mod.tiers || 1,  // Total tiers available
-        statRanges: mod.statRanges || [],
-        tags: mod.tags || [],
-        source: mod.source
-      });
+      const transformModifier = (mod: any, type: 'prefix' | 'suffix'): Modifier => {
+        // Essence and perfect modifiers use tier 1 (UI value, will be converted to 0 for backend)
+        // Normal modifiers default to tier 3 (UI value, will be converted to 2 for backend)
+        const defaultTier = (mod.source === 'essence' || mod.source === 'perfect') ? 1 : 3;
+        
+        return {
+          id: mod.id,
+          text: mod.name || mod.text || mod.id,
+          type,
+          tier: defaultTier,
+          availableTiers: mod.tiers || 1,  // Total tiers available
+          statRanges: mod.statRanges || [],
+          tags: mod.tags || [],
+          source: mod.source
+        };
+      };
 
       // Deduplicate modifiers by text+source combination (text is unique per modifier variant)
       const deduplicateModifiers = (mods: any[], type: 'prefix' | 'suffix'): Modifier[] => {

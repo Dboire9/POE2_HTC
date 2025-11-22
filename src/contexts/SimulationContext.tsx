@@ -61,23 +61,24 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         const requestWithThreshold = {
           ...request,
           global_threshold: 0.33, // 33% threshold
+          _timestamp: Date.now(), // Cache buster
         };
         
-        // Try Electron IPC first, fallback to direct HTTP
-        if (window.electronAPI) {
-          response = await window.electronAPI.invoke('api:crafting', requestWithThreshold);
-        } else {
-          // Fallback for browser/development mode
-          const httpResponse = await fetch('http://localhost:8080/api/crafting', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestWithThreshold),
-          });
-          if (!httpResponse.ok) {
-            throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
-          }
-          response = await httpResponse.json();
+        // Direct HTTP API call
+        const httpResponse = await fetch('http://localhost:8080/api/crafting?_=' + Date.now(), {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          },
+          cache: 'no-store',
+          body: JSON.stringify(requestWithThreshold),
+        });
+        if (!httpResponse.ok) {
+          throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
         }
+        response = await httpResponse.json();
         
         // Check if request was aborted
         if (abortControllerRef.current?.signal.aborted) {

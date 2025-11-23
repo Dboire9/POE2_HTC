@@ -56,7 +56,7 @@ function startBackend(): Promise<void> {
     console.log('Starting Java backend...');
     // In development we run via Maven (requires mvn).
     // In production the packaged app should start the Java runtime directly
-    // using the compiled classes or a packaged jar (no Maven available).
+    // using the packaged JAR file.
     const isPackaged = app.isPackaged;
     let cmd: string;
     let args: string[];
@@ -69,33 +69,24 @@ function startBackend(): Promise<void> {
       args = ['exec:java', '-Dexec.mainClass=core.ServerMain', '-q'];
       options.cwd = app.getAppPath();
     } else {
-      // Production: try to run the packaged jar if present, otherwise run the classes
-      // packaged into `target/classes` which we include via electron-builder extraResources.
-      cmd = process.platform === 'win32' ? 'java.exe' : 'java';
-      const resourceTargetDir = path.join(process.resourcesPath, 'target');
-      const jarCandidates = [] as string[];
-      try {
-        // look for any jar files in resources/target
-        const files = fs.readdirSync(resourceTargetDir);
-        for (const f of files) {
-          if (f.toLowerCase().endsWith('.jar')) jarCandidates.push(path.join(resourceTargetDir, f));
-        }
-      } catch (err) {
-        // resourceTargetDir might not exist; we'll fall back to classes path
+      // Production: run the packaged JAR file
+      cmd = 'java';
+      const jarPath = path.join(process.resourcesPath, 'backend.jar');
+      
+      console.log('Looking for backend JAR at:', jarPath);
+      
+      // Check if JAR exists
+      if (!fs.existsSync(jarPath)) {
+        console.error('Backend JAR not found at:', jarPath);
+        reject(new Error('Backend JAR not found'));
+        return;
       }
-
-      if (jarCandidates.length > 0) {
-        // prefer the first jar found
-        args = ['-jar', jarCandidates[0]];
-        options.cwd = resourceTargetDir;
-      } else {
-        // fallback to running classes directly
-        const classesPath = path.join(resourceTargetDir, 'classes');
-        args = ['-cp', classesPath, 'core.ServerMain'];
-        options.cwd = resourceTargetDir;
-      }
+      
+      args = ['-jar', jarPath];
+      options.cwd = process.resourcesPath;
     }
 
+    console.log('Running command:', cmd, args.join(' '));
     backendProcess = spawn(cmd, args, options);
 
     backendProcess.on('error', (error) => {

@@ -12,7 +12,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "build:electron": "tsc -p electron/tsconfig.json && mv dist-electron/main.js dist-electron/main.cjs && cp electron/preload.js dist-electron/preload.js",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run build:electron && electron . --no-sandbox\"",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run build:electron && NODE_ENV=development electron . --no-sandbox\"",
     "electron:build": "npm run build && npm run build:electron && electron-builder",
     "type-check": "tsc --noEmit"
   },

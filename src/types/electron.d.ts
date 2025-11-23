@@ -1,0 +1,32 @@
+export interface UpdateInfo {
+  version: string;
+  releaseDate?: string;
+  releaseNotes?: string;
+}
+
+export interface DownloadProgress {
+  percent: number;
+  transferred: number;
+  total: number;
+}
+
+export interface ElectronAPI {
+  // Generic IPC invoke method (for backward compatibility)
+  invoke: (channel: string, data?: any) => Promise<any>;
+  
+  // Update-specific methods
+  checkForUpdates: () => Promise<void>;
+  downloadUpdate: () => Promise<void>;
+  installUpdate: () => void;
+  getAppVersion: () => Promise<string>;
+  onUpdateAvailable: (callback: (info: UpdateInfo) => void) => void;
+  onUpdateDownloadProgress: (callback: (progress: DownloadProgress) => void) => void;
+  onUpdateDownloaded: (callback: () => void) => void;
+  isElectron: boolean;
+}
+
+declare global {
+  interface Window {
+    electronAPI?: ElectronAPI;
+  }
+}

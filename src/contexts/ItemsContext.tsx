@@ -20,21 +20,14 @@ export const ItemsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setError(null);
 
     try {
-      let response;
-      
       // Direct HTTP API call
       const httpResponse = await fetch('http://localhost:8080/api/items');
       if (!httpResponse.ok) {
         throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
       }
       const items = await httpResponse.json();
-      response = { items };
       
-      if (response.error) {
-        throw new Error(response.error.code || ErrorCode.UNKNOWN);
-      }
-
-      setItems(response.items || []);
+      setItems(items || []);
     } catch (err) {
       const errorCode = err instanceof Error ? err.message : ErrorCode.UNKNOWN;
       setError(getErrorMessage(errorCode));

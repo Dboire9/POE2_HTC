@@ -82,11 +82,18 @@ mvn clean package && npm run dev
 **Build Desktop Application:**
 
 ```bash
-# Build for your current platform
+# Build for all platforms
 npm run electron:build
+
+# Build for specific platform only
+npm run electron:build:win    # Windows (.exe installer + portable)
+npm run electron:build:mac    # macOS (.dmg + .zip)
+npm run electron:build:linux  # Linux (.AppImage + .deb)
 
 # Output will be in the 'release' directory
 ```
+
+**Note:** To build for macOS or Windows from Linux, you may need additional dependencies. Building for the current platform always works out of the box.
 
 Backend runs on `http://localhost:8080`, frontend on `http://localhost:5173`
 

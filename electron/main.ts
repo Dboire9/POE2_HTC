@@ -1,6 +1,7 @@
 import { app, BrowserWindow, shell } from 'electron';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
+import * as http from 'http';
 
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess | null = null;
@@ -8,6 +9,34 @@ let backendProcess: ChildProcess | null = null;
 const isDev = process.env.NODE_ENV === 'development';
 const BACKEND_PORT = 8080;
 const FRONTEND_PORT = 5173;
+
+function waitForServer(url: string, timeout = 30000): Promise<void> {
+  const startTime = Date.now();
+  return new Promise((resolve, reject) => {
+    const checkServer = () => {
+      http.get(url, (res) => {
+        if (res.statusCode === 200) {
+          console.log(`Server ready at ${url}`);
+          resolve();
+        } else {
+          retry();
+        }
+      }).on('error', () => {
+        retry();
+      });
+    };
+
+    const retry = () => {
+      if (Date.now() - startTime > timeout) {
+        reject(new Error(`Timeout waiting for ${url}`));
+      } else {
+        setTimeout(checkServer, 500);
+      }
+    };
+
+    checkServer();
+  });
+}
 
 function startBackend(): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -113,6 +142,12 @@ app.whenReady().then(async () => {
   try {
     // Start backend first
     await startBackend();
+    
+    // Wait for frontend in dev mode
+    if (isDev) {
+      console.log('Waiting for frontend dev server...');
+      await waitForServer(`http://localhost:${FRONTEND_PORT}`);
+    }
     
     // Then create window
     createWindow();

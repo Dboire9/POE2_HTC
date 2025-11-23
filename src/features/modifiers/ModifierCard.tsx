@@ -75,14 +75,21 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
             <p className="text-sm font-medium">{modifier.text}</p>
-            {sourceBadge && (
-              <span className={cn(
-                'inline-block mt-1 text-xs px-1.5 py-0.5 rounded font-medium',
-                sourceBadge.className
-              )}>
-                {sourceBadge.label}
-              </span>
-            )}
+            <div className="flex flex-wrap gap-1 mt-1">
+              {sourceBadge && (
+                <span className={cn(
+                  'inline-block text-xs px-1.5 py-0.5 rounded font-medium',
+                  sourceBadge.className
+                )}>
+                  {sourceBadge.label}
+                </span>
+              )}
+              {modifier.id && (
+                <span className="inline-block text-xs px-1.5 py-0.5 rounded font-medium bg-blue-100 text-blue-700">
+                  {modifier.id}
+                </span>
+              )}
+            </div>
           </div>
           {availableTiers > 1 && (
             <select

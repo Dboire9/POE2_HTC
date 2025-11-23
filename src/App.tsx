@@ -29,27 +29,15 @@ export default function App() {
               </div>
               
               <div className="hidden md:flex flex-col items-end gap-2 text-xs text-muted-foreground">
-                <div className="flex items-center gap-4">
-                  <a 
-                    href="https://github.com/Dboire9" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 hover:text-primary transition-colors"
-                  >
-                    <span className="text-[10px] uppercase tracking-wider opacity-70">Backend & Algorithm</span>
-                    <span className="font-medium">Dboire</span>
-                  </a>
-                  <span className="opacity-30">•</span>
-                  <a 
-                    href="https://github.com/fZpHr" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 hover:text-primary transition-colors"
-                  >
-                    <span className="text-[10px] uppercase tracking-wider opacity-70">Frontend & Integration</span>
-                    <span className="font-medium">fZpHr</span>
-                  </a>
-                </div>
+                <a 
+                  href="https://github.com/Dboire9" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:text-primary transition-colors"
+                >
+                  <span className="text-[10px] uppercase tracking-wider opacity-70">Created by</span>
+                  <span className="font-medium">Dboire</span>
+                </a>
                 <a 
                   href="https://github.com/Dboire9/POE2_HTC" 
                   target="_blank" 

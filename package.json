@@ -2,7 +2,11 @@
   "name": "poe2-htc",
   "version": "1.0.0",
   "description": "Path of Exile 2 Item Crafting Pathfinder",
-  "author": "Dboire",
+  "author": {
+    "name": "Dboire",
+    "email": "dboire@student.42.fr",
+    "url": "https://github.com/Dboire9"
+  },
   "license": "AGPL-3.0",
   "main": "dist-electron/main.cjs",
   "private": true,
@@ -14,6 +18,9 @@
     "build:electron": "tsc -p electron/tsconfig.json && mv dist-electron/main.js dist-electron/main.cjs && cp electron/preload.js dist-electron/preload.js",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run build:electron && NODE_ENV=development electron . --no-sandbox\"",
     "electron:build": "npm run build && npm run build:electron && electron-builder",
+    "electron:build:win": "npm run build && npm run build:electron && electron-builder --win",
+    "electron:build:mac": "npm run build && npm run build:electron && electron-builder --mac",
+    "electron:build:linux": "npm run build && npm run build:electron && electron-builder --linux",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -56,7 +63,22 @@
       "dist-electron/**/*",
       "pom.xml",
       "src/main/**/*",
-      "target/classes/**/*"
+      "target/classes/**/*",
+      "!node_modules/**/*",
+      "!src/**/*",
+      "!electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "target/classes",
+        "to": "target/classes",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "pom.xml",
+        "to": ".",
+        "filter": ["pom.xml"]
+      }
     ],
     "win": {
       "target": [

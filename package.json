@@ -18,8 +18,8 @@
     "build:electron": "tsc -p electron/tsconfig.json && mv dist-electron/main.js dist-electron/main.cjs && cp electron/preload.js dist-electron/preload.js",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run build:electron && NODE_ENV=development electron . --no-sandbox\"",
     "electron:build": "npm run build && npm run build:electron && electron-builder",
-    "electron:build:win": "npm run build && npm run build:electron && electron-builder --win",
-    "electron:build:linux": "npm run build && npm run build:electron && electron-builder --linux",
+    "electron:build:win": "npm run build && npm run build:electron && electron-builder --win --publish never",
+    "electron:build:linux": "npm run build && npm run build:electron && electron-builder --linux --publish never",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

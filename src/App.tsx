@@ -3,6 +3,7 @@ import { ItemsProvider } from './contexts/ItemsContext';
 import { ModifiersProvider } from './contexts/ModifiersContext';
 import { SimulationProvider } from './contexts/SimulationContext';
 import { Toaster } from './components/ui/toaster';
+import { UpdateNotification } from './components/UpdateNotification';
 import ItemSelector from './features/items/ItemSelector';
 import ModifierSelector from './features/modifiers/ModifierSelector';
 import SimulationTrigger from './features/simulation/SimulationTrigger';
@@ -73,6 +74,7 @@ export default function App() {
           </main>
         </div>
         <Toaster />
+        <UpdateNotification />
       </SimulationProvider>
       </ModifiersProvider>
     </ItemsProvider>

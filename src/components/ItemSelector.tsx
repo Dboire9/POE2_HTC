@@ -14,7 +14,7 @@ export function ItemSelector({ onItemSelect }: any) {
 
   const loadItems = async () => {
     try {
-      const data = await window.electronAPI.invoke("api:items")
+      const data = await window.electronAPI?.invoke("api:items")
       setItems(data)
     } catch (error) {
       console.error("Failed to load items:", error)

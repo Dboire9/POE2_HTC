@@ -1,7 +1,8 @@
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import * as http from 'http';
+import { autoUpdater } from 'electron-updater';
 
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess | null = null;
@@ -16,6 +17,10 @@ console.log('app.isPackaged:', app.isPackaged);
 console.log('Running in mode:', isDev ? 'DEVELOPMENT' : 'PRODUCTION');
 console.log('App path:', app.getAppPath());
 console.log('__dirname:', __dirname);
+
+// Configure auto-updater
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
 
 function waitForServer(url: string, timeout = 30000): Promise<void> {
   const startTime = Date.now();
@@ -167,6 +172,13 @@ app.whenReady().then(async () => {
     // Then create window
     createWindow();
 
+    // Check for updates (only in production)
+    if (!isDev) {
+      setTimeout(() => {
+        checkForUpdates();
+      }, 3000); // Wait 3 seconds after app starts
+    }
+
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) {
         createWindow();
@@ -177,6 +189,89 @@ app.whenReady().then(async () => {
     app.quit();
   }
 });
+
+// Auto-updater event handlers
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for updates...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  console.log('Update available:', info.version);
+  if (mainWindow) {
+    mainWindow.webContents.send('update-available', {
+      version: info.version,
+      releaseDate: info.releaseDate,
+      releaseNotes: info.releaseNotes
+    });
+  }
+});
+
+autoUpdater.on('update-not-available', () => {
+  console.log('App is up to date');
+});
+
+autoUpdater.on('download-progress', (progress) => {
+  if (mainWindow) {
+    mainWindow.webContents.send('update-download-progress', {
+      percent: progress.percent,
+      transferred: progress.transferred,
+      total: progress.total
+    });
+  }
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  console.log('Update downloaded:', info.version);
+  if (mainWindow) {
+    mainWindow.webContents.send('update-downloaded', {
+      version: info.version
+    });
+  }
+});
+
+autoUpdater.on('error', (error) => {
+  console.error('Update error:', error);
+});
+
+// IPC handlers for updates
+ipcMain.handle('check-for-updates', async () => {
+  if (isDev) {
+    return { available: false, message: 'Updates disabled in development mode' };
+  }
+  return checkForUpdates();
+});
+
+ipcMain.handle('download-update', async () => {
+  try {
+    await autoUpdater.downloadUpdate();
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to download update:', error);
+    return { success: false, error: String(error) };
+  }
+});
+
+ipcMain.handle('install-update', () => {
+  autoUpdater.quitAndInstall(false, true);
+});
+
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion();
+});
+
+async function checkForUpdates() {
+  try {
+    const result = await autoUpdater.checkForUpdates();
+    return {
+      available: result !== null,
+      currentVersion: app.getVersion(),
+      updateInfo: result?.updateInfo
+    };
+  } catch (error) {
+    console.error('Error checking for updates:', error);
+    return { available: false, error: String(error) };
+  }
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

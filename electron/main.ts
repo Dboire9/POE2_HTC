@@ -6,9 +6,16 @@ import * as http from 'http';
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess | null = null;
 
-const isDev = process.env.NODE_ENV === 'development';
+// Use NODE_ENV for detection - set by electron:dev script
+const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 const BACKEND_PORT = 8080;
 const FRONTEND_PORT = 5173;
+
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('app.isPackaged:', app.isPackaged);
+console.log('Running in mode:', isDev ? 'DEVELOPMENT' : 'PRODUCTION');
+console.log('App path:', app.getAppPath());
+console.log('__dirname:', __dirname);
 
 function waitForServer(url: string, timeout = 30000): Promise<void> {
   const startTime = Date.now();
@@ -97,9 +104,13 @@ function createWindow() {
 
   // Load the app
   if (isDev) {
-    mainWindow.loadURL(`http://localhost:${FRONTEND_PORT}`);
+    const devUrl = `http://localhost:${FRONTEND_PORT}`;
+    console.log('Loading DEV URL:', devUrl);
+    mainWindow.loadURL(devUrl);
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    const prodPath = path.join(__dirname, '../dist/index.html');
+    console.log('Loading PROD file:', prodPath);
+    mainWindow.loadFile(prodPath);
   }
 
   // Add error handling for loading failures
@@ -110,6 +121,10 @@ function createWindow() {
         mainWindow?.reload();
       }, 1000);
     }
+  });
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Content finished loading. Current URL:', mainWindow?.webContents.getURL());
   });
 
   // Log when page loads successfully

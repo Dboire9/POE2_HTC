@@ -44,24 +44,20 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 
 ## 🚀 Quick Start
 
-### Windows Users (Easiest - Recommended)
+### Windows Users
 
-**Just double-click `start-wsl.bat`!** 
+**Download the installer:**
 
-This uses WSL (Windows Subsystem for Linux) for the best compatibility:
-- Automatically installs WSL if needed (requires one restart)
-- Installs all prerequisites automatically (Node.js, Java, Maven)
-- No manual setup required!
-- Opens in your browser at `http://localhost:5173`
+1. Go to [Releases](https://github.com/Dboire9/POE2_HTC/releases/latest)
+2. Download `POE2HTC-Setup-X.X.X.exe`
+3. Run the installer
+4. Launch POE2 HTC from your Start Menu or Desktop
 
-**Alternative: Native Windows** (requires manual setup)
+The app runs in your browser at `http://localhost:5173`
 
-Double-click `start.bat` - you'll need to manually install:
-- [Node.js 20+](https://nodejs.org/)
-- [Java 21+](https://adoptium.net/temurin/releases/)
-- [Maven 3.8+](https://maven.apache.org/download.cgi)
-
-See [docs/LAUNCHER.md](docs/LAUNCHER.md) for troubleshooting.
+**Requirements:**
+- Windows 10/11
+- The installer includes everything you need!
 
 ### Linux/macOS Users
 
@@ -71,7 +67,7 @@ See [docs/LAUNCHER.md](docs/LAUNCHER.md) for troubleshooting.
 # Clone and setup
 git clone https://github.com/Dboire9/POE2_HTC.git
 cd POE2_HTC
-npm install
+npm install --legacy-peer-deps
 
 # Run the Electron desktop app
 npm run electron:dev
@@ -82,18 +78,19 @@ The app will automatically start:
 - Frontend dev server on `http://localhost:5173`
 - Electron window with the app
 
-**Alternative: Run as web app only**
+---
+
+### Building Windows Installer (For Developers)
+
+From Linux, you can build the Windows installer:
 
 ```bash
-# Terminal 1 - Start backend
-mvn clean package
-mvn exec:java -Dexec.mainClass=core.ServerMain
-
-# Terminal 2 - Start frontend
-npm run dev
+./build-windows.sh
 ```
 
-Then open `http://localhost:5173` in your browser.
+Output will be in `release/` directory:
+- `POE2HTC-Setup-X.X.X.exe` - Windows installer
+- `POE2HTC-X.X.X-win.zip` - Portable version
 
 ## 📖 How Does It Work?
 

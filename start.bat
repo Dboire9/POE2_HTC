@@ -47,7 +47,7 @@ where mvn >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Maven is not installed
     set MISSING_TOOLS=!MISSING_TOOLS! Maven
-    set INSTALL_COMMANDS=!INSTALL_COMMANDS! winget install Apache.Maven --accept-source-agreements --accept-package-agreements ^&^& 
+    set INSTALL_COMMANDS=!INSTALL_COMMANDS! winget install --id=Apache.Maven --exact --accept-source-agreements --accept-package-agreements ^&^& 
 ) else (
     for /f "tokens=3" %%i in ('mvn --version ^| findstr /i "Apache Maven"') do set MVN_VERSION=%%i
     echo [OK] Maven found: !MVN_VERSION!

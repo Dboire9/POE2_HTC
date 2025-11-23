@@ -46,19 +46,21 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 
 ### For Users
 
+**📥 [DOWNLOAD HERE](DOWNLOAD.md)** ← Simple download instructions
+
 **Option 1: Desktop Application (Recommended)**
 
-1. Download the latest desktop release from [Releases](https://github.com/Dboire9/POE2_HTC/releases)
-2. Install the application:
-   - **Windows**: Run the `.exe` installer
-   - **Linux**: Run the `.AppImage` or install the `.deb` package
-   - **macOS**: Open the `.dmg` and drag to Applications
-3. Launch POE2HTC from your applications menu
+**Ready-to-use executables in the `release/` folder:**
+- **🐧 Linux**: `POE2HTC-1.0.0.AppImage` - Just download and run
+- **🪟 Windows**: `POE2HTC-1.0.0-win-portable.zip` - Extract and run `POE2HTC.exe`
+- **🍎 macOS**: Coming soon (use GitHub Actions to build)
+
+Or download from [GitHub Releases](https://github.com/Dboire9/POE2_HTC/releases)
 
 **Option 2: Web Version**
 
-1. Download the web release from [Releases](https://github.com/Dboire9/POE2_HTC/releases)
-2. Extract the archive
+1. Make sure you have **Java 21+** installed
+2. Extract the release archive
 3. Run `start.bat` (Windows) or `start.sh` (Linux/Mac)
 4. Open your browser at `http://localhost:5173`
 

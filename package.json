@@ -64,7 +64,6 @@
       "pom.xml",
       "src/main/**/*",
       "target/classes/**/*",
-      "!node_modules/**/*",
       "!src/**/*",
       "!electron/**/*"
     ],

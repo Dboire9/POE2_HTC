@@ -1,9 +1,26 @@
 # POE2 How To Craft
 
+<div align="center">
+
 ![CI](https://github.com/Dboire9/POE2_HTC/actions/workflows/ci.yml/badge.svg)
+![Release](https://github.com/Dboire9/POE2_HTC/actions/workflows/build-release.yml/badge.svg)
+![Version](https://img.shields.io/github/v/release/Dboire9/POE2_HTC?label=version)
 ![License](https://img.shields.io/badge/License-AGPL--3.0-blue)
-![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
-![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey)
+
+![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?logo=apachemaven&logoColor=white)
+
+![Downloads](https://img.shields.io/github/downloads/Dboire9/POE2_HTC/total)
+![Stars](https://img.shields.io/github/stars/Dboire9/POE2_HTC?style=social)
+![Issues](https://img.shields.io/github/issues/Dboire9/POE2_HTC)
+![Last Commit](https://img.shields.io/github/last-commit/Dboire9/POE2_HTC)
+
+</div>
 
 A powerful web application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
 

@@ -46,11 +46,21 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      devTools: true,
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, '../public/icon.png'),
     title: 'POE2HTC - Path of Exile 2 Item Crafting Pathfinder',
-    backgroundColor: '#1a1a1a'
+    backgroundColor: '#1a1a1a',
+    show: false // Don't show until ready-to-show event
+  });
+
+  // Show window when ready to prevent white flash
+  mainWindow.once('ready-to-show', () => {
+    mainWindow?.show();
+    if (isDev) {
+      mainWindow?.webContents.openDevTools();
+    }
   });
 
   // Remove menu bar
@@ -59,10 +69,31 @@ function createWindow() {
   // Load the app
   if (isDev) {
     mainWindow.loadURL(`http://localhost:${FRONTEND_PORT}`);
-    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
+
+  // Add error handling for loading failures
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('Failed to load:', errorCode, errorDescription);
+    if (isDev) {
+      setTimeout(() => {
+        mainWindow?.reload();
+      }, 1000);
+    }
+  });
+
+  // Log when page loads successfully
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Page loaded successfully');
+  });
+
+  // Add keyboard shortcut to toggle DevTools (F12 or Ctrl+Shift+I)
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'F12' || (input.control && input.shift && input.key === 'I')) {
+      mainWindow?.webContents.toggleDevTools();
+    }
+  });
 
   // Open external links in browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {

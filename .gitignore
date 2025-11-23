@@ -17,6 +17,15 @@ yarn.lock
 /dist-electron
 out/
 bin/
+release/
+
+# Electron
+*.asar
+*.dmg
+*.exe
+*.AppImage
+*.deb
+*.rpm
 
 # Maven
 target/

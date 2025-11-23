@@ -40,18 +40,27 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 - 💎 **Full Currency Support** - All crafting currencies, essences, and omens included
 - ⚡ **Fast Computation** - Multithreaded beam search algorithm for quick results
 - 🎨 **Modern UI** - Clean, intuitive interface built with React and shadcn/ui
+- 🖥️ **Desktop App** - Native desktop application with Electron (no browser needed)
 
 ## 🚀 Quick Start
 
 ### For Users
 
-**Download and Run** (3 simple steps):
+**Option 1: Desktop Application (Recommended)**
 
-1. Download the latest release from [Releases](https://github.com/Dboire9/POE2_HTC/releases)
+1. Download the latest desktop release from [Releases](https://github.com/Dboire9/POE2_HTC/releases)
+2. Install the application:
+   - **Windows**: Run the `.exe` installer
+   - **Linux**: Run the `.AppImage` or install the `.deb` package
+   - **macOS**: Open the `.dmg` and drag to Applications
+3. Launch POE2HTC from your applications menu
+
+**Option 2: Web Version**
+
+1. Download the web release from [Releases](https://github.com/Dboire9/POE2_HTC/releases)
 2. Extract the archive
 3. Run `start.bat` (Windows) or `start.sh` (Linux/Mac)
-
-That's it! The application will open in your browser at `http://localhost:3000`
+4. Open your browser at `http://localhost:5173`
 
 ### For Developers
 
@@ -63,11 +72,23 @@ git clone https://github.com/Dboire9/POE2_HTC.git
 cd POE2_HTC
 npm install
 
-# Build and start (one command)
+# Option 1: Run as Electron desktop app (development mode)
+npm run electron:dev
+
+# Option 2: Run as web app
 mvn clean package && npm run dev
 ```
 
-Backend runs on `http://localhost:8080`, frontend on `http://localhost:3000`
+**Build Desktop Application:**
+
+```bash
+# Build for your current platform
+npm run electron:build
+
+# Output will be in the 'release' directory
+```
+
+Backend runs on `http://localhost:8080`, frontend on `http://localhost:5173`
 
 ## 📖 How Does It Work?
 

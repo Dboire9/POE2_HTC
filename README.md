@@ -46,7 +46,7 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 
 ### For Users
 
-**📥 [Download from GitHub Releases](https://github.com/Dboire9/POE2_HTC/releases/latest)**
+**📥 [Download from GitHub Releases](https://github.com/Dboire9/POE2_HTC/releases/latest)** | **📖 [Download Guide](docs/DOWNLOAD.md)**
 
 **Desktop Application (Recommended)**
 
@@ -58,8 +58,7 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 3. Launch the app!
 
 **First Release Coming Soon:**
-To create the first release, run: `git tag v1.0.0 && git push --tags`
-(GitHub Actions will automatically build for all platforms)
+To create the first release, run: `./scripts/create-release.sh`
 
 ### For Developers
 
@@ -256,7 +255,7 @@ We welcome contributions! Here's how you can help:
 3. **Submit Pull Requests** - Fix bugs or add features
 4. **Update Data** - Help keep modifier data current with game patches
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and code style.
+Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for development guidelines and code style.
 
 ### Development Setup
 
@@ -270,7 +269,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and co
 
 ## 📝 API Documentation
 
-See [API_EXAMPLES.md](API_EXAMPLES.md) for detailed API usage and examples.
+See [API_EXAMPLES.md](docs/API_EXAMPLES.md) for detailed API usage and examples.
 
 ## 🐛 Known Issues
 

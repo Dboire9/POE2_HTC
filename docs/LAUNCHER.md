@@ -1,6 +1,51 @@
 # POE2 HTC Launcher Scripts
 
-## Windows (`start.bat`)
+## Windows - WSL Method (`start-wsl.bat`) - **RECOMMENDED**
+
+The easiest way to run POE2 HTC on Windows using WSL (Windows Subsystem for Linux).
+
+### Features
+
+- ✅ Automatic WSL installation if needed
+- ✅ Automatic installation of all prerequisites (Node.js, Java, Maven)
+- ✅ No manual configuration required
+- ✅ Best compatibility with all dependencies
+- ✅ Opens in your browser (no Electron needed)
+
+### Usage
+
+1. **Double-click `start-wsl.bat`**
+2. If WSL is not installed:
+   - Press `Y` to install WSL
+   - Restart your computer when prompted
+   - Run `start-wsl.bat` again after restart
+   - Set up Ubuntu username/password when prompted
+3. The script will automatically:
+   - Install Node.js, Java, and Maven in WSL
+   - Install npm dependencies
+   - Start the application
+4. Open your browser to `http://localhost:5173`
+
+### Requirements
+
+- Windows 10 version 2004+ or Windows 11
+- Internet connection for WSL installation
+
+### First Run
+
+The first time you run `start-wsl.bat`, it will:
+- Install WSL and Ubuntu (if not present) - ~10 minutes
+- May require computer restart
+- Install all prerequisites in Ubuntu - ~5 minutes
+- Install npm dependencies - ~2 minutes
+
+Subsequent runs are much faster (just starts the app).
+
+---
+
+## Windows - Native Method (`start.bat`)
+
+Direct Windows installation without WSL.
 
 Double-click `start.bat` to automatically:
 1. Check if Node.js, npm, Java, and Maven are installed

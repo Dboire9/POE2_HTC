@@ -44,26 +44,22 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 
 ## 🚀 Quick Start
 
-### Windows Users (Easy Mode)
+### Windows Users (Easiest - Recommended)
 
-**Just double-click `start.bat`!** 
+**Just double-click `start-wsl.bat`!** 
 
-The script will:
-- Check if you have Node.js, Java, and Maven installed
-- Install dependencies automatically
-- Launch the app
+This uses WSL (Windows Subsystem for Linux) for the best compatibility:
+- Automatically installs WSL if needed (requires one restart)
+- Installs all prerequisites automatically (Node.js, Java, Maven)
+- No manual setup required!
+- Opens in your browser at `http://localhost:5173`
 
-**Prerequisites** (install these first):
-- [Node.js 20+](https://nodejs.org/) - Includes npm
-- [Java 21+](https://adoptium.net/temurin/releases/) - For the backend
-- [Maven 3.8+](https://maven.apache.org/download.cgi) - Build tool
+**Alternative: Native Windows** (requires manual setup)
 
-Or install via winget:
-```cmd
-winget install OpenJS.NodeJS.LTS
-winget install EclipseAdoptium.Temurin.21.JDK
-winget install Maven.Maven
-```
+Double-click `start.bat` - you'll need to manually install:
+- [Node.js 20+](https://nodejs.org/)
+- [Java 21+](https://adoptium.net/temurin/releases/)
+- [Maven 3.8+](https://maven.apache.org/download.cgi)
 
 See [docs/LAUNCHER.md](docs/LAUNCHER.md) for troubleshooting.
 

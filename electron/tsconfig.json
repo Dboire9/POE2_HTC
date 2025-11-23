@@ -4,15 +4,16 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": ["ES2020"],
-    "outDir": "./dist-electron",
-    "rootDir": "./electron",
+    "outDir": "../dist-electron",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["electron/**/*"],
-  "exclude": ["node_modules", "dist", "dist-electron"]
+  "include": ["./**/*"],
+  "exclude": ["../node_modules", "../dist", "../dist-electron"]
 }

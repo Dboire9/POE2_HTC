@@ -9,6 +9,30 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 
 ![Application Screenshot](screenshots/main-interface.png)
 
+## 📑 Table of Contents
+
+- [✨ Features](#-features)
+- [🚀 Quick Start](#-quick-start)
+  - [For Users](#for-users)
+  - [For Developers](#for-developers)
+- [📖 How Does It Work?](#-how-does-it-work)
+  - [Step-by-Step Guide](#step-by-step-guide)
+  - [Understanding Results](#understanding-results)
+  - [Beam Search Algorithm](#beam-search-algorithm)
+  - [Probability Calculation](#probability-calculation)
+- [💻 Development](#-development)
+  - [Project Structure](#project-structure)
+  - [Backend Development](#backend-development)
+  - [Frontend Development](#frontend-development)
+  - [Full Stack Development](#full-stack-development)
+- [🤝 Contributing](#-contributing)
+- [📝 API Documentation](#-api-documentation)
+- [🐛 Known Issues](#-known-issues)
+- [🗺️ Roadmap](#️-roadmap)
+- [📄 License](#-license)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [📞 Contact](#-contact)
+
 ## ✨ Features
 
 - 🎯 **Optimal Crafting Paths** - Find the best sequence of currencies to craft your desired item
@@ -44,6 +68,76 @@ mvn clean package && npm run dev
 ```
 
 Backend runs on `http://localhost:8080`, frontend on `http://localhost:3000`
+
+## 📖 How Does It Work?
+
+### Step-by-Step Guide
+
+**1. Select Your Item Type**
+
+- Choose the base item category (e.g., Wands, Helmets, Body Armours)
+- If applicable, select the specific subcategory (e.g., ES/Armor Hybrid)
+- The application will load all available modifiers for that item type
+
+**2. Choose Your Desired Modifiers**
+
+- Browse through available **Prefixes** (up to 3) and **Suffixes** (up to 3)
+- Filter modifiers by source:
+  - **Normal Crafting**: Standard modifiers obtainable through regular currencies
+  - **Perfect Essences**: Special high-tier modifiers from perfect essences
+  - **Desecrated Currency**: Unique modifiers from desecrated orbs
+- Each modifier shows its **family** (e.g., "WeaponCasterDamagePrefix")
+  - ⚠️ **Important**: You cannot select two modifiers with the same family on one item
+  - The application will prevent you from selecting conflicting modifiers
+- Select the **tier** for each modifier (higher tiers = better stats)
+- Click on modifiers to add them to your crafting target
+
+**3. Configure Simulation Settings**
+
+- Set the number of **iterations** (recommended: 100-1000)
+  - More iterations = more thorough search but longer computation time
+  - Default 100 is usually sufficient for most cases
+- Choose which currencies and omens you want to use
+- Adjust the beam width (advanced users only)
+
+**4. Start Crafting Simulation**
+
+- Click "Start Simulation" to begin the calculation
+- The algorithm will search for optimal crafting paths
+- Progress bar shows the current computation status
+
+**5. Review Results**
+
+- View multiple crafting paths sorted by success probability
+- Each path shows:
+  - **Success Probability**: Chance of achieving your desired modifiers
+  - **Step-by-Step Instructions**: Exact sequence of currencies to use
+  - **Currency Costs**: Total amount of each currency needed
+  - **Expected Actions**: What each step should accomplish
+
+### Understanding Results
+
+**Crafting Paths**
+Each path represents a different approach to crafting your item:
+- **Higher probability paths** are more likely to succeed but may use more expensive currencies
+- **Lower cost paths** use cheaper currencies but have lower success rates
+- Compare paths to find the balance between cost and reliability
+
+**Currency Usage**
+The tool shows which currencies to use and in what order:
+- **Chaos Orbs**: Reroll all modifiers
+- **Exalted Orbs**: Add a new modifier
+- **Augmentation Orbs**: Add modifier of specific type
+- **Annulment Orbs**: Remove a random modifier
+- **Regal Orbs**: Add modifier to magic item
+- **Essences**: Guarantee specific modifier
+- **Omens**: Modify currency behavior (e.g., filter by tags)
+
+**Family Conflicts**
+If you try to select two modifiers with the same family:
+- ❌ A popup will immediately warn you about the conflict
+- 🔍 The popup shows which modifier conflicts and the shared family name
+- ✅ Deselect one modifier to choose another from the same family
 
 ## 💻 Development
 
@@ -106,8 +200,6 @@ mvn exec:java -Dexec.mainClass="core.ServerMain"
 # Start frontend dev server (Terminal 2)
 npm run dev
 ```
-
-## 🧮 How It Works
 
 ### Beam Search Algorithm
 

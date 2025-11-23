@@ -21,10 +21,9 @@ export default function App() {
           <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
             <div className="container flex items-center justify-between gap-4 py-4">
               <div className="flex items-center gap-4">
-                <img src="/screenshots/logo.jpg" alt="POE2" className="h-8 w-8 opacity-90" />
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight">POE2 Crafting Tool</h1>
-                  <p className="text-sm text-muted-foreground">Path of Exile 2 Item Crafting Simulator</p>
+                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight">POE2HTC</h1>
+                  <p className="text-sm text-muted-foreground">Path of Exile 2 Item Crafting Pathfinder</p>
                 </div>
               </div>
               

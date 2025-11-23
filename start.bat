@@ -11,11 +11,35 @@ where node >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Node.js is not installed!
     echo.
-    echo Please install Node.js from: https://nodejs.org/
-    echo Download the LTS version ^(20.x or higher^)
+    echo Would you like to install Node.js automatically? ^(Requires winget^)
     echo.
-    pause
-    exit /b 1
+    set /p INSTALL_NODE="Install Node.js now? (Y/N): "
+    if /i "!INSTALL_NODE!"=="Y" (
+        echo.
+        echo Installing Node.js LTS via winget...
+        winget install OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements
+        if %ERRORLEVEL% NEQ 0 (
+            echo.
+            echo [ERROR] Failed to install Node.js automatically.
+            echo Please install manually from: https://nodejs.org/
+            echo.
+            pause
+            exit /b 1
+        )
+        echo.
+        echo [OK] Node.js installed successfully!
+        echo Please close this window and run the script again.
+        echo.
+        pause
+        exit /b 0
+    ) else (
+        echo.
+        echo Please install Node.js manually from: https://nodejs.org/
+        echo Download the LTS version ^(20.x or higher^)
+        echo.
+        pause
+        exit /b 1
+    )
 )
 
 REM Check Node.js version
@@ -41,11 +65,35 @@ where java >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Java is not installed!
     echo.
-    echo Please install Java 21 or higher from:
-    echo https://adoptium.net/temurin/releases/
+    echo Would you like to install Java 21 automatically? ^(Requires winget^)
     echo.
-    pause
-    exit /b 1
+    set /p INSTALL_JAVA="Install Java 21 now? (Y/N): "
+    if /i "!INSTALL_JAVA!"=="Y" (
+        echo.
+        echo Installing Java 21 via winget...
+        winget install EclipseAdoptium.Temurin.21.JDK --silent --accept-source-agreements --accept-package-agreements
+        if %ERRORLEVEL% NEQ 0 (
+            echo.
+            echo [ERROR] Failed to install Java automatically.
+            echo Please install manually from: https://adoptium.net/temurin/releases/
+            echo.
+            pause
+            exit /b 1
+        )
+        echo.
+        echo [OK] Java installed successfully!
+        echo Please close this window and run the script again.
+        echo.
+        pause
+        exit /b 0
+    ) else (
+        echo.
+        echo Please install Java 21 or higher from:
+        echo https://adoptium.net/temurin/releases/
+        echo.
+        pause
+        exit /b 1
+    )
 )
 
 REM Check Java version
@@ -60,11 +108,35 @@ where mvn >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Maven is not installed!
     echo.
-    echo Please install Maven from: https://maven.apache.org/download.cgi
-    echo Or use: winget install Maven.Maven
+    echo Would you like to install Maven automatically? ^(Requires winget^)
     echo.
-    pause
-    exit /b 1
+    set /p INSTALL_MAVEN="Install Maven now? (Y/N): "
+    if /i "!INSTALL_MAVEN!"=="Y" (
+        echo.
+        echo Installing Maven via winget...
+        winget install Maven.Maven --silent --accept-source-agreements --accept-package-agreements
+        if %ERRORLEVEL% NEQ 0 (
+            echo.
+            echo [ERROR] Failed to install Maven automatically.
+            echo Please install manually from: https://maven.apache.org/download.cgi
+            echo.
+            pause
+            exit /b 1
+        )
+        echo.
+        echo [OK] Maven installed successfully!
+        echo Please close this window and run the script again.
+        echo.
+        pause
+        exit /b 0
+    ) else (
+        echo.
+        echo Please install Maven from: https://maven.apache.org/download.cgi
+        echo Or use: winget install Maven.Maven
+        echo.
+        pause
+        exit /b 1
+    )
 )
 
 REM Check Maven version

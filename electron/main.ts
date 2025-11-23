@@ -1,6 +1,7 @@
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
+import * as fs from 'fs';
 import * as http from 'http';
 import { autoUpdater } from 'electron-updater';
 
@@ -53,28 +54,68 @@ function waitForServer(url: string, timeout = 30000): Promise<void> {
 function startBackend(): Promise<void> {
   return new Promise((resolve, reject) => {
     console.log('Starting Java backend...');
-    
-    // Use mvn to start the backend
-    const mvnCommand = process.platform === 'win32' ? 'mvn.cmd' : 'mvn';
-    backendProcess = spawn(mvnCommand, [
-      'exec:java',
-      '-Dexec.mainClass=core.ServerMain',
-      '-q'
-    ], {
-      cwd: app.getAppPath(),
-      stdio: 'inherit'
-    });
+    // In development we run via Maven (requires mvn).
+    // In production the packaged app should start the Java runtime directly
+    // using the compiled classes or a packaged jar (no Maven available).
+    const isPackaged = app.isPackaged;
+    let cmd: string;
+    let args: string[];
+    const options: any = { stdio: 'inherit' };
+
+    if (!isPackaged) {
+      // Use mvn to start the backend during development
+      const mvnCommand = process.platform === 'win32' ? 'mvn.cmd' : 'mvn';
+      cmd = mvnCommand;
+      args = ['exec:java', '-Dexec.mainClass=core.ServerMain', '-q'];
+      options.cwd = app.getAppPath();
+    } else {
+      // Production: try to run the packaged jar if present, otherwise run the classes
+      // packaged into `target/classes` which we include via electron-builder extraResources.
+      cmd = process.platform === 'win32' ? 'java.exe' : 'java';
+      const resourceTargetDir = path.join(process.resourcesPath, 'target');
+      const jarCandidates = [] as string[];
+      try {
+        // look for any jar files in resources/target
+        const files = fs.readdirSync(resourceTargetDir);
+        for (const f of files) {
+          if (f.toLowerCase().endsWith('.jar')) jarCandidates.push(path.join(resourceTargetDir, f));
+        }
+      } catch (err) {
+        // resourceTargetDir might not exist; we'll fall back to classes path
+      }
+
+      if (jarCandidates.length > 0) {
+        // prefer the first jar found
+        args = ['-jar', jarCandidates[0]];
+        options.cwd = resourceTargetDir;
+      } else {
+        // fallback to running classes directly
+        const classesPath = path.join(resourceTargetDir, 'classes');
+        args = ['-cp', classesPath, 'core.ServerMain'];
+        options.cwd = resourceTargetDir;
+      }
+    }
+
+    backendProcess = spawn(cmd, args, options);
 
     backendProcess.on('error', (error) => {
       console.error('Failed to start backend:', error);
       reject(error);
     });
 
-    // Wait a bit for backend to start
-    setTimeout(() => {
-      console.log('Backend started');
+    // Wait a bit for backend to start. If the backend exits early we'll reject.
+    const startTimeout = setTimeout(() => {
+      console.log('Backend start delay passed');
       resolve();
     }, 3000);
+
+    backendProcess.on('exit', (code, signal) => {
+      clearTimeout(startTimeout);
+      if (code !== 0) {
+        console.error('Backend process exited with code', code, 'signal', signal);
+        reject(new Error(`Backend exited with code ${code}`));
+      }
+    });
   });
 }
 

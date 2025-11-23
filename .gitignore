@@ -54,6 +54,7 @@ yarn-error.log*
 
 # Test scripts and debug files
 *.sh
+!start.sh
 test-*.html
 debug_*.html
 yarn-debug.log*

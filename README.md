@@ -1,12 +1,11 @@
 # POE2 How To Craft
 
 ![CI](https://github.com/Dboire9/POE2_HTC/actions/workflows/ci.yml/badge.svg)
-![License](https://img.shields.io/github/license/Dboire9/POE2_HTC)
+![License](https://img.shields.io/badge/License-AGPL--3.0-blue)
 ![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
-![Electron](https://img.shields.io/badge/Electron-32-blue?logo=electron)
 
-A powerful desktop application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
+A powerful web application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
 
 ![Application Screenshot](screenshots/main-interface.png)
 
@@ -16,41 +15,35 @@ A powerful desktop application that calculates optimal crafting paths for **Path
 - 📊 **Probability Calculations** - See exact success rates for each crafting step
 - 💎 **Full Currency Support** - All crafting currencies, essences, and omens included
 - ⚡ **Fast Computation** - Multithreaded beam search algorithm for quick results
-- 🖥️ **Cross-Platform** - Works on Windows, macOS, and Linux
 - 🎨 **Modern UI** - Clean, intuitive interface built with React and shadcn/ui
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### For Users
 
-- **Java 21** or higher
-- **Node.js 20** or higher
-- **Maven 3.8+**
+**Download and Run** (3 simple steps):
 
-### Installation
+1. Download the latest release from [Releases](https://github.com/Dboire9/POE2_HTC/releases)
+2. Extract the archive
+3. Run `start.bat` (Windows) or `start.sh` (Linux/Mac)
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Dboire9/POE2_HTC.git
-   cd POE2_HTC
-   ```
+That's it! The application will open in your browser at `http://localhost:3000`
 
-2. **Install frontend dependencies**
-   ```bash
-   npm install
-   ```
+### For Developers
 
-3. **Build the Java backend**
-   ```bash
-   mvn clean package
-   ```
+**Prerequisites**: Java 21+, Node.js 20+, Maven 3.8+
 
-4. **Start the application**
-   ```bash
-   npm start
-   ```
+```bash
+# Clone and setup
+git clone https://github.com/Dboire9/POE2_HTC.git
+cd POE2_HTC
+npm install
 
-The application will launch as a desktop app with both the Java backend and Electron frontend.
+# Build and start (one command)
+mvn clean package && npm run dev
+```
+
+Backend runs on `http://localhost:8080`, frontend on `http://localhost:3000`
 
 ## 💻 Development
 
@@ -68,7 +61,6 @@ POE2_HTC/
 │       ├── Currency/           # Currency implementations
 │       ├── Items/              # Item base types
 │       └── Item_modifiers/     # Modifier definitions
-├── electron/                    # Electron main process
 ├── target/                      # Maven build output
 └── dist/                        # Vite build output
 ```
@@ -108,12 +100,11 @@ npm run type-check
 ### Full Stack Development
 
 ```bash
-# Start both backend and frontend in development mode
-npm run dev:all
+# Start backend (Terminal 1)
+mvn exec:java -Dexec.mainClass="core.ServerMain"
 
-# Build Electron app for production
-npm run build:electron
-npm run package
+# Start frontend dev server (Terminal 2)
+npm run dev
 ```
 
 ## 🧮 How It Works
@@ -179,14 +170,9 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for a complete
 - [ ] Integration with trade API for cost optimization
 - [ ] Mobile companion app
 
-## 👥 Contributors
-
-- **[Dboire](https://github.com/Dboire9)** - Backend, Algorithm & Core Logic
-- **[fZpHr](https://github.com/fZpHr)** - Frontend, UI/UX & Electron Integration
-
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 

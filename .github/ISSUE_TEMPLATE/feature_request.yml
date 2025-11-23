@@ -1,0 +1,67 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature!
+        
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear description of the problem you're trying to solve
+      placeholder: I'm frustrated when I can't...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear description of what you want to happen
+      placeholder: Add a feature that allows...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Any alternative solutions or features you've thought about
+      placeholder: I could also use... but it doesn't...
+      
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How important is this to you?
+      options:
+        - Nice to have
+        - Would be helpful
+        - Important
+        - Critical
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: component
+    attributes:
+      label: Which component would this affect?
+      options:
+        - Frontend UI/UX
+        - Backend API
+        - Crafting algorithm
+        - Item/Modifier data
+        - Documentation
+        - Other
+    validations:
+      required: true
+      
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add any mockups, examples, or references
+      placeholder: Screenshots, links to similar features in other tools...

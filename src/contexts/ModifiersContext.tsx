@@ -107,6 +107,19 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const selectModifier = useCallback((modifier: Modifier, tier?: number) => {
     const isPrefix = modifier.type === 'prefix';
     
+    // Early family conflict check before state update
+    if (modifier.id) {
+      const currentSelected = isPrefix ? selectedPrefixes : selectedSuffixes;
+      const conflictingModifier = currentSelected.find(m => m.id === modifier.id && m.text !== modifier.text);
+      if (conflictingModifier) {
+        toast.error('Modifier Family Conflict', {
+          description: `Cannot select "${modifier.text}"\n\nIt shares the same family with:\n• "${conflictingModifier.text}"\n(family: ${modifier.id})`,
+          duration: 10000,
+        });
+        return;
+      }
+    }
+    
     // Use functional updates to get the latest state
     if (isPrefix) {
       setSelectedPrefixes(currentPrefixes => {
@@ -120,18 +133,6 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             return updated;
           }
           return currentPrefixes;
-        }
-
-        // Check for family conflicts with already selected modifiers of same type
-        if (modifier.id) {
-          const conflictingModifier = currentPrefixes.find(m => m.id === modifier.id);
-          if (conflictingModifier) {
-            toast.error('Modifier Family Conflict', {
-              description: `Cannot select "${modifier.text}"\n\nIt shares the same family with:\n• "${conflictingModifier.text}"\n(family: ${modifier.id})`,
-              duration: 10000,
-            });
-            return currentPrefixes;
-          }
         }
 
         // Check if this is a desecrated modifier
@@ -200,18 +201,6 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           return currentSuffixes;
         }
 
-        // Check for family conflicts with already selected modifiers of same type
-        if (modifier.id) {
-          const conflictingModifier = currentSuffixes.find(m => m.id === modifier.id);
-          if (conflictingModifier) {
-            toast.error('Modifier Family Conflict', {
-              description: `Cannot select "${modifier.text}"\n\nIt shares the same family with:\n• "${conflictingModifier.text}"\n(family: ${modifier.id})`,
-              duration: 10000,
-            });
-            return currentSuffixes;
-          }
-        }
-
         // Check if this is a desecrated modifier
         const isDesecrated = modifier.source === 'desecrated';
         
@@ -265,7 +254,7 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return [...currentSuffixes, modifierWithTier];
       });
     }
-  }, []);
+  }, [selectedPrefixes, selectedSuffixes]);
 
   // T024: Deselect modifier (uses text for unique identification)
   const deselectModifier = useCallback((modifierText: string) => {

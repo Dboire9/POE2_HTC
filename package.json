@@ -4,15 +4,15 @@
   "description": "Path of Exile 2 Item Crafting Pathfinder",
   "author": "Dboire",
   "license": "AGPL-3.0",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/main.cjs",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build:electron": "tsc -p electron/tsconfig.json",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run build:electron && electron .\"",
+    "build:electron": "tsc -p electron/tsconfig.json && mv dist-electron/main.js dist-electron/main.cjs",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run build:electron && electron . --no-sandbox\"",
     "electron:build": "npm run build && npm run build:electron && electron-builder",
     "type-check": "tsc --noEmit"
   },

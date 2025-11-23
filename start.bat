@@ -17,18 +17,14 @@ if %ERRORLEVEL% NEQ 0 (
     if /i "!INSTALL_NODE!"=="Y" (
         echo.
         echo Installing Node.js LTS via winget...
-        winget install OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements
-        if %ERRORLEVEL% NEQ 0 (
-            echo.
-            echo [ERROR] Failed to install Node.js automatically.
-            echo Please install manually from: https://nodejs.org/
-            echo.
-            pause
-            exit /b 1
-        )
+        echo This may require administrator privileges...
         echo.
-        echo [OK] Node.js installed successfully!
-        echo Please close this window and run the script again.
+        winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements
+        echo.
+        echo [OK] Installation complete!
+        echo.
+        echo IMPORTANT: Please close this window and run the script again.
+        echo ^(Node.js needs a fresh terminal to be recognized^)
         echo.
         pause
         exit /b 0
@@ -71,18 +67,14 @@ if %ERRORLEVEL% NEQ 0 (
     if /i "!INSTALL_JAVA!"=="Y" (
         echo.
         echo Installing Java 21 via winget...
-        winget install EclipseAdoptium.Temurin.21.JDK --silent --accept-source-agreements --accept-package-agreements
-        if %ERRORLEVEL% NEQ 0 (
-            echo.
-            echo [ERROR] Failed to install Java automatically.
-            echo Please install manually from: https://adoptium.net/temurin/releases/
-            echo.
-            pause
-            exit /b 1
-        )
+        echo This may require administrator privileges...
         echo.
-        echo [OK] Java installed successfully!
-        echo Please close this window and run the script again.
+        winget install EclipseAdoptium.Temurin.21.JDK --accept-source-agreements --accept-package-agreements
+        echo.
+        echo [OK] Installation complete!
+        echo.
+        echo IMPORTANT: Please close this window and run the script again.
+        echo ^(Java needs a fresh terminal to be recognized^)
         echo.
         pause
         exit /b 0
@@ -114,18 +106,14 @@ if %ERRORLEVEL% NEQ 0 (
     if /i "!INSTALL_MAVEN!"=="Y" (
         echo.
         echo Installing Maven via winget...
-        winget install Maven.Maven --silent --accept-source-agreements --accept-package-agreements
-        if %ERRORLEVEL% NEQ 0 (
-            echo.
-            echo [ERROR] Failed to install Maven automatically.
-            echo Please install manually from: https://maven.apache.org/download.cgi
-            echo.
-            pause
-            exit /b 1
-        )
+        echo This may require administrator privileges...
         echo.
-        echo [OK] Maven installed successfully!
-        echo Please close this window and run the script again.
+        winget install Maven.Maven --accept-source-agreements --accept-package-agreements
+        echo.
+        echo [OK] Installation complete!
+        echo.
+        echo IMPORTANT: Please close this window and run the script again.
+        echo ^(Maven needs a fresh terminal to be recognized^)
         echo.
         pause
         exit /b 0

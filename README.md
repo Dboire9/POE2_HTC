@@ -40,25 +40,34 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 - 💎 **Full Currency Support** - All crafting currencies, essences, and omens included
 - ⚡ **Fast Computation** - Multithreaded beam search algorithm for quick results
 - 🎨 **Modern UI** - Clean, intuitive interface built with React and shadcn/ui
-- 🖥️ **Desktop App** - Native desktop application with Electron (no browser needed)
-- 🔄 **Auto-Updates** - Automatic update notifications when new versions are released
+- 🖥️ **Desktop App** - Run locally with Electron or in your browser
 
 ## 🚀 Quick Start
 
-### For Users
+### Windows Users (Easy Mode)
 
-**📥 [Download from GitHub Releases](https://github.com/Dboire9/POE2_HTC/releases/latest)** | **📖 [Download Guide](docs/DOWNLOAD.md)**
+**Just double-click `start.bat`!** 
 
-**Desktop Application (Recommended)**
+The script will:
+- Check if you have Node.js, Java, and Maven installed
+- Install dependencies automatically
+- Launch the app
 
-1. Go to [Releases](https://github.com/Dboire9/POE2_HTC/releases/latest)
-2. Download for your operating system:
-   - **🐧 Linux**: `POE2HTC-X.X.X.AppImage` - Just download and run
-   - **🪟 Windows**: `POE2HTC-Setup-X.X.X.exe` - Run installer
-3. Launch the app!
-4. Get automatic update notifications when new versions are available
+**Prerequisites** (install these first):
+- [Node.js 20+](https://nodejs.org/) - Includes npm
+- [Java 21+](https://adoptium.net/temurin/releases/) - For the backend
+- [Maven 3.8+](https://maven.apache.org/download.cgi) - Build tool
 
-### For Developers
+Or install via winget:
+```cmd
+winget install OpenJS.NodeJS.LTS
+winget install EclipseAdoptium.Temurin.21.JDK
+winget install Maven.Maven
+```
+
+See [docs/LAUNCHER.md](docs/LAUNCHER.md) for troubleshooting.
+
+### Linux/macOS Users
 
 **Prerequisites**: Java 21+, Node.js 20+, Maven 3.8+
 
@@ -68,30 +77,27 @@ git clone https://github.com/Dboire9/POE2_HTC.git
 cd POE2_HTC
 npm install
 
-# Option 1: Run as Electron desktop app (development mode)
+# Run the Electron desktop app
 npm run electron:dev
-
-# Option 2: Run as web app
-mvn clean package && npm run dev
 ```
 
-**Build Desktop Application:**
+The app will automatically start:
+- Backend server on `http://localhost:8080`
+- Frontend dev server on `http://localhost:5173`
+- Electron window with the app
+
+**Alternative: Run as web app only**
 
 ```bash
-# Build for all platforms
-npm run electron:build
+# Terminal 1 - Start backend
+mvn clean package
+mvn exec:java -Dexec.mainClass=core.ServerMain
 
-# Build for specific platform only
-npm run electron:build:win    # Windows (.exe installer + portable)
-npm run electron:build:mac    # macOS (.dmg + .zip)
-npm run electron:build:linux  # Linux (.AppImage + .deb)
-
-# Output will be in the 'release' directory
+# Terminal 2 - Start frontend
+npm run dev
 ```
 
-**Note:** To build for macOS or Windows from Linux, you may need additional dependencies. Building for the current platform always works out of the box.
-
-Backend runs on `http://localhost:8080`, frontend on `http://localhost:5173`
+Then open `http://localhost:5173` in your browser.
 
 ## 📖 How Does It Work?
 

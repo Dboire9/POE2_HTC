@@ -6,130 +6,95 @@ echo POE2 HTC - Path of Exile 2 Crafting Helper
 echo ============================================
 echo.
 
+REM Collect missing prerequisites
+set MISSING_TOOLS=
+set INSTALL_COMMANDS=
+
 REM Check if Node.js is installed
 where node >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Node.js is not installed!
-    echo.
-    echo Would you like to install Node.js automatically? ^(Requires winget^)
-    echo.
-    set /p INSTALL_NODE="Install Node.js now? (Y/N): "
-    if /i "!INSTALL_NODE!"=="Y" (
-        echo.
-        echo Installing Node.js LTS via winget...
-        echo This may require administrator privileges...
-        echo.
-        winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements
-        echo.
-        echo [OK] Installation complete!
-        echo.
-        echo IMPORTANT: Please close this window and run the script again.
-        echo ^(Node.js needs a fresh terminal to be recognized^)
-        echo.
-        pause
-        exit /b 0
-    ) else (
-        echo.
-        echo Please install Node.js manually from: https://nodejs.org/
-        echo Download the LTS version ^(20.x or higher^)
-        echo.
-        pause
-        exit /b 1
-    )
+    echo [ERROR] Node.js is not installed
+    set MISSING_TOOLS=!MISSING_TOOLS! Node.js
+    set INSTALL_COMMANDS=!INSTALL_COMMANDS! winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements ^&^& 
+) else (
+    for /f "tokens=*" %%i in ('node --version') do set NODE_VERSION=%%i
+    echo [OK] Node.js found: !NODE_VERSION!
 )
-
-REM Check Node.js version
-for /f "tokens=*" %%i in ('node --version') do set NODE_VERSION=%%i
-echo [OK] Node.js found: %NODE_VERSION%
 
 REM Check if npm is installed
 where npm >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] npm is not installed!
-    echo.
-    echo npm usually comes with Node.js. Please reinstall Node.js.
-    pause
-    exit /b 1
+if %ERRORLEVEL% EQU 0 (
+    for /f "tokens=*" %%i in ('npm --version') do set NPM_VERSION=%%i
+    echo [OK] npm found: v!NPM_VERSION!
 )
-
-REM Check npm version
-for /f "tokens=*" %%i in ('npm --version') do set NPM_VERSION=%%i
-echo [OK] npm found: v%NPM_VERSION%
 
 REM Check if Java is installed
 where java >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Java is not installed!
-    echo.
-    echo Would you like to install Java 21 automatically? ^(Requires winget^)
-    echo.
-    set /p INSTALL_JAVA="Install Java 21 now? (Y/N): "
-    if /i "!INSTALL_JAVA!"=="Y" (
-        echo.
-        echo Installing Java 21 via winget...
-        echo This may require administrator privileges...
-        echo.
-        winget install EclipseAdoptium.Temurin.21.JDK --accept-source-agreements --accept-package-agreements
-        echo.
-        echo [OK] Installation complete!
-        echo.
-        echo IMPORTANT: Please close this window and run the script again.
-        echo ^(Java needs a fresh terminal to be recognized^)
-        echo.
-        pause
-        exit /b 0
-    ) else (
-        echo.
-        echo Please install Java 21 or higher from:
-        echo https://adoptium.net/temurin/releases/
-        echo.
-        pause
-        exit /b 1
+    echo [ERROR] Java is not installed
+    set MISSING_TOOLS=!MISSING_TOOLS! Java
+    set INSTALL_COMMANDS=!INSTALL_COMMANDS! winget install EclipseAdoptium.Temurin.21.JDK --accept-source-agreements --accept-package-agreements ^&^& 
+) else (
+    for /f "tokens=3" %%i in ('java -version 2^>^&1 ^| findstr /i "version"') do (
+        set JAVA_VERSION=%%i
+        set JAVA_VERSION=!JAVA_VERSION:"=!
     )
+    echo [OK] Java found: !JAVA_VERSION!
 )
-
-REM Check Java version
-for /f "tokens=3" %%i in ('java -version 2^>^&1 ^| findstr /i "version"') do (
-    set JAVA_VERSION=%%i
-    set JAVA_VERSION=!JAVA_VERSION:"=!
-)
-echo [OK] Java found: !JAVA_VERSION!
 
 REM Check if Maven is installed
 where mvn >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Maven is not installed!
+    echo [ERROR] Maven is not installed
+    set MISSING_TOOLS=!MISSING_TOOLS! Maven
+    set INSTALL_COMMANDS=!INSTALL_COMMANDS! winget install Apache.Maven --accept-source-agreements --accept-package-agreements ^&^& 
+) else (
+    for /f "tokens=3" %%i in ('mvn --version ^| findstr /i "Apache Maven"') do set MVN_VERSION=%%i
+    echo [OK] Maven found: !MVN_VERSION!
+)
+
+REM If tools are missing, offer batch installation
+if defined MISSING_TOOLS (
     echo.
-    echo Would you like to install Maven automatically? ^(Requires winget^)
+    echo ============================================
+    echo Missing prerequisites:!MISSING_TOOLS!
+    echo ============================================
     echo.
-    set /p INSTALL_MAVEN="Install Maven now? (Y/N): "
-    if /i "!INSTALL_MAVEN!"=="Y" (
+    echo Would you like to install all missing tools automatically?
+    echo ^(Requires winget and may require administrator privileges^)
+    echo.
+    set /p INSTALL_ALL="Install all missing tools now? (Y/N): "
+    if /i "!INSTALL_ALL!"=="Y" (
         echo.
-        echo Installing Maven via winget...
-        echo This may require administrator privileges...
+        echo Installing all missing tools...
+        echo This may take a few minutes and require administrator privileges.
         echo.
-        winget install Maven.Maven --accept-source-agreements --accept-package-agreements
+        REM Remove trailing && from command
+        set INSTALL_COMMANDS=!INSTALL_COMMANDS:~0,-4!
+        echo Running: !INSTALL_COMMANDS!
         echo.
-        echo [OK] Installation complete!
+        call !INSTALL_COMMANDS! echo Done
+        echo.
+        echo ============================================
+        echo Installation complete!
+        echo ============================================
         echo.
         echo IMPORTANT: Please close this window and run the script again.
-        echo ^(Maven needs a fresh terminal to be recognized^)
+        echo ^(Tools need a fresh terminal to be recognized^)
         echo.
         pause
         exit /b 0
     ) else (
         echo.
-        echo Please install Maven from: https://maven.apache.org/download.cgi
-        echo Or use: winget install Maven.Maven
+        echo Please install the missing tools manually:
+        if "!MISSING_TOOLS!" NEQ "!MISSING_TOOLS:Node.js=!" echo - Node.js: https://nodejs.org/
+        if "!MISSING_TOOLS!" NEQ "!MISSING_TOOLS:Java=!" echo - Java: https://adoptium.net/temurin/releases/
+        if "!MISSING_TOOLS!" NEQ "!MISSING_TOOLS:Maven=!" echo - Maven: https://maven.apache.org/download.cgi
         echo.
         pause
         exit /b 1
     )
 )
-
-REM Check Maven version
-for /f "tokens=3" %%i in ('mvn --version ^| findstr /i "Apache Maven"') do set MVN_VERSION=%%i
-echo [OK] Maven found: %MVN_VERSION%
 echo.
 
 REM Check if node_modules exists

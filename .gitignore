@@ -46,8 +46,16 @@ replay_pid*
 *.swo
 *~
 
-# Debug
+# Logs
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Test scripts and debug files
+*.sh
+test-*.html
+debug_*.html
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*

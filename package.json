@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:electron": "tsc electron/main.ts --outDir dist-electron",
+    "start": "npm run build:electron && electron .",
+    "package": "electron-builder",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "react": "^19.0.0",

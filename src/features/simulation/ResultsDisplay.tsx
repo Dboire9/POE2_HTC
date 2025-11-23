@@ -107,9 +107,9 @@ const ResultsDisplay: React.FC = () => {
         </Alert>
       )}
 
-      {/* Paths list (sorted by probability) */}
+      {/* Paths list (sorted by probability) - show top 3 only */}
       <div className="space-y-3">
-        {result.paths.map((path, idx) => (
+        {result.paths.slice(0, 3).map((path, idx) => (
           <CraftingPathCard key={path.id} path={path} rank={idx + 1} />
         ))}
       </div>

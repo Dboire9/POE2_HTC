@@ -173,11 +173,6 @@ public class ExaltAndRegalProbability {
                     List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedPrefixes(), i);
                     List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event, baseItem.base.getNormalAllowedSuffixes(), i);
                     
-                    core.DebugLogger.info("[ExaltRegal] OmenofHomogenisingCoronation check:");
-                    core.DebugLogger.info("  Current modifier: " + event.modifier.text + " (tags: " + event.modifier.tags + ")");
-                    core.DebugLogger.info("  Possible prefixes matching existing tags: " + PossiblePrefixes.size());
-                    core.DebugLogger.info("  Possible suffixes matching existing tags: " + PossibleSuffixes.size());
-                    
 					if(PossiblePrefixes.isEmpty() && PossibleSuffixes.isEmpty())
 						return 0;
 					
@@ -190,7 +185,6 @@ public class ExaltAndRegalProbability {
 						modifierInList = PossibleSuffixes.contains(event.modifier);
 					}
 					if (!modifierInList) {
-						core.DebugLogger.info("  Current modifier NOT in filtered list - omen doesn't apply");
 						return 0;
 					}
 					
@@ -315,21 +309,33 @@ public class ExaltAndRegalProbability {
                                                  ModifierEvent event, List<Modifier> PossibleAffixes, int i) {
         List<Modifier> FinalPossibleAffixes = new ArrayList<>();
         List<String> ItemAffixTags = new ArrayList<>();
+        List<String> ItemFamilies = new ArrayList<>();
 
         // Only collect tags from modifiers BEFORE the current one (j < i, not j <= i)
         // The current modifier at index i is being added, so we shouldn't include its tags
+        // Also collect families of existing modifiers to exclude duplicates
         for (int j = 0; j < i; j++) {
             for (String tags : candidate.modifierHistory.get(j).modifier.tags)
                 if (!tags.isEmpty() && !ItemAffixTags.contains(tags))
                     ItemAffixTags.add(tags);
+            
+            // Add family to exclusion list (matches logic in Crafting_Item.addAffixes line 163)
+            String family = candidate.modifierHistory.get(j).modifier.family;
+            if (!ItemFamilies.contains(family))
+                ItemFamilies.add(family);
         }
 
-        for (Modifier PossibleModifier : PossibleAffixes)
+        for (Modifier PossibleModifier : PossibleAffixes) {
+            // Skip if this modifier family is already on the item
+            if (ItemFamilies.contains(PossibleModifier.family))
+                continue;
+                
             for (String tag : PossibleModifier.tags)
                 if (ItemAffixTags.contains(tag) && !tag.isEmpty()) {
                     if (!FinalPossibleAffixes.contains(PossibleModifier)) FinalPossibleAffixes.add(PossibleModifier);
                     break;
                 }
+        }
         return FinalPossibleAffixes;
     }
 
@@ -359,7 +365,16 @@ public class ExaltAndRegalProbability {
             for (ModifierTier tiers : event.modifier.tiers)
                 weight += tiers.weight;
             ilvl = 0;
-        } else weight = event.tier.weight;
+        } else {
+            // Sum weight of desired tier AND all better tiers (higher index = better tier)
+            int desiredTierIndex = event.modifier.tiers.indexOf(event.tier);
+            for (int tierIdx = desiredTierIndex; tierIdx < event.modifier.tiers.size(); tierIdx++) {
+                ModifierTier tier = event.modifier.tiers.get(tierIdx);
+                if (tier.level <= ilvl || ilvl == 0) {
+                    weight += tier.weight;
+                }
+            }
+        }
 
         if (PossiblePrefixes != null)
             TotalPrefixWeight = baseItem.get_Base_Affixes_Total_Weight_By_Tier(PossiblePrefixes, ilvl);
@@ -371,18 +386,22 @@ public class ExaltAndRegalProbability {
         double prefixesFilled = affixCount[0];
         double suffixesFilled = affixCount[1];
 
-        if (prefixesFilled < 3 && suffixesFilled < 3 && PossiblePrefixes != null && PossibleSuffixes != null) {
+        // Check if we actually have available affixes (not just non-null but also non-empty)
+        boolean hasPrefixes = PossiblePrefixes != null && !PossiblePrefixes.isEmpty() && TotalPrefixWeight > 0;
+        boolean hasSuffixes = PossibleSuffixes != null && !PossibleSuffixes.isEmpty() && TotalSuffixWeight > 0;
+
+        if (prefixesFilled < 3 && suffixesFilled < 3 && hasPrefixes && hasSuffixes) {
             double TotalWeight = TotalPrefixWeight + TotalSuffixWeight;
             percentage = weight / TotalWeight;
             return percentage;
         }
 
-        if (event.modifier.type == ModifierType.PREFIX && (suffixesFilled >= 3 || PossibleSuffixes == null)) {
+        if (event.modifier.type == ModifierType.PREFIX && (suffixesFilled >= 3 || !hasSuffixes)) {
             percentage = weight / TotalPrefixWeight;
             return percentage;
         }
 
-        if (event.modifier.type == ModifierType.SUFFIX && (prefixesFilled >= 3 || PossiblePrefixes == null)) {
+        if (event.modifier.type == ModifierType.SUFFIX && (prefixesFilled >= 3 || !hasPrefixes)) {
             percentage = weight / TotalSuffixWeight;
             return percentage;
         }

@@ -47,7 +47,8 @@ where mvn >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Maven is not installed
     set MISSING_TOOLS=!MISSING_TOOLS! Maven
-    set INSTALL_COMMANDS=!INSTALL_COMMANDS! winget install Apache.Maven -e --accept-source-agreements --accept-package-agreements ^&^& 
+    REM Try multiple Maven package names in winget
+    set INSTALL_COMMANDS=!INSTALL_COMMANDS! (winget install -e --id Apache.Maven --accept-source-agreements --accept-package-agreements ^|^| echo Maven install failed, please install manually) ^&^& 
 ) else (
     for /f "tokens=3" %%i in ('mvn --version ^| findstr /i "Apache Maven"') do set MVN_VERSION=%%i
     echo [OK] Maven found: !MVN_VERSION!
@@ -75,6 +76,34 @@ if defined MISSING_TOOLS (
         echo.
         call !INSTALL_COMMANDS! echo Done
         echo.
+        
+        REM Check if Maven was actually installed (winget might have failed silently)
+        where mvn >nul 2>nul
+        if %ERRORLEVEL% NEQ 0 (
+            if "!MISSING_TOOLS!" NEQ "!MISSING_TOOLS:Maven=!" (
+                echo.
+                echo ============================================
+                echo Maven installation via winget failed!
+                echo ============================================
+                echo.
+                echo Maven is not available in your winget repository.
+                echo.
+                echo Option 1: Download and install manually ^(Recommended^)
+                echo 1. Visit: https://maven.apache.org/download.cgi
+                echo 2. Download apache-maven-3.9.9-bin.zip
+                echo 3. Extract to C:\Program Files\Apache\maven
+                echo 4. Add C:\Program Files\Apache\maven\bin to your PATH
+                echo.
+                echo Option 2: Use Chocolatey ^(if installed^)
+                echo    choco install maven
+                echo.
+                echo After installation, close this window and run start.bat again.
+                echo.
+                pause
+                exit /b 1
+            )
+        )
+        
         echo ============================================
         echo Installation complete!
         echo ============================================
@@ -89,12 +118,21 @@ if defined MISSING_TOOLS (
         echo Please install the missing tools manually:
         if "!MISSING_TOOLS!" NEQ "!MISSING_TOOLS:Node.js=!" echo - Node.js: https://nodejs.org/
         if "!MISSING_TOOLS!" NEQ "!MISSING_TOOLS:Java=!" echo - Java: https://adoptium.net/temurin/releases/
-        if "!MISSING_TOOLS!" NEQ "!MISSING_TOOLS:Maven=!" echo - Maven: https://maven.apache.org/download.cgi
+        if "!MISSING_TOOLS!" NEQ "!MISSING_TOOLS:Maven=!" (
+            echo - Maven: Download and extract from https://maven.apache.org/download.cgi
+            echo   Then add Maven's bin directory to your PATH
+        )
         echo.
         pause
         exit /b 1
     )
 )
+
+echo.
+echo ============================================
+echo All prerequisites installed!
+echo ============================================
+echo.
 echo.
 
 REM Check if node_modules exists

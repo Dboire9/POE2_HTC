@@ -528,6 +528,65 @@ public class ServerMain {
                     return;
                 }
                 
+                // Check for family conflicts within prefixes and suffixes
+                List<String> prefixConflicts = new ArrayList<>();
+                List<String> suffixConflicts = new ArrayList<>();
+                
+                for (int i = 0; i < desiredModifiers.size(); i++) {
+                    Modifier mod1 = desiredModifiers.get(i);
+                    
+                    for (int j = i + 1; j < desiredModifiers.size(); j++) {
+                        Modifier mod2 = desiredModifiers.get(j);
+                        
+                        // Only check conflicts within the same type (prefix vs prefix, suffix vs suffix)
+                        if (mod1.type != mod2.type) continue;
+                        
+                        // Check if they share the same family
+                        if (mod1.family != null && mod1.family.equals(mod2.family)) {
+                            String conflictMsg = "• \"" + mod1.text.replaceAll("\\n", " ") + "\" and \"" + 
+                                               mod2.text.replaceAll("\\n", " ") + "\" (family: " + mod1.family + ")";
+                            
+                            if (mod1.type == Modifier.ModifierType.PREFIX) {
+                                prefixConflicts.add(conflictMsg);
+                            } else {
+                                suffixConflicts.add(conflictMsg);
+                            }
+                        }
+                    }
+                }
+                
+                // If conflicts found, return error with detailed message
+                if (!prefixConflicts.isEmpty() || !suffixConflicts.isEmpty()) {
+                    StringBuilder conflictMessage = new StringBuilder();
+                    conflictMessage.append("Cannot craft: Selected modifiers share the same family and cannot coexist on one item.\\n\\n");
+                    
+                    if (!prefixConflicts.isEmpty()) {
+                        conflictMessage.append("Conflicting Prefixes:\\n");
+                        for (String conflict : prefixConflicts) {
+                            conflictMessage.append(conflict).append("\\n");
+                        }
+                    }
+                    
+                    if (!suffixConflicts.isEmpty()) {
+                        if (!prefixConflicts.isEmpty()) conflictMessage.append("\\n");
+                        conflictMessage.append("Conflicting Suffixes:\\n");
+                        for (String conflict : suffixConflicts) {
+                            conflictMessage.append(conflict).append("\\n");
+                        }
+                    }
+                    
+                    conflictMessage.append("\\nPlease remove or replace one of the conflicting modifiers.");
+                    
+                    DebugLogger.warn("Family conflicts detected:");
+                    DebugLogger.warn(conflictMessage.toString().replaceAll("\\\\n", "\n"));
+                    
+                    JsonObject errorResponse = new JsonObject();
+                    errorResponse.addProperty("error", "family_conflict");
+                    errorResponse.addProperty("message", conflictMessage.toString());
+                    sendJson(exchange, 400, new Gson().toJson(errorResponse));
+                    return;
+                }
+                
                 // Create Crafting_Item from Item_base
                 Crafting_Item craftingItem = new Crafting_Item(itemInstance);
                 

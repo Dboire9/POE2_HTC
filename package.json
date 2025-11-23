@@ -1,6 +1,6 @@
 {
   "name": "poe2-htc",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Path of Exile 2 Item Crafting Pathfinder",
   "author": {
     "name": "Dboire",
@@ -19,11 +19,11 @@
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run build:electron && NODE_ENV=development electron . --no-sandbox\"",
     "electron:build": "npm run build && npm run build:electron && electron-builder",
     "electron:build:win": "npm run build && npm run build:electron && electron-builder --win",
-    "electron:build:mac": "npm run build && npm run build:electron && electron-builder --mac",
     "electron:build:linux": "npm run build && npm run build:electron && electron-builder --linux",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "electron-updater": "^6.6.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sonner": "^2.0.7"
@@ -72,12 +72,16 @@
       {
         "from": "target/classes",
         "to": "target/classes",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "pom.xml",
         "to": ".",
-        "filter": ["pom.xml"]
+        "filter": [
+          "pom.xml"
+        ]
       }
     ],
     "win": {
@@ -88,14 +92,6 @@
       "icon": "public/icon.ico",
       "sign": null,
       "verifyUpdateCodeSignature": false
-    },
-    "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "icon": "public/icon.icns",
-      "category": "public.app-category.utilities"
     },
     "linux": {
       "target": [
@@ -110,6 +106,11 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Dboire9",
+      "repo": "POE2_HTC"
     }
   }
 }

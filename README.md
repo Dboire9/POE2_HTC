@@ -41,6 +41,7 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 - ⚡ **Fast Computation** - Multithreaded beam search algorithm for quick results
 - 🎨 **Modern UI** - Clean, intuitive interface built with React and shadcn/ui
 - 🖥️ **Desktop App** - Native desktop application with Electron (no browser needed)
+- 🔄 **Auto-Updates** - Automatic update notifications when new versions are released
 
 ## 🚀 Quick Start
 
@@ -54,8 +55,8 @@ A powerful web application that calculates optimal crafting paths for **Path of 
 2. Download for your operating system:
    - **🐧 Linux**: `POE2HTC-X.X.X.AppImage` - Just download and run
    - **🪟 Windows**: `POE2HTC-Setup-X.X.X.exe` - Run installer
-   - **🍎 macOS**: `POE2HTC-X.X.X.dmg` - Drag to Applications
 3. Launch the app!
+4. Get automatic update notifications when new versions are available
 
 ### For Developers
 
@@ -268,6 +269,16 @@ Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for development guidelines a
 
 See [API_EXAMPLES.md](docs/API_EXAMPLES.md) for detailed API usage and examples.
 
+## 🔄 Auto-Update System
+
+The desktop application includes automatic update notifications:
+- Checks for updates automatically on launch
+- Download updates in the background
+- Install with a single click
+- No need to manually download new versions
+
+See [AUTO_UPDATE.md](docs/AUTO_UPDATE.md) for technical details.
+
 ## 🐛 Known Issues
 
 - Some rare edge cases with essence combinations may not be fully optimized
@@ -278,6 +289,9 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for a complete
 
 ## 🗺️ Roadmap
 
+- [x] Desktop application with Electron
+- [x] Auto-update system
+- [x] Multi-platform support (Windows, macOS, Linux)
 - [ ] Add crafting cost estimation
 - [ ] Support for influenced items
 - [ ] Export/import crafting plans

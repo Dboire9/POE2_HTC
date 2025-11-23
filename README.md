@@ -57,9 +57,6 @@ A powerful web application that calculates optimal crafting paths for **Path of 
    - **🍎 macOS**: `POE2HTC-X.X.X.dmg` - Drag to Applications
 3. Launch the app!
 
-**First Release Coming Soon:**
-To create the first release, run: `./scripts/create-release.sh`
-
 ### For Developers
 
 **Prerequisites**: Java 21+, Node.js 20+, Maven 3.8+

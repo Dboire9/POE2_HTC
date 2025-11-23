@@ -6,6 +6,7 @@ export enum ErrorCode {
   INVALID_ITEM_ID = 'INVALID_ITEM_ID',
   INVALID_MODIFIERS = 'INVALID_MODIFIERS',
   INCOMPATIBLE_MODIFIERS = 'INCOMPATIBLE_MODIFIERS',
+  FAMILY_CONFLICT = 'family_conflict',
   NO_VALID_PATH = 'NO_VALID_PATH',
   TIMEOUT = 'TIMEOUT',
   UNKNOWN = 'UNKNOWN',
@@ -24,6 +25,8 @@ export const errorMessages: Record<ErrorCode, string> = {
     'Selected modifiers are invalid. Try different combinations.',
   [ErrorCode.INCOMPATIBLE_MODIFIERS]:
     'Selected modifiers cannot coexist. Please adjust your selection.',
+  [ErrorCode.FAMILY_CONFLICT]:
+    'Modifier family conflict detected. See details above.',
   [ErrorCode.NO_VALID_PATH]:
     'No crafting path exists for these modifiers. Try removing one and retrying.',
   [ErrorCode.TIMEOUT]:

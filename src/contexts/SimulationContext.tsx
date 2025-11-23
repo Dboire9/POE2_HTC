@@ -76,6 +76,19 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           body: JSON.stringify(requestWithThreshold),
         });
         if (!httpResponse.ok) {
+          // Check if it's a family conflict error (400 status)
+          if (httpResponse.status === 400) {
+            const errorData = await httpResponse.json();
+            if (errorData.error === 'family_conflict') {
+              // Show detailed toast notification for family conflicts
+              const cleanMessage = errorData.message.replace(/\\n/g, '\n');
+              toast.error('Modifier Family Conflict', {
+                description: cleanMessage,
+                duration: 10000, // 10 seconds to read the details
+              });
+              throw new Error('family_conflict');
+            }
+          }
           throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
         }
         response = await httpResponse.json();
@@ -86,6 +99,15 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
 
         if (response.error) {
+          // Check for family conflict error
+          if (response.error === 'family_conflict') {
+            const cleanMessage = response.message.replace(/\\n/g, '\n');
+            toast.error('Modifier Family Conflict', {
+              description: cleanMessage,
+              duration: 10000, // 10 seconds to read the details
+            });
+            throw new Error('family_conflict');
+          }
           throw new Error(response.error.code || ErrorCode.UNKNOWN);
         }
 

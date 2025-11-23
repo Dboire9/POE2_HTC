@@ -169,7 +169,7 @@ const ModifierSelector: React.FC = () => {
           </div>
         </div>
         <p className="text-xs text-muted-foreground mt-2">
-          Showing {filteredPrefixes.length + filteredSuffixes.length} of {prefixes.length + suffixes.length} modifiers
+          Showing {filteredPrefixes.length + filteredSuffixes.length} of {filteredPrefixes.length + filteredSuffixes.length} modifiers
         </p>
       </div>
 

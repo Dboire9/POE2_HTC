@@ -1,308 +1,204 @@
 # POE2 How To Craft
 
 ![CI](https://github.com/Dboire9/POE2_HTC/actions/workflows/ci.yml/badge.svg)
-![CodeQL](https://github.com/Dboire9/POE2_HTC/actions/workflows/codeql.yml/badge.svg)
 ![License](https://img.shields.io/github/license/Dboire9/POE2_HTC)
 ![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
-![Node](https://img.shields.io/badge/Node-20+-green?logo=node.js)
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![Electron](https://img.shields.io/badge/Electron-32-blue?logo=electron)
-![Build](https://img.shields.io/badge/build-Maven-brightgreen?logo=apache-maven)
-![Status](https://img.shields.io/badge/Status-Beta%20(80%25)-yellow)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
-POE2 How To Craft is a modern desktop application that computes the most deterministic paths to craft desired items in **Path of Exile 2**.
+A powerful desktop application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
 
-Built with **Electron + React + shadcn/ui** frontend and **Java** backend for high-performance crafting calculations.
+![Application Screenshot](screenshots/main-interface.png)
 
-**Status:** Work in progress (~80% complete), functional but still lacks some features and polishing before releasing it in 1.0.  
-This project will continue to be updated alongside new content from GGG, with updates expected each league/season, making it a long-term project.  
-Contributions to this project are very welcome!
+## ✨ Features
 
----
+- 🎯 **Optimal Crafting Paths** - Find the best sequence of currencies to craft your desired item
+- 📊 **Probability Calculations** - See exact success rates for each crafting step
+- 💎 **Full Currency Support** - All crafting currencies, essences, and omens included
+- ⚡ **Fast Computation** - Multithreaded beam search algorithm for quick results
+- 🖥️ **Cross-Platform** - Works on Windows, macOS, and Linux
+- 🎨 **Modern UI** - Clean, intuitive interface built with React and shadcn/ui
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Java 21** or higher
+- **Node.js 20** or higher
+- **Maven 3.8+**
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Dboire9/POE2_HTC.git
+   cd POE2_HTC
+   ```
+
+2. **Install frontend dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Build the Java backend**
+   ```bash
+   mvn clean package
+   ```
+
+4. **Start the application**
+   ```bash
+   npm start
+   ```
+
+The application will launch as a desktop app with both the Java backend and Electron frontend.
+
+## 💻 Development
+
+### Project Structure
+
+```
+POE2_HTC/
+├── src/                          # Frontend source (React + TypeScript)
+│   ├── components/              # React components
+│   ├── hooks/                   # Custom React hooks
+│   └── lib/                     # Utilities
+├── src/main/java/               # Java backend
+│   └── core/
+│       ├── Crafting/           # Crafting algorithm and logic
+│       ├── Currency/           # Currency implementations
+│       ├── Items/              # Item base types
+│       └── Item_modifiers/     # Modifier definitions
+├── electron/                    # Electron main process
+├── target/                      # Maven build output
+└── dist/                        # Vite build output
+```
+
+### Backend Development
+
+The backend uses a **Beam Search algorithm** to efficiently explore the crafting space and find optimal paths.
+
+```bash
+# Compile Java backend
+mvn compile
+
+# Run backend server standalone
+mvn exec:java -Dexec.mainClass="core.ServerMain"
+
+# Run tests
+mvn test
+```
+
+The backend exposes a REST API on `http://localhost:8080`:
+- `GET /api/modifiers?itemId={itemId}` - Get available modifiers for an item
+- `POST /api/crafting` - Calculate optimal crafting paths
+
+### Frontend Development
+
+```bash
+# Start Vite dev server (with hot reload)
+npm run dev
+
+# Build frontend for production
+npm run build
+
+# Type check
+npm run type-check
+```
+
+### Full Stack Development
+
+```bash
+# Start both backend and frontend in development mode
+npm run dev:all
+
+# Build Electron app for production
+npm run build:electron
+npm run package
+```
+
+## 🧮 How It Works
+
+### Beam Search Algorithm
+
+The crafting algorithm uses a modified **Beam Search** to efficiently explore the massive space of possible crafting sequences:
+
+1. **State Space**: Each state represents an item with its current modifiers
+2. **Actions**: Crafting currencies and omens that can be applied
+3. **Beam Width**: Keeps top N most promising paths at each step
+4. **Scoring**: Evaluates paths based on probability and progress toward desired modifiers
+5. **Pruning**: Discards low-probability paths to maintain performance
+
+This approach finds near-optimal solutions while maintaining reasonable computation time, even for complex crafting scenarios with 6+ desired modifiers.
+
+### Probability Calculation
+
+- **Modifier Weights**: Each modifier has tier-specific weights based on item level
+- **Tag Matching**: Omens filter modifiers by matching tags
+- **Family Exclusion**: Prevents duplicate modifier families
+- **Tier Selection**: Calculates probability for desired tier or better
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. **Report Bugs** - Open an issue with reproduction steps
+2. **Suggest Features** - Share your ideas for improvements
+3. **Submit Pull Requests** - Fix bugs or add features
+4. **Update Data** - Help keep modifier data current with game patches
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and code style.
+
+### Development Setup
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Write/update tests as needed
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## 📝 API Documentation
+
+See [API_EXAMPLES.md](API_EXAMPLES.md) for detailed API usage and examples.
+
+## 🐛 Known Issues
+
+- Some rare edge cases with essence combinations may not be fully optimized
+- Memory usage can be high for very complex crafting scenarios (6+ mods)
+- UI may freeze briefly during intensive calculations
+
+See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for a complete list.
+
+## 🗺️ Roadmap
+
+- [ ] Add crafting cost estimation
+- [ ] Support for influenced items
+- [ ] Export/import crafting plans
+- [ ] Crafting simulator with step-by-step execution
+- [ ] Integration with trade API for cost optimization
+- [ ] Mobile companion app
 
 ## 👥 Contributors
 
-- **[Dboire](https://github.com/Dboire9)** - Backend & Algorithm (Java, Crafting Logic, Beam Search)
-- **[fZpHr](https://github.com/fZpHr)** - Frontend & Integration (React, Electron, UI/UX)
+- **[Dboire](https://github.com/Dboire9)** - Backend, Algorithm & Core Logic
+- **[fZpHr](https://github.com/fZpHr)** - Frontend, UI/UX & Electron Integration
 
----
-- [Features](#features)
-- [Architecture](#architecture)
-- [Requirements](#requirements)
-- [Getting Started](#getting-started)
-- [Development](#development)
-- [How It Works](#how-it-works)
-- [Contributing](#contributing)
-- [Bug Reporting](#bug-reporting)
-- [License](#license)
-- [Contact](#contact)
+## 📄 License
 
----
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Features
+## 🙏 Acknowledgments
 
-### 🎯 Core Features
-- **Optimal Crafting Paths**: Determine the best crafting strategies for desired items
-- **Probability Calculation**: Compute modifier probabilities and success rates
-- **Full Currency Support**: All crafting currencies and omens supported
-- **Multithreaded Processing**: Fast computation with parallel processing
-- **Cross-Platform**: Desktop application for Windows, macOS, and Linux
+- Grinding Gear Games for creating Path of Exile 2
+- The PoE community for modifier data and crafting knowledge
+- All contributors and testers
 
-### ✨ User Experience (v0.3 - Simplified Workflow)
-- **Item Selection**: Browse and select from all available item types
-- **Modifier Selection**: Choose up to 3 prefixes and 3 suffixes with visual feedback
-  - Real-time incompatibility checking with tooltips
-  - 3-item limit with toast notifications
-  - Selection counters for prefixes and suffixes
-- **Crafting Simulation**: Launch simulations with validation and progress tracking
-  - Debounced requests to prevent spam
-  - Progress indicators for long operations
-  - Timeout warnings (30s+) for complex crafting paths
-- **Results Display**: View sorted crafting paths with detailed information
-  - Paths sorted by success probability (highest first)
-  - Step-by-step crafting instructions
-  - Currency cost breakdown for each path
-  - Warnings and error messages with recovery actions
+## 📞 Contact
 
-### 🛡️ Error Handling
-- User-friendly error messages for all scenarios
-- Retry mechanisms for all operations
-- Validation checks before actions
-- Graceful degradation with recovery options
-
-### 🚀 Performance
-- React.memo() optimization on all components
-- useCallback and useMemo for expensive calculations
-- 500ms debouncing for simulation requests
-- AbortController for request cancellation
-- < 16ms re-renders, < 100ms UI response time
+- **Issues**: [GitHub Issues](https://github.com/Dboire9/POE2_HTC/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Dboire9/POE2_HTC/discussions)
 
 ---
 
-## Architecture
-
-The application uses a modern architecture separating concerns:
-
-```
-┌─────────────────────────────────────────┐
-│  Frontend: Electron + React + shadcn/ui │
-│  - Item Selection                       │
-│  - Currency Management                  │
-│  - Results Visualization                │
-└────────────┬────────────────────────────┘
-             │ IPC / HTTP
-┌────────────▼────────────────────────────┐
-│  Backend: Java (POE2_HTC)               │
-│  - Beam Search Algorithm                │
-│  - Crafting Logic                       │
-│  - Probability Calculation              │
-└─────────────────────────────────────────┘
-```
-
----
-
-## Requirements
-
-**Frontend:**
-- Node.js 18+ (recommended: 20+)
-- pnpm (recommended) or npm
-- Git
-
-**Backend:**
-- Java 21+  
-- Apache Maven 3.8+
-- JavaFX modules (for GUI - optional)
-
----
-
-## Getting Started
-
-### 🚀 Quick Start (Recommended)
-
-#### 1. Clone the repository
-```bash
-git clone https://github.com/Dboire9/POE2_HTC.git
-cd POE2_HTC
-```
-
-#### 2. Install frontend dependencies
-Using pnpm (recommended):
-```bash
-pnpm install
-```
-
-Or using npm:
-```bash
-npm install
-```
-
-#### 3. Build the Java backend
-Build the backend with all dependencies included:
-```bash
-mvn clean package
-```
-
-This creates `target/poe-crafter-1.0-SNAPSHOT-jar-with-dependencies.jar` which includes all required libraries.
-
-#### 4. Run the application
-Start both frontend and backend in development mode:
-```bash
-npm run dev
-```
-
-This command will:
-- ✅ Build the Electron main process
-- ✅ Start the Vite dev server on `http://localhost:5173`
-- ✅ Launch the Java backend server on `http://localhost:8080`
-- ✅ Open the Electron desktop application
-
-The backend will automatically start when you run `npm run dev` - no need to start it separately!
-
----
-
-### 📦 Alternative: Manual Backend Start
-
-If you prefer to run the backend separately:
-
-```bash
-# Terminal 1 - Start Java backend
-java -jar target/poe-crafter-1.0-SNAPSHOT-jar-with-dependencies.jar
-
-# Terminal 2 - Start frontend
-npm run dev
-```
-
----
-
-### 🏗️ Build for Production
-
-To create a distributable application:
-
-```bash
-# Build frontend
-npm run build
-
-# The application will be packaged in the dist folder
-```
-
----
-
-## Development
-
-Start the development environment with hot reload:
-
-```bash
-npm run dev
-```
-
-This will:
-- Start Vite dev server on http://localhost:5173
-- Launch Electron with the app
-- Start Java backend on http://localhost:8080
-
-### Build for Production
-```bash
-npm run build
-```
-
-Creates distributable executables in the `dist` folder.
-
----
-
-## Troubleshooting
-
-### ❌ Backend fails to start
-- **Check Java version:** Run `java -version` (needs Java 21+)
-- **Rebuild backend:** Run `mvn clean package` again
-- **Check port 8080:** Make sure port 8080 is not already in use
-
-### ❌ Frontend can't connect to backend
-- **Wait for backend:** The backend takes a few seconds to start
-- **Check logs:** Look for "Backend health check" in the console
-- **Manual start:** Try starting the backend manually (see Alternative section above)
-
-### ❌ Electron window doesn't open
-- **Node version:** Run `node -v` (needs Node 18+)
-- **Reinstall deps:** Delete `node_modules` and run `pnpm install` again
-- **Check logs:** Look for errors in the terminal
-
-### ❌ Build errors with Maven
-- **Maven version:** Run `mvn -v` (needs Maven 3.8+)
-- **Clean build:** Run `mvn clean` then `mvn package`
-- **Dependencies:** Make sure all Maven dependencies download correctly
-
----
-
-## How It Works
-
-The software uses a **beam search algorithm**:
-
-1. Score all possible modifier outcomes (desired modifiers = 1000 points, undesired modifiers with relevant tags = 250 points).
-2. Keep top candidates at each step: Transmute → Augment → Regal → etc...  
-3. Calculate probabilities for each path.  
-4. Continue until 6-modifier items are found and sorted by probability.  
-
-Special handling for Normal mods obtained by desecrations is implemented with approximations.  
-
----
-
-## Project Structure
-
-```
-├── electron/              # Electron main process
-│   ├── main.ts           # Main process & IPC handlers
-│   └── preload.ts        # Preload script for secure IPC
-├── src/
-│   ├── components/       # React components
-│   │   └── ui/          # shadcn/ui components
-│   ├── hooks/           # Custom React hooks
-│   ├── App.tsx          # Main application
-│   └── main.tsx         # React entry point
-├── java/                # Java POE2_HTC backend
-│   ├── src/main/java/
-│   └── pom.xml
-├── vite.config.ts       # Vite configuration
-└── tsconfig.json        # TypeScript configuration
-```
-
----
-
-## Contributing
-
-1. Fork the repository  
-2. Clone your fork locally  
-3. Make changes, add features, fix bugs  
-4. Create a pull request  
-
-If you're new, start with:
-- Adding new React components
-- Improving the UI/UX
-- Fixing bugs in the backend algorithm
-- Optimizing performance
-
-Please follow coding standards and add JSDoc/JavaDoc where possible.
-
----
-
-## Bug Reporting
-
-If you find a bug or encounter unexpected behavior:
-
-1. Go to the [Issues](https://github.com/Dboire9/POE2_HTC/issues) tab.
-2. Click **New Issue** and describe the problem clearly.
-3. Include steps to reproduce, screenshots, and system info.
-4. We'll track and fix it as soon as possible!
-
----
-
-## License
-
-This project is licensed under **GPLv3**. See the LICENSE file for details.
-
----
-
-## Contact
-
-If you have questions or want to contribute:  
-- Discord: .doboy9
+**Note**: This is a third-party tool and is not affiliated with or endorsed by Grinding Gear Games.

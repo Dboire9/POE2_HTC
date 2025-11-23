@@ -42,10 +42,6 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: npm run electron:build:win
       
-      - name: Build Electron app (macOS)
-        if: matrix.os == 'macos-latest'
-        run: npm run electron:build:mac
-      
       - name: Upload artifacts (Linux)
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
@@ -63,16 +59,6 @@ jobs:
           path: |
             release/*.exe
             release/*.exe.blockmap
-      
-      - name: Upload artifacts (macOS)
-        if: matrix.os == 'macos-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-builds
-          path: |
-            release/*.dmg
-            release/*.zip
-            release/*.dmg.blockmap
   
   release:
     needs: build

@@ -10,7 +10,7 @@ let backendProcess: ChildProcess | null = null;
 
 // Use NODE_ENV for detection - set by electron:dev script
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-const BACKEND_PORT = 8080;
+const BACKEND_PORT = parseInt(process.env.BACKEND_PORT || '8080', 10);
 const FRONTEND_PORT = 5173;
 
 // Setup log file

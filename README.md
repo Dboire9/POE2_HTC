@@ -34,7 +34,7 @@ A powerful desktop application that calculates optimal crafting paths for **Path
 
 - [✨ Features](#-features)
 - [🚀 Quick Start](#-quick-start)
-- [ℹ️ About me & the Project](#ℹ️-about-me-&-the-project)
+- [👤 About Me & the Project](#-about-me--the-project)
 - [📖 How Does It Work?](#-how-does-it-work)
 - [💻 Development](#-development)
 - [🤝 Contributing](#-contributing)
@@ -81,16 +81,25 @@ npm run electron:dev
 ```
 
 ---
-## ℹ️ About me & the Project
 
-Hi! I'm Dorian, a third-year computer science student at 42 Paris.  
-I built this project while (still) actively searching for an internship, both to strengthen my skills and to add a meaningful, technical project to my portfolio.
+## 👤 About Me & the Project
 
-If you appreciate my work or think my skills could be useful to your team, I'm currently looking for an internship or freelance opportunities — it's a required step for completing my diploma at 42.  
-Feel free to reach out!
+Hi! I'm **Dorian**, a third-year computer science student at **42 Paris**.
 
-If you want to know more about me & the project, see [About me & the Project](docs/ABOUT.md)
+I built this project while actively searching for an internship, both to strengthen my skills and to add a meaningful, technical project to my portfolio. As someone passionate about both gaming and software development, combining Path of Exile 2's complex crafting system with algorithm optimization was the perfect challenge.
 
+**Why this project?**
+- 🎓 Demonstrates full-stack development skills (Java, React, TypeScript, Electron)
+- 🧠 Showcases algorithm design and optimization (Beam Search, multithreading)
+- 🎮 Solves a real problem for the PoE2 community
+- 📈 Continuous learning through community feedback
+
+**Looking for opportunities:**  
+I'm currently seeking an **internship or freelance opportunities** — a required step for completing my diploma at 42. If you appreciate my work or think my skills could be useful to your team, feel free to reach out!
+
+**📘 For more about my journey, motivation, and project philosophy, see [About Me & the Project](docs/ABOUT.md).**
+
+---
 
 ## 📖 How Does It Work?
 

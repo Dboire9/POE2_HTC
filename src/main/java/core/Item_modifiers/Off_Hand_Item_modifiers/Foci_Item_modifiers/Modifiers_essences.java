@@ -161,7 +161,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Essence of Hysteria", 48, 0, new Pair<>(41, 45))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"EnergyShieldRegeneration",
 				"#% increased Energy Shield Recharge Rate");
 

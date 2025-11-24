@@ -155,7 +155,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Essence of Hysteria", 68, 1, new Pair<>(19, 21))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"DamageTakenGainedAsLife",
 				"#% of Damage taken Recouped as Life");
 

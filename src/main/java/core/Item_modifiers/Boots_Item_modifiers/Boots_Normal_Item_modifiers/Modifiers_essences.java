@@ -98,7 +98,7 @@ public class Modifiers_essences {
 						new ModifierTier("Essence of Hysteria", 65, 1, new Pair<>(30, 30)) // Fixed 30% increase
 				),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"IncreasedMovementSpeed",
 				"#% increased Movement Speed");
 
@@ -160,7 +160,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Essence of Horror", 1, 1, new Pair<>(100, 100))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"SoulCore",
 				"#% increased effect of Socketed Items");
 

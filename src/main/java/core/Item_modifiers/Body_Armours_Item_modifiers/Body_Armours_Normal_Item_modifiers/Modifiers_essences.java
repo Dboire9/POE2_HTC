@@ -16,7 +16,6 @@ public class Modifiers_essences {
 	public static final Modifier ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT;
 	public static final Modifier ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS;
 	public static final Modifier ESSENCE_PHYSICAL_THORNS_DAMAGE;
-	public static final Modifier ESSENCE_RANDOM_NOTABLE_PASSIVE;
 	
 
 	// SUFFIXES
@@ -107,19 +106,9 @@ public class Modifiers_essences {
 						new ModifierTier("Essence of Hysteria", 63, 1, new Pair<>(64, 97), new Pair<>(97, 145), "",
 								"")),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"Thorns",
 				"# to # Physical Thorns damage");
-
-		ESSENCE_RANDOM_NOTABLE_PASSIVE = new Modifier(
-				"essence_random_notable_passive",
-				List.of(),
-				List.of(
-						new ModifierTier("Essence of Delirium", 1, 1, new Pair<>(0, 0))),
-				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
-				"EssenceGrantedPassive",
-				"Allocates a random Notable Passive Skill");
 
 
 

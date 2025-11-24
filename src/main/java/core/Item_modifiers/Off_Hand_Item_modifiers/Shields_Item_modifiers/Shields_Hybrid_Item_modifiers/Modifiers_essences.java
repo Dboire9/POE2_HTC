@@ -130,7 +130,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Essence of Hysteria", 33, 0, new Pair<>(20, 24))),
 				Modifier.ModifierType.SUFFIX,
-				Modifier.ModifierSource.ESSENCE,
+				Modifier.ModifierSource.PERFECT_ESSENCE,
 				"IncreasedShieldBlockPercentage",
 				"(#–#)% increased Block chance");
 

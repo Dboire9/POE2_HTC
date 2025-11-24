@@ -121,7 +121,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Essence of Hysteria", 55, 1, new Pair<>(50, 59))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"ManaRegeneration",
 				"#% increased Mana Regeneration Rate");
 

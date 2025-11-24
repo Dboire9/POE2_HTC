@@ -23,6 +23,19 @@ console.log('__dirname:', __dirname);
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 
+// Enable detailed logging
+autoUpdater.logger = {
+  info: (msg) => console.log('[AutoUpdater INFO]', msg),
+  warn: (msg) => console.warn('[AutoUpdater WARN]', msg),
+  error: (msg) => console.error('[AutoUpdater ERROR]', msg),
+  debug: (msg) => console.log('[AutoUpdater DEBUG]', msg)
+};
+
+console.log('[AutoUpdater] Current version:', app.getVersion());
+console.log('[AutoUpdater] Feed URL will be:', `https://github.com/Dboire9/POE2_HTC/releases`);
+console.log('[AutoUpdater] Platform:', process.platform);
+console.log('[AutoUpdater] Arch:', process.arch);
+
 function waitForServer(url: string, timeout = 30000): Promise<void> {
   const startTime = Date.now();
   return new Promise((resolve, reject) => {
@@ -206,9 +219,13 @@ app.whenReady().then(async () => {
 
     // Check for updates (only in production)
     if (!isDev) {
+      console.log('[AutoUpdater] Scheduling update check in 3 seconds...');
       setTimeout(() => {
+        console.log('[AutoUpdater] Timeout triggered, starting update check...');
         checkForUpdates();
       }, 3000); // Wait 3 seconds after app starts
+    } else {
+      console.log('[AutoUpdater] Skipping update check (development mode)');
     }
 
     app.on('activate', () => {
@@ -224,11 +241,18 @@ app.whenReady().then(async () => {
 
 // Auto-updater event handlers
 autoUpdater.on('checking-for-update', () => {
-  console.log('Checking for updates...');
+  console.log('[AutoUpdater] ===== Checking for updates... =====');
+  console.log('[AutoUpdater] Current version:', app.getVersion());
+  console.log('[AutoUpdater] Update check started at:', new Date().toISOString());
 });
 
 autoUpdater.on('update-available', (info) => {
-  console.log('Update available:', info.version);
+  console.log('[AutoUpdater] ===== UPDATE AVAILABLE! =====');
+  console.log('[AutoUpdater] New version:', info.version);
+  console.log('[AutoUpdater] Current version:', app.getVersion());
+  console.log('[AutoUpdater] Release date:', info.releaseDate);
+  console.log('[AutoUpdater] Release notes:', info.releaseNotes);
+  console.log('[AutoUpdater] Files:', info.files);
   if (mainWindow) {
     mainWindow.webContents.send('update-available', {
       version: info.version,
@@ -238,8 +262,11 @@ autoUpdater.on('update-available', (info) => {
   }
 });
 
-autoUpdater.on('update-not-available', () => {
-  console.log('App is up to date');
+autoUpdater.on('update-not-available', (info) => {
+  console.log('[AutoUpdater] ===== App is up to date =====');
+  console.log('[AutoUpdater] Current version:', app.getVersion());
+  console.log('[AutoUpdater] Latest version:', info?.version || 'unknown');
+  console.log('[AutoUpdater] Check completed at:', new Date().toISOString());
 });
 
 autoUpdater.on('download-progress', (progress) => {
@@ -262,7 +289,10 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 autoUpdater.on('error', (error) => {
-  console.error('Update error:', error);
+  console.error('[AutoUpdater] ===== ERROR =====');
+  console.error('[AutoUpdater] Error message:', error.message);
+  console.error('[AutoUpdater] Error stack:', error.stack);
+  console.error('[AutoUpdater] Error details:', error);
 });
 
 // IPC handlers for updates
@@ -292,15 +322,28 @@ ipcMain.handle('get-app-version', () => {
 });
 
 async function checkForUpdates() {
+  console.log('[AutoUpdater] ===== checkForUpdates() called =====');
+  console.log('[AutoUpdater] isDev:', isDev);
+  console.log('[AutoUpdater] app.isPackaged:', app.isPackaged);
+  
+  if (isDev) {
+    console.log('[AutoUpdater] Skipping update check in development mode');
+    return { available: false, message: 'Development mode' };
+  }
+  
   try {
+    console.log('[AutoUpdater] Calling autoUpdater.checkForUpdates()...');
     const result = await autoUpdater.checkForUpdates();
+    console.log('[AutoUpdater] Check result:', result);
     return {
       available: result !== null,
       currentVersion: app.getVersion(),
       updateInfo: result?.updateInfo
     };
   } catch (error) {
-    console.error('Error checking for updates:', error);
+    console.error('[AutoUpdater] Error checking for updates:', error);
+    console.error('[AutoUpdater] Error type:', typeof error);
+    console.error('[AutoUpdater] Error details:', JSON.stringify(error, null, 2));
     return { available: false, error: String(error) };
   }
 }

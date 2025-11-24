@@ -199,16 +199,15 @@ npm run dev
 
 ### Beam Search Algorithm
 
-The crafting algorithm uses a modified **Beam Search** to efficiently explore the massive space of possible crafting sequences:
+The crafting optimizer uses a **modified Beam Search algorithm** to find optimal crafting sequences. It explores millions of possible paths while pruning low-probability outcomes, achieving near-optimal results in seconds even for complex 6-modifier crafts.
 
-1. **State Space**: Each state represents an item with its current modifiers  
-2. **Actions**: Crafting currencies and omens that can be applied  
-3. **Scoring**: Evaluates paths based on probability and progress toward desired modifiers  
-4. **Pruning**: Discards low-probability paths to maintain performance  
+**Key features:**
+- Parallel state exploration with intelligent pruning
+- Heuristic-guided path selection
+- Exact probability calculations for each step
+- Multithreaded execution for sub-10-second results
 
-This approach finds near-optimal solutions while maintaining reasonable computation time, even for complex crafting scenarios with 6+ desired modifiers.
-
-> For a detailed explanation and pseudocode, see [ALGORITHM.md](docs/ALGORITHM.md).
+> 📖 **[Read the full algorithm explanation →](docs/ALGORITHM.md)**
 
 ## 🤝 Contributing
 

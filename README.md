@@ -57,7 +57,6 @@ A powerful desktop application that calculates optimal crafting paths for **Path
 - 📊 **Probability Calculations** - See exact success rates for each crafting step
 - 💎 **Full Currency Support** - All crafting currencies, essences, and omens included
 - ⚡ **Fast Computation** - Multithreaded beam search algorithm for quick results
-- 🎨 **Modern UI** - Clean, intuitive interface built with React and shadcn/ui
 - 🖥️ **Desktop App** - Run locally with Electron or in your browser
 
 ## 🚀 Quick Start
@@ -98,18 +97,6 @@ The app will automatically start:
 
 ---
 
-### Building Windows Installer (For Developers)
-
-From Linux, you can build the Windows installer:
-
-```bash
-./build-windows.sh
-```
-
-Output will be in `release/` directory:
-- `POE2HTC-Setup-X.X.X.exe` - Windows installer
-- `POE2HTC-X.X.X-win.zip` - Portable version
-
 ## 📖 How Does It Work?
 
 ### Step-by-Step Guide
@@ -125,60 +112,25 @@ Output will be in `release/` directory:
 - Browse through available **Prefixes** (up to 3) and **Suffixes** (up to 3)
 - Filter modifiers by source:
   - **Normal Crafting**: Standard modifiers obtainable through regular currencies
-  - **Perfect Essences**: Special high-tier modifiers from perfect essences
+  - **Perfect Essences**: Special modifiers from perfect essences
   - **Desecrated Currency**: Unique modifiers from desecrated orbs
 - Each modifier shows its **family** (e.g., "WeaponCasterDamagePrefix")
   - ⚠️ **Important**: You cannot select two modifiers with the same family on one item
   - The application will prevent you from selecting conflicting modifiers
-- Select the **tier** for each modifier (higher tiers = better stats)
+- Select the **tier** for each modifier
 - Click on modifiers to add them to your crafting target
 
-**3. Configure Simulation Settings**
-
-- Set the number of **iterations** (recommended: 100-1000)
-  - More iterations = more thorough search but longer computation time
-  - Default 100 is usually sufficient for most cases
-- Choose which currencies and omens you want to use
-- Adjust the beam width (advanced users only)
-
-**4. Start Crafting Simulation**
+**3. Start Crafting Simulation**
 
 - Click "Start Simulation" to begin the calculation
 - The algorithm will search for optimal crafting paths
-- Progress bar shows the current computation status
 
-**5. Review Results**
+**4. Review Results**
 
 - View multiple crafting paths sorted by success probability
 - Each path shows:
   - **Success Probability**: Chance of achieving your desired modifiers
   - **Step-by-Step Instructions**: Exact sequence of currencies to use
-  - **Currency Costs**: Total amount of each currency needed
-  - **Expected Actions**: What each step should accomplish
-
-### Understanding Results
-
-**Crafting Paths**
-Each path represents a different approach to crafting your item:
-- **Higher probability paths** are more likely to succeed but may use more expensive currencies
-- **Lower cost paths** use cheaper currencies but have lower success rates
-- Compare paths to find the balance between cost and reliability
-
-**Currency Usage**
-The tool shows which currencies to use and in what order:
-- **Chaos Orbs**: Reroll all modifiers
-- **Exalted Orbs**: Add a new modifier
-- **Augmentation Orbs**: Add modifier of specific type
-- **Annulment Orbs**: Remove a random modifier
-- **Regal Orbs**: Add modifier to magic item
-- **Essences**: Guarantee specific modifier
-- **Omens**: Modify currency behavior (e.g., filter by tags)
-
-**Family Conflicts**
-If you try to select two modifiers with the same family:
-- ❌ A popup will immediately warn you about the conflict
-- 🔍 The popup shows which modifier conflicts and the shared family name
-- ✅ Deselect one modifier to choose another from the same family
 
 ## 💻 Development
 
@@ -248,18 +200,10 @@ The crafting algorithm uses a modified **Beam Search** to efficiently explore th
 
 1. **State Space**: Each state represents an item with its current modifiers
 2. **Actions**: Crafting currencies and omens that can be applied
-3. **Beam Width**: Keeps top N most promising paths at each step
 4. **Scoring**: Evaluates paths based on probability and progress toward desired modifiers
 5. **Pruning**: Discards low-probability paths to maintain performance
 
 This approach finds near-optimal solutions while maintaining reasonable computation time, even for complex crafting scenarios with 6+ desired modifiers.
-
-### Probability Calculation
-
-- **Modifier Weights**: Each modifier has tier-specific weights based on item level
-- **Tag Matching**: Omens filter modifiers by matching tags
-- **Family Exclusion**: Prevents duplicate modifier families
-- **Tier Selection**: Calculates probability for desired tier or better
 
 ## 🤝 Contributing
 
@@ -299,8 +243,6 @@ See [AUTO_UPDATE.md](docs/AUTO_UPDATE.md) for technical details.
 ## 🐛 Known Issues
 
 - Some rare edge cases with essence combinations may not be fully optimized
-- Memory usage can be high for very complex crafting scenarios (6+ mods)
-- UI may freeze briefly during intensive calculations
 
 See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for a complete list.
 
@@ -310,11 +252,9 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for a complete
 - [x] Auto-update system
 - [x] Multi-platform support (Windows, macOS, Linux)
 - [ ] Add crafting cost estimation
-- [ ] Support for influenced items
 - [ ] Export/import crafting plans
 - [ ] Crafting simulator with step-by-step execution
 - [ ] Integration with trade API for cost optimization
-- [ ] Mobile companion app
 
 ## 📄 License
 
@@ -323,8 +263,8 @@ This project is licensed under the GNU Affero General Public License v3.0 (AGPL-
 ## 🙏 Acknowledgments
 
 - Grinding Gear Games for creating Path of Exile 2
-- The PoE community for modifier data and crafting knowledge
-- All contributors and testers
+- The PoE community and POE2db for modifier data and crafting knowledge
+- [@traylorre](https://github.com/traylorre) and [@fZpHr](https://github.com/fZpHr) for the help and advices.
 
 ## 📞 Contact
 

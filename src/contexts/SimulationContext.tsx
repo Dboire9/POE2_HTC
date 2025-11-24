@@ -125,7 +125,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           }));
 
           // Calculate total cost from steps
-          const totalCost = steps.reduce((acc, step) => {
+          const totalCost = steps.reduce((acc: Record<string, number>, step: { currencyUsed?: string }) => {
             if (step.currencyUsed) {
               acc[step.currencyUsed] = (acc[step.currencyUsed] || 0) + 1;
             }

@@ -13,6 +13,24 @@ import ResultsDisplay from './features/simulation/ResultsDisplay';
 // Import version from package.json
 const version = '0.5.9';
 
+// Helper function to open external links
+const openExternalLink = (url: string) => {
+  console.log('openExternalLink called with:', url);
+  console.log('window.electronAPI:', window.electronAPI);
+  
+  if (window.electronAPI?.openExternal) {
+    console.log('Using electronAPI.openExternal');
+    window.electronAPI.openExternal(url).then((result) => {
+      console.log('openExternal result:', result);
+    }).catch((error) => {
+      console.error('openExternal error:', error);
+    });
+  } else {
+    console.log('Using window.open fallback');
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+};
+
 // T018, T019: Integrate ItemsProvider and ItemSelector into App.tsx
 // T035, T036, T037: Integrate ModifiersProvider, ModifierSelector, and Toaster
 // T053, T054: Integrate SimulationProvider and simulation components
@@ -32,25 +50,30 @@ export default function App() {
               </div>
               
               <div className="hidden md:flex flex-col items-end gap-2 text-xs text-muted-foreground">
-                <a 
-                  href="https://github.com/Dboire9" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 hover:text-primary transition-colors"
+                <button
+                  onClick={() => openExternalLink('https://github.com/Dboire9')}
+                  className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer bg-transparent border-none"
                 >
                   <span className="text-[10px] uppercase tracking-wider opacity-70">Created by</span>
                   <span className="font-medium">Dboire</span>
-                </a>
-                <a 
-                  href="https://github.com/Dboire9/POE2_HTC" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/30 hover:border-primary/50 transition-all"
-                >
-                  <span className="text-[10px] font-mono font-semibold leading-none">v{version}</span>
-                  <span className="opacity-30 leading-none">|</span>
-                  <span className="text-[10px] leading-none">⭐ Star & Contribute</span>
-                </a>
+                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC/issues/new')}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 transition-all cursor-pointer"
+                    title="Report a bug on GitHub"
+                  >
+                    <span className="text-[10px] leading-none">🐛 Report Bug</span>
+                  </button>
+                  <button
+                    onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC')}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/30 hover:border-primary/50 transition-all cursor-pointer"
+                  >
+                    <span className="text-[10px] font-mono font-semibold leading-none">v{version}</span>
+                    <span className="opacity-30 leading-none">|</span>
+                    <span className="text-[10px] leading-none">⭐ Star & Contribute</span>
+                  </button>
+                </div>
               </div>
             </div>
           </header>

@@ -10,7 +10,6 @@ if (currentVersion !== CACHE_VERSION) {
   localStorage.clear();
   sessionStorage.clear();
   localStorage.setItem('app_version', CACHE_VERSION);
-  console.log('Cache cleared - upgraded to version', CACHE_VERSION);
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

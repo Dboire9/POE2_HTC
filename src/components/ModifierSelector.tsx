@@ -74,7 +74,6 @@ export function ModifierSelector({ selectedItem, onModifiersChange }: ModifierSe
     setLoading(true)
     try {
       const data = await window.electronAPI?.invoke("api:modifiers", { itemId: selectedItem })
-      console.log("Modifiers loaded:", data)
       
       // Add unique IDs based on name (text) which is always unique
       const prefixesWithIndex = (data.prefixes || []).map((mod: Modifier, idx: number) => ({

@@ -124,11 +124,19 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             omens: action.omens
           }));
 
+          // Calculate total cost from steps
+          const totalCost = steps.reduce((acc, step) => {
+            if (step.currencyUsed) {
+              acc[step.currencyUsed] = (acc[step.currencyUsed] || 0) + 1;
+            }
+            return acc;
+          }, {} as Record<string, number>);
+
           return {
             id: `path-${index}`,
             probability: path.probability || 0,
             steps: steps,
-            totalCost: {} // TODO: Calculate from steps
+            totalCost
           };
         });
 

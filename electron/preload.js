@@ -28,5 +28,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  console.log('POE2HTC Electron app loaded');
+  // Preload script loaded
 });

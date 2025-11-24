@@ -24,10 +24,6 @@ export function CurrencySelector({ selectedItem, onCraft }: any) {
   const handleStartCrafting = async () => {
     if (!selectedItem || !onCraft) return
     
-    console.log("💰 Currency Selector - Starting crafting...")
-    console.log("   Selected Item:", selectedItem)
-    console.log("   Selected Currency:", selectedCurrency)
-    
     setIsCrafting(true)
     try {
       await onCraft({
@@ -35,7 +31,6 @@ export function CurrencySelector({ selectedItem, onCraft }: any) {
         currencies: selectedCurrency ? [selectedCurrency] : [],
         iterations: 100,
       })
-      console.log("✅ Currency Selector - Crafting completed!")
     } catch (error) {
       console.error("❌ Currency Selector - Crafting failed:", error)
     } finally {

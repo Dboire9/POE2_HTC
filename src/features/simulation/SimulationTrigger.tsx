@@ -24,8 +24,6 @@ const SimulationTrigger: React.FC = () => {
       ? `${selectedItem.id}/${selectedItem.subcategory}`
       : selectedItem.id;
 
-    console.log('🎮 Starting simulation with itemId:', itemId);
-
     startSimulation({
       itemId,
       modifiers: {

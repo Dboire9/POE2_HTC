@@ -11,17 +11,12 @@ export function CraftingSimulator({ selectedItem, onCraft }: any) {
   const [isRunning, setIsRunning] = useState(false)
 
   const handleSimulate = async () => {
-    console.log("🎮 Simulator - Starting simulation...")
-    console.log("   Selected Item:", selectedItem)
-    console.log("   Iterations:", iterations)
-    
     setIsRunning(true)
     try {
       await onCraft({
         itemId: selectedItem,
         iterations: iterations,
       })
-      console.log("✅ Simulator - Simulation completed!")
     } catch (error) {
       console.error("❌ Simulator - Simulation failed:", error)
     } finally {

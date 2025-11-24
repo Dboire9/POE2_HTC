@@ -102,100 +102,38 @@ The app will automatically start:
 
 ## 📖 How Does It Work?
 
-### Step-by-Step Guide
+This tool simulates Path of Exile 2 crafting to find the most efficient paths to your desired item:
 
-**1. Select Your Item Type**
+1. **Select** your base item type and desired modifiers (prefixes/suffixes)
+2. **Simulate** using the Beam Search algorithm to explore millions of crafting sequences
+3. **Review** ranked paths with step-by-step instructions and success probabilities
+4. **Craft** in-game following the optimal currency sequence
 
-- Choose the base item category (e.g., Wands, Helmets, Body Armours)
-- If applicable, select the specific subcategory (e.g., ES/Armor Hybrid)
-- The application will load all available modifiers for that item type
+The simulation accounts for item rarity transitions, modifier weights, currency behaviors, family conflicts, and slot limitations to provide accurate probability calculations.
 
-**2. Choose Your Desired Modifiers**
+**📘 For detailed usage instructions with screenshots and examples, see the [User Guide](docs/USER_GUIDE.md).** 
 
-- Browse through available **Prefixes** (up to 3) and **Suffixes** (up to 3)
-- Filter modifiers by source:
-  - **Normal Crafting**: Standard modifiers obtainable through regular currencies
-  - **Perfect Essences**: Special modifiers from perfect essences
-  - **Desecrated Currency**: Unique modifiers from desecrated orbs
-- Each modifier shows its **family** (e.g., "WeaponCasterDamagePrefix")
-  - ⚠️ **Important**: You cannot select two modifiers with the same family on one item
-  - The application will prevent you from selecting conflicting modifiers
-- Select the **tier** for each modifier
-- Click on modifiers to add them to your crafting target
-
-**3. Start Crafting Simulation**
-
-- Click "Start Simulation" to begin the calculation
-- The algorithm will search for optimal crafting paths
-
-**4. Review Results**
-
-- View multiple crafting paths sorted by success probability
-- Each path shows:
-  - **Success Probability**: Chance of achieving your desired modifiers
-  - **Step-by-Step Instructions**: Exact sequence of currencies to use
+---
 
 ## 💻 Development
 
-### Project Structure
-
-```
-POE2_HTC/
-├── src/                          # Frontend source (React + TypeScript)
-│   ├── components/              # React components
-│   ├── hooks/                   # Custom React hooks
-│   └── lib/                     # Utilities
-├── src/main/java/               # Java backend
-│   └── core/
-│       ├── Crafting/           # Crafting algorithm and logic
-│       ├── Currency/           # Currency implementations
-│       ├── Items/              # Item base types
-│       └── Item_modifiers/     # Modifier definitions
-├── target/                      # Maven build output
-└── dist/                        # Vite build output
-```
-
-### Backend Development
-
-The backend uses a **Beam Search algorithm** to efficiently explore the crafting space and find optimal paths.
-
+**Quick Start:**
 ```bash
-# Compile Java backend
-mvn compile
+# Clone and install dependencies
+git clone https://github.com/Dboire9/POE2_HTC.git
+cd POE2_HTC
+npm install --legacy-peer-deps
 
-# Run backend server standalone
-mvn exec:java -Dexec.mainClass="core.ServerMain"
-
-# Run tests
-mvn test
+# Run development environment (starts both backend and frontend)
+npm run electron:dev
 ```
 
-The backend exposes a REST API on `http://localhost:8080`:
-- `GET /api/modifiers?itemId={itemId}` - Get available modifiers for an item
-- `POST /api/crafting` - Calculate optimal crafting paths
+**Architecture:**
+- **Frontend**: React 19 + TypeScript + Vite + Electron
+- **Backend**: Java 17 + Maven, REST API on port 8080
+- **Algorithm**: Beam Search with heuristic scoring and multithreading
 
-### Frontend Development
-
-```bash
-# Start Vite dev server (with hot reload)
-npm run dev
-
-# Build frontend for production
-npm run build
-
-# Type check
-npm run type-check
-```
-
-### Full Stack Development
-
-```bash
-# Start backend (Terminal 1)
-mvn exec:java -Dexec.mainClass="core.ServerMain"
-
-# Start frontend dev server (Terminal 2)
-npm run dev
-```
+**📘 For detailed setup instructions, project structure, and contribution guidelines, see the [Development Guide](docs/DEVELOPMENT.md).**
 
 ### Beam Search Algorithm
 
@@ -209,26 +147,20 @@ The crafting optimizer uses a **modified Beam Search algorithm** to find optimal
 
 > 📖 **[Read the full algorithm explanation →](docs/ALGORITHM.md)**
 
+---
+
 ## 🤝 Contributing
 
 We welcome contributions! Here's how you can help:
 
-1. **Report Bugs** - Open an issue with reproduction steps
-2. **Suggest Features** - Share your ideas for improvements
-3. **Submit Pull Requests** - Fix bugs or add features
+1. **Report Bugs** - Open an issue with reproduction steps  
+2. **Suggest Features** - Share your ideas for improvements  
+3. **Submit Pull Requests** - Fix bugs or add features  
 4. **Update Data** - Help keep modifier data current with game patches
 
-Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) for development guidelines and code style.
+**📘 For detailed contribution guidelines, development setup, and code style, see the [Contributing Guide](docs/CONTRIBUTING.md).**
 
-### Development Setup
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Write/update tests as needed
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+---
 
 ## 📝 API Documentation
 

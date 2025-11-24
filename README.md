@@ -208,7 +208,7 @@ The crafting algorithm uses a modified **Beam Search** to efficiently explore th
 
 This approach finds near-optimal solutions while maintaining reasonable computation time, even for complex crafting scenarios with 6+ desired modifiers.
 
-> For a detailed explanation and pseudocode, see [ALGORITHM.md](ALGORITHM.md).
+> For a detailed explanation and pseudocode, see [ALGORITHM.md](docs/ALGORITHM.md).
 
 ## 🤝 Contributing
 

@@ -26,8 +26,8 @@
 A powerful desktop application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
 
 <div style="display: flex; gap: 10px;">
-  <img src="screenshots/Full_initial_screen.PNG" alt="PoE2 Pathfinder" width="500"/>
-  <img src="screenshots/Bow_result.PNG" alt="PoE2 Pathfinder final result" width="500"/>
+  <img src="screenshots/Full_initial_screen.PNG" alt="PoE2 Pathfinder" width="400"/>
+  <img src="screenshots/Bow_result.PNG" alt="PoE2 Pathfinder final result" width="400"/>
 </div>
 
 ## 📑 Table of Contents

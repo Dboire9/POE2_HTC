@@ -141,11 +141,27 @@ function startBackend(): Promise<void> {
       writeLog(`Args: ${args.join(' ')}`);
       writeLog(`Working directory: ${options.cwd}`);
     } else {
-      // Production: run the packaged JAR file
-      cmd = 'java';
+      // Production: run the packaged JAR file with bundled JRE
+      const jrePath = path.join(process.resourcesPath, 'jre');
+      const javaExecutable = process.platform === 'win32' 
+        ? path.join(jrePath, 'bin', 'java.exe')
+        : path.join(jrePath, 'bin', 'java');
+      
+      writeLog(`Production mode: Using packaged JAR with bundled JRE`);
+      
+      // Check if bundled JRE exists
+      if (fs.existsSync(javaExecutable)) {
+        cmd = javaExecutable;
+        writeLog(`Using bundled JRE at: ${javaExecutable}`);
+      } else {
+        // Fallback to system Java
+        cmd = 'java';
+        writeLog(`Bundled JRE not found at: ${javaExecutable}`);
+        writeLog(`Falling back to system Java`);
+      }
+      
       const jarPath = path.join(process.resourcesPath, 'backend.jar');
       
-      writeLog(`Production mode: Using packaged JAR`);
       writeLog(`Looking for backend JAR at: ${jarPath}`);
       writeLog(`process.resourcesPath: ${process.resourcesPath}`);
       writeLog(`JAR exists: ${fs.existsSync(jarPath)}`);
@@ -171,18 +187,20 @@ function startBackend(): Promise<void> {
         return;
       }
       
-      // Check if Java is available
-      try {
-        const javaCheck = spawn('java', ['-version'], { windowsHide: true });
-        javaCheck.on('error', (err) => {
-          writeLog(`ERROR: Java not found: ${err.message}`);
-          showErrorDialog(
-            'Java Not Found',
-            `Java is not installed or not in PATH.\n\nPlease install Java 21 or later.\n\nLog file: ${LOG_FILE}`
-          );
-        });
-      } catch (e) {
-        writeLog(`ERROR: Could not check Java: ${e}`);
+      // Check if Java is available (only if not using bundled JRE)
+      if (cmd === 'java') {
+        try {
+          const javaCheck = spawn('java', ['-version'], { windowsHide: true });
+          javaCheck.on('error', (err) => {
+            writeLog(`ERROR: Java not found: ${err.message}`);
+            showErrorDialog(
+              'Java Not Found',
+              `Java is not installed or not in PATH.\n\nPlease install Java 21 or later from:\nhttps://adoptium.net/\n\nLog file: ${LOG_FILE}`
+            );
+          });
+        } catch (e) {
+          writeLog(`ERROR: Could not check Java: ${e}`);
+        }
       }
       
       args = ['-jar', jarPath];

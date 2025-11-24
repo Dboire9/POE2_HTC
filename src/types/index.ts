@@ -49,12 +49,22 @@ export interface StatRange {
   max: number;
 }
 
+export interface TierInfo {
+  name: string;        // Tier name (e.g., "Hale", "Healthy")
+  level: number;       // Required level
+  minMax1: { min: number; max: number }; // Primary stat range
+  minMax2?: { min: number; max: number }; // Secondary stat range (optional)
+  minMax3?: { min: number; max: number }; // Tertiary stat range (optional)
+  minMax4?: { min: number; max: number }; // Quaternary stat range (optional)
+}
+
 export interface Modifier {
   id: string;
   text: string;              // Display text (may come as 'name' from backend)
   type?: ModifierType;       // Optional - may not be sent by backend
   tier?: number;             // Selected tier (1-based)
   availableTiers?: number;   // Total number of tiers available
+  tierDetails?: TierInfo[];  // Detailed info for each tier (optional)
   statRanges?: StatRange[];  // Optional - not always provided
   tags?: string[];           // Optional - not always provided
   source?: ModifierSource;   // Optional - not always provided

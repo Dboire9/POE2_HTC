@@ -38,6 +38,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: npm run electron:build:linux
       
+      - name: Create Linux bundle
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          version=$(node -p "require('./package.json').version")
+          zip -j "POE2HTC-Linux-v${version}.zip" release/*.AppImage release/*.deb release/latest-linux.yml
+      
       - name: Build Electron app (Windows)
         if: matrix.os == 'windows-latest'
         run: npm run electron:build:win
@@ -55,6 +61,7 @@ jobs:
         with:
           name: linux-builds
           path: |
+            POE2HTC-Linux-*.zip
             release/*.AppImage
             release/*.deb
             release/latest-linux.yml

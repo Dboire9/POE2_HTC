@@ -49,7 +49,6 @@ A powerful desktop application that calculates optimal crafting paths for **Path
 
 - 🎯 **Optimal Crafting Paths** - Find the best sequence of currencies to craft your desired item
 - 📊 **Probability Calculations** - See exact success rates for each crafting step
-- 💎 **Full Currency Support** - All crafting currencies, essences, and omens included
 - ⚡ **Fast Computation** - Multithreaded beam search algorithm for quick results
 - 🖥️ **Desktop App** - Run locally with Electron or in your browser
 

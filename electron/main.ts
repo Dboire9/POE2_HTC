@@ -86,7 +86,10 @@ function startBackend(): Promise<void> {
     const isPackaged = app.isPackaged;
     let cmd: string;
     let args: string[];
-    const options: any = { stdio: 'inherit' };
+    const options: any = { 
+      stdio: 'inherit',
+      windowsHide: true  // Hide console window on Windows
+    };
 
     if (!isPackaged) {
       // Use mvn to start the backend during development

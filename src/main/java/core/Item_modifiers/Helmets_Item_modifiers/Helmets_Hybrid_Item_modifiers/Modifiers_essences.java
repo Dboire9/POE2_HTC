@@ -197,7 +197,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Essence of Hysteria", 5, 1, new Pair<>(1, 1))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"IncreaseSocketedGemLevel",
 				"+# to Level of all Minion Skills");
 

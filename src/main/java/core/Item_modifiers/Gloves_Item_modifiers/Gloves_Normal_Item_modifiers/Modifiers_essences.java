@@ -162,7 +162,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Essence of Hysteria", 45, 1, new Pair<>(25, 29))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"CriticalStrikeMultiplier",
 				"#% increased Critical Damage Bonus");
 
@@ -172,7 +172,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Essence of Horror", 1, 1, new Pair<>(100, 100))),
 				ModifierType.SUFFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"SoulCore",
 				"#% increased effect of Socketed Items");
 

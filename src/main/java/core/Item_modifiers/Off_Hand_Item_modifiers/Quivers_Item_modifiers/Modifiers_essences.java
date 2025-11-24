@@ -40,7 +40,7 @@ public class Modifiers_essences {
 				List.of(
 						new ModifierTier("Essence of Hysteria", 60, 0, new Pair<>(43, 50))),
 				ModifierType.PREFIX,
-				ModifierSource.ESSENCE,
+				ModifierSource.PERFECT_ESSENCE,
 				"IncreasedDamageWithBowSkillsPercent",
 				"#% increased Damage with Bow Skills");
 

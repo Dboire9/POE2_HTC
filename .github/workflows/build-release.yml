@@ -34,6 +34,24 @@ jobs:
       - name: Build Java backend
         run: mvn clean package -DskipTests
       
+      - name: Download JRE (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p jre
+          curl -L -o jre.tar.gz "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.5%2B11/OpenJDK21U-jre_x64_linux_hotspot_21.0.5_11.tar.gz"
+          tar -xzf jre.tar.gz -C jre --strip-components=1
+          rm jre.tar.gz
+      
+      - name: Download JRE (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path jre
+          Invoke-WebRequest -Uri "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.5%2B11/OpenJDK21U-jre_x64_windows_hotspot_21.0.5_11.zip" -OutFile jre.zip
+          Expand-Archive -Path jre.zip -DestinationPath jre-temp
+          Move-Item -Path jre-temp\*\* -Destination jre
+          Remove-Item -Recurse -Force jre-temp, jre.zip
+      
       - name: Build Electron app (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: npm run electron:build:linux

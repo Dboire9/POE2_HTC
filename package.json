@@ -73,6 +73,10 @@
         "to": "backend.jar"
       },
       {
+        "from": "jre",
+        "to": "jre"
+      },
+      {
         "from": "target/classes",
         "to": "target/classes",
         "filter": [

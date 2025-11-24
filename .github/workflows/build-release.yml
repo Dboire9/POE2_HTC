@@ -50,6 +50,7 @@ jobs:
           path: |
             release/*.AppImage
             release/*.deb
+            release/latest-linux.yml
       
       - name: Upload artifacts (Windows)
         if: matrix.os == 'windows-latest'
@@ -59,6 +60,7 @@ jobs:
           path: |
             release/*.exe
             release/*.exe.blockmap
+            release/latest.yml
   
   release:
     needs: build

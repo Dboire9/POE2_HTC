@@ -63,7 +63,7 @@ A powerful desktop application that calculates optimal crafting paths for **Path
 3. Run the installer
 4. Launch POE2 HTC from your Start Menu or Desktop
 
-**⚠️ Important:** The application is currently **not signed** (I'm working on getting a code signing certificate). Windows will show a security warning when you run the installer. You'll need to click "More info" and then "Run anyway" to proceed with the installation. This is normal for unsigned applications and doesn't indicate any security risk.
+**⚠️ Important:** The application is currently **not signed** (I'm working on getting a code signing certificate). Windows will show a security warning when you run the installer. You'll need to click "More info" and then "Run anyway" to proceed with the installation. This is normal for unsigned applications and doesn't indicate any security risk. You can review the source code on GitHub if you have any concerns.
 
 - The installer includes everything you need!
 

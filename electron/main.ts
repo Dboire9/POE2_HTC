@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import * as path from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import * as fs from 'fs';
@@ -13,16 +13,51 @@ const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 const BACKEND_PORT = 8080;
 const FRONTEND_PORT = 5173;
 
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('app.isPackaged:', app.isPackaged);
-console.log('Running in mode:', isDev ? 'DEVELOPMENT' : 'PRODUCTION');
-console.log('App path:', app.getAppPath());
-console.log('__dirname:', __dirname);
+// Setup log file
+const LOG_FILE = path.join(app.getPath('userData'), 'poe2htc.log');
+let logStream: fs.WriteStream | null = null;
 
-// Helper to log to both main and renderer console
+// Ensure log directory exists
+try {
+  const logDir = path.dirname(LOG_FILE);
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  logStream = fs.createWriteStream(LOG_FILE, { flags: 'a' });
+  writeLog('='.repeat(80));
+  writeLog(`POE2HTC Started at ${new Date().toISOString()}`);
+  writeLog(`Version: ${app.getVersion()}`);
+  writeLog(`Platform: ${process.platform} ${process.arch}`);
+  writeLog(`Log file: ${LOG_FILE}`);
+  writeLog('='.repeat(80));
+} catch (error) {
+  console.error('Failed to setup log file:', error);
+}
+
+function writeLog(message: string) {
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] ${message}\n`;
+  console.log(message);
+  if (logStream) {
+    logStream.write(logMessage);
+  }
+}
+
+function showErrorDialog(title: string, message: string) {
+  writeLog(`ERROR DIALOG: ${title} - ${message}`);
+  dialog.showErrorBox(title, message);
+}
+
+writeLog(`NODE_ENV: ${process.env.NODE_ENV}`);
+writeLog(`app.isPackaged: ${app.isPackaged}`);
+writeLog(`Running in mode: ${isDev ? 'DEVELOPMENT' : 'PRODUCTION'}`);
+writeLog(`App path: ${app.getAppPath()}`);
+writeLog(`__dirname: ${__dirname}`);
+
+// Helper to log to both main and renderer console and log file
 function logToRenderer(level: string, ...args: any[]) {
   const message = args.join(' ');
-  console.log(`[${level}]`, ...args);
+  writeLog(`[${level}] ${message}`);
   if (mainWindow?.webContents) {
     mainWindow.webContents.executeJavaScript(
       `console.${level.toLowerCase()}('${message.replace(/'/g, "\\'")}')`
@@ -55,19 +90,23 @@ function waitForServer(url: string, timeout = 30000): Promise<void> {
     const checkServer = () => {
       http.get(url, (res) => {
         if (res.statusCode === 200) {
-          console.log(`Server ready at ${url}`);
+          writeLog(`Server ready at ${url}`);
           resolve();
         } else {
           retry();
         }
-      }).on('error', () => {
+      }).on('error', (err) => {
+        writeLog(`Server check error for ${url}: ${err.message}`);
         retry();
       });
     };
 
     const retry = () => {
-      if (Date.now() - startTime > timeout) {
-        reject(new Error(`Timeout waiting for ${url}`));
+      const elapsed = Date.now() - startTime;
+      if (elapsed > timeout) {
+        const error = `Timeout waiting for ${url} (waited ${elapsed}ms)`;
+        writeLog(`ERROR: ${error}`);
+        reject(new Error(error));
       } else {
         setTimeout(checkServer, 500);
       }
@@ -79,7 +118,7 @@ function waitForServer(url: string, timeout = 30000): Promise<void> {
 
 function startBackend(): Promise<void> {
   return new Promise((resolve, reject) => {
-    console.log('Starting Java backend...');
+    writeLog('========== Starting Java backend ==========');
     // In development we run via Maven (requires mvn).
     // In production the packaged app should start the Java runtime directly
     // using the packaged JAR file.
@@ -97,42 +136,101 @@ function startBackend(): Promise<void> {
       cmd = mvnCommand;
       args = ['exec:java', '-Dexec.mainClass=core.ServerMain', '-q'];
       options.cwd = app.getAppPath();
+      writeLog(`Development mode: Using Maven`);
+      writeLog(`Command: ${cmd}`);
+      writeLog(`Args: ${args.join(' ')}`);
+      writeLog(`Working directory: ${options.cwd}`);
     } else {
       // Production: run the packaged JAR file
       cmd = 'java';
       const jarPath = path.join(process.resourcesPath, 'backend.jar');
       
-      console.log('Looking for backend JAR at:', jarPath);
+      writeLog(`Production mode: Using packaged JAR`);
+      writeLog(`Looking for backend JAR at: ${jarPath}`);
+      writeLog(`process.resourcesPath: ${process.resourcesPath}`);
+      writeLog(`JAR exists: ${fs.existsSync(jarPath)}`);
       
       // Check if JAR exists
       if (!fs.existsSync(jarPath)) {
-        console.error('Backend JAR not found at:', jarPath);
+        const error = `Backend JAR not found at: ${jarPath}`;
+        writeLog(`ERROR: ${error}`);
+        
+        // List files in resourcesPath to help debug
+        try {
+          const files = fs.readdirSync(process.resourcesPath);
+          writeLog(`Files in resourcesPath: ${files.join(', ')}`);
+        } catch (e) {
+          writeLog(`ERROR: Could not list resourcesPath: ${e}`);
+        }
+        
+        showErrorDialog(
+          'Backend JAR Missing',
+          `Could not find backend.jar at:\n${jarPath}\n\nThe application cannot start without this file.\n\nLog file: ${LOG_FILE}`
+        );
         reject(new Error('Backend JAR not found'));
         return;
       }
       
+      // Check if Java is available
+      try {
+        const javaCheck = spawn('java', ['-version'], { windowsHide: true });
+        javaCheck.on('error', (err) => {
+          writeLog(`ERROR: Java not found: ${err.message}`);
+          showErrorDialog(
+            'Java Not Found',
+            `Java is not installed or not in PATH.\n\nPlease install Java 21 or later.\n\nLog file: ${LOG_FILE}`
+          );
+        });
+      } catch (e) {
+        writeLog(`ERROR: Could not check Java: ${e}`);
+      }
+      
       args = ['-jar', jarPath];
       options.cwd = process.resourcesPath;
+      writeLog(`Command: ${cmd}`);
+      writeLog(`Args: ${args.join(' ')}`);
+      writeLog(`Working directory: ${options.cwd}`);
     }
 
-    console.log('Running command:', cmd, args.join(' '));
-    backendProcess = spawn(cmd, args, options);
+    writeLog(`Spawning backend process...`);
+    try {
+      backendProcess = spawn(cmd, args, options);
+      writeLog(`Backend process spawned successfully (PID: ${backendProcess.pid})`);
+    } catch (spawnError: any) {
+      writeLog(`ERROR: Failed to spawn backend: ${spawnError.message}`);
+      showErrorDialog(
+        'Backend Start Failed',
+        `Could not start backend process:\n${spawnError.message}\n\nLog file: ${LOG_FILE}`
+      );
+      reject(spawnError);
+      return;
+    }
 
     backendProcess.on('error', (error) => {
-      console.error('Failed to start backend:', error);
+      writeLog(`ERROR: Backend process error: ${error.message}`);
+      writeLog(`ERROR: Stack: ${error.stack}`);
+      showErrorDialog(
+        'Backend Process Error',
+        `Backend process encountered an error:\n${error.message}\n\nLog file: ${LOG_FILE}`
+      );
       reject(error);
     });
 
     // Wait a bit for backend to start. If the backend exits early we'll reject.
     const startTimeout = setTimeout(() => {
-      console.log('Backend start delay passed');
+      writeLog('Backend start delay passed (3s), assuming success');
       resolve();
     }, 3000);
 
     backendProcess.on('exit', (code, signal) => {
       clearTimeout(startTimeout);
+      const exitMsg = `Backend process exited with code ${code}, signal ${signal}`;
+      writeLog(exitMsg);
       if (code !== 0) {
-        console.error('Backend process exited with code', code, 'signal', signal);
+        showErrorDialog(
+          'Backend Process Exited',
+          `Backend stopped unexpectedly:\nExit code: ${code}\nSignal: ${signal}\n\nLog file: ${LOG_FILE}`
+        );
         reject(new Error(`Backend exited with code ${code}`));
       }
     });
@@ -171,31 +269,35 @@ function createWindow() {
   // Load the app
   if (isDev) {
     const devUrl = `http://localhost:${FRONTEND_PORT}`;
-    console.log('Loading DEV URL:', devUrl);
+    writeLog(`Loading DEV URL: ${devUrl}`);
     mainWindow.loadURL(devUrl);
   } else {
     const prodPath = path.join(__dirname, '../dist/index.html');
-    console.log('Loading PROD file:', prodPath);
+    writeLog(`Loading PROD file: ${prodPath}`);
+    writeLog(`__dirname: ${__dirname}`);
+    writeLog(`File exists: ${fs.existsSync(prodPath)}`);
     mainWindow.loadFile(prodPath);
   }
 
   // Add error handling for loading failures
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-    console.error('Failed to load:', errorCode, errorDescription);
+    writeLog(`ERROR: Failed to load page: ${errorCode} - ${errorDescription}`);
     if (isDev) {
+      writeLog('Development mode: Retrying in 1 second...');
       setTimeout(() => {
         mainWindow?.reload();
       }, 1000);
+    } else {
+      showErrorDialog(
+        'Page Load Failed',
+        `Failed to load application:\nError ${errorCode}: ${errorDescription}\n\nLog file: ${LOG_FILE}`
+      );
     }
   });
 
   mainWindow.webContents.on('did-finish-load', () => {
-    console.log('Content finished loading. Current URL:', mainWindow?.webContents.getURL());
-  });
-
-  // Log when page loads successfully
-  mainWindow.webContents.on('did-finish-load', () => {
-    console.log('Page loaded successfully');
+    const url = mainWindow?.webContents.getURL();
+    writeLog(`Content finished loading. Current URL: ${url}`);
   });
 
   // Add keyboard shortcut to toggle DevTools (F12 or Ctrl+Shift+I)
@@ -220,18 +322,26 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  writeLog('========== App Ready ==========');
   try {
     // Start backend first
+    writeLog('Step 1: Starting backend...');
     await startBackend();
+    writeLog('Backend started successfully');
     
     // Wait for frontend in dev mode
     if (isDev) {
-      console.log('Waiting for frontend dev server...');
+      writeLog('Step 2: Waiting for frontend dev server...');
       await waitForServer(`http://localhost:${FRONTEND_PORT}`);
+      writeLog('Frontend dev server ready');
+    } else {
+      writeLog('Step 2: Skipped (production mode - no dev server)');
     }
     
     // Then create window
+    writeLog('Step 3: Creating main window...');
     createWindow();
+    writeLog('Main window created');
 
     // Check for updates (only in production)
     if (!isDev) {
@@ -244,13 +354,22 @@ app.whenReady().then(async () => {
       logToRenderer('log', '[AutoUpdater] Skipping update check (development mode)');
     }
 
+    writeLog('========== Application startup complete ==========');
+
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) {
+        writeLog('Activate event: Creating new window');
         createWindow();
       }
     });
-  } catch (error) {
-    console.error('Failed to start application:', error);
+  } catch (error: any) {
+    writeLog('========== FATAL ERROR ==========');
+    writeLog(`Failed to start application: ${error.message}`);
+    writeLog(`Stack trace: ${error.stack}`);
+    showErrorDialog(
+      'Application Start Failed',
+      `POE2HTC could not start:\n${error.message}\n\nPlease check the log file for details:\n${LOG_FILE}`
+    );
     app.quit();
   }
 });
@@ -373,7 +492,12 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
   // Kill backend process when app quits
   if (backendProcess) {
-    console.log('Stopping backend...');
+    writeLog('Stopping backend...');
     backendProcess.kill();
+  }
+  
+  writeLog('========== App Quit ==========');
+  if (logStream) {
+    logStream.end();
   }
 });

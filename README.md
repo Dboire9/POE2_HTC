@@ -34,6 +34,7 @@ A powerful desktop application that calculates optimal crafting paths for **Path
 
 - [✨ Features](#-features)
 - [🚀 Quick Start](#-quick-start)
+- [ℹ️ About me & the Project](#ℹ️-about-me-&-the-project)
 - [📖 How Does It Work?](#-how-does-it-work)
 - [💻 Development](#-development)
 - [🤝 Contributing](#-contributing)
@@ -63,10 +64,6 @@ A powerful desktop application that calculates optimal crafting paths for **Path
 3. Run the installer
 4. Launch POE2 HTC from your Start Menu or Desktop
 
-The app runs in your browser at `http://localhost:5173`
-
-**Requirements:**
-- Windows 10/11
 - The installer includes everything you need!
 
 ### Linux/macOS Users
@@ -83,12 +80,17 @@ npm install --legacy-peer-deps
 npm run electron:dev
 ```
 
-The app will automatically start:
-- Backend server on `http://localhost:8080`
-- Frontend dev server on `http://localhost:5173`
-- Electron window with the app
-
 ---
+## ℹ️ About me & the Project
+
+Hi! I'm Dorian, a third-year computer science student at 42 Paris.  
+I built this project while (still) actively searching for an internship, both to strengthen my skills and to add a meaningful, technical project to my portfolio.
+
+If you appreciate my work or think my skills could be useful to your team, I'm currently looking for an internship or freelance opportunities — it's a required step for completing my diploma at 42.  
+Feel free to reach out!
+
+If you want to know more about me & the project, see[About me & the Project](docs/ABOUT.md)
+
 
 ## 📖 How Does It Work?
 

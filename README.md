@@ -201,12 +201,14 @@ npm run dev
 
 The crafting algorithm uses a modified **Beam Search** to efficiently explore the massive space of possible crafting sequences:
 
-1. **State Space**: Each state represents an item with its current modifiers
-2. **Actions**: Crafting currencies and omens that can be applied
-4. **Scoring**: Evaluates paths based on probability and progress toward desired modifiers
-5. **Pruning**: Discards low-probability paths to maintain performance
+1. **State Space**: Each state represents an item with its current modifiers  
+2. **Actions**: Crafting currencies and omens that can be applied  
+3. **Scoring**: Evaluates paths based on probability and progress toward desired modifiers  
+4. **Pruning**: Discards low-probability paths to maintain performance  
 
 This approach finds near-optimal solutions while maintaining reasonable computation time, even for complex crafting scenarios with 6+ desired modifiers.
+
+> For a detailed explanation and pseudocode, see [ALGORITHM.md](ALGORITHM.md).
 
 ## 🤝 Contributing
 
@@ -253,9 +255,8 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for a complete
 
 - [x] Desktop application with Electron
 - [x] Auto-update system
-- [x] Multi-platform support (Windows, macOS, Linux)
+- [x] Multi-platform support (Windows, Linux)
 - [ ] Add crafting cost estimation
-- [ ] Export/import crafting plans
 - [ ] Crafting simulator with step-by-step execution
 - [ ] Integration with trade API for cost optimization
 

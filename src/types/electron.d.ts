@@ -14,6 +14,9 @@ export interface ElectronAPI {
   // Generic IPC invoke method (for backward compatibility)
   invoke: (channel: string, data?: any) => Promise<any>;
   
+  // Open external URL in system browser
+  openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
+  
   // Update-specific methods
   checkForUpdates: () => Promise<void>;
   downloadUpdate: () => Promise<void>;

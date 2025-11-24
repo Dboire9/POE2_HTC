@@ -6,6 +6,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Generic IPC invoke method (for backward compatibility with any API calls)
   invoke: (channel, data) => ipcRenderer.invoke(channel, data),
   
+  // Open external URL in system browser
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+  
   // Update-related APIs
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   downloadUpdate: () => ipcRenderer.invoke('download-update'),

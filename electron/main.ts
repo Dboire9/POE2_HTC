@@ -334,6 +334,14 @@ function createWindow() {
     return { action: 'allow' };
   });
 
+  // Handle navigation attempts (clicking links)
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (url.startsWith('http') || url.startsWith('https')) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -448,6 +456,42 @@ autoUpdater.on('error', (error) => {
 });
 
 // IPC handlers for updates
+ipcMain.handle('open-external', async (_, url: string) => {
+  try {
+    writeLog(`[IPC] Opening external URL: ${url}`);
+    
+    // Detect if running in WSL
+    const isWSL = process.platform === 'linux' && fs.existsSync('/proc/version') && 
+                  fs.readFileSync('/proc/version', 'utf8').toLowerCase().includes('microsoft');
+    
+    if (isWSL) {
+      writeLog(`[IPC] Detected WSL environment, using Windows cmd.exe`);
+      const { exec } = require('child_process');
+      const util = require('util');
+      const execPromise = util.promisify(exec);
+      
+      try {
+        // Use WSL's ability to call Windows executables
+        await execPromise(`cmd.exe /c start "" "${url}"`);
+        writeLog(`[IPC] Successfully opened via WSL cmd.exe: ${url}`);
+        return { success: true };
+      } catch (cmdError) {
+        writeLog(`[IPC] WSL cmd.exe failed: ${cmdError}`);
+        throw cmdError;
+      }
+    } else {
+      // Use normal shell.openExternal for non-WSL environments
+      await shell.openExternal(url);
+      writeLog(`[IPC] Successfully opened via shell.openExternal: ${url}`);
+      return { success: true };
+    }
+  } catch (error) {
+    writeLog(`[IPC] Failed to open external URL: ${error}`);
+    console.error('Failed to open external URL:', error);
+    return { success: false, error: String(error) };
+  }
+});
+
 ipcMain.handle('check-for-updates', async () => {
   if (isDev) {
     return { available: false, message: 'Updates disabled in development mode' };

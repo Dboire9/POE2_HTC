@@ -157,7 +157,6 @@ public class ExaltAndRegalProbability {
      * @return The probability (0.0 to 1.0, or 2 for special simulation cases)
      */
     public static double ComputePercentage(Crafting_Item baseItem, Crafting_Candidate candidate, ModifierEvent event, int ilvl, Enum<?> omen, int i, boolean isDesired) {
-        Crafting_Action action = event.source.keySet().iterator().next();
         double percentage = 0.0;
 
         if (omen instanceof RegalOrb.Omen regalOmen && ilvl != 40) {

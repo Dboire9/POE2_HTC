@@ -17,7 +17,6 @@ import core.Currency.Essence_currency;
 import core.Items.Item_base;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
-import core.DebugLogger;
 import core.DebugLogger.DebugLevel;
 
 import java.io.IOException;

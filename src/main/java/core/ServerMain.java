@@ -8,7 +8,6 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import core.Crafting.Crafting_Action;
-import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
 import core.Crafting.CraftingExecutor;
 import core.Crafting.Probabilities.Probability_Analyzer;
@@ -380,14 +379,39 @@ public class ServerMain {
             try {
                 // Parse JSON with Gson
                 JsonObject jsonRequest = gson.fromJson(requestBody, JsonObject.class);
+                
+                // Input validation
+                if (jsonRequest == null || !jsonRequest.has("itemId")) {
+                    sendJson(exchange, 400, "{\"error\":\"Missing required field: itemId\"}");
+                    return;
+                }
+                
                 String itemId = jsonRequest.get("itemId").getAsString();
+                if (itemId == null || itemId.trim().isEmpty()) {
+                    sendJson(exchange, 400, "{\"error\":\"itemId cannot be empty\"}");
+                    return;
+                }
+                
                 DebugLogger.info("Parsed itemId: " + itemId);
+                
                 int iterations = jsonRequest.has("iterations") ? jsonRequest.get("iterations").getAsInt() : 100;
+                
+                // Validate iterations
+                if (iterations < 1 || iterations > 10000) {
+                    sendJson(exchange, 400, "{\"error\":\"iterations must be between 1 and 10000\"}");
+                    return;
+                }
                 
                 // Read global_threshold from request (default 0.33 = 33%)
                 double globalThreshold = jsonRequest.has("global_threshold") 
                     ? jsonRequest.get("global_threshold").getAsDouble() 
                     : 0.33;
+                
+                // Validate threshold
+                if (globalThreshold < 0.0 || globalThreshold > 1.0) {
+                    sendJson(exchange, 400, "{\"error\":\"global_threshold must be between 0.0 and 1.0\"}");
+                    return;
+                }
                 
                 DebugLogger.info("★★★ CRAFTING REQUEST ★★★");
                 DebugLogger.info("  Item: " + itemId);
@@ -404,9 +428,14 @@ public class ServerMain {
                 // Handle modifiers - it's an object with keys like prefixes and suffixes arrays
                 JsonObject modifiersObj = jsonRequest.getAsJsonObject("modifiers");
                 
+                // Validate modifiers object
+                if (modifiersObj == null) {
+                    sendJson(exchange, 400, "{\"error\":\"Missing required field: modifiers\"}");
+                    return;
+                }
+                
                 // Load item class dynamically with subcategory resolution
                 // itemId could be "Boots" or "Boots/Boots_int" format
-                String originalItemId = itemId;
                 String category = itemId;
                 String specificSubCat = null;
                 

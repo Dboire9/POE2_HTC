@@ -5,8 +5,6 @@ import { useState } from "react"
 export function Results({ data }: any) {
   const [selectedPath, setSelectedPath] = useState<number>(0)
   
-  console.log("📊 Results component - data:", data)
-  
   if (!data) {
     return (
       <Card className="p-12 text-center text-muted-foreground">

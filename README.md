@@ -12,7 +12,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
-![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)
+![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?logo=apachemaven&logoColor=white)
 
 ![Downloads](https://img.shields.io/github/downloads/Dboire9/POE2_HTC/total)
@@ -78,7 +78,7 @@ The app runs in your browser at `http://localhost:5173`
 
 ### Linux/macOS Users
 
-**Prerequisites**: Java 21+, Node.js 20+, Maven 3.8+
+**Prerequisites**: Java 17+, Node.js 20+, Maven 3.8+
 
 ```bash
 # Clone and setup

@@ -433,7 +433,6 @@ autoUpdater.on('download-progress', (progress) => {
 });
 
 autoUpdater.on('update-downloaded', (info) => {
-  console.log('Update downloaded:', info.version);
   if (mainWindow) {
     mainWindow.webContents.send('update-downloaded', {
       version: info.version

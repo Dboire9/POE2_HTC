@@ -11,7 +11,7 @@ import SimulationProgress from './features/simulation/SimulationProgress';
 import ResultsDisplay from './features/simulation/ResultsDisplay';
 
 // Import version from package.json
-const version = '0.5.8';
+const version = '0.5.9';
 
 // T018, T019: Integrate ItemsProvider and ItemSelector into App.tsx
 // T035, T036, T037: Integrate ModifiersProvider, ModifierSelector, and Toaster

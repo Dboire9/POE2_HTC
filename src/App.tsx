@@ -10,6 +10,9 @@ import SimulationTrigger from './features/simulation/SimulationTrigger';
 import SimulationProgress from './features/simulation/SimulationProgress';
 import ResultsDisplay from './features/simulation/ResultsDisplay';
 
+// Import version from package.json
+const version = '0.5.6';
+
 // T018, T019: Integrate ItemsProvider and ItemSelector into App.tsx
 // T035, T036, T037: Integrate ModifiersProvider, ModifierSelector, and Toaster
 // T053, T054: Integrate SimulationProvider and simulation components
@@ -44,7 +47,7 @@ export default function App() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/30 hover:border-primary/50 transition-all"
                 >
-                  <span className="text-[10px] font-mono font-semibold leading-none">v0.2-dev</span>
+                  <span className="text-[10px] font-mono font-semibold leading-none">v{version}</span>
                   <span className="opacity-30 leading-none">|</span>
                   <span className="text-[10px] leading-none">⭐ Star & Contribute</span>
                 </a>

@@ -100,7 +100,7 @@ public class Modifiers_essences {
 				ModifierType.PREFIX,
 				ModifierSource.PERFECT_ESSENCE,
 				"MovementVelocity",
-				"#% increased Movement Speed");
+				"#% increased Movement Speed (Essence of Hysteria)");
 
 
 

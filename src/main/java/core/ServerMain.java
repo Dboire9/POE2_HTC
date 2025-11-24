@@ -17,6 +17,7 @@ import core.Currency.Desecrated_currency;
 import core.Currency.Essence_currency;
 import core.Items.Item_base;
 import core.Modifier_class.Modifier;
+import core.Modifier_class.ModifierTier;
 import core.DebugLogger;
 import core.DebugLogger.DebugLevel;
 
@@ -272,7 +273,7 @@ public class ServerMain {
                 }
                 List<Modifier> allSuffixes = new ArrayList<>(suffixMap.values());
                 
-                // Build JSON response with source field
+                // Build JSON response with source field and tier details
                 StringBuilder sb = new StringBuilder();
                 sb.append("{\"prefixes\":[");
                 for (int i = 0; i < allPrefixes.size(); i++) {
@@ -282,6 +283,26 @@ public class ServerMain {
                       .append("\"id\":\"").append(escapeJson(mod.family)).append("\",")
                       .append("\"name\":\"").append(escapeJson(mod.text)).append("\",")
                       .append("\"tiers\":").append(mod.tiers.size()).append(",")
+                      .append("\"tierDetails\":[");
+                    for (int j = 0; j < mod.tiers.size(); j++) {
+                        ModifierTier tier = mod.tiers.get(j);
+                        sb.append("{")
+                          .append("\"name\":\"").append(escapeJson(tier.name)).append("\",")
+                          .append("\"level\":").append(tier.level).append(",")
+                          .append("\"minMax1\":{\"min\":").append(tier.minMax1.first()).append(",\"max\":").append(tier.minMax1.second()).append("}");
+                        if (tier.minMax2 != null) {
+                            sb.append(",\"minMax2\":{\"min\":").append(tier.minMax2.first()).append(",\"max\":").append(tier.minMax2.second()).append("}");
+                        }
+                        if (tier.minMax3 != null) {
+                            sb.append(",\"minMax3\":{\"min\":").append(tier.minMax3.first()).append(",\"max\":").append(tier.minMax3.second()).append("}");
+                        }
+                        if (tier.minMax4 != null) {
+                            sb.append(",\"minMax4\":{\"min\":").append(tier.minMax4.first()).append(",\"max\":").append(tier.minMax4.second()).append("}");
+                        }
+                        sb.append("}");
+                        if (j < mod.tiers.size() - 1) sb.append(',');
+                    }
+                    sb.append("],")
                       .append("\"source\":\"").append(sourceStr).append("\"")
                       .append("}");
                     if (i < allPrefixes.size() - 1) sb.append(',');
@@ -294,6 +315,26 @@ public class ServerMain {
                       .append("\"id\":\"").append(escapeJson(mod.family)).append("\",")
                       .append("\"name\":\"").append(escapeJson(mod.text)).append("\",")
                       .append("\"tiers\":").append(mod.tiers.size()).append(",")
+                      .append("\"tierDetails\":[");
+                    for (int j = 0; j < mod.tiers.size(); j++) {
+                        ModifierTier tier = mod.tiers.get(j);
+                        sb.append("{")
+                          .append("\"name\":\"").append(escapeJson(tier.name)).append("\",")
+                          .append("\"level\":").append(tier.level).append(",")
+                          .append("\"minMax1\":{\"min\":").append(tier.minMax1.first()).append(",\"max\":").append(tier.minMax1.second()).append("}");
+                        if (tier.minMax2 != null) {
+                            sb.append(",\"minMax2\":{\"min\":").append(tier.minMax2.first()).append(",\"max\":").append(tier.minMax2.second()).append("}");
+                        }
+                        if (tier.minMax3 != null) {
+                            sb.append(",\"minMax3\":{\"min\":").append(tier.minMax3.first()).append(",\"max\":").append(tier.minMax3.second()).append("}");
+                        }
+                        if (tier.minMax4 != null) {
+                            sb.append(",\"minMax4\":{\"min\":").append(tier.minMax4.first()).append(",\"max\":").append(tier.minMax4.second()).append("}");
+                        }
+                        sb.append("}");
+                        if (j < mod.tiers.size() - 1) sb.append(',');
+                    }
+                    sb.append("],")
                       .append("\"source\":\"").append(sourceStr).append("\"")
                       .append("}");
                     if (i < allSuffixes.size() - 1) sb.append(',');

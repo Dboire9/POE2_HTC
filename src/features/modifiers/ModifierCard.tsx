@@ -91,7 +91,7 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
               )}
             </div>
           </div>
-          {availableTiers > 1 && (
+          {availableTiers > 1 && modifier.tierDetails && (
             <select
               value={tier}
               onChange={(e) => {
@@ -102,10 +102,36 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
               className="text-xs px-2 py-1 rounded border border-border bg-background hover:bg-muted cursor-pointer"
               disabled={disabled}
             >
-              {Array.from({ length: availableTiers }, (_, i) => i + 1).map(t => (
-                <option key={t} value={t}>Tier {t}</option>
-              ))}
+              {modifier.tierDetails.slice().reverse().map((tierInfo, idx) => {
+                // Reverse the tier numbering: best tier (last in array) = T1
+                const tierNum = idx + 1;
+                const actualIndex = modifier.tierDetails!.length - idx - 1;
+                const values = [];
+                if (tierInfo.minMax1) values.push(`${tierInfo.minMax1.min}-${tierInfo.minMax1.max}`);
+                if (tierInfo.minMax2) values.push(`${tierInfo.minMax2.min}-${tierInfo.minMax2.max}`);
+                if (tierInfo.minMax3) values.push(`${tierInfo.minMax3.min}-${tierInfo.minMax3.max}`);
+                if (tierInfo.minMax4) values.push(`${tierInfo.minMax4.min}-${tierInfo.minMax4.max}`);
+                const valueStr = values.join('/');
+                return (
+                  <option key={tierNum} value={tierNum}>
+                    T{tierNum}: {valueStr}
+                  </option>
+                );
+              })}
             </select>
+          )}
+          {availableTiers === 1 && modifier.tierDetails && modifier.tierDetails[0] && (
+            <div className="text-xs px-2 py-1 rounded border border-border bg-muted font-medium">
+              {(() => {
+                const tierInfo = modifier.tierDetails[0];
+                const values = [];
+                if (tierInfo.minMax1) values.push(`${tierInfo.minMax1.min}-${tierInfo.minMax1.max}`);
+                if (tierInfo.minMax2) values.push(`${tierInfo.minMax2.min}-${tierInfo.minMax2.max}`);
+                if (tierInfo.minMax3) values.push(`${tierInfo.minMax3.min}-${tierInfo.minMax3.max}`);
+                if (tierInfo.minMax4) values.push(`${tierInfo.minMax4.min}-${tierInfo.minMax4.max}`);
+                return values.join('/');
+              })()}
+            </div>
           )}
         </div>
         

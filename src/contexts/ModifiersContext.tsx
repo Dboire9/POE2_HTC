@@ -66,6 +66,7 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           type,
           tier: defaultTier,
           availableTiers: mod.tiers || 1,  // Total tiers available
+          tierDetails: mod.tierDetails || [],  // Tier details with values
           statRanges: mod.statRanges || [],
           tags: mod.tags || [],
           source: mod.source
@@ -88,8 +89,11 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return unique;
       };
 
-      setPrefixes(deduplicateModifiers(response.prefixes || [], 'prefix'));
-      setSuffixes(deduplicateModifiers(response.suffixes || [], 'suffix'));
+      const transformedPrefixes = deduplicateModifiers(response.prefixes || [], 'prefix');
+      const transformedSuffixes = deduplicateModifiers(response.suffixes || [], 'suffix');
+      
+      setPrefixes(transformedPrefixes);
+      setSuffixes(transformedSuffixes);
       setExclusionRules(response.exclusions || []);
       
       // Clear selections when loading new modifiers

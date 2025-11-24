@@ -89,7 +89,7 @@ I built this project while (still) actively searching for an internship, both to
 If you appreciate my work or think my skills could be useful to your team, I'm currently looking for an internship or freelance opportunities — it's a required step for completing my diploma at 42.  
 Feel free to reach out!
 
-If you want to know more about me & the project, see[About me & the Project](docs/ABOUT.md)
+If you want to know more about me & the project, see [About me & the Project](docs/ABOUT.md)
 
 
 ## 📖 How Does It Work?

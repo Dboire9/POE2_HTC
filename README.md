@@ -19,10 +19,11 @@
 ![Stars](https://img.shields.io/github/stars/Dboire9/POE2_HTC?style=social)
 ![Issues](https://img.shields.io/github/issues/Dboire9/POE2_HTC)
 ![Last Commit](https://img.shields.io/github/last-commit/Dboire9/POE2_HTC)
+![Auto-Update](https://img.shields.io/badge/Auto--Update-Enabled-success?logo=electronbuilder)
 
 </div>
 
-A powerful web application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
+A powerful desktop application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
 
 ![Application Screenshot](screenshots/main-interface.png)
 

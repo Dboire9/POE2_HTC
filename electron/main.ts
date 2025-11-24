@@ -19,22 +19,33 @@ console.log('Running in mode:', isDev ? 'DEVELOPMENT' : 'PRODUCTION');
 console.log('App path:', app.getAppPath());
 console.log('__dirname:', __dirname);
 
+// Helper to log to both main and renderer console
+function logToRenderer(level: string, ...args: any[]) {
+  const message = args.join(' ');
+  console.log(`[${level}]`, ...args);
+  if (mainWindow?.webContents) {
+    mainWindow.webContents.executeJavaScript(
+      `console.${level.toLowerCase()}('${message.replace(/'/g, "\\'")}')`
+    ).catch(() => {});
+  }
+}
+
 // Configure auto-updater
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 
 // Enable detailed logging
 autoUpdater.logger = {
-  info: (msg) => console.log('[AutoUpdater INFO]', msg),
-  warn: (msg) => console.warn('[AutoUpdater WARN]', msg),
-  error: (msg) => console.error('[AutoUpdater ERROR]', msg),
-  debug: (msg) => console.log('[AutoUpdater DEBUG]', msg)
+  info: (msg) => logToRenderer('info', '[AutoUpdater INFO]', msg),
+  warn: (msg) => logToRenderer('warn', '[AutoUpdater WARN]', msg),
+  error: (msg) => logToRenderer('error', '[AutoUpdater ERROR]', msg),
+  debug: (msg) => logToRenderer('log', '[AutoUpdater DEBUG]', msg)
 };
 
-console.log('[AutoUpdater] Current version:', app.getVersion());
-console.log('[AutoUpdater] Feed URL will be:', `https://github.com/Dboire9/POE2_HTC/releases`);
-console.log('[AutoUpdater] Platform:', process.platform);
-console.log('[AutoUpdater] Arch:', process.arch);
+logToRenderer('log', '[AutoUpdater] Current version:', app.getVersion());
+logToRenderer('log', '[AutoUpdater] Feed URL will be:', `https://github.com/Dboire9/POE2_HTC/releases`);
+logToRenderer('log', '[AutoUpdater] Platform:', process.platform);
+logToRenderer('log', '[AutoUpdater] Arch:', process.arch);
 
 function waitForServer(url: string, timeout = 30000): Promise<void> {
   const startTime = Date.now();
@@ -219,13 +230,13 @@ app.whenReady().then(async () => {
 
     // Check for updates (only in production)
     if (!isDev) {
-      console.log('[AutoUpdater] Scheduling update check in 3 seconds...');
+      logToRenderer('log', '[AutoUpdater] Scheduling update check in 3 seconds...');
       setTimeout(() => {
-        console.log('[AutoUpdater] Timeout triggered, starting update check...');
+        logToRenderer('log', '[AutoUpdater] Timeout triggered, starting update check...');
         checkForUpdates();
       }, 3000); // Wait 3 seconds after app starts
     } else {
-      console.log('[AutoUpdater] Skipping update check (development mode)');
+      logToRenderer('log', '[AutoUpdater] Skipping update check (development mode)');
     }
 
     app.on('activate', () => {
@@ -241,18 +252,18 @@ app.whenReady().then(async () => {
 
 // Auto-updater event handlers
 autoUpdater.on('checking-for-update', () => {
-  console.log('[AutoUpdater] ===== Checking for updates... =====');
-  console.log('[AutoUpdater] Current version:', app.getVersion());
-  console.log('[AutoUpdater] Update check started at:', new Date().toISOString());
+  logToRenderer('log', '[AutoUpdater] ===== Checking for updates... =====');
+  logToRenderer('log', '[AutoUpdater] Current version:', app.getVersion());
+  logToRenderer('log', '[AutoUpdater] Update check started at:', new Date().toISOString());
 });
 
 autoUpdater.on('update-available', (info) => {
-  console.log('[AutoUpdater] ===== UPDATE AVAILABLE! =====');
-  console.log('[AutoUpdater] New version:', info.version);
-  console.log('[AutoUpdater] Current version:', app.getVersion());
-  console.log('[AutoUpdater] Release date:', info.releaseDate);
-  console.log('[AutoUpdater] Release notes:', info.releaseNotes);
-  console.log('[AutoUpdater] Files:', info.files);
+  logToRenderer('log', '[AutoUpdater] ===== UPDATE AVAILABLE! =====');
+  logToRenderer('log', '[AutoUpdater] New version:', info.version);
+  logToRenderer('log', '[AutoUpdater] Current version:', app.getVersion());
+  logToRenderer('log', '[AutoUpdater] Release date:', info.releaseDate);
+  logToRenderer('log', '[AutoUpdater] Release notes:', info.releaseNotes);
+  logToRenderer('log', '[AutoUpdater] Files:', JSON.stringify(info.files));
   if (mainWindow) {
     mainWindow.webContents.send('update-available', {
       version: info.version,
@@ -263,10 +274,10 @@ autoUpdater.on('update-available', (info) => {
 });
 
 autoUpdater.on('update-not-available', (info) => {
-  console.log('[AutoUpdater] ===== App is up to date =====');
-  console.log('[AutoUpdater] Current version:', app.getVersion());
-  console.log('[AutoUpdater] Latest version:', info?.version || 'unknown');
-  console.log('[AutoUpdater] Check completed at:', new Date().toISOString());
+  logToRenderer('log', '[AutoUpdater] ===== App is up to date =====');
+  logToRenderer('log', '[AutoUpdater] Current version:', app.getVersion());
+  logToRenderer('log', '[AutoUpdater] Latest version:', info?.version || 'unknown');
+  logToRenderer('log', '[AutoUpdater] Check completed at:', new Date().toISOString());
 });
 
 autoUpdater.on('download-progress', (progress) => {
@@ -289,10 +300,10 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 autoUpdater.on('error', (error) => {
-  console.error('[AutoUpdater] ===== ERROR =====');
-  console.error('[AutoUpdater] Error message:', error.message);
-  console.error('[AutoUpdater] Error stack:', error.stack);
-  console.error('[AutoUpdater] Error details:', error);
+  logToRenderer('error', '[AutoUpdater] ===== ERROR =====');
+  logToRenderer('error', '[AutoUpdater] Error message:', error.message);
+  logToRenderer('error', '[AutoUpdater] Error stack:', error.stack);
+  logToRenderer('error', '[AutoUpdater] Error details:', JSON.stringify(error));
 });
 
 // IPC handlers for updates
@@ -322,28 +333,28 @@ ipcMain.handle('get-app-version', () => {
 });
 
 async function checkForUpdates() {
-  console.log('[AutoUpdater] ===== checkForUpdates() called =====');
-  console.log('[AutoUpdater] isDev:', isDev);
-  console.log('[AutoUpdater] app.isPackaged:', app.isPackaged);
+  logToRenderer('log', '[AutoUpdater] ===== checkForUpdates() called =====');
+  logToRenderer('log', '[AutoUpdater] isDev:', isDev);
+  logToRenderer('log', '[AutoUpdater] app.isPackaged:', app.isPackaged);
   
   if (isDev) {
-    console.log('[AutoUpdater] Skipping update check in development mode');
+    logToRenderer('log', '[AutoUpdater] Skipping update check in development mode');
     return { available: false, message: 'Development mode' };
   }
   
   try {
-    console.log('[AutoUpdater] Calling autoUpdater.checkForUpdates()...');
+    logToRenderer('log', '[AutoUpdater] Calling autoUpdater.checkForUpdates()...');
     const result = await autoUpdater.checkForUpdates();
-    console.log('[AutoUpdater] Check result:', result);
+    logToRenderer('log', '[AutoUpdater] Check result:', JSON.stringify(result));
     return {
       available: result !== null,
       currentVersion: app.getVersion(),
       updateInfo: result?.updateInfo
     };
   } catch (error) {
-    console.error('[AutoUpdater] Error checking for updates:', error);
-    console.error('[AutoUpdater] Error type:', typeof error);
-    console.error('[AutoUpdater] Error details:', JSON.stringify(error, null, 2));
+    logToRenderer('error', '[AutoUpdater] Error checking for updates:', error);
+    logToRenderer('error', '[AutoUpdater] Error type:', typeof error);
+    logToRenderer('error', '[AutoUpdater] Error details:', JSON.stringify(error, null, 2));
     return { available: false, error: String(error) };
   }
 }

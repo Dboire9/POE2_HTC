@@ -80,13 +80,15 @@ npm install --legacy-peer-deps
 npm run electron:dev
 ```
 
+### If you need some help or want to join the community, join us on [Discord](https://discord.gg/RvxCWyFF3D).
+
 ---
 
 ## 👤 About Me & the Project
 
 Hi! I'm **Dorian**, a third-year computer science student at **42 Paris**.
 
-I built this project while actively searching for an internship, both to strengthen my skills and to add a meaningful, technical project to my portfolio. As someone passionate about both gaming and software development, combining Path of Exile 2's complex crafting system with algorithm optimization was the perfect challenge.
+I built this project while (still) actively searching for an internship, both to strengthen my skills and to add a meaningful, technical project to my portfolio. As someone passionate about both gaming and software development, combining Path of Exile 2's complex crafting system with algorithm optimization was the perfect challenge.
 
 **Why this project?**
 - 🎓 Demonstrates full-stack development skills (Java, React, TypeScript, Electron)

@@ -33,6 +33,8 @@ function logToRenderer(level: string, ...args: any[]) {
 // Configure auto-updater
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.allowDowngrade = false;
+autoUpdater.disableDifferentialDownload = true; // Disable differential updates to avoid checksum issues
 
 // Enable detailed logging
 autoUpdater.logger = {

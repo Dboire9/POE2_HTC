@@ -39,8 +39,15 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
+    - name: Build Java
+      if: matrix.language == 'java'
+      run: mvn clean compile -DskipTests --batch-mode --no-transfer-progress
+
+    - name: Build JavaScript
+      if: matrix.language == 'javascript'
+      run: |
+        npm install
+        npm run build
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3

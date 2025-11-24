@@ -52,7 +52,7 @@ public class Body_Armours_str extends Item_base {
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS);
         Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_PHYSICAL_THORNS_DAMAGE);
-        Essences_allowedPrefixes.add(Modifiers_essences.ESSENCE_RANDOM_NOTABLE_PASSIVE);
+        
         
         
         Essences_allowedSuffixes = new ArrayList<>();

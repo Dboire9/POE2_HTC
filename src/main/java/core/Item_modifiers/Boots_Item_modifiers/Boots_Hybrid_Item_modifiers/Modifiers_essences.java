@@ -140,14 +140,14 @@ public class Modifiers_essences {
 			"#% increased Evasion and Energy Shield");
 
 		ESSENCE_INCREASED_MOVEMENT_SPEED = new Modifier(
-				"increased_movement_speed",
+				"essence_increased_movement_speed",
 				List.of("speed"),
 				List.of(
 						new ModifierTier("Essence of Hysteria", 65, 1, new Pair<>(30, 30)) // Fixed 30% increase
 				),
 				ModifierType.PREFIX,
 				ModifierSource.PERFECT_ESSENCE,
-				"IncreasedMovementSpeed",
+				"MovementVelocity",
 				"#% increased Movement Speed");
 
 

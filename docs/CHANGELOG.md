@@ -7,15 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-01-15
+
 ### Added
+- Comprehensive documentation suite:
+  - USER_GUIDE.md - Complete step-by-step usage instructions
+  - DEVELOPMENT.md - Full development setup and contribution guide
+  - ALGORITHM.md - In-depth explanation of Beam Search implementation
+  - ABOUT.md - Project story, motivation, and developer background
+  - CODE_OF_CONDUCT.md - Community guidelines
+  - SECURITY.md - Security policy and reporting
+- Report Bug button in header with GitHub Issues link
+- Discord community link for support
+- External link support in Electron with WSL fallback
 - Tier value display in modifier selection dropdown
 - Direct value display for single-tier modifiers
 - Support for perfect essence modifiers (Hysteria, Horror)
+
+### Changed
+- Restructured README with summary+detailed-docs pattern
+- Condensed README sections with links to comprehensive docs
+- Improved "About Me & the Project" section
+- Enhanced installation instructions with code signing notice
 
 ### Fixed
 - Tier ordering to match PoE convention (T1 = best)
 - Modifier selection logic for essence vs normal variants with same display text
 - React key uniqueness warnings in modifier lists
+- External URL opening in Electron on WSL environments
+- Java code quality warnings (unused imports, variables)
+- TypeScript compilation errors in SimulationContext and Sentry
+
+### Documentation
+- Complete algorithm deep-dive with examples and complexity analysis
+- Step-by-step user guide with screenshots and troubleshooting
+- Comprehensive development guide for contributors
+- Personal story and project philosophy
 
 ## [0.5.9] - 2024-11-24
 

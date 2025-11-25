@@ -7,6 +7,7 @@ import { autoUpdater } from 'electron-updater';
 
 let mainWindow: BrowserWindow | null = null;
 let backendProcess: ChildProcess | null = null;
+let isQuitting = false;
 
 // Use NODE_ENV for detection - set by electron:dev script
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
@@ -244,7 +245,9 @@ function startBackend(): Promise<void> {
       clearTimeout(startTimeout);
       const exitMsg = `Backend process exited with code ${code}, signal ${signal}`;
       writeLog(exitMsg);
-      if (code !== 0) {
+      
+      // Don't show error if we're intentionally quitting
+      if (!isQuitting && code !== 0 && code !== null) {
         showErrorDialog(
           'Backend Process Exited',
           `Backend stopped unexpectedly:\nExit code: ${code}\nSignal: ${signal}\n\nLog file: ${LOG_FILE}`
@@ -551,10 +554,25 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
-  // Kill backend process when app quits
-  if (backendProcess) {
-    writeLog('Stopping backend...');
-    backendProcess.kill();
+  isQuitting = true;
+  
+  // Gracefully stop backend process when app quits
+  if (backendProcess && !backendProcess.killed) {
+    writeLog('Stopping backend gracefully...');
+    try {
+      // Try graceful shutdown first (SIGTERM)
+      backendProcess.kill('SIGTERM');
+      
+      // Force kill after 2 seconds if still running
+      setTimeout(() => {
+        if (backendProcess && !backendProcess.killed) {
+          writeLog('Forcing backend shutdown...');
+          backendProcess.kill('SIGKILL');
+        }
+      }, 2000);
+    } catch (error) {
+      writeLog(`Error stopping backend: ${error}`);
+    }
   }
   
   writeLog('========== App Quit ==========');

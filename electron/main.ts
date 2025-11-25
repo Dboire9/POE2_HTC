@@ -61,7 +61,7 @@ function logToRenderer(level: string, ...args: any[]) {
   writeLog(`[${level}] ${message}`);
   if (mainWindow?.webContents) {
     mainWindow.webContents.executeJavaScript(
-      `console.${level.toLowerCase()}('${message.replace(/'/g, "\\'")}')`
+      `console.${level.toLowerCase()}('${escapeJsString(message)}')`
     ).catch(() => {});
   }
 }

@@ -81,7 +81,7 @@ npm install --legacy-peer-deps
 npm run electron:dev
 ```
 
-### If you need some help or want to join the community, join us on [Discord](https://discord.gg/RvxCWyFF3D).
+## If you need some help or want to join the community, join us on [Discord](https://discord.gg/RvxCWyFF3D).
 
 ---
 
@@ -170,16 +170,6 @@ We welcome contributions! Here's how you can help:
 
 See [API_EXAMPLES.md](docs/API_EXAMPLES.md) for detailed API usage and examples.
 
-## 🔄 Auto-Update System
-
-The desktop application includes automatic update notifications:
-- Checks for updates automatically on launch
-- Download updates in the background
-- Install with a single click
-- No need to manually download new versions
-
-See [AUTO_UPDATE.md](docs/AUTO_UPDATE.md) for technical details.
-
 ## 🐛 Known Issues
 
 - Some rare edge cases with essence combinations may not be fully optimized
@@ -188,11 +178,18 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for a complete
 
 ## 🗺️ Roadmap
 
+### Completed
 - [x] Desktop application with Electron
 - [x] Auto-update system
 - [x] Multi-platform support (Windows, Linux)
+
+### Short-Term (Next Release)
+- [ ] Omen of Greater Exaltation support
+- [ ] Belt item type support
 - [ ] Add crafting cost estimation
 - [ ] Crafting simulator with step-by-step execution
+
+### Long-Term
 - [ ] Integration with trade API for cost optimization
 
 ## 📄 License
@@ -204,6 +201,7 @@ This project is licensed under the GNU Affero General Public License v3.0 (AGPL-
 - Grinding Gear Games for creating Path of Exile 2
 - The PoE community and POE2db for modifier data and crafting knowledge
 - [@traylorre](https://github.com/traylorre) and [@fZpHr](https://github.com/fZpHr) for the help and advices.
+- [farmer](https://www.twitch.tv/xthefarmerx) for giving me this idea through his streams and his discord.
 
 ## 📞 Contact
 

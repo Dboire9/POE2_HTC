@@ -182,12 +182,16 @@ export interface SimulationState {
   loading: boolean;                   // Simulation in progress
   progress: number | null;            // Progress percentage (if available)
   error: string | null;               // Error message
+  excludedCurrencies: string[];       // List of currency IDs to exclude
+  minTier: number;                    // Minimum tier to simulate (1-10, where 10 = all tiers)
 }
 
 export interface SimulationActions {
   startSimulation: (request: SimulationRequest) => Promise<void>;
   cancelSimulation: () => void;
   clearResults: () => void;
+  setExcludedCurrencies: (currencies: string[]) => void;
+  setMinTier: (tier: number) => void;
 }
 
 // ============================================================================

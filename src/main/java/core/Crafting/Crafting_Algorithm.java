@@ -32,71 +32,68 @@ import core.Modifier_class.Modifier.ModifierType;
 public class Crafting_Algorithm {
 
 	/**
-     * Optimizes the crafting process for a given base item and desired/undesired modifiers.
-     *
-     * @param baseItem        The base item to be crafted.
-     * @param desiredMods     A list of desired modifiers to aim for.
-     * @param undesiredMods   A list of undesired modifiers to avoid.
-     * @param GLOBAL_THRESHOLD The global threshold for crafting optimization.
-     * @return A list of optimized crafting candidates.
-     * @throws InterruptedException If the thread execution is interrupted.
-     * @throws ExecutionException   If an error occurs during thread execution.
-     */
+	 * Optimizes the crafting process for a given base item and desired/undesired
+	 * modifiers.
+	 *
+	 * @param baseItem         The base item to be crafted.
+	 * @param desiredMods      A list of desired modifiers to aim for.
+	 * @param undesiredMods    A list of undesired modifiers to avoid.
+	 * @param GLOBAL_THRESHOLD The global threshold for crafting optimization.
+	 * @return A list of optimized crafting candidates.
+	 * @throws InterruptedException If the thread execution is interrupted.
+	 * @throws ExecutionException   If an error occurs during thread execution.
+	 */
 	public static List<Crafting_Candidate> optimizeCrafting(
-        Crafting_Item baseItem,
-        List<Modifier> desiredMods,
-        List<Modifier> undesiredMods,
-        double GLOBAL_THRESHOLD) throws InterruptedException, ExecutionException
-		{
-			// Initialize thread pool
-			int threads = Runtime.getRuntime().availableProcessors();
-			ExecutorService executor = Executors.newFixedThreadPool(threads);
+			Crafting_Item baseItem,
+			List<Modifier> desiredMods,
+			List<Modifier> undesiredMods,
+			double GLOBAL_THRESHOLD,
+			boolean AnnulmentAllowed) throws InterruptedException, ExecutionException {
+		// Initialize thread pool
+		int threads = Runtime.getRuntime().availableProcessors();
+		ExecutorService executor = Executors.newFixedThreadPool(threads);
 
-			// Precompute desired tag counts
-			Map<String, Integer> tagCount = Heuristic_Util.CreateCountModifierTags(desiredMods);
+		// Precompute desired tag counts
+		Map<String, Integer> tagCount = Heuristic_Util.CreateCountModifierTags(desiredMods);
 
-			
-			List<Crafting_Candidate> transmuteCandidates = new ArrayList<>();
-			// Base candidate lists
-			List<Crafting_Candidate> augmentCandidates = new ArrayList<>();
-			List<Crafting_Candidate> baseCopies = new ArrayList<>();
-			List<List<Crafting_Candidate>> allCandidateLists = new ArrayList<>();
-			
-			
-			//Base item has existing modifiers
-			if(baseItem.getAllCurrentModifiers().size() == 0 && baseItem.rarity != Crafting_Item.ItemRarity.RARE)
-			{
-				// Step 1: Transmutation
-				TransmutationOrb transmute = new TransmutationOrb();
-				transmuteCandidates = transmute.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
-				allCandidateLists.add(new ArrayList<>(transmuteCandidates));
-				copyCandidates(transmuteCandidates, baseCopies);
+		List<Crafting_Candidate> transmuteCandidates = new ArrayList<>();
+		// Base candidate lists
+		List<Crafting_Candidate> augmentCandidates = new ArrayList<>();
+		List<Crafting_Candidate> baseCopies = new ArrayList<>();
+		List<List<Crafting_Candidate>> allCandidateLists = new ArrayList<>();
 
-				// Step 2: Augmentation
-				AugmentationOrb augment = new AugmentationOrb();
-				transmuteCandidates = augment.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
-				allCandidateLists.add(new ArrayList<>(transmuteCandidates));
-				copyCandidates(transmuteCandidates, augmentCandidates);
-	
-				// Step 3: Apply regal and essence to base candidates
-				generateCandidateLists(baseItem, baseCopies, desiredMods, tagCount, allCandidateLists, undesiredMods);
-				copyCandidates(transmuteCandidates, baseCopies);
-				generateCandidateLists(baseItem, augmentCandidates, desiredMods, tagCount, allCandidateLists, undesiredMods);
-	
-				// Skip first two lists (transmute and augment)
-				if (allCandidateLists.size() > 2)
-					allCandidateLists.subList(0, 2).clear();
-			}
-		else
-		{
+		// Base item has existing modifiers
+		if (baseItem.getAllCurrentModifiers().size() == 0 && baseItem.rarity != Crafting_Item.ItemRarity.RARE) {
+			// Step 1: Transmutation
+			TransmutationOrb transmute = new TransmutationOrb();
+			transmuteCandidates = transmute.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
+			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
+			copyCandidates(transmuteCandidates, baseCopies);
+
+			// Step 2: Augmentation
+			AugmentationOrb augment = new AugmentationOrb();
+			transmuteCandidates = augment.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
+			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
+			copyCandidates(transmuteCandidates, augmentCandidates);
+
+			// Step 3: Apply regal and essence to base candidates
+			generateCandidateLists(baseItem, baseCopies, desiredMods, tagCount, allCandidateLists, undesiredMods);
+			copyCandidates(transmuteCandidates, baseCopies);
+			generateCandidateLists(baseItem, augmentCandidates, desiredMods, tagCount, allCandidateLists,
+					undesiredMods);
+
+			// Skip first two lists (transmute and augment)
+			if (allCandidateLists.size() > 2)
+				allCandidateLists.subList(0, 2).clear();
+		} else {
 			// Item already has existing modifiers (from user selection)
 			// Initialize with a single candidate representing the current item state
 			System.out.println("Item has existing modifiers - creating initial candidate");
-			
+
 			// Calculate initial score: only count existing mods that are ALSO desired mods
 			double initialScore = 0;
 			List<Modifier> currentMods = baseItem.getAllCurrentModifiers();
-			
+
 			// Use the same scoring logic as the heuristic function
 			for (Modifier currentMod : currentMods) {
 				for (Modifier desiredMod : desiredMods) {
@@ -107,32 +104,32 @@ public class Crafting_Algorithm {
 					}
 				}
 			}
-			
+
 			// Create initial candidate with a dummy action (just for initialization)
 			ExaltedOrb dummyAction = new ExaltedOrb();
 			Crafting_Candidate initialCandidate = new Crafting_Candidate(baseItem, initialScore, dummyAction);
-			
+
 			// Clear the dummy action from the candidate's actions list
 			initialCandidate.actions.clear();
-			
+
 			// Add to candidate lists so the algorithm can start processing
 			transmuteCandidates.add(initialCandidate);
 			allCandidateLists.add(new ArrayList<>(Arrays.asList(initialCandidate)));
-			
+
 			System.out.println("Initial candidate created with score: " + initialScore);
 			System.out.println("Current modifiers on item: " + currentMods.size());
 			System.out.println("Matching desired mods: " + (initialScore / 1000));
-		}			// Step 4: Iterative refinement loop
-			List<List<Crafting_Candidate>> current = deepCopy(allCandidateLists);
-			List<List<Crafting_Candidate>> next = new ArrayList<>();
+		} // Step 4: Iterative refinement loop
+		List<List<Crafting_Candidate>> current = deepCopy(allCandidateLists);
+		List<List<Crafting_Candidate>> next = new ArrayList<>();
 
-			// Perform two initial passes
-			for (int i = 0; i < 2; i++) {
-				processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
-						allCandidateLists, next, executor);
-				current = deepCopy(next);
-				next.clear();
-			}
+		// Perform two initial passes
+		for (int i = 0; i < 2; i++) {
+			processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
+					allCandidateLists, next, executor, AnnulmentAllowed);
+			current = deepCopy(next);
+			next.clear();
+		}
 
 		// Continue processing until we do not find anymore candidates
 		int iterationCount = 0;
@@ -140,7 +137,7 @@ public class Crafting_Algorithm {
 		while (!current.isEmpty() && iterationCount < maxIterations) {
 			iterationCount++;
 			processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
-					allCandidateLists, next, executor);
+					allCandidateLists, next, executor, AnnulmentAllowed);
 			current = deepCopy(next);
 			next.clear();
 		}
@@ -152,88 +149,85 @@ public class Crafting_Algorithm {
 		// Final filtering
 		List<Crafting_Candidate> finalCandidates = extractHighScoreCandidates(allCandidateLists, desiredMods);
 		return finalCandidates;
-}
-
-    /**
-     * Optimizes the crafting process for items that already have existing modifiers.
-     * 
-     * @param baseItem                    The base item with existing modifiers already applied.
-     * @param desiredMods                 A list of desired modifiers to add to the item.
-     * @param undesiredMods               A list of undesired modifiers to avoid.
-     * @param GLOBAL_THRESHOLD            The global threshold for crafting optimization.
-     * @param userSpecifiedExistingMods   The modifiers the user said they have on the item (from frontend).
-     * @return A list of optimized crafting candidates.
-     * @throws InterruptedException If the thread execution is interrupted.
-     * @throws ExecutionException   If an error occurs during thread execution.
-     */
-	public static List<Crafting_Candidate> optimizeCraftingWithExistingMods(
-        Crafting_Item baseItem,
-        List<Modifier> desiredMods,
-        List<Modifier> undesiredMods,
-        double GLOBAL_THRESHOLD,
-        List<Modifier> userSpecifiedExistingMods) throws InterruptedException, ExecutionException
-		{
-			// Separate user-specified mods by type
-			int i = 0, j = 0;
-			for (Modifier mod : userSpecifiedExistingMods) {
-				if (mod.type == ModifierType.PREFIX) {
-					baseItem.currentPrefixes[i] = mod;
-					i++;
-					System.out.println("  - [USER SPECIFIED PREFIX] " + mod.text + " (" + mod.type + ", Tier " + (mod.chosenTier + 1) + ")");
-				} else {
-					baseItem.currentSuffixes[j] = mod;
-					j++;
-					System.out.println("  - [USER SPECIFIED SUFFIX] " + mod.text + " (" + mod.type + ", Tier " + (mod.chosenTier + 1) + ")");
-				}
-			}
-			
-			Crafting_Item.ItemRarity currentRarity = baseItem.rarity;
-			
-			// Calculate available slots based on user-specified mods
-			int availablePrefixSlots = 3 - i;
-			int availableSuffixSlots = 3 - j;
-			
-			System.out.println("★★★ ALGORITHM: Processing item with existing mods ★★★");
-			System.out.println("Rarity: " + currentRarity);
-			System.out.println("User specified " + userSpecifiedExistingMods.size() + " existing mods:");
-			System.out.println("Available prefix slots: " + availablePrefixSlots);
-			System.out.println("Available suffix slots: " + availableSuffixSlots);
-			System.out.println("Target mods to add:");
-			for (Modifier mod : desiredMods) {
-				System.out.println("  - [TARGET] " + mod.text + " (Tier " + (mod.chosenTier + 1) + ")");
-			}
-			for(Modifier mod : userSpecifiedExistingMods) {
-				desiredMods.add(mod);
-			}
-			
-			// TODO: Implement your adapted algorithm logic here
-			// Strategy suggestions:
-			// 1. If slots are available: Use augment/exalt to add desired mods
-			// 2. If slots are full: Consider annulment to remove unwanted mods
-			// 3. Skip transmutation (item already has mods)
-			// 4. Consider if item needs to be rare (use regal if MAGIC and need 3+ mods)
-			// 5. Check if desired mods conflict with existing mod types
-			
-			// For now, fall back to standard algorithm
-			// Replace this with your custom logic
-			return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD);
 	}
 
-    /**
-     * Processes candidate lists to refine crafting results.
-     *
-     * @param baseItem        The base item being crafted.
-     * @param currentLists    The current lists of crafting candidates.
-     * @param desiredMods     The desired modifiers.
-     * @param undesiredMods   The undesired modifiers.
-     * @param tagCount        The precomputed tag counts for desired modifiers.
-     * @param globalThreshold The global threshold for crafting optimization.
-     * @param masterList      The master list of all candidates.
-     * @param nextLists       The next iteration of candidate lists.
-     * @param executor        The thread pool executor.
-     * @throws InterruptedException If the thread execution is interrupted.
-     * @throws ExecutionException   If an error occurs during thread execution.
-     */
+	/**
+	 * Optimizes the crafting process for items that already have existing
+	 * modifiers.
+	 * 
+	 * @param baseItem                  The base item with existing modifiers
+	 *                                  already applied.
+	 * @param desiredMods               A list of desired modifiers to add to the
+	 *                                  item.
+	 * @param undesiredMods             A list of undesired modifiers to avoid.
+	 * @param GLOBAL_THRESHOLD          The global threshold for crafting
+	 *                                  optimization.
+	 * @param userSpecifiedExistingMods The modifiers the user said they have on the
+	 *                                  item (from frontend).
+	 * @return A list of optimized crafting candidates.
+	 * @throws InterruptedException If the thread execution is interrupted.
+	 * @throws ExecutionException   If an error occurs during thread execution.
+	 */
+	public static List<Crafting_Candidate> optimizeCraftingWithExistingMods(
+			Crafting_Item baseItem,
+			List<Modifier> desiredMods,
+			List<Modifier> undesiredMods,
+			double GLOBAL_THRESHOLD,
+			List<Modifier> userSpecifiedExistingMods,
+			boolean AnnulmentAllowed) throws InterruptedException, ExecutionException {
+		// Separate user-specified mods by type
+		int i = 0, j = 0;
+		for (Modifier mod : userSpecifiedExistingMods) {
+			if (mod.type == ModifierType.PREFIX) {
+				baseItem.currentPrefixes[i] = mod;
+				i++;
+				System.out.println("  - [USER SPECIFIED PREFIX] " + mod.text + " (" + mod.type + ", Tier "
+						+ (mod.chosenTier + 1) + ")");
+			} else {
+				baseItem.currentSuffixes[j] = mod;
+				j++;
+				System.out.println("  - [USER SPECIFIED SUFFIX] " + mod.text + " (" + mod.type + ", Tier "
+						+ (mod.chosenTier + 1) + ")");
+			}
+		}
+
+		Crafting_Item.ItemRarity currentRarity = baseItem.rarity;
+
+		// Calculate available slots based on user-specified mods
+		int availablePrefixSlots = 3 - i;
+		int availableSuffixSlots = 3 - j;
+
+		System.out.println("★★★ ALGORITHM: Processing item with existing mods ★★★");
+		System.out.println("Rarity: " + currentRarity);
+		System.out.println("User specified " + userSpecifiedExistingMods.size() + " existing mods:");
+		System.out.println("Available prefix slots: " + availablePrefixSlots);
+		System.out.println("Available suffix slots: " + availableSuffixSlots);
+		System.out.println("Target mods to add:");
+		for (Modifier mod : desiredMods) {
+			System.out.println("  - [TARGET] " + mod.text + " (Tier " + (mod.chosenTier + 1) + ")");
+		}
+		for (Modifier mod : userSpecifiedExistingMods) {
+			desiredMods.add(mod);
+		}
+
+		return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD, AnnulmentAllowed);
+	}
+
+	/**
+	 * Processes candidate lists to refine crafting results.
+	 *
+	 * @param baseItem        The base item being crafted.
+	 * @param currentLists    The current lists of crafting candidates.
+	 * @param desiredMods     The desired modifiers.
+	 * @param undesiredMods   The undesired modifiers.
+	 * @param tagCount        The precomputed tag counts for desired modifiers.
+	 * @param globalThreshold The global threshold for crafting optimization.
+	 * @param masterList      The master list of all candidates.
+	 * @param nextLists       The next iteration of candidate lists.
+	 * @param executor        The thread pool executor.
+	 * @throws InterruptedException If the thread execution is interrupted.
+	 * @throws ExecutionException   If an error occurs during thread execution.
+	 */
 	private static void processCandidateLists(
 			Crafting_Item baseItem,
 			List<List<Crafting_Candidate>> currentLists,
@@ -243,29 +237,31 @@ public class Crafting_Algorithm {
 			double globalThreshold,
 			List<List<Crafting_Candidate>> masterList,
 			List<List<Crafting_Candidate>> nextLists,
-			ExecutorService executor) throws InterruptedException, ExecutionException {
-	
+			ExecutorService executor,
+			boolean AnnulmentAllowed) throws InterruptedException, ExecutionException {
+
 		for (List<Crafting_Candidate> candidates : currentLists) {
-			if (candidates.isEmpty()) continue;
-	
+			if (candidates.isEmpty())
+				continue;
+
 			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, globalThreshold);
-			RareLoop(baseItem, candidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor);
+			RareLoop(baseItem, candidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor,
+					AnnulmentAllowed);
 		}
 	}
-	
 
 	/**
-     * Extracts high-score crafting candidates from all candidate lists.
-     *
-     * @param allCandidateLists The list of all crafting candidates.
-     * @param desiredMods       The desired modifiers.
-     * @return A list of high-score crafting candidates.
-     */
+	 * Extracts high-score crafting candidates from all candidate lists.
+	 *
+	 * @param allCandidateLists The list of all crafting candidates.
+	 * @param desiredMods       The desired modifiers.
+	 * @return A list of high-score crafting candidates.
+	 */
 	private static List<Crafting_Candidate> extractHighScoreCandidates(
 			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods) {
-	
+
 		List<Crafting_Candidate> result = new ArrayList<>();
-	
+
 		for (List<Crafting_Candidate> list : allCandidateLists) {
 			for (Crafting_Candidate candidate : list) {
 				candidate.desecrated = false;
@@ -288,27 +284,29 @@ public class Crafting_Algorithm {
 				}
 			}
 		}
-		
+
 		// Sort for deterministic ordering
 		result.sort((c1, c2) -> {
 			int scoreCompare = Double.compare(c2.score, c1.score);
-			if (scoreCompare != 0) return scoreCompare;
-			
+			if (scoreCompare != 0)
+				return scoreCompare;
+
 			// Secondary sort by history size for consistency
 			return Integer.compare(c1.modifierHistory.size(), c2.modifierHistory.size());
 		});
-		
+
 		return result;
 	}
-	
 
 	/**
-	 * Calculates the heuristic score for a crafting item based on desired and undesired modifiers.
+	 * Calculates the heuristic score for a crafting item based on desired and
+	 * undesired modifiers.
 	 *
-	 * @param item The crafting item being evaluated.
-	 * @param desiredMods A list of desired modifiers.
-	 * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
-	 * @param undesiredMods A list of undesired modifiers.
+	 * @param item                     The crafting item being evaluated.
+	 * @param desiredMods              A list of desired modifiers.
+	 * @param CountDesiredModifierTags A map of desired modifier tags and their
+	 *                                 counts.
+	 * @param undesiredMods            A list of undesired modifiers.
 	 * @return The heuristic score for the crafting item.
 	 */
 	public static double heuristic(Crafting_Item item, List<Modifier> desiredMods,
@@ -349,14 +347,16 @@ public class Crafting_Algorithm {
 	}
 
 	/**
-	 * Generates candidate lists for crafting by applying a RegalOrb to the base item.
+	 * Generates candidate lists for crafting by applying a RegalOrb to the base
+	 * item.
 	 *
-	 * @param baseItem The base crafting item.
-	 * @param FirstCandidateList The initial list of crafting candidates.
-	 * @param desiredMods A list of desired modifiers.
-	 * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
-	 * @param listOfCandidateLists A list to store generated candidate lists.
-	 * @param undesiredMods A list of undesired modifiers.
+	 * @param baseItem                 The base crafting item.
+	 * @param FirstCandidateList       The initial list of crafting candidates.
+	 * @param desiredMods              A list of desired modifiers.
+	 * @param CountDesiredModifierTags A map of desired modifier tags and their
+	 *                                 counts.
+	 * @param listOfCandidateLists     A list to store generated candidate lists.
+	 * @param undesiredMods            A list of undesired modifiers.
 	 */
 	private static void generateCandidateLists(
 			Crafting_Item baseItem,
@@ -376,18 +376,22 @@ public class Crafting_Algorithm {
 	}
 
 	/**
-	 * Executes a crafting loop for rare items, applying various crafting orbs concurrently.
+	 * Executes a crafting loop for rare items, applying various crafting orbs
+	 * concurrently.
 	 *
-	 * @param baseItem The base crafting item.
-	 * @param FirstCandidateList The initial list of crafting candidates.
-	 * @param desiredMods A list of desired modifiers.
-	 * @param undesiredMods A list of undesired modifiers.
-	 * @param CountDesiredModifierTags A map of desired modifier tags and their counts.
-	 * @param listOfCandidateLists A list to store generated candidate lists.
+	 * @param baseItem                   The base crafting item.
+	 * @param FirstCandidateList         The initial list of crafting candidates.
+	 * @param desiredMods                A list of desired modifiers.
+	 * @param undesiredMods              A list of undesired modifiers.
+	 * @param CountDesiredModifierTags   A map of desired modifier tags and their
+	 *                                   counts.
+	 * @param listOfCandidateLists       A list to store generated candidate lists.
 	 * @param listOfCandidateLists_exalt A list to store exalted candidate lists.
-	 * @param executor The executor service for running tasks concurrently.
-	 * @throws InterruptedException If the thread is interrupted while waiting for tasks to complete.
-	 * @throws ExecutionException If a task execution throws an exception.
+	 * @param executor                   The executor service for running tasks
+	 *                                   concurrently.
+	 * @throws InterruptedException If the thread is interrupted while waiting for
+	 *                              tasks to complete.
+	 * @throws ExecutionException   If a task execution throws an exception.
 	 */
 	private static void RareLoop(
 			Crafting_Item baseItem,
@@ -397,7 +401,8 @@ public class Crafting_Algorithm {
 			Map<String, Integer> CountDesiredModifierTags,
 			List<List<Crafting_Candidate>> listOfCandidateLists,
 			List<List<Crafting_Candidate>> listOfCandidateLists_exalt,
-			ExecutorService executor) throws InterruptedException, ExecutionException {
+			ExecutorService executor,
+			boolean AnnulmentAllowed) throws InterruptedException, ExecutionException {
 		// Task 1: Apply an Exalted Orb if the first candidate has less than 6 modifiers
 		Callable<List<Crafting_Candidate>> task1 = () -> {
 			if (!FirstCandidateList.isEmpty() && FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6) {
@@ -407,7 +412,8 @@ public class Crafting_Algorithm {
 			return new ArrayList<>();
 		};
 
-		// Task 2: Apply Desecrated Currency if the first candidate is not desecrated and has less than 6 modifiers
+		// Task 2: Apply Desecrated Currency if the first candidate is not desecrated
+		// and has less than 6 modifiers
 		Callable<List<Crafting_Candidate>> task2 = () -> {
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).desecrated
 					&& FirstCandidateList.get(0).getAllCurrentModifiers().size() < 6) {
@@ -418,10 +424,12 @@ public class Crafting_Algorithm {
 			return new ArrayList<>();
 		};
 
-		// Task 3: Apply an Annulment Orb if the last two modifier events meet specific conditions (The last two actions were ADDED)
+		// Task 3: Apply an Annulment Orb if the last two modifier events meet specific
+		// conditions (The last two actions were ADDED)
 		Callable<List<Crafting_Candidate>> task3 = () -> {
-		// We need to REDO this section it is so ugly
-			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty()) {
+			// We need to REDO this section it is so ugly
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty()
+					&& AnnulmentAllowed) {
 				int historySize = FirstCandidateList.get(0).modifierHistory.size();
 				// Need at least 2 events in history to check last two
 				if (historySize >= 2) {
@@ -429,7 +437,8 @@ public class Crafting_Algorithm {
 							.get(historySize - 1);
 					ModifierEvent lastlastEvent = FirstCandidateList.get(0).modifierHistory
 							.get(historySize - 2);
-					if (lastEvent.type != ActionType.REMOVED && !FirstCandidateList.get(0).stopAnnul && isExaltorRegalorDes(lastEvent, lastlastEvent) ) {
+					if (lastEvent.type != ActionType.REMOVED && !FirstCandidateList.get(0).stopAnnul
+							&& isExaltorRegalorDes(lastEvent, lastlastEvent)) {
 						AnnulmentOrb annul = new AnnulmentOrb();
 						return annul.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
 								undesiredMods);
@@ -441,9 +450,10 @@ public class Crafting_Algorithm {
 
 		// Task 4: Apply Essence Currency
 		Callable<List<Crafting_Candidate>> task4 = () -> {
-			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty())
-			{
-				// ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty()) {
+				// ModifierEvent lastEvent =
+				// FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size()
+				// - 1);
 				Essence_currency essence_currency = new Essence_currency();
 				return essence_currency.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
 						undesiredMods);
@@ -485,15 +495,17 @@ public class Crafting_Algorithm {
 	}
 
 	/**
-	 * Checks if the last two modifier events were applied by specific crafting orbs (Regal, Exalted, or Desecrated).
-	 * This ensures that an Annulment Orb is not applied immediately after an Exalted Orb, Regal Orb, or Desecrated Currency.
+	 * Checks if the last two modifier events were applied by specific crafting orbs
+	 * (Regal, Exalted, or Desecrated).
+	 * This ensures that an Annulment Orb is not applied immediately after an
+	 * Exalted Orb, Regal Orb, or Desecrated Currency.
 	 *
-	 * @param lastEvent The most recent modifier event.
+	 * @param lastEvent     The most recent modifier event.
 	 * @param lastlastEvent The second most recent modifier event.
-	 * @return true if both events were applied by RegalOrb, ExaltedOrb, or Desecrated_currency; false otherwise.
+	 * @return true if both events were applied by RegalOrb, ExaltedOrb, or
+	 *         Desecrated_currency; false otherwise.
 	 */
-	private static boolean isExaltorRegalorDes(ModifierEvent lastEvent, ModifierEvent lastlastEvent)
-	{
+	private static boolean isExaltorRegalorDes(ModifierEvent lastEvent, ModifierEvent lastlastEvent) {
 
 		// TO REDO
 		if (lastEvent == null || lastEvent.source == null || lastlastEvent == null || lastlastEvent.source == null)
@@ -503,34 +515,42 @@ public class Crafting_Algorithm {
 		if (lastEvent.type == ModifierEvent.ActionType.REMOVED)
 			return false;
 
-		
-		// Check if the last two were homog or regals, else it can annul an exalt that was just applied
-		if (lastEvent.source instanceof RegalOrb || lastEvent.source instanceof ExaltedOrb || lastEvent.source instanceof Desecrated_currency)
-			if (lastlastEvent.source instanceof RegalOrb || lastlastEvent.source instanceof ExaltedOrb || lastlastEvent.source instanceof Desecrated_currency)
+		// Check if the last two were homog or regals, else it can annul an exalt that
+		// was just applied
+		if (lastEvent.source instanceof RegalOrb || lastEvent.source instanceof ExaltedOrb
+				|| lastEvent.source instanceof Desecrated_currency)
+			if (lastlastEvent.source instanceof RegalOrb || lastlastEvent.source instanceof ExaltedOrb
+					|| lastlastEvent.source instanceof Desecrated_currency)
 				return true;
 
 		return false;
 	}
 
 	/**
-	 * Copies a list of crafting candidates from the source list to the destination list.
-	 * Each candidate is deep-copied to ensure no shared references between the two lists.
+	 * Copies a list of crafting candidates from the source list to the destination
+	 * list.
+	 * Each candidate is deep-copied to ensure no shared references between the two
+	 * lists.
 	 *
-	 * @param source The source list of crafting candidates.
-	 * @param destination The destination list where the copied candidates will be added.
+	 * @param source      The source list of crafting candidates.
+	 * @param destination The destination list where the copied candidates will be
+	 *                    added.
 	 */
 	private static void copyCandidates(List<Crafting_Candidate> source, List<Crafting_Candidate> destination) {
 		for (Crafting_Candidate candidate : source) {
 			destination.add(candidate.copy());
 		}
 	}
-	
+
 	/**
 	 * Creates a deep copy of a list of lists of crafting candidates.
-	 * Each inner list and its elements are copied to ensure no shared references with the original structure.
+	 * Each inner list and its elements are copied to ensure no shared references
+	 * with the original structure.
 	 *
-	 * @param original The original list of lists of crafting candidates to be copied.
-	 * @return A new list of lists containing deep copies of the original crafting candidates.
+	 * @param original The original list of lists of crafting candidates to be
+	 *                 copied.
+	 * @return A new list of lists containing deep copies of the original crafting
+	 *         candidates.
 	 */
 	private static List<List<Crafting_Candidate>> deepCopy(List<List<Crafting_Candidate>> original) {
 		List<List<Crafting_Candidate>> copy = new ArrayList<>();

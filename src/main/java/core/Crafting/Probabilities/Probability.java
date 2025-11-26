@@ -1,6 +1,7 @@
 package core.Crafting.Probabilities;
 
 import java.util.List;
+import java.util.Map;
 
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Candidate;
@@ -22,16 +23,17 @@ import core.Modifier_class.Modifier.ModifierType;
  */
 public class Probability {
 
-    /**
-     * Computes the probabilities for crafting actions based on the given
-     * crafting candidates, desired modifiers, and the base item.
-     *
-     * @param completedPaths a list of crafting candidates representing completed crafting paths
-     * @param desiredMod a list of desired modifiers to be achieved
-     * @param baseItem the base crafting item being modified
-     */
+	/**
+	 * Computes the probabilities for crafting actions based on the given
+	 * crafting candidates, desired modifiers, and the base item.
+	 *
+	 * @param completedPaths a list of crafting candidates representing completed
+	 *                       crafting paths
+	 * @param desiredMod     a list of desired modifiers to be achieved
+	 * @param baseItem       the base crafting item being modified
+	 */
 	public static void ComputingProbability(List<Crafting_Candidate> completedPaths, List<Modifier> desiredMod,
-			Crafting_Item baseItem) {
+			Crafting_Item baseItem, List<Map<String, String>> excludedCurrencies) {
 		for (Crafting_Candidate candidate : completedPaths) {
 			// We implement i to get the event in all our candidates, so that we can replace
 			// it easier
@@ -46,7 +48,8 @@ public class Probability {
 				// Not doing aug for now, want to see a 100% prob if it is possible
 				if (action instanceof RegalOrb || action instanceof ExaltedOrb)
 					ExaltAndRegalProbability.ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
-				else if (action instanceof AnnulmentOrb)
+				else if (action instanceof AnnulmentOrb
+						&& excludedCurrencies.stream().noneMatch(map -> "AnnulmentOrb".equals(map.get("currency"))))
 					AnnulProbability.ComputeAnnul(candidate, desiredMod, baseItem, i);
 				else if (action instanceof Essence_currency)
 					EssenceProbability.ComputeEssence(candidate, desiredMod, baseItem, i);
@@ -62,45 +65,45 @@ public class Probability {
 	 * Calculates the current number of prefixes and suffixes filled
 	 * based on the modifier history up to index 'limitIndex'.
 	 *
-	 * @param candidate the crafting candidate containing the modifier history
-	 * @param limitIndex exclusive upper bound in the history (usually the current i)
+	 * @param candidate  the crafting candidate containing the modifier history
+	 * @param limitIndex exclusive upper bound in the history (usually the current
+	 *                   i)
 	 * @return an int array where [0] = prefixesFilled, [1] = suffixesFilled
 	 */
 	public static double[] countAffixesFilled(Crafting_Candidate candidate, int limitIndex) {
 		double prefixesFilled = 0;
 		double suffixesFilled = 0;
 
-        for (int j = 0; j < limitIndex; j++) {
-            if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
-                    && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
-                prefixesFilled--;
-            else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
-                    && candidate.modifierHistory.get(j).type == ActionType.REMOVED)
-                suffixesFilled--;
-            // Handle CHANGED events where a modifier is replaced by another
-            else if (candidate.modifierHistory.get(j).type == ActionType.CHANGED) {
-                ModifierType oldType = candidate.modifierHistory.get(j).changed_modifier.type;
-                ModifierType newType = candidate.modifierHistory.get(j).modifier.type;
-                
-                // If replacing prefix with suffix
-                if (oldType == ModifierType.PREFIX && newType == ModifierType.SUFFIX) {
-                    prefixesFilled--;
-                    suffixesFilled++;
-                }
-                // If replacing suffix with prefix
-                else if (oldType == ModifierType.SUFFIX && newType == ModifierType.PREFIX) {
-                    suffixesFilled--;
-                    prefixesFilled++;
-                }
-                // If replacing same type (prefix→prefix or suffix→suffix), count stays the same
-                // No adjustment needed
-            }
-            else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX)
-                prefixesFilled++;
-            else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX)
-                suffixesFilled++;
-        }
+		for (int j = 0; j < limitIndex; j++) {
+			if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+				prefixesFilled--;
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX
+					&& candidate.modifierHistory.get(j).type == ActionType.REMOVED)
+				suffixesFilled--;
+			// Handle CHANGED events where a modifier is replaced by another
+			else if (candidate.modifierHistory.get(j).type == ActionType.CHANGED) {
+				ModifierType oldType = candidate.modifierHistory.get(j).changed_modifier.type;
+				ModifierType newType = candidate.modifierHistory.get(j).modifier.type;
 
-		return new double[]{prefixesFilled, suffixesFilled};
+				// If replacing prefix with suffix
+				if (oldType == ModifierType.PREFIX && newType == ModifierType.SUFFIX) {
+					prefixesFilled--;
+					suffixesFilled++;
+				}
+				// If replacing suffix with prefix
+				else if (oldType == ModifierType.SUFFIX && newType == ModifierType.PREFIX) {
+					suffixesFilled--;
+					prefixesFilled++;
+				}
+				// If replacing same type (prefix→prefix or suffix→suffix), count stays the same
+				// No adjustment needed
+			} else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.PREFIX)
+				prefixesFilled++;
+			else if (candidate.modifierHistory.get(j).modifier.type == ModifierType.SUFFIX)
+				suffixesFilled++;
+		}
+
+		return new double[] { prefixesFilled, suffixesFilled };
 	}
 }

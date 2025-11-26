@@ -47,7 +47,7 @@ const SubcategorySelector: React.FC<SubcategorySelectorProps> = ({ category, onS
           <ChevronLeft className="h-4 w-4" />
           Back
         </Button>
-        <h3 className="text-base font-semibold">Select {category.name} Type</h3>
+        <h3 className="text-base font-semibold">Select {category.name.split('\n')[0]} Type</h3>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -58,7 +58,7 @@ const SubcategorySelector: React.FC<SubcategorySelectorProps> = ({ category, onS
             onClick={() => onSelect(subcat.id)}
           >
             <div className="text-center">
-              <p className="font-medium">{subcat.name}</p>
+              <p className="font-medium">{subcat.name.split('\n')[0]}</p>
             </div>
           </Card>
         ))}

@@ -19,7 +19,7 @@ const SimulationSummary: React.FC = () => {
       <h2 className="text-base font-bold mb-3">Ready to Simulate</h2>
       <div className="text-sm text-muted-foreground space-y-1">
         {selectedItem && (
-          <div>✓ Item: <span className="font-medium text-foreground">{selectedItem.name}</span></div>
+          <div>✓ Item: <span className="font-medium text-foreground">{selectedItem.name.split('\n')[0]}</span></div>
         )}
         {existingModifiers.length > 0 && (
           <div>⚡ Starting with: <span className="font-medium text-orange-500">{existingModifiers.length} existing mod{existingModifiers.length !== 1 ? 's' : ''}</span></div>

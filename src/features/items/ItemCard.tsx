@@ -27,12 +27,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, selected, onClick }) => {
             className="h-16 w-16 object-contain"
           />
         )}
-        <h3 className="text-sm font-medium text-center">{item.name}</h3>
-        {item.type && (
-          <span className="text-xs text-muted-foreground capitalize">
-            {item.type.replace(/_/g, ' ')}
-          </span>
-        )}
+        <h3 className="text-sm font-medium text-center">{item.name.split('\n')[0]}</h3>
       </div>
     </Card>
   );

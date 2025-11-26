@@ -15,6 +15,8 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [excludedCurrencies, setExcludedCurrencies] = useState<string[]>([]);
+  const [minTier, setMinTier] = useState<number>(10); // Default: allow all tiers
 
   // T039: AbortController for cancellation support
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -57,10 +59,17 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       try {
         let response;
         
-        // Add global_threshold to request (33% like TestAlgo)
+        // Parse excluded currencies to separate currency and tier
+        const parsedExclusions = excludedCurrencies.map(exclusion => {
+          const [currency, tier] = exclusion.split(':');
+          return tier ? { currency, tier } : { currency };
+        });
+        
+        // Add global_threshold and excluded currencies to request
         const requestWithThreshold = {
           ...request,
           global_threshold: 0.33, // 33% threshold
+          excludedCurrencies: parsedExclusions.length > 0 ? parsedExclusions : undefined,
           _timestamp: Date.now(), // Cache buster
         };
         
@@ -196,10 +205,14 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     loading,
     progress,
     error,
+    excludedCurrencies,
+    minTier,
     // Actions
     startSimulation,
     cancelSimulation,
     clearResults,
+    setExcludedCurrencies,
+    setMinTier,
   };
 
   return <SimulationContext.Provider value={value}>{children}</SimulationContext.Provider>;

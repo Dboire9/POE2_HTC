@@ -9,6 +9,8 @@ import ModifierSelector from './features/modifiers/ModifierSelector';
 import SimulationTrigger from './features/simulation/SimulationTrigger';
 import SimulationProgress from './features/simulation/SimulationProgress';
 import ResultsDisplay from './features/simulation/ResultsDisplay';
+import CurrencyExclusionPanel from './features/simulation/CurrencyExclusionPanel';
+import { useSimulation } from './contexts/SimulationContext';
 
 // Import version from package.json
 const version = '0.5.9';
@@ -34,81 +36,101 @@ const openExternalLink = (url: string) => {
 // T018, T019: Integrate ItemsProvider and ItemSelector into App.tsx
 // T035, T036, T037: Integrate ModifiersProvider, ModifierSelector, and Toaster
 // T053, T054: Integrate SimulationProvider and simulation components
+
+// Inner component that has access to simulation context
+const AppContent: React.FC = () => {
+  const { excludedCurrencies, setExcludedCurrencies, minTier, setMinTier } = useSimulation();
+
+  return (
+    <div className="min-h-screen text-foreground bg-background">
+      <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
+        <div className="container flex items-center justify-between gap-4 py-4">
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">POE2HTC</h1>
+              <p className="text-sm text-muted-foreground">Path of Exile 2 Item Crafting Pathfinder</p>
+            </div>
+          </div>
+          
+          <div className="hidden md:flex flex-col items-end gap-2 text-xs text-muted-foreground">
+            <button
+              onClick={() => openExternalLink('https://github.com/Dboire9')}
+              className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer bg-transparent border-none"
+            >
+              <span className="text-[10px] uppercase tracking-wider opacity-70">Created by</span>
+              <span className="font-medium">Dboire</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => openExternalLink('https://discord.gg/RvxCWyFF3D')}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 hover:border-indigo-500/50 transition-all cursor-pointer"
+                title="Join our Discord community"
+              >
+                <span className="text-[10px] leading-none">💬 Join Discord</span>
+              </button>
+              <button
+                onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC/issues/new')}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 transition-all cursor-pointer"
+                title="Report a bug on GitHub"
+              >
+                <span className="text-[10px] leading-none">🐛 Report Bug</span>
+              </button>
+              <button
+                onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC')}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/30 hover:border-primary/50 transition-all cursor-pointer"
+              >
+                <span className="text-[10px] font-mono font-semibold leading-none">v{version}</span>
+                <span className="opacity-30 leading-none">|</span>
+                <span className="text-[10px] leading-none">⭐ Star & Contribute</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="container py-6">
+        <div className="grid grid-cols-1 gap-6">
+          {/* Phase 3: User Story 1 - Item Selection */}
+          <div className="space-y-6">
+            <ItemSelector />
+          </div>
+
+          {/* Phase 4: User Story 2 - Modifier Selection */}
+          <div className="space-y-6">
+            <ModifierSelector />
+          </div>
+
+          {/* Currency & Tier Settings */}
+          <div className="space-y-6">
+            <CurrencyExclusionPanel
+              excludedCurrencies={excludedCurrencies}
+              onExcludedCurrenciesChange={setExcludedCurrencies}
+              minTier={0}
+              onMinTierChange={() => {}}
+            />
+          </div>
+
+          {/* Phase 5: User Story 3 - Simulation */}
+          <div className="space-y-6">
+            <SimulationTrigger />
+            <SimulationProgress />
+            <ResultsDisplay />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
 export default function App() {
   return (
     <ItemsProvider>
       <ModifiersProvider>
         <SimulationProvider>
-          <div className="min-h-screen text-foreground bg-background">
-          <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
-            <div className="container flex items-center justify-between gap-4 py-4">
-              <div className="flex items-center gap-4">
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight">POE2HTC</h1>
-                  <p className="text-sm text-muted-foreground">Path of Exile 2 Item Crafting Pathfinder</p>
-                </div>
-              </div>
-              
-              <div className="hidden md:flex flex-col items-end gap-2 text-xs text-muted-foreground">
-                <button
-                  onClick={() => openExternalLink('https://github.com/Dboire9')}
-                  className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer bg-transparent border-none"
-                >
-                  <span className="text-[10px] uppercase tracking-wider opacity-70">Created by</span>
-                  <span className="font-medium">Dboire</span>
-                </button>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => openExternalLink('https://discord.gg/RvxCWyFF3D')}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 hover:border-indigo-500/50 transition-all cursor-pointer"
-                    title="Join our Discord community"
-                  >
-                    <span className="text-[10px] leading-none">💬 Join Discord</span>
-                  </button>
-                  <button
-                    onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC/issues/new')}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 transition-all cursor-pointer"
-                    title="Report a bug on GitHub"
-                  >
-                    <span className="text-[10px] leading-none">🐛 Report Bug</span>
-                  </button>
-                  <button
-                    onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC')}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/30 hover:border-primary/50 transition-all cursor-pointer"
-                  >
-                    <span className="text-[10px] font-mono font-semibold leading-none">v{version}</span>
-                    <span className="opacity-30 leading-none">|</span>
-                    <span className="text-[10px] leading-none">⭐ Star & Contribute</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </header>
-
-          <main className="container py-6">
-            <div className="grid grid-cols-1 gap-6">
-              {/* Phase 3: User Story 1 - Item Selection */}
-              <div className="space-y-6">
-                <ItemSelector />
-              </div>
-
-              {/* Phase 4: User Story 2 - Modifier Selection */}
-              <div className="space-y-6">
-                <ModifierSelector />
-              </div>
-
-              {/* Phase 5: User Story 3 - Simulation */}
-              <div className="space-y-6">
-                <SimulationTrigger />
-                <SimulationProgress />
-                <ResultsDisplay />
-              </div>
-            </div>
-          </main>
-        </div>
-        <Toaster />
-        <UpdateNotification />
-      </SimulationProvider>
+          <AppContent />
+          <Toaster />
+          <UpdateNotification />
+        </SimulationProvider>
       </ModifiersProvider>
     </ItemsProvider>
   );

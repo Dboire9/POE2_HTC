@@ -19,7 +19,6 @@ interface CurrencyExclusionPanelProps {
 
 const AVAILABLE_CURRENCIES = [
   { id: 'exalted', name: 'Exalted Orb', hasTiers: true, tierType: 'orb' },
-  { id: 'desecrated', name: 'Desecrated Currency', hasTiers: true, tierType: 'desecrated' },
   { id: 'annulment', name: 'Orb of Annulment', hasTiers: false },
 ];
 
@@ -27,12 +26,6 @@ const ORB_TIER_OPTIONS = [
   { value: 'base', label: 'Base' },
   { value: 'greater', label: 'Greater' },
   { value: 'perfect', label: 'Perfect' },
-];
-
-const DESECRATED_TIER_OPTIONS = [
-  { value: 'gnawed', label: 'Gnawed' },
-  { value: 'preserved', label: 'Preserved' },
-  { value: 'ancient', label: 'Ancient' },
 ];
 
 const CurrencyExclusionPanel: React.FC<CurrencyExclusionPanelProps> = ({
@@ -43,17 +36,10 @@ const CurrencyExclusionPanel: React.FC<CurrencyExclusionPanelProps> = ({
   const [selectedCurrency, setSelectedCurrency] = useState<string>('');
   const [selectedTier, setSelectedTier] = useState<string>('base');
 
-  console.log('CurrencyExclusionPanel rendered with excludedCurrencies:', excludedCurrencies);
-
-  // Reset tier to appropriate default when currency changes
+  // Reset tier to base when currency changes
   useEffect(() => {
     if (selectedCurrency) {
-      const currency = AVAILABLE_CURRENCIES.find(c => c.id === selectedCurrency);
-      if (currency?.hasTiers) {
-        // Set default tier based on currency type
-        const defaultTier = currency.tierType === 'desecrated' ? 'gnawed' : 'base';
-        setSelectedTier(defaultTier);
-      }
+      setSelectedTier('base');
     }
   }, [selectedCurrency]);
 
@@ -68,13 +54,8 @@ const CurrencyExclusionPanel: React.FC<CurrencyExclusionPanelProps> = ({
       ? `${selectedCurrency}:${selectedTier}`
       : selectedCurrency;
 
-    console.log('Adding exclusion:', exclusionId);
-    console.log('Current excludedCurrencies:', excludedCurrencies);
-
     if (!excludedCurrencies.includes(exclusionId)) {
-      const newExclusions = [...excludedCurrencies, exclusionId];
-      console.log('New excludedCurrencies:', newExclusions);
-      onExcludedCurrenciesChange(newExclusions);
+      onExcludedCurrenciesChange([...excludedCurrencies, exclusionId]);
     }
 
     // Reset selection
@@ -92,8 +73,7 @@ const CurrencyExclusionPanel: React.FC<CurrencyExclusionPanelProps> = ({
     if (!currency) return exclusionId;
 
     if (tier) {
-      const tierOptions = currency.tierType === 'desecrated' ? DESECRATED_TIER_OPTIONS : ORB_TIER_OPTIONS;
-      const tierLabel = tierOptions.find(t => t.value === tier)?.label || tier;
+      const tierLabel = ORB_TIER_OPTIONS.find(t => t.value === tier)?.label || tier;
       return `${currency.name} (${tierLabel})`;
     }
     return currency.name;
@@ -146,24 +126,20 @@ const CurrencyExclusionPanel: React.FC<CurrencyExclusionPanelProps> = ({
               </Select>
 
               {/* Tier Selection (only for currencies with tiers) */}
-              {selectedCurrency && AVAILABLE_CURRENCIES.find(c => c.id === selectedCurrency)?.hasTiers && (() => {
-                const currency = AVAILABLE_CURRENCIES.find(c => c.id === selectedCurrency);
-                const tierOptions = currency?.tierType === 'desecrated' ? DESECRATED_TIER_OPTIONS : ORB_TIER_OPTIONS;
-                return (
-                  <Select value={selectedTier} onValueChange={setSelectedTier}>
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tierOptions.map((tier) => (
-                        <SelectItem key={tier.value} value={tier.value}>
-                          {tier.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                );
-              })()}
+              {selectedCurrency && AVAILABLE_CURRENCIES.find(c => c.id === selectedCurrency)?.hasTiers && (
+                <Select value={selectedTier} onValueChange={setSelectedTier}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ORB_TIER_OPTIONS.map((tier) => (
+                      <SelectItem key={tier.value} value={tier.value}>
+                        {tier.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
 
               {/* Add Button */}
               <Button

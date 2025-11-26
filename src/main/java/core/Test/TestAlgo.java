@@ -122,14 +122,14 @@ public class TestAlgo {
         try {
             long startTime = System.nanoTime();
             List<Probability_Analyzer.CandidateProbability> results =
-                    CraftingExecutor.runCrafting(item, desiredMods, undesiredMods, GLOBALTHRESHOLD / 100);
+                    CraftingExecutor.runCrafting(item, desiredMods, undesiredMods, GLOBALTHRESHOLD / 100, new ArrayList<>());
 
             // Retry until we get valid results or threshold reaches zero
             while (results.isEmpty() && GLOBALTHRESHOLD > 0) {
                 item.reset();
                 GLOBALTHRESHOLD--;
                 undesiredMods.clear();
-                results = CraftingExecutor.runCrafting(item, desiredMods, undesiredMods, GLOBALTHRESHOLD / 100);
+                results = CraftingExecutor.runCrafting(item, desiredMods, undesiredMods, GLOBALTHRESHOLD / 100, new ArrayList<>());
                 System.out.println("Threshold countdown: " + GLOBALTHRESHOLD);
             }
 

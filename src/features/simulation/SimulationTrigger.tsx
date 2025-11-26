@@ -8,10 +8,16 @@ import { Alert, AlertDescription } from '../../components/ui/alert';
 // T046: Button component that triggers simulation
 const SimulationTrigger: React.FC = () => {
   const { selectedItem } = useItems();
-  const { selectedPrefixes, selectedSuffixes } = useModifiers();
+  const { 
+    selectedPrefixes, 
+    selectedSuffixes, 
+    existingPrefixes, 
+    existingSuffixes 
+  } = useModifiers();
   const { loading, startSimulation } = useSimulation();
 
   const selectedModifiers = [...selectedPrefixes, ...selectedSuffixes];
+  const existingModifiers = [...existingPrefixes, ...existingSuffixes];
   
   // T050, T060: Validation - disable if no item or no modifiers selected
   const canSimulate = selectedItem && selectedModifiers.length > 0;
@@ -24,14 +30,24 @@ const SimulationTrigger: React.FC = () => {
       ? `${selectedItem.id}/${selectedItem.subcategory}`
       : selectedItem.id;
 
-    startSimulation({
+    const request: any = {
       itemId,
       modifiers: {
         // Convert 1-based UI tier to 0-based backend tier
         prefixes: selectedPrefixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
         suffixes: selectedSuffixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
       },
-    });
+    };
+
+    // Include existing mods if any are specified
+    if (existingModifiers.length > 0) {
+      request.existingModifiers = {
+        prefixes: existingPrefixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
+        suffixes: existingSuffixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
+      };
+    }
+
+    startSimulation(request);
   };
 
   return (
@@ -42,8 +58,11 @@ const SimulationTrigger: React.FC = () => {
           {selectedItem && (
             <div>✓ Item: <span className="font-medium">{selectedItem.name}</span></div>
           )}
+          {existingModifiers.length > 0 && (
+            <div>⚡ Starting with: <span className="font-medium text-orange-500">{existingModifiers.length} existing mod{existingModifiers.length !== 1 ? 's' : ''}</span></div>
+          )}
           {selectedModifiers.length > 0 && (
-            <div>✓ Modifiers: <span className="font-medium">{selectedModifiers.length} selected</span></div>
+            <div>🎯 Target: <span className="font-medium">{selectedModifiers.length} desired mod{selectedModifiers.length !== 1 ? 's' : ''}</span></div>
           )}
         </div>
       </div>

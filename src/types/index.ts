@@ -68,6 +68,7 @@ export interface Modifier {
   statRanges?: StatRange[];  // Optional - not always provided
   tags?: string[];           // Optional - not always provided
   source?: ModifierSource;   // Optional - not always provided
+  isExisting?: boolean;      // True if this mod already exists on the item
 }
 
 // ============================================================================
@@ -118,6 +119,10 @@ export interface SimulationRequest {
     prefixes: Array<{ id?: string; text?: string; tier?: number }>;
     suffixes: Array<{ id?: string; text?: string; tier?: number }>;
   };
+  existingModifiers?: {
+    prefixes: Array<{ id?: string; text?: string; tier?: number }>;
+    suffixes: Array<{ id?: string; text?: string; tier?: number }>;
+  };
   iterations?: number; // Optional, defaults to 100
 }
 
@@ -152,6 +157,8 @@ export interface ModifiersState {
   suffixes: Modifier[];           // Available suffixes for selected item
   selectedPrefixes: Modifier[];   // Selected prefixes (max 3)
   selectedSuffixes: Modifier[];   // Selected suffixes (max 3)
+  existingPrefixes: Modifier[];   // Existing prefixes on the item
+  existingSuffixes: Modifier[];   // Existing suffixes on the item
   exclusionRules: ModifierExclusion[]; // Incompatibility rules
   loading: boolean;
   error: string | null;
@@ -163,6 +170,9 @@ export interface ModifiersActions {
   deselectModifier: (modifierId: string) => void;
   isModifierDisabled: (modifierId: string) => boolean;
   clearSelections: () => void;
+  markAsExisting: (modifier: Modifier, tier?: number) => void;
+  unmarkAsExisting: (modifierId: string) => void;
+  clearExistingMods: () => void;
 }
 
 export interface SimulationState {

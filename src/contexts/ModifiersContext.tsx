@@ -15,6 +15,8 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [suffixes, setSuffixes] = useState<Modifier[]>([]);
   const [selectedPrefixes, setSelectedPrefixes] = useState<Modifier[]>([]);
   const [selectedSuffixes, setSelectedSuffixes] = useState<Modifier[]>([]);
+  const [existingPrefixes, setExistingPrefixes] = useState<Modifier[]>([]);
+  const [existingSuffixes, setExistingSuffixes] = useState<Modifier[]>([]);
   const [exclusionRules, setExclusionRules] = useState<ModifierExclusion[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +101,8 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // Clear selections when loading new modifiers
       setSelectedPrefixes([]);
       setSelectedSuffixes([]);
+      setExistingPrefixes([]);
+      setExistingSuffixes([]);
     } catch (err) {
       const errorCode = err instanceof Error ? err.message : ErrorCode.UNKNOWN;
       setError(getErrorMessage(errorCode));
@@ -289,10 +293,74 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return checkModifierDisabled(modifierId, allSelected, exclusionMap);
   }, [selectedPrefixes, selectedSuffixes, exclusionMap]);
 
-  // T026: Clear all selections
+  // Clear all selections
   const clearSelections = useCallback(() => {
     setSelectedPrefixes([]);
     setSelectedSuffixes([]);
+  }, []);
+
+  // Mark a modifier as existing on the item
+  const markAsExisting = useCallback((modifier: Modifier, tier?: number) => {
+    const isPrefix = modifier.type === 'prefix';
+    const modifierWithTier = { ...modifier, tier: tier !== undefined ? tier : modifier.tier, isExisting: true };
+    
+    if (isPrefix) {
+      setExistingPrefixes(current => {
+        // Check if already marked as existing
+        const existingIndex = current.findIndex(m => m.text === modifier.text);
+        if (existingIndex !== -1) {
+          // Update tier if already exists
+          const updated = [...current];
+          updated[existingIndex] = modifierWithTier;
+          return updated;
+        }
+        
+        // Check limit (max 3 prefixes)
+        if (current.length >= 3) {
+          toast.warning('Maximum 3 existing prefixes', {
+            description: 'Remove one to add another',
+            duration: 3000,
+          });
+          return current;
+        }
+        
+        return [...current, modifierWithTier];
+      });
+    } else {
+      setExistingSuffixes(current => {
+        // Check if already marked as existing
+        const existingIndex = current.findIndex(m => m.text === modifier.text);
+        if (existingIndex !== -1) {
+          // Update tier if already exists
+          const updated = [...current];
+          updated[existingIndex] = modifierWithTier;
+          return updated;
+        }
+        
+        // Check limit (max 3 suffixes)
+        if (current.length >= 3) {
+          toast.warning('Maximum 3 existing suffixes', {
+            description: 'Remove one to add another',
+            duration: 3000,
+          });
+          return current;
+        }
+        
+        return [...current, modifierWithTier];
+      });
+    }
+  }, []);
+
+  // Unmark a modifier as existing
+  const unmarkAsExisting = useCallback((modifierId: string) => {
+    setExistingPrefixes(current => current.filter(m => m.text !== modifierId));
+    setExistingSuffixes(current => current.filter(m => m.text !== modifierId));
+  }, []);
+
+  // Clear all existing mods
+  const clearExistingMods = useCallback(() => {
+    setExistingPrefixes([]);
+    setExistingSuffixes([]);
   }, []);
 
   const value: ModifiersContextType = {
@@ -301,6 +369,8 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     suffixes,
     selectedPrefixes,
     selectedSuffixes,
+    existingPrefixes,
+    existingSuffixes,
     exclusionRules,
     loading,
     error,
@@ -310,6 +380,9 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     deselectModifier,
     isModifierDisabled,
     clearSelections,
+    markAsExisting,
+    unmarkAsExisting,
+    clearExistingMods,
   };
 
   return <ModifiersContext.Provider value={value}>{children}</ModifiersContext.Provider>;

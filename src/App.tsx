@@ -8,6 +8,7 @@ import ItemSelector from './features/items/ItemSelector';
 import ModifierSelector from './features/modifiers/ModifierSelector';
 import SimulationTrigger from './features/simulation/SimulationTrigger';
 import SimulationProgress from './features/simulation/SimulationProgress';
+import SimulationSummary from './features/simulation/SimulationSummary';
 import ResultsDisplay from './features/simulation/ResultsDisplay';
 import CurrencyExclusionPanel from './features/simulation/CurrencyExclusionPanel';
 import { useSimulation } from './contexts/SimulationContext';
@@ -42,13 +43,13 @@ const AppContent: React.FC = () => {
   const { excludedCurrencies, setExcludedCurrencies, minTier, setMinTier } = useSimulation();
 
   return (
-    <div className="min-h-screen text-foreground bg-background">
+    <div className="text-foreground bg-background">
       <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
-        <div className="container flex items-center justify-between gap-4 py-4">
+        <div className="container flex items-center justify-between gap-4 py-3">
           <div className="flex items-center gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">POE2HTC</h1>
-              <p className="text-sm text-muted-foreground">Path of Exile 2 Item Crafting Pathfinder</p>
+              <h1 className="text-xl md:text-2xl font-bold tracking-tight">POE2HTC</h1>
+              <p className="text-xs text-muted-foreground">Path of Exile 2 Item Crafting Pathfinder</p>
             </div>
           </div>
           
@@ -88,20 +89,11 @@ const AppContent: React.FC = () => {
         </div>
       </header>
 
-      <main className="container py-6">
-        <div className="grid grid-cols-1 gap-6">
+      <main className="container py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Phase 3: User Story 1 - Item Selection */}
-          <div className="space-y-6">
+          <div className="lg:col-span-4 space-y-3">
             <ItemSelector />
-          </div>
-
-          {/* Phase 4: User Story 2 - Modifier Selection */}
-          <div className="space-y-6">
-            <ModifierSelector />
-          </div>
-
-          {/* Currency & Tier Settings */}
-          <div className="space-y-6">
             <CurrencyExclusionPanel
               excludedCurrencies={excludedCurrencies}
               onExcludedCurrenciesChange={setExcludedCurrencies}
@@ -110,10 +102,16 @@ const AppContent: React.FC = () => {
             />
           </div>
 
+          {/* Phase 4: User Story 2 - Modifier Selection */}
+          <div className="lg:col-span-8 space-y-3" data-section="modifiers">
+            <ModifierSelector />
+          </div>
+
           {/* Phase 5: User Story 3 - Simulation */}
-          <div className="space-y-6">
+          <div className="lg:col-span-8 lg:col-start-5 space-y-3">
             <SimulationTrigger />
             <SimulationProgress />
+            <SimulationSummary />
             <ResultsDisplay />
           </div>
         </div>

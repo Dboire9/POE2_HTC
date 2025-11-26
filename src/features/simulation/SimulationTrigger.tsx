@@ -54,22 +54,7 @@ const SimulationTrigger: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-6 border border-border rounded-lg bg-card">
-      <div className="space-y-2">
-        <h2 className="text-xl font-bold">Ready to Simulate</h2>
-        <div className="text-sm text-muted-foreground space-y-1">
-          {selectedItem && (
-            <div>✓ Item: <span className="font-medium">{selectedItem.name}</span></div>
-          )}
-          {existingModifiers.length > 0 && (
-            <div>⚡ Starting with: <span className="font-medium text-orange-500">{existingModifiers.length} existing mod{existingModifiers.length !== 1 ? 's' : ''}</span></div>
-          )}
-          {selectedModifiers.length > 0 && (
-            <div>🎯 Target: <span className="font-medium">{selectedModifiers.length} desired mod{selectedModifiers.length !== 1 ? 's' : ''}</span></div>
-          )}
-        </div>
-      </div>
-
+    <div className="flex flex-col gap-3 p-4 border border-border rounded-lg bg-card">
       <Button
         onClick={handleClick}
         disabled={!canSimulate || loading}

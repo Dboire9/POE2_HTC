@@ -40,7 +40,7 @@ export function CurrencySelector({ selectedItem, onCraft }: any) {
 
   return (
     <div className="space-y-4 border border-border rounded-lg p-4">
-      <Label className="text-lg font-semibold">Select Currency (1 or none)</Label>
+      <Label className="text-base font-semibold">Select Currency (1 or none)</Label>
       <div className="space-y-2">
         {CURRENCIES.map((currency) => (
           <button

@@ -59,6 +59,13 @@ export default function App() {
                 </button>
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={() => openExternalLink('https://discord.gg/RvxCWyFF3D')}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 hover:border-indigo-500/50 transition-all cursor-pointer"
+                    title="Join our Discord community"
+                  >
+                    <span className="text-[10px] leading-none">💬 Join Discord</span>
+                  </button>
+                  <button
                     onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC/issues/new')}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 transition-all cursor-pointer"
                     title="Report a bug on GitHub"

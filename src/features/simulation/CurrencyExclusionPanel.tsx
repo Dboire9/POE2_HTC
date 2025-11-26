@@ -43,6 +43,8 @@ const CurrencyExclusionPanel: React.FC<CurrencyExclusionPanelProps> = ({
   const [selectedCurrency, setSelectedCurrency] = useState<string>('');
   const [selectedTier, setSelectedTier] = useState<string>('base');
 
+  console.log('CurrencyExclusionPanel rendered with excludedCurrencies:', excludedCurrencies);
+
   // Reset tier to appropriate default when currency changes
   useEffect(() => {
     if (selectedCurrency) {
@@ -66,8 +68,13 @@ const CurrencyExclusionPanel: React.FC<CurrencyExclusionPanelProps> = ({
       ? `${selectedCurrency}:${selectedTier}`
       : selectedCurrency;
 
+    console.log('Adding exclusion:', exclusionId);
+    console.log('Current excludedCurrencies:', excludedCurrencies);
+
     if (!excludedCurrencies.includes(exclusionId)) {
-      onExcludedCurrenciesChange([...excludedCurrencies, exclusionId]);
+      const newExclusions = [...excludedCurrencies, exclusionId];
+      console.log('New excludedCurrencies:', newExclusions);
+      onExcludedCurrenciesChange(newExclusions);
     }
 
     // Reset selection

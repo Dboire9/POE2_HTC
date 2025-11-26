@@ -387,6 +387,15 @@ public class ServerMain {
 
 			DebugLogger.debug("=== CRAFTING REQUEST START ===");
 			DebugLogger.info("Full request body: " + requestBody);
+			DebugLogger.info("Searching for 'excludedCurrencies' in request body...");
+			if (requestBody.contains("excludedCurrencies")) {
+				DebugLogger.info("Found 'excludedCurrencies' in request body!");
+				int startIdx = requestBody.indexOf("excludedCurrencies");
+				int endIdx = Math.min(startIdx + 200, requestBody.length());
+				DebugLogger.info("Excerpt: " + requestBody.substring(startIdx, endIdx));
+			} else {
+				DebugLogger.info("'excludedCurrencies' NOT found in request body");
+			}
 			long requestStartTime = System.currentTimeMillis();
 
 			try {
@@ -428,18 +437,29 @@ public class ServerMain {
 
 				// Parse excluded currencies
 				List<Map<String, String>> excludedCurrencies = new ArrayList<>();
-				if (jsonRequest.has("excludedCurrencies") && jsonRequest.get("excludedCurrencies").isJsonArray()) {
-					JsonArray excludedArray = jsonRequest.getAsJsonArray("excludedCurrencies");
-					for (int i = 0; i < excludedArray.size(); i++) {
-						JsonObject currencyObj = excludedArray.get(i).getAsJsonObject();
-						Map<String, String> exclusion = new java.util.HashMap<>();
-						if (currencyObj.has("currency")) {
-							exclusion.put("currency", currencyObj.get("currency").getAsString());
+				DebugLogger
+						.debug("Checking for excludedCurrencies in request: " + jsonRequest.has("excludedCurrencies"));
+				if (jsonRequest.has("excludedCurrencies")) {
+					DebugLogger.debug("excludedCurrencies field found, checking if array...");
+					if (jsonRequest.get("excludedCurrencies").isJsonArray()) {
+						DebugLogger.debug("excludedCurrencies is array");
+						JsonArray excludedArray = jsonRequest.getAsJsonArray("excludedCurrencies");
+						DebugLogger.debug("Array size: " + excludedArray.size());
+						for (int i = 0; i < excludedArray.size(); i++) {
+							JsonObject currencyObj = excludedArray.get(i).getAsJsonObject();
+							Map<String, String> exclusion = new java.util.HashMap<>();
+							if (currencyObj.has("currency")) {
+								exclusion.put("currency", currencyObj.get("currency").getAsString());
+							}
+							if (currencyObj.has("tier")) {
+								exclusion.put("tier", currencyObj.get("tier").getAsString());
+							}
+							excludedCurrencies.add(exclusion);
+							DebugLogger.debug("Added exclusion: " + exclusion);
 						}
-						if (currencyObj.has("tier")) {
-							exclusion.put("tier", currencyObj.get("tier").getAsString());
-						}
-						excludedCurrencies.add(exclusion);
+					} else {
+						DebugLogger
+								.debug("excludedCurrencies is NOT an array: " + jsonRequest.get("excludedCurrencies"));
 					}
 				}
 
@@ -449,9 +469,16 @@ public class ServerMain {
 				DebugLogger.info("  Threshold: " + globalThreshold + " (" + (globalThreshold * 100) + "%)");
 				DebugLogger.info("  Has modifiers: " + jsonRequest.has("modifiers"));
 				DebugLogger.info("  Excluded currencies: " + excludedCurrencies.size());
-				for (Map<String, String> exc : excludedCurrencies) {
-					String tier = exc.containsKey("tier") ? " (" + exc.get("tier") + ")" : "";
-					DebugLogger.info("    - " + exc.get("currency") + tier);
+				if (!excludedCurrencies.isEmpty()) {
+					for (Map<String, String> exc : excludedCurrencies) {
+						String currency = exc.get("currency");
+						String tier = exc.get("tier");
+						if (tier != null && !tier.isEmpty()) {
+							DebugLogger.info("    - " + currency + " (" + tier + ")");
+						} else {
+							DebugLogger.info("    - " + currency);
+						}
+					}
 				}
 
 				// Parse modifiers

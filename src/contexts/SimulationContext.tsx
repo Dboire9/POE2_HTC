@@ -65,13 +65,17 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           return tier ? { currency, tier } : { currency };
         });
         
+        console.log('Excluded currencies being sent:', parsedExclusions);
+        
         // Add global_threshold and excluded currencies to request
         const requestWithThreshold = {
           ...request,
           global_threshold: 0.33, // 33% threshold
-          excludedCurrencies: parsedExclusions.length > 0 ? parsedExclusions : undefined,
+          excludedCurrencies: parsedExclusions,
           _timestamp: Date.now(), // Cache buster
         };
+        
+        console.log('Full request being sent:', JSON.stringify(requestWithThreshold, null, 2));
         
         // Direct HTTP API call
         const httpResponse = await fetch('http://localhost:8080/api/crafting?_=' + Date.now(), {
@@ -175,7 +179,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         setLoading(false);
       }
     }, 500); // 500ms debounce
-  }, []);
+  }, [excludedCurrencies]);
 
   // T043: Cancel simulation
   const cancelSimulation = useCallback(() => {

@@ -83,23 +83,18 @@ public class ExaltAndRegalProbability {
 			if (!isExaltedBase && level >= 0) {
 				levelsList.add(0);
 				tiersList.add(CurrencyTier.BASE);
-				System.out.println("[TIER DEBUG] Added BASE (ilvl=0) - smaller mod pool = higher probability per mod");
 			}
 
 			// Add GREATER tier if not excluded and level supports it
 			if (!isExaltedGreater && level >= 35) {
 				levelsList.add(35);
 				tiersList.add(CurrencyTier.GREATER);
-				System.out
-						.println("[TIER DEBUG] Added GREATER (ilvl=35) - medium mod pool = medium probability per mod");
 			}
 
 			// Add PERFECT tier if not excluded and level supports it
 			if (!isExaltedPerfect && level >= 50) {
 				levelsList.add(50);
 				tiersList.add(CurrencyTier.PERFECT);
-				System.out.println(
-						"[TIER DEBUG] Added PERFECT (ilvl=50) - largest mod pool = lowest probability per mod");
 			}
 
 			// Convert lists to arrays
@@ -202,9 +197,10 @@ public class ExaltAndRegalProbability {
 							isDesired);
 				}
 				case OmenofHomogenisingCoronation -> {
-					if (event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null
-							|| event.modifier.tags.get(0).isEmpty())
+					if ((event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null
+							|| event.modifier.tags.get(0).isEmpty()) && baseItem.getAllCurrentModifiers().size() == 0) {
 						return 0;
+					}
 					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
 							baseItem.base.getNormalAllowedPrefixes(), i);
 					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
@@ -249,12 +245,17 @@ public class ExaltAndRegalProbability {
 				case OmenofHomogenisingExaltation -> {
 					if (ilvl == 40)
 						return 0;
+
+					// Get the unfiltered lists for comparison
+					List<Modifier> AllPrefixes = baseItem.base.getNormalAllowedPrefixes();
+					List<Modifier> AllSuffixes = baseItem.base.getNormalAllowedSuffixes();
+
 					// Filter BOTH prefixes and suffixes by matching tags (like RegalOrb
 					// OmenofHomogenisingCoronation)
 					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
-							baseItem.base.getNormalAllowedPrefixes(), i);
+							AllPrefixes, i);
 					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
-							baseItem.base.getNormalAllowedSuffixes(), i);
+							AllSuffixes, i);
 
 					// Check if the current modifier is actually in the filtered list
 					boolean modifierInList = false;
@@ -267,8 +268,18 @@ public class ExaltAndRegalProbability {
 						return 0;
 					}
 
-					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes,
-							isDesired);
+					// Homogenising is always combined with Sinistral (for PREFIX) or Dextral (for
+					// SUFFIX)
+					// So we should pass null for the opposite pool to get the combined effect
+					double prob;
+					if (event.modifier.type == ModifierType.PREFIX) {
+						// Homogenising + Sinistral: filter by tags AND only allow prefixes
+						prob = NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
+					} else {
+						// Homogenising + Dextral: filter by tags AND only allow suffixes
+						prob = NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
+					}
+					return prob;
 				}
 				case OmenofSinistralExaltation -> {
 					if (event.modifier.type == ModifierType.PREFIX) {
@@ -362,18 +373,51 @@ public class ExaltAndRegalProbability {
 		List<String> ItemAffixTags = new ArrayList<>();
 		List<String> ItemFamilies = new ArrayList<>();
 
-		// Only collect tags from modifiers BEFORE the current one (j < i, not j <= i)
+		// First, collect tags from base item's existing modifiers (not in history yet)
+		for (int j = 0; j < baseItem.currentPrefixes.length; j++) {
+			if (baseItem.currentPrefixes[j] != null) {
+				Modifier baseMod = baseItem.currentPrefixes[j];
+
+				for (String tag : baseMod.tags)
+					if (!tag.isEmpty() && !ItemAffixTags.contains(tag)) {
+						ItemAffixTags.add(tag);
+					}
+
+				String family = baseMod.family;
+				if (!ItemFamilies.contains(family))
+					ItemFamilies.add(family);
+			}
+		}
+
+		for (int j = 0; j < baseItem.currentSuffixes.length; j++) {
+			if (baseItem.currentSuffixes[j] != null) {
+				Modifier baseMod = baseItem.currentSuffixes[j];
+
+				for (String tag : baseMod.tags)
+					if (!tag.isEmpty() && !ItemAffixTags.contains(tag)) {
+						ItemAffixTags.add(tag);
+					}
+
+				String family = baseMod.family;
+				if (!ItemFamilies.contains(family))
+					ItemFamilies.add(family);
+			}
+		}
+
+		// Then collect tags from modifiers BEFORE the current one (j < i, not j <= i)
 		// The current modifier at index i is being added, so we shouldn't include its
 		// tags
-		// Also collect families of existing modifiers to exclude duplicates
 		for (int j = 0; j < i; j++) {
-			for (String tags : candidate.modifierHistory.get(j).modifier.tags)
-				if (!tags.isEmpty() && !ItemAffixTags.contains(tags))
+			Modifier existingMod = candidate.modifierHistory.get(j).modifier;
+
+			for (String tags : existingMod.tags)
+				if (!tags.isEmpty() && !ItemAffixTags.contains(tags)) {
 					ItemAffixTags.add(tags);
+				}
 
 			// Add family to exclusion list (matches logic in Crafting_Item.addAffixes line
 			// 163)
-			String family = candidate.modifierHistory.get(j).modifier.family;
+			String family = existingMod.family;
 			if (!ItemFamilies.contains(family))
 				ItemFamilies.add(family);
 		}
@@ -385,11 +429,13 @@ public class ExaltAndRegalProbability {
 
 			for (String tag : PossibleModifier.tags)
 				if (ItemAffixTags.contains(tag) && !tag.isEmpty()) {
-					if (!FinalPossibleAffixes.contains(PossibleModifier))
+					if (!FinalPossibleAffixes.contains(PossibleModifier)) {
 						FinalPossibleAffixes.add(PossibleModifier);
+					}
 					break;
 				}
 		}
+
 		return FinalPossibleAffixes;
 	}
 

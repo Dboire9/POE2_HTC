@@ -7,6 +7,7 @@ import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import ModifierList from './ModifierList';
 import { ArrowRight, ArrowLeft, Check, X, Sparkles, Info, RotateCcw } from 'lucide-react';
+import { HelpIcon } from '../../components/ui/help-icon';
 
 interface ExistingModsPanelProps {
   sourceFilter: 'all' | 'normal' | 'perfect' | 'desecrated';
@@ -171,7 +172,10 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
         <Card className="p-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
           <div className="space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-lg font-bold">Choose Your Crafting Approach</h2>
+              <h2 className="text-lg font-bold flex items-center justify-center gap-2">
+                Choose Your Crafting Approach
+                <HelpIcon content="Select whether you're starting with a fresh base item or improving an item that already has some modifiers." />
+              </h2>
               <p className="text-sm text-muted-foreground">
                 How would you like to craft your item?
               </p>
@@ -223,7 +227,10 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
         <Card className="p-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
           <div className="space-y-4 text-center">
             <div className="space-y-2">
-              <h2 className="text-lg font-bold">Select Item Rarity</h2>
+              <h2 className="text-lg font-bold flex items-center justify-center gap-2">
+                Select Item Rarity
+                <HelpIcon content="Magic items can have 1 prefix and 1 suffix. Rare items can have up to 3 prefixes and 3 suffixes. This determines how many modifiers your item can have." />
+              </h2>
               <p className="text-sm text-muted-foreground">
                 What rarity is your item?
               </p>

@@ -92,7 +92,7 @@ const ItemSelector: React.FC = () => {
         <h2 className="text-lg font-bold">Select Item Type</h2>
         {selectedItem && (
           <span className="text-sm text-muted-foreground">
-            Selected: {selectedItem.name}{selectedItem.subcategory ? ` (${selectedItem.subcategory})` : ''}
+            Selected: {selectedItem.name.split('\n')[0]}{selectedItem.subcategory ? ` (${selectedItem.subcategory})` : ''}
           </span>
         )}
       </div>

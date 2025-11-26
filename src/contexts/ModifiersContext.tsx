@@ -19,6 +19,7 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [existingSuffixes, setExistingSuffixes] = useState<Modifier[]>([]);
   const [itemRarity, setItemRarity] = useState<'magic' | 'rare'>('rare');
   const [exclusionRules, setExclusionRules] = useState<ModifierExclusion[]>([]);
+  const [sourceFilter, setSourceFilter] = useState<'all' | 'normal' | 'perfect' | 'desecrated'>('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,7 +83,7 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const unique: Modifier[] = [];
         
         for (const mod of mods) {
-          // Filter out normal essences
+          // Filter out normal essences (not perfect)
           if (mod.source === 'essence') {
             continue;
           }
@@ -369,16 +370,28 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setExistingSuffixes([]);
   }, []);
 
+  // Filter modifiers by source
+  const filteredPrefixes = useMemo(() => {
+    if (sourceFilter === 'all') return prefixes;
+    return prefixes.filter(mod => mod.source === sourceFilter);
+  }, [prefixes, sourceFilter]);
+
+  const filteredSuffixes = useMemo(() => {
+    if (sourceFilter === 'all') return suffixes;
+    return suffixes.filter(mod => mod.source === sourceFilter);
+  }, [suffixes, sourceFilter]);
+
   const value: ModifiersContextType = {
     // State
-    prefixes,
-    suffixes,
+    prefixes: filteredPrefixes,
+    suffixes: filteredSuffixes,
     selectedPrefixes,
     selectedSuffixes,
     existingPrefixes,
     existingSuffixes,
     itemRarity,
     exclusionRules,
+    sourceFilter,
     loading,
     error,
     // Actions
@@ -391,6 +404,7 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     unmarkAsExisting,
     clearExistingMods,
     setItemRarity,
+    setSourceFilter,
   };
 
   return <ModifiersContext.Provider value={value}>{children}</ModifiersContext.Provider>;

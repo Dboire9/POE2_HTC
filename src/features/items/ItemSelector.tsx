@@ -27,6 +27,11 @@ const ItemSelector: React.FC = () => {
     } else {
       // No subcategories, select directly
       selectItem(itemId);
+      // Scroll to modifier selector
+      setTimeout(() => {
+        const modifierSection = document.querySelector('[data-section="modifiers"]');
+        modifierSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   };
 
@@ -34,6 +39,11 @@ const ItemSelector: React.FC = () => {
     if (showingSubcategories) {
       selectItem(showingSubcategories.id, subcategory);
       setShowingSubcategories(null);
+      // Scroll to modifier selector
+      setTimeout(() => {
+        const modifierSection = document.querySelector('[data-section="modifiers"]');
+        modifierSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   };
 
@@ -79,7 +89,7 @@ const ItemSelector: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Select Item Type</h2>
+        <h2 className="text-lg font-bold">Select Item Type</h2>
         {selectedItem && (
           <span className="text-sm text-muted-foreground">
             Selected: {selectedItem.name}{selectedItem.subcategory ? ` (${selectedItem.subcategory})` : ''}

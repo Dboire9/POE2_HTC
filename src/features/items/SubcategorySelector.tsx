@@ -47,10 +47,10 @@ const SubcategorySelector: React.FC<SubcategorySelectorProps> = ({ category, onS
           <ChevronLeft className="h-4 w-4" />
           Back
         </Button>
-        <h3 className="text-lg font-semibold">Select {category.name} Type</h3>
+        <h3 className="text-base font-semibold">Select {category.name} Type</h3>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {subcategories.map((subcat) => (
           <Card
             key={subcat.id}

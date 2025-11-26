@@ -161,6 +161,7 @@ export interface ModifiersState {
   existingSuffixes: Modifier[];   // Existing suffixes on the item
   itemRarity: 'magic' | 'rare';   // Item rarity (affects max mod counts)
   exclusionRules: ModifierExclusion[]; // Incompatibility rules
+  sourceFilter: 'all' | 'normal' | 'perfect' | 'desecrated'; // Filter by modifier source
   loading: boolean;
   error: string | null;
 }
@@ -175,6 +176,7 @@ export interface ModifiersActions {
   unmarkAsExisting: (modifierId: string) => void;
   clearExistingMods: () => void;
   setItemRarity: (rarity: 'magic' | 'rare') => void;
+  setSourceFilter: (filter: 'all' | 'normal' | 'perfect' | 'desecrated') => void;
 }
 
 export interface SimulationState {

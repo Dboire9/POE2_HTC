@@ -89,7 +89,7 @@ const ResultsDisplay: React.FC = () => {
     <div className="space-y-4">
       {/* Header with result info */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Crafting Paths</h2>
+        <h2 className="text-lg font-bold">Crafting Paths</h2>
         <div className="text-sm text-muted-foreground">
           Found {result.paths.length} path{result.paths.length !== 1 ? 's' : ''} 
           {' '}({result.computationTime}ms)

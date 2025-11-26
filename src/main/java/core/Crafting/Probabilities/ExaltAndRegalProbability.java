@@ -83,18 +83,23 @@ public class ExaltAndRegalProbability {
 			if (!isExaltedBase && level >= 0) {
 				levelsList.add(0);
 				tiersList.add(CurrencyTier.BASE);
+				System.out.println("[TIER DEBUG] Added BASE (ilvl=0) - smaller mod pool = higher probability per mod");
 			}
 
 			// Add GREATER tier if not excluded and level supports it
 			if (!isExaltedGreater && level >= 35) {
 				levelsList.add(35);
 				tiersList.add(CurrencyTier.GREATER);
+				System.out
+						.println("[TIER DEBUG] Added GREATER (ilvl=35) - medium mod pool = medium probability per mod");
 			}
 
 			// Add PERFECT tier if not excluded and level supports it
 			if (!isExaltedPerfect && level >= 50) {
 				levelsList.add(50);
 				tiersList.add(CurrencyTier.PERFECT);
+				System.out.println(
+						"[TIER DEBUG] Added PERFECT (ilvl=50) - largest mod pool = lowest probability per mod");
 			}
 
 			// Convert lists to arrays
@@ -415,14 +420,8 @@ public class ExaltAndRegalProbability {
 				weight += tiers.weight;
 			ilvl = 0;
 		} else {
-			// Sum weight of desired tier AND all better tiers (higher index = better tier)
-			int desiredTierIndex = event.modifier.tiers.indexOf(event.tier);
-			for (int tierIdx = desiredTierIndex; tierIdx < event.modifier.tiers.size(); tierIdx++) {
-				ModifierTier tier = event.modifier.tiers.get(tierIdx);
-				if (tier.level <= ilvl || ilvl == 0) {
-					weight += tier.weight;
-				}
-			}
+			// Only count the weight of the desired tier itself
+			weight = event.tier.weight;
 		}
 
 		if (PossiblePrefixes != null)

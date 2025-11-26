@@ -25,8 +25,6 @@ public class DesProbability {
     public static void ComputeDes(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i) {
         ModifierEvent event = candidate.modifierHistory.get(i);
 
-        core.DebugLogger.info("[DesProbability] Computing for modifier: " + event.modifier.text + " (tags: " + event.modifier.tags + ")");
-
         // Check if this modifier will be immediately replaced by a Perfect Essence (CHANGED event)
         boolean willBeReplacedByEssence = false;
         if (i + 1 < candidate.modifierHistory.size()) {
@@ -45,7 +43,6 @@ public class DesProbability {
             Crafting_Action action = source.keySet().iterator().next();
             source.clear();
             source.put(action, 1.0);
-            core.DebugLogger.info("[DesProbability] Will be replaced by essence, setting probability to 100%");
             return;
         }
 
@@ -54,17 +51,11 @@ public class DesProbability {
         Crafting_Action action = source.keySet().iterator().next();
 
         if (action instanceof Desecrated_currency) {
-            int nonZeroCount = 0;
             for (Desecrated_currency.Omen currentOmen : Desecrated_currency.Omen.values()) {
                 percentage = ComputePercentageDesecrated_currency(baseItem, candidate, event, currentOmen, i);
                 if (percentage != 0) {
                     candidate.modifierHistory.get(i).source.put(new Desecrated_currency(currentOmen), percentage);
-                    core.DebugLogger.info("[DesProbability] Omen " + currentOmen + " has probability: " + (percentage * 100) + "%");
-                    nonZeroCount++;
                 }
-            }
-            if (nonZeroCount == 0) {
-                core.DebugLogger.warn("[DesProbability] No omen had non-zero probability! Modifier tags: " + event.modifier.tags);
             }
         }
     }

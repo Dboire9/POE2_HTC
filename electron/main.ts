@@ -260,7 +260,7 @@ function startBackend(): Promise<void> {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1400,
+    width: 1920,
     height: 900,
     minWidth: 1024,
     minHeight: 768,

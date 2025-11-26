@@ -123,6 +123,15 @@ public class ItemManager {
                 .map(name -> name.substring(normalizedBase.length()))
                 .filter(name -> !name.isEmpty())
                 .map(name -> name.split("/")[0])
+                .filter(dirName ->
+                    !dirName.isEmpty() &&
+                    !dirName.contains("..") &&
+                    !dirName.contains("/") &&
+                    !dirName.contains("\\") &&
+                    !dirName.startsWith(".") &&
+                    !dirName.startsWith("/") &&
+                    !dirName.startsWith("\\")
+                )
                 .distinct()
                 .collect(Collectors.toList());
         } catch (IOException e) {

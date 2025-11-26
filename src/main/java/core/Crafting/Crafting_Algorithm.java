@@ -48,11 +48,8 @@ public class Crafting_Algorithm {
         List<Modifier> undesiredMods,
         double GLOBAL_THRESHOLD) throws InterruptedException, ExecutionException
 		{
-			core.DebugLogger.debug("[Algorithm] Starting optimizeCrafting with " + desiredMods.size() + " desired mods, threshold: " + (GLOBAL_THRESHOLD * 100) + "%");
-
 			// Initialize thread pool
 			int threads = Runtime.getRuntime().availableProcessors();
-			core.DebugLogger.debug("[Algorithm] Using " + threads + " thread(s) for processing");
 			ExecutorService executor = Executors.newFixedThreadPool(threads);
 
 			// Precompute desired tag counts
@@ -102,18 +99,11 @@ public class Crafting_Algorithm {
 		int maxIterations = 100; // Safety limit to prevent infinite loops
 		while (!current.isEmpty() && iterationCount < maxIterations) {
 			iterationCount++;
-			core.DebugLogger.debug("[Algorithm] Iteration " + iterationCount + ": Processing " + current.stream().mapToInt(List::size).sum() + " candidates");
 			processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
 					allCandidateLists, next, executor);
 			current = deepCopy(next);
 			next.clear();
 		}
-		
-		if (iterationCount >= maxIterations) {
-			core.DebugLogger.warn("[Algorithm] Reached maximum iterations (" + maxIterations + "), stopping to prevent infinite loop");
-		}
-
-		core.DebugLogger.debug("[Algorithm] Completed " + iterationCount + " iterations, total candidates: " + allCandidateLists.stream().mapToInt(List::size).sum());
 
 		// Shutdown thread pool
 		executor.shutdown();
@@ -121,7 +111,6 @@ public class Crafting_Algorithm {
 
 		// Final filtering
 		List<Crafting_Candidate> finalCandidates = extractHighScoreCandidates(allCandidateLists, desiredMods);
-		core.DebugLogger.debug("[Algorithm] Final filtering: " + finalCandidates.size() + " high-score candidates extracted");
 		return finalCandidates;
 }
 
@@ -171,24 +160,17 @@ public class Crafting_Algorithm {
 			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods) {
 	
 		List<Crafting_Candidate> result = new ArrayList<>();
-		int totalCandidates = 0;
-		int filteredByScore = 0;
-		int filteredBySize = 0;
-		int filteredByMatch = 0;
 	
 		for (List<Crafting_Candidate> list : allCandidateLists) {
 			for (Crafting_Candidate candidate : list) {
-				totalCandidates++;
 				candidate.desecrated = false;
 
 				if (candidate.score < 6000) {
-					filteredByScore++;
 					continue;
 				}
 
 				List<Modifier> current = candidate.getAllCurrentModifiers();
 				if (current.size() < 6) {
-					filteredBySize++;
 					continue;
 				}
 
@@ -198,18 +180,9 @@ public class Crafting_Algorithm {
 
 				if (matchCount == 6) {
 					result.add(candidate);
-				} else {
-					filteredByMatch++;
-					if (filteredByMatch <= 3) {  // Log first 3 for debugging
-						core.DebugLogger.trace("[Algorithm] Candidate rejected: matchCount=" + matchCount + ", score=" + candidate.score + ", size=" + current.size());
-					}
 				}
 			}
 		}
-		
-		core.DebugLogger.debug("[Algorithm] extractHighScoreCandidates summary: total=" + totalCandidates + 
-			", filteredByScore=" + filteredByScore + ", filteredBySize=" + filteredBySize + 
-			", filteredByMatch=" + filteredByMatch + ", accepted=" + result.size());
 		
 		// Sort for deterministic ordering
 		result.sort((c1, c2) -> {
@@ -287,14 +260,12 @@ public class Crafting_Algorithm {
 			Map<String, Integer> CountDesiredModifierTags,
 			List<List<Crafting_Candidate>> listOfCandidateLists,
 			List<Modifier> undesiredMods) {
-		core.DebugLogger.debug("[Algorithm] generateCandidateLists: Input " + FirstCandidateList.size() + " candidates");
 		List<Crafting_Candidate> FirstCandidateListCopy = new ArrayList<>();
 
 		// Applying a normal RegalOrb
 		RegalOrb regalOrb = new RegalOrb();
 		FirstCandidateListCopy = regalOrb.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
 				undesiredMods);
-		core.DebugLogger.debug("[Algorithm] RegalOrb generated " + FirstCandidateListCopy.size() + " candidates");
 		listOfCandidateLists.add(new ArrayList<>(FirstCandidateListCopy));
 		FirstCandidateListCopy.clear();
 	}

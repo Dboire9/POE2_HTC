@@ -47,7 +47,8 @@ public class Probability {
 
 				// Not doing aug for now, want to see a 100% prob if it is possible
 				if (action instanceof RegalOrb || action instanceof ExaltedOrb)
-					ExaltAndRegalProbability.ComputeRegalAndExalted(candidate, desiredMod, baseItem, i);
+					ExaltAndRegalProbability.ComputeRegalAndExalted(candidate, desiredMod, baseItem, i,
+							excludedCurrencies);
 				else if (action instanceof AnnulmentOrb
 						&& excludedCurrencies.stream().noneMatch(map -> "AnnulmentOrb".equals(map.get("currency"))))
 					AnnulProbability.ComputeAnnul(candidate, desiredMod, baseItem, i);

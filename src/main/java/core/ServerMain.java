@@ -486,8 +486,117 @@ public class ServerMain {
                 
                 // Parse selected modifiers and match with item's allowed modifiers
                 List<Modifier> desiredModifiers = new ArrayList<>();
+                List<Modifier> existingMods = new ArrayList<>();
                 DebugLogger.info("★ Parsing modifiers from request...");
                 DebugLogger.debug("Available prefixes: " + allPrefixes.size() + ", suffixes: " + allSuffixes.size());
+                
+                // ===== PARSE EXISTING MODIFIERS (if present) =====
+                boolean isMagicRarity = false; // Track if user selected magic rarity
+                if (jsonRequest.has("existingModifiers") && !jsonRequest.get("existingModifiers").isJsonNull()) {
+                    JsonObject existingModsObj = jsonRequest.getAsJsonObject("existingModifiers");
+                    DebugLogger.info("★ EXISTING MODIFIERS DETECTED - Starting from an item with existing mods");
+                    
+                    // Parse itemRarity if present (frontend sends 'magic' or 'rare')
+                    if (jsonRequest.has("itemRarity") && !jsonRequest.get("itemRarity").isJsonNull()) {
+                        String rarityStr = jsonRequest.get("itemRarity").getAsString();
+                        isMagicRarity = "magic".equalsIgnoreCase(rarityStr);
+                        DebugLogger.info("★ Item rarity from request: " + rarityStr + " (isMagic=" + isMagicRarity + ")");
+                    }
+                    
+                    // Handle existing prefixes
+                    if (existingModsObj.has("prefixes") && existingModsObj.get("prefixes").isJsonArray()) {
+                        JsonArray existingPrefixesArray = existingModsObj.getAsJsonArray("prefixes");
+                        DebugLogger.info("★ Processing " + existingPrefixesArray.size() + " existing prefixes");
+                        for (int i = 0; i < existingPrefixesArray.size(); i++) {
+                            JsonObject modJson = existingPrefixesArray.get(i).getAsJsonObject();
+                            
+                            String modText = modJson.has("text") && !modJson.get("text").isJsonNull() 
+                                ? modJson.get("text").getAsString() : null;
+                            String modId = modJson.has("id") && !modJson.get("id").isJsonNull() 
+                                ? modJson.get("id").getAsString() : null;
+                            
+                            if (modText == null && modId == null) continue;
+                            
+                            int tier = modJson.has("tier") ? modJson.get("tier").getAsInt() : 0;
+                            
+                            String searchKey = modText != null ? modText : modId;
+                            DebugLogger.trace("Looking for existing prefix: " + searchKey + " (tier " + tier + ")");
+                            
+                            // Find matching modifier
+                            boolean found = false;
+                            for (Modifier prefix : allPrefixes) {
+                                boolean matches = false;
+                                if (modText != null) {
+                                    String normalizedPrefixText = prefix.text.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+                                    String normalizedModText = modText.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+                                    matches = normalizedPrefixText.equals(normalizedModText);
+                                } else if (modId != null) {
+                                    matches = prefix.family.equals(modId);
+                                }
+                                
+                                if (matches) {
+                                    prefix.chosenTier = tier;
+                                    // Mark as existing, NOT as desired
+                                    existingMods.add(prefix);
+                                    DebugLogger.debug("✓ Existing Prefix: " + prefix.text + " (tier=" + tier + ")");
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                DebugLogger.warn("Existing prefix not found: " + searchKey);
+                            }
+                        }
+                    }
+                    
+                    // Handle existing suffixes
+                    if (existingModsObj.has("suffixes") && existingModsObj.get("suffixes").isJsonArray()) {
+                        JsonArray existingSuffixesArray = existingModsObj.getAsJsonArray("suffixes");
+                        DebugLogger.info("★ Processing " + existingSuffixesArray.size() + " existing suffixes");
+                        for (int i = 0; i < existingSuffixesArray.size(); i++) {
+                            JsonObject modJson = existingSuffixesArray.get(i).getAsJsonObject();
+                            
+                            String modText = modJson.has("text") && !modJson.get("text").isJsonNull() 
+                                ? modJson.get("text").getAsString() : null;
+                            String modId = modJson.has("id") && !modJson.get("id").isJsonNull() 
+                                ? modJson.get("id").getAsString() : null;
+                            
+                            if (modText == null && modId == null) continue;
+                            
+                            int tier = modJson.has("tier") ? modJson.get("tier").getAsInt() : 0;
+                            
+                            String searchKey = modText != null ? modText : modId;
+                            DebugLogger.trace("Looking for existing suffix: " + searchKey + " (tier " + tier + ")");
+                            
+                            // Find matching modifier
+                            boolean found = false;
+                            for (Modifier suffix : allSuffixes) {
+                                boolean matches = false;
+                                if (modText != null) {
+                                    String normalizedSuffixText = suffix.text.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+                                    String normalizedModText = modText.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+                                    matches = normalizedSuffixText.equals(normalizedModText);
+                                } else if (modId != null) {
+                                    matches = suffix.family.equals(modId);
+                                }
+                                
+                                if (matches) {
+                                    suffix.chosenTier = tier;
+                                    // Mark as existing, NOT as desired
+                                    existingMods.add(suffix);
+                                    DebugLogger.debug("✓ Existing Suffix: " + suffix.text + " (tier=" + tier + ")");
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                DebugLogger.warn("Existing suffix not found: " + searchKey);
+                            }
+                        }
+                    }
+                }
+                
+                // ===== PARSE DESIRED/TARGET MODIFIERS =====
                 
                 // Handle prefixes array if present
                 if (modifiersObj.has("prefixes") && modifiersObj.get("prefixes").isJsonArray()) {
@@ -659,12 +768,47 @@ public class ServerMain {
                 // Create Crafting_Item from Item_base
                 Crafting_Item craftingItem = new Crafting_Item(itemInstance);
                 
+                // Set item rarity based on user selection (for existing mods workflow)
+                if (!existingMods.isEmpty()) {
+                    if (isMagicRarity) {
+                        craftingItem.rarity = Crafting_Item.ItemRarity.MAGIC;
+                        DebugLogger.info("★ Set item rarity to MAGIC (1 prefix + 1 suffix max)");
+                    } else {
+                        craftingItem.rarity = Crafting_Item.ItemRarity.RARE;
+                        DebugLogger.info("★ Set item rarity to RARE (3 prefix + 3 suffix max)");
+                    }
+                }
+                
+                // ===== APPLY EXISTING MODIFIERS TO THE ITEM =====
+                if (!existingMods.isEmpty()) {
+                    DebugLogger.info("★★★ APPLYING " + existingMods.size() + " EXISTING MODIFIERS TO ITEM ★★★");
+                    for (Modifier existingMod : existingMods) {
+                        // Get the tier object from the modifier's tiers list
+                        ModifierTier tierToApply = existingMod.tiers.get(existingMod.chosenTier);
+                        
+                        // Apply the existing modifier to the crafting item
+                        if (existingMod.type == Modifier.ModifierType.PREFIX) {
+                            craftingItem.addPrefix(existingMod, tierToApply);
+                        } else {
+                            craftingItem.addSuffix(existingMod, tierToApply);
+                        }
+                        DebugLogger.info("  ✓ Applied: " + existingMod.text + " (T" + (existingMod.chosenTier + 1) + ")");
+                    }
+                    DebugLogger.info("Item now has " + craftingItem.getAllCurrentModifiers().size() + " modifiers before crafting");
+                }
+                
                 // Run crafting simulation
-                DebugLogger.info("Starting crafting: " + desiredModifiers.size() + " modifiers, " + iterations + " iterations");
-                DebugLogger.info("Desired modifiers:");
+                DebugLogger.info("Starting crafting: " + desiredModifiers.size() + " desired modifiers, " + iterations + " iterations");
+                boolean hasExistingMods = !existingMods.isEmpty();
+                if (hasExistingMods) {
+                    DebugLogger.info("Starting from item with " + existingMods.size() + " existing modifiers:");
+                    for (Modifier mod : existingMods) {
+                        DebugLogger.info("  - [EXISTING] " + mod.text + " (T" + (mod.chosenTier + 1) + ")");
+                    }
+                }
+                DebugLogger.info("Target modifiers to add:");
                 for (Modifier mod : desiredModifiers) {
-                    DebugLogger.info("  - " + mod.text + " (T" + (mod.chosenTier + 1) + "/index:" + mod.chosenTier + ", source: " + mod.source + ")");
-                    // Don't set is_desired_mod here - let the algorithm handle it
+                    DebugLogger.info("  - [TARGET] " + mod.text + " (T" + (mod.chosenTier + 1) + "/index:" + mod.chosenTier + ", source: " + mod.source + ")");
                 }
                 
                 List<Modifier> undesiredModifiers = new ArrayList<>(); // Empty for now
@@ -677,12 +821,23 @@ public class ServerMain {
                 long overallStart = System.currentTimeMillis();
                 
                 // Run crafting with initial threshold
-                results = CraftingExecutor.runCrafting(
-                    craftingItem,
-                    desiredModifiers,
-                    undesiredModifiers,
-                    globalThreshold
-                );
+                // Use different method based on whether item has existing mods
+                if (hasExistingMods) {
+                    results = CraftingExecutor.runCraftingWithExistingMods(
+                        craftingItem,
+                        desiredModifiers,
+                        undesiredModifiers,
+                        globalThreshold,
+                        existingMods
+                    );
+                } else {
+                    results = CraftingExecutor.runCrafting(
+                        craftingItem,
+                        desiredModifiers,
+                        undesiredModifiers,
+                        globalThreshold
+                    );
+                }
                 
                 // Retry until we get valid results or threshold reaches minimum or max retries
                 int retryCount = 0;
@@ -694,12 +849,22 @@ public class ServerMain {
                     undesiredModifiers.clear();
                     
                     try {
-                        results = CraftingExecutor.runCrafting(
-                            craftingItem,
-                            desiredModifiers,
-                            undesiredModifiers,
-                            globalThreshold
-                        );
+                        if (hasExistingMods) {
+                            results = CraftingExecutor.runCraftingWithExistingMods(
+                                craftingItem,
+                                desiredModifiers,
+                                undesiredModifiers,
+                                globalThreshold,
+                                existingMods
+                            );
+                        } else {
+                            results = CraftingExecutor.runCrafting(
+                                craftingItem,
+                                desiredModifiers,
+                                undesiredModifiers,
+                                globalThreshold
+                            );
+                        }
                         retryCount++;
                         DebugLogger.debug("Retry " + retryCount + " with threshold: " + (globalThreshold * 100) + "%");
                     } catch (Exception e) {

@@ -3,12 +3,14 @@ import { useModifiers } from '../../contexts/ModifiersContext';
 import { Modifier } from '../../types';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
+import { Label } from '../../components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import ModifierList from './ModifierList';
-import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, AlertCircle } from 'lucide-react';
 
 /**
  * ExistingModsPanel - Two-step workflow for crafting with existing mods
- * Step 1: Select mods already on the item
+ * Step 1: Select item rarity and mods already on the item
  * Step 2: Select desired target mods to add
  */
 const ExistingModsPanel: React.FC = () => {
@@ -19,6 +21,8 @@ const ExistingModsPanel: React.FC = () => {
     selectedSuffixes,
     existingPrefixes,
     existingSuffixes,
+    itemRarity,
+    setItemRarity,
     markAsExisting,
     unmarkAsExisting,
     clearExistingMods,
@@ -33,9 +37,27 @@ const ExistingModsPanel: React.FC = () => {
   const totalExistingMods = existingPrefixes.length + existingSuffixes.length;
   const totalTargetMods = selectedPrefixes.length + selectedSuffixes.length;
 
+  // Get max slots based on rarity
+  const maxPrefixes = itemRarity === 'magic' ? 1 : 3;
+  const maxSuffixes = itemRarity === 'magic' ? 1 : 3;
+
+  // Check if adding mod would exceed limit
+  const canAddPrefix = (isExisting: boolean) => {
+    const currentCount = isExisting ? existingPrefixes.length : selectedPrefixes.length;
+    return currentCount < maxPrefixes;
+  };
+
+  const canAddSuffix = (isExisting: boolean) => {
+    const currentCount = isExisting ? existingSuffixes.length : selectedSuffixes.length;
+    return currentCount < maxSuffixes;
+  };
+
   // Step 1: Select existing mods
   const handleSelectExistingMod = (modifier: Modifier, tier?: number) => {
-    markAsExisting(modifier, tier);
+    const isPrefix = modifier.id.includes('prefix');
+    if ((isPrefix && canAddPrefix(true)) || (!isPrefix && canAddSuffix(true))) {
+      markAsExisting(modifier, tier);
+    }
   };
 
   const handleDeselectExistingMod = (modifierId: string) => {
@@ -98,11 +120,35 @@ const ExistingModsPanel: React.FC = () => {
                   <div>
                     <h3 className="text-lg font-bold">Select Your Current Mods</h3>
                     <p className="text-sm text-muted-foreground">
-                      Click on the modifiers that are already on your item
+                      Choose item rarity and click on the modifiers that are already on your item
                     </p>
                   </div>
                 </div>
               </div>
+
+              {/* Item Rarity Selector */}
+              <div className="space-y-2">
+                <Label htmlFor="rarity" className="text-sm font-semibold">Item Rarity</Label>
+                <Select value={itemRarity} onValueChange={(value) => setItemRarity(value as 'magic' | 'rare')}>
+                  <SelectTrigger id="rarity" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="magic">Magic (Max 1 Prefix, 1 Suffix)</SelectItem>
+                    <SelectItem value="rare">Rare (Max 3 Prefixes, 3 Suffixes)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Limits Warning */}
+              {itemRarity === 'magic' && (
+                <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                    Magic items can only have 1 prefix and 1 suffix maximum
+                  </p>
+                </div>
+              )}
 
               {/* Selection Status */}
               {hasExistingMods ? (
@@ -114,7 +160,7 @@ const ExistingModsPanel: React.FC = () => {
                         {totalExistingMods} mod{totalExistingMods !== 1 ? 's' : ''} selected
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {existingPrefixes.length} {existingPrefixes.length === 1 ? 'Prefix' : 'Prefixes'}, {existingSuffixes.length} {existingSuffixes.length === 1 ? 'Suffix' : 'Suffixes'}
+                        {existingPrefixes.length}/{maxPrefixes} {existingPrefixes.length === 1 ? 'Prefix' : 'Prefixes'}, {existingSuffixes.length}/{maxSuffixes} {existingSuffixes.length === 1 ? 'Suffix' : 'Suffixes'}
                       </div>
                     </div>
                   </div>
@@ -156,7 +202,7 @@ const ExistingModsPanel: React.FC = () => {
               selectedModifiers={existingPrefixes}
               onSelect={handleSelectExistingMod}
               onDeselect={handleDeselectExistingMod}
-              isModifierDisabled={(id) => existingPrefixes.length >= 3 && !existingPrefixes.some(m => m.text === id)}
+              isModifierDisabled={(id) => existingPrefixes.length >= maxPrefixes && !existingPrefixes.some(m => m.text === id)}
             />
 
             <ModifierList
@@ -165,7 +211,7 @@ const ExistingModsPanel: React.FC = () => {
               selectedModifiers={existingSuffixes}
               onSelect={handleSelectExistingMod}
               onDeselect={handleDeselectExistingMod}
-              isModifierDisabled={(id) => existingSuffixes.length >= 3 && !existingSuffixes.some(m => m.text === id)}
+              isModifierDisabled={(id) => existingSuffixes.length >= maxSuffixes && !existingSuffixes.some(m => m.text === id)}
             />
           </div>
         </>
@@ -221,10 +267,10 @@ const ExistingModsPanel: React.FC = () => {
               </div>
 
               {/* Target Mods Status */}
-              {totalTargetMods > 0 && (
+              {totalTargetMods > 0 ? (
                 <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
                   <div className="text-xs font-semibold text-primary uppercase mb-2">
-                    Target mods to add:
+                    Target mods to add ({totalTargetMods} selected):
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {selectedPrefixes.map((mod, idx) => (
@@ -249,6 +295,12 @@ const ExistingModsPanel: React.FC = () => {
                     ))}
                   </div>
                 </div>
+              ) : (
+                <div className="p-4 bg-muted/50 rounded-lg border border-dashed">
+                  <p className="text-sm text-muted-foreground text-center">
+                    No target mods selected yet. Available slots: {maxPrefixes - existingPrefixes.length} prefix{(maxPrefixes - existingPrefixes.length) !== 1 ? 'es' : ''}, {maxSuffixes - existingSuffixes.length} suffix{(maxSuffixes - existingSuffixes.length) !== 1 ? 'es' : ''}
+                  </p>
+                </div>
               )}
 
               {/* Back Button */}
@@ -272,7 +324,11 @@ const ExistingModsPanel: React.FC = () => {
               selectedModifiers={selectedPrefixes}
               onSelect={handleSelectTargetMod}
               onDeselect={handleDeselectTargetMod}
-              isModifierDisabled={isModifierDisabled}
+              isModifierDisabled={(id) => {
+                const totalPrefixes = existingPrefixes.length + selectedPrefixes.length;
+                const wouldExceedLimit = totalPrefixes >= maxPrefixes && !selectedPrefixes.some(m => m.text === id);
+                return wouldExceedLimit || isModifierDisabled(id);
+              }}
             />
 
             <ModifierList
@@ -281,7 +337,11 @@ const ExistingModsPanel: React.FC = () => {
               selectedModifiers={selectedSuffixes}
               onSelect={handleSelectTargetMod}
               onDeselect={handleDeselectTargetMod}
-              isModifierDisabled={isModifierDisabled}
+              isModifierDisabled={(id) => {
+                const totalSuffixes = existingSuffixes.length + selectedSuffixes.length;
+                const wouldExceedLimit = totalSuffixes >= maxSuffixes && !selectedSuffixes.some(m => m.text === id);
+                return wouldExceedLimit || isModifierDisabled(id);
+              }}
             />
           </div>
         </>

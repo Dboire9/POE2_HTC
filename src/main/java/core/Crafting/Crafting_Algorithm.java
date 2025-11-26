@@ -55,34 +55,74 @@ public class Crafting_Algorithm {
 			// Precompute desired tag counts
 			Map<String, Integer> tagCount = Heuristic_Util.CreateCountModifierTags(desiredMods);
 
-			// Base candidate lists
+			
 			List<Crafting_Candidate> transmuteCandidates = new ArrayList<>();
+			// Base candidate lists
 			List<Crafting_Candidate> augmentCandidates = new ArrayList<>();
 			List<Crafting_Candidate> baseCopies = new ArrayList<>();
 			List<List<Crafting_Candidate>> allCandidateLists = new ArrayList<>();
+			
+			
+			//Base item has existing modifiers
+			if(baseItem.getAllCurrentModifiers().size() == 0 && baseItem.rarity != Crafting_Item.ItemRarity.RARE)
+			{
+				// Step 1: Transmutation
+				TransmutationOrb transmute = new TransmutationOrb();
+				transmuteCandidates = transmute.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
+				allCandidateLists.add(new ArrayList<>(transmuteCandidates));
+				copyCandidates(transmuteCandidates, baseCopies);
 
-			// Step 1: Transmutation
-			TransmutationOrb transmute = new TransmutationOrb();
-			transmuteCandidates = transmute.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
-			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
-			copyCandidates(transmuteCandidates, baseCopies);
-
-			// Step 2: Augmentation
-			AugmentationOrb augment = new AugmentationOrb();
-			transmuteCandidates = augment.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
-			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
-			copyCandidates(transmuteCandidates, augmentCandidates);
-
-			// Step 3: Apply regal and essence to base candidates
-			generateCandidateLists(baseItem, baseCopies, desiredMods, tagCount, allCandidateLists, undesiredMods);
-			copyCandidates(transmuteCandidates, baseCopies);
-			generateCandidateLists(baseItem, augmentCandidates, desiredMods, tagCount, allCandidateLists, undesiredMods);
-
-			// Skip first two lists (transmute and augment)
-			if (allCandidateLists.size() > 2)
-				allCandidateLists.subList(0, 2).clear();
-
-			// Step 4: Iterative refinement loop
+				// Step 2: Augmentation
+				AugmentationOrb augment = new AugmentationOrb();
+				transmuteCandidates = augment.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
+				allCandidateLists.add(new ArrayList<>(transmuteCandidates));
+				copyCandidates(transmuteCandidates, augmentCandidates);
+	
+				// Step 3: Apply regal and essence to base candidates
+				generateCandidateLists(baseItem, baseCopies, desiredMods, tagCount, allCandidateLists, undesiredMods);
+				copyCandidates(transmuteCandidates, baseCopies);
+				generateCandidateLists(baseItem, augmentCandidates, desiredMods, tagCount, allCandidateLists, undesiredMods);
+	
+				// Skip first two lists (transmute and augment)
+				if (allCandidateLists.size() > 2)
+					allCandidateLists.subList(0, 2).clear();
+			}
+		else
+		{
+			// Item already has existing modifiers (from user selection)
+			// Initialize with a single candidate representing the current item state
+			System.out.println("Item has existing modifiers - creating initial candidate");
+			
+			// Calculate initial score: only count existing mods that are ALSO desired mods
+			double initialScore = 0;
+			List<Modifier> currentMods = baseItem.getAllCurrentModifiers();
+			
+			// Use the same scoring logic as the heuristic function
+			for (Modifier currentMod : currentMods) {
+				for (Modifier desiredMod : desiredMods) {
+					if (currentMod.text.equals(desiredMod.text)) {
+						// This existing mod matches a desired mod
+						initialScore += 1000; // Standard score per matching desired mod
+						break;
+					}
+				}
+			}
+			
+			// Create initial candidate with a dummy action (just for initialization)
+			ExaltedOrb dummyAction = new ExaltedOrb();
+			Crafting_Candidate initialCandidate = new Crafting_Candidate(baseItem, initialScore, dummyAction);
+			
+			// Clear the dummy action from the candidate's actions list
+			initialCandidate.actions.clear();
+			
+			// Add to candidate lists so the algorithm can start processing
+			transmuteCandidates.add(initialCandidate);
+			allCandidateLists.add(new ArrayList<>(Arrays.asList(initialCandidate)));
+			
+			System.out.println("Initial candidate created with score: " + initialScore);
+			System.out.println("Current modifiers on item: " + currentMods.size());
+			System.out.println("Matching desired mods: " + (initialScore / 1000));
+		}			// Step 4: Iterative refinement loop
 			List<List<Crafting_Candidate>> current = deepCopy(allCandidateLists);
 			List<List<Crafting_Candidate>> next = new ArrayList<>();
 
@@ -113,6 +153,71 @@ public class Crafting_Algorithm {
 		List<Crafting_Candidate> finalCandidates = extractHighScoreCandidates(allCandidateLists, desiredMods);
 		return finalCandidates;
 }
+
+    /**
+     * Optimizes the crafting process for items that already have existing modifiers.
+     * 
+     * @param baseItem                    The base item with existing modifiers already applied.
+     * @param desiredMods                 A list of desired modifiers to add to the item.
+     * @param undesiredMods               A list of undesired modifiers to avoid.
+     * @param GLOBAL_THRESHOLD            The global threshold for crafting optimization.
+     * @param userSpecifiedExistingMods   The modifiers the user said they have on the item (from frontend).
+     * @return A list of optimized crafting candidates.
+     * @throws InterruptedException If the thread execution is interrupted.
+     * @throws ExecutionException   If an error occurs during thread execution.
+     */
+	public static List<Crafting_Candidate> optimizeCraftingWithExistingMods(
+        Crafting_Item baseItem,
+        List<Modifier> desiredMods,
+        List<Modifier> undesiredMods,
+        double GLOBAL_THRESHOLD,
+        List<Modifier> userSpecifiedExistingMods) throws InterruptedException, ExecutionException
+		{
+			// Separate user-specified mods by type
+			int i = 0, j = 0;
+			for (Modifier mod : userSpecifiedExistingMods) {
+				if (mod.type == ModifierType.PREFIX) {
+					baseItem.currentPrefixes[i] = mod;
+					i++;
+					System.out.println("  - [USER SPECIFIED PREFIX] " + mod.text + " (" + mod.type + ", Tier " + (mod.chosenTier + 1) + ")");
+				} else {
+					baseItem.currentSuffixes[j] = mod;
+					j++;
+					System.out.println("  - [USER SPECIFIED SUFFIX] " + mod.text + " (" + mod.type + ", Tier " + (mod.chosenTier + 1) + ")");
+				}
+			}
+			
+			Crafting_Item.ItemRarity currentRarity = baseItem.rarity;
+			
+			// Calculate available slots based on user-specified mods
+			int availablePrefixSlots = 3 - i;
+			int availableSuffixSlots = 3 - j;
+			
+			System.out.println("★★★ ALGORITHM: Processing item with existing mods ★★★");
+			System.out.println("Rarity: " + currentRarity);
+			System.out.println("User specified " + userSpecifiedExistingMods.size() + " existing mods:");
+			System.out.println("Available prefix slots: " + availablePrefixSlots);
+			System.out.println("Available suffix slots: " + availableSuffixSlots);
+			System.out.println("Target mods to add:");
+			for (Modifier mod : desiredMods) {
+				System.out.println("  - [TARGET] " + mod.text + " (Tier " + (mod.chosenTier + 1) + ")");
+			}
+			for(Modifier mod : userSpecifiedExistingMods) {
+				desiredMods.add(mod);
+			}
+			
+			// TODO: Implement your adapted algorithm logic here
+			// Strategy suggestions:
+			// 1. If slots are available: Use augment/exalt to add desired mods
+			// 2. If slots are full: Consider annulment to remove unwanted mods
+			// 3. Skip transmutation (item already has mods)
+			// 4. Consider if item needs to be rare (use regal if MAGIC and need 3+ mods)
+			// 5. Check if desired mods conflict with existing mod types
+			
+			// For now, fall back to standard algorithm
+			// Replace this with your custom logic
+			return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD);
+	}
 
     /**
      * Processes candidate lists to refine crafting results.
@@ -317,14 +422,18 @@ public class Crafting_Algorithm {
 		Callable<List<Crafting_Candidate>> task3 = () -> {
 		// We need to REDO this section it is so ugly
 			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty()) {
-				ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory
-						.get(FirstCandidateList.get(0).modifierHistory.size() - 1);
-				ModifierEvent lastlastEvent = FirstCandidateList.get(0).modifierHistory
-						.get(FirstCandidateList.get(0).modifierHistory.size() - 2);
-				if (lastEvent.type != ActionType.REMOVED && !FirstCandidateList.get(0).stopAnnul && isExaltorRegalorDes(lastEvent, lastlastEvent) ) {
-					AnnulmentOrb annul = new AnnulmentOrb();
-					return annul.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
-							undesiredMods);
+				int historySize = FirstCandidateList.get(0).modifierHistory.size();
+				// Need at least 2 events in history to check last two
+				if (historySize >= 2) {
+					ModifierEvent lastEvent = FirstCandidateList.get(0).modifierHistory
+							.get(historySize - 1);
+					ModifierEvent lastlastEvent = FirstCandidateList.get(0).modifierHistory
+							.get(historySize - 2);
+					if (lastEvent.type != ActionType.REMOVED && !FirstCandidateList.get(0).stopAnnul && isExaltorRegalorDes(lastEvent, lastlastEvent) ) {
+						AnnulmentOrb annul = new AnnulmentOrb();
+						return annul.apply(baseItem, FirstCandidateList, desiredMods, CountDesiredModifierTags,
+								undesiredMods);
+					}
 				}
 			}
 			return new ArrayList<>();

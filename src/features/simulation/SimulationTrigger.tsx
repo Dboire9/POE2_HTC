@@ -12,7 +12,8 @@ const SimulationTrigger: React.FC = () => {
     selectedPrefixes, 
     selectedSuffixes, 
     existingPrefixes, 
-    existingSuffixes 
+    existingSuffixes,
+    itemRarity
   } = useModifiers();
   const { loading, startSimulation } = useSimulation();
 
@@ -45,6 +46,8 @@ const SimulationTrigger: React.FC = () => {
         prefixes: existingPrefixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
         suffixes: existingSuffixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
       };
+      // Include item rarity when starting from existing item
+      request.itemRarity = itemRarity;
     }
 
     startSimulation(request);

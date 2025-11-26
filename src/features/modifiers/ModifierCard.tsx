@@ -56,7 +56,8 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
   };
   
   const handleCardClick = () => {
-    if (!disabled) {
+    // Allow clicking if not disabled, OR if selected (to allow deselection even when at max)
+    if (!disabled || selected) {
       onClick(modifier, tier);
     }
   };

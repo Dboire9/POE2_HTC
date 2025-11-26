@@ -47,4 +47,47 @@ public class CraftingExecutor {
         return results;
     }
 
+    /**
+     * Executes the crafting process for items that already have existing modifiers.
+     * This method adapts the crafting logic to account for modifiers already present
+     * on the item, optimizing the path to add the desired modifiers.
+     *
+     * @param baseItem                   The base crafting item with existing modifiers already applied.
+     * @param desiredMod                 A list of desired modifiers to be added to the item.
+     * @param undesiredMod               A list of undesired modifiers to be avoided in the crafting result.
+     * @param GLOBAL_THRESHOLD           A global threshold value used to filter crafting paths.
+     * @param userSpecifiedExistingMods  The modifiers the user specified they have on the item (from frontend).
+     * @return A list of {@code CandidateProbability} objects representing the analyzed
+     *         and sorted crafting paths with their associated probabilities.
+     * @throws InterruptedException If the crafting process is interrupted.
+     * @throws ExecutionException   If an error occurs during the execution of the crafting algorithm.
+     */
+    public static List<CandidateProbability> runCraftingWithExistingMods(
+            Crafting_Item baseItem,
+            List<Modifier> desiredMod,
+            List<Modifier> undesiredMod,
+            double GLOBAL_THRESHOLD,
+            List<Modifier> userSpecifiedExistingMods
+    ) throws InterruptedException, ExecutionException {
+        System.out.println("★★★ RUNNING CRAFTING WITH EXISTING MODS ★★★");
+        System.out.println("Item rarity: " + baseItem.rarity);
+        System.out.println("User-specified existing modifiers: " + userSpecifiedExistingMods.size());
+        
+        List<Crafting_Candidate> candidates = Crafting_Algorithm.optimizeCraftingWithExistingMods(
+            baseItem, 
+            desiredMod, 
+            undesiredMod, 
+            GLOBAL_THRESHOLD,
+            userSpecifiedExistingMods
+        );
+
+        // Compute probabilities for the generated crafting candidates
+        Probability.ComputingProbability(candidates, desiredMod, baseItem);
+
+        // Analyze and sort the best crafting paths based on probabilities
+        List<CandidateProbability> results = Probability_Analyzer.Analyze(candidates);
+        
+        return results;
+    }
+
 }

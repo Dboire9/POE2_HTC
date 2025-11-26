@@ -159,6 +159,7 @@ export interface ModifiersState {
   selectedSuffixes: Modifier[];   // Selected suffixes (max 3)
   existingPrefixes: Modifier[];   // Existing prefixes on the item
   existingSuffixes: Modifier[];   // Existing suffixes on the item
+  itemRarity: 'magic' | 'rare';   // Item rarity (affects max mod counts)
   exclusionRules: ModifierExclusion[]; // Incompatibility rules
   loading: boolean;
   error: string | null;
@@ -173,6 +174,7 @@ export interface ModifiersActions {
   markAsExisting: (modifier: Modifier, tier?: number) => void;
   unmarkAsExisting: (modifierId: string) => void;
   clearExistingMods: () => void;
+  setItemRarity: (rarity: 'magic' | 'rare') => void;
 }
 
 export interface SimulationState {

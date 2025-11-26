@@ -17,6 +17,7 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [selectedSuffixes, setSelectedSuffixes] = useState<Modifier[]>([]);
   const [existingPrefixes, setExistingPrefixes] = useState<Modifier[]>([]);
   const [existingSuffixes, setExistingSuffixes] = useState<Modifier[]>([]);
+  const [itemRarity, setItemRarity] = useState<'magic' | 'rare'>('rare');
   const [exclusionRules, setExclusionRules] = useState<ModifierExclusion[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,6 +82,11 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const unique: Modifier[] = [];
         
         for (const mod of mods) {
+          // Filter out normal essences
+          if (mod.source === 'essence') {
+            continue;
+          }
+          
           const key = `${mod.name || mod.text}-${mod.source || 'normal'}`;
           if (!seen.has(key)) {
             seen.add(key);
@@ -371,6 +377,7 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     selectedSuffixes,
     existingPrefixes,
     existingSuffixes,
+    itemRarity,
     exclusionRules,
     loading,
     error,
@@ -383,6 +390,7 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     markAsExisting,
     unmarkAsExisting,
     clearExistingMods,
+    setItemRarity,
   };
 
   return <ModifiersContext.Provider value={value}>{children}</ModifiersContext.Provider>;

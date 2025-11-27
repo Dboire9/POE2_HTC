@@ -52,8 +52,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
     if (!searchQuery.trim()) return mods;
     const query = searchQuery.toLowerCase();
     return mods.filter(mod => 
-      mod.text.toLowerCase().includes(query) ||
-      (mod.name && mod.name.toLowerCase().includes(query))
+      mod.text.toLowerCase().includes(query)
     );
   };
 

@@ -452,6 +452,12 @@ autoUpdater.on('update-downloaded', (info) => {
 });
 
 autoUpdater.on('error', (error) => {
+  // Check if it's a channel file not found error (common when release is being uploaded)
+  if (error && typeof error === 'object' && 'code' in error && error.code === 'ERR_UPDATER_CHANNEL_FILE_NOT_FOUND') {
+    logToRenderer('log', '[AutoUpdater] Update metadata not found - release may still be uploading or incomplete');
+    return; // Silently skip this error
+  }
+  
   logToRenderer('error', '[AutoUpdater] ===== ERROR =====');
   logToRenderer('error', '[AutoUpdater] Error message:', error.message);
   logToRenderer('error', '[AutoUpdater] Error stack:', error.stack);

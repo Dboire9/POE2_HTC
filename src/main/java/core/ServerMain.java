@@ -1014,15 +1014,19 @@ public class ServerMain {
 							if (probability == null) {
 								probability = 0.0;
 							}
-							actionObj.addProperty("probability", probability);
+						actionObj.addProperty("probability", probability);
 
-							// Add modifier info if available
-							if (event.modifier != null) {
-								actionObj.addProperty("modifier", event.modifier.text);
-								actionObj.addProperty("modifierFamily", event.modifier.family);
-							}
+						// Add modifier info if available
+						if (event.modifier != null) {
+							actionObj.addProperty("modifier", event.modifier.text);
+							actionObj.addProperty("modifierFamily", event.modifier.family);
+						}
 
-							// Extract action-specific details (tier, omens, etc.)
+						// Check if this is a perfect essence replacement (100% probability due to throwaway)
+						if (probability >= 0.99 && event.changed_modifier != null) {
+							actionObj.addProperty("isPerfectEssenceReplacement", true);
+							actionObj.addProperty("replacedModifier", event.changed_modifier.text);
+						}							// Extract action-specific details (tier, omens, etc.)
 							if (action instanceof core.Currency.ExaltedOrb exalted) {
 								if (exalted.tier != null) {
 									actionObj.addProperty("tier", exalted.tier.toString());

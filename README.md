@@ -30,6 +30,8 @@ A powerful desktop application that calculates optimal crafting paths for **Path
   <img src="screenshots/Bow_result.PNG" alt="PoE2 Pathfinder final result" width="400"/>
 </div>
 
+## Join us on [Discord](https://discord.gg/RvxCWyFF3D).
+
 ## 📑 Table of Contents
 
 - [✨ Features](#-features)
@@ -80,8 +82,6 @@ npm install --legacy-peer-deps
 # Run the Electron desktop app
 npm run electron:dev
 ```
-
-## If you need some help or want to join the community, join us on [Discord](https://discord.gg/RvxCWyFF3D).
 
 ---
 

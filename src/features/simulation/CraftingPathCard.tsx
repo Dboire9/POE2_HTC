@@ -61,9 +61,32 @@ const CraftingPathCard: React.FC<CraftingPathCardProps> = ({ path, rank }) => {
                   </p>
                 )}
               </div>
-              <span className="text-xs text-muted-foreground">
-                {Math.min(step.probability * 100, 100).toFixed(1)}%
-              </span>
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-muted-foreground">
+                  {Math.min(step.probability * 100, 100).toFixed(1)}%
+                </span>
+                {/* Show checkmark on the step that is about to be replaced by a perfect essence */}
+                {(() => {
+                  const nextStep = path.steps[idx + 1];
+                  if (
+                    nextStep &&
+                    nextStep.isPerfectEssenceReplacement &&
+                    nextStep.replacedModifier &&
+                    step.targetModifier &&
+                    nextStep.replacedModifier === step.targetModifier
+                  ) {
+                    return (
+                      <span
+                        className="text-xs text-orange-600 dark:text-green-400 cursor-help"
+                        title={`100% because this modifier will be replaced by a Perfect Essence in the next step`}
+                      >
+                        ?
+                      </span>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
             </li>
           ))}
         </ol>

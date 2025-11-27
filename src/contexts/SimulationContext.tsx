@@ -130,7 +130,9 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             probability: action.probability || 0,
             tier: action.tier,
             omen: action.omen,
-            omens: action.omens
+            omens: action.omens,
+            isPerfectEssenceReplacement: action.isPerfectEssenceReplacement,
+            replacedModifier: action.replacedModifier
           }));
 
           // Calculate total cost from steps

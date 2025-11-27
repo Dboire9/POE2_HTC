@@ -6,7 +6,7 @@ import { Card } from '../../components/ui/card';
 import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import ModifierList from './ModifierList';
-import { ArrowRight, ArrowLeft, Check, X, Sparkles, Info, RotateCcw } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, X, Sparkles, Info, RotateCcw, Search } from 'lucide-react';
 import { HelpIcon } from '../../components/ui/help-icon';
 
 interface ExistingModsPanelProps {
@@ -41,10 +41,21 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
   const [step, setStep] = useState<0 | 1 | 2>(0); // Add step 0 for mode selection
   const [craftingMode, setCraftingMode] = useState<'scratch' | 'improve' | null>(null);
   const [raritySelected, setRaritySelected] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const hasExistingMods = existingPrefixes.length > 0 || existingSuffixes.length > 0;
   const totalExistingMods = existingPrefixes.length + existingSuffixes.length;
   const totalTargetMods = selectedPrefixes.length + selectedSuffixes.length;
+
+  // Filter modifiers based on search query
+  const filterModifiers = (mods: typeof prefixes) => {
+    if (!searchQuery.trim()) return mods;
+    const query = searchQuery.toLowerCase();
+    return mods.filter(mod => 
+      mod.text.toLowerCase().includes(query) ||
+      (mod.name && mod.name.toLowerCase().includes(query))
+    );
+  };
 
   // Get max slots based on rarity
   const maxPrefixes = itemRarity === 'magic' ? 1 : 3;
@@ -400,6 +411,24 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
                 <option value="desecrated">Desecrated</option>
               </select>
             </div>
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search affixes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-3 py-1.5 text-sm border rounded bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
             <Button
               variant="outline"
               size="default"
@@ -415,7 +444,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
           <div className="space-y-4" data-modifier-lists>
             <ModifierList
               title="Prefixes"
-              modifiers={prefixes}
+              modifiers={filterModifiers(prefixes)}
               selectedModifiers={existingPrefixes}
               onSelect={handleSelectExistingMod}
               onDeselect={handleDeselectExistingMod}
@@ -424,7 +453,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
 
             <ModifierList
               title="Suffixes"
-              modifiers={suffixes}
+              modifiers={filterModifiers(suffixes)}
               selectedModifiers={existingSuffixes}
               onSelect={handleSelectExistingMod}
               onDeselect={handleDeselectExistingMod}
@@ -546,6 +575,24 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
                 <option value="desecrated">Desecrated</option>
               </select>
             </div>
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search affixes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-3 py-1.5 text-sm border rounded bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
             <Button
               variant="outline"
               size="default"
@@ -561,7 +608,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
           <div className="space-y-4" data-modifier-lists>
             <ModifierList
               title="Prefixes"
-              modifiers={prefixes.filter(p => !existingPrefixes.some(ep => ep.text === p.text))}
+              modifiers={filterModifiers(prefixes.filter(p => !existingPrefixes.some(ep => ep.text === p.text)))}
               selectedModifiers={selectedPrefixes}
               onSelect={handleSelectTargetMod}
               onDeselect={handleDeselectTargetMod}
@@ -574,7 +621,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
 
             <ModifierList
               title="Suffixes"
-              modifiers={suffixes.filter(s => !existingSuffixes.some(es => es.text === s.text))}
+              modifiers={filterModifiers(suffixes.filter(s => !existingSuffixes.some(es => es.text === s.text)))}
               selectedModifiers={selectedSuffixes}
               onSelect={handleSelectTargetMod}
               onDeselect={handleDeselectTargetMod}

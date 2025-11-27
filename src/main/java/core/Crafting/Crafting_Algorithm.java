@@ -148,6 +148,8 @@ public class Crafting_Algorithm {
 
 		// Final filtering
 		List<Crafting_Candidate> finalCandidates = extractHighScoreCandidates(allCandidateLists, desiredMods);
+		System.out.println("[DEBUG] Final candidates count: " + finalCandidates.size());
+		System.out.println("[DEBUG] Desired mods count: " + desiredMods.size());
 		return finalCandidates;
 	}
 
@@ -262,28 +264,39 @@ public class Crafting_Algorithm {
 
 		List<Crafting_Candidate> result = new ArrayList<>();
 
+		System.out.println("[DEBUG extractHighScore] Processing " + allCandidateLists.size() + " candidate lists");
+		System.out.println("[DEBUG extractHighScore] Looking for " + desiredMods.size() + " desired mods");
+		
+		// Calculate minimum score based on number of desired mods (1000 points per mod)
+		int minScore = desiredMods.size() * 1000;
+		System.out.println("[DEBUG extractHighScore] Minimum score threshold: " + minScore);
+		
 		for (List<Crafting_Candidate> list : allCandidateLists) {
 			for (Crafting_Candidate candidate : list) {
 				candidate.desecrated = false;
 
-				if (candidate.score < 6000) {
+				if (candidate.score != minScore) {
 					continue;
 				}
 
 				List<Modifier> current = candidate.getAllCurrentModifiers();
-				if (current.size() < 6) {
-					continue;
-				}
-
+				// Removed check for current.size() < 6 to allow fewer mods
+				
 				long matchCount = current.stream()
 						.filter(m -> desiredMods.stream().anyMatch(d -> d.text.equals(m.text)))
 						.count();
 
-				if (matchCount == 6) {
+				System.out.println("[DEBUG extractHighScore] Candidate has " + current.size() + " mods, " + matchCount + " match desired");
+				
+				// Accept if all desired mods are matched (not necessarily 6)
+				if (matchCount == desiredMods.size()) {
 					result.add(candidate);
+					System.out.println("[DEBUG extractHighScore] ✓ Candidate ACCEPTED");
 				}
 			}
 		}
+
+		System.out.println("[DEBUG extractHighScore] Total accepted candidates: " + result.size());
 
 		// Sort for deterministic ordering
 		result.sort((c1, c2) -> {

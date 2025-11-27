@@ -4,6 +4,14 @@ export interface UpdateInfo {
   releaseNotes?: string;
 }
 
+export interface UpdateCheckResult {
+  available: boolean;
+  currentVersion?: string;
+  updateInfo?: any;
+  message?: string;
+  error?: string;
+}
+
 export interface DownloadProgress {
   percent: number;
   transferred: number;
@@ -18,7 +26,7 @@ export interface ElectronAPI {
   openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
   
   // Update-specific methods
-  checkForUpdates: () => Promise<void>;
+  checkForUpdates: () => Promise<UpdateCheckResult>;
   downloadUpdate: () => Promise<void>;
   installUpdate: () => void;
   getAppVersion: () => Promise<string>;

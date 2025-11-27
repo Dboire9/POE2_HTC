@@ -9,10 +9,12 @@ import core.Crafting.Crafting_Item;
 import core.Crafting.Utils.ModifierEvent;
 import core.Crafting.Utils.ModifierEvent.ActionType;
 import core.Currency.AnnulmentOrb;
+import core.Currency.AugmentationOrb;
 import core.Currency.Desecrated_currency;
 import core.Currency.Essence_currency;
 import core.Currency.ExaltedOrb;
 import core.Currency.RegalOrb;
+import core.Currency.TransmutationOrb;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.Modifier.ModifierType;
 
@@ -43,9 +45,9 @@ public class Probability {
 				// Retrieving the first action to know what it is
 				Crafting_Action action = event.source.keySet().iterator().next();
 
-				// Not doing the transmutation
-
-				// Not doing aug for now, want to see a 100% prob if it is possible
+				if (action instanceof TransmutationOrb || action instanceof AugmentationOrb)
+					TransmutesandAugsProbability.ComputeTransmutesandAugs(candidate, desiredMod, baseItem, i,
+							excludedCurrencies);
 				if (action instanceof RegalOrb || action instanceof ExaltedOrb)
 					ExaltAndRegalProbability.ComputeRegalAndExalted(candidate, desiredMod, baseItem, i,
 							excludedCurrencies);

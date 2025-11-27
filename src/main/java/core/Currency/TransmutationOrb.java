@@ -13,7 +13,6 @@ import core.Modifier_class.*;
  */
 public class TransmutationOrb implements Crafting_Action {
 
-    public Crafting_Action.CurrencyTier tier; // The tier of the Transmutation Orb
 
     /**
      * Creates a copy of the current Transmutation Orb.
@@ -22,24 +21,13 @@ public class TransmutationOrb implements Crafting_Action {
      */
     @Override
     public Crafting_Action copy() {
-        return new TransmutationOrb(this.tier);
-    }
-
-    /**
-     * Constructor to create a Transmutation Orb with a specific tier.
-     *
-     * @param tier The tier of the Transmutation Orb.
-     */
-    public TransmutationOrb(CurrencyTier tier) {
-        this.tier = tier;
+        return new TransmutationOrb();
     }
 
     /**
      * Default constructor to create a Transmutation Orb with the base tier.
      */
-    public TransmutationOrb() {
-        this.tier = CurrencyTier.BASE;
-    }
+    public TransmutationOrb(){}
 
     /**
      * Applies the Transmutation Orb crafting action to a list of crafting candidates.
@@ -85,7 +73,7 @@ public class TransmutationOrb implements Crafting_Action {
      */
     @Override
     public String getName() {
-        return "Orb of Transmutation (" + tier + ")";
+        return "Orb of Transmutation";
     }
 
     /**

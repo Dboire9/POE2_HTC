@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import core.Crafting.Crafting_Action;
+import core.Crafting.Crafting_Action.CurrencyTier;
 import core.Crafting.Crafting_Candidate;
 import core.Crafting.Crafting_Item;
 import core.Currency.ExaltedOrb.Omen;
@@ -17,8 +18,6 @@ import core.Modifier_class.Modifier;
  */
 public class AugmentationOrb implements Crafting_Action {
 
-    public Crafting_Action.CurrencyTier tier; // The tier of the currency, which can affect the behavior of the crafting action.
-
     /**
      * Creates a copy of the current Augmentation Orb instance.
      *
@@ -28,6 +27,11 @@ public class AugmentationOrb implements Crafting_Action {
     public Crafting_Action copy() {
         return new AugmentationOrb(this.tier);
     }
+
+	/**
+     * The tier of the Orb, which determines its strength.
+     */
+	public CurrencyTier tier;
 
     /**
      * Applies the Augmentation Orb crafting action to a list of crafting candidates.

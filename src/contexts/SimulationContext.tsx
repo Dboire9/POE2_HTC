@@ -59,10 +59,19 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       try {
         let response;
         
-        // Parse excluded currencies to separate currency and tier
+        // Parse excluded currencies to separate currency, tier, and omen
         const parsedExclusions = excludedCurrencies.map(exclusion => {
-          const [currency, tier] = exclusion.split(':');
-          return tier ? { currency, tier } : { currency };
+          const parts = exclusion.split(':');
+          if (parts.length === 3 && parts[1] === 'omen') {
+            // Format: currency:omen:OmenName
+            return { currency: parts[0], omen: parts[2] };
+          } else if (parts.length === 2) {
+            // Format: currency:tier
+            return { currency: parts[0], tier: parts[1] };
+          } else {
+            // Format: currency only
+            return { currency: parts[0] };
+          }
         });
         
         // Add global_threshold and excluded currencies to request

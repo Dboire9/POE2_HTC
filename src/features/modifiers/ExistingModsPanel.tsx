@@ -54,21 +54,38 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
   const filterModifiers = (mods: typeof prefixes) => {
     // Only show tiers that are available for the current item level
     const filterByItemLevel = (mod: Modifier) => {
-      if (!mod.tierDetails) return mod;
+      if (!mod.tierDetails || mod.tierDetails.length === 0) return mod;
+      
       // Attach original tier number to each tier (T1 = last, Tn = first)
       const totalTiers = mod.tierDetails.length;
       const tierDetailsWithOriginal = mod.tierDetails.map((tier, idx) => ({
         ...tier,
         originalTier: totalTiers - idx // T1 = last, Tn = first
       }));
+      
       // Only include tiers where required level <= itemLevel
       const availableTiers = tierDetailsWithOriginal.filter(tier => tier.level <= itemLevel);
+      
+      if (availableTiers.length === 0) {
+        // No tiers available at this item level
+        return {
+          ...mod,
+          availableTiers: 0,
+          tierDetails: [],
+          tier: undefined
+        };
+      }
+      
+      // Find the best available tier (highest originalTier number, which is the last in the array after filtering)
+      const bestTierObj = availableTiers[availableTiers.length - 1];
+      const bestTier = bestTierObj.originalTier || 1;
+      
       return {
         ...mod,
         availableTiers: availableTiers.length,
         tierDetails: availableTiers,
-        // If the selected tier is now out of range, reset to best available (T1 = last)
-        tier: mod.tier && mod.tier <= availableTiers.length ? mod.tier : availableTiers.length > 0 ? 1 : undefined
+        // Set to best available tier by default
+        tier: bestTier
       };
     };
     let filtered = mods.map(filterByItemLevel);
@@ -416,67 +433,65 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
             </div>
           </Card>
 
-          {/* Filter Controls (Step 2 only) */}
-          {step === (2 as typeof step) && (
-            <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Filter:</span>
-                <select
-                  value={sourceFilter}
-                  onChange={(e) => setSourceFilter(e.target.value as any)}
-                  className="text-sm border rounded px-3 py-1.5 bg-background"
-                >
-                  <option value="all">All Mods</option>
-                  <option value="normal">Normal</option>
-                  <option value="perfect">Perfect Essence</option>
-                  <option value="desecrated">Desecrated</option>
-                </select>
-                {/* Item Level Dropdown */}
-                <label className="flex items-center gap-1 text-xs ml-2">
-                  Item Level:
-                  <select
-                    value={itemLevel}
-                    onChange={e => {
-                      // Only update item level, do not reset crafting mode or step
-                      updateItemLevel(Number(e.target.value));
-                    }}
-                    className="px-2 py-1 border rounded text-xs"
-                  >
-                    {Array.from({ length: 100 }, (_, i) => i + 1).map(lvl => (
-                      <option key={lvl} value={lvl}>{lvl}</option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search affixes..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-3 py-1.5 text-sm border rounded bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={onClearAll}
-                className="gap-2"
+          {/* Filter Controls */}
+          <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Filter:</span>
+              <select
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value as any)}
+                className="text-sm border rounded px-3 py-1.5 bg-background"
               >
-                <RotateCcw className="h-4 w-4" />
-                Clear All
-              </Button>
+                <option value="all">All Mods</option>
+                <option value="normal">Normal</option>
+                <option value="perfect">Perfect Essence</option>
+                <option value="desecrated">Desecrated</option>
+              </select>
+              {/* Item Level Dropdown */}
+              <label className="flex items-center gap-1 text-xs ml-2">
+                Item Level:
+                <select
+                  value={itemLevel}
+                  onChange={e => {
+                    // Only update item level, do not reset crafting mode or step
+                    updateItemLevel(Number(e.target.value));
+                  }}
+                  className="px-2 py-1 border rounded text-xs text-black bg-white"
+                >
+                  {Array.from({ length: 100 }, (_, i) => i + 1).map(lvl => (
+                    <option key={lvl} value={lvl} className="text-black bg-white">{lvl}</option>
+                  ))}
+                </select>
+              </label>
             </div>
-          )}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search affixes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-3 py-1.5 text-sm border rounded bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="default"
+              onClick={onClearAll}
+              className="gap-2"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Clear All
+            </Button>
+          </div>
 
           {/* Modifier Lists */}
           <div className="space-y-4" data-modifier-lists>
@@ -722,12 +737,22 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
                     <div className="space-y-2">
                       <span className="text-xs text-foreground font-medium">Target:</span>
                       <div className="space-y-1.5">
-                        {selectedPrefixes.map((mod, idx) => (
-                          <div key={`tp-${idx}`} className="p-2 rounded bg-muted/50 border border-border">
-                            <div className="text-xs font-medium">{mod.text}</div>
-                            <div className="text-xs text-foreground/70 font-mono">Tier {mod.tier}</div>
-                          </div>
-                        ))}
+                        {selectedPrefixes.map((mod, idx) => {
+                          // Find the tierInfo whose originalTier matches the selected mod.tier
+                          let tierLabel = `Tier ${mod.tier}`;
+                          if (mod.tierDetails && mod.tier) {
+                            const tierInfo = mod.tierDetails.find(t => t.originalTier === mod.tier);
+                            if (tierInfo && tierInfo.originalTier) {
+                              tierLabel = `T${tierInfo.originalTier}`;
+                            }
+                          }
+                          return (
+                            <div key={`tp-${idx}`} className="p-2 rounded bg-muted/50 border border-border">
+                              <div className="text-xs font-medium">{mod.text}</div>
+                              <div className="text-xs text-foreground/70 font-mono">{tierLabel}</div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -768,12 +793,21 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
                     <div className="space-y-2">
                       <span className="text-xs text-foreground font-medium">Target:</span>
                       <div className="space-y-1.5">
-                        {selectedSuffixes.map((mod, idx) => (
-                          <div key={`ts-${idx}`} className="p-2 rounded bg-muted/50 border border-border">
-                            <div className="text-xs font-medium">{mod.text}</div>
-                            <div className="text-xs text-foreground/70 font-mono">Tier {mod.tier}</div>
-                          </div>
-                        ))}
+                        {selectedSuffixes.map((mod, idx) => {
+                          let tierLabel = `Tier ${mod.tier}`;
+                          if (mod.tierDetails && mod.tier) {
+                            const tierInfo = mod.tierDetails.find(t => t.originalTier === mod.tier);
+                            if (tierInfo && tierInfo.originalTier) {
+                              tierLabel = `T${tierInfo.originalTier}`;
+                            }
+                          }
+                          return (
+                            <div key={`ts-${idx}`} className="p-2 rounded bg-muted/50 border border-border">
+                              <div className="text-xs font-medium">{mod.text}</div>
+                              <div className="text-xs text-foreground/70 font-mono">{tierLabel}</div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

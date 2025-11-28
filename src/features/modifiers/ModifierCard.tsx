@@ -38,43 +38,39 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
   availableTiers = 1
 }) => {
   // Use selectedTier if provided (when selected), otherwise use modifier's default tier
-  const [tier, setTier] = useState(selectedTier || modifier.tier || 1);
+  const [tier, setTier] = useState(() => {
+    // Initialize with the best available tier
+    if (selectedTier !== undefined) return selectedTier;
+    if (modifier.tier) return modifier.tier;
+    if (modifier.tierDetails && modifier.tierDetails.length > 0) {
+      const highest = modifier.tierDetails.reduce((max, t) => 
+        t.originalTier && t.originalTier > max ? t.originalTier : max, 1
+      );
+      return highest;
+    }
+    return 1;
+  });
   const sourceBadge = getSourceBadge(modifier.source);
 
-  // Debug: Log prop changes and re-renders
-  React.useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[ModifierCard] RENDER', {
-      id: modifier.id,
-      text: modifier.text,
-      selected,
-      disabled,
-      selectedTier,
-      availableTiers,
-      tierDetails: modifier.tierDetails?.map(t => t.level),
-      tier,
-    });
-  });
+  // ...existing code...
 
   // Update local tier state when selectedTier or available tiers change (sync with context and item level)
   React.useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[ModifierCard] useEffect: selectedTier/modifier.tierDetails changed', {
-      id: modifier.id,
-      selectedTier,
-      tierDetails: modifier.tierDetails?.map(t => t.level),
-      availableTiers,
-    });
-    if (selectedTier !== undefined && modifier.tierDetails && selectedTier <= modifier.tierDetails.length) {
+    if (selectedTier !== undefined) {
       setTier(selectedTier);
+    } else if (modifier.tier) {
+      // Use the tier from the modifier (which should be the best available after filtering)
+      setTier(modifier.tier);
     } else if (modifier.tierDetails && modifier.tierDetails.length > 0) {
-      setTier(1); // T1 is always the best (last in array, but we use 1-based)
+      // Default to the highest available originalTier
+      const highest = modifier.tierDetails.reduce((max, t) => 
+        t.originalTier && t.originalTier > max ? t.originalTier : max, 1
+      );
+      setTier(highest);
     }
-  }, [selectedTier, modifier.tierDetails]);
+  }, [selectedTier, modifier.tier, modifier.tierDetails]);
   
   const handleTierChange = (newTier: number) => {
-    // eslint-disable-next-line no-console
-    console.log('[ModifierCard] handleTierChange', { id: modifier.id, newTier });
     setTier(newTier);
     if (selected) {
       onClick(modifier, newTier);
@@ -82,8 +78,6 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
   };
   
   const handleCardClick = () => {
-    // eslint-disable-next-line no-console
-    console.log('[ModifierCard] handleCardClick', { id: modifier.id, tier });
     // Allow clicking if not disabled, OR if selected (to allow deselection even when at max)
     if (!disabled || selected) {
       onClick(modifier, tier);
@@ -131,9 +125,8 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
               className="text-xs px-2 py-1 rounded border border-border bg-background hover:bg-muted cursor-pointer"
               disabled={disabled}
             >
-              {modifier.tierDetails.slice().reverse().map((tierInfo, idx) => {
-                // Use originalTier if present, otherwise fallback to idx+1
-                const tierNum = tierInfo.originalTier || (idx + 1);
+              {modifier.tierDetails.slice().reverse().map((tierInfo) => {
+                const tierNum = tierInfo.originalTier;
                 const values = [];
                 if (tierInfo.minMax1) values.push(`${tierInfo.minMax1.min}-${tierInfo.minMax1.max}`);
                 if (tierInfo.minMax2) values.push(`${tierInfo.minMax2.min}-${tierInfo.minMax2.max}`);

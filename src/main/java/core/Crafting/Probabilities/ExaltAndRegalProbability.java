@@ -58,20 +58,69 @@ public class ExaltAndRegalProbability {
 		Modifier foundModifier = event.modifier;
 		boolean isDesired = desiredMod.contains(foundModifier);
 
-		if (foundModifier != null) {
-
+        if (foundModifier != null) {
 			String exaltedTier = excludedCurrencies.stream()
-					.filter(e -> "exalted".equals(e.get("currency")))
+					.filter(e -> "exalted".equals(e.get("currency")) && e.get("tier") != null)
 					.map(e -> e.get("tier"))
 					.findFirst()
 					.orElse(null);
 
-			boolean isExaltedBase = "base".equals(exaltedTier);
-			boolean isExaltedGreater = "greater".equals(exaltedTier);
-			boolean isExaltedPerfect = "perfect".equals(exaltedTier);
+			String regalTier = excludedCurrencies.stream()
+					.filter(e -> "regal".equals(e.get("currency")) && e.get("tier") != null)
+					.map(e -> e.get("tier"))
+					.findFirst()
+					.orElse(null);
 
-			int realtier = foundModifier.tiers.size() - foundModifier.chosenTier - 1;
-			int level = foundModifier.tiers.get(realtier).level;
+			Crafting_Action action = event.source.keySet().iterator().next();
+			
+			// Determine which currency's exclusions to use
+			String relevantTier = (action instanceof RegalOrb) ? regalTier : exaltedTier;
+
+			boolean isExcludedBase = "base".equals(relevantTier);
+			boolean isExcludedGreater = "greater".equals(relevantTier);
+			boolean isExcludedPerfect = "perfect".equals(relevantTier);
+
+
+			// Filter tiers by item level
+			List<ModifierTier> availableTiers = new ArrayList<>();
+			for (ModifierTier tier : foundModifier.tiers) {
+				if (tier.level <= baseItem.level) {
+					availableTiers.add(tier);
+				}
+			}
+			// Defensive: if no tiers are available, fallback to all tiers
+			if (availableTiers.isEmpty()) {
+				availableTiers.addAll(foundModifier.tiers);
+			}
+
+            // ChosenTier from UI is the original tier number (e.g., 10 for T10, 9 for T9, etc.)
+            // Tiers are stored in ascending order by level: tiers[0] = lowest tier (T10, T9, etc.), tiers[last] = highest tier (T1)
+            // Original tier number = totalTiers - index, so T10 (tier 10) is at index 0 if there are 10 tiers
+            int originalTierNumber = foundModifier.chosenTier;
+            
+            // Find the tier in availableTiers that matches the original tier number
+            ModifierTier chosenTierObj = null;
+            int filteredChosenTier = -1;
+            for (int idx = 0; idx < availableTiers.size(); idx++) {
+                int thisTierNumber = foundModifier.tiers.size() - foundModifier.tiers.indexOf(availableTiers.get(idx));
+                if (thisTierNumber == originalTierNumber) {
+                    chosenTierObj = availableTiers.get(idx);
+                    filteredChosenTier = idx;
+                    break;
+                }
+            }
+            // Fallback: if not found (tier not available for item level), use the best available (last in filtered list = highest tier)
+            if (chosenTierObj == null && !availableTiers.isEmpty()) {
+                chosenTierObj = availableTiers.get(availableTiers.size() - 1);
+                filteredChosenTier = availableTiers.size() - 1;
+            }
+            
+            // Additional safety check
+            if (chosenTierObj == null) {
+                return; // Skip this modifier
+            }
+            int realtier = foundModifier.tiers.indexOf(chosenTierObj);
+            int level = chosenTierObj.level;
 
 			int[] levels;
 			Crafting_Action.CurrencyTier[] tiers;
@@ -80,19 +129,19 @@ public class ExaltAndRegalProbability {
 			List<Crafting_Action.CurrencyTier> tiersList = new ArrayList<>();
 
 			// Add BASE tier if not excluded and level supports it
-			if (!isExaltedBase && level >= 0) {
+			if (!isExcludedBase && level >= 0) {
 				levelsList.add(0);
 				tiersList.add(CurrencyTier.BASE);
 			}
 
 			// Add GREATER tier if not excluded and level supports it
-			if (!isExaltedGreater && level >= 35) {
+			if (!isExcludedGreater && level >= 35) {
 				levelsList.add(35);
 				tiersList.add(CurrencyTier.GREATER);
 			}
 
 			// Add PERFECT tier if not excluded and level supports it
-			if (!isExaltedPerfect && level >= 50) {
+			if (!isExcludedPerfect && level >= 50) {
 				levelsList.add(50);
 				tiersList.add(CurrencyTier.PERFECT);
 			}
@@ -101,9 +150,7 @@ public class ExaltAndRegalProbability {
 			levels = levelsList.stream().mapToInt(Integer::intValue).toArray();
 			tiers = tiersList.toArray(new Crafting_Action.CurrencyTier[0]);
 
-			Crafting_Action action = event.source.keySet().iterator().next();
-
-			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired);
+			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired, excludedCurrencies);
 
 			if (action instanceof RegalOrb) {
 				canBeEssence(baseItem, candidate, event, level, realtier, i);
@@ -130,9 +177,23 @@ public class ExaltAndRegalProbability {
 			int[] levels,
 			Crafting_Action.CurrencyTier[] tiers,
 			int i,
-			boolean isDesired) {
+			boolean isDesired,
+			List<Map<String, String>> excludedCurrencies) {
 		Map<Crafting_Action, Double> source = event.source;
 		Crafting_Action action = source.keySet().iterator().next();
+
+		// Get excluded omens for regal and exalted
+		String excludedRegalOmen = excludedCurrencies.stream()
+				.filter(e -> "regal".equals(e.get("currency")) && e.get("omen") != null)
+				.map(e -> e.get("omen"))
+				.findFirst()
+				.orElse(null);
+
+		String excludedExaltedOmen = excludedCurrencies.stream()
+				.filter(e -> "exalted".equals(e.get("currency")) && e.get("omen") != null)
+				.map(e -> e.get("omen"))
+				.findFirst()
+				.orElse(null);
 
 		for (int j = 0; j < levels.length; j++) {
 			int level = levels[j];
@@ -143,17 +204,32 @@ public class ExaltAndRegalProbability {
 
 			if (action instanceof RegalOrb) {
 				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values()) {
+					// Skip if this omen is excluded
+					if (excludedRegalOmen != null && currentOmen.name().equals(excludedRegalOmen)) {
+						continue;
+					}
+					
 					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
 					if (percentage != 0)
 						source.put(new RegalOrb(tier, currentOmen), percentage);
 				}
 			} else if (action instanceof ExaltedOrb) {
 				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values()) {
+					// Skip if this omen is excluded
+					if (excludedExaltedOmen != null && currentOmen.name().equals(excludedExaltedOmen)) {
+						continue;
+					}
+					
 					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
 					if (percentage == 2)
 						source.put(new ExaltedOrb(Crafting_Action.CurrencyTier.DES_CURRENCY, currentOmen), percentage);
 					else if (percentage != 0) {
 						if (currentOmen == ExaltedOrb.Omen.OmenofHomogenisingExaltation) {
+							// Skip if the Homogenising omen is excluded
+							if (excludedExaltedOmen != null && currentOmen.name().equals(excludedExaltedOmen)) {
+								continue;
+							}
+							
 							Set<ExaltedOrb.Omen> newOmens = new HashSet<>();
 							newOmens.add(ExaltedOrb.Omen.OmenofHomogenisingExaltation);
 							if (event.modifier.type == ModifierType.PREFIX)
@@ -461,13 +537,38 @@ public class ExaltAndRegalProbability {
 		double TotalSuffixWeight = 0;
 		double weight = 0;
 
+		// Always use the base item level for filtering
+		ilvl = baseItem.level;
+
 		if (!isDesired) {
 			for (ModifierTier tiers : event.modifier.tiers)
 				weight += tiers.weight;
-			ilvl = 0;
 		} else {
-			// Only count the weight of the desired tier itself
-			weight = event.tier.weight;
+			// Count the weight of the desired tier AND all better tiers available at this item level
+			// event.tier is the chosen tier, we need to find its position and sum from there to the end
+			Modifier modifier = event.modifier;
+			int chosenTierIndex = -1;
+			
+			// Find the index of the chosen tier in the full tier list
+			for (int idx = 0; idx < modifier.tiers.size(); idx++) {
+				if (modifier.tiers.get(idx).equals(event.tier)) {
+					chosenTierIndex = idx;
+					break;
+				}
+			}
+			
+			// Sum weights from chosen tier to the end (better tiers), filtering by item level
+			if (chosenTierIndex >= 0) {
+				for (int idx = chosenTierIndex; idx < modifier.tiers.size(); idx++) {
+					ModifierTier tier = modifier.tiers.get(idx);
+					if (tier.level <= ilvl) {
+						weight += tier.weight;
+					}
+				}
+			} else {
+				// Fallback: just use the event tier weight
+				weight = event.tier.weight;
+			}
 		}
 
 		if (PossiblePrefixes != null)

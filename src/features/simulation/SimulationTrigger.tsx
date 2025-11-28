@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '../../components/ui/alert';
 
 // T046: Button component that triggers simulation
 const SimulationTrigger: React.FC = () => {
-  const { selectedItem } = useItems();
+  const { selectedItem, itemLevel } = useItems();
   const { 
     selectedPrefixes, 
     selectedSuffixes, 
@@ -33,18 +33,19 @@ const SimulationTrigger: React.FC = () => {
 
     const request: any = {
       itemId,
+      itemLevel, // Include item level in the request
       modifiers: {
-        // Convert 1-based UI tier to 0-based backend tier
-        prefixes: selectedPrefixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
-        suffixes: selectedSuffixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
+        // Send originalTier directly (T10 = 10, T9 = 9, etc.)
+        prefixes: selectedPrefixes.map(m => ({ text: m.text, tier: m.tier || 1 })),
+        suffixes: selectedSuffixes.map(m => ({ text: m.text, tier: m.tier || 1 })),
       },
     };
 
     // Include existing mods if any are specified
     if (existingModifiers.length > 0) {
       request.existingModifiers = {
-        prefixes: existingPrefixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
-        suffixes: existingSuffixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
+        prefixes: existingPrefixes.map(m => ({ text: m.text, tier: m.tier || 1 })),
+        suffixes: existingSuffixes.map(m => ({ text: m.text, tier: m.tier || 1 })),
       };
       // Include item rarity when starting from existing item
       request.itemRarity = itemRarity;

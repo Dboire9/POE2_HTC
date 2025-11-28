@@ -439,6 +439,9 @@ public class ServerMain {
 						if (currencyObj.has("tier")) {
 							exclusion.put("tier", currencyObj.get("tier").getAsString());
 						}
+						if (currencyObj.has("omen")) {
+							exclusion.put("omen", currencyObj.get("omen").getAsString());
+						}
 						excludedCurrencies.add(exclusion);
 					}
 				}
@@ -822,8 +825,21 @@ public class ServerMain {
 					return;
 				}
 
+
 				// Create Crafting_Item from Item_base
 				Crafting_Item craftingItem = new Crafting_Item(itemInstance);
+
+				// Set item level from request if provided
+				int itemLevel = 100; // default fallback
+				if (jsonRequest.has("itemLevel") && !jsonRequest.get("itemLevel").isJsonNull()) {
+					try {
+						itemLevel = jsonRequest.get("itemLevel").getAsInt();
+					} catch (Exception e) {
+						DebugLogger.warn("Invalid itemLevel in request, using default 100");
+					}
+				}
+				craftingItem.level = itemLevel;
+				DebugLogger.info("★ Set crafting item level to " + craftingItem.level);
 
 				// Set item rarity based on user selection (for existing mods workflow)
 				if (!existingMods.isEmpty()) {
@@ -1044,6 +1060,14 @@ public class ServerMain {
 								}
 								if (regal.omen != null) {
 									actionObj.addProperty("omen", regal.omen.toString());
+								}
+							} else if (action instanceof core.Currency.TransmutationOrb transmutation) {
+								if (transmutation.tier != null) {
+									actionObj.addProperty("tier", transmutation.tier.toString());
+								}
+							} else if (action instanceof core.Currency.AugmentationOrb augmentation) {
+								if (augmentation.tier != null) {
+									actionObj.addProperty("tier", augmentation.tier.toString());
 								}
 							} else if (action instanceof core.Currency.AnnulmentOrb annulment) {
 								if (annulment.omen != null) {

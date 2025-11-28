@@ -14,7 +14,7 @@ import CurrencyExclusionPanel from './features/simulation/CurrencyExclusionPanel
 import { useSimulation } from './contexts/SimulationContext';
 
 // Import version from package.json
-const version = '0.9.2';
+const version = '0.9.3';
 
 // Helper function to open external links
 const openExternalLink = (url: string) => {

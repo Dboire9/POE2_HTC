@@ -77,28 +77,11 @@ const AppContent: React.FC = () => {
                 <span className="text-[10px] leading-none">🐛 Report Bug</span>
               </button>
               <button
-                onClick={async () => {
-                  if (window.electronAPI?.checkForUpdates) {
-                    console.log('Checking for updates...');
-                    try {
-                      const result = await window.electronAPI.checkForUpdates();
-                      console.log('Update check result:', result);
-                      // If no update available or in dev mode, open releases page
-                      if (!result || !result.available) {
-                        openExternalLink('https://github.com/Dboire9/POE2_HTC/releases/latest');
-                      }
-                    } catch (error) {
-                      console.error('Update check failed:', error);
-                      openExternalLink('https://github.com/Dboire9/POE2_HTC/releases/latest');
-                    }
-                  } else {
-                    openExternalLink('https://github.com/Dboire9/POE2_HTC/releases/latest');
-                  }
-                }}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 hover:border-green-500/50 transition-all cursor-pointer"
-                title="Check for updates"
+                onClick={() => openExternalLink('https://buymeacoffee.com/dboire')}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 hover:border-yellow-500/50 transition-all cursor-pointer"
+                title="Support the project"
               >
-                <span className="text-[10px] leading-none">🔄 Check Updates</span>
+                <span className="text-[10px] leading-none">☕ Support</span>
               </button>
               <button
                 onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC')}

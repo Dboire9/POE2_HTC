@@ -40,7 +40,8 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
   } = useModifiers();
   const { itemLevel, updateItemLevel } = useItems();
 
-  const [step, setStep] = useState<0 | 1 | 2>(0); // Add step 0 for mode selection
+  // Explicitly type step as 0 | 1 | 2 everywhere
+  const [step, setStep] = useState<0 | 1 | 2>(0);
   const [craftingMode, setCraftingMode] = useState<'scratch' | 'improve' | null>(null);
   const [raritySelected, setRaritySelected] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

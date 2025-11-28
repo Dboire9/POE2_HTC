@@ -51,9 +51,8 @@ public class Probability {
 				if (action instanceof RegalOrb || action instanceof ExaltedOrb)
 					ExaltAndRegalProbability.ComputeRegalAndExalted(candidate, desiredMod, baseItem, i,
 							excludedCurrencies);
-				else if (action instanceof AnnulmentOrb
-						&& excludedCurrencies.stream().noneMatch(map -> "AnnulmentOrb".equals(map.get("currency"))))
-					AnnulProbability.ComputeAnnul(candidate, desiredMod, baseItem, i);
+				else if (action instanceof AnnulmentOrb)
+					AnnulProbability.ComputeAnnul(candidate, desiredMod, baseItem, i, excludedCurrencies);
 				else if (action instanceof Essence_currency)
 					EssenceProbability.ComputeEssence(candidate, desiredMod, baseItem, i);
 				else if (action instanceof Desecrated_currency)

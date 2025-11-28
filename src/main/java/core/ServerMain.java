@@ -439,6 +439,9 @@ public class ServerMain {
 						if (currencyObj.has("tier")) {
 							exclusion.put("tier", currencyObj.get("tier").getAsString());
 						}
+						if (currencyObj.has("omen")) {
+							exclusion.put("omen", currencyObj.get("omen").getAsString());
+						}
 						excludedCurrencies.add(exclusion);
 					}
 				}

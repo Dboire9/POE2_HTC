@@ -60,13 +60,13 @@ public class ExaltAndRegalProbability {
 
         if (foundModifier != null) {
 			String exaltedTier = excludedCurrencies.stream()
-					.filter(e -> "exalted".equals(e.get("currency")))
+					.filter(e -> "exalted".equals(e.get("currency")) && e.get("tier") != null)
 					.map(e -> e.get("tier"))
 					.findFirst()
 					.orElse(null);
 
 			String regalTier = excludedCurrencies.stream()
-					.filter(e -> "regal".equals(e.get("currency")))
+					.filter(e -> "regal".equals(e.get("currency")) && e.get("tier") != null)
 					.map(e -> e.get("tier"))
 					.findFirst()
 					.orElse(null);
@@ -150,7 +150,7 @@ public class ExaltAndRegalProbability {
 			levels = levelsList.stream().mapToInt(Integer::intValue).toArray();
 			tiers = tiersList.toArray(new Crafting_Action.CurrencyTier[0]);
 
-			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired);
+			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired, excludedCurrencies);
 
 			if (action instanceof RegalOrb) {
 				canBeEssence(baseItem, candidate, event, level, realtier, i);
@@ -177,9 +177,23 @@ public class ExaltAndRegalProbability {
 			int[] levels,
 			Crafting_Action.CurrencyTier[] tiers,
 			int i,
-			boolean isDesired) {
+			boolean isDesired,
+			List<Map<String, String>> excludedCurrencies) {
 		Map<Crafting_Action, Double> source = event.source;
 		Crafting_Action action = source.keySet().iterator().next();
+
+		// Get excluded omens for regal and exalted
+		String excludedRegalOmen = excludedCurrencies.stream()
+				.filter(e -> "regal".equals(e.get("currency")) && e.get("omen") != null)
+				.map(e -> e.get("omen"))
+				.findFirst()
+				.orElse(null);
+
+		String excludedExaltedOmen = excludedCurrencies.stream()
+				.filter(e -> "exalted".equals(e.get("currency")) && e.get("omen") != null)
+				.map(e -> e.get("omen"))
+				.findFirst()
+				.orElse(null);
 
 		for (int j = 0; j < levels.length; j++) {
 			int level = levels[j];
@@ -190,17 +204,32 @@ public class ExaltAndRegalProbability {
 
 			if (action instanceof RegalOrb) {
 				for (RegalOrb.Omen currentOmen : RegalOrb.Omen.values()) {
+					// Skip if this omen is excluded
+					if (excludedRegalOmen != null && currentOmen.name().equals(excludedRegalOmen)) {
+						continue;
+					}
+					
 					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
 					if (percentage != 0)
 						source.put(new RegalOrb(tier, currentOmen), percentage);
 				}
 			} else if (action instanceof ExaltedOrb) {
 				for (ExaltedOrb.Omen currentOmen : ExaltedOrb.Omen.values()) {
+					// Skip if this omen is excluded
+					if (excludedExaltedOmen != null && currentOmen.name().equals(excludedExaltedOmen)) {
+						continue;
+					}
+					
 					double percentage = ComputePercentage(baseItem, candidate, event, level, currentOmen, i, isDesired);
 					if (percentage == 2)
 						source.put(new ExaltedOrb(Crafting_Action.CurrencyTier.DES_CURRENCY, currentOmen), percentage);
 					else if (percentage != 0) {
 						if (currentOmen == ExaltedOrb.Omen.OmenofHomogenisingExaltation) {
+							// Skip if the Homogenising omen is excluded
+							if (excludedExaltedOmen != null && currentOmen.name().equals(excludedExaltedOmen)) {
+								continue;
+							}
+							
 							Set<ExaltedOrb.Omen> newOmens = new HashSet<>();
 							newOmens.add(ExaltedOrb.Omen.OmenofHomogenisingExaltation);
 							if (event.modifier.type == ModifierType.PREFIX)

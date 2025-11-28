@@ -1,6 +1,6 @@
 const API_BASE_URL = import.meta.env.PROD 
   ? 'https://poe2htc.com/api' 
-  : 'http://localhost:8080';
+  : 'http://localhost:8080/api';
 
 export function useApi() {
   const invoke = async (endpoint: string, data?: any) => {
@@ -10,7 +10,7 @@ export function useApi() {
     }
     
     // Fall back to HTTP API (for web app)
-    const url = `${API_BASE_URL}${endpoint.replace('api:', '/')}`;
+    const url = `${API_BASE_URL}${endpoint.replace('api:', '')}`;
     const options: RequestInit = {
       method: data ? 'POST' : 'GET',
       headers: {

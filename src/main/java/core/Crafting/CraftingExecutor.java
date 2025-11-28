@@ -95,9 +95,6 @@ public class CraftingExecutor {
 			double GLOBAL_THRESHOLD,
 			List<Modifier> userSpecifiedExistingMods,
 			List<Map<String, String>> excludedCurrencies) throws InterruptedException, ExecutionException {
-		System.out.println("★★★ RUNNING CRAFTING WITH EXISTING MODS ★★★");
-		System.out.println("Item rarity: " + baseItem.rarity);
-		System.out.println("User-specified existing modifiers: " + userSpecifiedExistingMods.size());
 
 		boolean AnnulmentAllowed = true;
 		if (excludedCurrencies.stream().noneMatch(map -> "AnnulmentOrb".equals(map.get("currency")))) {

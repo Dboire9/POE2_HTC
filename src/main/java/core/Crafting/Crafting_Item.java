@@ -365,16 +365,6 @@ public class Crafting_Item {
 			}
 		}
 		
-		if (total_weight == 0) {
-			System.err.println("[ERROR] Total weight is 0 for ilvl " + ilvl + ", modifier count: " + Modifiers.size());
-			for(Modifier m : Modifiers) {
-				System.err.println("  Modifier: " + m.text + ", tiers: " + m.tiers.size());
-				for(ModifierTier tier : m.tiers) {
-					System.err.println("    Tier level: " + tier.level + ", weight: " + tier.weight + ", passes filter: " + (tier.level <= ilvl));
-				}
-			}
-		}
-		
 		return total_weight;
 	}
 

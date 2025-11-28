@@ -142,7 +142,6 @@ public class ComputingLastProbability {
             
             // Additional safety check
             if (chosenTierObj == null) {
-                System.err.println("[ERROR] No tiers available for modifier in ComputeLastRegalAndExalted: " + foundModifier.text);
                 return false;
             }
             

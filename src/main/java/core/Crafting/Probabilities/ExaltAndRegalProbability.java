@@ -59,11 +59,7 @@ public class ExaltAndRegalProbability {
 		boolean isDesired = desiredMod.contains(foundModifier);
 
         if (foundModifier != null) {
-            // Debug: Print item level and modifier info
-            System.out.println("========================================");
-            System.out.println("[DEBUG] Base Item Level: " + baseItem.level);
-            System.out.println("[DEBUG] Modifier: " + foundModifier.text);
-            System.out.println("[DEBUG] Chosen Tier from UI: " + foundModifier.chosenTier + ", Total Tiers: " + foundModifier.tiers.size());			String exaltedTier = excludedCurrencies.stream()
+			String exaltedTier = excludedCurrencies.stream()
 					.filter(e -> "exalted".equals(e.get("currency")))
 					.map(e -> e.get("tier"))
 					.findFirst()
@@ -106,35 +102,16 @@ public class ExaltAndRegalProbability {
             if (chosenTierObj == null && !availableTiers.isEmpty()) {
                 chosenTierObj = availableTiers.get(availableTiers.size() - 1);
                 filteredChosenTier = availableTiers.size() - 1;
-                System.out.println("[WARNING] Chosen tier T" + originalTierNumber + " not available for item level " + baseItem.level + ", using best available: T" + (foundModifier.tiers.size() - foundModifier.tiers.indexOf(chosenTierObj)));
             }
             
             // Additional safety check
             if (chosenTierObj == null) {
-                System.err.println("[ERROR] No tiers available for modifier: " + foundModifier.text + ", item level: " + baseItem.level);
                 return; // Skip this modifier
             }
             int realtier = foundModifier.tiers.indexOf(chosenTierObj);
             int level = chosenTierObj.level;
 
-            // Debug: Print tier and level info
-            System.out.println("[DEBUG] Item Level: " + baseItem.level + ", Chosen Tier: T" + originalTierNumber);
-            System.out.print("[DEBUG] Available Tiers: ");
-            for (int t = 0; t < availableTiers.size(); t++) {
-                ModifierTier mt = availableTiers.get(t);
-                System.out.print("T" + (foundModifier.tiers.size() - foundModifier.tiers.indexOf(mt)) + "(lvl " + mt.level + ") ");
-            }
-            System.out.println();
-            System.out.println("[DEBUG] Selected: T" + (foundModifier.tiers.size() - realtier) + " (level " + level + ")");
-
-            // TEST: If item level < 100, print a warning if high tiers are still available
-            if (baseItem.level < 100) {
-                for (ModifierTier mt : availableTiers) {
-                    if (mt.level > baseItem.level) {
-                        System.out.println("[TEST WARNING] Tier with level " + mt.level + " should not be available for item level " + baseItem.level);
-                    }
-                }
-            }			int[] levels;
+			int[] levels;
 			Crafting_Action.CurrencyTier[] tiers;
 
 			List<Integer> levelsList = new ArrayList<>();
@@ -157,13 +134,6 @@ public class ExaltAndRegalProbability {
 				levelsList.add(50);
 				tiersList.add(CurrencyTier.PERFECT);
 			}
-
-			// Debug: Print which tiers are being considered
-			System.out.print("[DEBUG] Considered Currency Tiers: ");
-			for (Crafting_Action.CurrencyTier tier : tiersList) {
-				System.out.print(tier + " ");
-			}
-			System.out.println();
 
 			// Convert lists to arrays
 			levels = levelsList.stream().mapToInt(Integer::intValue).toArray();

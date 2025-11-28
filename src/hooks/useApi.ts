@@ -1,6 +1,7 @@
-const API_BASE_URL = import.meta.env.MODE === 'production'
-  ? 'https://api.poe2htc.com' 
-  : 'http://localhost:8080/api';
+// Use production API unless explicitly running dev server locally
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8080/api'
+  : 'https://api.poe2htc.com';
 
 export function useApi() {
   const invoke = async (endpoint: string, data?: any) => {

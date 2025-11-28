@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.PROD 
+const API_BASE_URL = import.meta.env.MODE === 'production'
   ? 'https://api.poe2htc.com' 
   : 'http://localhost:8080/api';
 

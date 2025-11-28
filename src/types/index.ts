@@ -57,6 +57,7 @@ export interface TierInfo {
   minMax2?: { min: number; max: number }; // Secondary stat range (optional)
   minMax3?: { min: number; max: number }; // Tertiary stat range (optional)
   minMax4?: { min: number; max: number }; // Quaternary stat range (optional)
+  originalTier?: number; // Original tier number (for filtered tiers)
 }
 
 export interface Modifier {
@@ -144,15 +145,17 @@ export interface SimulationResult {
 export interface ItemsState {
   items: Item[];                  // All available items
   selectedItem: Item | null;      // Currently selected item
+  itemLevel: number;              // User-selected item level
   loading: boolean;               // Fetching items from backend
   error: string | null;           // Error message if fetch fails
 }
 
 export interface ItemsActions {
   loadItems: () => Promise<void>;
-  selectItem: (itemId: string, subcategory?: string) => void;
+  selectItem: (itemId: string, subcategory?: string, newItemLevel?: number) => void;
   loadSubcategories: (categoryId: string) => Promise<{ id: string; name: string }[]>;
   clearSelection: () => void;
+  updateItemLevel: (level: number) => void;
 }
 
 export interface ModifiersState {

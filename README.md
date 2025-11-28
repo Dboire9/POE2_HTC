@@ -29,6 +29,10 @@ A powerful application that calculates optimal crafting paths for **Path of Exil
 
 **Try it now at [poe2htc.com](https://poe2htc.com)** - No installation required!
 
+<a href="https://buymeacoffee.com/dboire" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important;width: 145px !important;" ></a>
+
+*If you find this tool helpful, consider supporting its development!*
+
 <div style="display: flex; gap: 10px;">
   <img src="screenshots/Full_initial_screen.PNG" alt="PoE2 Pathfinder" width="400"/>
   <img src="screenshots/Bow_result.PNG" alt="PoE2 Pathfinder final result" width="400"/>

@@ -1058,6 +1058,14 @@ public class ServerMain {
 								if (regal.omen != null) {
 									actionObj.addProperty("omen", regal.omen.toString());
 								}
+							} else if (action instanceof core.Currency.TransmutationOrb transmutation) {
+								if (transmutation.tier != null) {
+									actionObj.addProperty("tier", transmutation.tier.toString());
+								}
+							} else if (action instanceof core.Currency.AugmentationOrb augmentation) {
+								if (augmentation.tier != null) {
+									actionObj.addProperty("tier", augmentation.tier.toString());
+								}
 							} else if (action instanceof core.Currency.AnnulmentOrb annulment) {
 								if (annulment.omen != null) {
 									actionObj.addProperty("omen", annulment.omen.toString());

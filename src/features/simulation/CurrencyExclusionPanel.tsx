@@ -18,6 +18,8 @@ interface CurrencyExclusionPanelProps {
 }
 
 const AVAILABLE_CURRENCIES = [
+  { id: 'transmutation', name: 'Orb of Transmutation', hasTiers: true, tierType: 'orb' },
+  { id: 'augmentation', name: 'Orb of Augmentation', hasTiers: true, tierType: 'orb' },
   { id: 'exalted', name: 'Exalted Orb', hasTiers: true, tierType: 'orb' },
   { id: 'annulment', name: 'Orb of Annulment', hasTiers: false },
 ];

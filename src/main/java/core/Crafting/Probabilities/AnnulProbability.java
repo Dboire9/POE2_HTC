@@ -22,16 +22,29 @@ public class AnnulProbability {
      * @param desiredMod A list of desired modifiers to aim for during crafting.
      * @param baseItem The base crafting item being modified.
      * @param i The index of the current modifier event in the candidate's modifier history.
+     * @param excludedCurrencies List of excluded currency configurations
      */
-    public static void ComputeAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i) {
+    public static void ComputeAnnul(Crafting_Candidate candidate, List<Modifier> desiredMod, Crafting_Item baseItem, int i, List<Map<String, String>> excludedCurrencies) {
         ModifierEvent event = candidate.modifierHistory.get(i);
 
         double percentage = 0;
         Map<Crafting_Action, Double> source = candidate.modifierHistory.get(i).source;
         Crafting_Action action = source.keySet().iterator().next();
 
+        // Get excluded omen for annulment
+        String excludedAnnulmentOmen = excludedCurrencies.stream()
+                .filter(e -> "annulment".equals(e.get("currency")) && e.get("omen") != null)
+                .map(e -> e.get("omen"))
+                .findFirst()
+                .orElse(null);
+
         if (action instanceof AnnulmentOrb) {
             for (AnnulmentOrb.Omen currentOmen : AnnulmentOrb.Omen.values()) {
+                // Skip if this omen is excluded
+                if (excludedAnnulmentOmen != null && currentOmen.name().equals(excludedAnnulmentOmen)) {
+                    continue;
+                }
+                
                 percentage = ComputePercentageAnnul(baseItem, candidate, event, currentOmen, i);
                 if (percentage != 0)
                     candidate.modifierHistory.get(i).source.put(new AnnulmentOrb(currentOmen), percentage);

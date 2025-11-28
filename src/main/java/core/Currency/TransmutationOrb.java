@@ -24,10 +24,24 @@ public class TransmutationOrb implements Crafting_Action {
         return new TransmutationOrb();
     }
 
+	/**
+     * The tier of the Orb, which determines its strength.
+     */
+	public CurrencyTier tier;
+
     /**
      * Default constructor to create a Transmutation Orb with the base tier.
      */
-    public TransmutationOrb(){}
+    public TransmutationOrb(){
+		this.tier = CurrencyTier.BASE;
+	}
+
+	/**
+     * Constructor to create a Transmutation Orb with a specific currency tier.
+     */
+    public TransmutationOrb(CurrencyTier tier) {
+        this.tier = tier;
+    }
 
     /**
      * Applies the Transmutation Orb crafting action to a list of crafting candidates.
@@ -73,7 +87,7 @@ public class TransmutationOrb implements Crafting_Action {
      */
     @Override
     public String getName() {
-        return "Orb of Transmutation";
+        return "Orb of Transmutation (" + tier + ")";
     }
 
     /**

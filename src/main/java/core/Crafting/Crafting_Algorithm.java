@@ -88,7 +88,6 @@ public class Crafting_Algorithm {
 		} else {
 			// Item already has existing modifiers (from user selection)
 			// Initialize with a single candidate representing the current item state
-			System.out.println("Item has existing modifiers - creating initial candidate");
 
 			// Calculate initial score: only count existing mods that are ALSO desired mods
 			double initialScore = 0;
@@ -115,10 +114,6 @@ public class Crafting_Algorithm {
 			// Add to candidate lists so the algorithm can start processing
 			transmuteCandidates.add(initialCandidate);
 			allCandidateLists.add(new ArrayList<>(Arrays.asList(initialCandidate)));
-
-			System.out.println("Initial candidate created with score: " + initialScore);
-			System.out.println("Current modifiers on item: " + currentMods.size());
-			System.out.println("Matching desired mods: " + (initialScore / 1000));
 		} // Step 4: Iterative refinement loop
 		List<List<Crafting_Candidate>> current = deepCopy(allCandidateLists);
 		List<List<Crafting_Candidate>> next = new ArrayList<>();
@@ -148,8 +143,6 @@ public class Crafting_Algorithm {
 
 		// Final filtering
 		List<Crafting_Candidate> finalCandidates = extractHighScoreCandidates(allCandidateLists, desiredMods);
-		System.out.println("[DEBUG] Final candidates count: " + finalCandidates.size());
-		System.out.println("[DEBUG] Desired mods count: " + desiredMods.size());
 		return finalCandidates;
 	}
 
@@ -183,13 +176,9 @@ public class Crafting_Algorithm {
 			if (mod.type == ModifierType.PREFIX) {
 				baseItem.currentPrefixes[i] = mod;
 				i++;
-				System.out.println("  - [USER SPECIFIED PREFIX] " + mod.text + " (" + mod.type + ", Tier "
-						+ (mod.chosenTier + 1) + ")");
 			} else {
 				baseItem.currentSuffixes[j] = mod;
 				j++;
-				System.out.println("  - [USER SPECIFIED SUFFIX] " + mod.text + " (" + mod.type + ", Tier "
-						+ (mod.chosenTier + 1) + ")");
 			}
 		}
 
@@ -199,15 +188,6 @@ public class Crafting_Algorithm {
 		int availablePrefixSlots = 3 - i;
 		int availableSuffixSlots = 3 - j;
 
-		System.out.println("★★★ ALGORITHM: Processing item with existing mods ★★★");
-		System.out.println("Rarity: " + currentRarity);
-		System.out.println("User specified " + userSpecifiedExistingMods.size() + " existing mods:");
-		System.out.println("Available prefix slots: " + availablePrefixSlots);
-		System.out.println("Available suffix slots: " + availableSuffixSlots);
-		System.out.println("Target mods to add:");
-		for (Modifier mod : desiredMods) {
-			System.out.println("  - [TARGET] " + mod.text + " (Tier " + (mod.chosenTier + 1) + ")");
-		}
 		for (Modifier mod : userSpecifiedExistingMods) {
 			desiredMods.add(mod);
 		}
@@ -263,13 +243,9 @@ public class Crafting_Algorithm {
 			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods) {
 
 		List<Crafting_Candidate> result = new ArrayList<>();
-
-		System.out.println("[DEBUG extractHighScore] Processing " + allCandidateLists.size() + " candidate lists");
-		System.out.println("[DEBUG extractHighScore] Looking for " + desiredMods.size() + " desired mods");
 		
 		// Calculate minimum score based on number of desired mods (1000 points per mod)
 		int minScore = desiredMods.size() * 1000;
-		System.out.println("[DEBUG extractHighScore] Minimum score threshold: " + minScore);
 		
 		for (List<Crafting_Candidate> list : allCandidateLists) {
 			for (Crafting_Candidate candidate : list) {
@@ -285,18 +261,13 @@ public class Crafting_Algorithm {
 				long matchCount = current.stream()
 						.filter(m -> desiredMods.stream().anyMatch(d -> d.text.equals(m.text)))
 						.count();
-
-				System.out.println("[DEBUG extractHighScore] Candidate has " + current.size() + " mods, " + matchCount + " match desired");
 				
 				// Accept if all desired mods are matched (not necessarily 6)
 				if (matchCount == desiredMods.size()) {
 					result.add(candidate);
-					System.out.println("[DEBUG extractHighScore] ✓ Candidate ACCEPTED");
 				}
 			}
 		}
-
-		System.out.println("[DEBUG extractHighScore] Total accepted candidates: " + result.size());
 
 		// Sort for deterministic ordering
 		result.sort((c1, c2) -> {

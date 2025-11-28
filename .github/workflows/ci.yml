@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ Production, main ]
+    branches: [ Production, main, test ]
   pull_request:
-    branches: [ Production, main ]
+    branches: [ Production, main, test ]
 
 jobs:
   build-java-backend:

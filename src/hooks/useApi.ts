@@ -1,5 +1,5 @@
 const API_BASE_URL = import.meta.env.PROD 
-  ? 'https://poe2htc.com/api' 
+  ? 'https://api.poe2htc.com' 
   : 'http://localhost:8080/api';
 
 export function useApi() {

@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.4] - 2025-11-28
+
+### Added
+- Web application deployment at poe2htc.com
+- Buy Me a Coffee support button
+- Desktop app download button
+- BETA badge on title
+- SEO optimization (meta tags, Open Graph, Twitter Cards)
+- robots.txt and sitemap.xml for search engines
+
+### Changed
+- Increased header button sizes for better visibility
+- Improved social media sharing previews
+
+### Removed
+- Check Updates button (replaced with Desktop App download)
+
+### Security
+- Added security headers (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection)
+- Implemented path traversal protection
+- Added Nginx rate limiting (10 req/s)
+- SSL/TLS configuration with ZeroSSL
+
 ## [0.9.0] - 2025-01-15
 
 ### Added

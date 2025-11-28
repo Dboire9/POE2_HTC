@@ -271,7 +271,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, '../public/icon.png'),
-    title: 'POE2HTC - Path of Exile 2 Item Crafting Pathfinder',
+    title: 'POE2HTC - Path of Exile 2 How to Craft',
     backgroundColor: '#1a1a1a',
     show: false // Don't show until ready-to-show event
   });

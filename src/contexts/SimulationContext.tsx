@@ -4,6 +4,10 @@ import { sortPathsByProbability } from '../lib/resultsSorting';
 import { ErrorCode, getErrorMessage } from '../lib/errorMessages';
 import { toast } from 'sonner';
 
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8080/api'
+  : 'https://api.poe2htc.com';
+
 // Context type combining state and actions
 type SimulationContextType = SimulationState & SimulationActions;
 
@@ -83,7 +87,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         };
         
         // Direct HTTP API call
-        const httpResponse = await fetch('http://localhost:8080/api/crafting?_=' + Date.now(), {
+        const httpResponse = await fetch(`${API_BASE_URL}/crafting?_=${Date.now()}`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',

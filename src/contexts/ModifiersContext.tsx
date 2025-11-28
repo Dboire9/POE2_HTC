@@ -4,6 +4,10 @@ import { buildExclusionMap, isModifierDisabled as checkModifierDisabled } from '
 import { ErrorCode, getErrorMessage } from '../lib/errorMessages';
 import { toast } from 'sonner';
 
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8080/api'
+  : 'https://api.poe2htc.com';
+
 // Context type combining state and actions
 type ModifiersContextType = ModifiersState & ModifiersActions;
 
@@ -37,7 +41,7 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       let response;
       
       // Direct HTTP API call with optional subcategory
-      let url = `http://localhost:8080/api/modifiers?itemId=${itemId}`;
+      let url = `${API_BASE_URL}/modifiers?itemId=${itemId}`;
       if (subcategory) {
         url += `&subcategory=${subcategory}`;
       }

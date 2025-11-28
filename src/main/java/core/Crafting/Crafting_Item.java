@@ -42,6 +42,11 @@ public class Crafting_Item {
      */
     public double prev_score;
 
+	/**
+	 * The level of the crafting item.
+	 */
+	public int level = 100;
+
     /**
      * The current prefix modifiers applied to the item.
      */
@@ -103,7 +108,8 @@ public class Crafting_Item {
             clone.modifierHistory.add(event.copy()); // Ensure ModifierEvent has a copy method
         }
 
-        return clone;
+		clone.level = this.level;
+		return clone;
     }
 
     /**
@@ -118,10 +124,18 @@ public class Crafting_Item {
      *
      * @param base The base item associated with this crafting item.
      */
-    public Crafting_Item(Item_base base) {
-        this.base = base;
-        this.rarity = ItemRarity.NORMAL;
-    }
+	public Crafting_Item(Item_base base) {
+		this.base = base;
+		this.rarity = ItemRarity.NORMAL;
+		this.level = 100;
+	}
+
+	// New constructor to allow explicit level setting
+	public Crafting_Item(Item_base base, int level) {
+		this.base = base;
+		this.rarity = ItemRarity.NORMAL;
+		this.level = level;
+	}
 
     /**
      * Default constructor for `Crafting_Item`.
@@ -343,10 +357,24 @@ public class Crafting_Item {
 	{
 		int total_weight = 0;
 
-		for(Modifier m : Modifiers)
-			for(ModifierTier tiers : m.tiers)
-				if(tiers.level >= ilvl)
+		for(Modifier m : Modifiers) {
+			for(ModifierTier tiers : m.tiers) {
+				if(tiers.level <= ilvl) {
 					total_weight += tiers.weight;
+				}
+			}
+		}
+		
+		if (total_weight == 0) {
+			System.err.println("[ERROR] Total weight is 0 for ilvl " + ilvl + ", modifier count: " + Modifiers.size());
+			for(Modifier m : Modifiers) {
+				System.err.println("  Modifier: " + m.text + ", tiers: " + m.tiers.size());
+				for(ModifierTier tier : m.tiers) {
+					System.err.println("    Tier level: " + tier.level + ", weight: " + tier.weight + ", passes filter: " + (tier.level <= ilvl));
+				}
+			}
+		}
+		
 		return total_weight;
 	}
 

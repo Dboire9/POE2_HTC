@@ -54,21 +54,38 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
   const filterModifiers = (mods: typeof prefixes) => {
     // Only show tiers that are available for the current item level
     const filterByItemLevel = (mod: Modifier) => {
-      if (!mod.tierDetails) return mod;
+      if (!mod.tierDetails || mod.tierDetails.length === 0) return mod;
+      
       // Attach original tier number to each tier (T1 = last, Tn = first)
       const totalTiers = mod.tierDetails.length;
       const tierDetailsWithOriginal = mod.tierDetails.map((tier, idx) => ({
         ...tier,
         originalTier: totalTiers - idx // T1 = last, Tn = first
       }));
+      
       // Only include tiers where required level <= itemLevel
       const availableTiers = tierDetailsWithOriginal.filter(tier => tier.level <= itemLevel);
+      
+      if (availableTiers.length === 0) {
+        // No tiers available at this item level
+        return {
+          ...mod,
+          availableTiers: 0,
+          tierDetails: [],
+          tier: undefined
+        };
+      }
+      
+      // Find the best available tier (highest originalTier number, which is the last in the array after filtering)
+      const bestTierObj = availableTiers[availableTiers.length - 1];
+      const bestTier = bestTierObj.originalTier || 1;
+      
       return {
         ...mod,
         availableTiers: availableTiers.length,
         tierDetails: availableTiers,
-        // If the selected tier is now out of range, reset to best available (T1 = last)
-        tier: mod.tier && mod.tier <= availableTiers.length ? mod.tier : availableTiers.length > 0 ? 1 : undefined
+        // Set to best available tier by default
+        tier: bestTier
       };
     };
     let filtered = mods.map(filterByItemLevel);
@@ -722,12 +739,22 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
                     <div className="space-y-2">
                       <span className="text-xs text-foreground font-medium">Target:</span>
                       <div className="space-y-1.5">
-                        {selectedPrefixes.map((mod, idx) => (
-                          <div key={`tp-${idx}`} className="p-2 rounded bg-muted/50 border border-border">
-                            <div className="text-xs font-medium">{mod.text}</div>
-                            <div className="text-xs text-foreground/70 font-mono">Tier {mod.tier}</div>
-                          </div>
-                        ))}
+                        {selectedPrefixes.map((mod, idx) => {
+                          // Find the tierInfo whose originalTier matches the selected mod.tier
+                          let tierLabel = `Tier ${mod.tier}`;
+                          if (mod.tierDetails && mod.tier) {
+                            const tierInfo = mod.tierDetails.find(t => t.originalTier === mod.tier);
+                            if (tierInfo && tierInfo.originalTier) {
+                              tierLabel = `T${tierInfo.originalTier}`;
+                            }
+                          }
+                          return (
+                            <div key={`tp-${idx}`} className="p-2 rounded bg-muted/50 border border-border">
+                              <div className="text-xs font-medium">{mod.text}</div>
+                              <div className="text-xs text-foreground/70 font-mono">{tierLabel}</div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -768,12 +795,21 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
                     <div className="space-y-2">
                       <span className="text-xs text-foreground font-medium">Target:</span>
                       <div className="space-y-1.5">
-                        {selectedSuffixes.map((mod, idx) => (
-                          <div key={`ts-${idx}`} className="p-2 rounded bg-muted/50 border border-border">
-                            <div className="text-xs font-medium">{mod.text}</div>
-                            <div className="text-xs text-foreground/70 font-mono">Tier {mod.tier}</div>
-                          </div>
-                        ))}
+                        {selectedSuffixes.map((mod, idx) => {
+                          let tierLabel = `Tier ${mod.tier}`;
+                          if (mod.tierDetails && mod.tier) {
+                            const tierInfo = mod.tierDetails.find(t => t.originalTier === mod.tier);
+                            if (tierInfo && tierInfo.originalTier) {
+                              tierLabel = `T${tierInfo.originalTier}`;
+                            }
+                          }
+                          return (
+                            <div key={`ts-${idx}`} className="p-2 rounded bg-muted/50 border border-border">
+                              <div className="text-xs font-medium">{mod.text}</div>
+                              <div className="text-xs text-foreground/70 font-mono">{tierLabel}</div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

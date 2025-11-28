@@ -111,8 +111,43 @@ public class ComputingLastProbability {
         boolean isDesired = desiredMod.contains(foundModifier);
 
         if (foundModifier != null) {
-            int realtier = foundModifier.tiers.size() - foundModifier.chosenTier - 1;
-            int level = foundModifier.tiers.get(realtier).level;
+            // Filter tiers by item level
+            List<ModifierTier> availableTiers = new ArrayList<>();
+            for (ModifierTier tier : foundModifier.tiers) {
+                if (tier.level <= baseItem.level) {
+                    availableTiers.add(tier);
+                }
+            }
+            // Defensive: if no tiers are available, fallback to all tiers
+            if (availableTiers.isEmpty()) {
+                availableTiers.addAll(foundModifier.tiers);
+            }
+
+            // ChosenTier from UI is the original tier number (e.g., 10 for T10, 9 for T9, etc.)
+            int originalTierNumber = foundModifier.chosenTier;
+            
+            // Find the tier in availableTiers that matches the original tier number
+            ModifierTier chosenTierObj = null;
+            for (int idx = 0; idx < availableTiers.size(); idx++) {
+                int thisTierNumber = foundModifier.tiers.size() - foundModifier.tiers.indexOf(availableTiers.get(idx));
+                if (thisTierNumber == originalTierNumber) {
+                    chosenTierObj = availableTiers.get(idx);
+                    break;
+                }
+            }
+            // Fallback: if not found, use the best available
+            if (chosenTierObj == null && !availableTiers.isEmpty()) {
+                chosenTierObj = availableTiers.get(availableTiers.size() - 1);
+            }
+            
+            // Additional safety check
+            if (chosenTierObj == null) {
+                System.err.println("[ERROR] No tiers available for modifier in ComputeLastRegalAndExalted: " + foundModifier.text);
+                return false;
+            }
+            
+            int realtier = foundModifier.tiers.indexOf(chosenTierObj);
+            int level = chosenTierObj.level;
 
             int[] levels;
             Crafting_Action.CurrencyTier[] tiers;

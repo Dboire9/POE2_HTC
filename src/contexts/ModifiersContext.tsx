@@ -201,7 +201,14 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
 
         // Add to selections
-        const modifierWithTier = { ...modifier, tier: tier !== undefined ? tier : modifier.tier };
+        // Always store the full, unfiltered tierDetails for summary lookup
+        const modifierWithTier = {
+          ...modifier,
+          tier: tier !== undefined ? tier : modifier.tier,
+          tierDetails: modifier.tierDetails && modifier.tierDetails.length && modifier.tierDetails[0].originalTier
+            ? modifier.tierDetails // already unfiltered
+            : (prefixes.find(m => m.text === modifier.text)?.tierDetails || modifier.tierDetails)
+        };
         return [...currentPrefixes, modifierWithTier];
       });
     } else {
@@ -282,7 +289,14 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
 
         // Add to selections
-        const modifierWithTier = { ...modifier, tier: tier !== undefined ? tier : modifier.tier };
+        // Always store the full, unfiltered tierDetails for summary lookup
+        const modifierWithTier = {
+          ...modifier,
+          tier: tier !== undefined ? tier : modifier.tier,
+          tierDetails: modifier.tierDetails && modifier.tierDetails.length && modifier.tierDetails[0].originalTier
+            ? modifier.tierDetails // already unfiltered
+            : (suffixes.find(m => m.text === modifier.text)?.tierDetails || modifier.tierDetails)
+        };
         return [...currentSuffixes, modifierWithTier];
       });
     }

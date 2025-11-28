@@ -58,9 +58,12 @@ public class ExaltAndRegalProbability {
 		Modifier foundModifier = event.modifier;
 		boolean isDesired = desiredMod.contains(foundModifier);
 
-		if (foundModifier != null) {
-
-			String exaltedTier = excludedCurrencies.stream()
+        if (foundModifier != null) {
+            // Debug: Print item level and modifier info
+            System.out.println("========================================");
+            System.out.println("[DEBUG] Base Item Level: " + baseItem.level);
+            System.out.println("[DEBUG] Modifier: " + foundModifier.text);
+            System.out.println("[DEBUG] Chosen Tier from UI: " + foundModifier.chosenTier + ", Total Tiers: " + foundModifier.tiers.size());			String exaltedTier = excludedCurrencies.stream()
 					.filter(e -> "exalted".equals(e.get("currency")))
 					.map(e -> e.get("tier"))
 					.findFirst()
@@ -70,10 +73,68 @@ public class ExaltAndRegalProbability {
 			boolean isExaltedGreater = "greater".equals(exaltedTier);
 			boolean isExaltedPerfect = "perfect".equals(exaltedTier);
 
-			int realtier = foundModifier.tiers.size() - foundModifier.chosenTier - 1;
-			int level = foundModifier.tiers.get(realtier).level;
 
-			int[] levels;
+			// Filter tiers by item level
+			List<ModifierTier> availableTiers = new ArrayList<>();
+			for (ModifierTier tier : foundModifier.tiers) {
+				if (tier.level <= baseItem.level) {
+					availableTiers.add(tier);
+				}
+			}
+			// Defensive: if no tiers are available, fallback to all tiers
+			if (availableTiers.isEmpty()) {
+				availableTiers.addAll(foundModifier.tiers);
+			}
+
+            // ChosenTier from UI is the original tier number (e.g., 10 for T10, 9 for T9, etc.)
+            // Tiers are stored in ascending order by level: tiers[0] = lowest tier (T10, T9, etc.), tiers[last] = highest tier (T1)
+            // Original tier number = totalTiers - index, so T10 (tier 10) is at index 0 if there are 10 tiers
+            int originalTierNumber = foundModifier.chosenTier;
+            
+            // Find the tier in availableTiers that matches the original tier number
+            ModifierTier chosenTierObj = null;
+            int filteredChosenTier = -1;
+            for (int idx = 0; idx < availableTiers.size(); idx++) {
+                int thisTierNumber = foundModifier.tiers.size() - foundModifier.tiers.indexOf(availableTiers.get(idx));
+                if (thisTierNumber == originalTierNumber) {
+                    chosenTierObj = availableTiers.get(idx);
+                    filteredChosenTier = idx;
+                    break;
+                }
+            }
+            // Fallback: if not found (tier not available for item level), use the best available (last in filtered list = highest tier)
+            if (chosenTierObj == null && !availableTiers.isEmpty()) {
+                chosenTierObj = availableTiers.get(availableTiers.size() - 1);
+                filteredChosenTier = availableTiers.size() - 1;
+                System.out.println("[WARNING] Chosen tier T" + originalTierNumber + " not available for item level " + baseItem.level + ", using best available: T" + (foundModifier.tiers.size() - foundModifier.tiers.indexOf(chosenTierObj)));
+            }
+            
+            // Additional safety check
+            if (chosenTierObj == null) {
+                System.err.println("[ERROR] No tiers available for modifier: " + foundModifier.text + ", item level: " + baseItem.level);
+                return; // Skip this modifier
+            }
+            int realtier = foundModifier.tiers.indexOf(chosenTierObj);
+            int level = chosenTierObj.level;
+
+            // Debug: Print tier and level info
+            System.out.println("[DEBUG] Item Level: " + baseItem.level + ", Chosen Tier: T" + originalTierNumber);
+            System.out.print("[DEBUG] Available Tiers: ");
+            for (int t = 0; t < availableTiers.size(); t++) {
+                ModifierTier mt = availableTiers.get(t);
+                System.out.print("T" + (foundModifier.tiers.size() - foundModifier.tiers.indexOf(mt)) + "(lvl " + mt.level + ") ");
+            }
+            System.out.println();
+            System.out.println("[DEBUG] Selected: T" + (foundModifier.tiers.size() - realtier) + " (level " + level + ")");
+
+            // TEST: If item level < 100, print a warning if high tiers are still available
+            if (baseItem.level < 100) {
+                for (ModifierTier mt : availableTiers) {
+                    if (mt.level > baseItem.level) {
+                        System.out.println("[TEST WARNING] Tier with level " + mt.level + " should not be available for item level " + baseItem.level);
+                    }
+                }
+            }			int[] levels;
 			Crafting_Action.CurrencyTier[] tiers;
 
 			List<Integer> levelsList = new ArrayList<>();
@@ -96,6 +157,13 @@ public class ExaltAndRegalProbability {
 				levelsList.add(50);
 				tiersList.add(CurrencyTier.PERFECT);
 			}
+
+			// Debug: Print which tiers are being considered
+			System.out.print("[DEBUG] Considered Currency Tiers: ");
+			for (Crafting_Action.CurrencyTier tier : tiersList) {
+				System.out.print(tier + " ");
+			}
+			System.out.println();
 
 			// Convert lists to arrays
 			levels = levelsList.stream().mapToInt(Integer::intValue).toArray();
@@ -461,13 +529,38 @@ public class ExaltAndRegalProbability {
 		double TotalSuffixWeight = 0;
 		double weight = 0;
 
+		// Always use the base item level for filtering
+		ilvl = baseItem.level;
+
 		if (!isDesired) {
 			for (ModifierTier tiers : event.modifier.tiers)
 				weight += tiers.weight;
-			ilvl = 0;
 		} else {
-			// Only count the weight of the desired tier itself
-			weight = event.tier.weight;
+			// Count the weight of the desired tier AND all better tiers available at this item level
+			// event.tier is the chosen tier, we need to find its position and sum from there to the end
+			Modifier modifier = event.modifier;
+			int chosenTierIndex = -1;
+			
+			// Find the index of the chosen tier in the full tier list
+			for (int idx = 0; idx < modifier.tiers.size(); idx++) {
+				if (modifier.tiers.get(idx).equals(event.tier)) {
+					chosenTierIndex = idx;
+					break;
+				}
+			}
+			
+			// Sum weights from chosen tier to the end (better tiers), filtering by item level
+			if (chosenTierIndex >= 0) {
+				for (int idx = chosenTierIndex; idx < modifier.tiers.size(); idx++) {
+					ModifierTier tier = modifier.tiers.get(idx);
+					if (tier.level <= ilvl) {
+						weight += tier.weight;
+					}
+				}
+			} else {
+				// Fallback: just use the event tier weight
+				weight = event.tier.weight;
+			}
 		}
 
 		if (PossiblePrefixes != null)

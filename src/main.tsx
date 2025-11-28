@@ -3,9 +3,15 @@ import ReactDOM from "react-dom/client"
 import App from "./App"
 import "./index.css"
 import { initSentry, SentryErrorBoundary } from "./lib/sentry"
+import { inject } from '@vercel/analytics';
 
 // Initialize Sentry error tracking
 initSentry();
+
+// Initialize Vercel Analytics (only in production/web)
+if (window.location.hostname !== 'localhost') {
+  inject();
+}
 
 // Force cache clear - version 2.1
 const CACHE_VERSION = '2.1';

@@ -65,9 +65,20 @@ public class ExaltAndRegalProbability {
 					.findFirst()
 					.orElse(null);
 
-			boolean isExaltedBase = "base".equals(exaltedTier);
-			boolean isExaltedGreater = "greater".equals(exaltedTier);
-			boolean isExaltedPerfect = "perfect".equals(exaltedTier);
+			String regalTier = excludedCurrencies.stream()
+					.filter(e -> "regal".equals(e.get("currency")))
+					.map(e -> e.get("tier"))
+					.findFirst()
+					.orElse(null);
+
+			Crafting_Action action = event.source.keySet().iterator().next();
+			
+			// Determine which currency's exclusions to use
+			String relevantTier = (action instanceof RegalOrb) ? regalTier : exaltedTier;
+
+			boolean isExcludedBase = "base".equals(relevantTier);
+			boolean isExcludedGreater = "greater".equals(relevantTier);
+			boolean isExcludedPerfect = "perfect".equals(relevantTier);
 
 
 			// Filter tiers by item level
@@ -118,19 +129,19 @@ public class ExaltAndRegalProbability {
 			List<Crafting_Action.CurrencyTier> tiersList = new ArrayList<>();
 
 			// Add BASE tier if not excluded and level supports it
-			if (!isExaltedBase && level >= 0) {
+			if (!isExcludedBase && level >= 0) {
 				levelsList.add(0);
 				tiersList.add(CurrencyTier.BASE);
 			}
 
 			// Add GREATER tier if not excluded and level supports it
-			if (!isExaltedGreater && level >= 35) {
+			if (!isExcludedGreater && level >= 35) {
 				levelsList.add(35);
 				tiersList.add(CurrencyTier.GREATER);
 			}
 
 			// Add PERFECT tier if not excluded and level supports it
-			if (!isExaltedPerfect && level >= 50) {
+			if (!isExcludedPerfect && level >= 50) {
 				levelsList.add(50);
 				tiersList.add(CurrencyTier.PERFECT);
 			}
@@ -138,8 +149,6 @@ public class ExaltAndRegalProbability {
 			// Convert lists to arrays
 			levels = levelsList.stream().mapToInt(Integer::intValue).toArray();
 			tiers = tiersList.toArray(new Crafting_Action.CurrencyTier[0]);
-
-			Crafting_Action action = event.source.keySet().iterator().next();
 
 			applyTiersAndComputeRegals(baseItem, candidate, event, levels, tiers, i, isDesired);
 

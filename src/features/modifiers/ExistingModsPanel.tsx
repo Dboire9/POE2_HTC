@@ -433,67 +433,65 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
             </div>
           </Card>
 
-          {/* Filter Controls (Step 2 only) */}
-          {step === (2 as typeof step) && (
-            <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Filter:</span>
-                <select
-                  value={sourceFilter}
-                  onChange={(e) => setSourceFilter(e.target.value as any)}
-                  className="text-sm border rounded px-3 py-1.5 bg-background"
-                >
-                  <option value="all">All Mods</option>
-                  <option value="normal">Normal</option>
-                  <option value="perfect">Perfect Essence</option>
-                  <option value="desecrated">Desecrated</option>
-                </select>
-                {/* Item Level Dropdown */}
-                <label className="flex items-center gap-1 text-xs ml-2">
-                  Item Level:
-                  <select
-                    value={itemLevel}
-                    onChange={e => {
-                      // Only update item level, do not reset crafting mode or step
-                      updateItemLevel(Number(e.target.value));
-                    }}
-                    className="px-2 py-1 border rounded text-xs"
-                  >
-                    {Array.from({ length: 100 }, (_, i) => i + 1).map(lvl => (
-                      <option key={lvl} value={lvl}>{lvl}</option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search affixes..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-3 py-1.5 text-sm border rounded bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={onClearAll}
-                className="gap-2"
+          {/* Filter Controls */}
+          <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Filter:</span>
+              <select
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value as any)}
+                className="text-sm border rounded px-3 py-1.5 bg-background"
               >
-                <RotateCcw className="h-4 w-4" />
-                Clear All
-              </Button>
+                <option value="all">All Mods</option>
+                <option value="normal">Normal</option>
+                <option value="perfect">Perfect Essence</option>
+                <option value="desecrated">Desecrated</option>
+              </select>
+              {/* Item Level Dropdown */}
+              <label className="flex items-center gap-1 text-xs ml-2">
+                Item Level:
+                <select
+                  value={itemLevel}
+                  onChange={e => {
+                    // Only update item level, do not reset crafting mode or step
+                    updateItemLevel(Number(e.target.value));
+                  }}
+                  className="px-2 py-1 border rounded text-xs text-black bg-white"
+                >
+                  {Array.from({ length: 100 }, (_, i) => i + 1).map(lvl => (
+                    <option key={lvl} value={lvl} className="text-black bg-white">{lvl}</option>
+                  ))}
+                </select>
+              </label>
             </div>
-          )}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search affixes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-3 py-1.5 text-sm border rounded bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="default"
+              onClick={onClearAll}
+              className="gap-2"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Clear All
+            </Button>
+          </div>
 
           {/* Modifier Lists */}
           <div className="space-y-4" data-modifier-lists>

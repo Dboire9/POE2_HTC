@@ -40,15 +40,41 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
   // Use selectedTier if provided (when selected), otherwise use modifier's default tier
   const [tier, setTier] = useState(selectedTier || modifier.tier || 1);
   const sourceBadge = getSourceBadge(modifier.source);
-  
-  // Update local tier state when selectedTier changes (sync with context)
+
+  // Debug: Log prop changes and re-renders
   React.useEffect(() => {
-    if (selectedTier !== undefined) {
+    // eslint-disable-next-line no-console
+    console.log('[ModifierCard] RENDER', {
+      id: modifier.id,
+      text: modifier.text,
+      selected,
+      disabled,
+      selectedTier,
+      availableTiers,
+      tierDetails: modifier.tierDetails?.map(t => t.level),
+      tier,
+    });
+  });
+
+  // Update local tier state when selectedTier or available tiers change (sync with context and item level)
+  React.useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[ModifierCard] useEffect: selectedTier/modifier.tierDetails changed', {
+      id: modifier.id,
+      selectedTier,
+      tierDetails: modifier.tierDetails?.map(t => t.level),
+      availableTiers,
+    });
+    if (selectedTier !== undefined && modifier.tierDetails && selectedTier <= modifier.tierDetails.length) {
       setTier(selectedTier);
+    } else if (modifier.tierDetails && modifier.tierDetails.length > 0) {
+      setTier(1); // T1 is always the best (last in array, but we use 1-based)
     }
-  }, [selectedTier]);
+  }, [selectedTier, modifier.tierDetails]);
   
   const handleTierChange = (newTier: number) => {
+    // eslint-disable-next-line no-console
+    console.log('[ModifierCard] handleTierChange', { id: modifier.id, newTier });
     setTier(newTier);
     if (selected) {
       onClick(modifier, newTier);
@@ -56,6 +82,8 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
   };
   
   const handleCardClick = () => {
+    // eslint-disable-next-line no-console
+    console.log('[ModifierCard] handleCardClick', { id: modifier.id, tier });
     // Allow clicking if not disabled, OR if selected (to allow deselection even when at max)
     if (!disabled || selected) {
       onClick(modifier, tier);
@@ -104,9 +132,8 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
               disabled={disabled}
             >
               {modifier.tierDetails.slice().reverse().map((tierInfo, idx) => {
-                // Reverse the tier numbering: best tier (last in array) = T1
-                const tierNum = idx + 1;
-                const actualIndex = modifier.tierDetails!.length - idx - 1;
+                // Use originalTier if present, otherwise fallback to idx+1
+                const tierNum = tierInfo.originalTier || (idx + 1);
                 const values = [];
                 if (tierInfo.minMax1) values.push(`${tierInfo.minMax1.min}-${tierInfo.minMax1.max}`);
                 if (tierInfo.minMax2) values.push(`${tierInfo.minMax2.min}-${tierInfo.minMax2.max}`);
@@ -176,9 +203,14 @@ const ModifierCard: React.FC<ModifierCardProps> = ({
 
 // T033: Wrap with React.memo() using custom equality for complex props
 export default React.memo(ModifierCard, (prevProps, nextProps) => {
-  return (
-    prevProps.modifier.id === nextProps.modifier.id &&
-    prevProps.selected === nextProps.selected &&
-    prevProps.disabled === nextProps.disabled
-  );
+  // Compare id, selection, disabled, availableTiers, and tierDetails (shallow)
+  const sameId = prevProps.modifier.id === nextProps.modifier.id;
+  const sameSelected = prevProps.selected === nextProps.selected;
+  const sameDisabled = prevProps.disabled === nextProps.disabled;
+  const sameAvailableTiers = prevProps.availableTiers === nextProps.availableTiers;
+  // Shallow compare tierDetails array length and each tier's level
+  const prevTiers = prevProps.modifier.tierDetails || [];
+  const nextTiers = nextProps.modifier.tierDetails || [];
+  const sameTierDetails = prevTiers.length === nextTiers.length && prevTiers.every((t, i) => t.level === nextTiers[i]?.level);
+  return sameId && sameSelected && sameDisabled && sameAvailableTiers && sameTierDetails;
 });

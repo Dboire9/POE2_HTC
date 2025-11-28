@@ -1197,6 +1197,10 @@ public class ServerMain {
 		exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
 		exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Cache-Control, Pragma");
 		exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
+		// Security headers
+		exchange.getResponseHeaders().add("X-Content-Type-Options", "nosniff");
+		exchange.getResponseHeaders().add("X-Frame-Options", "DENY");
+		exchange.getResponseHeaders().add("X-XSS-Protection", "1; mode=block");
 		exchange.sendResponseHeaders(status, bytes.length);
 		try (OutputStream os = exchange.getResponseBody()) {
 			os.write(bytes);

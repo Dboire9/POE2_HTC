@@ -13,9 +13,13 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true,
+    assetsDir: 'static',
     rollupOptions: {
       output: {
         manualChunks: undefined,
+        entryFileNames: 'static/js/[name]-[hash].js',
+        chunkFileNames: 'static/js/[name]-[hash].js',
+        assetFileNames: 'static/[ext]/[name]-[hash].[ext]'
       }
     }
   },

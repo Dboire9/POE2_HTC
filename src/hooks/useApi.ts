@@ -1,4 +1,5 @@
 // Use production API unless explicitly running dev server locally
+// Runtime detection based on hostname (v2)
 const API_BASE_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:8080/api'
   : 'https://api.poe2htc.com';

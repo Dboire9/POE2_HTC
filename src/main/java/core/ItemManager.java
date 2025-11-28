@@ -20,6 +20,26 @@ public class ItemManager {
     private final String itemsPackage = "core/Items"; // Package path for JAR mode
 
     /**
+     * Validates that a path component is safe (no traversal attempts).
+     * @param component The path component to validate
+     * @return true if safe, false otherwise
+     */
+    private boolean isValidPathComponent(String component) {
+        if (component == null || component.isEmpty()) {
+            return false;
+        }
+        // Block any traversal attempts
+        if (component.contains("..") || 
+            component.contains("/") || 
+            component.contains("\\") ||
+            component.startsWith(".") ||
+            component.matches(".*[<>:\"|?*].*")) { // Block special chars
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Retrieves all top-level category folder names from the items directory.
      *
      * @return A list of category folder names. Returns an empty list if the directory
@@ -45,6 +65,12 @@ public class ItemManager {
      *         empty list if the category folder does not exist or is not a valid directory.
      */
     public List<String> getSubCategories(String category) {
+        // Validate input to prevent path traversal
+        if (!isValidPathComponent(category)) {
+            System.err.println("Invalid category path component: " + category);
+            return new ArrayList<>();
+        }
+        
         // Try filesystem first (dev mode)
         File folder = new File(itemsPath + "/" + category);
         if (folder.exists() && folder.isDirectory()) {

@@ -2,6 +2,10 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Item, ItemsState, ItemsActions } from '../types';
 import { ErrorCode, getErrorMessage } from '../lib/errorMessages';
 
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8080/api'
+  : 'https://api.poe2htc.com';
+
 // Context type combining state and actions
 type ItemsContextType = ItemsState & ItemsActions;
 
@@ -22,7 +26,7 @@ export const ItemsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     try {
       // Direct HTTP API call
-      const httpResponse = await fetch('http://localhost:8080/api/items');
+      const httpResponse = await fetch(`${API_BASE_URL}/items`);
       if (!httpResponse.ok) {
         throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
       }
@@ -40,7 +44,7 @@ export const ItemsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // T010b: Load subcategories for an item category
   const loadSubcategories = useCallback(async (categoryId: string): Promise<{ id: string; name: string }[]> => {
     try {
-      const httpResponse = await fetch(`http://localhost:8080/api/subcategories?category=${categoryId}`);
+      const httpResponse = await fetch(`${API_BASE_URL}/subcategories?category=${categoryId}`);
       if (!httpResponse.ok) {
         throw new Error(ErrorCode.BACKEND_UNAVAILABLE);
       }

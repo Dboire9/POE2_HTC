@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useItems } from '../../contexts/ItemsContext';
 import { useModifiers } from '../../contexts/ModifiersContext';
 import { Modifier } from '../../types';
 import { Button } from '../../components/ui/button';
@@ -37,6 +38,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
     deselectModifier,
     isModifierDisabled,
   } = useModifiers();
+  const { itemLevel, updateItemLevel } = useItems();
 
   const [step, setStep] = useState<0 | 1 | 2>(0); // Add step 0 for mode selection
   const [craftingMode, setCraftingMode] = useState<'scratch' | 'improve' | null>(null);
@@ -47,13 +49,31 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
   const totalExistingMods = existingPrefixes.length + existingSuffixes.length;
   const totalTargetMods = selectedPrefixes.length + selectedSuffixes.length;
 
-  // Filter modifiers based on search query
+  // Filter modifiers based on search query and item level (for available tiers)
   const filterModifiers = (mods: typeof prefixes) => {
-    if (!searchQuery.trim()) return mods;
+    // Only show tiers that are available for the current item level
+    const filterByItemLevel = (mod: Modifier) => {
+      if (!mod.tierDetails) return mod;
+      // Attach original tier number to each tier (T1 = last, Tn = first)
+      const totalTiers = mod.tierDetails.length;
+      const tierDetailsWithOriginal = mod.tierDetails.map((tier, idx) => ({
+        ...tier,
+        originalTier: totalTiers - idx // T1 = last, Tn = first
+      }));
+      // Only include tiers where required level <= itemLevel
+      const availableTiers = tierDetailsWithOriginal.filter(tier => tier.level <= itemLevel);
+      return {
+        ...mod,
+        availableTiers: availableTiers.length,
+        tierDetails: availableTiers,
+        // If the selected tier is now out of range, reset to best available (T1 = last)
+        tier: mod.tier && mod.tier <= availableTiers.length ? mod.tier : availableTiers.length > 0 ? 1 : undefined
+      };
+    };
+    let filtered = mods.map(filterByItemLevel);
+    if (!searchQuery.trim()) return filtered;
     const query = searchQuery.toLowerCase();
-    return mods.filter(mod => 
-      mod.text.toLowerCase().includes(query)
-    );
+    return filtered.filter(mod => mod.text.toLowerCase().includes(query));
   };
 
   // Get max slots based on rarity
@@ -395,49 +415,67 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
             </div>
           </Card>
 
-          {/* Filter Controls */}
-          <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Filter:</span>
-              <select
-                value={sourceFilter}
-                onChange={(e) => setSourceFilter(e.target.value as any)}
-                className="text-sm border rounded px-3 py-1.5 bg-background"
-              >
-                <option value="all">All Mods</option>
-                <option value="normal">Normal</option>
-                <option value="perfect">Perfect Essence</option>
-                <option value="desecrated">Desecrated</option>
-              </select>
-            </div>
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search affixes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-3 py-1.5 text-sm border rounded bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          {/* Filter Controls (Step 2 only) */}
+          {step === 2 && (
+            <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Filter:</span>
+                <select
+                  value={sourceFilter}
+                  onChange={(e) => setSourceFilter(e.target.value as any)}
+                  className="text-sm border rounded px-3 py-1.5 bg-background"
                 >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
+                  <option value="all">All Mods</option>
+                  <option value="normal">Normal</option>
+                  <option value="perfect">Perfect Essence</option>
+                  <option value="desecrated">Desecrated</option>
+                </select>
+                {/* Item Level Dropdown */}
+                <label className="flex items-center gap-1 text-xs ml-2">
+                  Item Level:
+                  <select
+                    value={itemLevel}
+                    onChange={e => {
+                      // Only update item level, do not reset crafting mode or step
+                      updateItemLevel(Number(e.target.value));
+                    }}
+                    className="px-2 py-1 border rounded text-xs"
+                  >
+                    {Array.from({ length: 100 }, (_, i) => i + 1).map(lvl => (
+                      <option key={lvl} value={lvl}>{lvl}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search affixes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-3 py-1.5 text-sm border rounded bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="default"
+                onClick={onClearAll}
+                className="gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Clear All
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              size="default"
-              onClick={onClearAll}
-              className="gap-2"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Clear All
-            </Button>
-          </div>
+          )}
 
           {/* Modifier Lists */}
           <div className="space-y-4" data-modifier-lists>
@@ -559,7 +597,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
             </div>
           </Card>
 
-          {/* Filter Controls */}
+          {/* Filter Controls (Step 2 only, with item level) */}
           <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-lg">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Filter:</span>
@@ -573,6 +611,22 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
                 <option value="perfect">Perfect Essence</option>
                 <option value="desecrated">Desecrated</option>
               </select>
+              {/* Item Level Dropdown - only here */}
+              <label className="flex items-center gap-1 text-xs ml-2">
+                Item Level:
+                <select
+                  value={itemLevel}
+                  onChange={e => {
+                    // Only update item level, do not reset crafting mode or step
+                    updateItemLevel(Number(e.target.value));
+                  }}
+                  className="px-2 py-1 border rounded text-xs text-black bg-white"
+                >
+                  {Array.from({ length: 100 }, (_, i) => i + 1).map(lvl => (
+                    <option key={lvl} value={lvl} className="text-black bg-white">{lvl}</option>
+                  ))}
+                </select>
+              </label>
             </div>
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

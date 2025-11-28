@@ -9,7 +9,7 @@ import { Item } from '../../types';
 
 // T015: Main item selection component
 const ItemSelector: React.FC = () => {
-  const { items, selectedItem, loading, error, loadItems, selectItem } = useItems();
+  const { items, selectedItem, loading, error, loadItems, selectItem, itemLevel, updateItemLevel } = useItems();
   const [showingSubcategories, setShowingSubcategories] = useState<Item | null>(null);
 
   // Load items on mount
@@ -88,8 +88,10 @@ const ItemSelector: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-bold">Select Item Type</h2>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+        <div className="flex items-center gap-4">
+          <h2 className="text-lg font-bold">Select Item Type</h2>
+        </div>
         {selectedItem && (
           <span className="text-sm text-muted-foreground">
             Selected: {selectedItem.name.split('\n')[0]}{selectedItem.subcategory ? ` (${selectedItem.subcategory})` : ''}

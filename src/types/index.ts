@@ -28,6 +28,7 @@ export interface Item {
   baseStats?: Record<string, number>;  // Optional, defaults to empty object
   hasSubcategories?: boolean;  // True if item has hybrid bases (e.g., Body_Armours)
   subcategory?: string;  // Selected subcategory (e.g., Body_Armours_str)
+  itemLevel?: number; // User-selected item level
 }
 
 // ============================================================================

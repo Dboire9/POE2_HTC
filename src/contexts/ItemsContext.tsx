@@ -11,6 +11,7 @@ const ItemsContext = createContext<ItemsContextType | undefined>(undefined);
 export const ItemsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [itemLevel, setItemLevel] = useState<number>(86); // Default ilvl 86
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,12 +53,18 @@ export const ItemsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   // T011: Select item by ID with optional subcategory
-  const selectItem = useCallback((itemId: string, subcategory?: string) => {
+  const selectItem = useCallback((itemId: string, subcategory?: string, newItemLevel?: number) => {
     const item = items.find((i) => i.id === itemId);
     if (item) {
-      setSelectedItem({ ...item, subcategory });
+      setSelectedItem({ ...item, subcategory, itemLevel: newItemLevel ?? itemLevel });
     }
-  }, [items]);
+  }, [items, itemLevel]);
+
+  // Only update itemLevel globally, do not update selectedItem (prevents workflow reset)
+  const updateItemLevel = useCallback((level: number) => {
+    setItemLevel(level);
+    // Do NOT update selectedItem here, to avoid workflow reset
+  }, []);
 
   // T011: Clear selection
   const clearSelection = useCallback(() => {
@@ -68,12 +75,14 @@ export const ItemsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // State
     items,
     selectedItem,
+    itemLevel,
     loading,
     error,
     // Actions
     loadItems,
     loadSubcategories,
     selectItem,
+    updateItemLevel,
     clearSelection,
   };
 

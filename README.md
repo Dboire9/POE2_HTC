@@ -23,7 +23,11 @@
 
 </div>
 
-A powerful desktop application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
+A powerful application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
+
+## 🌐 Web Application
+
+**Try it now at [poe2htc.com](https://poe2htc.com)** - No installation required!
 
 <div style="display: flex; gap: 10px;">
   <img src="screenshots/Full_initial_screen.PNG" alt="PoE2 Pathfinder" width="400"/>
@@ -52,11 +56,18 @@ A powerful desktop application that calculates optimal crafting paths for **Path
 - 🎯 **Optimal Crafting Paths** - Find the best sequence of currencies to craft your desired item
 - 📊 **Probability Calculations** - See exact success rates for each crafting step
 - ⚡ **Fast Computation** - Multithreaded beam search algorithm for quick results
-- 🖥️ **Desktop App** - Run locally with Electron or in your browser
+- 🌐 **Web App** - Access instantly at [poe2htc.com](https://poe2htc.com)
+- 🖥️ **Desktop App** - Also available as an Electron desktop application
 
 ## 🚀 Quick Start
 
-### Windows Users
+### Web Application (Recommended)
+
+**Visit [poe2htc.com](https://poe2htc.com)** - Start crafting immediately with no installation!
+
+### Desktop Application
+
+#### Windows Users
 
 **Download the installer:**
 
@@ -69,7 +80,7 @@ A powerful desktop application that calculates optimal crafting paths for **Path
 
 - The installer includes everything you need!
 
-### Linux/macOS Users
+#### Linux/macOS Users
 
 **Prerequisites**: Java 17+, Node.js 20+, Maven 3.8+
 

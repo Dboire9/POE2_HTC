@@ -43,13 +43,13 @@ const AppContent: React.FC = () => {
   const { excludedCurrencies, setExcludedCurrencies, minTier, setMinTier } = useSimulation();
 
   return (
-    <div className="text-foreground bg-background">
+    <div className="min-h-screen text-foreground bg-background">
       <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
-        <div className="container flex items-center justify-between gap-4 py-3">
-          <div className="flex items-center gap-4">
+        <div className="container flex items-center justify-between gap-2 sm:gap-4 py-3 px-3 sm:px-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight">POE2HTC</h1>
-              <p className="text-xs text-muted-foreground">Path of Exile 2 Item Crafting Pathfinder</p>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight">POE2HTC</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Path of Exile 2 Item Crafting Pathfinder</p>
             </div>
           </div>
           
@@ -113,8 +113,8 @@ const AppContent: React.FC = () => {
         </div>
       </header>
 
-      <main className="container py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <main className="container py-3 sm:py-4 px-3 sm:px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
           {/* Phase 3: User Story 1 - Item Selection */}
           <div className="lg:col-span-4 space-y-3">
             <ItemSelector />

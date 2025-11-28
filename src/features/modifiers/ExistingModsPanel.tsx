@@ -417,7 +417,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
           </Card>
 
           {/* Filter Controls (Step 2 only) */}
-          {step === 2 && (
+          {step === (2 as typeof step) && (
             <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Filter:</span>

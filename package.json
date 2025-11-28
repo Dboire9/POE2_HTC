@@ -1,6 +1,6 @@
 {
   "name": "poe2-htc",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Path of Exile 2 Item Crafting Pathfinder",
   "author": {
     "name": "Dboire",
@@ -81,7 +81,7 @@
     ],
     "extraResources": [
       {
-        "from": "target/poe-crafter-0.9.0-jar-with-dependencies.jar",
+        "from": "target/poe-crafter-0.9.3-jar-with-dependencies.jar",
         "to": "backend.jar"
       },
       {

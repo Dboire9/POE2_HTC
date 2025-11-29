@@ -115,6 +115,15 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
         response = await httpResponse.json();
         
+        // DEBUG: Log the full response from backend
+        console.log('★★★ BACKEND RESPONSE RECEIVED:', {
+          status: httpResponse.status,
+          hasError: !!response.error,
+          pathsCount: response.paths?.length || 0,
+          responseKeys: Object.keys(response),
+          fullResponse: response
+        });
+        
         // Check if request was aborted
         if (abortControllerRef.current?.signal.aborted) {
           return;
@@ -135,6 +144,12 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
         // Transform backend response to match frontend types
         const transformedPaths = (response.paths || []).map((path: any, index: number) => {
+          console.log(`★★★ TRANSFORMING PATH ${index}:`, {
+            hasBestPath: !!path.bestPath,
+            actionsCount: path.bestPath?.actions?.length || 0,
+            probability: path.probability
+          });
+          
           const steps = (path.bestPath?.actions || []).map((action: any, stepIdx: number) => ({
             order: stepIdx + 1,
             action: action.action || 'Unknown',

@@ -6,19 +6,17 @@ import com.google.gson.JsonObject;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-
+import core.Crafting.CraftingExecutor;
 import core.Crafting.Crafting_Action;
 import core.Crafting.Crafting_Item;
-import core.Crafting.CraftingExecutor;
 import core.Crafting.Probabilities.Probability_Analyzer;
 import core.Crafting.Utils.ModifierEvent;
 import core.Currency.Desecrated_currency;
 import core.Currency.Essence_currency;
+import core.DebugLogger.DebugLevel;
 import core.Items.Item_base;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
-import core.DebugLogger.DebugLevel;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,12 +25,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class ServerMain {
-	// Cache ItemManager to prevent reloading data on every request (prevents OutOfMemoryError)
+	// Cache ItemManager to prevent reloading data on every request (prevents
+	// OutOfMemoryError)
 	private static final ItemManager ITEM_MANAGER = new ItemManager();
-	
+
 	public static void main(String[] args) {
 		// Set debug level from environment variable or default to INFO
 		String debugLevel = System.getenv("DEBUG_LEVEL");
@@ -143,10 +144,10 @@ public class ServerMain {
 
 			if (category.isEmpty()) {
 				sendJson(exchange, 400, "{\"error\":\"category parameter required\"}");
-			return;
-		}
+				return;
+			}
 
-		List<String> subCategories = ITEM_MANAGER.getSubCategories(category);			// Build JSON array
+			List<String> subCategories = ITEM_MANAGER.getSubCategories(category); // Build JSON array
 			StringBuilder sb = new StringBuilder();
 			sb.append('[');
 			for (int i = 0; i < subCategories.size(); i++) {
@@ -562,6 +563,14 @@ public class ServerMain {
 
 							// Find matching modifier
 							boolean found = false;
+							DebugLogger.info("Searching for existing prefix - modText: '" + modText + "', modId: '"
+									+ modId + "'");
+							// Debug: Print first 3 prefix families to see format
+							if (modId != null && allPrefixes.size() > 0) {
+								DebugLogger
+										.info("  Sample prefix families: [0]='" + allPrefixes.get(0).family + "', [1]='"
+												+ (allPrefixes.size() > 1 ? allPrefixes.get(1).family : "N/A") + "'");
+							}
 							for (Modifier prefix : allPrefixes) {
 								boolean matches = false;
 								if (modText != null) {
@@ -571,20 +580,29 @@ public class ServerMain {
 											.trim();
 									matches = normalizedPrefixText.equals(normalizedModText);
 								} else if (modId != null) {
-									matches = prefix.family.equals(modId);
+									if (prefix.primaryCategory != null && prefix.primaryCategory.equals(modId)) {
+										DebugLogger.info(
+												"  ✓ MATCH found: modId='" + modId + "' == prefix.primaryCategory='"
+														+ prefix.primaryCategory + "'");
+										matches = true;
+									}
 								}
 
 								if (matches) {
-									prefix.chosenTier = tier;
+									// Create a copy to avoid modifying shared allPrefixes objects
+									Modifier prefixCopy = new Modifier(prefix);
+									prefixCopy.chosenTier = tier;
 									// Mark as existing, NOT as desired
-									existingMods.add(prefix);
-									DebugLogger.debug("✓ Existing Prefix: " + prefix.text + " (tier=" + tier + ")");
+									existingMods.add(prefixCopy);
+									DebugLogger.info(
+											"✓ Existing Prefix ADDED: " + prefixCopy.text + " (tier=" + tier + ")");
 									found = true;
 									break;
 								}
 							}
 							if (!found) {
-								DebugLogger.warn("Existing prefix not found: " + searchKey);
+								DebugLogger.warn("Existing prefix not found: " + searchKey + " (checked "
+										+ allPrefixes.size() + " prefixes)");
 							}
 						}
 					}
@@ -622,14 +640,16 @@ public class ServerMain {
 											.trim();
 									matches = normalizedSuffixText.equals(normalizedModText);
 								} else if (modId != null) {
-									matches = suffix.family.equals(modId);
+									matches = suffix.primaryCategory.equals(modId);
 								}
 
 								if (matches) {
-									suffix.chosenTier = tier;
+									// Create a copy to avoid modifying shared allSuffixes objects
+									Modifier suffixCopy = new Modifier(suffix);
+									suffixCopy.chosenTier = tier;
 									// Mark as existing, NOT as desired
-									existingMods.add(suffix);
-									DebugLogger.debug("✓ Existing Suffix: " + suffix.text + " (tier=" + tier + ")");
+									existingMods.add(suffixCopy);
+									DebugLogger.debug("✓ Existing Suffix: " + suffixCopy.text + " (tier=" + tier + ")");
 									found = true;
 									break;
 								}
@@ -680,16 +700,15 @@ public class ServerMain {
 										.trim();
 								matches = normalizedPrefixText.equals(normalizedModText);
 							} else if (modId != null) {
-								matches = prefix.family.equals(modId);
+								matches = prefix.primaryCategory.equals(modId);
 							}
-
 							if (matches) {
-								// CRITICAL: Set tier and is_desired_mod on original, then add original
-								// This matches TestAlgo's behavior exactly
-								prefix.chosenTier = tier;
-								prefix.is_desired_mod = true;
-								desiredModifiers.add(prefix);
-								DebugLogger.debug("✓ Prefix: " + prefix.text + " (tier=" + tier + ")");
+								// Create a copy to avoid modifying shared allPrefixes objects
+								Modifier prefixCopy = new Modifier(prefix);
+								prefixCopy.chosenTier = tier;
+								prefixCopy.is_desired_mod = true;
+								desiredModifiers.add(prefixCopy);
+								DebugLogger.debug("✓ Prefix: " + prefixCopy.text + " (tier=" + tier + ")");
 								found = true;
 								break;
 							}
@@ -736,16 +755,16 @@ public class ServerMain {
 										.trim();
 								matches = normalizedSuffixText.equals(normalizedModText);
 							} else if (modId != null) {
-								matches = suffix.family.equals(modId);
+								matches = suffix.primaryCategory.equals(modId);
 							}
 
 							if (matches) {
-								// CRITICAL: Set tier and is_desired_mod on original, then add original
-								// This matches TestAlgo's behavior exactly
-								suffix.chosenTier = tier;
-								suffix.is_desired_mod = true;
-								desiredModifiers.add(suffix);
-								DebugLogger.debug("✓ Suffix: " + suffix.text + " (tier=" + tier + ")");
+								// Create a copy to avoid modifying shared allSuffixes objects
+								Modifier suffixCopy = new Modifier(suffix);
+								suffixCopy.chosenTier = tier;
+								suffixCopy.is_desired_mod = true;
+								desiredModifiers.add(suffixCopy);
+								DebugLogger.debug("✓ Suffix: " + suffixCopy.text + " (tier=" + tier + ")");
 								found = true;
 								break;
 							}
@@ -754,6 +773,12 @@ public class ServerMain {
 							DebugLogger.warn("Suffix not found: " + searchKey);
 						}
 					}
+				}
+
+				DebugLogger.info("★★★ DEBUG AFTER PARSING: desiredModifiers.size() = " + desiredModifiers.size());
+				for (int i = 0; i < Math.min(10, desiredModifiers.size()); i++) {
+					DebugLogger.info("  [" + i + "] " + desiredModifiers.get(i).text + " (family: "
+							+ desiredModifiers.get(i).family + ")");
 				}
 
 				if (desiredModifiers.isEmpty()) {
@@ -824,7 +849,6 @@ public class ServerMain {
 					return;
 				}
 
-
 				// Create Crafting_Item from Item_base
 				Crafting_Item craftingItem = new Crafting_Item(itemInstance);
 
@@ -842,7 +866,24 @@ public class ServerMain {
 
 				// Set item rarity based on user selection (for existing mods workflow)
 				if (!existingMods.isEmpty()) {
-					if (isMagicRarity) {
+					// Calculate total target mods (existing + desired)
+					int totalPrefixes = (int) existingMods.stream().filter(m -> m.type == Modifier.ModifierType.PREFIX)
+							.count() +
+							(int) desiredModifiers.stream().filter(m -> m.type == Modifier.ModifierType.PREFIX).count();
+					int totalSuffixes = (int) existingMods.stream().filter(m -> m.type == Modifier.ModifierType.SUFFIX)
+							.count() +
+							(int) desiredModifiers.stream().filter(m -> m.type == Modifier.ModifierType.SUFFIX).count();
+
+					DebugLogger.info("★★★ RARITY DECISION: Total target mods: " + totalPrefixes + " prefixes, "
+							+ totalSuffixes + " suffixes");
+
+					// If user selected magic but we need more than 1+1 mods total, we need to
+					// upgrade to RARE
+					if (isMagicRarity && (totalPrefixes > 1 || totalSuffixes > 1)) {
+						craftingItem.rarity = Crafting_Item.ItemRarity.RARE;
+						DebugLogger.info("★ Starting from MAGIC item but upgrading to RARE (need " + totalPrefixes + "+"
+								+ totalSuffixes + " total mods)");
+					} else if (isMagicRarity) {
 						craftingItem.rarity = Crafting_Item.ItemRarity.MAGIC;
 						DebugLogger.info("★ Set item rarity to MAGIC (1 prefix + 1 suffix max)");
 					} else {
@@ -852,6 +893,7 @@ public class ServerMain {
 				}
 
 				// ===== APPLY EXISTING MODIFIERS TO THE ITEM =====
+				Crafting_Item.ItemRarity targetRarity = craftingItem.rarity; // Save target rarity for retries
 				if (!existingMods.isEmpty()) {
 					DebugLogger.info("★★★ APPLYING " + existingMods.size() + " EXISTING MODIFIERS TO ITEM ★★★");
 					for (Modifier existingMod : existingMods) {
@@ -869,6 +911,35 @@ public class ServerMain {
 					}
 					DebugLogger.info("Item now has " + craftingItem.getAllCurrentModifiers().size()
 							+ " modifiers before crafting");
+				}
+
+				// ===== VALIDATE: REMOVE TARGET MODS THAT ALREADY EXIST =====
+				// The frontend should prevent this, but backend must also validate
+				if (!existingMods.isEmpty()) {
+					int originalDesiredCount = desiredModifiers.size();
+					List<Modifier> filteredDesiredMods = new ArrayList<>();
+
+					// Build set of existing mod families for fast lookup
+					Set<String> existingFamilies = existingMods.stream()
+							.map(m -> m.family)
+							.collect(Collectors.toSet());
+
+					// Only keep target mods that don't match any existing mod family
+					for (Modifier desired : desiredModifiers) {
+						if (existingFamilies.contains(desired.family)) {
+							DebugLogger.warn("⚠️  FILTERING OUT duplicate target mod: " + desired.text +
+									" (family: " + desired.family + ") - already exists on item!");
+						} else {
+							filteredDesiredMods.add(desired);
+						}
+					}
+
+					if (filteredDesiredMods.size() < originalDesiredCount) {
+						DebugLogger.info("★ Filtered target mods: " + originalDesiredCount + " → " +
+								filteredDesiredMods.size() + " (removed " +
+								(originalDesiredCount - filteredDesiredMods.size()) + " duplicates)");
+						desiredModifiers = filteredDesiredMods;
+					}
 				}
 
 				// Run crafting simulation
@@ -894,14 +965,25 @@ public class ServerMain {
 
 				DebugLogger.debug("Starting crafting with threshold: " + (globalThreshold * 100) + "%");
 
+				// Save the original count BEFORE running crafting algorithm (which may modify
+				// the list)
+				int originalDesiredModsCount = desiredModifiers.size();
+
 				long overallStart = System.currentTimeMillis();
+
+				// Save the original desired modifiers list - the algorithm WILL mutate it
+				List<Modifier> originalDesiredModifiers = new ArrayList<>(desiredModifiers);
+				DebugLogger.info("★ Original desired mods list size: " + originalDesiredModifiers.size());
 
 				// Run crafting with initial threshold
 				// Use different method based on whether item has existing mods
 				if (hasExistingMods) {
+					// Create a fresh copy of desiredModifiers for this call
+					List<Modifier> desiredModsCopy = new ArrayList<>(originalDesiredModifiers);
+					DebugLogger.debug("Initial call: Using fresh copy of " + desiredModsCopy.size() + " desired mods");
 					results = CraftingExecutor.runCraftingWithExistingMods(
 							craftingItem,
-							desiredModifiers,
+							desiredModsCopy,
 							undesiredModifiers,
 							globalThreshold,
 							existingMods,
@@ -919,7 +1001,32 @@ public class ServerMain {
 				int retryCount = 0;
 				int maxRetries = 33; // Maximum 33 retries (from 0.33 down to 0.00)
 				while (results.isEmpty() && globalThreshold > 0 && retryCount < maxRetries) {
+					DebugLogger.info("★ RETRY: Before reset, item has " + craftingItem.getAllCurrentModifiers().size()
+							+ " mods");
 					craftingItem.reset();
+					DebugLogger.info(
+							"★ RETRY: After reset, item has " + craftingItem.getAllCurrentModifiers().size() + " mods");
+
+					// Re-apply existing mods and target rarity if needed (for existing mods
+					// workflow)
+					if (hasExistingMods && !existingMods.isEmpty()) {
+						// Re-apply existing modifiers to the reset item
+						for (Modifier existingMod : existingMods) {
+							ModifierTier tierToApply = existingMod.tiers.get(existingMod.chosenTier);
+							if (existingMod.type == Modifier.ModifierType.PREFIX) {
+								craftingItem.addPrefix(existingMod, tierToApply);
+							} else {
+								craftingItem.addSuffix(existingMod, tierToApply);
+							}
+						}
+						DebugLogger.info("★ RETRY: After re-applying " + existingMods.size()
+								+ " existing mods, item has " + craftingItem.getAllCurrentModifiers().size() + " mods");
+						// Restore target rarity
+						craftingItem.rarity = targetRarity;
+						DebugLogger.debug("Retry " + (retryCount + 1) + ": Re-applied " + existingMods.size()
+								+ " existing mods, rarity=" + targetRarity);
+					}
+
 					globalThreshold = globalThreshold - 0.01;
 					if (globalThreshold < 0)
 						globalThreshold = 0;
@@ -927,9 +1034,15 @@ public class ServerMain {
 
 					try {
 						if (hasExistingMods) {
+							// CRITICAL: Create a fresh copy of desiredModifiers for each retry
+							// The algorithm MUTATES the list, so we must use a new copy each time
+							List<Modifier> desiredModsCopy = new ArrayList<>(originalDesiredModifiers);
+							DebugLogger.debug("Retry " + (retryCount + 1) + ": Using fresh copy of "
+									+ desiredModsCopy.size() + " desired mods (threshold="
+									+ String.format("%.2f", globalThreshold) + ")");
 							results = CraftingExecutor.runCraftingWithExistingMods(
 									craftingItem,
-									desiredModifiers,
+									desiredModsCopy,
 									undesiredModifiers,
 									globalThreshold,
 									existingMods,
@@ -970,11 +1083,21 @@ public class ServerMain {
 				DebugLogger.info("Crafting completed: " + results.size() + " paths found ("
 						+ (overallEnd - overallStart) + "ms, " + retryCount + " retries)");
 
+				DebugLogger.info("★★★ DEBUG: About to build JSON response ★★★");
+				DebugLogger.info("  - Results size: " + results.size());
+				DebugLogger.info("  - Has existing mods: " + hasExistingMods);
+				DebugLogger.info("  - Existing mods count: " + existingMods.size());
+				DebugLogger.info("  - Desired mods count AFTER crafting: " + desiredModifiers.size() + " (was "
+						+ originalDesiredModsCount + " before)");
+				if (desiredModifiers.size() != originalDesiredModsCount) {
+					DebugLogger.warn("  ⚠️ WARNING: desiredModifiers list was modified by crafting algorithm!");
+				}
+
 				// Convert results to JSON
 				JsonObject response = new JsonObject();
 				response.addProperty("itemId", itemId);
 				response.addProperty("iterations", iterations);
-				response.addProperty("modifierCount", desiredModifiers.size());
+				response.addProperty("modifierCount", originalDesiredModsCount); // Use saved count, not modified list
 				response.addProperty("threshold", globalThreshold);
 
 				if (results.isEmpty()) {
@@ -986,13 +1109,62 @@ public class ServerMain {
 				}
 
 				JsonArray resultsArray = new JsonArray();
-				for (Probability_Analyzer.CandidateProbability result : results) {
+				DebugLogger.info("★★★ DEBUG: Processing " + results.size() + " results into JSON array ★★★");
+				DebugLogger.info("★★★ DEBUG: hasExistingMods = " + hasExistingMods);
+				DebugLogger.info("★★★ DEBUG: originalDesiredModsCount = " + originalDesiredModsCount);
+
+				for (int resultIndex = 0; resultIndex < results.size(); resultIndex++) {
+					Probability_Analyzer.CandidateProbability result = results.get(resultIndex);
+					DebugLogger.info("★★★ Processing result #" + (resultIndex + 1) + " of " + results.size() + " ★★★");
 					JsonObject resultObj = new JsonObject();
 					resultObj.addProperty("probability", result.finalPercentage() / 100.0); // Convert to 0-1 range
+					DebugLogger.debug("  - Result probability: " + result.finalPercentage() + "%");
 
-					// Add best path info if available
+					// DEBUG: Check what's available
+					DebugLogger.info("★ DEBUG result.bestPath(): "
+							+ (result.bestPath() == null ? "NULL" : "size=" + result.bestPath().size()));
+					DebugLogger.info("★ DEBUG result.candidate().actions: "
+							+ (result.candidate().actions == null ? "NULL"
+									: "size=" + result.candidate().actions.size()));
+					DebugLogger.info("★ DEBUG result.candidate().modifierHistory: "
+							+ (result.candidate().modifierHistory == null ? "NULL"
+									: "size=" + result.candidate().modifierHistory.size()));
+
+					// Build steps array from candidate actions
+					JsonArray stepsArray = new JsonArray();
+					if (result.candidate() != null && result.candidate().actions != null) {
+						DebugLogger.info("★ Building steps from " + result.candidate().actions.size() + " actions");
+						for (Crafting_Action action : result.candidate().actions) {
+							JsonObject stepObj = new JsonObject();
+							String actionName = action.getClass().getSimpleName();
+							stepObj.addProperty("currency", actionName);
+							stepObj.addProperty("action", actionName);
+							stepsArray.add(stepObj);
+						}
+
+						// If no actions but we have a result, it means the item may already have the
+						// desired state
+						if (result.candidate().actions.isEmpty() && hasExistingMods) {
+							DebugLogger.warn(
+									"⚠️ Algorithm returned candidate with 0 actions - item may already satisfy requirements or algorithm needs investigation");
+							// Add a note in the response
+							resultObj.addProperty("note",
+									"No crafting steps needed - item may already have desired modifiers");
+						}
+					}
+					resultObj.add("steps", stepsArray);
+					DebugLogger.info("★ Result #" + (resultIndex + 1) + " has " + stepsArray.size() + " steps");
+
+					// Calculate total cost from actions
+					// TODO: Add actual cost calculation based on currency types
+					resultObj.addProperty("totalCost", 0);
+
+					// Add best path info (ALWAYS include even if empty, for frontend compatibility)
+					JsonObject pathObj = new JsonObject();
+					JsonArray actionsArray = new JsonArray();
+
 					if (result.bestPath() != null && !result.bestPath().isEmpty()) {
-						JsonObject pathObj = new JsonObject();
+						DebugLogger.debug("  - Best path has " + result.bestPath().size() + " actions");
 
 						// Calculate average success rate from individual action probabilities
 						double totalProbability = 0.0;
@@ -1007,7 +1179,6 @@ public class ServerMain {
 						double avgSuccessRate = actionCount > 0 ? totalProbability / actionCount : 0.0;
 						resultObj.addProperty("avgSuccessRate", avgSuccessRate);
 
-						JsonArray actionsArray = new JsonArray();
 						for (Map.Entry<Crafting_Action, ModifierEvent> entry : result.bestPath().entrySet()) {
 							JsonObject actionObj = new JsonObject();
 
@@ -1029,19 +1200,20 @@ public class ServerMain {
 							if (probability == null) {
 								probability = 0.0;
 							}
-						actionObj.addProperty("probability", probability);
+							actionObj.addProperty("probability", probability);
 
-						// Add modifier info if available
-						if (event.modifier != null) {
-							actionObj.addProperty("modifier", event.modifier.text);
-							actionObj.addProperty("modifierFamily", event.modifier.family);
-						}
+							// Add modifier info if available
+							if (event.modifier != null) {
+								actionObj.addProperty("modifier", event.modifier.text);
+								actionObj.addProperty("modifierFamily", event.modifier.family);
+							}
 
-						// Check if this is a perfect essence replacement (100% probability due to throwaway)
-						if (probability >= 0.99 && event.changed_modifier != null) {
-							actionObj.addProperty("isPerfectEssenceReplacement", true);
-							actionObj.addProperty("replacedModifier", event.changed_modifier.text);
-						}							// Extract action-specific details (tier, omens, etc.)
+							// Check if this is a perfect essence replacement (100% probability due to
+							// throwaway)
+							if (probability >= 0.99 && event.changed_modifier != null) {
+								actionObj.addProperty("isPerfectEssenceReplacement", true);
+								actionObj.addProperty("replacedModifier", event.changed_modifier.text);
+							} // Extract action-specific details (tier, omens, etc.)
 							if (action instanceof core.Currency.ExaltedOrb exalted) {
 								if (exalted.tier != null) {
 									actionObj.addProperty("tier", exalted.tier.toString());
@@ -1084,21 +1256,35 @@ public class ServerMain {
 
 							actionsArray.add(actionObj);
 						}
-						pathObj.add("actions", actionsArray);
-
-						resultObj.add("bestPath", pathObj);
+					} else {
+						DebugLogger.warn("  - Best path is null or empty, but still including bestPath structure");
 					}
+
+					// Always add bestPath, even if empty (frontend requires this structure)
+					pathObj.add("actions", actionsArray);
+					resultObj.add("bestPath", pathObj);
 
 					resultsArray.add(resultObj);
 				}
+				DebugLogger.info("★★★ DEBUG: Built JSON array with " + resultsArray.size() + " entries ★★★");
 				response.add("paths", resultsArray); // Changed from "results" to "paths" to match frontend
 				response.addProperty("computationTime", System.currentTimeMillis() - requestStartTime);
+				DebugLogger.info("★★★ DEBUG: Response object keys: " + response.keySet() + " ★★★");
 
 				String responseJson = gson.toJson(response);
 				DebugLogger
 						.info("✓✓✓ RESPONSE READY: " + results.size() + " paths, " + responseJson.length() + " chars");
+				DebugLogger.info("★★★ DEBUG: Response JSON preview (first 1000 chars): "
+						+ responseJson.substring(0, Math.min(1000, responseJson.length())) + " ★★★");
 				DebugLogger.info("   First path probability: "
 						+ (results.isEmpty() ? "N/A" : results.get(0).finalPercentage() + "%"));
+
+				// Log full response for debugging display issues
+				DebugLogger.info("════════════════════════════════════════════════════════════");
+				DebugLogger.info("FULL RESPONSE JSON:");
+				DebugLogger.info(responseJson);
+				DebugLogger.info("════════════════════════════════════════════════════════════");
+
 				sendJson(exchange, 200, responseJson);
 				DebugLogger.info("=== CRAFTING REQUEST END ===");
 

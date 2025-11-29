@@ -96,11 +96,20 @@ public class CraftingExecutor {
 			List<Modifier> userSpecifiedExistingMods,
 			List<Map<String, String>> excludedCurrencies) throws InterruptedException, ExecutionException {
 
+		core.DebugLogger.info("★★★ runCraftingWithExistingMods called ★★★");
+		core.DebugLogger.info("  - Base item rarity: " + baseItem.rarity);
+		core.DebugLogger.info("  - Base item current mods: " + baseItem.getAllCurrentModifiers().size());
+		core.DebugLogger.info("  - Desired mods to add: " + desiredMod.size());
+		core.DebugLogger.info("  - Existing mods (user specified): " + userSpecifiedExistingMods.size());
+		core.DebugLogger.info("  - Threshold: " + GLOBAL_THRESHOLD);
+
 		boolean AnnulmentAllowed = true;
 		if (excludedCurrencies.stream().noneMatch(map -> "AnnulmentOrb".equals(map.get("currency")))) {
 			AnnulmentAllowed = false;
 		}
+		core.DebugLogger.info("  - Annulment allowed: " + AnnulmentAllowed);
 
+		core.DebugLogger.info("★ Calling optimizeCraftingWithExistingMods...");
 		List<Crafting_Candidate> candidates = Crafting_Algorithm.optimizeCraftingWithExistingMods(
 				baseItem,
 				desiredMod,
@@ -109,12 +118,17 @@ public class CraftingExecutor {
 				userSpecifiedExistingMods,
 				AnnulmentAllowed);
 
+		core.DebugLogger.info("★ optimizeCraftingWithExistingMods returned " + candidates.size() + " candidates");
+
 		// Compute probabilities for the generated crafting candidates
+		core.DebugLogger.info("★ Computing probabilities...");
 		Probability.ComputingProbability(candidates, desiredMod, baseItem, excludedCurrencies);
 
 		// Analyze and sort the best crafting paths based on probabilities
+		core.DebugLogger.info("★ Analyzing candidates...");
 		List<CandidateProbability> results = Probability_Analyzer.Analyze(candidates);
 
+		core.DebugLogger.info("★★★ runCraftingWithExistingMods complete: " + results.size() + " results ★★★");
 		return results;
 	}
 

@@ -767,12 +767,6 @@ public class ServerMain {
 					}
 				}
 
-				DebugLogger.info("★★★ DEBUG AFTER PARSING: desiredModifiers.size() = " + desiredModifiers.size());
-				for (int i = 0; i < Math.min(10, desiredModifiers.size()); i++) {
-					DebugLogger.info("  [" + i + "] " + desiredModifiers.get(i).text + " (family: "
-							+ desiredModifiers.get(i).family + ")");
-				}
-
 				if (desiredModifiers.isEmpty()) {
 					sendJson(exchange, 400, "{\"error\":\"No valid modifiers found\"}");
 					return;
@@ -865,15 +859,11 @@ public class ServerMain {
 							.count() +
 							(int) desiredModifiers.stream().filter(m -> m.type == Modifier.ModifierType.SUFFIX).count();
 
-					DebugLogger.info("★★★ RARITY DECISION: Total target mods: " + totalPrefixes + " prefixes, "
-							+ totalSuffixes + " suffixes");
 
 					// If user selected magic but we need more than 1+1 mods total, we need to
 					// upgrade to RARE
 					if (isMagicRarity && (totalPrefixes > 1 || totalSuffixes > 1)) {
 						craftingItem.rarity = Crafting_Item.ItemRarity.RARE;
-						DebugLogger.info("★ Starting from MAGIC item but upgrading to RARE (need " + totalPrefixes + "+"
-								+ totalSuffixes + " total mods)");
 					} else if (isMagicRarity) {
 						craftingItem.rarity = Crafting_Item.ItemRarity.MAGIC;
 					} else {
@@ -919,9 +909,6 @@ public class ServerMain {
 					}
 
 					if (filteredDesiredMods.size() < originalDesiredCount) {
-						DebugLogger.info("★ Filtered target mods: " + originalDesiredCount + " → " +
-								filteredDesiredMods.size() + " (removed " +
-								(originalDesiredCount - filteredDesiredMods.size()) + " duplicates)");
 						desiredModifiers = filteredDesiredMods;
 					}
 				}
@@ -957,13 +944,6 @@ public class ServerMain {
 
 				// Save the original desired modifiers list - the algorithm WILL mutate it
 				List<Modifier> originalDesiredModifiers = new ArrayList<>(desiredModifiers);
-				DebugLogger.info("★ Original desired mods list size: " + originalDesiredModifiers.size());
-
-				// Run crafting with initial threshold
-				// Use different method based on whether item has existing mods
-				if (hasExistingMods) {
-					// Create a fresh copy of desiredModifiers for this call
-					List<Modifier> desiredModsCopy = new ArrayList<>(originalDesiredModifiers);
 					DebugLogger.debug("Initial call: Using fresh copy of " + desiredModsCopy.size() + " desired mods");
 					results = CraftingExecutor.runCraftingWithExistingMods(
 							craftingItem,
@@ -984,14 +964,8 @@ public class ServerMain {
 				// Retry until we get valid results or threshold reaches minimum or max retries
 				int retryCount = 0;
 				int maxRetries = 33; // Maximum 33 retries (from 0.33 down to 0.00)
-				while (results.isEmpty() && globalThreshold > 0 && retryCount < maxRetries) {
-					DebugLogger.info("★ RETRY: Before reset, item has " + craftingItem.getAllCurrentModifiers().size()
-							+ " mods");
-					craftingItem.reset();
-					DebugLogger.info(
-							"★ RETRY: After reset, item has " + craftingItem.getAllCurrentModifiers().size() + " mods");
-
-					// Re-apply existing mods and target rarity if needed (for existing mods
+					while (results.isEmpty() && globalThreshold > 0 && retryCount < maxRetries) {
+						craftingItem.reset();					// Re-apply existing mods and target rarity if needed (for existing mods
 					// workflow)
 					if (hasExistingMods && !existingMods.isEmpty()) {
 						// Re-apply existing modifiers to the reset item
@@ -1003,8 +977,6 @@ public class ServerMain {
 								craftingItem.addSuffix(existingMod, tierToApply);
 							}
 						}
-						DebugLogger.info("★ RETRY: After re-applying " + existingMods.size()
-								+ " existing mods, item has " + craftingItem.getAllCurrentModifiers().size() + " mods");
 						// Restore target rarity
 						craftingItem.rarity = targetRarity;
 						DebugLogger.debug("Retry " + (retryCount + 1) + ": Re-applied " + existingMods.size()
@@ -1067,8 +1039,6 @@ public class ServerMain {
 				DebugLogger.info("Crafting completed: " + results.size() + " paths found ("
 						+ (overallEnd - overallStart) + "ms, " + retryCount + " retries)");
 
-				DebugLogger.info("★★★ DEBUG: About to build JSON response ★★★");
-				DebugLogger.info("  - Results size: " + results.size());
 				DebugLogger.info("  - Has existing mods: " + hasExistingMods);
 				DebugLogger.info("  - Existing mods count: " + existingMods.size());
 				DebugLogger.info("  - Desired mods count AFTER crafting: " + desiredModifiers.size() + " (was "
@@ -1093,33 +1063,15 @@ public class ServerMain {
 				}
 
 				JsonArray resultsArray = new JsonArray();
-				DebugLogger.info("★★★ DEBUG: Processing " + results.size() + " results into JSON array ★★★");
-				DebugLogger.info("★★★ DEBUG: hasExistingMods = " + hasExistingMods);
-				DebugLogger.info("★★★ DEBUG: originalDesiredModsCount = " + originalDesiredModsCount);
-
-				for (int resultIndex = 0; resultIndex < results.size(); resultIndex++) {
 					Probability_Analyzer.CandidateProbability result = results.get(resultIndex);
-					DebugLogger.info("★★★ Processing result #" + (resultIndex + 1) + " of " + results.size() + " ★★★");
-					JsonObject resultObj = new JsonObject();
 					resultObj.addProperty("probability", result.finalPercentage() / 100.0); // Convert to 0-1 range
 					DebugLogger.debug("  - Result probability: " + result.finalPercentage() + "%");
 
 					// DEBUG: Check what's available
-					DebugLogger.info("★ DEBUG result.bestPath(): "
-							+ (result.bestPath() == null ? "NULL" : "size=" + result.bestPath().size()));
-					DebugLogger.info("★ DEBUG result.candidate().actions: "
-							+ (result.candidate().actions == null ? "NULL"
-									: "size=" + result.candidate().actions.size()));
-					DebugLogger.info("★ DEBUG result.candidate().modifierHistory: "
-							+ (result.candidate().modifierHistory == null ? "NULL"
-									: "size=" + result.candidate().modifierHistory.size()));
 
 					// Build steps array from candidate actions
 					JsonArray stepsArray = new JsonArray();
 					if (result.candidate() != null && result.candidate().actions != null) {
-						DebugLogger.info("★ Building steps from " + result.candidate().actions.size() + " actions");
-						for (Crafting_Action action : result.candidate().actions) {
-							JsonObject stepObj = new JsonObject();
 							String actionName = action.getClass().getSimpleName();
 							stepObj.addProperty("currency", actionName);
 							stepObj.addProperty("action", actionName);
@@ -1135,151 +1087,135 @@ public class ServerMain {
 							resultObj.addProperty("note",
 									"No crafting steps needed - item may already have desired modifiers");
 						}
-					}
-					resultObj.add("steps", stepsArray);
-					DebugLogger.info("★ Result #" + (resultIndex + 1) + " has " + stepsArray.size() + " steps");
+					}resultObj.add("steps",stepsArray);
 
-					// Calculate total cost from actions
-					// TODO: Add actual cost calculation based on currency types
-					resultObj.addProperty("totalCost", 0);
+		// Add best path info (ALWAYS include even if empty, for frontend compatibility)
+		JsonObject pathObj = new JsonObject();
+		JsonArray actionsArray = new JsonArray();
 
-					// Add best path info (ALWAYS include even if empty, for frontend compatibility)
-					JsonObject pathObj = new JsonObject();
-					JsonArray actionsArray = new JsonArray();
+		if(result.bestPath()!=null&&!result.bestPath().isEmpty())
+		{
+			DebugLogger.debug("  - Best path has " + result.bestPath().size() + " actions");
 
-					if (result.bestPath() != null && !result.bestPath().isEmpty()) {
-						DebugLogger.debug("  - Best path has " + result.bestPath().size() + " actions");
-
-						// Calculate average success rate from individual action probabilities
-						double totalProbability = 0.0;
-						int actionCount = 0;
-						for (Map.Entry<Crafting_Action, ModifierEvent> entry : result.bestPath().entrySet()) {
-							double probability = entry.getValue().source.values().stream().findFirst().orElse(0.0);
-							if (probability > 0) { // Only count non-zero probabilities
-								totalProbability += probability;
-								actionCount++;
-							}
-						}
-						double avgSuccessRate = actionCount > 0 ? totalProbability / actionCount : 0.0;
-						resultObj.addProperty("avgSuccessRate", avgSuccessRate);
-
-						for (Map.Entry<Crafting_Action, ModifierEvent> entry : result.bestPath().entrySet()) {
-							JsonObject actionObj = new JsonObject();
-
-							Crafting_Action action = entry.getKey();
-							ModifierEvent event = entry.getValue();
-
-							// Get clean action name
-							String actionClassName = action.getClass().getSimpleName();
-							actionObj.addProperty("action", actionClassName);
-							actionObj.addProperty("actionFull", action.getClass().getName());
-
-							// Get probability from source map - the source map contains the actual
-							// probability
-							// For actions like Desecrated_currency with multiple omens, the source map has
-							// multiple entries
-							// We need to get the probability for the specific action instance used in the
-							// best path
-							Double probability = event.source.get(action);
-							if (probability == null) {
-								probability = 0.0;
-							}
-							actionObj.addProperty("probability", probability);
-
-							// Add modifier info if available
-							if (event.modifier != null) {
-								actionObj.addProperty("modifier", event.modifier.text);
-								actionObj.addProperty("modifierFamily", event.modifier.family);
-							}
-
-							// Check if this is a perfect essence replacement (100% probability due to
-							// throwaway)
-							if (probability >= 0.99 && event.changed_modifier != null) {
-								actionObj.addProperty("isPerfectEssenceReplacement", true);
-								actionObj.addProperty("replacedModifier", event.changed_modifier.text);
-							} // Extract action-specific details (tier, omens, etc.)
-							if (action instanceof core.Currency.ExaltedOrb exalted) {
-								if (exalted.tier != null) {
-									actionObj.addProperty("tier", exalted.tier.toString());
-								}
-								if (exalted.omens != null && !exalted.omens.isEmpty()) {
-									JsonArray omensArray = new JsonArray();
-									for (core.Currency.ExaltedOrb.Omen omen : exalted.omens) {
-										omensArray.add(omen.toString());
-									}
-									actionObj.add("omens", omensArray);
-								}
-							} else if (action instanceof core.Currency.RegalOrb regal) {
-								if (regal.tier != null) {
-									actionObj.addProperty("tier", regal.tier.toString());
-								}
-								if (regal.omen != null) {
-									actionObj.addProperty("omen", regal.omen.toString());
-								}
-							} else if (action instanceof core.Currency.TransmutationOrb transmutation) {
-								if (transmutation.tier != null) {
-									actionObj.addProperty("tier", transmutation.tier.toString());
-								}
-							} else if (action instanceof core.Currency.AugmentationOrb augmentation) {
-								if (augmentation.tier != null) {
-									actionObj.addProperty("tier", augmentation.tier.toString());
-								}
-							} else if (action instanceof core.Currency.AnnulmentOrb annulment) {
-								if (annulment.omen != null) {
-									actionObj.addProperty("omen", annulment.omen.toString());
-								}
-							} else if (action instanceof core.Currency.Desecrated_currency desecrated) {
-								if (desecrated.omens != null) {
-									actionObj.addProperty("omen", desecrated.omens.toString());
-								}
-							} else if (action instanceof core.Currency.Essence_currency essence) {
-								if (essence.omen != null) {
-									actionObj.addProperty("omen", essence.omen.toString());
-								}
-							}
-
-							actionsArray.add(actionObj);
-						}
-					} else {
-						DebugLogger.warn("  - Best path is null or empty, but still including bestPath structure");
-					}
-
-					// Always add bestPath, even if empty (frontend requires this structure)
-					pathObj.add("actions", actionsArray);
-					resultObj.add("bestPath", pathObj);
-
-					resultsArray.add(resultObj);
+			// Calculate average success rate from individual action probabilities
+			double totalProbability = 0.0;
+			int actionCount = 0;
+			for (Map.Entry<Crafting_Action, ModifierEvent> entry : result.bestPath().entrySet()) {
+				double probability = entry.getValue().source.values().stream().findFirst().orElse(0.0);
+				if (probability > 0) { // Only count non-zero probabilities
+					totalProbability += probability;
+					actionCount++;
 				}
-				DebugLogger.info("★★★ DEBUG: Built JSON array with " + resultsArray.size() + " entries ★★★");
-				response.add("paths", resultsArray); // Changed from "results" to "paths" to match frontend
-				response.addProperty("computationTime", System.currentTimeMillis() - requestStartTime);
-				DebugLogger.info("★★★ DEBUG: Response object keys: " + response.keySet() + " ★★★");
-
-				String responseJson = gson.toJson(response);
-				DebugLogger
-						.info("✓✓✓ RESPONSE READY: " + results.size() + " paths, " + responseJson.length() + " chars");
-				DebugLogger.info("★★★ DEBUG: Response JSON preview (first 1000 chars): "
-						+ responseJson.substring(0, Math.min(1000, responseJson.length())) + " ★★★");
-				DebugLogger.info("   First path probability: "
-						+ (results.isEmpty() ? "N/A" : results.get(0).finalPercentage() + "%"));
-
-				// Log full response for debugging display issues
-				DebugLogger.info("════════════════════════════════════════════════════════════");
-				DebugLogger.info("FULL RESPONSE JSON:");
-				DebugLogger.info(responseJson);
-				DebugLogger.info("════════════════════════════════════════════════════════════");
-
-				sendJson(exchange, 200, responseJson);
-
-			} catch (ClassNotFoundException e) {
-				DebugLogger.error("Item class not found", e);
-				sendJson(exchange, 400, "{\"error\":\"Item not found: " + escapeJson(e.getMessage()) + "\"}");
-			} catch (Exception e) {
-				DebugLogger.error("Crafting exception", e);
-				sendJson(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
 			}
+			double avgSuccessRate = actionCount > 0 ? totalProbability / actionCount : 0.0;
+			resultObj.addProperty("avgSuccessRate", avgSuccessRate);
+
+			for (Map.Entry<Crafting_Action, ModifierEvent> entry : result.bestPath().entrySet()) {
+				JsonObject actionObj = new JsonObject();
+
+				Crafting_Action action = entry.getKey();
+				ModifierEvent event = entry.getValue();
+
+				// Get clean action name
+				String actionClassName = action.getClass().getSimpleName();
+				actionObj.addProperty("action", actionClassName);
+				actionObj.addProperty("actionFull", action.getClass().getName());
+
+				// Get probability from source map - the source map contains the actual
+				// probability
+				// For actions like Desecrated_currency with multiple omens, the source map has
+				// multiple entries
+				// We need to get the probability for the specific action instance used in the
+				// best path
+				Double probability = event.source.get(action);
+				if (probability == null) {
+					probability = 0.0;
+				}
+				actionObj.addProperty("probability", probability);
+
+				// Add modifier info if available
+				if (event.modifier != null) {
+					actionObj.addProperty("modifier", event.modifier.text);
+					actionObj.addProperty("modifierFamily", event.modifier.family);
+				}
+
+				// Check if this is a perfect essence replacement (100% probability due to
+				// throwaway)
+				if (probability >= 0.99 && event.changed_modifier != null) {
+					actionObj.addProperty("isPerfectEssenceReplacement", true);
+					actionObj.addProperty("replacedModifier", event.changed_modifier.text);
+				} // Extract action-specific details (tier, omens, etc.)
+				if (action instanceof core.Currency.ExaltedOrb exalted) {
+					if (exalted.tier != null) {
+						actionObj.addProperty("tier", exalted.tier.toString());
+					}
+					if (exalted.omens != null && !exalted.omens.isEmpty()) {
+						JsonArray omensArray = new JsonArray();
+						for (core.Currency.ExaltedOrb.Omen omen : exalted.omens) {
+							omensArray.add(omen.toString());
+						}
+						actionObj.add("omens", omensArray);
+					}
+				} else if (action instanceof core.Currency.RegalOrb regal) {
+					if (regal.tier != null) {
+						actionObj.addProperty("tier", regal.tier.toString());
+					}
+					if (regal.omen != null) {
+						actionObj.addProperty("omen", regal.omen.toString());
+					}
+				} else if (action instanceof core.Currency.TransmutationOrb transmutation) {
+					if (transmutation.tier != null) {
+						actionObj.addProperty("tier", transmutation.tier.toString());
+					}
+				} else if (action instanceof core.Currency.AugmentationOrb augmentation) {
+					if (augmentation.tier != null) {
+						actionObj.addProperty("tier", augmentation.tier.toString());
+					}
+				} else if (action instanceof core.Currency.AnnulmentOrb annulment) {
+					if (annulment.omen != null) {
+						actionObj.addProperty("omen", annulment.omen.toString());
+					}
+				} else if (action instanceof core.Currency.Desecrated_currency desecrated) {
+					if (desecrated.omens != null) {
+						actionObj.addProperty("omen", desecrated.omens.toString());
+					}
+				} else if (action instanceof core.Currency.Essence_currency essence) {
+					if (essence.omen != null) {
+						actionObj.addProperty("omen", essence.omen.toString());
+					}
+				}
+
+				actionsArray.add(actionObj);
+			}
+		}else
+		{
+			DebugLogger.warn("  - Best path is null or empty, but still including bestPath structure");
 		}
+
+		// Always add bestPath, even if empty (frontend requires this structure)
+		pathObj.add("actions",actionsArray);resultObj.add("bestPath",pathObj);
+
+		resultsArray.add(resultObj);
+	}response.addProperty("computationTime",System.currentTimeMillis()-requestStartTime);DebugLogger.info("✓✓✓ RESPONSE READY: "+results.size()+" paths, "+responseJson.length()+" chars");DebugLogger.info("   First path probability: "+(results.isEmpty()?"N/A":results.get(0).finalPercentage()+"%"));
+
+	// Log full response for debugging display issues
+	DebugLogger.info("════════════════════════════════════════════════════════════");DebugLogger.info("FULL RESPONSE JSON:");DebugLogger.info(responseJson);DebugLogger.info("════════════════════════════════════════════════════════════");
+
+	sendJson(exchange, 200, responseJson);
+
+			}catch(
+
+	ClassNotFoundException e)
+	{
+		DebugLogger.error("Item class not found", e);
+		sendJson(exchange, 400, "{\"error\":\"Item not found: " + escapeJson(e.getMessage()) + "\"}");
+	}catch(
+	Exception e)
+	{
+		DebugLogger.error("Crafting exception", e);
+		sendJson(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
 	}
+	}}
 
 	/**
 	 * Search for optimal path pattern (same logic as TestAlgo)

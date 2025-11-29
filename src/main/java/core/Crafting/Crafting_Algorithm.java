@@ -174,19 +174,11 @@ public class Crafting_Algorithm {
 		// DO NOT modify baseItem here! ServerMain already applied the existing mods.
 		// We just need to add them to desiredMods so the algorithm knows to keep them.
 
-		core.DebugLogger.info("★ optimizeCraftingWithExistingMods: baseItem has "
-				+ baseItem.getAllCurrentModifiers().size() + " mods at entry");
-		core.DebugLogger.info("★ optimizeCraftingWithExistingMods: adding " + userSpecifiedExistingMods.size()
-				+ " existing mods to desiredMods");
-
 		// Add user-specified existing mods to desiredMods so algorithm treats them as
 		// required
 		for (Modifier mod : userSpecifiedExistingMods) {
 			desiredMods.add(mod);
 		}
-
-		core.DebugLogger
-				.info("★ optimizeCraftingWithExistingMods: desiredMods now has " + desiredMods.size() + " total mods");
 
 		return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD, AnnulmentAllowed);
 	}

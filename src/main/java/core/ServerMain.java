@@ -522,27 +522,21 @@ public class ServerMain {
 				// Parse selected modifiers and match with item's allowed modifiers
 				List<Modifier> desiredModifiers = new ArrayList<>();
 				List<Modifier> existingMods = new ArrayList<>();
-				DebugLogger.info("★ Parsing modifiers from request...");
-				DebugLogger.debug("Available prefixes: " + allPrefixes.size() + ", suffixes: " + allSuffixes.size());
 
 				// ===== PARSE EXISTING MODIFIERS (if present) =====
 				boolean isMagicRarity = false; // Track if user selected magic rarity
 				if (jsonRequest.has("existingModifiers") && !jsonRequest.get("existingModifiers").isJsonNull()) {
 					JsonObject existingModsObj = jsonRequest.getAsJsonObject("existingModifiers");
-					DebugLogger.info("★ EXISTING MODIFIERS DETECTED - Starting from an item with existing mods");
 
 					// Parse itemRarity if present (frontend sends 'magic' or 'rare')
 					if (jsonRequest.has("itemRarity") && !jsonRequest.get("itemRarity").isJsonNull()) {
 						String rarityStr = jsonRequest.get("itemRarity").getAsString();
 						isMagicRarity = "magic".equalsIgnoreCase(rarityStr);
-						DebugLogger
-								.info("★ Item rarity from request: " + rarityStr + " (isMagic=" + isMagicRarity + ")");
 					}
 
 					// Handle existing prefixes
 					if (existingModsObj.has("prefixes") && existingModsObj.get("prefixes").isJsonArray()) {
 						JsonArray existingPrefixesArray = existingModsObj.getAsJsonArray("prefixes");
-						DebugLogger.info("★ Processing " + existingPrefixesArray.size() + " existing prefixes");
 						for (int i = 0; i < existingPrefixesArray.size(); i++) {
 							JsonObject modJson = existingPrefixesArray.get(i).getAsJsonObject();
 
@@ -610,7 +604,6 @@ public class ServerMain {
 					// Handle existing suffixes
 					if (existingModsObj.has("suffixes") && existingModsObj.get("suffixes").isJsonArray()) {
 						JsonArray existingSuffixesArray = existingModsObj.getAsJsonArray("suffixes");
-						DebugLogger.info("★ Processing " + existingSuffixesArray.size() + " existing suffixes");
 						for (int i = 0; i < existingSuffixesArray.size(); i++) {
 							JsonObject modJson = existingSuffixesArray.get(i).getAsJsonObject();
 
@@ -666,7 +659,6 @@ public class ServerMain {
 				// Handle prefixes array if present
 				if (modifiersObj.has("prefixes") && modifiersObj.get("prefixes").isJsonArray()) {
 					JsonArray prefixesArray = modifiersObj.getAsJsonArray("prefixes");
-					DebugLogger.info("★ Processing " + prefixesArray.size() + " prefixes from request");
 					for (int i = 0; i < prefixesArray.size(); i++) {
 						JsonObject modJson = prefixesArray.get(i).getAsJsonObject();
 
@@ -862,7 +854,6 @@ public class ServerMain {
 					}
 				}
 				craftingItem.level = itemLevel;
-				DebugLogger.info("★ Set crafting item level to " + craftingItem.level);
 
 				// Set item rarity based on user selection (for existing mods workflow)
 				if (!existingMods.isEmpty()) {
@@ -885,17 +876,14 @@ public class ServerMain {
 								+ totalSuffixes + " total mods)");
 					} else if (isMagicRarity) {
 						craftingItem.rarity = Crafting_Item.ItemRarity.MAGIC;
-						DebugLogger.info("★ Set item rarity to MAGIC (1 prefix + 1 suffix max)");
 					} else {
 						craftingItem.rarity = Crafting_Item.ItemRarity.RARE;
-						DebugLogger.info("★ Set item rarity to RARE (3 prefix + 3 suffix max)");
 					}
 				}
 
 				// ===== APPLY EXISTING MODIFIERS TO THE ITEM =====
 				Crafting_Item.ItemRarity targetRarity = craftingItem.rarity; // Save target rarity for retries
 				if (!existingMods.isEmpty()) {
-					DebugLogger.info("★★★ APPLYING " + existingMods.size() + " EXISTING MODIFIERS TO ITEM ★★★");
 					for (Modifier existingMod : existingMods) {
 						// Get the tier object from the modifier's tiers list
 						ModifierTier tierToApply = existingMod.tiers.get(existingMod.chosenTier);
@@ -906,11 +894,7 @@ public class ServerMain {
 						} else {
 							craftingItem.addSuffix(existingMod, tierToApply);
 						}
-						DebugLogger
-								.info("  ✓ Applied: " + existingMod.text + " (T" + (existingMod.chosenTier + 1) + ")");
 					}
-					DebugLogger.info("Item now has " + craftingItem.getAllCurrentModifiers().size()
-							+ " modifiers before crafting");
 				}
 
 				// ===== VALIDATE: REMOVE TARGET MODS THAT ALREADY EXIST =====
@@ -1056,7 +1040,7 @@ public class ServerMain {
 									excludedCurrencies);
 						}
 						retryCount++;
-						DebugLogger.debug("Retry " + retryCount + " with threshold: " + (globalThreshold * 100) + "%");
+
 					} catch (Exception e) {
 						DebugLogger.error("Crafting failed during retry", e);
 						break;
@@ -1069,12 +1053,12 @@ public class ServerMain {
 							desiredModifiers);
 
 					if (optimalPath != null) {
-						DebugLogger.info("✓✓✓ Found optimal path with threshold " + (globalThreshold * 100) + "%");
+
 						// Put optimal path first in results
 						results.remove(optimalPath);
 						results.add(0, optimalPath);
 					} else {
-						DebugLogger.debug("Optimal path pattern not found in " + results.size() + " results");
+
 					}
 				}
 
@@ -1286,7 +1270,6 @@ public class ServerMain {
 				DebugLogger.info("════════════════════════════════════════════════════════════");
 
 				sendJson(exchange, 200, responseJson);
-				DebugLogger.info("=== CRAFTING REQUEST END ===");
 
 			} catch (ClassNotFoundException e) {
 				DebugLogger.error("Item class not found", e);
@@ -1306,8 +1289,6 @@ public class ServerMain {
 	private static Probability_Analyzer.CandidateProbability searchForOptimalPath(
 			List<Probability_Analyzer.CandidateProbability> results,
 			List<Modifier> desiredModifiers) {
-
-		DebugLogger.debug("Searching for optimal path pattern in " + results.size() + " results");
 
 		for (Probability_Analyzer.CandidateProbability cp : results) {
 			// Check for the specific optimal pattern
@@ -1366,12 +1347,10 @@ public class ServerMain {
 					usedThrowawayBeforeLightning && hasOnslaughtAfterThrowaway &&
 					hasLevelAfterThrowaway && desecratedBeforeFinalCount >= 2) {
 
-				DebugLogger.info("✓✓✓ FOUND OPTIMAL PATH! Probability: " + cp.finalPercentage() + "%");
 				return cp;
 			}
 		}
 
-		DebugLogger.debug("Optimal path pattern not found in results");
 		return null;
 	}
 

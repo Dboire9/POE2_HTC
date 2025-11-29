@@ -30,6 +30,9 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 public class ServerMain {
+	// Cache ItemManager to prevent reloading data on every request (prevents OutOfMemoryError)
+	private static final ItemManager ITEM_MANAGER = new ItemManager();
+	
 	public static void main(String[] args) {
 		// Set debug level from environment variable or default to INFO
 		String debugLevel = System.getenv("DEBUG_LEVEL");
@@ -86,14 +89,13 @@ public class ServerMain {
 				sendJson(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
 				return;
 			}
-			ItemManager manager = new ItemManager();
-			List<String> categories = manager.getCategories();
+			List<String> categories = ITEM_MANAGER.getCategories();
 			// Build a simple JSON array of {id,name,type,baseStats,hasSubcategories}
 			StringBuilder sb = new StringBuilder();
 			sb.append('[');
 			for (int i = 0; i < categories.size(); i++) {
 				String c = categories.get(i);
-				List<String> subCats = manager.getSubCategories(c);
+				List<String> subCats = ITEM_MANAGER.getSubCategories(c);
 				boolean hasSubcategories = !subCats.isEmpty();
 
 				// Convert category name to type format (e.g., "Body_Armours" -> "body_armour")
@@ -141,13 +143,10 @@ public class ServerMain {
 
 			if (category.isEmpty()) {
 				sendJson(exchange, 400, "{\"error\":\"category parameter required\"}");
-				return;
-			}
+			return;
+		}
 
-			ItemManager manager = new ItemManager();
-			List<String> subCategories = manager.getSubCategories(category);
-
-			// Build JSON array
+		List<String> subCategories = ITEM_MANAGER.getSubCategories(category);			// Build JSON array
 			StringBuilder sb = new StringBuilder();
 			sb.append('[');
 			for (int i = 0; i < subCategories.size(); i++) {
@@ -203,7 +202,7 @@ public class ServerMain {
 			try {
 				// Load the item class dynamically
 				String packagePath = "core.Items." + itemId;
-				List<String> subCategories = new ItemManager().getSubCategories(itemId);
+				List<String> subCategories = ITEM_MANAGER.getSubCategories(itemId);
 
 				String fullClassName;
 
@@ -475,7 +474,7 @@ public class ServerMain {
 				}
 
 				String packagePath = "core.Items." + category;
-				List<String> subCategories = new ItemManager().getSubCategories(category);
+				List<String> subCategories = ITEM_MANAGER.getSubCategories(category);
 
 				String fullClassName;
 

@@ -30,9 +30,10 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 public class ServerMain {
-	// Cache ItemManager to prevent reloading data on every request (prevents OutOfMemoryError)
+	// Cache ItemManager to prevent reloading data on every request (prevents
+	// OutOfMemoryError)
 	private static final ItemManager ITEM_MANAGER = new ItemManager();
-	
+
 	public static void main(String[] args) {
 		// Set debug level from environment variable or default to INFO
 		String debugLevel = System.getenv("DEBUG_LEVEL");
@@ -143,10 +144,10 @@ public class ServerMain {
 
 			if (category.isEmpty()) {
 				sendJson(exchange, 400, "{\"error\":\"category parameter required\"}");
-			return;
-		}
+				return;
+			}
 
-		List<String> subCategories = ITEM_MANAGER.getSubCategories(category);			// Build JSON array
+			List<String> subCategories = ITEM_MANAGER.getSubCategories(category); // Build JSON array
 			StringBuilder sb = new StringBuilder();
 			sb.append('[');
 			for (int i = 0; i < subCategories.size(); i++) {
@@ -521,27 +522,21 @@ public class ServerMain {
 				// Parse selected modifiers and match with item's allowed modifiers
 				List<Modifier> desiredModifiers = new ArrayList<>();
 				List<Modifier> existingMods = new ArrayList<>();
-				DebugLogger.info("★ Parsing modifiers from request...");
-				DebugLogger.debug("Available prefixes: " + allPrefixes.size() + ", suffixes: " + allSuffixes.size());
 
 				// ===== PARSE EXISTING MODIFIERS (if present) =====
 				boolean isMagicRarity = false; // Track if user selected magic rarity
 				if (jsonRequest.has("existingModifiers") && !jsonRequest.get("existingModifiers").isJsonNull()) {
 					JsonObject existingModsObj = jsonRequest.getAsJsonObject("existingModifiers");
-					DebugLogger.info("★ EXISTING MODIFIERS DETECTED - Starting from an item with existing mods");
 
 					// Parse itemRarity if present (frontend sends 'magic' or 'rare')
 					if (jsonRequest.has("itemRarity") && !jsonRequest.get("itemRarity").isJsonNull()) {
 						String rarityStr = jsonRequest.get("itemRarity").getAsString();
 						isMagicRarity = "magic".equalsIgnoreCase(rarityStr);
-						DebugLogger
-								.info("★ Item rarity from request: " + rarityStr + " (isMagic=" + isMagicRarity + ")");
 					}
 
 					// Handle existing prefixes
 					if (existingModsObj.has("prefixes") && existingModsObj.get("prefixes").isJsonArray()) {
 						JsonArray existingPrefixesArray = existingModsObj.getAsJsonArray("prefixes");
-						DebugLogger.info("★ Processing " + existingPrefixesArray.size() + " existing prefixes");
 						for (int i = 0; i < existingPrefixesArray.size(); i++) {
 							JsonObject modJson = existingPrefixesArray.get(i).getAsJsonObject();
 
@@ -578,7 +573,6 @@ public class ServerMain {
 									prefix.chosenTier = tier;
 									// Mark as existing, NOT as desired
 									existingMods.add(prefix);
-									DebugLogger.debug("✓ Existing Prefix: " + prefix.text + " (tier=" + tier + ")");
 									found = true;
 									break;
 								}
@@ -592,7 +586,6 @@ public class ServerMain {
 					// Handle existing suffixes
 					if (existingModsObj.has("suffixes") && existingModsObj.get("suffixes").isJsonArray()) {
 						JsonArray existingSuffixesArray = existingModsObj.getAsJsonArray("suffixes");
-						DebugLogger.info("★ Processing " + existingSuffixesArray.size() + " existing suffixes");
 						for (int i = 0; i < existingSuffixesArray.size(); i++) {
 							JsonObject modJson = existingSuffixesArray.get(i).getAsJsonObject();
 
@@ -629,7 +622,6 @@ public class ServerMain {
 									suffix.chosenTier = tier;
 									// Mark as existing, NOT as desired
 									existingMods.add(suffix);
-									DebugLogger.debug("✓ Existing Suffix: " + suffix.text + " (tier=" + tier + ")");
 									found = true;
 									break;
 								}
@@ -646,7 +638,6 @@ public class ServerMain {
 				// Handle prefixes array if present
 				if (modifiersObj.has("prefixes") && modifiersObj.get("prefixes").isJsonArray()) {
 					JsonArray prefixesArray = modifiersObj.getAsJsonArray("prefixes");
-					DebugLogger.info("★ Processing " + prefixesArray.size() + " prefixes from request");
 					for (int i = 0; i < prefixesArray.size(); i++) {
 						JsonObject modJson = prefixesArray.get(i).getAsJsonObject();
 
@@ -689,7 +680,6 @@ public class ServerMain {
 								prefix.chosenTier = tier;
 								prefix.is_desired_mod = true;
 								desiredModifiers.add(prefix);
-								DebugLogger.debug("✓ Prefix: " + prefix.text + " (tier=" + tier + ")");
 								found = true;
 								break;
 							}
@@ -745,7 +735,6 @@ public class ServerMain {
 								suffix.chosenTier = tier;
 								suffix.is_desired_mod = true;
 								desiredModifiers.add(suffix);
-								DebugLogger.debug("✓ Suffix: " + suffix.text + " (tier=" + tier + ")");
 								found = true;
 								break;
 							}
@@ -824,7 +813,6 @@ public class ServerMain {
 					return;
 				}
 
-
 				// Create Crafting_Item from Item_base
 				Crafting_Item craftingItem = new Crafting_Item(itemInstance);
 
@@ -838,22 +826,18 @@ public class ServerMain {
 					}
 				}
 				craftingItem.level = itemLevel;
-				DebugLogger.info("★ Set crafting item level to " + craftingItem.level);
 
 				// Set item rarity based on user selection (for existing mods workflow)
 				if (!existingMods.isEmpty()) {
 					if (isMagicRarity) {
 						craftingItem.rarity = Crafting_Item.ItemRarity.MAGIC;
-						DebugLogger.info("★ Set item rarity to MAGIC (1 prefix + 1 suffix max)");
 					} else {
 						craftingItem.rarity = Crafting_Item.ItemRarity.RARE;
-						DebugLogger.info("★ Set item rarity to RARE (3 prefix + 3 suffix max)");
 					}
 				}
 
 				// ===== APPLY EXISTING MODIFIERS TO THE ITEM =====
 				if (!existingMods.isEmpty()) {
-					DebugLogger.info("★★★ APPLYING " + existingMods.size() + " EXISTING MODIFIERS TO ITEM ★★★");
 					for (Modifier existingMod : existingMods) {
 						// Get the tier object from the modifier's tiers list
 						ModifierTier tierToApply = existingMod.tiers.get(existingMod.chosenTier);
@@ -864,11 +848,7 @@ public class ServerMain {
 						} else {
 							craftingItem.addSuffix(existingMod, tierToApply);
 						}
-						DebugLogger
-								.info("  ✓ Applied: " + existingMod.text + " (T" + (existingMod.chosenTier + 1) + ")");
 					}
-					DebugLogger.info("Item now has " + craftingItem.getAllCurrentModifiers().size()
-							+ " modifiers before crafting");
 				}
 
 				// Run crafting simulation
@@ -943,7 +923,7 @@ public class ServerMain {
 									excludedCurrencies);
 						}
 						retryCount++;
-						DebugLogger.debug("Retry " + retryCount + " with threshold: " + (globalThreshold * 100) + "%");
+
 					} catch (Exception e) {
 						DebugLogger.error("Crafting failed during retry", e);
 						break;
@@ -956,19 +936,16 @@ public class ServerMain {
 							desiredModifiers);
 
 					if (optimalPath != null) {
-						DebugLogger.info("✓✓✓ Found optimal path with threshold " + (globalThreshold * 100) + "%");
+
 						// Put optimal path first in results
 						results.remove(optimalPath);
 						results.add(0, optimalPath);
 					} else {
-						DebugLogger.debug("Optimal path pattern not found in " + results.size() + " results");
+
 					}
 				}
 
 				long overallEnd = System.currentTimeMillis();
-
-				DebugLogger.info("Crafting completed: " + results.size() + " paths found ("
-						+ (overallEnd - overallStart) + "ms, " + retryCount + " retries)");
 
 				// Convert results to JSON
 				JsonObject response = new JsonObject();
@@ -1029,19 +1006,20 @@ public class ServerMain {
 							if (probability == null) {
 								probability = 0.0;
 							}
-						actionObj.addProperty("probability", probability);
+							actionObj.addProperty("probability", probability);
 
-						// Add modifier info if available
-						if (event.modifier != null) {
-							actionObj.addProperty("modifier", event.modifier.text);
-							actionObj.addProperty("modifierFamily", event.modifier.family);
-						}
+							// Add modifier info if available
+							if (event.modifier != null) {
+								actionObj.addProperty("modifier", event.modifier.text);
+								actionObj.addProperty("modifierFamily", event.modifier.family);
+							}
 
-						// Check if this is a perfect essence replacement (100% probability due to throwaway)
-						if (probability >= 0.99 && event.changed_modifier != null) {
-							actionObj.addProperty("isPerfectEssenceReplacement", true);
-							actionObj.addProperty("replacedModifier", event.changed_modifier.text);
-						}							// Extract action-specific details (tier, omens, etc.)
+							// Check if this is a perfect essence replacement (100% probability due to
+							// throwaway)
+							if (probability >= 0.99 && event.changed_modifier != null) {
+								actionObj.addProperty("isPerfectEssenceReplacement", true);
+								actionObj.addProperty("replacedModifier", event.changed_modifier.text);
+							} // Extract action-specific details (tier, omens, etc.)
 							if (action instanceof core.Currency.ExaltedOrb exalted) {
 								if (exalted.tier != null) {
 									actionObj.addProperty("tier", exalted.tier.toString());
@@ -1095,12 +1073,7 @@ public class ServerMain {
 				response.addProperty("computationTime", System.currentTimeMillis() - requestStartTime);
 
 				String responseJson = gson.toJson(response);
-				DebugLogger
-						.info("✓✓✓ RESPONSE READY: " + results.size() + " paths, " + responseJson.length() + " chars");
-				DebugLogger.info("   First path probability: "
-						+ (results.isEmpty() ? "N/A" : results.get(0).finalPercentage() + "%"));
 				sendJson(exchange, 200, responseJson);
-				DebugLogger.info("=== CRAFTING REQUEST END ===");
 
 			} catch (ClassNotFoundException e) {
 				DebugLogger.error("Item class not found", e);
@@ -1120,8 +1093,6 @@ public class ServerMain {
 	private static Probability_Analyzer.CandidateProbability searchForOptimalPath(
 			List<Probability_Analyzer.CandidateProbability> results,
 			List<Modifier> desiredModifiers) {
-
-		DebugLogger.debug("Searching for optimal path pattern in " + results.size() + " results");
 
 		for (Probability_Analyzer.CandidateProbability cp : results) {
 			// Check for the specific optimal pattern
@@ -1180,12 +1151,10 @@ public class ServerMain {
 					usedThrowawayBeforeLightning && hasOnslaughtAfterThrowaway &&
 					hasLevelAfterThrowaway && desecratedBeforeFinalCount >= 2) {
 
-				DebugLogger.info("✓✓✓ FOUND OPTIMAL PATH! Probability: " + cp.finalPercentage() + "%");
 				return cp;
 			}
 		}
 
-		DebugLogger.debug("Optimal path pattern not found in results");
 		return null;
 	}
 

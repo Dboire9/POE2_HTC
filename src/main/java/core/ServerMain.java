@@ -33,6 +33,15 @@ public class ServerMain {
 	// Cache ItemManager to prevent reloading data on every request (prevents
 	// OutOfMemoryError)
 	private static final ItemManager ITEM_MANAGER = new ItemManager();
+	
+	// Request metrics
+	private static volatile long totalRequests = 0;
+	private static volatile long itemsRequests = 0;
+	private static volatile long subcategoriesRequests = 0;
+	private static volatile long modifiersRequests = 0;
+	private static volatile long craftingRequests = 0;
+	private static volatile long healthRequests = 0;
+	private static final long SERVER_START_TIME = System.currentTimeMillis();
 
 	public static void main(String[] args) {
 		// Set debug level from environment variable or default to INFO
@@ -50,8 +59,39 @@ public class ServerMain {
 		try {
 			HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
+			// Metrics endpoint for Grafana/Prometheus
+			server.createContext("/metrics", exchange -> {
+				totalRequests++;
+				long uptime = System.currentTimeMillis() - SERVER_START_TIME;
+				String metrics = String.format(
+					"# HELP http_requests_total Total number of HTTP requests\n" +
+					"# TYPE http_requests_total counter\n" +
+					"http_requests_total %d\n" +
+					"# HELP http_requests_by_endpoint Number of requests by endpoint\n" +
+					"# TYPE http_requests_by_endpoint counter\n" +
+					"http_requests_by_endpoint{endpoint=\"/api/items\"} %d\n" +
+					"http_requests_by_endpoint{endpoint=\"/api/subcategories\"} %d\n" +
+					"http_requests_by_endpoint{endpoint=\"/api/modifiers\"} %d\n" +
+					"http_requests_by_endpoint{endpoint=\"/api/crafting\"} %d\n" +
+					"http_requests_by_endpoint{endpoint=\"/health\"} %d\n" +
+					"# HELP server_uptime_seconds Server uptime in seconds\n" +
+					"# TYPE server_uptime_seconds gauge\n" +
+					"server_uptime_seconds %d\n",
+					totalRequests, itemsRequests, subcategoriesRequests, 
+					modifiersRequests, craftingRequests, healthRequests, uptime / 1000
+				);
+				exchange.getResponseHeaders().add("Content-Type", "text/plain; version=0.0.4");
+				byte[] bytes = metrics.getBytes(StandardCharsets.UTF_8);
+				exchange.sendResponseHeaders(200, bytes.length);
+				try (OutputStream os = exchange.getResponseBody()) {
+					os.write(bytes);
+				}
+			});
+
 			// Health endpoint
 			server.createContext("/health", exchange -> {
+				healthRequests++;
+				totalRequests++;
 				sendJson(exchange, 200, "{\"status\":\"ok\"}");
 			});
 
@@ -80,6 +120,8 @@ public class ServerMain {
 	static class ItemsHandler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			itemsRequests++;
+			totalRequests++;
 			// Handle CORS preflight
 			if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
 				sendJson(exchange, 204, "");
@@ -119,6 +161,8 @@ public class ServerMain {
 	static class SubcategoriesHandler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			subcategoriesRequests++;
+			totalRequests++;
 			// Handle CORS preflight
 			if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
 				sendJson(exchange, 204, "");
@@ -167,6 +211,8 @@ public class ServerMain {
 	static class ModifiersHandler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			modifiersRequests++;
+			totalRequests++;
 			// Handle CORS preflight
 			if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
 				sendJson(exchange, 204, "");
@@ -368,6 +414,8 @@ public class ServerMain {
 
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			craftingRequests++;
+			totalRequests++;
 			// Handle CORS preflight
 			if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
 				sendJson(exchange, 204, "");

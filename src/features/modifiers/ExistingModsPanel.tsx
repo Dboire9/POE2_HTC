@@ -38,7 +38,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
     deselectModifier,
     isModifierDisabled,
   } = useModifiers();
-  const { itemLevel, updateItemLevel } = useItems();
+  const { itemLevel, updateItemLevel, selectedItem } = useItems();
 
   // Explicitly type step as 0 | 1 | 2 everywhere
   const [step, setStep] = useState<0 | 1 | 2>(0);
@@ -98,9 +98,14 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
   const maxPrefixes = itemRarity === 'magic' ? 1 : 3;
   const maxSuffixes = itemRarity === 'magic' ? 1 : 3;
 
-  // Available slots for target mods
-  const availablePrefixSlots = maxPrefixes - existingPrefixes.length;
-  const availableSuffixSlots = maxSuffixes - existingSuffixes.length;
+  // For target selection, always allow up to 3 total (rare item limits)
+  // But limit existing selection based on magic/rare
+  const maxTargetPrefixes = 3;
+  const maxTargetSuffixes = 3;
+  
+  // Available slots for target mods (considering existing mods)
+  const availablePrefixSlots = maxTargetPrefixes - existingPrefixes.length;
+  const availableSuffixSlots = maxTargetSuffixes - existingSuffixes.length;
 
   // Check if we can proceed
   const canProceedToStep2 = craftingMode === 'scratch' ? true : hasExistingMods;
@@ -213,8 +218,24 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Show warning if no item selected
+  if (!selectedItem) {
+    return (
+      <Card className="p-6">
+        <div className="space-y-4 text-center">
+          <div className="space-y-2">
+            <h2 className="text-lg font-bold text-yellow-500">⚠️ No Item Selected</h2>
+            <p className="text-sm text-muted-foreground">
+              Please select an item type from the Item Selector above before choosing modifiers.
+            </p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Step 0: Mode Selection */}
       {step === 0 && !craftingMode && (
         <Card className="p-6 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
@@ -608,8 +629,17 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
             <div className="space-y-2">
               <h2 className="text-base font-bold">Target Modifiers</h2>
               <p className="text-sm text-muted-foreground">
-                Select the modifiers you want to add to your item
+                Select up to {maxPrefixes} prefixes and {maxSuffixes} suffixes you want on your final item
               </p>
+              {(existingPrefixes.length > 0 || existingSuffixes.length > 0) && (
+                <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg mt-2">
+                  <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-muted-foreground">
+                    Your item has {existingPrefixes.length} prefix(es) and {existingSuffixes.length} suffix(es). 
+                    Select the modifiers you want on the final item. The algorithm will figure out the crafting path to transform your item.
+                  </p>
+                </div>
+              )}
             </div>
           </Card>
 
@@ -682,9 +712,14 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
               onSelect={handleSelectTargetMod}
               onDeselect={handleDeselectTargetMod}
               isModifierDisabled={(id) => {
-                const totalPrefixes = existingPrefixes.length + selectedPrefixes.length;
-                const wouldExceedLimit = totalPrefixes >= maxPrefixes && !selectedPrefixes.some(m => m.text === id);
-                return wouldExceedLimit || isModifierDisabled(id);
+                // Limit to available slots (3 total - existing)
+                const isAlreadySelected = selectedPrefixes.some(m => m.text === id);
+                const wouldExceedLimit = !isAlreadySelected && (selectedPrefixes.length >= availablePrefixSlots);
+                
+                // Check family conflicts
+                const hasConflict = isModifierDisabled(id);
+                
+                return wouldExceedLimit || hasConflict;
               }}
             />
 
@@ -695,9 +730,14 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
               onSelect={handleSelectTargetMod}
               onDeselect={handleDeselectTargetMod}
               isModifierDisabled={(id) => {
-                const totalSuffixes = existingSuffixes.length + selectedSuffixes.length;
-                const wouldExceedLimit = totalSuffixes >= maxSuffixes && !selectedSuffixes.some(m => m.text === id);
-                return wouldExceedLimit || isModifierDisabled(id);
+                // Limit to available slots (3 total - existing)
+                const isAlreadySelected = selectedSuffixes.some(m => m.text === id);
+                const wouldExceedLimit = !isAlreadySelected && (selectedSuffixes.length >= availableSuffixSlots);
+                
+                // Check family conflicts
+                const hasConflict = isModifierDisabled(id);
+                
+                return wouldExceedLimit || hasConflict;
               }}
             />
           </div>
@@ -713,7 +753,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
                   <div className="flex items-center justify-between p-2 bg-card border border-border rounded">
                     <Label className="text-sm font-semibold">Prefixes</Label>
                     <span className="text-xs text-muted-foreground">
-                      {existingPrefixes.length + selectedPrefixes.length}/{maxPrefixes} slots
+                      Target: {selectedPrefixes.length}/{availablePrefixSlots} available
                     </span>
                   </div>
                   
@@ -769,7 +809,7 @@ const ExistingModsPanel: React.FC<ExistingModsPanelProps> = ({ sourceFilter, set
                   <div className="flex items-center justify-between p-2 bg-card border border-border rounded">
                     <Label className="text-sm font-semibold">Suffixes</Label>
                     <span className="text-xs text-muted-foreground">
-                      {existingSuffixes.length + selectedSuffixes.length}/{maxSuffixes} slots
+                      Target: {selectedSuffixes.length}/{availableSuffixSlots} available
                     </span>
                   </div>
                   

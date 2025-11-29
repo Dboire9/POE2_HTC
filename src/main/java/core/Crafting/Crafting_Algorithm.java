@@ -170,27 +170,23 @@ public class Crafting_Algorithm {
 			double GLOBAL_THRESHOLD,
 			List<Modifier> userSpecifiedExistingMods,
 			boolean AnnulmentAllowed) throws InterruptedException, ExecutionException {
-		// Separate user-specified mods by type
-		int i = 0, j = 0;
-		for (Modifier mod : userSpecifiedExistingMods) {
-			if (mod.type == ModifierType.PREFIX) {
-				baseItem.currentPrefixes[i] = mod;
-				i++;
-			} else {
-				baseItem.currentSuffixes[j] = mod;
-				j++;
-			}
-		}
 
-		Crafting_Item.ItemRarity currentRarity = baseItem.rarity;
+		// DO NOT modify baseItem here! ServerMain already applied the existing mods.
+		// We just need to add them to desiredMods so the algorithm knows to keep them.
 
-		// Calculate available slots based on user-specified mods
-		int availablePrefixSlots = 3 - i;
-		int availableSuffixSlots = 3 - j;
+		core.DebugLogger.info("★ optimizeCraftingWithExistingMods: baseItem has "
+				+ baseItem.getAllCurrentModifiers().size() + " mods at entry");
+		core.DebugLogger.info("★ optimizeCraftingWithExistingMods: adding " + userSpecifiedExistingMods.size()
+				+ " existing mods to desiredMods");
 
+		// Add user-specified existing mods to desiredMods so algorithm treats them as
+		// required
 		for (Modifier mod : userSpecifiedExistingMods) {
 			desiredMods.add(mod);
 		}
+
+		core.DebugLogger
+				.info("★ optimizeCraftingWithExistingMods: desiredMods now has " + desiredMods.size() + " total mods");
 
 		return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD, AnnulmentAllowed);
 	}
@@ -243,10 +239,10 @@ public class Crafting_Algorithm {
 			List<List<Crafting_Candidate>> allCandidateLists, List<Modifier> desiredMods) {
 
 		List<Crafting_Candidate> result = new ArrayList<>();
-		
+
 		// Calculate minimum score based on number of desired mods (1000 points per mod)
 		int minScore = desiredMods.size() * 1000;
-		
+
 		for (List<Crafting_Candidate> list : allCandidateLists) {
 			for (Crafting_Candidate candidate : list) {
 				candidate.desecrated = false;
@@ -257,11 +253,11 @@ public class Crafting_Algorithm {
 
 				List<Modifier> current = candidate.getAllCurrentModifiers();
 				// Removed check for current.size() < 6 to allow fewer mods
-				
+
 				long matchCount = current.stream()
 						.filter(m -> desiredMods.stream().anyMatch(d -> d.text.equals(m.text)))
 						.count();
-				
+
 				// Accept if all desired mods are matched (not necessarily 6)
 				if (matchCount == desiredMods.size()) {
 					result.add(candidate);

@@ -434,6 +434,19 @@ public class ServerMain {
 
 			DebugLogger.debug("=== CRAFTING REQUEST START ===");
 			DebugLogger.info("Full request body: " + requestBody);
+			
+			// Log request to file for OOM debugging
+			try {
+				java.nio.file.Files.write(
+					java.nio.file.Paths.get("/tmp/poe2-last-request.json"),
+					requestBody.getBytes(StandardCharsets.UTF_8),
+					java.nio.file.StandardOpenOption.CREATE,
+					java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
+				);
+			} catch (Exception e) {
+				DebugLogger.warn("Failed to write request log: " + e.getMessage());
+			}
+			
 			long requestStartTime = System.currentTimeMillis();
 
 			try {
@@ -1321,6 +1334,20 @@ public class ServerMain {
 			} catch (ClassNotFoundException e) {
 				DebugLogger.error("Item class not found", e);
 				sendJson(exchange, 400, "{\"error\":\"Item not found: " + escapeJson(e.getMessage()) + "\"}");
+			} catch (OutOfMemoryError e) {
+				DebugLogger.error("OUT OF MEMORY ERROR - Request saved to /tmp/poe2-oom-request.json", e);
+				// Save the problematic request for analysis
+				try {
+					java.nio.file.Files.copy(
+						java.nio.file.Paths.get("/tmp/poe2-last-request.json"),
+						java.nio.file.Paths.get("/tmp/poe2-oom-request.json"),
+						java.nio.file.StandardCopyOption.REPLACE_EXISTING
+					);
+				} catch (Exception ex) {
+					DebugLogger.error("Failed to save OOM request", ex);
+				}
+				sendJson(exchange, 500, "{\"error\":\"Server out of memory\"}");
+				throw e; // Re-throw to crash the service so it restarts
 			} catch (Exception e) {
 				DebugLogger.error("Crafting exception", e);
 				sendJson(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");

@@ -33,7 +33,7 @@ public class ServerMain {
 	// Cache ItemManager to prevent reloading data on every request (prevents
 	// OutOfMemoryError)
 	private static final ItemManager ITEM_MANAGER = new ItemManager();
-	
+
 	// Request metrics
 	private static volatile long totalRequests = 0;
 	private static volatile long itemsRequests = 0;
@@ -64,22 +64,21 @@ public class ServerMain {
 				totalRequests++;
 				long uptime = System.currentTimeMillis() - SERVER_START_TIME;
 				String metrics = String.format(
-					"# HELP http_requests_total Total number of HTTP requests\n" +
-					"# TYPE http_requests_total counter\n" +
-					"http_requests_total %d\n" +
-					"# HELP http_requests_by_endpoint Number of requests by endpoint\n" +
-					"# TYPE http_requests_by_endpoint counter\n" +
-					"http_requests_by_endpoint{endpoint=\"/api/items\"} %d\n" +
-					"http_requests_by_endpoint{endpoint=\"/api/subcategories\"} %d\n" +
-					"http_requests_by_endpoint{endpoint=\"/api/modifiers\"} %d\n" +
-					"http_requests_by_endpoint{endpoint=\"/api/crafting\"} %d\n" +
-					"http_requests_by_endpoint{endpoint=\"/health\"} %d\n" +
-					"# HELP server_uptime_seconds Server uptime in seconds\n" +
-					"# TYPE server_uptime_seconds gauge\n" +
-					"server_uptime_seconds %d\n",
-					totalRequests, itemsRequests, subcategoriesRequests, 
-					modifiersRequests, craftingRequests, healthRequests, uptime / 1000
-				);
+						"# HELP http_requests_total Total number of HTTP requests\n" +
+								"# TYPE http_requests_total counter\n" +
+								"http_requests_total %d\n" +
+								"# HELP http_requests_by_endpoint Number of requests by endpoint\n" +
+								"# TYPE http_requests_by_endpoint counter\n" +
+								"http_requests_by_endpoint{endpoint=\"/api/items\"} %d\n" +
+								"http_requests_by_endpoint{endpoint=\"/api/subcategories\"} %d\n" +
+								"http_requests_by_endpoint{endpoint=\"/api/modifiers\"} %d\n" +
+								"http_requests_by_endpoint{endpoint=\"/api/crafting\"} %d\n" +
+								"http_requests_by_endpoint{endpoint=\"/health\"} %d\n" +
+								"# HELP server_uptime_seconds Server uptime in seconds\n" +
+								"# TYPE server_uptime_seconds gauge\n" +
+								"server_uptime_seconds %d\n",
+						totalRequests, itemsRequests, subcategoriesRequests,
+						modifiersRequests, craftingRequests, healthRequests, uptime / 1000);
 				exchange.getResponseHeaders().add("Content-Type", "text/plain; version=0.0.4");
 				byte[] bytes = metrics.getBytes(StandardCharsets.UTF_8);
 				exchange.sendResponseHeaders(200, bytes.length);

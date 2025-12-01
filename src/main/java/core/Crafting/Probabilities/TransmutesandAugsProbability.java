@@ -96,7 +96,9 @@ public class TransmutesandAugsProbability {
 
 				int level = chosenTierObj.level;
 
-				// Build lists of applicable tiers based on level and exclusions
+				int[] levels;
+				Crafting_Action.CurrencyTier[] tiers;
+
 				List<Integer> levelsList = new ArrayList<>();
 				List<Crafting_Action.CurrencyTier> tiersList = new ArrayList<>();
 
@@ -119,8 +121,8 @@ public class TransmutesandAugsProbability {
 				}
 
 				// Convert lists to arrays
-				int[] levels = levelsList.stream().mapToInt(Integer::intValue).toArray();
-				Crafting_Action.CurrencyTier[] tiers = tiersList.toArray(new Crafting_Action.CurrencyTier[0]);
+				levels = levelsList.stream().mapToInt(Integer::intValue).toArray();
+				tiers = tiersList.toArray(new Crafting_Action.CurrencyTier[0]);
 
 				// Apply tiers and compute probabilities
 				applyTiersAndComputeTransmutesAndAugs(baseItem, candidate, event, levels, tiers, i, isDesired, action);

@@ -71,12 +71,14 @@ public class Crafting_Algorithm {
 			transmuteCandidates = transmute.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
 			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
 			copyCandidates(transmuteCandidates, baseCopies);
+			Probability.ComputingProbability(transmuteCandidates, desiredMods, baseItem, excludedCurrencies);
 
 			// Step 2: Augmentation
 			AugmentationOrb augment = new AugmentationOrb();
 			transmuteCandidates = augment.apply(baseItem, transmuteCandidates, desiredMods, tagCount, undesiredMods);
 			allCandidateLists.add(new ArrayList<>(transmuteCandidates));
 			copyCandidates(transmuteCandidates, augmentCandidates);
+			Probability.ComputingProbability(augmentCandidates, desiredMods, baseItem, excludedCurrencies);
 
 			// Step 3: Apply regal and essence to base candidates
 			generateCandidateLists(baseItem, baseCopies, desiredMods, tagCount, allCandidateLists, undesiredMods);

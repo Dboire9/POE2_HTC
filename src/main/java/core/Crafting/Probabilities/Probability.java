@@ -45,6 +45,13 @@ public class Probability {
 				// Retrieving the first action to know what it is
 				Crafting_Action action = event.source.keySet().iterator().next();
 
+				// Check if any probability is already computed (nonzero value)
+				for (Double value : event.source.values()) {
+					if (value != null && value != 0.0) {
+						return;
+					}
+				}
+
 				if (action instanceof TransmutationOrb || action instanceof AugmentationOrb)
 					TransmutesandAugsProbability.ComputeTransmutesandAugs(candidate, desiredMod, baseItem, i,
 							excludedCurrencies);
@@ -58,6 +65,19 @@ public class Probability {
 				else if (action instanceof Desecrated_currency)
 					DesProbability.ComputeDes(candidate, desiredMod, baseItem, i);
 				i++;
+
+				// Find the best chance among all actions
+				double bestchance = 0.0;
+				for (Double value : event.source.values()) {
+					if (value != null && value > bestchance) {
+						bestchance = value;
+					}
+				}
+				final double finalBestChance = bestchance;
+				// Remove all actions with probability less than the best
+				event.source.entrySet().removeIf(entry -> 
+					entry.getValue() != null && entry.getValue() < finalBestChance
+				);
 			}
 		}
 		return;

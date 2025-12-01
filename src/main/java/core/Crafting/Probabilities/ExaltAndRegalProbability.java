@@ -544,15 +544,7 @@ public class ExaltAndRegalProbability {
 			// Count the weight of the desired tier AND all better tiers available at this item level
 			// event.tier is the chosen tier, we need to find its position and sum from there to the end
 			Modifier modifier = event.modifier;
-			int chosenTierIndex = -1;
-			
-			// Find the index of the chosen tier in the full tier list
-			for (int idx = 0; idx < modifier.tiers.size(); idx++) {
-				if (modifier.tiers.get(idx).equals(event.tier)) {
-					chosenTierIndex = idx;
-					break;
-				}
-			}
+			int chosenTierIndex = event.modifier.tiers.size() - event.modifier.chosenTier - 1;
 			
 			// Sum weights from chosen tier to the end (better tiers), filtering by item level
 			if (chosenTierIndex >= 0) {

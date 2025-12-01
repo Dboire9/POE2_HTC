@@ -314,9 +314,10 @@ export const ModifiersProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // T025: Check if modifier is disabled due to incompatibility
   const isModifierDisabled = useCallback((modifierId: string) => {
-    const allSelected = [...selectedPrefixes, ...selectedSuffixes];
+    // Include both selected target mods AND existing mods when checking conflicts
+    const allSelected = [...selectedPrefixes, ...selectedSuffixes, ...existingPrefixes, ...existingSuffixes];
     return checkModifierDisabled(modifierId, allSelected, exclusionMap);
-  }, [selectedPrefixes, selectedSuffixes, exclusionMap]);
+  }, [selectedPrefixes, selectedSuffixes, existingPrefixes, existingSuffixes, exclusionMap]);
 
   // Clear all selections
   const clearSelections = useCallback(() => {

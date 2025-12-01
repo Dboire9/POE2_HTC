@@ -359,7 +359,7 @@ public class Crafting_Item {
 
 		for(Modifier m : Modifiers) {
 			for(ModifierTier tiers : m.tiers) {
-				if(tiers.level <= ilvl) {
+				if(tiers.level >= ilvl) {
 					total_weight += tiers.weight;
 				}
 			}

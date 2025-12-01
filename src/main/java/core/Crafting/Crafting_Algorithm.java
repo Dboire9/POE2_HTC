@@ -154,6 +154,10 @@ public class Crafting_Algorithm {
 
 		// Final filtering
 		List<Crafting_Candidate> finalCandidates = extractHighScoreCandidates(allCandidateLists, desiredMods);
+		
+		// Clear all candidate lists after extraction to free memory
+		allCandidateLists.clear();
+		
 		return finalCandidates;
 	}
 

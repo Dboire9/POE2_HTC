@@ -21,11 +21,6 @@ const CraftingPathCard: React.FC<CraftingPathCardProps> = ({ path, rank }) => {
           <Badge variant={rank === 1 ? 'default' : 'secondary'}>
             #{rank}
           </Badge>
-          <span className="text-sm font-medium">
-            Success Rate: <span className={isHighProbability ? 'text-green-500' : 'text-yellow-500'}>
-              {probabilityPercent}%
-            </span>
-          </span>
         </div>
       </div>
 

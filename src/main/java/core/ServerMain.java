@@ -44,6 +44,10 @@ public class ServerMain {
 			DebugLogger.setLevel(DebugLevel.INFO);
 		}
 
+		// Initialize metrics on startup
+		core.metrics.CraftingMetrics.getInstance();
+		System.out.println("Metrics initialized");
+
 		try {
 			HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 

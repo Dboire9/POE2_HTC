@@ -52,7 +52,7 @@ public class CraftingExecutor {
 			AnnulmentAllowed = false;
 		}
 		List<Crafting_Candidate> candidates = Crafting_Algorithm.optimizeCrafting(baseItem, desiredMod, undesiredMod,
-				GLOBAL_THRESHOLD, AnnulmentAllowed);
+				GLOBAL_THRESHOLD, AnnulmentAllowed, excludedCurrencies);
 
 		// Compute probabilities for the generated crafting candidates
 		Probability.ComputingProbability(candidates, desiredMod, baseItem, excludedCurrencies);
@@ -107,7 +107,8 @@ public class CraftingExecutor {
 				undesiredMod,
 				GLOBAL_THRESHOLD,
 				userSpecifiedExistingMods,
-				AnnulmentAllowed);
+				AnnulmentAllowed,
+				excludedCurrencies);
 
 		// Compute probabilities for the generated crafting candidates
 		Probability.ComputingProbability(candidates, desiredMod, baseItem, excludedCurrencies);

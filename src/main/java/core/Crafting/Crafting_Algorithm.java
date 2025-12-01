@@ -48,7 +48,8 @@ public class Crafting_Algorithm {
 			List<Modifier> desiredMods,
 			List<Modifier> undesiredMods,
 			double GLOBAL_THRESHOLD,
-			boolean AnnulmentAllowed) throws InterruptedException, ExecutionException {
+			boolean AnnulmentAllowed,
+			List<Map<String, String>> excludedCurrencies) throws InterruptedException, ExecutionException {
 		// Initialize thread pool
 		int threads = Runtime.getRuntime().availableProcessors();
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
@@ -169,30 +170,20 @@ public class Crafting_Algorithm {
 			List<Modifier> undesiredMods,
 			double GLOBAL_THRESHOLD,
 			List<Modifier> userSpecifiedExistingMods,
-			boolean AnnulmentAllowed) throws InterruptedException, ExecutionException {
-		// Separate user-specified mods by type
-		int i = 0, j = 0;
-		for (Modifier mod : userSpecifiedExistingMods) {
-			if (mod.type == ModifierType.PREFIX) {
-				baseItem.currentPrefixes[i] = mod;
-				i++;
-			} else {
-				baseItem.currentSuffixes[j] = mod;
-				j++;
+			boolean AnnulmentAllowed,
+			List<Map<String, String>> excludedCurrencies) throws InterruptedException, ExecutionException {
+
+		// DO NOT modify baseItem here! ServerMain already applied the existing mods.
+		// We just need to add them to desiredMods so the algorithm knows to keep them.
+
+		// Add user-specified existing mods to desiredMods so algorithm treats them as
+		// required
+		if(desiredMods.size() != 6)
+			for (Modifier mod : userSpecifiedExistingMods) {
+				desiredMods.add(mod);
 			}
-		}
 
-		Crafting_Item.ItemRarity currentRarity = baseItem.rarity;
-
-		// Calculate available slots based on user-specified mods
-		int availablePrefixSlots = 3 - i;
-		int availableSuffixSlots = 3 - j;
-
-		for (Modifier mod : userSpecifiedExistingMods) {
-			desiredMods.add(mod);
-		}
-
-		return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD, AnnulmentAllowed);
+		return optimizeCrafting(baseItem, desiredMods, undesiredMods, GLOBAL_THRESHOLD, AnnulmentAllowed, excludedCurrencies);
 	}
 
 	/**

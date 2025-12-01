@@ -1102,6 +1102,10 @@ public class ServerMain {
 						+ (results.isEmpty() ? "N/A" : results.get(0).finalPercentage() + "%"));
 				sendJson(exchange, 200, responseJson);
 				
+				// Get memory before cleanup
+				// Runtime runtime = Runtime.getRuntime();
+				// long memoryBeforeCleanup = runtime.totalMemory() - runtime.freeMemory();
+				
 				// Clear all data structures to free memory after response is sent
 				results.clear();
 				desiredModifiers.clear();
@@ -1111,7 +1115,18 @@ public class ServerMain {
 				}
 				craftingItem = null;
 				
-				DebugLogger.info("=== CRAFTING REQUEST END ===");
+				// Suggest garbage collection to free memory immediately
+				System.gc();
+				
+				// Get memory after cleanup
+				// long memoryAfterCleanup = runtime.totalMemory() - runtime.freeMemory();
+				// long memoryFreed = memoryBeforeCleanup - memoryAfterCleanup;
+				
+				// DebugLogger.info("Memory before cleanup: " + (memoryBeforeCleanup / 1024 / 1024) + " MB");
+				// DebugLogger.info("Memory after cleanup: " + (memoryAfterCleanup / 1024 / 1024) + " MB");
+				// DebugLogger.info("Memory freed: " + (memoryFreed / 1024 / 1024) + " MB");
+				
+				// DebugLogger.info("=== CRAFTING REQUEST END ===");
 
 			} catch (ClassNotFoundException e) {
 				DebugLogger.error("Item class not found", e);

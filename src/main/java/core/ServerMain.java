@@ -17,6 +17,7 @@ import core.Currency.Essence_currency;
 import core.Items.Item_base;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
+import core.metrics.CraftingMetrics;
 import core.DebugLogger.DebugLevel;
 
 import java.io.IOException;
@@ -387,6 +388,10 @@ public class ServerMain {
 
 			DebugLogger.debug("=== CRAFTING REQUEST START ===");
 			DebugLogger.info("Full request body: " + requestBody);
+			
+			// Record metric for Grafana
+			CraftingMetrics.getInstance().recordSimulationStarted();
+			
 			long requestStartTime = System.currentTimeMillis();
 
 			try {
@@ -1102,36 +1107,52 @@ public class ServerMain {
 						+ (results.isEmpty() ? "N/A" : results.get(0).finalPercentage() + "%"));
 				sendJson(exchange, 200, responseJson);
 				
-				// Get memory before cleanup
-				// Runtime runtime = Runtime.getRuntime();
-				// long memoryBeforeCleanup = runtime.totalMemory() - runtime.freeMemory();
+				// Deep clean all data structures to free memory after response is sent
+				// Clear JSON objects
+				resultsArray = null;
+				response = null;
+				responseJson = null;
 				
-				// Clear all data structures to free memory after response is sent
+				// Clear the bestPath maps inside each CandidateProbability
+				for (Probability_Analyzer.CandidateProbability cp : results) {
+					if (cp.bestPath() != null) {
+						cp.bestPath().clear();
+					}
+				}
 				results.clear();
+				results = null;
+				
 				desiredModifiers.clear();
+				desiredModifiers = null;
+				
 				undesiredModifiers.clear();
+				undesiredModifiers = null;
+				
 				if (existingMods != null) {
 					existingMods.clear();
+					existingMods = null;
 				}
+				
 				craftingItem = null;
+				
+				// Null out the response objects to ensure they can be GC'd
+				response = null;
+				responseJson = null;
 				
 				// Suggest garbage collection to free memory immediately
 				System.gc();
 				
-				// Get memory after cleanup
-				// long memoryAfterCleanup = runtime.totalMemory() - runtime.freeMemory();
-				// long memoryFreed = memoryBeforeCleanup - memoryAfterCleanup;
+				// Record metric for Grafana
+				CraftingMetrics.getInstance().recordSimulationCompleted();
 				
-				// DebugLogger.info("Memory before cleanup: " + (memoryBeforeCleanup / 1024 / 1024) + " MB");
-				// DebugLogger.info("Memory after cleanup: " + (memoryAfterCleanup / 1024 / 1024) + " MB");
-				// DebugLogger.info("Memory freed: " + (memoryFreed / 1024 / 1024) + " MB");
-				
-				// DebugLogger.info("=== CRAFTING REQUEST END ===");
+				DebugLogger.info("=== CRAFTING REQUEST END ===");
 
 			} catch (ClassNotFoundException e) {
+				CraftingMetrics.getInstance().recordSimulationFailed();
 				DebugLogger.error("Item class not found", e);
 				sendJson(exchange, 400, "{\"error\":\"Item not found: " + escapeJson(e.getMessage()) + "\"}");
 			} catch (Exception e) {
+				CraftingMetrics.getInstance().recordSimulationFailed();
 				DebugLogger.error("Crafting exception", e);
 				sendJson(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
 			}

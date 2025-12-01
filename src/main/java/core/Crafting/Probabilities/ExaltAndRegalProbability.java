@@ -537,9 +537,6 @@ public class ExaltAndRegalProbability {
 		double TotalSuffixWeight = 0;
 		double weight = 0;
 
-		// Always use the base item level for filtering
-		ilvl = baseItem.level;
-
 		if (!isDesired) {
 			for (ModifierTier tiers : event.modifier.tiers)
 				weight += tiers.weight;
@@ -561,7 +558,7 @@ public class ExaltAndRegalProbability {
 			if (chosenTierIndex >= 0) {
 				for (int idx = chosenTierIndex; idx < modifier.tiers.size(); idx++) {
 					ModifierTier tier = modifier.tiers.get(idx);
-					if (tier.level <= ilvl) {
+					if (tier.level >= ilvl) {
 						weight += tier.weight;
 					}
 				}

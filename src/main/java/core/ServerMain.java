@@ -1101,6 +1101,16 @@ public class ServerMain {
 				DebugLogger.info("   First path probability: "
 						+ (results.isEmpty() ? "N/A" : results.get(0).finalPercentage() + "%"));
 				sendJson(exchange, 200, responseJson);
+				
+				// Clear all data structures to free memory after response is sent
+				results.clear();
+				desiredModifiers.clear();
+				undesiredModifiers.clear();
+				if (existingMods != null) {
+					existingMods.clear();
+				}
+				craftingItem = null;
+				
 				DebugLogger.info("=== CRAFTING REQUEST END ===");
 
 			} catch (ClassNotFoundException e) {

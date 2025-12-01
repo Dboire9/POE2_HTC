@@ -12,6 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import core.Crafting.Probabilities.ComputingLastProbability;
+import core.Crafting.Probabilities.Probability;
 import core.Crafting.Utils.Heuristic_Util;
 import core.Crafting.Utils.ModifierEvent;
 import core.Crafting.Utils.ModifierEvent.ActionType;
@@ -122,7 +123,8 @@ public class Crafting_Algorithm {
 		// Perform two initial passes
 		for (int i = 0; i < 2; i++) {
 			processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
-					allCandidateLists, next, executor, AnnulmentAllowed);
+					allCandidateLists, next, executor, AnnulmentAllowed, excludedCurrencies);
+			current.clear(); // Clear old lists to free memory
 			current = deepCopy(next);
 			next.clear();
 		}
@@ -133,7 +135,8 @@ public class Crafting_Algorithm {
 		while (!current.isEmpty() && iterationCount < maxIterations) {
 			iterationCount++;
 			processCandidateLists(baseItem, current, desiredMods, undesiredMods, tagCount, GLOBAL_THRESHOLD,
-					allCandidateLists, next, executor, AnnulmentAllowed);
+					allCandidateLists, next, executor, AnnulmentAllowed, excludedCurrencies);
+			current.clear(); // Clear old lists to free memory
 			current = deepCopy(next);
 			next.clear();
 		}
@@ -141,6 +144,13 @@ public class Crafting_Algorithm {
 		// Shutdown thread pool
 		executor.shutdown();
 		executor.awaitTermination(1, TimeUnit.MINUTES);
+
+		// Clear temporary lists to free memory
+		transmuteCandidates.clear();
+		augmentCandidates.clear();
+		baseCopies.clear();
+		current.clear();
+		next.clear();
 
 		// Final filtering
 		List<Crafting_Candidate> finalCandidates = extractHighScoreCandidates(allCandidateLists, desiredMods);
@@ -211,14 +221,24 @@ public class Crafting_Algorithm {
 			List<List<Crafting_Candidate>> masterList,
 			List<List<Crafting_Candidate>> nextLists,
 			ExecutorService executor,
-			boolean AnnulmentAllowed) throws InterruptedException, ExecutionException {
+			boolean AnnulmentAllowed,
+			List<Map<String, String>> excludedCurrencies) throws InterruptedException, ExecutionException {
 
 		for (List<Crafting_Candidate> candidates : currentLists) {
 			if (candidates.isEmpty())
 				continue;
 
 			ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, globalThreshold);
-			RareLoop(baseItem, candidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor,
+
+			Probability.ComputingProbability(candidates, desiredMods, baseItem, excludedCurrencies);
+			
+			// Filter to keep only top 5-10 candidates with best probabilistic paths
+			List<Crafting_Candidate> topCandidates = candidates.stream()
+					.sorted((c1, c2) -> Double.compare(c2.percentage, c1.percentage))
+					.limit(10)
+					.collect(java.util.stream.Collectors.toList());
+			
+			RareLoop(baseItem, topCandidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor,
 					AnnulmentAllowed);
 		}
 	}

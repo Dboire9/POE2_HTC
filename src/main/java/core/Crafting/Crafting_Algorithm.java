@@ -51,8 +51,8 @@ public class Crafting_Algorithm {
 			double GLOBAL_THRESHOLD,
 			boolean AnnulmentAllowed,
 			List<Map<String, String>> excludedCurrencies) throws InterruptedException, ExecutionException {
-		// Initialize thread pool
-		int threads = Runtime.getRuntime().availableProcessors();
+		// Initialize thread pool - limit to 2 threads to avoid CPU overload on 2-core systems
+		int threads = Math.min(2, Runtime.getRuntime().availableProcessors());
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
 
 		// Precompute desired tag counts

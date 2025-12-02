@@ -63,6 +63,18 @@ public class EssenceProbability {
 		double[] affixCount = Probability.countAffixesFilled(candidate, i);
 		double prefixesFilled = affixCount[0];
 		double suffixesFilled = affixCount[1];
+		
+		// Set probabilities to 0 for the modifier that was replaced by the essence
+		if (event.changed_modifier != null) {
+			for(ModifierEvent histEvent : candidate.modifierHistory) {
+				if(histEvent.modifier != null && histEvent.modifier.text.equals(event.changed_modifier.text)) {
+					// Set all probabilities in the source map to 0.0
+					for (Map.Entry<Crafting_Action, Double> entry : histEvent.source.entrySet()) {
+						histEvent.source.put(entry.getKey(), 1.0);
+					}
+				}
+			}
+		}
 
         // Compute the probability based on the omen type.
         if (omen instanceof Essence_currency.Omen essenceOmen) {

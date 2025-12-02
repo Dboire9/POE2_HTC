@@ -239,25 +239,27 @@ public class Crafting_Algorithm {
 		Probability.ComputingProbability(candidates, desiredMods, baseItem, excludedCurrencies);
 		
 		if(!candidates.isEmpty())
-{			int targetScore = candidates.get(0).getAllCurrentModifiers().size() * 1000;			// For 6-mod crafting, keep more candidates to ensure paths can be completed
-				// Keep all candidates with >= 50% of target score, plus top candidates by score
-				int minScore = (int)(targetScore * 0.5);
-				int keepCount = desiredMods.size() >= 6 ? 30 : 20; // Keep more for 6-mod
-				
-				List<Crafting_Candidate> filteredCandidates = candidates.stream()
-						.filter(c -> c.score >= minScore)
-						.sorted((c1, c2) -> {
-							// Primary sort by score (higher is better)
-							int scoreCompare = Double.compare(c2.score, c1.score);
-							if (scoreCompare != 0) return scoreCompare;
-							// Secondary sort by percentage if scores are equal
-							return Double.compare(c2.percentage, c1.percentage);
-						})
-						.limit(keepCount)
-						.collect(java.util.stream.Collectors.toList());
-				
-				RareLoop(baseItem, filteredCandidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor,
-						AnnulmentAllowed);}
+		{			
+			int targetScore = candidates.get(0).getAllCurrentModifiers().size() * 1000;			// For 6-mod crafting, keep more candidates to ensure paths can be completed
+			// Keep all candidates with >= 50% of target score, plus top candidates by score
+			int minScore = (int)(targetScore * 0.5);
+			int keepCount = desiredMods.size() >= 6 ? 30 : 20; // Keep more for 6-mod
+			
+			List<Crafting_Candidate> filteredCandidates = candidates.stream()
+					.filter(c -> c.score >= minScore)
+					.sorted((c1, c2) -> {
+						// Primary sort by score (higher is better)
+						int scoreCompare = Double.compare(c2.score, c1.score);
+						if (scoreCompare != 0) return scoreCompare;
+						// Secondary sort by percentage if scores are equal
+						return Double.compare(c2.percentage, c1.percentage);
+					})
+					.limit(keepCount)
+					.collect(java.util.stream.Collectors.toList());
+			
+			RareLoop(baseItem, filteredCandidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor,
+					AnnulmentAllowed);
+			}
 		}
 	}
 

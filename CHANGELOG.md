@@ -1,6 +1,56 @@
 # Changelog
 
-## [0.9.3] - 2025-11-28
+## [0.9.6] - 2025-12-02
+### Added
+- Visual indicators for perfect essence replacements in crafting paths
+  - Red warning text in top-right corner explaining 100% probabilities
+  - Replaced modifier information with strikethrough styling
+  - Event type icons (✚ Added, ✖ Removed, ↻ Changed) for better clarity
+- Modifier type badges (P for PREFIX, S for SUFFIX) on all crafting steps
+- Memory leak fixes with proper resource cleanup in try-finally blocks
+
+### Changed
+- Improved filtering for perfect essence crafting (CHANGED events limited to 5 candidates)
+- Optimized memory management in crafting algorithm
+  - Moved variable declarations outside try block for proper cleanup
+  - Reduced unnecessary ArrayList copies in RareLoop
+  - Added explicit cleanup in finally block with executor shutdown
+- Perfect essence replaced modifiers now show 0.0% probability
+- Enhanced UI for crafting step display with event types and modifier types
+
+### Fixed
+- Thread pool not properly closing in ServerMain (HttpExchange.close in finally block)
+- 6-modifier items not finding crafting paths
+- Perfect essences only allowed when item has at least 3 modifiers
+- Target score calculation now based on current affixes
+- Essence tier selection bug causing normal essences to fail
+- Currency tier filtering now uses currency level instead of base item level
+- Transmute and Augmentation probability computation tier checking
+- Rare and magic item crafting improvements not working
+
+### Performance
+- Limited thread pool to 2 threads to prevent CPU overload on 2-core systems
+- Memory management improvements with explicit garbage collection suggestions
+- Optimized candidate selection and filtering algorithms
+
+---
+
+## [0.9.5] - 2025-12-01
+
+Release v0.9.5: Performance and memory optimizations
+
+### Added
+
+- Optimize candidate filtering: keep only top 10 candidates per iteration
+- Add comprehensive memory cleanup after crafting requests
+- Add Grafana/Prometheus metrics for crafting simulations
+- Limit thread pool to 2 threads to prevent CPU overload
+- Improve JVM memory management with proper cleanup
+- Fix memory leaks by clearing all data structures after use
+
+---
+
+## [0.9.4] - 2025-11-28
 ### Added
 - Dedicated omen exclusion UI separate from currency tier exclusions.
 - Users can now exclude specific omens (Regal, Exalted, Annulment) from crafting simulations.

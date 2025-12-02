@@ -104,8 +104,9 @@ export interface CraftingStep {
   omens?: string[];         // Multiple omens used
   modifierType?: string;    // PREFIX or SUFFIX
   eventType?: string;       // ADDED, REMOVED, or CHANGED
+  replacedModifier?: string; // The modifier that was replaced (for CHANGED events)
+  replacedModifierType?: string; // PREFIX or SUFFIX of replaced modifier
   isPerfectEssenceReplacement?: boolean; // True when 100% probability is due to perfect essence replacement
-  replacedModifier?: string; // The modifier that was replaced by the perfect essence
 }
 
 export interface CraftingPath {

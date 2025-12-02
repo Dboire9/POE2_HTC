@@ -1051,6 +1051,12 @@ public class ServerMain {
 						if (event.type != null) {
 							actionObj.addProperty("eventType", event.type.toString());
 						}
+						
+						// Add replaced modifier info for CHANGED events
+						if (event.type == ModifierEvent.ActionType.CHANGED && event.changed_modifier != null) {
+							actionObj.addProperty("replacedModifier", event.changed_modifier.text);
+							actionObj.addProperty("replacedModifierType", event.changed_modifier.type.toString());
+						}
 
 						// Check if this is a perfect essence replacement (100% probability due to throwaway)
 						if (probability >= 0.99 && event.changed_modifier != null) {

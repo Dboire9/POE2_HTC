@@ -98,29 +98,8 @@ public class ExaltAndRegalProbability {
             // Original tier number = totalTiers - index, so T10 (tier 10) is at index 0 if there are 10 tiers
             int originalTierNumber = foundModifier.chosenTier;
             
-            // Find the tier in availableTiers that matches the original tier number
-            ModifierTier chosenTierObj = null;
-            int filteredChosenTier = -1;
-            for (int idx = 0; idx < availableTiers.size(); idx++) {
-                int thisTierNumber = foundModifier.tiers.size() - foundModifier.tiers.indexOf(availableTiers.get(idx));
-                if (thisTierNumber == originalTierNumber) {
-                    chosenTierObj = availableTiers.get(idx);
-                    filteredChosenTier = idx;
-                    break;
-                }
-            }
-            // Fallback: if not found (tier not available for item level), use the best available (last in filtered list = highest tier)
-            if (chosenTierObj == null && !availableTiers.isEmpty()) {
-                chosenTierObj = availableTiers.get(availableTiers.size() - 1);
-                filteredChosenTier = availableTiers.size() - 1;
-            }
-            
-            // Additional safety check
-            if (chosenTierObj == null) {
-                return; // Skip this modifier
-            }
-            int realtier = foundModifier.tiers.indexOf(chosenTierObj);
-            int level = chosenTierObj.level;
+            int realtier = originalTierNumber;
+            int level = foundModifier.tiers.get(foundModifier.tiers.size() - originalTierNumber - 1).level;
 
 			int[] levels;
 			Crafting_Action.CurrencyTier[] tiers;

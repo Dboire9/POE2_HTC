@@ -35,17 +35,18 @@ const SimulationTrigger: React.FC = () => {
       itemId,
       itemLevel, // Include item level in the request
       modifiers: {
-        // Send originalTier directly (T10 = 10, T9 = 9, etc.)
-        prefixes: selectedPrefixes.map(m => ({ text: m.text, tier: m.tier || 1 })),
-        suffixes: selectedSuffixes.map(m => ({ text: m.text, tier: m.tier || 1 })),
+        // Convert UI tier (1-indexed) to backend tier (0-indexed): T1 UI = 0 backend
+        prefixes: selectedPrefixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
+        suffixes: selectedSuffixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
       },
     };
 
     // Include existing mods if any are specified
     if (existingModifiers.length > 0) {
       request.existingModifiers = {
-        prefixes: existingPrefixes.map(m => ({ text: m.text, tier: m.tier || 1 })),
-        suffixes: existingSuffixes.map(m => ({ text: m.text, tier: m.tier || 1 })),
+        // Convert UI tier (1-indexed) to backend tier (0-indexed): T1 UI = 0 backend
+        prefixes: existingPrefixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
+        suffixes: existingSuffixes.map(m => ({ text: m.text, tier: (m.tier || 1) - 1 })),
       };
       // Include item rarity when starting from existing item
       request.itemRarity = itemRarity;

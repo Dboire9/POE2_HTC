@@ -890,16 +890,15 @@ public class ServerMain {
 					for (Modifier mod : existingMods) {
 						DebugLogger.info("  - [EXISTING] " + mod.text + " (T" + (mod.chosenTier + 1) + ")");
 					}
-				}
-				DebugLogger.info("Target modifiers to add:");
-				for (Modifier mod : desiredModifiers) {
-					DebugLogger.info("  - [TARGET] " + mod.text + " (T" + (mod.chosenTier + 1) + "/index:"
-							+ mod.chosenTier + ", source: " + mod.source + ")");
-				}
+			}
+			DebugLogger.info("Target modifiers to add:");
+			for (Modifier mod : desiredModifiers) {
+				// chosenTier: 0=T1, 1=T2, 2=T3, etc.
+				DebugLogger.info("  - [TARGET] " + mod.text + " (T" + (mod.chosenTier + 1) + "/index:"
+						+ mod.chosenTier + ", source: " + mod.source + ")");
+			}
 
-				List<Modifier> undesiredModifiers = new ArrayList<>(); // Empty for now
-
-				// Use the global_threshold from request
+			List<Modifier> undesiredModifiers = new ArrayList<>(); // Empty for now				// Use the global_threshold from request
 				List<Probability_Analyzer.CandidateProbability> results = new ArrayList<>();
 
 				DebugLogger.debug("Starting crafting with threshold: " + (globalThreshold * 100) + "%");

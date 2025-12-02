@@ -46,10 +46,18 @@ public class Probability {
 				Crafting_Action action = event.source.keySet().iterator().next();
 
 				// Check if any probability is already computed (nonzero value)
+				boolean alreadyComputed = false;
 				for (Double value : event.source.values()) {
 					if (value != null && value != 0.0) {
-						return;
+						alreadyComputed = true;
+						break;
 					}
+				}
+				
+				// Skip this event if probability is already computed
+				if (alreadyComputed) {
+					i++;
+					continue;
 				}
 
 				if (action instanceof TransmutationOrb || action instanceof AugmentationOrb)

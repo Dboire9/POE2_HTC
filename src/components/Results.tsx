@@ -16,7 +16,9 @@ export function Results({ data }: any) {
 
   // Sort results by average success rate (HIGHEST first = BEST path first)
   // avgSuccessRate represents the average probability across all actions in the path
-  const sortedResults = data.results ? [...data.results].sort((a: any, b: any) => {
+  // Backend sends 'paths', frontend may have 'results' - support both
+  const resultsData = data.paths || data.results || []
+  const sortedResults = resultsData.length > 0 ? [...resultsData].sort((a: any, b: any) => {
     // Use avgSuccessRate if available, otherwise fall back to probability
     const aRate = a.avgSuccessRate ?? a.probability
     const bRate = b.avgSuccessRate ?? b.probability
@@ -93,7 +95,7 @@ export function Results({ data }: any) {
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-4">
                 <h3 className="font-semibold">
-                  Top 3 Crafting Paths {data.results?.length > 3 && `(${data.results.length} total found)`}
+                  Top 3 Crafting Paths {resultsData.length > 3 && `(${resultsData.length} total found)`}
                 </h3>
                 <div className="flex items-center gap-2 flex-1 max-w-md">
                   <span className="text-sm text-muted-foreground whitespace-nowrap">Select Path:</span>

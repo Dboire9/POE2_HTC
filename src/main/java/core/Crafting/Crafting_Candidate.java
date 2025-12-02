@@ -137,4 +137,35 @@ public class Crafting_Candidate extends Crafting_Item {
         new_Crafting_Candidate.currentSuffixTiers = new_item.currentSuffixTiers.clone();
         return new_Crafting_Candidate;
     }
+
+    /**
+     * Calculates the total probability of this crafting path by multiplying
+     * all the probabilities from the modifier history events.
+     *
+     * @return The total probability as a double value (multiplicative).
+     */
+    public double calculateTotalProbability() {
+        double totalProbability = 1.0;
+        
+        for (ModifierEvent event : modifierHistory) {
+            if (event.source == null || event.source.isEmpty()) {
+                continue;
+            }
+            
+            // Find the best (highest) probability for this event
+            double bestProbability = 0.0;
+            for (Double probability : event.source.values()) {
+                if (probability != null && probability > bestProbability) {
+                    bestProbability = probability;
+                }
+            }
+            
+            // Multiply by the best probability for this event
+            if (bestProbability > 0.0) {
+                totalProbability *= bestProbability;
+            }
+        }
+        
+        return totalProbability;
+    }
 }

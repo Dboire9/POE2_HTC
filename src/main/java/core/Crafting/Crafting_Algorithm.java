@@ -54,14 +54,19 @@ public class Crafting_Algorithm {
 		// Initialize thread pool - limit to 2 threads to avoid CPU overload on 2-core systems
 		int threads = Math.min(2, Runtime.getRuntime().availableProcessors());
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
-
+		
+		// Declare variables outside try block for proper cleanup in finally
+		List<Crafting_Candidate> transmuteCandidates = new ArrayList<>();
+		List<Crafting_Candidate> augmentCandidates = new ArrayList<>();
+		List<Crafting_Candidate> baseCopies = new ArrayList<>();
+		List<List<Crafting_Candidate>> current = new ArrayList<>();
+		List<List<Crafting_Candidate>> next = new ArrayList<>();
+		
+		try {
 		// Precompute desired tag counts
 		Map<String, Integer> tagCount = Heuristic_Util.CreateCountModifierTags(desiredMods);
 
-		List<Crafting_Candidate> transmuteCandidates = new ArrayList<>();
 		// Base candidate lists
-		List<Crafting_Candidate> augmentCandidates = new ArrayList<>();
-		List<Crafting_Candidate> baseCopies = new ArrayList<>();
 		List<List<Crafting_Candidate>> allCandidateLists = new ArrayList<>();
 
 		// Base item has existing modifiers
@@ -119,8 +124,8 @@ public class Crafting_Algorithm {
 			transmuteCandidates.add(initialCandidate);
 			allCandidateLists.add(new ArrayList<>(Arrays.asList(initialCandidate)));
 		} // Step 4: Iterative refinement loop
-		List<List<Crafting_Candidate>> current = deepCopy(allCandidateLists);
-		List<List<Crafting_Candidate>> next = new ArrayList<>();
+		current = deepCopy(allCandidateLists);
+		next = new ArrayList<>();
 
 		// Perform two initial passes
 		for (int i = 0; i < 2; i++) {
@@ -143,17 +148,6 @@ public class Crafting_Algorithm {
 			next.clear();
 		}
 
-		// Shutdown thread pool
-		executor.shutdown();
-		executor.awaitTermination(1, TimeUnit.MINUTES);
-
-		// Clear temporary lists to free memory
-		transmuteCandidates.clear();
-		augmentCandidates.clear();
-		baseCopies.clear();
-		current.clear();
-		next.clear();
-
 		// Final filtering
 		List<Crafting_Candidate> finalCandidates = extractHighScoreCandidates(allCandidateLists, desiredMods);
 		
@@ -161,6 +155,24 @@ public class Crafting_Algorithm {
 		allCandidateLists.clear();
 		
 		return finalCandidates;
+		} finally {
+			// Shutdown thread pool and clear temporary lists to free memory
+			try {
+				executor.shutdown();
+				if (!executor.awaitTermination(1, TimeUnit.MINUTES)) {
+					executor.shutdownNow();
+				}
+			} catch (InterruptedException e) {
+				executor.shutdownNow();
+				Thread.currentThread().interrupt();
+			}
+			
+			transmuteCandidates.clear();
+			augmentCandidates.clear();
+			baseCopies.clear();
+			current.clear();
+			next.clear();
+		}
 	}
 
 	/**
@@ -245,6 +257,8 @@ public class Crafting_Algorithm {
 			int minScore = (int)(targetScore * 0.5);
 			int keepCount = desiredMods.size() >= 6 ? 30 : 20; // Keep more for 6-mod
 			
+			int candidatesSizeBefore = candidates.size();
+			
 			List<Crafting_Candidate> filteredCandidates = candidates.stream()
 					.filter(c -> c.score >= minScore)
 					.sorted((c1, c2) -> {
@@ -256,10 +270,15 @@ public class Crafting_Algorithm {
 					})
 					.limit(keepCount)
 					.collect(java.util.stream.Collectors.toList());
-			
+
 			RareLoop(baseItem, filteredCandidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor,
 					AnnulmentAllowed);
-			}
+			
+			// Clear filtered candidates after processing to free memory
+			filteredCandidates.clear();
+		}
+		// Clear original candidates list after filtering to free memory
+		candidates.clear();
 		}
 	}
 
@@ -487,25 +506,33 @@ public class Crafting_Algorithm {
 		List<Crafting_Candidate> result4 = results.get(3).get();
 
 		synchronized (listOfCandidateLists) {
-			if (!result1.isEmpty())
-				listOfCandidateLists.add(new ArrayList<>(result1));
-			if (!result2.isEmpty())
-				listOfCandidateLists.add(new ArrayList<>(result2));
-			if (!result3.isEmpty())
-				listOfCandidateLists.add(new ArrayList<>(result3));
-			if (!result4.isEmpty())
-				listOfCandidateLists.add(new ArrayList<>(result4));
+			if (!result1.isEmpty()) {
+				listOfCandidateLists.add(result1);
+			}
+			if (!result2.isEmpty()) {
+				listOfCandidateLists.add(result2);
+			}
+			if (!result3.isEmpty()) {
+				listOfCandidateLists.add(result3);
+			}
+			if (!result4.isEmpty()) {
+				listOfCandidateLists.add(result4);
+			}
 		}
 
 		synchronized (listOfCandidateLists_exalt) {
-			if (!result1.isEmpty())
+			if (!result1.isEmpty()) {
 				listOfCandidateLists_exalt.add(new ArrayList<>(result1));
-			if (!result2.isEmpty())
+			}
+			if (!result2.isEmpty()) {
 				listOfCandidateLists_exalt.add(new ArrayList<>(result2));
-			if (!result3.isEmpty())
+			}
+			if (!result3.isEmpty()) {
 				listOfCandidateLists_exalt.add(new ArrayList<>(result3));
-			if (!result4.isEmpty())
+			}
+			if (!result4.isEmpty()) {
 				listOfCandidateLists_exalt.add(new ArrayList<>(result4));
+			}
 		}
 	}
 

@@ -20,13 +20,13 @@ import core.Currency.*;
  * - Running the crafting optimization algorithm
  * - Displaying the best crafting paths and their probabilities
  */
-public class TestAlgo {
+public class TestBows {
 
 	public static void main(String[] args) {
 
 		// --- ITEM SETUP SECTION ---
-		// Create a test item (Boots here for testing)
-		core.Items.Boots.Boots_int.Boots_int testItem = new core.Items.Boots.Boots_int.Boots_int();
+		// Create a test item (Bow here for testing)
+		core.Items.Bows.Bows testItem = new core.Items.Bows.Bows();
 		Crafting_Item item = new Crafting_Item(testItem);
 
 		// Get allowed prefixes and suffixes for the item
@@ -47,9 +47,9 @@ public class TestAlgo {
 		System.out.println("Selected Modifiers for Boots_int Crafting:");
 		System.out.println("Prefixes:");
 
-		// Find and add: +# to maximum Energy Shield T1
+		// Find and add: Adds # to # Physical Damage T1
 		for (Modifier mod : possiblePrefixes) {
-			if (mod.text.equals("+# to maximum Energy Shield")) {
+			if (mod.text.equals("Adds # to # Physical Damage")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0)); // T1 = index 0
 				mod.chosenTier = 0;
@@ -60,7 +60,7 @@ public class TestAlgo {
 
 		// Find and add: #% increased Energy Shield T1
 		for (Modifier mod : possiblePrefixes) {
-			if (mod.text.equals("#% increased Energy Shield")) {
+			if (mod.text.equals("#% increased Physical Damage")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0)); // T1 = index 0
 				mod.chosenTier = 0;
@@ -71,7 +71,7 @@ public class TestAlgo {
 
 		// Find and add: #% increased Movement Speed T1
 		for (Modifier mod : possiblePrefixes) {
-			if (mod.text.equals("#% increased Movement Speed")) {
+			if (mod.text.equals("Adds # to # Cold Damage")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;
@@ -84,7 +84,7 @@ public class TestAlgo {
 
 		// Find and add: +#% to Chaos Resistance T1
 		for (Modifier mod : possibleSuffixes) {
-			if (mod.text.equals("+#% to Chaos Resistance")) {
+			if (mod.text.equals("Leeches #% of Physical Damage as Mana")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;
@@ -95,7 +95,7 @@ public class TestAlgo {
 
 		// Find and add: +#% to Fire Resistance T1
 		for (Modifier mod : possibleSuffixes) {
-			if (mod.text.equals("+#% to Fire Resistance")) {
+			if (mod.text.equals("+# to Dexterity")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;
@@ -106,7 +106,7 @@ public class TestAlgo {
 
 		// Find and add: +#% to Lightning Resistance T1
 		for (Modifier mod : possibleSuffixes) {
-			if (mod.text.equals("+#% to Lightning Resistance")) {
+			if (mod.text.equals("+# to Level of all Projectile Skills")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;

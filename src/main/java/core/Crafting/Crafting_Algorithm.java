@@ -463,7 +463,7 @@ public class Crafting_Algorithm {
 
 		// Task 4: Apply Essence Currency
 		Callable<List<Crafting_Candidate>> task4 = () -> {
-			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty()) {
+			if (!FirstCandidateList.isEmpty() && !FirstCandidateList.get(0).modifierHistory.isEmpty() && FirstCandidateList.get(0).getAllCurrentModifiers().size() > 2) {
 				// ModifierEvent lastEvent =
 				// FirstCandidateList.get(0).modifierHistory.get(FirstCandidateList.get(0).modifierHistory.size()
 				// - 1);

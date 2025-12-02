@@ -51,9 +51,35 @@ const CraftingPathCard: React.FC<CraftingPathCardProps> = ({ path, rank }) => {
                   )}
                 </div>
                 {step.targetModifier && (
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    → {step.targetModifier}
-                  </p>
+                  <div className="text-xs mt-0.5 flex items-center gap-1.5 flex-wrap">
+                    {step.eventType && (
+                      <Badge 
+                        variant="outline" 
+                        className={`text-xs px-1.5 py-0 ${
+                          step.eventType === 'ADDED' 
+                            ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30' 
+                            : step.eventType === 'REMOVED'
+                            ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30'
+                            : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/30'
+                        }`}
+                      >
+                        {step.eventType === 'ADDED' ? '✚' : step.eventType === 'REMOVED' ? '✖' : '↻'}
+                      </Badge>
+                    )}
+                    <span className="text-muted-foreground">{step.targetModifier}</span>
+                    {step.modifierType && (
+                      <Badge 
+                        variant="outline" 
+                        className={`text-xs px-1.5 py-0 ${
+                          step.modifierType === 'PREFIX' 
+                            ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30' 
+                            : 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30'
+                        }`}
+                      >
+                        {step.modifierType === 'PREFIX' ? 'P' : 'S'}
+                      </Badge>
+                    )}
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-1">

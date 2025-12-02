@@ -174,19 +174,33 @@ export function Results({ data }: any) {
                                 )}
                               </div>
                               {actionObj.modifier && (
-                                <div className="text-xs mt-1 flex items-center gap-2">
+                                <div className="text-xs mt-1 flex items-center gap-2 flex-wrap">
                                   <span className="text-green-400">→ {actionObj.modifier}</span>
-                                  {actionObj.modifierType ? (
-                                    <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${
-                                      actionObj.modifierType === 'PREFIX' 
-                                        ? 'bg-orange-500/20 text-orange-400' 
-                                        : 'bg-cyan-500/20 text-cyan-400'
-                                    }`}>
-                                      {actionObj.modifierType === 'PREFIX' ? 'P' : 'S'}
+                                  <div className="flex items-center gap-1.5">
+                                    {actionObj.modifierType && (
+                                      <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${
+                                        actionObj.modifierType === 'PREFIX' 
+                                          ? 'bg-orange-500/20 text-orange-400' 
+                                          : 'bg-cyan-500/20 text-cyan-400'
+                                      }`}>
+                                        {actionObj.modifierType === 'PREFIX' ? 'P' : 'S'}
+                                      </span>
+                                    )}
+                                    {actionObj.eventType && (
+                                      <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${
+                                        actionObj.eventType === 'ADDED' 
+                                          ? 'bg-green-500/20 text-green-400' 
+                                          : actionObj.eventType === 'REMOVED'
+                                          ? 'bg-red-500/20 text-red-400'
+                                          : 'bg-yellow-500/20 text-yellow-400'
+                                      }`}>
+                                        {actionObj.eventType === 'ADDED' ? '✚' : actionObj.eventType === 'REMOVED' ? '✖' : '↻'}
+                                      </span>
+                                    )}
+                                    <span className="text-xs px-1.5 py-0.5 rounded bg-slate-500/20 text-slate-400 font-mono">
+                                      via {formatAction(actionObj.action)}
                                     </span>
-                                  ) : (
-                                    <span className="text-xs text-red-400">[NO TYPE]</span>
-                                  )}
+                                  </div>
                                 </div>
                               )}
                               {actionObj.targetModifier && actionObj.modifierType && (

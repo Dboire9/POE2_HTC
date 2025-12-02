@@ -1044,6 +1044,12 @@ public class ServerMain {
 						if (event.modifier != null) {
 							actionObj.addProperty("modifier", event.modifier.text);
 							actionObj.addProperty("modifierFamily", event.modifier.family);
+							actionObj.addProperty("modifierType", event.modifier.type.toString());
+						}
+						
+						// Add the event type (ADDED, REMOVED, CHANGED)
+						if (event.type != null) {
+							actionObj.addProperty("eventType", event.type.toString());
 						}
 
 						// Check if this is a perfect essence replacement (100% probability due to throwaway)

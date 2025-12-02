@@ -47,18 +47,16 @@ public class TestBows {
 		System.out.println("Selected Modifiers for Boots_int Crafting:");
 		System.out.println("Prefixes:");
 
-		// Find and add: Adds # to # Physical Damage T1
 		for (Modifier mod : possiblePrefixes) {
 			if (mod.text.equals("Adds # to # Physical Damage")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(2)); // T1 = index 0
-				mod.chosenTier = 0;
-				System.out.println(" - " + mod.text + " (Tier 1)");
+				mod.chosenTier = 2;
+				System.out.println(" - " + mod.text + " (Tier 3)");
 				break;
 			}
 		}
 
-		// Find and add: #% increased Energy Shield T1
 		for (Modifier mod : possiblePrefixes) {
 			if (mod.text.equals("#% increased Physical Damage")) {
 				desiredMods.add(mod);
@@ -69,9 +67,8 @@ public class TestBows {
 			}
 		}
 
-		// Find and add: #% increased Movement Speed T1
-		for (Modifier mod : possiblePrefixes) {
-			if (mod.text.equals("Adds # to # Cold Damage")) {
+		for (Modifier mod : possibleEssencesPrefixes) {
+			if (mod.text.equals("Gain # % of Damage as Extra Lightning Damage")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;
@@ -82,9 +79,8 @@ public class TestBows {
 
 		System.out.println("Suffixes:");
 
-		// Find and add: +#% to Chaos Resistance T1
-		for (Modifier mod : possibleSuffixes) {
-			if (mod.text.equals("Leeches #% of Physical Damage as Mana")) {
+		for (Modifier mod : possibleEssencesSuffixes) {
+			if (mod.text.equals("+# to Level of all Attack Skills")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;
@@ -93,9 +89,8 @@ public class TestBows {
 			}
 		}
 
-		// Find and add: +#% to Fire Resistance T1
-		for (Modifier mod : possibleSuffixes) {
-			if (mod.text.equals("+# to Dexterity")) {
+		for (Modifier mod : possibleEssencesSuffixes) {
+			if (mod.text.equals("#% chance to gain Onslaught on Killing Hits with this Weapon")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;
@@ -104,18 +99,16 @@ public class TestBows {
 			}
 		}
 
-		// Find and add: +#% to Lightning Resistance T1
-		for (Modifier mod : possibleSuffixes) {
-			if (mod.text.equals("+# to Level of all Projectile Skills")) {
-				desiredMods.add(mod);
-				desiredModTier.add(mod.tiers.get(0));
-				mod.chosenTier = 0;
-				System.out.println(" - " + mod.text + " (Tier 1)");
-				break;
-			}
+	for (Modifier mod : possibleDesecratedSuffixes) {
+		System.out.println(mod.text);
+		if (mod.text.equals("#% increased Attack Speed\nCompanions have #% increased Attack Speed")) {
+			desiredMods.add(mod);
+			desiredModTier.add(mod.tiers.get(0));
+			mod.chosenTier = 0;
+			System.out.println(" - " + mod.text + " (Tier 1)");
+			break;
 		}
-
-		// --- CRAFTING EXECUTION SECTION ---
+	}		// --- CRAFTING EXECUTION SECTION ---
 		double GLOBALTHRESHOLD = 33;
 
 		try {

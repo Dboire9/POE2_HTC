@@ -155,7 +155,13 @@ export function Results({ data }: any) {
                     {sortedResults[selectedPath].bestPath?.actions && (
                       <div className="space-y-2">
                         <div className="text-sm text-muted-foreground mb-2">Crafting Steps:</div>
-                        {sortedResults[selectedPath].bestPath.actions.map((actionObj: any, stepIdx: number) => (
+                        {sortedResults[selectedPath].bestPath.actions.map((actionObj: any, stepIdx: number) => {
+                          // Debug: Check what fields exist
+                          if (stepIdx === 0) {
+                            console.log('Action object:', JSON.stringify(actionObj, null, 2));
+                            console.log('Has modifierType?', 'modifierType' in actionObj, actionObj.modifierType);
+                          }
+                          return (
                           <div key={stepIdx} className="flex items-center gap-3 text-sm bg-background/80 p-3 rounded">
                             <span className="text-muted-foreground font-mono w-8">{stepIdx + 1}.</span>
                             <div className="flex-1">
@@ -168,7 +174,32 @@ export function Results({ data }: any) {
                                 )}
                               </div>
                               {actionObj.modifier && (
-                                <div className="text-xs text-green-400 mt-1">→ {actionObj.modifier}</div>
+                                <div className="text-xs mt-1 flex items-center gap-2">
+                                  <span className="text-green-400">→ {actionObj.modifier}</span>
+                                  {actionObj.modifierType ? (
+                                    <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${
+                                      actionObj.modifierType === 'PREFIX' 
+                                        ? 'bg-orange-500/20 text-orange-400' 
+                                        : 'bg-cyan-500/20 text-cyan-400'
+                                    }`}>
+                                      {actionObj.modifierType === 'PREFIX' ? 'P' : 'S'}
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs text-red-400">[NO TYPE]</span>
+                                  )}
+                                </div>
+                              )}
+                              {actionObj.targetModifier && actionObj.modifierType && (
+                                <div className="text-xs mt-1 flex items-center gap-2">
+                                  <span className="text-green-400">→ {actionObj.targetModifier}</span>
+                                  <span className={`text-xs px-1.5 py-0.5 rounded font-semibold ${
+                                    actionObj.modifierType === 'PREFIX' 
+                                      ? 'bg-orange-500/20 text-orange-400' 
+                                      : 'bg-cyan-500/20 text-cyan-400'
+                                  }`}>
+                                    {actionObj.modifierType === 'PREFIX' ? 'P' : 'S'}
+                                  </span>
+                                </div>
                               )}
                               {actionObj.omens && actionObj.omens.length > 0 && (
                                 <div className="text-xs text-purple-400 mt-1">
@@ -185,7 +216,7 @@ export function Results({ data }: any) {
                               {formatProbability(actionObj.probability)}
                             </span>
                           </div>
-                        ))}
+                        )})}
                       </div>
                     )}
                   </div>

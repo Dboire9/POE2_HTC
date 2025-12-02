@@ -131,7 +131,7 @@ public class ComputingLastProbability {
             for (int idx = 0; idx < availableTiers.size(); idx++) {
                 int thisTierNumber = foundModifier.tiers.size() - foundModifier.tiers.indexOf(availableTiers.get(idx));
                 if (thisTierNumber == originalTierNumber) {
-                    chosenTierObj = availableTiers.get(idx);
+                    chosenTierObj = availableTiers.get(idx - 1);
                     break;
                 }
             }

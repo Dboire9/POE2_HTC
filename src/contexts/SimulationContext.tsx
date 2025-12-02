@@ -144,6 +144,8 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             tier: action.tier,
             omen: action.omen,
             omens: action.omens,
+            modifierType: action.modifierType,
+            eventType: action.eventType,
             isPerfectEssenceReplacement: action.isPerfectEssenceReplacement,
             replacedModifier: action.replacedModifier
           }));

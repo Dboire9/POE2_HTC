@@ -102,6 +102,8 @@ export interface CraftingStep {
   tier?: string;            // Currency tier (e.g., "TIER1", "TIER5")
   omen?: string;            // Single omen used (e.g., "DEXTRAL")
   omens?: string[];         // Multiple omens used
+  modifierType?: string;    // PREFIX or SUFFIX
+  eventType?: string;       // ADDED, REMOVED, or CHANGED
   isPerfectEssenceReplacement?: boolean; // True when 100% probability is due to perfect essence replacement
   replacedModifier?: string; // The modifier that was replaced by the perfect essence
 }

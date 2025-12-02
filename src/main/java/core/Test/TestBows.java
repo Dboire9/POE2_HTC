@@ -51,7 +51,7 @@ public class TestBows {
 		for (Modifier mod : possiblePrefixes) {
 			if (mod.text.equals("Adds # to # Physical Damage")) {
 				desiredMods.add(mod);
-				desiredModTier.add(mod.tiers.get(0)); // T1 = index 0
+				desiredModTier.add(mod.tiers.get(2)); // T1 = index 0
 				mod.chosenTier = 0;
 				System.out.println(" - " + mod.text + " (Tier 1)");
 				break;

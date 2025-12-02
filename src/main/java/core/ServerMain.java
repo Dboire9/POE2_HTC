@@ -1253,6 +1253,9 @@ public class ServerMain {
 		exchange.sendResponseHeaders(status, bytes.length);
 		try (OutputStream os = exchange.getResponseBody()) {
 			os.write(bytes);
+		} finally {
+			// Explicitly close the exchange to release resources
+			exchange.close();
 		}
 	}
 

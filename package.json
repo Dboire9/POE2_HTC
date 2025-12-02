@@ -1,6 +1,6 @@
 {
   "name": "poe2-htc",
-  "version": "0.9.4",
+  "version": "0.9.6",
   "description": "Path of Exile 2 How to Craft",
   "author": {
     "name": "Dboire",
@@ -82,7 +82,7 @@
     ],
     "extraResources": [
       {
-        "from": "target/poe-crafter-0.9.4-jar-with-dependencies.jar",
+        "from": "target/poe-crafter-0.9.6-jar-with-dependencies.jar",
         "to": "backend.jar"
       },
       {

@@ -31,8 +31,8 @@
     "@testing-library/dom": "^10.4.1",
     "@vercel/analytics": "^1.5.0",
     "electron-updater": "^6.6.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "sonner": "^2.0.7"
   },
   "devDependencies": {

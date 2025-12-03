@@ -143,7 +143,7 @@ public class Modifiers_essences {
 				"essence_increased_movement_speed",
 				List.of("speed"),
 				List.of(
-						new ModifierTier("Essence of Hysteria", 65, 1, new Pair<>(30, 30)) // Fixed 30% increase
+						new ModifierTier("Perfect Essence of Hysteria", 65, 1, new Pair<>(30, 30)) // Fixed 30% increase
 				),
 				ModifierType.PREFIX,
 				ModifierSource.PERFECT_ESSENCE,

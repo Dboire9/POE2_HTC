@@ -38,7 +38,7 @@ public class Modifiers_essences {
 				"essence_increased_damage_with_bow_skills",
 				List.of("damage"),
 				List.of(
-						new ModifierTier("Essence of Hysteria", 60, 0, new Pair<>(43, 50))),
+						new ModifierTier("Perfect Essence of Hysteria", 60, 0, new Pair<>(43, 50))),
 				ModifierType.PREFIX,
 				ModifierSource.PERFECT_ESSENCE,
 				"IncreasedDamageWithBowSkillsPercent",

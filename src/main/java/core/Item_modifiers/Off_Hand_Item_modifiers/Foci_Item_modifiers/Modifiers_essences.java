@@ -159,7 +159,7 @@ public class Modifiers_essences {
 				"energy_shield_regeneration",
 				List.of("defences"),
 				List.of(
-						new ModifierTier("Essence of Hysteria", 48, 0, new Pair<>(41, 45))),
+						new ModifierTier("Perfect Essence of Hysteria", 48, 0, new Pair<>(41, 45))),
 				ModifierType.SUFFIX,
 				ModifierSource.PERFECT_ESSENCE,
 				"EnergyShieldRegeneration",

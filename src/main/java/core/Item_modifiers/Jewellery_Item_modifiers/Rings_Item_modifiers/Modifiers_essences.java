@@ -119,7 +119,7 @@ public class Modifiers_essences {
 				"mana_regeneration",
 				List.of("mana", "regeneration"),
 				List.of(
-						new ModifierTier("Essence of Hysteria", 55, 1, new Pair<>(50, 59))),
+						new ModifierTier("Perfect Essence of Hysteria", 55, 1, new Pair<>(50, 59))),
 				ModifierType.SUFFIX,
 				ModifierSource.PERFECT_ESSENCE,
 				"ManaRegeneration",

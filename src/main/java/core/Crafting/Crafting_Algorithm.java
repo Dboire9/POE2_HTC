@@ -246,13 +246,31 @@ public class Crafting_Algorithm {
 			if (candidates.isEmpty())
 				continue;
 
+		boolean PerfectEssence = false;
+		
+		for (Modifier m : desiredMods)
+		{
+			if(m.source == Modifier.ModifierSource.PERFECT_ESSENCE)
+				PerfectEssence = true;
+		}
+
 		ComputingLastProbability.ComputingLastEventProbability(candidates, desiredMods, baseItem, globalThreshold);
 
 		Probability.ComputingProbability(candidates, desiredMods, baseItem, excludedCurrencies);
 		
 		if(!candidates.isEmpty())
-		{			
-			int targetScore = candidates.get(0).getAllCurrentModifiers().size() * 1000;			// For 6-mod crafting, keep more candidates to ensure paths can be completed
+		{
+			int targetScore = 0;
+			if(PerfectEssence)
+			{
+				// Use the second-to-last candidate's modifier count for scoring
+				// This prevents filtering based on candidates that just had a mod added
+				 int referenceIndex = Math.max(0, candidates.size() - 2);
+				targetScore = candidates.get(referenceIndex).getAllCurrentModifiers().size() * 1000;
+			}
+			else
+				targetScore = candidates.get(0).getAllCurrentModifiers().size() * 1000;	// For 6-mod crafting, keep more candidates to ensure paths can be completed
+
 			// Keep all candidates with >= 50% of target score, plus top candidates by score
 			int minScore = (int)(targetScore * 0.5);
 			int keepCount = desiredMods.size() >= 6 ? 30 : 20; // Keep more for 6-mod
@@ -268,13 +286,11 @@ public class Crafting_Algorithm {
 					})
 					.limit(keepCount)
 					.collect(java.util.stream.Collectors.toList());
-
-			RareLoop(baseItem, filteredCandidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor,
-					AnnulmentAllowed);
-			
-			// Clear filtered candidates after processing to free memory
-			filteredCandidates.clear();
-		}
+					RareLoop(baseItem, filteredCandidates, desiredMods, undesiredMods, tagCount, masterList, nextLists, executor,
+						AnnulmentAllowed);
+					// Clear filtered candidates after processing to free memory
+					filteredCandidates.clear();
+			}
 		// Clear original candidates list after filtering to free memory
 		candidates.clear();
 		}

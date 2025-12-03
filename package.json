@@ -82,7 +82,7 @@
     ],
     "extraResources": [
       {
-        "from": "target/poe-crafter-0.9.6-jar-with-dependencies.jar",
+        "from": "target/poe-crafter-*-jar-with-dependencies.jar",
         "to": "backend.jar"
       },
       {

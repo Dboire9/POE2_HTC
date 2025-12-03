@@ -257,8 +257,6 @@ public class Crafting_Algorithm {
 			int minScore = (int)(targetScore * 0.5);
 			int keepCount = desiredMods.size() >= 6 ? 30 : 20; // Keep more for 6-mod
 			
-			int candidatesSizeBefore = candidates.size();
-			
 			List<Crafting_Candidate> filteredCandidates = candidates.stream()
 					.filter(c -> c.score >= minScore)
 					.sorted((c1, c2) -> {

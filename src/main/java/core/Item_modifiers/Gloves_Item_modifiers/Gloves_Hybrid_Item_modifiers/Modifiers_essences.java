@@ -208,7 +208,7 @@ public class Modifiers_essences {
 				"critical_damage_bonus",
 				List.of("damage", "critical"),
 				List.of(
-						new ModifierTier("Essence of Hysteria", 45, 1, new Pair<>(25, 29))),
+						new ModifierTier("Perfect Essence of Hysteria", 45, 1, new Pair<>(25, 29))),
 				ModifierType.SUFFIX,
 				ModifierSource.PERFECT_ESSENCE,
 				"CriticalStrikeMultiplier",

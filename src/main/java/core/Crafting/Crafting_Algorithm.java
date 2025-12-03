@@ -242,7 +242,7 @@ public class Crafting_Algorithm {
 			boolean AnnulmentAllowed,
 			List<Map<String, String>> excludedCurrencies) throws InterruptedException, ExecutionException {
 
-		for (List<Crafting_Candidate> candidates : currentLists) {
+	for (List<Crafting_Candidate> candidates : currentLists) {
 			if (candidates.isEmpty())
 				continue;
 

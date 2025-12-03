@@ -151,7 +151,7 @@ public class Modifiers_essences {
 				"physical_thorns_damage",
 				List.of("damage", "physical"),
 				List.of(
-						new ModifierTier("Essence of Hysteria", 63, 1, new Pair<>(64, 97), new Pair<>(97, 145), "",
+						new ModifierTier("Perfect Essence of Hysteria", 63, 1, new Pair<>(64, 97), new Pair<>(97, 145), "",
 								"")),
 				ModifierType.PREFIX,
 				ModifierSource.PERFECT_ESSENCE,

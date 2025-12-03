@@ -153,7 +153,7 @@ public class Modifiers_essences {
 				"damage_taken_recouped_as_life",
 				List.of("life", "damage", "recoup"),
 				List.of(
-						new ModifierTier("Essence of Hysteria", 68, 1, new Pair<>(19, 21))),
+						new ModifierTier("Perfect Essence of Hysteria", 68, 1, new Pair<>(19, 21))),
 				ModifierType.SUFFIX,
 				ModifierSource.PERFECT_ESSENCE,
 				"DamageTakenGainedAsLife",

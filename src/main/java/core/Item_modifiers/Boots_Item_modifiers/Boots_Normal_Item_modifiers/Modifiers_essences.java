@@ -156,7 +156,7 @@ public class Modifiers_essences {
 				"essence_soul_core",
 				List.of("socketed_items"),
 				List.of(
-						new ModifierTier("Essence of Horror", 1, 1, new Pair<>(100, 100))),
+						new ModifierTier("Perfect Essence of Horror", 1, 1, new Pair<>(100, 100))),
 				ModifierType.SUFFIX,
 				ModifierSource.PERFECT_ESSENCE,
 				"SoulCore",

@@ -20,13 +20,13 @@ import core.Currency.*;
  * - Running the crafting optimization algorithm
  * - Displaying the best crafting paths and their probabilities
  */
-public class TestBows {
+public class TestWands {
 
 	public static void main(String[] args) {
 
 		// --- ITEM SETUP SECTION ---
-		// Create a test item (Bow here for testing)
-		core.Items.Bows.Bows testItem = new core.Items.Bows.Bows();
+		// Create a test item (Wand here for testing)
+		core.Items.Wands.Wands testItem = new core.Items.Wands.Wands();
 		Crafting_Item item = new Crafting_Item(testItem);
 
 		// Get allowed prefixes and suffixes for the item
@@ -44,13 +44,13 @@ public class TestBows {
 		Set<String> usedModifiers = new HashSet<>();
 
 		// --- MANUAL MODIFIER SELECTION FOR TESTING ---
-		System.out.println("Selected Modifiers for Boots_int Crafting:");
+		System.out.println("Selected Modifiers for Wand Crafting:");
 		System.out.println("Prefixes:");
 
 		for (Modifier mod : possiblePrefixes) {
-			if (mod.text.equals("Adds # to # Physical Damage")) {
+			if (mod.text.equals("+# to maximum Mana")) {
 				desiredMods.add(mod);
-				desiredModTier.add(mod.tiers.get(2)); // T1 = index 0
+				desiredModTier.add(mod.tiers.get(2)); // Tier 3 = index 2
 				mod.chosenTier = 2;
 				System.out.println(" - " + mod.text + " (Tier 3)");
 				break;
@@ -58,19 +58,19 @@ public class TestBows {
 		}
 
 		for (Modifier mod : possiblePrefixes) {
-			if (mod.text.equals("#% increased Physical Damage")) {
+			if (mod.text.equals("+#% Increased Cold Spell Damage")) {
 				desiredMods.add(mod);
-				desiredModTier.add(mod.tiers.get(0)); // T1 = index 0
+				desiredModTier.add(mod.tiers.get(0)); // Tier 1 = index 0
 				mod.chosenTier = 0;
 				System.out.println(" - " + mod.text + " (Tier 1)");
 				break;
 			}
 		}
 
-		for (Modifier mod : possibleEssencesPrefixes) {
-			if (mod.text.equals("Gain # % of Damage as Extra Lightning Damage")) {
+		for (Modifier mod : possiblePrefixes) {
+			if (mod.text.equals("+#% increased Spell Damage\n+# to maximum Mana")) {
 				desiredMods.add(mod);
-				desiredModTier.add(mod.tiers.get(0));
+				desiredModTier.add(mod.tiers.get(0)); // Tier 1 = index 0
 				mod.chosenTier = 0;
 				System.out.println(" - " + mod.text + " (Tier 1)");
 				break;
@@ -79,37 +79,35 @@ public class TestBows {
 
 		System.out.println("Suffixes:");
 
-		for (Modifier mod : possibleEssencesSuffixes) {
-			if (mod.text.equals("+# to Level of all Attack Skills")) {
+		for (Modifier mod : possibleSuffixes) {
+			if (mod.text.equals("+# to Intelligence")) {
 				desiredMods.add(mod);
-				desiredModTier.add(mod.tiers.get(0));
+				desiredModTier.add(mod.tiers.get(0)); // Tier 1 = index 0
 				mod.chosenTier = 0;
 				System.out.println(" - " + mod.text + " (Tier 1)");
 				break;
 			}
 		}
 
-		for (Modifier mod : possibleEssencesSuffixes) {
-			if (mod.text.equals("#% chance to gain Onslaught on Killing Hits with this Weapon")) {
+		for (Modifier mod : possibleSuffixes) {
+			if (mod.text.equals("#% reduced Attribute Requirements")) {
 				desiredMods.add(mod);
-				desiredModTier.add(mod.tiers.get(0));
+				desiredModTier.add(mod.tiers.get(0)); // Tier 1 = index 0
 				mod.chosenTier = 0;
 				System.out.println(" - " + mod.text + " (Tier 1)");
 				break;
 			}
 		}
 
-	for (Modifier mod : possibleDesecratedSuffixes) {
-		System.out.println(mod.text);
-		if (mod.text.equals("#% increased Attack Speed\nCompanions have #% increased Attack Speed")) {
-			desiredMods.add(mod);
-			desiredModTier.add(mod.tiers.get(0));
-			mod.chosenTier = 0;
-			System.out.println(" - " + mod.text + " (Tier 1)");
-			break;
-		}
-	}
-			// --- CRAFTING EXECUTION SECTION ---
+		for (Modifier mod : possibleSuffixes) {
+			if (mod.text.equals("# to Level of all Spell Skills")) {
+				desiredMods.add(mod);
+				desiredModTier.add(mod.tiers.get(0)); // Tier 1 = index 0
+				mod.chosenTier = 0;
+				System.out.println(" - " + mod.text + " (Tier 1)");
+				break;
+			}
+		}		// --- CRAFTING EXECUTION SECTION ---
 		double GLOBALTHRESHOLD = 33;
 
 		try {

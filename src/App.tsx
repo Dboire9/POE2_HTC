@@ -121,11 +121,11 @@ const AppContent: React.FC = () => {
           {/* Phase 4: User Story 2 - Modifier Selection */}
           <div className="lg:col-span-8 space-y-3" data-section="modifiers">
             <ModifierSelector />
+            <SimulationTrigger />
           </div>
 
           {/* Phase 5: User Story 3 - Simulation */}
           <div className="lg:col-span-8 lg:col-start-5 space-y-3">
-            <SimulationTrigger />
             <SimulationProgress />
             <SimulationSummary />
             <ResultsDisplay />

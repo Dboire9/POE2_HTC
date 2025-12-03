@@ -134,7 +134,7 @@ export const SimulationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         }
 
         // Transform backend response to match frontend types
-        const transformedPaths = (response.paths || []).map((path: any, index: number) => {
+        const transformedPaths = (response.results || response.paths || []).map((path: any, index: number) => {
           const steps = (path.bestPath?.actions || []).map((action: any, stepIdx: number) => ({
             order: stepIdx + 1,
             action: action.action || 'Unknown',

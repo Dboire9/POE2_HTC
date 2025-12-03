@@ -6,7 +6,7 @@
 
     <groupId>com.poe.crafter</groupId>
     <artifactId>poe-crafter</artifactId>
-    <version>0.9.4</version>
+    <version>0.9.6</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

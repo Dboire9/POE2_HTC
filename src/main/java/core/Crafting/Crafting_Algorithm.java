@@ -265,7 +265,7 @@ public class Crafting_Algorithm {
 			{
 				// Use the second-to-last candidate's modifier count for scoring
 				// This prevents filtering based on candidates that just had a mod added
-				 int referenceIndex = Math.max(0, candidates.size() - 2);
+				int referenceIndex = Math.max(0, candidates.size() - 1);
 				targetScore = candidates.get(referenceIndex).getAllCurrentModifiers().size() * 1000;
 			}
 			else

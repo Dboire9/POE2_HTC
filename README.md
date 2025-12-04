@@ -216,7 +216,7 @@ This project is licensed under the GNU Affero General Public License v3.0 (AGPL-
 - Grinding Gear Games for creating Path of Exile 2
 - The PoE community and POE2db for modifier data and crafting knowledge
 - [@fZpHr](https://github.com/fZpHr) for the help and advices.
-- [farmer](https://www.twitch.tv/xthefarmerx) for giving me this idea through his streams and his discord.
+- [farmer](https://www.twitch.tv/xthefarmerx) for giving me this idea through his streams and his discord (Modikin, Bad Architect).
 
 ## 📞 Contact
 

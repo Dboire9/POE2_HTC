@@ -119,10 +119,10 @@ public class ExaltAndRegalProbability {
 				tiersList.add(CurrencyTier.GREATER);
 			}
 
-			if (level >= 40) {
-				levelsList.add(40);
-				tiersList.add(CurrencyTier.DES_CURRENCY);
-			}
+			// if (level >= 40) {
+			// 	levelsList.add(40);
+			// 	tiersList.add(CurrencyTier.DES_CURRENCY);
+			// }
 
 			// Add PERFECT tier if not excluded and level supports it
 			if (!isExcludedPerfect && level >= 50) {
@@ -298,8 +298,11 @@ public class ExaltAndRegalProbability {
 					// We mutliply by 3 the probability of having this modifier because we can have
 					// it by desecration
 					// Removing it for now
-					if (!candidate.desecrated && (ilvl == 0 || ilvl == 40))
-						percentage = 1 -Math.pow(1 - percentage, 3);
+					// if (!candidate.desecrated && (ilvl == 0 || ilvl == 40))
+					// {
+					// 	percentage = 1 -Math.pow(1 - percentage, 3);
+					// 	candidate.desecrated = true;
+					// }
 
 					return percentage;
 					}

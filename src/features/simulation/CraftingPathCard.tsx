@@ -121,18 +121,6 @@ const CraftingPathCard: React.FC<CraftingPathCardProps> = ({ path, rank }) => {
           ))}
         </ol>
       </div>
-
-      {/* Total cost */}
-      <div className="pt-2 border-t border-border">
-        <h4 className="text-sm font-semibold text-muted-foreground mb-2">Total Cost:</h4>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(path.totalCost).map(([currency, amount]) => (
-            <Badge key={currency} variant="outline" className="font-mono">
-              {amount}× {currency}
-            </Badge>
-          ))}
-        </div>
-      </div>
     </Card>
   );
 };

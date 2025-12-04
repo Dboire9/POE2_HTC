@@ -50,7 +50,7 @@ public class TestBows {
 		for (Modifier mod : possiblePrefixes) {
 			if (mod.text.equals("Adds # to # Physical Damage")) {
 				desiredMods.add(mod);
-				desiredModTier.add(mod.tiers.get(2)); // T1 = index 0
+				desiredModTier.add(mod.tiers.get(0)); // T1 = index 0
 				mod.chosenTier = 2;
 				System.out.println(" - " + mod.text + " (Tier 3)");
 				break;
@@ -68,7 +68,7 @@ public class TestBows {
 		}
 
 		for (Modifier mod : possibleEssencesPrefixes) {
-			if (mod.text.equals("Gain # % of Damage as Extra Lightning Damage")) {
+			if (mod.text.equals("#% increased Physical Damage +# to Accuracy Rating")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;
@@ -79,8 +79,8 @@ public class TestBows {
 
 		System.out.println("Suffixes:");
 
-		for (Modifier mod : possibleEssencesSuffixes) {
-			if (mod.text.equals("+# to Level of all Attack Skills")) {
+		for (Modifier mod : possibleSuffixes) {
+			if (mod.text.equals("+# to Level of all Projectile Skills")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;
@@ -89,8 +89,8 @@ public class TestBows {
 			}
 		}
 
-		for (Modifier mod : possibleEssencesSuffixes) {
-			if (mod.text.equals("#% chance to gain Onslaught on Killing Hits with this Weapon")) {
+		for (Modifier mod : possibleSuffixes) {
+			if (mod.text.equals("+#% to Critical Hit Chance")) {
 				desiredMods.add(mod);
 				desiredModTier.add(mod.tiers.get(0));
 				mod.chosenTier = 0;
@@ -99,9 +99,9 @@ public class TestBows {
 			}
 		}
 
-	for (Modifier mod : possibleDesecratedSuffixes) {
+	for (Modifier mod : possibleSuffixes) {
 		System.out.println(mod.text);
-		if (mod.text.equals("#% increased Attack Speed\nCompanions have #% increased Attack Speed")) {
+		if (mod.text.equals("Bow Attacks fire # additional Arrows")) {
 			desiredMods.add(mod);
 			desiredModTier.add(mod.tiers.get(0));
 			mod.chosenTier = 0;

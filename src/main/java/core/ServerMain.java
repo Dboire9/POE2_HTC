@@ -18,6 +18,7 @@ import core.Items.Item_base;
 import core.Modifier_class.Modifier;
 import core.Modifier_class.ModifierTier;
 import core.metrics.CraftingMetrics;
+import core.API.SlowRequestMonitor;
 import core.DebugLogger.DebugLevel;
 
 import java.io.IOException;
@@ -1120,6 +1121,11 @@ public class ServerMain {
 						.info("✓✓✓ RESPONSE READY: " + results.size() + " paths, " + responseJson.length() + " chars");
 				DebugLogger.info("   First path probability: "
 						+ (results.isEmpty() ? "N/A" : results.get(0).finalPercentage() + "%"));
+				
+				// Check and log if request was slow
+				long requestDuration = System.currentTimeMillis() - requestStartTime;
+				SlowRequestMonitor.checkAndLog(requestBody, requestDuration, "/api/crafting");
+				
 				sendJson(exchange, 200, responseJson);
 				
 				// Deep clean all data structures to free memory after response is sent

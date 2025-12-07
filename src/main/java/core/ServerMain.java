@@ -1273,7 +1273,19 @@ public class ServerMain {
 			os.write(bytes);
 		} finally {
 			// Explicitly close the exchange to release resources
+			// Use safe close to prevent exceptions from propagating
+			safeCloseExchange(exchange);
+		}
+	}
+
+	// Helper method to safely close exchange without throwing exceptions
+	// This prevents connection leaks when close() is called multiple times or fails
+	private static void safeCloseExchange(HttpExchange exchange) {
+		try {
 			exchange.close();
+		} catch (Exception e) {
+			// Silently ignore - exchange may already be closed or in invalid state
+			// Logging here could cause noise since this is a safety mechanism
 		}
 	}
 

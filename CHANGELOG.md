@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.9.7] - 2025-12-12
+### Added
+- **Slow request monitoring system** for debugging performance issues
+  - Automatic logging of requests taking longer than 2 seconds
+  - JSON request body capture for replay and analysis
+
+### Changed
+- Removed "Omen of Homogenising Exaltation" and "Omen of Homogenising Coronation" (non-existent in game) :smiling_face_with_tear: 
+- Removed total cost display from crafting results UI for cleaner interface
+- Updated scoring mechanism to use second-to-last candidate's modifier count for perfect essences
+
+### Fixed
+  - Backend server no longer crashes due to port 8080 being held by stale processes
+  - Proper HttpExchange cleanup in all request handlers
+- Perfect essence behavior and probability calculations
+- Frontend compatibility with backend responses using 'results' vs 'paths'
+- Essence naming: "Essence of Hysteria" → "Perfect Essence of Hysteria"
+- React dependency updated to 19.2.1
+---
+
 ## [0.9.6] - 2025-12-02
 ### Added
 - Visual indicators for perfect essence replacements in crafting paths

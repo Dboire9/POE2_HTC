@@ -208,23 +208,7 @@ public class ExaltAndRegalProbability {
 					if (percentage == 2)
 						source.put(new ExaltedOrb(Crafting_Action.CurrencyTier.DES_CURRENCY, currentOmen), percentage);
 					else if (percentage != 0) {
-						if (currentOmen == ExaltedOrb.Omen.OmenofHomogenisingExaltation) {
-							// Skip if the Homogenising omen is excluded
-							if (excludedExaltedOmen != null && currentOmen.name().equals(excludedExaltedOmen)) {
-								continue;
-							}
-							
-							Set<ExaltedOrb.Omen> newOmens = new HashSet<>();
-							newOmens.add(ExaltedOrb.Omen.OmenofHomogenisingExaltation);
-							if (event.modifier.type == ModifierType.PREFIX)
-								newOmens.add(ExaltedOrb.Omen.OmenofSinistralExaltation);
-							else if (event.modifier.type == ModifierType.SUFFIX)
-								newOmens.add(ExaltedOrb.Omen.OmenofDextralExaltation);
-
-							source.put(new ExaltedOrb(tier, newOmens), percentage);
-						} else {
 							source.put(new ExaltedOrb(tier, currentOmen), percentage);
-						}
 					}
 				}
 			}
@@ -256,35 +240,35 @@ public class ExaltAndRegalProbability {
 					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes,
 							isDesired);
 				}
-				case OmenofHomogenisingCoronation -> {
-					if ((event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null
-							|| event.modifier.tags.get(0).isEmpty()) && baseItem.getAllCurrentModifiers().size() == 0) {
-						return 0;
-					}
-					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
-							baseItem.base.getNormalAllowedPrefixes(), i);
-					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
-							baseItem.base.getNormalAllowedSuffixes(), i);
+				// case OmenofHomogenisingCoronation -> {
+				// 	if ((event.modifier.tags.isEmpty() || event.modifier.tags.get(0) == null
+				// 			|| event.modifier.tags.get(0).isEmpty()) && baseItem.getAllCurrentModifiers().size() == 0) {
+				// 		return 0;
+				// 	}
+				// 	List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
+				// 			baseItem.base.getNormalAllowedPrefixes(), i);
+				// 	List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
+				// 			baseItem.base.getNormalAllowedSuffixes(), i);
 
-					if (PossiblePrefixes.isEmpty() && PossibleSuffixes.isEmpty())
-						return 0;
+				// 	if (PossiblePrefixes.isEmpty() && PossibleSuffixes.isEmpty())
+				// 		return 0;
 
-					// Check if the current modifier is actually in the filtered list
-					// If not, the omen shouldn't apply (modifier doesn't share tags with existing
-					// mods)
-					boolean modifierInList = false;
-					if (event.modifier.type == ModifierType.PREFIX) {
-						modifierInList = PossiblePrefixes.contains(event.modifier);
-					} else if (event.modifier.type == ModifierType.SUFFIX) {
-						modifierInList = PossibleSuffixes.contains(event.modifier);
-					}
-					if (!modifierInList) {
-						return 0;
-					}
+				// 	// Check if the current modifier is actually in the filtered list
+				// 	// If not, the omen shouldn't apply (modifier doesn't share tags with existing
+				// 	// mods)
+				// 	boolean modifierInList = false;
+				// 	if (event.modifier.type == ModifierType.PREFIX) {
+				// 		modifierInList = PossiblePrefixes.contains(event.modifier);
+				// 	} else if (event.modifier.type == ModifierType.SUFFIX) {
+				// 		modifierInList = PossibleSuffixes.contains(event.modifier);
+				// 	}
+				// 	if (!modifierInList) {
+				// 		return 0;
+				// 	}
 
-					return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes,
-							isDesired);
-				}
+				// 	return NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, PossibleSuffixes,
+				// 			isDesired);
+				// }
 			}
 		}
 
@@ -306,45 +290,45 @@ public class ExaltAndRegalProbability {
 
 					return percentage;
 					}
-				case OmenofHomogenisingExaltation -> {
-					if (ilvl == 40)
-						return 0;
+				// case OmenofHomogenisingExaltation -> {
+				// 	if (ilvl == 40)
+				// 		return 0;
 
-					// Get the unfiltered lists for comparison
-					List<Modifier> AllPrefixes = baseItem.base.getNormalAllowedPrefixes();
-					List<Modifier> AllSuffixes = baseItem.base.getNormalAllowedSuffixes();
+				// 	// Get the unfiltered lists for comparison
+				// 	List<Modifier> AllPrefixes = baseItem.base.getNormalAllowedPrefixes();
+				// 	List<Modifier> AllSuffixes = baseItem.base.getNormalAllowedSuffixes();
 
-					// Filter BOTH prefixes and suffixes by matching tags (like RegalOrb
-					// OmenofHomogenisingCoronation)
-					List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
-							AllPrefixes, i);
-					List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
-							AllSuffixes, i);
+				// 	// Filter BOTH prefixes and suffixes by matching tags (like RegalOrb
+				// 	// OmenofHomogenisingCoronation)
+				// 	List<Modifier> PossiblePrefixes = GetHomogAffixes(baseItem, candidate, event,
+				// 			AllPrefixes, i);
+				// 	List<Modifier> PossibleSuffixes = GetHomogAffixes(baseItem, candidate, event,
+				// 			AllSuffixes, i);
 
-					// Check if the current modifier is actually in the filtered list
-					boolean modifierInList = false;
-					if (event.modifier.type == ModifierType.PREFIX) {
-						modifierInList = PossiblePrefixes.contains(event.modifier);
-					} else if (event.modifier.type == ModifierType.SUFFIX) {
-						modifierInList = PossibleSuffixes.contains(event.modifier);
-					}
-					if (!modifierInList) {
-						return 0;
-					}
+				// 	// Check if the current modifier is actually in the filtered list
+				// 	boolean modifierInList = false;
+				// 	if (event.modifier.type == ModifierType.PREFIX) {
+				// 		modifierInList = PossiblePrefixes.contains(event.modifier);
+				// 	} else if (event.modifier.type == ModifierType.SUFFIX) {
+				// 		modifierInList = PossibleSuffixes.contains(event.modifier);
+				// 	}
+				// 	if (!modifierInList) {
+				// 		return 0;
+				// 	}
 
-					// Homogenising is always combined with Sinistral (for PREFIX) or Dextral (for
-					// SUFFIX)
-					// So we should pass null for the opposite pool to get the combined effect
-					double prob;
-					if (event.modifier.type == ModifierType.PREFIX) {
-						// Homogenising + Sinistral: filter by tags AND only allow prefixes
-						prob = NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
-					} else {
-						// Homogenising + Dextral: filter by tags AND only allow suffixes
-						prob = NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
-					}
-					return prob;
-				}
+				// 	// Homogenising is always combined with Sinistral (for PREFIX) or Dextral (for
+				// 	// SUFFIX)
+				// 	// So we should pass null for the opposite pool to get the combined effect
+				// 	double prob;
+				// 	if (event.modifier.type == ModifierType.PREFIX) {
+				// 		// Homogenising + Sinistral: filter by tags AND only allow prefixes
+				// 		prob = NormalCompute(baseItem, candidate, event, ilvl, i, PossiblePrefixes, null, isDesired);
+				// 	} else {
+				// 		// Homogenising + Dextral: filter by tags AND only allow suffixes
+				// 		prob = NormalCompute(baseItem, candidate, event, ilvl, i, null, PossibleSuffixes, isDesired);
+				// 	}
+				// 	return prob;
+				// }
 				case OmenofSinistralExaltation -> {
 					if (event.modifier.type == ModifierType.PREFIX) {
 						List<Modifier> PossiblePrefixes = baseItem.base.getNormalAllowedPrefixes();

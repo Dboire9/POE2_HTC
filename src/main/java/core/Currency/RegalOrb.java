@@ -26,7 +26,7 @@ public class RegalOrb implements Crafting_Action {
      */
     public enum Omen {
         None,
-        OmenofHomogenisingCoronation
+        // OmenofHomogenisingCoronation
     }
 
     /**

@@ -55,7 +55,7 @@ const AVAILABLE_CURRENCIES: CurrencyConfig[] = [
     tierType: 'orb',
     omens: [
       { value: 'None', label: 'None' },
-      { value: 'OmenofHomogenisingCoronation', label: 'Omen of Homogenising Coronation' },
+    //   { value: 'OmenofHomogenisingCoronation', label: 'Omen of Homogenising Coronation' },
     ]
   },
   { 
@@ -66,7 +66,7 @@ const AVAILABLE_CURRENCIES: CurrencyConfig[] = [
     tierType: 'orb',
     omens: [
       { value: 'None', label: 'None' },
-      { value: 'OmenofHomogenisingExaltation', label: 'Omen of Homogenising Exaltation' },
+    //   { value: 'OmenofHomogenisingExaltation', label: 'Omen of Homogenising Exaltation' },
       { value: 'OmenofSinistralExaltation', label: 'Omen of Sinistral Exaltation' },
       { value: 'OmenofDextralExaltation', label: 'Omen of Dextral Exaltation' },
       { value: 'OmenofGreaterExaltation', label: 'Omen of Greater Exaltation' },

@@ -1,6 +1,0 @@
-# Allow all crawlers
-User-agent: *
-Allow: /
-
-# Sitemap
-Sitemap: https://poe2htc.com/sitemap.xml

@@ -8,6 +8,37 @@ import os
 import re
 import json
 from pathlib import Path
+
+# Tag mapping to bitflags
+TAG_MAP = {
+    'amanamu': 'TAG_AMANAMU',
+    'kurgal': 'TAG_KURGAL',
+    'ulaman': 'TAG_ULAMAN',
+    'gem': 'TAG_GEM',
+    'caster': 'TAG_CASTER',
+    'caster_damage': 'TAG_CASTER',
+    'fire': 'TAG_FIRE',
+    'cold': 'TAG_COLD',
+    'lightning': 'TAG_LIGHTNING',
+    'chaos': 'TAG_CHAOS',
+    'physical': 'TAG_PHYSICAL',
+    'life': 'TAG_LIFE',
+    'defences': 'TAG_DEFENCES',
+    'elemental': 'TAG_ELEMENTAL',
+    'attack': 'TAG_ATTACK',
+    'minion': 'TAG_MINION',
+    'aura': 'TAG_AURA',
+    'mana': 'TAG_MANA',
+    'speed': 'TAG_SPEED',
+    'critical': 'TAG_CRITICAL',
+    'damage': 'TAG_DAMAGE',
+    'resistance': 'TAG_RESISTANCE',
+    'attribute': 'TAG_ATTRIBUTE',
+    'ailment': 'TAG_AILMENT',
+    'curse': 'TAG_CURSE',
+    'charm': 'TAG_CHARM',
+}
+
 from typing import List, Dict, Tuple, Optional
 
 class JavaToCConverter:
@@ -35,14 +66,15 @@ class JavaToCConverter:
             'values': []
         }
         
-        # Find all Pair<>(...) values
-        pair_pattern = r'new\s+Pair<>\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)'
+        # Find all Pair<>(...) values (supports both integers and decimals)
+        pair_pattern = r'new\s+Pair<>\s*\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\)'
         pairs = re.findall(pair_pattern, tier_text)
         
         for min_val, max_val in pairs:
+            # Convert to int (truncate decimals for now, since C uses int16_t)
             tier['values'].append({
-                'min': int(min_val),
-                'max': int(max_val)
+                'min': int(float(min_val)),
+                'max': int(float(max_val))
             })
         
         return tier if tier['values'] else None
@@ -57,16 +89,28 @@ class JavaToCConverter:
         
         modifier_block = match.group(1)
         
+        # Extract file path info for unique identification
+        file_path_str = str(java_file.relative_to(self.java_base))
+        
         # Extract primary category (first string)
         category_match = re.search(r'"([^"]+)"', modifier_block)
         primary_category = category_match.group(1) if category_match else var_name.lower()
         
-        # Extract tags (List.of("tag1", "tag2"))
+        # Extract tags (List.of("tag1", "tag2")) and convert to bitflags
         tags_match = re.search(r'List\.of\((.*?)\)', modifier_block)
         tags = []
+        tags_bitflags = []
         if tags_match:
             tag_content = tags_match.group(1)
             tags = re.findall(r'"([^"]+)"', tag_content)
+            # Convert to bitflags
+            for tag in tags:
+                if tag in TAG_MAP:
+                    tags_bitflags.append(TAG_MAP[tag])
+        
+        # Combine tags with OR operator
+        tags_expr = ' | '.join(tags_bitflags) if tags_bitflags else 'TAG_NONE'
+
         
         # Extract tiers (List.of(new ModifierTier(...), ...))
         tiers = []
@@ -89,24 +133,33 @@ class JavaToCConverter:
         else:
             source = 'NORMAL'
         
-        # Extract family
-        family_match = re.search(r'"([^"]+)"\s*,\s*"[^"]*"\s*\)\s*;', modifier_block)
-        family = family_match.group(1) if family_match else primary_category
+        # Extract name and description (last two string literals)
+        # Format: ..., ModifierType.PREFIX, ModifierSource.NORMAL, "Name", "Description");
+        all_strings = re.findall(r'"([^"]*)"', modifier_block)
         
-        # Extract description text
-        text_match = re.findall(r'"([^"]+)"', modifier_block)
-        text = text_match[-1] if text_match else var_name.replace('_', ' ')
+        # Last two strings should be name and description
+        if len(all_strings) >= 2:
+            name = all_strings[-2]
+            description = all_strings[-1]
+        elif len(all_strings) == 1:
+            name = all_strings[-1]
+            description = all_strings[-1]
+        else:
+            name = var_name.replace('_', ' ').title()
+            description = var_name.replace('_', ' ')
         
         return {
             'id': self.modifier_id_counter,
             'var_name': var_name,
+            'file_path': str(java_file.relative_to(self.java_base)),
             'primary_category': primary_category,
             'tags': tags,
+            'tags_expr': tags_expr,
             'tiers': tiers,
             'type': mod_type,
             'source': source,
-            'family': family,
-            'text': text
+            'name': name,
+            'description': description
         }
     
     def parse_modifiers_file(self, java_file: Path):
@@ -136,6 +189,24 @@ class JavaToCConverter:
             return
         
         class_name = class_match.group(1)
+        
+        # Extract import statements to resolve which Modifiers_* files are used
+        import_map = {}
+        import_pattern = r'import\s+core\.Item_modifiers\.([^;]+);'
+        imports = re.findall(import_pattern, content)
+        
+        for imp in imports:
+            # Example: Body_Armours_Item_modifiers.Body_Armours_Normal_Item_modifiers.*
+            parts = imp.split('.')
+            if len(parts) >= 2:
+                # Map the last part before .* to the full path
+                if parts[-1] == '*':
+                    # Get the package path (e.g., Body_Armours_Item_modifiers/Body_Armours_Normal_Item_modifiers)
+                    package_path = '/'.join(parts[:-1])
+                    import_map['Item_modifiers'] = package_path
+        
+        # Determine item class from folder structure and name
+        item_class = self.determine_item_class(java_file, class_name)
         
         # Extract modifier lists
         allowed_mods = {
@@ -172,14 +243,65 @@ class JavaToCConverter:
         item = {
             'id': self.item_id_counter,
             'class_name': class_name,
-            'allowed_mods': allowed_mods
+            'item_class': item_class,
+            'allowed_mods': allowed_mods,
+            'import_map': import_map  # Store imports for later resolution
         }
         
         self.items.append(item)
         self.item_id_counter += 1
         
         total_mods = sum(len(mods) for mods in allowed_mods.values())
-        print(f"  ✓ Parsed item: {class_name} ({total_mods} mods)")
+        print(f"  ✓ Parsed item: {class_name} ({item_class}, {total_mods} mods)")
+    
+    def determine_item_class(self, file_path: Path, class_name: str) -> str:
+        """Determine the ItemClass enum value from file path and name"""
+        path_str = str(file_path).lower()
+        name_lower = class_name.lower()
+        
+        # Check folder structure
+        if 'helmets' in path_str:
+            return 'CLASS_HELMET'
+        elif 'body_armours' in path_str or 'bodyarmour' in name_lower:
+            return 'CLASS_BODY_ARMOUR'
+        elif 'gloves' in path_str:
+            return 'CLASS_GLOVES'
+        elif 'boots' in path_str:
+            return 'CLASS_BOOTS'
+        elif 'bows' in path_str:
+            return 'CLASS_WEAPON_BOW'
+        elif 'crossbows' in path_str:
+            return 'CLASS_WEAPON_CROSSBOW'
+        elif 'wands' in path_str:
+            return 'CLASS_WEAPON_WAND'
+        elif 'sceptres' in path_str:
+            return 'CLASS_WEAPON_SCEPTRE'
+        elif 'staves' in path_str and 'quarter' not in path_str:
+            return 'CLASS_WEAPON_STAFF'
+        elif 'quarterstaves' in path_str:
+            return 'CLASS_WEAPON_QUARTERSTAFF'
+        elif 'onehand_maces' in path_str:
+            return 'CLASS_WEAPON_MACE_1H'
+        elif 'twohand_maces' in path_str:
+            return 'CLASS_WEAPON_MACE_2H'
+        elif 'spears' in path_str:
+            return 'CLASS_WEAPON_SPEAR'
+        elif 'shields' in path_str:
+            return 'CLASS_SHIELD'
+        elif 'bucklers' in path_str:
+            return 'CLASS_BUCKLER'
+        elif 'foci' in path_str:
+            return 'CLASS_FOCUS'
+        elif 'quivers' in path_str:
+            return 'CLASS_QUIVER'
+        elif 'amulets' in path_str:
+            return 'CLASS_AMULET'
+        elif 'rings' in path_str:
+            return 'CLASS_RING'
+        elif 'belt' in path_str or 'belt' in name_lower:
+            return 'CLASS_BELT'
+        else:
+            return 'CLASS_HELMET'  # Default fallback
     
     def scan_java_files(self):
         """Scan all Java files and extract data"""
@@ -218,56 +340,119 @@ class JavaToCConverter:
         print("✅ C files generated successfully!")
     
     def generate_modifiers_data(self):
-        """Generate modifiers_data.h and modifiers_data.c"""
+        """Generate modifiers_data.h and modifiers_data.c with separated arrays and full tier data"""
         output_dir = self.output / 'core'
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Header file
-        with open(output_dir / 'modifiers_data.h', 'w') as f:
-            f.write('#ifndef MODIFIERS_DATA_H\n')
-            f.write('#define MODIFIERS_DATA_H\n\n')
-            f.write('#include "modifiers.h"\n\n')
-            f.write(f'#define MODIFIERS_COUNT {len(self.modifiers)}\n\n')
-            f.write('extern Modifier MODIFIERS_DB[MODIFIERS_COUNT];\n\n')
-            f.write('void init_modifiers_data(void);\n\n')
-            f.write('#endif\n')
+        # Separate modifiers by source
+        normal_mods = [m for m in self.modifiers if m['source'] == 'NORMAL']
+        desecrated_mods = [m for m in self.modifiers if m['source'] == 'DESECRATED']
+        essence_mods = [m for m in self.modifiers if m['source'] == 'ESSENCE']
+        perfect_essence_mods = [m for m in self.modifiers if m['source'] == 'PERFECT_ESSENCE']
+        
+        # Count total tiers
+        total_tiers = sum(len(m['tiers']) for m in self.modifiers)
         
         # Source file
         with open(output_dir / 'modifiers_data.c', 'w') as f:
             f.write('#include "modifiers_data.h"\n')
+            f.write('#include "tags.h"\n')
             f.write('#include <string.h>\n\n')
-            f.write(f'Modifier MODIFIERS_DB[{len(self.modifiers)}];\n\n')
+            
+            # Declare static arrays
+            f.write(f'Modifier MODIFIERS_NORMAL[{len(normal_mods)}];\n')
+            f.write(f'Modifier MODIFIERS_DESECRATED[{len(desecrated_mods)}];\n')
+            f.write(f'Modifier MODIFIERS_ESSENCE[{len(essence_mods)}];\n')
+            f.write(f'Modifier MODIFIERS_PERFECT_ESSENCE[{len(perfect_essence_mods)}];\n\n')
+            
+            # Generate tier data arrays (static, embedded in the file)
+            self._generate_tier_arrays(f, 'NORMAL', normal_mods)
+            self._generate_tier_arrays(f, 'DESECRATED', desecrated_mods)
+            self._generate_tier_arrays(f, 'ESSENCE', essence_mods)
+            self._generate_tier_arrays(f, 'PERFECT_ESSENCE', perfect_essence_mods)
+            
+            # Init function
             f.write('void init_modifiers_data(void) {\n')
             
-            mods_with_tiers = 0
-            total_tiers = 0
+            # Generate modifiers with tier references
+            self._generate_modifier_inits(f, 'NORMAL', normal_mods)
+            self._generate_modifier_inits(f, 'DESECRATED', desecrated_mods)
+            self._generate_modifier_inits(f, 'ESSENCE', essence_mods)
+            self._generate_modifier_inits(f, 'PERFECT_ESSENCE', perfect_essence_mods)
             
-            for i, mod in enumerate(self.modifiers):
-                tier = mod['tiers'][0] if mod['tiers'] else None
-                f.write(f'    // {mod["var_name"]} - {len(mod["tiers"])} tiers\n')
-                f.write(f'    MODIFIERS_DB[{i}] = (Modifier){{\n')
-                f.write(f'        .id = {mod["id"]},\n')
-                f.write(f'        .type = MOD_{mod["type"]},\n')
-                f.write(f'        .tier = TIER_1,\n')
-                f.write(f'        .weight = {tier["weight"] if tier else 1000},\n')
-                f.write(f'        .level_req = {tier["level"] if tier else 1},\n')
-                f.write(f'        .tags = 0,\n')
-                f.write(f'        .name = "{mod["text"][:63]}",\n')
-                f.write(f'        .description = "{mod["text"][:127]}"\n')
-                f.write(f'    }};\n')
-                
-                if mod['tiers']:
-                    mods_with_tiers += 1
-                    total_tiers += len(mod['tiers'])
-                
-                if i < len(self.modifiers) - 1:
-                    f.write('\n')
+            f.write('}\n\n')
             
+            # Helper function
+            f.write('Modifier* get_modifier(ModifierSource source, int index) {\n')
+            f.write('    switch(source) {\n')
+            f.write('        case SOURCE_NORMAL:\n')
+            f.write('            return (index < MODIFIERS_NORMAL_COUNT) ? &MODIFIERS_NORMAL[index] : NULL;\n')
+            f.write('        case SOURCE_DESECRATED:\n')
+            f.write('            return (index < MODIFIERS_DESECRATED_COUNT) ? &MODIFIERS_DESECRATED[index] : NULL;\n')
+            f.write('        case SOURCE_ESSENCE:\n')
+            f.write('            return (index < MODIFIERS_ESSENCE_COUNT) ? &MODIFIERS_ESSENCE[index] : NULL;\n')
+            f.write('        case SOURCE_PERFECT_ESSENCE:\n')
+            f.write('            return (index < MODIFIERS_PERFECT_ESSENCE_COUNT) ? &MODIFIERS_PERFECT_ESSENCE[index] : NULL;\n')
+            f.write('        default:\n')
+            f.write('            return NULL;\n')
+            f.write('    }\n')
             f.write('}\n')
         
-        print(f"  ✓ Generated modifiers_data.c ({len(self.modifiers)} modifiers)")
-        print(f"    - {mods_with_tiers} with tiers ({total_tiers} total tiers)")
-        print(f"    - {len(self.modifiers) - mods_with_tiers} without tiers")
+        mods_with_tiers = sum(1 for m in self.modifiers if m['tiers'])
+        print(f"  ✓ Generated modifiers_data.c (separated by source)")
+        print(f"    - NORMAL: {len(normal_mods)} modifiers")
+        print(f"    - DESECRATED: {len(desecrated_mods)} modifiers")
+        print(f"    - ESSENCE: {len(essence_mods)} modifiers")
+        print(f"    - PERFECT_ESSENCE: {len(perfect_essence_mods)} modifiers")
+        print(f"    - Total: {len(self.modifiers)} ({mods_with_tiers} with {total_tiers} tiers)")
+    
+    def _generate_tier_arrays(self, f, source_name, mods):
+        """Generate static tier data arrays for a source"""
+        if not mods:
+            return
+        
+        f.write(f'// {source_name} tier data\n')
+        for i, mod in enumerate(mods):
+            if mod['tiers']:
+                f.write(f'static ModifierTierData tiers_{source_name.lower()}_{i}[] = {{\n')
+                for tier in mod['tiers']:
+                    f.write(f'    {{\n')
+                    f.write(f'        .tier_name = "{tier["name"][:31]}",\n')
+                    f.write(f'        .level_req = {tier["level"]},\n')
+                    f.write(f'        .weight = {tier["weight"]},\n')
+                    f.write(f'        .value_count = {len(tier["values"])},\n')
+                    f.write(f'        .values = {{\n')
+                    for value in tier['values']:
+                        f.write(f'            {{.min = {value["min"]}, .max = {value["max"]}}},\n')
+                    # Pad with zeros if less than 4 values
+                    for _ in range(4 - len(tier['values'])):
+                        f.write(f'            {{.min = 0, .max = 0}},\n')
+                    f.write(f'        }}\n')
+                    f.write(f'    }},\n')
+                f.write(f'}};\n\n')
+        f.write('\n')
+    
+    def _generate_modifier_inits(self, f, source_name, mods):
+        """Generate modifier initialization code for a source"""
+        if not mods:
+            return
+        
+        f.write(f'    // {source_name} modifiers\n')
+        for i, mod in enumerate(mods):
+            f.write(f'    MODIFIERS_{source_name}[{i}] = (Modifier){{\n')
+            f.write(f'        .id = {i},\n')
+            f.write(f'        .type = MOD_{mod["type"]},\n')
+            f.write(f'        .source = SOURCE_{source_name},\n')
+            f.write(f'        .tags = {mod["tags_expr"]},\n')
+            f.write(f'        .name = "{mod["name"][:127]}",\n')
+            f.write(f'        .description = "{mod["description"][:255]}",\n')
+            f.write(f'        .tier_count = {len(mod["tiers"])},\n')
+            if mod['tiers']:
+                f.write(f'        .tiers = tiers_{source_name.lower()}_{i}\n')
+            else:
+                f.write(f'        .tiers = NULL\n')
+            f.write(f'    }};\n')
+        f.write('\n')
     
     def generate_items_data(self):
         """Generate items_data.h and items_data.c"""
@@ -294,8 +479,8 @@ class JavaToCConverter:
                 f.write(f'    // {item["class_name"]}\n')
                 f.write(f'    ITEMS_DB[{i}] = (Item){{\n')
                 f.write(f'        .id = {item["id"]},\n')
-                f.write(f'        .item_class = CLASS_UNKNOWN,\n')
-                f.write(f'        .rarity = RARITY_RARE,\n')
+                f.write(f'        .item_class = {item["item_class"]},\n')
+                f.write(f'        .rarity = RARITY_NORMAL,\n')
                 f.write(f'        .level = 1,\n')
                 f.write(f'        .item_level = 85,\n')
                 f.write(f'        .name = "{item["class_name"][:63]}",\n')
@@ -309,16 +494,49 @@ class JavaToCConverter:
         print(f"  ✓ Generated items_data.c ({len(self.items)} items)")
     
     def generate_lookup_tables(self):
-        """Generate item-to-modifiers lookup tables"""
+        """Generate item-to-modifiers lookup tables with max tier resolution"""
         output_dir = self.output / 'core'
         
-        # Build modifier var_name -> id mapping
-        mod_name_to_id = {mod['var_name']: mod['id'] for mod in self.modifiers}
+        # Create mappings: (var_name, file_path) -> (source, per-source index, tier_count)
+        # Separate modifiers by source to get per-source indices
+        normal_mods = [m for m in self.modifiers if m['source'] == 'NORMAL']
+        desecrated_mods = [m for m in self.modifiers if m['source'] == 'DESECRATED']
+        essence_mods = [m for m in self.modifiers if m['source'] == 'ESSENCE']
+        perfect_essence_mods = [m for m in self.modifiers if m['source'] == 'PERFECT_ESSENCE']
+        
+        # Build lookup by (var_name, file_path) for precise matching
+        mod_key_to_data = {}
+        for idx, mod in enumerate(normal_mods):
+            key = (mod['var_name'], mod['file_path'])
+            mod_key_to_data[key] = ('NORMAL', idx, len(mod['tiers']))
+        for idx, mod in enumerate(desecrated_mods):
+            key = (mod['var_name'], mod['file_path'])
+            mod_key_to_data[key] = ('DESECRATED', idx, len(mod['tiers']))
+        for idx, mod in enumerate(essence_mods):
+            key = (mod['var_name'], mod['file_path'])
+            mod_key_to_data[key] = ('ESSENCE', idx, len(mod['tiers']))
+        for idx, mod in enumerate(perfect_essence_mods):
+            key = (mod['var_name'], mod['file_path'])
+            mod_key_to_data[key] = ('PERFECT_ESSENCE', idx, len(mod['tiers']))
+        
+        # Also create fallback by var_name only (for cases without imports)
+        mod_varname_to_candidates = {}
+        for mod in self.modifiers:
+            if mod['var_name'] not in mod_varname_to_candidates:
+                mod_varname_to_candidates[mod['var_name']] = []
+            mod_varname_to_candidates[mod['var_name']].append(mod)
         
         with open(output_dir / 'item_mod_lookup.h', 'w') as f:
             f.write('#ifndef ITEM_MOD_LOOKUP_H\n')
             f.write('#define ITEM_MOD_LOOKUP_H\n\n')
-            f.write('#include <stdint.h>\n\n')
+            f.write('#include <stdint.h>\n')
+            f.write('#include "modifiers.h"\n\n')
+            f.write('// Lookup entry: source, per-source index, and max tier limit\n')
+            f.write('typedef struct {\n')
+            f.write('    ModifierSource source;\n')
+            f.write('    uint16_t index;\n')
+            f.write('    uint8_t max_tier_index;  // Max tier index accessible (0-based), 255 = all tiers\n')
+            f.write('} ModifierLookup;\n\n')
             
             for item in self.items:
                 class_lower = item['class_name'].lower()
@@ -329,38 +547,80 @@ class JavaToCConverter:
                                  'essence_prefixes', 'essence_suffixes']:
                     if item['allowed_mods'][mod_type]:
                         count = len(item['allowed_mods'][mod_type])
-                        f.write(f'extern uint16_t {class_lower}_{mod_type}[{count}];\n')
+                        f.write(f'extern ModifierLookup {class_lower}_{mod_type}[{count}];\n')
             
             f.write('\n#endif\n')
         
         with open(output_dir / 'item_mod_lookup.c', 'w') as f:
             f.write('#include "item_mod_lookup.h"\n\n')
-            f.write('// Lookup tables: item -> allowed modifier IDs\n\n')
+            f.write('// Lookup tables: item -> (source, per-source index, max_tier) tuples\n')
+            f.write('// max_tier_index limits which tiers can roll (0-based, 255 = no limit)\n\n')
             
             for item in self.items:
                 class_lower = item['class_name'].lower()
+                import_path = item.get('import_map', {}).get('Item_modifiers', '')
                 
                 for mod_type, mod_list in item['allowed_mods'].items():
                     if not mod_list:
                         continue
                     
+                    # Determine which source this mod_type uses
+                    if 'normal' in mod_type:
+                        source_suffix = 'Normal'
+                    elif 'desecrated' in mod_type:
+                        source_suffix = 'Desecrated'
+                    elif 'essence' in mod_type:
+                        source_suffix = 'Essences'
+                    else:
+                        source_suffix = 'Normal'
+                    
                     f.write(f'// {item["class_name"]} - {mod_type}\n')
-                    f.write(f'uint16_t {class_lower}_{mod_type}[{len(mod_list)}] = {{\n    ')
+                    f.write(f'ModifierLookup {class_lower}_{mod_type}[{len(mod_list)}] = {{\n')
                     
-                    # Map var names to IDs
-                    ids = []
+                    # Map var names to (source, index, max_tier) tuples
+                    entries = []
                     for var_name in mod_list:
-                        mod_id = mod_name_to_id.get(var_name)
-                        if mod_id is not None:
-                            ids.append(str(mod_id))
-                        else:
-                            # Not found, use placeholder
-                            ids.append(f'9999 /* {var_name} NOT FOUND */')
+                        # Try to resolve using import path
+                        resolved = False
+                        if import_path:
+                            # Construct expected file path
+                            expected_path = f"Item_modifiers/{import_path}/Modifiers_{source_suffix.lower()}.java"
+                            key = (var_name, expected_path)
+                            if key in mod_key_to_data:
+                                source, idx, tier_count = mod_key_to_data[key]
+                                max_tier = tier_count - 1 if tier_count > 0 else 0
+                                entries.append(f'    {{SOURCE_{source}, {idx}, {max_tier}}}')
+                                resolved = True
+                        
+                        # Fallback: find the modifier with the most tiers (assumed to be the "canonical" one)
+                        if not resolved:
+                            candidates = mod_varname_to_candidates.get(var_name, [])
+                            if candidates:
+                                # Pick the one with most tiers as the canonical modifier
+                                best = max(candidates, key=lambda m: len(m['tiers']))
+                                source = best['source']
+                                # Find its index in the source array
+                                source_mods = {
+                                    'NORMAL': normal_mods,
+                                    'DESECRATED': desecrated_mods,
+                                    'ESSENCE': essence_mods,
+                                    'PERFECT_ESSENCE': perfect_essence_mods
+                                }[source]
+                                idx = next(i for i, m in enumerate(source_mods) if m['id'] == best['id'])
+                                tier_count = len(best['tiers'])
+                                max_tier = tier_count - 1 if tier_count > 0 else 0
+                                entries.append(f'    {{SOURCE_{source}, {idx}, {max_tier}}}  /* FALLBACK: using max tiers */')
+                                resolved = True
+                        
+                        if not resolved:
+                            # Not found at all
+                            entries.append(f'    {{SOURCE_NORMAL, 9999, 0}} /* {var_name} NOT FOUND */')
                     
-                    f.write(', '.join(ids))
+                    f.write(',\n'.join(entries))
                     f.write('\n};\n\n')
         
-        print(f"  ✓ Generated item_mod_lookup.c with mappings")
+        print(f"  ✓ Generated item_mod_lookup.c with per-source indices and max tiers")
+
 
 def main():
     import sys

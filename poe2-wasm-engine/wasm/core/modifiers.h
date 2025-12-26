@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "items.h"
 
 // Modifier types
 typedef enum {
@@ -28,7 +29,7 @@ typedef struct {
 // Individual tier of a modifier
 typedef struct {
     char tier_name[32];      // "Glinting", "Burnished", etc.
-    uint8_t level_req;       // Required item level
+    uint16_t level_req;      // Required item level (support up to 65535)
     uint16_t weight;         // Spawn weight for this tier
     uint8_t value_count;     // Number of value ranges (1-4)
     ValueRange values[4];    // Up to 4 value ranges per tier
@@ -47,14 +48,11 @@ typedef struct {
 } Modifier;
 
 // Modifiers database
-extern Modifier MODIFIERS[];
-extern const int MODIFIERS_COUNT;
-
 // Initialize modifiers database
 void init_modifiers(void);
 
 // Lookup functions
-Modifier* get_modifier_by_id(uint16_t id);
+Modifier* get_modifier_by_source_index(ModifierSource source, uint16_t index);
 bool modifier_applies_to_item(const Modifier* mod, const Item* item);
 float get_modifier_probability(const Modifier* mod, const Item* item);
 

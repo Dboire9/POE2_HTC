@@ -2877,3 +2877,219 @@ ModifierLookup staves_essence_suffixes[7] = {
     {SOURCE_PERFECT_ESSENCE, 13, 0}
 };
 
+// =============================================================================
+// LOOKUP RETRIEVAL FUNCTION
+// =============================================================================
+
+// Get modifier lookups for an item by item_id and source
+// Returns NULL arrays if item doesn't support that source
+ItemModLookupResult get_item_mod_lookup(int item_id, ModifierSource source) {
+    ItemModLookupResult result = {0};
+    
+    switch (item_id) {
+        case 0: // Bows
+            if (source == SOURCE_NORMAL) { result.prefixes = bows_normal_prefixes; result.prefix_count = 8; result.suffixes = bows_normal_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = bows_desecrated_prefixes; result.prefix_count = 7; result.suffixes = bows_desecrated_suffixes; result.suffix_count = 8; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = bows_essence_prefixes; result.prefix_count = 9; result.suffixes = bows_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 1: // Crossbows
+            if (source == SOURCE_NORMAL) { result.prefixes = crossbows_normal_prefixes; result.prefix_count = 8; result.suffixes = crossbows_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = crossbows_desecrated_prefixes; result.prefix_count = 6; result.suffixes = crossbows_desecrated_suffixes; result.suffix_count = 7; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = crossbows_essence_prefixes; result.prefix_count = 9; result.suffixes = crossbows_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 2: // Quivers
+            if (source == SOURCE_NORMAL) { result.prefixes = quivers_normal_prefixes; result.prefix_count = 7; result.suffixes = quivers_normal_suffixes; result.suffix_count = 8; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = quivers_desecrated_prefixes; result.prefix_count = 1; result.suffixes = quivers_desecrated_suffixes; result.suffix_count = 3; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = quivers_essence_prefixes; result.prefix_count = 2; result.suffixes = quivers_essence_suffixes; result.suffix_count = 1; }
+            break;
+        case 3: // OneHand_Maces
+            if (source == SOURCE_NORMAL) { result.prefixes = onehand_maces_normal_prefixes; result.prefix_count = 8; result.suffixes = onehand_maces_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = onehand_maces_desecrated_prefixes; result.prefix_count = 8; result.suffixes = onehand_maces_desecrated_suffixes; result.suffix_count = 8; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = onehand_maces_essence_prefixes; result.prefix_count = 9; result.suffixes = onehand_maces_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 4: // Amulets
+            if (source == SOURCE_NORMAL) { result.prefixes = amulets_normal_prefixes; result.prefix_count = 10; result.suffixes = amulets_normal_suffixes; result.suffix_count = 21; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = amulets_desecrated_prefixes; result.prefix_count = 11; result.suffixes = amulets_desecrated_suffixes; result.suffix_count = 19; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = amulets_essence_prefixes; result.prefix_count = 3; result.suffixes = amulets_essence_suffixes; result.suffix_count = 12; }
+            break;
+        case 5: // Spears
+            if (source == SOURCE_NORMAL) { result.prefixes = spears_normal_prefixes; result.prefix_count = 8; result.suffixes = spears_normal_suffixes; result.suffix_count = 16; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = spears_desecrated_prefixes; result.prefix_count = 6; result.suffixes = spears_desecrated_suffixes; result.suffix_count = 8; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = spears_essence_prefixes; result.prefix_count = 9; result.suffixes = spears_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 6: // Shields_str_int
+            if (source == SOURCE_NORMAL) { result.prefixes = shields_str_int_normal_prefixes; result.prefix_count = 6; result.suffixes = shields_str_int_normal_suffixes; result.suffix_count = 16; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = shields_str_int_desecrated_suffixes; result.suffix_count = 19; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = shields_str_int_essence_prefixes; result.prefix_count = 3; result.suffixes = shields_str_int_essence_suffixes; result.suffix_count = 6; }
+            break;
+        case 7: // Shields_str
+            if (source == SOURCE_NORMAL) { result.prefixes = shields_str_normal_prefixes; result.prefix_count = 6; result.suffixes = shields_str_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = shields_str_desecrated_suffixes; result.suffix_count = 19; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = shields_str_essence_prefixes; result.prefix_count = 3; result.suffixes = shields_str_essence_suffixes; result.suffix_count = 5; }
+            break;
+        case 8: // Shields_str_dex
+            if (source == SOURCE_NORMAL) { result.prefixes = shields_str_dex_normal_prefixes; result.prefix_count = 6; result.suffixes = shields_str_dex_normal_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = shields_str_dex_desecrated_suffixes; result.suffix_count = 19; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = shields_str_dex_essence_prefixes; result.prefix_count = 3; result.suffixes = shields_str_dex_essence_suffixes; result.suffix_count = 6; }
+            break;
+        case 9: // TwoHand_Maces
+            if (source == SOURCE_NORMAL) { result.prefixes = twohand_maces_normal_prefixes; result.prefix_count = 8; result.suffixes = twohand_maces_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = twohand_maces_desecrated_prefixes; result.prefix_count = 8; result.suffixes = twohand_maces_desecrated_suffixes; result.suffix_count = 8; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = twohand_maces_essence_prefixes; result.prefix_count = 9; result.suffixes = twohand_maces_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 10: // Helmets_str_int
+            if (source == SOURCE_NORMAL) { result.prefixes = helmets_str_int_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_str_int_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_str_int_desecrated_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_str_int_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_str_int_essence_suffixes; result.suffix_count = 9; }
+            break;
+        case 11: // Helmets_int
+            if (source == SOURCE_NORMAL) { result.prefixes = helmets_int_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_int_normal_suffixes; result.suffix_count = 12; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_int_desecrated_suffixes; result.suffix_count = 12; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_int_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_int_essence_suffixes; result.suffix_count = 8; }
+            break;
+        case 12: // Helmets_dex_int
+            if (source == SOURCE_NORMAL) { result.prefixes = helmets_dex_int_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_dex_int_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_dex_int_desecrated_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_dex_int_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_dex_int_essence_suffixes; result.suffix_count = 9; }
+            break;
+        case 13: // Helmets_str
+            if (source == SOURCE_NORMAL) { result.prefixes = helmets_str_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_str_normal_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_str_desecrated_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_str_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_str_essence_suffixes; result.suffix_count = 9; }
+            break;
+        case 14: // Helmets_dex
+            if (source == SOURCE_NORMAL) { result.prefixes = helmets_dex_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_dex_normal_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_dex_desecrated_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_dex_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_dex_essence_suffixes; result.suffix_count = 9; }
+            break;
+        case 15: // Helmets_str_dex
+            if (source == SOURCE_NORMAL) { result.prefixes = helmets_str_dex_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_str_dex_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_str_dex_desecrated_suffixes; result.suffix_count = 16; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_str_dex_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_str_dex_essence_suffixes; result.suffix_count = 10; }
+            break;
+        case 16: // Sceptres
+            if (source == SOURCE_NORMAL) { result.prefixes = sceptres_normal_prefixes; result.prefix_count = 8; result.suffixes = sceptres_normal_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = sceptres_essence_prefixes; result.prefix_count = 1; result.suffixes = sceptres_essence_suffixes; result.suffix_count = 4; }
+            break;
+        case 17: // Boots_str_int
+            if (source == SOURCE_NORMAL) { result.prefixes = boots_str_int_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_str_int_normal_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_str_int_desecrated_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_str_int_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_str_int_essence_suffixes; result.suffix_count = 8; }
+            break;
+        case 18: // Boots_str
+            if (source == SOURCE_NORMAL) { result.prefixes = boots_str_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_str_normal_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_str_desecrated_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_str_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_str_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 19: // Boots_int
+            if (source == SOURCE_NORMAL) { result.prefixes = boots_int_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_int_normal_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_int_desecrated_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_int_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_int_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 20: // Boots_dex
+            if (source == SOURCE_NORMAL) { result.prefixes = boots_dex_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_dex_normal_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_dex_desecrated_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_dex_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_dex_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 21: // Boots_dex_int
+            if (source == SOURCE_NORMAL) { result.prefixes = boots_dex_int_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_dex_int_normal_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_dex_int_desecrated_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_dex_int_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_dex_int_essence_suffixes; result.suffix_count = 8; }
+            break;
+        case 22: // Boots_str_dex
+            if (source == SOURCE_NORMAL) { result.prefixes = boots_str_dex_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_str_dex_normal_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_str_dex_desecrated_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_str_dex_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_str_dex_essence_suffixes; result.suffix_count = 8; }
+            break;
+        case 23: // Bucklers
+            if (source == SOURCE_NORMAL) { result.suffixes = bucklers_normal_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = bucklers_desecrated_suffixes; result.suffix_count = 12; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = bucklers_essence_prefixes; result.prefix_count = 5; result.suffixes = bucklers_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 24: // Rings
+            if (source == SOURCE_NORMAL) { result.prefixes = rings_normal_prefixes; result.prefix_count = 13; result.suffixes = rings_normal_suffixes; result.suffix_count = 18; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = rings_desecrated_prefixes; result.prefix_count = 7; result.suffixes = rings_desecrated_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = rings_essence_prefixes; result.prefix_count = 3; result.suffixes = rings_essence_suffixes; result.suffix_count = 9; }
+            break;
+        case 25: // Gloves_dex
+            if (source == SOURCE_NORMAL) { result.prefixes = gloves_dex_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_dex_normal_suffixes; result.suffix_count = 16; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_dex_desecrated_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_dex_essence_prefixes; result.prefix_count = 3; result.suffixes = gloves_dex_essence_suffixes; result.suffix_count = 11; }
+            break;
+        case 26: // Gloves_dex_int
+            if (source == SOURCE_NORMAL) { result.prefixes = gloves_dex_int_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_dex_int_normal_suffixes; result.suffix_count = 18; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_dex_int_desecrated_suffixes; result.suffix_count = 16; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_dex_int_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_dex_int_essence_suffixes; result.suffix_count = 11; }
+            break;
+        case 27: // Gloves_int
+            if (source == SOURCE_NORMAL) { result.prefixes = gloves_int_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_int_normal_suffixes; result.suffix_count = 17; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_int_desecrated_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_int_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_int_essence_suffixes; result.suffix_count = 11; }
+            break;
+        case 28: // Gloves_str
+            if (source == SOURCE_NORMAL) { result.prefixes = gloves_str_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_str_normal_suffixes; result.suffix_count = 17; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_str_desecrated_suffixes; result.suffix_count = 12; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_str_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_str_essence_suffixes; result.suffix_count = 11; }
+            break;
+        case 29: // Gloves_str_int
+            if (source == SOURCE_NORMAL) { result.prefixes = gloves_str_int_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_str_int_normal_suffixes; result.suffix_count = 18; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_str_int_desecrated_suffixes; result.suffix_count = 16; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_str_int_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_str_int_essence_suffixes; result.suffix_count = 12; }
+            break;
+        case 30: // Gloves_str_dex
+            if (source == SOURCE_NORMAL) { result.prefixes = gloves_str_dex_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_str_dex_normal_suffixes; result.suffix_count = 19; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_str_dex_desecrated_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_str_dex_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_str_dex_essence_suffixes; result.suffix_count = 11; }
+            break;
+        case 31: // Body_Armours_str
+            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_str_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_str_normal_suffixes; result.suffix_count = 12; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_str_desecrated_suffixes; result.suffix_count = 10; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_str_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_str_essence_suffixes; result.suffix_count = 6; }
+            break;
+        case 32: // Body_Armours_str_int
+            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_str_int_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_str_int_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_str_int_desecrated_suffixes; result.suffix_count = 11; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_str_int_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_str_int_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 33: // Body_Armours_str_dex
+            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_str_dex_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_str_dex_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_str_dex_desecrated_suffixes; result.suffix_count = 12; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_str_dex_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_str_dex_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 34: // Body_Armours_int
+            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_int_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_int_normal_suffixes; result.suffix_count = 12; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_int_desecrated_suffixes; result.suffix_count = 11; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_int_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_int_essence_suffixes; result.suffix_count = 6; }
+            break;
+        case 35: // Body_Armours_dex
+            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_dex_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_dex_normal_suffixes; result.suffix_count = 12; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_dex_desecrated_suffixes; result.suffix_count = 12; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_dex_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_dex_essence_suffixes; result.suffix_count = 6; }
+            break;
+        case 36: // Body_Armours_dex_int
+            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_dex_int_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_dex_int_normal_suffixes; result.suffix_count = 14; }
+            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_dex_int_desecrated_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_dex_int_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_dex_int_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 37: // Wands
+            if (source == SOURCE_NORMAL) { result.prefixes = wands_normal_prefixes; result.prefix_count = 11; result.suffixes = wands_normal_suffixes; result.suffix_count = 18; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = wands_desecrated_prefixes; result.prefix_count = 5; result.suffixes = wands_desecrated_suffixes; result.suffix_count = 8; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = wands_essence_prefixes; result.prefix_count = 1; result.suffixes = wands_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 38: // Quarterstaves
+            if (source == SOURCE_NORMAL) { result.prefixes = quarterstaves_normal_prefixes; result.prefix_count = 8; result.suffixes = quarterstaves_normal_suffixes; result.suffix_count = 15; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = quarterstaves_desecrated_prefixes; result.prefix_count = 6; result.suffixes = quarterstaves_desecrated_suffixes; result.suffix_count = 6; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = quarterstaves_essence_prefixes; result.prefix_count = 9; result.suffixes = quarterstaves_essence_suffixes; result.suffix_count = 7; }
+            break;
+        case 39: // Foci
+            if (source == SOURCE_NORMAL) { result.prefixes = foci_normal_prefixes; result.prefix_count = 11; result.suffixes = foci_normal_suffixes; result.suffix_count = 13; }
+            break;
+        case 40: // Staves
+            if (source == SOURCE_NORMAL) { result.prefixes = staves_normal_prefixes; result.prefix_count = 11; result.suffixes = staves_normal_suffixes; result.suffix_count = 18; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = staves_desecrated_prefixes; result.prefix_count = 4; result.suffixes = staves_desecrated_suffixes; result.suffix_count = 5; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = staves_essence_prefixes; result.prefix_count = 1; result.suffixes = staves_essence_suffixes; result.suffix_count = 7; }
+            break;
+    }
+    
+    return result;
+}

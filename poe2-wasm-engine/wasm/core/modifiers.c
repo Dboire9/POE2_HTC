@@ -1,33 +1,37 @@
 #include "modifiers.h"
+#include "modifiers_data.h"
 #include "items.h"
 #include <string.h>
 
-// Placeholder: Will be populated from Java modifier data
-Modifier MODIFIERS[2048];
-const int MODIFIERS_COUNT = 0;
-
 void init_modifiers(void) {
-    // TODO: Load modifiers from compiled data
-    // This will replace Java modifier definitions
+    // Data is already compiled in modifiers_data.c
 }
 
-Modifier* get_modifier_by_id(uint16_t id) {
-    for (int i = 0; i < MODIFIERS_COUNT; i++) {
-        if (MODIFIERS[i].id == id) {
-            return &MODIFIERS[i];
-        }
+Modifier* get_modifier_by_source_index(ModifierSource source, uint16_t index) {
+    switch (source) {
+        case SOURCE_NORMAL:
+            if (index < MODIFIERS_NORMAL_COUNT) return &MODIFIERS_NORMAL[index];
+            break;
+        case SOURCE_DESECRATED:
+            if (index < MODIFIERS_DESECRATED_COUNT) return &MODIFIERS_DESECRATED[index];
+            break;
+        case SOURCE_ESSENCE:
+            if (index < MODIFIERS_ESSENCE_COUNT) return &MODIFIERS_ESSENCE[index];
+            break;
+        case SOURCE_PERFECT_ESSENCE:
+            if (index < MODIFIERS_PERFECT_ESSENCE_COUNT) return &MODIFIERS_PERFECT_ESSENCE[index];
+            break;
     }
     return NULL;
 }
 
 bool modifier_applies_to_item(const Modifier* mod, const Item* item) {
-    // TODO: Check if modifier can apply to item
-    // Based on item level, tags, etc.
-    if (item->item_level < mod->level_req) {
+    // Check item level against first tier requirement
+    if (mod->tier_count > 0 && item->item_level < mod->tiers[0].level_req) {
         return false;
     }
     
-    // Check tag compatibility (bitwise AND)
+    // Check tag compatibility
     if (mod->tags != 0 && (item->tags & mod->tags) == 0) {
         return false;
     }
@@ -36,7 +40,15 @@ bool modifier_applies_to_item(const Modifier* mod, const Item* item) {
 }
 
 float get_modifier_probability(const Modifier* mod, const Item* item) {
-    // TODO: Calculate probability based on weights
-    // This will implement the core algorithm logic
-    return 0.0f;
+    // Find highest tier accessible for this item level
+    int accessible_tier = -1;
+    for (int i = 0; i < mod->tier_count; i++) {
+        if (item->item_level >= mod->tiers[i].level_req) {
+            accessible_tier = i;
+        }
+    }
+    
+    if (accessible_tier < 0) return 0.0f;
+    
+    return (float)mod->tiers[accessible_tier].weight / 1000.0f;
 }

@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POE2 WASM Engine - Crafting Simulator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2a2a2a;
+      --border: #404040;
+      --text-primary: #e0e0e0;
+      --text-muted: #888888;
+      --accent: #f0a040;
+      --accent-hover: #ffc060;
+      --success: #40ff40;
+      --error: #ff4040;
+      --warning: #f0a040;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+    
+    ::selection {
+      background: rgba(240, 160, 64, 0.3);
+      color: var(--text-primary);
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0.75rem;
+    }
+    
+    header {
+      background: #2a2a2a;
+      border-bottom: 2px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .beta-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: #ffc060;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+    
+    .subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .header-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    
+    .btn-discord {
+      background: rgba(88, 101, 242, 0.1);
+      border-color: rgba(88, 101, 242, 0.3);
+      color: #e0e0e0;
+    }
+    
+    .btn-discord:hover {
+      background: rgba(88, 101, 242, 0.2);
+      border-color: rgba(88, 101, 242, 0.5);
+    }
+    
+    .btn-bug {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #e0e0e0;
+    }
+    
+    .btn-bug:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+    
+    .btn-support {
+      background: rgba(234, 179, 8, 0.1);
+      border-color: rgba(234, 179, 8, 0.3);
+      color: #e0e0e0;
+    }
+    
+    .btn-support:hover {
+      background: rgba(234, 179, 8, 0.2);
+      border-color: rgba(234, 179, 8, 0.5);
+    }
+    
+    .btn-github {
+      background: rgba(240, 160, 64, 0.1);
+      border-color: rgba(240, 160, 64, 0.3);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    
+    .btn-github:hover {
+      background: rgba(240, 160, 64, 0.2);
+      border-color: rgba(240, 160, 64, 0.5);
+    }
+    
+    @media (max-width: 768px) {
+      .header-right {
+        display: none;
+      }
+    }
+    
+    .status-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.625rem;
+      margin-bottom: 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+    }
+    
+    .card {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .card h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+    
+    .form-group {
+      margin-bottom: 0.75rem;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+    
+    .help-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+    
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.5rem;
+    }
+    
+    .item-box {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .item-box:hover {
+      border-color: var(--accent);
+      background: #333333;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(240, 160, 64, 0.3);
+    }
+    
+    .item-box.selected {
+      border-color: var(--accent);
+      background: #3a2a1a;
+      box-shadow: 0 0 0 2px rgba(240, 160, 64, 0.3);
+      color: var(--accent);
+    }
+    
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+    
+    .mode-box {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    
+    .mode-box:hover {
+      border-color: var(--accent);
+      background: #333333;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(240, 160, 64, 0.3);
+    }
+    
+    .mode-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .mode-box h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+    
+    .mode-box p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    
+    .rarity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+    
+    .rarity-box {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    
+    .rarity-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .rarity-box.magic {
+      border-color: #6495ED;
+    }
+    
+    .rarity-box.magic:hover {
+      border-color: #4169E1;
+      box-shadow: 0 4px 12px rgba(65, 105, 225, 0.3);
+    }
+    
+    .rarity-box.magic h4 {
+      color: #6495ED;
+    }
+    
+    .rarity-box.rare {
+      border-color: #FFD700;
+    }
+    
+    .rarity-box.rare:hover {
+      border-color: #FFA500;
+      box-shadow: 0 4px 12px rgba(255, 165, 0, 0.3);
+    }
+    
+    .rarity-box.rare h4 {
+      color: #FFD700;
+    }
+    
+    .rarity-box h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .rarity-box p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    .btn-back {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1rem;
+    }
+    
+    .btn-back:hover {
+      color: var(--text-primary);
+      border-color: var(--accent);
+    }
+    
+    select {
+      width: 100%;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8125rem;
+      transition: all 0.2s;
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .modifier-lists {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    
+    .modifier-group {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+    }
+    
+    .modifier-group h4 {
+      margin-bottom: 0.75rem;
+      font-size: 0.875rem;
+    }
+    
+    .modifier-checkboxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    
+    .modifier-checkboxes::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .modifier-checkboxes::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+      border-radius: 4px;
+    }
+    
+    .modifier-checkboxes::-webkit-scrollbar-thumb {
+      background: rgba(240, 160, 64, 0.5);
+      border-radius: 4px;
+    }
+    
+    .modifier-checkboxes::-webkit-scrollbar-thumb:hover {
+      background: rgba(240, 160, 64, 0.8);
+    }
+    
+    .modifier-item {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      padding: 0.5rem;
+      transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .modifier-item:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(240, 160, 64, 0.2);
+    }
+    
+    .modifier-item.selected {
+      border-color: var(--accent);
+      background: #3a2a1a;
+    }
+    
+    .modifier-item input[type="checkbox"] {
+      display: none;
+    }
+    
+    .modifier-item label {
+      margin: 0;
+      font-size: 0.7rem;
+      cursor: pointer;
+      color: var(--text-primary);
+      line-height: 1.3;
+      font-weight: 500;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      width: 100%;
+    }
+    
+    .tier-badge {
+      display: inline-block;
+      background: rgba(240, 160, 64, 0.15);
+      color: var(--accent);
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+      font-size: 0.625rem;
+      font-weight: 600;
+      margin-top: 0.375rem;
+      width: fit-content;
+    }
+    
+    .output {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-top: 0.75rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      white-space: pre-wrap;
+      min-height: 80px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .success { color: var(--success); }
+    .error { color: var(--error); }
+    .warning { color: var(--warning); }
+    .accent { color: var(--accent); }
+    .muted { color: var(--text-muted); }
+    
+    @media (max-width: 768px) {
+      .modifier-lists {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="header-left">
+        <h1>POE2HTC <span class="beta-badge">BETA</span></h1>
+        <p class="subtitle">WASM Crafting Simulator</p>
+      </div>
+      
+      <div class="header-right">
+        <a href="https://discord.gg/RvxCWyFF3D" target="_blank" rel="noopener noreferrer" class="header-btn btn-discord">
+          💬 Join Discord
+        </a>
+        <a href="https://github.com/Dboire9/POE2_HTC/issues/new" target="_blank" rel="noopener noreferrer" class="header-btn btn-bug">
+          🐛 Report Bug
+        </a>
+        <a href="https://buymeacoffee.com/dboire" target="_blank" rel="noopener noreferrer" class="header-btn btn-support">
+          ☕ Support
+        </a>
+        <a href="https://github.com/Dboire9/POE2_HTC" target="_blank" rel="noopener noreferrer" class="header-btn btn-github">
+          ⭐ Star & Contribute
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="status-box" id="status">Initializing...</div>
+
+    <!-- Step 1: Item Selection -->
+    <div class="card" id="itemSelectionCard">
+      <h2>Step 1: Select Base Item</h2>
+      <div class="form-group">
+        <label>Choose an item type</label>
+        <div id="itemGrid" class="item-grid"></div>
+      </div>
+
+      <div id="subtypeSection" style="display: none;">
+        <div class="form-group">
+          <label id="subtypeLabel">Item Subtype</label>
+          <div id="subtypeGrid" class="item-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Mode Selection -->
+    <div class="card" id="modeSelectionCard" style="display: none;">
+      <h2>Step 2: Choose Crafting Approach</h2>
+      <div class="form-group">
+        <p class="help-text">How would you like to craft your item?</p>
+        <div class="mode-grid">
+          <div class="mode-box" onclick="selectMode('scratch')">
+            <div class="mode-icon">✨</div>
+            <h4>Start from Scratch</h4>
+            <p>Begin with a blank item and craft the modifiers you want from the ground up.</p>
+          </div>
+          <div class="mode-box" onclick="selectMode('improve')">
+            <div class="mode-icon">🔧</div>
+            <h4>Improve Existing Item</h4>
+            <p>Already have an item with some mods? Add or improve specific modifiers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Rarity Selection -->
+    <div class="card" id="raritySelectionCard" style="display: none;">
+      <h2>Step 3: Select Item Rarity</h2>
+      <div class="form-group">
+        <p class="help-text">What rarity is your item?</p>
+        <div class="rarity-grid">
+          <div class="rarity-box magic" onclick="selectRarity('magic')">
+            <h4>Magic Item</h4>
+            <p>1 prefix and 1 suffix maximum</p>
+          </div>
+          <div class="rarity-box rare" onclick="selectRarity('rare')">
+            <h4>Rare Item</h4>
+            <p>Up to 3 prefixes and 3 suffixes</p>
+          </div>
+        </div>
+        <button class="btn-back" onclick="backToMode()">← Back to Mode Selection</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Modifier Selection -->
+    <div class="card" id="modifierSelectionCard" style="display: none;">
+      <h2>Step 4: Select Modifiers</h2>
+      
+      <div class="form-group">
+        <label for="modSource">Modifier Source</label>
+        <select id="modSource" onchange="reloadModifiers()">
+          <option value="0">NORMAL</option>
+          <option value="1">DESECRATED</option>
+          <option value="2">ESSENCE</option>
+        </select>
+      </div>
+
+      <div id="modifierSection">
+        <div class="modifier-lists">
+          <div class="modifier-group">
+            <h4 style="color: var(--warning);">Prefixes</h4>
+            <div id="prefixList" class="modifier-checkboxes"></div>
+          </div>
+          
+          <div class="modifier-group">
+            <h4 style="color: var(--warning);">Suffixes</h4>
+            <div id="suffixList" class="modifier-checkboxes"></div>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <h4 style="color: var(--accent); margin-bottom: 0.75rem;">Selected Modifiers</h4>
+          <div class="output" id="selectedOutput">
+            <span class="muted">No modifiers selected yet...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="http://localhost:5173/poe2.js"></script>
+  <script>
+    // DOM elements
+    const statusEl = document.getElementById('status');
+    const itemSelectionCard = document.getElementById('itemSelectionCard');
+    const modeSelectionCard = document.getElementById('modeSelectionCard');
+    const raritySelectionCard = document.getElementById('raritySelectionCard');
+    const modifierSelectionCard = document.getElementById('modifierSelectionCard');
+    const itemGrid = document.getElementById('itemGrid');
+    const subtypeSection = document.getElementById('subtypeSection');
+    const subtypeLabel = document.getElementById('subtypeLabel');
+    const subtypeGrid = document.getElementById('subtypeGrid');
+    const modSourceEl = document.getElementById('modSource');
+    const prefixList = document.getElementById('prefixList');
+    const suffixList = document.getElementById('suffixList');
+    const selectedOutput = document.getElementById('selectedOutput');
+    
+    // State
+    let api = null;
+    let currentItemId = null;
+    let currentMode = null;
+    let currentRarity = null;
+    let selectedModifiers = { prefixes: [], suffixes: [] };
+    
+    // Item categories
+    const ITEM_CATEGORIES = {
+      'shields': {
+        label: 'Shields',
+        subtypes: [
+          { id: 6, name: 'STR + INT' },
+          { id: 7, name: 'STR' },
+          { id: 8, name: 'STR + DEX' }
+        ]
+      },
+      'helmets': {
+        label: 'Helmets',
+        subtypes: [
+          { id: 10, name: 'STR + INT' },
+          { id: 11, name: 'INT' },
+          { id: 12, name: 'DEX + INT' },
+          { id: 13, name: 'STR' },
+          { id: 14, name: 'DEX' },
+          { id: 15, name: 'STR + DEX' }
+        ]
+      },
+      'boots': {
+        label: 'Boots',
+        subtypes: [
+          { id: 17, name: 'STR + INT' },
+          { id: 18, name: 'INT' },
+          { id: 19, name: 'DEX + INT' },
+          { id: 20, name: 'STR' },
+          { id: 21, name: 'DEX' },
+          { id: 22, name: 'STR + DEX' }
+        ]
+      },
+      'gloves': {
+        label: 'Gloves',
+        subtypes: [
+          { id: 25, name: 'STR + INT' },
+          { id: 26, name: 'INT' },
+          { id: 27, name: 'DEX + INT' },
+          { id: 28, name: 'STR' },
+          { id: 29, name: 'DEX' },
+          { id: 30, name: 'STR + DEX' }
+        ]
+      },
+      'body_armours': {
+        label: 'Body Armours',
+        subtypes: [
+          { id: 31, name: 'STR' },
+          { id: 32, name: 'STR + INT' },
+          { id: 33, name: 'STR + DEX' },
+          { id: 34, name: 'INT' },
+          { id: 35, name: 'DEX' },
+          { id: 36, name: 'DEX + INT' }
+        ]
+      }
+    };
+    
+    const SIMPLE_ITEMS = [
+      { id: 0, name: 'Bows' },
+      { id: 1, name: 'Crossbows' },
+      { id: 2, name: 'Quivers' },
+      { id: 3, name: 'One Hand Maces' },
+      { id: 4, name: 'Amulets' },
+      { id: 5, name: 'Spears' },
+      { id: 9, name: 'Two Hand Maces' },
+      { id: 16, name: 'Sceptres' },
+      { id: 23, name: 'Bucklers' },
+      { id: 24, name: 'Rings' },
+      { id: 37, name: 'Wands' },
+      { id: 38, name: 'Quarterstaves' },
+      { id: 39, name: 'Foci' },
+      { id: 40, name: 'Staves' }
+    ];
+    
+    // Initialize WASM
+    statusEl.innerHTML = '<span class="warning">⏳ Loading WASM...</span>';
+    
+    if (typeof Module === 'undefined') {
+      statusEl.innerHTML = '<span class="error">❌ poe2.js failed to load. Is server running on port 5173?</span>';
+    } else {
+      Module.onRuntimeInitialized = () => {
+        try {
+          api = {
+            itemCount: Module.cwrap('get_items_count', 'number', []),
+            modName: Module.cwrap('get_modifier_name', 'string', ['number', 'number']),
+            modTierCount: Module.cwrap('get_modifier_tier_count', 'number', ['number', 'number']),
+            modTierName: Module.cwrap('get_modifier_tier_name', 'string', ['number', 'number', 'number']),
+            modTierLevelReq: Module.cwrap('get_modifier_tier_level_req', 'number', ['number', 'number', 'number']),
+            modTierWeight: Module.cwrap('get_modifier_tier_weight', 'number', ['number', 'number', 'number']),
+            itemPrefixCount: Module.cwrap('get_item_prefix_count', 'number', ['number', 'number']),
+            itemSuffixCount: Module.cwrap('get_item_suffix_count', 'number', ['number', 'number']),
+            itemPrefixSource: Module.cwrap('get_item_prefix_source', 'number', ['number', 'number', 'number']),
+            itemPrefixIndex: Module.cwrap('get_item_prefix_index', 'number', ['number', 'number', 'number']),
+            itemSuffixSource: Module.cwrap('get_item_suffix_source', 'number', ['number', 'number', 'number']),
+            itemSuffixIndex: Module.cwrap('get_item_suffix_index', 'number', ['number', 'number', 'number'])
+          };
+          
+          const c = api.itemCount();
+          statusEl.innerHTML = `<span class="success">✅ WASM Loaded!</span> <span class="muted">${c} items • 1337 modifiers • 5471 tiers</span>`;
+          
+          // Populate item grid
+          SIMPLE_ITEMS.forEach(item => {
+            const box = document.createElement('div');
+            box.className = 'item-box';
+            box.textContent = item.name;
+            box.onclick = () => selectItem('simple', item.id, box);
+            itemGrid.appendChild(box);
+          });
+          
+          Object.keys(ITEM_CATEGORIES).forEach(key => {
+            const cat = ITEM_CATEGORIES[key];
+            const box = document.createElement('div');
+            box.className = 'item-box';
+            box.textContent = cat.label;
+            box.onclick = () => selectItem('category', key, box);
+            itemGrid.appendChild(box);
+          });
+        } catch(e) {
+          statusEl.innerHTML = `<span class="error">❌ Error: ${e.message}</span>`;
+        }
+      };
+    }
+    
+    function selectItem(type, value, element) {
+      document.querySelectorAll('#itemGrid .item-box').forEach(box => box.classList.remove('selected'));
+      element.classList.add('selected');
+      
+      if (type === 'category') {
+        const category = ITEM_CATEGORIES[value];
+        subtypeLabel.textContent = `${category.label} Type`;
+        subtypeGrid.innerHTML = '';
+        
+        category.subtypes.forEach(subtype => {
+          const box = document.createElement('div');
+          box.className = 'item-box';
+          box.textContent = subtype.name;
+          box.onclick = () => selectSubtype(subtype.id, box);
+          subtypeGrid.appendChild(box);
+        });
+        
+        subtypeSection.style.display = 'block';
+      } else {
+        subtypeSection.style.display = 'none';
+        currentItemId = value;
+        showModeSelection();
+      }
+    }
+    
+    function selectSubtype(itemId, element) {
+      document.querySelectorAll('#subtypeGrid .item-box').forEach(box => box.classList.remove('selected'));
+      element.classList.add('selected');
+      currentItemId = itemId;
+      showModeSelection();
+    }
+    
+    function showModeSelection() {
+      modeSelectionCard.style.display = 'block';
+      modeSelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function selectMode(mode) {
+      currentMode = mode;
+      
+      if (mode === 'scratch') {
+        // Skip rarity selection for scratch mode, go directly to rare modifiers
+        currentRarity = 'rare';
+        loadModifiers();
+        modifierSelectionCard.style.display = 'block';
+        raritySelectionCard.style.display = 'none';
+        modifierSelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        // Show rarity selection for improve mode
+        raritySelectionCard.style.display = 'block';
+        raritySelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    
+    function selectRarity(rarity) {
+      currentRarity = rarity;
+      loadModifiers();
+      modifierSelectionCard.style.display = 'block';
+      modifierSelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function backToMode() {
+      raritySelectionCard.style.display = 'none';
+      modeSelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function loadModifiers() {
+      if (!currentItemId) return;
+      
+      const source = parseInt(modSourceEl.value);
+      selectedModifiers = { prefixes: [], suffixes: [] };
+      
+      const prefixCount = api.itemPrefixCount(currentItemId, source);
+      const suffixCount = api.itemSuffixCount(currentItemId, source);
+      
+      // Load prefixes
+      prefixList.innerHTML = '';
+      for (let p = 0; p < prefixCount; p++) {
+        const modSrc = api.itemPrefixSource(currentItemId, source, p);
+        const modIdx = api.itemPrefixIndex(currentItemId, source, p);
+        const modName = api.modName(modSrc, modIdx);
+        const tierCount = api.modTierCount(modSrc, modIdx);
+        
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'modifier-item';
+        const checkboxId = `prefix_${modSrc}_${modIdx}`;
+        itemDiv.innerHTML = `
+          <input type="checkbox" id="${checkboxId}">
+          <label for="${checkboxId}">${modName}</label>
+          <span class="tier-badge">${tierCount} tiers</span>
+        `;
+        
+        // Make the entire div clickable
+        itemDiv.onclick = function(e) {
+          if (e.target.tagName !== 'INPUT') {
+            const checkbox = this.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            toggleModifier('prefix', modSrc, modIdx, checkbox);
+          } else {
+            toggleModifier('prefix', modSrc, modIdx, e.target);
+          }
+        };
+        
+        prefixList.appendChild(itemDiv);
+      }
+      
+      // Load suffixes
+      suffixList.innerHTML = '';
+      for (let s = 0; s < suffixCount; s++) {
+        const modSrc = api.itemSuffixSource(currentItemId, source, s);
+        const modIdx = api.itemSuffixIndex(currentItemId, source, s);
+        const modName = api.modName(modSrc, modIdx);
+        const tierCount = api.modTierCount(modSrc, modIdx);
+        
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'modifier-item';
+        const checkboxId = `suffix_${modSrc}_${modIdx}`;
+        itemDiv.innerHTML = `
+          <input type="checkbox" id="${checkboxId}">
+          <label for="${checkboxId}">${modName}</label>
+          <span class="tier-badge">${tierCount} tiers</span>
+        `;
+        
+        // Make the entire div clickable
+        itemDiv.onclick = function(e) {
+          if (e.target.tagName !== 'INPUT') {
+            const checkbox = this.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            toggleModifier('suffix', modSrc, modIdx, checkbox);
+          } else {
+            toggleModifier('suffix', modSrc, modIdx, e.target);
+          }
+        };
+        
+        suffixList.appendChild(itemDiv);
+      }
+      
+      updateSelectedDisplay();
+    }
+    
+    function reloadModifiers() {
+      loadModifiers();
+    }
+    
+    function toggleModifier(type, source, index, checkbox) {
+      const key = `${source}_${index}`;
+      const array = type === 'prefix' ? selectedModifiers.prefixes : selectedModifiers.suffixes;
+      const idx = array.findIndex(m => m.key === key);
+      
+      const parent = checkbox.closest('.modifier-item');
+      
+      if (idx >= 0) {
+        array.splice(idx, 1);
+        parent.classList.remove('selected');
+      } else {
+        const modName = api.modName(source, index);
+        const tierCount = api.modTierCount(source, index);
+        array.push({ key, source, index, name: modName, tierCount });
+        parent.classList.add('selected');
+      }
+      
+      updateSelectedDisplay();
+    }
+    
+    function updateSelectedDisplay() {
+      if (selectedModifiers.prefixes.length === 0 && selectedModifiers.suffixes.length === 0) {
+        selectedOutput.innerHTML = '<span class="muted">No modifiers selected yet...</span>';
+        return;
+      }
+      
+      const sources = ['NORMAL', 'DESECRATED', 'ESSENCE'];
+      let output = `<span class="success">✅ Selected Modifiers</span>\n\n`;
+      output += `<span class="muted">Mode: ${currentMode === 'scratch' ? 'Start from Scratch' : 'Improve Existing'}</span>\n`;
+      output += `<span class="muted">Rarity: ${currentRarity === 'magic' ? 'Magic' : 'Rare'}</span>\n\n`;
+      
+      if (selectedModifiers.prefixes.length > 0) {
+        output += `<span class="warning">Prefixes (${selectedModifiers.prefixes.length}):</span>\n`;
+        selectedModifiers.prefixes.forEach(mod => {
+          output += `  • ${mod.name} <span class="muted">[${sources[mod.source]}] - ${mod.tierCount} tiers</span>\n`;
+          
+          for (let t = 0; t < Math.min(3, mod.tierCount); t++) {
+            const tName = api.modTierName(mod.source, mod.index, t);
+            const tLvl = api.modTierLevelReq(mod.source, mod.index, t);
+            const tWeight = api.modTierWeight(mod.source, mod.index, t);
+            output += `    <span class="accent">T${t+1}:</span> ${tName} <span class="muted">(lvl ${tLvl}, weight ${tWeight})</span>\n`;
+          }
+          if (mod.tierCount > 3) {
+            output += `    <span class="muted">... and ${mod.tierCount - 3} more tiers</span>\n`;
+          }
+          output += '\n';
+        });
+      }
+      
+      if (selectedModifiers.suffixes.length > 0) {
+        output += `<span class="warning">Suffixes (${selectedModifiers.suffixes.length}):</span>\n`;
+        selectedModifiers.suffixes.forEach(mod => {
+          output += `  • ${mod.name} <span class="muted">[${sources[mod.source]}] - ${mod.tierCount} tiers</span>\n`;
+          
+          for (let t = 0; t < Math.min(3, mod.tierCount); t++) {
+            const tName = api.modTierName(mod.source, mod.index, t);
+            const tLvl = api.modTierLevelReq(mod.source, mod.index, t);
+            const tWeight = api.modTierWeight(mod.source, mod.index, t);
+            output += `    <span class="accent">T${t+1}:</span> ${tName} <span class="muted">(lvl ${tLvl}, weight ${tWeight})</span>\n`;
+          }
+          if (mod.tierCount > 3) {
+            output += `    <span class="muted">... and ${mod.tierCount - 3} more tiers</span>\n`;
+          }
+          output += '\n';
+        });
+      }
+      
+      selectedOutput.innerHTML = output;
+    }
+  </script>
+</body>
+</html>

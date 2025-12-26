@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WASM Test</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #e0e0e0; }
+    .log { margin: 5px 0; }
+    .success { color: #40ff40; }
+    .error { color: #ff4040; }
+  </style>
+</head>
+<body>
+  <h2>WASM Loading Test</h2>
+  <div id="output"></div>
+  
+  <script>
+    const output = document.getElementById('output');
+    
+    function log(msg, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `log ${type}`;
+      div.textContent = msg;
+      output.appendChild(div);
+      console.log(msg);
+    }
+    
+    log('🔄 Starting WASM load test...');
+    
+    const script = document.createElement('script');
+    script.src = '/poe2.js';
+    
+    script.onload = () => {
+      log('✅ poe2.js loaded', 'success');
+      
+      if (!window.Module) {
+        log('❌ Module not found on window', 'error');
+        return;
+      }
+      
+      window.Module.onRuntimeInitialized = () => {
+        log('✅ WASM Runtime initialized', 'success');
+        
+        try {
+          const getItemsCount = window.Module.cwrap('get_items_count', 'number', []);
+          const itemCount = getItemsCount();
+          log(`✅ get_items_count() = ${itemCount}`, 'success');
+          
+          const getItemName = window.Module.cwrap('get_item_name', 'string', ['number']);
+          
+          for (let i = 0; i < Math.min(itemCount, 5); i++) {
+            const name = getItemName(i);
+            log(`  Item[${i}] = "${name}"`, 'success');
+          }
+          
+        } catch (e) {
+          log(`❌ Error calling functions: ${e.message}`, 'error');
+          console.error(e);
+        }
+      };
+    };
+    
+    script.onerror = () => {
+      log('❌ Failed to load poe2.js', 'error');
+    };
+    
+    document.head.appendChild(script);
+  </script>
+</body>
+</html>

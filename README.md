@@ -25,6 +25,8 @@
 
 A powerful application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
 
+# Currently redoing the backend in C, no more updates on the site until finished. Stay tuned ! (See the C branch for updates)
+
 ## 🌐 Web Application
 
 **Try it now at [poe2htc.com](https://poe2htc.com)** - No installation required!

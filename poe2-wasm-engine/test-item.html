@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Item Test</title>
+  <style>
+    body { background: #1a1a1a; color: #e0e0e0; font-family: monospace; padding: 20px; }
+    button { background: #f0a040; color: #000; padding: 10px 20px; border: none; cursor: pointer; }
+    select { background: #1a1a1a; color: #e0e0e0; padding: 8px; border: 1px solid #404040; }
+    #output { margin-top: 20px; padding: 20px; background: #2a2a2a; border: 1px solid #404040; }
+  </style>
+</head>
+<body>
+  <h2>Direct WASM Item Test</h2>
+  <select id="itemSelect">
+    <option value="">Select item...</option>
+  </select>
+  <button id="showItem">Show Details</button>
+  <div id="output">Click Show Details...</div>
+
+  <script>
+    let Module = null;
+    let wasmReady = false;
+    let wasmAPI = {};
+
+    console.log('1. Loading poe2.js...');
+    
+    const script = document.createElement('script');
+    script.src = '/poe2.js';
+    
+    script.onload = () => {
+      console.log('2. poe2.js loaded');
+      Module = window.Module;
+      
+      Module.onRuntimeInitialized = () => {
+        console.log('3. WASM Runtime initialized');
+        
+        wasmAPI.getItemsCount = Module.cwrap('get_items_count', 'number', []);
+        wasmAPI.getItemName = Module.cwrap('get_item_name', 'string', ['number']);
+        wasmAPI.getItemClass = Module.cwrap('get_item_class', 'number', ['number']);
+        
+        wasmReady = true;
+        console.log('4. API wrapped, loading items...');
+        
+        const itemCount = wasmAPI.getItemsCount();
+        console.log(`5. Found ${itemCount} items`);
+        
+        const select = document.getElementById('itemSelect');
+        for (let i = 0; i < itemCount; i++) {
+          const name = wasmAPI.getItemName(i);
+          const opt = new Option(name, i);
+          select.appendChild(opt);
+        }
+        console.log('6. Items loaded into dropdown');
+      };
+    };
+    
+    script.onerror = () => {
+      console.error('Failed to load poe2.js');
+      document.getElementById('output').innerHTML = 'ERROR: Failed to load WASM';
+    };
+    
+    document.head.appendChild(script);
+
+    // Attach event listener
+    document.getElementById('showItem').addEventListener('click', () => {
+      console.log('7. Show Details clicked');
+      
+      const output = document.getElementById('output');
+      const itemIdx = parseInt(document.getElementById('itemSelect').value);
+      
+      if (isNaN(itemIdx)) {
+        output.innerHTML = 'ERROR: Select an item first';
+        console.log('8. No item selected');
+        return;
+      }
+      
+      console.log(`9. Selected item index: ${itemIdx}`);
+      
+      if (!wasmReady) {
+        output.innerHTML = 'ERROR: WASM not ready';
+        console.log('10. WASM not ready');
+        return;
+      }
+      
+      console.log('11. Calling WASM functions...');
+      const name = wasmAPI.getItemName(itemIdx);
+      const itemClass = wasmAPI.getItemClass(itemIdx);
+      
+      console.log(`12. Got name: ${name}, class: ${itemClass}`);
+      
+      output.innerHTML = `
+        <h3>Item: ${name}</h3>
+        <p>Index: ${itemIdx}</p>
+        <p>Class: ${itemClass}</p>
+        <p>Item Level: 85</p>
+      `;
+      
+      console.log('13. Display updated');
+    });
+    
+    console.log('14. Event listener attached');
+  </script>
+</body>
+</html>

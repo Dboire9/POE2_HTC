@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>POE2 WASM - Working Version</title>
+  <style>
+    body { font-family: monospace; background: #1a1a1a; color: #e0e0e0; padding: 20px; }
+    button { background: #f0a040; color: #000; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; }
+    select { background: #1a1a1a; color: #e0e0e0; padding: 8px; border: 1px solid #404040; min-width: 200px; }
+    .output { margin-top: 20px; padding: 20px; background: #2a2a2a; border: 1px solid #404040; white-space: pre-wrap; }
+    .success { color: #40ff40; }
+    .error { color: #ff4040; }
+  </style>
+</head>
+<body>
+  <h1>POE2 WASM Test</h1>
+  
+  <div>
+    <h3>Database Stats</h3>
+    <button onclick="testStats()">Load Stats</button>
+    <div id="stats" class="output">Click Load Stats...</div>
+  </div>
+
+  <div>
+    <h3>Item Browser</h3>
+    <select id="items"></select>
+    <button onclick="testItem()">Show Item</button>
+    <div id="itemOut" class="output">Select item and click Show Item...</div>
+  </div>
+
+  <div>
+    <h3>Modifier Browser</h3>
+    <input type="number" id="modIdx" placeholder="Modifier index (0-634)" style="padding: 8px; background: #1a1a1a; color: #e0e0e0; border: 1px solid #404040;">
+    <button onclick="testMod()">Show Modifier</button>
+    <div id="modOut" class="output">Enter index and click Show Modifier...</div>
+  </div>
+
+  <script>
+    let Module = null;
+    let api = {};
+    let ready = false;
+
+    // Load WASM
+    const script = document.createElement('script');
+    script.src = '/poe2.js';
+    script.onload = () => {
+      Module = window.Module;
+      Module.onRuntimeInitialized = () => {
+        api.getItemsCount = Module.cwrap('get_items_count', 'number', []);
+        api.getItemName = Module.cwrap('get_item_name', 'string', ['number']);
+        api.getItemClass = Module.cwrap('get_item_class', 'number', ['number']);
+        api.getModsNormal = Module.cwrap('get_modifiers_normal_count', 'number', []);
+        api.getModName = Module.cwrap('get_modifier_name', 'string', ['number', 'number']);
+        api.getModTiers = Module.cwrap('get_modifier_tier_count', 'number', ['number', 'number']);
+        
+        ready = true;
+        loadItems();
+        document.getElementById('stats').innerHTML = '<span class="success">✅ WASM Ready</span>';
+      };
+    };
+    script.onerror = () => {
+      document.getElementById('stats').innerHTML = '<span class="error">❌ Failed to load WASM</span>';
+    };
+    document.head.appendChild(script);
+
+    function loadItems() {
+      const select = document.getElementById('items');
+      const count = api.getItemsCount();
+      
+      select.innerHTML = '<option value="">Select item...</option>';
+      for (let i = 0; i < count; i++) {
+        const name = api.getItemName(i);
+        select.appendChild(new Option(name, i));
+      }
+    }
+
+    function testStats() {
+      if (!ready) {
+        document.getElementById('stats').innerHTML = '<span class="error">❌ WASM not ready</span>';
+        return;
+      }
+      
+      const normalCount = api.getModsNormal();
+      const itemsCount = api.getItemsCount();
+      
+      document.getElementById('stats').innerHTML = `<span class="success">✅ Database Stats</span>
+
+Items: ${itemsCount}
+Modifiers (NORMAL): ${normalCount}
+
+WASM is working correctly!`;
+    }
+
+    function testItem() {
+      const idx = parseInt(document.getElementById('items').value);
+      if (isNaN(idx)) {
+        document.getElementById('itemOut').innerHTML = '<span class="error">❌ Select an item</span>';
+        return;
+      }
+      
+      const name = api.getItemName(idx);
+      const cls = api.getItemClass(idx);
+      
+      document.getElementById('itemOut').innerHTML = `<span class="success">✅ Item Details</span>
+
+Index: ${idx}
+Name: ${name}
+Class: ${cls}
+Item Level: 85`;
+    }
+
+    function testMod() {
+      const idx = parseInt(document.getElementById('modIdx').value);
+      if (isNaN(idx) || idx < 0 || idx > 634) {
+        document.getElementById('modOut').innerHTML = '<span class="error">❌ Enter valid index (0-634)</span>';
+        return;
+      }
+      
+      const name = api.getModName(0, idx); // source=0 (NORMAL)
+      const tiers = api.getModTiers(0, idx);
+      
+      document.getElementById('modOut').innerHTML = `<span class="success">✅ Modifier Details</span>
+
+Source: NORMAL
+Index: ${idx}
+Name: ${name}
+Tiers: ${tiers}`;
+    }
+  </script>
+</body>
+</html>

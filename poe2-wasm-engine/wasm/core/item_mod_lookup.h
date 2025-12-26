@@ -228,4 +228,18 @@ extern ModifierLookup staves_desecrated_suffixes[5];
 extern ModifierLookup staves_essence_prefixes[1];
 extern ModifierLookup staves_essence_suffixes[7];
 
+// =============================================================================
+// LOOKUP RETRIEVAL API
+// =============================================================================
+
+typedef struct {
+    ModifierLookup* prefixes;
+    int prefix_count;
+    ModifierLookup* suffixes;
+    int suffix_count;
+} ItemModLookupResult;
+
+// Get modifier lookups for an item by item_id and source
+ItemModLookupResult get_item_mod_lookup(int item_id, ModifierSource source);
+
 #endif

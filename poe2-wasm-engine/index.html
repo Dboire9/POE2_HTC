@@ -8,430 +8,407 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     :root {
-      --bg-primary: #1a1a1a;
-      --bg-secondary: #2a2a2a;
-      --border: #404040;
-      --text-primary: #e0e0e0;
-      --text-muted: #888888;
-      --accent: #f0a040;
-      --accent-hover: #ffc060;
-      --success: #40ff40;
-      --error: #ff4040;
-      --warning: #f0a040;
+      --bg-primary: #0d0d0d;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #242424;
+      --border: #333333;
+      --border-light: #404040;
+      --text-primary: #e8e8e8;
+      --text-secondary: #b8b8b8;
+      --text-muted: #808080;
+      --accent: #ff8c42;
+      --accent-hover: #ffa05c;
+      --accent-dark: #e67a32;
+      --success: #4ade80;
+      --error: #f87171;
+      --magic: #6495ed;
+      --rare: #ffd700;
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
-      line-height: 1.6;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
     }
     
-    ::selection {
-      background: rgba(240, 160, 64, 0.3);
-      color: var(--text-primary);
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
     
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0.75rem;
-    }
-    
+    /* Header */
     header {
-      background: #2a2a2a;
-      border-bottom: 2px solid var(--border);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
       padding: 0.75rem 1.5rem;
-      margin-bottom: 1rem;
-    }
-    
-    .header-content {
-      max-width: 1400px;
-      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
+      flex-shrink: 0;
     }
     
-    .header-left {
+    .logo {
       display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
+      align-items: center;
+      gap: 0.75rem;
     }
     
-    h1 {
-      font-size: 1.5rem;
+    .logo h1 {
+      font-size: 1.25rem;
       font-weight: 700;
       color: var(--accent);
+      letter-spacing: 0.5px;
     }
     
     .beta-badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      color: #ffc060;
-      font-weight: 600;
-      margin-left: 0.5rem;
-    }
-    
-    .subtitle {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-    
-    .header-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.375rem;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.75rem;
-      font-weight: 500;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      border: 1px solid;
-      white-space: nowrap;
-    }
-    
-    .btn-discord {
-      background: rgba(88, 101, 242, 0.1);
-      border-color: rgba(88, 101, 242, 0.3);
-      color: #e0e0e0;
-    }
-    
-    .btn-discord:hover {
-      background: rgba(88, 101, 242, 0.2);
-      border-color: rgba(88, 101, 242, 0.5);
-    }
-    
-    .btn-bug {
-      background: rgba(239, 68, 68, 0.1);
-      border-color: rgba(239, 68, 68, 0.3);
-      color: #e0e0e0;
-    }
-    
-    .btn-bug:hover {
-      background: rgba(239, 68, 68, 0.2);
-      border-color: rgba(239, 68, 68, 0.5);
-    }
-    
-    .btn-support {
-      background: rgba(234, 179, 8, 0.1);
-      border-color: rgba(234, 179, 8, 0.3);
-      color: #e0e0e0;
-    }
-    
-    .btn-support:hover {
-      background: rgba(234, 179, 8, 0.2);
-      border-color: rgba(234, 179, 8, 0.5);
-    }
-    
-    .btn-github {
-      background: rgba(240, 160, 64, 0.1);
-      border-color: rgba(240, 160, 64, 0.3);
+      font-size: 0.65rem;
       color: var(--accent);
+      background: rgba(255, 140, 66, 0.15);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
       font-weight: 600;
+      border: 1px solid rgba(255, 140, 66, 0.3);
     }
     
-    .btn-github:hover {
-      background: rgba(240, 160, 64, 0.2);
-      border-color: rgba(240, 160, 64, 0.5);
+    .header-links {
+      display: flex;
+      gap: 0.5rem;
     }
     
-    @media (max-width: 768px) {
-      .header-right {
-        display: none;
-      }
+    .header-link {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
     }
     
-    .status-box {
+    .header-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(255, 140, 66, 0.1);
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 400px;
+      gap: 1rem;
+      padding: 1rem;
+      overflow: hidden;
+    }
+    
+    /* Panels */
+    .panel {
       background: var(--bg-secondary);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 0.625rem;
-      margin-bottom: 1rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.75rem;
-    }
-    
-    .card {
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      border-radius: 8px;
       padding: 1rem;
-      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
     
-    .card h2 {
-      font-size: 1.125rem;
-      font-weight: 600;
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 0.75rem;
-      color: var(--accent);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
     }
     
-    .form-group {
-      margin-bottom: 0.75rem;
-    }
-    
-    .form-group label {
-      display: block;
+    .panel-title {
       font-size: 0.875rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--text-primary);
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
-    .help-text {
-      font-size: 0.75rem;
+    .panel-step {
+      font-size: 0.7rem;
       color: var(--text-muted);
-      margin-bottom: 0.75rem;
+      background: var(--bg-tertiary);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
     }
     
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    
+    .panel-content::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .panel-content::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+    }
+    
+    .panel-content::-webkit-scrollbar-thumb {
+      background: var(--border-light);
+      border-radius: 3px;
+    }
+    
+    .panel-content::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+    
+    /* Item Selection */
     .item-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 0.5rem;
     }
     
     .item-box {
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      border-radius: 8px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
       padding: 0.75rem 0.5rem;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-primary);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-secondary);
     }
     
     .item-box:hover {
       border-color: var(--accent);
-      background: #333333;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(240, 160, 64, 0.3);
+      color: var(--accent);
+      transform: translateY(-1px);
     }
     
     .item-box.selected {
       border-color: var(--accent);
-      background: #3a2a1a;
-      box-shadow: 0 0 0 2px rgba(240, 160, 64, 0.3);
+      background: rgba(255, 140, 66, 0.15);
       color: var(--accent);
     }
     
-    .mode-grid {
+    /* Mode & Rarity Selection */
+    .selection-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-      margin-top: 0.75rem;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
     }
     
-    .mode-box {
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      padding: 1.5rem;
+    .selection-box {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
       cursor: pointer;
       transition: all 0.2s;
       text-align: center;
     }
     
-    .mode-box:hover {
+    .selection-box:hover {
       border-color: var(--accent);
-      background: #333333;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(240, 160, 64, 0.3);
+      transform: translateY(-1px);
     }
     
-    .mode-icon {
-      font-size: 2.5rem;
+    .selection-box.magic { border-color: var(--magic); }
+    .selection-box.rare { border-color: var(--rare); }
+    
+    .selection-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .selection-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--text-primary);
+    }
+    
+    .selection-desc {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    
+    .selection-box.magic .selection-title { color: var(--magic); }
+    .selection-box.rare .selection-title { color: var(--rare); }
+    
+    /* Selection Summary */
+    .selection-summary {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    
+    .summary-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    
+    .summary-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(255, 140, 66, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(255, 140, 66, 0.3);
+    }
+    
+    .summary-badge.magic {
+      background: rgba(100, 149, 237, 0.15);
+      color: var(--magic);
+      border-color: rgba(100, 149, 237, 0.3);
+    }
+    
+    .summary-badge.rare {
+      background: rgba(255, 215, 0, 0.15);
+      color: var(--rare);
+      border-color: rgba(255, 215, 0, 0.3);
+    }
+    
+    .summary-badge.normal {
+      background: rgba(200, 200, 200, 0.15);
+      color: var(--text-secondary);
+      border-color: rgba(200, 200, 200, 0.3);
+    }
+    
+    .summary-badge.clickable {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .summary-badge.clickable:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .summary-badge.magic.clickable:hover {
+      background: rgba(100, 149, 237, 0.25);
+      border-color: var(--magic);
+    }
+    
+    .summary-badge.rare.clickable:hover {
+      background: rgba(255, 215, 0, 0.25);
+      border-color: var(--rare);
+    }
+    
+    .summary-badge.normal.clickable:hover {
+      background: rgba(200, 200, 200, 0.25);
+      border-color: var(--text-secondary);
+    }
+    
+    .change-btn {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-left: auto;
+    }
+    
+    .change-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(255, 140, 66, 0.1);
+    }
+    
+    /* Modifier Selection */
+    .mod-filters {
+      display: flex;
+      gap: 0.5rem;
       margin-bottom: 0.75rem;
     }
     
-    .mode-box h4 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--text-primary);
+    .mod-filter-group {
+      flex: 1;
     }
     
-    .mode-box p {
-      font-size: 0.75rem;
+    .mod-filter-label {
+      font-size: 0.65rem;
       color: var(--text-muted);
-      line-height: 1.4;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
-    .rarity-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 0.75rem;
+    .mod-source {
+      margin-bottom: 0.75rem;
     }
     
-    .rarity-box {
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      padding: 1.5rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: center;
-    }
-    
-    .rarity-box:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-    
-    .rarity-box.magic {
-      border-color: #6495ED;
-    }
-    
-    .rarity-box.magic:hover {
-      border-color: #4169E1;
-      box-shadow: 0 4px 12px rgba(65, 105, 225, 0.3);
-    }
-    
-    .rarity-box.magic h4 {
-      color: #6495ED;
-    }
-    
-    .rarity-box.rare {
-      border-color: #FFD700;
-    }
-    
-    .rarity-box.rare:hover {
-      border-color: #FFA500;
-      box-shadow: 0 4px 12px rgba(255, 165, 0, 0.3);
-    }
-    
-    .rarity-box.rare h4 {
-      color: #FFD700;
-    }
-    
-    .rarity-box h4 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    
-    .rarity-box p {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    
-    .btn-back {
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.5rem 1rem;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 1rem;
-    }
-    
-    .btn-back:hover {
-      color: var(--text-primary);
-      border-color: var(--accent);
-    }
-    
-    select {
+    .mod-source select,
+    .mod-filter-group select {
       width: 100%;
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      border-radius: 6px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
       color: var(--text-primary);
-      padding: 0.5rem 0.75rem;
-      font-size: 0.8125rem;
-      transition: all 0.2s;
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
     }
     
-    select:focus {
+    .mod-source select:focus {
       outline: none;
       border-color: var(--accent);
     }
     
-    .modifier-lists {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+    .mod-lists {
+      display: flex;
+      flex-direction: column;
       gap: 0.75rem;
-      margin-top: 0.5rem;
     }
     
-    .modifier-group {
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem;
+    .mod-group-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
-    .modifier-group h4 {
-      margin-bottom: 0.75rem;
-      font-size: 0.875rem;
-    }
-    
-    .modifier-checkboxes {
+    .mod-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       gap: 0.5rem;
-      max-height: 300px;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-    }
-    
-    .modifier-checkboxes::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    .modifier-checkboxes::-webkit-scrollbar-track {
-      background: var(--bg-secondary);
-      border-radius: 4px;
-    }
-    
-    .modifier-checkboxes::-webkit-scrollbar-thumb {
-      background: rgba(240, 160, 64, 0.5);
-      border-radius: 4px;
-    }
-    
-    .modifier-checkboxes::-webkit-scrollbar-thumb:hover {
-      background: rgba(240, 160, 64, 0.8);
     }
     
     .modifier-item {
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-secondary);
-      border: 2px solid var(--border);
-      border-radius: 4px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
       padding: 0.5rem;
-      transition: all 0.2s;
       cursor: pointer;
-      position: relative;
+      transition: all 0.2s;
     }
     
     .modifier-item:hover {
       border-color: var(--accent);
-      box-shadow: 0 2px 8px rgba(240, 160, 64, 0.2);
     }
     
     .modifier-item.selected {
       border-color: var(--accent);
-      background: #3a2a1a;
+      background: rgba(255, 140, 66, 0.1);
     }
     
     .modifier-item input[type="checkbox"] {
@@ -439,171 +416,341 @@
     }
     
     .modifier-item label {
-      margin: 0;
       font-size: 0.7rem;
+      color: var(--text-secondary);
       cursor: pointer;
-      color: var(--text-primary);
-      line-height: 1.3;
-      font-weight: 500;
+      display: block;
+      margin-bottom: 0.25rem;
       word-wrap: break-word;
-      overflow-wrap: break-word;
-      width: 100%;
+    }
+    
+    .modifier-item.selected label {
+      color: var(--accent);
     }
     
     .tier-badge {
       display: inline-block;
-      background: rgba(240, 160, 64, 0.15);
-      color: var(--accent);
-      padding: 0.125rem 0.375rem;
-      border-radius: 4px;
-      font-size: 0.625rem;
-      font-weight: 600;
-      margin-top: 0.375rem;
-      width: fit-content;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      background: var(--bg-primary);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
     }
     
-    .output {
+    .source-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      margin-left: 0.25rem;
+    }
+    
+    .source-badge.normal-source {
+      background: rgba(184, 184, 184, 0.2);
+      color: var(--text-secondary);
+    }
+    
+    .source-badge.desecrated-source {
+      background: rgba(139, 69, 255, 0.2);
+      color: #b89fff;
+    }
+    
+    .source-badge.essence-source {
+      background: rgba(74, 222, 128, 0.2);
+      color: var(--success);
+    }
+    
+    .tier-dropdown {
+      width: 100%;
       background: var(--bg-primary);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem;
-      margin-top: 0.75rem;
-      font-family: 'Courier New', monospace;
-      font-size: 0.75rem;
-      white-space: pre-wrap;
-      min-height: 80px;
-      max-height: 300px;
-      overflow-y: auto;
+      color: var(--text-secondary);
+      padding: 0.25rem;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      margin-top: 0.375rem;
     }
     
-    .success { color: var(--success); }
-    .error { color: var(--error); }
-    .warning { color: var(--warning); }
-    .accent { color: var(--accent); }
-    .muted { color: var(--text-muted); }
+    .tier-dropdown:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
     
-    @media (max-width: 768px) {
-      .modifier-lists {
+    /* Selected Modifiers Panel */
+    .selected-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      margin-bottom: 0.75rem;
+    }
+    
+    .selected-info {
+      flex: 1;
+    }
+    
+    .selected-mode {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    
+    .selected-rarity {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .selected-rarity.magic { color: var(--magic); }
+    .selected-rarity.rare { color: var(--rare); }
+    
+    .selected-count {
+      font-size: 0.7rem;
+      color: var(--accent);
+      background: rgba(255, 140, 66, 0.15);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+    
+    .selected-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .selected-group-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    
+    .selected-mod {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+    }
+    
+    .selected-mod-desc {
+      font-size: 0.75rem;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .selected-mod-tier {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+    
+    .tier-name {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+    
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+    
+    /* Status Bar */
+    .status-bar {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 0.5rem 1.5rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .status-success { color: var(--success); }
+    .status-warning { color: var(--accent); }
+    
+    @media (max-width: 1400px) {
+      .main-content {
+        grid-template-columns: 1fr 350px;
+      }
+      
+      .header-links {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .main-content {
         grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="header-content">
-      <div class="header-left">
-        <h1>POE2HTC <span class="beta-badge">BETA</span></h1>
-        <p class="subtitle">WASM Crafting Simulator</p>
+  <div class="app-container">
+    <header>
+      <div class="logo">
+        <h1>POE2HTC</h1>
+        <span class="beta-badge">BETA</span>
       </div>
-      
-      <div class="header-right">
-        <a href="https://discord.gg/RvxCWyFF3D" target="_blank" rel="noopener noreferrer" class="header-btn btn-discord">
-          💬 Join Discord
-        </a>
-        <a href="https://github.com/Dboire9/POE2_HTC/issues/new" target="_blank" rel="noopener noreferrer" class="header-btn btn-bug">
-          🐛 Report Bug
-        </a>
-        <a href="https://buymeacoffee.com/dboire" target="_blank" rel="noopener noreferrer" class="header-btn btn-support">
-          ☕ Support
-        </a>
-        <a href="https://github.com/Dboire9/POE2_HTC" target="_blank" rel="noopener noreferrer" class="header-btn btn-github">
-          ⭐ Star & Contribute
-        </a>
+      <div class="header-links">
+        <a href="https://discord.gg/RvxCWyFF3D" target="_blank" class="header-link">💬 Discord</a>
+        <a href="https://github.com/Dboire9/POE2_HTC/issues/new" target="_blank" class="header-link">🐛 Bug</a>
+        <a href="https://buymeacoffee.com/dboire" target="_blank" class="header-link">☕ Support</a>
+        <a href="https://github.com/Dboire9/POE2_HTC" target="_blank" class="header-link">⭐ GitHub</a>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <div class="container">
-    <div class="status-box" id="status">Initializing...</div>
+    <div class="main-content">
+      <!-- Left Panel: Item & Mode & Rarity -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Setup</span>
+          <span class="panel-step">Steps 1-3</span>
+        </div>
+        <div class="panel-content">
+          <!-- Item Selection -->
+          <div style="margin-bottom: 1.5rem;">
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Base Item</div>
+            <div id="itemGrid" class="item-grid"></div>
+            <div id="subtypeSection" style="display: none; margin-top: 0.75rem;">
+              <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;" id="subtypeLabel">Subtype</div>
+              <div id="subtypeGrid" class="item-grid"></div>
+            </div>
+          </div>
 
-    <!-- Step 1: Item Selection -->
-    <div class="card" id="itemSelectionCard">
-      <h2>Step 1: Select Base Item</h2>
-      <div class="form-group">
-        <label>Choose an item type</label>
-        <div id="itemGrid" class="item-grid"></div>
+          <!-- Mode & Rarity Selection -->
+          <div id="modeRaritySection" style="display: none;">
+            <!-- Selection Summary -->
+            <div id="selectionSummary" style="display: none;">
+              <div class="selection-summary">
+                <span class="summary-label">Mode:</span>
+                <span class="summary-badge" id="modeBadge"></span>
+                <span class="summary-label" id="rarityLabelSummary" style="display: none;">Rarity:</span>
+                <select id="rarityDropdownInline" onchange="onRarityChange()" style="display: none; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; cursor: pointer; font-weight: 600;">
+                  <option value="normal">Normal</option>
+                  <option value="magic">Magic</option>
+                  <option value="rare">Rare</option>
+                </select>
+                <button class="change-btn" onclick="changeSelection()">Change</button>
+              </div>
+            </div>
+            
+            <!-- Mode Selection Boxes -->
+            <div id="modeSelectionBoxes">
+              <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Crafting Mode</div>
+              <div class="selection-grid" style="margin-bottom: 1.5rem;">
+                <div class="selection-box" onclick="selectMode('scratch')">
+                  <div class="selection-title">From Scratch</div>
+                  <div class="selection-desc">Start with blank item</div>
+                </div>
+                <div class="selection-box" onclick="selectMode('improve')">
+                  <div class="selection-title">Improve</div>
+                  <div class="selection-desc">Add/improve mods</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rarity Selection -->
+            <div id="raritySection" style="display: none;">
+              <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Item Rarity</div>
+              <select id="rarityDropdown" onchange="selectRarity()" style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 0.5rem; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                <option value="">Select rarity...</option>
+                <option value="normal">Normal</option>
+                <option value="magic">Magic</option>
+                <option value="rare">Rare</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div id="subtypeSection" style="display: none;">
-        <div class="form-group">
-          <label id="subtypeLabel">Item Subtype</label>
-          <div id="subtypeGrid" class="item-grid"></div>
+      <!-- Middle Panel: Modifiers -->
+      <div class="panel" id="modifiersPanel" style="display: none;">
+        <div class="panel-header">
+          <span class="panel-title">Select Modifiers</span>
+          <span class="panel-step">Step 4</span>
+        </div>
+        <div class="panel-content">
+          <div class="mod-filters">
+            <div class="mod-filter-group">
+              <div class="mod-filter-label">Source</div>
+              <select id="modSource" onchange="reloadModifiers()">
+                <option value="0">Normal</option>
+                <option value="1">Desecrated</option>
+                <option value="2">Essence</option>
+                <option value="all" selected>All Sources</option>
+              </select>
+            </div>
+            <div class="mod-filter-group">
+              <div class="mod-filter-label">Type</div>
+              <select id="modType" onchange="filterModifiers()">
+                <option value="all">All Types</option>
+                <option value="prefix">Prefixes Only</option>
+                <option value="suffix">Suffixes Only</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mod-lists">
+            <div>
+              <div class="mod-group-title">Prefixes</div>
+              <div id="prefixList" class="mod-grid"></div>
+            </div>
+            <div>
+              <div class="mod-group-title">Suffixes</div>
+              <div id="suffixList" class="mod-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Selected Output -->
+      <div class="panel" id="selectedPanel" style="display: none;">
+        <div class="panel-header">
+          <span class="panel-title">Selected</span>
+        </div>
+        <div class="panel-content">
+          <div class="selected-header">
+            <div class="selected-info">
+              <div class="selected-mode" id="displayMode">Mode: -</div>
+              <div class="selected-rarity" id="displayRarity">-</div>
+            </div>
+            <div class="selected-count" id="displayCount">0/6</div>
+          </div>
+
+          <div id="selectedOutput">
+            <div class="empty-state">
+              <div class="empty-icon">📦</div>
+              <div>No modifiers selected</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Step 2: Mode Selection -->
-    <div class="card" id="modeSelectionCard" style="display: none;">
-      <h2>Step 2: Choose Crafting Approach</h2>
-      <div class="form-group">
-        <p class="help-text">How would you like to craft your item?</p>
-        <div class="mode-grid">
-          <div class="mode-box" onclick="selectMode('scratch')">
-            <div class="mode-icon">✨</div>
-            <h4>Start from Scratch</h4>
-            <p>Begin with a blank item and craft the modifiers you want from the ground up.</p>
-          </div>
-          <div class="mode-box" onclick="selectMode('improve')">
-            <div class="mode-icon">🔧</div>
-            <h4>Improve Existing Item</h4>
-            <p>Already have an item with some mods? Add or improve specific modifiers.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: Rarity Selection -->
-    <div class="card" id="raritySelectionCard" style="display: none;">
-      <h2>Step 3: Select Item Rarity</h2>
-      <div class="form-group">
-        <p class="help-text">What rarity is your item?</p>
-        <div class="rarity-grid">
-          <div class="rarity-box magic" onclick="selectRarity('magic')">
-            <h4>Magic Item</h4>
-            <p>1 prefix and 1 suffix maximum</p>
-          </div>
-          <div class="rarity-box rare" onclick="selectRarity('rare')">
-            <h4>Rare Item</h4>
-            <p>Up to 3 prefixes and 3 suffixes</p>
-          </div>
-        </div>
-        <button class="btn-back" onclick="backToMode()">← Back to Mode Selection</button>
-      </div>
-    </div>
-
-    <!-- Step 4: Modifier Selection -->
-    <div class="card" id="modifierSelectionCard" style="display: none;">
-      <h2>Step 4: Select Modifiers</h2>
-      
-      <div class="form-group">
-        <label for="modSource">Modifier Source</label>
-        <select id="modSource" onchange="reloadModifiers()">
-          <option value="0">NORMAL</option>
-          <option value="1">DESECRATED</option>
-          <option value="2">ESSENCE</option>
-        </select>
-      </div>
-
-      <div id="modifierSection">
-        <div class="modifier-lists">
-          <div class="modifier-group">
-            <h4 style="color: var(--warning);">Prefixes</h4>
-            <div id="prefixList" class="modifier-checkboxes"></div>
-          </div>
-          
-          <div class="modifier-group">
-            <h4 style="color: var(--warning);">Suffixes</h4>
-            <div id="suffixList" class="modifier-checkboxes"></div>
-          </div>
-        </div>
-
-        <div style="margin-top: 1.5rem;">
-          <h4 style="color: var(--accent); margin-bottom: 0.75rem;">Selected Modifiers</h4>
-          <div class="output" id="selectedOutput">
-            <span class="muted">No modifiers selected yet...</span>
-          </div>
-        </div>
+    <div class="status-bar">
+      <div class="status-item">
+        <span id="status">Initializing...</span>
       </div>
     </div>
   </div>
@@ -612,18 +759,27 @@
   <script>
     // DOM elements
     const statusEl = document.getElementById('status');
-    const itemSelectionCard = document.getElementById('itemSelectionCard');
-    const modeSelectionCard = document.getElementById('modeSelectionCard');
-    const raritySelectionCard = document.getElementById('raritySelectionCard');
-    const modifierSelectionCard = document.getElementById('modifierSelectionCard');
+    const modeRaritySection = document.getElementById('modeRaritySection');
+    const raritySection = document.getElementById('raritySection');
+    const modifiersPanel = document.getElementById('modifiersPanel');
+    const selectedPanel = document.getElementById('selectedPanel');
     const itemGrid = document.getElementById('itemGrid');
     const subtypeSection = document.getElementById('subtypeSection');
     const subtypeLabel = document.getElementById('subtypeLabel');
     const subtypeGrid = document.getElementById('subtypeGrid');
     const modSourceEl = document.getElementById('modSource');
+    const modTypeEl = document.getElementById('modType');
     const prefixList = document.getElementById('prefixList');
     const suffixList = document.getElementById('suffixList');
     const selectedOutput = document.getElementById('selectedOutput');
+    const displayMode = document.getElementById('displayMode');
+    const displayRarity = document.getElementById('displayRarity');
+    const displayCount = document.getElementById('displayCount');
+    const selectionSummary = document.getElementById('selectionSummary');
+    const modeBadge = document.getElementById('modeBadge');
+    const rarityBadge = document.getElementById('rarityBadge');
+    const rarityLabelSummary = document.getElementById('rarityLabelSummary');
+    const modeSelectionBoxes = document.getElementById('modeSelectionBoxes');
     
     // State
     let api = null;
@@ -716,10 +872,14 @@
           api = {
             itemCount: Module.cwrap('get_items_count', 'number', []),
             modName: Module.cwrap('get_modifier_name', 'string', ['number', 'number']),
+            modDescription: Module.cwrap('get_modifier_group', 'string', ['number', 'number']),
             modTierCount: Module.cwrap('get_modifier_tier_count', 'number', ['number', 'number']),
             modTierName: Module.cwrap('get_modifier_tier_name', 'string', ['number', 'number', 'number']),
             modTierLevelReq: Module.cwrap('get_modifier_tier_level_req', 'number', ['number', 'number', 'number']),
             modTierWeight: Module.cwrap('get_modifier_tier_weight', 'number', ['number', 'number', 'number']),
+            modTierValueCount: Module.cwrap('get_modifier_tier_value_count', 'number', ['number', 'number', 'number']),
+            modTierValueMin: Module.cwrap('get_modifier_tier_value_min', 'number', ['number', 'number', 'number', 'number']),
+            modTierValueMax: Module.cwrap('get_modifier_tier_value_max', 'number', ['number', 'number', 'number', 'number']),
             itemPrefixCount: Module.cwrap('get_item_prefix_count', 'number', ['number', 'number']),
             itemSuffixCount: Module.cwrap('get_item_suffix_count', 'number', ['number', 'number']),
             itemPrefixSource: Module.cwrap('get_item_prefix_source', 'number', ['number', 'number', 'number']),
@@ -729,7 +889,7 @@
           };
           
           const c = api.itemCount();
-          statusEl.innerHTML = `<span class="success">✅ WASM Loaded!</span> <span class="muted">${c} items • 1337 modifiers • 5471 tiers</span>`;
+          statusEl.innerHTML = `<span class="status-success">✅ Ready</span> <span>${c} items • 1337 modifiers • 5471 tiers</span>`;
           
           // Populate item grid
           SIMPLE_ITEMS.forEach(item => {
@@ -760,7 +920,7 @@
       
       if (type === 'category') {
         const category = ITEM_CATEGORIES[value];
-        subtypeLabel.textContent = `${category.label} Type`;
+        subtypeLabel.textContent = category.label;
         subtypeGrid.innerHTML = '';
         
         category.subtypes.forEach(subtype => {
@@ -772,10 +932,16 @@
         });
         
         subtypeSection.style.display = 'block';
+        modeRaritySection.style.display = 'none';
       } else {
         subtypeSection.style.display = 'none';
         currentItemId = value;
-        showModeSelection();
+        modeRaritySection.style.display = 'block';
+        
+        // Reload modifiers if we're already in modifier selection view
+        if (modifiersPanel.style.display === 'flex') {
+          loadModifiers();
+        }
       }
     }
     
@@ -783,115 +949,320 @@
       document.querySelectorAll('#subtypeGrid .item-box').forEach(box => box.classList.remove('selected'));
       element.classList.add('selected');
       currentItemId = itemId;
-      showModeSelection();
-    }
-    
-    function showModeSelection() {
-      modeSelectionCard.style.display = 'block';
-      modeSelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      modeRaritySection.style.display = 'block';
+      
+      // Reload modifiers if we're already in modifier selection view
+      if (modifiersPanel.style.display === 'flex') {
+        loadModifiers();
+      }
     }
     
     function selectMode(mode) {
       currentMode = mode;
       
-      if (mode === 'scratch') {
-        // Skip rarity selection for scratch mode, go directly to rare modifiers
-        currentRarity = 'rare';
-        loadModifiers();
-        modifierSelectionCard.style.display = 'block';
-        raritySelectionCard.style.display = 'none';
-        modifierSelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        // Show rarity selection for improve mode
-        raritySelectionCard.style.display = 'block';
-        raritySelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Hide mode selection boxes and show summary
+      modeSelectionBoxes.style.display = 'none';
+      selectionSummary.style.display = 'block';
+      modeBadge.textContent = mode === 'scratch' ? 'From Scratch' : 'Improve';
+      
+      // Start with Normal rarity for both modes
+      currentRarity = 'normal';
+      raritySection.style.display = 'none';
+      rarityLabelSummary.style.display = 'inline';
+      document.getElementById('rarityDropdownInline').style.display = 'inline';
+      document.getElementById('rarityDropdownInline').value = 'normal';
+      loadModifiers();
+      modifiersPanel.style.display = 'flex';
+      selectedPanel.style.display = 'flex';
+      updateDisplayHeader();
+    }
+    
+    function selectRarity() {
+      const dropdown = document.getElementById('rarityDropdown');
+      const rarity = dropdown.value;
+      
+      if (!rarity) return;
+      
+      currentRarity = rarity;
+      
+      // Hide rarity selection and update summary
+      raritySection.style.display = 'none';
+      rarityLabelSummary.style.display = 'inline';
+      document.getElementById('rarityDropdownInline').style.display = 'inline';
+      document.getElementById('rarityDropdownInline').value = rarity;
+      
+      loadModifiers();
+      modifiersPanel.style.display = 'flex';
+      selectedPanel.style.display = 'flex';
+      updateDisplayHeader();
+    }
+    
+    function onRarityChange() {
+      const dropdown = document.getElementById('rarityDropdownInline');
+      currentRarity = dropdown.value;
+      updateDisplayHeader();
+    }
+    
+    function changeSelection() {
+      // Hide panels and reset to mode selection
+      modifiersPanel.style.display = 'none';
+      selectedPanel.style.display = 'none';
+      selectionSummary.style.display = 'none';
+      raritySection.style.display = 'none';
+      modeSelectionBoxes.style.display = 'block';
+      document.getElementById('rarityDropdownInline').style.display = 'none';
+      
+      // Reset selections
+      selectedModifiers = { prefixes: [], suffixes: [] };
+      currentMode = null;
+      currentRarity = null;
+    }
+    
+
+    
+    function updateDisplayHeader() {
+      if (currentMode && currentRarity) {
+        displayMode.textContent = currentMode === 'scratch' ? 'Mode: Start from Scratch' : 'Mode: Improve Existing';
+        
+        if (currentRarity === 'normal') {
+          displayRarity.textContent = 'Normal Item';
+        } else if (currentRarity === 'magic') {
+          displayRarity.textContent = 'Magic Item';
+        } else {
+          displayRarity.textContent = 'Rare Item';
+        }
+        displayRarity.className = `selected-rarity ${currentRarity}`;
+        updateModifierCount();
       }
     }
     
-    function selectRarity(rarity) {
-      currentRarity = rarity;
-      loadModifiers();
-      modifierSelectionCard.style.display = 'block';
-      modifierSelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    
-    function backToMode() {
-      raritySelectionCard.style.display = 'none';
-      modeSelectionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    function updateModifierCount() {
+      const total = selectedModifiers.prefixes.length + selectedModifiers.suffixes.length;
+      const max = 6; // Always allow up to 6 modifiers (3 prefix + 3 suffix)
+      displayCount.textContent = `${total}/${max}`;
     }
     
     function loadModifiers() {
-      if (!currentItemId) return;
+      if (currentItemId === null || currentItemId === undefined) return;
       
-      const source = parseInt(modSourceEl.value);
+      const sourceValue = modSourceEl.value;
       selectedModifiers = { prefixes: [], suffixes: [] };
       
-      const prefixCount = api.itemPrefixCount(currentItemId, source);
-      const suffixCount = api.itemSuffixCount(currentItemId, source);
+      // Determine which sources to load
+      let sourcesToLoad = [];
+      if (sourceValue === 'all') {
+        sourcesToLoad = [0, 1, 2]; // Normal, Desecrated, Essence
+      } else {
+        sourcesToLoad = [parseInt(sourceValue)];
+      }
       
-      // Load prefixes
+      console.log('Loading modifiers for item:', currentItemId, 'sources:', sourcesToLoad);
+      
+      // Load prefixes from all selected sources
       prefixList.innerHTML = '';
-      for (let p = 0; p < prefixCount; p++) {
-        const modSrc = api.itemPrefixSource(currentItemId, source, p);
-        const modIdx = api.itemPrefixIndex(currentItemId, source, p);
-        const modName = api.modName(modSrc, modIdx);
-        const tierCount = api.modTierCount(modSrc, modIdx);
+      const seenPrefixes = new Set();
+      
+      sourcesToLoad.forEach(source => {
+        const prefixCount = api.itemPrefixCount(currentItemId, source);
+        console.log('Source', source, 'prefix count:', prefixCount);
+        
+        for (let p = 0; p < prefixCount; p++) {
+          const modSrc = api.itemPrefixSource(currentItemId, source, p);
+          const modIdx = api.itemPrefixIndex(currentItemId, source, p);
+          const modKey = `${modSrc}_${modIdx}`;
+          
+          // Skip if we've already added this modifier
+          if (seenPrefixes.has(modKey)) continue;
+          seenPrefixes.add(modKey);
+          
+          const modDesc = api.modDescription(modSrc, modIdx);
+          const tierCount = api.modTierCount(modSrc, modIdx);
         
         const itemDiv = document.createElement('div');
         itemDiv.className = 'modifier-item';
         const checkboxId = `prefix_${modSrc}_${modIdx}`;
+        const dropdownId = `prefix_tier_${modSrc}_${modIdx}`;
+        
+        // Determine source name and class
+        let sourceName = '';
+        let sourceClass = '';
+        if (modSrc === 0) {
+          sourceName = 'Normal';
+          sourceClass = 'normal-source';
+        } else if (modSrc === 1) {
+          sourceName = 'Desecrated';
+          sourceClass = 'desecrated-source';
+        } else if (modSrc === 2) {
+          sourceName = 'Essence';
+          sourceClass = 'essence-source';
+        } else if (modSrc === 3) {
+          sourceName = 'Perfect Essence';
+          sourceClass = 'essence-source';
+        }
+        
+        // Build tier dropdown options with values (reversed - highest values = T1)
+        let tierOptions = '';
+        for (let t = tierCount - 1; t >= 0; t--) {
+          const valueCount = api.modTierValueCount(modSrc, modIdx, t);
+          let valueStr = '';
+          for (let v = 0; v < valueCount; v++) {
+            const min = api.modTierValueMin(modSrc, modIdx, t, v);
+            const max = api.modTierValueMax(modSrc, modIdx, t, v);
+            if (v > 0) valueStr += ', ';
+            if (min === max) {
+              valueStr += min;
+            } else {
+              valueStr += `${min}-${max}`;
+            }
+          }
+          tierOptions += `<option value="${t}">T${tierCount - t}: ${valueStr}</option>`;
+        }
+        
         itemDiv.innerHTML = `
           <input type="checkbox" id="${checkboxId}">
-          <label for="${checkboxId}">${modName}</label>
+          <label for="${checkboxId}">${modDesc}</label>
+          <span class="source-badge ${sourceClass}">${sourceName}</span>
           <span class="tier-badge">${tierCount} tiers</span>
+          <select class="tier-dropdown" id="${dropdownId}" style="display: none;">
+            ${tierOptions}
+          </select>
         `;
         
-        // Make the entire div clickable
+        // Make the entire div clickable except for dropdown
         itemDiv.onclick = function(e) {
-          if (e.target.tagName !== 'INPUT') {
-            const checkbox = this.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            toggleModifier('prefix', modSrc, modIdx, checkbox);
-          } else {
-            toggleModifier('prefix', modSrc, modIdx, e.target);
-          }
+          // Don't toggle if clicking on dropdown
+          if (e.target.tagName === 'SELECT') return;
+          
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const checkbox = this.querySelector('input[type="checkbox"]');
+          checkbox.checked = !checkbox.checked;
+          toggleModifier('prefix', modSrc, modIdx, checkbox);
         };
         
-        prefixList.appendChild(itemDiv);
-      }
+        // Handle tier dropdown change
+        const dropdown = itemDiv.querySelector('select');
+        dropdown.onchange = function() {
+          updateSelectedDisplay();
+        };
+        
+          prefixList.appendChild(itemDiv);
+        }
+      });
       
-      // Load suffixes
+      // Load suffixes from all selected sources
       suffixList.innerHTML = '';
-      for (let s = 0; s < suffixCount; s++) {
-        const modSrc = api.itemSuffixSource(currentItemId, source, s);
-        const modIdx = api.itemSuffixIndex(currentItemId, source, s);
-        const modName = api.modName(modSrc, modIdx);
-        const tierCount = api.modTierCount(modSrc, modIdx);
+      const seenSuffixes = new Set();
+      
+      sourcesToLoad.forEach(source => {
+        const suffixCount = api.itemSuffixCount(currentItemId, source);
+        console.log('Source', source, 'suffix count:', suffixCount);
+        
+        for (let s = 0; s < suffixCount; s++) {
+          const modSrc = api.itemSuffixSource(currentItemId, source, s);
+          const modIdx = api.itemSuffixIndex(currentItemId, source, s);
+          const modKey = `${modSrc}_${modIdx}`;
+          
+          // Skip if we've already added this modifier
+          if (seenSuffixes.has(modKey)) continue;
+          seenSuffixes.add(modKey);
+          
+          const modDesc = api.modDescription(modSrc, modIdx);
+          const tierCount = api.modTierCount(modSrc, modIdx);
         
         const itemDiv = document.createElement('div');
         itemDiv.className = 'modifier-item';
         const checkboxId = `suffix_${modSrc}_${modIdx}`;
+        const dropdownId = `suffix_tier_${modSrc}_${modIdx}`;
+        
+        // Determine source name and class
+        let sourceName = '';
+        let sourceClass = '';
+        if (modSrc === 0) {
+          sourceName = 'Normal';
+          sourceClass = 'normal-source';
+        } else if (modSrc === 1) {
+          sourceName = 'Desecrated';
+          sourceClass = 'desecrated-source';
+        } else if (modSrc === 2) {
+          sourceName = 'Essence';
+          sourceClass = 'essence-source';
+        } else if (modSrc === 3) {
+          sourceName = 'Perfect Essence';
+          sourceClass = 'essence-source';
+        }
+        
+        // Build tier dropdown options with values (reversed - highest values = T1)
+        let tierOptions = '';
+        for (let t = tierCount - 1; t >= 0; t--) {
+          const valueCount = api.modTierValueCount(modSrc, modIdx, t);
+          let valueStr = '';
+          for (let v = 0; v < valueCount; v++) {
+            const min = api.modTierValueMin(modSrc, modIdx, t, v);
+            const max = api.modTierValueMax(modSrc, modIdx, t, v);
+            if (v > 0) valueStr += ', ';
+            if (min === max) {
+              valueStr += min;
+            } else {
+              valueStr += `${min}-${max}`;
+            }
+          }
+          tierOptions += `<option value="${t}">T${tierCount - t}: ${valueStr}</option>`;
+        }
+        
         itemDiv.innerHTML = `
           <input type="checkbox" id="${checkboxId}">
-          <label for="${checkboxId}">${modName}</label>
+          <label for="${checkboxId}">${modDesc}</label>
+          <span class="source-badge ${sourceClass}">${sourceName}</span>
           <span class="tier-badge">${tierCount} tiers</span>
+          <select class="tier-dropdown" id="${dropdownId}" style="display: none;">
+            ${tierOptions}
+          </select>
         `;
         
-        // Make the entire div clickable
+        // Make the entire div clickable except for dropdown
         itemDiv.onclick = function(e) {
-          if (e.target.tagName !== 'INPUT') {
-            const checkbox = this.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            toggleModifier('suffix', modSrc, modIdx, checkbox);
-          } else {
-            toggleModifier('suffix', modSrc, modIdx, e.target);
-          }
+          // Don't toggle if clicking on dropdown
+          if (e.target.tagName === 'SELECT') return;
+          
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const checkbox = this.querySelector('input[type="checkbox"]');
+          checkbox.checked = !checkbox.checked;
+          toggleModifier('suffix', modSrc, modIdx, checkbox);
         };
         
-        suffixList.appendChild(itemDiv);
-      }
+        // Handle tier dropdown change
+        const dropdown = itemDiv.querySelector('select');
+        dropdown.onchange = function() {
+          updateSelectedDisplay();
+        };
+        
+          suffixList.appendChild(itemDiv);
+        }
+      });
       
+      filterModifiers();
       updateSelectedDisplay();
+    }
+    
+    function filterModifiers() {
+      const filterType = modTypeEl.value;
+      const prefixContainer = prefixList.parentElement;
+      const suffixContainer = suffixList.parentElement;
+      
+      if (filterType === 'all') {
+        prefixContainer.style.display = 'block';
+        suffixContainer.style.display = 'block';
+      } else if (filterType === 'prefix') {
+        prefixContainer.style.display = 'block';
+        suffixContainer.style.display = 'none';
+      } else if (filterType === 'suffix') {
+        prefixContainer.style.display = 'none';
+        suffixContainer.style.display = 'block';
+      }
     }
     
     function reloadModifiers() {
@@ -904,67 +1275,125 @@
       const idx = array.findIndex(m => m.key === key);
       
       const parent = checkbox.closest('.modifier-item');
+      const dropdown = parent.querySelector('.tier-dropdown');
       
       if (idx >= 0) {
+        // Deselect
         array.splice(idx, 1);
         parent.classList.remove('selected');
+        dropdown.style.display = 'none';
       } else {
-        const modName = api.modName(source, index);
+        // Check if we've reached the limit (max 3 prefixes or 3 suffixes)
+        const maxAllowed = 3;
+        
+        if (array.length >= maxAllowed) {
+          alert(`You can only select up to ${maxAllowed} ${type === 'prefix' ? 'prefixes' : 'suffixes'}.`);
+          checkbox.checked = false;
+          return;
+        }
+        
+        // Select
+        const modDesc = api.modDescription(source, index);
         const tierCount = api.modTierCount(source, index);
-        array.push({ key, source, index, name: modName, tierCount });
+        array.push({ key, source, index, description: modDesc, tierCount });
         parent.classList.add('selected');
+        dropdown.style.display = 'block';
       }
       
       updateSelectedDisplay();
+      updateModifierCount();
     }
     
     function updateSelectedDisplay() {
       if (selectedModifiers.prefixes.length === 0 && selectedModifiers.suffixes.length === 0) {
-        selectedOutput.innerHTML = '<span class="muted">No modifiers selected yet...</span>';
+        selectedOutput.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <div>No modifiers selected</div>
+          </div>
+        `;
         return;
       }
       
-      const sources = ['NORMAL', 'DESECRATED', 'ESSENCE'];
-      let output = `<span class="success">✅ Selected Modifiers</span>\n\n`;
-      output += `<span class="muted">Mode: ${currentMode === 'scratch' ? 'Start from Scratch' : 'Improve Existing'}</span>\n`;
-      output += `<span class="muted">Rarity: ${currentRarity === 'magic' ? 'Magic' : 'Rare'}</span>\n\n`;
+      let output = '<div class="selected-list">';
       
       if (selectedModifiers.prefixes.length > 0) {
-        output += `<span class="warning">Prefixes (${selectedModifiers.prefixes.length}):</span>\n`;
+        output += '<div><div class="selected-group-title">Prefixes</div>';
         selectedModifiers.prefixes.forEach(mod => {
-          output += `  • ${mod.name} <span class="muted">[${sources[mod.source]}] - ${mod.tierCount} tiers</span>\n`;
+          const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
+          const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
           
-          for (let t = 0; t < Math.min(3, mod.tierCount); t++) {
-            const tName = api.modTierName(mod.source, mod.index, t);
-            const tLvl = api.modTierLevelReq(mod.source, mod.index, t);
-            const tWeight = api.modTierWeight(mod.source, mod.index, t);
-            output += `    <span class="accent">T${t+1}:</span> ${tName} <span class="muted">(lvl ${tLvl}, weight ${tWeight})</span>\n`;
+          const tName = api.modTierName(mod.source, mod.index, selectedTier);
+          const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
+          const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
+          const tierNum = mod.tierCount - selectedTier;
+          
+          // Get value range for selected tier
+          const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
+          let valueRange = '';
+          for (let v = 0; v < valueCount; v++) {
+            const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
+            const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
+            if (v > 0) valueRange += ' to ';
+            valueRange += `${min}-${max}`;
           }
-          if (mod.tierCount > 3) {
-            output += `    <span class="muted">... and ${mod.tierCount - 3} more tiers</span>\n`;
-          }
-          output += '\n';
+          
+          output += `
+            <div class="selected-mod">
+              <div class="selected-mod-desc">${mod.description}</div>
+              <div class="selected-mod-tier">
+                <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
+              </div>
+            </div>
+          `;
         });
+        output += '</div>';
       }
       
       if (selectedModifiers.suffixes.length > 0) {
-        output += `<span class="warning">Suffixes (${selectedModifiers.suffixes.length}):</span>\n`;
+        output += '<div><div class="selected-group-title">Suffixes</div>';
         selectedModifiers.suffixes.forEach(mod => {
-          output += `  • ${mod.name} <span class="muted">[${sources[mod.source]}] - ${mod.tierCount} tiers</span>\n`;
+          const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
+          const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
           
-          for (let t = 0; t < Math.min(3, mod.tierCount); t++) {
-            const tName = api.modTierName(mod.source, mod.index, t);
-            const tLvl = api.modTierLevelReq(mod.source, mod.index, t);
-            const tWeight = api.modTierWeight(mod.source, mod.index, t);
-            output += `    <span class="accent">T${t+1}:</span> ${tName} <span class="muted">(lvl ${tLvl}, weight ${tWeight})</span>\n`;
+          const tName = api.modTierName(mod.source, mod.index, selectedTier);
+          const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
+          const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
+          const tierNum = mod.tierCount - selectedTier;
+          
+          // Get value range for selected tier
+          const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
+          let valueRange = '';
+          const valuePairs = [];
+          const seenPairs = new Set();
+          
+          for (let v = 0; v < valueCount; v++) {
+            const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
+            const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
+            const pairKey = `${min}-${max}`;
+            
+            // Only add unique value pairs
+            if (!seenPairs.has(pairKey)) {
+              seenPairs.add(pairKey);
+              valuePairs.push(pairKey);
+            }
           }
-          if (mod.tierCount > 3) {
-            output += `    <span class="muted">... and ${mod.tierCount - 3} more tiers</span>\n`;
-          }
-          output += '\n';
+          
+          valueRange = valuePairs.join(' to ');
+          
+          output += `
+            <div class="selected-mod">
+              <div class="selected-mod-desc">${mod.description}</div>
+              <div class="selected-mod-tier">
+                <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
+              </div>
+            </div>
+          `;
         });
+        output += '</div>';
       }
       
+      output += '</div>';
       selectedOutput.innerHTML = output;
     }
   </script>

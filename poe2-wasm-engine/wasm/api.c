@@ -74,9 +74,11 @@ EMSCRIPTEN_KEEPALIVE
 const char* get_modifier_group(int source, int index) {
     Modifier* mod = get_modifier_by_source_index(source, index);
     if (!mod) return NULL;
-    // Group is derived from name (e.g., "IncreasedLife" -> "Life")
-    // For now, return description or name
-    return mod->description;
+    // Return description if available, otherwise return name
+    if (mod->description[0] != '\0') {
+        return mod->description;
+    }
+    return mod->name;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -105,6 +107,29 @@ int get_modifier_tier_weight(int source, int index, int tier_idx) {
     Modifier* mod = get_modifier_by_source_index(source, index);
     if (!mod || tier_idx < 0 || tier_idx >= mod->tier_count) return -1;
     return mod->tiers[tier_idx].weight;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int get_modifier_tier_value_count(int source, int index, int tier_idx) {
+    Modifier* mod = get_modifier_by_source_index(source, index);
+    if (!mod || tier_idx < 0 || tier_idx >= mod->tier_count) return 0;
+    return mod->tiers[tier_idx].value_count;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int get_modifier_tier_value_min(int source, int index, int tier_idx, int value_idx) {
+    Modifier* mod = get_modifier_by_source_index(source, index);
+    if (!mod || tier_idx < 0 || tier_idx >= mod->tier_count) return 0;
+    if (value_idx < 0 || value_idx >= mod->tiers[tier_idx].value_count) return 0;
+    return mod->tiers[tier_idx].values[value_idx].min;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int get_modifier_tier_value_max(int source, int index, int tier_idx, int value_idx) {
+    Modifier* mod = get_modifier_by_source_index(source, index);
+    if (!mod || tier_idx < 0 || tier_idx >= mod->tier_count) return 0;
+    if (value_idx < 0 || value_idx >= mod->tiers[tier_idx].value_count) return 0;
+    return mod->tiers[tier_idx].values[value_idx].max;
 }
 
 // =============================================================================

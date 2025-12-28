@@ -422,10 +422,18 @@
       display: block;
       margin-bottom: 0.25rem;
       word-wrap: break-word;
+      line-height: 1.3;
     }
     
     .modifier-item.selected label {
       color: var(--accent);
+    }
+    
+    .modifier-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      align-items: center;
     }
     
     .tier-badge {
@@ -435,6 +443,23 @@
       background: var(--bg-primary);
       padding: 0.1rem 0.3rem;
       border-radius: 3px;
+      white-space: nowrap;
+    }
+    
+    .family-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: #60a5fa;
+      background: rgba(96, 165, 250, 0.15);
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      cursor: help;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     
     .source-badge {
@@ -745,6 +770,12 @@
             <button onclick="clearAllSelections()" style="flex: 1; padding: 0.5rem; background: #ff4444; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">
               Clear All
             </button>
+            <button onclick="showImportDialog()" style="flex: 1; padding: 0.5rem; background: #4caf50; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">
+              Import Item
+            </button>
+            <button onclick="exportItem()" style="flex: 1; padding: 0.5rem; background: #ff9800; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">
+              Export Item
+            </button>
           </div>
 
           <div id="selectedOutput">
@@ -761,6 +792,28 @@
       </div>
     </div>
 
+    <!-- Import Modal -->
+    <div id="importModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
+      <div style="background: var(--bg-secondary); border-radius: 8px; padding: 1.5rem; max-width: 600px; width: 90%; max-height: 80vh; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="margin: 0; color: var(--text-primary);">Import Item from Path of Exile 2</h3>
+          <button onclick="closeImportDialog()" style="background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; padding: 0; width: 30px; height: 30px;">×</button>
+        </div>
+        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Copy your item in-game (Ctrl+Alt+C) and paste the text below:
+        </div>
+        <textarea id="importTextarea" placeholder="Paste item text here..." style="flex: 1; min-height: 300px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 0.75rem; color: var(--text-primary); font-family: monospace; font-size: 0.875rem; resize: vertical;"></textarea>
+        <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+          <button onclick="closeImportDialog()" style="flex: 1; padding: 0.75rem; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font-weight: 600; cursor: pointer;">
+            Cancel
+          </button>
+          <button onclick="processImport()" style="flex: 1; padding: 0.75rem; background: #4caf50; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+            Import Item
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="status-bar">
       <div class="status-item">
         <span id="status">Initializing...</span>
@@ -768,7 +821,7 @@
     </div>
   </div>
 
-  <script src="http://localhost:5173/poe2.js"></script>
+  <script src="http://localhost:5173/poe2.js?v=20251228-1837"></script>
   <script>
     // DOM elements
     const statusEl = document.getElementById('status');
@@ -888,6 +941,7 @@
             itemCount: Module.cwrap('get_items_count', 'number', []),
             modName: Module.cwrap('get_modifier_name', 'string', ['number', 'number']),
             modDescription: Module.cwrap('get_modifier_group', 'string', ['number', 'number']),
+            modGroup: Module.cwrap('get_modifier_name', 'string', ['number', 'number']), // Family/group name
             modTierCount: Module.cwrap('get_modifier_tier_count', 'number', ['number', 'number']),
             modTierName: Module.cwrap('get_modifier_tier_name', 'string', ['number', 'number', 'number']),
             modTierLevelReq: Module.cwrap('get_modifier_tier_level_req', 'number', ['number', 'number', 'number']),
@@ -899,8 +953,10 @@
             itemSuffixCount: Module.cwrap('get_item_suffix_count', 'number', ['number', 'number']),
             itemPrefixSource: Module.cwrap('get_item_prefix_source', 'number', ['number', 'number', 'number']),
             itemPrefixIndex: Module.cwrap('get_item_prefix_index', 'number', ['number', 'number', 'number']),
+            itemPrefixMaxTier: Module.cwrap('get_item_prefix_max_tier', 'number', ['number', 'number', 'number']),
             itemSuffixSource: Module.cwrap('get_item_suffix_source', 'number', ['number', 'number', 'number']),
-            itemSuffixIndex: Module.cwrap('get_item_suffix_index', 'number', ['number', 'number', 'number'])
+            itemSuffixIndex: Module.cwrap('get_item_suffix_index', 'number', ['number', 'number', 'number']),
+            itemSuffixMaxTier: Module.cwrap('get_item_suffix_max_tier', 'number', ['number', 'number', 'number'])
           };
           
           const c = api.itemCount();
@@ -1113,6 +1169,656 @@
       updateModifierCount();
     }
     
+    function exportItem() {
+      const totalModifiers = selectedModifiers.prefixes.length + selectedModifiers.suffixes.length;
+      if (totalModifiers === 0) {
+        alert('No modifiers selected. Please select modifiers before exporting.');
+        return;
+      }
+      
+      // Collect modifiers with their current tier selection
+      const modifiers = [];
+      
+      selectedModifiers.prefixes.forEach(mod => {
+        const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
+        const selectedTier = dropdown ? parseInt(dropdown.value) : 0;
+        
+        modifiers.push({
+          source: mod.source,
+          index: mod.index,
+          tier: selectedTier,
+          type: 'prefix',
+          description: mod.description
+        });
+      });
+      
+      selectedModifiers.suffixes.forEach(mod => {
+        const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
+        const selectedTier = dropdown ? parseInt(dropdown.value) : 0;
+        
+        modifiers.push({
+          source: mod.source,
+          index: mod.index,
+          tier: selectedTier,
+          type: 'suffix',
+          description: mod.description
+        });
+      });
+      
+      const exportData = {
+        itemId: currentItemId,
+        itemName: currentItemId !== null ? Module.ccall('get_item_name', 'string', ['number'], [currentItemId]) : null,
+        mode: currentMode,
+        rarity: currentRarity,
+        modifiers: modifiers
+      };
+      
+      const jsonStr = JSON.stringify(exportData, null, 2);
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(jsonStr).then(() => {
+        alert('Item configuration copied to clipboard!');
+      }).catch(err => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = jsonStr;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Item configuration copied to clipboard!');
+      });
+      
+      console.log('Exported item:', exportData);
+    }
+    
+    function showImportDialog() {
+      const modal = document.getElementById('importModal');
+      const textarea = document.getElementById('importTextarea');
+      modal.style.display = 'flex';
+      textarea.value = '';
+      textarea.focus();
+    }
+    
+    function closeImportDialog() {
+      const modal = document.getElementById('importModal');
+      modal.style.display = 'none';
+    }
+    
+    function processImport() {
+      const textarea = document.getElementById('importTextarea');
+      const itemText = textarea.value.trim();
+      
+      if (!itemText) {
+        alert('Please paste item text first!');
+        return;
+      }
+      
+      try {
+        // Check if input is JSON
+        if (itemText.startsWith('{')) {
+          importFromJSON(itemText);
+        } else {
+          parseAndImportItem(itemText);
+        }
+        closeImportDialog();
+      } catch (err) {
+        alert('Failed to parse item: ' + err.message + '\n\nMake sure you copied the full item text from Path of Exile 2 or valid JSON export.');
+        console.error('Import error:', err);
+      }
+    }
+    
+    function importFromJSON(jsonText) {
+      const data = JSON.parse(jsonText);
+      
+      if (!data.itemId || !data.modifiers) {
+        throw new Error('Invalid JSON format. Missing required fields: itemId, modifiers');
+      }
+      
+      // Set item
+      currentItemId = data.itemId;
+      
+      // Set mode and rarity (with defaults)
+      currentMode = data.mode || 'scratch';
+      currentRarity = data.rarity || 'normal';
+      
+      // Update UI to reflect mode and rarity
+      if (currentMode === 'scratch') {
+        document.getElementById('modeBadge').textContent = 'From Scratch';
+      } else {
+        document.getElementById('modeBadge').textContent = 'Improve';
+      }
+      document.getElementById('rarityDropdownInline').value = currentRarity;
+      
+      // Show panels
+      document.getElementById('modeRaritySection').style.display = 'block';
+      document.getElementById('selectionSummary').style.display = 'block';
+      document.getElementById('modeSelectionBoxes').style.display = 'none';
+      document.getElementById('modifiersPanel').style.display = 'flex';
+      document.getElementById('selectedPanel').style.display = 'flex';
+      
+      // Clear existing selections
+      selectedModifiers = { prefixes: [], suffixes: [] };
+      
+      // Load modifiers for this item
+      loadModifiers();
+      
+      // Wait a bit for modifiers to load, then apply selections
+      setTimeout(() => {
+        data.modifiers.forEach(mod => {
+          const type = mod.type || (mod.description && mod.description.includes('+') ? 'suffix' : 'prefix');
+          const array = type === 'prefix' ? selectedModifiers.prefixes : selectedModifiers.suffixes;
+          const key = `${mod.source}_${mod.index}`;
+          
+          // Get modifier details from WASM
+          const modDesc = api.modDescription(mod.source, mod.index);
+          const tierCount = api.modTierCount(mod.source, mod.index);
+          
+          array.push({
+            key: key,
+            source: mod.source,
+            index: mod.index,
+            type: type,
+            description: modDesc,
+            tierCount: tierCount
+          });
+          
+          // Update checkbox and dropdown in UI
+          const checkboxId = `${type}_${mod.source}_${mod.index}`;
+          const checkbox = document.getElementById(checkboxId);
+          if (checkbox) {
+            checkbox.checked = true;
+            const parent = checkbox.closest('.modifier-item');
+            if (parent) {
+              parent.classList.add('selected');
+              const dropdown = parent.querySelector('.tier-dropdown');
+              if (dropdown) {
+                dropdown.style.display = 'block';
+                if (mod.tier !== undefined) {
+                  dropdown.value = mod.tier;
+                }
+              }
+            }
+          }
+        });
+        
+        // Update UI
+        updateSelectedDisplay();
+        updateModifierCount();
+        
+        console.log('Imported from JSON:', data);
+      }, 100);
+    }
+    
+    function parseAndImportItem(itemText) {
+      const lines = itemText.split('\n').map(l => l.trim()).filter(l => l);
+      
+      // Parse item class
+      let itemClass = null;
+      let rarity = null;
+      let itemLevel = null;
+      const parsedModifiers = { prefixes: [], suffixes: [] };
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        
+        // Parse Item Class
+        if (line.startsWith('Item Class:')) {
+          itemClass = line.replace('Item Class:', '').trim();
+        }
+        
+        // Parse Rarity
+        if (line.startsWith('Rarity:')) {
+          const rarityText = line.replace('Rarity:', '').trim().toLowerCase();
+          if (rarityText === 'normal') rarity = 'normal';
+          else if (rarityText === 'magic') rarity = 'magic';
+          else if (rarityText === 'rare') rarity = 'rare';
+        }
+        
+        // Parse Item Level
+        if (line.startsWith('Item Level:')) {
+          itemLevel = parseInt(line.replace('Item Level:', '').trim());
+        }
+        
+        // Parse modifiers - skip implicit modifiers
+        if (line.startsWith('{ Prefix Modifier') || line.startsWith('{ Suffix Modifier')) {
+          const isPrefix = line.startsWith('{ Prefix');
+          const type = isPrefix ? 'prefixes' : 'suffixes';
+          
+          // Extract modifier name and tier
+          const nameMatch = line.match(/"([^"]+)"/);
+          const tierMatch = line.match(/Tier:\s*(\d+)/);
+          
+          if (nameMatch) {
+            const tierName = nameMatch[1];
+            const tier = tierMatch ? parseInt(tierMatch[1]) : null;
+            
+            // Extract the actual modifier description from next line(s)
+            // Stop at the next { or --- separator
+            const descriptions = [];
+            for (let j = i + 1; j < lines.length; j++) {
+              const nextLine = lines[j];
+              if (nextLine.startsWith('{') || nextLine.startsWith('---')) break;
+              if (nextLine && !nextLine.startsWith('Sockets') && !nextLine.startsWith('Quality')) {
+                descriptions.push(nextLine);
+              }
+            }
+            
+            console.log(`Parsed ${type.slice(0, -2)} "${tierName}" (T${tier}):`, descriptions);
+            
+            parsedModifiers[type].push({
+              tierName: tierName,
+              tier: tier,
+              descriptions: descriptions
+            });
+          }
+        }
+      }
+      
+      console.log('=== PARSED ITEM ===');
+      console.log('Item Class:', itemClass);
+      console.log('Rarity:', rarity);
+      console.log('Item Level:', itemLevel);
+      console.log('Prefixes:', parsedModifiers.prefixes);
+      console.log('Suffixes:', parsedModifiers.suffixes);
+      console.log('==================');
+      
+      if (!rarity) {
+        throw new Error('Could not parse item rarity');
+      }
+      
+      // Auto-detect item ID from parsed item class (prioritize this over current selection)
+      let itemId = null;
+      
+      // If item class was parsed, try to auto-detect the item ID
+      if (itemClass) {
+        itemId = findItemIdByClass(itemClass);
+        if (itemId) {
+          console.log(`Auto-detected item ID ${itemId} from class "${itemClass}"`);
+        } else {
+          console.warn(`Unknown item class: ${itemClass}, will use manual selection if available`);
+        }
+      }
+      
+      // Fall back to manually selected item if auto-detection failed
+      if (!itemId) {
+        itemId = currentItemId;
+      }
+      
+      if (!itemId) {
+        throw new Error('Could not detect item type. Please select the item base manually in Step 1 before importing.');
+      }
+      
+      // Now match modifiers from our database using the detected/selected item
+      const matchedModifiers = matchModifiersToDatabase(itemId, parsedModifiers);
+      
+      if (matchedModifiers.prefixes.length === 0 && matchedModifiers.suffixes.length === 0) {
+        throw new Error('Could not match any modifiers to the database');
+      }
+      
+      // Apply the import using the already-selected item base
+      applyImportedItem(itemId, rarity, matchedModifiers, parsedModifiers);
+    }
+    
+    function findItemIdByClass(itemClass) {
+      // Normalize the item class name
+      const normalized = itemClass.toLowerCase().trim();
+      
+      // Map common item class variations
+      const classMap = {
+        'foci': 39,
+        'focus': 39,
+        'boots': 17,
+        'gloves': 18,
+        'helmets': 11,
+        'helmet': 11,
+        'body armours': 20,
+        'body armour': 20,
+        'amulets': 4,
+        'amulet': 4,
+        'rings': 24,
+        'ring': 24,
+        'belts': 25,
+        'belt': 25,
+        'quivers': 2,
+        'quiver': 2,
+        'bows': 0,
+        'bow': 0,
+        'crossbows': 1,
+        'crossbow': 1,
+        'wands': 37,
+        'wand': 37,
+        'sceptres': 16,
+        'sceptre': 16,
+        'staves': 40,
+        'staff': 40,
+        'quarterstaves': 38,
+        'quarterstaff': 38,
+        'one hand maces': 3,
+        'two hand maces': 9,
+        'spears': 5,
+        'spear': 5,
+        'bucklers': 23,
+        'buckler': 23
+      };
+      
+      return classMap[normalized] || null;
+    }
+    
+    function matchModifiersToDatabase(itemId, parsedModifiers) {
+      const matched = { prefixes: [], suffixes: [] };
+      
+      console.log('=== MATCHING MODIFIERS ===');
+      console.log('Item ID:', itemId);
+      
+      // Load all available modifiers for this item
+      // Prioritize sources based on tier names: if tier name contains "Essence", check ESSENCE first
+      const hasEssence = parsedModifiers.prefixes.some(p => p.tierName && p.tierName.includes('Essence')) ||
+                        parsedModifiers.suffixes.some(s => s.tierName && s.tierName.includes('Essence'));
+      const hasDesecrated = parsedModifiers.prefixes.some(p => p.tierName && p.tierName.includes('Desecrated')) ||
+                           parsedModifiers.suffixes.some(s => s.tierName && s.tierName.includes('Desecrated'));
+      
+      // Prioritize source order based on detected tier names
+      let sources;
+      if (hasEssence) {
+        sources = [2, 0, 1]; // Essence first, then Normal, then Desecrated
+      } else if (hasDesecrated) {
+        sources = [1, 0, 2]; // Desecrated first, then Normal, then Essence
+      } else {
+        sources = [0, 1, 2]; // Normal first (default)
+      }
+      
+      console.log('Source priority:', sources.map(s => ['Normal', 'Desecrated', 'Essence'][s]).join(' → '));
+      
+      // Match prefixes
+      console.log('\n--- MATCHING PREFIXES ---');
+      for (const parsed of parsedModifiers.prefixes) {
+        const match = findModifierInDatabase(itemId, 'prefix', parsed, sources);
+        if (match) {
+          matched.prefixes.push(match);
+        } else {
+          console.warn('❌ Could not match prefix:', parsed);
+        }
+      }
+      
+      // Match suffixes
+      console.log('\n--- MATCHING SUFFIXES ---');
+      for (const parsed of parsedModifiers.suffixes) {
+        const match = findModifierInDatabase(itemId, 'suffix', parsed, sources);
+        if (match) {
+          matched.suffixes.push(match);
+        } else {
+          console.warn('❌ Could not match suffix:', parsed);
+        }
+      }
+      
+      console.log('\n=== MATCHING COMPLETE ===');
+      console.log('Matched:', matched.prefixes.length, 'prefixes,', matched.suffixes.length, 'suffixes');
+      
+      // Count how many modifiers couldn't be matched
+      const unmatchedCount = (parsedModifiers.prefixes.length - matched.prefixes.length) + 
+                             (parsedModifiers.suffixes.length - matched.suffixes.length);
+      
+      if (unmatchedCount > 0) {
+        console.warn(`⚠️ ${unmatchedCount} modifier(s) could not be matched - they may not be available for the selected item base`);
+      }
+      
+      console.log('=======================\n');
+      
+      return matched;
+    }
+    
+    function findModifierInDatabase(itemId, type, parsedMod, sources) {
+      console.log(`Searching for ${type}:`, parsedMod);
+      
+      // Skip tier name matching as it's unreliable - go straight to description matching
+      // (POE2 tier names don't always match our database tier names)
+      
+      // Try description matching
+      console.log(`  Trying description matching...`);
+      console.log(`  Looking for modifier with ${parsedMod.descriptions.length} line(s):`, parsedMod.descriptions);
+      
+      for (const source of sources) {
+        const count = type === 'prefix' ? api.itemPrefixCount(itemId, source) : api.itemSuffixCount(itemId, source);
+        
+        for (let i = 0; i < count; i++) {
+          const modSrc = type === 'prefix' ? api.itemPrefixSource(itemId, source, i) : api.itemSuffixSource(itemId, source, i);
+          const modIdx = type === 'prefix' ? api.itemPrefixIndex(itemId, source, i) : api.itemSuffixIndex(itemId, source, i);
+          
+          // Get the max tier index for this modifier on this item type
+          // This is more accurate than the modifier's full tier_count, as some items restrict available tiers
+          const maxTierIndex = type === 'prefix' ? api.itemPrefixMaxTier(itemId, source, i) : api.itemSuffixMaxTier(itemId, source, i);
+          const tierCount = maxTierIndex + 1; // Convert index to count (e.g., max_tier=9 means 10 tiers: 0-9)
+          
+          const modDesc = api.modDescription(modSrc, modIdx);
+          
+          // Split database description by newlines to get individual lines
+          const dbLines = modDesc.split('\n').map(line => line.trim()).filter(line => line);
+          
+          // Only match if number of lines matches
+          if (dbLines.length !== parsedMod.descriptions.length) {
+            // Debug: log when line counts don't match for first few
+            if (i < 2) {
+              console.log(`    Skipping (${dbLines.length} lines): ${modDesc.substring(0, 50)}...`);
+            }
+            continue;
+          }
+          
+          // Try to match ALL lines
+          let allLinesMatch = true;
+          for (let lineIdx = 0; lineIdx < parsedMod.descriptions.length; lineIdx++) {
+            const parsedLine = parsedMod.descriptions[lineIdx];
+            const dbLine = dbLines[lineIdx];
+            
+            // Normalize both lines
+            const normalizedParsed = parsedLine
+              .replace(/\([^)]+\)/g, '')  // Remove parentheses with ranges
+              .replace(/[\d\.\-\+%]+/g, '#')  // Replace numbers with #
+              .replace(/#/g, '')  // Remove all # symbols
+              .replace(/\s+/g, ' ')
+              .trim()
+              .toLowerCase();
+            
+            const normalizedDb = dbLine
+              .replace(/[\d\.\-\+%]+/g, '#')
+              .replace(/#/g, '')
+              .replace(/\s+/g, ' ')
+              .trim()
+              .toLowerCase();
+            
+            if (normalizedParsed !== normalizedDb) {
+              allLinesMatch = false;
+              // Debug first mismatch
+              if (i < 2) {
+                console.log(`    Line ${lineIdx} mismatch: "${normalizedParsed}" vs "${normalizedDb}"`);
+              }
+              break;
+            }
+          }
+          
+          if (allLinesMatch) {
+            console.log(`  ✓ Matched by description (all ${parsedMod.descriptions.length} lines) to modifier ${modIdx}:`, modDesc);
+            
+            // If we have a tier name from POE2, try to match it to a tier in this modifier
+            // Tier name matching is especially important for essence/desecrated modifiers
+            let tierNameMatch = -1;
+            if (parsedMod.tierName) {
+              for (let t = 0; t < tierCount; t++) {
+                const dbTierName = api.modTierName(modSrc, modIdx, t);
+                if (dbTierName === parsedMod.tierName) {
+                  tierNameMatch = t;
+                  console.log(`  ✓ Tier name "${parsedMod.tierName}" matched to tier index ${t}`);
+                  break;
+                }
+              }
+              
+              // If tier name doesn't match for essence/desecrated modifiers, skip this modifier
+              // (This prevents matching essence modifiers to normal modifiers with same description)
+              // But for normal modifiers, tier names often differ, so we allow description-only matching
+              if (tierNameMatch === -1 && (modSrc === 1 || modSrc === 2 || parsedMod.tierName.includes('Essence'))) {
+                console.log(`  ✗ Tier name "${parsedMod.tierName}" not found in this modifier's tiers, skipping essence/desecrated...`);
+                continue;
+              } else if (tierNameMatch === -1) {
+                console.log(`  ⚠ Tier name "${parsedMod.tierName}" not found, will use tier number instead`);
+              }
+            }
+            
+            const key = `${modSrc}_${modIdx}`;
+            
+            // Use tier name match if found, otherwise use tier number mapping
+            let selectedTier;
+            if (tierNameMatch >= 0) {
+              selectedTier = tierNameMatch;
+              console.log(`  Using tier from name match: index ${selectedTier}`);
+            } else {
+              // Map POE2 tier to our tier system
+              // POE2: Tier 1 = BEST tier, Tier 2 = second best, etc. (counting from top)
+              // Our system: Tier 0 = WORST, Tier 1 = second worst, ..., Tier N-1 = BEST (counting from bottom)
+              // Formula: our_tier = tierCount - poe2_tier
+              // Example: If tierCount=8 and POE2 shows Tier 2, then our_tier = 8-2 = 6 (second from top)
+              selectedTier = tierCount - 1; // Default to best tier
+              if (parsedMod.tier && parsedMod.tier > 0 && parsedMod.tier <= tierCount) {
+                selectedTier = tierCount - parsedMod.tier;
+              }
+              console.log(`  Tier mapping: POE2 T${parsedMod.tier} → Our index ${selectedTier} (out of ${tierCount} tiers, 0=worst)`);
+            }
+            
+            return {
+              key: key,
+              source: modSrc,
+              index: modIdx,
+              description: modDesc,
+              tierCount: tierCount,
+              selectedTier: selectedTier
+            };
+          }
+        }
+      }
+      
+      console.log(`  ✗ No match found`);
+      return null;
+    }
+    
+    function applyImportedItem(itemId, rarity, matchedModifiers, parsedModifiers) {
+      // Set mode to improve since we're importing an existing item
+      currentMode = 'improve';
+      currentItemId = itemId;
+      currentRarity = rarity;
+      
+      // Update UI to show the selected item
+      const itemName = findItemNameById(itemId);
+      
+      // Hide initial selections and show simulator
+      modeSelectionBoxes.style.display = 'none';
+      selectionSummary.style.display = 'block';
+      modeBadge.textContent = 'Improve';
+      
+      raritySection.style.display = 'none';
+      rarityLabelSummary.style.display = 'inline';
+      document.getElementById('rarityDropdownInline').style.display = 'inline';
+      document.getElementById('rarityDropdownInline').value = rarity;
+      
+      // Load modifiers
+      loadModifiers();
+      
+      // Set the matched modifiers as existing modifiers
+      existingModifiers.prefixes = [...matchedModifiers.prefixes];
+      existingModifiers.suffixes = [...matchedModifiers.suffixes];
+      selectedModifiers.prefixes = [...matchedModifiers.prefixes];
+      selectedModifiers.suffixes = [...matchedModifiers.suffixes];
+      
+      // Enter expanded mode immediately
+      isExpandedMode = true;
+      
+      // Update UI
+      modifiersPanel.style.display = 'flex';
+      selectedPanel.style.display = 'flex';
+      
+      const actionBtn = document.getElementById('actionBtn');
+      const stepDescription = document.getElementById('stepDescription');
+      
+      actionBtn.textContent = 'Calculate Probabilities →';
+      actionBtn.onclick = finalizeSelection;
+      
+      const existingCount = existingModifiers.prefixes.length + existingModifiers.suffixes.length;
+      const remaining = 6 - existingCount;
+      const remainingPrefixes = 3 - existingModifiers.prefixes.length;
+      const remainingSuffixes = 3 - existingModifiers.suffixes.length;
+      stepDescription.textContent = `Existing modifiers locked. Now add up to ${remaining} more modifiers from all sources (up to ${remainingPrefixes} prefixes, ${remainingSuffixes} suffixes)`;
+      
+      updateDisplayHeader();
+      
+      // Check and disable existing modifier checkboxes after a brief delay to ensure DOM is ready
+      setTimeout(() => {
+        existingModifiers.prefixes.forEach(mod => {
+          const checkbox = document.getElementById(`prefix_${mod.source}_${mod.index}`);
+          if (checkbox) {
+            checkbox.checked = true;
+            checkbox.disabled = true;
+            const parent = checkbox.closest('.modifier-item');
+            if (parent) {
+              parent.classList.add('selected');
+              parent.style.opacity = '0.7';
+              const dropdown = parent.querySelector('.tier-dropdown');
+              if (dropdown) {
+                dropdown.style.display = 'block';
+                dropdown.value = mod.selectedTier;
+                dropdown.id = `prefix_tier_${mod.source}_${mod.index}`;  // Ensure dropdown has correct ID
+              }
+            }
+          }
+        });
+        
+        existingModifiers.suffixes.forEach(mod => {
+          const checkbox = document.getElementById(`suffix_${mod.source}_${mod.index}`);
+          if (checkbox) {
+            checkbox.checked = true;
+            checkbox.disabled = true;
+            const parent = checkbox.closest('.modifier-item');
+            if (parent) {
+              parent.classList.add('selected');
+              parent.style.opacity = '0.7';
+              const dropdown = parent.querySelector('.tier-dropdown');
+              if (dropdown) {
+                dropdown.style.display = 'block';
+                dropdown.value = mod.selectedTier;
+                dropdown.id = `suffix_tier_${mod.source}_${mod.index}`;  // Ensure dropdown has correct ID
+              }
+            }
+          }
+        });
+        
+        updateSelectedDisplay();
+        updateModifierCount();
+      }, 100);
+      
+      // Calculate unmatched modifiers for warning message
+      const totalParsed = (parsedModifiers?.prefixes?.length || 0) + (parsedModifiers?.suffixes?.length || 0);
+      const totalMatched = matchedModifiers.prefixes.length + matchedModifiers.suffixes.length;
+      const unmatchedCount = totalParsed - totalMatched;
+      
+      let message = `Item imported successfully!\n\nItem: ${itemName}\nRarity: ${rarity}\nModifiers: ${matchedModifiers.prefixes.length} prefixes, ${matchedModifiers.suffixes.length} suffixes`;
+      
+      if (unmatchedCount > 0) {
+        message += `\n\n⚠️ Note: ${unmatchedCount} modifier(s) could not be matched.\nThis usually means the database is outdated and missing some modifiers.\nYou can manually select the missing modifiers or calculate with what was imported.`;
+      }
+      
+      message += '\n\nYou can now add more modifiers or calculate probabilities.';
+      
+      alert(message);
+    }
+    
+    function findItemNameById(itemId) {
+      for (const category in ITEM_CATEGORIES) {
+        for (const subtype of ITEM_CATEGORIES[category].subtypes) {
+          if (subtype.id === itemId) {
+            return subtype.name;
+          }
+        }
+      }
+      return 'Unknown Item';
+    }
+    
     function toggleSelectionMode() {
       const actionBtn = document.getElementById('actionBtn');
       const stepDescription = document.getElementById('stepDescription');
@@ -1207,7 +1913,8 @@
           seenPrefixes.add(modKey);
           
           const modDesc = api.modDescription(modSrc, modIdx);
-          const tierCount = api.modTierCount(modSrc, modIdx);
+          const maxTierIndex = api.itemPrefixMaxTier(currentItemId, source, p);
+          const tierCount = maxTierIndex + 1; // Convert index to count
         
         const itemDiv = document.createElement('div');
         itemDiv.className = 'modifier-item';
@@ -1249,11 +1956,16 @@
           tierOptions += `<option value="${t}">T${tierCount - t}: ${valueStr}</option>`;
         }
         
+        const modGroup = api.modGroup(modSrc, modIdx);
+        
         itemDiv.innerHTML = `
           <input type="checkbox" id="${checkboxId}">
           <label for="${checkboxId}">${modDesc}</label>
-          <span class="source-badge ${sourceClass}">${sourceName}</span>
-          <span class="tier-badge">${tierCount} tiers</span>
+          <div class="modifier-badges">
+            <span class="source-badge ${sourceClass}">${sourceName}</span>
+            <span class="tier-badge">${tierCount} tiers</span>
+            <span class="family-badge" title="Family: ${modGroup}">${modGroup}</span>
+          </div>
           <select class="tier-dropdown" id="${dropdownId}" style="display: none;">
             ${tierOptions}
           </select>
@@ -1300,7 +2012,8 @@
           seenSuffixes.add(modKey);
           
           const modDesc = api.modDescription(modSrc, modIdx);
-          const tierCount = api.modTierCount(modSrc, modIdx);
+          const maxTierIndex = api.itemSuffixMaxTier(currentItemId, source, s);
+          const tierCount = maxTierIndex + 1; // Convert index to count
         
         const itemDiv = document.createElement('div');
         itemDiv.className = 'modifier-item';
@@ -1342,11 +2055,16 @@
           tierOptions += `<option value="${t}">T${tierCount - t}: ${valueStr}</option>`;
         }
         
+        const modGroup = api.modGroup(modSrc, modIdx);
+        
         itemDiv.innerHTML = `
           <input type="checkbox" id="${checkboxId}">
           <label for="${checkboxId}">${modDesc}</label>
-          <span class="source-badge ${sourceClass}">${sourceName}</span>
-          <span class="tier-badge">${tierCount} tiers</span>
+          <div class="modifier-badges">
+            <span class="source-badge ${sourceClass}">${sourceName}</span>
+            <span class="tier-badge">${tierCount} tiers</span>
+            <span class="family-badge" title="Family: ${modGroup}">${modGroup}</span>
+          </div>
           <select class="tier-dropdown" id="${dropdownId}" style="display: none;">
             ${tierOptions}
           </select>
@@ -1496,6 +2214,34 @@
             }
           }
         }
+        
+        // Check for modifier family conflicts
+        // Get the family/group name for this modifier
+        const modGroup = api.modGroup(source, index);
+        
+        // Check if any selected modifier has the same family
+        const existingFamilyIdx = array.findIndex(m => {
+          const existingGroup = api.modGroup(m.source, m.index);
+          return existingGroup === modGroup;
+        });
+        
+        if (existingFamilyIdx >= 0) {
+          // Deselect the existing modifier from same family
+          const existingMod = array[existingFamilyIdx];
+          array.splice(existingFamilyIdx, 1);
+          
+          // Uncheck the previous modifier and hide its dropdown
+          const checkboxId = `${type}_${existingMod.source}_${existingMod.index}`;
+          const existingCheckbox = document.getElementById(checkboxId);
+          if (existingCheckbox) {
+            existingCheckbox.checked = false;
+            const existingParent = existingCheckbox.closest('.modifier-item');
+            existingParent.classList.remove('selected');
+            const existingDropdown = existingParent.querySelector('.tier-dropdown');
+            existingDropdown.style.display = 'none';
+          }
+        }
+        
         // Check rarity-specific restrictions
         if (currentRarity === 'magic' && !isExpandedMode) {
           // Magic items in initial mode: only Normal modifiers, max 1 prefix and 1 suffix
@@ -1507,8 +2253,9 @@
             checkbox.checked = false;
             return;
           }
-        } else if (currentRarity === 'rare' || (currentRarity === 'magic' && isExpandedMode)) {
-          // Rare items OR magic in expanded mode: allow up to 3 of each type
+        } else if ((currentRarity === 'rare' || (currentRarity === 'magic' && isExpandedMode)) && currentMode !== 'scratch') {
+          // Rare items OR magic in expanded mode (but NOT in scratch mode): allow up to 3 of each type
+          // In scratch mode: unlimited modifiers allowed
           if (array.length >= 3) {
             checkbox.checked = false;
             return;
@@ -1518,7 +2265,7 @@
         // Select
         const modDesc = api.modDescription(source, index);
         const tierCount = api.modTierCount(source, index);
-        array.push({ key, source, index, description: modDesc, tierCount });
+        array.push({ key, source, index, type, description: modDesc, tierCount });
         parent.classList.add('selected');
         dropdown.style.display = 'block';
       }
@@ -1542,11 +2289,25 @@
       
       // Show existing modifiers section if in expanded mode
       if (isExpandedMode && (existingModifiers.prefixes.length > 0 || existingModifiers.suffixes.length > 0)) {
-        output += '<div style="border-bottom: 2px solid #4a9eff; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">';
         output += '<div style="font-weight: 600; color: #4a9eff; font-size: 0.75rem; margin-bottom: 0.5rem;">EXISTING MODIFIERS (LOCKED)</div>';
+      }
+      
+      // Show additional modifiers section header if in expanded mode
+      const additionalPrefixes = isExpandedMode ? selectedModifiers.prefixes.filter(m => 
+        !existingModifiers.prefixes.some(em => em.key === m.key)
+      ) : [];
+      const additionalSuffixes = isExpandedMode ? selectedModifiers.suffixes.filter(m => 
+        !existingModifiers.suffixes.some(em => em.key === m.key)
+      ) : [];
+      
+      const hasAdditional = additionalPrefixes.length > 0 || additionalSuffixes.length > 0;
+      
+      // Prefixes section
+      if (selectedModifiers.prefixes.length > 0 || (isExpandedMode && existingModifiers.prefixes.length > 0)) {
+        output += '<div><div class="selected-group-title">Prefixes</div>';
         
-        if (existingModifiers.prefixes.length > 0) {
-          output += '<div><div class="selected-group-title">Prefixes</div>';
+        // Show existing prefixes
+        if (isExpandedMode && existingModifiers.prefixes.length > 0) {
           existingModifiers.prefixes.forEach(mod => {
             const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
             const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
@@ -1566,7 +2327,7 @@
             }
             
             output += `
-              <div class="selected-mod" style="opacity: 0.9;">
+              <div class="selected-mod" style="opacity: 0.9; border-left: 3px solid #4a9eff; padding-left: 0.5rem;">
                 <div class="selected-mod-desc">${mod.description}</div>
                 <div class="selected-mod-tier">
                   <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
@@ -1574,11 +2335,52 @@
               </div>
             `;
           });
-          output += '</div>';
         }
         
-        if (existingModifiers.suffixes.length > 0) {
-          output += '<div><div class="selected-group-title">Suffixes</div>';
+        // Show separator if we have both existing and additional
+        if (isExpandedMode && existingModifiers.prefixes.length > 0 && additionalPrefixes.length > 0) {
+          output += '<div style="font-size: 0.7rem; color: #888; font-style: italic; margin: 0.5rem 0;">+ Additional:</div>';
+        }
+        
+        // Show additional prefixes or all prefixes if not in expanded mode
+        const prefixesToShow = isExpandedMode ? additionalPrefixes : selectedModifiers.prefixes;
+        prefixesToShow.forEach(mod => {
+          const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
+          const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
+          
+          const tName = api.modTierName(mod.source, mod.index, selectedTier);
+          const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
+          const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
+          const tierNum = mod.tierCount - selectedTier;
+          
+          const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
+          let valueRange = '';
+          for (let v = 0; v < valueCount; v++) {
+            const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
+            const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
+            if (v > 0) valueRange += ', ';
+            valueRange += `${min}-${max}`;
+          }
+          
+          output += `
+            <div class="selected-mod">
+              <div class="selected-mod-desc">${mod.description}</div>
+              <div class="selected-mod-tier">
+                <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
+              </div>
+            </div>
+          `;
+        });
+        
+        output += '</div>';
+      }
+      
+      // Suffixes section
+      if (selectedModifiers.suffixes.length > 0 || (isExpandedMode && existingModifiers.suffixes.length > 0)) {
+        output += '<div><div class="selected-group-title">Suffixes</div>';
+        
+        // Show existing suffixes
+        if (isExpandedMode && existingModifiers.suffixes.length > 0) {
           existingModifiers.suffixes.forEach(mod => {
             const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
             const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
@@ -1598,7 +2400,7 @@
             }
             
             output += `
-              <div class="selected-mod" style="opacity: 0.9;">
+              <div class="selected-mod" style="opacity: 0.9; border-left: 3px solid #4a9eff; padding-left: 0.5rem;">
                 <div class="selected-mod-desc">${mod.description}</div>
                 <div class="selected-mod-tier">
                   <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
@@ -1606,125 +2408,16 @@
               </div>
             `;
           });
-          output += '</div>';
         }
         
-        output += '</div>';
-      }
-      
-      // Show additional modifiers section if in expanded mode
-      if (isExpandedMode) {
-        const additionalPrefixes = selectedModifiers.prefixes.filter(m => 
-          !existingModifiers.prefixes.some(em => em.key === m.key)
-        );
-        const additionalSuffixes = selectedModifiers.suffixes.filter(m => 
-          !existingModifiers.suffixes.some(em => em.key === m.key)
-        );
+        // Show separator if we have both existing and additional
+        if (isExpandedMode && existingModifiers.suffixes.length > 0 && additionalSuffixes.length > 0) {
+          output += '<div style="font-size: 0.7rem; color: #888; font-style: italic; margin: 0.5rem 0;">+ Additional:</div>';
+        }
         
-        if (additionalPrefixes.length > 0 || additionalSuffixes.length > 0) {
-          output += '<div style="font-weight: 600; color: #888; font-size: 0.75rem; margin-bottom: 0.5rem;">ADDITIONAL MODIFIERS</div>';
-          
-          if (additionalPrefixes.length > 0) {
-            output += '<div><div class="selected-group-title">Prefixes</div>';
-            additionalPrefixes.forEach(mod => {
-              const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
-              const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
-              
-              const tName = api.modTierName(mod.source, mod.index, selectedTier);
-              const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
-              const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
-              const tierNum = mod.tierCount - selectedTier;
-              
-              const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
-              let valueRange = '';
-              for (let v = 0; v < valueCount; v++) {
-                const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
-                const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
-                if (v > 0) valueRange += ', ';
-                valueRange += `${min}-${max}`;
-              }
-              
-              output += `
-                <div class="selected-mod">
-                  <div class="selected-mod-desc">${mod.description}</div>
-                  <div class="selected-mod-tier">
-                    <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
-                  </div>
-                </div>
-              `;
-            });
-            output += '</div>';
-          }
-          
-          if (additionalSuffixes.length > 0) {
-            output += '<div><div class="selected-group-title">Suffixes</div>';
-            additionalSuffixes.forEach(mod => {
-              const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
-              const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
-              
-              const tName = api.modTierName(mod.source, mod.index, selectedTier);
-              const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
-              const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
-              const tierNum = mod.tierCount - selectedTier;
-              
-              const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
-              let valueRange = '';
-              for (let v = 0; v < valueCount; v++) {
-                const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
-                const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
-                if (v > 0) valueRange += ', ';
-                valueRange += `${min}-${max}`;
-              }
-              
-              output += `
-                <div class="selected-mod">
-                  <div class="selected-mod-desc">${mod.description}</div>
-                  <div class="selected-mod-tier">
-                    <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
-                  </div>
-                </div>
-              `;
-            });
-            output += '</div>';
-          }
-        }
-      } else {
-        // Not in expanded mode, show all modifiers normally
-        if (selectedModifiers.prefixes.length > 0) {
-          output += '<div><div class="selected-group-title">Prefixes</div>';
-          selectedModifiers.prefixes.forEach(mod => {
-            const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
-            const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
-            
-            const tName = api.modTierName(mod.source, mod.index, selectedTier);
-            const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
-            const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
-            const tierNum = mod.tierCount - selectedTier;
-            
-            const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
-            let valueRange = '';
-            for (let v = 0; v < valueCount; v++) {
-              const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
-              const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
-              if (v > 0) valueRange += ', ';
-              valueRange += `${min}-${max}`;
-            }
-            
-            output += `
-              <div class="selected-mod">
-                <div class="selected-mod-desc">${mod.description}</div>
-                <div class="selected-mod-tier">
-                  <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
-                </div>
-              </div>
-            `;
-          });
-          output += '</div>';
-        }
-      
-      if (selectedModifiers.suffixes.length > 0) {
-        output += '<div><div class="selected-group-title">Suffixes</div>';
-        selectedModifiers.suffixes.forEach(mod => {
+        // Show additional suffixes or all suffixes if not in expanded mode
+        const suffixesToShow = isExpandedMode ? additionalSuffixes : selectedModifiers.suffixes;
+        suffixesToShow.forEach(mod => {
           const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
           const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
           
@@ -1733,25 +2426,14 @@
           const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
           const tierNum = mod.tierCount - selectedTier;
           
-          // Get value range for selected tier
           const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
           let valueRange = '';
-          const valuePairs = [];
-          const seenPairs = new Set();
-          
           for (let v = 0; v < valueCount; v++) {
             const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
             const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
-            const pairKey = `${min}-${max}`;
-            
-            // Only add unique value pairs
-            if (!seenPairs.has(pairKey)) {
-              seenPairs.add(pairKey);
-              valuePairs.push(pairKey);
-            }
+            if (v > 0) valueRange += ', ';
+            valueRange += `${min}-${max}`;
           }
-          
-          valueRange = valuePairs.join(', ');
           
           output += `
             <div class="selected-mod">
@@ -1762,8 +2444,8 @@
             </div>
           `;
         });
+        
         output += '</div>';
-      }
       }
       
       output += '</div>';

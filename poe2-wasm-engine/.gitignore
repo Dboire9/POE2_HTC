@@ -31,3 +31,6 @@ Thumbs.db
 
 # text
 *.txt
+
+# Bahs Script
+*.sh

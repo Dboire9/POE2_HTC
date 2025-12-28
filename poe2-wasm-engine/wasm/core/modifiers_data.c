@@ -78957,7 +78957,7 @@ void init_modifiers_data(void) {
         .tags = TAG_DEFENCES,
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
-        .tier_count = 7,
+        .tier_count = 6,
         .tiers = tiers_normal_324
     };
     MODIFIERS_NORMAL[319] = (Modifier){

@@ -113,12 +113,43 @@ class JavaToCConverter:
 
         
         # Extract tiers (List.of(new ModifierTier(...), ...))
+        # Need to handle nested parentheses in ModifierTier(...Pair<>()...)
         tiers = []
-        tier_matches = re.finditer(r'new\s+ModifierTier\s*\([^)]+\)', modifier_block)
-        for tier_match in tier_matches:
-            tier = self.parse_modifier_tier(tier_match.group(0))
-            if tier:
-                tiers.append(tier)
+        # Find all ModifierTier matches handling nested parens
+        pos = 0
+        while True:
+            match = re.search(r'new\s+ModifierTier\s*\(', modifier_block[pos:])
+            if not match:
+                break
+            start = pos + match.start()
+            # Find matching closing paren by counting depth
+            depth = 0
+            i = start + len(match.group(0)) - 1  # Start at the opening (
+            in_string = False
+            escape_next = False
+            while i < len(modifier_block):
+                c = modifier_block[i]
+                if escape_next:
+                    escape_next = False
+                elif c == '\\' and not escape_next:
+                    escape_next = True
+                elif c == '"' and not escape_next:
+                    in_string = not in_string
+                elif not in_string:
+                    if c == '(':
+                        depth += 1
+                    elif c == ')':
+                        depth -= 1
+                        if depth == 0:
+                            tier_text = modifier_block[start:i+1]
+                            tier = self.parse_modifier_tier(tier_text)
+                            if tier:
+                                tiers.append(tier)
+                            pos = i + 1
+                            break
+                i += 1
+            else:
+                break
         
         # Extract type (PREFIX/SUFFIX)
         mod_type = 'PREFIX' if 'ModifierType.PREFIX' in modifier_block else 'SUFFIX'

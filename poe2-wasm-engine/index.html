@@ -676,6 +676,8 @@
                   <option value="magic">Magic</option>
                   <option value="rare">Rare</option>
                 </select>
+                <span class="summary-label" id="ilvlLabelSummary" style="display: none;">iLvl:</span>
+                <input type="number" id="ilvlInputInline" min="1" max="100" value="82" onchange="onItemLevelChangeInline()" style="display: none; width: 60px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">
                 <button class="change-btn" onclick="changeSelection()">Change</button>
               </div>
             </div>
@@ -704,6 +706,13 @@
                 <option value="magic">Magic</option>
                 <option value="rare">Rare</option>
               </select>
+            </div>
+            
+            <!-- Item Level Selection -->
+            <div id="ilvlSection" style="display: none; margin-top: 1rem;">
+              <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Item Level</div>
+              <input type="number" id="ilvlInput" min="1" max="100" value="82" onchange="onItemLevelChange()" style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 0.5rem; border-radius: 6px; font-size: 0.75rem;">
+              <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem;">Only tiers with level req ≤ item level will be shown</div>
             </div>
           </div>
         </div>
@@ -821,7 +830,7 @@
     </div>
   </div>
 
-  <script src="http://localhost:5173/poe2.js?v=20251228-1837"></script>
+  <script src="http://localhost:5173/poe2.js?v=20251228-1905"></script>
   <script>
     // DOM elements
     const statusEl = document.getElementById('status');
@@ -852,6 +861,7 @@
     let currentItemId = null;
     let currentMode = null;
     let currentRarity = null;
+    let currentItemLevel = 82;
     let selectedModifiers = { prefixes: [], suffixes: [] };
     let existingModifiers = { prefixes: [], suffixes: [] }; // Track the initial existing mods before expansion
     let isExpandedMode = false; // Track if we're in expanded selection mode (beyond existing modifiers)
@@ -939,6 +949,10 @@
         try {
           api = {
             itemCount: Module.cwrap('get_items_count', 'number', []),
+            modCountNormal: Module.cwrap('get_modifiers_normal_count', 'number', []),
+            modCountDesecrated: Module.cwrap('get_modifiers_desecrated_count', 'number', []),
+            modCountEssence: Module.cwrap('get_modifiers_essence_count', 'number', []),
+            modCountPerfectEssence: Module.cwrap('get_modifiers_perfect_essence_count', 'number', []),
             modName: Module.cwrap('get_modifier_name', 'string', ['number', 'number']),
             modDescription: Module.cwrap('get_modifier_group', 'string', ['number', 'number']),
             modGroup: Module.cwrap('get_modifier_name', 'string', ['number', 'number']), // Family/group name
@@ -948,15 +962,16 @@
             modTierWeight: Module.cwrap('get_modifier_tier_weight', 'number', ['number', 'number', 'number']),
             modTierValueCount: Module.cwrap('get_modifier_tier_value_count', 'number', ['number', 'number', 'number']),
             modTierValueMin: Module.cwrap('get_modifier_tier_value_min', 'number', ['number', 'number', 'number', 'number']),
-            modTierValueMax: Module.cwrap('get_modifier_tier_value_max', 'number', ['number', 'number', 'number', 'number']),
-            itemPrefixCount: Module.cwrap('get_item_prefix_count', 'number', ['number', 'number']),
-            itemSuffixCount: Module.cwrap('get_item_suffix_count', 'number', ['number', 'number']),
-            itemPrefixSource: Module.cwrap('get_item_prefix_source', 'number', ['number', 'number', 'number']),
-            itemPrefixIndex: Module.cwrap('get_item_prefix_index', 'number', ['number', 'number', 'number']),
-            itemPrefixMaxTier: Module.cwrap('get_item_prefix_max_tier', 'number', ['number', 'number', 'number']),
-            itemSuffixSource: Module.cwrap('get_item_suffix_source', 'number', ['number', 'number', 'number']),
-            itemSuffixIndex: Module.cwrap('get_item_suffix_index', 'number', ['number', 'number', 'number']),
-            itemSuffixMaxTier: Module.cwrap('get_item_suffix_max_tier', 'number', ['number', 'number', 'number'])
+            modTierValueMax: Module.cwrap('get_modifier_tier_value_max', 'number', ['number', 'number', 'number', 'number'])
+            // Item-specific modifier functions removed - not implemented
+            // itemPrefixCount: Module.cwrap('get_item_prefix_count', 'number', ['number', 'number']),
+            // itemSuffixCount: Module.cwrap('get_item_suffix_count', 'number', ['number', 'number']),
+            // itemPrefixSource: Module.cwrap('get_item_prefix_source', 'number', ['number', 'number', 'number']),
+            // itemPrefixIndex: Module.cwrap('get_item_prefix_index', 'number', ['number', 'number', 'number']),
+            // itemPrefixMaxTier: Module.cwrap('get_item_prefix_max_tier', 'number', ['number', 'number', 'number']),
+            // itemSuffixSource: Module.cwrap('get_item_suffix_source', 'number', ['number', 'number', 'number']),
+            // itemSuffixIndex: Module.cwrap('get_item_suffix_index', 'number', ['number', 'number', 'number']),
+            // itemSuffixMaxTier: Module.cwrap('get_item_suffix_max_tier', 'number', ['number', 'number', 'number'])
           };
           
           const c = api.itemCount();
@@ -1047,6 +1062,9 @@
       rarityLabelSummary.style.display = 'inline';
       document.getElementById('rarityDropdownInline').style.display = 'inline';
       document.getElementById('rarityDropdownInline').value = currentRarity;
+      document.getElementById('ilvlLabelSummary').style.display = 'inline';
+      document.getElementById('ilvlInputInline').style.display = 'inline';
+      document.getElementById('ilvlInputInline').value = currentItemLevel;
       loadModifiers();
       modifiersPanel.style.display = 'flex';
       selectedPanel.style.display = 'flex';
@@ -1061,15 +1079,34 @@
       
       currentRarity = rarity;
       
-      // Hide rarity selection and update summary
+      // Hide rarity selection and show ilvl section
       raritySection.style.display = 'none';
+      document.getElementById('ilvlSection').style.display = 'block';
+    }
+    
+    function onItemLevelChange() {
+      const input = document.getElementById('ilvlInput');
+      currentItemLevel = parseInt(input.value) || 82;
+      
+      // Update summary and show inline controls
       rarityLabelSummary.style.display = 'inline';
       document.getElementById('rarityDropdownInline').style.display = 'inline';
-      document.getElementById('rarityDropdownInline').value = rarity;
+      document.getElementById('rarityDropdownInline').value = currentRarity;
+      document.getElementById('ilvlLabelSummary').style.display = 'inline';
+      document.getElementById('ilvlInputInline').style.display = 'inline';
+      document.getElementById('ilvlInputInline').value = currentItemLevel;
+      document.getElementById('ilvlSection').style.display = 'none';
       
       loadModifiers();
       modifiersPanel.style.display = 'flex';
       selectedPanel.style.display = 'flex';
+      updateDisplayHeader();
+    }
+    
+    function onItemLevelChangeInline() {
+      const input = document.getElementById('ilvlInputInline');
+      currentItemLevel = parseInt(input.value) || 82;
+      loadModifiers();
       updateDisplayHeader();
     }
     
@@ -1085,13 +1122,19 @@
       selectedPanel.style.display = 'none';
       selectionSummary.style.display = 'none';
       raritySection.style.display = 'none';
+      document.getElementById('ilvlSection').style.display = 'none';
       modeSelectionBoxes.style.display = 'block';
       document.getElementById('rarityDropdownInline').style.display = 'none';
+      document.getElementById('ilvlLabelSummary').style.display = 'none';
+      document.getElementById('ilvlInputInline').style.display = 'none';
       
       // Reset selections
       selectedModifiers = { prefixes: [], suffixes: [] };
       currentMode = null;
       currentRarity = null;
+      currentItemLevel = 82;
+      document.getElementById('ilvlInput').value = 82;
+      document.getElementById('ilvlInputInline').value = 82;
     }
     
 
@@ -1289,6 +1332,11 @@
         document.getElementById('modeBadge').textContent = 'Improve';
       }
       document.getElementById('rarityDropdownInline').value = currentRarity;
+      document.getElementById('rarityDropdownInline').style.display = 'inline';
+      document.getElementById('rarityLabelSummary').style.display = 'inline';
+      document.getElementById('ilvlLabelSummary').style.display = 'inline';
+      document.getElementById('ilvlInputInline').style.display = 'inline';
+      document.getElementById('ilvlInputInline').value = currentItemLevel;
       
       // Show panels
       document.getElementById('modeRaritySection').style.display = 'block';
@@ -1579,16 +1627,15 @@
       console.log(`  Looking for modifier with ${parsedMod.descriptions.length} line(s):`, parsedMod.descriptions);
       
       for (const source of sources) {
-        const count = type === 'prefix' ? api.itemPrefixCount(itemId, source) : api.itemSuffixCount(itemId, source);
+        const modCount = source === 0 ? api.modCountNormal() : source === 1 ? api.modCountDesecrated() : source === 2 ? api.modCountEssence() : api.modCountPerfectEssence();
+        const count = modCount;
         
         for (let i = 0; i < count; i++) {
-          const modSrc = type === 'prefix' ? api.itemPrefixSource(itemId, source, i) : api.itemSuffixSource(itemId, source, i);
-          const modIdx = type === 'prefix' ? api.itemPrefixIndex(itemId, source, i) : api.itemSuffixIndex(itemId, source, i);
+          const modSrc = source;
+          const modIdx = i;
           
-          // Get the max tier index for this modifier on this item type
-          // This is more accurate than the modifier's full tier_count, as some items restrict available tiers
-          const maxTierIndex = type === 'prefix' ? api.itemPrefixMaxTier(itemId, source, i) : api.itemSuffixMaxTier(itemId, source, i);
-          const tierCount = maxTierIndex + 1; // Convert index to count (e.g., max_tier=9 means 10 tiers: 0-9)
+          // Use full tier count since item-specific filtering is not implemented
+          const tierCount = api.modTierCount(modSrc, modIdx);
           
           const modDesc = api.modDescription(modSrc, modIdx);
           
@@ -1717,6 +1764,9 @@
       rarityLabelSummary.style.display = 'inline';
       document.getElementById('rarityDropdownInline').style.display = 'inline';
       document.getElementById('rarityDropdownInline').value = rarity;
+      document.getElementById('ilvlLabelSummary').style.display = 'inline';
+      document.getElementById('ilvlInputInline').style.display = 'inline';
+      document.getElementById('ilvlInputInline').value = currentItemLevel;
       
       // Load modifiers
       loadModifiers();
@@ -1899,13 +1949,15 @@
       prefixList.innerHTML = '';
       const seenPrefixes = new Set();
       
+      // NOTE: Item-specific filtering not implemented - loading all modifiers instead
       sourcesToLoad.forEach(source => {
-        const prefixCount = api.itemPrefixCount(currentItemId, source);
-        console.log('Source', source, 'prefix count:', prefixCount);
+        const modCount = source === 0 ? api.modCountNormal() : source === 1 ? api.modCountDesecrated() : source === 2 ? api.modCountEssence() : api.modCountPerfectEssence();
+        const prefixCount = modCount; // TODO: Filter by item type
+        console.log('Source', source, 'modifier count:', prefixCount);
         
         for (let p = 0; p < prefixCount; p++) {
-          const modSrc = api.itemPrefixSource(currentItemId, source, p);
-          const modIdx = api.itemPrefixIndex(currentItemId, source, p);
+          const modSrc = source;
+          const modIdx = p;
           const modKey = `${modSrc}_${modIdx}`;
           
           // Skip if we've already added this modifier
@@ -1913,8 +1965,9 @@
           seenPrefixes.add(modKey);
           
           const modDesc = api.modDescription(modSrc, modIdx);
-          const maxTierIndex = api.itemPrefixMaxTier(currentItemId, source, p);
-          const tierCount = maxTierIndex + 1; // Convert index to count
+          const tierCount = api.modTierCount(modSrc, modIdx);
+          // Filter out suffixes (only show prefixes here)
+          // TODO: Implement proper prefix/suffix filtering
         
         const itemDiv = document.createElement('div');
         itemDiv.className = 'modifier-item';
@@ -1939,8 +1992,14 @@
         }
         
         // Build tier dropdown options with values (reversed - highest values = T1)
+        // Only include tiers where level requirement <= current item level
         let tierOptions = '';
+        let availableTierCount = 0;
         for (let t = tierCount - 1; t >= 0; t--) {
+          const levelReq = api.modTierLevelReq(modSrc, modIdx, t);
+          if (levelReq > currentItemLevel) continue; // Skip tiers above item level
+          
+          availableTierCount++;
           const valueCount = api.modTierValueCount(modSrc, modIdx, t);
           let valueStr = '';
           for (let v = 0; v < valueCount; v++) {
@@ -1950,11 +2009,15 @@
             if (min === max) {
               valueStr += min;
             } else {
-              valueStr += `${min}-${max}`;
+              valueStr += `(${min}-${max})`;
             }
           }
-          tierOptions += `<option value="${t}">T${tierCount - t}: ${valueStr}</option>`;
+          if (modDesc.includes('Lightning')) console.log(`Lightning mod: valueCount=${valueCount}, valueStr=${valueStr}`);
+          tierOptions += `<option value="${t}">T${tierCount - t}: ${valueStr} (lvl ${levelReq})</option>`;
         }
+        
+        // Skip this modifier if no tiers are available at current item level
+        if (availableTierCount === 0) continue;
         
         const modGroup = api.modGroup(modSrc, modIdx);
         
@@ -1999,12 +2062,13 @@
       const seenSuffixes = new Set();
       
       sourcesToLoad.forEach(source => {
-        const suffixCount = api.itemSuffixCount(currentItemId, source);
-        console.log('Source', source, 'suffix count:', suffixCount);
+        const modCount = source === 0 ? api.modCountNormal() : source === 1 ? api.modCountDesecrated() : source === 2 ? api.modCountEssence() : api.modCountPerfectEssence();
+        const suffixCount = modCount; // TODO: Filter by item type
+        console.log('Source', source, 'modifier count:', suffixCount);
         
         for (let s = 0; s < suffixCount; s++) {
-          const modSrc = api.itemSuffixSource(currentItemId, source, s);
-          const modIdx = api.itemSuffixIndex(currentItemId, source, s);
+          const modSrc = source;
+          const modIdx = s;
           const modKey = `${modSrc}_${modIdx}`;
           
           // Skip if we've already added this modifier
@@ -2012,8 +2076,9 @@
           seenSuffixes.add(modKey);
           
           const modDesc = api.modDescription(modSrc, modIdx);
-          const maxTierIndex = api.itemSuffixMaxTier(currentItemId, source, s);
-          const tierCount = maxTierIndex + 1; // Convert index to count
+          const tierCount = api.modTierCount(modSrc, modIdx);
+          // Filter out prefixes (only show suffixes here)
+          // TODO: Implement proper prefix/suffix filtering
         
         const itemDiv = document.createElement('div');
         itemDiv.className = 'modifier-item';
@@ -2038,8 +2103,14 @@
         }
         
         // Build tier dropdown options with values (reversed - highest values = T1)
+        // Only include tiers where level requirement <= current item level
         let tierOptions = '';
+        let availableTierCount = 0;
         for (let t = tierCount - 1; t >= 0; t--) {
+          const levelReq = api.modTierLevelReq(modSrc, modIdx, t);
+          if (levelReq > currentItemLevel) continue; // Skip tiers above item level
+          
+          availableTierCount++;
           const valueCount = api.modTierValueCount(modSrc, modIdx, t);
           let valueStr = '';
           for (let v = 0; v < valueCount; v++) {
@@ -2049,11 +2120,14 @@
             if (min === max) {
               valueStr += min;
             } else {
-              valueStr += `${min}-${max}`;
+              valueStr += `(${min}-${max})`;
             }
           }
-          tierOptions += `<option value="${t}">T${tierCount - t}: ${valueStr}</option>`;
+          tierOptions += `<option value="${t}">T${tierCount - t}: ${valueStr} (lvl ${levelReq})</option>`;
         }
+        
+        // Skip this modifier if no tiers are available at current item level
+        if (availableTierCount === 0) continue;
         
         const modGroup = api.modGroup(modSrc, modIdx);
         
@@ -2323,7 +2397,11 @@
               const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
               const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
               if (v > 0) valueRange += ', ';
-              valueRange += `${min}-${max}`;
+              if (min === max) {
+                valueRange += min;
+              } else {
+                valueRange += `(${min}-${max})`;
+              }
             }
             
             output += `
@@ -2359,7 +2437,11 @@
             const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
             const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
             if (v > 0) valueRange += ', ';
-            valueRange += `${min}-${max}`;
+            if (min === max) {
+              valueRange += min;
+            } else {
+              valueRange += `(${min}-${max})`;
+            }
           }
           
           output += `
@@ -2396,7 +2478,11 @@
               const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
               const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
               if (v > 0) valueRange += ', ';
-              valueRange += `${min}-${max}`;
+              if (min === max) {
+                valueRange += min;
+              } else {
+                valueRange += `(${min}-${max})`;
+              }
             }
             
             output += `
@@ -2432,7 +2518,11 @@
             const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
             const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
             if (v > 0) valueRange += ', ';
-            valueRange += `${min}-${max}`;
+            if (min === max) {
+              valueRange += min;
+            } else {
+              valueRange += `(${min}-${max})`;
+            }
           }
           
           output += `

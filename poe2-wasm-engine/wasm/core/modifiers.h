@@ -41,7 +41,7 @@ typedef struct {
     uint8_t type;              // ModifierType
     uint8_t source;            // ModifierSource
     uint32_t tags;             // Required item tags (bitflags)
-    char name[128];
+    char name[128];            // Modifier family/group name (e.g., "IncreasedMana", "FireResistance")
     char description[256];
     uint8_t tier_count;        // Number of tiers (1-9)
     ModifierTierData* tiers;   // Pointer to tier array

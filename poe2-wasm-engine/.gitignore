@@ -22,3 +22,12 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Python
+*.py
+
+# JSON
+*.json
+
+# text
+*.txt

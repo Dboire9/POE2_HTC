@@ -691,6 +691,9 @@
           <span class="panel-step">Step 4</span>
         </div>
         <div class="panel-content">
+          <div id="stepDescription" style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+            Select the modifiers already on your item (0-2 max: 1 prefix and 1 suffix)
+          </div>
           <div class="mod-filters">
             <div class="mod-filter-group">
               <div class="mod-filter-label">Source</div>
@@ -713,11 +716,11 @@
 
           <div class="mod-lists">
             <div>
-              <div class="mod-group-title">Prefixes</div>
+              <div class="mod-group-title">Prefixes <span id="prefixCounter" style="color: #888;">(0/3)</span></div>
               <div id="prefixList" class="mod-grid"></div>
             </div>
             <div>
-              <div class="mod-group-title">Suffixes</div>
+              <div class="mod-group-title">Suffixes <span id="suffixCounter" style="color: #888;">(0/3)</span></div>
               <div id="suffixList" class="mod-grid"></div>
             </div>
           </div>
@@ -737,6 +740,12 @@
             </div>
             <div class="selected-count" id="displayCount">0/6</div>
           </div>
+          
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <button onclick="clearAllSelections()" style="flex: 1; padding: 0.5rem; background: #ff4444; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.75rem;">
+              Clear All
+            </button>
+          </div>
 
           <div id="selectedOutput">
             <div class="empty-state">
@@ -744,6 +753,10 @@
               <div>No modifiers selected</div>
             </div>
           </div>
+          
+          <button id="actionBtn" onclick="toggleSelectionMode()" style="display: block; margin-top: 1rem; width: 100%; padding: 0.75rem; background: #4a9eff; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.875rem;">
+            Continue: Add More Modifiers →
+          </button>
         </div>
       </div>
     </div>
@@ -787,6 +800,8 @@
     let currentMode = null;
     let currentRarity = null;
     let selectedModifiers = { prefixes: [], suffixes: [] };
+    let existingModifiers = { prefixes: [], suffixes: [] }; // Track the initial existing mods before expansion
+    let isExpandedMode = false; // Track if we're in expanded selection mode (beyond existing modifiers)
     
     // Item categories
     const ITEM_CATEGORIES = {
@@ -965,12 +980,17 @@
       selectionSummary.style.display = 'block';
       modeBadge.textContent = mode === 'scratch' ? 'From Scratch' : 'Improve';
       
-      // Start with Normal rarity for both modes
-      currentRarity = 'normal';
+      // Set default rarity based on mode
+      if (mode === 'improve') {
+        currentRarity = 'magic'; // Default to magic for improve mode
+      } else {
+        currentRarity = 'normal'; // Default to normal for scratch mode
+      }
+      
       raritySection.style.display = 'none';
       rarityLabelSummary.style.display = 'inline';
       document.getElementById('rarityDropdownInline').style.display = 'inline';
-      document.getElementById('rarityDropdownInline').value = 'normal';
+      document.getElementById('rarityDropdownInline').value = currentRarity;
       loadModifiers();
       modifiersPanel.style.display = 'flex';
       selectedPanel.style.display = 'flex';
@@ -1038,15 +1058,126 @@
     
     function updateModifierCount() {
       const total = selectedModifiers.prefixes.length + selectedModifiers.suffixes.length;
-      const max = 6; // Always allow up to 6 modifiers (3 prefix + 3 suffix)
+      let max = 6;
+      
+      if (currentRarity === 'magic' && !isExpandedMode) {
+        max = 2; // Magic: max 1 prefix + 1 suffix existing (before expanding)
+      } else {
+        max = 6; // Expanded or Rare: 3 prefix + 3 suffix
+      }
+      
       displayCount.textContent = `${total}/${max}`;
+      
+      // Update prefix counter
+      const prefixCounter = document.getElementById('prefixCounter');
+      const prefixCount = selectedModifiers.prefixes.length;
+      let prefixMax = 3;
+      
+      if (currentRarity === 'magic' && !isExpandedMode) {
+        prefixMax = 1;
+      }
+      
+      prefixCounter.textContent = `(${prefixCount}/${prefixMax})`;
+      prefixCounter.style.color = prefixCount >= prefixMax ? '#ff4444' : '#888';
+      
+      // Update suffix counter
+      const suffixCounter = document.getElementById('suffixCounter');
+      const suffixCount = selectedModifiers.suffixes.length;
+      let suffixMax = 3;
+      
+      if (currentRarity === 'magic' && !isExpandedMode) {
+        suffixMax = 1;
+      }
+      
+      suffixCounter.textContent = `(${suffixCount}/${suffixMax})`;
+      suffixCounter.style.color = suffixCount >= suffixMax ? '#ff4444' : '#888';
+    }
+    
+    function clearAllSelections() {
+      // Reset all state
+      selectedModifiers = { prefixes: [], suffixes: [] };
+      existingModifiers = { prefixes: [], suffixes: [] };
+      isExpandedMode = false;
+      
+      // Reset UI
+      const actionBtn = document.getElementById('actionBtn');
+      const stepDescription = document.getElementById('stepDescription');
+      
+      actionBtn.textContent = 'Continue: Add More Modifiers →';
+      actionBtn.onclick = toggleSelectionMode;
+      stepDescription.textContent = 'Select the modifiers already on your item (0-2 max: 1 prefix and 1 suffix)';
+      
+      // Reload modifiers to reset everything
+      loadModifiers();
+      updateSelectedDisplay();
+      updateModifierCount();
+    }
+    
+    function toggleSelectionMode() {
+      const actionBtn = document.getElementById('actionBtn');
+      const stepDescription = document.getElementById('stepDescription');
+      
+      if (!isExpandedMode) {
+        // Save existing modifiers before expanding
+        existingModifiers.prefixes = [...selectedModifiers.prefixes];
+        existingModifiers.suffixes = [...selectedModifiers.suffixes];
+        
+        // Expand to full selection mode
+        isExpandedMode = true;
+        actionBtn.textContent = 'Calculate Probabilities →';
+        actionBtn.onclick = finalizeSelection;
+        
+        const existingCount = existingModifiers.prefixes.length + existingModifiers.suffixes.length;
+        const remaining = 6 - existingCount;
+        stepDescription.textContent = `Existing modifiers locked. Now add up to ${remaining} more modifiers from all sources (up to ${3 - existingModifiers.prefixes.length} prefixes, ${3 - existingModifiers.suffixes.length} suffixes)`;
+        
+        // Disable checkboxes for existing modifiers so they can't be deselected
+        existingModifiers.prefixes.forEach(mod => {
+          const checkbox = document.getElementById(`prefix_${mod.source}_${mod.index}`);
+          if (checkbox) {
+            checkbox.disabled = true;
+            checkbox.parentElement.style.opacity = '0.7';
+          }
+        });
+        
+        existingModifiers.suffixes.forEach(mod => {
+          const checkbox = document.getElementById(`suffix_${mod.source}_${mod.index}`);
+          if (checkbox) {
+            checkbox.disabled = true;
+            checkbox.parentElement.style.opacity = '0.7';
+          }
+        });
+        
+        // Reload modifiers to show all sources if magic
+        if (currentRarity === 'magic') {
+          reloadModifiers();
+        }
+        
+        updateModifierCount();
+      }
+    }
+    
+    function finalizeSelection() {
+      console.log('Final modifiers:', selectedModifiers);
+      
+      const totalPrefixes = selectedModifiers.prefixes.length;
+      const totalSuffixes = selectedModifiers.suffixes.length;
+      
+      console.log(`Total item: ${totalPrefixes} prefixes, ${totalSuffixes} suffixes`);
+      
+      // TODO: Calculate probabilities
+      alert(`Item will have ${totalPrefixes} prefixes and ${totalSuffixes} suffixes.\nProbability calculation will be implemented next!`);
     }
     
     function loadModifiers() {
       if (currentItemId === null || currentItemId === undefined) return;
       
       const sourceValue = modSourceEl.value;
-      selectedModifiers = { prefixes: [], suffixes: [] };
+      
+      // Only reset selectedModifiers if NOT in expanded mode (preserve existing mods)
+      if (!isExpandedMode) {
+        selectedModifiers = { prefixes: [], suffixes: [] };
+      }
       
       // Determine which sources to load
       let sourcesToLoad = [];
@@ -1246,6 +1377,39 @@
       
       filterModifiers();
       updateSelectedDisplay();
+      
+      // If in expanded mode, re-check and disable existing modifiers
+      if (isExpandedMode) {
+        existingModifiers.prefixes.forEach(mod => {
+          const checkbox = document.getElementById(`prefix_${mod.source}_${mod.index}`);
+          if (checkbox) {
+            checkbox.checked = true;
+            checkbox.disabled = true;
+            const parent = checkbox.closest('.modifier-item');
+            if (parent) {
+              parent.classList.add('selected');
+              parent.style.opacity = '0.7';
+              const dropdown = parent.querySelector('.tier-dropdown');
+              if (dropdown) dropdown.style.display = 'block';
+            }
+          }
+        });
+        
+        existingModifiers.suffixes.forEach(mod => {
+          const checkbox = document.getElementById(`suffix_${mod.source}_${mod.index}`);
+          if (checkbox) {
+            checkbox.checked = true;
+            checkbox.disabled = true;
+            const parent = checkbox.closest('.modifier-item');
+            if (parent) {
+              parent.classList.add('selected');
+              parent.style.opacity = '0.7';
+              const dropdown = parent.querySelector('.tier-dropdown');
+              if (dropdown) dropdown.style.display = 'block';
+            }
+          }
+        });
+      }
     }
     
     function filterModifiers() {
@@ -1278,18 +1442,77 @@
       const dropdown = parent.querySelector('.tier-dropdown');
       
       if (idx >= 0) {
+        // In expanded mode, don't allow deselection of existing modifiers
+        if (isExpandedMode) {
+          const existingArray = type === 'prefix' ? existingModifiers.prefixes : existingModifiers.suffixes;
+          const isExisting = existingArray.some(m => m.key === key);
+          if (isExisting) {
+            checkbox.checked = true; // Keep it checked
+            return;
+          }
+        }
+        
         // Deselect
         array.splice(idx, 1);
         parent.classList.remove('selected');
         dropdown.style.display = 'none';
       } else {
-        // Check if we've reached the limit (max 3 prefixes or 3 suffixes)
-        const maxAllowed = 3;
+        // If selecting an essence (source === 2), deselect any other essence first
+        if (source === 2) {
+          const existingEssenceIdx = array.findIndex(m => m.source === 2);
+          if (existingEssenceIdx >= 0) {
+            const existingEssence = array[existingEssenceIdx];
+            array.splice(existingEssenceIdx, 1);
+            
+            // Uncheck the previous essence checkbox and hide its dropdown
+            const checkboxId = `${type}_${existingEssence.source}_${existingEssence.index}`;
+            const existingCheckbox = document.getElementById(checkboxId);
+            if (existingCheckbox) {
+              existingCheckbox.checked = false;
+              const existingParent = existingCheckbox.closest('.modifier-item');
+              existingParent.classList.remove('selected');
+              const existingDropdown = existingParent.querySelector('.tier-dropdown');
+              existingDropdown.style.display = 'none';
+            }
+          }
+        }
         
-        if (array.length >= maxAllowed) {
-          alert(`You can only select up to ${maxAllowed} ${type === 'prefix' ? 'prefixes' : 'suffixes'}.`);
-          checkbox.checked = false;
-          return;
+        // If selecting a desecrated (source === 1), deselect any other desecrated first
+        if (source === 1) {
+          const existingDesecratedIdx = array.findIndex(m => m.source === 1);
+          if (existingDesecratedIdx >= 0) {
+            const existingDesecrated = array[existingDesecratedIdx];
+            array.splice(existingDesecratedIdx, 1);
+            
+            // Uncheck the previous desecrated checkbox and hide its dropdown
+            const checkboxId = `${type}_${existingDesecrated.source}_${existingDesecrated.index}`;
+            const existingCheckbox = document.getElementById(checkboxId);
+            if (existingCheckbox) {
+              existingCheckbox.checked = false;
+              const existingParent = existingCheckbox.closest('.modifier-item');
+              existingParent.classList.remove('selected');
+              const existingDropdown = existingParent.querySelector('.tier-dropdown');
+              existingDropdown.style.display = 'none';
+            }
+          }
+        }
+        // Check rarity-specific restrictions
+        if (currentRarity === 'magic' && !isExpandedMode) {
+          // Magic items in initial mode: only Normal modifiers, max 1 prefix and 1 suffix
+          if (source !== 0) {
+            checkbox.checked = false;
+            return;
+          }
+          if (array.length >= 1) {
+            checkbox.checked = false;
+            return;
+          }
+        } else if (currentRarity === 'rare' || (currentRarity === 'magic' && isExpandedMode)) {
+          // Rare items OR magic in expanded mode: allow up to 3 of each type
+          if (array.length >= 3) {
+            checkbox.checked = false;
+            return;
+          }
         }
         
         // Select
@@ -1317,38 +1540,187 @@
       
       let output = '<div class="selected-list">';
       
-      if (selectedModifiers.prefixes.length > 0) {
-        output += '<div><div class="selected-group-title">Prefixes</div>';
-        selectedModifiers.prefixes.forEach(mod => {
-          const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
-          const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
-          
-          const tName = api.modTierName(mod.source, mod.index, selectedTier);
-          const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
-          const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
-          const tierNum = mod.tierCount - selectedTier;
-          
-          // Get value range for selected tier
-          const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
-          let valueRange = '';
-          for (let v = 0; v < valueCount; v++) {
-            const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
-            const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
-            if (v > 0) valueRange += ' to ';
-            valueRange += `${min}-${max}`;
-          }
-          
-          output += `
-            <div class="selected-mod">
-              <div class="selected-mod-desc">${mod.description}</div>
-              <div class="selected-mod-tier">
-                <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
+      // Show existing modifiers section if in expanded mode
+      if (isExpandedMode && (existingModifiers.prefixes.length > 0 || existingModifiers.suffixes.length > 0)) {
+        output += '<div style="border-bottom: 2px solid #4a9eff; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">';
+        output += '<div style="font-weight: 600; color: #4a9eff; font-size: 0.75rem; margin-bottom: 0.5rem;">EXISTING MODIFIERS (LOCKED)</div>';
+        
+        if (existingModifiers.prefixes.length > 0) {
+          output += '<div><div class="selected-group-title">Prefixes</div>';
+          existingModifiers.prefixes.forEach(mod => {
+            const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
+            const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
+            
+            const tName = api.modTierName(mod.source, mod.index, selectedTier);
+            const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
+            const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
+            const tierNum = mod.tierCount - selectedTier;
+            
+            const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
+            let valueRange = '';
+            for (let v = 0; v < valueCount; v++) {
+              const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
+              const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
+              if (v > 0) valueRange += ', ';
+              valueRange += `${min}-${max}`;
+            }
+            
+            output += `
+              <div class="selected-mod" style="opacity: 0.9;">
+                <div class="selected-mod-desc">${mod.description}</div>
+                <div class="selected-mod-tier">
+                  <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
+                </div>
               </div>
-            </div>
-          `;
-        });
+            `;
+          });
+          output += '</div>';
+        }
+        
+        if (existingModifiers.suffixes.length > 0) {
+          output += '<div><div class="selected-group-title">Suffixes</div>';
+          existingModifiers.suffixes.forEach(mod => {
+            const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
+            const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
+            
+            const tName = api.modTierName(mod.source, mod.index, selectedTier);
+            const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
+            const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
+            const tierNum = mod.tierCount - selectedTier;
+            
+            const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
+            let valueRange = '';
+            for (let v = 0; v < valueCount; v++) {
+              const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
+              const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
+              if (v > 0) valueRange += ', ';
+              valueRange += `${min}-${max}`;
+            }
+            
+            output += `
+              <div class="selected-mod" style="opacity: 0.9;">
+                <div class="selected-mod-desc">${mod.description}</div>
+                <div class="selected-mod-tier">
+                  <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
+                </div>
+              </div>
+            `;
+          });
+          output += '</div>';
+        }
+        
         output += '</div>';
       }
+      
+      // Show additional modifiers section if in expanded mode
+      if (isExpandedMode) {
+        const additionalPrefixes = selectedModifiers.prefixes.filter(m => 
+          !existingModifiers.prefixes.some(em => em.key === m.key)
+        );
+        const additionalSuffixes = selectedModifiers.suffixes.filter(m => 
+          !existingModifiers.suffixes.some(em => em.key === m.key)
+        );
+        
+        if (additionalPrefixes.length > 0 || additionalSuffixes.length > 0) {
+          output += '<div style="font-weight: 600; color: #888; font-size: 0.75rem; margin-bottom: 0.5rem;">ADDITIONAL MODIFIERS</div>';
+          
+          if (additionalPrefixes.length > 0) {
+            output += '<div><div class="selected-group-title">Prefixes</div>';
+            additionalPrefixes.forEach(mod => {
+              const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
+              const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
+              
+              const tName = api.modTierName(mod.source, mod.index, selectedTier);
+              const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
+              const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
+              const tierNum = mod.tierCount - selectedTier;
+              
+              const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
+              let valueRange = '';
+              for (let v = 0; v < valueCount; v++) {
+                const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
+                const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
+                if (v > 0) valueRange += ', ';
+                valueRange += `${min}-${max}`;
+              }
+              
+              output += `
+                <div class="selected-mod">
+                  <div class="selected-mod-desc">${mod.description}</div>
+                  <div class="selected-mod-tier">
+                    <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
+                  </div>
+                </div>
+              `;
+            });
+            output += '</div>';
+          }
+          
+          if (additionalSuffixes.length > 0) {
+            output += '<div><div class="selected-group-title">Suffixes</div>';
+            additionalSuffixes.forEach(mod => {
+              const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
+              const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
+              
+              const tName = api.modTierName(mod.source, mod.index, selectedTier);
+              const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
+              const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
+              const tierNum = mod.tierCount - selectedTier;
+              
+              const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
+              let valueRange = '';
+              for (let v = 0; v < valueCount; v++) {
+                const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
+                const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
+                if (v > 0) valueRange += ', ';
+                valueRange += `${min}-${max}`;
+              }
+              
+              output += `
+                <div class="selected-mod">
+                  <div class="selected-mod-desc">${mod.description}</div>
+                  <div class="selected-mod-tier">
+                    <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
+                  </div>
+                </div>
+              `;
+            });
+            output += '</div>';
+          }
+        }
+      } else {
+        // Not in expanded mode, show all modifiers normally
+        if (selectedModifiers.prefixes.length > 0) {
+          output += '<div><div class="selected-group-title">Prefixes</div>';
+          selectedModifiers.prefixes.forEach(mod => {
+            const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
+            const selectedTier = dropdown ? parseInt(dropdown.value) : mod.tierCount - 1;
+            
+            const tName = api.modTierName(mod.source, mod.index, selectedTier);
+            const tLvl = api.modTierLevelReq(mod.source, mod.index, selectedTier);
+            const tWeight = api.modTierWeight(mod.source, mod.index, selectedTier);
+            const tierNum = mod.tierCount - selectedTier;
+            
+            const valueCount = api.modTierValueCount(mod.source, mod.index, selectedTier);
+            let valueRange = '';
+            for (let v = 0; v < valueCount; v++) {
+              const min = api.modTierValueMin(mod.source, mod.index, selectedTier, v);
+              const max = api.modTierValueMax(mod.source, mod.index, selectedTier, v);
+              if (v > 0) valueRange += ', ';
+              valueRange += `${min}-${max}`;
+            }
+            
+            output += `
+              <div class="selected-mod">
+                <div class="selected-mod-desc">${mod.description}</div>
+                <div class="selected-mod-tier">
+                  <span class="tier-name">T${tierNum}</span> ${tName} (${valueRange}) • lvl ${tLvl} • weight ${tWeight}
+                </div>
+              </div>
+            `;
+          });
+          output += '</div>';
+        }
       
       if (selectedModifiers.suffixes.length > 0) {
         output += '<div><div class="selected-group-title">Suffixes</div>';
@@ -1379,7 +1751,7 @@
             }
           }
           
-          valueRange = valuePairs.join(' to ');
+          valueRange = valuePairs.join(', ');
           
           output += `
             <div class="selected-mod">
@@ -1391,6 +1763,7 @@
           `;
         });
         output += '</div>';
+      }
       }
       
       output += '</div>';

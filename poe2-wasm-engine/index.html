@@ -962,16 +962,16 @@
             modTierWeight: Module.cwrap('get_modifier_tier_weight', 'number', ['number', 'number', 'number']),
             modTierValueCount: Module.cwrap('get_modifier_tier_value_count', 'number', ['number', 'number', 'number']),
             modTierValueMin: Module.cwrap('get_modifier_tier_value_min', 'number', ['number', 'number', 'number', 'number']),
-            modTierValueMax: Module.cwrap('get_modifier_tier_value_max', 'number', ['number', 'number', 'number', 'number'])
-            // Item-specific modifier functions removed - not implemented
-            // itemPrefixCount: Module.cwrap('get_item_prefix_count', 'number', ['number', 'number']),
-            // itemSuffixCount: Module.cwrap('get_item_suffix_count', 'number', ['number', 'number']),
-            // itemPrefixSource: Module.cwrap('get_item_prefix_source', 'number', ['number', 'number', 'number']),
-            // itemPrefixIndex: Module.cwrap('get_item_prefix_index', 'number', ['number', 'number', 'number']),
-            // itemPrefixMaxTier: Module.cwrap('get_item_prefix_max_tier', 'number', ['number', 'number', 'number']),
-            // itemSuffixSource: Module.cwrap('get_item_suffix_source', 'number', ['number', 'number', 'number']),
-            // itemSuffixIndex: Module.cwrap('get_item_suffix_index', 'number', ['number', 'number', 'number']),
-            // itemSuffixMaxTier: Module.cwrap('get_item_suffix_max_tier', 'number', ['number', 'number', 'number'])
+            modTierValueMax: Module.cwrap('get_modifier_tier_value_max', 'number', ['number', 'number', 'number', 'number']),
+            // Item-specific modifier lookup functions
+            itemPrefixCount: Module.cwrap('get_item_prefix_count', 'number', ['number', 'number']),
+            itemSuffixCount: Module.cwrap('get_item_suffix_count', 'number', ['number', 'number']),
+            itemPrefixSource: Module.cwrap('get_item_prefix_source', 'number', ['number', 'number', 'number']),
+            itemPrefixIndex: Module.cwrap('get_item_prefix_index', 'number', ['number', 'number', 'number']),
+            itemPrefixMaxTier: Module.cwrap('get_item_prefix_max_tier', 'number', ['number', 'number', 'number']),
+            itemSuffixSource: Module.cwrap('get_item_suffix_source', 'number', ['number', 'number', 'number']),
+            itemSuffixIndex: Module.cwrap('get_item_suffix_index', 'number', ['number', 'number', 'number']),
+            itemSuffixMaxTier: Module.cwrap('get_item_suffix_max_tier', 'number', ['number', 'number', 'number'])
           };
           
           const c = api.itemCount();
@@ -1930,10 +1930,13 @@
       
       const sourceValue = modSourceEl.value;
       
-      // Only reset selectedModifiers if NOT in expanded mode (preserve existing mods)
-      if (!isExpandedMode) {
-        selectedModifiers = { prefixes: [], suffixes: [] };
-      }
+      // Always clear selected modifiers when loading (prevents carryover between items)
+      selectedModifiers = { prefixes: [], suffixes: [] };
+      // Also reset expanded mode state when changing items
+      isExpandedMode = false;
+      existingModifiers = { prefixes: [], suffixes: [] };
+      updateSelectedDisplay();
+      updateModifierCount(); // Update the counter display
       
       // Determine which sources to load
       let sourcesToLoad = [];
@@ -1949,15 +1952,15 @@
       prefixList.innerHTML = '';
       const seenPrefixes = new Set();
       
-      // NOTE: Item-specific filtering not implemented - loading all modifiers instead
+      // Use item-specific lookup to filter modifiers by item type
       sourcesToLoad.forEach(source => {
-        const modCount = source === 0 ? api.modCountNormal() : source === 1 ? api.modCountDesecrated() : source === 2 ? api.modCountEssence() : api.modCountPerfectEssence();
-        const prefixCount = modCount; // TODO: Filter by item type
-        console.log('Source', source, 'modifier count:', prefixCount);
+        const prefixCount = api.itemPrefixCount(currentItemId, source);
+        console.log('Source', source, 'prefix count for item', currentItemId, ':', prefixCount);
         
         for (let p = 0; p < prefixCount; p++) {
-          const modSrc = source;
-          const modIdx = p;
+          const modSrc = api.itemPrefixSource(currentItemId, source, p);
+          const modIdx = api.itemPrefixIndex(currentItemId, source, p);
+          const maxTier = api.itemPrefixMaxTier(currentItemId, source, p);
           const modKey = `${modSrc}_${modIdx}`;
           
           // Skip if we've already added this modifier
@@ -1966,8 +1969,8 @@
           
           const modDesc = api.modDescription(modSrc, modIdx);
           const tierCount = api.modTierCount(modSrc, modIdx);
-          // Filter out suffixes (only show prefixes here)
-          // TODO: Implement proper prefix/suffix filtering
+          // Limit tier count if maxTier is set (255 = no limit)
+          const effectiveTierCount = maxTier === 255 ? tierCount : Math.min(tierCount, maxTier + 1);
         
         const itemDiv = document.createElement('div');
         itemDiv.className = 'modifier-item';
@@ -1992,10 +1995,10 @@
         }
         
         // Build tier dropdown options with values (reversed - highest values = T1)
-        // Only include tiers where level requirement <= current item level
+        // Only include tiers where level requirement <= current item level AND tier <= maxTier
         let tierOptions = '';
         let availableTierCount = 0;
-        for (let t = tierCount - 1; t >= 0; t--) {
+        for (let t = effectiveTierCount - 1; t >= 0; t--) {
           const levelReq = api.modTierLevelReq(modSrc, modIdx, t);
           if (levelReq > currentItemLevel) continue; // Skip tiers above item level
           
@@ -2013,7 +2016,7 @@
             }
           }
           if (modDesc.includes('Lightning')) console.log(`Lightning mod: valueCount=${valueCount}, valueStr=${valueStr}`);
-          tierOptions += `<option value="${t}">T${tierCount - t}: ${valueStr} (lvl ${levelReq})</option>`;
+          tierOptions += `<option value="${t}">T${effectiveTierCount - t}: ${valueStr} (lvl ${levelReq})</option>`;
         }
         
         // Skip this modifier if no tiers are available at current item level
@@ -2026,7 +2029,7 @@
           <label for="${checkboxId}">${modDesc}</label>
           <div class="modifier-badges">
             <span class="source-badge ${sourceClass}">${sourceName}</span>
-            <span class="tier-badge">${tierCount} tiers</span>
+            <span class="tier-badge">${effectiveTierCount} tiers</span>
             <span class="family-badge" title="Family: ${modGroup}">${modGroup}</span>
           </div>
           <select class="tier-dropdown" id="${dropdownId}" style="display: none;">
@@ -2062,13 +2065,13 @@
       const seenSuffixes = new Set();
       
       sourcesToLoad.forEach(source => {
-        const modCount = source === 0 ? api.modCountNormal() : source === 1 ? api.modCountDesecrated() : source === 2 ? api.modCountEssence() : api.modCountPerfectEssence();
-        const suffixCount = modCount; // TODO: Filter by item type
-        console.log('Source', source, 'modifier count:', suffixCount);
+        const suffixCount = api.itemSuffixCount(currentItemId, source);
+        console.log('Source', source, 'suffix count for item', currentItemId, ':', suffixCount);
         
         for (let s = 0; s < suffixCount; s++) {
-          const modSrc = source;
-          const modIdx = s;
+          const modSrc = api.itemSuffixSource(currentItemId, source, s);
+          const modIdx = api.itemSuffixIndex(currentItemId, source, s);
+          const maxTier = api.itemSuffixMaxTier(currentItemId, source, s);
           const modKey = `${modSrc}_${modIdx}`;
           
           // Skip if we've already added this modifier
@@ -2077,8 +2080,8 @@
           
           const modDesc = api.modDescription(modSrc, modIdx);
           const tierCount = api.modTierCount(modSrc, modIdx);
-          // Filter out prefixes (only show suffixes here)
-          // TODO: Implement proper prefix/suffix filtering
+          // Limit tier count if maxTier is set (255 = no limit)
+          const effectiveTierCount = maxTier === 255 ? tierCount : Math.min(tierCount, maxTier + 1);
         
         const itemDiv = document.createElement('div');
         itemDiv.className = 'modifier-item';
@@ -2136,7 +2139,7 @@
           <label for="${checkboxId}">${modDesc}</label>
           <div class="modifier-badges">
             <span class="source-badge ${sourceClass}">${sourceName}</span>
-            <span class="tier-badge">${tierCount} tiers</span>
+            <span class="tier-badge">${effectiveTierCount} tiers</span>
             <span class="family-badge" title="Family: ${modGroup}">${modGroup}</span>
           </div>
           <select class="tier-dropdown" id="${dropdownId}" style="display: none;">
@@ -2327,9 +2330,8 @@
             checkbox.checked = false;
             return;
           }
-        } else if ((currentRarity === 'rare' || (currentRarity === 'magic' && isExpandedMode)) && currentMode !== 'scratch') {
-          // Rare items OR magic in expanded mode (but NOT in scratch mode): allow up to 3 of each type
-          // In scratch mode: unlimited modifiers allowed
+        } else {
+          // Rare items: always enforce max 3 prefixes and 3 suffixes
           if (array.length >= 3) {
             checkbox.checked = false;
             return;

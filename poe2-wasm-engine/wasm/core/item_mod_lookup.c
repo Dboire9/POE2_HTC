@@ -5,31 +5,31 @@
 
 // Bows - normal_prefixes
 ModifierLookup bows_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 96, 9},
-    {SOURCE_NORMAL, 97, 7},
-    {SOURCE_NORMAL, 98, 7},
-    {SOURCE_NORMAL, 99, 5},
+    {SOURCE_NORMAL, 96, 8},
+    {SOURCE_NORMAL, 97, 9},
+    {SOURCE_NORMAL, 98, 9},
+    {SOURCE_NORMAL, 99, 9},
     {SOURCE_NORMAL, 100, 7},
-    {SOURCE_NORMAL, 101, 4},
-    {SOURCE_NORMAL, 102, 4},
-    {SOURCE_NORMAL, 103, 3}
+    {SOURCE_NORMAL, 101, 7},
+    {SOURCE_NORMAL, 102, 7},
+    {SOURCE_NORMAL, 103, 5}
 };
 
 // Bows - normal_suffixes
 ModifierLookup bows_normal_suffixes[13] = {
-    {SOURCE_NORMAL, 104, 3},
-    {SOURCE_NORMAL, 105, 7},
-    {SOURCE_NORMAL, 106, 7},
+    {SOURCE_NORMAL, 104, 7},
+    {SOURCE_NORMAL, 105, 4},
+    {SOURCE_NORMAL, 106, 4},
     {SOURCE_NORMAL, 107, 3},
-    {SOURCE_NORMAL, 108, 4},
-    {SOURCE_NORMAL, 109, 5},
-    {SOURCE_NORMAL, 110, 5},
-    {SOURCE_NORMAL, 111, 2},
-    {SOURCE_NORMAL, 112, 1},
-    {SOURCE_NORMAL, 113, 8},
-    {SOURCE_NORMAL, 114, 9},
-    {SOURCE_NORMAL, 115, 9},
-    {SOURCE_NORMAL, 116, 9}
+    {SOURCE_NORMAL, 108, 3},
+    {SOURCE_NORMAL, 109, 7},
+    {SOURCE_NORMAL, 110, 7},
+    {SOURCE_NORMAL, 111, 3},
+    {SOURCE_NORMAL, 112, 4},
+    {SOURCE_NORMAL, 113, 5},
+    {SOURCE_NORMAL, 114, 5},
+    {SOURCE_NORMAL, 115, 2},
+    {SOURCE_NORMAL, 116, 1}
 };
 
 // Bows - desecrated_prefixes
@@ -81,32 +81,32 @@ ModifierLookup bows_essence_suffixes[7] = {
 
 // Crossbows - normal_prefixes
 ModifierLookup crossbows_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 74, 9},
+    {SOURCE_NORMAL, 74, 8},
     {SOURCE_NORMAL, 75, 9},
-    {SOURCE_NORMAL, 76, 7},
-    {SOURCE_NORMAL, 77, 7},
-    {SOURCE_NORMAL, 78, 5},
+    {SOURCE_NORMAL, 76, 9},
+    {SOURCE_NORMAL, 77, 9},
+    {SOURCE_NORMAL, 78, 7},
     {SOURCE_NORMAL, 79, 7},
     {SOURCE_NORMAL, 80, 7},
-    {SOURCE_NORMAL, 81, 4}
+    {SOURCE_NORMAL, 81, 5}
 };
 
 // Crossbows - normal_suffixes
 ModifierLookup crossbows_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 82, 4},
-    {SOURCE_NORMAL, 83, 3},
-    {SOURCE_NORMAL, 84, 3},
-    {SOURCE_NORMAL, 85, 7},
-    {SOURCE_NORMAL, 86, 7},
+    {SOURCE_NORMAL, 82, 7},
+    {SOURCE_NORMAL, 83, 7},
+    {SOURCE_NORMAL, 84, 4},
+    {SOURCE_NORMAL, 85, 4},
+    {SOURCE_NORMAL, 86, 3},
     {SOURCE_NORMAL, 87, 3},
-    {SOURCE_NORMAL, 88, 4},
-    {SOURCE_NORMAL, 89, 5},
-    {SOURCE_NORMAL, 90, 5},
-    {SOURCE_NORMAL, 91, 2},
-    {SOURCE_NORMAL, 92, 1},
-    {SOURCE_NORMAL, 93, 8},
-    {SOURCE_NORMAL, 94, 9},
-    {SOURCE_NORMAL, 95, 9}
+    {SOURCE_NORMAL, 88, 7},
+    {SOURCE_NORMAL, 89, 7},
+    {SOURCE_NORMAL, 90, 3},
+    {SOURCE_NORMAL, 91, 4},
+    {SOURCE_NORMAL, 92, 5},
+    {SOURCE_NORMAL, 93, 5},
+    {SOURCE_NORMAL, 94, 2},
+    {SOURCE_NORMAL, 95, 1}
 };
 
 // Crossbows - desecrated_prefixes
@@ -156,25 +156,25 @@ ModifierLookup crossbows_essence_suffixes[7] = {
 
 // Quivers - normal_prefixes
 ModifierLookup quivers_normal_prefixes[7] = {
-    {SOURCE_NORMAL, 302, 5},
-    {SOURCE_NORMAL, 303, 7},
-    {SOURCE_NORMAL, 304, 1},
-    {SOURCE_NORMAL, 305, 5},
-    {SOURCE_NORMAL, 306, 5},
-    {SOURCE_NORMAL, 307, 3},
+    {SOURCE_NORMAL, 302, 8},
+    {SOURCE_NORMAL, 303, 8},
+    {SOURCE_NORMAL, 304, 8},
+    {SOURCE_NORMAL, 305, 8},
+    {SOURCE_NORMAL, 306, 8},
+    {SOURCE_NORMAL, 307, 4},
     {SOURCE_NORMAL, 308, 5}
 };
 
 // Quivers - normal_suffixes
 ModifierLookup quivers_normal_suffixes[8] = {
-    {SOURCE_NORMAL, 309, 5},
-    {SOURCE_NORMAL, 310, 4},
-    {SOURCE_NORMAL, 311, 8},
-    {SOURCE_NORMAL, 312, 8},
-    {SOURCE_NORMAL, 313, 6},
-    {SOURCE_NORMAL, 314, 6},
-    {SOURCE_NORMAL, 315, 6},
-    {SOURCE_NORMAL, 316, 6}
+    {SOURCE_NORMAL, 309, 7},
+    {SOURCE_NORMAL, 310, 1},
+    {SOURCE_NORMAL, 311, 5},
+    {SOURCE_NORMAL, 312, 5},
+    {SOURCE_NORMAL, 313, 3},
+    {SOURCE_NORMAL, 314, 5},
+    {SOURCE_NORMAL, 315, 5},
+    {SOURCE_NORMAL, 316, 4}
 };
 
 // Quivers - desecrated_prefixes
@@ -202,32 +202,32 @@ ModifierLookup quivers_essence_suffixes[1] = {
 
 // OneHand_Maces - normal_prefixes
 ModifierLookup onehand_maces_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 117, 7},
-    {SOURCE_NORMAL, 118, 7},
-    {SOURCE_NORMAL, 119, 5},
-    {SOURCE_NORMAL, 120, 7},
-    {SOURCE_NORMAL, 121, 4},
-    {SOURCE_NORMAL, 122, 4},
-    {SOURCE_NORMAL, 123, 4},
-    {SOURCE_NORMAL, 124, 4}
+    {SOURCE_NORMAL, 117, 8},
+    {SOURCE_NORMAL, 118, 9},
+    {SOURCE_NORMAL, 119, 9},
+    {SOURCE_NORMAL, 120, 9},
+    {SOURCE_NORMAL, 121, 7},
+    {SOURCE_NORMAL, 122, 7},
+    {SOURCE_NORMAL, 123, 7},
+    {SOURCE_NORMAL, 124, 5}
 };
 
 // OneHand_Maces - normal_suffixes
 ModifierLookup onehand_maces_normal_suffixes[14] = {
     {SOURCE_NORMAL, 125, 7},
-    {SOURCE_NORMAL, 126, 7},
-    {SOURCE_NORMAL, 127, 3},
-    {SOURCE_NORMAL, 128, 7},
-    {SOURCE_NORMAL, 129, 5},
-    {SOURCE_NORMAL, 130, 5},
-    {SOURCE_NORMAL, 131, 2},
-    {SOURCE_NORMAL, 132, 5},
-    {SOURCE_NORMAL, 133, 5},
-    {SOURCE_NORMAL, 134, 10},
-    {SOURCE_NORMAL, 135, 8},
-    {SOURCE_NORMAL, 136, 8},
-    {SOURCE_NORMAL, 137, 8},
-    {SOURCE_NORMAL, 138, 8}
+    {SOURCE_NORMAL, 126, 4},
+    {SOURCE_NORMAL, 127, 4},
+    {SOURCE_NORMAL, 128, 4},
+    {SOURCE_NORMAL, 129, 4},
+    {SOURCE_NORMAL, 130, 7},
+    {SOURCE_NORMAL, 131, 7},
+    {SOURCE_NORMAL, 132, 3},
+    {SOURCE_NORMAL, 133, 7},
+    {SOURCE_NORMAL, 134, 5},
+    {SOURCE_NORMAL, 135, 5},
+    {SOURCE_NORMAL, 136, 2},
+    {SOURCE_NORMAL, 137, 5},
+    {SOURCE_NORMAL, 138, 5}
 };
 
 // OneHand_Maces - desecrated_prefixes
@@ -280,35 +280,35 @@ ModifierLookup onehand_maces_essence_suffixes[7] = {
 
 // Amulets - normal_prefixes
 ModifierLookup amulets_normal_prefixes[10] = {
-    {SOURCE_NORMAL, 604, 7},
-    {SOURCE_NORMAL, 605, 4},
-    {SOURCE_NORMAL, 606, 4},
-    {SOURCE_NORMAL, 607, 5},
-    {SOURCE_NORMAL, 608, 7},
-    {SOURCE_NORMAL, 609, 7},
+    {SOURCE_NORMAL, 604, 9},
+    {SOURCE_NORMAL, 605, 9},
+    {SOURCE_NORMAL, 606, 9},
+    {SOURCE_NORMAL, 607, 6},
+    {SOURCE_NORMAL, 608, 6},
+    {SOURCE_NORMAL, 609, 6},
     {SOURCE_NORMAL, 610, 7},
-    {SOURCE_NORMAL, 611, 8},
-    {SOURCE_NORMAL, 612, 7},
-    {SOURCE_NORMAL, 613, 7}
+    {SOURCE_NORMAL, 611, 4},
+    {SOURCE_NORMAL, 612, 4},
+    {SOURCE_NORMAL, 613, 5}
 };
 
 // Amulets - normal_suffixes
 ModifierLookup amulets_normal_suffixes[21] = {
     {SOURCE_NORMAL, 614, 7},
-    {SOURCE_NORMAL, 615, 5},
-    {SOURCE_NORMAL, 616, 5},
-    {SOURCE_NORMAL, 617, 2},
-    {SOURCE_NORMAL, 618, 2},
-    {SOURCE_NORMAL, 619, 2},
-    {SOURCE_NORMAL, 620, 2},
-    {SOURCE_NORMAL, 621, 9},
+    {SOURCE_NORMAL, 615, 7},
+    {SOURCE_NORMAL, 616, 7},
+    {SOURCE_NORMAL, 617, 8},
+    {SOURCE_NORMAL, 618, 7},
+    {SOURCE_NORMAL, 619, 7},
+    {SOURCE_NORMAL, 620, 7},
+    {SOURCE_NORMAL, 621, 5},
     {SOURCE_NORMAL, 622, 5},
-    {SOURCE_NORMAL, 623, 4},
-    {SOURCE_NORMAL, 624, 5},
-    {SOURCE_NORMAL, 625, 5},
-    {SOURCE_NORMAL, 626, 4},
-    {SOURCE_NORMAL, 627, 4},
-    {SOURCE_NORMAL, 628, 4},
+    {SOURCE_NORMAL, 623, 2},
+    {SOURCE_NORMAL, 624, 2},
+    {SOURCE_NORMAL, 625, 2},
+    {SOURCE_NORMAL, 626, 2},
+    {SOURCE_NORMAL, 627, 9},
+    {SOURCE_NORMAL, 628, 5},
     {SOURCE_NORMAL, 629, 4},
     {SOURCE_NORMAL, 630, 5},
     {SOURCE_NORMAL, 631, 5},
@@ -380,34 +380,34 @@ ModifierLookup amulets_essence_suffixes[12] = {
 
 // Spears - normal_prefixes
 ModifierLookup spears_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 160, 7},
-    {SOURCE_NORMAL, 161, 5},
-    {SOURCE_NORMAL, 162, 7},
-    {SOURCE_NORMAL, 163, 7},
-    {SOURCE_NORMAL, 164, 4},
-    {SOURCE_NORMAL, 165, 4},
-    {SOURCE_NORMAL, 166, 4},
-    {SOURCE_NORMAL, 167, 4}
+    {SOURCE_NORMAL, 160, 8},
+    {SOURCE_NORMAL, 161, 9},
+    {SOURCE_NORMAL, 162, 9},
+    {SOURCE_NORMAL, 163, 9},
+    {SOURCE_NORMAL, 164, 7},
+    {SOURCE_NORMAL, 165, 7},
+    {SOURCE_NORMAL, 166, 7},
+    {SOURCE_NORMAL, 167, 5}
 };
 
 // Spears - normal_suffixes
 ModifierLookup spears_normal_suffixes[16] = {
-    {SOURCE_NORMAL, 168, 4},
+    {SOURCE_NORMAL, 168, 7},
     {SOURCE_NORMAL, 169, 7},
-    {SOURCE_NORMAL, 170, 7},
-    {SOURCE_NORMAL, 171, 3},
-    {SOURCE_NORMAL, 172, 7},
-    {SOURCE_NORMAL, 173, 5},
-    {SOURCE_NORMAL, 174, 5},
-    {SOURCE_NORMAL, 175, 2},
-    {SOURCE_NORMAL, 176, 5},
-    {SOURCE_NORMAL, 177, 5},
-    {SOURCE_NORMAL, 178, 10},
-    {SOURCE_NORMAL, 179, 7},
-    {SOURCE_NORMAL, 180, 6},
-    {SOURCE_NORMAL, 181, 7},
-    {SOURCE_NORMAL, 182, 7},
-    {SOURCE_NORMAL, 183, 7}
+    {SOURCE_NORMAL, 170, 4},
+    {SOURCE_NORMAL, 171, 4},
+    {SOURCE_NORMAL, 172, 4},
+    {SOURCE_NORMAL, 173, 4},
+    {SOURCE_NORMAL, 174, 4},
+    {SOURCE_NORMAL, 175, 7},
+    {SOURCE_NORMAL, 176, 7},
+    {SOURCE_NORMAL, 177, 3},
+    {SOURCE_NORMAL, 178, 7},
+    {SOURCE_NORMAL, 179, 5},
+    {SOURCE_NORMAL, 180, 5},
+    {SOURCE_NORMAL, 181, 2},
+    {SOURCE_NORMAL, 182, 5},
+    {SOURCE_NORMAL, 183, 5}
 };
 
 // Spears - desecrated_prefixes
@@ -458,31 +458,31 @@ ModifierLookup spears_essence_suffixes[7] = {
 
 // Shields_str_int - normal_prefixes
 ModifierLookup shields_str_int_normal_prefixes[6] = {
-    {SOURCE_NORMAL, 233, 5},
-    {SOURCE_NORMAL, 235, 2},
+    {SOURCE_NORMAL, 233, 10},
+    {SOURCE_NORMAL, 235, 7},
     {SOURCE_NORMAL, 237, 7},
-    {SOURCE_NORMAL, 239, 7},
-    {SOURCE_NORMAL, 240, 7},
-    {SOURCE_NORMAL, 241, 7}
+    {SOURCE_NORMAL, 239, 5},
+    {SOURCE_NORMAL, 240, 6},
+    {SOURCE_NORMAL, 241, 2}
 };
 
 // Shields_str_int - normal_suffixes
 ModifierLookup shields_str_int_normal_suffixes[16] = {
-    {SOURCE_NORMAL, 242, 5},
-    {SOURCE_NORMAL, 244, 9},
-    {SOURCE_NORMAL, 245, 4},
-    {SOURCE_NORMAL, 246, 2},
-    {SOURCE_NORMAL, 247, 2},
-    {SOURCE_NORMAL, 248, 2},
-    {SOURCE_NORMAL, 249, 2},
-    {SOURCE_NORMAL, 250, 1},
-    {SOURCE_NORMAL, 251, 5},
-    {SOURCE_NORMAL, 252, 5},
-    {SOURCE_NORMAL, 253, 5},
-    {SOURCE_NORMAL, 254, 10},
-    {SOURCE_NORMAL, 255, 9},
-    {SOURCE_NORMAL, 256, 6},
-    {SOURCE_NORMAL, 259, 7},
+    {SOURCE_NORMAL, 242, 7},
+    {SOURCE_NORMAL, 244, 7},
+    {SOURCE_NORMAL, 245, 7},
+    {SOURCE_NORMAL, 246, 7},
+    {SOURCE_NORMAL, 247, 7},
+    {SOURCE_NORMAL, 248, 5},
+    {SOURCE_NORMAL, 249, 4},
+    {SOURCE_NORMAL, 250, 9},
+    {SOURCE_NORMAL, 251, 4},
+    {SOURCE_NORMAL, 252, 2},
+    {SOURCE_NORMAL, 253, 2},
+    {SOURCE_NORMAL, 254, 2},
+    {SOURCE_NORMAL, 255, 2},
+    {SOURCE_NORMAL, 256, 1},
+    {SOURCE_NORMAL, 259, 5},
     {SOURCE_NORMAL, 257, 5}
 };
 
@@ -528,29 +528,29 @@ ModifierLookup shields_str_int_essence_suffixes[6] = {
 
 // Shields_str - normal_prefixes
 ModifierLookup shields_str_normal_prefixes[6] = {
-    {SOURCE_NORMAL, 213, 7},
-    {SOURCE_NORMAL, 214, 7},
+    {SOURCE_NORMAL, 213, 10},
+    {SOURCE_NORMAL, 214, 9},
     {SOURCE_NORMAL, 215, 7},
-    {SOURCE_NORMAL, 216, 7},
-    {SOURCE_NORMAL, 217, 5},
-    {SOURCE_NORMAL, 218, 4}
+    {SOURCE_NORMAL, 216, 5},
+    {SOURCE_NORMAL, 217, 6},
+    {SOURCE_NORMAL, 218, 2}
 };
 
 // Shields_str - normal_suffixes
 ModifierLookup shields_str_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 219, 9},
-    {SOURCE_NORMAL, 220, 4},
-    {SOURCE_NORMAL, 221, 2},
-    {SOURCE_NORMAL, 222, 2},
-    {SOURCE_NORMAL, 223, 2},
-    {SOURCE_NORMAL, 224, 2},
-    {SOURCE_NORMAL, 225, 1},
-    {SOURCE_NORMAL, 226, 5},
-    {SOURCE_NORMAL, 227, 10},
-    {SOURCE_NORMAL, 228, 6},
-    {SOURCE_NORMAL, 229, 7},
-    {SOURCE_NORMAL, 230, 7},
-    {SOURCE_NORMAL, 231, 7},
+    {SOURCE_NORMAL, 219, 7},
+    {SOURCE_NORMAL, 220, 7},
+    {SOURCE_NORMAL, 221, 7},
+    {SOURCE_NORMAL, 222, 7},
+    {SOURCE_NORMAL, 223, 5},
+    {SOURCE_NORMAL, 224, 4},
+    {SOURCE_NORMAL, 225, 9},
+    {SOURCE_NORMAL, 226, 4},
+    {SOURCE_NORMAL, 227, 2},
+    {SOURCE_NORMAL, 228, 2},
+    {SOURCE_NORMAL, 229, 2},
+    {SOURCE_NORMAL, 230, 2},
+    {SOURCE_NORMAL, 231, 1},
     {SOURCE_NORMAL, 232, 5}
 };
 
@@ -595,30 +595,30 @@ ModifierLookup shields_str_essence_suffixes[5] = {
 
 // Shields_str_dex - normal_prefixes
 ModifierLookup shields_str_dex_normal_prefixes[6] = {
-    {SOURCE_NORMAL, 233, 5},
+    {SOURCE_NORMAL, 233, 10},
     {SOURCE_NORMAL, 234, 6},
     {SOURCE_NORMAL, 236, 7},
-    {SOURCE_NORMAL, 238, 7},
-    {SOURCE_NORMAL, 240, 7},
-    {SOURCE_NORMAL, 241, 7}
+    {SOURCE_NORMAL, 238, 5},
+    {SOURCE_NORMAL, 240, 6},
+    {SOURCE_NORMAL, 241, 2}
 };
 
 // Shields_str_dex - normal_suffixes
 ModifierLookup shields_str_dex_normal_suffixes[15] = {
-    {SOURCE_NORMAL, 242, 5},
-    {SOURCE_NORMAL, 243, 4},
-    {SOURCE_NORMAL, 245, 4},
-    {SOURCE_NORMAL, 246, 2},
-    {SOURCE_NORMAL, 247, 2},
-    {SOURCE_NORMAL, 248, 2},
-    {SOURCE_NORMAL, 249, 2},
-    {SOURCE_NORMAL, 250, 1},
-    {SOURCE_NORMAL, 251, 5},
-    {SOURCE_NORMAL, 252, 5},
-    {SOURCE_NORMAL, 253, 5},
-    {SOURCE_NORMAL, 254, 10},
-    {SOURCE_NORMAL, 255, 9},
-    {SOURCE_NORMAL, 256, 6},
+    {SOURCE_NORMAL, 242, 7},
+    {SOURCE_NORMAL, 243, 7},
+    {SOURCE_NORMAL, 245, 7},
+    {SOURCE_NORMAL, 246, 7},
+    {SOURCE_NORMAL, 247, 7},
+    {SOURCE_NORMAL, 248, 5},
+    {SOURCE_NORMAL, 249, 4},
+    {SOURCE_NORMAL, 250, 9},
+    {SOURCE_NORMAL, 251, 4},
+    {SOURCE_NORMAL, 252, 2},
+    {SOURCE_NORMAL, 253, 2},
+    {SOURCE_NORMAL, 254, 2},
+    {SOURCE_NORMAL, 255, 2},
+    {SOURCE_NORMAL, 256, 1},
     {SOURCE_NORMAL, 257, 5}
 };
 
@@ -670,26 +670,26 @@ ModifierLookup twohand_maces_normal_prefixes[8] = {
     {SOURCE_NORMAL, 3, 9},
     {SOURCE_NORMAL, 4, 7},
     {SOURCE_NORMAL, 5, 7},
-    {SOURCE_NORMAL, 6, 5},
-    {SOURCE_NORMAL, 7, 7}
+    {SOURCE_NORMAL, 6, 7},
+    {SOURCE_NORMAL, 7, 5}
 };
 
 // TwoHand_Maces - normal_suffixes
 ModifierLookup twohand_maces_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 8, 4},
+    {SOURCE_NORMAL, 8, 7},
     {SOURCE_NORMAL, 9, 4},
     {SOURCE_NORMAL, 10, 4},
     {SOURCE_NORMAL, 11, 4},
-    {SOURCE_NORMAL, 12, 7},
+    {SOURCE_NORMAL, 12, 4},
     {SOURCE_NORMAL, 13, 7},
-    {SOURCE_NORMAL, 14, 3},
-    {SOURCE_NORMAL, 15, 7},
-    {SOURCE_NORMAL, 16, 5},
+    {SOURCE_NORMAL, 14, 7},
+    {SOURCE_NORMAL, 15, 3},
+    {SOURCE_NORMAL, 16, 7},
     {SOURCE_NORMAL, 17, 5},
-    {SOURCE_NORMAL, 18, 2},
-    {SOURCE_NORMAL, 19, 5},
+    {SOURCE_NORMAL, 18, 5},
+    {SOURCE_NORMAL, 19, 2},
     {SOURCE_NORMAL, 20, 5},
-    {SOURCE_NORMAL, 21, 8}
+    {SOURCE_NORMAL, 21, 5}
 };
 
 // TwoHand_Maces - desecrated_prefixes
@@ -742,32 +742,32 @@ ModifierLookup twohand_maces_essence_suffixes[7] = {
 
 // Helmets_str_int - normal_prefixes
 ModifierLookup helmets_str_int_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 541, 6},
-    {SOURCE_NORMAL, 542, 6},
-    {SOURCE_NORMAL, 544, 5},
-    {SOURCE_NORMAL, 547, 5},
-    {SOURCE_NORMAL, 550, 4},
-    {SOURCE_NORMAL, 553, 8},
-    {SOURCE_NORMAL, 555, 7},
-    {SOURCE_NORMAL, 556, 7}
+    {SOURCE_NORMAL, 541, 9},
+    {SOURCE_NORMAL, 542, 9},
+    {SOURCE_NORMAL, 544, 4},
+    {SOURCE_NORMAL, 547, 6},
+    {SOURCE_NORMAL, 550, 5},
+    {SOURCE_NORMAL, 553, 5},
+    {SOURCE_NORMAL, 555, 8},
+    {SOURCE_NORMAL, 556, 4}
 };
 
 // Helmets_str_int - normal_suffixes
 ModifierLookup helmets_str_int_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 557, 5},
-    {SOURCE_NORMAL, 559, 1},
+    {SOURCE_NORMAL, 557, 7},
+    {SOURCE_NORMAL, 559, 8},
     {SOURCE_NORMAL, 560, 7},
-    {SOURCE_NORMAL, 561, 4},
-    {SOURCE_NORMAL, 562, 4},
-    {SOURCE_NORMAL, 563, 2},
+    {SOURCE_NORMAL, 561, 7},
+    {SOURCE_NORMAL, 562, 7},
+    {SOURCE_NORMAL, 563, 5},
     {SOURCE_NORMAL, 564, 4},
-    {SOURCE_NORMAL, 565, 4},
-    {SOURCE_NORMAL, 566, 3},
-    {SOURCE_NORMAL, 567, 7},
-    {SOURCE_NORMAL, 568, 11},
-    {SOURCE_NORMAL, 569, 8},
-    {SOURCE_NORMAL, 572, 8},
-    {SOURCE_NORMAL, 570, 8}
+    {SOURCE_NORMAL, 565, 1},
+    {SOURCE_NORMAL, 566, 7},
+    {SOURCE_NORMAL, 567, 4},
+    {SOURCE_NORMAL, 568, 4},
+    {SOURCE_NORMAL, 569, 2},
+    {SOURCE_NORMAL, 572, 3},
+    {SOURCE_NORMAL, 570, 4}
 };
 
 // Helmets_str_int - desecrated_suffixes
@@ -810,36 +810,31 @@ ModifierLookup helmets_str_int_essence_suffixes[9] = {
 };
 
 // Helmets_int - normal_prefixes
-ModifierLookup helmets_int_normal_prefixes[11] = {
-    {SOURCE_NORMAL, 509, 6},
-    {SOURCE_NORMAL, 510, 6},
-    {SOURCE_NORMAL, 513, 5},  // ES%/Life - "Ancestral" at index 5
-    {SOURCE_NORMAL, 516, 5},  // ES%/Mana - "Angel's" at index 5
-    {SOURCE_NORMAL, 519, 7},
-    {SOURCE_NORMAL, 522, 7},
-    {SOURCE_NORMAL, 523, 7},
-    {SOURCE_NORMAL, 524, 7},
-    {SOURCE_NORMAL, 257, 5},  // ES%/Mana (duplicate - remove if not needed)
-    {SOURCE_NORMAL, 409, 5},  // ES%/Life (duplicate - remove if not needed)
-    {SOURCE_NORMAL, 605, 4}   // Item Rarity PREFIX - "Hoarder's" at index 2 (Helmets only have tiers 0-2)
+ModifierLookup helmets_int_normal_prefixes[8] = {
+    {SOURCE_NORMAL, 509, 9},
+    {SOURCE_NORMAL, 510, 9},
+    {SOURCE_NORMAL, 513, 7},
+    {SOURCE_NORMAL, 516, 6},
+    {SOURCE_NORMAL, 519, 5},
+    {SOURCE_NORMAL, 522, 5},
+    {SOURCE_NORMAL, 523, 8},
+    {SOURCE_NORMAL, 524, 4}
 };
 
 // Helmets_int - normal_suffixes
-ModifierLookup helmets_int_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 527, 1},
+ModifierLookup helmets_int_normal_suffixes[12] = {
+    {SOURCE_NORMAL, 527, 8},
     {SOURCE_NORMAL, 528, 7},
-    {SOURCE_NORMAL, 529, 4},
-    {SOURCE_NORMAL, 530, 4},
-    {SOURCE_NORMAL, 531, 2},
-    {SOURCE_NORMAL, 214, 7},  // Fire Resistance
-    {SOURCE_NORMAL, 215, 7},  // Cold Resistance
+    {SOURCE_NORMAL, 529, 7},
+    {SOURCE_NORMAL, 530, 7},
+    {SOURCE_NORMAL, 531, 5},
     {SOURCE_NORMAL, 532, 4},
-    {SOURCE_NORMAL, 533, 4},
-    {SOURCE_NORMAL, 534, 3},
-    {SOURCE_NORMAL, 535, 9},
-    {SOURCE_NORMAL, 536, 9},
-    {SOURCE_NORMAL, 537, 4},
-    {SOURCE_NORMAL, 540, 6}
+    {SOURCE_NORMAL, 533, 1},
+    {SOURCE_NORMAL, 534, 7},
+    {SOURCE_NORMAL, 535, 4},
+    {SOURCE_NORMAL, 536, 4},
+    {SOURCE_NORMAL, 537, 2},
+    {SOURCE_NORMAL, 540, 3}
 };
 
 // Helmets_int - desecrated_suffixes
@@ -879,32 +874,32 @@ ModifierLookup helmets_int_essence_suffixes[8] = {
 
 // Helmets_dex_int - normal_prefixes
 ModifierLookup helmets_dex_int_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 541, 6},
-    {SOURCE_NORMAL, 542, 6},
-    {SOURCE_NORMAL, 545, 5},
-    {SOURCE_NORMAL, 548, 5},
-    {SOURCE_NORMAL, 551, 7},
-    {SOURCE_NORMAL, 554, 7},
-    {SOURCE_NORMAL, 555, 7},
-    {SOURCE_NORMAL, 556, 7}
+    {SOURCE_NORMAL, 541, 9},
+    {SOURCE_NORMAL, 542, 9},
+    {SOURCE_NORMAL, 545, 4},
+    {SOURCE_NORMAL, 548, 6},
+    {SOURCE_NORMAL, 551, 5},
+    {SOURCE_NORMAL, 554, 5},
+    {SOURCE_NORMAL, 555, 8},
+    {SOURCE_NORMAL, 556, 4}
 };
 
 // Helmets_dex_int - normal_suffixes
 ModifierLookup helmets_dex_int_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 558, 4},
-    {SOURCE_NORMAL, 559, 1},
+    {SOURCE_NORMAL, 558, 7},
+    {SOURCE_NORMAL, 559, 8},
     {SOURCE_NORMAL, 560, 7},
-    {SOURCE_NORMAL, 561, 4},
-    {SOURCE_NORMAL, 562, 4},
-    {SOURCE_NORMAL, 563, 2},
+    {SOURCE_NORMAL, 561, 7},
+    {SOURCE_NORMAL, 562, 7},
+    {SOURCE_NORMAL, 563, 5},
     {SOURCE_NORMAL, 564, 4},
-    {SOURCE_NORMAL, 565, 4},
-    {SOURCE_NORMAL, 566, 3},
-    {SOURCE_NORMAL, 567, 7},
-    {SOURCE_NORMAL, 568, 11},
-    {SOURCE_NORMAL, 569, 8},
-    {SOURCE_NORMAL, 572, 8},
-    {SOURCE_NORMAL, 571, 8}
+    {SOURCE_NORMAL, 565, 1},
+    {SOURCE_NORMAL, 566, 7},
+    {SOURCE_NORMAL, 567, 4},
+    {SOURCE_NORMAL, 568, 4},
+    {SOURCE_NORMAL, 569, 2},
+    {SOURCE_NORMAL, 572, 3},
+    {SOURCE_NORMAL, 571, 4}
 };
 
 // Helmets_dex_int - desecrated_suffixes
@@ -947,30 +942,30 @@ ModifierLookup helmets_dex_int_essence_suffixes[9] = {
 
 // Helmets_str - normal_prefixes
 ModifierLookup helmets_str_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 509, 6},
-    {SOURCE_NORMAL, 510, 6},  // ES% - 7 tiers (0-6)
-    {SOURCE_NORMAL, 511, 5},  // Armour%/Life - 6 tiers (0-5)
-    {SOURCE_NORMAL, 514, 5},
-    {SOURCE_NORMAL, 517, 8},
-    {SOURCE_NORMAL, 520, 7},
-    {SOURCE_NORMAL, 523, 7},
-    {SOURCE_NORMAL, 524, 7}
+    {SOURCE_NORMAL, 509, 9},
+    {SOURCE_NORMAL, 510, 9},
+    {SOURCE_NORMAL, 511, 7},
+    {SOURCE_NORMAL, 514, 6},
+    {SOURCE_NORMAL, 517, 5},
+    {SOURCE_NORMAL, 520, 5},
+    {SOURCE_NORMAL, 523, 8},
+    {SOURCE_NORMAL, 524, 4}
 };
 
 // Helmets_str - normal_suffixes
 ModifierLookup helmets_str_normal_suffixes[13] = {
-    {SOURCE_NORMAL, 525, 5},
-    {SOURCE_NORMAL, 526, 4},
+    {SOURCE_NORMAL, 525, 7},
+    {SOURCE_NORMAL, 526, 7},
     {SOURCE_NORMAL, 528, 7},
-    {SOURCE_NORMAL, 529, 4},
-    {SOURCE_NORMAL, 530, 4},
-    {SOURCE_NORMAL, 531, 2},
+    {SOURCE_NORMAL, 529, 7},
+    {SOURCE_NORMAL, 530, 7},
+    {SOURCE_NORMAL, 531, 5},
     {SOURCE_NORMAL, 532, 4},
-    {SOURCE_NORMAL, 533, 4},
-    {SOURCE_NORMAL, 534, 3},
-    {SOURCE_NORMAL, 535, 9},
-    {SOURCE_NORMAL, 536, 9},
-    {SOURCE_NORMAL, 537, 4},
+    {SOURCE_NORMAL, 533, 1},
+    {SOURCE_NORMAL, 534, 7},
+    {SOURCE_NORMAL, 535, 4},
+    {SOURCE_NORMAL, 536, 4},
+    {SOURCE_NORMAL, 537, 2},
     {SOURCE_NORMAL, 538, 4}
 };
 
@@ -1014,30 +1009,30 @@ ModifierLookup helmets_str_essence_suffixes[9] = {
 
 // Helmets_dex - normal_prefixes
 ModifierLookup helmets_dex_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 509, 6},
-    {SOURCE_NORMAL, 510, 6},
-    {SOURCE_NORMAL, 512, 5},
-    {SOURCE_NORMAL, 515, 5},
-    {SOURCE_NORMAL, 518, 4},
-    {SOURCE_NORMAL, 521, 8},
-    {SOURCE_NORMAL, 523, 7},
-    {SOURCE_NORMAL, 524, 7}
+    {SOURCE_NORMAL, 509, 9},
+    {SOURCE_NORMAL, 510, 9},
+    {SOURCE_NORMAL, 512, 7},
+    {SOURCE_NORMAL, 515, 6},
+    {SOURCE_NORMAL, 518, 5},
+    {SOURCE_NORMAL, 521, 5},
+    {SOURCE_NORMAL, 523, 8},
+    {SOURCE_NORMAL, 524, 4}
 };
 
 // Helmets_dex - normal_suffixes
 ModifierLookup helmets_dex_normal_suffixes[13] = {
-    {SOURCE_NORMAL, 526, 4},
-    {SOURCE_NORMAL, 527, 1},
+    {SOURCE_NORMAL, 526, 7},
+    {SOURCE_NORMAL, 527, 8},
     {SOURCE_NORMAL, 528, 7},
-    {SOURCE_NORMAL, 529, 4},
-    {SOURCE_NORMAL, 530, 4},
-    {SOURCE_NORMAL, 531, 2},
+    {SOURCE_NORMAL, 529, 7},
+    {SOURCE_NORMAL, 530, 7},
+    {SOURCE_NORMAL, 531, 5},
     {SOURCE_NORMAL, 532, 4},
-    {SOURCE_NORMAL, 533, 4},
-    {SOURCE_NORMAL, 534, 3},
-    {SOURCE_NORMAL, 535, 9},
-    {SOURCE_NORMAL, 536, 9},
-    {SOURCE_NORMAL, 537, 4},
+    {SOURCE_NORMAL, 533, 1},
+    {SOURCE_NORMAL, 534, 7},
+    {SOURCE_NORMAL, 535, 4},
+    {SOURCE_NORMAL, 536, 4},
+    {SOURCE_NORMAL, 537, 2},
     {SOURCE_NORMAL, 539, 4}
 };
 
@@ -1080,32 +1075,32 @@ ModifierLookup helmets_dex_essence_suffixes[9] = {
 
 // Helmets_str_dex - normal_prefixes
 ModifierLookup helmets_str_dex_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 541, 6},
-    {SOURCE_NORMAL, 542, 6},
-    {SOURCE_NORMAL, 543, 5},
-    {SOURCE_NORMAL, 546, 5},
-    {SOURCE_NORMAL, 549, 8},
-    {SOURCE_NORMAL, 552, 7},
-    {SOURCE_NORMAL, 555, 7},
-    {SOURCE_NORMAL, 556, 7}
+    {SOURCE_NORMAL, 541, 9},
+    {SOURCE_NORMAL, 542, 9},
+    {SOURCE_NORMAL, 543, 4},
+    {SOURCE_NORMAL, 546, 6},
+    {SOURCE_NORMAL, 549, 5},
+    {SOURCE_NORMAL, 552, 5},
+    {SOURCE_NORMAL, 555, 8},
+    {SOURCE_NORMAL, 556, 4}
 };
 
 // Helmets_str_dex - normal_suffixes
 ModifierLookup helmets_str_dex_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 557, 5},
-    {SOURCE_NORMAL, 558, 4},
+    {SOURCE_NORMAL, 557, 7},
+    {SOURCE_NORMAL, 558, 7},
     {SOURCE_NORMAL, 560, 7},
-    {SOURCE_NORMAL, 561, 4},
-    {SOURCE_NORMAL, 562, 4},
-    {SOURCE_NORMAL, 563, 2},
+    {SOURCE_NORMAL, 561, 7},
+    {SOURCE_NORMAL, 562, 7},
+    {SOURCE_NORMAL, 563, 5},
     {SOURCE_NORMAL, 564, 4},
-    {SOURCE_NORMAL, 565, 4},
-    {SOURCE_NORMAL, 566, 3},
-    {SOURCE_NORMAL, 567, 7},
-    {SOURCE_NORMAL, 568, 11},
-    {SOURCE_NORMAL, 569, 8},
-    {SOURCE_NORMAL, 570, 8},
-    {SOURCE_NORMAL, 571, 8}
+    {SOURCE_NORMAL, 565, 1},
+    {SOURCE_NORMAL, 566, 7},
+    {SOURCE_NORMAL, 567, 4},
+    {SOURCE_NORMAL, 568, 4},
+    {SOURCE_NORMAL, 569, 2},
+    {SOURCE_NORMAL, 570, 4},
+    {SOURCE_NORMAL, 571, 4}
 };
 
 // Helmets_str_dex - desecrated_suffixes
@@ -1151,31 +1146,31 @@ ModifierLookup helmets_str_dex_essence_suffixes[10] = {
 
 // Sceptres - normal_prefixes
 ModifierLookup sceptres_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 139, 7},
-    {SOURCE_NORMAL, 140, 7},
-    {SOURCE_NORMAL, 141, 6},
-    {SOURCE_NORMAL, 142, 7},
-    {SOURCE_NORMAL, 143, 7},
-    {SOURCE_NORMAL, 144, 5},
-    {SOURCE_NORMAL, 145, 4},
-    {SOURCE_NORMAL, 146, 3}
+    {SOURCE_NORMAL, 139, 10},
+    {SOURCE_NORMAL, 140, 8},
+    {SOURCE_NORMAL, 141, 8},
+    {SOURCE_NORMAL, 142, 8},
+    {SOURCE_NORMAL, 143, 8},
+    {SOURCE_NORMAL, 144, 7},
+    {SOURCE_NORMAL, 145, 7},
+    {SOURCE_NORMAL, 146, 6}
 };
 
 // Sceptres - normal_suffixes
 ModifierLookup sceptres_normal_suffixes[13] = {
-    {SOURCE_NORMAL, 147, 9},
-    {SOURCE_NORMAL, 148, 3},
-    {SOURCE_NORMAL, 149, 3},
-    {SOURCE_NORMAL, 150, 5},
-    {SOURCE_NORMAL, 151, 5},
-    {SOURCE_NORMAL, 152, 2},
+    {SOURCE_NORMAL, 147, 7},
+    {SOURCE_NORMAL, 148, 7},
+    {SOURCE_NORMAL, 149, 5},
+    {SOURCE_NORMAL, 150, 4},
+    {SOURCE_NORMAL, 151, 3},
+    {SOURCE_NORMAL, 152, 9},
     {SOURCE_NORMAL, 153, 3},
-    {SOURCE_NORMAL, 154, 5},
-    {SOURCE_NORMAL, 155, 8},
-    {SOURCE_NORMAL, 156, 9},
-    {SOURCE_NORMAL, 157, 9},
-    {SOURCE_NORMAL, 158, 9},
-    {SOURCE_NORMAL, 159, 7}
+    {SOURCE_NORMAL, 154, 3},
+    {SOURCE_NORMAL, 155, 5},
+    {SOURCE_NORMAL, 156, 5},
+    {SOURCE_NORMAL, 157, 2},
+    {SOURCE_NORMAL, 158, 3},
+    {SOURCE_NORMAL, 159, 5}
 };
 
 // Sceptres - essence_prefixes
@@ -1192,39 +1187,32 @@ ModifierLookup sceptres_essence_suffixes[4] = {
 };
 
 // Boots_str_int - normal_prefixes
-ModifierLookup boots_str_int_normal_prefixes[10] = {
-    {SOURCE_NORMAL, 318, 5},   // ES%
-    {SOURCE_NORMAL, 346, 6},
-    {SOURCE_NORMAL, 347, 6},
-    {SOURCE_NORMAL, 349, 5},
-    {SOURCE_NORMAL, 352, 7},
-    {SOURCE_NORMAL, 355, 7},
-    {SOURCE_NORMAL, 357, 7},
-    {SOURCE_NORMAL, 322, 5},  // Movement Speed
-    {SOURCE_NORMAL, 43, 10},   // +Mana - "Chalybeous" T1 at index 8
-    {SOURCE_NORMAL, 207, 10}   // +Life - "Athlete's" T1 at index 8
+ModifierLookup boots_str_int_normal_prefixes[6] = {
+    {SOURCE_NORMAL, 346, 8},
+    {SOURCE_NORMAL, 347, 8},
+    {SOURCE_NORMAL, 349, 3},
+    {SOURCE_NORMAL, 352, 6},
+    {SOURCE_NORMAL, 355, 5},
+    {SOURCE_NORMAL, 357, 5}
 };
 
 // Boots_str_int - normal_suffixes
-ModifierLookup boots_str_int_normal_suffixes[18] = {
-    {SOURCE_NORMAL, 358, 5},
-    {SOURCE_NORMAL, 360, 10},
+ModifierLookup boots_str_int_normal_suffixes[15] = {
+    {SOURCE_NORMAL, 358, 7},
+    {SOURCE_NORMAL, 360, 7},
     {SOURCE_NORMAL, 361, 7},
-    {SOURCE_NORMAL, 362, 4},
-    {SOURCE_NORMAL, 363, 4},
-    {SOURCE_NORMAL, 364, 4},
+    {SOURCE_NORMAL, 362, 7},
+    {SOURCE_NORMAL, 363, 7},
+    {SOURCE_NORMAL, 364, 5},
     {SOURCE_NORMAL, 365, 4},
-    {SOURCE_NORMAL, 366, 4},
-    {SOURCE_NORMAL, 367, 4},
-    {SOURCE_NORMAL, 368, 3},
-    {SOURCE_NORMAL, 369, 12},
-    {SOURCE_NORMAL, 370, 7},
-    {SOURCE_NORMAL, 371, 7},
-    {SOURCE_NORMAL, 372, 7},
-    {SOURCE_NORMAL, 374, 7},
-    {SOURCE_NORMAL, 214, 7},  // Fire Resistance
-    {SOURCE_NORMAL, 216, 7},  // Lightning Resistance
-    {SOURCE_NORMAL, 323, 7}   // Strength
+    {SOURCE_NORMAL, 366, 10},
+    {SOURCE_NORMAL, 367, 7},
+    {SOURCE_NORMAL, 368, 4},
+    {SOURCE_NORMAL, 369, 4},
+    {SOURCE_NORMAL, 370, 4},
+    {SOURCE_NORMAL, 371, 4},
+    {SOURCE_NORMAL, 372, 4},
+    {SOURCE_NORMAL, 374, 3}
 };
 
 // Boots_str_int - desecrated_suffixes
@@ -1268,29 +1256,29 @@ ModifierLookup boots_str_int_essence_suffixes[8] = {
 
 // Boots_str - normal_prefixes
 ModifierLookup boots_str_normal_prefixes[6] = {
-    {SOURCE_NORMAL, 317, 6},
-    {SOURCE_NORMAL, 318, 5},
-    {SOURCE_NORMAL, 319, 5},
-    {SOURCE_NORMAL, 322, 5},
-    {SOURCE_NORMAL, 325, 7},
-    {SOURCE_NORMAL, 328, 7}
+    {SOURCE_NORMAL, 317, 8},
+    {SOURCE_NORMAL, 318, 8},
+    {SOURCE_NORMAL, 319, 6},
+    {SOURCE_NORMAL, 322, 6},
+    {SOURCE_NORMAL, 325, 5},
+    {SOURCE_NORMAL, 328, 5}
 };
 
 // Boots_str - normal_suffixes
 ModifierLookup boots_str_normal_suffixes[13] = {
-    {SOURCE_NORMAL, 329, 5},
+    {SOURCE_NORMAL, 329, 7},
     {SOURCE_NORMAL, 332, 7},
-    {SOURCE_NORMAL, 333, 4},
-    {SOURCE_NORMAL, 334, 4},
-    {SOURCE_NORMAL, 335, 4},
+    {SOURCE_NORMAL, 333, 7},
+    {SOURCE_NORMAL, 334, 7},
+    {SOURCE_NORMAL, 335, 5},
     {SOURCE_NORMAL, 336, 4},
-    {SOURCE_NORMAL, 337, 4},
-    {SOURCE_NORMAL, 338, 4},
-    {SOURCE_NORMAL, 339, 3},
-    {SOURCE_NORMAL, 340, 8},
-    {SOURCE_NORMAL, 341, 8},
-    {SOURCE_NORMAL, 342, 3},
-    {SOURCE_NORMAL, 343, 3}
+    {SOURCE_NORMAL, 337, 10},
+    {SOURCE_NORMAL, 338, 7},
+    {SOURCE_NORMAL, 339, 4},
+    {SOURCE_NORMAL, 340, 4},
+    {SOURCE_NORMAL, 341, 4},
+    {SOURCE_NORMAL, 342, 4},
+    {SOURCE_NORMAL, 343, 4}
 };
 
 // Boots_str - desecrated_suffixes
@@ -1333,29 +1321,29 @@ ModifierLookup boots_str_essence_suffixes[7] = {
 
 // Boots_int - normal_prefixes
 ModifierLookup boots_int_normal_prefixes[6] = {
-    {SOURCE_NORMAL, 317, 6},
-    {SOURCE_NORMAL, 318, 5},
-    {SOURCE_NORMAL, 321, 5},
-    {SOURCE_NORMAL, 324, 8},
-    {SOURCE_NORMAL, 327, 7},
-    {SOURCE_NORMAL, 328, 7}
+    {SOURCE_NORMAL, 317, 8},
+    {SOURCE_NORMAL, 318, 8},
+    {SOURCE_NORMAL, 321, 6},
+    {SOURCE_NORMAL, 324, 6},
+    {SOURCE_NORMAL, 327, 5},
+    {SOURCE_NORMAL, 328, 5}
 };
 
 // Boots_int - normal_suffixes
 ModifierLookup boots_int_normal_suffixes[13] = {
-    {SOURCE_NORMAL, 331, 10},
+    {SOURCE_NORMAL, 331, 7},
     {SOURCE_NORMAL, 332, 7},
-    {SOURCE_NORMAL, 333, 4},
-    {SOURCE_NORMAL, 334, 4},
-    {SOURCE_NORMAL, 335, 4},
+    {SOURCE_NORMAL, 333, 7},
+    {SOURCE_NORMAL, 334, 7},
+    {SOURCE_NORMAL, 335, 5},
     {SOURCE_NORMAL, 336, 4},
-    {SOURCE_NORMAL, 337, 4},
-    {SOURCE_NORMAL, 338, 4},
-    {SOURCE_NORMAL, 339, 3},
-    {SOURCE_NORMAL, 340, 8},
-    {SOURCE_NORMAL, 341, 8},
-    {SOURCE_NORMAL, 342, 3},
-    {SOURCE_NORMAL, 345, 6}
+    {SOURCE_NORMAL, 337, 10},
+    {SOURCE_NORMAL, 338, 7},
+    {SOURCE_NORMAL, 339, 4},
+    {SOURCE_NORMAL, 340, 4},
+    {SOURCE_NORMAL, 341, 4},
+    {SOURCE_NORMAL, 342, 4},
+    {SOURCE_NORMAL, 345, 3}
 };
 
 // Boots_int - desecrated_suffixes
@@ -1398,29 +1386,29 @@ ModifierLookup boots_int_essence_suffixes[7] = {
 
 // Boots_dex - normal_prefixes
 ModifierLookup boots_dex_normal_prefixes[6] = {
-    {SOURCE_NORMAL, 317, 6},
-    {SOURCE_NORMAL, 318, 5},  // ES% - 6 tiers (0-5)
-    {SOURCE_NORMAL, 320, 5},  // Evasion%/Stun Threshold - 6 tiers (0-5)
-    {SOURCE_NORMAL, 323, 7},
-    {SOURCE_NORMAL, 326, 7},
-    {SOURCE_NORMAL, 328, 7}
+    {SOURCE_NORMAL, 317, 8},
+    {SOURCE_NORMAL, 318, 8},
+    {SOURCE_NORMAL, 320, 6},
+    {SOURCE_NORMAL, 323, 6},
+    {SOURCE_NORMAL, 326, 5},
+    {SOURCE_NORMAL, 328, 5}
 };
 
 // Boots_dex - normal_suffixes
 ModifierLookup boots_dex_normal_suffixes[13] = {
-    {SOURCE_NORMAL, 330, 4},
+    {SOURCE_NORMAL, 330, 8},
     {SOURCE_NORMAL, 332, 7},
-    {SOURCE_NORMAL, 333, 4},  // Item Rarity - 5 tiers (0-4)
-    {SOURCE_NORMAL, 334, 4},
-    {SOURCE_NORMAL, 335, 4},
+    {SOURCE_NORMAL, 333, 7},
+    {SOURCE_NORMAL, 334, 7},
+    {SOURCE_NORMAL, 335, 5},
     {SOURCE_NORMAL, 336, 4},
-    {SOURCE_NORMAL, 337, 4},
-    {SOURCE_NORMAL, 338, 4},
-    {SOURCE_NORMAL, 339, 3},
-    {SOURCE_NORMAL, 340, 8},
-    {SOURCE_NORMAL, 341, 8},
-    {SOURCE_NORMAL, 342, 3},
-    {SOURCE_NORMAL, 344, 3}
+    {SOURCE_NORMAL, 337, 10},
+    {SOURCE_NORMAL, 338, 7},
+    {SOURCE_NORMAL, 339, 4},
+    {SOURCE_NORMAL, 340, 4},
+    {SOURCE_NORMAL, 341, 4},
+    {SOURCE_NORMAL, 342, 4},
+    {SOURCE_NORMAL, 344, 4}
 };
 
 // Boots_dex - desecrated_suffixes
@@ -1463,31 +1451,31 @@ ModifierLookup boots_dex_essence_suffixes[7] = {
 
 // Boots_dex_int - normal_prefixes
 ModifierLookup boots_dex_int_normal_prefixes[6] = {
-    {SOURCE_NORMAL, 346, 6},
-    {SOURCE_NORMAL, 347, 6},
-    {SOURCE_NORMAL, 350, 5},
-    {SOURCE_NORMAL, 353, 8},
-    {SOURCE_NORMAL, 356, 7},
-    {SOURCE_NORMAL, 357, 7}
+    {SOURCE_NORMAL, 346, 8},
+    {SOURCE_NORMAL, 347, 8},
+    {SOURCE_NORMAL, 350, 3},
+    {SOURCE_NORMAL, 353, 6},
+    {SOURCE_NORMAL, 356, 5},
+    {SOURCE_NORMAL, 357, 5}
 };
 
 // Boots_dex_int - normal_suffixes
 ModifierLookup boots_dex_int_normal_suffixes[15] = {
-    {SOURCE_NORMAL, 359, 4},
-    {SOURCE_NORMAL, 360, 10},
+    {SOURCE_NORMAL, 359, 8},
+    {SOURCE_NORMAL, 360, 7},
     {SOURCE_NORMAL, 361, 7},
-    {SOURCE_NORMAL, 362, 4},
-    {SOURCE_NORMAL, 363, 4},
-    {SOURCE_NORMAL, 364, 4},
+    {SOURCE_NORMAL, 362, 7},
+    {SOURCE_NORMAL, 363, 7},
+    {SOURCE_NORMAL, 364, 5},
     {SOURCE_NORMAL, 365, 4},
-    {SOURCE_NORMAL, 366, 4},
-    {SOURCE_NORMAL, 367, 4},
-    {SOURCE_NORMAL, 368, 3},
-    {SOURCE_NORMAL, 369, 12},
-    {SOURCE_NORMAL, 370, 7},
-    {SOURCE_NORMAL, 371, 7},
-    {SOURCE_NORMAL, 374, 7},
-    {SOURCE_NORMAL, 373, 7}
+    {SOURCE_NORMAL, 366, 10},
+    {SOURCE_NORMAL, 367, 7},
+    {SOURCE_NORMAL, 368, 4},
+    {SOURCE_NORMAL, 369, 4},
+    {SOURCE_NORMAL, 370, 4},
+    {SOURCE_NORMAL, 371, 4},
+    {SOURCE_NORMAL, 374, 3},
+    {SOURCE_NORMAL, 373, 4}
 };
 
 // Boots_dex_int - desecrated_suffixes
@@ -1531,31 +1519,31 @@ ModifierLookup boots_dex_int_essence_suffixes[8] = {
 
 // Boots_str_dex - normal_prefixes
 ModifierLookup boots_str_dex_normal_prefixes[6] = {
-    {SOURCE_NORMAL, 346, 6},
-    {SOURCE_NORMAL, 347, 6},
-    {SOURCE_NORMAL, 348, 5},
-    {SOURCE_NORMAL, 351, 5},
-    {SOURCE_NORMAL, 354, 7},
-    {SOURCE_NORMAL, 357, 7}
+    {SOURCE_NORMAL, 346, 8},
+    {SOURCE_NORMAL, 347, 8},
+    {SOURCE_NORMAL, 348, 3},
+    {SOURCE_NORMAL, 351, 6},
+    {SOURCE_NORMAL, 354, 5},
+    {SOURCE_NORMAL, 357, 5}
 };
 
 // Boots_str_dex - normal_suffixes
 ModifierLookup boots_str_dex_normal_suffixes[15] = {
-    {SOURCE_NORMAL, 358, 5},
-    {SOURCE_NORMAL, 359, 4},
+    {SOURCE_NORMAL, 358, 7},
+    {SOURCE_NORMAL, 359, 8},
     {SOURCE_NORMAL, 361, 7},
-    {SOURCE_NORMAL, 362, 4},
-    {SOURCE_NORMAL, 363, 4},
-    {SOURCE_NORMAL, 364, 4},
+    {SOURCE_NORMAL, 362, 7},
+    {SOURCE_NORMAL, 363, 7},
+    {SOURCE_NORMAL, 364, 5},
     {SOURCE_NORMAL, 365, 4},
-    {SOURCE_NORMAL, 366, 4},
-    {SOURCE_NORMAL, 367, 4},
-    {SOURCE_NORMAL, 368, 3},
-    {SOURCE_NORMAL, 369, 12},
-    {SOURCE_NORMAL, 370, 7},
-    {SOURCE_NORMAL, 371, 7},
-    {SOURCE_NORMAL, 372, 7},
-    {SOURCE_NORMAL, 373, 7}
+    {SOURCE_NORMAL, 366, 10},
+    {SOURCE_NORMAL, 367, 7},
+    {SOURCE_NORMAL, 368, 4},
+    {SOURCE_NORMAL, 369, 4},
+    {SOURCE_NORMAL, 370, 4},
+    {SOURCE_NORMAL, 371, 4},
+    {SOURCE_NORMAL, 372, 4},
+    {SOURCE_NORMAL, 373, 4}
 };
 
 // Boots_str_dex - desecrated_suffixes
@@ -1599,41 +1587,41 @@ ModifierLookup boots_str_dex_essence_suffixes[8] = {
 
 // Rings - normal_prefixes
 ModifierLookup rings_normal_prefixes[13] = {
-    {SOURCE_NORMAL, 573, 8},
-    {SOURCE_NORMAL, 574, 7},
-    {SOURCE_NORMAL, 575, 4},
-    {SOURCE_NORMAL, 576, 5},
-    {SOURCE_NORMAL, 577, 5},
-    {SOURCE_NORMAL, 578, 5},
-    {SOURCE_NORMAL, 579, 5},
+    {SOURCE_NORMAL, 573, 7},
+    {SOURCE_NORMAL, 574, 11},
+    {SOURCE_NORMAL, 575, 8},
+    {SOURCE_NORMAL, 576, 8},
+    {SOURCE_NORMAL, 577, 8},
+    {SOURCE_NORMAL, 578, 8},
+    {SOURCE_NORMAL, 579, 8},
     {SOURCE_NORMAL, 580, 7},
-    {SOURCE_NORMAL, 581, 8},
-    {SOURCE_NORMAL, 582, 7},
-    {SOURCE_NORMAL, 583, 3},
-    {SOURCE_NORMAL, 584, 7},
-    {SOURCE_NORMAL, 585, 7}
+    {SOURCE_NORMAL, 581, 4},
+    {SOURCE_NORMAL, 582, 5},
+    {SOURCE_NORMAL, 583, 5},
+    {SOURCE_NORMAL, 584, 5},
+    {SOURCE_NORMAL, 585, 5}
 };
 
 // Rings - normal_suffixes
 ModifierLookup rings_normal_suffixes[18] = {
     {SOURCE_NORMAL, 586, 7},
-    {SOURCE_NORMAL, 587, 4},
-    {SOURCE_NORMAL, 588, 5},
-    {SOURCE_NORMAL, 589, 6},
-    {SOURCE_NORMAL, 590, 5},
-    {SOURCE_NORMAL, 591, 2},
-    {SOURCE_NORMAL, 592, 2},
-    {SOURCE_NORMAL, 593, 5},
+    {SOURCE_NORMAL, 587, 8},
+    {SOURCE_NORMAL, 588, 7},
+    {SOURCE_NORMAL, 589, 3},
+    {SOURCE_NORMAL, 590, 7},
+    {SOURCE_NORMAL, 591, 7},
+    {SOURCE_NORMAL, 592, 7},
+    {SOURCE_NORMAL, 593, 4},
     {SOURCE_NORMAL, 594, 5},
-    {SOURCE_NORMAL, 595, 3},
-    {SOURCE_NORMAL, 596, 4},
+    {SOURCE_NORMAL, 595, 6},
+    {SOURCE_NORMAL, 596, 5},
     {SOURCE_NORMAL, 597, 2},
-    {SOURCE_NORMAL, 598, 9},
-    {SOURCE_NORMAL, 599, 9},
-    {SOURCE_NORMAL, 600, 9},
-    {SOURCE_NORMAL, 601, 6},
-    {SOURCE_NORMAL, 602, 6},
-    {SOURCE_NORMAL, 603, 6}
+    {SOURCE_NORMAL, 598, 2},
+    {SOURCE_NORMAL, 599, 5},
+    {SOURCE_NORMAL, 600, 5},
+    {SOURCE_NORMAL, 601, 3},
+    {SOURCE_NORMAL, 602, 4},
+    {SOURCE_NORMAL, 603, 2}
 };
 
 // Rings - desecrated_prefixes
@@ -1688,35 +1676,36 @@ ModifierLookup rings_essence_suffixes[9] = {
 
 // Gloves_dex - normal_prefixes
 ModifierLookup gloves_dex_normal_prefixes[10] = {
-    {SOURCE_NORMAL, 437, 6},  // Evasion%
-    {SOURCE_NORMAL, 440, 5},  // Evasion%/Life
-    {SOURCE_NORMAL, 443, 8},
-    {SOURCE_NORMAL, 446, 8},
+    {SOURCE_NORMAL, 437, 8},
+    {SOURCE_NORMAL, 438, 8},
+    {SOURCE_NORMAL, 440, 6},
+    {SOURCE_NORMAL, 443, 6},
+    {SOURCE_NORMAL, 446, 5},
     {SOURCE_NORMAL, 448, 8},
-    {SOURCE_NORMAL, 449, 7},
-    {SOURCE_NORMAL, 450, 7},
-    {SOURCE_NORMAL, 451, 7},
-    {SOURCE_NORMAL, 452, 7}
+    {SOURCE_NORMAL, 449, 8},
+    {SOURCE_NORMAL, 450, 8},
+    {SOURCE_NORMAL, 451, 8},
+    {SOURCE_NORMAL, 452, 8}
 };
 
 // Gloves_dex - normal_suffixes
 ModifierLookup gloves_dex_normal_suffixes[16] = {
-    {SOURCE_NORMAL, 454, 4},
-    {SOURCE_NORMAL, 456, 4},
-    {SOURCE_NORMAL, 457, 4},
+    {SOURCE_NORMAL, 454, 8},
+    {SOURCE_NORMAL, 456, 7},
+    {SOURCE_NORMAL, 457, 7},
     {SOURCE_NORMAL, 458, 7},
-    {SOURCE_NORMAL, 459, 7},
-    {SOURCE_NORMAL, 460, 3},
-    {SOURCE_NORMAL, 461, 3},
+    {SOURCE_NORMAL, 459, 5},
+    {SOURCE_NORMAL, 460, 4},
+    {SOURCE_NORMAL, 461, 1},
     {SOURCE_NORMAL, 462, 4},
     {SOURCE_NORMAL, 463, 4},
-    {SOURCE_NORMAL, 464, 4},
-    {SOURCE_NORMAL, 465, 4},
+    {SOURCE_NORMAL, 464, 7},
+    {SOURCE_NORMAL, 465, 7},
     {SOURCE_NORMAL, 466, 3},
-    {SOURCE_NORMAL, 467, 8},
-    {SOURCE_NORMAL, 468, 8},
-    {SOURCE_NORMAL, 469, 3},
-    {SOURCE_NORMAL, 471, 3}
+    {SOURCE_NORMAL, 467, 3},
+    {SOURCE_NORMAL, 468, 4},
+    {SOURCE_NORMAL, 469, 4},
+    {SOURCE_NORMAL, 471, 4}
 };
 
 // Gloves_dex - desecrated_suffixes
@@ -1760,38 +1749,38 @@ ModifierLookup gloves_dex_essence_suffixes[11] = {
 
 // Gloves_dex_int - normal_prefixes
 ModifierLookup gloves_dex_int_normal_prefixes[10] = {
-    {SOURCE_NORMAL, 473, 6},
-    {SOURCE_NORMAL, 474, 6},
-    {SOURCE_NORMAL, 477, 5},
-    {SOURCE_NORMAL, 480, 8},
-    {SOURCE_NORMAL, 483, 7},
+    {SOURCE_NORMAL, 473, 8},
+    {SOURCE_NORMAL, 474, 8},
+    {SOURCE_NORMAL, 477, 3},
+    {SOURCE_NORMAL, 480, 6},
+    {SOURCE_NORMAL, 483, 5},
     {SOURCE_NORMAL, 484, 8},
-    {SOURCE_NORMAL, 485, 7},
-    {SOURCE_NORMAL, 486, 7},
-    {SOURCE_NORMAL, 487, 7},
-    {SOURCE_NORMAL, 488, 7}
+    {SOURCE_NORMAL, 485, 8},
+    {SOURCE_NORMAL, 486, 8},
+    {SOURCE_NORMAL, 487, 8},
+    {SOURCE_NORMAL, 488, 8}
 };
 
 // Gloves_dex_int - normal_suffixes
 ModifierLookup gloves_dex_int_normal_suffixes[18] = {
-    {SOURCE_NORMAL, 490, 4},
-    {SOURCE_NORMAL, 489, 5},
-    {SOURCE_NORMAL, 492, 4},
-    {SOURCE_NORMAL, 493, 4},
+    {SOURCE_NORMAL, 490, 8},
+    {SOURCE_NORMAL, 489, 7},
+    {SOURCE_NORMAL, 492, 7},
+    {SOURCE_NORMAL, 493, 7},
     {SOURCE_NORMAL, 494, 7},
-    {SOURCE_NORMAL, 495, 7},
-    {SOURCE_NORMAL, 496, 3},
-    {SOURCE_NORMAL, 497, 3},
+    {SOURCE_NORMAL, 495, 5},
+    {SOURCE_NORMAL, 496, 4},
+    {SOURCE_NORMAL, 497, 1},
     {SOURCE_NORMAL, 498, 4},
     {SOURCE_NORMAL, 499, 4},
-    {SOURCE_NORMAL, 500, 4},
-    {SOURCE_NORMAL, 501, 4},
+    {SOURCE_NORMAL, 500, 7},
+    {SOURCE_NORMAL, 501, 7},
     {SOURCE_NORMAL, 502, 3},
-    {SOURCE_NORMAL, 503, 9},
-    {SOURCE_NORMAL, 504, 9},
-    {SOURCE_NORMAL, 505, 7},
-    {SOURCE_NORMAL, 508, 6},
-    {SOURCE_NORMAL, 507, 7}
+    {SOURCE_NORMAL, 503, 3},
+    {SOURCE_NORMAL, 504, 4},
+    {SOURCE_NORMAL, 505, 4},
+    {SOURCE_NORMAL, 508, 3},
+    {SOURCE_NORMAL, 507, 4}
 };
 
 // Gloves_dex_int - desecrated_suffixes
@@ -1839,36 +1828,37 @@ ModifierLookup gloves_dex_int_essence_suffixes[11] = {
 
 // Gloves_int - normal_prefixes
 ModifierLookup gloves_int_normal_prefixes[10] = {
-    {SOURCE_NORMAL, 438, 6},  // ES%
-    {SOURCE_NORMAL, 441, 5},  // ES%/Life
-    {SOURCE_NORMAL, 444, 8},
-    {SOURCE_NORMAL, 447, 7},
+    {SOURCE_NORMAL, 437, 8},
+    {SOURCE_NORMAL, 438, 8},
+    {SOURCE_NORMAL, 441, 6},
+    {SOURCE_NORMAL, 444, 6},
+    {SOURCE_NORMAL, 447, 5},
     {SOURCE_NORMAL, 448, 8},
-    {SOURCE_NORMAL, 449, 7},
-    {SOURCE_NORMAL, 450, 7},
-    {SOURCE_NORMAL, 451, 7},
-    {SOURCE_NORMAL, 452, 7}
+    {SOURCE_NORMAL, 449, 8},
+    {SOURCE_NORMAL, 450, 8},
+    {SOURCE_NORMAL, 451, 8},
+    {SOURCE_NORMAL, 452, 8}
 };
 
 // Gloves_int - normal_suffixes
 ModifierLookup gloves_int_normal_suffixes[17] = {
-    {SOURCE_NORMAL, 454, 4},
-    {SOURCE_NORMAL, 455, 1},
-    {SOURCE_NORMAL, 456, 4},
-    {SOURCE_NORMAL, 457, 4},
+    {SOURCE_NORMAL, 454, 8},
+    {SOURCE_NORMAL, 455, 7},
+    {SOURCE_NORMAL, 456, 7},
+    {SOURCE_NORMAL, 457, 7},
     {SOURCE_NORMAL, 458, 7},
-    {SOURCE_NORMAL, 459, 7},
-    {SOURCE_NORMAL, 460, 3},
-    {SOURCE_NORMAL, 461, 3},
+    {SOURCE_NORMAL, 459, 5},
+    {SOURCE_NORMAL, 460, 4},
+    {SOURCE_NORMAL, 461, 1},
     {SOURCE_NORMAL, 462, 4},
     {SOURCE_NORMAL, 463, 4},
-    {SOURCE_NORMAL, 464, 4},
-    {SOURCE_NORMAL, 465, 4},
+    {SOURCE_NORMAL, 464, 7},
+    {SOURCE_NORMAL, 465, 7},
     {SOURCE_NORMAL, 466, 3},
-    {SOURCE_NORMAL, 467, 8},
-    {SOURCE_NORMAL, 468, 8},
-    {SOURCE_NORMAL, 469, 3},
-    {SOURCE_NORMAL, 472, 6}
+    {SOURCE_NORMAL, 467, 3},
+    {SOURCE_NORMAL, 468, 4},
+    {SOURCE_NORMAL, 469, 4},
+    {SOURCE_NORMAL, 472, 3}
 };
 
 // Gloves_int - desecrated_suffixes
@@ -1915,37 +1905,37 @@ ModifierLookup gloves_int_essence_suffixes[11] = {
 
 // Gloves_str - normal_prefixes
 ModifierLookup gloves_str_normal_prefixes[10] = {
-    {SOURCE_NORMAL, 316, 6},  // Armour%
-    {SOURCE_NORMAL, 407, 5},  // Armour%/Life
-    {SOURCE_NORMAL, 439, 5},
-    {SOURCE_NORMAL, 442, 8},
-    {SOURCE_NORMAL, 445, 8},
+    {SOURCE_NORMAL, 437, 8},
+    {SOURCE_NORMAL, 438, 8},
+    {SOURCE_NORMAL, 439, 6},
+    {SOURCE_NORMAL, 442, 6},
+    {SOURCE_NORMAL, 445, 5},
     {SOURCE_NORMAL, 448, 8},
-    {SOURCE_NORMAL, 449, 7},
-    {SOURCE_NORMAL, 450, 7},
-    {SOURCE_NORMAL, 451, 7},
-    {SOURCE_NORMAL, 452, 7}
+    {SOURCE_NORMAL, 449, 8},
+    {SOURCE_NORMAL, 450, 8},
+    {SOURCE_NORMAL, 451, 8},
+    {SOURCE_NORMAL, 452, 8}
 };
 
 // Gloves_str - normal_suffixes
 ModifierLookup gloves_str_normal_suffixes[17] = {
-    {SOURCE_NORMAL, 453, 5},
-    {SOURCE_NORMAL, 454, 4},
-    {SOURCE_NORMAL, 456, 4},
-    {SOURCE_NORMAL, 457, 4},
+    {SOURCE_NORMAL, 453, 7},
+    {SOURCE_NORMAL, 454, 8},
+    {SOURCE_NORMAL, 456, 7},
+    {SOURCE_NORMAL, 457, 7},
     {SOURCE_NORMAL, 458, 7},
-    {SOURCE_NORMAL, 459, 7},
-    {SOURCE_NORMAL, 460, 3},
-    {SOURCE_NORMAL, 461, 3},
+    {SOURCE_NORMAL, 459, 5},
+    {SOURCE_NORMAL, 460, 4},
+    {SOURCE_NORMAL, 461, 1},
     {SOURCE_NORMAL, 462, 4},
     {SOURCE_NORMAL, 463, 4},
-    {SOURCE_NORMAL, 464, 4},
-    {SOURCE_NORMAL, 465, 4},
+    {SOURCE_NORMAL, 464, 7},
+    {SOURCE_NORMAL, 465, 7},
     {SOURCE_NORMAL, 466, 3},
-    {SOURCE_NORMAL, 467, 8},
-    {SOURCE_NORMAL, 468, 8},
-    {SOURCE_NORMAL, 469, 3},
-    {SOURCE_NORMAL, 470, 3}
+    {SOURCE_NORMAL, 467, 3},
+    {SOURCE_NORMAL, 468, 4},
+    {SOURCE_NORMAL, 469, 4},
+    {SOURCE_NORMAL, 470, 4}
 };
 
 // Gloves_str - desecrated_suffixes
@@ -1989,38 +1979,38 @@ ModifierLookup gloves_str_essence_suffixes[11] = {
 
 // Gloves_str_int - normal_prefixes
 ModifierLookup gloves_str_int_normal_prefixes[10] = {
-    {SOURCE_NORMAL, 473, 6},
-    {SOURCE_NORMAL, 474, 6},
-    {SOURCE_NORMAL, 476, 5},
-    {SOURCE_NORMAL, 479, 8},
-    {SOURCE_NORMAL, 482, 8},
+    {SOURCE_NORMAL, 473, 8},
+    {SOURCE_NORMAL, 474, 8},
+    {SOURCE_NORMAL, 476, 3},
+    {SOURCE_NORMAL, 479, 6},
+    {SOURCE_NORMAL, 482, 5},
     {SOURCE_NORMAL, 484, 8},
-    {SOURCE_NORMAL, 485, 7},
-    {SOURCE_NORMAL, 486, 7},
-    {SOURCE_NORMAL, 487, 7},
-    {SOURCE_NORMAL, 488, 7}
+    {SOURCE_NORMAL, 485, 8},
+    {SOURCE_NORMAL, 486, 8},
+    {SOURCE_NORMAL, 487, 8},
+    {SOURCE_NORMAL, 488, 8}
 };
 
 // Gloves_str_int - normal_suffixes
 ModifierLookup gloves_str_int_normal_suffixes[18] = {
-    {SOURCE_NORMAL, 489, 5},
-    {SOURCE_NORMAL, 490, 4},
-    {SOURCE_NORMAL, 492, 4},
-    {SOURCE_NORMAL, 493, 4},
+    {SOURCE_NORMAL, 489, 7},
+    {SOURCE_NORMAL, 490, 8},
+    {SOURCE_NORMAL, 492, 7},
+    {SOURCE_NORMAL, 493, 7},
     {SOURCE_NORMAL, 494, 7},
-    {SOURCE_NORMAL, 495, 7},
-    {SOURCE_NORMAL, 496, 3},
-    {SOURCE_NORMAL, 497, 3},
+    {SOURCE_NORMAL, 495, 5},
+    {SOURCE_NORMAL, 496, 4},
+    {SOURCE_NORMAL, 497, 1},
     {SOURCE_NORMAL, 498, 4},
     {SOURCE_NORMAL, 499, 4},
-    {SOURCE_NORMAL, 500, 4},
-    {SOURCE_NORMAL, 501, 4},
+    {SOURCE_NORMAL, 500, 7},
+    {SOURCE_NORMAL, 501, 7},
     {SOURCE_NORMAL, 502, 3},
-    {SOURCE_NORMAL, 503, 9},
-    {SOURCE_NORMAL, 504, 9},
-    {SOURCE_NORMAL, 505, 7},
-    {SOURCE_NORMAL, 508, 6},
-    {SOURCE_NORMAL, 506, 7}
+    {SOURCE_NORMAL, 503, 3},
+    {SOURCE_NORMAL, 504, 4},
+    {SOURCE_NORMAL, 505, 4},
+    {SOURCE_NORMAL, 508, 3},
+    {SOURCE_NORMAL, 506, 4}
 };
 
 // Gloves_str_int - desecrated_suffixes
@@ -2069,38 +2059,39 @@ ModifierLookup gloves_str_int_essence_suffixes[12] = {
 
 // Gloves_str_dex - normal_prefixes
 ModifierLookup gloves_str_dex_normal_prefixes[10] = {
-    {SOURCE_NORMAL, 345, 6},  // Armour/Evasion%
-    {SOURCE_NORMAL, 475, 5},  // Armour/Evasion%/Life
-    {SOURCE_NORMAL, 478, 8},
-    {SOURCE_NORMAL, 481, 8},
+    {SOURCE_NORMAL, 473, 8},
+    {SOURCE_NORMAL, 474, 8},
+    {SOURCE_NORMAL, 475, 3},
+    {SOURCE_NORMAL, 478, 6},
+    {SOURCE_NORMAL, 481, 5},
     {SOURCE_NORMAL, 484, 8},
-    {SOURCE_NORMAL, 485, 7},
-    {SOURCE_NORMAL, 486, 7},
-    {SOURCE_NORMAL, 487, 7},
-    {SOURCE_NORMAL, 488, 7}
+    {SOURCE_NORMAL, 485, 8},
+    {SOURCE_NORMAL, 486, 8},
+    {SOURCE_NORMAL, 487, 8},
+    {SOURCE_NORMAL, 488, 8}
 };
 
 // Gloves_str_dex - normal_suffixes
 ModifierLookup gloves_str_dex_normal_suffixes[19] = {
-    {SOURCE_NORMAL, 489, 5},
-    {SOURCE_NORMAL, 490, 4},
-    {SOURCE_NORMAL, 491, 1},
-    {SOURCE_NORMAL, 492, 4},
-    {SOURCE_NORMAL, 493, 4},
+    {SOURCE_NORMAL, 489, 7},
+    {SOURCE_NORMAL, 490, 8},
+    {SOURCE_NORMAL, 491, 7},
+    {SOURCE_NORMAL, 492, 7},
+    {SOURCE_NORMAL, 493, 7},
     {SOURCE_NORMAL, 494, 7},
-    {SOURCE_NORMAL, 495, 7},
-    {SOURCE_NORMAL, 496, 3},
-    {SOURCE_NORMAL, 497, 3},
+    {SOURCE_NORMAL, 495, 5},
+    {SOURCE_NORMAL, 496, 4},
+    {SOURCE_NORMAL, 497, 1},
     {SOURCE_NORMAL, 498, 4},
     {SOURCE_NORMAL, 499, 4},
-    {SOURCE_NORMAL, 500, 4},
-    {SOURCE_NORMAL, 501, 4},
+    {SOURCE_NORMAL, 500, 7},
+    {SOURCE_NORMAL, 501, 7},
     {SOURCE_NORMAL, 502, 3},
-    {SOURCE_NORMAL, 503, 9},
-    {SOURCE_NORMAL, 504, 9},
-    {SOURCE_NORMAL, 505, 7},
-    {SOURCE_NORMAL, 506, 7},
-    {SOURCE_NORMAL, 507, 7}
+    {SOURCE_NORMAL, 503, 3},
+    {SOURCE_NORMAL, 504, 4},
+    {SOURCE_NORMAL, 505, 4},
+    {SOURCE_NORMAL, 506, 4},
+    {SOURCE_NORMAL, 507, 4}
 };
 
 // Gloves_str_dex - desecrated_suffixes
@@ -2146,29 +2137,29 @@ ModifierLookup gloves_str_dex_essence_suffixes[11] = {
 
 // Body_Armours_str - normal_prefixes
 ModifierLookup body_armours_str_normal_prefixes[7] = {
-    {SOURCE_NORMAL, 406, 7},
-    {SOURCE_NORMAL, 407, 5},
-    {SOURCE_NORMAL, 410, 5},
-    {SOURCE_NORMAL, 413, 6},
-    {SOURCE_NORMAL, 416, 7},
-    {SOURCE_NORMAL, 419, 7},
+    {SOURCE_NORMAL, 406, 12},
+    {SOURCE_NORMAL, 407, 10},
+    {SOURCE_NORMAL, 410, 7},
+    {SOURCE_NORMAL, 413, 5},
+    {SOURCE_NORMAL, 416, 5},
+    {SOURCE_NORMAL, 419, 6},
     {SOURCE_NORMAL, 420, 7}
 };
 
 // Body_Armours_str - normal_suffixes
 ModifierLookup body_armours_str_normal_suffixes[12] = {
-    {SOURCE_NORMAL, 421, 5},
-    {SOURCE_NORMAL, 424, 10},
-    {SOURCE_NORMAL, 425, 4},
-    {SOURCE_NORMAL, 426, 4},
-    {SOURCE_NORMAL, 427, 4},
-    {SOURCE_NORMAL, 428, 5},
-    {SOURCE_NORMAL, 429, 5},
-    {SOURCE_NORMAL, 430, 5},
-    {SOURCE_NORMAL, 431, 8},
-    {SOURCE_NORMAL, 432, 8},
-    {SOURCE_NORMAL, 433, 6},
-    {SOURCE_NORMAL, 434, 6}
+    {SOURCE_NORMAL, 421, 7},
+    {SOURCE_NORMAL, 424, 7},
+    {SOURCE_NORMAL, 425, 7},
+    {SOURCE_NORMAL, 426, 7},
+    {SOURCE_NORMAL, 427, 5},
+    {SOURCE_NORMAL, 428, 4},
+    {SOURCE_NORMAL, 429, 9},
+    {SOURCE_NORMAL, 430, 10},
+    {SOURCE_NORMAL, 431, 4},
+    {SOURCE_NORMAL, 432, 4},
+    {SOURCE_NORMAL, 433, 4},
+    {SOURCE_NORMAL, 434, 5}
 };
 
 // Body_Armours_str - desecrated_suffixes
@@ -2206,31 +2197,31 @@ ModifierLookup body_armours_str_essence_suffixes[6] = {
 
 // Body_Armours_str_int - normal_prefixes
 ModifierLookup body_armours_str_int_normal_prefixes[7] = {
-    {SOURCE_NORMAL, 375, 7},
-    {SOURCE_NORMAL, 377, 5},
-    {SOURCE_NORMAL, 380, 5},
-    {SOURCE_NORMAL, 383, 7},
-    {SOURCE_NORMAL, 386, 7},
-    {SOURCE_NORMAL, 388, 7},
+    {SOURCE_NORMAL, 375, 12},
+    {SOURCE_NORMAL, 377, 7},
+    {SOURCE_NORMAL, 380, 7},
+    {SOURCE_NORMAL, 383, 5},
+    {SOURCE_NORMAL, 386, 5},
+    {SOURCE_NORMAL, 388, 6},
     {SOURCE_NORMAL, 389, 7}
 };
 
 // Body_Armours_str_int - normal_suffixes
 ModifierLookup body_armours_str_int_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 390, 5},
-    {SOURCE_NORMAL, 392, 9},
-    {SOURCE_NORMAL, 393, 10},
-    {SOURCE_NORMAL, 394, 4},
-    {SOURCE_NORMAL, 395, 4},
-    {SOURCE_NORMAL, 396, 4},
-    {SOURCE_NORMAL, 397, 5},
-    {SOURCE_NORMAL, 398, 5},
-    {SOURCE_NORMAL, 399, 5},
-    {SOURCE_NORMAL, 400, 12},
-    {SOURCE_NORMAL, 401, 10},
-    {SOURCE_NORMAL, 402, 10},
-    {SOURCE_NORMAL, 405, 7},
-    {SOURCE_NORMAL, 403, 10}
+    {SOURCE_NORMAL, 390, 7},
+    {SOURCE_NORMAL, 392, 7},
+    {SOURCE_NORMAL, 393, 7},
+    {SOURCE_NORMAL, 394, 7},
+    {SOURCE_NORMAL, 395, 7},
+    {SOURCE_NORMAL, 396, 5},
+    {SOURCE_NORMAL, 397, 4},
+    {SOURCE_NORMAL, 398, 9},
+    {SOURCE_NORMAL, 399, 10},
+    {SOURCE_NORMAL, 400, 4},
+    {SOURCE_NORMAL, 401, 4},
+    {SOURCE_NORMAL, 402, 4},
+    {SOURCE_NORMAL, 405, 5},
+    {SOURCE_NORMAL, 403, 5}
 };
 
 // Body_Armours_str_int - desecrated_suffixes
@@ -2270,31 +2261,31 @@ ModifierLookup body_armours_str_int_essence_suffixes[7] = {
 
 // Body_Armours_str_dex - normal_prefixes
 ModifierLookup body_armours_str_dex_normal_prefixes[7] = {
-    {SOURCE_NORMAL, 375, 7},
-    {SOURCE_NORMAL, 376, 5},
-    {SOURCE_NORMAL, 379, 5},
-    {SOURCE_NORMAL, 382, 6},
-    {SOURCE_NORMAL, 385, 8},
-    {SOURCE_NORMAL, 388, 7},
+    {SOURCE_NORMAL, 375, 12},
+    {SOURCE_NORMAL, 376, 7},
+    {SOURCE_NORMAL, 379, 7},
+    {SOURCE_NORMAL, 382, 5},
+    {SOURCE_NORMAL, 385, 5},
+    {SOURCE_NORMAL, 388, 6},
     {SOURCE_NORMAL, 389, 7}
 };
 
 // Body_Armours_str_dex - normal_suffixes
 ModifierLookup body_armours_str_dex_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 390, 5},
-    {SOURCE_NORMAL, 391, 4},
-    {SOURCE_NORMAL, 393, 10},
-    {SOURCE_NORMAL, 394, 4},
-    {SOURCE_NORMAL, 395, 4},
-    {SOURCE_NORMAL, 396, 4},
-    {SOURCE_NORMAL, 397, 5},
-    {SOURCE_NORMAL, 398, 5},
-    {SOURCE_NORMAL, 399, 5},
-    {SOURCE_NORMAL, 400, 12},
-    {SOURCE_NORMAL, 401, 10},
-    {SOURCE_NORMAL, 402, 10},
-    {SOURCE_NORMAL, 403, 10},
-    {SOURCE_NORMAL, 404, 7}
+    {SOURCE_NORMAL, 390, 7},
+    {SOURCE_NORMAL, 391, 8},
+    {SOURCE_NORMAL, 393, 7},
+    {SOURCE_NORMAL, 394, 7},
+    {SOURCE_NORMAL, 395, 7},
+    {SOURCE_NORMAL, 396, 5},
+    {SOURCE_NORMAL, 397, 4},
+    {SOURCE_NORMAL, 398, 9},
+    {SOURCE_NORMAL, 399, 10},
+    {SOURCE_NORMAL, 400, 4},
+    {SOURCE_NORMAL, 401, 4},
+    {SOURCE_NORMAL, 402, 4},
+    {SOURCE_NORMAL, 403, 5},
+    {SOURCE_NORMAL, 404, 5}
 };
 
 // Body_Armours_str_dex - desecrated_suffixes
@@ -2334,31 +2325,30 @@ ModifierLookup body_armours_str_dex_essence_suffixes[7] = {
 };
 
 // Body_Armours_int - normal_prefixes
-ModifierLookup body_armours_int_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 383, 7},
-    {SOURCE_NORMAL, 406, 7},
-    {SOURCE_NORMAL, 409, 5},
-    {SOURCE_NORMAL, 412, 5},
-    {SOURCE_NORMAL, 415, 7},
-    {SOURCE_NORMAL, 418, 7},
-    {SOURCE_NORMAL, 419, 7},
+ModifierLookup body_armours_int_normal_prefixes[7] = {
+    {SOURCE_NORMAL, 406, 12},
+    {SOURCE_NORMAL, 409, 10},
+    {SOURCE_NORMAL, 412, 7},
+    {SOURCE_NORMAL, 415, 5},
+    {SOURCE_NORMAL, 418, 5},
+    {SOURCE_NORMAL, 419, 6},
     {SOURCE_NORMAL, 420, 7}
 };
 
 // Body_Armours_int - normal_suffixes
 ModifierLookup body_armours_int_normal_suffixes[12] = {
-    {SOURCE_NORMAL, 423, 9},
-    {SOURCE_NORMAL, 424, 10},
-    {SOURCE_NORMAL, 425, 4},
-    {SOURCE_NORMAL, 426, 4},
-    {SOURCE_NORMAL, 427, 4},
-    {SOURCE_NORMAL, 428, 5},
-    {SOURCE_NORMAL, 429, 5},
-    {SOURCE_NORMAL, 430, 5},
-    {SOURCE_NORMAL, 431, 8},
-    {SOURCE_NORMAL, 432, 8},
-    {SOURCE_NORMAL, 433, 6},
-    {SOURCE_NORMAL, 436, 6}
+    {SOURCE_NORMAL, 423, 7},
+    {SOURCE_NORMAL, 424, 7},
+    {SOURCE_NORMAL, 425, 7},
+    {SOURCE_NORMAL, 426, 7},
+    {SOURCE_NORMAL, 427, 5},
+    {SOURCE_NORMAL, 428, 4},
+    {SOURCE_NORMAL, 429, 9},
+    {SOURCE_NORMAL, 430, 10},
+    {SOURCE_NORMAL, 431, 4},
+    {SOURCE_NORMAL, 432, 4},
+    {SOURCE_NORMAL, 433, 4},
+    {SOURCE_NORMAL, 436, 5}
 };
 
 // Body_Armours_int - desecrated_suffixes
@@ -2397,29 +2387,29 @@ ModifierLookup body_armours_int_essence_suffixes[6] = {
 
 // Body_Armours_dex - normal_prefixes
 ModifierLookup body_armours_dex_normal_prefixes[7] = {
-    {SOURCE_NORMAL, 406, 7},
-    {SOURCE_NORMAL, 408, 5},
-    {SOURCE_NORMAL, 411, 5},
-    {SOURCE_NORMAL, 414, 7},
-    {SOURCE_NORMAL, 417, 7},
-    {SOURCE_NORMAL, 419, 7},
+    {SOURCE_NORMAL, 406, 12},
+    {SOURCE_NORMAL, 408, 10},
+    {SOURCE_NORMAL, 411, 7},
+    {SOURCE_NORMAL, 414, 5},
+    {SOURCE_NORMAL, 417, 5},
+    {SOURCE_NORMAL, 419, 6},
     {SOURCE_NORMAL, 420, 7}
 };
 
 // Body_Armours_dex - normal_suffixes
 ModifierLookup body_armours_dex_normal_suffixes[12] = {
-    {SOURCE_NORMAL, 422, 4},
-    {SOURCE_NORMAL, 424, 10},
-    {SOURCE_NORMAL, 425, 4},
-    {SOURCE_NORMAL, 426, 4},
-    {SOURCE_NORMAL, 427, 4},
-    {SOURCE_NORMAL, 428, 5},
-    {SOURCE_NORMAL, 429, 5},
-    {SOURCE_NORMAL, 430, 5},
-    {SOURCE_NORMAL, 431, 8},
-    {SOURCE_NORMAL, 432, 8},
-    {SOURCE_NORMAL, 433, 6},
-    {SOURCE_NORMAL, 435, 6}
+    {SOURCE_NORMAL, 422, 7},
+    {SOURCE_NORMAL, 424, 7},
+    {SOURCE_NORMAL, 425, 7},
+    {SOURCE_NORMAL, 426, 7},
+    {SOURCE_NORMAL, 427, 5},
+    {SOURCE_NORMAL, 428, 4},
+    {SOURCE_NORMAL, 429, 9},
+    {SOURCE_NORMAL, 430, 10},
+    {SOURCE_NORMAL, 431, 4},
+    {SOURCE_NORMAL, 432, 4},
+    {SOURCE_NORMAL, 433, 4},
+    {SOURCE_NORMAL, 435, 5}
 };
 
 // Body_Armours_dex - desecrated_suffixes
@@ -2459,31 +2449,31 @@ ModifierLookup body_armours_dex_essence_suffixes[6] = {
 
 // Body_Armours_dex_int - normal_prefixes
 ModifierLookup body_armours_dex_int_normal_prefixes[7] = {
-    {SOURCE_NORMAL, 375, 7},
-    {SOURCE_NORMAL, 378, 5},
-    {SOURCE_NORMAL, 381, 5},
-    {SOURCE_NORMAL, 384, 7},
-    {SOURCE_NORMAL, 387, 7},
-    {SOURCE_NORMAL, 388, 7},
+    {SOURCE_NORMAL, 375, 12},
+    {SOURCE_NORMAL, 378, 7},
+    {SOURCE_NORMAL, 381, 7},
+    {SOURCE_NORMAL, 384, 5},
+    {SOURCE_NORMAL, 387, 5},
+    {SOURCE_NORMAL, 388, 6},
     {SOURCE_NORMAL, 389, 7}
 };
 
 // Body_Armours_dex_int - normal_suffixes
 ModifierLookup body_armours_dex_int_normal_suffixes[14] = {
-    {SOURCE_NORMAL, 391, 4},
-    {SOURCE_NORMAL, 392, 9},
-    {SOURCE_NORMAL, 393, 10},
-    {SOURCE_NORMAL, 394, 4},
-    {SOURCE_NORMAL, 395, 4},
-    {SOURCE_NORMAL, 396, 4},
-    {SOURCE_NORMAL, 397, 5},
-    {SOURCE_NORMAL, 398, 5},
-    {SOURCE_NORMAL, 399, 5},
-    {SOURCE_NORMAL, 400, 12},
-    {SOURCE_NORMAL, 401, 10},
-    {SOURCE_NORMAL, 402, 10},
-    {SOURCE_NORMAL, 405, 7},
-    {SOURCE_NORMAL, 404, 7}
+    {SOURCE_NORMAL, 391, 8},
+    {SOURCE_NORMAL, 392, 7},
+    {SOURCE_NORMAL, 393, 7},
+    {SOURCE_NORMAL, 394, 7},
+    {SOURCE_NORMAL, 395, 7},
+    {SOURCE_NORMAL, 396, 5},
+    {SOURCE_NORMAL, 397, 4},
+    {SOURCE_NORMAL, 398, 9},
+    {SOURCE_NORMAL, 399, 10},
+    {SOURCE_NORMAL, 400, 4},
+    {SOURCE_NORMAL, 401, 4},
+    {SOURCE_NORMAL, 402, 4},
+    {SOURCE_NORMAL, 405, 5},
+    {SOURCE_NORMAL, 404, 5}
 };
 
 // Body_Armours_dex_int - desecrated_suffixes
@@ -2525,39 +2515,39 @@ ModifierLookup body_armours_dex_int_essence_suffixes[7] = {
 
 // Wands - normal_prefixes
 ModifierLookup wands_normal_prefixes[11] = {
-    {SOURCE_NORMAL, 184, 7},
+    {SOURCE_NORMAL, 184, 10},
     {SOURCE_NORMAL, 185, 7},
-    {SOURCE_NORMAL, 186, 5},
-    {SOURCE_NORMAL, 187, 5},
-    {SOURCE_NORMAL, 188, 5},
+    {SOURCE_NORMAL, 186, 6},
+    {SOURCE_NORMAL, 187, 7},
+    {SOURCE_NORMAL, 188, 7},
     {SOURCE_NORMAL, 189, 7},
-    {SOURCE_NORMAL, 190, 4},
-    {SOURCE_NORMAL, 191, 3},
-    {SOURCE_NORMAL, 192, 4},
-    {SOURCE_NORMAL, 193, 4},
-    {SOURCE_NORMAL, 194, 4}
+    {SOURCE_NORMAL, 190, 7},
+    {SOURCE_NORMAL, 191, 7},
+    {SOURCE_NORMAL, 192, 5},
+    {SOURCE_NORMAL, 193, 5},
+    {SOURCE_NORMAL, 194, 5}
 };
 
 // Wands - normal_suffixes
 ModifierLookup wands_normal_suffixes[18] = {
-    {SOURCE_NORMAL, 195, 4},
+    {SOURCE_NORMAL, 195, 7},
     {SOURCE_NORMAL, 196, 4},
-    {SOURCE_NORMAL, 197, 5},
-    {SOURCE_NORMAL, 198, 7},
-    {SOURCE_NORMAL, 199, 7},
-    {SOURCE_NORMAL, 200, 6},
-    {SOURCE_NORMAL, 201, 5},
-    {SOURCE_NORMAL, 202, 5},
-    {SOURCE_NORMAL, 203, 2},
-    {SOURCE_NORMAL, 204, 4},
-    {SOURCE_NORMAL, 205, 4},
-    {SOURCE_NORMAL, 206, 4},
-    {SOURCE_NORMAL, 207, 10},
-    {SOURCE_NORMAL, 208, 9},
-    {SOURCE_NORMAL, 209, 7},
-    {SOURCE_NORMAL, 210, 5},
-    {SOURCE_NORMAL, 211, 6},
-    {SOURCE_NORMAL, 212, 2}
+    {SOURCE_NORMAL, 197, 3},
+    {SOURCE_NORMAL, 198, 4},
+    {SOURCE_NORMAL, 199, 4},
+    {SOURCE_NORMAL, 200, 4},
+    {SOURCE_NORMAL, 201, 4},
+    {SOURCE_NORMAL, 202, 4},
+    {SOURCE_NORMAL, 203, 5},
+    {SOURCE_NORMAL, 204, 7},
+    {SOURCE_NORMAL, 205, 7},
+    {SOURCE_NORMAL, 206, 6},
+    {SOURCE_NORMAL, 207, 5},
+    {SOURCE_NORMAL, 208, 5},
+    {SOURCE_NORMAL, 209, 2},
+    {SOURCE_NORMAL, 210, 4},
+    {SOURCE_NORMAL, 211, 4},
+    {SOURCE_NORMAL, 212, 4}
 };
 
 // Wands - desecrated_prefixes
@@ -2599,33 +2589,33 @@ ModifierLookup wands_essence_suffixes[7] = {
 
 // Quarterstaves - normal_prefixes
 ModifierLookup quarterstaves_normal_prefixes[8] = {
-    {SOURCE_NORMAL, 22, 9},
+    {SOURCE_NORMAL, 22, 8},
     {SOURCE_NORMAL, 23, 9},
     {SOURCE_NORMAL, 24, 9},
-    {SOURCE_NORMAL, 25, 7},
+    {SOURCE_NORMAL, 25, 9},
     {SOURCE_NORMAL, 26, 7},
-    {SOURCE_NORMAL, 27, 5},
+    {SOURCE_NORMAL, 27, 7},
     {SOURCE_NORMAL, 28, 7},
-    {SOURCE_NORMAL, 29, 7}
+    {SOURCE_NORMAL, 29, 5}
 };
 
 // Quarterstaves - normal_suffixes
 ModifierLookup quarterstaves_normal_suffixes[15] = {
-    {SOURCE_NORMAL, 30, 4},
-    {SOURCE_NORMAL, 31, 4},
+    {SOURCE_NORMAL, 30, 7},
+    {SOURCE_NORMAL, 31, 7},
     {SOURCE_NORMAL, 32, 4},
     {SOURCE_NORMAL, 33, 4},
-    {SOURCE_NORMAL, 34, 7},
-    {SOURCE_NORMAL, 35, 7},
-    {SOURCE_NORMAL, 36, 3},
+    {SOURCE_NORMAL, 34, 4},
+    {SOURCE_NORMAL, 35, 4},
+    {SOURCE_NORMAL, 36, 7},
     {SOURCE_NORMAL, 37, 7},
-    {SOURCE_NORMAL, 38, 5},
-    {SOURCE_NORMAL, 39, 5},
-    {SOURCE_NORMAL, 40, 2},
+    {SOURCE_NORMAL, 38, 3},
+    {SOURCE_NORMAL, 39, 7},
+    {SOURCE_NORMAL, 40, 5},
     {SOURCE_NORMAL, 41, 5},
-    {SOURCE_NORMAL, 42, 5},
-    {SOURCE_NORMAL, 43, 10},
-    {SOURCE_NORMAL, 44, 7}
+    {SOURCE_NORMAL, 42, 2},
+    {SOURCE_NORMAL, 43, 5},
+    {SOURCE_NORMAL, 44, 5}
 };
 
 // Quarterstaves - desecrated_prefixes
@@ -2673,43 +2663,35 @@ ModifierLookup quarterstaves_essence_suffixes[7] = {
 };
 
 // Foci - normal_prefixes
-ModifierLookup foci_normal_prefixes[17] = {
-    {SOURCE_NORMAL, 403, 10},   // +# to maximum Energy Shield (flat ES) - 10 tiers for Foci (not 11) - "Incandescent" T1 at tier 9
-    {SOURCE_NORMAL, 406, 7},   // #% increased Energy Shield - 8 tiers - "Shade's, Ghost's, etc."
-    {SOURCE_NORMAL, 603, 6},   // #% increased Energy Shield - 7 tiers - "Indomitable" at tier 5, etc.
-    {SOURCE_NORMAL, 409, 5},   // #% increased ES + # to Life (hybrid) - 6 tiers
-    {SOURCE_NORMAL, 412, 5},   // +# to ES + #% increased ES (hybrid) - 6 tiers
-    {SOURCE_NORMAL, 257, 5},   // #% increased ES + # to Mana (hybrid) - 6 tiers - "Celestial" at tier 3
-    {SOURCE_NORMAL, 260, 7},
+ModifierLookup foci_normal_prefixes[11] = {
+    {SOURCE_NORMAL, 260, 10},
     {SOURCE_NORMAL, 264, 7},
-    {SOURCE_NORMAL, 263, 7},
+    {SOURCE_NORMAL, 263, 5},
     {SOURCE_NORMAL, 265, 7},
     {SOURCE_NORMAL, 266, 7},
     {SOURCE_NORMAL, 267, 7},
-    {SOURCE_NORMAL, 268, 5},
-    {SOURCE_NORMAL, 269, 4},
-    {SOURCE_NORMAL, 262, 7},
-    {SOURCE_NORMAL, 261, 7},
-    {SOURCE_NORMAL, 263, 7}
+    {SOURCE_NORMAL, 268, 7},
+    {SOURCE_NORMAL, 269, 7},
+    {SOURCE_NORMAL, 262, 6},
+    {SOURCE_NORMAL, 261, 9},
+    {SOURCE_NORMAL, 263, 5}
 };
 
 // Foci - normal_suffixes
-ModifierLookup foci_normal_suffixes[15] = {
-    {SOURCE_NORMAL, 270, 1},   // +# to Level of all Spell Skills
-    {SOURCE_NORMAL, 271, 5},   // #% increased Mana Regeneration Rate
-    {SOURCE_NORMAL, 272, 5},   // #% increased Cast Speed
-    {SOURCE_NORMAL, 273, 4},   // #% increased Critical Hit Chance for Spells
-    {SOURCE_NORMAL, 274, 4},   // #% increased Critical Spell Damage Bonus
-    {SOURCE_NORMAL, 275, 5},   // #% increased Energy Shield Recharge Rate
-    {SOURCE_NORMAL, 276, 5},   // #% faster start of Energy Shield Recharge
-    {SOURCE_NORMAL, 277, 10},   // +# to maximum Life
-    {SOURCE_NORMAL, 278, 9},   // +# to Evasion Rating
-    {SOURCE_NORMAL, 279, 7},   // #% increased Evasion Rating
-    {SOURCE_NORMAL, 280, 5},   // #% increased Evasion Rating + # to Stun Threshold
-    {SOURCE_NORMAL, 281, 6},   // # to # Physical Thorns damage
-    {SOURCE_NORMAL, 282, 2},   // (#–#)% increased Block chance
-    {SOURCE_NORMAL, 214, 7},   // +#% to Fire Resistance (ADDED)
-    {SOURCE_NORMAL, 217, 5}    // +#% to Chaos Resistance (ADDED)
+ModifierLookup foci_normal_suffixes[13] = {
+    {SOURCE_NORMAL, 270, 7},
+    {SOURCE_NORMAL, 271, 7},
+    {SOURCE_NORMAL, 272, 7},
+    {SOURCE_NORMAL, 273, 7},
+    {SOURCE_NORMAL, 274, 5},
+    {SOURCE_NORMAL, 275, 4},
+    {SOURCE_NORMAL, 276, 1},
+    {SOURCE_NORMAL, 277, 5},
+    {SOURCE_NORMAL, 278, 5},
+    {SOURCE_NORMAL, 279, 4},
+    {SOURCE_NORMAL, 280, 4},
+    {SOURCE_NORMAL, 281, 5},
+    {SOURCE_NORMAL, 282, 5}
 };
 
 // Foci - desecrated_prefixes
@@ -2764,29 +2746,29 @@ ModifierLookup foci_essence_suffixes[12] = {
 
 // Bucklers - normal_prefixes
 ModifierLookup bucklers_normal_prefixes[6] = {
-    {SOURCE_NORMAL, 283, 7},
-    {SOURCE_NORMAL, 284, 7},
+    {SOURCE_NORMAL, 283, 10},
+    {SOURCE_NORMAL, 284, 9},
     {SOURCE_NORMAL, 285, 7},
-    {SOURCE_NORMAL, 286, 7},
-    {SOURCE_NORMAL, 287, 5},
-    {SOURCE_NORMAL, 288, 4}
+    {SOURCE_NORMAL, 286, 5},
+    {SOURCE_NORMAL, 287, 6},
+    {SOURCE_NORMAL, 288, 2}
 };
 
 // Bucklers - normal_suffixes
 ModifierLookup bucklers_normal_suffixes[13] = {
-    {SOURCE_NORMAL, 289, 9},
-    {SOURCE_NORMAL, 290, 2},
-    {SOURCE_NORMAL, 291, 2},
-    {SOURCE_NORMAL, 292, 2},
-    {SOURCE_NORMAL, 293, 2},
-    {SOURCE_NORMAL, 294, 1},
-    {SOURCE_NORMAL, 295, 5},
-    {SOURCE_NORMAL, 296, 8},
-    {SOURCE_NORMAL, 297, 8},
-    {SOURCE_NORMAL, 298, 8},
-    {SOURCE_NORMAL, 299, 8},
-    {SOURCE_NORMAL, 300, 8},
-    {SOURCE_NORMAL, 301, 4}
+    {SOURCE_NORMAL, 289, 7},
+    {SOURCE_NORMAL, 290, 7},
+    {SOURCE_NORMAL, 291, 7},
+    {SOURCE_NORMAL, 292, 7},
+    {SOURCE_NORMAL, 293, 5},
+    {SOURCE_NORMAL, 294, 4},
+    {SOURCE_NORMAL, 295, 9},
+    {SOURCE_NORMAL, 296, 2},
+    {SOURCE_NORMAL, 297, 2},
+    {SOURCE_NORMAL, 298, 2},
+    {SOURCE_NORMAL, 299, 2},
+    {SOURCE_NORMAL, 300, 1},
+    {SOURCE_NORMAL, 301, 5}
 };
 
 // Bucklers - desecrated_suffixes
@@ -2827,39 +2809,39 @@ ModifierLookup bucklers_essence_suffixes[7] = {
 
 // Staves - normal_prefixes
 ModifierLookup staves_normal_prefixes[11] = {
-    {SOURCE_NORMAL, 45, 6},
+    {SOURCE_NORMAL, 45, 10},
     {SOURCE_NORMAL, 46, 7},
-    {SOURCE_NORMAL, 47, 7},
+    {SOURCE_NORMAL, 47, 6},
     {SOURCE_NORMAL, 48, 7},
     {SOURCE_NORMAL, 49, 7},
     {SOURCE_NORMAL, 50, 7},
-    {SOURCE_NORMAL, 51, 5},
-    {SOURCE_NORMAL, 52, 5},
+    {SOURCE_NORMAL, 51, 7},
+    {SOURCE_NORMAL, 52, 7},
     {SOURCE_NORMAL, 53, 5},
-    {SOURCE_NORMAL, 54, 7},
-    {SOURCE_NORMAL, 55, 4}
+    {SOURCE_NORMAL, 54, 5},
+    {SOURCE_NORMAL, 55, 5}
 };
 
 // Staves - normal_suffixes
 ModifierLookup staves_normal_suffixes[18] = {
-    {SOURCE_NORMAL, 56, 3},
+    {SOURCE_NORMAL, 56, 7},
     {SOURCE_NORMAL, 57, 4},
-    {SOURCE_NORMAL, 58, 4},
+    {SOURCE_NORMAL, 58, 3},
     {SOURCE_NORMAL, 59, 4},
     {SOURCE_NORMAL, 60, 4},
     {SOURCE_NORMAL, 61, 4},
-    {SOURCE_NORMAL, 62, 5},
-    {SOURCE_NORMAL, 63, 7},
-    {SOURCE_NORMAL, 64, 7},
-    {SOURCE_NORMAL, 65, 6},
-    {SOURCE_NORMAL, 66, 5},
-    {SOURCE_NORMAL, 67, 5},
-    {SOURCE_NORMAL, 68, 2},
-    {SOURCE_NORMAL, 69, 4},
-    {SOURCE_NORMAL, 70, 4},
+    {SOURCE_NORMAL, 62, 4},
+    {SOURCE_NORMAL, 63, 4},
+    {SOURCE_NORMAL, 64, 5},
+    {SOURCE_NORMAL, 65, 7},
+    {SOURCE_NORMAL, 66, 7},
+    {SOURCE_NORMAL, 67, 6},
+    {SOURCE_NORMAL, 68, 5},
+    {SOURCE_NORMAL, 69, 5},
+    {SOURCE_NORMAL, 70, 2},
     {SOURCE_NORMAL, 71, 4},
-    {SOURCE_NORMAL, 72, 8},
-    {SOURCE_NORMAL, 73, 9}
+    {SOURCE_NORMAL, 72, 4},
+    {SOURCE_NORMAL, 73, 4}
 };
 
 // Staves - desecrated_prefixes
@@ -2895,221 +2877,3 @@ ModifierLookup staves_essence_suffixes[7] = {
     {SOURCE_PERFECT_ESSENCE, 13, 0}
 };
 
-// =============================================================================
-// LOOKUP RETRIEVAL FUNCTION
-// =============================================================================
-
-// Get modifier lookups for an item by item_id and source
-// Returns NULL arrays if item doesn't support that source
-ItemModLookupResult get_item_mod_lookup(int item_id, ModifierSource source) {
-    ItemModLookupResult result = {0};
-    
-    switch (item_id) {
-        case 0: // Bows
-            if (source == SOURCE_NORMAL) { result.prefixes = bows_normal_prefixes; result.prefix_count = 8; result.suffixes = bows_normal_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = bows_desecrated_prefixes; result.prefix_count = 7; result.suffixes = bows_desecrated_suffixes; result.suffix_count = 8; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = bows_essence_prefixes; result.prefix_count = 9; result.suffixes = bows_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 1: // Crossbows
-            if (source == SOURCE_NORMAL) { result.prefixes = crossbows_normal_prefixes; result.prefix_count = 8; result.suffixes = crossbows_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = crossbows_desecrated_prefixes; result.prefix_count = 6; result.suffixes = crossbows_desecrated_suffixes; result.suffix_count = 7; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = crossbows_essence_prefixes; result.prefix_count = 9; result.suffixes = crossbows_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 2: // Quivers
-            if (source == SOURCE_NORMAL) { result.prefixes = quivers_normal_prefixes; result.prefix_count = 7; result.suffixes = quivers_normal_suffixes; result.suffix_count = 8; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = quivers_desecrated_prefixes; result.prefix_count = 1; result.suffixes = quivers_desecrated_suffixes; result.suffix_count = 3; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = quivers_essence_prefixes; result.prefix_count = 2; result.suffixes = quivers_essence_suffixes; result.suffix_count = 1; }
-            break;
-        case 3: // OneHand_Maces
-            if (source == SOURCE_NORMAL) { result.prefixes = onehand_maces_normal_prefixes; result.prefix_count = 8; result.suffixes = onehand_maces_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = onehand_maces_desecrated_prefixes; result.prefix_count = 8; result.suffixes = onehand_maces_desecrated_suffixes; result.suffix_count = 8; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = onehand_maces_essence_prefixes; result.prefix_count = 9; result.suffixes = onehand_maces_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 4: // Amulets
-            if (source == SOURCE_NORMAL) { result.prefixes = amulets_normal_prefixes; result.prefix_count = 10; result.suffixes = amulets_normal_suffixes; result.suffix_count = 21; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = amulets_desecrated_prefixes; result.prefix_count = 11; result.suffixes = amulets_desecrated_suffixes; result.suffix_count = 19; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = amulets_essence_prefixes; result.prefix_count = 3; result.suffixes = amulets_essence_suffixes; result.suffix_count = 12; }
-            break;
-        case 5: // Spears
-            if (source == SOURCE_NORMAL) { result.prefixes = spears_normal_prefixes; result.prefix_count = 8; result.suffixes = spears_normal_suffixes; result.suffix_count = 16; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = spears_desecrated_prefixes; result.prefix_count = 6; result.suffixes = spears_desecrated_suffixes; result.suffix_count = 8; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = spears_essence_prefixes; result.prefix_count = 9; result.suffixes = spears_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 6: // Shields_str_int
-            if (source == SOURCE_NORMAL) { result.prefixes = shields_str_int_normal_prefixes; result.prefix_count = 6; result.suffixes = shields_str_int_normal_suffixes; result.suffix_count = 16; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = shields_str_int_desecrated_suffixes; result.suffix_count = 19; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = shields_str_int_essence_prefixes; result.prefix_count = 3; result.suffixes = shields_str_int_essence_suffixes; result.suffix_count = 6; }
-            break;
-        case 7: // Shields_str
-            if (source == SOURCE_NORMAL) { result.prefixes = shields_str_normal_prefixes; result.prefix_count = 6; result.suffixes = shields_str_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = shields_str_desecrated_suffixes; result.suffix_count = 19; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = shields_str_essence_prefixes; result.prefix_count = 3; result.suffixes = shields_str_essence_suffixes; result.suffix_count = 5; }
-            break;
-        case 8: // Shields_str_dex
-            if (source == SOURCE_NORMAL) { result.prefixes = shields_str_dex_normal_prefixes; result.prefix_count = 6; result.suffixes = shields_str_dex_normal_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = shields_str_dex_desecrated_suffixes; result.suffix_count = 19; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = shields_str_dex_essence_prefixes; result.prefix_count = 3; result.suffixes = shields_str_dex_essence_suffixes; result.suffix_count = 6; }
-            break;
-        case 9: // TwoHand_Maces
-            if (source == SOURCE_NORMAL) { result.prefixes = twohand_maces_normal_prefixes; result.prefix_count = 8; result.suffixes = twohand_maces_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = twohand_maces_desecrated_prefixes; result.prefix_count = 8; result.suffixes = twohand_maces_desecrated_suffixes; result.suffix_count = 8; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = twohand_maces_essence_prefixes; result.prefix_count = 9; result.suffixes = twohand_maces_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 10: // Helmets_str_int
-            if (source == SOURCE_NORMAL) { result.prefixes = helmets_str_int_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_str_int_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_str_int_desecrated_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_str_int_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_str_int_essence_suffixes; result.suffix_count = 9; }
-            break;
-        case 11: // Helmets_int
-            if (source == SOURCE_NORMAL) { result.prefixes = helmets_int_normal_prefixes; result.prefix_count = 11; result.suffixes = helmets_int_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_int_desecrated_suffixes; result.suffix_count = 12; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_int_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_int_essence_suffixes; result.suffix_count = 8; }
-            break;
-        case 12: // Helmets_dex_int
-            if (source == SOURCE_NORMAL) { result.prefixes = helmets_dex_int_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_dex_int_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_dex_int_desecrated_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_dex_int_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_dex_int_essence_suffixes; result.suffix_count = 9; }
-            break;
-        case 13: // Helmets_str
-            if (source == SOURCE_NORMAL) { result.prefixes = helmets_str_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_str_normal_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_str_desecrated_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_str_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_str_essence_suffixes; result.suffix_count = 9; }
-            break;
-        case 14: // Helmets_dex
-            if (source == SOURCE_NORMAL) { result.prefixes = helmets_dex_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_dex_normal_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_dex_desecrated_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_dex_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_dex_essence_suffixes; result.suffix_count = 9; }
-            break;
-        case 15: // Helmets_str_dex
-            if (source == SOURCE_NORMAL) { result.prefixes = helmets_str_dex_normal_prefixes; result.prefix_count = 8; result.suffixes = helmets_str_dex_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = helmets_str_dex_desecrated_suffixes; result.suffix_count = 16; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = helmets_str_dex_essence_prefixes; result.prefix_count = 3; result.suffixes = helmets_str_dex_essence_suffixes; result.suffix_count = 10; }
-            break;
-        case 16: // Sceptres
-            if (source == SOURCE_NORMAL) { result.prefixes = sceptres_normal_prefixes; result.prefix_count = 8; result.suffixes = sceptres_normal_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = sceptres_essence_prefixes; result.prefix_count = 1; result.suffixes = sceptres_essence_suffixes; result.suffix_count = 4; }
-            break;
-        case 17: // Boots_str_int
-            if (source == SOURCE_NORMAL) { result.prefixes = boots_str_int_normal_prefixes; result.prefix_count = 10; result.suffixes = boots_str_int_normal_suffixes; result.suffix_count = 18; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_str_int_desecrated_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_str_int_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_str_int_essence_suffixes; result.suffix_count = 8; }
-            break;
-        case 18: // Boots_str
-            if (source == SOURCE_NORMAL) { result.prefixes = boots_str_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_str_normal_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_str_desecrated_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_str_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_str_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 19: // Boots_int
-            if (source == SOURCE_NORMAL) { result.prefixes = boots_int_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_int_normal_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_int_desecrated_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_int_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_int_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 20: // Boots_dex
-            if (source == SOURCE_NORMAL) { result.prefixes = boots_dex_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_dex_normal_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_dex_desecrated_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_dex_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_dex_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 21: // Boots_dex_int
-            if (source == SOURCE_NORMAL) { result.prefixes = boots_dex_int_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_dex_int_normal_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_dex_int_desecrated_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_dex_int_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_dex_int_essence_suffixes; result.suffix_count = 8; }
-            break;
-        case 22: // Boots_str_dex
-            if (source == SOURCE_NORMAL) { result.prefixes = boots_str_dex_normal_prefixes; result.prefix_count = 6; result.suffixes = boots_str_dex_normal_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = boots_str_dex_desecrated_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = boots_str_dex_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_str_dex_essence_suffixes; result.suffix_count = 8; }
-            break;
-        case 23: // Bucklers
-            if (source == SOURCE_NORMAL) { result.prefixes = bucklers_normal_prefixes; result.prefix_count = 6; result.suffixes = bucklers_normal_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = bucklers_desecrated_suffixes; result.suffix_count = 12; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = bucklers_essence_prefixes; result.prefix_count = 5; result.suffixes = bucklers_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 24: // Rings
-            if (source == SOURCE_NORMAL) { result.prefixes = rings_normal_prefixes; result.prefix_count = 13; result.suffixes = rings_normal_suffixes; result.suffix_count = 18; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = rings_desecrated_prefixes; result.prefix_count = 7; result.suffixes = rings_desecrated_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = rings_essence_prefixes; result.prefix_count = 3; result.suffixes = rings_essence_suffixes; result.suffix_count = 9; }
-            break;
-        case 25: // Gloves_dex
-            if (source == SOURCE_NORMAL) { result.prefixes = gloves_dex_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_dex_normal_suffixes; result.suffix_count = 16; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_dex_desecrated_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_dex_essence_prefixes; result.prefix_count = 3; result.suffixes = gloves_dex_essence_suffixes; result.suffix_count = 11; }
-            break;
-        case 26: // Gloves_dex_int
-            if (source == SOURCE_NORMAL) { result.prefixes = gloves_dex_int_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_dex_int_normal_suffixes; result.suffix_count = 18; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_dex_int_desecrated_suffixes; result.suffix_count = 16; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_dex_int_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_dex_int_essence_suffixes; result.suffix_count = 11; }
-            break;
-        case 27: // Gloves_int
-            if (source == SOURCE_NORMAL) { result.prefixes = gloves_int_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_int_normal_suffixes; result.suffix_count = 17; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_int_desecrated_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_int_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_int_essence_suffixes; result.suffix_count = 11; }
-            break;
-        case 28: // Gloves_str
-            if (source == SOURCE_NORMAL) { result.prefixes = gloves_str_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_str_normal_suffixes; result.suffix_count = 17; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_str_desecrated_suffixes; result.suffix_count = 12; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_str_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_str_essence_suffixes; result.suffix_count = 11; }
-            break;
-        case 29: // Gloves_str_int
-            if (source == SOURCE_NORMAL) { result.prefixes = gloves_str_int_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_str_int_normal_suffixes; result.suffix_count = 18; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_str_int_desecrated_suffixes; result.suffix_count = 16; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_str_int_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_str_int_essence_suffixes; result.suffix_count = 12; }
-            break;
-        case 30: // Gloves_str_dex
-            if (source == SOURCE_NORMAL) { result.prefixes = gloves_str_dex_normal_prefixes; result.prefix_count = 10; result.suffixes = gloves_str_dex_normal_suffixes; result.suffix_count = 19; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = gloves_str_dex_desecrated_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = gloves_str_dex_essence_prefixes; result.prefix_count = 4; result.suffixes = gloves_str_dex_essence_suffixes; result.suffix_count = 11; }
-            break;
-        case 31: // Body_Armours_str
-            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_str_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_str_normal_suffixes; result.suffix_count = 12; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_str_desecrated_suffixes; result.suffix_count = 10; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_str_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_str_essence_suffixes; result.suffix_count = 6; }
-            break;
-        case 32: // Body_Armours_str_int
-            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_str_int_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_str_int_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_str_int_desecrated_suffixes; result.suffix_count = 11; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_str_int_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_str_int_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 33: // Body_Armours_str_dex
-            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_str_dex_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_str_dex_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_str_dex_desecrated_suffixes; result.suffix_count = 12; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_str_dex_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_str_dex_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 34: // Body_Armours_int
-            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_int_normal_prefixes; result.prefix_count = 8; result.suffixes = body_armours_int_normal_suffixes; result.suffix_count = 12; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_int_desecrated_suffixes; result.suffix_count = 11; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_int_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_int_essence_suffixes; result.suffix_count = 6; }
-            break;
-        case 35: // Body_Armours_dex
-            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_dex_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_dex_normal_suffixes; result.suffix_count = 12; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_dex_desecrated_suffixes; result.suffix_count = 12; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_dex_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_dex_essence_suffixes; result.suffix_count = 6; }
-            break;
-        case 36: // Body_Armours_dex_int
-            if (source == SOURCE_NORMAL) { result.prefixes = body_armours_dex_int_normal_prefixes; result.prefix_count = 7; result.suffixes = body_armours_dex_int_normal_suffixes; result.suffix_count = 14; }
-            else if (source == SOURCE_DESECRATED) { result.suffixes = body_armours_dex_int_desecrated_suffixes; result.suffix_count = 13; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = body_armours_dex_int_essence_prefixes; result.prefix_count = 5; result.suffixes = body_armours_dex_int_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 37: // Wands
-            if (source == SOURCE_NORMAL) { result.prefixes = wands_normal_prefixes; result.prefix_count = 11; result.suffixes = wands_normal_suffixes; result.suffix_count = 18; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = wands_desecrated_prefixes; result.prefix_count = 5; result.suffixes = wands_desecrated_suffixes; result.suffix_count = 8; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = wands_essence_prefixes; result.prefix_count = 1; result.suffixes = wands_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 38: // Quarterstaves
-            if (source == SOURCE_NORMAL) { result.prefixes = quarterstaves_normal_prefixes; result.prefix_count = 8; result.suffixes = quarterstaves_normal_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = quarterstaves_desecrated_prefixes; result.prefix_count = 6; result.suffixes = quarterstaves_desecrated_suffixes; result.suffix_count = 6; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = quarterstaves_essence_prefixes; result.prefix_count = 9; result.suffixes = quarterstaves_essence_suffixes; result.suffix_count = 7; }
-            break;
-        case 39: // Foci
-            if (source == SOURCE_NORMAL) { result.prefixes = foci_normal_prefixes; result.prefix_count = 17; result.suffixes = foci_normal_suffixes; result.suffix_count = 15; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = foci_desecrated_prefixes; result.prefix_count = 6; result.suffixes = foci_desecrated_suffixes; result.suffix_count = 11; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = foci_essence_prefixes; result.prefix_count = 5; result.suffixes = foci_essence_suffixes; result.suffix_count = 12; }
-            break;
-        case 40: // Staves
-            if (source == SOURCE_NORMAL) { result.prefixes = staves_normal_prefixes; result.prefix_count = 11; result.suffixes = staves_normal_suffixes; result.suffix_count = 18; }
-            else if (source == SOURCE_DESECRATED) { result.prefixes = staves_desecrated_prefixes; result.prefix_count = 4; result.suffixes = staves_desecrated_suffixes; result.suffix_count = 5; }
-            else if (source == SOURCE_ESSENCE) { result.prefixes = staves_essence_prefixes; result.prefix_count = 1; result.suffixes = staves_essence_suffixes; result.suffix_count = 7; }
-            break;
-    }
-    
-    return result;
-}

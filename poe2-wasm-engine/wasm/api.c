@@ -135,58 +135,60 @@ int get_modifier_tier_value_max(int source, int index, int tier_idx, int value_i
 // =============================================================================
 // ITEM LOOKUP API
 // =============================================================================
+// NOTE: These functions are commented out because get_item_mod_lookup() is not implemented
+// TODO: Implement get_item_mod_lookup() or refactor to use direct array access
 
-EMSCRIPTEN_KEEPALIVE
-int get_item_prefix_count(int item_idx, int source) {
-    ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
-    return result.prefix_count;
-}
+// EMSCRIPTEN_KEEPALIVE
+// int get_item_prefix_count(int item_idx, int source) {
+//     ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
+//     return result.prefix_count;
+// }
 
-EMSCRIPTEN_KEEPALIVE
-int get_item_suffix_count(int item_idx, int source) {
-    ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
-    return result.suffix_count;
-}
+// EMSCRIPTEN_KEEPALIVE
+// int get_item_suffix_count(int item_idx, int source) {
+//     ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
+//     return result.suffix_count;
+// }
 
-EMSCRIPTEN_KEEPALIVE
-int get_item_prefix_source(int item_idx, int source, int idx) {
-    ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
-    if (!result.prefixes || idx < 0 || idx >= result.prefix_count) return -1;
-    return result.prefixes[idx].source;
-}
+// EMSCRIPTEN_KEEPALIVE
+// int get_item_prefix_source(int item_idx, int source, int idx) {
+//     ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
+//     if (!result.prefixes || idx < 0 || idx >= result.prefix_count) return -1;
+//     return result.prefixes[idx].source;
+// }
 
-EMSCRIPTEN_KEEPALIVE
-int get_item_prefix_index(int item_idx, int source, int idx) {
-    ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
-    if (!result.prefixes || idx < 0 || idx >= result.prefix_count) return -1;
-    return result.prefixes[idx].index;
-}
+// EMSCRIPTEN_KEEPALIVE
+// int get_item_prefix_index(int item_idx, int source, int idx) {
+//     ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
+//     if (!result.prefixes || idx < 0 || idx >= result.prefix_count) return -1;
+//     return result.prefixes[idx].index;
+// }
 
-EMSCRIPTEN_KEEPALIVE
-int get_item_prefix_max_tier(int item_idx, int source, int idx) {
-    ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
-    if (!result.prefixes || idx < 0 || idx >= result.prefix_count) return -1;
-    return result.prefixes[idx].max_tier_index;
-}
+// EMSCRIPTEN_KEEPALIVE
+// int get_item_prefix_max_tier(int item_idx, int source, int idx) {
+//     ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
+//     if (!result.prefixes || idx < 0 || idx >= result.prefix_count) return -1;
+//     return result.prefixes[idx].max_tier_index;
+// }
 
-EMSCRIPTEN_KEEPALIVE
-int get_item_suffix_source(int item_idx, int source, int idx) {
-    ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
-    if (!result.suffixes || idx < 0 || idx >= result.suffix_count) return -1;
-    return result.suffixes[idx].source;
-}
+// EMSCRIPTEN_KEEPALIVE
+// int get_item_suffix_source(int item_idx, int source, int idx) {
+//     ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
+//     if (!result.suffixes || idx < 0 || idx >= result.suffix_count) return -1;
+//     return result.suffixes[idx].source;
+// }
 
-EMSCRIPTEN_KEEPALIVE
-int get_item_suffix_index(int item_idx, int source, int idx) {
-    ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
-    if (!result.suffixes || idx < 0 || idx >= result.suffix_count) return -1;
-    return result.suffixes[idx].index;
-}
+// EMSCRIPTEN_KEEPALIVE
+// int get_item_suffix_index(int item_idx, int source, int idx) {
+//     ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
+//     if (!result.suffixes || idx < 0 || idx >= result.suffix_count) return -1;
+//     return result.suffixes[idx].index;
+// }
 
-EMSCRIPTEN_KEEPALIVE
-int get_item_suffix_max_tier(int item_idx, int source, int idx) {
-    ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
-    if (!result.suffixes || idx < 0 || idx >= result.suffix_count) return -1;
-    return result.suffixes[idx].max_tier_index;
-}
+// EMSCRIPTEN_KEEPALIVE
+// int get_item_suffix_max_tier(int item_idx, int source, int idx) {
+//     ItemModLookupResult result = get_item_mod_lookup(item_idx, source);
+//     if (!result.suffixes || idx < 0 || idx >= result.suffix_count) return -1;
+//     return result.suffixes[idx].max_tier_index;
+// }
 

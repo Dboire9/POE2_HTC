@@ -10,13 +10,124 @@ Modifier MODIFIERS_PERFECT_ESSENCE[79];
 // NORMAL tier data
 static ModifierTierData tiers_normal_0[] = {
     {
-        .tier_name = "Heated",
+        .tier_name = "Glinting",
         .level_req = 1,
-        .weight = 800,
+        .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 5},
+            {.min = 2, .max = 3},
+            {.min = 5, .max = 7},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Burnished",
+        .level_req = 8,
+        .weight = 1000,
+        .value_count = 2,
+        .values = {
+            {.min = 5, .max = 8},
+            {.min = 10, .max = 15},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Polished",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 2,
+        .values = {
+            {.min = 8, .max = 12},
+            {.min = 15, .max = 22},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Honed",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 2,
+        .values = {
+            {.min = 11, .max = 17},
+            {.min = 20, .max = 30},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Gleaming",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 2,
+        .values = {
+            {.min = 14, .max = 21},
+            {.min = 25, .max = 37},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Annealed",
+        .level_req = 54,
+        .weight = 600,
+        .value_count = 2,
+        .values = {
+            {.min = 19, .max = 29},
+            {.min = 33, .max = 49},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Razor-sharp",
+        .level_req = 60,
+        .weight = 400,
+        .value_count = 2,
+        .values = {
+            {.min = 23, .max = 35},
+            {.min = 39, .max = 59},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Tempered",
+        .level_req = 65,
+        .weight = 200,
+        .value_count = 2,
+        .values = {
+            {.min = 29, .max = 44},
+            {.min = 50, .max = 75},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Flaring",
+        .level_req = 75,
+        .weight = 100,
+        .value_count = 2,
+        .values = {
+            {.min = 37, .max = 55},
+            {.min = 63, .max = 94},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_1[] = {
+    {
+        .tier_name = "Heated",
+        .level_req = 1,
+        .weight = 1200,
+        .value_count = 2,
+        .values = {
+            {.min = 2, .max = 4},
+            {.min = 5, .max = 7},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -24,11 +135,11 @@ static ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Smouldering",
         .level_req = 8,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 10},
+            {.min = 6, .max = 9},
+            {.min = 10, .max = 16},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -36,11 +147,11 @@ static ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Smoking",
         .level_req = 16,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
-            {.min = 7, .max = 11},
-            {.min = 13, .max = 19},
+            {.min = 11, .max = 17},
+            {.min = 19, .max = 28},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48,11 +159,11 @@ static ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Burning",
         .level_req = 33,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
-            {.min = 13, .max = 19},
-            {.min = 21, .max = 29},
+            {.min = 19, .max = 27},
+            {.min = 30, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60,11 +171,11 @@ static ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Flaming",
         .level_req = 46,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 32, .max = 37},
+            {.min = 30, .max = 37},
+            {.min = 45, .max = 56},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72,11 +183,11 @@ static ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Scorching",
         .level_req = 54,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
-            {.min = 25, .max = 33},
-            {.min = 38, .max = 54},
+            {.min = 39, .max = 53},
+            {.min = 59, .max = 80},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -84,11 +195,11 @@ static ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Incinerating",
         .level_req = 60,
-        .weight = 480,
+        .weight = 720,
         .value_count = 2,
         .values = {
-            {.min = 35, .max = 44},
-            {.min = 56, .max = 71},
+            {.min = 56, .max = 70},
+            {.min = 84, .max = 107},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -96,11 +207,11 @@ static ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Blasting",
         .level_req = 65,
-        .weight = 320,
+        .weight = 480,
         .value_count = 2,
         .values = {
-            {.min = 47, .max = 59},
-            {.min = 74, .max = 97},
+            {.min = 73, .max = 97},
+            {.min = 112, .max = 149},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -108,11 +219,11 @@ static ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Cremating",
         .level_req = 75,
-        .weight = 200,
+        .weight = 300,
         .value_count = 2,
         .values = {
-            {.min = 62, .max = 85},
-            {.min = 101, .max = 129},
+            {.min = 102, .max = 130},
+            {.min = 155, .max = 198},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -120,26 +231,26 @@ static ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Carbonising",
         .level_req = 81,
-        .weight = 80,
+        .weight = 120,
         .value_count = 2,
         .values = {
-            {.min = 88, .max = 101},
-            {.min = 133, .max = 154},
+            {.min = 135, .max = 156},
+            {.min = 205, .max = 236},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_1[] = {
+static ModifierTierData tiers_normal_2[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
+            {.min = 2, .max = 3},
+            {.min = 4, .max = 6},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -150,8 +261,8 @@ static ModifierTierData tiers_normal_1[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 3, .max = 5},
-            {.min = 6, .max = 9},
+            {.min = 5, .max = 8},
+            {.min = 9, .max = 14},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -162,8 +273,8 @@ static ModifierTierData tiers_normal_1[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 6, .max = 9},
-            {.min = 10, .max = 16},
+            {.min = 10, .max = 14},
+            {.min = 15, .max = 23},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -174,8 +285,8 @@ static ModifierTierData tiers_normal_1[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 11, .max = 15},
-            {.min = 17, .max = 24},
+            {.min = 16, .max = 23},
+            {.min = 25, .max = 35},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -186,8 +297,8 @@ static ModifierTierData tiers_normal_1[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 17, .max = 20},
-            {.min = 26, .max = 32},
+            {.min = 25, .max = 30},
+            {.min = 38, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -198,8 +309,8 @@ static ModifierTierData tiers_normal_1[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 22, .max = 29},
-            {.min = 34, .max = 44},
+            {.min = 32, .max = 43},
+            {.min = 49, .max = 66},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -210,8 +321,8 @@ static ModifierTierData tiers_normal_1[] = {
         .weight = 480,
         .value_count = 2,
         .values = {
-            {.min = 31, .max = 38},
-            {.min = 47, .max = 59},
+            {.min = 46, .max = 57},
+            {.min = 70, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -222,8 +333,8 @@ static ModifierTierData tiers_normal_1[] = {
         .weight = 320,
         .value_count = 2,
         .values = {
-            {.min = 40, .max = 53},
-            {.min = 62, .max = 80},
+            {.min = 60, .max = 80},
+            {.min = 92, .max = 121},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -234,8 +345,8 @@ static ModifierTierData tiers_normal_1[] = {
         .weight = 200,
         .value_count = 2,
         .values = {
-            {.min = 55, .max = 69},
-            {.min = 83, .max = 106},
+            {.min = 84, .max = 107},
+            {.min = 126, .max = 161},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -246,146 +357,23 @@ static ModifierTierData tiers_normal_1[] = {
         .weight = 80,
         .value_count = 2,
         .values = {
-            {.min = 72, .max = 81},
-            {.min = 110, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_normal_2[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
+            {.min = 112, .max = 124},
+            {.min = 168, .max = 189},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 13, .max = 19},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 55, .max = 60},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 720,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 6},
-            {.min = 85, .max = 107},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
+            {.min = 7, .max = 10},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -393,11 +381,11 @@ static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Buzzing",
         .level_req = 8,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 1},
-            {.min = 13, .max = 19},
+            {.min = 1, .max = 2},
+            {.min = 19, .max = 27},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -405,11 +393,11 @@ static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Snapping",
         .level_req = 16,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
+            {.min = 1, .max = 3},
+            {.min = 31, .max = 43},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -417,11 +405,11 @@ static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Crackling",
         .level_req = 33,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
+            {.min = 1, .max = 4},
+            {.min = 53, .max = 76},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -429,11 +417,11 @@ static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Sparking",
         .level_req = 46,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 3},
-            {.min = 55, .max = 60},
+            {.min = 1, .max = 4},
+            {.min = 80, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -441,11 +429,11 @@ static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Arcing",
         .level_req = 54,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
+            {.min = 1, .max = 6},
+            {.min = 93, .max = 122},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -453,11 +441,11 @@ static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Shocking",
         .level_req = 60,
-        .weight = 720,
+        .weight = 480,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 6},
-            {.min = 85, .max = 107},
+            {.min = 1, .max = 8},
+            {.min = 128, .max = 162},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -465,11 +453,11 @@ static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Discharging",
         .level_req = 65,
-        .weight = 480,
+        .weight = 320,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
+            {.min = 1, .max = 13},
+            {.min = 168, .max = 231},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -477,11 +465,11 @@ static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Electrocuting",
         .level_req = 75,
-        .weight = 300,
+        .weight = 200,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
+            {.min = 1, .max = 16},
+            {.min = 239, .max = 300},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -489,11 +477,11 @@ static ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Vapourising",
         .level_req = 81,
-        .weight = 120,
+        .weight = 80,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
+            {.min = 1, .max = 19},
+            {.min = 310, .max = 358},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -502,101 +490,101 @@ static ModifierTierData tiers_normal_3[] = {
 
 static ModifierTierData tiers_normal_4[] = {
     {
-        .tier_name = "Squire's",
+        .tier_name = "Heavy",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 19},
-            {.min = 16, .max = 20},
+            {.min = 40, .max = 49},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Journeyman's",
-        .level_req = 11,
+        .tier_name = "Serrated",
+        .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 21, .max = 46},
+            {.min = 50, .max = 64},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Reaver's",
-        .level_req = 23,
+        .tier_name = "Wicked",
+        .level_req = 16,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 25, .max = 34},
-            {.min = 47, .max = 72},
+            {.min = 65, .max = 84},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Mercenary's",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 35, .max = 44},
-            {.min = 73, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Champion's",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 45, .max = 54},
-            {.min = 98, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Conqueror's",
-        .level_req = 65,
+        .tier_name = "Vicious",
+        .level_req = 33,
         .weight = 400,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 55, .max = 64},
-            {.min = 124, .max = 149},
+            {.min = 85, .max = 109},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Emperor's",
-        .level_req = 70,
+        .tier_name = "Bloodthirsty",
+        .level_req = 46,
         .weight = 200,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 65, .max = 74},
-            {.min = 150, .max = 174},
+            {.min = 110, .max = 134},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Dictator's",
-        .level_req = 81,
+        .tier_name = "Cruel",
+        .level_req = 60,
         .weight = 100,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 75, .max = 79},
-            {.min = 175, .max = 200},
+            {.min = 135, .max = 154},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "Tyrannical",
+        .level_req = 75,
+        .weight = 50,
+        .value_count = 1,
+        .values = {
+            {.min = 155, .max = 169},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Merciless",
+        .level_req = 82,
+        .weight = 25,
+        .value_count = 1,
+        .values = {
+            {.min = 170, .max = 179},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_5[] = {
@@ -695,7 +683,7 @@ static ModifierTierData tiers_normal_5[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
 static ModifierTierData tiers_normal_6[] = {
@@ -1648,41 +1636,77 @@ static ModifierTierData tiers_normal_17[] = {
 
 static ModifierTierData tiers_normal_18[] = {
     {
-        .tier_name = "of Shining",
+        .tier_name = "of Ire",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 10, .max = 20},
-            {.min = 5, .max = 5},
+            {.min = 10, .max = 11},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Light",
-        .level_req = 15,
+        .tier_name = "of Anger",
+        .level_req = 21,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 40},
-            {.min = 10, .max = 10},
+            {.min = 12, .max = 13},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Radiance",
+        .tier_name = "of Rage",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 41, .max = 60},
-            {.min = 15, .max = 15},
+            {.min = 14, .max = 16},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "of Fury",
+        .level_req = 44,
+        .weight = 500,
+        .value_count = 1,
+        .values = {
+            {.min = 17, .max = 19},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Ferocity",
+        .level_req = 59,
+        .weight = 250,
+        .value_count = 1,
+        .values = {
+            {.min = 20, .max = 22},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Destruction",
+        .level_req = 73,
+        .weight = 125,
+        .value_count = 1,
+        .values = {
+            {.min = 23, .max = 25},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_19[] = {
@@ -1722,7 +1746,7 @@ static ModifierTierData tiers_normal_19[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_20[] = {
     {
@@ -1801,13 +1825,88 @@ static ModifierTierData tiers_normal_20[] = {
 
 static ModifierTierData tiers_normal_21[] = {
     {
+        .tier_name = "of the Pugilist",
+        .level_req = 5,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 21, .max = 30},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Brawler",
+        .level_req = 20,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 31, .max = 40},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Boxer",
+        .level_req = 30,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 41, .max = 50},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Combatant",
+        .level_req = 44,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 51, .max = 60},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Gladiator",
+        .level_req = 58,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 61, .max = 70},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Champion",
+        .level_req = 74,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 71, .max = 80},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_22[] = {
+    {
         .tier_name = "Glinting",
         .level_req = 1,
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 4, .max = 5},
+            {.min = 2, .max = 3},
+            {.min = 5, .max = 7},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1818,8 +1917,8 @@ static ModifierTierData tiers_normal_21[] = {
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 11},
+            {.min = 5, .max = 8},
+            {.min = 10, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1830,8 +1929,8 @@ static ModifierTierData tiers_normal_21[] = {
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 6, .max = 9},
-            {.min = 11, .max = 16},
+            {.min = 8, .max = 12},
+            {.min = 15, .max = 22},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1842,8 +1941,8 @@ static ModifierTierData tiers_normal_21[] = {
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 8, .max = 12},
-            {.min = 14, .max = 21},
+            {.min = 11, .max = 17},
+            {.min = 20, .max = 30},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1854,8 +1953,8 @@ static ModifierTierData tiers_normal_21[] = {
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 10, .max = 15},
-            {.min = 18, .max = 26},
+            {.min = 14, .max = 21},
+            {.min = 25, .max = 37},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1866,8 +1965,8 @@ static ModifierTierData tiers_normal_21[] = {
         .weight = 600,
         .value_count = 2,
         .values = {
-            {.min = 13, .max = 20},
-            {.min = 23, .max = 35},
+            {.min = 19, .max = 29},
+            {.min = 33, .max = 49},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1878,8 +1977,8 @@ static ModifierTierData tiers_normal_21[] = {
         .weight = 400,
         .value_count = 2,
         .values = {
-            {.min = 16, .max = 24},
-            {.min = 28, .max = 42},
+            {.min = 23, .max = 35},
+            {.min = 39, .max = 59},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1890,8 +1989,8 @@ static ModifierTierData tiers_normal_21[] = {
         .weight = 200,
         .value_count = 2,
         .values = {
-            {.min = 21, .max = 31},
-            {.min = 36, .max = 53},
+            {.min = 29, .max = 44},
+            {.min = 50, .max = 75},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1902,23 +2001,23 @@ static ModifierTierData tiers_normal_21[] = {
         .weight = 100,
         .value_count = 2,
         .values = {
-            {.min = 26, .max = 39},
-            {.min = 44, .max = 66},
+            {.min = 37, .max = 55},
+            {.min = 63, .max = 94},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_22[] = {
+static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 5},
+            {.min = 2, .max = 4},
+            {.min = 5, .max = 7},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1929,8 +2028,8 @@ static ModifierTierData tiers_normal_22[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 10},
+            {.min = 6, .max = 9},
+            {.min = 10, .max = 16},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1941,8 +2040,8 @@ static ModifierTierData tiers_normal_22[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 7, .max = 11},
-            {.min = 13, .max = 19},
+            {.min = 11, .max = 17},
+            {.min = 19, .max = 28},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1953,8 +2052,8 @@ static ModifierTierData tiers_normal_22[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 13, .max = 19},
-            {.min = 21, .max = 29},
+            {.min = 19, .max = 27},
+            {.min = 30, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1965,8 +2064,8 @@ static ModifierTierData tiers_normal_22[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 32, .max = 37},
+            {.min = 30, .max = 37},
+            {.min = 45, .max = 56},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1977,8 +2076,8 @@ static ModifierTierData tiers_normal_22[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 25, .max = 33},
-            {.min = 38, .max = 54},
+            {.min = 39, .max = 53},
+            {.min = 59, .max = 80},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -1989,8 +2088,8 @@ static ModifierTierData tiers_normal_22[] = {
         .weight = 480,
         .value_count = 2,
         .values = {
-            {.min = 35, .max = 44},
-            {.min = 56, .max = 71},
+            {.min = 56, .max = 70},
+            {.min = 84, .max = 107},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2001,8 +2100,8 @@ static ModifierTierData tiers_normal_22[] = {
         .weight = 320,
         .value_count = 2,
         .values = {
-            {.min = 47, .max = 59},
-            {.min = 74, .max = 97},
+            {.min = 73, .max = 97},
+            {.min = 112, .max = 149},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2013,8 +2112,8 @@ static ModifierTierData tiers_normal_22[] = {
         .weight = 200,
         .value_count = 2,
         .values = {
-            {.min = 62, .max = 85},
-            {.min = 101, .max = 129},
+            {.min = 102, .max = 130},
+            {.min = 155, .max = 198},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2025,23 +2124,23 @@ static ModifierTierData tiers_normal_22[] = {
         .weight = 80,
         .value_count = 2,
         .values = {
-            {.min = 88, .max = 101},
-            {.min = 133, .max = 154},
+            {.min = 135, .max = 156},
+            {.min = 205, .max = 236},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_23[] = {
+static ModifierTierData tiers_normal_24[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
+            {.min = 2, .max = 3},
+            {.min = 4, .max = 6},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2049,11 +2148,11 @@ static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Chilled",
         .level_req = 8,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
-            {.min = 3, .max = 5},
-            {.min = 6, .max = 9},
+            {.min = 5, .max = 8},
+            {.min = 9, .max = 14},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2061,11 +2160,11 @@ static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Icy",
         .level_req = 16,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
-            {.min = 6, .max = 9},
-            {.min = 10, .max = 16},
+            {.min = 10, .max = 14},
+            {.min = 15, .max = 23},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2073,11 +2172,11 @@ static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Frigid",
         .level_req = 33,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
-            {.min = 11, .max = 15},
-            {.min = 17, .max = 24},
+            {.min = 16, .max = 23},
+            {.min = 25, .max = 35},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2085,11 +2184,11 @@ static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Freezing",
         .level_req = 46,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
-            {.min = 17, .max = 20},
-            {.min = 26, .max = 32},
+            {.min = 25, .max = 30},
+            {.min = 38, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2097,11 +2196,11 @@ static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Frozen",
         .level_req = 54,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
-            {.min = 22, .max = 29},
-            {.min = 34, .max = 44},
+            {.min = 32, .max = 43},
+            {.min = 49, .max = 66},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2109,11 +2208,11 @@ static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Glaciated",
         .level_req = 60,
-        .weight = 480,
+        .weight = 540,
         .value_count = 2,
         .values = {
-            {.min = 31, .max = 38},
-            {.min = 47, .max = 59},
+            {.min = 46, .max = 57},
+            {.min = 70, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2121,11 +2220,11 @@ static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Polar",
         .level_req = 65,
-        .weight = 320,
+        .weight = 360,
         .value_count = 2,
         .values = {
-            {.min = 40, .max = 53},
-            {.min = 62, .max = 80},
+            {.min = 60, .max = 80},
+            {.min = 92, .max = 121},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2133,11 +2232,11 @@ static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Entombing",
         .level_req = 75,
-        .weight = 200,
+        .weight = 225,
         .value_count = 2,
         .values = {
-            {.min = 55, .max = 69},
-            {.min = 83, .max = 106},
+            {.min = 84, .max = 107},
+            {.min = 126, .max = 161},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2145,138 +2244,15 @@ static ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Crystalising",
         .level_req = 81,
-        .weight = 80,
+        .weight = 90,
         .value_count = 2,
         .values = {
-            {.min = 72, .max = 81},
-            {.min = 110, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_normal_24[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
+            {.min = 112, .max = 124},
+            {.min = 168, .max = 189},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 13, .max = 19},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 55, .max = 60},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 720,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 6},
-            {.min = 85, .max = 107},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_25[] = {
@@ -2284,10 +2260,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Humming",
         .level_req = 1,
         .weight = 1100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
+            {.min = 7, .max = 10},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2296,10 +2272,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Buzzing",
         .level_req = 8,
         .weight = 1100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 19, .max = 27},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2308,10 +2284,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Snapping",
         .level_req = 16,
         .weight = 1100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 3},
-            {.min = 0, .max = 0},
+            {.min = 31, .max = 43},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2320,10 +2296,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Crackling",
         .level_req = 33,
         .weight = 1100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 53, .max = 76},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2332,10 +2308,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Sparking",
         .level_req = 46,
         .weight = 1100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2344,10 +2320,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Arcing",
         .level_req = 54,
         .weight = 1100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 6},
-            {.min = 0, .max = 0},
+            {.min = 93, .max = 122},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2356,10 +2332,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Shocking",
         .level_req = 60,
         .weight = 660,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 8},
-            {.min = 0, .max = 0},
+            {.min = 128, .max = 162},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2368,10 +2344,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Discharging",
         .level_req = 65,
         .weight = 440,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 13},
-            {.min = 0, .max = 0},
+            {.min = 168, .max = 231},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2380,10 +2356,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Electrocuting",
         .level_req = 75,
         .weight = 275,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 16},
-            {.min = 0, .max = 0},
+            {.min = 239, .max = 300},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2392,10 +2368,10 @@ static ModifierTierData tiers_normal_25[] = {
         .tier_name = "Vapourising",
         .level_req = 81,
         .weight = 110,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 310, .max = 358},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2404,101 +2380,101 @@ static ModifierTierData tiers_normal_25[] = {
 
 static ModifierTierData tiers_normal_26[] = {
     {
-        .tier_name = "Squire's",
+        .tier_name = "Heavy",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 19},
-            {.min = 16, .max = 20},
+            {.min = 40, .max = 49},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Journeyman's",
-        .level_req = 11,
+        .tier_name = "Serrated",
+        .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 21, .max = 46},
+            {.min = 50, .max = 64},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Reaver's",
-        .level_req = 23,
+        .tier_name = "Wicked",
+        .level_req = 16,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 25, .max = 34},
-            {.min = 47, .max = 72},
+            {.min = 65, .max = 84},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Mercenary's",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 35, .max = 44},
-            {.min = 73, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Champion's",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 45, .max = 54},
-            {.min = 98, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Conqueror's",
-        .level_req = 65,
+        .tier_name = "Vicious",
+        .level_req = 33,
         .weight = 400,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 55, .max = 64},
-            {.min = 124, .max = 149},
+            {.min = 85, .max = 109},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Emperor's",
-        .level_req = 70,
+        .tier_name = "Bloodthirsty",
+        .level_req = 46,
         .weight = 200,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 65, .max = 74},
-            {.min = 150, .max = 174},
+            {.min = 110, .max = 134},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Dictator's",
-        .level_req = 81,
+        .tier_name = "Cruel",
+        .level_req = 60,
         .weight = 100,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 75, .max = 79},
-            {.min = 175, .max = 200},
+            {.min = 135, .max = 154},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "Tyrannical",
+        .level_req = 75,
+        .weight = 50,
+        .value_count = 1,
+        .values = {
+            {.min = 155, .max = 169},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Merciless",
+        .level_req = 82,
+        .weight = 25,
+        .value_count = 1,
+        .values = {
+            {.min = 170, .max = 179},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_27[] = {
@@ -2597,7 +2573,7 @@ static ModifierTierData tiers_normal_27[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
 static ModifierTierData tiers_normal_28[] = {
@@ -2605,10 +2581,10 @@ static ModifierTierData tiers_normal_28[] = {
         .tier_name = "Squire's",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 16, .max = 20},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2617,10 +2593,10 @@ static ModifierTierData tiers_normal_28[] = {
         .tier_name = "Journeyman's",
         .level_req = 11,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2629,10 +2605,10 @@ static ModifierTierData tiers_normal_28[] = {
         .tier_name = "Reaver's",
         .level_req = 23,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 25, .max = 34},
-            {.min = 0, .max = 0},
+            {.min = 47, .max = 72},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2641,10 +2617,10 @@ static ModifierTierData tiers_normal_28[] = {
         .tier_name = "Mercenary's",
         .level_req = 38,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
-            {.min = 0, .max = 0},
+            {.min = 73, .max = 97},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2653,10 +2629,10 @@ static ModifierTierData tiers_normal_28[] = {
         .tier_name = "Champion's",
         .level_req = 54,
         .weight = 600,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 45, .max = 54},
-            {.min = 0, .max = 0},
+            {.min = 98, .max = 123},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2665,10 +2641,10 @@ static ModifierTierData tiers_normal_28[] = {
         .tier_name = "Conqueror's",
         .level_req = 65,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 55, .max = 64},
-            {.min = 0, .max = 0},
+            {.min = 124, .max = 149},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2677,10 +2653,10 @@ static ModifierTierData tiers_normal_28[] = {
         .tier_name = "Emperor's",
         .level_req = 70,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 65, .max = 74},
-            {.min = 0, .max = 0},
+            {.min = 150, .max = 174},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -2689,10 +2665,10 @@ static ModifierTierData tiers_normal_28[] = {
         .tier_name = "Dictator's",
         .level_req = 81,
         .weight = 100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 75, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 175, .max = 200},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -3649,41 +3625,77 @@ static ModifierTierData tiers_normal_40[] = {
 
 static ModifierTierData tiers_normal_41[] = {
     {
-        .tier_name = "of Shining",
+        .tier_name = "of Ire",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 10, .max = 20},
-            {.min = 5, .max = 5},
+            {.min = 10, .max = 11},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Light",
-        .level_req = 15,
+        .tier_name = "of Anger",
+        .level_req = 21,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 40},
-            {.min = 10, .max = 10},
+            {.min = 12, .max = 13},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Radiance",
+        .tier_name = "of Rage",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 41, .max = 60},
-            {.min = 15, .max = 15},
+            {.min = 14, .max = 16},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "of Fury",
+        .level_req = 44,
+        .weight = 500,
+        .value_count = 1,
+        .values = {
+            {.min = 17, .max = 19},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Ferocity",
+        .level_req = 59,
+        .weight = 250,
+        .value_count = 1,
+        .values = {
+            {.min = 20, .max = 22},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Destruction",
+        .level_req = 73,
+        .weight = 125,
+        .value_count = 1,
+        .values = {
+            {.min = 23, .max = 25},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_42[] = {
@@ -3723,7 +3735,7 @@ static ModifierTierData tiers_normal_42[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_43[] = {
     {
@@ -4114,10 +4126,10 @@ static ModifierTierData tiers_normal_47[] = {
         .tier_name = "Caster's",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 21, .max = 27},
-            {.min = 0, .max = 0},
+            {.min = 26, .max = 30},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -4126,10 +4138,10 @@ static ModifierTierData tiers_normal_47[] = {
         .tier_name = "Conjuror's",
         .level_req = 11,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 28, .max = 34},
-            {.min = 0, .max = 0},
+            {.min = 31, .max = 35},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -4138,10 +4150,10 @@ static ModifierTierData tiers_normal_47[] = {
         .tier_name = "Wizard's",
         .level_req = 23,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 35, .max = 41},
-            {.min = 0, .max = 0},
+            {.min = 36, .max = 41},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -4150,10 +4162,10 @@ static ModifierTierData tiers_normal_47[] = {
         .tier_name = "Warlock's",
         .level_req = 38,
         .weight = 600,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 42, .max = 48},
-            {.min = 0, .max = 0},
+            {.min = 42, .max = 47},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -4162,10 +4174,10 @@ static ModifierTierData tiers_normal_47[] = {
         .tier_name = "Mage's",
         .level_req = 48,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 49, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 48, .max = 53},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -4174,10 +4186,10 @@ static ModifierTierData tiers_normal_47[] = {
         .tier_name = "Archmage's",
         .level_req = 63,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 63},
-            {.min = 0, .max = 0},
+            {.min = 54, .max = 59},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -4186,10 +4198,10 @@ static ModifierTierData tiers_normal_47[] = {
         .tier_name = "Lich's",
         .level_req = 79,
         .weight = 100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 64, .max = 69},
-            {.min = 0, .max = 0},
+            {.min = 60, .max = 64},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -5959,10 +5971,10 @@ static ModifierTierData tiers_normal_70[] = {
         .tier_name = "of Warmth",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 8, .max = 12},
-            {.min = 0, .max = 0},
+            {.min = 5, .max = 5},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -5971,10 +5983,10 @@ static ModifierTierData tiers_normal_70[] = {
         .tier_name = "of Kindling",
         .level_req = 15,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 10, .max = 10},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -5983,10 +5995,10 @@ static ModifierTierData tiers_normal_70[] = {
         .tier_name = "of the Hearth",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 18, .max = 22},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6121,13 +6133,76 @@ static ModifierTierData tiers_normal_72[] = {
 
 static ModifierTierData tiers_normal_73[] = {
     {
+        .tier_name = "of Shocking",
+        .level_req = 15,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 51, .max = 60},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Zapping",
+        .level_req = 30,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 61, .max = 70},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Electrocution",
+        .level_req = 45,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 71, .max = 80},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Voltages",
+        .level_req = 60,
+        .weight = 500,
+        .value_count = 1,
+        .values = {
+            {.min = 81, .max = 90},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Thunderbolt",
+        .level_req = 75,
+        .weight = 500,
+        .value_count = 1,
+        .values = {
+            {.min = 91, .max = 100},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_74[] = {
+    {
         .tier_name = "Glinting",
         .level_req = 1,
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 4, .max = 5},
+            {.min = 2, .max = 3},
+            {.min = 5, .max = 7},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6138,8 +6213,8 @@ static ModifierTierData tiers_normal_73[] = {
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 11},
+            {.min = 5, .max = 8},
+            {.min = 10, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6150,8 +6225,8 @@ static ModifierTierData tiers_normal_73[] = {
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 6, .max = 9},
-            {.min = 11, .max = 16},
+            {.min = 8, .max = 12},
+            {.min = 15, .max = 22},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6162,8 +6237,8 @@ static ModifierTierData tiers_normal_73[] = {
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 8, .max = 12},
-            {.min = 14, .max = 21},
+            {.min = 11, .max = 17},
+            {.min = 20, .max = 30},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6174,8 +6249,8 @@ static ModifierTierData tiers_normal_73[] = {
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 10, .max = 15},
-            {.min = 18, .max = 26},
+            {.min = 14, .max = 21},
+            {.min = 25, .max = 37},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6186,8 +6261,8 @@ static ModifierTierData tiers_normal_73[] = {
         .weight = 600,
         .value_count = 2,
         .values = {
-            {.min = 13, .max = 20},
-            {.min = 23, .max = 35},
+            {.min = 19, .max = 29},
+            {.min = 33, .max = 49},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6198,8 +6273,8 @@ static ModifierTierData tiers_normal_73[] = {
         .weight = 400,
         .value_count = 2,
         .values = {
-            {.min = 16, .max = 24},
-            {.min = 28, .max = 42},
+            {.min = 23, .max = 35},
+            {.min = 39, .max = 59},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6210,8 +6285,8 @@ static ModifierTierData tiers_normal_73[] = {
         .weight = 200,
         .value_count = 2,
         .values = {
-            {.min = 21, .max = 31},
-            {.min = 36, .max = 53},
+            {.min = 29, .max = 44},
+            {.min = 50, .max = 75},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6222,23 +6297,23 @@ static ModifierTierData tiers_normal_73[] = {
         .weight = 100,
         .value_count = 2,
         .values = {
-            {.min = 26, .max = 39},
-            {.min = 44, .max = 66},
+            {.min = 37, .max = 55},
+            {.min = 63, .max = 94},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_74[] = {
+static ModifierTierData tiers_normal_75[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
-        .weight = 800,
+        .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 5},
+            {.min = 2, .max = 4},
+            {.min = 5, .max = 7},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6246,11 +6321,11 @@ static ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Smouldering",
         .level_req = 8,
-        .weight = 800,
+        .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 10},
+            {.min = 6, .max = 9},
+            {.min = 10, .max = 16},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6258,11 +6333,11 @@ static ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Smoking",
         .level_req = 16,
-        .weight = 800,
+        .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 7, .max = 11},
-            {.min = 13, .max = 19},
+            {.min = 11, .max = 17},
+            {.min = 19, .max = 28},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6270,11 +6345,11 @@ static ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Burning",
         .level_req = 33,
-        .weight = 800,
+        .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 13, .max = 19},
-            {.min = 21, .max = 29},
+            {.min = 19, .max = 27},
+            {.min = 30, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6282,11 +6357,11 @@ static ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Flaming",
         .level_req = 46,
-        .weight = 800,
+        .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 32, .max = 37},
+            {.min = 30, .max = 37},
+            {.min = 45, .max = 56},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6294,11 +6369,11 @@ static ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Scorching",
         .level_req = 54,
-        .weight = 800,
+        .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 25, .max = 33},
-            {.min = 38, .max = 54},
+            {.min = 39, .max = 53},
+            {.min = 59, .max = 80},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6306,11 +6381,11 @@ static ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Incinerating",
         .level_req = 60,
-        .weight = 480,
+        .weight = 600,
         .value_count = 2,
         .values = {
-            {.min = 35, .max = 44},
-            {.min = 56, .max = 71},
+            {.min = 56, .max = 70},
+            {.min = 84, .max = 107},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6318,11 +6393,11 @@ static ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Blasting",
         .level_req = 65,
-        .weight = 320,
+        .weight = 400,
         .value_count = 2,
         .values = {
-            {.min = 47, .max = 59},
-            {.min = 74, .max = 97},
+            {.min = 73, .max = 97},
+            {.min = 112, .max = 149},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6330,11 +6405,11 @@ static ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Cremating",
         .level_req = 75,
-        .weight = 200,
+        .weight = 250,
         .value_count = 2,
         .values = {
-            {.min = 62, .max = 85},
-            {.min = 101, .max = 129},
+            {.min = 102, .max = 130},
+            {.min = 155, .max = 198},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6342,26 +6417,26 @@ static ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Carbonising",
         .level_req = 81,
-        .weight = 80,
+        .weight = 100,
         .value_count = 2,
         .values = {
-            {.min = 88, .max = 101},
-            {.min = 133, .max = 154},
+            {.min = 135, .max = 156},
+            {.min = 205, .max = 236},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_75[] = {
+static ModifierTierData tiers_normal_76[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
+            {.min = 2, .max = 3},
+            {.min = 4, .max = 6},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6372,8 +6447,8 @@ static ModifierTierData tiers_normal_75[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 3, .max = 5},
-            {.min = 6, .max = 9},
+            {.min = 5, .max = 8},
+            {.min = 9, .max = 14},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6384,8 +6459,8 @@ static ModifierTierData tiers_normal_75[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 6, .max = 9},
-            {.min = 10, .max = 16},
+            {.min = 10, .max = 14},
+            {.min = 15, .max = 23},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6396,8 +6471,8 @@ static ModifierTierData tiers_normal_75[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 11, .max = 15},
-            {.min = 17, .max = 24},
+            {.min = 16, .max = 23},
+            {.min = 25, .max = 35},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6408,8 +6483,8 @@ static ModifierTierData tiers_normal_75[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 17, .max = 20},
-            {.min = 26, .max = 32},
+            {.min = 25, .max = 30},
+            {.min = 38, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6420,8 +6495,8 @@ static ModifierTierData tiers_normal_75[] = {
         .weight = 800,
         .value_count = 2,
         .values = {
-            {.min = 22, .max = 29},
-            {.min = 34, .max = 44},
+            {.min = 32, .max = 43},
+            {.min = 49, .max = 66},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6432,8 +6507,8 @@ static ModifierTierData tiers_normal_75[] = {
         .weight = 480,
         .value_count = 2,
         .values = {
-            {.min = 31, .max = 38},
-            {.min = 47, .max = 59},
+            {.min = 46, .max = 57},
+            {.min = 70, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6444,8 +6519,8 @@ static ModifierTierData tiers_normal_75[] = {
         .weight = 320,
         .value_count = 2,
         .values = {
-            {.min = 40, .max = 53},
-            {.min = 62, .max = 80},
+            {.min = 60, .max = 80},
+            {.min = 92, .max = 121},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6456,8 +6531,8 @@ static ModifierTierData tiers_normal_75[] = {
         .weight = 200,
         .value_count = 2,
         .values = {
-            {.min = 55, .max = 69},
-            {.min = 83, .max = 106},
+            {.min = 84, .max = 107},
+            {.min = 126, .max = 161},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6468,135 +6543,12 @@ static ModifierTierData tiers_normal_75[] = {
         .weight = 80,
         .value_count = 2,
         .values = {
-            {.min = 72, .max = 81},
-            {.min = 110, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_normal_76[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
+            {.min = 112, .max = 124},
+            {.min = 168, .max = 189},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 13, .max = 19},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 55, .max = 60},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 720,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 6},
-            {.min = 85, .max = 107},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_77[] = {
@@ -6604,10 +6556,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Humming",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
+            {.min = 7, .max = 10},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6616,10 +6568,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Buzzing",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 19, .max = 27},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6628,10 +6580,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Snapping",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 3},
-            {.min = 0, .max = 0},
+            {.min = 31, .max = 43},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6640,10 +6592,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Crackling",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 53, .max = 76},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6652,10 +6604,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Sparking",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6664,10 +6616,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Arcing",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 6},
-            {.min = 0, .max = 0},
+            {.min = 93, .max = 122},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6676,10 +6628,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Shocking",
         .level_req = 60,
         .weight = 600,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 8},
-            {.min = 0, .max = 0},
+            {.min = 128, .max = 162},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6688,10 +6640,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Discharging",
         .level_req = 65,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 13},
-            {.min = 0, .max = 0},
+            {.min = 168, .max = 231},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6700,10 +6652,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Electrocuting",
         .level_req = 75,
         .weight = 250,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 16},
-            {.min = 0, .max = 0},
+            {.min = 239, .max = 300},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6712,10 +6664,10 @@ static ModifierTierData tiers_normal_77[] = {
         .tier_name = "Vapourising",
         .level_req = 81,
         .weight = 100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 310, .max = 358},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6724,101 +6676,101 @@ static ModifierTierData tiers_normal_77[] = {
 
 static ModifierTierData tiers_normal_78[] = {
     {
-        .tier_name = "Squire's",
+        .tier_name = "Heavy",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 19},
-            {.min = 16, .max = 20},
+            {.min = 40, .max = 49},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Journeyman's",
-        .level_req = 11,
+        .tier_name = "Serrated",
+        .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 21, .max = 46},
+            {.min = 50, .max = 64},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Reaver's",
-        .level_req = 23,
+        .tier_name = "Wicked",
+        .level_req = 16,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 25, .max = 34},
-            {.min = 47, .max = 72},
+            {.min = 65, .max = 84},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Mercenary's",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 35, .max = 44},
-            {.min = 73, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Champion's",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 45, .max = 54},
-            {.min = 98, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Conqueror's",
-        .level_req = 65,
+        .tier_name = "Vicious",
+        .level_req = 33,
         .weight = 400,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 55, .max = 64},
-            {.min = 124, .max = 149},
+            {.min = 85, .max = 109},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Emperor's",
-        .level_req = 70,
+        .tier_name = "Bloodthirsty",
+        .level_req = 46,
         .weight = 200,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 65, .max = 74},
-            {.min = 150, .max = 174},
+            {.min = 110, .max = 134},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Dictator's",
-        .level_req = 81,
+        .tier_name = "Cruel",
+        .level_req = 60,
         .weight = 100,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 75, .max = 79},
-            {.min = 175, .max = 200},
+            {.min = 135, .max = 154},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "Tyrannical",
+        .level_req = 75,
+        .weight = 50,
+        .value_count = 1,
+        .values = {
+            {.min = 155, .max = 169},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Merciless",
+        .level_req = 82,
+        .weight = 25,
+        .value_count = 1,
+        .values = {
+            {.min = 170, .max = 179},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_79[] = {
@@ -6917,7 +6869,7 @@ static ModifierTierData tiers_normal_79[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
 static ModifierTierData tiers_normal_80[] = {
@@ -6925,10 +6877,10 @@ static ModifierTierData tiers_normal_80[] = {
         .tier_name = "Squire's",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 16, .max = 20},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6937,10 +6889,10 @@ static ModifierTierData tiers_normal_80[] = {
         .tier_name = "Journeyman's",
         .level_req = 11,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6949,10 +6901,10 @@ static ModifierTierData tiers_normal_80[] = {
         .tier_name = "Reaver's",
         .level_req = 23,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 25, .max = 34},
-            {.min = 0, .max = 0},
+            {.min = 47, .max = 72},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6961,10 +6913,10 @@ static ModifierTierData tiers_normal_80[] = {
         .tier_name = "Mercenary's",
         .level_req = 38,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
-            {.min = 0, .max = 0},
+            {.min = 73, .max = 97},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6973,10 +6925,10 @@ static ModifierTierData tiers_normal_80[] = {
         .tier_name = "Champion's",
         .level_req = 54,
         .weight = 600,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 45, .max = 54},
-            {.min = 0, .max = 0},
+            {.min = 98, .max = 123},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6985,10 +6937,10 @@ static ModifierTierData tiers_normal_80[] = {
         .tier_name = "Conqueror's",
         .level_req = 65,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 55, .max = 64},
-            {.min = 0, .max = 0},
+            {.min = 124, .max = 149},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -6997,10 +6949,10 @@ static ModifierTierData tiers_normal_80[] = {
         .tier_name = "Emperor's",
         .level_req = 70,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 65, .max = 74},
-            {.min = 0, .max = 0},
+            {.min = 150, .max = 174},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -7009,10 +6961,10 @@ static ModifierTierData tiers_normal_80[] = {
         .tier_name = "Dictator's",
         .level_req = 81,
         .weight = 100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 75, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 175, .max = 200},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -7909,41 +7861,77 @@ static ModifierTierData tiers_normal_92[] = {
 
 static ModifierTierData tiers_normal_93[] = {
     {
-        .tier_name = "of Shining",
+        .tier_name = "of Ire",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 10, .max = 20},
-            {.min = 5, .max = 5},
+            {.min = 10, .max = 11},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Light",
-        .level_req = 15,
+        .tier_name = "of Anger",
+        .level_req = 21,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 40},
-            {.min = 10, .max = 10},
+            {.min = 12, .max = 13},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Radiance",
+        .tier_name = "of Rage",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 41, .max = 60},
-            {.min = 15, .max = 15},
+            {.min = 14, .max = 16},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "of Fury",
+        .level_req = 44,
+        .weight = 500,
+        .value_count = 1,
+        .values = {
+            {.min = 17, .max = 19},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Ferocity",
+        .level_req = 59,
+        .weight = 250,
+        .value_count = 1,
+        .values = {
+            {.min = 20, .max = 22},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Destruction",
+        .level_req = 73,
+        .weight = 125,
+        .value_count = 1,
+        .values = {
+            {.min = 23, .max = 25},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_94[] = {
@@ -7983,9 +7971,36 @@ static ModifierTierData tiers_normal_94[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_95[] = {
+    {
+        .tier_name = "of Shelling",
+        .level_req = 55,
+        .weight = 250,
+        .value_count = 1,
+        .values = {
+            {.min = 1, .max = 1},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Bursting",
+        .level_req = 82,
+        .weight = 125,
+        .value_count = 1,
+        .values = {
+            {.min = 2, .max = 2},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_96[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -8093,10 +8108,10 @@ static ModifierTierData tiers_normal_95[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_96[] = {
+static ModifierTierData tiers_normal_97[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -8216,10 +8231,10 @@ static ModifierTierData tiers_normal_96[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_97[] = {
+static ModifierTierData tiers_normal_98[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -8339,10 +8354,10 @@ static ModifierTierData tiers_normal_97[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_98[] = {
+static ModifierTierData tiers_normal_99[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -8462,229 +8477,106 @@ static ModifierTierData tiers_normal_98[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_99[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 1200,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 1200,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 720,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
 };
 
 static ModifierTierData tiers_normal_100[] = {
     {
-        .tier_name = "Squire's",
+        .tier_name = "Heavy",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 19},
-            {.min = 16, .max = 20},
+            {.min = 40, .max = 49},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Journeyman's",
-        .level_req = 11,
+        .tier_name = "Serrated",
+        .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 21, .max = 46},
+            {.min = 50, .max = 64},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Reaver's",
-        .level_req = 23,
+        .tier_name = "Wicked",
+        .level_req = 16,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 25, .max = 34},
-            {.min = 47, .max = 72},
+            {.min = 65, .max = 84},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Mercenary's",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 35, .max = 44},
-            {.min = 73, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Champion's",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 45, .max = 54},
-            {.min = 98, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Conqueror's",
-        .level_req = 65,
+        .tier_name = "Vicious",
+        .level_req = 33,
         .weight = 400,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 55, .max = 64},
-            {.min = 124, .max = 149},
+            {.min = 85, .max = 109},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Emperor's",
-        .level_req = 70,
+        .tier_name = "Bloodthirsty",
+        .level_req = 46,
         .weight = 200,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 65, .max = 74},
-            {.min = 150, .max = 174},
+            {.min = 110, .max = 134},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Dictator's",
-        .level_req = 81,
+        .tier_name = "Cruel",
+        .level_req = 60,
         .weight = 100,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 75, .max = 79},
-            {.min = 175, .max = 200},
+            {.min = 135, .max = 154},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "Tyrannical",
+        .level_req = 75,
+        .weight = 50,
+        .value_count = 1,
+        .values = {
+            {.min = 155, .max = 169},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Merciless",
+        .level_req = 82,
+        .weight = 25,
+        .value_count = 1,
+        .values = {
+            {.min = 170, .max = 179},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_101[] = {
@@ -8783,7 +8675,7 @@ static ModifierTierData tiers_normal_101[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
 static ModifierTierData tiers_normal_102[] = {
@@ -8791,10 +8683,10 @@ static ModifierTierData tiers_normal_102[] = {
         .tier_name = "Squire's",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 16, .max = 20},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -8803,10 +8695,10 @@ static ModifierTierData tiers_normal_102[] = {
         .tier_name = "Journeyman's",
         .level_req = 11,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -8815,10 +8707,10 @@ static ModifierTierData tiers_normal_102[] = {
         .tier_name = "Reaver's",
         .level_req = 23,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 25, .max = 34},
-            {.min = 0, .max = 0},
+            {.min = 47, .max = 72},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -8827,10 +8719,10 @@ static ModifierTierData tiers_normal_102[] = {
         .tier_name = "Mercenary's",
         .level_req = 38,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
-            {.min = 0, .max = 0},
+            {.min = 73, .max = 97},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -8839,10 +8731,10 @@ static ModifierTierData tiers_normal_102[] = {
         .tier_name = "Champion's",
         .level_req = 54,
         .weight = 600,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 45, .max = 54},
-            {.min = 0, .max = 0},
+            {.min = 98, .max = 123},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -8851,10 +8743,10 @@ static ModifierTierData tiers_normal_102[] = {
         .tier_name = "Conqueror's",
         .level_req = 65,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 55, .max = 64},
-            {.min = 0, .max = 0},
+            {.min = 124, .max = 149},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -8863,10 +8755,10 @@ static ModifierTierData tiers_normal_102[] = {
         .tier_name = "Emperor's",
         .level_req = 70,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 65, .max = 74},
-            {.min = 0, .max = 0},
+            {.min = 150, .max = 174},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -8875,10 +8767,10 @@ static ModifierTierData tiers_normal_102[] = {
         .tier_name = "Dictator's",
         .level_req = 81,
         .weight = 100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 75, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 175, .max = 200},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -9676,41 +9568,77 @@ static ModifierTierData tiers_normal_113[] = {
 
 static ModifierTierData tiers_normal_114[] = {
     {
-        .tier_name = "of Shining",
+        .tier_name = "of Ire",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 10, .max = 20},
-            {.min = 5, .max = 5},
+            {.min = 10, .max = 11},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Light",
-        .level_req = 15,
+        .tier_name = "of Anger",
+        .level_req = 21,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 40},
-            {.min = 10, .max = 10},
+            {.min = 12, .max = 13},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Radiance",
+        .tier_name = "of Rage",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 41, .max = 60},
-            {.min = 15, .max = 15},
+            {.min = 14, .max = 16},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "of Fury",
+        .level_req = 44,
+        .weight = 500,
+        .value_count = 1,
+        .values = {
+            {.min = 17, .max = 19},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Ferocity",
+        .level_req = 59,
+        .weight = 250,
+        .value_count = 1,
+        .values = {
+            {.min = 20, .max = 22},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Destruction",
+        .level_req = 73,
+        .weight = 125,
+        .value_count = 1,
+        .values = {
+            {.min = 23, .max = 25},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_115[] = {
@@ -9750,9 +9678,36 @@ static ModifierTierData tiers_normal_115[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_116[] = {
+    {
+        .tier_name = "of Splintering",
+        .level_req = 55,
+        .weight = 250,
+        .value_count = 1,
+        .values = {
+            {.min = 1, .max = 1},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Many",
+        .level_req = 82,
+        .weight = 125,
+        .value_count = 1,
+        .values = {
+            {.min = 2, .max = 2},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -9860,14 +9815,14 @@ static ModifierTierData tiers_normal_116[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_117[] = {
+static ModifierTierData tiers_normal_118[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
@@ -9879,7 +9834,7 @@ static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Smouldering",
         .level_req = 8,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
             {.min = 4, .max = 6},
@@ -9891,7 +9846,7 @@ static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Smoking",
         .level_req = 16,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
             {.min = 7, .max = 11},
@@ -9903,7 +9858,7 @@ static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Burning",
         .level_req = 33,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
             {.min = 13, .max = 19},
@@ -9915,7 +9870,7 @@ static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Flaming",
         .level_req = 46,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
@@ -9927,7 +9882,7 @@ static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Scorching",
         .level_req = 54,
-        .weight = 800,
+        .weight = 1200,
         .value_count = 2,
         .values = {
             {.min = 25, .max = 33},
@@ -9939,7 +9894,7 @@ static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Incinerating",
         .level_req = 60,
-        .weight = 480,
+        .weight = 720,
         .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
@@ -9951,7 +9906,7 @@ static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Blasting",
         .level_req = 65,
-        .weight = 320,
+        .weight = 480,
         .value_count = 2,
         .values = {
             {.min = 47, .max = 59},
@@ -9963,7 +9918,7 @@ static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Cremating",
         .level_req = 75,
-        .weight = 200,
+        .weight = 300,
         .value_count = 2,
         .values = {
             {.min = 62, .max = 85},
@@ -9975,7 +9930,7 @@ static ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Carbonising",
         .level_req = 81,
-        .weight = 80,
+        .weight = 120,
         .value_count = 2,
         .values = {
             {.min = 88, .max = 101},
@@ -9983,10 +9938,10 @@ static ModifierTierData tiers_normal_117[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_118[] = {
+static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -10106,14 +10061,14 @@ static ModifierTierData tiers_normal_118[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_119[] = {
+static ModifierTierData tiers_normal_120[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
@@ -10125,7 +10080,7 @@ static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Buzzing",
         .level_req = 8,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
@@ -10137,7 +10092,7 @@ static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Snapping",
         .level_req = 16,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
@@ -10149,7 +10104,7 @@ static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Crackling",
         .level_req = 33,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
@@ -10161,7 +10116,7 @@ static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Sparking",
         .level_req = 46,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 3},
@@ -10173,7 +10128,7 @@ static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Arcing",
         .level_req = 54,
-        .weight = 1200,
+        .weight = 800,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
@@ -10185,7 +10140,7 @@ static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Shocking",
         .level_req = 60,
-        .weight = 720,
+        .weight = 480,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 6},
@@ -10197,7 +10152,7 @@ static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Discharging",
         .level_req = 65,
-        .weight = 480,
+        .weight = 320,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 8},
@@ -10209,7 +10164,7 @@ static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Electrocuting",
         .level_req = 75,
-        .weight = 300,
+        .weight = 200,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 10},
@@ -10221,134 +10176,11 @@ static ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Vapourising",
         .level_req = 81,
-        .weight = 120,
+        .weight = 80,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 12},
             {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_normal_120[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 800,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 800,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 480,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -10357,101 +10189,101 @@ static ModifierTierData tiers_normal_120[] = {
 
 static ModifierTierData tiers_normal_121[] = {
     {
-        .tier_name = "Squire's",
+        .tier_name = "Heavy",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 19},
-            {.min = 16, .max = 20},
+            {.min = 40, .max = 49},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Journeyman's",
-        .level_req = 11,
+        .tier_name = "Serrated",
+        .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 21, .max = 46},
+            {.min = 50, .max = 64},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Reaver's",
-        .level_req = 23,
+        .tier_name = "Wicked",
+        .level_req = 16,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 25, .max = 34},
-            {.min = 47, .max = 72},
+            {.min = 65, .max = 84},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Mercenary's",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 35, .max = 44},
-            {.min = 73, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Champion's",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 45, .max = 54},
-            {.min = 98, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Conqueror's",
-        .level_req = 65,
+        .tier_name = "Vicious",
+        .level_req = 33,
         .weight = 400,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 55, .max = 64},
-            {.min = 124, .max = 149},
+            {.min = 85, .max = 109},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Emperor's",
-        .level_req = 70,
+        .tier_name = "Bloodthirsty",
+        .level_req = 46,
         .weight = 200,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 65, .max = 74},
-            {.min = 150, .max = 174},
+            {.min = 110, .max = 134},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Dictator's",
-        .level_req = 81,
+        .tier_name = "Cruel",
+        .level_req = 60,
         .weight = 100,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 75, .max = 79},
-            {.min = 175, .max = 200},
+            {.min = 135, .max = 154},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "Tyrannical",
+        .level_req = 75,
+        .weight = 50,
+        .value_count = 1,
+        .values = {
+            {.min = 155, .max = 169},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Merciless",
+        .level_req = 82,
+        .weight = 25,
+        .value_count = 1,
+        .values = {
+            {.min = 170, .max = 179},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_122[] = {
@@ -10550,7 +10382,7 @@ static ModifierTierData tiers_normal_122[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
 static ModifierTierData tiers_normal_123[] = {
@@ -10558,10 +10390,10 @@ static ModifierTierData tiers_normal_123[] = {
         .tier_name = "Squire's",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 16, .max = 20},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -10570,10 +10402,10 @@ static ModifierTierData tiers_normal_123[] = {
         .tier_name = "Journeyman's",
         .level_req = 11,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -10582,10 +10414,10 @@ static ModifierTierData tiers_normal_123[] = {
         .tier_name = "Reaver's",
         .level_req = 23,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 25, .max = 34},
-            {.min = 0, .max = 0},
+            {.min = 47, .max = 72},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -10594,10 +10426,10 @@ static ModifierTierData tiers_normal_123[] = {
         .tier_name = "Mercenary's",
         .level_req = 38,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
-            {.min = 0, .max = 0},
+            {.min = 73, .max = 97},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -10606,10 +10438,10 @@ static ModifierTierData tiers_normal_123[] = {
         .tier_name = "Champion's",
         .level_req = 54,
         .weight = 600,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 45, .max = 54},
-            {.min = 0, .max = 0},
+            {.min = 98, .max = 123},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -10618,10 +10450,10 @@ static ModifierTierData tiers_normal_123[] = {
         .tier_name = "Conqueror's",
         .level_req = 65,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 55, .max = 64},
-            {.min = 0, .max = 0},
+            {.min = 124, .max = 149},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -10630,10 +10462,10 @@ static ModifierTierData tiers_normal_123[] = {
         .tier_name = "Emperor's",
         .level_req = 70,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 65, .max = 74},
-            {.min = 0, .max = 0},
+            {.min = 150, .max = 174},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -10642,10 +10474,10 @@ static ModifierTierData tiers_normal_123[] = {
         .tier_name = "Dictator's",
         .level_req = 81,
         .weight = 100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 75, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 175, .max = 200},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11503,41 +11335,77 @@ static ModifierTierData tiers_normal_134[] = {
 
 static ModifierTierData tiers_normal_135[] = {
     {
-        .tier_name = "of Shining",
+        .tier_name = "of Ire",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 10, .max = 20},
-            {.min = 5, .max = 5},
+            {.min = 10, .max = 11},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Light",
-        .level_req = 15,
+        .tier_name = "of Anger",
+        .level_req = 21,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 40},
-            {.min = 10, .max = 10},
+            {.min = 12, .max = 13},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Radiance",
+        .tier_name = "of Rage",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 41, .max = 60},
-            {.min = 15, .max = 15},
+            {.min = 14, .max = 16},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "of Fury",
+        .level_req = 44,
+        .weight = 500,
+        .value_count = 1,
+        .values = {
+            {.min = 17, .max = 19},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Ferocity",
+        .level_req = 59,
+        .weight = 250,
+        .value_count = 1,
+        .values = {
+            {.min = 20, .max = 22},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Destruction",
+        .level_req = 73,
+        .weight = 125,
+        .value_count = 1,
+        .values = {
+            {.min = 23, .max = 25},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_136[] = {
@@ -11577,7 +11445,7 @@ static ModifierTierData tiers_normal_136[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_137[] = {
     {
@@ -11869,10 +11737,10 @@ static ModifierTierData tiers_normal_140[] = {
         .tier_name = "Glinting",
         .level_req = 1,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 3, .max = 4},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11881,10 +11749,10 @@ static ModifierTierData tiers_normal_140[] = {
         .tier_name = "Burnished",
         .level_req = 8,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 2, .max = 3},
-            {.min = 0, .max = 0},
+            {.min = 4, .max = 6},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11893,10 +11761,10 @@ static ModifierTierData tiers_normal_140[] = {
         .tier_name = "Polished",
         .level_req = 16,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 2, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 5, .max = 8},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11905,10 +11773,10 @@ static ModifierTierData tiers_normal_140[] = {
         .tier_name = "Honed",
         .level_req = 33,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
+            {.min = 8, .max = 11},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11917,10 +11785,10 @@ static ModifierTierData tiers_normal_140[] = {
         .tier_name = "Gleaming",
         .level_req = 46,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 5, .max = 7},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 13},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11929,10 +11797,10 @@ static ModifierTierData tiers_normal_140[] = {
         .tier_name = "Annealed",
         .level_req = 54,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 6, .max = 10},
-            {.min = 0, .max = 0},
+            {.min = 12, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11941,10 +11809,10 @@ static ModifierTierData tiers_normal_140[] = {
         .tier_name = "Razor-sharp",
         .level_req = 60,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 7, .max = 11},
-            {.min = 0, .max = 0},
+            {.min = 14, .max = 20},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11953,10 +11821,10 @@ static ModifierTierData tiers_normal_140[] = {
         .tier_name = "Tempered",
         .level_req = 65,
         .weight = 300,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 10, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 18, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11965,10 +11833,10 @@ static ModifierTierData tiers_normal_140[] = {
         .tier_name = "Flaring",
         .level_req = 75,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 12, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 22, .max = 32},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11980,10 +11848,10 @@ static ModifierTierData tiers_normal_141[] = {
         .tier_name = "Heated",
         .level_req = 1,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 3, .max = 4},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -11992,10 +11860,10 @@ static ModifierTierData tiers_normal_141[] = {
         .tier_name = "Smouldering",
         .level_req = 8,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 3, .max = 5},
-            {.min = 0, .max = 0},
+            {.min = 6, .max = 9},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12004,10 +11872,10 @@ static ModifierTierData tiers_normal_141[] = {
         .tier_name = "Smoking",
         .level_req = 16,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 6, .max = 8},
-            {.min = 0, .max = 0},
+            {.min = 10, .max = 13},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12016,10 +11884,10 @@ static ModifierTierData tiers_normal_141[] = {
         .tier_name = "Burning",
         .level_req = 33,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 11},
-            {.min = 0, .max = 0},
+            {.min = 14, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12028,10 +11896,10 @@ static ModifierTierData tiers_normal_141[] = {
         .tier_name = "Flaming",
         .level_req = 46,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 12, .max = 13},
-            {.min = 0, .max = 0},
+            {.min = 18, .max = 20},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12040,10 +11908,10 @@ static ModifierTierData tiers_normal_141[] = {
         .tier_name = "Scorching",
         .level_req = 54,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 14, .max = 16},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12052,10 +11920,10 @@ static ModifierTierData tiers_normal_141[] = {
         .tier_name = "Incinerating",
         .level_req = 60,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 17, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 30},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12064,10 +11932,10 @@ static ModifierTierData tiers_normal_141[] = {
         .tier_name = "Blasting",
         .level_req = 65,
         .weight = 300,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
-            {.min = 0, .max = 0},
+            {.min = 31, .max = 38},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12076,10 +11944,10 @@ static ModifierTierData tiers_normal_141[] = {
         .tier_name = "Cremating",
         .level_req = 75,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 25, .max = 29},
-            {.min = 0, .max = 0},
+            {.min = 39, .max = 45},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12091,10 +11959,10 @@ static ModifierTierData tiers_normal_142[] = {
         .tier_name = "Frosted",
         .level_req = 1,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 3, .max = 4},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12103,10 +11971,10 @@ static ModifierTierData tiers_normal_142[] = {
         .tier_name = "Chilled",
         .level_req = 8,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 5, .max = 8},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12115,10 +11983,10 @@ static ModifierTierData tiers_normal_142[] = {
         .tier_name = "Icy",
         .level_req = 16,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 5, .max = 6},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 11},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12127,10 +11995,10 @@ static ModifierTierData tiers_normal_142[] = {
         .tier_name = "Frigid",
         .level_req = 33,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 7, .max = 8},
-            {.min = 0, .max = 0},
+            {.min = 12, .max = 14},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12139,10 +12007,10 @@ static ModifierTierData tiers_normal_142[] = {
         .tier_name = "Freezing",
         .level_req = 46,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 10},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12151,10 +12019,10 @@ static ModifierTierData tiers_normal_142[] = {
         .tier_name = "Frozen",
         .level_req = 54,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 11, .max = 13},
-            {.min = 0, .max = 0},
+            {.min = 18, .max = 21},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12163,10 +12031,10 @@ static ModifierTierData tiers_normal_142[] = {
         .tier_name = "Glaciated",
         .level_req = 60,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 14, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 22, .max = 24},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12175,10 +12043,10 @@ static ModifierTierData tiers_normal_142[] = {
         .tier_name = "Polar",
         .level_req = 65,
         .weight = 300,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 16, .max = 20},
-            {.min = 0, .max = 0},
+            {.min = 25, .max = 31},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12187,10 +12055,10 @@ static ModifierTierData tiers_normal_142[] = {
         .tier_name = "Entombing",
         .level_req = 75,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 21, .max = 24},
-            {.min = 0, .max = 0},
+            {.min = 32, .max = 37},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12202,10 +12070,10 @@ static ModifierTierData tiers_normal_143[] = {
         .tier_name = "Humming",
         .level_req = 1,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
+            {.min = 5, .max = 7},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12214,10 +12082,10 @@ static ModifierTierData tiers_normal_143[] = {
         .tier_name = "Buzzing",
         .level_req = 8,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
+            {.min = 10, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12226,10 +12094,10 @@ static ModifierTierData tiers_normal_143[] = {
         .tier_name = "Snapping",
         .level_req = 16,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
+            {.min = 16, .max = 22},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12238,10 +12106,10 @@ static ModifierTierData tiers_normal_143[] = {
         .tier_name = "Crackling",
         .level_req = 33,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
+            {.min = 23, .max = 27},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12250,10 +12118,10 @@ static ModifierTierData tiers_normal_143[] = {
         .tier_name = "Sparking",
         .level_req = 46,
         .weight = 500,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
+            {.min = 28, .max = 32},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12262,10 +12130,10 @@ static ModifierTierData tiers_normal_143[] = {
         .tier_name = "Arcing",
         .level_req = 54,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 33, .max = 40},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12274,10 +12142,10 @@ static ModifierTierData tiers_normal_143[] = {
         .tier_name = "Shocking",
         .level_req = 60,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 41, .max = 47},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12286,10 +12154,10 @@ static ModifierTierData tiers_normal_143[] = {
         .tier_name = "Discharging",
         .level_req = 65,
         .weight = 300,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 3},
-            {.min = 0, .max = 0},
+            {.min = 48, .max = 59},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12298,10 +12166,10 @@ static ModifierTierData tiers_normal_143[] = {
         .tier_name = "Electrocuting",
         .level_req = 75,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 60, .max = 71},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12511,10 +12379,10 @@ static ModifierTierData tiers_normal_146[] = {
         .tier_name = "Advisor's",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 10, .max = 14},
-            {.min = 0, .max = 0},
+            {.min = 17, .max = 20},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12523,10 +12391,10 @@ static ModifierTierData tiers_normal_146[] = {
         .tier_name = "Counselor's",
         .level_req = 11,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 18},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 24},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12535,10 +12403,10 @@ static ModifierTierData tiers_normal_146[] = {
         .tier_name = "Emissary's",
         .level_req = 26,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 19, .max = 22},
-            {.min = 0, .max = 0},
+            {.min = 25, .max = 28},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12547,10 +12415,10 @@ static ModifierTierData tiers_normal_146[] = {
         .tier_name = "Minister's",
         .level_req = 36,
         .weight = 600,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 23, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 29, .max = 33},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12559,10 +12427,10 @@ static ModifierTierData tiers_normal_146[] = {
         .tier_name = "Envoy's",
         .level_req = 48,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 30},
-            {.min = 0, .max = 0},
+            {.min = 34, .max = 37},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12571,10 +12439,10 @@ static ModifierTierData tiers_normal_146[] = {
         .tier_name = "Diplomat's",
         .level_req = 58,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 31, .max = 34},
-            {.min = 0, .max = 0},
+            {.min = 38, .max = 41},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -12583,10 +12451,10 @@ static ModifierTierData tiers_normal_146[] = {
         .tier_name = "Chancellor's",
         .level_req = 70,
         .weight = 100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 35, .max = 38},
-            {.min = 0, .max = 0},
+            {.min = 42, .max = 45},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -13360,10 +13228,10 @@ static ModifierTierData tiers_normal_157[] = {
         .tier_name = "of Warmth",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 8, .max = 12},
-            {.min = 0, .max = 0},
+            {.min = 5, .max = 5},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -13372,10 +13240,10 @@ static ModifierTierData tiers_normal_157[] = {
         .tier_name = "of Kindling",
         .level_req = 15,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 10, .max = 10},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -13384,10 +13252,10 @@ static ModifierTierData tiers_normal_157[] = {
         .tier_name = "of the Hearth",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 18, .max = 22},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -13446,6 +13314,81 @@ static ModifierTierData tiers_normal_158[] = {
 };
 
 static ModifierTierData tiers_normal_159[] = {
+    {
+        .tier_name = "of the Mentor",
+        .level_req = 2,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 21, .max = 25},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Tutor",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 26, .max = 30},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Director",
+        .level_req = 32,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 31, .max = 35},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Headmaster",
+        .level_req = 48,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 36, .max = 40},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Administrator",
+        .level_req = 64,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 41, .max = 45},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of the Rector",
+        .level_req = 80,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 46, .max = 50},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -13553,14 +13496,14 @@ static ModifierTierData tiers_normal_159[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_160[] = {
+static ModifierTierData tiers_normal_161[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
@@ -13572,7 +13515,7 @@ static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Smouldering",
         .level_req = 8,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
             {.min = 4, .max = 6},
@@ -13584,7 +13527,7 @@ static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Smoking",
         .level_req = 16,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
             {.min = 7, .max = 11},
@@ -13596,7 +13539,7 @@ static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Burning",
         .level_req = 33,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
             {.min = 13, .max = 19},
@@ -13608,7 +13551,7 @@ static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Flaming",
         .level_req = 46,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
@@ -13620,7 +13563,7 @@ static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Scorching",
         .level_req = 54,
-        .weight = 800,
+        .weight = 900,
         .value_count = 2,
         .values = {
             {.min = 25, .max = 33},
@@ -13632,7 +13575,7 @@ static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Incinerating",
         .level_req = 60,
-        .weight = 480,
+        .weight = 540,
         .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
@@ -13644,7 +13587,7 @@ static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Blasting",
         .level_req = 65,
-        .weight = 320,
+        .weight = 360,
         .value_count = 2,
         .values = {
             {.min = 47, .max = 59},
@@ -13656,7 +13599,7 @@ static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Cremating",
         .level_req = 75,
-        .weight = 200,
+        .weight = 225,
         .value_count = 2,
         .values = {
             {.min = 62, .max = 85},
@@ -13668,7 +13611,7 @@ static ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Carbonising",
         .level_req = 81,
-        .weight = 80,
+        .weight = 90,
         .value_count = 2,
         .values = {
             {.min = 88, .max = 101},
@@ -13676,10 +13619,10 @@ static ModifierTierData tiers_normal_160[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_161[] = {
+static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -13799,14 +13742,14 @@ static ModifierTierData tiers_normal_161[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_162[] = {
+static ModifierTierData tiers_normal_163[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
-        .weight = 1200,
+        .weight = 1100,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
@@ -13818,7 +13761,7 @@ static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Buzzing",
         .level_req = 8,
-        .weight = 1200,
+        .weight = 1100,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
@@ -13830,7 +13773,7 @@ static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Snapping",
         .level_req = 16,
-        .weight = 1200,
+        .weight = 1100,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
@@ -13842,7 +13785,7 @@ static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Crackling",
         .level_req = 33,
-        .weight = 1200,
+        .weight = 1100,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
@@ -13854,7 +13797,7 @@ static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Sparking",
         .level_req = 46,
-        .weight = 1200,
+        .weight = 1100,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 3},
@@ -13866,7 +13809,7 @@ static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Arcing",
         .level_req = 54,
-        .weight = 1200,
+        .weight = 1100,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
@@ -13878,7 +13821,7 @@ static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Shocking",
         .level_req = 60,
-        .weight = 720,
+        .weight = 660,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 6},
@@ -13890,7 +13833,7 @@ static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Discharging",
         .level_req = 65,
-        .weight = 480,
+        .weight = 440,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 8},
@@ -13902,7 +13845,7 @@ static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Electrocuting",
         .level_req = 75,
-        .weight = 300,
+        .weight = 275,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 10},
@@ -13914,134 +13857,11 @@ static ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Vapourising",
         .level_req = 81,
-        .weight = 120,
+        .weight = 110,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 12},
             {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_normal_163[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1100,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 1100,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1100,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1100,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 1100,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1100,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 660,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 440,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 275,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 110,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -14050,101 +13870,101 @@ static ModifierTierData tiers_normal_163[] = {
 
 static ModifierTierData tiers_normal_164[] = {
     {
-        .tier_name = "Squire's",
+        .tier_name = "Heavy",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 19},
-            {.min = 16, .max = 20},
+            {.min = 40, .max = 49},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Journeyman's",
-        .level_req = 11,
+        .tier_name = "Serrated",
+        .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 21, .max = 46},
+            {.min = 50, .max = 64},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Reaver's",
-        .level_req = 23,
+        .tier_name = "Wicked",
+        .level_req = 16,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 25, .max = 34},
-            {.min = 47, .max = 72},
+            {.min = 65, .max = 84},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Mercenary's",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 35, .max = 44},
-            {.min = 73, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Champion's",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 45, .max = 54},
-            {.min = 98, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Conqueror's",
-        .level_req = 65,
+        .tier_name = "Vicious",
+        .level_req = 33,
         .weight = 400,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 55, .max = 64},
-            {.min = 124, .max = 149},
+            {.min = 85, .max = 109},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Emperor's",
-        .level_req = 70,
+        .tier_name = "Bloodthirsty",
+        .level_req = 46,
         .weight = 200,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 65, .max = 74},
-            {.min = 150, .max = 174},
+            {.min = 110, .max = 134},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Dictator's",
-        .level_req = 81,
+        .tier_name = "Cruel",
+        .level_req = 60,
         .weight = 100,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 75, .max = 79},
-            {.min = 175, .max = 200},
+            {.min = 135, .max = 154},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "Tyrannical",
+        .level_req = 75,
+        .weight = 50,
+        .value_count = 1,
+        .values = {
+            {.min = 155, .max = 169},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Merciless",
+        .level_req = 82,
+        .weight = 25,
+        .value_count = 1,
+        .values = {
+            {.min = 170, .max = 179},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_165[] = {
@@ -14243,7 +14063,7 @@ static ModifierTierData tiers_normal_165[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
 static ModifierTierData tiers_normal_166[] = {
@@ -14251,10 +14071,10 @@ static ModifierTierData tiers_normal_166[] = {
         .tier_name = "Squire's",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 16, .max = 20},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -14263,10 +14083,10 @@ static ModifierTierData tiers_normal_166[] = {
         .tier_name = "Journeyman's",
         .level_req = 11,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -14275,10 +14095,10 @@ static ModifierTierData tiers_normal_166[] = {
         .tier_name = "Reaver's",
         .level_req = 23,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 25, .max = 34},
-            {.min = 0, .max = 0},
+            {.min = 47, .max = 72},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -14287,10 +14107,10 @@ static ModifierTierData tiers_normal_166[] = {
         .tier_name = "Mercenary's",
         .level_req = 38,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
-            {.min = 0, .max = 0},
+            {.min = 73, .max = 97},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -14299,10 +14119,10 @@ static ModifierTierData tiers_normal_166[] = {
         .tier_name = "Champion's",
         .level_req = 54,
         .weight = 600,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 45, .max = 54},
-            {.min = 0, .max = 0},
+            {.min = 98, .max = 123},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -14311,10 +14131,10 @@ static ModifierTierData tiers_normal_166[] = {
         .tier_name = "Conqueror's",
         .level_req = 65,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 55, .max = 64},
-            {.min = 0, .max = 0},
+            {.min = 124, .max = 149},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -14323,10 +14143,10 @@ static ModifierTierData tiers_normal_166[] = {
         .tier_name = "Emperor's",
         .level_req = 70,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 65, .max = 74},
-            {.min = 0, .max = 0},
+            {.min = 150, .max = 174},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -14335,10 +14155,10 @@ static ModifierTierData tiers_normal_166[] = {
         .tier_name = "Dictator's",
         .level_req = 81,
         .weight = 100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 75, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 175, .max = 200},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -15358,41 +15178,77 @@ static ModifierTierData tiers_normal_179[] = {
 
 static ModifierTierData tiers_normal_180[] = {
     {
-        .tier_name = "of Shining",
+        .tier_name = "of Ire",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 10, .max = 20},
-            {.min = 5, .max = 5},
+            {.min = 10, .max = 11},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Light",
-        .level_req = 15,
+        .tier_name = "of Anger",
+        .level_req = 21,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 40},
-            {.min = 10, .max = 10},
+            {.min = 12, .max = 13},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Radiance",
+        .tier_name = "of Rage",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 41, .max = 60},
-            {.min = 15, .max = 15},
+            {.min = 14, .max = 16},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "of Fury",
+        .level_req = 44,
+        .weight = 500,
+        .value_count = 1,
+        .values = {
+            {.min = 17, .max = 19},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Ferocity",
+        .level_req = 59,
+        .weight = 250,
+        .value_count = 1,
+        .values = {
+            {.min = 20, .max = 22},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Destruction",
+        .level_req = 73,
+        .weight = 125,
+        .value_count = 1,
+        .values = {
+            {.min = 23, .max = 25},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_181[] = {
@@ -15432,7 +15288,7 @@ static ModifierTierData tiers_normal_181[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_182[] = {
     {
@@ -15823,10 +15679,10 @@ static ModifierTierData tiers_normal_186[] = {
         .tier_name = "Caster's",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 19},
-            {.min = 0, .max = 0},
+            {.min = 17, .max = 20},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -15835,10 +15691,10 @@ static ModifierTierData tiers_normal_186[] = {
         .tier_name = "Conjuror's",
         .level_req = 11,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 24},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -15847,10 +15703,10 @@ static ModifierTierData tiers_normal_186[] = {
         .tier_name = "Wizard's",
         .level_req = 23,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 25, .max = 29},
-            {.min = 0, .max = 0},
+            {.min = 25, .max = 28},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -15859,10 +15715,10 @@ static ModifierTierData tiers_normal_186[] = {
         .tier_name = "Warlock's",
         .level_req = 38,
         .weight = 600,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 30, .max = 34},
-            {.min = 0, .max = 0},
+            {.min = 29, .max = 33},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -15871,10 +15727,10 @@ static ModifierTierData tiers_normal_186[] = {
         .tier_name = "Mage's",
         .level_req = 46,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 35, .max = 39},
-            {.min = 0, .max = 0},
+            {.min = 34, .max = 37},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -15883,10 +15739,10 @@ static ModifierTierData tiers_normal_186[] = {
         .tier_name = "Archmage's",
         .level_req = 60,
         .weight = 200,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 40, .max = 44},
-            {.min = 0, .max = 0},
+            {.min = 38, .max = 41},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -15895,10 +15751,10 @@ static ModifierTierData tiers_normal_186[] = {
         .tier_name = "Lich's",
         .level_req = 80,
         .weight = 100,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 45, .max = 49},
-            {.min = 0, .max = 0},
+            {.min = 42, .max = 45},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -17668,10 +17524,10 @@ static ModifierTierData tiers_normal_209[] = {
         .tier_name = "of Warmth",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 8, .max = 12},
-            {.min = 0, .max = 0},
+            {.min = 5, .max = 5},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -17680,10 +17536,10 @@ static ModifierTierData tiers_normal_209[] = {
         .tier_name = "of Kindling",
         .level_req = 15,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 10, .max = 10},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -17692,10 +17548,10 @@ static ModifierTierData tiers_normal_209[] = {
         .tier_name = "of the Hearth",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 18, .max = 22},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -18151,6 +18007,105 @@ static ModifierTierData tiers_normal_214[] = {
 
 static ModifierTierData tiers_normal_215[] = {
     {
+        .tier_name = "Reinforced",
+        .level_req = 2,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 15, .max = 26},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Layered",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 27, .max = 42},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Lobstered",
+        .level_req = 35,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 43, .max = 55},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Buttressed",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 56, .max = 67},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Thickened",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 68, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Girded",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 80, .max = 91},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Impregnable",
+        .level_req = 65,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 92, .max = 100},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Impenetrable",
+        .level_req = 75,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 101, .max = 110},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_216[] = {
+    {
         .tier_name = "Beetle's",
         .level_req = 10,
         .weight = 1000,
@@ -18221,94 +18176,7 @@ static ModifierTierData tiers_normal_215[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_216[] = {
-    {
-        .tier_name = "Thorny",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Spiny",
-        .level_req = 10,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 5, .max = 7},
-            {.min = 7, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Barbed",
-        .level_req = 19,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 16},
-            {.min = 15, .max = 23},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Pointed",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 24, .max = 35},
-            {.min = 35, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spiked",
-        .level_req = 48,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 60},
-            {.min = 61, .max = 92},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Edged",
-        .level_req = 63,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 64, .max = 97},
-            {.min = 97, .max = 145},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Jagged",
-        .level_req = 74,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 151},
-            {.min = 146, .max = 220},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_217[] = {
@@ -18396,7 +18264,7 @@ static ModifierTierData tiers_normal_217[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_218[] = {
     {
@@ -19417,6 +19285,141 @@ static ModifierTierData tiers_normal_232[] = {
 
 static ModifierTierData tiers_normal_233[] = {
     {
+        .tier_name = "Hale",
+        .level_req = 1,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 10, .max = 19},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Healthy",
+        .level_req = 6,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 20, .max = 29},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Sanguine",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 30, .max = 39},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Stalwart",
+        .level_req = 24,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 40, .max = 59},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Stout",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 60, .max = 69},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Robust",
+        .level_req = 38,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 70, .max = 84},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Rotund",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 85, .max = 99},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Virile",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 100, .max = 119},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Athlete's",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 120, .max = 149},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Fecund",
+        .level_req = 65,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 150, .max = 174},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Vigorous",
+        .level_req = 70,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 175, .max = 189},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_234[] = {
+    {
         .tier_name = "Supple",
         .level_req = 1,
         .weight = 1000,
@@ -19500,117 +19503,6 @@ static ModifierTierData tiers_normal_233[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Versatile",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 118, .max = 138},
-            {.min = 108, .max = 126},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_normal_234[] = {
-    {
-        .tier_name = "Blessed",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 14},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Anointed",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 35},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sanctified",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 36, .max = 53},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hallowed",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 54, .max = 65},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Beatified",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 66, .max = 78},
-            {.min = 26, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Consecrated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 79, .max = 98},
-            {.min = 30, .max = 36},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Saintly",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 99, .max = 117},
-            {.min = 37, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Godly",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 118, .max = 138},
-            {.min = 43, .max = 48},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_235[] = {
@@ -19710,17 +19602,17 @@ static ModifierTierData tiers_normal_235[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_236[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -19729,10 +19621,10 @@ static ModifierTierData tiers_normal_236[] = {
         .tier_name = "Brawler's",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -19741,10 +19633,10 @@ static ModifierTierData tiers_normal_236[] = {
         .tier_name = "Fencer's",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 43, .max = 55},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -19753,10 +19645,10 @@ static ModifierTierData tiers_normal_236[] = {
         .tier_name = "Gladiator's",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -19765,10 +19657,10 @@ static ModifierTierData tiers_normal_236[] = {
         .tier_name = "Duelist's",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -19777,10 +19669,10 @@ static ModifierTierData tiers_normal_236[] = {
         .tier_name = "Hero's",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 91},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -19789,10 +19681,10 @@ static ModifierTierData tiers_normal_236[] = {
         .tier_name = "Legend's",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
+            {.min = 92, .max = 100},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -19801,10 +19693,10 @@ static ModifierTierData tiers_normal_236[] = {
         .tier_name = "Victor's",
         .level_req = 75,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
+            {.min = 101, .max = 110},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -19812,90 +19704,6 @@ static ModifierTierData tiers_normal_236[] = {
 };
 
 static ModifierTierData tiers_normal_237[] = {
-    {
-        .tier_name = "Scrapper's",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brawler's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Fencer's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gladiator's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Duelist's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hero's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Legend's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
     {
         .tier_name = "Infixed",
         .level_req = 2,
@@ -19981,161 +19789,17 @@ static ModifierTierData tiers_normal_237[] = {
         }
     },
     {
-        .tier_name = "Shadowy",
-        .level_req = 2,
+        .tier_name = "Interpermeated",
+        .level_req = 75,
         .weight = 1000,
         .value_count = 2,
         .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
+            {.min = 101, .max = 110},
+            {.min = 101, .max = 110},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Ethereal",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unworldly",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ephemeral",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Evanescent",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unreal",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Illusory",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Captain's",
-        .level_req = 10,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Commander's",
-        .level_req = 19,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Magnate's",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Marshal's",
-        .level_req = 48,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "General's",
-        .level_req = 63,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Warlord's",
-        .level_req = 74,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_238[] = {
@@ -20211,93 +19875,81 @@ static ModifierTierData tiers_normal_238[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_239[] = {
     {
-        .tier_name = "Thorny",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spiny",
+        .tier_name = "Defender's",
         .level_req = 10,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
-            {.min = 5, .max = 7},
-            {.min = 7, .max = 10},
-            {.min = 0, .max = 0},
+            {.min = 6, .max = 13},
+            {.min = 6, .max = 13},
+            {.min = 8, .max = 13},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Barbed",
+        .tier_name = "Protector's",
         .level_req = 19,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
-            {.min = 11, .max = 16},
-            {.min = 15, .max = 23},
-            {.min = 0, .max = 0},
+            {.min = 14, .max = 20},
+            {.min = 14, .max = 20},
+            {.min = 14, .max = 24},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Pointed",
+        .tier_name = "Keeper's",
         .level_req = 38,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
-            {.min = 24, .max = 35},
-            {.min = 35, .max = 53},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 26},
+            {.min = 21, .max = 26},
+            {.min = 25, .max = 40},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Spiked",
+        .tier_name = "Guardian's",
         .level_req = 48,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
-            {.min = 40, .max = 60},
-            {.min = 61, .max = 92},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 32},
+            {.min = 27, .max = 32},
+            {.min = 41, .max = 63},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Edged",
+        .tier_name = "Warden's",
         .level_req = 63,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
-            {.min = 64, .max = 97},
-            {.min = 97, .max = 145},
-            {.min = 0, .max = 0},
+            {.min = 33, .max = 38},
+            {.min = 33, .max = 38},
+            {.min = 64, .max = 94},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Jagged",
+        .tier_name = "Sentinel's",
         .level_req = 74,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
-            {.min = 101, .max = 151},
-            {.min = 146, .max = 220},
-            {.min = 0, .max = 0},
+            {.min = 39, .max = 42},
+            {.min = 39, .max = 42},
+            {.min = 95, .max = 136},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
 static ModifierTierData tiers_normal_240[] = {
@@ -20385,7 +20037,7 @@ static ModifierTierData tiers_normal_240[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_241[] = {
     {
@@ -22012,77 +21664,89 @@ static ModifierTierData tiers_normal_261[] = {
 
 static ModifierTierData tiers_normal_262[] = {
     {
-        .tier_name = "Imbued",
-        .level_req = 8,
+        .tier_name = "Protective",
+        .level_req = 2,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 8},
+            {.min = 15, .max = 26},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Serene",
+        .tier_name = "Strong-Willed",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 14, .max = 20},
-            {.min = 9, .max = 16},
+            {.min = 27, .max = 42},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Sacred",
+        .tier_name = "Resolute",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 26},
-            {.min = 17, .max = 20},
+            {.min = 43, .max = 55},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Celestial",
+        .tier_name = "Fearless",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 27, .max = 32},
-            {.min = 21, .max = 26},
+            {.min = 56, .max = 67},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Heavenly",
+        .tier_name = "Dauntless",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 68, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Indomitable",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 33, .max = 38},
-            {.min = 27, .max = 32},
+            {.min = 80, .max = 91},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Angel's",
-        .level_req = 78,
+        .tier_name = "Unassailable",
+        .level_req = 65,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 39, .max = 42},
-            {.min = 33, .max = 39},
+            {.min = 92, .max = 100},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
 static ModifierTierData tiers_normal_263[] = {
@@ -22158,7 +21822,7 @@ static ModifierTierData tiers_normal_263[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_264[] = {
     {
@@ -24001,6 +23665,105 @@ static ModifierTierData tiers_normal_284[] = {
 
 static ModifierTierData tiers_normal_285[] = {
     {
+        .tier_name = "Shade's",
+        .level_req = 2,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 15, .max = 26},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Ghost's",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 27, .max = 42},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Spectre's",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 43, .max = 55},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Wraith's",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 56, .max = 67},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Phantasm's",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 68, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Nightmare's",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 80, .max = 91},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Mirage's",
+        .level_req = 65,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 92, .max = 100},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Illusion's",
+        .level_req = 75,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 101, .max = 110},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_286[] = {
+    {
         .tier_name = "Mosquito's",
         .level_req = 10,
         .weight = 1000,
@@ -24071,94 +23834,7 @@ static ModifierTierData tiers_normal_285[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_286[] = {
-    {
-        .tier_name = "Thorny",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Spiny",
-        .level_req = 10,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 5, .max = 7},
-            {.min = 7, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Barbed",
-        .level_req = 19,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 16},
-            {.min = 15, .max = 23},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Pointed",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 24, .max = 35},
-            {.min = 35, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spiked",
-        .level_req = 48,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 60},
-            {.min = 61, .max = 92},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Edged",
-        .level_req = 63,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 64, .max = 97},
-            {.min = 97, .max = 145},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Jagged",
-        .level_req = 74,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 151},
-            {.min = 146, .max = 220},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_287[] = {
@@ -24246,7 +23922,7 @@ static ModifierTierData tiers_normal_287[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_288[] = {
     {
@@ -25129,617 +24805,80 @@ static ModifierTierData tiers_normal_300[] = {
 
 static ModifierTierData tiers_normal_301[] = {
     {
-        .tier_name = "Supple",
+        .tier_name = "of Deflecting",
         .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
+        .weight = 500,
+        .value_count = 1,
         .values = {
-            {.min = 8, .max = 14},
-            {.min = 6, .max = 9},
+            {.min = 8, .max = 11},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Pliant",
+        .tier_name = "of Bending",
         .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
+        .weight = 500,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 35},
-            {.min = 10, .max = 30},
+            {.min = 12, .max = 14},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Flexible",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "of Curvation",
+        .level_req = 36,
+        .weight = 500,
+        .value_count = 1,
         .values = {
-            {.min = 36, .max = 53},
-            {.min = 31, .max = 46},
+            {.min = 15, .max = 17},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Durable",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "of Diversion",
+        .level_req = 48,
+        .weight = 500,
+        .value_count = 1,
         .values = {
-            {.min = 54, .max = 65},
-            {.min = 47, .max = 57},
+            {.min = 18, .max = 20},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Blessed",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "of Flexure",
+        .level_req = 66,
+        .weight = 500,
+        .value_count = 1,
         .values = {
-            {.min = 8, .max = 14},
-            {.min = 5, .max = 8},
+            {.min = 21, .max = 23},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Anointed",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "of Warping",
+        .level_req = 81,
+        .weight = 500,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 35},
-            {.min = 9, .max = 15},
+            {.min = 24, .max = 26},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Sanctified",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 36, .max = 53},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hallowed",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 54, .max = 65},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Will-o-wisp's",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Nymph's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 30},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sylph's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 31, .max = 46},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cherub's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 57},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Scrapper's",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brawler's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Fencer's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gladiator's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Duelist's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hero's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Legend's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infixed",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ingrained",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Instilled",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infused",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inculcated",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpolated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inspired",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shadowy",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ethereal",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unworldly",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ephemeral",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Evanescent",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unreal",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Illusory",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Bully's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Thug's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brute's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Assailant's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Aggressor's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Predator's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Augur's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Auspex's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Druid's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Haruspex's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Visionary's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Prophet's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Poet's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Musician's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Troubadour's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Bard's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Minstrel's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Maestro's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
+};
+
+static ModifierTierData tiers_normal_302[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -25847,10 +24986,10 @@ static ModifierTierData tiers_normal_301[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_302[] = {
+static ModifierTierData tiers_normal_303[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -25958,10 +25097,10 @@ static ModifierTierData tiers_normal_302[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_303[] = {
+static ModifierTierData tiers_normal_304[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -26069,118 +25208,7 @@ static ModifierTierData tiers_normal_303[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_304[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 10, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 16, .max = 22},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 23, .max = 27},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 28, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 33, .max = 40},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 400,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 41, .max = 47},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 48, .max = 59},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 60, .max = 71},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_305[] = {
@@ -26292,7 +25320,7 @@ static ModifierTierData tiers_normal_305[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_306[] = {
     {
@@ -27742,6 +26770,93 @@ static ModifierTierData tiers_normal_323[] = {
 
 static ModifierTierData tiers_normal_324[] = {
     {
+        .tier_name = "Protective",
+        .level_req = 2,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 15, .max = 26},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Strong-Willed",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 27, .max = 42},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Resolute",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 43, .max = 55},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Fearless",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 56, .max = 67},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Dauntless",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 68, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Indomitable",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 80, .max = 91},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Unassailable",
+        .level_req = 65,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 92, .max = 100},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_325[] = {
+    {
         .tier_name = "Beetle's",
         .level_req = 10,
         .weight = 1000,
@@ -27812,10 +26927,10 @@ static ModifierTierData tiers_normal_324[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_325[] = {
+static ModifierTierData tiers_normal_326[] = {
     {
         .tier_name = "Mosquito's",
         .level_req = 10,
@@ -27887,82 +27002,7 @@ static ModifierTierData tiers_normal_325[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_326[] = {
-    {
-        .tier_name = "Pixie's",
-        .level_req = 10,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 8, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Gremlin's",
-        .level_req = 19,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 24},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Boggart's",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 25, .max = 40},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Naga's",
-        .level_req = 48,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 41, .max = 63},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Djinn's",
-        .level_req = 63,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 64, .max = 94},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Seraphim's",
-        .level_req = 74,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 95, .max = 136},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_327[] = {
@@ -28038,7 +27078,7 @@ static ModifierTierData tiers_normal_327[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_328[] = {
     {
@@ -29635,6 +28675,117 @@ static ModifierTierData tiers_normal_346[] = {
 
 static ModifierTierData tiers_normal_347[] = {
     {
+        .tier_name = "Beryl",
+        .level_req = 1,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 10, .max = 14},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Cobalt",
+        .level_req = 6,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 15, .max = 24},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Azure",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 25, .max = 34},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Teal",
+        .level_req = 25,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 35, .max = 54},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Cerulean",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 55, .max = 64},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Aqua",
+        .level_req = 38,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 65, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Opalescent",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 80, .max = 89},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Gentian",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 90, .max = 104},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Chalybeous",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 105, .max = 124},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_348[] = {
+    {
         .tier_name = "Supple",
         .level_req = 1,
         .weight = 1000,
@@ -29682,57 +28833,9 @@ static ModifierTierData tiers_normal_347[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Sturdy",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 66, .max = 78},
-            {.min = 58, .max = 69},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Resilient",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 79, .max = 98},
-            {.min = 70, .max = 88},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Adaptable",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 99, .max = 117},
-            {.min = 89, .max = 107},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Versatile",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 118, .max = 138},
-            {.min = 108, .max = 126},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_normal_348[] = {
+static ModifierTierData tiers_normal_349[] = {
     {
         .tier_name = "Blessed",
         .level_req = 1,
@@ -29781,153 +28884,6 @@ static ModifierTierData tiers_normal_348[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Beatified",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 66, .max = 78},
-            {.min = 26, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Consecrated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 79, .max = 98},
-            {.min = 30, .max = 36},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Saintly",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 99, .max = 117},
-            {.min = 37, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Godly",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 118, .max = 138},
-            {.min = 43, .max = 48},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_normal_349[] = {
-    {
-        .tier_name = "Will-o-wisp's",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Nymph's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 30},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sylph's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 31, .max = 46},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cherub's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 57},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spirit's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 58, .max = 69},
-            {.min = 26, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Eidolon's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 70, .max = 88},
-            {.min = 30, .max = 36},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Apparition's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 89, .max = 107},
-            {.min = 37, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Banshee's",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 108, .max = 126},
-            {.min = 43, .max = 48},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_350[] = {
@@ -29979,65 +28935,17 @@ static ModifierTierData tiers_normal_350[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Spirit's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 58, .max = 69},
-            {.min = 26, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Eidolon's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 70, .max = 88},
-            {.min = 30, .max = 36},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Apparition's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 89, .max = 107},
-            {.min = 37, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Banshee's",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 108, .max = 126},
-            {.min = 43, .max = 48},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-};;
+};
 
 static ModifierTierData tiers_normal_351[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30046,10 +28954,10 @@ static ModifierTierData tiers_normal_351[] = {
         .tier_name = "Brawler's",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30058,10 +28966,10 @@ static ModifierTierData tiers_normal_351[] = {
         .tier_name = "Fencer's",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 43, .max = 55},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30070,10 +28978,10 @@ static ModifierTierData tiers_normal_351[] = {
         .tier_name = "Gladiator's",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30082,10 +28990,10 @@ static ModifierTierData tiers_normal_351[] = {
         .tier_name = "Duelist's",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30094,10 +29002,10 @@ static ModifierTierData tiers_normal_351[] = {
         .tier_name = "Hero's",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 91},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30106,10 +29014,10 @@ static ModifierTierData tiers_normal_351[] = {
         .tier_name = "Legend's",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
+            {.min = 92, .max = 100},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30121,10 +29029,10 @@ static ModifierTierData tiers_normal_352[] = {
         .tier_name = "Infixed",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30133,10 +29041,10 @@ static ModifierTierData tiers_normal_352[] = {
         .tier_name = "Ingrained",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30145,10 +29053,10 @@ static ModifierTierData tiers_normal_352[] = {
         .tier_name = "Instilled",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 43, .max = 55},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30157,10 +29065,10 @@ static ModifierTierData tiers_normal_352[] = {
         .tier_name = "Infused",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30169,10 +29077,10 @@ static ModifierTierData tiers_normal_352[] = {
         .tier_name = "Inculcated",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30181,10 +29089,10 @@ static ModifierTierData tiers_normal_352[] = {
         .tier_name = "Interpolated",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 91},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30193,10 +29101,10 @@ static ModifierTierData tiers_normal_352[] = {
         .tier_name = "Inspired",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
+            {.min = 92, .max = 100},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -30204,174 +29112,6 @@ static ModifierTierData tiers_normal_352[] = {
 };
 
 static ModifierTierData tiers_normal_353[] = {
-    {
-        .tier_name = "Scrapper's",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brawler's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Fencer's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gladiator's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Duelist's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hero's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Legend's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infixed",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ingrained",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Instilled",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infused",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inculcated",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpolated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inspired",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
     {
         .tier_name = "Shadowy",
         .level_req = 2,
@@ -30456,78 +29196,6 @@ static ModifierTierData tiers_normal_353[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Captain's",
-        .level_req = 10,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Commander's",
-        .level_req = 19,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Magnate's",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Marshal's",
-        .level_req = 48,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "General's",
-        .level_req = 63,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Warlord's",
-        .level_req = 74,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_354[] = {
@@ -30603,7 +29271,7 @@ static ModifierTierData tiers_normal_354[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_355[] = {
     {
@@ -30678,7 +29346,7 @@ static ModifierTierData tiers_normal_355[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_356[] = {
     {
@@ -30753,7 +29421,7 @@ static ModifierTierData tiers_normal_356[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_357[] = {
     {
@@ -32239,6 +30907,165 @@ static ModifierTierData tiers_normal_374[] = {
 
 static ModifierTierData tiers_normal_375[] = {
     {
+        .tier_name = "Hale",
+        .level_req = 1,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 10, .max = 19},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Healthy",
+        .level_req = 6,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 20, .max = 29},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Sanguine",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 30, .max = 39},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Stalwart",
+        .level_req = 24,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 40, .max = 59},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Stout",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 60, .max = 69},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Robust",
+        .level_req = 38,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 70, .max = 84},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Rotund",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 85, .max = 99},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Virile",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 100, .max = 119},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Athlete's",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 120, .max = 149},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Fecund",
+        .level_req = 65,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 150, .max = 174},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Vigorous",
+        .level_req = 70,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 175, .max = 189},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Rapturous",
+        .level_req = 75,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 190, .max = 199},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Prime",
+        .level_req = 80,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 200, .max = 214},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_376[] = {
+    {
         .tier_name = "Supple",
         .level_req = 1,
         .weight = 1000,
@@ -32333,10 +31160,10 @@ static ModifierTierData tiers_normal_375[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_376[] = {
+static ModifierTierData tiers_normal_377[] = {
     {
         .tier_name = "Blessed",
         .level_req = 1,
@@ -32432,106 +31259,7 @@ static ModifierTierData tiers_normal_376[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_377[] = {
-    {
-        .tier_name = "Will-o-wisp's",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Nymph's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 30},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sylph's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 31, .max = 46},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cherub's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 57},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spirit's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 58, .max = 69},
-            {.min = 26, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Eidolon's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 70, .max = 88},
-            {.min = 30, .max = 36},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Apparition's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 89, .max = 107},
-            {.min = 37, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Banshee's",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 108, .max = 126},
-            {.min = 43, .max = 48},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_378[] = {
@@ -32631,17 +31359,17 @@ static ModifierTierData tiers_normal_378[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_379[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32650,10 +31378,10 @@ static ModifierTierData tiers_normal_379[] = {
         .tier_name = "Brawler's",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32662,10 +31390,10 @@ static ModifierTierData tiers_normal_379[] = {
         .tier_name = "Fencer's",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 43, .max = 55},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32674,10 +31402,10 @@ static ModifierTierData tiers_normal_379[] = {
         .tier_name = "Gladiator's",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32686,10 +31414,10 @@ static ModifierTierData tiers_normal_379[] = {
         .tier_name = "Duelist's",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32698,10 +31426,10 @@ static ModifierTierData tiers_normal_379[] = {
         .tier_name = "Hero's",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 91},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32710,10 +31438,10 @@ static ModifierTierData tiers_normal_379[] = {
         .tier_name = "Legend's",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
+            {.min = 92, .max = 100},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32722,10 +31450,10 @@ static ModifierTierData tiers_normal_379[] = {
         .tier_name = "Victor's",
         .level_req = 75,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
+            {.min = 101, .max = 110},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32737,10 +31465,10 @@ static ModifierTierData tiers_normal_380[] = {
         .tier_name = "Infixed",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32749,10 +31477,10 @@ static ModifierTierData tiers_normal_380[] = {
         .tier_name = "Ingrained",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32761,10 +31489,10 @@ static ModifierTierData tiers_normal_380[] = {
         .tier_name = "Instilled",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 43, .max = 55},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32773,10 +31501,10 @@ static ModifierTierData tiers_normal_380[] = {
         .tier_name = "Infused",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32785,10 +31513,10 @@ static ModifierTierData tiers_normal_380[] = {
         .tier_name = "Inculcated",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32797,10 +31525,10 @@ static ModifierTierData tiers_normal_380[] = {
         .tier_name = "Interpolated",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 91},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32809,10 +31537,10 @@ static ModifierTierData tiers_normal_380[] = {
         .tier_name = "Inspired",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
+            {.min = 92, .max = 100},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32821,10 +31549,10 @@ static ModifierTierData tiers_normal_380[] = {
         .tier_name = "Interpermeated",
         .level_req = 75,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
+            {.min = 101, .max = 110},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -32832,198 +31560,6 @@ static ModifierTierData tiers_normal_380[] = {
 };
 
 static ModifierTierData tiers_normal_381[] = {
-    {
-        .tier_name = "Scrapper's",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brawler's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Fencer's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gladiator's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Duelist's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hero's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Legend's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Victor's",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 110},
-            {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infixed",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ingrained",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Instilled",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infused",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inculcated",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpolated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inspired",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpermeated",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 110},
-            {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
     {
         .tier_name = "Shadowy",
         .level_req = 2,
@@ -33120,78 +31656,6 @@ static ModifierTierData tiers_normal_381[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Bully's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Thug's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brute's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Assailant's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Aggressor's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Predator's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_382[] = {
@@ -33342,7 +31806,7 @@ static ModifierTierData tiers_normal_383[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_384[] = {
     {
@@ -33417,17 +31881,18 @@ static ModifierTierData tiers_normal_384[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_385[] = {
     {
         .tier_name = "Swordsman's",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 3,
+        .value_count = 4,
         .values = {
             {.min = 4, .max = 6},
             {.min = 3, .max = 5},
+            {.min = 6, .max = 13},
             {.min = 6, .max = 13},
         }
     },
@@ -33435,10 +31900,11 @@ static ModifierTierData tiers_normal_385[] = {
         .tier_name = "Fighter's",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 3,
+        .value_count = 4,
         .values = {
             {.min = 7, .max = 15},
             {.min = 6, .max = 12},
+            {.min = 14, .max = 20},
             {.min = 14, .max = 20},
         }
     },
@@ -33446,10 +31912,11 @@ static ModifierTierData tiers_normal_385[] = {
         .tier_name = "Veteran's",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 3,
+        .value_count = 4,
         .values = {
             {.min = 16, .max = 20},
             {.min = 13, .max = 17},
+            {.min = 21, .max = 26},
             {.min = 21, .max = 26},
         }
     },
@@ -33457,10 +31924,11 @@ static ModifierTierData tiers_normal_385[] = {
         .tier_name = "Warrior's",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 3,
+        .value_count = 4,
         .values = {
             {.min = 21, .max = 27},
             {.min = 18, .max = 24},
+            {.min = 27, .max = 32},
             {.min = 27, .max = 32},
         }
     },
@@ -33468,10 +31936,11 @@ static ModifierTierData tiers_normal_385[] = {
         .tier_name = "Knight's",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 3,
+        .value_count = 4,
         .values = {
             {.min = 28, .max = 34},
             {.min = 25, .max = 31},
+            {.min = 33, .max = 38},
             {.min = 33, .max = 38},
         }
     },
@@ -33479,10 +31948,11 @@ static ModifierTierData tiers_normal_385[] = {
         .tier_name = "Centurion's",
         .level_req = 78,
         .weight = 1000,
-        .value_count = 3,
+        .value_count = 4,
         .values = {
             {.min = 35, .max = 43},
             {.min = 32, .max = 39},
+            {.min = 39, .max = 42},
             {.min = 39, .max = 42},
         }
     },
@@ -33561,7 +32031,7 @@ static ModifierTierData tiers_normal_386[] = {
             {.min = 39, .max = 42},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_387[] = {
     {
@@ -33636,7 +32106,7 @@ static ModifierTierData tiers_normal_387[] = {
             {.min = 39, .max = 42},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_388[] = {
     {
@@ -33723,7 +32193,7 @@ static ModifierTierData tiers_normal_388[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_389[] = {
     {
@@ -36004,6 +34474,105 @@ static ModifierTierData tiers_normal_411[] = {
 
 static ModifierTierData tiers_normal_412[] = {
     {
+        .tier_name = "Protective",
+        .level_req = 2,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 15, .max = 26},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Strong-Willed",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 27, .max = 42},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Resolute",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 43, .max = 55},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Fearless",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 56, .max = 67},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Dauntless",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 68, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Indomitable",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 80, .max = 91},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Unassailable",
+        .level_req = 65,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 92, .max = 100},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Unfaltering",
+        .level_req = 75,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 101, .max = 110},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_413[] = {
+    {
         .tier_name = "Oyster's",
         .level_req = 8,
         .weight = 1000,
@@ -36074,10 +34643,10 @@ static ModifierTierData tiers_normal_412[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_413[] = {
+static ModifierTierData tiers_normal_414[] = {
     {
         .tier_name = "Flea's",
         .level_req = 8,
@@ -36149,10 +34718,10 @@ static ModifierTierData tiers_normal_413[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_414[] = {
+static ModifierTierData tiers_normal_415[] = {
     {
         .tier_name = "Monk's",
         .level_req = 8,
@@ -36224,10 +34793,10 @@ static ModifierTierData tiers_normal_414[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_415[] = {
+static ModifierTierData tiers_normal_416[] = {
     {
         .tier_name = "Abalone's",
         .level_req = 8,
@@ -36299,10 +34868,10 @@ static ModifierTierData tiers_normal_415[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_416[] = {
+static ModifierTierData tiers_normal_417[] = {
     {
         .tier_name = "Impala's",
         .level_req = 8,
@@ -36374,10 +34943,10 @@ static ModifierTierData tiers_normal_416[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_417[] = {
+static ModifierTierData tiers_normal_418[] = {
     {
         .tier_name = "Deacon's",
         .level_req = 8,
@@ -36449,94 +35018,7 @@ static ModifierTierData tiers_normal_417[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_418[] = {
-    {
-        .tier_name = "Thorny",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Spiny",
-        .level_req = 10,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 5, .max = 7},
-            {.min = 7, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Barbed",
-        .level_req = 19,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 16},
-            {.min = 15, .max = 23},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Pointed",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 24, .max = 35},
-            {.min = 35, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spiked",
-        .level_req = 48,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 60},
-            {.min = 61, .max = 92},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Edged",
-        .level_req = 63,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 64, .max = 97},
-            {.min = 97, .max = 145},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Jagged",
-        .level_req = 74,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 151},
-            {.min = 146, .max = 220},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_419[] = {
@@ -36624,7 +35106,7 @@ static ModifierTierData tiers_normal_419[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_420[] = {
     {
@@ -38788,6 +37270,93 @@ static ModifierTierData tiers_normal_443[] = {
 
 static ModifierTierData tiers_normal_444[] = {
     {
+        .tier_name = "Protective",
+        .level_req = 2,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 15, .max = 26},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Strong-Willed",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 27, .max = 42},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Resolute",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 43, .max = 55},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Fearless",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 56, .max = 67},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Dauntless",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 68, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Indomitable",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 80, .max = 91},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Unassailable",
+        .level_req = 65,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 92, .max = 100},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_445[] = {
+    {
         .tier_name = "Oyster's",
         .level_req = 8,
         .weight = 1000,
@@ -38858,10 +37427,10 @@ static ModifierTierData tiers_normal_444[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_445[] = {
+static ModifierTierData tiers_normal_446[] = {
     {
         .tier_name = "Flea's",
         .level_req = 8,
@@ -38933,10 +37502,10 @@ static ModifierTierData tiers_normal_445[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_446[] = {
+static ModifierTierData tiers_normal_447[] = {
     {
         .tier_name = "Monk's",
         .level_req = 8,
@@ -39008,622 +37577,10 @@ static ModifierTierData tiers_normal_446[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_447[] = {
-    {
-        .tier_name = "Supple",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 14},
-            {.min = 6, .max = 9},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Pliant",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 35},
-            {.min = 10, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flexible",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 36, .max = 53},
-            {.min = 31, .max = 46},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Durable",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 54, .max = 65},
-            {.min = 47, .max = 57},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Blessed",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 14},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Anointed",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 35},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sanctified",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 36, .max = 53},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hallowed",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 54, .max = 65},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Will-o-wisp's",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Nymph's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 30},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sylph's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 31, .max = 46},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cherub's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 57},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Scrapper's",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brawler's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Fencer's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gladiator's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Duelist's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hero's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Legend's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infixed",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ingrained",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Instilled",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infused",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inculcated",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpolated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inspired",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shadowy",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ethereal",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unworldly",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ephemeral",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Evanescent",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unreal",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Illusory",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Bully's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Thug's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brute's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Assailant's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Aggressor's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Predator's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Augur's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Auspex's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Druid's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Haruspex's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Visionary's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Prophet's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Poet's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Musician's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Troubadour's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Bard's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Minstrel's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Maestro's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
+static ModifierTierData tiers_normal_448[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -39731,10 +37688,10 @@ static ModifierTierData tiers_normal_447[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_448[] = {
+static ModifierTierData tiers_normal_449[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -39842,10 +37799,10 @@ static ModifierTierData tiers_normal_448[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_449[] = {
+static ModifierTierData tiers_normal_450[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -39953,118 +37910,7 @@ static ModifierTierData tiers_normal_449[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_450[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 10, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 16, .max = 22},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 23, .max = 27},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 28, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 33, .max = 40},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 400,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 41, .max = 47},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 48, .max = 59},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 60, .max = 71},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_451[] = {
@@ -40176,7 +38022,7 @@ static ModifierTierData tiers_normal_451[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_452[] = {
     {
@@ -41902,6 +39748,117 @@ static ModifierTierData tiers_normal_473[] = {
 
 static ModifierTierData tiers_normal_474[] = {
     {
+        .tier_name = "Beryl",
+        .level_req = 1,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 10, .max = 14},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Cobalt",
+        .level_req = 6,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 15, .max = 24},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Azure",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 25, .max = 34},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Teal",
+        .level_req = 25,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 35, .max = 54},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Cerulean",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 55, .max = 64},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Aqua",
+        .level_req = 38,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 65, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Opalescent",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 80, .max = 89},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Gentian",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 90, .max = 104},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Chalybeous",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 105, .max = 124},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_475[] = {
+    {
         .tier_name = "Supple",
         .level_req = 1,
         .weight = 1000,
@@ -41949,57 +39906,9 @@ static ModifierTierData tiers_normal_474[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Sturdy",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 66, .max = 78},
-            {.min = 58, .max = 69},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Resilient",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 79, .max = 98},
-            {.min = 70, .max = 88},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Adaptable",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 99, .max = 117},
-            {.min = 89, .max = 107},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Versatile",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 118, .max = 138},
-            {.min = 108, .max = 126},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_normal_475[] = {
+static ModifierTierData tiers_normal_476[] = {
     {
         .tier_name = "Blessed",
         .level_req = 1,
@@ -42048,153 +39957,6 @@ static ModifierTierData tiers_normal_475[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Beatified",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 66, .max = 78},
-            {.min = 26, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Consecrated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 79, .max = 98},
-            {.min = 30, .max = 36},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Saintly",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 99, .max = 117},
-            {.min = 37, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Godly",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 118, .max = 138},
-            {.min = 43, .max = 48},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_normal_476[] = {
-    {
-        .tier_name = "Will-o-wisp's",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Nymph's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 30},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sylph's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 31, .max = 46},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cherub's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 57},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spirit's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 58, .max = 69},
-            {.min = 26, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Eidolon's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 70, .max = 88},
-            {.min = 30, .max = 36},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Apparition's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 89, .max = 107},
-            {.min = 37, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Banshee's",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 108, .max = 126},
-            {.min = 43, .max = 48},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_477[] = {
@@ -42246,65 +40008,17 @@ static ModifierTierData tiers_normal_477[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Spirit's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 58, .max = 69},
-            {.min = 26, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Eidolon's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 70, .max = 88},
-            {.min = 30, .max = 36},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Apparition's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 89, .max = 107},
-            {.min = 37, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Banshee's",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 108, .max = 126},
-            {.min = 43, .max = 48},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-};;
+};
 
 static ModifierTierData tiers_normal_478[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42313,10 +40027,10 @@ static ModifierTierData tiers_normal_478[] = {
         .tier_name = "Brawler's",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42325,10 +40039,10 @@ static ModifierTierData tiers_normal_478[] = {
         .tier_name = "Fencer's",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 43, .max = 55},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42337,10 +40051,10 @@ static ModifierTierData tiers_normal_478[] = {
         .tier_name = "Gladiator's",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42349,10 +40063,10 @@ static ModifierTierData tiers_normal_478[] = {
         .tier_name = "Duelist's",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42361,10 +40075,10 @@ static ModifierTierData tiers_normal_478[] = {
         .tier_name = "Hero's",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 91},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42373,10 +40087,10 @@ static ModifierTierData tiers_normal_478[] = {
         .tier_name = "Legend's",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
+            {.min = 92, .max = 100},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42388,10 +40102,10 @@ static ModifierTierData tiers_normal_479[] = {
         .tier_name = "Infixed",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42400,10 +40114,10 @@ static ModifierTierData tiers_normal_479[] = {
         .tier_name = "Ingrained",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42412,10 +40126,10 @@ static ModifierTierData tiers_normal_479[] = {
         .tier_name = "Instilled",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 43, .max = 55},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42424,10 +40138,10 @@ static ModifierTierData tiers_normal_479[] = {
         .tier_name = "Infused",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42436,10 +40150,10 @@ static ModifierTierData tiers_normal_479[] = {
         .tier_name = "Inculcated",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42448,10 +40162,10 @@ static ModifierTierData tiers_normal_479[] = {
         .tier_name = "Interpolated",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 91},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42460,10 +40174,10 @@ static ModifierTierData tiers_normal_479[] = {
         .tier_name = "Inspired",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
+            {.min = 92, .max = 100},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -42471,198 +40185,6 @@ static ModifierTierData tiers_normal_479[] = {
 };
 
 static ModifierTierData tiers_normal_480[] = {
-    {
-        .tier_name = "Scrapper's",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brawler's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Fencer's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gladiator's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Duelist's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hero's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Legend's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Victor's",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 110},
-            {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infixed",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ingrained",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Instilled",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infused",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inculcated",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpolated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inspired",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpermeated",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 110},
-            {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
     {
         .tier_name = "Shadowy",
         .level_req = 2,
@@ -42747,90 +40269,6 @@ static ModifierTierData tiers_normal_480[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Incorporeal",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 110},
-            {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Bully's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Thug's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brute's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Assailant's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Aggressor's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Predator's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_481[] = {
@@ -42906,7 +40344,7 @@ static ModifierTierData tiers_normal_481[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_482[] = {
     {
@@ -42981,558 +40419,18 @@ static ModifierTierData tiers_normal_482[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_483[] = {
-    {
-        .tier_name = "Supple",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 14},
-            {.min = 6, .max = 9},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Pliant",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 35},
-            {.min = 10, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flexible",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 36, .max = 53},
-            {.min = 31, .max = 46},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Durable",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 54, .max = 65},
-            {.min = 47, .max = 57},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Blessed",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 14},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Anointed",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 35},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sanctified",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 36, .max = 53},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hallowed",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 54, .max = 65},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Will-o-wisp's",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Nymph's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 30},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sylph's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 31, .max = 46},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cherub's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 57},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Scrapper's",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brawler's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Fencer's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gladiator's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Duelist's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hero's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Legend's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infixed",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ingrained",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Instilled",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infused",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inculcated",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpolated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inspired",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shadowy",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ethereal",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unworldly",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ephemeral",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Evanescent",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unreal",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Illusory",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Bully's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Thug's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brute's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Assailant's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Aggressor's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Predator's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Augur's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Auspex's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Druid's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Haruspex's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Visionary's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Prophet's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
     {
         .tier_name = "Poet's",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
             {.min = 6, .max = 13},
             {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
+            {.min = 7, .max = 10},
             {.min = 0, .max = 0},
         }
     },
@@ -43540,11 +40438,11 @@ static ModifierTierData tiers_normal_483[] = {
         .tier_name = "Musician's",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
             {.min = 14, .max = 20},
             {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
+            {.min = 11, .max = 19},
             {.min = 0, .max = 0},
         }
     },
@@ -43552,11 +40450,11 @@ static ModifierTierData tiers_normal_483[] = {
         .tier_name = "Troubadour's",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
             {.min = 21, .max = 26},
             {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 20, .max = 25},
             {.min = 0, .max = 0},
         }
     },
@@ -43564,11 +40462,11 @@ static ModifierTierData tiers_normal_483[] = {
         .tier_name = "Bard's",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
             {.min = 27, .max = 32},
             {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
+            {.min = 26, .max = 32},
             {.min = 0, .max = 0},
         }
     },
@@ -43576,11 +40474,11 @@ static ModifierTierData tiers_normal_483[] = {
         .tier_name = "Minstrel's",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
             {.min = 33, .max = 38},
             {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
+            {.min = 33, .max = 41},
             {.min = 0, .max = 0},
         }
     },
@@ -43588,14 +40486,17 @@ static ModifierTierData tiers_normal_483[] = {
         .tier_name = "Maestro's",
         .level_req = 78,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 3,
         .values = {
             {.min = 39, .max = 42},
             {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 42, .max = 49},
             {.min = 0, .max = 0},
         }
     },
+};
+
+static ModifierTierData tiers_normal_484[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -43703,10 +40604,10 @@ static ModifierTierData tiers_normal_483[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_484[] = {
+static ModifierTierData tiers_normal_485[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -43814,10 +40715,10 @@ static ModifierTierData tiers_normal_484[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_485[] = {
+static ModifierTierData tiers_normal_486[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -43925,118 +40826,7 @@ static ModifierTierData tiers_normal_485[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_486[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 10, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 16, .max = 22},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 23, .max = 27},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 28, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 33, .max = 40},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 400,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 41, .max = 47},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 48, .max = 59},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 60, .max = 71},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_487[] = {
@@ -44148,7 +40938,7 @@ static ModifierTierData tiers_normal_487[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_488[] = {
     {
@@ -46480,6 +43270,93 @@ static ModifierTierData tiers_normal_515[] = {
 
 static ModifierTierData tiers_normal_516[] = {
     {
+        .tier_name = "Protective",
+        .level_req = 2,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 15, .max = 26},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Strong-Willed",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 27, .max = 42},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Resolute",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 43, .max = 55},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Fearless",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 56, .max = 67},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Dauntless",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 68, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Indomitable",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 80, .max = 91},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Unassailable",
+        .level_req = 65,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 92, .max = 100},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_517[] = {
+    {
         .tier_name = "Oyster's",
         .level_req = 8,
         .weight = 1000,
@@ -46550,10 +43427,10 @@ static ModifierTierData tiers_normal_516[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_517[] = {
+static ModifierTierData tiers_normal_518[] = {
     {
         .tier_name = "Flea's",
         .level_req = 8,
@@ -46625,10 +43502,10 @@ static ModifierTierData tiers_normal_517[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_518[] = {
+static ModifierTierData tiers_normal_519[] = {
     {
         .tier_name = "Monk's",
         .level_req = 8,
@@ -46700,10 +43577,10 @@ static ModifierTierData tiers_normal_518[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_519[] = {
+static ModifierTierData tiers_normal_520[] = {
     {
         .tier_name = "Imposing",
         .level_req = 8,
@@ -46775,10 +43652,10 @@ static ModifierTierData tiers_normal_519[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_520[] = {
+static ModifierTierData tiers_normal_521[] = {
     {
         .tier_name = "Nomad's",
         .level_req = 8,
@@ -46850,82 +43727,7 @@ static ModifierTierData tiers_normal_520[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_521[] = {
-    {
-        .tier_name = "Imbued",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Serene",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 9, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sacred",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 17, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Celestial",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Heavenly",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Angel's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 33, .max = 39},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_522[] = {
@@ -47001,7 +43803,7 @@ static ModifierTierData tiers_normal_522[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_523[] = {
     {
@@ -48112,41 +44914,65 @@ static ModifierTierData tiers_normal_535[] = {
 
 static ModifierTierData tiers_normal_536[] = {
     {
-        .tier_name = "of Shining",
-        .level_req = 8,
+        .tier_name = "of Plunder",
+        .level_req = 3,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 10, .max = 20},
-            {.min = 5, .max = 5},
+            {.min = 6, .max = 10},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Light",
-        .level_req = 15,
+        .tier_name = "of Raiding",
+        .level_req = 24,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 40},
-            {.min = 10, .max = 10},
+            {.min = 11, .max = 14},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Radiance",
-        .level_req = 30,
+        .tier_name = "of Archaeology",
+        .level_req = 40,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 41, .max = 60},
-            {.min = 15, .max = 15},
+            {.min = 15, .max = 18},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "of Excavation",
+        .level_req = 63,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 19, .max = 21},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Windfall",
+        .level_req = 75,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 22, .max = 25},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_537[] = {
@@ -48186,7 +45012,7 @@ static ModifierTierData tiers_normal_537[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_538[] = {
     {
@@ -48490,6 +45316,129 @@ static ModifierTierData tiers_normal_541[] = {
 
 static ModifierTierData tiers_normal_542[] = {
     {
+        .tier_name = "Beryl",
+        .level_req = 1,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 10, .max = 14},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Cobalt",
+        .level_req = 6,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 15, .max = 24},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Azure",
+        .level_req = 16,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 25, .max = 34},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Teal",
+        .level_req = 25,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 35, .max = 54},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Cerulean",
+        .level_req = 33,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 55, .max = 64},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Aqua",
+        .level_req = 38,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 65, .max = 79},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Opalescent",
+        .level_req = 46,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 80, .max = 89},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Gentian",
+        .level_req = 54,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 90, .max = 104},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Chalybeous",
+        .level_req = 60,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 105, .max = 124},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Mazarine",
+        .level_req = 65,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 125, .max = 149},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_normal_543[] = {
+    {
         .tier_name = "Supple",
         .level_req = 1,
         .weight = 1000,
@@ -48548,10 +45497,10 @@ static ModifierTierData tiers_normal_542[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_543[] = {
+static ModifierTierData tiers_normal_544[] = {
     {
         .tier_name = "Blessed",
         .level_req = 1,
@@ -48611,70 +45560,7 @@ static ModifierTierData tiers_normal_543[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_544[] = {
-    {
-        .tier_name = "Will-o-wisp's",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Nymph's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 30},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sylph's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 31, .max = 46},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cherub's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 57},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spirit's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 58, .max = 69},
-            {.min = 26, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_545[] = {
@@ -48738,17 +45624,17 @@ static ModifierTierData tiers_normal_545[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_546[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48757,10 +45643,10 @@ static ModifierTierData tiers_normal_546[] = {
         .tier_name = "Brawler's",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48769,10 +45655,10 @@ static ModifierTierData tiers_normal_546[] = {
         .tier_name = "Fencer's",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 43, .max = 55},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48781,10 +45667,10 @@ static ModifierTierData tiers_normal_546[] = {
         .tier_name = "Gladiator's",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48793,10 +45679,10 @@ static ModifierTierData tiers_normal_546[] = {
         .tier_name = "Duelist's",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48805,10 +45691,10 @@ static ModifierTierData tiers_normal_546[] = {
         .tier_name = "Hero's",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 91},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48817,10 +45703,10 @@ static ModifierTierData tiers_normal_546[] = {
         .tier_name = "Legend's",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
+            {.min = 92, .max = 100},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48832,10 +45718,10 @@ static ModifierTierData tiers_normal_547[] = {
         .tier_name = "Infixed",
         .level_req = 2,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 26},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48844,10 +45730,10 @@ static ModifierTierData tiers_normal_547[] = {
         .tier_name = "Ingrained",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48856,10 +45742,10 @@ static ModifierTierData tiers_normal_547[] = {
         .tier_name = "Instilled",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
+            {.min = 43, .max = 55},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48868,10 +45754,10 @@ static ModifierTierData tiers_normal_547[] = {
         .tier_name = "Infused",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48880,10 +45766,10 @@ static ModifierTierData tiers_normal_547[] = {
         .tier_name = "Inculcated",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48892,10 +45778,10 @@ static ModifierTierData tiers_normal_547[] = {
         .tier_name = "Interpolated",
         .level_req = 60,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 91},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48904,10 +45790,10 @@ static ModifierTierData tiers_normal_547[] = {
         .tier_name = "Inspired",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
+            {.min = 92, .max = 100},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -48915,198 +45801,6 @@ static ModifierTierData tiers_normal_547[] = {
 };
 
 static ModifierTierData tiers_normal_548[] = {
-    {
-        .tier_name = "Scrapper's",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brawler's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Fencer's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gladiator's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Duelist's",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hero's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Legend's",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Victor's",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 110},
-            {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infixed",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ingrained",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Instilled",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infused",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inculcated",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpolated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inspired",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpermeated",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 110},
-            {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
     {
         .tier_name = "Shadowy",
         .level_req = 2,
@@ -49191,90 +45885,6 @@ static ModifierTierData tiers_normal_548[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Incorporeal",
-        .level_req = 75,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 110},
-            {.min = 101, .max = 110},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Bully's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Thug's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brute's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Assailant's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Aggressor's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Predator's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_549[] = {
@@ -49350,7 +45960,7 @@ static ModifierTierData tiers_normal_549[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_550[] = {
     {
@@ -49425,7 +46035,7 @@ static ModifierTierData tiers_normal_550[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_551[] = {
     {
@@ -49500,7 +46110,7 @@ static ModifierTierData tiers_normal_551[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_552[] = {
     {
@@ -49575,7 +46185,7 @@ static ModifierTierData tiers_normal_552[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_553[] = {
     {
@@ -49650,7 +46260,7 @@ static ModifierTierData tiers_normal_553[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_554[] = {
     {
@@ -49725,7 +46335,7 @@ static ModifierTierData tiers_normal_554[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_555[] = {
     {
@@ -50836,41 +47446,65 @@ static ModifierTierData tiers_normal_567[] = {
 
 static ModifierTierData tiers_normal_568[] = {
     {
-        .tier_name = "of Shining",
-        .level_req = 8,
+        .tier_name = "of Plunder",
+        .level_req = 3,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 10, .max = 20},
-            {.min = 5, .max = 5},
+            {.min = 6, .max = 10},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Light",
-        .level_req = 15,
+        .tier_name = "of Raiding",
+        .level_req = 24,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 40},
-            {.min = 10, .max = 10},
+            {.min = 11, .max = 14},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "of Radiance",
-        .level_req = 30,
+        .tier_name = "of Archaeology",
+        .level_req = 40,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 41, .max = 60},
-            {.min = 15, .max = 15},
+            {.min = 15, .max = 18},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
+    {
+        .tier_name = "of Excavation",
+        .level_req = 63,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 19, .max = 21},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "of Windfall",
+        .level_req = 75,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 22, .max = 25},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
 };
 
 static ModifierTierData tiers_normal_569[] = {
@@ -50910,7 +47544,7 @@ static ModifierTierData tiers_normal_569[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_570[] = {
     {
@@ -51337,617 +47971,116 @@ static ModifierTierData tiers_normal_574[] = {
 
 static ModifierTierData tiers_normal_575[] = {
     {
-        .tier_name = "Supple",
+        .tier_name = "Agile",
         .level_req = 1,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 8, .max = 14},
-            {.min = 6, .max = 9},
+            {.min = 8, .max = 15},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Pliant",
+        .tier_name = "Dancer's",
+        .level_req = 11,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 16, .max = 33},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Acrobat's",
         .level_req = 16,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 35},
-            {.min = 10, .max = 30},
+            {.min = 34, .max = 44},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Flexible",
+        .tier_name = "Fleet",
+        .level_req = 25,
+        .weight = 1000,
+        .value_count = 1,
+        .values = {
+            {.min = 45, .max = 69},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Blurred",
         .level_req = 33,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 36, .max = 53},
-            {.min = 31, .max = 46},
+            {.min = 70, .max = 93},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Durable",
+        .tier_name = "Phased",
         .level_req = 46,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 54, .max = 65},
-            {.min = 47, .max = 57},
+            {.min = 94, .max = 123},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Blessed",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 14},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Anointed",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 35},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sanctified",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 36, .max = 53},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Hallowed",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 54, .max = 65},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Will-o-wisp's",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 5, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Nymph's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 30},
-            {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sylph's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 31, .max = 46},
-            {.min = 16, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cherub's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 57},
-            {.min = 22, .max = 25},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Scrapper's",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brawler's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Fencer's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gladiator's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Duelist's",
+        .tier_name = "Vaporous",
         .level_req = 54,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
+            {.min = 124, .max = 151},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Hero's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Legend's",
+        .tier_name = "Elusory",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
+            {.min = 152, .max = 176},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Infixed",
-        .level_req = 2,
+        .tier_name = "Adroit",
+        .level_req = 70,
         .weight = 1000,
-        .value_count = 2,
+        .value_count = 1,
         .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
+            {.min = 177, .max = 203},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Ingrained",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Instilled",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Infused",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inculcated",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Interpolated",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Inspired",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shadowy",
-        .level_req = 2,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 15, .max = 26},
-            {.min = 15, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ethereal",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 42},
-            {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unworldly",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 43, .max = 55},
-            {.min = 43, .max = 55},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Ephemeral",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 56, .max = 67},
-            {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Evanescent",
-        .level_req = 54,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 68, .max = 79},
-            {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Unreal",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 80, .max = 91},
-            {.min = 80, .max = 91},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Illusory",
-        .level_req = 65,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 92, .max = 100},
-            {.min = 92, .max = 100},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Bully's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Thug's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Brute's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Assailant's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Aggressor's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Predator's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Augur's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Auspex's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Druid's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Haruspex's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Visionary's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Prophet's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Poet's",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 13},
-            {.min = 6, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Musician's",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 14, .max = 20},
-            {.min = 14, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Troubadour's",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 26},
-            {.min = 21, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Bard's",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 27, .max = 32},
-            {.min = 27, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Minstrel's",
-        .level_req = 60,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 33, .max = 38},
-            {.min = 33, .max = 38},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Maestro's",
-        .level_req = 78,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 39, .max = 42},
-            {.min = 39, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
+};
+
+static ModifierTierData tiers_normal_576[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -52055,10 +48188,10 @@ static ModifierTierData tiers_normal_575[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_576[] = {
+static ModifierTierData tiers_normal_577[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -52166,10 +48299,10 @@ static ModifierTierData tiers_normal_576[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
+    },
 };
 
-static ModifierTierData tiers_normal_577[] = {
+static ModifierTierData tiers_normal_578[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -52277,118 +48410,7 @@ static ModifierTierData tiers_normal_577[] = {
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
-    }
-};
-
-static ModifierTierData tiers_normal_578[] = {
-    {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
     },
-    {
-        .tier_name = "Buzzing",
-        .level_req = 8,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 10, .max = 15},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 16, .max = 22},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 23, .max = 27},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
-        .level_req = 46,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 28, .max = 32},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 500,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 33, .max = 40},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
-        .level_req = 60,
-        .weight = 400,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 41, .max = 47},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 48, .max = 59},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 60, .max = 71},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_normal_579[] = {
@@ -52500,7 +48522,7 @@ static ModifierTierData tiers_normal_579[] = {
             {.min = 0, .max = 0},
         }
     },
-};;
+};
 
 static ModifierTierData tiers_normal_580[] = {
     {
@@ -53278,11 +49300,11 @@ static ModifierTierData tiers_normal_589[] = {
         .tier_name = "of the Clouds",
         .level_req = 1,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 2, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 2, .max = 4},
+            {.min = 2, .max = 4},
             {.min = 0, .max = 0},
         }
     },
@@ -53290,11 +49312,11 @@ static ModifierTierData tiers_normal_589[] = {
         .tier_name = "of the Sky",
         .level_req = 11,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 5, .max = 7},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 5, .max = 7},
+            {.min = 5, .max = 7},
             {.min = 0, .max = 0},
         }
     },
@@ -53302,11 +49324,11 @@ static ModifierTierData tiers_normal_589[] = {
         .tier_name = "of the Meteor",
         .level_req = 22,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 8, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 8, .max = 10},
+            {.min = 8, .max = 10},
             {.min = 0, .max = 0},
         }
     },
@@ -53314,11 +49336,11 @@ static ModifierTierData tiers_normal_589[] = {
         .tier_name = "of the Comet",
         .level_req = 33,
         .weight = 400,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 11, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 11, .max = 13},
+            {.min = 11, .max = 13},
             {.min = 0, .max = 0},
         }
     },
@@ -53626,11 +49648,11 @@ static ModifierTierData tiers_normal_593[] = {
         .tier_name = "of the Crystal",
         .level_req = 12,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 3, .max = 5},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 3, .max = 5},
+            {.min = 3, .max = 5},
             {.min = 0, .max = 0},
         }
     },
@@ -53638,11 +49660,11 @@ static ModifierTierData tiers_normal_593[] = {
         .tier_name = "of the Prism",
         .level_req = 26,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 6, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 6, .max = 8},
+            {.min = 6, .max = 8},
             {.min = 0, .max = 0},
         }
     },
@@ -53650,11 +49672,11 @@ static ModifierTierData tiers_normal_593[] = {
         .tier_name = "of the Kaleidoscope",
         .level_req = 40,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 9, .max = 11},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 11},
+            {.min = 9, .max = 11},
             {.min = 0, .max = 0},
         }
     },
@@ -53662,11 +49684,11 @@ static ModifierTierData tiers_normal_593[] = {
         .tier_name = "of Variegation",
         .level_req = 54,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 12, .max = 14},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 12, .max = 14},
+            {.min = 12, .max = 14},
             {.min = 0, .max = 0},
         }
     },
@@ -53674,11 +49696,11 @@ static ModifierTierData tiers_normal_593[] = {
         .tier_name = "of the Rainbow",
         .level_req = 68,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 15, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 16},
+            {.min = 15, .max = 16},
             {.min = 0, .max = 0},
         }
     },
@@ -54268,10 +50290,10 @@ static ModifierTierData tiers_normal_603[] = {
         .tier_name = "of Warmth",
         .level_req = 8,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 8, .max = 12},
-            {.min = 0, .max = 0},
+            {.min = 5, .max = 5},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -54280,10 +50302,10 @@ static ModifierTierData tiers_normal_603[] = {
         .tier_name = "of Kindling",
         .level_req = 15,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 10, .max = 10},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -54292,10 +50314,10 @@ static ModifierTierData tiers_normal_603[] = {
         .tier_name = "of the Hearth",
         .level_req = 30,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 18, .max = 22},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -55534,11 +51556,11 @@ static ModifierTierData tiers_normal_617[] = {
         .tier_name = "of the Clouds",
         .level_req = 1,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 2, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 2, .max = 4},
+            {.min = 2, .max = 4},
             {.min = 0, .max = 0},
         }
     },
@@ -55546,11 +51568,11 @@ static ModifierTierData tiers_normal_617[] = {
         .tier_name = "of the Sky",
         .level_req = 11,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 5, .max = 7},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 5, .max = 7},
+            {.min = 5, .max = 7},
             {.min = 0, .max = 0},
         }
     },
@@ -55558,11 +51580,11 @@ static ModifierTierData tiers_normal_617[] = {
         .tier_name = "of the Meteor",
         .level_req = 22,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 8, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 8, .max = 10},
+            {.min = 8, .max = 10},
             {.min = 0, .max = 0},
         }
     },
@@ -55570,11 +51592,11 @@ static ModifierTierData tiers_normal_617[] = {
         .tier_name = "of the Comet",
         .level_req = 33,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 11, .max = 13},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 11, .max = 13},
+            {.min = 11, .max = 13},
             {.min = 0, .max = 0},
         }
     },
@@ -55582,11 +51604,11 @@ static ModifierTierData tiers_normal_617[] = {
         .tier_name = "of the Heavens",
         .level_req = 44,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 14, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 14, .max = 16},
+            {.min = 14, .max = 16},
             {.min = 0, .max = 0},
         }
     },
@@ -55594,11 +51616,11 @@ static ModifierTierData tiers_normal_617[] = {
         .tier_name = "of the Galaxy",
         .level_req = 55,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 17, .max = 18},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 17, .max = 18},
+            {.min = 17, .max = 18},
             {.min = 0, .max = 0},
         }
     },
@@ -55606,11 +51628,11 @@ static ModifierTierData tiers_normal_617[] = {
         .tier_name = "of the Universe",
         .level_req = 66,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 19, .max = 20},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 19, .max = 20},
+            {.min = 19, .max = 20},
             {.min = 0, .max = 0},
         }
     },
@@ -55618,11 +51640,11 @@ static ModifierTierData tiers_normal_617[] = {
         .tier_name = "of the Multiverse",
         .level_req = 75,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 21, .max = 22},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 21, .max = 22},
+            {.min = 21, .max = 22},
             {.min = 0, .max = 0},
         }
     },
@@ -55630,11 +51652,11 @@ static ModifierTierData tiers_normal_617[] = {
         .tier_name = "of the Infinite",
         .level_req = 82,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 23, .max = 24},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 23, .max = 24},
+            {.min = 23, .max = 24},
             {.min = 0, .max = 0},
         }
     },
@@ -55942,11 +51964,11 @@ static ModifierTierData tiers_normal_621[] = {
         .tier_name = "of the Crystal",
         .level_req = 12,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 3, .max = 5},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 3, .max = 5},
+            {.min = 3, .max = 5},
             {.min = 0, .max = 0},
         }
     },
@@ -55954,11 +51976,11 @@ static ModifierTierData tiers_normal_621[] = {
         .tier_name = "of the Prism",
         .level_req = 26,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 6, .max = 8},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 6, .max = 8},
+            {.min = 6, .max = 8},
             {.min = 0, .max = 0},
         }
     },
@@ -55966,11 +51988,11 @@ static ModifierTierData tiers_normal_621[] = {
         .tier_name = "of the Kaleidoscope",
         .level_req = 40,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 9, .max = 11},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 11},
+            {.min = 9, .max = 11},
             {.min = 0, .max = 0},
         }
     },
@@ -55978,11 +52000,11 @@ static ModifierTierData tiers_normal_621[] = {
         .tier_name = "of Variegation",
         .level_req = 54,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 12, .max = 14},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 12, .max = 14},
+            {.min = 12, .max = 14},
             {.min = 0, .max = 0},
         }
     },
@@ -55990,11 +52012,11 @@ static ModifierTierData tiers_normal_621[] = {
         .tier_name = "of the Rainbow",
         .level_req = 68,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 15, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 16},
+            {.min = 15, .max = 16},
             {.min = 0, .max = 0},
         }
     },
@@ -56002,11 +52024,11 @@ static ModifierTierData tiers_normal_621[] = {
         .tier_name = "of the Span",
         .level_req = 80,
         .weight = 800,
-        .value_count = 1,
+        .value_count = 3,
         .values = {
             {.min = 17, .max = 18},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
+            {.min = 17, .max = 18},
+            {.min = 17, .max = 18},
             {.min = 0, .max = 0},
         }
     },
@@ -57105,10 +53127,10 @@ static ModifierTierData tiers_desecrated_17[] = {
         .tier_name = "Amanamu's",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 86, .max = 99},
-            {.min = 0, .max = 0},
+            {.min = 14, .max = 23},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -57135,10 +53157,10 @@ static ModifierTierData tiers_desecrated_19[] = {
         .tier_name = "Kurgal's",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 86, .max = 99},
-            {.min = 0, .max = 0},
+            {.min = 14, .max = 23},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -57165,10 +53187,10 @@ static ModifierTierData tiers_desecrated_21[] = {
         .tier_name = "Ulaman's",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 86, .max = 99},
-            {.min = 0, .max = 0},
+            {.min = 14, .max = 23},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -57420,10 +53442,10 @@ static ModifierTierData tiers_desecrated_38[] = {
         .tier_name = "Amanamu's",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 101, .max = 121},
-            {.min = 0, .max = 0},
+            {.min = 20, .max = 30},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -57615,10 +53637,10 @@ static ModifierTierData tiers_desecrated_51[] = {
         .tier_name = "Amanamu's",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 40, .max = 59},
-            {.min = 0, .max = 0},
+            {.min = 40, .max = 59},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -57720,10 +53742,10 @@ static ModifierTierData tiers_desecrated_58[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 12, .max = 18},
-            {.min = 0, .max = 0},
+            {.min = 12, .max = 18},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -57810,10 +53832,10 @@ static ModifierTierData tiers_desecrated_64[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 8, .max = 13},
-            {.min = 0, .max = 0},
+            {.min = 8, .max = 13},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58080,10 +54102,10 @@ static ModifierTierData tiers_desecrated_82[] = {
         .tier_name = "Amanamu's",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 40, .max = 59},
-            {.min = 0, .max = 0},
+            {.min = 40, .max = 59},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58185,10 +54207,10 @@ static ModifierTierData tiers_desecrated_89[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 12, .max = 18},
-            {.min = 0, .max = 0},
+            {.min = 12, .max = 18},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58275,10 +54297,10 @@ static ModifierTierData tiers_desecrated_95[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 8, .max = 13},
-            {.min = 0, .max = 0},
+            {.min = 8, .max = 13},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58290,10 +54312,10 @@ static ModifierTierData tiers_desecrated_96[] = {
         .tier_name = "Amanamu's",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 55, .max = 64},
-            {.min = 0, .max = 0},
+            {.min = 55, .max = 64},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58425,10 +54447,10 @@ static ModifierTierData tiers_desecrated_105[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 5, .max = 10},
-            {.min = 0, .max = 0},
+            {.min = 15, .max = 25},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58440,10 +54462,10 @@ static ModifierTierData tiers_desecrated_106[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 26, .max = 36},
-            {.min = 0, .max = 0},
+            {.min = 3, .max = 5},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58485,10 +54507,10 @@ static ModifierTierData tiers_desecrated_109[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58500,10 +54522,10 @@ static ModifierTierData tiers_desecrated_110[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58590,10 +54612,10 @@ static ModifierTierData tiers_desecrated_116[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58650,10 +54672,10 @@ static ModifierTierData tiers_desecrated_120[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58665,10 +54687,10 @@ static ModifierTierData tiers_desecrated_121[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58695,10 +54717,10 @@ static ModifierTierData tiers_desecrated_123[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58710,10 +54732,10 @@ static ModifierTierData tiers_desecrated_124[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 8, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 30, .max = 40},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58770,10 +54792,10 @@ static ModifierTierData tiers_desecrated_128[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58785,10 +54807,10 @@ static ModifierTierData tiers_desecrated_129[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58875,10 +54897,10 @@ static ModifierTierData tiers_desecrated_135[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58935,10 +54957,10 @@ static ModifierTierData tiers_desecrated_139[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58950,10 +54972,10 @@ static ModifierTierData tiers_desecrated_140[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58980,10 +55002,10 @@ static ModifierTierData tiers_desecrated_142[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -58995,10 +55017,10 @@ static ModifierTierData tiers_desecrated_143[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 8, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 30, .max = 40},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59145,10 +55167,10 @@ static ModifierTierData tiers_desecrated_153[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59160,10 +55182,10 @@ static ModifierTierData tiers_desecrated_154[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59205,10 +55227,10 @@ static ModifierTierData tiers_desecrated_157[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59220,10 +55242,10 @@ static ModifierTierData tiers_desecrated_158[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59235,10 +55257,10 @@ static ModifierTierData tiers_desecrated_159[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59280,10 +55302,10 @@ static ModifierTierData tiers_desecrated_162[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59310,10 +55332,10 @@ static ModifierTierData tiers_desecrated_164[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59325,10 +55347,10 @@ static ModifierTierData tiers_desecrated_165[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59340,10 +55362,10 @@ static ModifierTierData tiers_desecrated_166[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59385,10 +55407,10 @@ static ModifierTierData tiers_desecrated_169[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59400,10 +55422,10 @@ static ModifierTierData tiers_desecrated_170[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59430,10 +55452,10 @@ static ModifierTierData tiers_desecrated_172[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59550,10 +55572,10 @@ static ModifierTierData tiers_desecrated_180[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59565,10 +55587,10 @@ static ModifierTierData tiers_desecrated_181[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59580,10 +55602,10 @@ static ModifierTierData tiers_desecrated_182[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59640,10 +55662,10 @@ static ModifierTierData tiers_desecrated_186[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59655,10 +55677,10 @@ static ModifierTierData tiers_desecrated_187[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59730,10 +55752,10 @@ static ModifierTierData tiers_desecrated_192[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59775,10 +55797,10 @@ static ModifierTierData tiers_desecrated_195[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59790,10 +55812,10 @@ static ModifierTierData tiers_desecrated_196[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59805,10 +55827,10 @@ static ModifierTierData tiers_desecrated_197[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59865,10 +55887,10 @@ static ModifierTierData tiers_desecrated_201[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59880,10 +55902,10 @@ static ModifierTierData tiers_desecrated_202[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -59955,10 +55977,10 @@ static ModifierTierData tiers_desecrated_207[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60000,10 +56022,10 @@ static ModifierTierData tiers_desecrated_210[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60015,10 +56037,10 @@ static ModifierTierData tiers_desecrated_211[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60030,10 +56052,10 @@ static ModifierTierData tiers_desecrated_212[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60075,10 +56097,10 @@ static ModifierTierData tiers_desecrated_215[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60090,10 +56112,10 @@ static ModifierTierData tiers_desecrated_216[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60105,10 +56127,10 @@ static ModifierTierData tiers_desecrated_217[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60195,10 +56217,10 @@ static ModifierTierData tiers_desecrated_223[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60210,10 +56232,10 @@ static ModifierTierData tiers_desecrated_224[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60225,10 +56247,10 @@ static ModifierTierData tiers_desecrated_225[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60270,10 +56292,10 @@ static ModifierTierData tiers_desecrated_228[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60285,10 +56307,10 @@ static ModifierTierData tiers_desecrated_229[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60300,10 +56322,10 @@ static ModifierTierData tiers_desecrated_230[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60390,10 +56412,10 @@ static ModifierTierData tiers_desecrated_236[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60405,10 +56427,10 @@ static ModifierTierData tiers_desecrated_237[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60420,10 +56442,10 @@ static ModifierTierData tiers_desecrated_238[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60450,10 +56472,10 @@ static ModifierTierData tiers_desecrated_240[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60465,10 +56487,10 @@ static ModifierTierData tiers_desecrated_241[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60495,10 +56517,10 @@ static ModifierTierData tiers_desecrated_243[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60660,10 +56682,10 @@ static ModifierTierData tiers_desecrated_254[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60675,10 +56697,10 @@ static ModifierTierData tiers_desecrated_255[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60690,10 +56712,10 @@ static ModifierTierData tiers_desecrated_256[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60720,10 +56742,10 @@ static ModifierTierData tiers_desecrated_258[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60735,10 +56757,10 @@ static ModifierTierData tiers_desecrated_259[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60765,10 +56787,10 @@ static ModifierTierData tiers_desecrated_261[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1000,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60930,10 +56952,10 @@ static ModifierTierData tiers_desecrated_272[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60945,10 +56967,10 @@ static ModifierTierData tiers_desecrated_273[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -60960,10 +56982,10 @@ static ModifierTierData tiers_desecrated_274[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61035,10 +57057,10 @@ static ModifierTierData tiers_desecrated_279[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61050,10 +57072,10 @@ static ModifierTierData tiers_desecrated_280[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61110,10 +57132,10 @@ static ModifierTierData tiers_desecrated_284[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61185,10 +57207,10 @@ static ModifierTierData tiers_desecrated_289[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61200,10 +57222,10 @@ static ModifierTierData tiers_desecrated_290[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61215,10 +57237,10 @@ static ModifierTierData tiers_desecrated_291[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61290,10 +57312,10 @@ static ModifierTierData tiers_desecrated_296[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61305,10 +57327,10 @@ static ModifierTierData tiers_desecrated_297[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61365,10 +57387,10 @@ static ModifierTierData tiers_desecrated_301[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61545,10 +57567,10 @@ static ModifierTierData tiers_desecrated_313[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61560,10 +57582,10 @@ static ModifierTierData tiers_desecrated_314[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61620,10 +57642,10 @@ static ModifierTierData tiers_desecrated_318[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61635,10 +57657,10 @@ static ModifierTierData tiers_desecrated_319[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61650,10 +57672,10 @@ static ModifierTierData tiers_desecrated_320[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61725,10 +57747,10 @@ static ModifierTierData tiers_desecrated_325[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61935,10 +57957,10 @@ static ModifierTierData tiers_desecrated_339[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61950,10 +57972,10 @@ static ModifierTierData tiers_desecrated_340[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -61995,10 +58017,10 @@ static ModifierTierData tiers_desecrated_343[] = {
         .tier_name = "of Amanamu",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -62085,10 +58107,10 @@ static ModifierTierData tiers_desecrated_349[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -62100,10 +58122,10 @@ static ModifierTierData tiers_desecrated_350[] = {
         .tier_name = "of Kurgal",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 9, .max = 15},
-            {.min = 0, .max = 0},
+            {.min = 9, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -62190,10 +58212,10 @@ static ModifierTierData tiers_desecrated_356[] = {
         .tier_name = "of Ulaman",
         .level_req = 65,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 13, .max = 17},
-            {.min = 0, .max = 0},
+            {.min = 13, .max = 17},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -62217,269 +58239,65 @@ static ModifierTierData tiers_desecrated_357[] = {
 
 static ModifierTierData tiers_desecrated_358[] = {
     {
-        .tier_name = "Glinting",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 4, .max = 5},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Burnished",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 11},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Polished",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 11, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Honed",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 12},
-            {.min = 14, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gleaming",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 15},
-            {.min = 18, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Annealed",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 20},
-            {.min = 23, .max = 35},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Razor-sharp",
-        .level_req = 60,
-        .weight = 400,
-        .value_count = 2,
-        .values = {
-            {.min = 16, .max = 24},
-            {.min = 28, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Tempered",
+        .tier_name = "of Ulaman",
         .level_req = 65,
-        .weight = 200,
-        .value_count = 2,
+        .weight = 1,
+        .value_count = 1,
         .values = {
-            {.min = 21, .max = 31},
-            {.min = 36, .max = 53},
+            {.min = 1, .max = 1},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Flaring",
-        .level_req = 75,
-        .weight = 100,
-        .value_count = 2,
-        .values = {
-            {.min = 26, .max = 39},
-            {.min = 44, .max = 66},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 
 // ESSENCE tier data
 static ModifierTierData tiers_essence_0[] = {
     {
-        .tier_name = "Heated",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 5},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Smouldering",
+        .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 10},
+            {.min = 5, .max = 8},
+            {.min = 10, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Smoking",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 7, .max = 11},
-            {.min = 13, .max = 19},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Burning",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 19},
-            {.min = 21, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaming",
+        .tier_name = "Essence of Abrasion",
         .level_req = 46,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 32, .max = 37},
+            {.min = 14, .max = 21},
+            {.min = 25, .max = 37},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Scorching",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 25, .max = 33},
-            {.min = 38, .max = 54},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Incinerating",
+        .tier_name = "Greater Essence of Abrasion",
         .level_req = 60,
-        .weight = 480,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 35, .max = 44},
-            {.min = 56, .max = 71},
+            {.min = 23, .max = 35},
+            {.min = 39, .max = 59},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Blasting",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 59},
-            {.min = 74, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cremating",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 62, .max = 85},
-            {.min = 101, .max = 129},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Carbonising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 88, .max = 101},
-            {.min = 133, .max = 154},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_1[] = {
     {
-        .tier_name = "Frosted",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Chilled",
+        .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 3, .max = 5},
-            {.min = 6, .max = 9},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Icy",
-        .level_req = 16,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
             {.min = 6, .max = 9},
@@ -62489,212 +58307,68 @@ static ModifierTierData tiers_essence_1[] = {
         }
     },
     {
-        .tier_name = "Frigid",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 15},
-            {.min = 17, .max = 24},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Freezing",
+        .tier_name = "Essence of Flames",
         .level_req = 46,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 17, .max = 20},
-            {.min = 26, .max = 32},
+            {.min = 30, .max = 37},
+            {.min = 45, .max = 56},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Frozen",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 22, .max = 29},
-            {.min = 34, .max = 44},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Glaciated",
+        .tier_name = "Greater Essence of Flames",
         .level_req = 60,
-        .weight = 480,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 31, .max = 38},
-            {.min = 47, .max = 59},
+            {.min = 56, .max = 70},
+            {.min = 84, .max = 107},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Polar",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 53},
-            {.min = 62, .max = 80},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Entombing",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 55, .max = 69},
-            {.min = 83, .max = 106},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crystalising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 72, .max = 81},
-            {.min = 110, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_2[] = {
     {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Buzzing",
+        .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
-        .weight = 1200,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 1},
-            {.min = 13, .max = 19},
+            {.min = 5, .max = 8},
+            {.min = 9, .max = 14},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
+        .tier_name = "Essence of Ice",
         .level_req = 46,
-        .weight = 1200,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 3},
-            {.min = 55, .max = 60},
+            {.min = 25, .max = 30},
+            {.min = 38, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
+        .tier_name = "Greater Essence of Ice",
         .level_req = 60,
-        .weight = 720,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 6},
-            {.min = 85, .max = 107},
+            {.min = 46, .max = 57},
+            {.min = 70, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_3[] = {
@@ -62702,10 +58376,10 @@ static ModifierTierData tiers_essence_3[] = {
         .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
         .weight = 0,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 19, .max = 27},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -62714,10 +58388,10 @@ static ModifierTierData tiers_essence_3[] = {
         .tier_name = "Essence of Electricity",
         .level_req = 46,
         .weight = 0,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -62726,10 +58400,10 @@ static ModifierTierData tiers_essence_3[] = {
         .tier_name = "Greater Essence of Electricity",
         .level_req = 60,
         .weight = 0,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 8},
-            {.min = 0, .max = 0},
+            {.min = 128, .max = 162},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -62933,267 +58607,87 @@ static ModifierTierData tiers_essence_8[] = {
 
 static ModifierTierData tiers_essence_9[] = {
     {
-        .tier_name = "Glinting",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Lesser Essence of Seeking",
+        .level_req = 20,
+        .weight = 1,
+        .value_count = 1,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 4, .max = 5},
             {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Burnished",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 11},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Polished",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Essence of Seeking",
+        .level_req = 30,
+        .weight = 1,
+        .value_count = 1,
         .values = {
-            {.min = 6, .max = 9},
-            {.min = 11, .max = 16},
+            {.min = 2, .max = 2},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Honed",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Greater Essence of Seeking",
+        .level_req = 44,
+        .weight = 1,
+        .value_count = 1,
         .values = {
-            {.min = 8, .max = 12},
-            {.min = 14, .max = 21},
+            {.min = 3, .max = 3},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Gleaming",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 15},
-            {.min = 18, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Annealed",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 20},
-            {.min = 23, .max = 35},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Razor-sharp",
-        .level_req = 60,
-        .weight = 400,
-        .value_count = 2,
-        .values = {
-            {.min = 16, .max = 24},
-            {.min = 28, .max = 42},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Tempered",
-        .level_req = 65,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 31},
-            {.min = 36, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaring",
-        .level_req = 75,
-        .weight = 100,
-        .value_count = 2,
-        .values = {
-            {.min = 26, .max = 39},
-            {.min = 44, .max = 66},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_10[] = {
     {
-        .tier_name = "Heated",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 5},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Smouldering",
+        .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 10},
+            {.min = 5, .max = 8},
+            {.min = 10, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Smoking",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 7, .max = 11},
-            {.min = 13, .max = 19},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Burning",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 19},
-            {.min = 21, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaming",
+        .tier_name = "Essence of Abrasion",
         .level_req = 46,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 32, .max = 37},
+            {.min = 14, .max = 21},
+            {.min = 25, .max = 37},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Scorching",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 25, .max = 33},
-            {.min = 38, .max = 54},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Incinerating",
+        .tier_name = "Greater Essence of Abrasion",
         .level_req = 60,
-        .weight = 480,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 35, .max = 44},
-            {.min = 56, .max = 71},
+            {.min = 23, .max = 35},
+            {.min = 39, .max = 59},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Blasting",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 59},
-            {.min = 74, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cremating",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 62, .max = 85},
-            {.min = 101, .max = 129},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Carbonising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 88, .max = 101},
-            {.min = 133, .max = 154},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_11[] = {
     {
-        .tier_name = "Frosted",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Chilled",
+        .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 3, .max = 5},
-            {.min = 6, .max = 9},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Icy",
-        .level_req = 16,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
             {.min = 6, .max = 9},
@@ -63203,212 +58697,68 @@ static ModifierTierData tiers_essence_11[] = {
         }
     },
     {
-        .tier_name = "Frigid",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 15},
-            {.min = 17, .max = 24},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Freezing",
+        .tier_name = "Essence of Flames",
         .level_req = 46,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 17, .max = 20},
-            {.min = 26, .max = 32},
+            {.min = 30, .max = 37},
+            {.min = 45, .max = 56},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Frozen",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 22, .max = 29},
-            {.min = 34, .max = 44},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Glaciated",
+        .tier_name = "Greater Essence of Flames",
         .level_req = 60,
-        .weight = 480,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 31, .max = 38},
-            {.min = 47, .max = 59},
+            {.min = 56, .max = 70},
+            {.min = 84, .max = 107},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Polar",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 53},
-            {.min = 62, .max = 80},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Entombing",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 55, .max = 69},
-            {.min = 83, .max = 106},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crystalising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 72, .max = 81},
-            {.min = 110, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_12[] = {
     {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Buzzing",
+        .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
-        .weight = 1200,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 1},
-            {.min = 13, .max = 19},
+            {.min = 5, .max = 8},
+            {.min = 9, .max = 14},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
+        .tier_name = "Essence of Ice",
         .level_req = 46,
-        .weight = 1200,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 3},
-            {.min = 55, .max = 60},
+            {.min = 25, .max = 30},
+            {.min = 38, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
+        .tier_name = "Greater Essence of Ice",
         .level_req = 60,
-        .weight = 720,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 6},
-            {.min = 85, .max = 107},
+            {.min = 46, .max = 57},
+            {.min = 70, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_13[] = {
@@ -63416,10 +58766,10 @@ static ModifierTierData tiers_essence_13[] = {
         .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
         .weight = 0,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 19, .max = 27},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -63428,10 +58778,10 @@ static ModifierTierData tiers_essence_13[] = {
         .tier_name = "Essence of Electricity",
         .level_req = 46,
         .weight = 0,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -63440,10 +58790,10 @@ static ModifierTierData tiers_essence_13[] = {
         .tier_name = "Greater Essence of Electricity",
         .level_req = 60,
         .weight = 0,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 8},
-            {.min = 0, .max = 0},
+            {.min = 128, .max = 162},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -63881,267 +59231,87 @@ static ModifierTierData tiers_essence_24[] = {
 
 static ModifierTierData tiers_essence_25[] = {
     {
-        .tier_name = "Glinting",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Lesser Essence of Alacrity",
+        .level_req = 15,
+        .weight = 1,
+        .value_count = 1,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 4, .max = 5},
+            {.min = 20, .max = 25},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Burnished",
-        .level_req = 8,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Essence of Alacrity",
+        .level_req = 30,
+        .weight = 1,
+        .value_count = 1,
         .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 11},
+            {.min = 26, .max = 31},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Polished",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 11, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Honed",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 12},
-            {.min = 14, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gleaming",
-        .level_req = 46,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 10, .max = 15},
-            {.min = 18, .max = 26},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Annealed",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 20},
-            {.min = 23, .max = 35},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Razor-sharp",
+        .tier_name = "Greater Essence of Alacrity",
         .level_req = 60,
-        .weight = 400,
-        .value_count = 2,
+        .weight = 1,
+        .value_count = 1,
         .values = {
-            {.min = 16, .max = 24},
-            {.min = 28, .max = 42},
+            {.min = 38, .max = 43},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Tempered",
-        .level_req = 65,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 31},
-            {.min = 36, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaring",
-        .level_req = 75,
-        .weight = 100,
-        .value_count = 2,
-        .values = {
-            {.min = 26, .max = 39},
-            {.min = 44, .max = 66},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_26[] = {
     {
-        .tier_name = "Heated",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 5},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Smouldering",
+        .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 4, .max = 6},
-            {.min = 7, .max = 10},
+            {.min = 5, .max = 8},
+            {.min = 10, .max = 15},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Smoking",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 7, .max = 11},
-            {.min = 13, .max = 19},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Burning",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 19},
-            {.min = 21, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaming",
+        .tier_name = "Essence of Abrasion",
         .level_req = 46,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 20, .max = 24},
-            {.min = 32, .max = 37},
+            {.min = 14, .max = 21},
+            {.min = 25, .max = 37},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Scorching",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 25, .max = 33},
-            {.min = 38, .max = 54},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Incinerating",
+        .tier_name = "Greater Essence of Abrasion",
         .level_req = 60,
-        .weight = 480,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 35, .max = 44},
-            {.min = 56, .max = 71},
+            {.min = 23, .max = 35},
+            {.min = 39, .max = 59},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Blasting",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 59},
-            {.min = 74, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cremating",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 62, .max = 85},
-            {.min = 101, .max = 129},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Carbonising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 88, .max = 101},
-            {.min = 133, .max = 154},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_27[] = {
     {
-        .tier_name = "Frosted",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Chilled",
+        .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 3, .max = 5},
-            {.min = 6, .max = 9},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Icy",
-        .level_req = 16,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
             {.min = 6, .max = 9},
@@ -64151,212 +59321,68 @@ static ModifierTierData tiers_essence_27[] = {
         }
     },
     {
-        .tier_name = "Frigid",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 15},
-            {.min = 17, .max = 24},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Freezing",
+        .tier_name = "Essence of Flames",
         .level_req = 46,
-        .weight = 800,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 17, .max = 20},
-            {.min = 26, .max = 32},
+            {.min = 30, .max = 37},
+            {.min = 45, .max = 56},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Frozen",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 22, .max = 29},
-            {.min = 34, .max = 44},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Glaciated",
+        .tier_name = "Greater Essence of Flames",
         .level_req = 60,
-        .weight = 480,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 31, .max = 38},
-            {.min = 47, .max = 59},
+            {.min = 56, .max = 70},
+            {.min = 84, .max = 107},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Polar",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 53},
-            {.min = 62, .max = 80},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Entombing",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 55, .max = 69},
-            {.min = 83, .max = 106},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crystalising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 72, .max = 81},
-            {.min = 110, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_28[] = {
     {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Buzzing",
+        .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
-        .weight = 1200,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 1},
-            {.min = 13, .max = 19},
+            {.min = 5, .max = 8},
+            {.min = 9, .max = 14},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
+        .tier_name = "Essence of Ice",
         .level_req = 46,
-        .weight = 1200,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 3},
-            {.min = 55, .max = 60},
+            {.min = 25, .max = 30},
+            {.min = 38, .max = 46},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
+        .tier_name = "Greater Essence of Ice",
         .level_req = 60,
-        .weight = 720,
+        .weight = 0,
         .value_count = 2,
         .values = {
-            {.min = 1, .max = 6},
-            {.min = 85, .max = 107},
+            {.min = 46, .max = 57},
+            {.min = 70, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_essence_29[] = {
@@ -64364,10 +59390,10 @@ static ModifierTierData tiers_essence_29[] = {
         .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
         .weight = 0,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 0, .max = 0},
+            {.min = 19, .max = 27},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -64376,10 +59402,10 @@ static ModifierTierData tiers_essence_29[] = {
         .tier_name = "Essence of Electricity",
         .level_req = 46,
         .weight = 0,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 4},
-            {.min = 0, .max = 0},
+            {.min = 80, .max = 88},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -64388,10 +59414,10 @@ static ModifierTierData tiers_essence_29[] = {
         .tier_name = "Greater Essence of Electricity",
         .level_req = 60,
         .weight = 0,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 1, .max = 8},
-            {.min = 0, .max = 0},
+            {.min = 128, .max = 162},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -64595,21 +59621,48 @@ static ModifierTierData tiers_essence_34[] = {
 
 static ModifierTierData tiers_essence_35[] = {
     {
-        .tier_name = "Glinting",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Lesser Essence of Seeking",
+        .level_req = 20,
+        .weight = 1,
+        .value_count = 1,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 4, .max = 5},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Burnished",
+        .tier_name = "Essence of Seeking",
+        .level_req = 30,
+        .weight = 1,
+        .value_count = 1,
+        .values = {
+            {.min = 2, .max = 2},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Greater Essence of Seeking",
+        .level_req = 44,
+        .weight = 1,
+        .value_count = 1,
+        .values = {
+            {.min = 3, .max = 3},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_essence_36[] = {
+    {
+        .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
-        .weight = 1000,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 4, .max = 6},
@@ -64619,33 +59672,9 @@ static ModifierTierData tiers_essence_35[] = {
         }
     },
     {
-        .tier_name = "Polished",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 11, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Honed",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 12},
-            {.min = 14, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gleaming",
+        .tier_name = "Essence of Abrasion",
         .level_req = 46,
-        .weight = 1000,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 10, .max = 15},
@@ -64655,21 +59684,9 @@ static ModifierTierData tiers_essence_35[] = {
         }
     },
     {
-        .tier_name = "Annealed",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 20},
-            {.min = 23, .max = 35},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Razor-sharp",
+        .tier_name = "Greater Essence of Abrasion",
         .level_req = 60,
-        .weight = 400,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 16, .max = 24},
@@ -64678,49 +59695,13 @@ static ModifierTierData tiers_essence_35[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Tempered",
-        .level_req = 65,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 31},
-            {.min = 36, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaring",
-        .level_req = 75,
-        .weight = 100,
-        .value_count = 2,
-        .values = {
-            {.min = 26, .max = 39},
-            {.min = 44, .max = 66},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_essence_36[] = {
+static ModifierTierData tiers_essence_37[] = {
     {
-        .tier_name = "Heated",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 5},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Smouldering",
+        .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 4, .max = 6},
@@ -64730,33 +59711,9 @@ static ModifierTierData tiers_essence_36[] = {
         }
     },
     {
-        .tier_name = "Smoking",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 7, .max = 11},
-            {.min = 13, .max = 19},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Burning",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 19},
-            {.min = 21, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaming",
+        .tier_name = "Essence of Flames",
         .level_req = 46,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
@@ -64766,21 +59723,9 @@ static ModifierTierData tiers_essence_36[] = {
         }
     },
     {
-        .tier_name = "Scorching",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 25, .max = 33},
-            {.min = 38, .max = 54},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Incinerating",
+        .tier_name = "Greater Essence of Flames",
         .level_req = 60,
-        .weight = 480,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
@@ -64789,61 +59734,13 @@ static ModifierTierData tiers_essence_36[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Blasting",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 59},
-            {.min = 74, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cremating",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 62, .max = 85},
-            {.min = 101, .max = 129},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Carbonising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 88, .max = 101},
-            {.min = 133, .max = 154},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_essence_37[] = {
+static ModifierTierData tiers_essence_38[] = {
     {
-        .tier_name = "Frosted",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Chilled",
+        .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 3, .max = 5},
@@ -64853,33 +59750,9 @@ static ModifierTierData tiers_essence_37[] = {
         }
     },
     {
-        .tier_name = "Icy",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 10, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Frigid",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 15},
-            {.min = 17, .max = 24},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Freezing",
+        .tier_name = "Essence of Ice",
         .level_req = 46,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 17, .max = 20},
@@ -64889,21 +59762,9 @@ static ModifierTierData tiers_essence_37[] = {
         }
     },
     {
-        .tier_name = "Frozen",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 22, .max = 29},
-            {.min = 34, .max = 44},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Glaciated",
+        .tier_name = "Greater Essence of Ice",
         .level_req = 60,
-        .weight = 480,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 31, .max = 38},
@@ -64912,61 +59773,13 @@ static ModifierTierData tiers_essence_37[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Polar",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 53},
-            {.min = 62, .max = 80},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Entombing",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 55, .max = 69},
-            {.min = 83, .max = 106},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crystalising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 72, .max = 81},
-            {.min = 110, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_essence_38[] = {
+static ModifierTierData tiers_essence_39[] = {
     {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Buzzing",
+        .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
-        .weight = 1200,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
@@ -64976,33 +59789,9 @@ static ModifierTierData tiers_essence_38[] = {
         }
     },
     {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
+        .tier_name = "Essence of Electricity",
         .level_req = 46,
-        .weight = 1200,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 3},
@@ -65012,100 +59801,13 @@ static ModifierTierData tiers_essence_38[] = {
         }
     },
     {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
+        .tier_name = "Greater Essence of Electricity",
         .level_req = 60,
-        .weight = 720,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 6},
             {.min = 85, .max = 107},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_essence_39[] = {
-    {
-        .tier_name = "Lesser Essence of Electricity",
-        .level_req = 8,
-        .weight = 1,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Essence of Electricity",
-        .level_req = 46,
-        .weight = 1,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Greater Essence of Electricity",
-        .level_req = 60,
-        .weight = 1,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 6},
-            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -65309,21 +60011,48 @@ static ModifierTierData tiers_essence_44[] = {
 
 static ModifierTierData tiers_essence_45[] = {
     {
-        .tier_name = "Glinting",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Lesser Essence of Seeking",
+        .level_req = 20,
+        .weight = 1,
+        .value_count = 1,
         .values = {
             {.min = 1, .max = 2},
-            {.min = 4, .max = 5},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Burnished",
+        .tier_name = "Essence of Seeking",
+        .level_req = 30,
+        .weight = 1,
+        .value_count = 1,
+        .values = {
+            {.min = 2, .max = 2},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Greater Essence of Seeking",
+        .level_req = 44,
+        .weight = 1,
+        .value_count = 1,
+        .values = {
+            {.min = 3, .max = 3},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_essence_46[] = {
+    {
+        .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
-        .weight = 1000,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 4, .max = 6},
@@ -65333,33 +60062,9 @@ static ModifierTierData tiers_essence_45[] = {
         }
     },
     {
-        .tier_name = "Polished",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 11, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Honed",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 12},
-            {.min = 14, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gleaming",
+        .tier_name = "Essence of Abrasion",
         .level_req = 46,
-        .weight = 1000,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 10, .max = 15},
@@ -65369,21 +60074,9 @@ static ModifierTierData tiers_essence_45[] = {
         }
     },
     {
-        .tier_name = "Annealed",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 20},
-            {.min = 23, .max = 35},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Razor-sharp",
+        .tier_name = "Greater Essence of Abrasion",
         .level_req = 60,
-        .weight = 400,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 16, .max = 24},
@@ -65392,49 +60085,13 @@ static ModifierTierData tiers_essence_45[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Tempered",
-        .level_req = 65,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 31},
-            {.min = 36, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaring",
-        .level_req = 75,
-        .weight = 100,
-        .value_count = 2,
-        .values = {
-            {.min = 26, .max = 39},
-            {.min = 44, .max = 66},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_essence_46[] = {
+static ModifierTierData tiers_essence_47[] = {
     {
-        .tier_name = "Heated",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 5},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Smouldering",
+        .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 4, .max = 6},
@@ -65444,33 +60101,9 @@ static ModifierTierData tiers_essence_46[] = {
         }
     },
     {
-        .tier_name = "Smoking",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 7, .max = 11},
-            {.min = 13, .max = 19},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Burning",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 19},
-            {.min = 21, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaming",
+        .tier_name = "Essence of Flames",
         .level_req = 46,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
@@ -65480,21 +60113,9 @@ static ModifierTierData tiers_essence_46[] = {
         }
     },
     {
-        .tier_name = "Scorching",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 25, .max = 33},
-            {.min = 38, .max = 54},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Incinerating",
+        .tier_name = "Greater Essence of Flames",
         .level_req = 60,
-        .weight = 480,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
@@ -65503,61 +60124,13 @@ static ModifierTierData tiers_essence_46[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Blasting",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 59},
-            {.min = 74, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cremating",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 62, .max = 85},
-            {.min = 101, .max = 129},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Carbonising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 88, .max = 101},
-            {.min = 133, .max = 154},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_essence_47[] = {
+static ModifierTierData tiers_essence_48[] = {
     {
-        .tier_name = "Frosted",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Chilled",
+        .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 3, .max = 5},
@@ -65567,33 +60140,9 @@ static ModifierTierData tiers_essence_47[] = {
         }
     },
     {
-        .tier_name = "Icy",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 10, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Frigid",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 15},
-            {.min = 17, .max = 24},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Freezing",
+        .tier_name = "Essence of Ice",
         .level_req = 46,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 17, .max = 20},
@@ -65603,21 +60152,9 @@ static ModifierTierData tiers_essence_47[] = {
         }
     },
     {
-        .tier_name = "Frozen",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 22, .max = 29},
-            {.min = 34, .max = 44},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Glaciated",
+        .tier_name = "Greater Essence of Ice",
         .level_req = 60,
-        .weight = 480,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 31, .max = 38},
@@ -65626,61 +60163,13 @@ static ModifierTierData tiers_essence_47[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Polar",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 53},
-            {.min = 62, .max = 80},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Entombing",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 55, .max = 69},
-            {.min = 83, .max = 106},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crystalising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 72, .max = 81},
-            {.min = 110, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_essence_48[] = {
+static ModifierTierData tiers_essence_49[] = {
     {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Buzzing",
+        .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
-        .weight = 1200,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
@@ -65690,33 +60179,9 @@ static ModifierTierData tiers_essence_48[] = {
         }
     },
     {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
+        .tier_name = "Essence of Electricity",
         .level_req = 46,
-        .weight = 1200,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 3},
@@ -65726,100 +60191,13 @@ static ModifierTierData tiers_essence_48[] = {
         }
     },
     {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
+        .tier_name = "Greater Essence of Electricity",
         .level_req = 60,
-        .weight = 720,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 6},
             {.min = 85, .max = 107},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_essence_49[] = {
-    {
-        .tier_name = "Lesser Essence of Electricity",
-        .level_req = 8,
-        .weight = 1,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Essence of Electricity",
-        .level_req = 46,
-        .weight = 1,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Greater Essence of Electricity",
-        .level_req = 60,
-        .weight = 1,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 6},
-            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -66179,21 +60557,48 @@ static ModifierTierData tiers_essence_58[] = {
 
 static ModifierTierData tiers_essence_59[] = {
     {
-        .tier_name = "Glinting",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Lesser Essence of the Infinite",
+        .level_req = 11,
+        .weight = 1,
+        .value_count = 1,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 4, .max = 5},
+            {.min = 9, .max = 12},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
     {
-        .tier_name = "Burnished",
+        .tier_name = "Essence of the Infinite",
+        .level_req = 33,
+        .weight = 1,
+        .value_count = 1,
+        .values = {
+            {.min = 17, .max = 20},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+    {
+        .tier_name = "Greater Essence of the Infinite",
+        .level_req = 55,
+        .weight = 1,
+        .value_count = 1,
+        .values = {
+            {.min = 25, .max = 27},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+            {.min = 0, .max = 0},
+        }
+    },
+};
+
+static ModifierTierData tiers_essence_60[] = {
+    {
+        .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
-        .weight = 1000,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 4, .max = 6},
@@ -66203,33 +60608,9 @@ static ModifierTierData tiers_essence_59[] = {
         }
     },
     {
-        .tier_name = "Polished",
-        .level_req = 16,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 11, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Honed",
-        .level_req = 33,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 8, .max = 12},
-            {.min = 14, .max = 21},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Gleaming",
+        .tier_name = "Essence of Abrasion",
         .level_req = 46,
-        .weight = 1000,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 10, .max = 15},
@@ -66239,21 +60620,9 @@ static ModifierTierData tiers_essence_59[] = {
         }
     },
     {
-        .tier_name = "Annealed",
-        .level_req = 54,
-        .weight = 600,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 20},
-            {.min = 23, .max = 35},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Razor-sharp",
+        .tier_name = "Greater Essence of Abrasion",
         .level_req = 60,
-        .weight = 400,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 16, .max = 24},
@@ -66262,49 +60631,13 @@ static ModifierTierData tiers_essence_59[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Tempered",
-        .level_req = 65,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 21, .max = 31},
-            {.min = 36, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaring",
-        .level_req = 75,
-        .weight = 100,
-        .value_count = 2,
-        .values = {
-            {.min = 26, .max = 39},
-            {.min = 44, .max = 66},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_essence_60[] = {
+static ModifierTierData tiers_essence_61[] = {
     {
-        .tier_name = "Heated",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 5},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Smouldering",
+        .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 4, .max = 6},
@@ -66314,33 +60647,9 @@ static ModifierTierData tiers_essence_60[] = {
         }
     },
     {
-        .tier_name = "Smoking",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 7, .max = 11},
-            {.min = 13, .max = 19},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Burning",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 13, .max = 19},
-            {.min = 21, .max = 29},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Flaming",
+        .tier_name = "Essence of Flames",
         .level_req = 46,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 20, .max = 24},
@@ -66350,21 +60659,9 @@ static ModifierTierData tiers_essence_60[] = {
         }
     },
     {
-        .tier_name = "Scorching",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 25, .max = 33},
-            {.min = 38, .max = 54},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Incinerating",
+        .tier_name = "Greater Essence of Flames",
         .level_req = 60,
-        .weight = 480,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 35, .max = 44},
@@ -66373,61 +60670,13 @@ static ModifierTierData tiers_essence_60[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Blasting",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 47, .max = 59},
-            {.min = 74, .max = 97},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Cremating",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 62, .max = 85},
-            {.min = 101, .max = 129},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Carbonising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 88, .max = 101},
-            {.min = 133, .max = 154},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_essence_61[] = {
+static ModifierTierData tiers_essence_62[] = {
     {
-        .tier_name = "Frosted",
-        .level_req = 1,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Chilled",
+        .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 3, .max = 5},
@@ -66437,33 +60686,9 @@ static ModifierTierData tiers_essence_61[] = {
         }
     },
     {
-        .tier_name = "Icy",
-        .level_req = 16,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 6, .max = 9},
-            {.min = 10, .max = 16},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Frigid",
-        .level_req = 33,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 15},
-            {.min = 17, .max = 24},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Freezing",
+        .tier_name = "Essence of Ice",
         .level_req = 46,
-        .weight = 800,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 17, .max = 20},
@@ -66473,21 +60698,9 @@ static ModifierTierData tiers_essence_61[] = {
         }
     },
     {
-        .tier_name = "Frozen",
-        .level_req = 54,
-        .weight = 800,
-        .value_count = 2,
-        .values = {
-            {.min = 22, .max = 29},
-            {.min = 34, .max = 44},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Glaciated",
+        .tier_name = "Greater Essence of Ice",
         .level_req = 60,
-        .weight = 480,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 31, .max = 38},
@@ -66496,61 +60709,13 @@ static ModifierTierData tiers_essence_61[] = {
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Polar",
-        .level_req = 65,
-        .weight = 320,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 53},
-            {.min = 62, .max = 80},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Entombing",
-        .level_req = 75,
-        .weight = 200,
-        .value_count = 2,
-        .values = {
-            {.min = 55, .max = 69},
-            {.min = 83, .max = 106},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crystalising",
-        .level_req = 81,
-        .weight = 80,
-        .value_count = 2,
-        .values = {
-            {.min = 72, .max = 81},
-            {.min = 110, .max = 123},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
-static ModifierTierData tiers_essence_62[] = {
+static ModifierTierData tiers_essence_63[] = {
     {
-        .tier_name = "Humming",
-        .level_req = 1,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 4, .max = 6},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Buzzing",
+        .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
-        .weight = 1200,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 1},
@@ -66560,33 +60725,9 @@ static ModifierTierData tiers_essence_62[] = {
         }
     },
     {
-        .tier_name = "Snapping",
-        .level_req = 16,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 20, .max = 30},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Crackling",
-        .level_req = 33,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 2},
-            {.min = 36, .max = 52},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Sparking",
+        .tier_name = "Essence of Electricity",
         .level_req = 46,
-        .weight = 1200,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 3},
@@ -66596,100 +60737,13 @@ static ModifierTierData tiers_essence_62[] = {
         }
     },
     {
-        .tier_name = "Arcing",
-        .level_req = 54,
-        .weight = 1200,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 4},
-            {.min = 63, .max = 82},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Shocking",
+        .tier_name = "Greater Essence of Electricity",
         .level_req = 60,
-        .weight = 720,
+        .weight = 1,
         .value_count = 2,
         .values = {
             {.min = 1, .max = 6},
             {.min = 85, .max = 107},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Discharging",
-        .level_req = 65,
-        .weight = 480,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 8},
-            {.min = 111, .max = 152},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Electrocuting",
-        .level_req = 75,
-        .weight = 300,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 10},
-            {.min = 157, .max = 196},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Vapourising",
-        .level_req = 81,
-        .weight = 120,
-        .value_count = 2,
-        .values = {
-            {.min = 1, .max = 12},
-            {.min = 202, .max = 234},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
-};
-
-static ModifierTierData tiers_essence_63[] = {
-    {
-        .tier_name = "Lesser Essence of Electricity",
-        .level_req = 8,
-        .weight = 1,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 1},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Essence of Electricity",
-        .level_req = 46,
-        .weight = 1,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 3},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Greater Essence of Electricity",
-        .level_req = 60,
-        .weight = 1,
-        .value_count = 1,
-        .values = {
-            {.min = 1, .max = 6},
-            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -67754,10 +61808,10 @@ static ModifierTierData tiers_essence_91[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -67766,10 +61820,10 @@ static ModifierTierData tiers_essence_91[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -67778,10 +61832,10 @@ static ModifierTierData tiers_essence_91[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -67793,10 +61847,10 @@ static ModifierTierData tiers_essence_92[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -67805,10 +61859,10 @@ static ModifierTierData tiers_essence_92[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -67817,10 +61871,10 @@ static ModifierTierData tiers_essence_92[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -67832,10 +61886,10 @@ static ModifierTierData tiers_essence_93[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -67844,10 +61898,10 @@ static ModifierTierData tiers_essence_93[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -67856,10 +61910,10 @@ static ModifierTierData tiers_essence_93[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -69977,10 +64031,10 @@ static ModifierTierData tiers_essence_148[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -69989,10 +64043,10 @@ static ModifierTierData tiers_essence_148[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70001,10 +64055,10 @@ static ModifierTierData tiers_essence_148[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70016,10 +64070,10 @@ static ModifierTierData tiers_essence_149[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70028,10 +64082,10 @@ static ModifierTierData tiers_essence_149[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70040,10 +64094,10 @@ static ModifierTierData tiers_essence_149[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70055,10 +64109,10 @@ static ModifierTierData tiers_essence_150[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70067,10 +64121,10 @@ static ModifierTierData tiers_essence_150[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70079,10 +64133,10 @@ static ModifierTierData tiers_essence_150[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70562,10 +64616,10 @@ static ModifierTierData tiers_essence_163[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70574,10 +64628,10 @@ static ModifierTierData tiers_essence_163[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70586,10 +64640,10 @@ static ModifierTierData tiers_essence_163[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70601,10 +64655,10 @@ static ModifierTierData tiers_essence_164[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70613,10 +64667,10 @@ static ModifierTierData tiers_essence_164[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70625,10 +64679,10 @@ static ModifierTierData tiers_essence_164[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70640,10 +64694,10 @@ static ModifierTierData tiers_essence_165[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70652,10 +64706,10 @@ static ModifierTierData tiers_essence_165[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -70664,10 +64718,10 @@ static ModifierTierData tiers_essence_165[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72098,10 +66152,10 @@ static ModifierTierData tiers_essence_203[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72110,10 +66164,10 @@ static ModifierTierData tiers_essence_203[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72122,10 +66176,10 @@ static ModifierTierData tiers_essence_203[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72137,10 +66191,10 @@ static ModifierTierData tiers_essence_204[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72149,10 +66203,10 @@ static ModifierTierData tiers_essence_204[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72161,10 +66215,10 @@ static ModifierTierData tiers_essence_204[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72176,10 +66230,10 @@ static ModifierTierData tiers_essence_205[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72188,10 +66242,10 @@ static ModifierTierData tiers_essence_205[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -72200,10 +66254,10 @@ static ModifierTierData tiers_essence_205[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -73244,10 +67298,10 @@ static ModifierTierData tiers_essence_233[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -73256,10 +67310,10 @@ static ModifierTierData tiers_essence_233[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -73268,10 +67322,10 @@ static ModifierTierData tiers_essence_233[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -73283,10 +67337,10 @@ static ModifierTierData tiers_essence_234[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -73295,10 +67349,10 @@ static ModifierTierData tiers_essence_234[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -73307,10 +67361,10 @@ static ModifierTierData tiers_essence_234[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -73322,10 +67376,10 @@ static ModifierTierData tiers_essence_235[] = {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 27, .max = 42},
-            {.min = 0, .max = 0},
+            {.min = 27, .max = 42},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -73334,10 +67388,10 @@ static ModifierTierData tiers_essence_235[] = {
         .tier_name = "Essence of Enhancement",
         .level_req = 46,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 56, .max = 67},
-            {.min = 0, .max = 0},
+            {.min = 56, .max = 67},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -73346,10 +67400,10 @@ static ModifierTierData tiers_essence_235[] = {
         .tier_name = "Greater Essence of Enhancement",
         .level_req = 54,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 68, .max = 79},
-            {.min = 0, .max = 0},
+            {.min = 68, .max = 79},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -75235,89 +69289,17 @@ static ModifierTierData tiers_perfect_essence_52[] = {
 
 static ModifierTierData tiers_perfect_essence_53[] = {
     {
-        .tier_name = "Thorny",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Perfect Essence of Ruin",
+        .level_req = 72,
+        .weight = 1,
+        .value_count = 1,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
+            {.min = 10, .max = 15},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Spiny",
-        .level_req = 10,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 5, .max = 7},
-            {.min = 7, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Barbed",
-        .level_req = 19,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 16},
-            {.min = 15, .max = 23},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Pointed",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 24, .max = 35},
-            {.min = 35, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spiked",
-        .level_req = 48,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 60},
-            {.min = 61, .max = 92},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Edged",
-        .level_req = 63,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 64, .max = 97},
-            {.min = 97, .max = 145},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Jagged",
-        .level_req = 74,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 151},
-            {.min = 146, .max = 220},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_perfect_essence_54[] = {
@@ -75325,10 +69307,10 @@ static ModifierTierData tiers_perfect_essence_54[] = {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 63,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 64, .max = 97},
-            {.min = 0, .max = 0},
+            {.min = 97, .max = 145},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -75367,89 +69349,17 @@ static ModifierTierData tiers_perfect_essence_56[] = {
 
 static ModifierTierData tiers_perfect_essence_57[] = {
     {
-        .tier_name = "Thorny",
-        .level_req = 1,
-        .weight = 1000,
-        .value_count = 2,
+        .tier_name = "Perfect Essence of Ruin",
+        .level_req = 72,
+        .weight = 1,
+        .value_count = 1,
         .values = {
-            {.min = 1, .max = 2},
-            {.min = 3, .max = 4},
+            {.min = 10, .max = 15},
+            {.min = 0, .max = 0},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
     },
-    {
-        .tier_name = "Spiny",
-        .level_req = 10,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 5, .max = 7},
-            {.min = 7, .max = 10},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Barbed",
-        .level_req = 19,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 11, .max = 16},
-            {.min = 15, .max = 23},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Pointed",
-        .level_req = 38,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 24, .max = 35},
-            {.min = 35, .max = 53},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Spiked",
-        .level_req = 48,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 40, .max = 60},
-            {.min = 61, .max = 92},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Edged",
-        .level_req = 63,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 64, .max = 97},
-            {.min = 97, .max = 145},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    },
-    {
-        .tier_name = "Jagged",
-        .level_req = 74,
-        .weight = 1000,
-        .value_count = 2,
-        .values = {
-            {.min = 101, .max = 151},
-            {.min = 146, .max = 220},
-            {.min = 0, .max = 0},
-            {.min = 0, .max = 0},
-        }
-    }
 };
 
 static ModifierTierData tiers_perfect_essence_58[] = {
@@ -75457,10 +69367,10 @@ static ModifierTierData tiers_perfect_essence_58[] = {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 63,
         .weight = 1,
-        .value_count = 1,
+        .value_count = 2,
         .values = {
             {.min = 64, .max = 97},
-            {.min = 0, .max = 0},
+            {.min = 97, .max = 145},
             {.min = 0, .max = 0},
             {.min = 0, .max = 0},
         }
@@ -75828,10 +69738,20 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_6
+        .tiers = tiers_normal_5
     };
     MODIFIERS_NORMAL[6] = (Modifier){
         .id = 6,
+        .type = MOD_PREFIX,
+        .source = SOURCE_NORMAL,
+        .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
+        .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+        .description = "#% increased Physical Damage\n+# to Accuracy Rating",
+        .tier_count = 8,
+        .tiers = tiers_normal_6
+    };
+    MODIFIERS_NORMAL[7] = (Modifier){
+        .id = 7,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_ATTACK,
@@ -75840,8 +69760,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_7
     };
-    MODIFIERS_NORMAL[7] = (Modifier){
-        .id = 7,
+    MODIFIERS_NORMAL[8] = (Modifier){
+        .id = 8,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -75850,8 +69770,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_8
     };
-    MODIFIERS_NORMAL[8] = (Modifier){
-        .id = 8,
+    MODIFIERS_NORMAL[9] = (Modifier){
+        .id = 9,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -75860,8 +69780,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_9
     };
-    MODIFIERS_NORMAL[9] = (Modifier){
-        .id = 9,
+    MODIFIERS_NORMAL[10] = (Modifier){
+        .id = 10,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -75870,8 +69790,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_10
     };
-    MODIFIERS_NORMAL[10] = (Modifier){
-        .id = 10,
+    MODIFIERS_NORMAL[11] = (Modifier){
+        .id = 11,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_PHYSICAL | TAG_ATTACK,
@@ -75880,8 +69800,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_11
     };
-    MODIFIERS_NORMAL[11] = (Modifier){
-        .id = 11,
+    MODIFIERS_NORMAL[12] = (Modifier){
+        .id = 12,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_PHYSICAL | TAG_ATTACK,
@@ -75890,8 +69810,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_12
     };
-    MODIFIERS_NORMAL[12] = (Modifier){
-        .id = 12,
+    MODIFIERS_NORMAL[13] = (Modifier){
+        .id = 13,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -75900,8 +69820,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_13
     };
-    MODIFIERS_NORMAL[13] = (Modifier){
-        .id = 13,
+    MODIFIERS_NORMAL[14] = (Modifier){
+        .id = 14,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -75910,8 +69830,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_14
     };
-    MODIFIERS_NORMAL[14] = (Modifier){
-        .id = 14,
+    MODIFIERS_NORMAL[15] = (Modifier){
+        .id = 15,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_ATTACK,
@@ -75920,8 +69840,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_15
     };
-    MODIFIERS_NORMAL[15] = (Modifier){
-        .id = 15,
+    MODIFIERS_NORMAL[16] = (Modifier){
+        .id = 16,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -75930,8 +69850,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_16
     };
-    MODIFIERS_NORMAL[16] = (Modifier){
-        .id = 16,
+    MODIFIERS_NORMAL[17] = (Modifier){
+        .id = 17,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_CRITICAL,
@@ -75940,8 +69860,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_17
     };
-    MODIFIERS_NORMAL[17] = (Modifier){
-        .id = 17,
+    MODIFIERS_NORMAL[18] = (Modifier){
+        .id = 18,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ATTACK | TAG_CRITICAL,
@@ -75950,8 +69870,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_18
     };
-    MODIFIERS_NORMAL[18] = (Modifier){
-        .id = 18,
+    MODIFIERS_NORMAL[19] = (Modifier){
+        .id = 19,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -75960,8 +69880,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_19
     };
-    MODIFIERS_NORMAL[19] = (Modifier){
-        .id = 19,
+    MODIFIERS_NORMAL[20] = (Modifier){
+        .id = 20,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -75970,8 +69890,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_20
     };
-    MODIFIERS_NORMAL[20] = (Modifier){
-        .id = 20,
+    MODIFIERS_NORMAL[21] = (Modifier){
+        .id = 21,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -75980,8 +69900,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_21
     };
-    MODIFIERS_NORMAL[21] = (Modifier){
-        .id = 21,
+    MODIFIERS_NORMAL[22] = (Modifier){
+        .id = 22,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -75990,8 +69910,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_22
     };
-    MODIFIERS_NORMAL[22] = (Modifier){
-        .id = 22,
+    MODIFIERS_NORMAL[23] = (Modifier){
+        .id = 23,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -76000,8 +69920,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_23
     };
-    MODIFIERS_NORMAL[23] = (Modifier){
-        .id = 23,
+    MODIFIERS_NORMAL[24] = (Modifier){
+        .id = 24,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -76010,8 +69930,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_24
     };
-    MODIFIERS_NORMAL[24] = (Modifier){
-        .id = 24,
+    MODIFIERS_NORMAL[25] = (Modifier){
+        .id = 25,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -76020,8 +69940,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_25
     };
-    MODIFIERS_NORMAL[25] = (Modifier){
-        .id = 25,
+    MODIFIERS_NORMAL[26] = (Modifier){
+        .id = 26,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76030,8 +69950,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_26
     };
-    MODIFIERS_NORMAL[26] = (Modifier){
-        .id = 26,
+    MODIFIERS_NORMAL[27] = (Modifier){
+        .id = 27,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76040,8 +69960,18 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_27
     };
-    MODIFIERS_NORMAL[27] = (Modifier){
-        .id = 27,
+    MODIFIERS_NORMAL[28] = (Modifier){
+        .id = 28,
+        .type = MOD_PREFIX,
+        .source = SOURCE_NORMAL,
+        .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
+        .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+        .description = "#% increased Physical Damage\n+# to Accuracy Rating",
+        .tier_count = 8,
+        .tiers = tiers_normal_28
+    };
+    MODIFIERS_NORMAL[29] = (Modifier){
+        .id = 29,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_ATTACK,
@@ -76050,8 +69980,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_29
     };
-    MODIFIERS_NORMAL[28] = (Modifier){
-        .id = 28,
+    MODIFIERS_NORMAL[30] = (Modifier){
+        .id = 30,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -76060,8 +69990,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_30
     };
-    MODIFIERS_NORMAL[29] = (Modifier){
-        .id = 29,
+    MODIFIERS_NORMAL[31] = (Modifier){
+        .id = 31,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -76070,8 +70000,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_31
     };
-    MODIFIERS_NORMAL[30] = (Modifier){
-        .id = 30,
+    MODIFIERS_NORMAL[32] = (Modifier){
+        .id = 32,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76080,8 +70010,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_32
     };
-    MODIFIERS_NORMAL[31] = (Modifier){
-        .id = 31,
+    MODIFIERS_NORMAL[33] = (Modifier){
+        .id = 33,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -76090,8 +70020,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_33
     };
-    MODIFIERS_NORMAL[32] = (Modifier){
-        .id = 32,
+    MODIFIERS_NORMAL[34] = (Modifier){
+        .id = 34,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76100,8 +70030,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_34
     };
-    MODIFIERS_NORMAL[33] = (Modifier){
-        .id = 33,
+    MODIFIERS_NORMAL[35] = (Modifier){
+        .id = 35,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_PHYSICAL | TAG_ATTACK,
@@ -76110,8 +70040,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_35
     };
-    MODIFIERS_NORMAL[34] = (Modifier){
-        .id = 34,
+    MODIFIERS_NORMAL[36] = (Modifier){
+        .id = 36,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -76120,8 +70050,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_36
     };
-    MODIFIERS_NORMAL[35] = (Modifier){
-        .id = 35,
+    MODIFIERS_NORMAL[37] = (Modifier){
+        .id = 37,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -76130,8 +70060,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_37
     };
-    MODIFIERS_NORMAL[36] = (Modifier){
-        .id = 36,
+    MODIFIERS_NORMAL[38] = (Modifier){
+        .id = 38,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_ATTACK,
@@ -76140,8 +70070,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_38
     };
-    MODIFIERS_NORMAL[37] = (Modifier){
-        .id = 37,
+    MODIFIERS_NORMAL[39] = (Modifier){
+        .id = 39,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -76150,8 +70080,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_39
     };
-    MODIFIERS_NORMAL[38] = (Modifier){
-        .id = 38,
+    MODIFIERS_NORMAL[40] = (Modifier){
+        .id = 40,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_CRITICAL,
@@ -76160,8 +70090,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_40
     };
-    MODIFIERS_NORMAL[39] = (Modifier){
-        .id = 39,
+    MODIFIERS_NORMAL[41] = (Modifier){
+        .id = 41,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ATTACK | TAG_CRITICAL,
@@ -76170,8 +70100,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_41
     };
-    MODIFIERS_NORMAL[40] = (Modifier){
-        .id = 40,
+    MODIFIERS_NORMAL[42] = (Modifier){
+        .id = 42,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -76180,8 +70110,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_42
     };
-    MODIFIERS_NORMAL[41] = (Modifier){
-        .id = 41,
+    MODIFIERS_NORMAL[43] = (Modifier){
+        .id = 43,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76190,8 +70120,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_43
     };
-    MODIFIERS_NORMAL[42] = (Modifier){
-        .id = 42,
+    MODIFIERS_NORMAL[44] = (Modifier){
+        .id = 44,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76200,8 +70130,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_44
     };
-    MODIFIERS_NORMAL[43] = (Modifier){
-        .id = 43,
+    MODIFIERS_NORMAL[45] = (Modifier){
+        .id = 45,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -76210,8 +70140,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_45
     };
-    MODIFIERS_NORMAL[44] = (Modifier){
-        .id = 44,
+    MODIFIERS_NORMAL[46] = (Modifier){
+        .id = 46,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CASTER,
@@ -76220,8 +70150,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_46
     };
-    MODIFIERS_NORMAL[45] = (Modifier){
-        .id = 45,
+    MODIFIERS_NORMAL[47] = (Modifier){
+        .id = 47,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_DAMAGE | TAG_CASTER,
@@ -76230,8 +70160,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_47
     };
-    MODIFIERS_NORMAL[46] = (Modifier){
-        .id = 46,
+    MODIFIERS_NORMAL[48] = (Modifier){
+        .id = 48,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE,
@@ -76240,8 +70170,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_48
     };
-    MODIFIERS_NORMAL[47] = (Modifier){
-        .id = 47,
+    MODIFIERS_NORMAL[49] = (Modifier){
+        .id = 49,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD,
@@ -76250,8 +70180,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_49
     };
-    MODIFIERS_NORMAL[48] = (Modifier){
-        .id = 48,
+    MODIFIERS_NORMAL[50] = (Modifier){
+        .id = 50,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING,
@@ -76260,8 +70190,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_50
     };
-    MODIFIERS_NORMAL[49] = (Modifier){
-        .id = 49,
+    MODIFIERS_NORMAL[51] = (Modifier){
+        .id = 51,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CHAOS,
@@ -76270,8 +70200,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_51
     };
-    MODIFIERS_NORMAL[50] = (Modifier){
-        .id = 50,
+    MODIFIERS_NORMAL[52] = (Modifier){
+        .id = 52,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL,
@@ -76280,8 +70210,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_52
     };
-    MODIFIERS_NORMAL[51] = (Modifier){
-        .id = 51,
+    MODIFIERS_NORMAL[53] = (Modifier){
+        .id = 53,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE,
@@ -76290,8 +70220,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_53
     };
-    MODIFIERS_NORMAL[52] = (Modifier){
-        .id = 52,
+    MODIFIERS_NORMAL[54] = (Modifier){
+        .id = 54,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD,
@@ -76300,8 +70230,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_54
     };
-    MODIFIERS_NORMAL[53] = (Modifier){
-        .id = 53,
+    MODIFIERS_NORMAL[55] = (Modifier){
+        .id = 55,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING,
@@ -76310,8 +70240,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_55
     };
-    MODIFIERS_NORMAL[54] = (Modifier){
-        .id = 54,
+    MODIFIERS_NORMAL[56] = (Modifier){
+        .id = 56,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -76320,8 +70250,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_56
     };
-    MODIFIERS_NORMAL[55] = (Modifier){
-        .id = 55,
+    MODIFIERS_NORMAL[57] = (Modifier){
+        .id = 57,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76330,8 +70260,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_57
     };
-    MODIFIERS_NORMAL[56] = (Modifier){
-        .id = 56,
+    MODIFIERS_NORMAL[58] = (Modifier){
+        .id = 58,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_GEM,
@@ -76340,8 +70270,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_58
     };
-    MODIFIERS_NORMAL[57] = (Modifier){
-        .id = 57,
+    MODIFIERS_NORMAL[59] = (Modifier){
+        .id = 59,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_CASTER | TAG_GEM,
@@ -76350,8 +70280,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_59
     };
-    MODIFIERS_NORMAL[58] = (Modifier){
-        .id = 58,
+    MODIFIERS_NORMAL[60] = (Modifier){
+        .id = 60,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_CASTER | TAG_GEM,
@@ -76360,8 +70290,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_60
     };
-    MODIFIERS_NORMAL[59] = (Modifier){
-        .id = 59,
+    MODIFIERS_NORMAL[61] = (Modifier){
+        .id = 61,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_CASTER | TAG_GEM,
@@ -76370,8 +70300,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_61
     };
-    MODIFIERS_NORMAL[60] = (Modifier){
-        .id = 60,
+    MODIFIERS_NORMAL[62] = (Modifier){
+        .id = 62,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_CASTER | TAG_GEM,
@@ -76380,8 +70310,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_62
     };
-    MODIFIERS_NORMAL[61] = (Modifier){
-        .id = 61,
+    MODIFIERS_NORMAL[63] = (Modifier){
+        .id = 63,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_PHYSICAL | TAG_CASTER | TAG_GEM,
@@ -76390,8 +70320,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_63
     };
-    MODIFIERS_NORMAL[62] = (Modifier){
-        .id = 62,
+    MODIFIERS_NORMAL[64] = (Modifier){
+        .id = 64,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -76400,8 +70330,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_64
     };
-    MODIFIERS_NORMAL[63] = (Modifier){
-        .id = 63,
+    MODIFIERS_NORMAL[65] = (Modifier){
+        .id = 65,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -76410,8 +70340,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_65
     };
-    MODIFIERS_NORMAL[64] = (Modifier){
-        .id = 64,
+    MODIFIERS_NORMAL[66] = (Modifier){
+        .id = 66,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -76420,8 +70350,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_66
     };
-    MODIFIERS_NORMAL[65] = (Modifier){
-        .id = 65,
+    MODIFIERS_NORMAL[67] = (Modifier){
+        .id = 67,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_SPEED,
@@ -76430,8 +70360,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_67
     };
-    MODIFIERS_NORMAL[66] = (Modifier){
-        .id = 66,
+    MODIFIERS_NORMAL[68] = (Modifier){
+        .id = 68,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_CRITICAL,
@@ -76440,8 +70370,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_68
     };
-    MODIFIERS_NORMAL[67] = (Modifier){
-        .id = 67,
+    MODIFIERS_NORMAL[69] = (Modifier){
+        .id = 69,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_CRITICAL,
@@ -76450,8 +70380,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_69
     };
-    MODIFIERS_NORMAL[68] = (Modifier){
-        .id = 68,
+    MODIFIERS_NORMAL[70] = (Modifier){
+        .id = 70,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -76460,8 +70390,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_70
     };
-    MODIFIERS_NORMAL[69] = (Modifier){
-        .id = 69,
+    MODIFIERS_NORMAL[71] = (Modifier){
+        .id = 71,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76470,8 +70400,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_71
     };
-    MODIFIERS_NORMAL[70] = (Modifier){
-        .id = 70,
+    MODIFIERS_NORMAL[72] = (Modifier){
+        .id = 72,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76480,8 +70410,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_72
     };
-    MODIFIERS_NORMAL[71] = (Modifier){
-        .id = 71,
+    MODIFIERS_NORMAL[73] = (Modifier){
+        .id = 73,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76490,8 +70420,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_73
     };
-    MODIFIERS_NORMAL[72] = (Modifier){
-        .id = 72,
+    MODIFIERS_NORMAL[74] = (Modifier){
+        .id = 74,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76500,8 +70430,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_74
     };
-    MODIFIERS_NORMAL[73] = (Modifier){
-        .id = 73,
+    MODIFIERS_NORMAL[75] = (Modifier){
+        .id = 75,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -76510,8 +70440,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_75
     };
-    MODIFIERS_NORMAL[74] = (Modifier){
-        .id = 74,
+    MODIFIERS_NORMAL[76] = (Modifier){
+        .id = 76,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -76520,8 +70450,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_76
     };
-    MODIFIERS_NORMAL[75] = (Modifier){
-        .id = 75,
+    MODIFIERS_NORMAL[77] = (Modifier){
+        .id = 77,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -76530,8 +70460,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_77
     };
-    MODIFIERS_NORMAL[76] = (Modifier){
-        .id = 76,
+    MODIFIERS_NORMAL[78] = (Modifier){
+        .id = 78,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76540,8 +70470,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_78
     };
-    MODIFIERS_NORMAL[77] = (Modifier){
-        .id = 77,
+    MODIFIERS_NORMAL[79] = (Modifier){
+        .id = 79,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76550,8 +70480,18 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_79
     };
-    MODIFIERS_NORMAL[78] = (Modifier){
-        .id = 78,
+    MODIFIERS_NORMAL[80] = (Modifier){
+        .id = 80,
+        .type = MOD_PREFIX,
+        .source = SOURCE_NORMAL,
+        .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
+        .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+        .description = "#% increased Physical Damage\n+# to Accuracy Rating",
+        .tier_count = 8,
+        .tiers = tiers_normal_80
+    };
+    MODIFIERS_NORMAL[81] = (Modifier){
+        .id = 81,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_ATTACK,
@@ -76560,8 +70500,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_81
     };
-    MODIFIERS_NORMAL[79] = (Modifier){
-        .id = 79,
+    MODIFIERS_NORMAL[82] = (Modifier){
+        .id = 82,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -76570,8 +70510,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_82
     };
-    MODIFIERS_NORMAL[80] = (Modifier){
-        .id = 80,
+    MODIFIERS_NORMAL[83] = (Modifier){
+        .id = 83,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -76580,8 +70520,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_83
     };
-    MODIFIERS_NORMAL[81] = (Modifier){
-        .id = 81,
+    MODIFIERS_NORMAL[84] = (Modifier){
+        .id = 84,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76590,8 +70530,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_84
     };
-    MODIFIERS_NORMAL[82] = (Modifier){
-        .id = 82,
+    MODIFIERS_NORMAL[85] = (Modifier){
+        .id = 85,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -76600,8 +70540,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_85
     };
-    MODIFIERS_NORMAL[83] = (Modifier){
-        .id = 83,
+    MODIFIERS_NORMAL[86] = (Modifier){
+        .id = 86,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76610,8 +70550,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_86
     };
-    MODIFIERS_NORMAL[84] = (Modifier){
-        .id = 84,
+    MODIFIERS_NORMAL[87] = (Modifier){
+        .id = 87,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_PHYSICAL | TAG_ATTACK,
@@ -76620,8 +70560,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_87
     };
-    MODIFIERS_NORMAL[85] = (Modifier){
-        .id = 85,
+    MODIFIERS_NORMAL[88] = (Modifier){
+        .id = 88,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -76630,8 +70570,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_88
     };
-    MODIFIERS_NORMAL[86] = (Modifier){
-        .id = 86,
+    MODIFIERS_NORMAL[89] = (Modifier){
+        .id = 89,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -76640,8 +70580,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_89
     };
-    MODIFIERS_NORMAL[87] = (Modifier){
-        .id = 87,
+    MODIFIERS_NORMAL[90] = (Modifier){
+        .id = 90,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_ATTACK,
@@ -76650,8 +70590,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_90
     };
-    MODIFIERS_NORMAL[88] = (Modifier){
-        .id = 88,
+    MODIFIERS_NORMAL[91] = (Modifier){
+        .id = 91,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -76660,8 +70600,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_91
     };
-    MODIFIERS_NORMAL[89] = (Modifier){
-        .id = 89,
+    MODIFIERS_NORMAL[92] = (Modifier){
+        .id = 92,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_CRITICAL,
@@ -76670,8 +70610,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_92
     };
-    MODIFIERS_NORMAL[90] = (Modifier){
-        .id = 90,
+    MODIFIERS_NORMAL[93] = (Modifier){
+        .id = 93,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ATTACK | TAG_CRITICAL,
@@ -76680,8 +70620,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_93
     };
-    MODIFIERS_NORMAL[91] = (Modifier){
-        .id = 91,
+    MODIFIERS_NORMAL[94] = (Modifier){
+        .id = 94,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -76690,8 +70630,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_94
     };
-    MODIFIERS_NORMAL[92] = (Modifier){
-        .id = 92,
+    MODIFIERS_NORMAL[95] = (Modifier){
+        .id = 95,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -76700,8 +70640,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_95
     };
-    MODIFIERS_NORMAL[93] = (Modifier){
-        .id = 93,
+    MODIFIERS_NORMAL[96] = (Modifier){
+        .id = 96,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76710,8 +70650,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_96
     };
-    MODIFIERS_NORMAL[94] = (Modifier){
-        .id = 94,
+    MODIFIERS_NORMAL[97] = (Modifier){
+        .id = 97,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -76720,8 +70660,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_97
     };
-    MODIFIERS_NORMAL[95] = (Modifier){
-        .id = 95,
+    MODIFIERS_NORMAL[98] = (Modifier){
+        .id = 98,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -76730,8 +70670,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_98
     };
-    MODIFIERS_NORMAL[96] = (Modifier){
-        .id = 96,
+    MODIFIERS_NORMAL[99] = (Modifier){
+        .id = 99,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -76740,8 +70680,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_99
     };
-    MODIFIERS_NORMAL[97] = (Modifier){
-        .id = 97,
+    MODIFIERS_NORMAL[100] = (Modifier){
+        .id = 100,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76750,8 +70690,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_100
     };
-    MODIFIERS_NORMAL[98] = (Modifier){
-        .id = 98,
+    MODIFIERS_NORMAL[101] = (Modifier){
+        .id = 101,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76760,8 +70700,18 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_101
     };
-    MODIFIERS_NORMAL[99] = (Modifier){
-        .id = 99,
+    MODIFIERS_NORMAL[102] = (Modifier){
+        .id = 102,
+        .type = MOD_PREFIX,
+        .source = SOURCE_NORMAL,
+        .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
+        .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+        .description = "#% increased Physical Damage\n+# to Accuracy Rating",
+        .tier_count = 8,
+        .tiers = tiers_normal_102
+    };
+    MODIFIERS_NORMAL[103] = (Modifier){
+        .id = 103,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_ATTACK,
@@ -76770,8 +70720,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_103
     };
-    MODIFIERS_NORMAL[100] = (Modifier){
-        .id = 100,
+    MODIFIERS_NORMAL[104] = (Modifier){
+        .id = 104,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -76780,8 +70730,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_104
     };
-    MODIFIERS_NORMAL[101] = (Modifier){
-        .id = 101,
+    MODIFIERS_NORMAL[105] = (Modifier){
+        .id = 105,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76790,8 +70740,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_105
     };
-    MODIFIERS_NORMAL[102] = (Modifier){
-        .id = 102,
+    MODIFIERS_NORMAL[106] = (Modifier){
+        .id = 106,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76800,8 +70750,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_106
     };
-    MODIFIERS_NORMAL[103] = (Modifier){
-        .id = 103,
+    MODIFIERS_NORMAL[107] = (Modifier){
+        .id = 107,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76810,8 +70760,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_107
     };
-    MODIFIERS_NORMAL[104] = (Modifier){
-        .id = 104,
+    MODIFIERS_NORMAL[108] = (Modifier){
+        .id = 108,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_PHYSICAL | TAG_ATTACK,
@@ -76820,8 +70770,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_108
     };
-    MODIFIERS_NORMAL[105] = (Modifier){
-        .id = 105,
+    MODIFIERS_NORMAL[109] = (Modifier){
+        .id = 109,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -76830,8 +70780,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_109
     };
-    MODIFIERS_NORMAL[106] = (Modifier){
-        .id = 106,
+    MODIFIERS_NORMAL[110] = (Modifier){
+        .id = 110,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -76840,8 +70790,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_110
     };
-    MODIFIERS_NORMAL[107] = (Modifier){
-        .id = 107,
+    MODIFIERS_NORMAL[111] = (Modifier){
+        .id = 111,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_ATTACK,
@@ -76850,8 +70800,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_111
     };
-    MODIFIERS_NORMAL[108] = (Modifier){
-        .id = 108,
+    MODIFIERS_NORMAL[112] = (Modifier){
+        .id = 112,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -76860,8 +70810,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_112
     };
-    MODIFIERS_NORMAL[109] = (Modifier){
-        .id = 109,
+    MODIFIERS_NORMAL[113] = (Modifier){
+        .id = 113,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_CRITICAL,
@@ -76870,8 +70820,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_113
     };
-    MODIFIERS_NORMAL[110] = (Modifier){
-        .id = 110,
+    MODIFIERS_NORMAL[114] = (Modifier){
+        .id = 114,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ATTACK | TAG_CRITICAL,
@@ -76880,8 +70830,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_114
     };
-    MODIFIERS_NORMAL[111] = (Modifier){
-        .id = 111,
+    MODIFIERS_NORMAL[115] = (Modifier){
+        .id = 115,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -76890,8 +70840,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_115
     };
-    MODIFIERS_NORMAL[112] = (Modifier){
-        .id = 112,
+    MODIFIERS_NORMAL[116] = (Modifier){
+        .id = 116,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -76900,8 +70850,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_116
     };
-    MODIFIERS_NORMAL[113] = (Modifier){
-        .id = 113,
+    MODIFIERS_NORMAL[117] = (Modifier){
+        .id = 117,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76910,8 +70860,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_117
     };
-    MODIFIERS_NORMAL[114] = (Modifier){
-        .id = 114,
+    MODIFIERS_NORMAL[118] = (Modifier){
+        .id = 118,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -76920,8 +70870,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_118
     };
-    MODIFIERS_NORMAL[115] = (Modifier){
-        .id = 115,
+    MODIFIERS_NORMAL[119] = (Modifier){
+        .id = 119,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -76930,8 +70880,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_119
     };
-    MODIFIERS_NORMAL[116] = (Modifier){
-        .id = 116,
+    MODIFIERS_NORMAL[120] = (Modifier){
+        .id = 120,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -76940,8 +70890,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_120
     };
-    MODIFIERS_NORMAL[117] = (Modifier){
-        .id = 117,
+    MODIFIERS_NORMAL[121] = (Modifier){
+        .id = 121,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76950,8 +70900,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_121
     };
-    MODIFIERS_NORMAL[118] = (Modifier){
-        .id = 118,
+    MODIFIERS_NORMAL[122] = (Modifier){
+        .id = 122,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -76960,8 +70910,18 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_122
     };
-    MODIFIERS_NORMAL[119] = (Modifier){
-        .id = 119,
+    MODIFIERS_NORMAL[123] = (Modifier){
+        .id = 123,
+        .type = MOD_PREFIX,
+        .source = SOURCE_NORMAL,
+        .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
+        .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+        .description = "#% increased Physical Damage\n+# to Accuracy Rating",
+        .tier_count = 8,
+        .tiers = tiers_normal_123
+    };
+    MODIFIERS_NORMAL[124] = (Modifier){
+        .id = 124,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_ATTACK,
@@ -76970,8 +70930,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_124
     };
-    MODIFIERS_NORMAL[120] = (Modifier){
-        .id = 120,
+    MODIFIERS_NORMAL[125] = (Modifier){
+        .id = 125,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -76980,8 +70940,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_125
     };
-    MODIFIERS_NORMAL[121] = (Modifier){
-        .id = 121,
+    MODIFIERS_NORMAL[126] = (Modifier){
+        .id = 126,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -76990,8 +70950,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_126
     };
-    MODIFIERS_NORMAL[122] = (Modifier){
-        .id = 122,
+    MODIFIERS_NORMAL[127] = (Modifier){
+        .id = 127,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -77000,8 +70960,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_127
     };
-    MODIFIERS_NORMAL[123] = (Modifier){
-        .id = 123,
+    MODIFIERS_NORMAL[128] = (Modifier){
+        .id = 128,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_PHYSICAL | TAG_ATTACK,
@@ -77010,8 +70970,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_128
     };
-    MODIFIERS_NORMAL[124] = (Modifier){
-        .id = 124,
+    MODIFIERS_NORMAL[129] = (Modifier){
+        .id = 129,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_PHYSICAL | TAG_ATTACK,
@@ -77020,8 +70980,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_129
     };
-    MODIFIERS_NORMAL[125] = (Modifier){
-        .id = 125,
+    MODIFIERS_NORMAL[130] = (Modifier){
+        .id = 130,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -77030,8 +70990,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_130
     };
-    MODIFIERS_NORMAL[126] = (Modifier){
-        .id = 126,
+    MODIFIERS_NORMAL[131] = (Modifier){
+        .id = 131,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -77040,8 +71000,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_131
     };
-    MODIFIERS_NORMAL[127] = (Modifier){
-        .id = 127,
+    MODIFIERS_NORMAL[132] = (Modifier){
+        .id = 132,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_ATTACK,
@@ -77050,8 +71010,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_132
     };
-    MODIFIERS_NORMAL[128] = (Modifier){
-        .id = 128,
+    MODIFIERS_NORMAL[133] = (Modifier){
+        .id = 133,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -77060,8 +71020,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_133
     };
-    MODIFIERS_NORMAL[129] = (Modifier){
-        .id = 129,
+    MODIFIERS_NORMAL[134] = (Modifier){
+        .id = 134,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_CRITICAL,
@@ -77070,8 +71030,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_134
     };
-    MODIFIERS_NORMAL[130] = (Modifier){
-        .id = 130,
+    MODIFIERS_NORMAL[135] = (Modifier){
+        .id = 135,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ATTACK | TAG_CRITICAL,
@@ -77080,8 +71040,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_135
     };
-    MODIFIERS_NORMAL[131] = (Modifier){
-        .id = 131,
+    MODIFIERS_NORMAL[136] = (Modifier){
+        .id = 136,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -77090,8 +71050,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_136
     };
-    MODIFIERS_NORMAL[132] = (Modifier){
-        .id = 132,
+    MODIFIERS_NORMAL[137] = (Modifier){
+        .id = 137,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77100,8 +71060,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_137
     };
-    MODIFIERS_NORMAL[133] = (Modifier){
-        .id = 133,
+    MODIFIERS_NORMAL[138] = (Modifier){
+        .id = 138,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77110,8 +71070,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_138
     };
-    MODIFIERS_NORMAL[134] = (Modifier){
-        .id = 134,
+    MODIFIERS_NORMAL[139] = (Modifier){
+        .id = 139,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -77120,8 +71080,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_139
     };
-    MODIFIERS_NORMAL[135] = (Modifier){
-        .id = 135,
+    MODIFIERS_NORMAL[140] = (Modifier){
+        .id = 140,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -77130,8 +71090,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_140
     };
-    MODIFIERS_NORMAL[136] = (Modifier){
-        .id = 136,
+    MODIFIERS_NORMAL[141] = (Modifier){
+        .id = 141,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -77140,8 +71100,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_141
     };
-    MODIFIERS_NORMAL[137] = (Modifier){
-        .id = 137,
+    MODIFIERS_NORMAL[142] = (Modifier){
+        .id = 142,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -77150,8 +71110,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_142
     };
-    MODIFIERS_NORMAL[138] = (Modifier){
-        .id = 138,
+    MODIFIERS_NORMAL[143] = (Modifier){
+        .id = 143,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -77160,8 +71120,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_143
     };
-    MODIFIERS_NORMAL[139] = (Modifier){
-        .id = 139,
+    MODIFIERS_NORMAL[144] = (Modifier){
+        .id = 144,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE,
@@ -77170,8 +71130,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_144
     };
-    MODIFIERS_NORMAL[140] = (Modifier){
-        .id = 140,
+    MODIFIERS_NORMAL[145] = (Modifier){
+        .id = 145,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77180,8 +71140,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_145
     };
-    MODIFIERS_NORMAL[141] = (Modifier){
-        .id = 141,
+    MODIFIERS_NORMAL[146] = (Modifier){
+        .id = 146,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77190,8 +71150,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_146
     };
-    MODIFIERS_NORMAL[142] = (Modifier){
-        .id = 142,
+    MODIFIERS_NORMAL[147] = (Modifier){
+        .id = 147,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -77200,8 +71160,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_147
     };
-    MODIFIERS_NORMAL[143] = (Modifier){
-        .id = 143,
+    MODIFIERS_NORMAL[148] = (Modifier){
+        .id = 148,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -77210,8 +71170,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_148
     };
-    MODIFIERS_NORMAL[144] = (Modifier){
-        .id = 144,
+    MODIFIERS_NORMAL[149] = (Modifier){
+        .id = 149,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_RESISTANCE,
@@ -77220,8 +71180,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_149
     };
-    MODIFIERS_NORMAL[145] = (Modifier){
-        .id = 145,
+    MODIFIERS_NORMAL[150] = (Modifier){
+        .id = 150,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77230,8 +71190,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_150
     };
-    MODIFIERS_NORMAL[146] = (Modifier){
-        .id = 146,
+    MODIFIERS_NORMAL[151] = (Modifier){
+        .id = 151,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MINION | TAG_GEM,
@@ -77240,8 +71200,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_151
     };
-    MODIFIERS_NORMAL[147] = (Modifier){
-        .id = 147,
+    MODIFIERS_NORMAL[152] = (Modifier){
+        .id = 152,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -77250,8 +71210,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_152
     };
-    MODIFIERS_NORMAL[148] = (Modifier){
-        .id = 148,
+    MODIFIERS_NORMAL[153] = (Modifier){
+        .id = 153,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -77260,8 +71220,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_153
     };
-    MODIFIERS_NORMAL[149] = (Modifier){
-        .id = 149,
+    MODIFIERS_NORMAL[154] = (Modifier){
+        .id = 154,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_SPEED,
@@ -77270,8 +71230,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_154
     };
-    MODIFIERS_NORMAL[150] = (Modifier){
-        .id = 150,
+    MODIFIERS_NORMAL[155] = (Modifier){
+        .id = 155,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CRITICAL,
@@ -77280,8 +71240,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_155
     };
-    MODIFIERS_NORMAL[151] = (Modifier){
-        .id = 151,
+    MODIFIERS_NORMAL[156] = (Modifier){
+        .id = 156,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CRITICAL,
@@ -77290,8 +71250,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_156
     };
-    MODIFIERS_NORMAL[152] = (Modifier){
-        .id = 152,
+    MODIFIERS_NORMAL[157] = (Modifier){
+        .id = 157,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -77300,8 +71260,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_157
     };
-    MODIFIERS_NORMAL[153] = (Modifier){
-        .id = 153,
+    MODIFIERS_NORMAL[158] = (Modifier){
+        .id = 158,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77310,8 +71270,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_158
     };
-    MODIFIERS_NORMAL[154] = (Modifier){
-        .id = 154,
+    MODIFIERS_NORMAL[159] = (Modifier){
+        .id = 159,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_MINION,
@@ -77320,8 +71280,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_159
     };
-    MODIFIERS_NORMAL[155] = (Modifier){
-        .id = 155,
+    MODIFIERS_NORMAL[160] = (Modifier){
+        .id = 160,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -77330,8 +71290,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_160
     };
-    MODIFIERS_NORMAL[156] = (Modifier){
-        .id = 156,
+    MODIFIERS_NORMAL[161] = (Modifier){
+        .id = 161,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -77340,8 +71300,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_161
     };
-    MODIFIERS_NORMAL[157] = (Modifier){
-        .id = 157,
+    MODIFIERS_NORMAL[162] = (Modifier){
+        .id = 162,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -77350,8 +71310,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_162
     };
-    MODIFIERS_NORMAL[158] = (Modifier){
-        .id = 158,
+    MODIFIERS_NORMAL[163] = (Modifier){
+        .id = 163,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -77360,8 +71320,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_163
     };
-    MODIFIERS_NORMAL[159] = (Modifier){
-        .id = 159,
+    MODIFIERS_NORMAL[164] = (Modifier){
+        .id = 164,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -77370,8 +71330,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_164
     };
-    MODIFIERS_NORMAL[160] = (Modifier){
-        .id = 160,
+    MODIFIERS_NORMAL[165] = (Modifier){
+        .id = 165,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -77380,8 +71340,18 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_165
     };
-    MODIFIERS_NORMAL[161] = (Modifier){
-        .id = 161,
+    MODIFIERS_NORMAL[166] = (Modifier){
+        .id = 166,
+        .type = MOD_PREFIX,
+        .source = SOURCE_NORMAL,
+        .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
+        .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+        .description = "#% increased Physical Damage\n+# to Accuracy Rating",
+        .tier_count = 8,
+        .tiers = tiers_normal_166
+    };
+    MODIFIERS_NORMAL[167] = (Modifier){
+        .id = 167,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_ATTACK,
@@ -77390,8 +71360,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_167
     };
-    MODIFIERS_NORMAL[162] = (Modifier){
-        .id = 162,
+    MODIFIERS_NORMAL[168] = (Modifier){
+        .id = 168,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -77400,8 +71370,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_168
     };
-    MODIFIERS_NORMAL[163] = (Modifier){
-        .id = 163,
+    MODIFIERS_NORMAL[169] = (Modifier){
+        .id = 169,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -77410,8 +71380,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_169
     };
-    MODIFIERS_NORMAL[164] = (Modifier){
-        .id = 164,
+    MODIFIERS_NORMAL[170] = (Modifier){
+        .id = 170,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77420,8 +71390,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_170
     };
-    MODIFIERS_NORMAL[165] = (Modifier){
-        .id = 165,
+    MODIFIERS_NORMAL[171] = (Modifier){
+        .id = 171,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -77430,8 +71400,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_171
     };
-    MODIFIERS_NORMAL[166] = (Modifier){
-        .id = 166,
+    MODIFIERS_NORMAL[172] = (Modifier){
+        .id = 172,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77440,8 +71410,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_172
     };
-    MODIFIERS_NORMAL[167] = (Modifier){
-        .id = 167,
+    MODIFIERS_NORMAL[173] = (Modifier){
+        .id = 173,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_PHYSICAL | TAG_ATTACK,
@@ -77450,8 +71420,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_173
     };
-    MODIFIERS_NORMAL[168] = (Modifier){
-        .id = 168,
+    MODIFIERS_NORMAL[174] = (Modifier){
+        .id = 174,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_PHYSICAL | TAG_ATTACK,
@@ -77460,8 +71430,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_174
     };
-    MODIFIERS_NORMAL[169] = (Modifier){
-        .id = 169,
+    MODIFIERS_NORMAL[175] = (Modifier){
+        .id = 175,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -77470,8 +71440,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_175
     };
-    MODIFIERS_NORMAL[170] = (Modifier){
-        .id = 170,
+    MODIFIERS_NORMAL[176] = (Modifier){
+        .id = 176,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -77480,8 +71450,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_176
     };
-    MODIFIERS_NORMAL[171] = (Modifier){
-        .id = 171,
+    MODIFIERS_NORMAL[177] = (Modifier){
+        .id = 177,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_ATTACK,
@@ -77490,8 +71460,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_177
     };
-    MODIFIERS_NORMAL[172] = (Modifier){
-        .id = 172,
+    MODIFIERS_NORMAL[178] = (Modifier){
+        .id = 178,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -77500,8 +71470,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_178
     };
-    MODIFIERS_NORMAL[173] = (Modifier){
-        .id = 173,
+    MODIFIERS_NORMAL[179] = (Modifier){
+        .id = 179,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_CRITICAL,
@@ -77510,8 +71480,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_179
     };
-    MODIFIERS_NORMAL[174] = (Modifier){
-        .id = 174,
+    MODIFIERS_NORMAL[180] = (Modifier){
+        .id = 180,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ATTACK | TAG_CRITICAL,
@@ -77520,8 +71490,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_180
     };
-    MODIFIERS_NORMAL[175] = (Modifier){
-        .id = 175,
+    MODIFIERS_NORMAL[181] = (Modifier){
+        .id = 181,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -77530,8 +71500,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_181
     };
-    MODIFIERS_NORMAL[176] = (Modifier){
-        .id = 176,
+    MODIFIERS_NORMAL[182] = (Modifier){
+        .id = 182,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77540,8 +71510,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_182
     };
-    MODIFIERS_NORMAL[177] = (Modifier){
-        .id = 177,
+    MODIFIERS_NORMAL[183] = (Modifier){
+        .id = 183,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77550,8 +71520,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_183
     };
-    MODIFIERS_NORMAL[178] = (Modifier){
-        .id = 178,
+    MODIFIERS_NORMAL[184] = (Modifier){
+        .id = 184,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -77560,8 +71530,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_184
     };
-    MODIFIERS_NORMAL[179] = (Modifier){
-        .id = 179,
+    MODIFIERS_NORMAL[185] = (Modifier){
+        .id = 185,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CASTER,
@@ -77570,8 +71540,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_185
     };
-    MODIFIERS_NORMAL[180] = (Modifier){
-        .id = 180,
+    MODIFIERS_NORMAL[186] = (Modifier){
+        .id = 186,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_MANA | TAG_CASTER,
@@ -77580,8 +71550,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_186
     };
-    MODIFIERS_NORMAL[181] = (Modifier){
-        .id = 181,
+    MODIFIERS_NORMAL[187] = (Modifier){
+        .id = 187,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE,
@@ -77590,8 +71560,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_187
     };
-    MODIFIERS_NORMAL[182] = (Modifier){
-        .id = 182,
+    MODIFIERS_NORMAL[188] = (Modifier){
+        .id = 188,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD,
@@ -77600,8 +71570,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_188
     };
-    MODIFIERS_NORMAL[183] = (Modifier){
-        .id = 183,
+    MODIFIERS_NORMAL[189] = (Modifier){
+        .id = 189,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING,
@@ -77610,8 +71580,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_189
     };
-    MODIFIERS_NORMAL[184] = (Modifier){
-        .id = 184,
+    MODIFIERS_NORMAL[190] = (Modifier){
+        .id = 190,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CHAOS,
@@ -77620,8 +71590,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_190
     };
-    MODIFIERS_NORMAL[185] = (Modifier){
-        .id = 185,
+    MODIFIERS_NORMAL[191] = (Modifier){
+        .id = 191,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL,
@@ -77630,8 +71600,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_191
     };
-    MODIFIERS_NORMAL[186] = (Modifier){
-        .id = 186,
+    MODIFIERS_NORMAL[192] = (Modifier){
+        .id = 192,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE,
@@ -77640,8 +71610,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_192
     };
-    MODIFIERS_NORMAL[187] = (Modifier){
-        .id = 187,
+    MODIFIERS_NORMAL[193] = (Modifier){
+        .id = 193,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD,
@@ -77650,8 +71620,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_193
     };
-    MODIFIERS_NORMAL[188] = (Modifier){
-        .id = 188,
+    MODIFIERS_NORMAL[194] = (Modifier){
+        .id = 194,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING,
@@ -77660,8 +71630,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_194
     };
-    MODIFIERS_NORMAL[189] = (Modifier){
-        .id = 189,
+    MODIFIERS_NORMAL[195] = (Modifier){
+        .id = 195,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -77670,8 +71640,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_195
     };
-    MODIFIERS_NORMAL[190] = (Modifier){
-        .id = 190,
+    MODIFIERS_NORMAL[196] = (Modifier){
+        .id = 196,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77680,8 +71650,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_196
     };
-    MODIFIERS_NORMAL[191] = (Modifier){
-        .id = 191,
+    MODIFIERS_NORMAL[197] = (Modifier){
+        .id = 197,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_GEM,
@@ -77690,8 +71660,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_197
     };
-    MODIFIERS_NORMAL[192] = (Modifier){
-        .id = 192,
+    MODIFIERS_NORMAL[198] = (Modifier){
+        .id = 198,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_GEM | TAG_ELEMENTAL | TAG_FIRE,
@@ -77700,8 +71670,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_198
     };
-    MODIFIERS_NORMAL[193] = (Modifier){
-        .id = 193,
+    MODIFIERS_NORMAL[199] = (Modifier){
+        .id = 199,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_GEM | TAG_ELEMENTAL | TAG_COLD,
@@ -77710,8 +71680,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_199
     };
-    MODIFIERS_NORMAL[194] = (Modifier){
-        .id = 194,
+    MODIFIERS_NORMAL[200] = (Modifier){
+        .id = 200,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_GEM | TAG_ELEMENTAL | TAG_LIGHTNING,
@@ -77720,8 +71690,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_200
     };
-    MODIFIERS_NORMAL[195] = (Modifier){
-        .id = 195,
+    MODIFIERS_NORMAL[201] = (Modifier){
+        .id = 201,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_GEM | TAG_CHAOS,
@@ -77730,8 +71700,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_201
     };
-    MODIFIERS_NORMAL[196] = (Modifier){
-        .id = 196,
+    MODIFIERS_NORMAL[202] = (Modifier){
+        .id = 202,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_GEM | TAG_PHYSICAL,
@@ -77740,8 +71710,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_202
     };
-    MODIFIERS_NORMAL[197] = (Modifier){
-        .id = 197,
+    MODIFIERS_NORMAL[203] = (Modifier){
+        .id = 203,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -77750,8 +71720,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_203
     };
-    MODIFIERS_NORMAL[198] = (Modifier){
-        .id = 198,
+    MODIFIERS_NORMAL[204] = (Modifier){
+        .id = 204,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -77760,8 +71730,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_204
     };
-    MODIFIERS_NORMAL[199] = (Modifier){
-        .id = 199,
+    MODIFIERS_NORMAL[205] = (Modifier){
+        .id = 205,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -77770,8 +71740,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_205
     };
-    MODIFIERS_NORMAL[200] = (Modifier){
-        .id = 200,
+    MODIFIERS_NORMAL[206] = (Modifier){
+        .id = 206,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_SPEED,
@@ -77780,8 +71750,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_206
     };
-    MODIFIERS_NORMAL[201] = (Modifier){
-        .id = 201,
+    MODIFIERS_NORMAL[207] = (Modifier){
+        .id = 207,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_CRITICAL,
@@ -77790,8 +71760,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_207
     };
-    MODIFIERS_NORMAL[202] = (Modifier){
-        .id = 202,
+    MODIFIERS_NORMAL[208] = (Modifier){
+        .id = 208,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_CRITICAL,
@@ -77800,8 +71770,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_208
     };
-    MODIFIERS_NORMAL[203] = (Modifier){
-        .id = 203,
+    MODIFIERS_NORMAL[209] = (Modifier){
+        .id = 209,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -77810,8 +71780,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_209
     };
-    MODIFIERS_NORMAL[204] = (Modifier){
-        .id = 204,
+    MODIFIERS_NORMAL[210] = (Modifier){
+        .id = 210,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77820,8 +71790,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_210
     };
-    MODIFIERS_NORMAL[205] = (Modifier){
-        .id = 205,
+    MODIFIERS_NORMAL[211] = (Modifier){
+        .id = 211,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77830,8 +71800,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_211
     };
-    MODIFIERS_NORMAL[206] = (Modifier){
-        .id = 206,
+    MODIFIERS_NORMAL[212] = (Modifier){
+        .id = 212,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77840,8 +71810,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_212
     };
-    MODIFIERS_NORMAL[207] = (Modifier){
-        .id = 207,
+    MODIFIERS_NORMAL[213] = (Modifier){
+        .id = 213,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -77850,8 +71820,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_213
     };
-    MODIFIERS_NORMAL[208] = (Modifier){
-        .id = 208,
+    MODIFIERS_NORMAL[214] = (Modifier){
+        .id = 214,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -77860,8 +71830,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_214
     };
-    MODIFIERS_NORMAL[209] = (Modifier){
-        .id = 209,
+    MODIFIERS_NORMAL[215] = (Modifier){
+        .id = 215,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -77870,8 +71840,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_215
     };
-    MODIFIERS_NORMAL[210] = (Modifier){
-        .id = 210,
+    MODIFIERS_NORMAL[216] = (Modifier){
+        .id = 216,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -77880,8 +71850,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_216
     };
-    MODIFIERS_NORMAL[211] = (Modifier){
-        .id = 211,
+    MODIFIERS_NORMAL[217] = (Modifier){
+        .id = 217,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL,
@@ -77890,8 +71860,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_217
     };
-    MODIFIERS_NORMAL[212] = (Modifier){
-        .id = 212,
+    MODIFIERS_NORMAL[218] = (Modifier){
+        .id = 218,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77900,8 +71870,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_218
     };
-    MODIFIERS_NORMAL[213] = (Modifier){
-        .id = 213,
+    MODIFIERS_NORMAL[219] = (Modifier){
+        .id = 219,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -77910,8 +71880,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_219
     };
-    MODIFIERS_NORMAL[214] = (Modifier){
-        .id = 214,
+    MODIFIERS_NORMAL[220] = (Modifier){
+        .id = 220,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -77920,8 +71890,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_220
     };
-    MODIFIERS_NORMAL[215] = (Modifier){
-        .id = 215,
+    MODIFIERS_NORMAL[221] = (Modifier){
+        .id = 221,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -77930,8 +71900,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_221
     };
-    MODIFIERS_NORMAL[216] = (Modifier){
-        .id = 216,
+    MODIFIERS_NORMAL[222] = (Modifier){
+        .id = 222,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -77940,8 +71910,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_222
     };
-    MODIFIERS_NORMAL[217] = (Modifier){
-        .id = 217,
+    MODIFIERS_NORMAL[223] = (Modifier){
+        .id = 223,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -77950,8 +71920,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_223
     };
-    MODIFIERS_NORMAL[218] = (Modifier){
-        .id = 218,
+    MODIFIERS_NORMAL[224] = (Modifier){
+        .id = 224,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77960,8 +71930,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_224
     };
-    MODIFIERS_NORMAL[219] = (Modifier){
-        .id = 219,
+    MODIFIERS_NORMAL[225] = (Modifier){
+        .id = 225,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -77970,8 +71940,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_225
     };
-    MODIFIERS_NORMAL[220] = (Modifier){
-        .id = 220,
+    MODIFIERS_NORMAL[226] = (Modifier){
+        .id = 226,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_PHYSICAL,
@@ -77980,8 +71950,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_226
     };
-    MODIFIERS_NORMAL[221] = (Modifier){
-        .id = 221,
+    MODIFIERS_NORMAL[227] = (Modifier){
+        .id = 227,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -77990,8 +71960,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_227
     };
-    MODIFIERS_NORMAL[222] = (Modifier){
-        .id = 222,
+    MODIFIERS_NORMAL[228] = (Modifier){
+        .id = 228,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -78000,8 +71970,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_228
     };
-    MODIFIERS_NORMAL[223] = (Modifier){
-        .id = 223,
+    MODIFIERS_NORMAL[229] = (Modifier){
+        .id = 229,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -78010,8 +71980,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_229
     };
-    MODIFIERS_NORMAL[224] = (Modifier){
-        .id = 224,
+    MODIFIERS_NORMAL[230] = (Modifier){
+        .id = 230,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -78020,8 +71990,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_230
     };
-    MODIFIERS_NORMAL[225] = (Modifier){
-        .id = 225,
+    MODIFIERS_NORMAL[231] = (Modifier){
+        .id = 231,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_RESISTANCE,
@@ -78030,8 +72000,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_231
     };
-    MODIFIERS_NORMAL[226] = (Modifier){
-        .id = 226,
+    MODIFIERS_NORMAL[232] = (Modifier){
+        .id = 232,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -78040,8 +72010,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_232
     };
-    MODIFIERS_NORMAL[227] = (Modifier){
-        .id = 227,
+    MODIFIERS_NORMAL[233] = (Modifier){
+        .id = 233,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -78050,8 +72020,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_233
     };
-    MODIFIERS_NORMAL[228] = (Modifier){
-        .id = 228,
+    MODIFIERS_NORMAL[234] = (Modifier){
+        .id = 234,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78060,8 +72030,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_234
     };
-    MODIFIERS_NORMAL[229] = (Modifier){
-        .id = 229,
+    MODIFIERS_NORMAL[235] = (Modifier){
+        .id = 235,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78070,8 +72040,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_235
     };
-    MODIFIERS_NORMAL[230] = (Modifier){
-        .id = 230,
+    MODIFIERS_NORMAL[236] = (Modifier){
+        .id = 236,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78080,8 +72050,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_236
     };
-    MODIFIERS_NORMAL[231] = (Modifier){
-        .id = 231,
+    MODIFIERS_NORMAL[237] = (Modifier){
+        .id = 237,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78090,8 +72060,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_237
     };
-    MODIFIERS_NORMAL[232] = (Modifier){
-        .id = 232,
+    MODIFIERS_NORMAL[238] = (Modifier){
+        .id = 238,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78100,8 +72070,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_238
     };
-    MODIFIERS_NORMAL[233] = (Modifier){
-        .id = 233,
+    MODIFIERS_NORMAL[239] = (Modifier){
+        .id = 239,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78110,8 +72080,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_239
     };
-    MODIFIERS_NORMAL[234] = (Modifier){
-        .id = 234,
+    MODIFIERS_NORMAL[240] = (Modifier){
+        .id = 240,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL,
@@ -78120,8 +72090,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_240
     };
-    MODIFIERS_NORMAL[235] = (Modifier){
-        .id = 235,
+    MODIFIERS_NORMAL[241] = (Modifier){
+        .id = 241,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -78130,8 +72100,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_241
     };
-    MODIFIERS_NORMAL[236] = (Modifier){
-        .id = 236,
+    MODIFIERS_NORMAL[242] = (Modifier){
+        .id = 242,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -78140,8 +72110,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_242
     };
-    MODIFIERS_NORMAL[237] = (Modifier){
-        .id = 237,
+    MODIFIERS_NORMAL[243] = (Modifier){
+        .id = 243,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -78150,8 +72120,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_243
     };
-    MODIFIERS_NORMAL[238] = (Modifier){
-        .id = 238,
+    MODIFIERS_NORMAL[244] = (Modifier){
+        .id = 244,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -78160,8 +72130,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_244
     };
-    MODIFIERS_NORMAL[239] = (Modifier){
-        .id = 239,
+    MODIFIERS_NORMAL[245] = (Modifier){
+        .id = 245,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -78170,8 +72140,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_245
     };
-    MODIFIERS_NORMAL[240] = (Modifier){
-        .id = 240,
+    MODIFIERS_NORMAL[246] = (Modifier){
+        .id = 246,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -78180,8 +72150,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_246
     };
-    MODIFIERS_NORMAL[241] = (Modifier){
-        .id = 241,
+    MODIFIERS_NORMAL[247] = (Modifier){
+        .id = 247,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -78190,8 +72160,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_247
     };
-    MODIFIERS_NORMAL[242] = (Modifier){
-        .id = 242,
+    MODIFIERS_NORMAL[248] = (Modifier){
+        .id = 248,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -78200,8 +72170,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_248
     };
-    MODIFIERS_NORMAL[243] = (Modifier){
-        .id = 243,
+    MODIFIERS_NORMAL[249] = (Modifier){
+        .id = 249,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -78210,8 +72180,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_249
     };
-    MODIFIERS_NORMAL[244] = (Modifier){
-        .id = 244,
+    MODIFIERS_NORMAL[250] = (Modifier){
+        .id = 250,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -78220,8 +72190,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_250
     };
-    MODIFIERS_NORMAL[245] = (Modifier){
-        .id = 245,
+    MODIFIERS_NORMAL[251] = (Modifier){
+        .id = 251,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_PHYSICAL,
@@ -78230,8 +72200,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_251
     };
-    MODIFIERS_NORMAL[246] = (Modifier){
-        .id = 246,
+    MODIFIERS_NORMAL[252] = (Modifier){
+        .id = 252,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -78240,8 +72210,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_252
     };
-    MODIFIERS_NORMAL[247] = (Modifier){
-        .id = 247,
+    MODIFIERS_NORMAL[253] = (Modifier){
+        .id = 253,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -78250,8 +72220,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_253
     };
-    MODIFIERS_NORMAL[248] = (Modifier){
-        .id = 248,
+    MODIFIERS_NORMAL[254] = (Modifier){
+        .id = 254,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -78260,8 +72230,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_254
     };
-    MODIFIERS_NORMAL[249] = (Modifier){
-        .id = 249,
+    MODIFIERS_NORMAL[255] = (Modifier){
+        .id = 255,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -78270,8 +72240,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_255
     };
-    MODIFIERS_NORMAL[250] = (Modifier){
-        .id = 250,
+    MODIFIERS_NORMAL[256] = (Modifier){
+        .id = 256,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_RESISTANCE,
@@ -78280,8 +72250,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_256
     };
-    MODIFIERS_NORMAL[251] = (Modifier){
-        .id = 251,
+    MODIFIERS_NORMAL[257] = (Modifier){
+        .id = 257,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -78290,8 +72260,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_257
     };
-    MODIFIERS_NORMAL[252] = (Modifier){
-        .id = 252,
+    MODIFIERS_NORMAL[258] = (Modifier){
+        .id = 258,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78300,8 +72270,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_258
     };
-    MODIFIERS_NORMAL[253] = (Modifier){
-        .id = 253,
+    MODIFIERS_NORMAL[259] = (Modifier){
+        .id = 259,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78310,8 +72280,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_259
     };
-    MODIFIERS_NORMAL[254] = (Modifier){
-        .id = 254,
+    MODIFIERS_NORMAL[260] = (Modifier){
+        .id = 260,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -78320,8 +72290,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_260
     };
-    MODIFIERS_NORMAL[255] = (Modifier){
-        .id = 255,
+    MODIFIERS_NORMAL[261] = (Modifier){
+        .id = 261,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78330,8 +72300,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_261
     };
-    MODIFIERS_NORMAL[256] = (Modifier){
-        .id = 256,
+    MODIFIERS_NORMAL[262] = (Modifier){
+        .id = 262,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78340,8 +72310,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_262
     };
-    MODIFIERS_NORMAL[257] = (Modifier){
-        .id = 257,
+    MODIFIERS_NORMAL[263] = (Modifier){
+        .id = 263,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_MANA,
@@ -78350,8 +72320,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_263
     };
-    MODIFIERS_NORMAL[258] = (Modifier){
-        .id = 258,
+    MODIFIERS_NORMAL[264] = (Modifier){
+        .id = 264,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CASTER,
@@ -78360,8 +72330,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_264
     };
-    MODIFIERS_NORMAL[259] = (Modifier){
-        .id = 259,
+    MODIFIERS_NORMAL[265] = (Modifier){
+        .id = 265,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE,
@@ -78370,8 +72340,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_265
     };
-    MODIFIERS_NORMAL[260] = (Modifier){
-        .id = 260,
+    MODIFIERS_NORMAL[266] = (Modifier){
+        .id = 266,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD,
@@ -78380,8 +72350,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_266
     };
-    MODIFIERS_NORMAL[261] = (Modifier){
-        .id = 261,
+    MODIFIERS_NORMAL[267] = (Modifier){
+        .id = 267,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING,
@@ -78390,8 +72360,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_267
     };
-    MODIFIERS_NORMAL[262] = (Modifier){
-        .id = 262,
+    MODIFIERS_NORMAL[268] = (Modifier){
+        .id = 268,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CHAOS,
@@ -78400,8 +72370,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_268
     };
-    MODIFIERS_NORMAL[263] = (Modifier){
-        .id = 263,
+    MODIFIERS_NORMAL[269] = (Modifier){
+        .id = 269,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL,
@@ -78410,8 +72380,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_269
     };
-    MODIFIERS_NORMAL[264] = (Modifier){
-        .id = 264,
+    MODIFIERS_NORMAL[270] = (Modifier){
+        .id = 270,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -78420,8 +72390,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_270
     };
-    MODIFIERS_NORMAL[265] = (Modifier){
-        .id = 265,
+    MODIFIERS_NORMAL[271] = (Modifier){
+        .id = 271,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -78430,8 +72400,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_271
     };
-    MODIFIERS_NORMAL[266] = (Modifier){
-        .id = 266,
+    MODIFIERS_NORMAL[272] = (Modifier){
+        .id = 272,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -78440,8 +72410,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_272
     };
-    MODIFIERS_NORMAL[267] = (Modifier){
-        .id = 267,
+    MODIFIERS_NORMAL[273] = (Modifier){
+        .id = 273,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -78450,8 +72420,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_273
     };
-    MODIFIERS_NORMAL[268] = (Modifier){
-        .id = 268,
+    MODIFIERS_NORMAL[274] = (Modifier){
+        .id = 274,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -78460,8 +72430,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_274
     };
-    MODIFIERS_NORMAL[269] = (Modifier){
-        .id = 269,
+    MODIFIERS_NORMAL[275] = (Modifier){
+        .id = 275,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -78470,8 +72440,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_275
     };
-    MODIFIERS_NORMAL[270] = (Modifier){
-        .id = 270,
+    MODIFIERS_NORMAL[276] = (Modifier){
+        .id = 276,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_GEM,
@@ -78480,8 +72450,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_276
     };
-    MODIFIERS_NORMAL[271] = (Modifier){
-        .id = 271,
+    MODIFIERS_NORMAL[277] = (Modifier){
+        .id = 277,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -78490,8 +72460,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_277
     };
-    MODIFIERS_NORMAL[272] = (Modifier){
-        .id = 272,
+    MODIFIERS_NORMAL[278] = (Modifier){
+        .id = 278,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_SPEED,
@@ -78500,8 +72470,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_278
     };
-    MODIFIERS_NORMAL[273] = (Modifier){
-        .id = 273,
+    MODIFIERS_NORMAL[279] = (Modifier){
+        .id = 279,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_CRITICAL,
@@ -78510,8 +72480,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_279
     };
-    MODIFIERS_NORMAL[274] = (Modifier){
-        .id = 274,
+    MODIFIERS_NORMAL[280] = (Modifier){
+        .id = 280,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_CRITICAL,
@@ -78520,8 +72490,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_280
     };
-    MODIFIERS_NORMAL[275] = (Modifier){
-        .id = 275,
+    MODIFIERS_NORMAL[281] = (Modifier){
+        .id = 281,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78530,8 +72500,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_281
     };
-    MODIFIERS_NORMAL[276] = (Modifier){
-        .id = 276,
+    MODIFIERS_NORMAL[282] = (Modifier){
+        .id = 282,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78540,8 +72510,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_282
     };
-    MODIFIERS_NORMAL[277] = (Modifier){
-        .id = 277,
+    MODIFIERS_NORMAL[283] = (Modifier){
+        .id = 283,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -78550,8 +72520,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_283
     };
-    MODIFIERS_NORMAL[278] = (Modifier){
-        .id = 278,
+    MODIFIERS_NORMAL[284] = (Modifier){
+        .id = 284,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78560,8 +72530,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_284
     };
-    MODIFIERS_NORMAL[279] = (Modifier){
-        .id = 279,
+    MODIFIERS_NORMAL[285] = (Modifier){
+        .id = 285,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78570,8 +72540,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_285
     };
-    MODIFIERS_NORMAL[280] = (Modifier){
-        .id = 280,
+    MODIFIERS_NORMAL[286] = (Modifier){
+        .id = 286,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78580,8 +72550,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_286
     };
-    MODIFIERS_NORMAL[281] = (Modifier){
-        .id = 281,
+    MODIFIERS_NORMAL[287] = (Modifier){
+        .id = 287,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL,
@@ -78590,8 +72560,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_287
     };
-    MODIFIERS_NORMAL[282] = (Modifier){
-        .id = 282,
+    MODIFIERS_NORMAL[288] = (Modifier){
+        .id = 288,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -78600,8 +72570,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_288
     };
-    MODIFIERS_NORMAL[283] = (Modifier){
-        .id = 283,
+    MODIFIERS_NORMAL[289] = (Modifier){
+        .id = 289,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -78610,8 +72580,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_289
     };
-    MODIFIERS_NORMAL[284] = (Modifier){
-        .id = 284,
+    MODIFIERS_NORMAL[290] = (Modifier){
+        .id = 290,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -78620,8 +72590,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_290
     };
-    MODIFIERS_NORMAL[285] = (Modifier){
-        .id = 285,
+    MODIFIERS_NORMAL[291] = (Modifier){
+        .id = 291,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -78630,8 +72600,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_291
     };
-    MODIFIERS_NORMAL[286] = (Modifier){
-        .id = 286,
+    MODIFIERS_NORMAL[292] = (Modifier){
+        .id = 292,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -78640,8 +72610,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_292
     };
-    MODIFIERS_NORMAL[287] = (Modifier){
-        .id = 287,
+    MODIFIERS_NORMAL[293] = (Modifier){
+        .id = 293,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -78650,8 +72620,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_293
     };
-    MODIFIERS_NORMAL[288] = (Modifier){
-        .id = 288,
+    MODIFIERS_NORMAL[294] = (Modifier){
+        .id = 294,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -78660,8 +72630,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_294
     };
-    MODIFIERS_NORMAL[289] = (Modifier){
-        .id = 289,
+    MODIFIERS_NORMAL[295] = (Modifier){
+        .id = 295,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -78670,8 +72640,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_295
     };
-    MODIFIERS_NORMAL[290] = (Modifier){
-        .id = 290,
+    MODIFIERS_NORMAL[296] = (Modifier){
+        .id = 296,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -78680,8 +72650,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_296
     };
-    MODIFIERS_NORMAL[291] = (Modifier){
-        .id = 291,
+    MODIFIERS_NORMAL[297] = (Modifier){
+        .id = 297,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -78690,8 +72660,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_297
     };
-    MODIFIERS_NORMAL[292] = (Modifier){
-        .id = 292,
+    MODIFIERS_NORMAL[298] = (Modifier){
+        .id = 298,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -78700,8 +72670,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_298
     };
-    MODIFIERS_NORMAL[293] = (Modifier){
-        .id = 293,
+    MODIFIERS_NORMAL[299] = (Modifier){
+        .id = 299,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -78710,8 +72680,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_299
     };
-    MODIFIERS_NORMAL[294] = (Modifier){
-        .id = 294,
+    MODIFIERS_NORMAL[300] = (Modifier){
+        .id = 300,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_RESISTANCE,
@@ -78720,8 +72690,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_300
     };
-    MODIFIERS_NORMAL[295] = (Modifier){
-        .id = 295,
+    MODIFIERS_NORMAL[301] = (Modifier){
+        .id = 301,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78730,8 +72700,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_301
     };
-    MODIFIERS_NORMAL[296] = (Modifier){
-        .id = 296,
+    MODIFIERS_NORMAL[302] = (Modifier){
+        .id = 302,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -78740,8 +72710,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_302
     };
-    MODIFIERS_NORMAL[297] = (Modifier){
-        .id = 297,
+    MODIFIERS_NORMAL[303] = (Modifier){
+        .id = 303,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -78750,8 +72720,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_303
     };
-    MODIFIERS_NORMAL[298] = (Modifier){
-        .id = 298,
+    MODIFIERS_NORMAL[304] = (Modifier){
+        .id = 304,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -78760,8 +72730,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_304
     };
-    MODIFIERS_NORMAL[299] = (Modifier){
-        .id = 299,
+    MODIFIERS_NORMAL[305] = (Modifier){
+        .id = 305,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -78770,8 +72740,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_305
     };
-    MODIFIERS_NORMAL[300] = (Modifier){
-        .id = 300,
+    MODIFIERS_NORMAL[306] = (Modifier){
+        .id = 306,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -78780,8 +72750,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_306
     };
-    MODIFIERS_NORMAL[301] = (Modifier){
-        .id = 301,
+    MODIFIERS_NORMAL[307] = (Modifier){
+        .id = 307,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_SPEED,
@@ -78790,8 +72760,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_307
     };
-    MODIFIERS_NORMAL[302] = (Modifier){
-        .id = 302,
+    MODIFIERS_NORMAL[308] = (Modifier){
+        .id = 308,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE,
@@ -78800,8 +72770,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_308
     };
-    MODIFIERS_NORMAL[303] = (Modifier){
-        .id = 303,
+    MODIFIERS_NORMAL[309] = (Modifier){
+        .id = 309,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -78810,8 +72780,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_309
     };
-    MODIFIERS_NORMAL[304] = (Modifier){
-        .id = 304,
+    MODIFIERS_NORMAL[310] = (Modifier){
+        .id = 310,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -78820,8 +72790,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_310
     };
-    MODIFIERS_NORMAL[305] = (Modifier){
-        .id = 305,
+    MODIFIERS_NORMAL[311] = (Modifier){
+        .id = 311,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -78830,8 +72800,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_311
     };
-    MODIFIERS_NORMAL[306] = (Modifier){
-        .id = 306,
+    MODIFIERS_NORMAL[312] = (Modifier){
+        .id = 312,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -78840,8 +72810,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_312
     };
-    MODIFIERS_NORMAL[307] = (Modifier){
-        .id = 307,
+    MODIFIERS_NORMAL[313] = (Modifier){
+        .id = 313,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -78850,8 +72820,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_313
     };
-    MODIFIERS_NORMAL[308] = (Modifier){
-        .id = 308,
+    MODIFIERS_NORMAL[314] = (Modifier){
+        .id = 314,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_CRITICAL,
@@ -78860,8 +72830,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_314
     };
-    MODIFIERS_NORMAL[309] = (Modifier){
-        .id = 309,
+    MODIFIERS_NORMAL[315] = (Modifier){
+        .id = 315,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ATTACK | TAG_CRITICAL,
@@ -78870,8 +72840,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_315
     };
-    MODIFIERS_NORMAL[310] = (Modifier){
-        .id = 310,
+    MODIFIERS_NORMAL[316] = (Modifier){
+        .id = 316,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -78880,8 +72850,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_316
     };
-    MODIFIERS_NORMAL[311] = (Modifier){
-        .id = 311,
+    MODIFIERS_NORMAL[317] = (Modifier){
+        .id = 317,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -78890,8 +72860,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_317
     };
-    MODIFIERS_NORMAL[312] = (Modifier){
-        .id = 312,
+    MODIFIERS_NORMAL[318] = (Modifier){
+        .id = 318,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -78900,8 +72870,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_318
     };
-    MODIFIERS_NORMAL[313] = (Modifier){
-        .id = 313,
+    MODIFIERS_NORMAL[319] = (Modifier){
+        .id = 319,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78910,8 +72880,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_319
     };
-    MODIFIERS_NORMAL[314] = (Modifier){
-        .id = 314,
+    MODIFIERS_NORMAL[320] = (Modifier){
+        .id = 320,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78920,8 +72890,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_320
     };
-    MODIFIERS_NORMAL[315] = (Modifier){
-        .id = 315,
+    MODIFIERS_NORMAL[321] = (Modifier){
+        .id = 321,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78930,8 +72900,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_321
     };
-    MODIFIERS_NORMAL[316] = (Modifier){
-        .id = 316,
+    MODIFIERS_NORMAL[322] = (Modifier){
+        .id = 322,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78940,8 +72910,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_322
     };
-    MODIFIERS_NORMAL[317] = (Modifier){
-        .id = 317,
+    MODIFIERS_NORMAL[323] = (Modifier){
+        .id = 323,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78950,18 +72920,18 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_323
     };
-    MODIFIERS_NORMAL[318] = (Modifier){
-        .id = 318,
+    MODIFIERS_NORMAL[324] = (Modifier){
+        .id = 324,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
-        .tier_count = 6,
+        .tier_count = 7,
         .tiers = tiers_normal_324
     };
-    MODIFIERS_NORMAL[319] = (Modifier){
-        .id = 319,
+    MODIFIERS_NORMAL[325] = (Modifier){
+        .id = 325,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78970,8 +72940,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_325
     };
-    MODIFIERS_NORMAL[320] = (Modifier){
-        .id = 320,
+    MODIFIERS_NORMAL[326] = (Modifier){
+        .id = 326,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78980,8 +72950,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_326
     };
-    MODIFIERS_NORMAL[321] = (Modifier){
-        .id = 321,
+    MODIFIERS_NORMAL[327] = (Modifier){
+        .id = 327,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -78990,8 +72960,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_327
     };
-    MODIFIERS_NORMAL[322] = (Modifier){
-        .id = 322,
+    MODIFIERS_NORMAL[328] = (Modifier){
+        .id = 328,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_SPEED,
@@ -79000,8 +72970,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_328
     };
-    MODIFIERS_NORMAL[323] = (Modifier){
-        .id = 323,
+    MODIFIERS_NORMAL[329] = (Modifier){
+        .id = 329,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79010,8 +72980,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_329
     };
-    MODIFIERS_NORMAL[324] = (Modifier){
-        .id = 324,
+    MODIFIERS_NORMAL[330] = (Modifier){
+        .id = 330,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79020,8 +72990,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_330
     };
-    MODIFIERS_NORMAL[325] = (Modifier){
-        .id = 325,
+    MODIFIERS_NORMAL[331] = (Modifier){
+        .id = 331,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79030,8 +73000,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_331
     };
-    MODIFIERS_NORMAL[326] = (Modifier){
-        .id = 326,
+    MODIFIERS_NORMAL[332] = (Modifier){
+        .id = 332,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -79040,8 +73010,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_332
     };
-    MODIFIERS_NORMAL[327] = (Modifier){
-        .id = 327,
+    MODIFIERS_NORMAL[333] = (Modifier){
+        .id = 333,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -79050,8 +73020,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_333
     };
-    MODIFIERS_NORMAL[328] = (Modifier){
-        .id = 328,
+    MODIFIERS_NORMAL[334] = (Modifier){
+        .id = 334,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -79060,8 +73030,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_334
     };
-    MODIFIERS_NORMAL[329] = (Modifier){
-        .id = 329,
+    MODIFIERS_NORMAL[335] = (Modifier){
+        .id = 335,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -79070,8 +73040,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_335
     };
-    MODIFIERS_NORMAL[330] = (Modifier){
-        .id = 330,
+    MODIFIERS_NORMAL[336] = (Modifier){
+        .id = 336,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79080,8 +73050,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_336
     };
-    MODIFIERS_NORMAL[331] = (Modifier){
-        .id = 331,
+    MODIFIERS_NORMAL[337] = (Modifier){
+        .id = 337,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79090,8 +73060,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_337
     };
-    MODIFIERS_NORMAL[332] = (Modifier){
-        .id = 332,
+    MODIFIERS_NORMAL[338] = (Modifier){
+        .id = 338,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -79100,8 +73070,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_338
     };
-    MODIFIERS_NORMAL[333] = (Modifier){
-        .id = 333,
+    MODIFIERS_NORMAL[339] = (Modifier){
+        .id = 339,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79110,8 +73080,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_339
     };
-    MODIFIERS_NORMAL[334] = (Modifier){
-        .id = 334,
+    MODIFIERS_NORMAL[340] = (Modifier){
+        .id = 340,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_AILMENT,
@@ -79120,8 +73090,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_340
     };
-    MODIFIERS_NORMAL[335] = (Modifier){
-        .id = 335,
+    MODIFIERS_NORMAL[341] = (Modifier){
+        .id = 341,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_AILMENT,
@@ -79130,8 +73100,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_341
     };
-    MODIFIERS_NORMAL[336] = (Modifier){
-        .id = 336,
+    MODIFIERS_NORMAL[342] = (Modifier){
+        .id = 342,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_AILMENT,
@@ -79140,8 +73110,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_342
     };
-    MODIFIERS_NORMAL[337] = (Modifier){
-        .id = 337,
+    MODIFIERS_NORMAL[343] = (Modifier){
+        .id = 343,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -79150,8 +73120,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_343
     };
-    MODIFIERS_NORMAL[338] = (Modifier){
-        .id = 338,
+    MODIFIERS_NORMAL[344] = (Modifier){
+        .id = 344,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79160,8 +73130,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_344
     };
-    MODIFIERS_NORMAL[339] = (Modifier){
-        .id = 339,
+    MODIFIERS_NORMAL[345] = (Modifier){
+        .id = 345,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79170,8 +73140,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_345
     };
-    MODIFIERS_NORMAL[340] = (Modifier){
-        .id = 340,
+    MODIFIERS_NORMAL[346] = (Modifier){
+        .id = 346,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -79180,8 +73150,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_346
     };
-    MODIFIERS_NORMAL[341] = (Modifier){
-        .id = 341,
+    MODIFIERS_NORMAL[347] = (Modifier){
+        .id = 347,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -79190,8 +73160,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_347
     };
-    MODIFIERS_NORMAL[342] = (Modifier){
-        .id = 342,
+    MODIFIERS_NORMAL[348] = (Modifier){
+        .id = 348,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79200,8 +73170,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_348
     };
-    MODIFIERS_NORMAL[343] = (Modifier){
-        .id = 343,
+    MODIFIERS_NORMAL[349] = (Modifier){
+        .id = 349,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79210,8 +73180,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_349
     };
-    MODIFIERS_NORMAL[344] = (Modifier){
-        .id = 344,
+    MODIFIERS_NORMAL[350] = (Modifier){
+        .id = 350,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79220,8 +73190,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_350
     };
-    MODIFIERS_NORMAL[345] = (Modifier){
-        .id = 345,
+    MODIFIERS_NORMAL[351] = (Modifier){
+        .id = 351,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79230,8 +73200,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_351
     };
-    MODIFIERS_NORMAL[346] = (Modifier){
-        .id = 346,
+    MODIFIERS_NORMAL[352] = (Modifier){
+        .id = 352,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79240,8 +73210,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_352
     };
-    MODIFIERS_NORMAL[347] = (Modifier){
-        .id = 347,
+    MODIFIERS_NORMAL[353] = (Modifier){
+        .id = 353,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79250,8 +73220,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_353
     };
-    MODIFIERS_NORMAL[348] = (Modifier){
-        .id = 348,
+    MODIFIERS_NORMAL[354] = (Modifier){
+        .id = 354,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79260,8 +73230,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_354
     };
-    MODIFIERS_NORMAL[349] = (Modifier){
-        .id = 349,
+    MODIFIERS_NORMAL[355] = (Modifier){
+        .id = 355,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79270,8 +73240,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_355
     };
-    MODIFIERS_NORMAL[350] = (Modifier){
-        .id = 350,
+    MODIFIERS_NORMAL[356] = (Modifier){
+        .id = 356,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79280,8 +73250,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_356
     };
-    MODIFIERS_NORMAL[351] = (Modifier){
-        .id = 351,
+    MODIFIERS_NORMAL[357] = (Modifier){
+        .id = 357,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_SPEED,
@@ -79290,8 +73260,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_357
     };
-    MODIFIERS_NORMAL[352] = (Modifier){
-        .id = 352,
+    MODIFIERS_NORMAL[358] = (Modifier){
+        .id = 358,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79300,8 +73270,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_358
     };
-    MODIFIERS_NORMAL[353] = (Modifier){
-        .id = 353,
+    MODIFIERS_NORMAL[359] = (Modifier){
+        .id = 359,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79310,8 +73280,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_359
     };
-    MODIFIERS_NORMAL[354] = (Modifier){
-        .id = 354,
+    MODIFIERS_NORMAL[360] = (Modifier){
+        .id = 360,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79320,8 +73290,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_360
     };
-    MODIFIERS_NORMAL[355] = (Modifier){
-        .id = 355,
+    MODIFIERS_NORMAL[361] = (Modifier){
+        .id = 361,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -79330,8 +73300,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_361
     };
-    MODIFIERS_NORMAL[356] = (Modifier){
-        .id = 356,
+    MODIFIERS_NORMAL[362] = (Modifier){
+        .id = 362,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -79340,8 +73310,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_362
     };
-    MODIFIERS_NORMAL[357] = (Modifier){
-        .id = 357,
+    MODIFIERS_NORMAL[363] = (Modifier){
+        .id = 363,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -79350,8 +73320,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_363
     };
-    MODIFIERS_NORMAL[358] = (Modifier){
-        .id = 358,
+    MODIFIERS_NORMAL[364] = (Modifier){
+        .id = 364,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -79360,8 +73330,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_364
     };
-    MODIFIERS_NORMAL[359] = (Modifier){
-        .id = 359,
+    MODIFIERS_NORMAL[365] = (Modifier){
+        .id = 365,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79370,8 +73340,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_365
     };
-    MODIFIERS_NORMAL[360] = (Modifier){
-        .id = 360,
+    MODIFIERS_NORMAL[366] = (Modifier){
+        .id = 366,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79380,8 +73350,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_366
     };
-    MODIFIERS_NORMAL[361] = (Modifier){
-        .id = 361,
+    MODIFIERS_NORMAL[367] = (Modifier){
+        .id = 367,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -79390,8 +73360,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_367
     };
-    MODIFIERS_NORMAL[362] = (Modifier){
-        .id = 362,
+    MODIFIERS_NORMAL[368] = (Modifier){
+        .id = 368,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79400,8 +73370,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_368
     };
-    MODIFIERS_NORMAL[363] = (Modifier){
-        .id = 363,
+    MODIFIERS_NORMAL[369] = (Modifier){
+        .id = 369,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_AILMENT,
@@ -79410,8 +73380,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_369
     };
-    MODIFIERS_NORMAL[364] = (Modifier){
-        .id = 364,
+    MODIFIERS_NORMAL[370] = (Modifier){
+        .id = 370,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_AILMENT,
@@ -79420,8 +73390,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_370
     };
-    MODIFIERS_NORMAL[365] = (Modifier){
-        .id = 365,
+    MODIFIERS_NORMAL[371] = (Modifier){
+        .id = 371,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_AILMENT,
@@ -79430,8 +73400,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_371
     };
-    MODIFIERS_NORMAL[366] = (Modifier){
-        .id = 366,
+    MODIFIERS_NORMAL[372] = (Modifier){
+        .id = 372,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -79440,8 +73410,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_372
     };
-    MODIFIERS_NORMAL[367] = (Modifier){
-        .id = 367,
+    MODIFIERS_NORMAL[373] = (Modifier){
+        .id = 373,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79450,8 +73420,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_373
     };
-    MODIFIERS_NORMAL[368] = (Modifier){
-        .id = 368,
+    MODIFIERS_NORMAL[374] = (Modifier){
+        .id = 374,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79460,8 +73430,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_374
     };
-    MODIFIERS_NORMAL[369] = (Modifier){
-        .id = 369,
+    MODIFIERS_NORMAL[375] = (Modifier){
+        .id = 375,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -79470,8 +73440,8 @@ void init_modifiers_data(void) {
         .tier_count = 13,
         .tiers = tiers_normal_375
     };
-    MODIFIERS_NORMAL[370] = (Modifier){
-        .id = 370,
+    MODIFIERS_NORMAL[376] = (Modifier){
+        .id = 376,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79480,8 +73450,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_376
     };
-    MODIFIERS_NORMAL[371] = (Modifier){
-        .id = 371,
+    MODIFIERS_NORMAL[377] = (Modifier){
+        .id = 377,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79490,8 +73460,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_377
     };
-    MODIFIERS_NORMAL[372] = (Modifier){
-        .id = 372,
+    MODIFIERS_NORMAL[378] = (Modifier){
+        .id = 378,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79500,8 +73470,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_378
     };
-    MODIFIERS_NORMAL[373] = (Modifier){
-        .id = 373,
+    MODIFIERS_NORMAL[379] = (Modifier){
+        .id = 379,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79510,8 +73480,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_379
     };
-    MODIFIERS_NORMAL[374] = (Modifier){
-        .id = 374,
+    MODIFIERS_NORMAL[380] = (Modifier){
+        .id = 380,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79520,8 +73490,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_380
     };
-    MODIFIERS_NORMAL[375] = (Modifier){
-        .id = 375,
+    MODIFIERS_NORMAL[381] = (Modifier){
+        .id = 381,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79530,8 +73500,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_381
     };
-    MODIFIERS_NORMAL[376] = (Modifier){
-        .id = 376,
+    MODIFIERS_NORMAL[382] = (Modifier){
+        .id = 382,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -79540,8 +73510,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_382
     };
-    MODIFIERS_NORMAL[377] = (Modifier){
-        .id = 377,
+    MODIFIERS_NORMAL[383] = (Modifier){
+        .id = 383,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -79550,8 +73520,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_383
     };
-    MODIFIERS_NORMAL[378] = (Modifier){
-        .id = 378,
+    MODIFIERS_NORMAL[384] = (Modifier){
+        .id = 384,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -79560,8 +73530,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_384
     };
-    MODIFIERS_NORMAL[379] = (Modifier){
-        .id = 379,
+    MODIFIERS_NORMAL[385] = (Modifier){
+        .id = 385,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79570,8 +73540,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_385
     };
-    MODIFIERS_NORMAL[380] = (Modifier){
-        .id = 380,
+    MODIFIERS_NORMAL[386] = (Modifier){
+        .id = 386,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79580,8 +73550,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_386
     };
-    MODIFIERS_NORMAL[381] = (Modifier){
-        .id = 381,
+    MODIFIERS_NORMAL[387] = (Modifier){
+        .id = 387,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79590,8 +73560,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_387
     };
-    MODIFIERS_NORMAL[382] = (Modifier){
-        .id = 382,
+    MODIFIERS_NORMAL[388] = (Modifier){
+        .id = 388,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL,
@@ -79600,8 +73570,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_388
     };
-    MODIFIERS_NORMAL[383] = (Modifier){
-        .id = 383,
+    MODIFIERS_NORMAL[389] = (Modifier){
+        .id = 389,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79610,8 +73580,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_389
     };
-    MODIFIERS_NORMAL[384] = (Modifier){
-        .id = 384,
+    MODIFIERS_NORMAL[390] = (Modifier){
+        .id = 390,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79620,8 +73590,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_390
     };
-    MODIFIERS_NORMAL[385] = (Modifier){
-        .id = 385,
+    MODIFIERS_NORMAL[391] = (Modifier){
+        .id = 391,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79630,8 +73600,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_391
     };
-    MODIFIERS_NORMAL[386] = (Modifier){
-        .id = 386,
+    MODIFIERS_NORMAL[392] = (Modifier){
+        .id = 392,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79640,8 +73610,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_392
     };
-    MODIFIERS_NORMAL[387] = (Modifier){
-        .id = 387,
+    MODIFIERS_NORMAL[393] = (Modifier){
+        .id = 393,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -79650,8 +73620,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_393
     };
-    MODIFIERS_NORMAL[388] = (Modifier){
-        .id = 388,
+    MODIFIERS_NORMAL[394] = (Modifier){
+        .id = 394,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -79660,8 +73630,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_394
     };
-    MODIFIERS_NORMAL[389] = (Modifier){
-        .id = 389,
+    MODIFIERS_NORMAL[395] = (Modifier){
+        .id = 395,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -79670,8 +73640,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_395
     };
-    MODIFIERS_NORMAL[390] = (Modifier){
-        .id = 390,
+    MODIFIERS_NORMAL[396] = (Modifier){
+        .id = 396,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -79680,8 +73650,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_396
     };
-    MODIFIERS_NORMAL[391] = (Modifier){
-        .id = 391,
+    MODIFIERS_NORMAL[397] = (Modifier){
+        .id = 397,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79690,8 +73660,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_397
     };
-    MODIFIERS_NORMAL[392] = (Modifier){
-        .id = 392,
+    MODIFIERS_NORMAL[398] = (Modifier){
+        .id = 398,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79700,8 +73670,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_398
     };
-    MODIFIERS_NORMAL[393] = (Modifier){
-        .id = 393,
+    MODIFIERS_NORMAL[399] = (Modifier){
+        .id = 399,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -79710,8 +73680,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_399
     };
-    MODIFIERS_NORMAL[394] = (Modifier){
-        .id = 394,
+    MODIFIERS_NORMAL[400] = (Modifier){
+        .id = 400,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_PHYSICAL | TAG_AILMENT,
@@ -79720,8 +73690,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_400
     };
-    MODIFIERS_NORMAL[395] = (Modifier){
-        .id = 395,
+    MODIFIERS_NORMAL[401] = (Modifier){
+        .id = 401,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_AILMENT,
@@ -79730,8 +73700,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_401
     };
-    MODIFIERS_NORMAL[396] = (Modifier){
-        .id = 396,
+    MODIFIERS_NORMAL[402] = (Modifier){
+        .id = 402,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_AILMENT,
@@ -79740,8 +73710,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_402
     };
-    MODIFIERS_NORMAL[397] = (Modifier){
-        .id = 397,
+    MODIFIERS_NORMAL[403] = (Modifier){
+        .id = 403,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -79750,8 +73720,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_403
     };
-    MODIFIERS_NORMAL[398] = (Modifier){
-        .id = 398,
+    MODIFIERS_NORMAL[404] = (Modifier){
+        .id = 404,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79760,8 +73730,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_404
     };
-    MODIFIERS_NORMAL[399] = (Modifier){
-        .id = 399,
+    MODIFIERS_NORMAL[405] = (Modifier){
+        .id = 405,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79770,8 +73740,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_405
     };
-    MODIFIERS_NORMAL[400] = (Modifier){
-        .id = 400,
+    MODIFIERS_NORMAL[406] = (Modifier){
+        .id = 406,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -79780,8 +73750,8 @@ void init_modifiers_data(void) {
         .tier_count = 13,
         .tiers = tiers_normal_406
     };
-    MODIFIERS_NORMAL[401] = (Modifier){
-        .id = 401,
+    MODIFIERS_NORMAL[407] = (Modifier){
+        .id = 407,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79790,8 +73760,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_407
     };
-    MODIFIERS_NORMAL[402] = (Modifier){
-        .id = 402,
+    MODIFIERS_NORMAL[408] = (Modifier){
+        .id = 408,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79800,8 +73770,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_408
     };
-    MODIFIERS_NORMAL[403] = (Modifier){
-        .id = 403,
+    MODIFIERS_NORMAL[409] = (Modifier){
+        .id = 409,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79810,8 +73780,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_409
     };
-    MODIFIERS_NORMAL[404] = (Modifier){
-        .id = 404,
+    MODIFIERS_NORMAL[410] = (Modifier){
+        .id = 410,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79820,8 +73790,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_410
     };
-    MODIFIERS_NORMAL[405] = (Modifier){
-        .id = 405,
+    MODIFIERS_NORMAL[411] = (Modifier){
+        .id = 411,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79830,8 +73800,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_411
     };
-    MODIFIERS_NORMAL[406] = (Modifier){
-        .id = 406,
+    MODIFIERS_NORMAL[412] = (Modifier){
+        .id = 412,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79840,8 +73810,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_412
     };
-    MODIFIERS_NORMAL[407] = (Modifier){
-        .id = 407,
+    MODIFIERS_NORMAL[413] = (Modifier){
+        .id = 413,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_LIFE,
@@ -79850,8 +73820,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_413
     };
-    MODIFIERS_NORMAL[408] = (Modifier){
-        .id = 408,
+    MODIFIERS_NORMAL[414] = (Modifier){
+        .id = 414,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_LIFE,
@@ -79860,8 +73830,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_414
     };
-    MODIFIERS_NORMAL[409] = (Modifier){
-        .id = 409,
+    MODIFIERS_NORMAL[415] = (Modifier){
+        .id = 415,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -79870,8 +73840,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_415
     };
-    MODIFIERS_NORMAL[410] = (Modifier){
-        .id = 410,
+    MODIFIERS_NORMAL[416] = (Modifier){
+        .id = 416,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79880,8 +73850,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_416
     };
-    MODIFIERS_NORMAL[411] = (Modifier){
-        .id = 411,
+    MODIFIERS_NORMAL[417] = (Modifier){
+        .id = 417,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79890,8 +73860,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_417
     };
-    MODIFIERS_NORMAL[412] = (Modifier){
-        .id = 412,
+    MODIFIERS_NORMAL[418] = (Modifier){
+        .id = 418,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -79900,8 +73870,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_418
     };
-    MODIFIERS_NORMAL[413] = (Modifier){
-        .id = 413,
+    MODIFIERS_NORMAL[419] = (Modifier){
+        .id = 419,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL,
@@ -79910,8 +73880,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_419
     };
-    MODIFIERS_NORMAL[414] = (Modifier){
-        .id = 414,
+    MODIFIERS_NORMAL[420] = (Modifier){
+        .id = 420,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -79920,8 +73890,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_420
     };
-    MODIFIERS_NORMAL[415] = (Modifier){
-        .id = 415,
+    MODIFIERS_NORMAL[421] = (Modifier){
+        .id = 421,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79930,8 +73900,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_421
     };
-    MODIFIERS_NORMAL[416] = (Modifier){
-        .id = 416,
+    MODIFIERS_NORMAL[422] = (Modifier){
+        .id = 422,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79940,8 +73910,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_422
     };
-    MODIFIERS_NORMAL[417] = (Modifier){
-        .id = 417,
+    MODIFIERS_NORMAL[423] = (Modifier){
+        .id = 423,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -79950,8 +73920,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_423
     };
-    MODIFIERS_NORMAL[418] = (Modifier){
-        .id = 418,
+    MODIFIERS_NORMAL[424] = (Modifier){
+        .id = 424,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -79960,8 +73930,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_424
     };
-    MODIFIERS_NORMAL[419] = (Modifier){
-        .id = 419,
+    MODIFIERS_NORMAL[425] = (Modifier){
+        .id = 425,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -79970,8 +73940,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_425
     };
-    MODIFIERS_NORMAL[420] = (Modifier){
-        .id = 420,
+    MODIFIERS_NORMAL[426] = (Modifier){
+        .id = 426,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -79980,8 +73950,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_426
     };
-    MODIFIERS_NORMAL[421] = (Modifier){
-        .id = 421,
+    MODIFIERS_NORMAL[427] = (Modifier){
+        .id = 427,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -79990,8 +73960,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_427
     };
-    MODIFIERS_NORMAL[422] = (Modifier){
-        .id = 422,
+    MODIFIERS_NORMAL[428] = (Modifier){
+        .id = 428,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -80000,8 +73970,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_428
     };
-    MODIFIERS_NORMAL[423] = (Modifier){
-        .id = 423,
+    MODIFIERS_NORMAL[429] = (Modifier){
+        .id = 429,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -80010,8 +73980,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_429
     };
-    MODIFIERS_NORMAL[424] = (Modifier){
-        .id = 424,
+    MODIFIERS_NORMAL[430] = (Modifier){
+        .id = 430,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -80020,8 +73990,8 @@ void init_modifiers_data(void) {
         .tier_count = 11,
         .tiers = tiers_normal_430
     };
-    MODIFIERS_NORMAL[425] = (Modifier){
-        .id = 425,
+    MODIFIERS_NORMAL[431] = (Modifier){
+        .id = 431,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_PHYSICAL | TAG_AILMENT,
@@ -80030,8 +74000,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_431
     };
-    MODIFIERS_NORMAL[426] = (Modifier){
-        .id = 426,
+    MODIFIERS_NORMAL[432] = (Modifier){
+        .id = 432,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_AILMENT,
@@ -80040,8 +74010,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_432
     };
-    MODIFIERS_NORMAL[427] = (Modifier){
-        .id = 427,
+    MODIFIERS_NORMAL[433] = (Modifier){
+        .id = 433,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_AILMENT,
@@ -80050,8 +74020,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_433
     };
-    MODIFIERS_NORMAL[428] = (Modifier){
-        .id = 428,
+    MODIFIERS_NORMAL[434] = (Modifier){
+        .id = 434,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -80060,8 +74030,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_434
     };
-    MODIFIERS_NORMAL[429] = (Modifier){
-        .id = 429,
+    MODIFIERS_NORMAL[435] = (Modifier){
+        .id = 435,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80070,8 +74040,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_435
     };
-    MODIFIERS_NORMAL[430] = (Modifier){
-        .id = 430,
+    MODIFIERS_NORMAL[436] = (Modifier){
+        .id = 436,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80080,8 +74050,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_436
     };
-    MODIFIERS_NORMAL[431] = (Modifier){
-        .id = 431,
+    MODIFIERS_NORMAL[437] = (Modifier){
+        .id = 437,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -80090,8 +74060,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_437
     };
-    MODIFIERS_NORMAL[432] = (Modifier){
-        .id = 432,
+    MODIFIERS_NORMAL[438] = (Modifier){
+        .id = 438,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -80100,8 +74070,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_438
     };
-    MODIFIERS_NORMAL[433] = (Modifier){
-        .id = 433,
+    MODIFIERS_NORMAL[439] = (Modifier){
+        .id = 439,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80110,8 +74080,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_439
     };
-    MODIFIERS_NORMAL[434] = (Modifier){
-        .id = 434,
+    MODIFIERS_NORMAL[440] = (Modifier){
+        .id = 440,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80120,8 +74090,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_440
     };
-    MODIFIERS_NORMAL[435] = (Modifier){
-        .id = 435,
+    MODIFIERS_NORMAL[441] = (Modifier){
+        .id = 441,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80130,8 +74100,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_441
     };
-    MODIFIERS_NORMAL[436] = (Modifier){
-        .id = 436,
+    MODIFIERS_NORMAL[442] = (Modifier){
+        .id = 442,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80140,8 +74110,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_442
     };
-    MODIFIERS_NORMAL[437] = (Modifier){
-        .id = 437,
+    MODIFIERS_NORMAL[443] = (Modifier){
+        .id = 443,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80150,8 +74120,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_443
     };
-    MODIFIERS_NORMAL[438] = (Modifier){
-        .id = 438,
+    MODIFIERS_NORMAL[444] = (Modifier){
+        .id = 444,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80160,8 +74130,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_444
     };
-    MODIFIERS_NORMAL[439] = (Modifier){
-        .id = 439,
+    MODIFIERS_NORMAL[445] = (Modifier){
+        .id = 445,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -80170,8 +74140,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_445
     };
-    MODIFIERS_NORMAL[440] = (Modifier){
-        .id = 440,
+    MODIFIERS_NORMAL[446] = (Modifier){
+        .id = 446,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -80180,8 +74150,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_446
     };
-    MODIFIERS_NORMAL[441] = (Modifier){
-        .id = 441,
+    MODIFIERS_NORMAL[447] = (Modifier){
+        .id = 447,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -80190,8 +74160,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_447
     };
-    MODIFIERS_NORMAL[442] = (Modifier){
-        .id = 442,
+    MODIFIERS_NORMAL[448] = (Modifier){
+        .id = 448,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -80200,8 +74170,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_448
     };
-    MODIFIERS_NORMAL[443] = (Modifier){
-        .id = 443,
+    MODIFIERS_NORMAL[449] = (Modifier){
+        .id = 449,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -80210,8 +74180,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_449
     };
-    MODIFIERS_NORMAL[444] = (Modifier){
-        .id = 444,
+    MODIFIERS_NORMAL[450] = (Modifier){
+        .id = 450,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -80220,8 +74190,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_450
     };
-    MODIFIERS_NORMAL[445] = (Modifier){
-        .id = 445,
+    MODIFIERS_NORMAL[451] = (Modifier){
+        .id = 451,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -80230,8 +74200,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_451
     };
-    MODIFIERS_NORMAL[446] = (Modifier){
-        .id = 446,
+    MODIFIERS_NORMAL[452] = (Modifier){
+        .id = 452,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -80240,8 +74210,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_452
     };
-    MODIFIERS_NORMAL[447] = (Modifier){
-        .id = 447,
+    MODIFIERS_NORMAL[453] = (Modifier){
+        .id = 453,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -80250,8 +74220,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_453
     };
-    MODIFIERS_NORMAL[448] = (Modifier){
-        .id = 448,
+    MODIFIERS_NORMAL[454] = (Modifier){
+        .id = 454,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -80260,8 +74230,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_454
     };
-    MODIFIERS_NORMAL[449] = (Modifier){
-        .id = 449,
+    MODIFIERS_NORMAL[455] = (Modifier){
+        .id = 455,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -80270,8 +74240,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_455
     };
-    MODIFIERS_NORMAL[450] = (Modifier){
-        .id = 450,
+    MODIFIERS_NORMAL[456] = (Modifier){
+        .id = 456,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -80280,8 +74250,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_456
     };
-    MODIFIERS_NORMAL[451] = (Modifier){
-        .id = 451,
+    MODIFIERS_NORMAL[457] = (Modifier){
+        .id = 457,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -80290,8 +74260,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_457
     };
-    MODIFIERS_NORMAL[452] = (Modifier){
-        .id = 452,
+    MODIFIERS_NORMAL[458] = (Modifier){
+        .id = 458,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -80300,8 +74270,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_458
     };
-    MODIFIERS_NORMAL[453] = (Modifier){
-        .id = 453,
+    MODIFIERS_NORMAL[459] = (Modifier){
+        .id = 459,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -80310,8 +74280,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_459
     };
-    MODIFIERS_NORMAL[454] = (Modifier){
-        .id = 454,
+    MODIFIERS_NORMAL[460] = (Modifier){
+        .id = 460,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -80320,8 +74290,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_460
     };
-    MODIFIERS_NORMAL[455] = (Modifier){
-        .id = 455,
+    MODIFIERS_NORMAL[461] = (Modifier){
+        .id = 461,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -80330,8 +74300,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_461
     };
-    MODIFIERS_NORMAL[456] = (Modifier){
-        .id = 456,
+    MODIFIERS_NORMAL[462] = (Modifier){
+        .id = 462,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_PHYSICAL | TAG_ATTACK,
@@ -80340,8 +74310,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_462
     };
-    MODIFIERS_NORMAL[457] = (Modifier){
-        .id = 457,
+    MODIFIERS_NORMAL[463] = (Modifier){
+        .id = 463,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_PHYSICAL | TAG_ATTACK,
@@ -80350,8 +74320,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_463
     };
-    MODIFIERS_NORMAL[458] = (Modifier){
-        .id = 458,
+    MODIFIERS_NORMAL[464] = (Modifier){
+        .id = 464,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -80360,8 +74330,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_464
     };
-    MODIFIERS_NORMAL[459] = (Modifier){
-        .id = 459,
+    MODIFIERS_NORMAL[465] = (Modifier){
+        .id = 465,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -80370,8 +74340,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_465
     };
-    MODIFIERS_NORMAL[460] = (Modifier){
-        .id = 460,
+    MODIFIERS_NORMAL[466] = (Modifier){
+        .id = 466,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_ATTACK,
@@ -80380,8 +74350,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_466
     };
-    MODIFIERS_NORMAL[461] = (Modifier){
-        .id = 461,
+    MODIFIERS_NORMAL[467] = (Modifier){
+        .id = 467,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -80390,8 +74360,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_467
     };
-    MODIFIERS_NORMAL[462] = (Modifier){
-        .id = 462,
+    MODIFIERS_NORMAL[468] = (Modifier){
+        .id = 468,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CRITICAL,
@@ -80400,8 +74370,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_468
     };
-    MODIFIERS_NORMAL[463] = (Modifier){
-        .id = 463,
+    MODIFIERS_NORMAL[469] = (Modifier){
+        .id = 469,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -80410,8 +74380,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_469
     };
-    MODIFIERS_NORMAL[464] = (Modifier){
-        .id = 464,
+    MODIFIERS_NORMAL[470] = (Modifier){
+        .id = 470,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -80420,8 +74390,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_470
     };
-    MODIFIERS_NORMAL[465] = (Modifier){
-        .id = 465,
+    MODIFIERS_NORMAL[471] = (Modifier){
+        .id = 471,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80430,8 +74400,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_471
     };
-    MODIFIERS_NORMAL[466] = (Modifier){
-        .id = 466,
+    MODIFIERS_NORMAL[472] = (Modifier){
+        .id = 472,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80440,8 +74410,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_472
     };
-    MODIFIERS_NORMAL[467] = (Modifier){
-        .id = 467,
+    MODIFIERS_NORMAL[473] = (Modifier){
+        .id = 473,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -80450,8 +74420,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_473
     };
-    MODIFIERS_NORMAL[468] = (Modifier){
-        .id = 468,
+    MODIFIERS_NORMAL[474] = (Modifier){
+        .id = 474,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -80460,8 +74430,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_474
     };
-    MODIFIERS_NORMAL[469] = (Modifier){
-        .id = 469,
+    MODIFIERS_NORMAL[475] = (Modifier){
+        .id = 475,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80470,8 +74440,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_475
     };
-    MODIFIERS_NORMAL[470] = (Modifier){
-        .id = 470,
+    MODIFIERS_NORMAL[476] = (Modifier){
+        .id = 476,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80480,8 +74450,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_476
     };
-    MODIFIERS_NORMAL[471] = (Modifier){
-        .id = 471,
+    MODIFIERS_NORMAL[477] = (Modifier){
+        .id = 477,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80490,8 +74460,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_477
     };
-    MODIFIERS_NORMAL[472] = (Modifier){
-        .id = 472,
+    MODIFIERS_NORMAL[478] = (Modifier){
+        .id = 478,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80500,8 +74470,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_478
     };
-    MODIFIERS_NORMAL[473] = (Modifier){
-        .id = 473,
+    MODIFIERS_NORMAL[479] = (Modifier){
+        .id = 479,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80510,8 +74480,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_479
     };
-    MODIFIERS_NORMAL[474] = (Modifier){
-        .id = 474,
+    MODIFIERS_NORMAL[480] = (Modifier){
+        .id = 480,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80520,8 +74490,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_480
     };
-    MODIFIERS_NORMAL[475] = (Modifier){
-        .id = 475,
+    MODIFIERS_NORMAL[481] = (Modifier){
+        .id = 481,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -80530,8 +74500,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_481
     };
-    MODIFIERS_NORMAL[476] = (Modifier){
-        .id = 476,
+    MODIFIERS_NORMAL[482] = (Modifier){
+        .id = 482,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -80540,8 +74510,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_482
     };
-    MODIFIERS_NORMAL[477] = (Modifier){
-        .id = 477,
+    MODIFIERS_NORMAL[483] = (Modifier){
+        .id = 483,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -80550,8 +74520,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_483
     };
-    MODIFIERS_NORMAL[478] = (Modifier){
-        .id = 478,
+    MODIFIERS_NORMAL[484] = (Modifier){
+        .id = 484,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -80560,8 +74530,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_484
     };
-    MODIFIERS_NORMAL[479] = (Modifier){
-        .id = 479,
+    MODIFIERS_NORMAL[485] = (Modifier){
+        .id = 485,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -80570,8 +74540,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_485
     };
-    MODIFIERS_NORMAL[480] = (Modifier){
-        .id = 480,
+    MODIFIERS_NORMAL[486] = (Modifier){
+        .id = 486,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -80580,8 +74550,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_486
     };
-    MODIFIERS_NORMAL[481] = (Modifier){
-        .id = 481,
+    MODIFIERS_NORMAL[487] = (Modifier){
+        .id = 487,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -80590,8 +74560,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_487
     };
-    MODIFIERS_NORMAL[482] = (Modifier){
-        .id = 482,
+    MODIFIERS_NORMAL[488] = (Modifier){
+        .id = 488,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -80600,8 +74570,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_488
     };
-    MODIFIERS_NORMAL[483] = (Modifier){
-        .id = 483,
+    MODIFIERS_NORMAL[489] = (Modifier){
+        .id = 489,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -80610,8 +74580,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_489
     };
-    MODIFIERS_NORMAL[484] = (Modifier){
-        .id = 484,
+    MODIFIERS_NORMAL[490] = (Modifier){
+        .id = 490,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -80620,8 +74590,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_490
     };
-    MODIFIERS_NORMAL[485] = (Modifier){
-        .id = 485,
+    MODIFIERS_NORMAL[491] = (Modifier){
+        .id = 491,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -80630,8 +74600,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_491
     };
-    MODIFIERS_NORMAL[486] = (Modifier){
-        .id = 486,
+    MODIFIERS_NORMAL[492] = (Modifier){
+        .id = 492,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -80640,8 +74610,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_492
     };
-    MODIFIERS_NORMAL[487] = (Modifier){
-        .id = 487,
+    MODIFIERS_NORMAL[493] = (Modifier){
+        .id = 493,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -80650,8 +74620,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_493
     };
-    MODIFIERS_NORMAL[488] = (Modifier){
-        .id = 488,
+    MODIFIERS_NORMAL[494] = (Modifier){
+        .id = 494,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -80660,8 +74630,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_494
     };
-    MODIFIERS_NORMAL[489] = (Modifier){
-        .id = 489,
+    MODIFIERS_NORMAL[495] = (Modifier){
+        .id = 495,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -80670,8 +74640,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_495
     };
-    MODIFIERS_NORMAL[490] = (Modifier){
-        .id = 490,
+    MODIFIERS_NORMAL[496] = (Modifier){
+        .id = 496,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -80680,8 +74650,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_496
     };
-    MODIFIERS_NORMAL[491] = (Modifier){
-        .id = 491,
+    MODIFIERS_NORMAL[497] = (Modifier){
+        .id = 497,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -80690,8 +74660,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_497
     };
-    MODIFIERS_NORMAL[492] = (Modifier){
-        .id = 492,
+    MODIFIERS_NORMAL[498] = (Modifier){
+        .id = 498,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_PHYSICAL | TAG_ATTACK,
@@ -80700,8 +74670,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_498
     };
-    MODIFIERS_NORMAL[493] = (Modifier){
-        .id = 493,
+    MODIFIERS_NORMAL[499] = (Modifier){
+        .id = 499,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_PHYSICAL | TAG_ATTACK,
@@ -80710,8 +74680,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_499
     };
-    MODIFIERS_NORMAL[494] = (Modifier){
-        .id = 494,
+    MODIFIERS_NORMAL[500] = (Modifier){
+        .id = 500,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -80720,8 +74690,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_500
     };
-    MODIFIERS_NORMAL[495] = (Modifier){
-        .id = 495,
+    MODIFIERS_NORMAL[501] = (Modifier){
+        .id = 501,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -80730,8 +74700,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_501
     };
-    MODIFIERS_NORMAL[496] = (Modifier){
-        .id = 496,
+    MODIFIERS_NORMAL[502] = (Modifier){
+        .id = 502,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_ATTACK,
@@ -80740,8 +74710,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_502
     };
-    MODIFIERS_NORMAL[497] = (Modifier){
-        .id = 497,
+    MODIFIERS_NORMAL[503] = (Modifier){
+        .id = 503,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK | TAG_SPEED,
@@ -80750,8 +74720,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_503
     };
-    MODIFIERS_NORMAL[498] = (Modifier){
-        .id = 498,
+    MODIFIERS_NORMAL[504] = (Modifier){
+        .id = 504,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CRITICAL,
@@ -80760,8 +74730,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_504
     };
-    MODIFIERS_NORMAL[499] = (Modifier){
-        .id = 499,
+    MODIFIERS_NORMAL[505] = (Modifier){
+        .id = 505,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -80770,8 +74740,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_505
     };
-    MODIFIERS_NORMAL[500] = (Modifier){
-        .id = 500,
+    MODIFIERS_NORMAL[506] = (Modifier){
+        .id = 506,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -80780,8 +74750,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_506
     };
-    MODIFIERS_NORMAL[501] = (Modifier){
-        .id = 501,
+    MODIFIERS_NORMAL[507] = (Modifier){
+        .id = 507,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80790,8 +74760,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_507
     };
-    MODIFIERS_NORMAL[502] = (Modifier){
-        .id = 502,
+    MODIFIERS_NORMAL[508] = (Modifier){
+        .id = 508,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80800,8 +74770,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_508
     };
-    MODIFIERS_NORMAL[503] = (Modifier){
-        .id = 503,
+    MODIFIERS_NORMAL[509] = (Modifier){
+        .id = 509,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -80810,8 +74780,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_509
     };
-    MODIFIERS_NORMAL[504] = (Modifier){
-        .id = 504,
+    MODIFIERS_NORMAL[510] = (Modifier){
+        .id = 510,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -80820,8 +74790,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_510
     };
-    MODIFIERS_NORMAL[505] = (Modifier){
-        .id = 505,
+    MODIFIERS_NORMAL[511] = (Modifier){
+        .id = 511,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80830,8 +74800,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_511
     };
-    MODIFIERS_NORMAL[506] = (Modifier){
-        .id = 506,
+    MODIFIERS_NORMAL[512] = (Modifier){
+        .id = 512,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80840,8 +74810,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_512
     };
-    MODIFIERS_NORMAL[507] = (Modifier){
-        .id = 507,
+    MODIFIERS_NORMAL[513] = (Modifier){
+        .id = 513,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80850,8 +74820,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_513
     };
-    MODIFIERS_NORMAL[508] = (Modifier){
-        .id = 508,
+    MODIFIERS_NORMAL[514] = (Modifier){
+        .id = 514,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80860,8 +74830,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_514
     };
-    MODIFIERS_NORMAL[509] = (Modifier){
-        .id = 509,
+    MODIFIERS_NORMAL[515] = (Modifier){
+        .id = 515,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80870,8 +74840,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_515
     };
-    MODIFIERS_NORMAL[510] = (Modifier){
-        .id = 510,
+    MODIFIERS_NORMAL[516] = (Modifier){
+        .id = 516,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -80880,8 +74850,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_516
     };
-    MODIFIERS_NORMAL[511] = (Modifier){
-        .id = 511,
+    MODIFIERS_NORMAL[517] = (Modifier){
+        .id = 517,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_LIFE,
@@ -80890,8 +74860,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_517
     };
-    MODIFIERS_NORMAL[512] = (Modifier){
-        .id = 512,
+    MODIFIERS_NORMAL[518] = (Modifier){
+        .id = 518,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_LIFE,
@@ -80900,8 +74870,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_518
     };
-    MODIFIERS_NORMAL[513] = (Modifier){
-        .id = 513,
+    MODIFIERS_NORMAL[519] = (Modifier){
+        .id = 519,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_DEFENCES,
@@ -80910,8 +74880,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_519
     };
-    MODIFIERS_NORMAL[514] = (Modifier){
-        .id = 514,
+    MODIFIERS_NORMAL[520] = (Modifier){
+        .id = 520,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_MANA,
@@ -80920,8 +74890,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_520
     };
-    MODIFIERS_NORMAL[515] = (Modifier){
-        .id = 515,
+    MODIFIERS_NORMAL[521] = (Modifier){
+        .id = 521,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_MANA,
@@ -80930,8 +74900,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_521
     };
-    MODIFIERS_NORMAL[516] = (Modifier){
-        .id = 516,
+    MODIFIERS_NORMAL[522] = (Modifier){
+        .id = 522,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_MANA,
@@ -80940,8 +74910,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_522
     };
-    MODIFIERS_NORMAL[517] = (Modifier){
-        .id = 517,
+    MODIFIERS_NORMAL[523] = (Modifier){
+        .id = 523,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -80950,8 +74920,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_523
     };
-    MODIFIERS_NORMAL[518] = (Modifier){
-        .id = 518,
+    MODIFIERS_NORMAL[524] = (Modifier){
+        .id = 524,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -80960,8 +74930,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_524
     };
-    MODIFIERS_NORMAL[519] = (Modifier){
-        .id = 519,
+    MODIFIERS_NORMAL[525] = (Modifier){
+        .id = 525,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -80970,8 +74940,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_525
     };
-    MODIFIERS_NORMAL[520] = (Modifier){
-        .id = 520,
+    MODIFIERS_NORMAL[526] = (Modifier){
+        .id = 526,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -80980,8 +74950,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_526
     };
-    MODIFIERS_NORMAL[521] = (Modifier){
-        .id = 521,
+    MODIFIERS_NORMAL[527] = (Modifier){
+        .id = 527,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -80990,8 +74960,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_527
     };
-    MODIFIERS_NORMAL[522] = (Modifier){
-        .id = 522,
+    MODIFIERS_NORMAL[528] = (Modifier){
+        .id = 528,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -81000,8 +74970,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_528
     };
-    MODIFIERS_NORMAL[523] = (Modifier){
-        .id = 523,
+    MODIFIERS_NORMAL[529] = (Modifier){
+        .id = 529,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -81010,8 +74980,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_529
     };
-    MODIFIERS_NORMAL[524] = (Modifier){
-        .id = 524,
+    MODIFIERS_NORMAL[530] = (Modifier){
+        .id = 530,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -81020,8 +74990,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_530
     };
-    MODIFIERS_NORMAL[525] = (Modifier){
-        .id = 525,
+    MODIFIERS_NORMAL[531] = (Modifier){
+        .id = 531,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -81030,8 +75000,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_531
     };
-    MODIFIERS_NORMAL[526] = (Modifier){
-        .id = 526,
+    MODIFIERS_NORMAL[532] = (Modifier){
+        .id = 532,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81040,8 +75010,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_532
     };
-    MODIFIERS_NORMAL[527] = (Modifier){
-        .id = 527,
+    MODIFIERS_NORMAL[533] = (Modifier){
+        .id = 533,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MINION | TAG_GEM,
@@ -81050,8 +75020,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_533
     };
-    MODIFIERS_NORMAL[528] = (Modifier){
-        .id = 528,
+    MODIFIERS_NORMAL[534] = (Modifier){
+        .id = 534,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -81060,8 +75030,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_534
     };
-    MODIFIERS_NORMAL[529] = (Modifier){
-        .id = 529,
+    MODIFIERS_NORMAL[535] = (Modifier){
+        .id = 535,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CRITICAL,
@@ -81070,8 +75040,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_535
     };
-    MODIFIERS_NORMAL[530] = (Modifier){
-        .id = 530,
+    MODIFIERS_NORMAL[536] = (Modifier){
+        .id = 536,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81080,8 +75050,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_536
     };
-    MODIFIERS_NORMAL[531] = (Modifier){
-        .id = 531,
+    MODIFIERS_NORMAL[537] = (Modifier){
+        .id = 537,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -81090,8 +75060,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_537
     };
-    MODIFIERS_NORMAL[532] = (Modifier){
-        .id = 532,
+    MODIFIERS_NORMAL[538] = (Modifier){
+        .id = 538,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -81100,8 +75070,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_538
     };
-    MODIFIERS_NORMAL[533] = (Modifier){
-        .id = 533,
+    MODIFIERS_NORMAL[539] = (Modifier){
+        .id = 539,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81110,8 +75080,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_539
     };
-    MODIFIERS_NORMAL[534] = (Modifier){
-        .id = 534,
+    MODIFIERS_NORMAL[540] = (Modifier){
+        .id = 540,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81120,8 +75090,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_540
     };
-    MODIFIERS_NORMAL[535] = (Modifier){
-        .id = 535,
+    MODIFIERS_NORMAL[541] = (Modifier){
+        .id = 541,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -81130,8 +75100,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_541
     };
-    MODIFIERS_NORMAL[536] = (Modifier){
-        .id = 536,
+    MODIFIERS_NORMAL[542] = (Modifier){
+        .id = 542,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -81140,8 +75110,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_542
     };
-    MODIFIERS_NORMAL[537] = (Modifier){
-        .id = 537,
+    MODIFIERS_NORMAL[543] = (Modifier){
+        .id = 543,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81150,8 +75120,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_543
     };
-    MODIFIERS_NORMAL[538] = (Modifier){
-        .id = 538,
+    MODIFIERS_NORMAL[544] = (Modifier){
+        .id = 544,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81160,8 +75130,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_544
     };
-    MODIFIERS_NORMAL[539] = (Modifier){
-        .id = 539,
+    MODIFIERS_NORMAL[545] = (Modifier){
+        .id = 545,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81170,8 +75140,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_545
     };
-    MODIFIERS_NORMAL[540] = (Modifier){
-        .id = 540,
+    MODIFIERS_NORMAL[546] = (Modifier){
+        .id = 546,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81180,8 +75150,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_546
     };
-    MODIFIERS_NORMAL[541] = (Modifier){
-        .id = 541,
+    MODIFIERS_NORMAL[547] = (Modifier){
+        .id = 547,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81190,8 +75160,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_547
     };
-    MODIFIERS_NORMAL[542] = (Modifier){
-        .id = 542,
+    MODIFIERS_NORMAL[548] = (Modifier){
+        .id = 548,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81200,8 +75170,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_548
     };
-    MODIFIERS_NORMAL[543] = (Modifier){
-        .id = 543,
+    MODIFIERS_NORMAL[549] = (Modifier){
+        .id = 549,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_LIFE,
@@ -81210,8 +75180,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_549
     };
-    MODIFIERS_NORMAL[544] = (Modifier){
-        .id = 544,
+    MODIFIERS_NORMAL[550] = (Modifier){
+        .id = 550,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_LIFE,
@@ -81220,8 +75190,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_550
     };
-    MODIFIERS_NORMAL[545] = (Modifier){
-        .id = 545,
+    MODIFIERS_NORMAL[551] = (Modifier){
+        .id = 551,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_LIFE,
@@ -81230,8 +75200,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_551
     };
-    MODIFIERS_NORMAL[546] = (Modifier){
-        .id = 546,
+    MODIFIERS_NORMAL[552] = (Modifier){
+        .id = 552,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_MANA,
@@ -81240,8 +75210,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_552
     };
-    MODIFIERS_NORMAL[547] = (Modifier){
-        .id = 547,
+    MODIFIERS_NORMAL[553] = (Modifier){
+        .id = 553,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_MANA,
@@ -81250,8 +75220,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_553
     };
-    MODIFIERS_NORMAL[548] = (Modifier){
-        .id = 548,
+    MODIFIERS_NORMAL[554] = (Modifier){
+        .id = 554,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_MANA,
@@ -81260,8 +75230,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_554
     };
-    MODIFIERS_NORMAL[549] = (Modifier){
-        .id = 549,
+    MODIFIERS_NORMAL[555] = (Modifier){
+        .id = 555,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -81270,8 +75240,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_555
     };
-    MODIFIERS_NORMAL[550] = (Modifier){
-        .id = 550,
+    MODIFIERS_NORMAL[556] = (Modifier){
+        .id = 556,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81280,8 +75250,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_556
     };
-    MODIFIERS_NORMAL[551] = (Modifier){
-        .id = 551,
+    MODIFIERS_NORMAL[557] = (Modifier){
+        .id = 557,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81290,8 +75260,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_557
     };
-    MODIFIERS_NORMAL[552] = (Modifier){
-        .id = 552,
+    MODIFIERS_NORMAL[558] = (Modifier){
+        .id = 558,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81300,8 +75270,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_558
     };
-    MODIFIERS_NORMAL[553] = (Modifier){
-        .id = 553,
+    MODIFIERS_NORMAL[559] = (Modifier){
+        .id = 559,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81310,8 +75280,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_559
     };
-    MODIFIERS_NORMAL[554] = (Modifier){
-        .id = 554,
+    MODIFIERS_NORMAL[560] = (Modifier){
+        .id = 560,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -81320,8 +75290,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_560
     };
-    MODIFIERS_NORMAL[555] = (Modifier){
-        .id = 555,
+    MODIFIERS_NORMAL[561] = (Modifier){
+        .id = 561,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -81330,8 +75300,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_561
     };
-    MODIFIERS_NORMAL[556] = (Modifier){
-        .id = 556,
+    MODIFIERS_NORMAL[562] = (Modifier){
+        .id = 562,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -81340,8 +75310,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_562
     };
-    MODIFIERS_NORMAL[557] = (Modifier){
-        .id = 557,
+    MODIFIERS_NORMAL[563] = (Modifier){
+        .id = 563,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -81350,8 +75320,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_563
     };
-    MODIFIERS_NORMAL[558] = (Modifier){
-        .id = 558,
+    MODIFIERS_NORMAL[564] = (Modifier){
+        .id = 564,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81360,8 +75330,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_564
     };
-    MODIFIERS_NORMAL[559] = (Modifier){
-        .id = 559,
+    MODIFIERS_NORMAL[565] = (Modifier){
+        .id = 565,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MINION | TAG_GEM,
@@ -81370,8 +75340,8 @@ void init_modifiers_data(void) {
         .tier_count = 2,
         .tiers = tiers_normal_565
     };
-    MODIFIERS_NORMAL[560] = (Modifier){
-        .id = 560,
+    MODIFIERS_NORMAL[566] = (Modifier){
+        .id = 566,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -81380,8 +75350,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_566
     };
-    MODIFIERS_NORMAL[561] = (Modifier){
-        .id = 561,
+    MODIFIERS_NORMAL[567] = (Modifier){
+        .id = 567,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CRITICAL,
@@ -81390,8 +75360,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_567
     };
-    MODIFIERS_NORMAL[562] = (Modifier){
-        .id = 562,
+    MODIFIERS_NORMAL[568] = (Modifier){
+        .id = 568,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81400,8 +75370,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_568
     };
-    MODIFIERS_NORMAL[563] = (Modifier){
-        .id = 563,
+    MODIFIERS_NORMAL[569] = (Modifier){
+        .id = 569,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -81410,8 +75380,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_569
     };
-    MODIFIERS_NORMAL[564] = (Modifier){
-        .id = 564,
+    MODIFIERS_NORMAL[570] = (Modifier){
+        .id = 570,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES | TAG_ELEMENTAL,
@@ -81420,8 +75390,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_570
     };
-    MODIFIERS_NORMAL[565] = (Modifier){
-        .id = 565,
+    MODIFIERS_NORMAL[571] = (Modifier){
+        .id = 571,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81430,8 +75400,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_571
     };
-    MODIFIERS_NORMAL[566] = (Modifier){
-        .id = 566,
+    MODIFIERS_NORMAL[572] = (Modifier){
+        .id = 572,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81440,8 +75410,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_572
     };
-    MODIFIERS_NORMAL[567] = (Modifier){
-        .id = 567,
+    MODIFIERS_NORMAL[573] = (Modifier){
+        .id = 573,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -81450,8 +75420,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_573
     };
-    MODIFIERS_NORMAL[568] = (Modifier){
-        .id = 568,
+    MODIFIERS_NORMAL[574] = (Modifier){
+        .id = 574,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -81460,8 +75430,8 @@ void init_modifiers_data(void) {
         .tier_count = 12,
         .tiers = tiers_normal_574
     };
-    MODIFIERS_NORMAL[569] = (Modifier){
-        .id = 569,
+    MODIFIERS_NORMAL[575] = (Modifier){
+        .id = 575,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81470,8 +75440,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_575
     };
-    MODIFIERS_NORMAL[570] = (Modifier){
-        .id = 570,
+    MODIFIERS_NORMAL[576] = (Modifier){
+        .id = 576,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_PHYSICAL | TAG_ATTACK,
@@ -81480,8 +75450,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_576
     };
-    MODIFIERS_NORMAL[571] = (Modifier){
-        .id = 571,
+    MODIFIERS_NORMAL[577] = (Modifier){
+        .id = 577,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE | TAG_ATTACK,
@@ -81490,8 +75460,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_577
     };
-    MODIFIERS_NORMAL[572] = (Modifier){
-        .id = 572,
+    MODIFIERS_NORMAL[578] = (Modifier){
+        .id = 578,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD | TAG_ATTACK,
@@ -81500,8 +75470,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_578
     };
-    MODIFIERS_NORMAL[573] = (Modifier){
-        .id = 573,
+    MODIFIERS_NORMAL[579] = (Modifier){
+        .id = 579,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING | TAG_ATTACK,
@@ -81510,8 +75480,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_579
     };
-    MODIFIERS_NORMAL[574] = (Modifier){
-        .id = 574,
+    MODIFIERS_NORMAL[580] = (Modifier){
+        .id = 580,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -81520,8 +75490,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_580
     };
-    MODIFIERS_NORMAL[575] = (Modifier){
-        .id = 575,
+    MODIFIERS_NORMAL[581] = (Modifier){
+        .id = 581,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81530,8 +75500,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_581
     };
-    MODIFIERS_NORMAL[576] = (Modifier){
-        .id = 576,
+    MODIFIERS_NORMAL[582] = (Modifier){
+        .id = 582,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_FIRE,
@@ -81540,8 +75510,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_582
     };
-    MODIFIERS_NORMAL[577] = (Modifier){
-        .id = 577,
+    MODIFIERS_NORMAL[583] = (Modifier){
+        .id = 583,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_COLD,
@@ -81550,8 +75520,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_583
     };
-    MODIFIERS_NORMAL[578] = (Modifier){
-        .id = 578,
+    MODIFIERS_NORMAL[584] = (Modifier){
+        .id = 584,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ELEMENTAL | TAG_LIGHTNING,
@@ -81560,8 +75530,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_584
     };
-    MODIFIERS_NORMAL[579] = (Modifier){
-        .id = 579,
+    MODIFIERS_NORMAL[585] = (Modifier){
+        .id = 585,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CHAOS,
@@ -81570,8 +75540,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_585
     };
-    MODIFIERS_NORMAL[580] = (Modifier){
-        .id = 580,
+    MODIFIERS_NORMAL[586] = (Modifier){
+        .id = 586,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81580,8 +75550,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_586
     };
-    MODIFIERS_NORMAL[581] = (Modifier){
-        .id = 581,
+    MODIFIERS_NORMAL[587] = (Modifier){
+        .id = 587,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81590,8 +75560,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_587
     };
-    MODIFIERS_NORMAL[582] = (Modifier){
-        .id = 582,
+    MODIFIERS_NORMAL[588] = (Modifier){
+        .id = 588,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81600,8 +75570,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_588
     };
-    MODIFIERS_NORMAL[583] = (Modifier){
-        .id = 583,
+    MODIFIERS_NORMAL[589] = (Modifier){
+        .id = 589,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81610,8 +75580,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_589
     };
-    MODIFIERS_NORMAL[584] = (Modifier){
-        .id = 584,
+    MODIFIERS_NORMAL[590] = (Modifier){
+        .id = 590,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -81620,8 +75590,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_590
     };
-    MODIFIERS_NORMAL[585] = (Modifier){
-        .id = 585,
+    MODIFIERS_NORMAL[591] = (Modifier){
+        .id = 591,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -81630,8 +75600,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_591
     };
-    MODIFIERS_NORMAL[586] = (Modifier){
-        .id = 586,
+    MODIFIERS_NORMAL[592] = (Modifier){
+        .id = 592,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -81640,8 +75610,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_592
     };
-    MODIFIERS_NORMAL[587] = (Modifier){
-        .id = 587,
+    MODIFIERS_NORMAL[593] = (Modifier){
+        .id = 593,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_COLD | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -81650,8 +75620,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_593
     };
-    MODIFIERS_NORMAL[588] = (Modifier){
-        .id = 588,
+    MODIFIERS_NORMAL[594] = (Modifier){
+        .id = 594,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -81660,8 +75630,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_594
     };
-    MODIFIERS_NORMAL[589] = (Modifier){
-        .id = 589,
+    MODIFIERS_NORMAL[595] = (Modifier){
+        .id = 595,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -81670,8 +75640,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_595
     };
-    MODIFIERS_NORMAL[590] = (Modifier){
-        .id = 590,
+    MODIFIERS_NORMAL[596] = (Modifier){
+        .id = 596,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -81680,8 +75650,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_596
     };
-    MODIFIERS_NORMAL[591] = (Modifier){
-        .id = 591,
+    MODIFIERS_NORMAL[597] = (Modifier){
+        .id = 597,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_PHYSICAL | TAG_ATTACK,
@@ -81690,8 +75660,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_597
     };
-    MODIFIERS_NORMAL[592] = (Modifier){
-        .id = 592,
+    MODIFIERS_NORMAL[598] = (Modifier){
+        .id = 598,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA | TAG_PHYSICAL | TAG_ATTACK,
@@ -81700,8 +75670,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_598
     };
-    MODIFIERS_NORMAL[593] = (Modifier){
-        .id = 593,
+    MODIFIERS_NORMAL[599] = (Modifier){
+        .id = 599,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -81710,8 +75680,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_599
     };
-    MODIFIERS_NORMAL[594] = (Modifier){
-        .id = 594,
+    MODIFIERS_NORMAL[600] = (Modifier){
+        .id = 600,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -81720,8 +75690,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_600
     };
-    MODIFIERS_NORMAL[595] = (Modifier){
-        .id = 595,
+    MODIFIERS_NORMAL[601] = (Modifier){
+        .id = 601,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_SPEED,
@@ -81730,8 +75700,8 @@ void init_modifiers_data(void) {
         .tier_count = 4,
         .tiers = tiers_normal_601
     };
-    MODIFIERS_NORMAL[596] = (Modifier){
-        .id = 596,
+    MODIFIERS_NORMAL[602] = (Modifier){
+        .id = 602,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81740,8 +75710,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_602
     };
-    MODIFIERS_NORMAL[597] = (Modifier){
-        .id = 597,
+    MODIFIERS_NORMAL[603] = (Modifier){
+        .id = 603,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -81750,8 +75720,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_603
     };
-    MODIFIERS_NORMAL[598] = (Modifier){
-        .id = 598,
+    MODIFIERS_NORMAL[604] = (Modifier){
+        .id = 604,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -81760,8 +75730,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_604
     };
-    MODIFIERS_NORMAL[599] = (Modifier){
-        .id = 599,
+    MODIFIERS_NORMAL[605] = (Modifier){
+        .id = 605,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -81770,8 +75740,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_605
     };
-    MODIFIERS_NORMAL[600] = (Modifier){
-        .id = 600,
+    MODIFIERS_NORMAL[606] = (Modifier){
+        .id = 606,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81780,8 +75750,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_606
     };
-    MODIFIERS_NORMAL[601] = (Modifier){
-        .id = 601,
+    MODIFIERS_NORMAL[607] = (Modifier){
+        .id = 607,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81790,8 +75760,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_607
     };
-    MODIFIERS_NORMAL[602] = (Modifier){
-        .id = 602,
+    MODIFIERS_NORMAL[608] = (Modifier){
+        .id = 608,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81800,8 +75770,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_608
     };
-    MODIFIERS_NORMAL[603] = (Modifier){
-        .id = 603,
+    MODIFIERS_NORMAL[609] = (Modifier){
+        .id = 609,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DEFENCES,
@@ -81810,8 +75780,8 @@ void init_modifiers_data(void) {
         .tier_count = 7,
         .tiers = tiers_normal_609
     };
-    MODIFIERS_NORMAL[604] = (Modifier){
-        .id = 604,
+    MODIFIERS_NORMAL[610] = (Modifier){
+        .id = 610,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -81820,8 +75790,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_610
     };
-    MODIFIERS_NORMAL[605] = (Modifier){
-        .id = 605,
+    MODIFIERS_NORMAL[611] = (Modifier){
+        .id = 611,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81830,8 +75800,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_611
     };
-    MODIFIERS_NORMAL[606] = (Modifier){
-        .id = 606,
+    MODIFIERS_NORMAL[612] = (Modifier){
+        .id = 612,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81840,8 +75810,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_612
     };
-    MODIFIERS_NORMAL[607] = (Modifier){
-        .id = 607,
+    MODIFIERS_NORMAL[613] = (Modifier){
+        .id = 613,
         .type = MOD_PREFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_CASTER,
@@ -81850,8 +75820,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_613
     };
-    MODIFIERS_NORMAL[608] = (Modifier){
-        .id = 608,
+    MODIFIERS_NORMAL[614] = (Modifier){
+        .id = 614,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81860,8 +75830,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_614
     };
-    MODIFIERS_NORMAL[609] = (Modifier){
-        .id = 609,
+    MODIFIERS_NORMAL[615] = (Modifier){
+        .id = 615,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81870,8 +75840,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_615
     };
-    MODIFIERS_NORMAL[610] = (Modifier){
-        .id = 610,
+    MODIFIERS_NORMAL[616] = (Modifier){
+        .id = 616,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81880,8 +75850,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_616
     };
-    MODIFIERS_NORMAL[611] = (Modifier){
-        .id = 611,
+    MODIFIERS_NORMAL[617] = (Modifier){
+        .id = 617,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTRIBUTE,
@@ -81890,8 +75860,8 @@ void init_modifiers_data(void) {
         .tier_count = 9,
         .tiers = tiers_normal_617
     };
-    MODIFIERS_NORMAL[612] = (Modifier){
-        .id = 612,
+    MODIFIERS_NORMAL[618] = (Modifier){
+        .id = 618,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_RESISTANCE,
@@ -81900,8 +75870,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_618
     };
-    MODIFIERS_NORMAL[613] = (Modifier){
-        .id = 613,
+    MODIFIERS_NORMAL[619] = (Modifier){
+        .id = 619,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_COLD | TAG_RESISTANCE,
@@ -81910,8 +75880,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_619
     };
-    MODIFIERS_NORMAL[614] = (Modifier){
-        .id = 614,
+    MODIFIERS_NORMAL[620] = (Modifier){
+        .id = 620,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -81920,8 +75890,8 @@ void init_modifiers_data(void) {
         .tier_count = 8,
         .tiers = tiers_normal_620
     };
-    MODIFIERS_NORMAL[615] = (Modifier){
-        .id = 615,
+    MODIFIERS_NORMAL[621] = (Modifier){
+        .id = 621,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ELEMENTAL | TAG_FIRE | TAG_COLD | TAG_LIGHTNING | TAG_RESISTANCE,
@@ -81930,8 +75900,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_621
     };
-    MODIFIERS_NORMAL[616] = (Modifier){
-        .id = 616,
+    MODIFIERS_NORMAL[622] = (Modifier){
+        .id = 622,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CHAOS | TAG_RESISTANCE,
@@ -81940,8 +75910,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_622
     };
-    MODIFIERS_NORMAL[617] = (Modifier){
-        .id = 617,
+    MODIFIERS_NORMAL[623] = (Modifier){
+        .id = 623,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_GEM,
@@ -81950,8 +75920,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_623
     };
-    MODIFIERS_NORMAL[618] = (Modifier){
-        .id = 618,
+    MODIFIERS_NORMAL[624] = (Modifier){
+        .id = 624,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MINION | TAG_GEM,
@@ -81960,8 +75930,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_624
     };
-    MODIFIERS_NORMAL[619] = (Modifier){
-        .id = 619,
+    MODIFIERS_NORMAL[625] = (Modifier){
+        .id = 625,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_ATTACK,
@@ -81970,8 +75940,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_625
     };
-    MODIFIERS_NORMAL[620] = (Modifier){
-        .id = 620,
+    MODIFIERS_NORMAL[626] = (Modifier){
+        .id = 626,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -81980,8 +75950,8 @@ void init_modifiers_data(void) {
         .tier_count = 3,
         .tiers = tiers_normal_626
     };
-    MODIFIERS_NORMAL[621] = (Modifier){
-        .id = 621,
+    MODIFIERS_NORMAL[627] = (Modifier){
+        .id = 627,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -81990,8 +75960,8 @@ void init_modifiers_data(void) {
         .tier_count = 10,
         .tiers = tiers_normal_627
     };
-    MODIFIERS_NORMAL[622] = (Modifier){
-        .id = 622,
+    MODIFIERS_NORMAL[628] = (Modifier){
+        .id = 628,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_MANA,
@@ -82000,8 +75970,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_628
     };
-    MODIFIERS_NORMAL[623] = (Modifier){
-        .id = 623,
+    MODIFIERS_NORMAL[629] = (Modifier){
+        .id = 629,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CASTER | TAG_SPEED,
@@ -82010,8 +75980,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_629
     };
-    MODIFIERS_NORMAL[624] = (Modifier){
-        .id = 624,
+    MODIFIERS_NORMAL[630] = (Modifier){
+        .id = 630,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_CRITICAL,
@@ -82020,8 +75990,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_630
     };
-    MODIFIERS_NORMAL[625] = (Modifier){
-        .id = 625,
+    MODIFIERS_NORMAL[631] = (Modifier){
+        .id = 631,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_DAMAGE | TAG_ATTACK | TAG_CRITICAL,
@@ -82030,8 +76000,8 @@ void init_modifiers_data(void) {
         .tier_count = 6,
         .tiers = tiers_normal_631
     };
-    MODIFIERS_NORMAL[626] = (Modifier){
-        .id = 626,
+    MODIFIERS_NORMAL[632] = (Modifier){
+        .id = 632,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_NONE,
@@ -82040,8 +76010,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_632
     };
-    MODIFIERS_NORMAL[627] = (Modifier){
-        .id = 627,
+    MODIFIERS_NORMAL[633] = (Modifier){
+        .id = 633,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE,
@@ -82050,8 +76020,8 @@ void init_modifiers_data(void) {
         .tier_count = 5,
         .tiers = tiers_normal_633
     };
-    MODIFIERS_NORMAL[628] = (Modifier){
-        .id = 628,
+    MODIFIERS_NORMAL[634] = (Modifier){
+        .id = 634,
         .type = MOD_SUFFIX,
         .source = SOURCE_NORMAL,
         .tags = TAG_LIFE | TAG_MANA,

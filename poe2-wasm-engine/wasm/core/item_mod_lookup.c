@@ -3002,7 +3002,7 @@ ItemModLookupResult get_item_mod_lookup(int item_id, ModifierSource source) {
             else if (source == SOURCE_ESSENCE) { result.prefixes = boots_str_dex_essence_prefixes; result.prefix_count = 4; result.suffixes = boots_str_dex_essence_suffixes; result.suffix_count = 8; }
             break;
         case 23: // Bucklers
-            if (source == SOURCE_NORMAL) { result.suffixes = bucklers_normal_suffixes; result.suffix_count = 13; }
+            if (source == SOURCE_NORMAL) { result.prefixes = bucklers_normal_prefixes; result.prefix_count = 6; result.suffixes = bucklers_normal_suffixes; result.suffix_count = 13; }
             else if (source == SOURCE_DESECRATED) { result.suffixes = bucklers_desecrated_suffixes; result.suffix_count = 12; }
             else if (source == SOURCE_ESSENCE) { result.prefixes = bucklers_essence_prefixes; result.prefix_count = 5; result.suffixes = bucklers_essence_suffixes; result.suffix_count = 7; }
             break;
@@ -3083,6 +3083,8 @@ ItemModLookupResult get_item_mod_lookup(int item_id, ModifierSource source) {
             break;
         case 39: // Foci
             if (source == SOURCE_NORMAL) { result.prefixes = foci_normal_prefixes; result.prefix_count = 11; result.suffixes = foci_normal_suffixes; result.suffix_count = 13; }
+            else if (source == SOURCE_DESECRATED) { result.prefixes = foci_desecrated_prefixes; result.prefix_count = 6; result.suffixes = foci_desecrated_suffixes; result.suffix_count = 11; }
+            else if (source == SOURCE_ESSENCE) { result.prefixes = foci_essence_prefixes; result.prefix_count = 5; result.suffixes = foci_essence_suffixes; result.suffix_count = 12; }
             break;
         case 40: // Staves
             if (source == SOURCE_NORMAL) { result.prefixes = staves_normal_prefixes; result.prefix_count = 11; result.suffixes = staves_normal_suffixes; result.suffix_count = 18; }

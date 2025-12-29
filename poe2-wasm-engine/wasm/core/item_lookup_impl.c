@@ -56,7 +56,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 34: // body_armours_dex
+        case 35: // body_armours_dex
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -93,7 +93,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 35: // body_armours_dex_int
+        case 36: // body_armours_dex_int
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -130,7 +130,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 33: // body_armours_int
+        case 34: // body_armours_int
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -167,7 +167,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 30: // body_armours_str
+        case 31: // body_armours_str
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -204,44 +204,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 32: // body_armours_str_dex
-            switch (source) {
-                case SOURCE_NORMAL:
-                    if (!is_suffix) {
-                        extern ModifierLookup body_armours_str_dex_normal_prefixes[];
-                        table = body_armours_str_dex_normal_prefixes;
-                        count = 7;
-                    }
-                    else {
-                        extern ModifierLookup body_armours_str_dex_normal_suffixes[];
-                        table = body_armours_str_dex_normal_suffixes;
-                        count = 14;
-                    }
-                    break;
-                case SOURCE_DESECRATED:
-                    if (is_suffix) {
-                        extern ModifierLookup body_armours_str_dex_desecrated_suffixes[];
-                        table = body_armours_str_dex_desecrated_suffixes;
-                        count = 12;
-                    }
-                    break;
-                case SOURCE_ESSENCE:
-                    if (!is_suffix) {
-                        extern ModifierLookup body_armours_str_dex_essence_prefixes[];
-                        table = body_armours_str_dex_essence_prefixes;
-                        count = 5;
-                    }
-                    else {
-                        extern ModifierLookup body_armours_str_dex_essence_suffixes[];
-                        table = body_armours_str_dex_essence_suffixes;
-                        count = 7;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
-        case 31: // body_armours_str_int
+        case 32: // body_armours_str_int
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -271,6 +234,43 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     else {
                         extern ModifierLookup body_armours_str_int_essence_suffixes[];
                         table = body_armours_str_int_essence_suffixes;
+                        count = 7;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case 33: // body_armours_str_dex
+            switch (source) {
+                case SOURCE_NORMAL:
+                    if (!is_suffix) {
+                        extern ModifierLookup body_armours_str_dex_normal_prefixes[];
+                        table = body_armours_str_dex_normal_prefixes;
+                        count = 7;
+                    }
+                    else {
+                        extern ModifierLookup body_armours_str_dex_normal_suffixes[];
+                        table = body_armours_str_dex_normal_suffixes;
+                        count = 14;
+                    }
+                    break;
+                case SOURCE_DESECRATED:
+                    if (is_suffix) {
+                        extern ModifierLookup body_armours_str_dex_desecrated_suffixes[];
+                        table = body_armours_str_dex_desecrated_suffixes;
+                        count = 12;
+                    }
+                    break;
+                case SOURCE_ESSENCE:
+                    if (!is_suffix) {
+                        extern ModifierLookup body_armours_str_dex_essence_prefixes[];
+                        table = body_armours_str_dex_essence_prefixes;
+                        count = 5;
+                    }
+                    else {
+                        extern ModifierLookup body_armours_str_dex_essence_suffixes[];
+                        table = body_armours_str_dex_essence_suffixes;
                         count = 7;
                     }
                     break;
@@ -542,7 +542,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 39: // bucklers
+        case 23: // bucklers
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -621,7 +621,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 38: // foci
+        case 39: // foci
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -663,7 +663,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 24: // gloves_dex
+        case 29: // gloves_dex
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -700,7 +700,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 25: // gloves_dex_int
+        case 27: // gloves_dex_int
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -774,7 +774,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 27: // gloves_str
+        case 28: // gloves_str
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -811,7 +811,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 29: // gloves_str_dex
+        case 30: // gloves_str_dex
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -848,7 +848,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 28: // gloves_str_int
+        case 25: // gloves_str_int
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -1149,7 +1149,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 37: // quarterstaves
+        case 38: // quarterstaves
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -1233,7 +1233,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 23: // rings
+        case 24: // rings
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {
@@ -1542,7 +1542,7 @@ static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool
                     break;
             }
             break;
-        case 36: // wands
+        case 37: // wands
             switch (source) {
                 case SOURCE_NORMAL:
                     if (!is_suffix) {

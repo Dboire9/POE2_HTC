@@ -1712,6 +1712,7 @@
       document.querySelectorAll('#subtypeGrid .item-box').forEach(box => box.classList.remove('selected'));
       element.classList.add('selected');
       currentItemId = itemId;
+      console.log('Selected subtype - Item ID:', itemId, 'Item name:', element.textContent);
       modeRaritySection.style.display = 'block';
       
       // Reload modifiers if we're already in modifier selection view
@@ -1722,6 +1723,8 @@
     
     function selectMode(mode) {
       currentMode = mode;
+      
+      console.log('selectMode called - currentItemId:', currentItemId);
       
       // Hide mode selection boxes and show summary
       modeSelectionBoxes.style.display = 'none';

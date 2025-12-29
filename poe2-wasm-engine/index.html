@@ -332,6 +332,170 @@
       background: rgba(255, 140, 66, 0.1);
     }
     
+    /* Currency Selection */
+    .currency-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .currency-item {
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+    }
+    
+    .currency-item:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    
+    .currency-item.enabled {
+      border-color: var(--accent);
+      background: rgba(255, 140, 66, 0.15);
+    }
+    
+    .currency-item.disabled {
+      opacity: 0.5;
+      border-color: var(--error);
+      background: rgba(248, 113, 113, 0.1);
+    }
+    
+    .currency-checkbox {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-radius: 3px;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--accent);
+    }
+    
+    .currency-item.enabled .currency-checkbox {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    
+    .currency-name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: center;
+    }
+    
+    .currency-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .currency-btn {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .currency-btn:hover {
+      border-color: var(--accent);
+      background: rgba(255, 140, 66, 0.1);
+      color: var(--accent);
+    }
+    
+    /* Omen Selection */
+    .omen-section {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    
+    .omen-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .omen-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    .omen-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      background: var(--bg-primary);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.7rem;
+    }
+    
+    .omen-item:hover {
+      background: rgba(255, 140, 66, 0.1);
+    }
+    
+    .omen-checkbox {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      flex-shrink: 0;
+    }
+    
+    .omen-item.disabled .omen-checkbox {
+      background: var(--error);
+      border-color: var(--error);
+      color: white;
+    }
+    
+    .omen-item.disabled {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
+    
+    .omen-name {
+      color: var(--text-primary);
+    }
+    
+    .omen-currency {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+    
     /* Modifier Selection */
     .mod-filters {
       display: flex;
@@ -663,6 +827,22 @@
             </div>
           </div>
 
+          <!-- Currency Selection -->
+          <div style="margin-bottom: 1.5rem;">
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Allowed Currencies</div>
+            <div class="currency-controls">
+              <button class="currency-btn" onclick="enableAllCurrencies()">✓ Enable All</button>
+              <button class="currency-btn" onclick="disableAllCurrencies()">✗ Disable All</button>
+            </div>
+            <div id="currencyGrid" class="currency-grid"></div>
+            
+            <!-- Omens Section -->
+            <div id="omenSection" class="omen-section" style="display: none;">
+              <div class="omen-title">Disabled Omens</div>
+              <div id="omenList" class="omen-list"></div>
+            </div>
+          </div>
+
           <!-- Mode & Rarity Selection -->
           <div id="modeRaritySection" style="display: none;">
             <!-- Selection Summary -->
@@ -866,6 +1046,47 @@
     let existingModifiers = { prefixes: [], suffixes: [] }; // Track the initial existing mods before expansion
     let isExpandedMode = false; // Track if we're in expanded selection mode (beyond existing modifiers)
     
+    // Currency state
+    let enabledCurrencies = new Set([
+      'transmutation',
+      'augmentation',
+      'regal',
+      'exalted',
+      'annulment',
+      'essence',
+      'desecrated'
+    ]);
+    
+    let disabledOmens = new Set();
+    
+    const CURRENCIES = [
+      { id: 'transmutation', name: 'Transmutation Orb' },
+      { id: 'augmentation', name: 'Augmentation Orb' },
+      { id: 'regal', name: 'Regal Orb' },
+      { id: 'exalted', name: 'Exalted Orb' },
+      { id: 'annulment', name: 'Annulment Orb' },
+      { id: 'essence', name: 'Essence' },
+      { id: 'desecrated', name: 'Desecrated' }
+    ];
+    
+    const OMENS = [
+      { id: 'exalted_sinistral', name: 'Omen of Sinistral Exaltation', currency: 'exalted' },
+      { id: 'exalted_dextral', name: 'Omen of Dextral Exaltation', currency: 'exalted' },
+      { id: 'exalted_greater', name: 'Omen of Greater Exaltation', currency: 'exalted' },
+      { id: 'annulment_sinistral', name: 'Omen of Sinistral Annulment', currency: 'annulment' },
+      { id: 'annulment_dextral', name: 'Omen of Dextral Annulment', currency: 'annulment' },
+      { id: 'annulment_light', name: 'Omen of Light', currency: 'annulment' },
+      { id: 'essence_sinistral', name: 'Omen of Sinistral Crystallisation', currency: 'essence' },
+      { id: 'essence_dextral', name: 'Omen of Dextral Crystallisation', currency: 'essence' },
+      { id: 'regal_sinistral', name: 'Omen of Sinistral Coronation', currency: 'regal' },
+      { id: 'regal_dextral', name: 'Omen of Dextral Coronation', currency: 'regal' },
+      { id: 'desecrated_dextral', name: 'Omen of Dextral Necromancy', currency: 'desecrated' },
+      { id: 'desecrated_sinistral', name: 'Omen of Sinistral Necromancy', currency: 'desecrated' },
+      { id: 'desecrated_blackblooded', name: 'Omen of the Blackblooded', currency: 'desecrated' },
+      { id: 'desecrated_liege', name: 'Omen of the Liege', currency: 'desecrated' },
+      { id: 'desecrated_sovereign', name: 'Omen of the Sovereign', currency: 'desecrated' }
+    ];
+    
     // Item categories
     const ITEM_CATEGORIES = {
       'shields': {
@@ -994,10 +1215,124 @@
             box.onclick = () => selectItem('category', key, box);
             itemGrid.appendChild(box);
           });
+          
+          // Populate currency grid
+          renderCurrencyGrid();
         } catch(e) {
           statusEl.innerHTML = `<span class="error">❌ Error: ${e.message}</span>`;
         }
       };
+    }
+    
+    // Currency functions
+    function renderCurrencyGrid() {
+      const currencyGrid = document.getElementById('currencyGrid');
+      if (!currencyGrid) return;
+      
+      currencyGrid.innerHTML = '';
+      CURRENCIES.forEach(currency => {
+        const item = document.createElement('div');
+        item.className = 'currency-item';
+        if (enabledCurrencies.has(currency.id)) {
+          item.classList.add('enabled');
+        } else {
+          item.classList.add('disabled');
+        }
+        
+        item.onclick = () => toggleCurrency(currency.id);
+        
+        const checkbox = document.createElement('div');
+        checkbox.className = 'currency-checkbox';
+        if (enabledCurrencies.has(currency.id)) {
+          checkbox.textContent = '✓';
+        }
+        
+        const name = document.createElement('div');
+        name.className = 'currency-name';
+        name.textContent = currency.name;
+        
+        item.appendChild(checkbox);
+        item.appendChild(name);
+        currencyGrid.appendChild(item);
+      });
+    }
+    
+    function toggleCurrency(currencyId) {
+      if (enabledCurrencies.has(currencyId)) {
+        enabledCurrencies.delete(currencyId);
+      } else {
+        enabledCurrencies.add(currencyId);
+      }
+      renderCurrencyGrid();
+      renderOmenList();
+    }
+    
+    function enableAllCurrencies() {
+      enabledCurrencies = new Set(CURRENCIES.map(c => c.id));
+      renderCurrencyGrid();
+      renderOmenList();
+    }
+    
+    function disableAllCurrencies() {
+      enabledCurrencies.clear();
+      renderCurrencyGrid();
+      renderOmenList();
+    }
+    
+    // Omen functions
+    function renderOmenList() {
+      const omenSection = document.getElementById('omenSection');
+      const omenList = document.getElementById('omenList');
+      if (!omenSection || !omenList) return;
+      
+      // Get omens for enabled currencies
+      const availableOmens = OMENS.filter(omen => enabledCurrencies.has(omen.currency));
+      
+      if (availableOmens.length === 0) {
+        omenSection.style.display = 'none';
+        return;
+      }
+      
+      omenSection.style.display = 'block';
+      omenList.innerHTML = '';
+      
+      availableOmens.forEach(omen => {
+        const item = document.createElement('div');
+        item.className = 'omen-item';
+        if (disabledOmens.has(omen.id)) {
+          item.classList.add('disabled');
+        }
+        
+        item.onclick = () => toggleOmen(omen.id);
+        
+        const checkbox = document.createElement('div');
+        checkbox.className = 'omen-checkbox';
+        if (disabledOmens.has(omen.id)) {
+          checkbox.textContent = '✗';
+        }
+        
+        const name = document.createElement('div');
+        name.className = 'omen-name';
+        name.textContent = omen.name;
+        
+        const currencyTag = document.createElement('div');
+        currencyTag.className = 'omen-currency';
+        currencyTag.textContent = CURRENCIES.find(c => c.id === omen.currency)?.name || '';
+        
+        item.appendChild(checkbox);
+        item.appendChild(name);
+        item.appendChild(currencyTag);
+        omenList.appendChild(item);
+      });
+    }
+    
+    function toggleOmen(omenId) {
+      if (disabledOmens.has(omenId)) {
+        disabledOmens.delete(omenId);
+      } else {
+        disabledOmens.add(omenId);
+      }
+      renderOmenList();
     }
     
     function selectItem(type, value, element) {

@@ -776,9 +776,9 @@
     .status-success { color: var(--success); }
     .status-warning { color: var(--accent); }
     
-    @media (max-width: 1400px) {
+    @media (max-width: 1600px) {
       .main-content {
-        grid-template-columns: 1fr 350px;
+        grid-template-columns: 1fr 1fr 350px;
       }
       
       .header-links {
@@ -824,22 +824,6 @@
             <div id="subtypeSection" style="display: none; margin-top: 0.75rem;">
               <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;" id="subtypeLabel">Subtype</div>
               <div id="subtypeGrid" class="item-grid"></div>
-            </div>
-          </div>
-
-          <!-- Currency Selection -->
-          <div style="margin-bottom: 1.5rem;">
-            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Allowed Currencies</div>
-            <div class="currency-controls">
-              <button class="currency-btn" onclick="enableAllCurrencies()">✓ Enable All</button>
-              <button class="currency-btn" onclick="disableAllCurrencies()">✗ Disable All</button>
-            </div>
-            <div id="currencyGrid" class="currency-grid"></div>
-            
-            <!-- Omens Section -->
-            <div id="omenSection" class="omen-section" style="display: none;">
-              <div class="omen-title">Disabled Omens</div>
-              <div id="omenList" class="omen-list"></div>
             </div>
           </div>
 
@@ -893,6 +877,22 @@
               <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Item Level</div>
               <input type="number" id="ilvlInput" min="1" max="100" value="82" onchange="onItemLevelChange()" style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 0.5rem; border-radius: 6px; font-size: 0.75rem;">
               <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem;">Only tiers with level req ≤ item level will be shown</div>
+            </div>
+          </div>
+
+          <!-- Currency Selection -->
+          <div id="currencySelectionSection" style="display: none; margin-top: 1.5rem;">
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">Allowed Currencies</div>
+            <div class="currency-controls">
+              <button class="currency-btn" onclick="enableAllCurrencies()">✓ Enable All</button>
+              <button class="currency-btn" onclick="disableAllCurrencies()">✗ Disable All</button>
+            </div>
+            <div id="currencyGrid" class="currency-grid"></div>
+            
+            <!-- Omens Section -->
+            <div id="omenSection" class="omen-section">
+              <div class="omen-title">Disabled Omens</div>
+              <div id="omenList" class="omen-list"></div>
             </div>
           </div>
         </div>
@@ -1218,6 +1218,7 @@
           
           // Populate currency grid
           renderCurrencyGrid();
+          renderOmenList();
         } catch(e) {
           statusEl.innerHTML = `<span class="error">❌ Error: ${e.message}</span>`;
         }
@@ -1288,13 +1289,12 @@
       // Get omens for enabled currencies
       const availableOmens = OMENS.filter(omen => enabledCurrencies.has(omen.currency));
       
+      omenList.innerHTML = '';
+      
       if (availableOmens.length === 0) {
-        omenSection.style.display = 'none';
+        omenList.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 0.65rem; padding: 0.5rem;">No currencies selected</div>';
         return;
       }
-      
-      omenSection.style.display = 'block';
-      omenList.innerHTML = '';
       
       availableOmens.forEach(omen => {
         const item = document.createElement('div');
@@ -1400,6 +1400,10 @@
       document.getElementById('ilvlLabelSummary').style.display = 'inline';
       document.getElementById('ilvlInputInline').style.display = 'inline';
       document.getElementById('ilvlInputInline').value = currentItemLevel;
+      
+      // Show currency selection section
+      document.getElementById('currencySelectionSection').style.display = 'block';
+      
       loadModifiers();
       modifiersPanel.style.display = 'flex';
       selectedPanel.style.display = 'flex';

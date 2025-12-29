@@ -444,16 +444,67 @@
     .omen-list {
       display: flex;
       flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .omen-currency-group {
+      display: flex;
+      flex-direction: column;
       gap: 0.25rem;
+    }
+    
+    .omen-dropdown-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .omen-dropdown-header:hover {
+      border-color: var(--accent);
+      background: rgba(255, 140, 66, 0.05);
+    }
+    
+    .omen-dropdown-arrow {
+      font-size: 0.6rem;
+      transition: transform 0.2s;
+    }
+    
+    .omen-dropdown-arrow.open {
+      transform: rotate(90deg);
+    }
+    
+    .omen-dropdown-label {
+      flex: 1;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    
+    .omen-dropdown-content {
+      display: none;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+      padding: 0.25rem 0 0.25rem 1rem;
+    }
+    
+    .omen-dropdown-content.open {
+      display: flex;
     }
     
     .omen-item {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.4rem 0.5rem;
+      padding: 0.35rem 0.5rem;
       background: var(--bg-primary);
-      border-radius: 4px;
+      border-radius: 3px;
       cursor: pointer;
       transition: all 0.2s;
       font-size: 0.7rem;
@@ -464,36 +515,116 @@
     }
     
     .omen-checkbox {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       border: 2px solid var(--border);
       border-radius: 3px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9px;
+      font-size: 8px;
       flex-shrink: 0;
     }
     
-    .omen-item.disabled .omen-checkbox {
-      background: var(--error);
-      border-color: var(--error);
+    .omen-item.enabled .omen-checkbox {
+      background: var(--accent);
+      border-color: var(--accent);
       color: white;
     }
     
-    .omen-item.disabled {
-      opacity: 0.6;
-      text-decoration: line-through;
-    }
-    
     .omen-name {
+      flex: 1;
       color: var(--text-primary);
     }
     
-    .omen-currency {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      margin-left: auto;
+    /* Currency Tiers */
+    .currency-tiers {
+      margin-top: 0.5rem;
+      padding-left: 1.5rem;
+    }
+    
+    .tier-dropdown-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .tier-dropdown-header:hover {
+      border-color: var(--accent);
+      background: rgba(255, 140, 66, 0.05);
+    }
+    
+    .tier-dropdown-arrow {
+      font-size: 0.6rem;
+      transition: transform 0.2s;
+    }
+    
+    .tier-dropdown-arrow.open {
+      transform: rotate(90deg);
+    }
+    
+    .tier-dropdown-label {
+      flex: 1;
+      color: var(--text-secondary);
+    }
+    
+    .tier-dropdown-content {
+      display: none;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+      padding: 0.25rem 0;
+    }
+    
+    .tier-dropdown-content.open {
+      display: flex;
+    }
+    
+    .tier-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.5rem;
+      background: var(--bg-primary);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.7rem;
+    }
+    
+    .tier-item:hover {
+      background: rgba(255, 140, 66, 0.1);
+    }
+    
+    .tier-checkbox {
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--border);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      flex-shrink: 0;
+    }
+    
+    .tier-item.enabled .tier-checkbox {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    
+    .tier-name {
+      flex: 1;
+      color: var(--text-primary);
+      text-transform: capitalize;
     }
     
     /* Modifier Selection */
@@ -1054,19 +1185,22 @@
       'exalted',
       'annulment',
       'essence',
+      'perfect_essence',
       'desecrated'
     ]);
     
     let disabledOmens = new Set();
+    let disabledCurrencyTiers = new Set();
     
     const CURRENCIES = [
-      { id: 'transmutation', name: 'Transmutation Orb' },
-      { id: 'augmentation', name: 'Augmentation Orb' },
-      { id: 'regal', name: 'Regal Orb' },
-      { id: 'exalted', name: 'Exalted Orb' },
-      { id: 'annulment', name: 'Annulment Orb' },
-      { id: 'essence', name: 'Essence' },
-      { id: 'desecrated', name: 'Desecrated' }
+      { id: 'transmutation', name: 'Transmutation Orb', tiers: ['base', 'greater', 'perfect'] },
+      { id: 'augmentation', name: 'Augmentation Orb', tiers: ['base', 'greater', 'perfect'] },
+      { id: 'regal', name: 'Regal Orb', tiers: ['base', 'greater', 'perfect'] },
+      { id: 'exalted', name: 'Exalted Orb', tiers: ['base', 'greater', 'perfect'] },
+      { id: 'annulment', name: 'Annulment Orb', tiers: [] },
+      { id: 'essence', name: 'Essence', tiers: ['lesser', 'normal', 'greater'] },
+      { id: 'perfect_essence', name: 'Perfect Essence', tiers: [] },
+      { id: 'desecrated', name: 'Desecrated', tiers: ['gnawed', 'preserved', 'ancient'] }
     ];
     
     const OMENS = [
@@ -1078,6 +1212,8 @@
       { id: 'annulment_light', name: 'Omen of Light', currency: 'annulment' },
       { id: 'essence_sinistral', name: 'Omen of Sinistral Crystallisation', currency: 'essence' },
       { id: 'essence_dextral', name: 'Omen of Dextral Crystallisation', currency: 'essence' },
+      { id: 'perfect_essence_sinistral', name: 'Omen of Sinistral Crystallisation', currency: 'perfect_essence' },
+      { id: 'perfect_essence_dextral', name: 'Omen of Dextral Crystallisation', currency: 'perfect_essence' },
       { id: 'regal_sinistral', name: 'Omen of Sinistral Coronation', currency: 'regal' },
       { id: 'regal_dextral', name: 'Omen of Dextral Coronation', currency: 'regal' },
       { id: 'desecrated_dextral', name: 'Omen of Dextral Necromancy', currency: 'desecrated' },
@@ -1232,6 +1368,11 @@
       
       currencyGrid.innerHTML = '';
       CURRENCIES.forEach(currency => {
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '0.5rem';
+        
         const item = document.createElement('div');
         item.className = 'currency-item';
         if (enabledCurrencies.has(currency.id)) {
@@ -1254,7 +1395,75 @@
         
         item.appendChild(checkbox);
         item.appendChild(name);
-        currencyGrid.appendChild(item);
+        container.appendChild(item);
+        
+        // Add tier dropdown if currency has tiers and is enabled
+        if (currency.tiers && currency.tiers.length > 0 && enabledCurrencies.has(currency.id)) {
+          const tiersDiv = document.createElement('div');
+          tiersDiv.className = 'currency-tiers';
+          
+          // Dropdown header
+          const dropdownHeader = document.createElement('div');
+          dropdownHeader.className = 'tier-dropdown-header';
+          
+          const arrow = document.createElement('span');
+          arrow.className = 'tier-dropdown-arrow';
+          arrow.textContent = '▶';
+          
+          const label = document.createElement('span');
+          label.className = 'tier-dropdown-label';
+          const enabledCount = currency.tiers.filter(tier => 
+            !disabledCurrencyTiers.has(`${currency.id}_${tier}`)
+          ).length;
+          label.textContent = `Tiers (${enabledCount}/${currency.tiers.length})`;
+          
+          dropdownHeader.appendChild(arrow);
+          dropdownHeader.appendChild(label);
+          
+          // Dropdown content
+          const dropdownContent = document.createElement('div');
+          dropdownContent.className = 'tier-dropdown-content';
+          
+          currency.tiers.forEach(tier => {
+            const tierKey = `${currency.id}_${tier}`;
+            const tierItem = document.createElement('div');
+            tierItem.className = 'tier-item';
+            if (!disabledCurrencyTiers.has(tierKey)) {
+              tierItem.classList.add('enabled');
+            }
+            
+            tierItem.onclick = (e) => {
+              e.stopPropagation();
+              toggleCurrencyTier(tierKey, currency.id);
+            };
+            
+            const tierCheckbox = document.createElement('div');
+            tierCheckbox.className = 'tier-checkbox';
+            if (!disabledCurrencyTiers.has(tierKey)) {
+              tierCheckbox.textContent = '✓';
+            }
+            
+            const tierName = document.createElement('div');
+            tierName.className = 'tier-name';
+            tierName.textContent = tier;
+            
+            tierItem.appendChild(tierCheckbox);
+            tierItem.appendChild(tierName);
+            dropdownContent.appendChild(tierItem);
+          });
+          
+          dropdownHeader.onclick = (e) => {
+            e.stopPropagation();
+            arrow.classList.toggle('open');
+            dropdownContent.classList.toggle('open');
+          };
+          
+          tiersDiv.appendChild(dropdownHeader);
+          tiersDiv.appendChild(dropdownContent);
+          container.appendChild(tiersDiv);
+        }
+        
+        currencyGrid.appendChild(container);
       });
     }
     
@@ -1268,8 +1477,61 @@
       renderOmenList();
     }
     
+    function toggleCurrencyTier(tierKey, currencyId) {
+      if (disabledCurrencyTiers.has(tierKey)) {
+        disabledCurrencyTiers.delete(tierKey);
+      } else {
+        disabledCurrencyTiers.add(tierKey);
+      }
+      
+      // Update only the specific currency's tier display without re-rendering everything
+      const currency = CURRENCIES.find(c => c.id === currencyId);
+      if (currency) {
+        // Update the tier item
+        const tierItems = document.querySelectorAll('.tier-item');
+        tierItems.forEach(item => {
+          const tierName = item.querySelector('.tier-name');
+          if (tierName) {
+            const tier = tierName.textContent;
+            const key = `${currencyId}_${tier}`;
+            if (key === tierKey) {
+              const checkbox = item.querySelector('.tier-checkbox');
+              if (disabledCurrencyTiers.has(tierKey)) {
+                item.classList.remove('enabled');
+                checkbox.textContent = '';
+              } else {
+                item.classList.add('enabled');
+                checkbox.textContent = '✓';
+              }
+            }
+          }
+        });
+        
+        // Update the counter in the header
+        const enabledCount = currency.tiers.filter(tier => 
+          !disabledCurrencyTiers.has(`${currencyId}_${tier}`)
+        ).length;
+        const headers = document.querySelectorAll('.tier-dropdown-header');
+        headers.forEach(header => {
+          const label = header.querySelector('.tier-dropdown-label');
+          if (label && label.textContent.startsWith('Tiers')) {
+            const parent = header.closest('.currency-tiers');
+            if (parent) {
+              // Check if this header belongs to the right currency by checking its position
+              const currencyContainer = parent.closest('div');
+              const currencyName = currencyContainer.querySelector('.currency-name');
+              if (currencyName && currencyName.textContent === currency.name) {
+                label.textContent = `Tiers (${enabledCount}/${currency.tiers.length})`;
+              }
+            }
+          }
+        });
+      }
+    }
+    
     function enableAllCurrencies() {
       enabledCurrencies = new Set(CURRENCIES.map(c => c.id));
+      disabledCurrencyTiers.clear();
       renderCurrencyGrid();
       renderOmenList();
     }
@@ -1296,43 +1558,123 @@
         return;
       }
       
+      // Group omens by currency
+      const omensByCurrency = {};
       availableOmens.forEach(omen => {
-        const item = document.createElement('div');
-        item.className = 'omen-item';
-        if (disabledOmens.has(omen.id)) {
-          item.classList.add('disabled');
+        if (!omensByCurrency[omen.currency]) {
+          omensByCurrency[omen.currency] = [];
         }
+        omensByCurrency[omen.currency].push(omen);
+      });
+      
+      // Render each currency group
+      Object.keys(omensByCurrency).forEach(currencyId => {
+        const omens = omensByCurrency[currencyId];
+        const currency = CURRENCIES.find(c => c.id === currencyId);
+        if (!currency) return;
         
-        item.onclick = () => toggleOmen(omen.id);
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'omen-currency-group';
         
-        const checkbox = document.createElement('div');
-        checkbox.className = 'omen-checkbox';
-        if (disabledOmens.has(omen.id)) {
-          checkbox.textContent = '✗';
-        }
+        // Dropdown header
+        const dropdownHeader = document.createElement('div');
+        dropdownHeader.className = 'omen-dropdown-header';
         
-        const name = document.createElement('div');
-        name.className = 'omen-name';
-        name.textContent = omen.name;
+        const arrow = document.createElement('span');
+        arrow.className = 'omen-dropdown-arrow';
+        arrow.textContent = '▶';
         
-        const currencyTag = document.createElement('div');
-        currencyTag.className = 'omen-currency';
-        currencyTag.textContent = CURRENCIES.find(c => c.id === omen.currency)?.name || '';
+        const label = document.createElement('span');
+        label.className = 'omen-dropdown-label';
+        const enabledCount = omens.filter(omen => !disabledOmens.has(omen.id)).length;
+        label.textContent = `${currency.name} (${enabledCount}/${omens.length})`;
         
-        item.appendChild(checkbox);
-        item.appendChild(name);
-        item.appendChild(currencyTag);
-        omenList.appendChild(item);
+        dropdownHeader.appendChild(arrow);
+        dropdownHeader.appendChild(label);
+        
+        // Dropdown content
+        const dropdownContent = document.createElement('div');
+        dropdownContent.className = 'omen-dropdown-content';
+        
+        omens.forEach(omen => {
+          const item = document.createElement('div');
+          item.className = 'omen-item';
+          if (!disabledOmens.has(omen.id)) {
+            item.classList.add('enabled');
+          }
+          
+          item.onclick = (e) => {
+            e.stopPropagation();
+            toggleOmen(omen.id, currencyId);
+          };
+          
+          const checkbox = document.createElement('div');
+          checkbox.className = 'omen-checkbox';
+          if (!disabledOmens.has(omen.id)) {
+            checkbox.textContent = '✓';
+          }
+          
+          const name = document.createElement('div');
+          name.className = 'omen-name';
+          name.textContent = omen.name;
+          
+          item.appendChild(checkbox);
+          item.appendChild(name);
+          dropdownContent.appendChild(item);
+        });
+        
+        dropdownHeader.onclick = (e) => {
+          e.stopPropagation();
+          arrow.classList.toggle('open');
+          dropdownContent.classList.toggle('open');
+        };
+        
+        groupDiv.appendChild(dropdownHeader);
+        groupDiv.appendChild(dropdownContent);
+        omenList.appendChild(groupDiv);
       });
     }
     
-    function toggleOmen(omenId) {
+    function toggleOmen(omenId, currencyId) {
       if (disabledOmens.has(omenId)) {
         disabledOmens.delete(omenId);
       } else {
         disabledOmens.add(omenId);
       }
-      renderOmenList();
+      
+      // Update only the specific omen item without re-rendering
+      const omenItems = document.querySelectorAll('.omen-item');
+      omenItems.forEach(item => {
+        const name = item.querySelector('.omen-name');
+        if (name) {
+          const omen = OMENS.find(o => o.name === name.textContent);
+          if (omen && omen.id === omenId) {
+            const checkbox = item.querySelector('.omen-checkbox');
+            if (disabledOmens.has(omenId)) {
+              item.classList.remove('enabled');
+              checkbox.textContent = '';
+            } else {
+              item.classList.add('enabled');
+              checkbox.textContent = '✓';
+            }
+          }
+        }
+      });
+      
+      // Update the counter in the header
+      const currency = CURRENCIES.find(c => c.id === currencyId);
+      if (currency) {
+        const omensForCurrency = OMENS.filter(o => o.currency === currencyId);
+        const enabledCount = omensForCurrency.filter(o => !disabledOmens.has(o.id)).length;
+        
+        const headers = document.querySelectorAll('.omen-dropdown-header');
+        headers.forEach(header => {
+          const label = header.querySelector('.omen-dropdown-label');
+          if (label && label.textContent.startsWith(currency.name)) {
+            label.textContent = `${currency.name} (${enabledCount}/${omensForCurrency.length})`;
+          }
+        });
+      }
     }
     
     function selectItem(type, value, element) {

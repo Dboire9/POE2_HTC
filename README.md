@@ -114,9 +114,6 @@ I built this project while (still) actively searching for an internship, both to
 - 🎮 Solves a real problem for the PoE2 community
 - 📈 Continuous learning through community feedback
 
-**Looking for opportunities:**  
-I'm currently seeking an **internship or freelance opportunities** — a required step for completing my diploma at 42. If you appreciate my work or think my skills could be useful to your team, feel free to reach out!
-
 **📘 For more about my journey, motivation, and project philosophy, see [About Me & the Project](docs/ABOUT.md).**
 
 ---

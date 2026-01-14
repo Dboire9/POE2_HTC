@@ -122,16 +122,18 @@ bool matches_target(const ItemState* state, const CraftingContext* context) {
 bool has_modifier_family(const ItemState* state, const char* family) {
     // Check prefixes
     for (int i = 0; i < state->prefix_count; i++) {
-        const Modifier* mod = getModifier(state->prefixes[i].modifier_id);
-        if (mod && strcmp(mod->family, family) == 0) {
+        // modifier_id is stored as an index
+        // We'll assume it's in SOURCE_NORMAL for now (would need source info to be precise)
+        const Modifier* mod = get_modifier_by_source_index(SOURCE_NORMAL, state->prefixes[i].modifier_id);
+        if (mod && strcmp(mod->name, family) == 0) {
             return true;
         }
     }
     
     // Check suffixes
     for (int i = 0; i < state->suffix_count; i++) {
-        const Modifier* mod = getModifier(state->suffixes[i].modifier_id);
-        if (mod && strcmp(mod->family, family) == 0) {
+        const Modifier* mod = get_modifier_by_source_index(SOURCE_NORMAL, state->suffixes[i].modifier_id);
+        if (mod && strcmp(mod->name, family) == 0) {
             return true;
         }
     }

@@ -9,6 +9,7 @@
 #include "core/item_mod_lookup.h"
 #include "core/crafting/crafting_types.h"
 #include "core/crafting/json_parser.h"
+#include "core/crafting/crafting_algorithm.h"
 
 // Initialize database on module load
 __attribute__((constructor))
@@ -247,8 +248,19 @@ const char* calculate_crafting_path(const char* json_config) {
     printf("    - Desecrated: %s\n", context.desecrated_allowed ? "ENABLED" : "DISABLED");
     printf("========================================\n\n");
     
-    // Build success response with parsed data
+    // Call the crafting algorithm
+    CraftingResult* algo_result = run_crafting_algorithm(&context, &initial_state);
+    
+    // Build response
     static char response[2048];
+    
+    if (!algo_result) {
+        snprintf(response, sizeof(response),
+                "{\"status\":\"error\",\"message\":\"Algorithm failed to run\"}");
+        return response;
+    }
+    
+    // Build success response with parsed data and algorithm result
     snprintf(response, sizeof(response), 
              "{"
              "\"status\":\"parsed\","
@@ -257,37 +269,21 @@ const char* calculate_crafting_path(const char* json_config) {
              "\"rarity\":%d,"
              "\"existingPrefixes\":%d,"
              "\"existingSuffixes\":%d,"
-             "\"targetPrefixes\":%d,"
-             "\"targetSuffixes\":%d,"
-             "\"currencies\":{"
-             "\"transmutation\":%s,"
-             "\"augmentation\":%s,"
-             "\"regal\":%s,"
-             "\"exalted\":%s,"
-             "\"annulment\":%s,"
-             "\"essence\":%s,"
-             "\"desecrated\":%s"
-             "},"
-             "\"message\":\"Configuration parsed successfully. Algorithm ready to run.\""
+             "\"solutionsFound\":%d,"
+             "\"message\":\"Configuration parsed successfully. Algorithm executed.\""
              "}",
              context.item_id,
              context.item_level,
              context.starting_rarity,
              initial_state.prefix_count,
              initial_state.suffix_count,
-             context.target_prefix_count,
-             context.target_suffix_count,
-             context.transmutation_allowed ? "true" : "false",
-             context.augmentation_allowed ? "true" : "false",
-             context.regal_allowed ? "true" : "false",
-             context.exalted_allowed ? "true" : "false",
-             context.annulment_allowed ? "true" : "false",
-             context.essence_allowed ? "true" : "false",
-             context.desecrated_allowed ? "true" : "false"
+             algo_result ? algo_result->count : 0
     );
     
-    // TODO: Call your heuristic algorithm here
-    // CraftingResult* result = run_crafting_algorithm(&context, &initial_state);
+    // Clean up
+    if (algo_result) {
+        free_crafting_result_full(algo_result);
+    }
     
     return response;
 }

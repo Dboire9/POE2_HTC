@@ -1328,7 +1328,9 @@
             itemPrefixMaxTier: Module.cwrap('get_item_prefix_max_tier', 'number', ['number', 'number', 'number']),
             itemSuffixSource: Module.cwrap('get_item_suffix_source', 'number', ['number', 'number', 'number']),
             itemSuffixIndex: Module.cwrap('get_item_suffix_index', 'number', ['number', 'number', 'number']),
-            itemSuffixMaxTier: Module.cwrap('get_item_suffix_max_tier', 'number', ['number', 'number', 'number'])
+            itemSuffixMaxTier: Module.cwrap('get_item_suffix_max_tier', 'number', ['number', 'number', 'number']),
+            // Crafting algorithm
+            calculateCraftingPath: Module.cwrap('calculate_crafting_path', 'string', ['string'])
           };
           
           const c = api.itemCount();
@@ -2717,16 +2719,35 @@
       console.log('Complete Configuration:', completeConfig);
       console.log('Complete Configuration JSON:\n', JSON.stringify(completeConfig, null, 2));
       
-      // Show summary with blacklist info
-      const message = `Item will have ${totalPrefixes} prefixes and ${totalSuffixes} suffixes.\n\n` +
-                     `Configuration:\n` +
-                     `- Disabled currencies: ${disabledCurrenciesList.length}\n` +
-                     `- Disabled tiers: ${disabledTiersList.length}\n` +
-                     `- Disabled omens: ${disabledOmensList.length}\n\n` +
-                     `Check console (F12) for full configuration JSON.\n` +
-                     `Probability calculation will be implemented next!`;
-      
-      alert(message);
+      // Call WASM algorithm with the complete configuration
+      try {
+        const jsonStr = JSON.stringify(completeConfig);
+        const result = api.calculateCraftingPath(jsonStr);
+        console.log('Algorithm result:', result);
+        
+        // Parse the result
+        const resultObj = JSON.parse(result);
+        
+        if (resultObj.error) {
+          alert(`Error: ${resultObj.error}`);
+          return;
+        }
+        
+        // Show summary with algorithm status
+        const message = `Item will have ${totalPrefixes} prefixes and ${totalSuffixes} suffixes.\n\n` +
+                       `Configuration:\n` +
+                       `- Disabled currencies: ${disabledCurrenciesList.length}\n` +
+                       `- Disabled tiers: ${disabledTiersList.length}\n` +
+                       `- Disabled omens: ${disabledOmensList.length}\n\n` +
+                       `Algorithm status: ${resultObj.status}\n` +
+                       `${resultObj.message}\n\n` +
+                       `Check console (F12) for full details.`;
+        
+        alert(message);
+      } catch (error) {
+        console.error('Error calling algorithm:', error);
+        alert(`Error calling algorithm: ${error.message}\n\nCheck console for details.`);
+      }
     }
     
     function loadModifiers() {

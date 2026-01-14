@@ -2009,6 +2009,40 @@
       currentMode = data.mode || 'scratch';
       currentRarity = data.rarity || 'normal';
       
+      // Import currencies configuration (blacklist approach)
+      if (data.disabledCurrencies || data.disabledCurrencyTiers || data.disabledOmens) {
+        // Reset to default (all enabled)
+        enabledCurrencies.clear();
+        CURRENCIES.forEach(currency => enabledCurrencies.add(currency.id));
+        disabledCurrencyTiers.clear();
+        disabledOmens.clear();
+        
+        // Apply disabled currencies
+        if (data.disabledCurrencies) {
+          data.disabledCurrencies.forEach(currencyId => {
+            enabledCurrencies.delete(currencyId);
+          });
+        }
+        
+        // Apply disabled currency tiers
+        if (data.disabledCurrencyTiers) {
+          data.disabledCurrencyTiers.forEach(tierKey => {
+            disabledCurrencyTiers.add(tierKey);
+          });
+        }
+        
+        // Apply disabled omens
+        if (data.disabledOmens) {
+          data.disabledOmens.forEach(omenId => {
+            disabledOmens.add(omenId);
+          });
+        }
+        
+        // Re-render UI to reflect imported state
+        renderCurrencyGrid();
+        renderOmenList();
+      }
+      
       // Update UI to reflect mode and rarity
       if (currentMode === 'scratch') {
         document.getElementById('modeBadge').textContent = 'From Scratch';
@@ -2605,8 +2639,74 @@
       
       console.log(`Total item: ${totalPrefixes} prefixes, ${totalSuffixes} suffixes`);
       
-      // TODO: Calculate probabilities
-      alert(`Item will have ${totalPrefixes} prefixes and ${totalSuffixes} suffixes.\nProbability calculation will be implemented next!`);
+      // Collect modifiers with their current tier selection
+      const modifiers = [];
+      
+      selectedModifiers.prefixes.forEach(mod => {
+        const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
+        const selectedTier = dropdown ? parseInt(dropdown.value) : 0;
+        
+        modifiers.push({
+          source: mod.source,
+          index: mod.index,
+          tier: selectedTier,
+          type: 'prefix',
+          description: mod.description
+        });
+      });
+      
+      selectedModifiers.suffixes.forEach(mod => {
+        const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
+        const selectedTier = dropdown ? parseInt(dropdown.value) : 0;
+        
+        modifiers.push({
+          source: mod.source,
+          index: mod.index,
+          tier: selectedTier,
+          type: 'suffix',
+          description: mod.description
+        });
+      });
+      
+      // Collect disabled currencies (blacklist approach)
+      const disabledCurrenciesList = [];
+      CURRENCIES.forEach(currency => {
+        if (!enabledCurrencies.has(currency.id)) {
+          disabledCurrenciesList.push(currency.id);
+        }
+      });
+      
+      // Collect disabled currency tiers
+      const disabledTiersList = Array.from(disabledCurrencyTiers);
+      
+      // Collect disabled omens
+      const disabledOmensList = Array.from(disabledOmens);
+      
+      // Build complete configuration with modifiers + blacklists
+      const completeConfig = {
+        itemId: currentItemId,
+        itemName: currentItemId !== null ? Module.ccall('get_item_name', 'string', ['number'], [currentItemId]) : null,
+        mode: currentMode,
+        rarity: currentRarity,
+        modifiers: modifiers,
+        disabledCurrencies: disabledCurrenciesList,
+        disabledCurrencyTiers: disabledTiersList,
+        disabledOmens: disabledOmensList
+      };
+      
+      console.log('Complete Configuration:', completeConfig);
+      console.log('Complete Configuration JSON:\n', JSON.stringify(completeConfig, null, 2));
+      
+      // Show summary with blacklist info
+      const message = `Item will have ${totalPrefixes} prefixes and ${totalSuffixes} suffixes.\n\n` +
+                     `Configuration:\n` +
+                     `- Disabled currencies: ${disabledCurrenciesList.length}\n` +
+                     `- Disabled tiers: ${disabledTiersList.length}\n` +
+                     `- Disabled omens: ${disabledOmensList.length}\n\n` +
+                     `Check console (F12) for full configuration JSON.\n` +
+                     `Probability calculation will be implemented next!`;
+      
+      alert(message);
     }
     
     function loadModifiers() {

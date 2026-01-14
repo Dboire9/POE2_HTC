@@ -2714,12 +2714,13 @@
       
       const sourceValue = modSourceEl.value;
       
-      // Always clear selected modifiers when loading (prevents carryover between items)
-      selectedModifiers = { prefixes: [], suffixes: [] };
-      // Also reset expanded mode state when changing items
-      isExpandedMode = false;
-      existingModifiers = { prefixes: [], suffixes: [] };
-      updateSelectedDisplay();
+      // Only clear modifiers and reset state if NOT in expanded mode
+      if (!isExpandedMode) {
+        selectedModifiers = { prefixes: [], suffixes: [] };
+        existingModifiers = { prefixes: [], suffixes: [] };
+        updateSelectedDisplay();
+      }
+      
       updateModifierCount(); // Update the counter display
       
       // Determine which sources to load

@@ -1903,33 +1903,42 @@
         return;
       }
       
-      // Collect modifiers with their current tier selection
-      const modifiers = [];
+      // Separate existing modifiers from desired modifiers
+      const existingMods = [];
+      const desiredMods = [];
       
-      selectedModifiers.prefixes.forEach(mod => {
-        const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
+      const collectModifier = (mod, type) => {
+        const dropdown = document.getElementById(`${type}_tier_${mod.source}_${mod.index}`);
         const selectedTier = dropdown ? parseInt(dropdown.value) : 0;
         
-        modifiers.push({
+        return {
           source: mod.source,
           index: mod.index,
           tier: selectedTier,
-          type: 'prefix',
+          type: type,
           description: mod.description
-        });
+        };
+      };
+      
+      // Check if each modifier is existing or desired
+      selectedModifiers.prefixes.forEach(mod => {
+        const isExisting = existingModifiers.prefixes.some(em => em.key === mod.key);
+        const modData = collectModifier(mod, 'prefix');
+        if (isExisting) {
+          existingMods.push(modData);
+        } else {
+          desiredMods.push(modData);
+        }
       });
       
       selectedModifiers.suffixes.forEach(mod => {
-        const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
-        const selectedTier = dropdown ? parseInt(dropdown.value) : 0;
-        
-        modifiers.push({
-          source: mod.source,
-          index: mod.index,
-          tier: selectedTier,
-          type: 'suffix',
-          description: mod.description
-        });
+        const isExisting = existingModifiers.suffixes.some(em => em.key === mod.key);
+        const modData = collectModifier(mod, 'suffix');
+        if (isExisting) {
+          existingMods.push(modData);
+        } else {
+          desiredMods.push(modData);
+        }
       });
       
       const exportData = {
@@ -1937,7 +1946,8 @@
         itemName: currentItemId !== null ? Module.ccall('get_item_name', 'string', ['number'], [currentItemId]) : null,
         mode: currentMode,
         rarity: currentRarity,
-        modifiers: modifiers
+        existingModifiers: existingMods,
+        desiredModifiers: desiredMods
       };
       
       const jsonStr = JSON.stringify(exportData, null, 2);
@@ -2639,33 +2649,42 @@
       
       console.log(`Total item: ${totalPrefixes} prefixes, ${totalSuffixes} suffixes`);
       
-      // Collect modifiers with their current tier selection
-      const modifiers = [];
+      // Separate existing modifiers from desired modifiers
+      const existingMods = [];
+      const desiredMods = [];
       
-      selectedModifiers.prefixes.forEach(mod => {
-        const dropdown = document.getElementById(`prefix_tier_${mod.source}_${mod.index}`);
+      const collectModifier = (mod, type) => {
+        const dropdown = document.getElementById(`${type}_tier_${mod.source}_${mod.index}`);
         const selectedTier = dropdown ? parseInt(dropdown.value) : 0;
         
-        modifiers.push({
+        return {
           source: mod.source,
           index: mod.index,
           tier: selectedTier,
-          type: 'prefix',
+          type: type,
           description: mod.description
-        });
+        };
+      };
+      
+      // Check if each modifier is existing or desired
+      selectedModifiers.prefixes.forEach(mod => {
+        const isExisting = existingModifiers.prefixes.some(em => em.key === mod.key);
+        const modData = collectModifier(mod, 'prefix');
+        if (isExisting) {
+          existingMods.push(modData);
+        } else {
+          desiredMods.push(modData);
+        }
       });
       
       selectedModifiers.suffixes.forEach(mod => {
-        const dropdown = document.getElementById(`suffix_tier_${mod.source}_${mod.index}`);
-        const selectedTier = dropdown ? parseInt(dropdown.value) : 0;
-        
-        modifiers.push({
-          source: mod.source,
-          index: mod.index,
-          tier: selectedTier,
-          type: 'suffix',
-          description: mod.description
-        });
+        const isExisting = existingModifiers.suffixes.some(em => em.key === mod.key);
+        const modData = collectModifier(mod, 'suffix');
+        if (isExisting) {
+          existingMods.push(modData);
+        } else {
+          desiredMods.push(modData);
+        }
       });
       
       // Collect disabled currencies (blacklist approach)
@@ -2688,7 +2707,8 @@
         itemName: currentItemId !== null ? Module.ccall('get_item_name', 'string', ['number'], [currentItemId]) : null,
         mode: currentMode,
         rarity: currentRarity,
-        modifiers: modifiers,
+        existingModifiers: existingMods,
+        desiredModifiers: desiredMods,
         disabledCurrencies: disabledCurrenciesList,
         disabledCurrencyTiers: disabledTiersList,
         disabledOmens: disabledOmensList

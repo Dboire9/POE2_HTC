@@ -2,6 +2,11 @@
 #include "../modifiers.h"
 #include <string.h>
 
+// Helper to check if two modifiers match (same source and index)
+static inline bool modifiers_match(int src1, int idx1, int src2, int idx2) {
+    return src1 == src2 && idx1 == idx2;
+}
+
 double calculate_heuristic(const ItemState* state, const CraftingContext* context) {
     double score = 0.0;
     
@@ -13,12 +18,14 @@ double calculate_heuristic(const ItemState* state, const CraftingContext* contex
     
     // Check target prefixes
     for (int i = 0; i < context->target_prefix_count; i++) {
-        int target_id = context->target_prefix_ids[i];
+        int target_source = context->target_prefix_sources[i];
+        int target_index = context->target_prefix_indices[i];
         int target_tier = context->target_prefix_tiers[i];
         
         // Check if we have this modifier
         for (int j = 0; j < state->prefix_count; j++) {
-            if (state->prefixes[j].modifier_id == target_id) {
+            if (modifiers_match(state->prefixes[j].source, state->prefixes[j].index,
+                               target_source, target_index)) {
                 // Exact tier match
                 if (state->prefixes[j].tier == target_tier) {
                     score += 1000;  // Perfect match
@@ -34,11 +41,13 @@ double calculate_heuristic(const ItemState* state, const CraftingContext* contex
     
     // Check target suffixes
     for (int i = 0; i < context->target_suffix_count; i++) {
-        int target_id = context->target_suffix_ids[i];
+        int target_source = context->target_suffix_sources[i];
+        int target_index = context->target_suffix_indices[i];
         int target_tier = context->target_suffix_tiers[i];
         
         for (int j = 0; j < state->suffix_count; j++) {
-            if (state->suffixes[j].modifier_id == target_id) {
+            if (modifiers_match(state->suffixes[j].source, state->suffixes[j].index,
+                               target_source, target_index)) {
                 if (state->suffixes[j].tier == target_tier) {
                     score += 1000;
                 } else if (state->suffixes[j].tier < target_tier + 2) {
@@ -53,16 +62,19 @@ double calculate_heuristic(const ItemState* state, const CraftingContext* contex
     
     // Penalty for undesired modifiers
     for (int i = 0; i < context->undesired_mod_count; i++) {
-        int undesired_id = context->undesired_mod_ids[i];
+        int undesired_source = context->undesired_mod_sources[i];
+        int undesired_index = context->undesired_mod_indices[i];
         
         for (int j = 0; j < state->prefix_count; j++) {
-            if (state->prefixes[j].modifier_id == undesired_id) {
+            if (modifiers_match(state->prefixes[j].source, state->prefixes[j].index,
+                               undesired_source, undesired_index)) {
                 score -= 500;
             }
         }
         
         for (int j = 0; j < state->suffix_count; j++) {
-            if (state->suffixes[j].modifier_id == undesired_id) {
+            if (modifiers_match(state->suffixes[j].source, state->suffixes[j].index,
+                               undesired_source, undesired_index)) {
                 score -= 500;
             }
         }
@@ -85,11 +97,13 @@ bool matches_target(const ItemState* state, const CraftingContext* context) {
     // Check each target prefix
     for (int i = 0; i < context->target_prefix_count; i++) {
         bool found = false;
-        int target_id = context->target_prefix_ids[i];
+        int target_source = context->target_prefix_sources[i];
+        int target_index = context->target_prefix_indices[i];
         int target_tier = context->target_prefix_tiers[i];
         
         for (int j = 0; j < state->prefix_count; j++) {
-            if (state->prefixes[j].modifier_id == target_id &&
+            if (modifiers_match(state->prefixes[j].source, state->prefixes[j].index,
+                               target_source, target_index) &&
                 state->prefixes[j].tier == target_tier) {
                 found = true;
                 break;
@@ -102,11 +116,13 @@ bool matches_target(const ItemState* state, const CraftingContext* context) {
     // Check each target suffix
     for (int i = 0; i < context->target_suffix_count; i++) {
         bool found = false;
-        int target_id = context->target_suffix_ids[i];
+        int target_source = context->target_suffix_sources[i];
+        int target_index = context->target_suffix_indices[i];
         int target_tier = context->target_suffix_tiers[i];
         
         for (int j = 0; j < state->suffix_count; j++) {
-            if (state->suffixes[j].modifier_id == target_id &&
+            if (modifiers_match(state->suffixes[j].source, state->suffixes[j].index,
+                               target_source, target_index) &&
                 state->suffixes[j].tier == target_tier) {
                 found = true;
                 break;
@@ -120,11 +136,10 @@ bool matches_target(const ItemState* state, const CraftingContext* context) {
 }
 
 bool has_modifier_family(const ItemState* state, const char* family) {
-    // Check prefixes
+    // Check prefixes - now using proper source/index lookup
     for (int i = 0; i < state->prefix_count; i++) {
-        // modifier_id is stored as an index
-        // We'll assume it's in SOURCE_NORMAL for now (would need source info to be precise)
-        const Modifier* mod = get_modifier_by_source_index(SOURCE_NORMAL, state->prefixes[i].modifier_id);
+        const Modifier* mod = get_modifier_by_source_index(state->prefixes[i].source, 
+                                                            state->prefixes[i].index);
         if (mod && strcmp(mod->name, family) == 0) {
             return true;
         }
@@ -132,7 +147,8 @@ bool has_modifier_family(const ItemState* state, const char* family) {
     
     // Check suffixes
     for (int i = 0; i < state->suffix_count; i++) {
-        const Modifier* mod = get_modifier_by_source_index(SOURCE_NORMAL, state->suffixes[i].modifier_id);
+        const Modifier* mod = get_modifier_by_source_index(state->suffixes[i].source,
+                                                            state->suffixes[i].index);
         if (mod && strcmp(mod->name, family) == 0) {
             return true;
         }

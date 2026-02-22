@@ -3,8 +3,7 @@
 
 #include "../crafting/crafting_types.h"
 
-// Forward declarations
-typedef struct NodePool NodePool;
+// NodePool and CraftingNode are already defined in crafting_types.h
 
 // Currency function type
 // Generates children nodes for a given parent by applying the currency

@@ -9,7 +9,6 @@
 
 /**
  * Main crafting algorithm implementation
- * This is a simplified A* search for crafting paths
  */
 CraftingResult* run_crafting_algorithm(const CraftingContext* context, const ItemState* initial_state) {
     if (!context || !initial_state) {
@@ -24,27 +23,31 @@ CraftingResult* run_crafting_algorithm(const CraftingContext* context, const Ite
     printf("  - Rarity: %d\n", initial_state->rarity);
     printf("  - Prefixes: %d\n", initial_state->prefix_count);
     for (int i = 0; i < initial_state->prefix_count; i++) {
-        printf("    [%d] ID=%d, Tier=%d\n", i, 
-               initial_state->prefixes[i].modifier_id, 
+        printf("    [%d] Source=%d, Index=%d, Tier=%d\n", i, 
+               initial_state->prefixes[i].source,
+               initial_state->prefixes[i].index, 
                initial_state->prefixes[i].tier);
     }
     printf("  - Suffixes: %d\n", initial_state->suffix_count);
     for (int i = 0; i < initial_state->suffix_count; i++) {
-        printf("    [%d] ID=%d, Tier=%d\n", i, 
-               initial_state->suffixes[i].modifier_id, 
+        printf("    [%d] Source=%d, Index=%d, Tier=%d\n", i,
+               initial_state->suffixes[i].source, 
+               initial_state->suffixes[i].index, 
                initial_state->suffixes[i].tier);
     }
     printf("\nTarget:\n");
     printf("  - Prefixes: %d\n", context->target_prefix_count);
     for (int i = 0; i < context->target_prefix_count; i++) {
-        printf("    [%d] ID=%d, Tier=%d\n", i, 
-               context->target_prefix_ids[i], 
+        printf("    [%d] Source=%d, Index=%d, Tier=%d\n", i,
+               context->target_prefix_sources[i],
+               context->target_prefix_indices[i], 
                context->target_prefix_tiers[i]);
     }
     printf("  - Suffixes: %d\n", context->target_suffix_count);
     for (int i = 0; i < context->target_suffix_count; i++) {
-        printf("    [%d] ID=%d, Tier=%d\n", i, 
-               context->target_suffix_ids[i], 
+        printf("    [%d] Source=%d, Index=%d, Tier=%d\n", i,
+               context->target_suffix_sources[i],
+               context->target_suffix_indices[i], 
                context->target_suffix_tiers[i]);
     }
     printf("========================================\n\n");
@@ -79,7 +82,8 @@ CraftingResult* run_crafting_algorithm(const CraftingContext* context, const Ite
     root->is_solution = matches_target(initial_state, context);
     
     // Initialize event for root (no action yet)
-    root->event.modifier_id = -1;
+    root->event.modifier_source = -1;
+    root->event.modifier_index = -1;
     root->event.tier = -1;
     root->event.action_type = ACTION_ADDED;
     root->event.currency_name = "Initial";

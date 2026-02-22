@@ -4,6 +4,7 @@
 #include "../crafting/node_pool.h"
 #include "../crafting/node_operations.h"
 #include "../crafting/heuristic.h"
+#include "../crafting/crafting_helpers.h"
 #include <string.h>
 
 bool essence_validate(
@@ -41,54 +42,52 @@ void essence_apply(
     // Then rerolls all other mods randomly
     
     // Get essence modifiers (source = 2 for essence)
-    int essence_prefix_count = itemPrefixCount(state->item_id, 2);
-    int essence_suffix_count = itemSuffixCount(state->item_id, 2);
+    int essence_prefix_count = get_prefix_count(state->item_id, SOURCE_ESSENCE);
+    int essence_suffix_count = get_suffix_count(state->item_id, SOURCE_ESSENCE);
     
     // Try forcing each essence prefix
     if (!force_suffix) {
         for (int forced_idx = 0; forced_idx < essence_prefix_count; forced_idx++) {
-            int forced_mod_idx = itemPrefixIndex(state->item_id, 2, forced_idx);
-            const Modifier* forced_mod = getModifier(forced_mod_idx);
+            ModifierLookup* forced_lookup = get_prefix_lookup(state->item_id, SOURCE_ESSENCE, forced_idx);
+            if (!forced_lookup) continue;
+            
+            const Modifier* forced_mod = get_mod_from_lookup(forced_lookup);
             if (!forced_mod) continue;
             
-            // Check if this essence matches the requested type
-            // (In a real implementation, you'd match essence_type with mod family)
-            
-            int forced_tier = getApplicableTier(forced_mod, state->item_level);
+            int forced_tier = get_applicable_tier_with_limit(forced_mod, state->item_level, forced_lookup->max_tier_index);
             if (forced_tier < 0) continue;
             
-            // Now generate all possible rerolls for the other mods
-            // For simplicity, we'll generate a subset of possible outcomes
-            // (Full implementation would be combinatorially expensive)
-            
             // Get normal mods for reroll
-            int normal_prefix_count = itemPrefixCount(state->item_id, 0);
-            int normal_suffix_count = itemSuffixCount(state->item_id, 0);
+            int normal_prefix_count = get_prefix_count(state->item_id, SOURCE_NORMAL);
+            int normal_suffix_count = get_suffix_count(state->item_id, SOURCE_NORMAL);
             
             // Generate sample outcomes (not exhaustive)
-            // Essence sets rarity to Rare
-            for (int i = 0; i < normal_prefix_count && i < 5; i++) {  // Limit to 5 samples
-                int reroll_prefix_idx = itemPrefixIndex(state->item_id, 0, i);
-                const Modifier* reroll_prefix = getModifier(reroll_prefix_idx);
+            for (int i = 0; i < normal_prefix_count && i < 5; i++) {
+                ModifierLookup* reroll_prefix_lookup = get_prefix_lookup(state->item_id, SOURCE_NORMAL, i);
+                if (!reroll_prefix_lookup) continue;
+                
+                const Modifier* reroll_prefix = get_mod_from_lookup(reroll_prefix_lookup);
                 if (!reroll_prefix) continue;
                 
-                int reroll_tier = getApplicableTier(reroll_prefix, state->item_level);
+                int reroll_tier = get_applicable_tier_with_limit(reroll_prefix, state->item_level, reroll_prefix_lookup->max_tier_index);
                 if (reroll_tier < 0) continue;
                 
                 // Check family conflicts
-                if (strcmp(forced_mod->family, reroll_prefix->family) == 0) continue;
+                if (strcmp(forced_mod->name, reroll_prefix->name) == 0) continue;
                 
                 for (int j = 0; j < normal_suffix_count && j < 5; j++) {
-                    int reroll_suffix_idx = itemSuffixIndex(state->item_id, 0, j);
-                    const Modifier* reroll_suffix = getModifier(reroll_suffix_idx);
+                    ModifierLookup* reroll_suffix_lookup = get_suffix_lookup(state->item_id, SOURCE_NORMAL, j);
+                    if (!reroll_suffix_lookup) continue;
+                    
+                    const Modifier* reroll_suffix = get_mod_from_lookup(reroll_suffix_lookup);
                     if (!reroll_suffix) continue;
                     
-                    int suffix_tier = getApplicableTier(reroll_suffix, state->item_level);
+                    int suffix_tier = get_applicable_tier_with_limit(reroll_suffix, state->item_level, reroll_suffix_lookup->max_tier_index);
                     if (suffix_tier < 0) continue;
                     
                     // Check family conflicts
-                    if (strcmp(forced_mod->family, reroll_suffix->family) == 0) continue;
-                    if (strcmp(reroll_prefix->family, reroll_suffix->family) == 0) continue;
+                    if (strcmp(forced_mod->name, reroll_suffix->name) == 0) continue;
+                    if (strcmp(reroll_prefix->name, reroll_suffix->name) == 0) continue;
                     
                     // Create child with forced essence + 2 rerolled mods
                     CraftingNode* child = allocate_node(pool);
@@ -97,29 +96,32 @@ void essence_apply(
                     child->state.rarity = 2;  // Rare
                     
                     // Forced essence prefix
-                    child->state.prefixes[0].modifier_id = forced_mod_idx;
+                    child->state.prefixes[0].source = forced_lookup->source;
+                    child->state.prefixes[0].index = forced_lookup->index;
                     child->state.prefixes[0].tier = forced_tier;
                     
                     // Rerolled prefix
-                    child->state.prefixes[1].modifier_id = reroll_prefix_idx;
+                    child->state.prefixes[1].source = reroll_prefix_lookup->source;
+                    child->state.prefixes[1].index = reroll_prefix_lookup->index;
                     child->state.prefixes[1].tier = reroll_tier;
                     child->state.prefix_count = 2;
                     
                     // Rerolled suffix
-                    child->state.suffixes[0].modifier_id = reroll_suffix_idx;
+                    child->state.suffixes[0].source = reroll_suffix_lookup->source;
+                    child->state.suffixes[0].index = reroll_suffix_lookup->index;
                     child->state.suffixes[0].tier = suffix_tier;
                     child->state.suffix_count = 1;
                     
                     child->parent = parent;
                     child->depth = parent->depth + 1;
                     
-                    child->event.modifier_id = forced_mod_idx;
+                    child->event.modifier_source = forced_lookup->source;
+                    child->event.modifier_index = forced_lookup->index;
                     child->event.tier = forced_tier;
                     child->event.action_type = ACTION_REROLLED;
                     child->event.currency_name = "Essence";
                     
                     // Probability calculation (simplified)
-                    // P = P(forced) × P(reroll_prefix) × P(reroll_suffix)
                     double forced_weight = forced_mod->tiers[forced_tier].weight;
                     double total_essence_weight = 100.0;  // Simplified
                     
@@ -143,25 +145,29 @@ void essence_apply(
     // Try forcing each essence suffix
     if (!force_prefix) {
         for (int forced_idx = 0; forced_idx < essence_suffix_count; forced_idx++) {
-            int forced_mod_idx = itemSuffixIndex(state->item_id, 2, forced_idx);
-            const Modifier* forced_mod = getModifier(forced_mod_idx);
+            ModifierLookup* forced_lookup = get_suffix_lookup(state->item_id, SOURCE_ESSENCE, forced_idx);
+            if (!forced_lookup) continue;
+            
+            const Modifier* forced_mod = get_mod_from_lookup(forced_lookup);
             if (!forced_mod) continue;
             
-            int forced_tier = getApplicableTier(forced_mod, state->item_level);
+            int forced_tier = get_applicable_tier_with_limit(forced_mod, state->item_level, forced_lookup->max_tier_index);
             if (forced_tier < 0) continue;
             
-            int normal_prefix_count = itemPrefixCount(state->item_id, 0);
+            int normal_prefix_count = get_prefix_count(state->item_id, SOURCE_NORMAL);
             
             // Generate sample outcomes
             for (int i = 0; i < normal_prefix_count && i < 5; i++) {
-                int reroll_prefix_idx = itemPrefixIndex(state->item_id, 0, i);
-                const Modifier* reroll_prefix = getModifier(reroll_prefix_idx);
+                ModifierLookup* reroll_prefix_lookup = get_prefix_lookup(state->item_id, SOURCE_NORMAL, i);
+                if (!reroll_prefix_lookup) continue;
+                
+                const Modifier* reroll_prefix = get_mod_from_lookup(reroll_prefix_lookup);
                 if (!reroll_prefix) continue;
                 
-                int reroll_tier = getApplicableTier(reroll_prefix, state->item_level);
+                int reroll_tier = get_applicable_tier_with_limit(reroll_prefix, state->item_level, reroll_prefix_lookup->max_tier_index);
                 if (reroll_tier < 0) continue;
                 
-                if (strcmp(forced_mod->family, reroll_prefix->family) == 0) continue;
+                if (strcmp(forced_mod->name, reroll_prefix->name) == 0) continue;
                 
                 CraftingNode* child = allocate_node(pool);
                 child->state.item_id = state->item_id;
@@ -169,19 +175,22 @@ void essence_apply(
                 child->state.rarity = 2;
                 
                 // Rerolled prefix
-                child->state.prefixes[0].modifier_id = reroll_prefix_idx;
+                child->state.prefixes[0].source = reroll_prefix_lookup->source;
+                child->state.prefixes[0].index = reroll_prefix_lookup->index;
                 child->state.prefixes[0].tier = reroll_tier;
                 child->state.prefix_count = 1;
                 
                 // Forced essence suffix
-                child->state.suffixes[0].modifier_id = forced_mod_idx;
+                child->state.suffixes[0].source = forced_lookup->source;
+                child->state.suffixes[0].index = forced_lookup->index;
                 child->state.suffixes[0].tier = forced_tier;
                 child->state.suffix_count = 1;
                 
                 child->parent = parent;
                 child->depth = parent->depth + 1;
                 
-                child->event.modifier_id = forced_mod_idx;
+                child->event.modifier_source = forced_lookup->source;
+                child->event.modifier_index = forced_lookup->index;
                 child->event.tier = forced_tier;
                 child->event.action_type = ACTION_REROLLED;
                 child->event.currency_name = "Essence";

@@ -3369,6 +3369,121 @@
       output += '</div>';
       selectedOutput.innerHTML = output;
     }
+    
+    // ========================================================================
+    // TESTING FUNCTION - Call from browser console
+    // ========================================================================
+    
+    /**
+     * Test the crafting algorithm with a simple configuration
+     * Call this from the browser console: testCraftingAlgorithm()
+     */
+    window.testCraftingAlgorithm = function() {
+      console.log('='.repeat(60));
+      console.log('TESTING CRAFTING ALGORITHM');
+      console.log('='.repeat(60));
+      
+      // Simple test configuration: Bow, trying to craft from Normal to Magic with 1 prefix
+      const testConfig = {
+        itemId: 0,  // Bow
+        itemLevel: 60,
+        rarity: "normal",
+        existingModifiers: [],
+        desiredModifiers: [
+          {
+            source: 0,  // SOURCE_NORMAL
+            index: 0,   // First prefix modifier
+            tier: 0,    // T1 (best tier)
+            type: "prefix"
+          }
+        ],
+        disabledCurrencies: [],
+        disabledOmens: []
+      };
+      
+      console.log('Test Configuration:', testConfig);
+      const jsonConfig = JSON.stringify(testConfig);
+      console.log('JSON String:', jsonConfig);
+      
+      console.log('\nCalling WASM calculate_crafting_path...\n');
+      
+      try {
+        const result = api.calculateCraftingPath(jsonConfig);
+        console.log('\n' + '='.repeat(60));
+        console.log('RESULT FROM WASM:');
+        console.log('='.repeat(60));
+        console.log(result);
+        
+        // Try to parse as JSON
+        try {
+          const parsed = JSON.parse(result);
+          console.log('\nParsed Result:', parsed);
+        } catch (e) {
+          console.log('(Result is not JSON)');
+        }
+      } catch (e) {
+        console.error('ERROR:', e);
+      }
+      
+      console.log('\n' + '='.repeat(60));
+      return 'Check console output above for details';
+    };
+    
+    /**
+     * Test with current UI selection
+     * Call from console: testWithCurrentSelection()
+     */
+    window.testWithCurrentSelection = function() {
+      console.log('='.repeat(60));
+      console.log('TESTING WITH CURRENT UI SELECTION');
+      console.log('='.repeat(60));
+      
+      if (!currentItemId) {
+        console.error('ERROR: No item selected. Please select an item first.');
+        return;
+      }
+      
+      console.log('Current Item ID:', currentItemId);
+      console.log('Current Item Level:', currentItemLevel);
+      console.log('Selected Modifiers:', selectedModifiers);
+      console.log('Existing Modifiers:', existingModifiers);
+      console.log('Enabled Currencies:', Array.from(enabledCurrencies));
+      console.log('Selected Omens:', Array.from(selectedOmens));
+      
+      // Build the actual JSON that would be sent
+      const config = finalizeSelection();
+      console.log('\nGenerated Configuration:', config);
+      
+      const jsonConfig = JSON.stringify(config);
+      console.log('\nJSON String:', jsonConfig);
+      
+      console.log('\nCalling WASM calculate_crafting_path...\n');
+      
+      try {
+        const result = api.calculateCraftingPath(jsonConfig);
+        console.log('\n' + '='.repeat(60));
+        console.log('RESULT FROM WASM:');
+        console.log('='.repeat(60));
+        console.log(result);
+        
+        try {
+          const parsed = JSON.parse(result);
+          console.log('\nParsed Result:', parsed);
+        } catch (e) {
+          console.log('(Result is not JSON)');
+        }
+      } catch (e) {
+        console.error('ERROR:', e);
+      }
+      
+      console.log('\n' + '='.repeat(60));
+      return 'Check console output above for details';
+    };
+    
+    console.log('%c[TEST FUNCTIONS LOADED]', 'color: #4CAF50; font-weight: bold;');
+    console.log('Available test functions:');
+    console.log('  - testCraftingAlgorithm()     : Test with simple hardcoded config');
+    console.log('  - testWithCurrentSelection()  : Test with current UI selection');
   </script>
 </body>
 </html>

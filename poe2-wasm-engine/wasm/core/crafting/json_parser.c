@@ -51,21 +51,18 @@ static bool extract_json_bool(const char* json, const char* key, bool default_va
 
 // Extract array of modifiers
 static int parse_modifier_object(const char* json_obj, AppliedModifier* mod) {
-    mod->modifier_id = -1;
+    mod->source = -1;
+    mod->index = -1;
     mod->tier = 0;
     
     // Extract source
-    int source = extract_json_int(json_obj, "source", -1);
+    mod->source = extract_json_int(json_obj, "source", -1);
     // Extract index
-    int index = extract_json_int(json_obj, "index", -1);
+    mod->index = extract_json_int(json_obj, "index", -1);
     // Extract tier
     mod->tier = extract_json_int(json_obj, "tier", 0);
     
-    if (source < 0 || index < 0) return -1;
-    
-    // Create a combined modifier_id (this is simplified - adapt to your system)
-    // You may need a function to convert (source, index) to your internal modifier_id
-    mod->modifier_id = source * 10000 + index;
+    if (mod->source < 0 || mod->index < 0) return -1;
     
     return 0;
 }
@@ -202,13 +199,15 @@ int parse_crafting_json(const char* json_str, CraftingContext* context, ItemStat
         
         // Copy to target arrays
         for (int i = 0; i < temp_prefix_count && i < 3; i++) {
-            context->target_prefix_ids[i] = temp_prefixes[i].modifier_id;
+            context->target_prefix_sources[i] = temp_prefixes[i].source;
+            context->target_prefix_indices[i] = temp_prefixes[i].index;
             context->target_prefix_tiers[i] = temp_prefixes[i].tier;
         }
         context->target_prefix_count = temp_prefix_count;
         
         for (int i = 0; i < temp_suffix_count && i < 3; i++) {
-            context->target_suffix_ids[i] = temp_suffixes[i].modifier_id;
+            context->target_suffix_sources[i] = temp_suffixes[i].source;
+            context->target_suffix_indices[i] = temp_suffixes[i].index;
             context->target_suffix_tiers[i] = temp_suffixes[i].tier;
         }
         context->target_suffix_count = temp_suffix_count;

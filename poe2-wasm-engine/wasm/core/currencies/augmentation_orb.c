@@ -4,6 +4,7 @@
 #include "../crafting/node_pool.h"
 #include "../crafting/node_operations.h"
 #include "../crafting/heuristic.h"
+#include "../crafting/crafting_helpers.h"
 #include <string.h>
 
 bool augmentation_orb_validate(
@@ -43,93 +44,80 @@ void augmentation_orb_apply(
     
     if (need_prefix) {
         // Add a prefix
-        int prefix_count = itemPrefixCount(state->item_id, 0);
+        int prefix_count = get_prefix_count(state->item_id, SOURCE_NORMAL);
+        double total_weight = calc_available_prefix_weight(state->item_id, SOURCE_NORMAL, state, state->item_level);
         
         for (int i = 0; i < prefix_count; i++) {
-            int mod_idx = itemPrefixIndex(state->item_id, 0, i);
-            const Modifier* mod = getModifier(mod_idx);
+            ModifierLookup* lookup = get_prefix_lookup(state->item_id, SOURCE_NORMAL, i);
+            if (!lookup) continue;
+            
+            const Modifier* mod = get_mod_from_lookup(lookup);
             if (!mod) continue;
             
-            int tier = getApplicableTier(mod, state->item_level);
+            int tier = get_applicable_tier_with_limit(mod, state->item_level, lookup->max_tier_index);
             if (tier < 0) continue;
             
             // Check family not already present
-            if (has_modifier_family(state, mod->family)) continue;
+            if (has_mod_family(state, mod->name)) continue;
             
             // Create child
             CraftingNode* child = allocate_node(pool);
             child->state = *state;
-            child->state.prefixes[0].modifier_id = mod_idx;
+            child->state.prefixes[0].source = lookup->source;
+            child->state.prefixes[0].index = lookup->index;
             child->state.prefixes[0].tier = tier;
             child->state.prefix_count = 1;
             
             child->parent = parent;
             child->depth = parent->depth + 1;
             
-            child->event.modifier_id = mod_idx;
+            child->event.modifier_source = lookup->source;
+            child->event.modifier_index = lookup->index;
             child->event.tier = tier;
             child->event.action_type = ACTION_ADDED;
             child->event.currency_name = "Orb of Augmentation";
             
-            // Calculate probability
-            double total_weight = 0;
-            for (int j = 0; j < prefix_count; j++) {
-                int idx = itemPrefixIndex(state->item_id, 0, j);
-                const Modifier* m = getModifier(idx);
-                if (m && !has_modifier_family(state, m->family)) {
-                    int t = getApplicableTier(m, state->item_level);
-                    if (t >= 0) {
-                        total_weight += m->tiers[t].weight;
-                    }
-                }
-            }
-            
-            child->event.probability = mod->tiers[tier].weight / total_weight;
+            child->event.probability = (total_weight > 0) ?
+                mod->tiers[tier].weight / total_weight : 0.0;
             child->cumulative_probability = parent->cumulative_probability * child->event.probability;
             
             add_child_to_node(parent, child);
         }
     } else if (need_suffix) {
         // Add a suffix
-        int suffix_count = itemSuffixCount(state->item_id, 0);
+        int suffix_count = get_suffix_count(state->item_id, SOURCE_NORMAL);
+        double total_weight = calc_available_suffix_weight(state->item_id, SOURCE_NORMAL, state, state->item_level);
         
         for (int i = 0; i < suffix_count; i++) {
-            int mod_idx = itemSuffixIndex(state->item_id, 0, i);
-            const Modifier* mod = getModifier(mod_idx);
+            ModifierLookup* lookup = get_suffix_lookup(state->item_id, SOURCE_NORMAL, i);
+            if (!lookup) continue;
+            
+            const Modifier* mod = get_mod_from_lookup(lookup);
             if (!mod) continue;
             
-            int tier = getApplicableTier(mod, state->item_level);
+            int tier = get_applicable_tier_with_limit(mod, state->item_level, lookup->max_tier_index);
             if (tier < 0) continue;
             
-            if (has_modifier_family(state, mod->family)) continue;
+            if (has_mod_family(state, mod->name)) continue;
             
             CraftingNode* child = allocate_node(pool);
             child->state = *state;
-            child->state.suffixes[0].modifier_id = mod_idx;
+            child->state.suffixes[0].source = lookup->source;
+            child->state.suffixes[0].index = lookup->index;
             child->state.suffixes[0].tier = tier;
             child->state.suffix_count = 1;
             
             child->parent = parent;
             child->depth = parent->depth + 1;
             
-            child->event.modifier_id = mod_idx;
+            child->event.modifier_source = lookup->source;
+            child->event.modifier_index = lookup->index;
             child->event.tier = tier;
             child->event.action_type = ACTION_ADDED;
             child->event.currency_name = "Orb of Augmentation";
             
-            double total_weight = 0;
-            for (int j = 0; j < suffix_count; j++) {
-                int idx = itemSuffixIndex(state->item_id, 0, j);
-                const Modifier* m = getModifier(idx);
-                if (m && !has_modifier_family(state, m->family)) {
-                    int t = getApplicableTier(m, state->item_level);
-                    if (t >= 0) {
-                        total_weight += m->tiers[t].weight;
-                    }
-                }
-            }
-            
-            child->event.probability = mod->tiers[tier].weight / total_weight;
+            child->event.probability = (total_weight > 0) ?
+                mod->tiers[tier].weight / total_weight : 0.0;
             child->cumulative_probability = parent->cumulative_probability * child->event.probability;
             
             add_child_to_node(parent, child);

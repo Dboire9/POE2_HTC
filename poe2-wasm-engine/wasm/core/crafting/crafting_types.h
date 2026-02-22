@@ -22,7 +22,8 @@
 
 // Single applied modifier
 typedef struct {
-    int modifier_id;      // Index in modifier array
+    int source;           // ModifierSource (0=Normal, 1=Desecrated, 2=Essence, 3=Perfect)
+    int index;            // Index within the source array
     int tier;             // Tier index (0 = T1 = best)
     int values[4];        // Rolled values for this modifier
 } AppliedModifier;
@@ -53,7 +54,8 @@ typedef enum {
 
 // Single crafting event (stored in each node)
 typedef struct {
-    int modifier_id;       // -1 if just rarity change
+    int modifier_source;   // ModifierSource, -1 if just rarity change
+    int modifier_index;    // Index within source, -1 if just rarity change
     int tier;
     ActionType action_type;
     const char* currency_name;
@@ -111,17 +113,20 @@ typedef struct {
     int item_level;
     int starting_rarity;
     
-    // Target modifiers
-    int target_prefix_ids[3];
+    // Target modifiers (source + index pairs)
+    int target_prefix_sources[3];
+    int target_prefix_indices[3];
     int target_prefix_tiers[3];
     int target_prefix_count;
     
-    int target_suffix_ids[3];
+    int target_suffix_sources[3];
+    int target_suffix_indices[3];
     int target_suffix_tiers[3];
     int target_suffix_count;
     
-    // Undesired modifiers (for filtering)
-    int undesired_mod_ids[20];
+    // Undesired modifiers (source + index pairs for filtering)
+    int undesired_mod_sources[20];
+    int undesired_mod_indices[20];
     int undesired_mod_count;
     
     // Currency settings

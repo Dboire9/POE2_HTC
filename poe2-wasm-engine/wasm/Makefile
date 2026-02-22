@@ -11,12 +11,21 @@ CFLAGS = -O3 -pthread \
          -Wall -Wextra
 
 # Source files
-CORE_SRC = core/items.c core/modifiers.c core/calculator.c core/probability.c
+CORE_SRC = core/items.c core/modifiers.c core/calculator.c core/probability.c \
+           core/items_data.c core/modifiers_data.c core/item_mod_lookup.c core/item_lookup_impl.c
+CRAFTING_SRC = core/crafting/crafting_algorithm.c core/crafting/crafting_helpers.c \
+               core/crafting/heuristic.c core/crafting/json_parser.c \
+               core/crafting/node_operations.c core/crafting/node_pool.c \
+               core/crafting/path_reconstruction.c core/crafting/pruning.c
+CURRENCY_SRC = core/currencies/annulment_orb.c core/currencies/augmentation_orb.c \
+               core/currencies/desecrated.c core/currencies/essence.c \
+               core/currencies/exalted_orb.c core/currencies/regal_orb.c \
+               core/currencies/transmutation_orb.c
 THREAD_SRC = threading/thread_pool.c
 MEMORY_SRC = memory/cache.c memory/allocator.c
 API_SRC = api.c
 
-ALL_SRC = $(CORE_SRC) $(THREAD_SRC) $(MEMORY_SRC) $(API_SRC)
+ALL_SRC = $(CORE_SRC) $(CRAFTING_SRC) $(CURRENCY_SRC) $(THREAD_SRC) $(MEMORY_SRC) $(API_SRC)
 
 # Output directory
 OUT_DIR = ../public/wasm

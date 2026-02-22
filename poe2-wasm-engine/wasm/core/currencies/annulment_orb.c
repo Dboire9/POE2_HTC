@@ -52,7 +52,8 @@ void annulment_orb_apply(
             child->state = *state;
             
             // Remove prefix at index i
-            int removed_mod_id = state->prefixes[i].modifier_id;
+            int removed_source = state->prefixes[i].source;
+            int removed_index = state->prefixes[i].index;
             int removed_tier = state->prefixes[i].tier;
             
             // Shift remaining prefixes
@@ -64,7 +65,8 @@ void annulment_orb_apply(
             child->parent = parent;
             child->depth = parent->depth + 1;
             
-            child->event.modifier_id = removed_mod_id;
+            child->event.modifier_source = removed_source;
+            child->event.modifier_index = removed_index;
             child->event.tier = removed_tier;
             child->event.action_type = ACTION_REMOVED;
             child->event.currency_name = "Orb of Annulment";
@@ -88,7 +90,8 @@ void annulment_orb_apply(
             CraftingNode* child = allocate_node(pool);
             child->state = *state;
             
-            int removed_mod_id = state->suffixes[i].modifier_id;
+            int removed_source = state->suffixes[i].source;
+            int removed_index = state->suffixes[i].index;
             int removed_tier = state->suffixes[i].tier;
             
             // Shift remaining suffixes
@@ -100,7 +103,8 @@ void annulment_orb_apply(
             child->parent = parent;
             child->depth = parent->depth + 1;
             
-            child->event.modifier_id = removed_mod_id;
+            child->event.modifier_source = removed_source;
+            child->event.modifier_index = removed_index;
             child->event.tier = removed_tier;
             child->event.action_type = ACTION_REMOVED;
             child->event.currency_name = "Orb of Annulment";

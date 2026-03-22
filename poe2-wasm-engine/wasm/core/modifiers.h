@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "items.h"
+
+struct Item; // Forward declaration to avoid circular include
 
 // Modifier types
 typedef enum {
@@ -53,7 +54,7 @@ void init_modifiers(void);
 
 // Lookup functions
 Modifier* get_modifier_by_source_index(ModifierSource source, uint16_t index);
-bool modifier_applies_to_item(const Modifier* mod, const Item* item);
-float get_modifier_probability(const Modifier* mod, const Item* item);
+bool modifier_applies_to_item(const Modifier* mod, const struct Item* item);
+float get_modifier_probability(const Modifier* mod, const struct Item* item);
 
 #endif // MODIFIERS_H

@@ -1,7 +1,10 @@
-#ifndef ITEMS_H
-#define ITEMS_H
+ #ifndef ITEMS_H
+ #define ITEMS_H
 
-#include <stdint.h>
+ #include <stdint.h>
+ #include "modifiers.h"
+
+struct Modifier;
 
 // Item rarity levels
 typedef enum {
@@ -34,16 +37,24 @@ typedef enum {
     CLASS_BELT = 19
 } ItemClass;
 
+
 // Item structure (compact representation)
 typedef struct {
     uint16_t id;
     uint8_t item_class;
-    uint8_t rarity;
-    uint8_t level;
-    uint8_t item_level;
     char name[64];
-    uint32_t tags;  // Bitflags for fast tag lookup
 } Item;
+
+// Instance of an item owned by a user, with affixes and level
+typedef struct {
+    const Item* base_item;
+    int item_level;
+    uint8_t rarity;
+    const Modifier* prefixes[3];
+    int desired_prefix_tiers[3]; // Store the desired tier for each prefix
+    const Modifier* suffixes[3];
+    int desired_suffix_tiers[3]; // Store the desired tier for each suffix
+} ItemInstance;
 
 // Item database
 extern Item ITEMS[];

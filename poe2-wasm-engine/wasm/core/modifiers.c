@@ -24,31 +24,3 @@ Modifier* get_modifier_by_source_index(ModifierSource source, uint16_t index) {
     }
     return NULL;
 }
-
-bool modifier_applies_to_item(const Modifier* mod, const Item* item) {
-    // Check item level against first tier requirement
-    if (mod->tier_count > 0 && item->item_level < mod->tiers[0].level_req) {
-        return false;
-    }
-    
-    // Check tag compatibility
-    if (mod->tags != 0 && (item->tags & mod->tags) == 0) {
-        return false;
-    }
-    
-    return true;
-}
-
-float get_modifier_probability(const Modifier* mod, const Item* item) {
-    // Find highest tier accessible for this item level
-    int accessible_tier = -1;
-    for (int i = 0; i < mod->tier_count; i++) {
-        if (item->item_level >= mod->tiers[i].level_req) {
-            accessible_tier = i;
-        }
-    }
-    
-    if (accessible_tier < 0) return 0.0f;
-    
-    return (float)mod->tiers[accessible_tier].weight / 1000.0f;
-}

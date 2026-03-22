@@ -6,7 +6,7 @@
 #include "modifiers.h"
 #include "item_mod_lookup.h"
 
-static ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool is_suffix, int* out_count) {
+ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool is_suffix, int* out_count) {
     if (!out_count) return NULL;
     *out_count = 0;
     

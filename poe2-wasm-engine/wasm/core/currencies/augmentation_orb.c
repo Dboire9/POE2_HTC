@@ -18,8 +18,8 @@ bool augmentation_orb_validate(
     }
     
     int total_mods = state->prefix_count + state->suffix_count;
-    if (total_mods != 1) {
-        if (error_out) strcpy(error_out, "Augmentation Orb requires item with exactly 1 mod");
+    if (total_mods >= 2) {
+        if (error_out) strcpy(error_out, "Augmentation Orb requires item with fewer than 2 mods");
         return false;
     }
     
@@ -33,16 +33,24 @@ void augmentation_orb_apply(
 ) {
     ItemState* state = &parent->state;
     
-    // Must be Magic with exactly 1 mod
+    // Must be Magic with 0 or 1 mods
     if (state->rarity != 1) return;
     int total_mods = state->prefix_count + state->suffix_count;
-    if (total_mods != 1) return;
+    if (total_mods >= 2) return;
     
-    // Determine what type to add
-    bool need_prefix = (state->prefix_count == 0);
-    bool need_suffix = (state->suffix_count == 0);
+    // Determine what type(s) to add
+    bool can_add_prefix = (state->prefix_count < 1);  // Magic max 1 prefix
+    bool can_add_suffix = (state->suffix_count < 1);   // Magic max 1 suffix
     
-    if (need_prefix) {
+    // Calculate probability split: if both types available, 50/50
+    double prefix_type_prob = 1.0;
+    double suffix_type_prob = 1.0;
+    if (can_add_prefix && can_add_suffix) {
+        prefix_type_prob = 0.5;
+        suffix_type_prob = 0.5;
+    }
+    
+    if (can_add_prefix) {
         // Add a prefix
         int prefix_count = get_prefix_count(state->item_id, SOURCE_NORMAL);
         double total_weight = calc_available_prefix_weight(state->item_id, SOURCE_NORMAL, state, state->item_level);
@@ -63,10 +71,10 @@ void augmentation_orb_apply(
             // Create child
             CraftingNode* child = allocate_node(pool);
             child->state = *state;
-            child->state.prefixes[0].source = lookup->source;
-            child->state.prefixes[0].index = lookup->index;
-            child->state.prefixes[0].tier = tier;
-            child->state.prefix_count = 1;
+            child->state.prefixes[state->prefix_count].source = lookup->source;
+            child->state.prefixes[state->prefix_count].index = lookup->index;
+            child->state.prefixes[state->prefix_count].tier = tier;
+            child->state.prefix_count = state->prefix_count + 1;
             
             child->parent = parent;
             child->depth = parent->depth + 1;
@@ -78,12 +86,14 @@ void augmentation_orb_apply(
             child->event.currency_name = "Orb of Augmentation";
             
             child->event.probability = (total_weight > 0) ?
-                mod->tiers[tier].weight / total_weight : 0.0;
+                prefix_type_prob * (mod->tiers[tier].weight / total_weight) : 0.0;
             child->cumulative_probability = parent->cumulative_probability * child->event.probability;
             
             add_child_to_node(parent, child);
         }
-    } else if (need_suffix) {
+    }
+    
+    if (can_add_suffix) {
         // Add a suffix
         int suffix_count = get_suffix_count(state->item_id, SOURCE_NORMAL);
         double total_weight = calc_available_suffix_weight(state->item_id, SOURCE_NORMAL, state, state->item_level);
@@ -102,10 +112,10 @@ void augmentation_orb_apply(
             
             CraftingNode* child = allocate_node(pool);
             child->state = *state;
-            child->state.suffixes[0].source = lookup->source;
-            child->state.suffixes[0].index = lookup->index;
-            child->state.suffixes[0].tier = tier;
-            child->state.suffix_count = 1;
+            child->state.suffixes[state->suffix_count].source = lookup->source;
+            child->state.suffixes[state->suffix_count].index = lookup->index;
+            child->state.suffixes[state->suffix_count].tier = tier;
+            child->state.suffix_count = state->suffix_count + 1;
             
             child->parent = parent;
             child->depth = parent->depth + 1;
@@ -117,7 +127,7 @@ void augmentation_orb_apply(
             child->event.currency_name = "Orb of Augmentation";
             
             child->event.probability = (total_weight > 0) ?
-                mod->tiers[tier].weight / total_weight : 0.0;
+                suffix_type_prob * (mod->tiers[tier].weight / total_weight) : 0.0;
             child->cumulative_probability = parent->cumulative_probability * child->event.probability;
             
             add_child_to_node(parent, child);

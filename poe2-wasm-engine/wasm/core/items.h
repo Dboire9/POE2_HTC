@@ -8,7 +8,6 @@ typedef enum {
     RARITY_NORMAL = 0,
     RARITY_MAGIC = 1,
     RARITY_RARE = 2,
-    RARITY_UNIQUE = 3
 } ItemRarity;
 
 // Item classes

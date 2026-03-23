@@ -52,8 +52,10 @@ typedef struct {
     uint8_t rarity;
     const Modifier* prefixes[3];
     int desired_prefix_tiers[3]; // Store the desired tier for each prefix
+	uint8_t prefix_count;
     const Modifier* suffixes[3];
     int desired_suffix_tiers[3]; // Store the desired tier for each suffix
+	uint8_t suffix_count;
 } ItemInstance;
 
 // Item database

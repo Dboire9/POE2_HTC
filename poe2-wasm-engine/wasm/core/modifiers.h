@@ -15,10 +15,10 @@ typedef enum {
 
 // Modifier sources (crafting methods)
 typedef enum {
-    SOURCE_NORMAL = 0,
-    SOURCE_DESECRATED = 1,
-    SOURCE_ESSENCE = 2,
-    SOURCE_PERFECT_ESSENCE = 3
+    SOURCE_NORMAL = 1,
+    SOURCE_DESECRATED = 2,
+    SOURCE_ESSENCE = 3,
+    SOURCE_PERFECT_ESSENCE = 4
 } ModifierSource;
 
 // Value range for a tier (e.g., "Adds 2-3 to 5-7 Physical Damage")

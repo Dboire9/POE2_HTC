@@ -9,12 +9,15 @@
 #define MODIFIERS_ESSENCE_COUNT 264
 #define MODIFIERS_PERFECT_ESSENCE_COUNT 79
 
-extern Modifier MODIFIERS_NORMAL[MODIFIERS_NORMAL_COUNT];
-extern Modifier MODIFIERS_DESECRATED[MODIFIERS_DESECRATED_COUNT];
-extern Modifier MODIFIERS_ESSENCE[MODIFIERS_ESSENCE_COUNT];
-extern Modifier MODIFIERS_PERFECT_ESSENCE[MODIFIERS_PERFECT_ESSENCE_COUNT];
+extern Modifier* MODIFIERS_NORMAL;
+extern Modifier* MODIFIERS_DESECRATED;
+extern Modifier* MODIFIERS_ESSENCE;
+extern Modifier* MODIFIERS_PERFECT_ESSENCE;
 
-void init_modifiers_data(void);
+Modifier* init_normal_modifiers_data(void);
+Modifier* init_desecrated_modifiers_data(void);
+Modifier* init_essence_modifiers_data(void);
+Modifier* init_perfect_essence_modifiers_data(void);
 
 // Helper to get modifier by source and index
 Modifier* get_modifier(ModifierSource source, int index);

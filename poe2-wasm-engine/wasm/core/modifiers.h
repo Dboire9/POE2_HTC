@@ -54,7 +54,7 @@ typedef struct {
 void init_modifiers(void);
 
 // Lookup functions
-Modifier* get_modifier_by_source_index(ModifierSource source, uint16_t index);
+Modifier* get_modifier_by_source_index(ModifierSource source, uint16_t index, Modifier* modifiers);
 bool modifier_applies_to_item(const Modifier* mod, const struct Item* item);
 float get_modifier_probability(const Modifier* mod, const struct Item* item);
 

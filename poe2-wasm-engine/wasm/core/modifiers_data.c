@@ -1,14 +1,15 @@
 #include "modifiers_data.h"
 #include "tags.h"
 #include <string.h>
+#include <stdlib.h>
 
-Modifier MODIFIERS_NORMAL[635];
-Modifier MODIFIERS_DESECRATED[359];
-Modifier MODIFIERS_ESSENCE[264];
-Modifier MODIFIERS_PERFECT_ESSENCE[79];
+Modifier* MODIFIERS_NORMAL = NULL;
+Modifier* MODIFIERS_DESECRATED = NULL;
+Modifier* MODIFIERS_ESSENCE = NULL;
+Modifier* MODIFIERS_PERFECT_ESSENCE = NULL;
 
 // NORMAL tier data
-static ModifierTierData tiers_normal_0[] = {
+ModifierTierData tiers_normal_0[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -119,7 +120,7 @@ static ModifierTierData tiers_normal_0[] = {
     },
 };
 
-static ModifierTierData tiers_normal_1[] = {
+ModifierTierData tiers_normal_1[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -242,7 +243,7 @@ static ModifierTierData tiers_normal_1[] = {
     },
 };
 
-static ModifierTierData tiers_normal_2[] = {
+ModifierTierData tiers_normal_2[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -365,7 +366,7 @@ static ModifierTierData tiers_normal_2[] = {
     },
 };
 
-static ModifierTierData tiers_normal_3[] = {
+ModifierTierData tiers_normal_3[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -488,7 +489,7 @@ static ModifierTierData tiers_normal_3[] = {
     },
 };
 
-static ModifierTierData tiers_normal_4[] = {
+ModifierTierData tiers_normal_4[] = {
     {
         .tier_name = "Heavy",
         .level_req = 1,
@@ -587,7 +588,7 @@ static ModifierTierData tiers_normal_4[] = {
     },
 };
 
-static ModifierTierData tiers_normal_5[] = {
+ModifierTierData tiers_normal_5[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -686,7 +687,7 @@ static ModifierTierData tiers_normal_5[] = {
     },
 };
 
-static ModifierTierData tiers_normal_6[] = {
+ModifierTierData tiers_normal_6[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -785,7 +786,7 @@ static ModifierTierData tiers_normal_6[] = {
     },
 };
 
-static ModifierTierData tiers_normal_7[] = {
+ModifierTierData tiers_normal_7[] = {
     {
         .tier_name = "Catalysing",
         .level_req = 4,
@@ -860,7 +861,7 @@ static ModifierTierData tiers_normal_7[] = {
     },
 };
 
-static ModifierTierData tiers_normal_8[] = {
+ModifierTierData tiers_normal_8[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -959,7 +960,7 @@ static ModifierTierData tiers_normal_8[] = {
     },
 };
 
-static ModifierTierData tiers_normal_9[] = {
+ModifierTierData tiers_normal_9[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -1022,7 +1023,7 @@ static ModifierTierData tiers_normal_9[] = {
     },
 };
 
-static ModifierTierData tiers_normal_10[] = {
+ModifierTierData tiers_normal_10[] = {
     {
         .tier_name = "of Combat",
         .level_req = 2,
@@ -1085,7 +1086,7 @@ static ModifierTierData tiers_normal_10[] = {
     },
 };
 
-static ModifierTierData tiers_normal_11[] = {
+ModifierTierData tiers_normal_11[] = {
     {
         .tier_name = "of the Parasite",
         .level_req = 21,
@@ -1148,7 +1149,7 @@ static ModifierTierData tiers_normal_11[] = {
     },
 };
 
-static ModifierTierData tiers_normal_12[] = {
+ModifierTierData tiers_normal_12[] = {
     {
         .tier_name = "of the Thirsty",
         .level_req = 21,
@@ -1211,7 +1212,7 @@ static ModifierTierData tiers_normal_12[] = {
     },
 };
 
-static ModifierTierData tiers_normal_13[] = {
+ModifierTierData tiers_normal_13[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -1310,7 +1311,7 @@ static ModifierTierData tiers_normal_13[] = {
     },
 };
 
-static ModifierTierData tiers_normal_14[] = {
+ModifierTierData tiers_normal_14[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -1409,7 +1410,7 @@ static ModifierTierData tiers_normal_14[] = {
     },
 };
 
-static ModifierTierData tiers_normal_15[] = {
+ModifierTierData tiers_normal_15[] = {
     {
         .tier_name = "of Rejuvenation",
         .level_req = 8,
@@ -1460,7 +1461,7 @@ static ModifierTierData tiers_normal_15[] = {
     },
 };
 
-static ModifierTierData tiers_normal_16[] = {
+ModifierTierData tiers_normal_16[] = {
     {
         .tier_name = "of Skill",
         .level_req = 1,
@@ -1559,7 +1560,7 @@ static ModifierTierData tiers_normal_16[] = {
     },
 };
 
-static ModifierTierData tiers_normal_17[] = {
+ModifierTierData tiers_normal_17[] = {
     {
         .tier_name = "of Menace",
         .level_req = 1,
@@ -1634,7 +1635,7 @@ static ModifierTierData tiers_normal_17[] = {
     },
 };
 
-static ModifierTierData tiers_normal_18[] = {
+ModifierTierData tiers_normal_18[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -1709,7 +1710,7 @@ static ModifierTierData tiers_normal_18[] = {
     },
 };
 
-static ModifierTierData tiers_normal_19[] = {
+ModifierTierData tiers_normal_19[] = {
     {
         .tier_name = "of Shining",
         .level_req = 8,
@@ -1748,7 +1749,7 @@ static ModifierTierData tiers_normal_19[] = {
     },
 };
 
-static ModifierTierData tiers_normal_20[] = {
+ModifierTierData tiers_normal_20[] = {
     {
         .tier_name = "of Impact",
         .level_req = 5,
@@ -1823,7 +1824,7 @@ static ModifierTierData tiers_normal_20[] = {
     },
 };
 
-static ModifierTierData tiers_normal_21[] = {
+ModifierTierData tiers_normal_21[] = {
     {
         .tier_name = "of the Pugilist",
         .level_req = 5,
@@ -1898,7 +1899,7 @@ static ModifierTierData tiers_normal_21[] = {
     },
 };
 
-static ModifierTierData tiers_normal_22[] = {
+ModifierTierData tiers_normal_22[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -2009,7 +2010,7 @@ static ModifierTierData tiers_normal_22[] = {
     },
 };
 
-static ModifierTierData tiers_normal_23[] = {
+ModifierTierData tiers_normal_23[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -2132,7 +2133,7 @@ static ModifierTierData tiers_normal_23[] = {
     },
 };
 
-static ModifierTierData tiers_normal_24[] = {
+ModifierTierData tiers_normal_24[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -2255,7 +2256,7 @@ static ModifierTierData tiers_normal_24[] = {
     },
 };
 
-static ModifierTierData tiers_normal_25[] = {
+ModifierTierData tiers_normal_25[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -2378,7 +2379,7 @@ static ModifierTierData tiers_normal_25[] = {
     },
 };
 
-static ModifierTierData tiers_normal_26[] = {
+ModifierTierData tiers_normal_26[] = {
     {
         .tier_name = "Heavy",
         .level_req = 1,
@@ -2477,7 +2478,7 @@ static ModifierTierData tiers_normal_26[] = {
     },
 };
 
-static ModifierTierData tiers_normal_27[] = {
+ModifierTierData tiers_normal_27[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -2576,7 +2577,7 @@ static ModifierTierData tiers_normal_27[] = {
     },
 };
 
-static ModifierTierData tiers_normal_28[] = {
+ModifierTierData tiers_normal_28[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -2675,7 +2676,7 @@ static ModifierTierData tiers_normal_28[] = {
     },
 };
 
-static ModifierTierData tiers_normal_29[] = {
+ModifierTierData tiers_normal_29[] = {
     {
         .tier_name = "Catalysing",
         .level_req = 4,
@@ -2750,7 +2751,7 @@ static ModifierTierData tiers_normal_29[] = {
     },
 };
 
-static ModifierTierData tiers_normal_30[] = {
+ModifierTierData tiers_normal_30[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -2849,7 +2850,7 @@ static ModifierTierData tiers_normal_30[] = {
     },
 };
 
-static ModifierTierData tiers_normal_31[] = {
+ModifierTierData tiers_normal_31[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -2948,7 +2949,7 @@ static ModifierTierData tiers_normal_31[] = {
     },
 };
 
-static ModifierTierData tiers_normal_32[] = {
+ModifierTierData tiers_normal_32[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -3011,7 +3012,7 @@ static ModifierTierData tiers_normal_32[] = {
     },
 };
 
-static ModifierTierData tiers_normal_33[] = {
+ModifierTierData tiers_normal_33[] = {
     {
         .tier_name = "of Combat",
         .level_req = 2,
@@ -3074,7 +3075,7 @@ static ModifierTierData tiers_normal_33[] = {
     },
 };
 
-static ModifierTierData tiers_normal_34[] = {
+ModifierTierData tiers_normal_34[] = {
     {
         .tier_name = "of the Parasite",
         .level_req = 21,
@@ -3137,7 +3138,7 @@ static ModifierTierData tiers_normal_34[] = {
     },
 };
 
-static ModifierTierData tiers_normal_35[] = {
+ModifierTierData tiers_normal_35[] = {
     {
         .tier_name = "of the Thirsty",
         .level_req = 21,
@@ -3200,7 +3201,7 @@ static ModifierTierData tiers_normal_35[] = {
     },
 };
 
-static ModifierTierData tiers_normal_36[] = {
+ModifierTierData tiers_normal_36[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -3299,7 +3300,7 @@ static ModifierTierData tiers_normal_36[] = {
     },
 };
 
-static ModifierTierData tiers_normal_37[] = {
+ModifierTierData tiers_normal_37[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -3398,7 +3399,7 @@ static ModifierTierData tiers_normal_37[] = {
     },
 };
 
-static ModifierTierData tiers_normal_38[] = {
+ModifierTierData tiers_normal_38[] = {
     {
         .tier_name = "of Rejuvenation",
         .level_req = 8,
@@ -3449,7 +3450,7 @@ static ModifierTierData tiers_normal_38[] = {
     },
 };
 
-static ModifierTierData tiers_normal_39[] = {
+ModifierTierData tiers_normal_39[] = {
     {
         .tier_name = "of Skill",
         .level_req = 1,
@@ -3548,7 +3549,7 @@ static ModifierTierData tiers_normal_39[] = {
     },
 };
 
-static ModifierTierData tiers_normal_40[] = {
+ModifierTierData tiers_normal_40[] = {
     {
         .tier_name = "of Menace",
         .level_req = 1,
@@ -3623,7 +3624,7 @@ static ModifierTierData tiers_normal_40[] = {
     },
 };
 
-static ModifierTierData tiers_normal_41[] = {
+ModifierTierData tiers_normal_41[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -3698,7 +3699,7 @@ static ModifierTierData tiers_normal_41[] = {
     },
 };
 
-static ModifierTierData tiers_normal_42[] = {
+ModifierTierData tiers_normal_42[] = {
     {
         .tier_name = "of Shining",
         .level_req = 8,
@@ -3737,7 +3738,7 @@ static ModifierTierData tiers_normal_42[] = {
     },
 };
 
-static ModifierTierData tiers_normal_43[] = {
+ModifierTierData tiers_normal_43[] = {
     {
         .tier_name = "of Impact",
         .level_req = 5,
@@ -3812,7 +3813,7 @@ static ModifierTierData tiers_normal_43[] = {
     },
 };
 
-static ModifierTierData tiers_normal_44[] = {
+ModifierTierData tiers_normal_44[] = {
     {
         .tier_name = "of the Pugilist",
         .level_req = 5,
@@ -3887,7 +3888,7 @@ static ModifierTierData tiers_normal_44[] = {
     },
 };
 
-static ModifierTierData tiers_normal_45[] = {
+ModifierTierData tiers_normal_45[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -4022,7 +4023,7 @@ static ModifierTierData tiers_normal_45[] = {
     },
 };
 
-static ModifierTierData tiers_normal_46[] = {
+ModifierTierData tiers_normal_46[] = {
     {
         .tier_name = "Apprentice's",
         .level_req = 1,
@@ -4121,7 +4122,7 @@ static ModifierTierData tiers_normal_46[] = {
     },
 };
 
-static ModifierTierData tiers_normal_47[] = {
+ModifierTierData tiers_normal_47[] = {
     {
         .tier_name = "Caster's",
         .level_req = 2,
@@ -4208,7 +4209,7 @@ static ModifierTierData tiers_normal_47[] = {
     },
 };
 
-static ModifierTierData tiers_normal_48[] = {
+ModifierTierData tiers_normal_48[] = {
     {
         .tier_name = "Searing",
         .level_req = 2,
@@ -4307,7 +4308,7 @@ static ModifierTierData tiers_normal_48[] = {
     },
 };
 
-static ModifierTierData tiers_normal_49[] = {
+ModifierTierData tiers_normal_49[] = {
     {
         .tier_name = "Bitter",
         .level_req = 2,
@@ -4406,7 +4407,7 @@ static ModifierTierData tiers_normal_49[] = {
     },
 };
 
-static ModifierTierData tiers_normal_50[] = {
+ModifierTierData tiers_normal_50[] = {
     {
         .tier_name = "Charged",
         .level_req = 2,
@@ -4505,7 +4506,7 @@ static ModifierTierData tiers_normal_50[] = {
     },
 };
 
-static ModifierTierData tiers_normal_51[] = {
+ModifierTierData tiers_normal_51[] = {
     {
         .tier_name = "Impure",
         .level_req = 2,
@@ -4604,7 +4605,7 @@ static ModifierTierData tiers_normal_51[] = {
     },
 };
 
-static ModifierTierData tiers_normal_52[] = {
+ModifierTierData tiers_normal_52[] = {
     {
         .tier_name = "Punishing",
         .level_req = 2,
@@ -4703,7 +4704,7 @@ static ModifierTierData tiers_normal_52[] = {
     },
 };
 
-static ModifierTierData tiers_normal_53[] = {
+ModifierTierData tiers_normal_53[] = {
     {
         .tier_name = "Fervent",
         .level_req = 5,
@@ -4778,7 +4779,7 @@ static ModifierTierData tiers_normal_53[] = {
     },
 };
 
-static ModifierTierData tiers_normal_54[] = {
+ModifierTierData tiers_normal_54[] = {
     {
         .tier_name = "Malignant",
         .level_req = 5,
@@ -4853,7 +4854,7 @@ static ModifierTierData tiers_normal_54[] = {
     },
 };
 
-static ModifierTierData tiers_normal_55[] = {
+ModifierTierData tiers_normal_55[] = {
     {
         .tier_name = "Deadly",
         .level_req = 5,
@@ -4928,7 +4929,7 @@ static ModifierTierData tiers_normal_55[] = {
     },
 };
 
-static ModifierTierData tiers_normal_56[] = {
+ModifierTierData tiers_normal_56[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -5027,7 +5028,7 @@ static ModifierTierData tiers_normal_56[] = {
     },
 };
 
-static ModifierTierData tiers_normal_57[] = {
+ModifierTierData tiers_normal_57[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -5090,7 +5091,7 @@ static ModifierTierData tiers_normal_57[] = {
     },
 };
 
-static ModifierTierData tiers_normal_58[] = {
+ModifierTierData tiers_normal_58[] = {
     {
         .tier_name = "of the Mage",
         .level_req = 5,
@@ -5141,7 +5142,7 @@ static ModifierTierData tiers_normal_58[] = {
     },
 };
 
-static ModifierTierData tiers_normal_59[] = {
+ModifierTierData tiers_normal_59[] = {
     {
         .tier_name = "of Coals",
         .level_req = 2,
@@ -5204,7 +5205,7 @@ static ModifierTierData tiers_normal_59[] = {
     },
 };
 
-static ModifierTierData tiers_normal_60[] = {
+ModifierTierData tiers_normal_60[] = {
     {
         .tier_name = "of Snow",
         .level_req = 2,
@@ -5267,7 +5268,7 @@ static ModifierTierData tiers_normal_60[] = {
     },
 };
 
-static ModifierTierData tiers_normal_61[] = {
+ModifierTierData tiers_normal_61[] = {
     {
         .tier_name = "of Sparks",
         .level_req = 2,
@@ -5330,7 +5331,7 @@ static ModifierTierData tiers_normal_61[] = {
     },
 };
 
-static ModifierTierData tiers_normal_62[] = {
+ModifierTierData tiers_normal_62[] = {
     {
         .tier_name = "of Anarchy",
         .level_req = 2,
@@ -5393,7 +5394,7 @@ static ModifierTierData tiers_normal_62[] = {
     },
 };
 
-static ModifierTierData tiers_normal_63[] = {
+ModifierTierData tiers_normal_63[] = {
     {
         .tier_name = "of Agony",
         .level_req = 2,
@@ -5456,7 +5457,7 @@ static ModifierTierData tiers_normal_63[] = {
     },
 };
 
-static ModifierTierData tiers_normal_64[] = {
+ModifierTierData tiers_normal_64[] = {
     {
         .tier_name = "of Excitement",
         .level_req = 1,
@@ -5531,7 +5532,7 @@ static ModifierTierData tiers_normal_64[] = {
     },
 };
 
-static ModifierTierData tiers_normal_65[] = {
+ModifierTierData tiers_normal_65[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -5630,7 +5631,7 @@ static ModifierTierData tiers_normal_65[] = {
     },
 };
 
-static ModifierTierData tiers_normal_66[] = {
+ModifierTierData tiers_normal_66[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -5729,7 +5730,7 @@ static ModifierTierData tiers_normal_66[] = {
     },
 };
 
-static ModifierTierData tiers_normal_67[] = {
+ModifierTierData tiers_normal_67[] = {
     {
         .tier_name = "of Talent",
         .level_req = 1,
@@ -5816,7 +5817,7 @@ static ModifierTierData tiers_normal_67[] = {
     },
 };
 
-static ModifierTierData tiers_normal_68[] = {
+ModifierTierData tiers_normal_68[] = {
     {
         .tier_name = "of Menace",
         .level_req = 11,
@@ -5891,7 +5892,7 @@ static ModifierTierData tiers_normal_68[] = {
     },
 };
 
-static ModifierTierData tiers_normal_69[] = {
+ModifierTierData tiers_normal_69[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -5966,7 +5967,7 @@ static ModifierTierData tiers_normal_69[] = {
     },
 };
 
-static ModifierTierData tiers_normal_70[] = {
+ModifierTierData tiers_normal_70[] = {
     {
         .tier_name = "of Warmth",
         .level_req = 8,
@@ -6005,7 +6006,7 @@ static ModifierTierData tiers_normal_70[] = {
     },
 };
 
-static ModifierTierData tiers_normal_71[] = {
+ModifierTierData tiers_normal_71[] = {
     {
         .tier_name = "of Ignition",
         .level_req = 15,
@@ -6068,7 +6069,7 @@ static ModifierTierData tiers_normal_71[] = {
     },
 };
 
-static ModifierTierData tiers_normal_72[] = {
+ModifierTierData tiers_normal_72[] = {
     {
         .tier_name = "of Freezing",
         .level_req = 15,
@@ -6131,7 +6132,7 @@ static ModifierTierData tiers_normal_72[] = {
     },
 };
 
-static ModifierTierData tiers_normal_73[] = {
+ModifierTierData tiers_normal_73[] = {
     {
         .tier_name = "of Shocking",
         .level_req = 15,
@@ -6194,7 +6195,7 @@ static ModifierTierData tiers_normal_73[] = {
     },
 };
 
-static ModifierTierData tiers_normal_74[] = {
+ModifierTierData tiers_normal_74[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -6305,7 +6306,7 @@ static ModifierTierData tiers_normal_74[] = {
     },
 };
 
-static ModifierTierData tiers_normal_75[] = {
+ModifierTierData tiers_normal_75[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -6428,7 +6429,7 @@ static ModifierTierData tiers_normal_75[] = {
     },
 };
 
-static ModifierTierData tiers_normal_76[] = {
+ModifierTierData tiers_normal_76[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -6551,7 +6552,7 @@ static ModifierTierData tiers_normal_76[] = {
     },
 };
 
-static ModifierTierData tiers_normal_77[] = {
+ModifierTierData tiers_normal_77[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -6674,7 +6675,7 @@ static ModifierTierData tiers_normal_77[] = {
     },
 };
 
-static ModifierTierData tiers_normal_78[] = {
+ModifierTierData tiers_normal_78[] = {
     {
         .tier_name = "Heavy",
         .level_req = 1,
@@ -6773,7 +6774,7 @@ static ModifierTierData tiers_normal_78[] = {
     },
 };
 
-static ModifierTierData tiers_normal_79[] = {
+ModifierTierData tiers_normal_79[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -6872,7 +6873,7 @@ static ModifierTierData tiers_normal_79[] = {
     },
 };
 
-static ModifierTierData tiers_normal_80[] = {
+ModifierTierData tiers_normal_80[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -6971,7 +6972,7 @@ static ModifierTierData tiers_normal_80[] = {
     },
 };
 
-static ModifierTierData tiers_normal_81[] = {
+ModifierTierData tiers_normal_81[] = {
     {
         .tier_name = "Catalysing",
         .level_req = 4,
@@ -7046,7 +7047,7 @@ static ModifierTierData tiers_normal_81[] = {
     },
 };
 
-static ModifierTierData tiers_normal_82[] = {
+ModifierTierData tiers_normal_82[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -7145,7 +7146,7 @@ static ModifierTierData tiers_normal_82[] = {
     },
 };
 
-static ModifierTierData tiers_normal_83[] = {
+ModifierTierData tiers_normal_83[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -7244,7 +7245,7 @@ static ModifierTierData tiers_normal_83[] = {
     },
 };
 
-static ModifierTierData tiers_normal_84[] = {
+ModifierTierData tiers_normal_84[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -7307,7 +7308,7 @@ static ModifierTierData tiers_normal_84[] = {
     },
 };
 
-static ModifierTierData tiers_normal_85[] = {
+ModifierTierData tiers_normal_85[] = {
     {
         .tier_name = "of the Archer",
         .level_req = 2,
@@ -7370,7 +7371,7 @@ static ModifierTierData tiers_normal_85[] = {
     },
 };
 
-static ModifierTierData tiers_normal_86[] = {
+ModifierTierData tiers_normal_86[] = {
     {
         .tier_name = "of the Parasite",
         .level_req = 21,
@@ -7421,7 +7422,7 @@ static ModifierTierData tiers_normal_86[] = {
     },
 };
 
-static ModifierTierData tiers_normal_87[] = {
+ModifierTierData tiers_normal_87[] = {
     {
         .tier_name = "of the Thirsty",
         .level_req = 21,
@@ -7472,7 +7473,7 @@ static ModifierTierData tiers_normal_87[] = {
     },
 };
 
-static ModifierTierData tiers_normal_88[] = {
+ModifierTierData tiers_normal_88[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -7571,7 +7572,7 @@ static ModifierTierData tiers_normal_88[] = {
     },
 };
 
-static ModifierTierData tiers_normal_89[] = {
+ModifierTierData tiers_normal_89[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -7670,7 +7671,7 @@ static ModifierTierData tiers_normal_89[] = {
     },
 };
 
-static ModifierTierData tiers_normal_90[] = {
+ModifierTierData tiers_normal_90[] = {
     {
         .tier_name = "of Rejuvenation",
         .level_req = 8,
@@ -7721,7 +7722,7 @@ static ModifierTierData tiers_normal_90[] = {
     },
 };
 
-static ModifierTierData tiers_normal_91[] = {
+ModifierTierData tiers_normal_91[] = {
     {
         .tier_name = "of Skill",
         .level_req = 1,
@@ -7784,7 +7785,7 @@ static ModifierTierData tiers_normal_91[] = {
     },
 };
 
-static ModifierTierData tiers_normal_92[] = {
+ModifierTierData tiers_normal_92[] = {
     {
         .tier_name = "of Menace",
         .level_req = 1,
@@ -7859,7 +7860,7 @@ static ModifierTierData tiers_normal_92[] = {
     },
 };
 
-static ModifierTierData tiers_normal_93[] = {
+ModifierTierData tiers_normal_93[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -7934,7 +7935,7 @@ static ModifierTierData tiers_normal_93[] = {
     },
 };
 
-static ModifierTierData tiers_normal_94[] = {
+ModifierTierData tiers_normal_94[] = {
     {
         .tier_name = "of Shining",
         .level_req = 8,
@@ -7973,7 +7974,7 @@ static ModifierTierData tiers_normal_94[] = {
     },
 };
 
-static ModifierTierData tiers_normal_95[] = {
+ModifierTierData tiers_normal_95[] = {
     {
         .tier_name = "of Shelling",
         .level_req = 55,
@@ -8000,7 +8001,7 @@ static ModifierTierData tiers_normal_95[] = {
     },
 };
 
-static ModifierTierData tiers_normal_96[] = {
+ModifierTierData tiers_normal_96[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -8111,7 +8112,7 @@ static ModifierTierData tiers_normal_96[] = {
     },
 };
 
-static ModifierTierData tiers_normal_97[] = {
+ModifierTierData tiers_normal_97[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -8234,7 +8235,7 @@ static ModifierTierData tiers_normal_97[] = {
     },
 };
 
-static ModifierTierData tiers_normal_98[] = {
+ModifierTierData tiers_normal_98[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -8357,7 +8358,7 @@ static ModifierTierData tiers_normal_98[] = {
     },
 };
 
-static ModifierTierData tiers_normal_99[] = {
+ModifierTierData tiers_normal_99[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -8480,7 +8481,7 @@ static ModifierTierData tiers_normal_99[] = {
     },
 };
 
-static ModifierTierData tiers_normal_100[] = {
+ModifierTierData tiers_normal_100[] = {
     {
         .tier_name = "Heavy",
         .level_req = 1,
@@ -8579,7 +8580,7 @@ static ModifierTierData tiers_normal_100[] = {
     },
 };
 
-static ModifierTierData tiers_normal_101[] = {
+ModifierTierData tiers_normal_101[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -8678,7 +8679,7 @@ static ModifierTierData tiers_normal_101[] = {
     },
 };
 
-static ModifierTierData tiers_normal_102[] = {
+ModifierTierData tiers_normal_102[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -8777,7 +8778,7 @@ static ModifierTierData tiers_normal_102[] = {
     },
 };
 
-static ModifierTierData tiers_normal_103[] = {
+ModifierTierData tiers_normal_103[] = {
     {
         .tier_name = "Catalysing",
         .level_req = 4,
@@ -8852,7 +8853,7 @@ static ModifierTierData tiers_normal_103[] = {
     },
 };
 
-static ModifierTierData tiers_normal_104[] = {
+ModifierTierData tiers_normal_104[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -8951,7 +8952,7 @@ static ModifierTierData tiers_normal_104[] = {
     },
 };
 
-static ModifierTierData tiers_normal_105[] = {
+ModifierTierData tiers_normal_105[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -9014,7 +9015,7 @@ static ModifierTierData tiers_normal_105[] = {
     },
 };
 
-static ModifierTierData tiers_normal_106[] = {
+ModifierTierData tiers_normal_106[] = {
     {
         .tier_name = "of the Archer",
         .level_req = 2,
@@ -9077,7 +9078,7 @@ static ModifierTierData tiers_normal_106[] = {
     },
 };
 
-static ModifierTierData tiers_normal_107[] = {
+ModifierTierData tiers_normal_107[] = {
     {
         .tier_name = "of the Parasite",
         .level_req = 21,
@@ -9128,7 +9129,7 @@ static ModifierTierData tiers_normal_107[] = {
     },
 };
 
-static ModifierTierData tiers_normal_108[] = {
+ModifierTierData tiers_normal_108[] = {
     {
         .tier_name = "of the Thirsty",
         .level_req = 21,
@@ -9179,7 +9180,7 @@ static ModifierTierData tiers_normal_108[] = {
     },
 };
 
-static ModifierTierData tiers_normal_109[] = {
+ModifierTierData tiers_normal_109[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -9278,7 +9279,7 @@ static ModifierTierData tiers_normal_109[] = {
     },
 };
 
-static ModifierTierData tiers_normal_110[] = {
+ModifierTierData tiers_normal_110[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -9377,7 +9378,7 @@ static ModifierTierData tiers_normal_110[] = {
     },
 };
 
-static ModifierTierData tiers_normal_111[] = {
+ModifierTierData tiers_normal_111[] = {
     {
         .tier_name = "of Rejuvenation",
         .level_req = 8,
@@ -9428,7 +9429,7 @@ static ModifierTierData tiers_normal_111[] = {
     },
 };
 
-static ModifierTierData tiers_normal_112[] = {
+ModifierTierData tiers_normal_112[] = {
     {
         .tier_name = "of Skill",
         .level_req = 1,
@@ -9491,7 +9492,7 @@ static ModifierTierData tiers_normal_112[] = {
     },
 };
 
-static ModifierTierData tiers_normal_113[] = {
+ModifierTierData tiers_normal_113[] = {
     {
         .tier_name = "of Menace",
         .level_req = 1,
@@ -9566,7 +9567,7 @@ static ModifierTierData tiers_normal_113[] = {
     },
 };
 
-static ModifierTierData tiers_normal_114[] = {
+ModifierTierData tiers_normal_114[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -9641,7 +9642,7 @@ static ModifierTierData tiers_normal_114[] = {
     },
 };
 
-static ModifierTierData tiers_normal_115[] = {
+ModifierTierData tiers_normal_115[] = {
     {
         .tier_name = "of Shining",
         .level_req = 8,
@@ -9680,7 +9681,7 @@ static ModifierTierData tiers_normal_115[] = {
     },
 };
 
-static ModifierTierData tiers_normal_116[] = {
+ModifierTierData tiers_normal_116[] = {
     {
         .tier_name = "of Splintering",
         .level_req = 55,
@@ -9707,7 +9708,7 @@ static ModifierTierData tiers_normal_116[] = {
     },
 };
 
-static ModifierTierData tiers_normal_117[] = {
+ModifierTierData tiers_normal_117[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -9818,7 +9819,7 @@ static ModifierTierData tiers_normal_117[] = {
     },
 };
 
-static ModifierTierData tiers_normal_118[] = {
+ModifierTierData tiers_normal_118[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -9941,7 +9942,7 @@ static ModifierTierData tiers_normal_118[] = {
     },
 };
 
-static ModifierTierData tiers_normal_119[] = {
+ModifierTierData tiers_normal_119[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -10064,7 +10065,7 @@ static ModifierTierData tiers_normal_119[] = {
     },
 };
 
-static ModifierTierData tiers_normal_120[] = {
+ModifierTierData tiers_normal_120[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -10187,7 +10188,7 @@ static ModifierTierData tiers_normal_120[] = {
     },
 };
 
-static ModifierTierData tiers_normal_121[] = {
+ModifierTierData tiers_normal_121[] = {
     {
         .tier_name = "Heavy",
         .level_req = 1,
@@ -10286,7 +10287,7 @@ static ModifierTierData tiers_normal_121[] = {
     },
 };
 
-static ModifierTierData tiers_normal_122[] = {
+ModifierTierData tiers_normal_122[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -10385,7 +10386,7 @@ static ModifierTierData tiers_normal_122[] = {
     },
 };
 
-static ModifierTierData tiers_normal_123[] = {
+ModifierTierData tiers_normal_123[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -10484,7 +10485,7 @@ static ModifierTierData tiers_normal_123[] = {
     },
 };
 
-static ModifierTierData tiers_normal_124[] = {
+ModifierTierData tiers_normal_124[] = {
     {
         .tier_name = "Catalysing",
         .level_req = 4,
@@ -10559,7 +10560,7 @@ static ModifierTierData tiers_normal_124[] = {
     },
 };
 
-static ModifierTierData tiers_normal_125[] = {
+ModifierTierData tiers_normal_125[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -10658,7 +10659,7 @@ static ModifierTierData tiers_normal_125[] = {
     },
 };
 
-static ModifierTierData tiers_normal_126[] = {
+ModifierTierData tiers_normal_126[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -10721,7 +10722,7 @@ static ModifierTierData tiers_normal_126[] = {
     },
 };
 
-static ModifierTierData tiers_normal_127[] = {
+ModifierTierData tiers_normal_127[] = {
     {
         .tier_name = "of Combat",
         .level_req = 2,
@@ -10784,7 +10785,7 @@ static ModifierTierData tiers_normal_127[] = {
     },
 };
 
-static ModifierTierData tiers_normal_128[] = {
+ModifierTierData tiers_normal_128[] = {
     {
         .tier_name = "of the Parasite",
         .level_req = 21,
@@ -10847,7 +10848,7 @@ static ModifierTierData tiers_normal_128[] = {
     },
 };
 
-static ModifierTierData tiers_normal_129[] = {
+ModifierTierData tiers_normal_129[] = {
     {
         .tier_name = "of the Thirsty",
         .level_req = 21,
@@ -10910,7 +10911,7 @@ static ModifierTierData tiers_normal_129[] = {
     },
 };
 
-static ModifierTierData tiers_normal_130[] = {
+ModifierTierData tiers_normal_130[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -11009,7 +11010,7 @@ static ModifierTierData tiers_normal_130[] = {
     },
 };
 
-static ModifierTierData tiers_normal_131[] = {
+ModifierTierData tiers_normal_131[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -11108,7 +11109,7 @@ static ModifierTierData tiers_normal_131[] = {
     },
 };
 
-static ModifierTierData tiers_normal_132[] = {
+ModifierTierData tiers_normal_132[] = {
     {
         .tier_name = "of Rejuvenation",
         .level_req = 8,
@@ -11159,7 +11160,7 @@ static ModifierTierData tiers_normal_132[] = {
     },
 };
 
-static ModifierTierData tiers_normal_133[] = {
+ModifierTierData tiers_normal_133[] = {
     {
         .tier_name = "of Skill",
         .level_req = 1,
@@ -11258,7 +11259,7 @@ static ModifierTierData tiers_normal_133[] = {
     },
 };
 
-static ModifierTierData tiers_normal_134[] = {
+ModifierTierData tiers_normal_134[] = {
     {
         .tier_name = "of Menace",
         .level_req = 1,
@@ -11333,7 +11334,7 @@ static ModifierTierData tiers_normal_134[] = {
     },
 };
 
-static ModifierTierData tiers_normal_135[] = {
+ModifierTierData tiers_normal_135[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -11408,7 +11409,7 @@ static ModifierTierData tiers_normal_135[] = {
     },
 };
 
-static ModifierTierData tiers_normal_136[] = {
+ModifierTierData tiers_normal_136[] = {
     {
         .tier_name = "of Shining",
         .level_req = 8,
@@ -11447,7 +11448,7 @@ static ModifierTierData tiers_normal_136[] = {
     },
 };
 
-static ModifierTierData tiers_normal_137[] = {
+ModifierTierData tiers_normal_137[] = {
     {
         .tier_name = "of Impact",
         .level_req = 5,
@@ -11522,7 +11523,7 @@ static ModifierTierData tiers_normal_137[] = {
     },
 };
 
-static ModifierTierData tiers_normal_138[] = {
+ModifierTierData tiers_normal_138[] = {
     {
         .tier_name = "of the Pugilist",
         .level_req = 5,
@@ -11597,7 +11598,7 @@ static ModifierTierData tiers_normal_138[] = {
     },
 };
 
-static ModifierTierData tiers_normal_139[] = {
+ModifierTierData tiers_normal_139[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -11732,7 +11733,7 @@ static ModifierTierData tiers_normal_139[] = {
     },
 };
 
-static ModifierTierData tiers_normal_140[] = {
+ModifierTierData tiers_normal_140[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -11843,7 +11844,7 @@ static ModifierTierData tiers_normal_140[] = {
     },
 };
 
-static ModifierTierData tiers_normal_141[] = {
+ModifierTierData tiers_normal_141[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -11954,7 +11955,7 @@ static ModifierTierData tiers_normal_141[] = {
     },
 };
 
-static ModifierTierData tiers_normal_142[] = {
+ModifierTierData tiers_normal_142[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -12065,7 +12066,7 @@ static ModifierTierData tiers_normal_142[] = {
     },
 };
 
-static ModifierTierData tiers_normal_143[] = {
+ModifierTierData tiers_normal_143[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -12176,7 +12177,7 @@ static ModifierTierData tiers_normal_143[] = {
     },
 };
 
-static ModifierTierData tiers_normal_144[] = {
+ModifierTierData tiers_normal_144[] = {
     {
         .tier_name = "Coercive",
         .level_req = 1,
@@ -12275,7 +12276,7 @@ static ModifierTierData tiers_normal_144[] = {
     },
 };
 
-static ModifierTierData tiers_normal_145[] = {
+ModifierTierData tiers_normal_145[] = {
     {
         .tier_name = "Lord's",
         .level_req = 1,
@@ -12374,7 +12375,7 @@ static ModifierTierData tiers_normal_145[] = {
     },
 };
 
-static ModifierTierData tiers_normal_146[] = {
+ModifierTierData tiers_normal_146[] = {
     {
         .tier_name = "Advisor's",
         .level_req = 2,
@@ -12461,7 +12462,7 @@ static ModifierTierData tiers_normal_146[] = {
     },
 };
 
-static ModifierTierData tiers_normal_147[] = {
+ModifierTierData tiers_normal_147[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -12560,7 +12561,7 @@ static ModifierTierData tiers_normal_147[] = {
     },
 };
 
-static ModifierTierData tiers_normal_148[] = {
+ModifierTierData tiers_normal_148[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -12659,7 +12660,7 @@ static ModifierTierData tiers_normal_148[] = {
     },
 };
 
-static ModifierTierData tiers_normal_149[] = {
+ModifierTierData tiers_normal_149[] = {
     {
         .tier_name = "of Adjustment",
         .level_req = 12,
@@ -12734,7 +12735,7 @@ static ModifierTierData tiers_normal_149[] = {
     },
 };
 
-static ModifierTierData tiers_normal_150[] = {
+ModifierTierData tiers_normal_150[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -12797,7 +12798,7 @@ static ModifierTierData tiers_normal_150[] = {
     },
 };
 
-static ModifierTierData tiers_normal_151[] = {
+ModifierTierData tiers_normal_151[] = {
     {
         .tier_name = "of the Taskmaster",
         .level_req = 2,
@@ -12848,7 +12849,7 @@ static ModifierTierData tiers_normal_151[] = {
     },
 };
 
-static ModifierTierData tiers_normal_152[] = {
+ModifierTierData tiers_normal_152[] = {
     {
         .tier_name = "of the Newt",
         .level_req = 1,
@@ -12971,7 +12972,7 @@ static ModifierTierData tiers_normal_152[] = {
     },
 };
 
-static ModifierTierData tiers_normal_153[] = {
+ModifierTierData tiers_normal_153[] = {
     {
         .tier_name = "of Skill",
         .level_req = 5,
@@ -13022,7 +13023,7 @@ static ModifierTierData tiers_normal_153[] = {
     },
 };
 
-static ModifierTierData tiers_normal_154[] = {
+ModifierTierData tiers_normal_154[] = {
     {
         .tier_name = "of Talent",
         .level_req = 6,
@@ -13073,7 +13074,7 @@ static ModifierTierData tiers_normal_154[] = {
     },
 };
 
-static ModifierTierData tiers_normal_155[] = {
+ModifierTierData tiers_normal_155[] = {
     {
         .tier_name = "of Menace",
         .level_req = 11,
@@ -13148,7 +13149,7 @@ static ModifierTierData tiers_normal_155[] = {
     },
 };
 
-static ModifierTierData tiers_normal_156[] = {
+ModifierTierData tiers_normal_156[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -13223,7 +13224,7 @@ static ModifierTierData tiers_normal_156[] = {
     },
 };
 
-static ModifierTierData tiers_normal_157[] = {
+ModifierTierData tiers_normal_157[] = {
     {
         .tier_name = "of Warmth",
         .level_req = 8,
@@ -13262,7 +13263,7 @@ static ModifierTierData tiers_normal_157[] = {
     },
 };
 
-static ModifierTierData tiers_normal_158[] = {
+ModifierTierData tiers_normal_158[] = {
     {
         .tier_name = "of Direction",
         .level_req = 23,
@@ -13313,7 +13314,7 @@ static ModifierTierData tiers_normal_158[] = {
     },
 };
 
-static ModifierTierData tiers_normal_159[] = {
+ModifierTierData tiers_normal_159[] = {
     {
         .tier_name = "of the Mentor",
         .level_req = 2,
@@ -13388,7 +13389,7 @@ static ModifierTierData tiers_normal_159[] = {
     },
 };
 
-static ModifierTierData tiers_normal_160[] = {
+ModifierTierData tiers_normal_160[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -13499,7 +13500,7 @@ static ModifierTierData tiers_normal_160[] = {
     },
 };
 
-static ModifierTierData tiers_normal_161[] = {
+ModifierTierData tiers_normal_161[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -13622,7 +13623,7 @@ static ModifierTierData tiers_normal_161[] = {
     },
 };
 
-static ModifierTierData tiers_normal_162[] = {
+ModifierTierData tiers_normal_162[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -13745,7 +13746,7 @@ static ModifierTierData tiers_normal_162[] = {
     },
 };
 
-static ModifierTierData tiers_normal_163[] = {
+ModifierTierData tiers_normal_163[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -13868,7 +13869,7 @@ static ModifierTierData tiers_normal_163[] = {
     },
 };
 
-static ModifierTierData tiers_normal_164[] = {
+ModifierTierData tiers_normal_164[] = {
     {
         .tier_name = "Heavy",
         .level_req = 1,
@@ -13967,7 +13968,7 @@ static ModifierTierData tiers_normal_164[] = {
     },
 };
 
-static ModifierTierData tiers_normal_165[] = {
+ModifierTierData tiers_normal_165[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -14066,7 +14067,7 @@ static ModifierTierData tiers_normal_165[] = {
     },
 };
 
-static ModifierTierData tiers_normal_166[] = {
+ModifierTierData tiers_normal_166[] = {
     {
         .tier_name = "Squire's",
         .level_req = 1,
@@ -14165,7 +14166,7 @@ static ModifierTierData tiers_normal_166[] = {
     },
 };
 
-static ModifierTierData tiers_normal_167[] = {
+ModifierTierData tiers_normal_167[] = {
     {
         .tier_name = "Catalysing",
         .level_req = 4,
@@ -14240,7 +14241,7 @@ static ModifierTierData tiers_normal_167[] = {
     },
 };
 
-static ModifierTierData tiers_normal_168[] = {
+ModifierTierData tiers_normal_168[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -14339,7 +14340,7 @@ static ModifierTierData tiers_normal_168[] = {
     },
 };
 
-static ModifierTierData tiers_normal_169[] = {
+ModifierTierData tiers_normal_169[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -14438,7 +14439,7 @@ static ModifierTierData tiers_normal_169[] = {
     },
 };
 
-static ModifierTierData tiers_normal_170[] = {
+ModifierTierData tiers_normal_170[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -14501,7 +14502,7 @@ static ModifierTierData tiers_normal_170[] = {
     },
 };
 
-static ModifierTierData tiers_normal_171[] = {
+ModifierTierData tiers_normal_171[] = {
     {
         .tier_name = "of Combat",
         .level_req = 2,
@@ -14564,7 +14565,7 @@ static ModifierTierData tiers_normal_171[] = {
     },
 };
 
-static ModifierTierData tiers_normal_172[] = {
+ModifierTierData tiers_normal_172[] = {
     {
         .tier_name = "of the Archer",
         .level_req = 2,
@@ -14627,7 +14628,7 @@ static ModifierTierData tiers_normal_172[] = {
     },
 };
 
-static ModifierTierData tiers_normal_173[] = {
+ModifierTierData tiers_normal_173[] = {
     {
         .tier_name = "of the Parasite",
         .level_req = 21,
@@ -14690,7 +14691,7 @@ static ModifierTierData tiers_normal_173[] = {
     },
 };
 
-static ModifierTierData tiers_normal_174[] = {
+ModifierTierData tiers_normal_174[] = {
     {
         .tier_name = "of the Thirsty",
         .level_req = 21,
@@ -14753,7 +14754,7 @@ static ModifierTierData tiers_normal_174[] = {
     },
 };
 
-static ModifierTierData tiers_normal_175[] = {
+ModifierTierData tiers_normal_175[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -14852,7 +14853,7 @@ static ModifierTierData tiers_normal_175[] = {
     },
 };
 
-static ModifierTierData tiers_normal_176[] = {
+ModifierTierData tiers_normal_176[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -14951,7 +14952,7 @@ static ModifierTierData tiers_normal_176[] = {
     },
 };
 
-static ModifierTierData tiers_normal_177[] = {
+ModifierTierData tiers_normal_177[] = {
     {
         .tier_name = "of Rejuvenation",
         .level_req = 8,
@@ -15002,7 +15003,7 @@ static ModifierTierData tiers_normal_177[] = {
     },
 };
 
-static ModifierTierData tiers_normal_178[] = {
+ModifierTierData tiers_normal_178[] = {
     {
         .tier_name = "of Skill",
         .level_req = 1,
@@ -15101,7 +15102,7 @@ static ModifierTierData tiers_normal_178[] = {
     },
 };
 
-static ModifierTierData tiers_normal_179[] = {
+ModifierTierData tiers_normal_179[] = {
     {
         .tier_name = "of Menace",
         .level_req = 1,
@@ -15176,7 +15177,7 @@ static ModifierTierData tiers_normal_179[] = {
     },
 };
 
-static ModifierTierData tiers_normal_180[] = {
+ModifierTierData tiers_normal_180[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -15251,7 +15252,7 @@ static ModifierTierData tiers_normal_180[] = {
     },
 };
 
-static ModifierTierData tiers_normal_181[] = {
+ModifierTierData tiers_normal_181[] = {
     {
         .tier_name = "of Shining",
         .level_req = 8,
@@ -15290,7 +15291,7 @@ static ModifierTierData tiers_normal_181[] = {
     },
 };
 
-static ModifierTierData tiers_normal_182[] = {
+ModifierTierData tiers_normal_182[] = {
     {
         .tier_name = "of Impact",
         .level_req = 5,
@@ -15365,7 +15366,7 @@ static ModifierTierData tiers_normal_182[] = {
     },
 };
 
-static ModifierTierData tiers_normal_183[] = {
+ModifierTierData tiers_normal_183[] = {
     {
         .tier_name = "of the Pugilist",
         .level_req = 5,
@@ -15440,7 +15441,7 @@ static ModifierTierData tiers_normal_183[] = {
     },
 };
 
-static ModifierTierData tiers_normal_184[] = {
+ModifierTierData tiers_normal_184[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -15575,7 +15576,7 @@ static ModifierTierData tiers_normal_184[] = {
     },
 };
 
-static ModifierTierData tiers_normal_185[] = {
+ModifierTierData tiers_normal_185[] = {
     {
         .tier_name = "Apprentice's",
         .level_req = 1,
@@ -15674,7 +15675,7 @@ static ModifierTierData tiers_normal_185[] = {
     },
 };
 
-static ModifierTierData tiers_normal_186[] = {
+ModifierTierData tiers_normal_186[] = {
     {
         .tier_name = "Caster's",
         .level_req = 2,
@@ -15761,7 +15762,7 @@ static ModifierTierData tiers_normal_186[] = {
     },
 };
 
-static ModifierTierData tiers_normal_187[] = {
+ModifierTierData tiers_normal_187[] = {
     {
         .tier_name = "Apprentice's",
         .level_req = 1,
@@ -15860,7 +15861,7 @@ static ModifierTierData tiers_normal_187[] = {
     },
 };
 
-static ModifierTierData tiers_normal_188[] = {
+ModifierTierData tiers_normal_188[] = {
     {
         .tier_name = "Apprentice's",
         .level_req = 1,
@@ -15959,7 +15960,7 @@ static ModifierTierData tiers_normal_188[] = {
     },
 };
 
-static ModifierTierData tiers_normal_189[] = {
+ModifierTierData tiers_normal_189[] = {
     {
         .tier_name = "Apprentice's",
         .level_req = 1,
@@ -16058,7 +16059,7 @@ static ModifierTierData tiers_normal_189[] = {
     },
 };
 
-static ModifierTierData tiers_normal_190[] = {
+ModifierTierData tiers_normal_190[] = {
     {
         .tier_name = "Apprentice's",
         .level_req = 1,
@@ -16157,7 +16158,7 @@ static ModifierTierData tiers_normal_190[] = {
     },
 };
 
-static ModifierTierData tiers_normal_191[] = {
+ModifierTierData tiers_normal_191[] = {
     {
         .tier_name = "Apprentice's",
         .level_req = 1,
@@ -16256,7 +16257,7 @@ static ModifierTierData tiers_normal_191[] = {
     },
 };
 
-static ModifierTierData tiers_normal_192[] = {
+ModifierTierData tiers_normal_192[] = {
     {
         .tier_name = "Fervent",
         .level_req = 5,
@@ -16331,7 +16332,7 @@ static ModifierTierData tiers_normal_192[] = {
     },
 };
 
-static ModifierTierData tiers_normal_193[] = {
+ModifierTierData tiers_normal_193[] = {
     {
         .tier_name = "Malignant",
         .level_req = 5,
@@ -16406,7 +16407,7 @@ static ModifierTierData tiers_normal_193[] = {
     },
 };
 
-static ModifierTierData tiers_normal_194[] = {
+ModifierTierData tiers_normal_194[] = {
     {
         .tier_name = "Deadly",
         .level_req = 5,
@@ -16481,7 +16482,7 @@ static ModifierTierData tiers_normal_194[] = {
     },
 };
 
-static ModifierTierData tiers_normal_195[] = {
+ModifierTierData tiers_normal_195[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -16580,7 +16581,7 @@ static ModifierTierData tiers_normal_195[] = {
     },
 };
 
-static ModifierTierData tiers_normal_196[] = {
+ModifierTierData tiers_normal_196[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -16643,7 +16644,7 @@ static ModifierTierData tiers_normal_196[] = {
     },
 };
 
-static ModifierTierData tiers_normal_197[] = {
+ModifierTierData tiers_normal_197[] = {
     {
         .tier_name = "of the Mage",
         .level_req = 5,
@@ -16694,7 +16695,7 @@ static ModifierTierData tiers_normal_197[] = {
     },
 };
 
-static ModifierTierData tiers_normal_198[] = {
+ModifierTierData tiers_normal_198[] = {
     {
         .tier_name = "of Coals",
         .level_req = 2,
@@ -16757,7 +16758,7 @@ static ModifierTierData tiers_normal_198[] = {
     },
 };
 
-static ModifierTierData tiers_normal_199[] = {
+ModifierTierData tiers_normal_199[] = {
     {
         .tier_name = "of Snow",
         .level_req = 2,
@@ -16820,7 +16821,7 @@ static ModifierTierData tiers_normal_199[] = {
     },
 };
 
-static ModifierTierData tiers_normal_200[] = {
+ModifierTierData tiers_normal_200[] = {
     {
         .tier_name = "of Sparks",
         .level_req = 2,
@@ -16883,7 +16884,7 @@ static ModifierTierData tiers_normal_200[] = {
     },
 };
 
-static ModifierTierData tiers_normal_201[] = {
+ModifierTierData tiers_normal_201[] = {
     {
         .tier_name = "of Anarchy",
         .level_req = 2,
@@ -16946,7 +16947,7 @@ static ModifierTierData tiers_normal_201[] = {
     },
 };
 
-static ModifierTierData tiers_normal_202[] = {
+ModifierTierData tiers_normal_202[] = {
     {
         .tier_name = "of Agony",
         .level_req = 2,
@@ -17009,7 +17010,7 @@ static ModifierTierData tiers_normal_202[] = {
     },
 };
 
-static ModifierTierData tiers_normal_203[] = {
+ModifierTierData tiers_normal_203[] = {
     {
         .tier_name = "of Excitement",
         .level_req = 1,
@@ -17084,7 +17085,7 @@ static ModifierTierData tiers_normal_203[] = {
     },
 };
 
-static ModifierTierData tiers_normal_204[] = {
+ModifierTierData tiers_normal_204[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -17183,7 +17184,7 @@ static ModifierTierData tiers_normal_204[] = {
     },
 };
 
-static ModifierTierData tiers_normal_205[] = {
+ModifierTierData tiers_normal_205[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -17282,7 +17283,7 @@ static ModifierTierData tiers_normal_205[] = {
     },
 };
 
-static ModifierTierData tiers_normal_206[] = {
+ModifierTierData tiers_normal_206[] = {
     {
         .tier_name = "of Talent",
         .level_req = 1,
@@ -17369,7 +17370,7 @@ static ModifierTierData tiers_normal_206[] = {
     },
 };
 
-static ModifierTierData tiers_normal_207[] = {
+ModifierTierData tiers_normal_207[] = {
     {
         .tier_name = "of Menace",
         .level_req = 11,
@@ -17444,7 +17445,7 @@ static ModifierTierData tiers_normal_207[] = {
     },
 };
 
-static ModifierTierData tiers_normal_208[] = {
+ModifierTierData tiers_normal_208[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -17519,7 +17520,7 @@ static ModifierTierData tiers_normal_208[] = {
     },
 };
 
-static ModifierTierData tiers_normal_209[] = {
+ModifierTierData tiers_normal_209[] = {
     {
         .tier_name = "of Warmth",
         .level_req = 8,
@@ -17558,7 +17559,7 @@ static ModifierTierData tiers_normal_209[] = {
     },
 };
 
-static ModifierTierData tiers_normal_210[] = {
+ModifierTierData tiers_normal_210[] = {
     {
         .tier_name = "of Ignition",
         .level_req = 15,
@@ -17621,7 +17622,7 @@ static ModifierTierData tiers_normal_210[] = {
     },
 };
 
-static ModifierTierData tiers_normal_211[] = {
+ModifierTierData tiers_normal_211[] = {
     {
         .tier_name = "of Freezing",
         .level_req = 15,
@@ -17684,7 +17685,7 @@ static ModifierTierData tiers_normal_211[] = {
     },
 };
 
-static ModifierTierData tiers_normal_212[] = {
+ModifierTierData tiers_normal_212[] = {
     {
         .tier_name = "of Shocking",
         .level_req = 15,
@@ -17747,7 +17748,7 @@ static ModifierTierData tiers_normal_212[] = {
     },
 };
 
-static ModifierTierData tiers_normal_213[] = {
+ModifierTierData tiers_normal_213[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -17882,7 +17883,7 @@ static ModifierTierData tiers_normal_213[] = {
     },
 };
 
-static ModifierTierData tiers_normal_214[] = {
+ModifierTierData tiers_normal_214[] = {
     {
         .tier_name = "Lacquered",
         .level_req = 1,
@@ -18005,7 +18006,7 @@ static ModifierTierData tiers_normal_214[] = {
     },
 };
 
-static ModifierTierData tiers_normal_215[] = {
+ModifierTierData tiers_normal_215[] = {
     {
         .tier_name = "Reinforced",
         .level_req = 2,
@@ -18104,7 +18105,7 @@ static ModifierTierData tiers_normal_215[] = {
     },
 };
 
-static ModifierTierData tiers_normal_216[] = {
+ModifierTierData tiers_normal_216[] = {
     {
         .tier_name = "Beetle's",
         .level_req = 10,
@@ -18179,7 +18180,7 @@ static ModifierTierData tiers_normal_216[] = {
     },
 };
 
-static ModifierTierData tiers_normal_217[] = {
+ModifierTierData tiers_normal_217[] = {
     {
         .tier_name = "Thorny",
         .level_req = 1,
@@ -18266,7 +18267,7 @@ static ModifierTierData tiers_normal_217[] = {
     },
 };
 
-static ModifierTierData tiers_normal_218[] = {
+ModifierTierData tiers_normal_218[] = {
     {
         .tier_name = "Steadfast",
         .level_req = 1,
@@ -18305,7 +18306,7 @@ static ModifierTierData tiers_normal_218[] = {
     },
 };
 
-static ModifierTierData tiers_normal_219[] = {
+ModifierTierData tiers_normal_219[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -18404,7 +18405,7 @@ static ModifierTierData tiers_normal_219[] = {
     },
 };
 
-static ModifierTierData tiers_normal_220[] = {
+ModifierTierData tiers_normal_220[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -18503,7 +18504,7 @@ static ModifierTierData tiers_normal_220[] = {
     },
 };
 
-static ModifierTierData tiers_normal_221[] = {
+ModifierTierData tiers_normal_221[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -18602,7 +18603,7 @@ static ModifierTierData tiers_normal_221[] = {
     },
 };
 
-static ModifierTierData tiers_normal_222[] = {
+ModifierTierData tiers_normal_222[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -18701,7 +18702,7 @@ static ModifierTierData tiers_normal_222[] = {
     },
 };
 
-static ModifierTierData tiers_normal_223[] = {
+ModifierTierData tiers_normal_223[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -18776,7 +18777,7 @@ static ModifierTierData tiers_normal_223[] = {
     },
 };
 
-static ModifierTierData tiers_normal_224[] = {
+ModifierTierData tiers_normal_224[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -18839,7 +18840,7 @@ static ModifierTierData tiers_normal_224[] = {
     },
 };
 
-static ModifierTierData tiers_normal_225[] = {
+ModifierTierData tiers_normal_225[] = {
     {
         .tier_name = "of Thick Skin",
         .level_req = 1,
@@ -18962,7 +18963,7 @@ static ModifierTierData tiers_normal_225[] = {
     },
 };
 
-static ModifierTierData tiers_normal_226[] = {
+ModifierTierData tiers_normal_226[] = {
     {
         .tier_name = "of the Watchman",
         .level_req = 32,
@@ -19025,7 +19026,7 @@ static ModifierTierData tiers_normal_226[] = {
     },
 };
 
-static ModifierTierData tiers_normal_227[] = {
+ModifierTierData tiers_normal_227[] = {
     {
         .tier_name = "of the Bushfire",
         .level_req = 68,
@@ -19064,7 +19065,7 @@ static ModifierTierData tiers_normal_227[] = {
     },
 };
 
-static ModifierTierData tiers_normal_228[] = {
+ModifierTierData tiers_normal_228[] = {
     {
         .tier_name = "of Furs",
         .level_req = 68,
@@ -19103,7 +19104,7 @@ static ModifierTierData tiers_normal_228[] = {
     },
 };
 
-static ModifierTierData tiers_normal_229[] = {
+ModifierTierData tiers_normal_229[] = {
     {
         .tier_name = "of Impedance",
         .level_req = 68,
@@ -19142,7 +19143,7 @@ static ModifierTierData tiers_normal_229[] = {
     },
 };
 
-static ModifierTierData tiers_normal_230[] = {
+ModifierTierData tiers_normal_230[] = {
     {
         .tier_name = "of Regularity",
         .level_req = 68,
@@ -19181,7 +19182,7 @@ static ModifierTierData tiers_normal_230[] = {
     },
 };
 
-static ModifierTierData tiers_normal_231[] = {
+ModifierTierData tiers_normal_231[] = {
     {
         .tier_name = "of the Deathless",
         .level_req = 75,
@@ -19208,7 +19209,7 @@ static ModifierTierData tiers_normal_231[] = {
     },
 };
 
-static ModifierTierData tiers_normal_232[] = {
+ModifierTierData tiers_normal_232[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -19283,7 +19284,7 @@ static ModifierTierData tiers_normal_232[] = {
     },
 };
 
-static ModifierTierData tiers_normal_233[] = {
+ModifierTierData tiers_normal_233[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -19418,7 +19419,7 @@ static ModifierTierData tiers_normal_233[] = {
     },
 };
 
-static ModifierTierData tiers_normal_234[] = {
+ModifierTierData tiers_normal_234[] = {
     {
         .tier_name = "Supple",
         .level_req = 1,
@@ -19505,7 +19506,7 @@ static ModifierTierData tiers_normal_234[] = {
     },
 };
 
-static ModifierTierData tiers_normal_235[] = {
+ModifierTierData tiers_normal_235[] = {
     {
         .tier_name = "Blessed",
         .level_req = 1,
@@ -19604,7 +19605,7 @@ static ModifierTierData tiers_normal_235[] = {
     },
 };
 
-static ModifierTierData tiers_normal_236[] = {
+ModifierTierData tiers_normal_236[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
@@ -19703,7 +19704,7 @@ static ModifierTierData tiers_normal_236[] = {
     },
 };
 
-static ModifierTierData tiers_normal_237[] = {
+ModifierTierData tiers_normal_237[] = {
     {
         .tier_name = "Infixed",
         .level_req = 2,
@@ -19802,7 +19803,7 @@ static ModifierTierData tiers_normal_237[] = {
     },
 };
 
-static ModifierTierData tiers_normal_238[] = {
+ModifierTierData tiers_normal_238[] = {
     {
         .tier_name = "Captain's",
         .level_req = 10,
@@ -19877,7 +19878,7 @@ static ModifierTierData tiers_normal_238[] = {
     },
 };
 
-static ModifierTierData tiers_normal_239[] = {
+ModifierTierData tiers_normal_239[] = {
     {
         .tier_name = "Defender's",
         .level_req = 10,
@@ -19952,7 +19953,7 @@ static ModifierTierData tiers_normal_239[] = {
     },
 };
 
-static ModifierTierData tiers_normal_240[] = {
+ModifierTierData tiers_normal_240[] = {
     {
         .tier_name = "Thorny",
         .level_req = 1,
@@ -20039,7 +20040,7 @@ static ModifierTierData tiers_normal_240[] = {
     },
 };
 
-static ModifierTierData tiers_normal_241[] = {
+ModifierTierData tiers_normal_241[] = {
     {
         .tier_name = "Steadfast",
         .level_req = 1,
@@ -20078,7 +20079,7 @@ static ModifierTierData tiers_normal_241[] = {
     },
 };
 
-static ModifierTierData tiers_normal_242[] = {
+ModifierTierData tiers_normal_242[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -20177,7 +20178,7 @@ static ModifierTierData tiers_normal_242[] = {
     },
 };
 
-static ModifierTierData tiers_normal_243[] = {
+ModifierTierData tiers_normal_243[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -20276,7 +20277,7 @@ static ModifierTierData tiers_normal_243[] = {
     },
 };
 
-static ModifierTierData tiers_normal_244[] = {
+ModifierTierData tiers_normal_244[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -20375,7 +20376,7 @@ static ModifierTierData tiers_normal_244[] = {
     },
 };
 
-static ModifierTierData tiers_normal_245[] = {
+ModifierTierData tiers_normal_245[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -20474,7 +20475,7 @@ static ModifierTierData tiers_normal_245[] = {
     },
 };
 
-static ModifierTierData tiers_normal_246[] = {
+ModifierTierData tiers_normal_246[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -20573,7 +20574,7 @@ static ModifierTierData tiers_normal_246[] = {
     },
 };
 
-static ModifierTierData tiers_normal_247[] = {
+ModifierTierData tiers_normal_247[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -20672,7 +20673,7 @@ static ModifierTierData tiers_normal_247[] = {
     },
 };
 
-static ModifierTierData tiers_normal_248[] = {
+ModifierTierData tiers_normal_248[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -20747,7 +20748,7 @@ static ModifierTierData tiers_normal_248[] = {
     },
 };
 
-static ModifierTierData tiers_normal_249[] = {
+ModifierTierData tiers_normal_249[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -20810,7 +20811,7 @@ static ModifierTierData tiers_normal_249[] = {
     },
 };
 
-static ModifierTierData tiers_normal_250[] = {
+ModifierTierData tiers_normal_250[] = {
     {
         .tier_name = "of Thick Skin",
         .level_req = 1,
@@ -20933,7 +20934,7 @@ static ModifierTierData tiers_normal_250[] = {
     },
 };
 
-static ModifierTierData tiers_normal_251[] = {
+ModifierTierData tiers_normal_251[] = {
     {
         .tier_name = "of the Watchman",
         .level_req = 32,
@@ -20996,7 +20997,7 @@ static ModifierTierData tiers_normal_251[] = {
     },
 };
 
-static ModifierTierData tiers_normal_252[] = {
+ModifierTierData tiers_normal_252[] = {
     {
         .tier_name = "of the Bushfire",
         .level_req = 68,
@@ -21035,7 +21036,7 @@ static ModifierTierData tiers_normal_252[] = {
     },
 };
 
-static ModifierTierData tiers_normal_253[] = {
+ModifierTierData tiers_normal_253[] = {
     {
         .tier_name = "of Furs",
         .level_req = 68,
@@ -21074,7 +21075,7 @@ static ModifierTierData tiers_normal_253[] = {
     },
 };
 
-static ModifierTierData tiers_normal_254[] = {
+ModifierTierData tiers_normal_254[] = {
     {
         .tier_name = "of Impedance",
         .level_req = 68,
@@ -21113,7 +21114,7 @@ static ModifierTierData tiers_normal_254[] = {
     },
 };
 
-static ModifierTierData tiers_normal_255[] = {
+ModifierTierData tiers_normal_255[] = {
     {
         .tier_name = "of Regularity",
         .level_req = 68,
@@ -21152,7 +21153,7 @@ static ModifierTierData tiers_normal_255[] = {
     },
 };
 
-static ModifierTierData tiers_normal_256[] = {
+ModifierTierData tiers_normal_256[] = {
     {
         .tier_name = "of the Deathless",
         .level_req = 75,
@@ -21179,7 +21180,7 @@ static ModifierTierData tiers_normal_256[] = {
     },
 };
 
-static ModifierTierData tiers_normal_257[] = {
+ModifierTierData tiers_normal_257[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -21254,7 +21255,7 @@ static ModifierTierData tiers_normal_257[] = {
     },
 };
 
-static ModifierTierData tiers_normal_258[] = {
+ModifierTierData tiers_normal_258[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -21329,7 +21330,7 @@ static ModifierTierData tiers_normal_258[] = {
     },
 };
 
-static ModifierTierData tiers_normal_259[] = {
+ModifierTierData tiers_normal_259[] = {
     {
         .tier_name = "of Enlivening",
         .level_req = 1,
@@ -21404,7 +21405,7 @@ static ModifierTierData tiers_normal_259[] = {
     },
 };
 
-static ModifierTierData tiers_normal_260[] = {
+ModifierTierData tiers_normal_260[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -21539,7 +21540,7 @@ static ModifierTierData tiers_normal_260[] = {
     },
 };
 
-static ModifierTierData tiers_normal_261[] = {
+ModifierTierData tiers_normal_261[] = {
     {
         .tier_name = "Shining",
         .level_req = 1,
@@ -21662,7 +21663,7 @@ static ModifierTierData tiers_normal_261[] = {
     },
 };
 
-static ModifierTierData tiers_normal_262[] = {
+ModifierTierData tiers_normal_262[] = {
     {
         .tier_name = "Protective",
         .level_req = 2,
@@ -21749,7 +21750,7 @@ static ModifierTierData tiers_normal_262[] = {
     },
 };
 
-static ModifierTierData tiers_normal_263[] = {
+ModifierTierData tiers_normal_263[] = {
     {
         .tier_name = "Imbued",
         .level_req = 8,
@@ -21824,7 +21825,7 @@ static ModifierTierData tiers_normal_263[] = {
     },
 };
 
-static ModifierTierData tiers_normal_264[] = {
+ModifierTierData tiers_normal_264[] = {
     {
         .tier_name = "Apprentice's",
         .level_req = 1,
@@ -21923,7 +21924,7 @@ static ModifierTierData tiers_normal_264[] = {
     },
 };
 
-static ModifierTierData tiers_normal_265[] = {
+ModifierTierData tiers_normal_265[] = {
     {
         .tier_name = "Searing",
         .level_req = 2,
@@ -22022,7 +22023,7 @@ static ModifierTierData tiers_normal_265[] = {
     },
 };
 
-static ModifierTierData tiers_normal_266[] = {
+ModifierTierData tiers_normal_266[] = {
     {
         .tier_name = "Bitter",
         .level_req = 2,
@@ -22121,7 +22122,7 @@ static ModifierTierData tiers_normal_266[] = {
     },
 };
 
-static ModifierTierData tiers_normal_267[] = {
+ModifierTierData tiers_normal_267[] = {
     {
         .tier_name = "Charged",
         .level_req = 2,
@@ -22220,7 +22221,7 @@ static ModifierTierData tiers_normal_267[] = {
     },
 };
 
-static ModifierTierData tiers_normal_268[] = {
+ModifierTierData tiers_normal_268[] = {
     {
         .tier_name = "Impure",
         .level_req = 2,
@@ -22319,7 +22320,7 @@ static ModifierTierData tiers_normal_268[] = {
     },
 };
 
-static ModifierTierData tiers_normal_269[] = {
+ModifierTierData tiers_normal_269[] = {
     {
         .tier_name = "Punishing",
         .level_req = 2,
@@ -22418,7 +22419,7 @@ static ModifierTierData tiers_normal_269[] = {
     },
 };
 
-static ModifierTierData tiers_normal_270[] = {
+ModifierTierData tiers_normal_270[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -22517,7 +22518,7 @@ static ModifierTierData tiers_normal_270[] = {
     },
 };
 
-static ModifierTierData tiers_normal_271[] = {
+ModifierTierData tiers_normal_271[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -22616,7 +22617,7 @@ static ModifierTierData tiers_normal_271[] = {
     },
 };
 
-static ModifierTierData tiers_normal_272[] = {
+ModifierTierData tiers_normal_272[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -22715,7 +22716,7 @@ static ModifierTierData tiers_normal_272[] = {
     },
 };
 
-static ModifierTierData tiers_normal_273[] = {
+ModifierTierData tiers_normal_273[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -22814,7 +22815,7 @@ static ModifierTierData tiers_normal_273[] = {
     },
 };
 
-static ModifierTierData tiers_normal_274[] = {
+ModifierTierData tiers_normal_274[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -22889,7 +22890,7 @@ static ModifierTierData tiers_normal_274[] = {
     },
 };
 
-static ModifierTierData tiers_normal_275[] = {
+ModifierTierData tiers_normal_275[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -22952,7 +22953,7 @@ static ModifierTierData tiers_normal_275[] = {
     },
 };
 
-static ModifierTierData tiers_normal_276[] = {
+ModifierTierData tiers_normal_276[] = {
     {
         .tier_name = "of the Mage",
         .level_req = 5,
@@ -22979,7 +22980,7 @@ static ModifierTierData tiers_normal_276[] = {
     },
 };
 
-static ModifierTierData tiers_normal_277[] = {
+ModifierTierData tiers_normal_277[] = {
     {
         .tier_name = "of Excitement",
         .level_req = 1,
@@ -23054,7 +23055,7 @@ static ModifierTierData tiers_normal_277[] = {
     },
 };
 
-static ModifierTierData tiers_normal_278[] = {
+ModifierTierData tiers_normal_278[] = {
     {
         .tier_name = "of Talent",
         .level_req = 1,
@@ -23129,7 +23130,7 @@ static ModifierTierData tiers_normal_278[] = {
     },
 };
 
-static ModifierTierData tiers_normal_279[] = {
+ModifierTierData tiers_normal_279[] = {
     {
         .tier_name = "of Menace",
         .level_req = 11,
@@ -23192,7 +23193,7 @@ static ModifierTierData tiers_normal_279[] = {
     },
 };
 
-static ModifierTierData tiers_normal_280[] = {
+ModifierTierData tiers_normal_280[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -23255,7 +23256,7 @@ static ModifierTierData tiers_normal_280[] = {
     },
 };
 
-static ModifierTierData tiers_normal_281[] = {
+ModifierTierData tiers_normal_281[] = {
     {
         .tier_name = "of Enlivening",
         .level_req = 1,
@@ -23330,7 +23331,7 @@ static ModifierTierData tiers_normal_281[] = {
     },
 };
 
-static ModifierTierData tiers_normal_282[] = {
+ModifierTierData tiers_normal_282[] = {
     {
         .tier_name = "of Impatience",
         .level_req = 1,
@@ -23405,7 +23406,7 @@ static ModifierTierData tiers_normal_282[] = {
     },
 };
 
-static ModifierTierData tiers_normal_283[] = {
+ModifierTierData tiers_normal_283[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -23540,7 +23541,7 @@ static ModifierTierData tiers_normal_283[] = {
     },
 };
 
-static ModifierTierData tiers_normal_284[] = {
+ModifierTierData tiers_normal_284[] = {
     {
         .tier_name = "Agile",
         .level_req = 1,
@@ -23663,7 +23664,7 @@ static ModifierTierData tiers_normal_284[] = {
     },
 };
 
-static ModifierTierData tiers_normal_285[] = {
+ModifierTierData tiers_normal_285[] = {
     {
         .tier_name = "Shade's",
         .level_req = 2,
@@ -23762,7 +23763,7 @@ static ModifierTierData tiers_normal_285[] = {
     },
 };
 
-static ModifierTierData tiers_normal_286[] = {
+ModifierTierData tiers_normal_286[] = {
     {
         .tier_name = "Mosquito's",
         .level_req = 10,
@@ -23837,7 +23838,7 @@ static ModifierTierData tiers_normal_286[] = {
     },
 };
 
-static ModifierTierData tiers_normal_287[] = {
+ModifierTierData tiers_normal_287[] = {
     {
         .tier_name = "Thorny",
         .level_req = 1,
@@ -23924,7 +23925,7 @@ static ModifierTierData tiers_normal_287[] = {
     },
 };
 
-static ModifierTierData tiers_normal_288[] = {
+ModifierTierData tiers_normal_288[] = {
     {
         .tier_name = "Steadfast",
         .level_req = 1,
@@ -23963,7 +23964,7 @@ static ModifierTierData tiers_normal_288[] = {
     },
 };
 
-static ModifierTierData tiers_normal_289[] = {
+ModifierTierData tiers_normal_289[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -24062,7 +24063,7 @@ static ModifierTierData tiers_normal_289[] = {
     },
 };
 
-static ModifierTierData tiers_normal_290[] = {
+ModifierTierData tiers_normal_290[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -24161,7 +24162,7 @@ static ModifierTierData tiers_normal_290[] = {
     },
 };
 
-static ModifierTierData tiers_normal_291[] = {
+ModifierTierData tiers_normal_291[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -24260,7 +24261,7 @@ static ModifierTierData tiers_normal_291[] = {
     },
 };
 
-static ModifierTierData tiers_normal_292[] = {
+ModifierTierData tiers_normal_292[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -24359,7 +24360,7 @@ static ModifierTierData tiers_normal_292[] = {
     },
 };
 
-static ModifierTierData tiers_normal_293[] = {
+ModifierTierData tiers_normal_293[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -24434,7 +24435,7 @@ static ModifierTierData tiers_normal_293[] = {
     },
 };
 
-static ModifierTierData tiers_normal_294[] = {
+ModifierTierData tiers_normal_294[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -24497,7 +24498,7 @@ static ModifierTierData tiers_normal_294[] = {
     },
 };
 
-static ModifierTierData tiers_normal_295[] = {
+ModifierTierData tiers_normal_295[] = {
     {
         .tier_name = "of Thick Skin",
         .level_req = 1,
@@ -24620,7 +24621,7 @@ static ModifierTierData tiers_normal_295[] = {
     },
 };
 
-static ModifierTierData tiers_normal_296[] = {
+ModifierTierData tiers_normal_296[] = {
     {
         .tier_name = "of the Bushfire",
         .level_req = 68,
@@ -24659,7 +24660,7 @@ static ModifierTierData tiers_normal_296[] = {
     },
 };
 
-static ModifierTierData tiers_normal_297[] = {
+ModifierTierData tiers_normal_297[] = {
     {
         .tier_name = "of Furs",
         .level_req = 68,
@@ -24698,7 +24699,7 @@ static ModifierTierData tiers_normal_297[] = {
     },
 };
 
-static ModifierTierData tiers_normal_298[] = {
+ModifierTierData tiers_normal_298[] = {
     {
         .tier_name = "of Impedance",
         .level_req = 68,
@@ -24737,7 +24738,7 @@ static ModifierTierData tiers_normal_298[] = {
     },
 };
 
-static ModifierTierData tiers_normal_299[] = {
+ModifierTierData tiers_normal_299[] = {
     {
         .tier_name = "of Regularity",
         .level_req = 68,
@@ -24776,7 +24777,7 @@ static ModifierTierData tiers_normal_299[] = {
     },
 };
 
-static ModifierTierData tiers_normal_300[] = {
+ModifierTierData tiers_normal_300[] = {
     {
         .tier_name = "of the Deathless",
         .level_req = 75,
@@ -24803,7 +24804,7 @@ static ModifierTierData tiers_normal_300[] = {
     },
 };
 
-static ModifierTierData tiers_normal_301[] = {
+ModifierTierData tiers_normal_301[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -24878,7 +24879,7 @@ static ModifierTierData tiers_normal_301[] = {
     },
 };
 
-static ModifierTierData tiers_normal_302[] = {
+ModifierTierData tiers_normal_302[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -24989,7 +24990,7 @@ static ModifierTierData tiers_normal_302[] = {
     },
 };
 
-static ModifierTierData tiers_normal_303[] = {
+ModifierTierData tiers_normal_303[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -25100,7 +25101,7 @@ static ModifierTierData tiers_normal_303[] = {
     },
 };
 
-static ModifierTierData tiers_normal_304[] = {
+ModifierTierData tiers_normal_304[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -25211,7 +25212,7 @@ static ModifierTierData tiers_normal_304[] = {
     },
 };
 
-static ModifierTierData tiers_normal_305[] = {
+ModifierTierData tiers_normal_305[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -25322,7 +25323,7 @@ static ModifierTierData tiers_normal_305[] = {
     },
 };
 
-static ModifierTierData tiers_normal_306[] = {
+ModifierTierData tiers_normal_306[] = {
     {
         .tier_name = "Precise",
         .level_req = 1,
@@ -25433,7 +25434,7 @@ static ModifierTierData tiers_normal_306[] = {
     },
 };
 
-static ModifierTierData tiers_normal_307[] = {
+ModifierTierData tiers_normal_307[] = {
     {
         .tier_name = "Darting",
         .level_req = 14,
@@ -25496,7 +25497,7 @@ static ModifierTierData tiers_normal_307[] = {
     },
 };
 
-static ModifierTierData tiers_normal_308[] = {
+ModifierTierData tiers_normal_308[] = {
     {
         .tier_name = "Acute",
         .level_req = 1,
@@ -25571,7 +25572,7 @@ static ModifierTierData tiers_normal_308[] = {
     },
 };
 
-static ModifierTierData tiers_normal_309[] = {
+ModifierTierData tiers_normal_309[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -25670,7 +25671,7 @@ static ModifierTierData tiers_normal_309[] = {
     },
 };
 
-static ModifierTierData tiers_normal_310[] = {
+ModifierTierData tiers_normal_310[] = {
     {
         .tier_name = "of the Archer",
         .level_req = 5,
@@ -25697,7 +25698,7 @@ static ModifierTierData tiers_normal_310[] = {
     },
 };
 
-static ModifierTierData tiers_normal_311[] = {
+ModifierTierData tiers_normal_311[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -25772,7 +25773,7 @@ static ModifierTierData tiers_normal_311[] = {
     },
 };
 
-static ModifierTierData tiers_normal_312[] = {
+ModifierTierData tiers_normal_312[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -25847,7 +25848,7 @@ static ModifierTierData tiers_normal_312[] = {
     },
 };
 
-static ModifierTierData tiers_normal_313[] = {
+ModifierTierData tiers_normal_313[] = {
     {
         .tier_name = "of Skill",
         .level_req = 1,
@@ -25898,7 +25899,7 @@ static ModifierTierData tiers_normal_313[] = {
     },
 };
 
-static ModifierTierData tiers_normal_314[] = {
+ModifierTierData tiers_normal_314[] = {
     {
         .tier_name = "of Menace",
         .level_req = 5,
@@ -25973,7 +25974,7 @@ static ModifierTierData tiers_normal_314[] = {
     },
 };
 
-static ModifierTierData tiers_normal_315[] = {
+ModifierTierData tiers_normal_315[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -26048,7 +26049,7 @@ static ModifierTierData tiers_normal_315[] = {
     },
 };
 
-static ModifierTierData tiers_normal_316[] = {
+ModifierTierData tiers_normal_316[] = {
     {
         .tier_name = "of Piercing",
         .level_req = 11,
@@ -26111,7 +26112,7 @@ static ModifierTierData tiers_normal_316[] = {
     },
 };
 
-static ModifierTierData tiers_normal_317[] = {
+ModifierTierData tiers_normal_317[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -26222,7 +26223,7 @@ static ModifierTierData tiers_normal_317[] = {
     },
 };
 
-static ModifierTierData tiers_normal_318[] = {
+ModifierTierData tiers_normal_318[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -26333,7 +26334,7 @@ static ModifierTierData tiers_normal_318[] = {
     },
 };
 
-static ModifierTierData tiers_normal_319[] = {
+ModifierTierData tiers_normal_319[] = {
     {
         .tier_name = "Lacquered",
         .level_req = 1,
@@ -26420,7 +26421,7 @@ static ModifierTierData tiers_normal_319[] = {
     },
 };
 
-static ModifierTierData tiers_normal_320[] = {
+ModifierTierData tiers_normal_320[] = {
     {
         .tier_name = "Agile",
         .level_req = 1,
@@ -26507,7 +26508,7 @@ static ModifierTierData tiers_normal_320[] = {
     },
 };
 
-static ModifierTierData tiers_normal_321[] = {
+ModifierTierData tiers_normal_321[] = {
     {
         .tier_name = "Shining",
         .level_req = 1,
@@ -26594,7 +26595,7 @@ static ModifierTierData tiers_normal_321[] = {
     },
 };
 
-static ModifierTierData tiers_normal_322[] = {
+ModifierTierData tiers_normal_322[] = {
     {
         .tier_name = "Reinforced",
         .level_req = 2,
@@ -26681,7 +26682,7 @@ static ModifierTierData tiers_normal_322[] = {
     },
 };
 
-static ModifierTierData tiers_normal_323[] = {
+ModifierTierData tiers_normal_323[] = {
     {
         .tier_name = "Shade's",
         .level_req = 2,
@@ -26768,7 +26769,7 @@ static ModifierTierData tiers_normal_323[] = {
     },
 };
 
-static ModifierTierData tiers_normal_324[] = {
+ModifierTierData tiers_normal_324[] = {
     {
         .tier_name = "Protective",
         .level_req = 2,
@@ -26855,7 +26856,7 @@ static ModifierTierData tiers_normal_324[] = {
     },
 };
 
-static ModifierTierData tiers_normal_325[] = {
+ModifierTierData tiers_normal_325[] = {
     {
         .tier_name = "Beetle's",
         .level_req = 10,
@@ -26930,7 +26931,7 @@ static ModifierTierData tiers_normal_325[] = {
     },
 };
 
-static ModifierTierData tiers_normal_326[] = {
+ModifierTierData tiers_normal_326[] = {
     {
         .tier_name = "Mosquito's",
         .level_req = 10,
@@ -27005,7 +27006,7 @@ static ModifierTierData tiers_normal_326[] = {
     },
 };
 
-static ModifierTierData tiers_normal_327[] = {
+ModifierTierData tiers_normal_327[] = {
     {
         .tier_name = "Pixie's",
         .level_req = 10,
@@ -27080,7 +27081,7 @@ static ModifierTierData tiers_normal_327[] = {
     },
 };
 
-static ModifierTierData tiers_normal_328[] = {
+ModifierTierData tiers_normal_328[] = {
     {
         .tier_name = "Runner's",
         .level_req = 1,
@@ -27155,7 +27156,7 @@ static ModifierTierData tiers_normal_328[] = {
     },
 };
 
-static ModifierTierData tiers_normal_329[] = {
+ModifierTierData tiers_normal_329[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -27254,7 +27255,7 @@ static ModifierTierData tiers_normal_329[] = {
     },
 };
 
-static ModifierTierData tiers_normal_330[] = {
+ModifierTierData tiers_normal_330[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -27365,7 +27366,7 @@ static ModifierTierData tiers_normal_330[] = {
     },
 };
 
-static ModifierTierData tiers_normal_331[] = {
+ModifierTierData tiers_normal_331[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -27464,7 +27465,7 @@ static ModifierTierData tiers_normal_331[] = {
     },
 };
 
-static ModifierTierData tiers_normal_332[] = {
+ModifierTierData tiers_normal_332[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -27563,7 +27564,7 @@ static ModifierTierData tiers_normal_332[] = {
     },
 };
 
-static ModifierTierData tiers_normal_333[] = {
+ModifierTierData tiers_normal_333[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -27662,7 +27663,7 @@ static ModifierTierData tiers_normal_333[] = {
     },
 };
 
-static ModifierTierData tiers_normal_334[] = {
+ModifierTierData tiers_normal_334[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -27761,7 +27762,7 @@ static ModifierTierData tiers_normal_334[] = {
     },
 };
 
-static ModifierTierData tiers_normal_335[] = {
+ModifierTierData tiers_normal_335[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -27836,7 +27837,7 @@ static ModifierTierData tiers_normal_335[] = {
     },
 };
 
-static ModifierTierData tiers_normal_336[] = {
+ModifierTierData tiers_normal_336[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -27899,7 +27900,7 @@ static ModifierTierData tiers_normal_336[] = {
     },
 };
 
-static ModifierTierData tiers_normal_337[] = {
+ModifierTierData tiers_normal_337[] = {
     {
         .tier_name = "of Thick Skin",
         .level_req = 1,
@@ -28034,7 +28035,7 @@ static ModifierTierData tiers_normal_337[] = {
     },
 };
 
-static ModifierTierData tiers_normal_338[] = {
+ModifierTierData tiers_normal_338[] = {
     {
         .tier_name = "of the Newt",
         .level_req = 1,
@@ -28133,7 +28134,7 @@ static ModifierTierData tiers_normal_338[] = {
     },
 };
 
-static ModifierTierData tiers_normal_339[] = {
+ModifierTierData tiers_normal_339[] = {
     {
         .tier_name = "of Plunder",
         .level_req = 3,
@@ -28196,7 +28197,7 @@ static ModifierTierData tiers_normal_339[] = {
     },
 };
 
-static ModifierTierData tiers_normal_340[] = {
+ModifierTierData tiers_normal_340[] = {
     {
         .tier_name = "of Earthing",
         .level_req = 20,
@@ -28259,7 +28260,7 @@ static ModifierTierData tiers_normal_340[] = {
     },
 };
 
-static ModifierTierData tiers_normal_341[] = {
+ModifierTierData tiers_normal_341[] = {
     {
         .tier_name = "of Convection",
         .level_req = 20,
@@ -28322,7 +28323,7 @@ static ModifierTierData tiers_normal_341[] = {
     },
 };
 
-static ModifierTierData tiers_normal_342[] = {
+ModifierTierData tiers_normal_342[] = {
     {
         .tier_name = "of Heating",
         .level_req = 20,
@@ -28385,7 +28386,7 @@ static ModifierTierData tiers_normal_342[] = {
     },
 };
 
-static ModifierTierData tiers_normal_343[] = {
+ModifierTierData tiers_normal_343[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -28448,7 +28449,7 @@ static ModifierTierData tiers_normal_343[] = {
     },
 };
 
-static ModifierTierData tiers_normal_344[] = {
+ModifierTierData tiers_normal_344[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -28511,7 +28512,7 @@ static ModifierTierData tiers_normal_344[] = {
     },
 };
 
-static ModifierTierData tiers_normal_345[] = {
+ModifierTierData tiers_normal_345[] = {
     {
         .tier_name = "of Enlivening",
         .level_req = 1,
@@ -28562,7 +28563,7 @@ static ModifierTierData tiers_normal_345[] = {
     },
 };
 
-static ModifierTierData tiers_normal_346[] = {
+ModifierTierData tiers_normal_346[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -28673,7 +28674,7 @@ static ModifierTierData tiers_normal_346[] = {
     },
 };
 
-static ModifierTierData tiers_normal_347[] = {
+ModifierTierData tiers_normal_347[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -28784,7 +28785,7 @@ static ModifierTierData tiers_normal_347[] = {
     },
 };
 
-static ModifierTierData tiers_normal_348[] = {
+ModifierTierData tiers_normal_348[] = {
     {
         .tier_name = "Supple",
         .level_req = 1,
@@ -28835,7 +28836,7 @@ static ModifierTierData tiers_normal_348[] = {
     },
 };
 
-static ModifierTierData tiers_normal_349[] = {
+ModifierTierData tiers_normal_349[] = {
     {
         .tier_name = "Blessed",
         .level_req = 1,
@@ -28886,7 +28887,7 @@ static ModifierTierData tiers_normal_349[] = {
     },
 };
 
-static ModifierTierData tiers_normal_350[] = {
+ModifierTierData tiers_normal_350[] = {
     {
         .tier_name = "Will-o-wisp's",
         .level_req = 1,
@@ -28937,7 +28938,7 @@ static ModifierTierData tiers_normal_350[] = {
     },
 };
 
-static ModifierTierData tiers_normal_351[] = {
+ModifierTierData tiers_normal_351[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
@@ -29024,7 +29025,7 @@ static ModifierTierData tiers_normal_351[] = {
     },
 };
 
-static ModifierTierData tiers_normal_352[] = {
+ModifierTierData tiers_normal_352[] = {
     {
         .tier_name = "Infixed",
         .level_req = 2,
@@ -29111,7 +29112,7 @@ static ModifierTierData tiers_normal_352[] = {
     },
 };
 
-static ModifierTierData tiers_normal_353[] = {
+ModifierTierData tiers_normal_353[] = {
     {
         .tier_name = "Shadowy",
         .level_req = 2,
@@ -29198,7 +29199,7 @@ static ModifierTierData tiers_normal_353[] = {
     },
 };
 
-static ModifierTierData tiers_normal_354[] = {
+ModifierTierData tiers_normal_354[] = {
     {
         .tier_name = "Captain's",
         .level_req = 10,
@@ -29273,7 +29274,7 @@ static ModifierTierData tiers_normal_354[] = {
     },
 };
 
-static ModifierTierData tiers_normal_355[] = {
+ModifierTierData tiers_normal_355[] = {
     {
         .tier_name = "Defender's",
         .level_req = 10,
@@ -29348,7 +29349,7 @@ static ModifierTierData tiers_normal_355[] = {
     },
 };
 
-static ModifierTierData tiers_normal_356[] = {
+ModifierTierData tiers_normal_356[] = {
     {
         .tier_name = "Intuitive",
         .level_req = 10,
@@ -29423,7 +29424,7 @@ static ModifierTierData tiers_normal_356[] = {
     },
 };
 
-static ModifierTierData tiers_normal_357[] = {
+ModifierTierData tiers_normal_357[] = {
     {
         .tier_name = "Runner's",
         .level_req = 1,
@@ -29498,7 +29499,7 @@ static ModifierTierData tiers_normal_357[] = {
     },
 };
 
-static ModifierTierData tiers_normal_358[] = {
+ModifierTierData tiers_normal_358[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -29597,7 +29598,7 @@ static ModifierTierData tiers_normal_358[] = {
     },
 };
 
-static ModifierTierData tiers_normal_359[] = {
+ModifierTierData tiers_normal_359[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -29708,7 +29709,7 @@ static ModifierTierData tiers_normal_359[] = {
     },
 };
 
-static ModifierTierData tiers_normal_360[] = {
+ModifierTierData tiers_normal_360[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -29807,7 +29808,7 @@ static ModifierTierData tiers_normal_360[] = {
     },
 };
 
-static ModifierTierData tiers_normal_361[] = {
+ModifierTierData tiers_normal_361[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -29906,7 +29907,7 @@ static ModifierTierData tiers_normal_361[] = {
     },
 };
 
-static ModifierTierData tiers_normal_362[] = {
+ModifierTierData tiers_normal_362[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -30005,7 +30006,7 @@ static ModifierTierData tiers_normal_362[] = {
     },
 };
 
-static ModifierTierData tiers_normal_363[] = {
+ModifierTierData tiers_normal_363[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -30104,7 +30105,7 @@ static ModifierTierData tiers_normal_363[] = {
     },
 };
 
-static ModifierTierData tiers_normal_364[] = {
+ModifierTierData tiers_normal_364[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -30179,7 +30180,7 @@ static ModifierTierData tiers_normal_364[] = {
     },
 };
 
-static ModifierTierData tiers_normal_365[] = {
+ModifierTierData tiers_normal_365[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -30242,7 +30243,7 @@ static ModifierTierData tiers_normal_365[] = {
     },
 };
 
-static ModifierTierData tiers_normal_366[] = {
+ModifierTierData tiers_normal_366[] = {
     {
         .tier_name = "of Thick Skin",
         .level_req = 1,
@@ -30377,7 +30378,7 @@ static ModifierTierData tiers_normal_366[] = {
     },
 };
 
-static ModifierTierData tiers_normal_367[] = {
+ModifierTierData tiers_normal_367[] = {
     {
         .tier_name = "of the Newt",
         .level_req = 1,
@@ -30476,7 +30477,7 @@ static ModifierTierData tiers_normal_367[] = {
     },
 };
 
-static ModifierTierData tiers_normal_368[] = {
+ModifierTierData tiers_normal_368[] = {
     {
         .tier_name = "of Plunder",
         .level_req = 3,
@@ -30539,7 +30540,7 @@ static ModifierTierData tiers_normal_368[] = {
     },
 };
 
-static ModifierTierData tiers_normal_369[] = {
+ModifierTierData tiers_normal_369[] = {
     {
         .tier_name = "of Earthing",
         .level_req = 20,
@@ -30602,7 +30603,7 @@ static ModifierTierData tiers_normal_369[] = {
     },
 };
 
-static ModifierTierData tiers_normal_370[] = {
+ModifierTierData tiers_normal_370[] = {
     {
         .tier_name = "of Convection",
         .level_req = 20,
@@ -30665,7 +30666,7 @@ static ModifierTierData tiers_normal_370[] = {
     },
 };
 
-static ModifierTierData tiers_normal_371[] = {
+ModifierTierData tiers_normal_371[] = {
     {
         .tier_name = "of Heating",
         .level_req = 20,
@@ -30728,7 +30729,7 @@ static ModifierTierData tiers_normal_371[] = {
     },
 };
 
-static ModifierTierData tiers_normal_372[] = {
+ModifierTierData tiers_normal_372[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -30791,7 +30792,7 @@ static ModifierTierData tiers_normal_372[] = {
     },
 };
 
-static ModifierTierData tiers_normal_373[] = {
+ModifierTierData tiers_normal_373[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -30854,7 +30855,7 @@ static ModifierTierData tiers_normal_373[] = {
     },
 };
 
-static ModifierTierData tiers_normal_374[] = {
+ModifierTierData tiers_normal_374[] = {
     {
         .tier_name = "of Enlivening",
         .level_req = 1,
@@ -30905,7 +30906,7 @@ static ModifierTierData tiers_normal_374[] = {
     },
 };
 
-static ModifierTierData tiers_normal_375[] = {
+ModifierTierData tiers_normal_375[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -31064,7 +31065,7 @@ static ModifierTierData tiers_normal_375[] = {
     },
 };
 
-static ModifierTierData tiers_normal_376[] = {
+ModifierTierData tiers_normal_376[] = {
     {
         .tier_name = "Supple",
         .level_req = 1,
@@ -31163,7 +31164,7 @@ static ModifierTierData tiers_normal_376[] = {
     },
 };
 
-static ModifierTierData tiers_normal_377[] = {
+ModifierTierData tiers_normal_377[] = {
     {
         .tier_name = "Blessed",
         .level_req = 1,
@@ -31262,7 +31263,7 @@ static ModifierTierData tiers_normal_377[] = {
     },
 };
 
-static ModifierTierData tiers_normal_378[] = {
+ModifierTierData tiers_normal_378[] = {
     {
         .tier_name = "Will-o-wisp's",
         .level_req = 1,
@@ -31361,7 +31362,7 @@ static ModifierTierData tiers_normal_378[] = {
     },
 };
 
-static ModifierTierData tiers_normal_379[] = {
+ModifierTierData tiers_normal_379[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
@@ -31460,7 +31461,7 @@ static ModifierTierData tiers_normal_379[] = {
     },
 };
 
-static ModifierTierData tiers_normal_380[] = {
+ModifierTierData tiers_normal_380[] = {
     {
         .tier_name = "Infixed",
         .level_req = 2,
@@ -31559,7 +31560,7 @@ static ModifierTierData tiers_normal_380[] = {
     },
 };
 
-static ModifierTierData tiers_normal_381[] = {
+ModifierTierData tiers_normal_381[] = {
     {
         .tier_name = "Shadowy",
         .level_req = 2,
@@ -31658,7 +31659,7 @@ static ModifierTierData tiers_normal_381[] = {
     },
 };
 
-static ModifierTierData tiers_normal_382[] = {
+ModifierTierData tiers_normal_382[] = {
     {
         .tier_name = "Bully's",
         .level_req = 8,
@@ -31733,7 +31734,7 @@ static ModifierTierData tiers_normal_382[] = {
     },
 };
 
-static ModifierTierData tiers_normal_383[] = {
+ModifierTierData tiers_normal_383[] = {
     {
         .tier_name = "Augur's",
         .level_req = 8,
@@ -31808,7 +31809,7 @@ static ModifierTierData tiers_normal_383[] = {
     },
 };
 
-static ModifierTierData tiers_normal_384[] = {
+ModifierTierData tiers_normal_384[] = {
     {
         .tier_name = "Poet's",
         .level_req = 8,
@@ -31883,7 +31884,7 @@ static ModifierTierData tiers_normal_384[] = {
     },
 };
 
-static ModifierTierData tiers_normal_385[] = {
+ModifierTierData tiers_normal_385[] = {
     {
         .tier_name = "Swordsman's",
         .level_req = 8,
@@ -31958,7 +31959,7 @@ static ModifierTierData tiers_normal_385[] = {
     },
 };
 
-static ModifierTierData tiers_normal_386[] = {
+ModifierTierData tiers_normal_386[] = {
     {
         .tier_name = "Faithful",
         .level_req = 8,
@@ -32033,7 +32034,7 @@ static ModifierTierData tiers_normal_386[] = {
     },
 };
 
-static ModifierTierData tiers_normal_387[] = {
+ModifierTierData tiers_normal_387[] = {
     {
         .tier_name = "Pursuer's",
         .level_req = 8,
@@ -32108,7 +32109,7 @@ static ModifierTierData tiers_normal_387[] = {
     },
 };
 
-static ModifierTierData tiers_normal_388[] = {
+ModifierTierData tiers_normal_388[] = {
     {
         .tier_name = "Thorny",
         .level_req = 1,
@@ -32195,7 +32196,7 @@ static ModifierTierData tiers_normal_388[] = {
     },
 };
 
-static ModifierTierData tiers_normal_389[] = {
+ModifierTierData tiers_normal_389[] = {
     {
         .tier_name = "Lady's",
         .level_req = 16,
@@ -32294,7 +32295,7 @@ static ModifierTierData tiers_normal_389[] = {
     },
 };
 
-static ModifierTierData tiers_normal_390[] = {
+ModifierTierData tiers_normal_390[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -32393,7 +32394,7 @@ static ModifierTierData tiers_normal_390[] = {
     },
 };
 
-static ModifierTierData tiers_normal_391[] = {
+ModifierTierData tiers_normal_391[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -32504,7 +32505,7 @@ static ModifierTierData tiers_normal_391[] = {
     },
 };
 
-static ModifierTierData tiers_normal_392[] = {
+ModifierTierData tiers_normal_392[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -32603,7 +32604,7 @@ static ModifierTierData tiers_normal_392[] = {
     },
 };
 
-static ModifierTierData tiers_normal_393[] = {
+ModifierTierData tiers_normal_393[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -32702,7 +32703,7 @@ static ModifierTierData tiers_normal_393[] = {
     },
 };
 
-static ModifierTierData tiers_normal_394[] = {
+ModifierTierData tiers_normal_394[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -32801,7 +32802,7 @@ static ModifierTierData tiers_normal_394[] = {
     },
 };
 
-static ModifierTierData tiers_normal_395[] = {
+ModifierTierData tiers_normal_395[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -32900,7 +32901,7 @@ static ModifierTierData tiers_normal_395[] = {
     },
 };
 
-static ModifierTierData tiers_normal_396[] = {
+ModifierTierData tiers_normal_396[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -32975,7 +32976,7 @@ static ModifierTierData tiers_normal_396[] = {
     },
 };
 
-static ModifierTierData tiers_normal_397[] = {
+ModifierTierData tiers_normal_397[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -33038,7 +33039,7 @@ static ModifierTierData tiers_normal_397[] = {
     },
 };
 
-static ModifierTierData tiers_normal_398[] = {
+ModifierTierData tiers_normal_398[] = {
     {
         .tier_name = "of Thick Skin",
         .level_req = 1,
@@ -33161,7 +33162,7 @@ static ModifierTierData tiers_normal_398[] = {
     },
 };
 
-static ModifierTierData tiers_normal_399[] = {
+ModifierTierData tiers_normal_399[] = {
     {
         .tier_name = "of the Newt",
         .level_req = 1,
@@ -33296,7 +33297,7 @@ static ModifierTierData tiers_normal_399[] = {
     },
 };
 
-static ModifierTierData tiers_normal_400[] = {
+ModifierTierData tiers_normal_400[] = {
     {
         .tier_name = "of Sealing",
         .level_req = 21,
@@ -33359,7 +33360,7 @@ static ModifierTierData tiers_normal_400[] = {
     },
 };
 
-static ModifierTierData tiers_normal_401[] = {
+ModifierTierData tiers_normal_401[] = {
     {
         .tier_name = "of the Antitoxin",
         .level_req = 21,
@@ -33422,7 +33423,7 @@ static ModifierTierData tiers_normal_401[] = {
     },
 };
 
-static ModifierTierData tiers_normal_402[] = {
+ModifierTierData tiers_normal_402[] = {
     {
         .tier_name = "of Damping",
         .level_req = 21,
@@ -33485,7 +33486,7 @@ static ModifierTierData tiers_normal_402[] = {
     },
 };
 
-static ModifierTierData tiers_normal_403[] = {
+ModifierTierData tiers_normal_403[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -33560,7 +33561,7 @@ static ModifierTierData tiers_normal_403[] = {
     },
 };
 
-static ModifierTierData tiers_normal_404[] = {
+ModifierTierData tiers_normal_404[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -33635,7 +33636,7 @@ static ModifierTierData tiers_normal_404[] = {
     },
 };
 
-static ModifierTierData tiers_normal_405[] = {
+ModifierTierData tiers_normal_405[] = {
     {
         .tier_name = "of Impatience",
         .level_req = 1,
@@ -33710,7 +33711,7 @@ static ModifierTierData tiers_normal_405[] = {
     },
 };
 
-static ModifierTierData tiers_normal_406[] = {
+ModifierTierData tiers_normal_406[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -33869,7 +33870,7 @@ static ModifierTierData tiers_normal_406[] = {
     },
 };
 
-static ModifierTierData tiers_normal_407[] = {
+ModifierTierData tiers_normal_407[] = {
     {
         .tier_name = "Lacquered",
         .level_req = 1,
@@ -34004,7 +34005,7 @@ static ModifierTierData tiers_normal_407[] = {
     },
 };
 
-static ModifierTierData tiers_normal_408[] = {
+ModifierTierData tiers_normal_408[] = {
     {
         .tier_name = "Agile",
         .level_req = 1,
@@ -34139,7 +34140,7 @@ static ModifierTierData tiers_normal_408[] = {
     },
 };
 
-static ModifierTierData tiers_normal_409[] = {
+ModifierTierData tiers_normal_409[] = {
     {
         .tier_name = "Shining",
         .level_req = 1,
@@ -34274,7 +34275,7 @@ static ModifierTierData tiers_normal_409[] = {
     },
 };
 
-static ModifierTierData tiers_normal_410[] = {
+ModifierTierData tiers_normal_410[] = {
     {
         .tier_name = "Reinforced",
         .level_req = 2,
@@ -34373,7 +34374,7 @@ static ModifierTierData tiers_normal_410[] = {
     },
 };
 
-static ModifierTierData tiers_normal_411[] = {
+ModifierTierData tiers_normal_411[] = {
     {
         .tier_name = "Shade's",
         .level_req = 2,
@@ -34472,7 +34473,7 @@ static ModifierTierData tiers_normal_411[] = {
     },
 };
 
-static ModifierTierData tiers_normal_412[] = {
+ModifierTierData tiers_normal_412[] = {
     {
         .tier_name = "Protective",
         .level_req = 2,
@@ -34571,7 +34572,7 @@ static ModifierTierData tiers_normal_412[] = {
     },
 };
 
-static ModifierTierData tiers_normal_413[] = {
+ModifierTierData tiers_normal_413[] = {
     {
         .tier_name = "Oyster's",
         .level_req = 8,
@@ -34646,7 +34647,7 @@ static ModifierTierData tiers_normal_413[] = {
     },
 };
 
-static ModifierTierData tiers_normal_414[] = {
+ModifierTierData tiers_normal_414[] = {
     {
         .tier_name = "Flea's",
         .level_req = 8,
@@ -34721,7 +34722,7 @@ static ModifierTierData tiers_normal_414[] = {
     },
 };
 
-static ModifierTierData tiers_normal_415[] = {
+ModifierTierData tiers_normal_415[] = {
     {
         .tier_name = "Monk's",
         .level_req = 8,
@@ -34796,7 +34797,7 @@ static ModifierTierData tiers_normal_415[] = {
     },
 };
 
-static ModifierTierData tiers_normal_416[] = {
+ModifierTierData tiers_normal_416[] = {
     {
         .tier_name = "Abalone's",
         .level_req = 8,
@@ -34871,7 +34872,7 @@ static ModifierTierData tiers_normal_416[] = {
     },
 };
 
-static ModifierTierData tiers_normal_417[] = {
+ModifierTierData tiers_normal_417[] = {
     {
         .tier_name = "Impala's",
         .level_req = 8,
@@ -34946,7 +34947,7 @@ static ModifierTierData tiers_normal_417[] = {
     },
 };
 
-static ModifierTierData tiers_normal_418[] = {
+ModifierTierData tiers_normal_418[] = {
     {
         .tier_name = "Deacon's",
         .level_req = 8,
@@ -35021,7 +35022,7 @@ static ModifierTierData tiers_normal_418[] = {
     },
 };
 
-static ModifierTierData tiers_normal_419[] = {
+ModifierTierData tiers_normal_419[] = {
     {
         .tier_name = "Thorny",
         .level_req = 1,
@@ -35108,7 +35109,7 @@ static ModifierTierData tiers_normal_419[] = {
     },
 };
 
-static ModifierTierData tiers_normal_420[] = {
+ModifierTierData tiers_normal_420[] = {
     {
         .tier_name = "Lady's",
         .level_req = 16,
@@ -35207,7 +35208,7 @@ static ModifierTierData tiers_normal_420[] = {
     },
 };
 
-static ModifierTierData tiers_normal_421[] = {
+ModifierTierData tiers_normal_421[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -35306,7 +35307,7 @@ static ModifierTierData tiers_normal_421[] = {
     },
 };
 
-static ModifierTierData tiers_normal_422[] = {
+ModifierTierData tiers_normal_422[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -35405,7 +35406,7 @@ static ModifierTierData tiers_normal_422[] = {
     },
 };
 
-static ModifierTierData tiers_normal_423[] = {
+ModifierTierData tiers_normal_423[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -35504,7 +35505,7 @@ static ModifierTierData tiers_normal_423[] = {
     },
 };
 
-static ModifierTierData tiers_normal_424[] = {
+ModifierTierData tiers_normal_424[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -35603,7 +35604,7 @@ static ModifierTierData tiers_normal_424[] = {
     },
 };
 
-static ModifierTierData tiers_normal_425[] = {
+ModifierTierData tiers_normal_425[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -35702,7 +35703,7 @@ static ModifierTierData tiers_normal_425[] = {
     },
 };
 
-static ModifierTierData tiers_normal_426[] = {
+ModifierTierData tiers_normal_426[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -35801,7 +35802,7 @@ static ModifierTierData tiers_normal_426[] = {
     },
 };
 
-static ModifierTierData tiers_normal_427[] = {
+ModifierTierData tiers_normal_427[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -35876,7 +35877,7 @@ static ModifierTierData tiers_normal_427[] = {
     },
 };
 
-static ModifierTierData tiers_normal_428[] = {
+ModifierTierData tiers_normal_428[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -35939,7 +35940,7 @@ static ModifierTierData tiers_normal_428[] = {
     },
 };
 
-static ModifierTierData tiers_normal_429[] = {
+ModifierTierData tiers_normal_429[] = {
     {
         .tier_name = "of Thick Skin",
         .level_req = 1,
@@ -36062,7 +36063,7 @@ static ModifierTierData tiers_normal_429[] = {
     },
 };
 
-static ModifierTierData tiers_normal_430[] = {
+ModifierTierData tiers_normal_430[] = {
     {
         .tier_name = "of the Newt",
         .level_req = 1,
@@ -36197,7 +36198,7 @@ static ModifierTierData tiers_normal_430[] = {
     },
 };
 
-static ModifierTierData tiers_normal_431[] = {
+ModifierTierData tiers_normal_431[] = {
     {
         .tier_name = "of Sealing",
         .level_req = 21,
@@ -36260,7 +36261,7 @@ static ModifierTierData tiers_normal_431[] = {
     },
 };
 
-static ModifierTierData tiers_normal_432[] = {
+ModifierTierData tiers_normal_432[] = {
     {
         .tier_name = "of the Antitoxin",
         .level_req = 21,
@@ -36323,7 +36324,7 @@ static ModifierTierData tiers_normal_432[] = {
     },
 };
 
-static ModifierTierData tiers_normal_433[] = {
+ModifierTierData tiers_normal_433[] = {
     {
         .tier_name = "of Damping",
         .level_req = 21,
@@ -36386,7 +36387,7 @@ static ModifierTierData tiers_normal_433[] = {
     },
 };
 
-static ModifierTierData tiers_normal_434[] = {
+ModifierTierData tiers_normal_434[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -36461,7 +36462,7 @@ static ModifierTierData tiers_normal_434[] = {
     },
 };
 
-static ModifierTierData tiers_normal_435[] = {
+ModifierTierData tiers_normal_435[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -36536,7 +36537,7 @@ static ModifierTierData tiers_normal_435[] = {
     },
 };
 
-static ModifierTierData tiers_normal_436[] = {
+ModifierTierData tiers_normal_436[] = {
     {
         .tier_name = "of Impatience",
         .level_req = 1,
@@ -36611,7 +36612,7 @@ static ModifierTierData tiers_normal_436[] = {
     },
 };
 
-static ModifierTierData tiers_normal_437[] = {
+ModifierTierData tiers_normal_437[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -36722,7 +36723,7 @@ static ModifierTierData tiers_normal_437[] = {
     },
 };
 
-static ModifierTierData tiers_normal_438[] = {
+ModifierTierData tiers_normal_438[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -36833,7 +36834,7 @@ static ModifierTierData tiers_normal_438[] = {
     },
 };
 
-static ModifierTierData tiers_normal_439[] = {
+ModifierTierData tiers_normal_439[] = {
     {
         .tier_name = "Lacquered",
         .level_req = 1,
@@ -36920,7 +36921,7 @@ static ModifierTierData tiers_normal_439[] = {
     },
 };
 
-static ModifierTierData tiers_normal_440[] = {
+ModifierTierData tiers_normal_440[] = {
     {
         .tier_name = "Agile",
         .level_req = 1,
@@ -37007,7 +37008,7 @@ static ModifierTierData tiers_normal_440[] = {
     },
 };
 
-static ModifierTierData tiers_normal_441[] = {
+ModifierTierData tiers_normal_441[] = {
     {
         .tier_name = "Shining",
         .level_req = 1,
@@ -37094,7 +37095,7 @@ static ModifierTierData tiers_normal_441[] = {
     },
 };
 
-static ModifierTierData tiers_normal_442[] = {
+ModifierTierData tiers_normal_442[] = {
     {
         .tier_name = "Reinforced",
         .level_req = 2,
@@ -37181,7 +37182,7 @@ static ModifierTierData tiers_normal_442[] = {
     },
 };
 
-static ModifierTierData tiers_normal_443[] = {
+ModifierTierData tiers_normal_443[] = {
     {
         .tier_name = "Shade's",
         .level_req = 2,
@@ -37268,7 +37269,7 @@ static ModifierTierData tiers_normal_443[] = {
     },
 };
 
-static ModifierTierData tiers_normal_444[] = {
+ModifierTierData tiers_normal_444[] = {
     {
         .tier_name = "Protective",
         .level_req = 2,
@@ -37355,7 +37356,7 @@ static ModifierTierData tiers_normal_444[] = {
     },
 };
 
-static ModifierTierData tiers_normal_445[] = {
+ModifierTierData tiers_normal_445[] = {
     {
         .tier_name = "Oyster's",
         .level_req = 8,
@@ -37430,7 +37431,7 @@ static ModifierTierData tiers_normal_445[] = {
     },
 };
 
-static ModifierTierData tiers_normal_446[] = {
+ModifierTierData tiers_normal_446[] = {
     {
         .tier_name = "Flea's",
         .level_req = 8,
@@ -37505,7 +37506,7 @@ static ModifierTierData tiers_normal_446[] = {
     },
 };
 
-static ModifierTierData tiers_normal_447[] = {
+ModifierTierData tiers_normal_447[] = {
     {
         .tier_name = "Monk's",
         .level_req = 8,
@@ -37580,7 +37581,7 @@ static ModifierTierData tiers_normal_447[] = {
     },
 };
 
-static ModifierTierData tiers_normal_448[] = {
+ModifierTierData tiers_normal_448[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -37691,7 +37692,7 @@ static ModifierTierData tiers_normal_448[] = {
     },
 };
 
-static ModifierTierData tiers_normal_449[] = {
+ModifierTierData tiers_normal_449[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -37802,7 +37803,7 @@ static ModifierTierData tiers_normal_449[] = {
     },
 };
 
-static ModifierTierData tiers_normal_450[] = {
+ModifierTierData tiers_normal_450[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -37913,7 +37914,7 @@ static ModifierTierData tiers_normal_450[] = {
     },
 };
 
-static ModifierTierData tiers_normal_451[] = {
+ModifierTierData tiers_normal_451[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -38024,7 +38025,7 @@ static ModifierTierData tiers_normal_451[] = {
     },
 };
 
-static ModifierTierData tiers_normal_452[] = {
+ModifierTierData tiers_normal_452[] = {
     {
         .tier_name = "Precise",
         .level_req = 1,
@@ -38135,7 +38136,7 @@ static ModifierTierData tiers_normal_452[] = {
     },
 };
 
-static ModifierTierData tiers_normal_453[] = {
+ModifierTierData tiers_normal_453[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -38234,7 +38235,7 @@ static ModifierTierData tiers_normal_453[] = {
     },
 };
 
-static ModifierTierData tiers_normal_454[] = {
+ModifierTierData tiers_normal_454[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -38345,7 +38346,7 @@ static ModifierTierData tiers_normal_454[] = {
     },
 };
 
-static ModifierTierData tiers_normal_455[] = {
+ModifierTierData tiers_normal_455[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -38444,7 +38445,7 @@ static ModifierTierData tiers_normal_455[] = {
     },
 };
 
-static ModifierTierData tiers_normal_456[] = {
+ModifierTierData tiers_normal_456[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -38543,7 +38544,7 @@ static ModifierTierData tiers_normal_456[] = {
     },
 };
 
-static ModifierTierData tiers_normal_457[] = {
+ModifierTierData tiers_normal_457[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -38642,7 +38643,7 @@ static ModifierTierData tiers_normal_457[] = {
     },
 };
 
-static ModifierTierData tiers_normal_458[] = {
+ModifierTierData tiers_normal_458[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -38741,7 +38742,7 @@ static ModifierTierData tiers_normal_458[] = {
     },
 };
 
-static ModifierTierData tiers_normal_459[] = {
+ModifierTierData tiers_normal_459[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -38816,7 +38817,7 @@ static ModifierTierData tiers_normal_459[] = {
     },
 };
 
-static ModifierTierData tiers_normal_460[] = {
+ModifierTierData tiers_normal_460[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -38879,7 +38880,7 @@ static ModifierTierData tiers_normal_460[] = {
     },
 };
 
-static ModifierTierData tiers_normal_461[] = {
+ModifierTierData tiers_normal_461[] = {
     {
         .tier_name = "of Combat",
         .level_req = 5,
@@ -38906,7 +38907,7 @@ static ModifierTierData tiers_normal_461[] = {
     },
 };
 
-static ModifierTierData tiers_normal_462[] = {
+ModifierTierData tiers_normal_462[] = {
     {
         .tier_name = "of the Parasite",
         .level_req = 21,
@@ -38969,7 +38970,7 @@ static ModifierTierData tiers_normal_462[] = {
     },
 };
 
-static ModifierTierData tiers_normal_463[] = {
+ModifierTierData tiers_normal_463[] = {
     {
         .tier_name = "of the Thirsty",
         .level_req = 21,
@@ -39032,7 +39033,7 @@ static ModifierTierData tiers_normal_463[] = {
     },
 };
 
-static ModifierTierData tiers_normal_464[] = {
+ModifierTierData tiers_normal_464[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -39131,7 +39132,7 @@ static ModifierTierData tiers_normal_464[] = {
     },
 };
 
-static ModifierTierData tiers_normal_465[] = {
+ModifierTierData tiers_normal_465[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -39230,7 +39231,7 @@ static ModifierTierData tiers_normal_465[] = {
     },
 };
 
-static ModifierTierData tiers_normal_466[] = {
+ModifierTierData tiers_normal_466[] = {
     {
         .tier_name = "of Rejuvenation",
         .level_req = 8,
@@ -39281,7 +39282,7 @@ static ModifierTierData tiers_normal_466[] = {
     },
 };
 
-static ModifierTierData tiers_normal_467[] = {
+ModifierTierData tiers_normal_467[] = {
     {
         .tier_name = "of Skill",
         .level_req = 1,
@@ -39332,7 +39333,7 @@ static ModifierTierData tiers_normal_467[] = {
     },
 };
 
-static ModifierTierData tiers_normal_468[] = {
+ModifierTierData tiers_normal_468[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -39395,7 +39396,7 @@ static ModifierTierData tiers_normal_468[] = {
     },
 };
 
-static ModifierTierData tiers_normal_469[] = {
+ModifierTierData tiers_normal_469[] = {
     {
         .tier_name = "of Plunder",
         .level_req = 3,
@@ -39458,7 +39459,7 @@ static ModifierTierData tiers_normal_469[] = {
     },
 };
 
-static ModifierTierData tiers_normal_470[] = {
+ModifierTierData tiers_normal_470[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -39521,7 +39522,7 @@ static ModifierTierData tiers_normal_470[] = {
     },
 };
 
-static ModifierTierData tiers_normal_471[] = {
+ModifierTierData tiers_normal_471[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -39584,7 +39585,7 @@ static ModifierTierData tiers_normal_471[] = {
     },
 };
 
-static ModifierTierData tiers_normal_472[] = {
+ModifierTierData tiers_normal_472[] = {
     {
         .tier_name = "of Enlivening",
         .level_req = 1,
@@ -39635,7 +39636,7 @@ static ModifierTierData tiers_normal_472[] = {
     },
 };
 
-static ModifierTierData tiers_normal_473[] = {
+ModifierTierData tiers_normal_473[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -39746,7 +39747,7 @@ static ModifierTierData tiers_normal_473[] = {
     },
 };
 
-static ModifierTierData tiers_normal_474[] = {
+ModifierTierData tiers_normal_474[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -39857,7 +39858,7 @@ static ModifierTierData tiers_normal_474[] = {
     },
 };
 
-static ModifierTierData tiers_normal_475[] = {
+ModifierTierData tiers_normal_475[] = {
     {
         .tier_name = "Supple",
         .level_req = 1,
@@ -39908,7 +39909,7 @@ static ModifierTierData tiers_normal_475[] = {
     },
 };
 
-static ModifierTierData tiers_normal_476[] = {
+ModifierTierData tiers_normal_476[] = {
     {
         .tier_name = "Blessed",
         .level_req = 1,
@@ -39959,7 +39960,7 @@ static ModifierTierData tiers_normal_476[] = {
     },
 };
 
-static ModifierTierData tiers_normal_477[] = {
+ModifierTierData tiers_normal_477[] = {
     {
         .tier_name = "Will-o-wisp's",
         .level_req = 1,
@@ -40010,7 +40011,7 @@ static ModifierTierData tiers_normal_477[] = {
     },
 };
 
-static ModifierTierData tiers_normal_478[] = {
+ModifierTierData tiers_normal_478[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
@@ -40097,7 +40098,7 @@ static ModifierTierData tiers_normal_478[] = {
     },
 };
 
-static ModifierTierData tiers_normal_479[] = {
+ModifierTierData tiers_normal_479[] = {
     {
         .tier_name = "Infixed",
         .level_req = 2,
@@ -40184,7 +40185,7 @@ static ModifierTierData tiers_normal_479[] = {
     },
 };
 
-static ModifierTierData tiers_normal_480[] = {
+ModifierTierData tiers_normal_480[] = {
     {
         .tier_name = "Shadowy",
         .level_req = 2,
@@ -40271,7 +40272,7 @@ static ModifierTierData tiers_normal_480[] = {
     },
 };
 
-static ModifierTierData tiers_normal_481[] = {
+ModifierTierData tiers_normal_481[] = {
     {
         .tier_name = "Bully's",
         .level_req = 8,
@@ -40346,7 +40347,7 @@ static ModifierTierData tiers_normal_481[] = {
     },
 };
 
-static ModifierTierData tiers_normal_482[] = {
+ModifierTierData tiers_normal_482[] = {
     {
         .tier_name = "Augur's",
         .level_req = 8,
@@ -40421,7 +40422,7 @@ static ModifierTierData tiers_normal_482[] = {
     },
 };
 
-static ModifierTierData tiers_normal_483[] = {
+ModifierTierData tiers_normal_483[] = {
     {
         .tier_name = "Poet's",
         .level_req = 8,
@@ -40496,7 +40497,7 @@ static ModifierTierData tiers_normal_483[] = {
     },
 };
 
-static ModifierTierData tiers_normal_484[] = {
+ModifierTierData tiers_normal_484[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -40607,7 +40608,7 @@ static ModifierTierData tiers_normal_484[] = {
     },
 };
 
-static ModifierTierData tiers_normal_485[] = {
+ModifierTierData tiers_normal_485[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -40718,7 +40719,7 @@ static ModifierTierData tiers_normal_485[] = {
     },
 };
 
-static ModifierTierData tiers_normal_486[] = {
+ModifierTierData tiers_normal_486[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -40829,7 +40830,7 @@ static ModifierTierData tiers_normal_486[] = {
     },
 };
 
-static ModifierTierData tiers_normal_487[] = {
+ModifierTierData tiers_normal_487[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -40940,7 +40941,7 @@ static ModifierTierData tiers_normal_487[] = {
     },
 };
 
-static ModifierTierData tiers_normal_488[] = {
+ModifierTierData tiers_normal_488[] = {
     {
         .tier_name = "Precise",
         .level_req = 1,
@@ -41051,7 +41052,7 @@ static ModifierTierData tiers_normal_488[] = {
     },
 };
 
-static ModifierTierData tiers_normal_489[] = {
+ModifierTierData tiers_normal_489[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -41150,7 +41151,7 @@ static ModifierTierData tiers_normal_489[] = {
     },
 };
 
-static ModifierTierData tiers_normal_490[] = {
+ModifierTierData tiers_normal_490[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -41261,7 +41262,7 @@ static ModifierTierData tiers_normal_490[] = {
     },
 };
 
-static ModifierTierData tiers_normal_491[] = {
+ModifierTierData tiers_normal_491[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -41360,7 +41361,7 @@ static ModifierTierData tiers_normal_491[] = {
     },
 };
 
-static ModifierTierData tiers_normal_492[] = {
+ModifierTierData tiers_normal_492[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -41459,7 +41460,7 @@ static ModifierTierData tiers_normal_492[] = {
     },
 };
 
-static ModifierTierData tiers_normal_493[] = {
+ModifierTierData tiers_normal_493[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -41558,7 +41559,7 @@ static ModifierTierData tiers_normal_493[] = {
     },
 };
 
-static ModifierTierData tiers_normal_494[] = {
+ModifierTierData tiers_normal_494[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -41657,7 +41658,7 @@ static ModifierTierData tiers_normal_494[] = {
     },
 };
 
-static ModifierTierData tiers_normal_495[] = {
+ModifierTierData tiers_normal_495[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -41732,7 +41733,7 @@ static ModifierTierData tiers_normal_495[] = {
     },
 };
 
-static ModifierTierData tiers_normal_496[] = {
+ModifierTierData tiers_normal_496[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -41795,7 +41796,7 @@ static ModifierTierData tiers_normal_496[] = {
     },
 };
 
-static ModifierTierData tiers_normal_497[] = {
+ModifierTierData tiers_normal_497[] = {
     {
         .tier_name = "of Combat",
         .level_req = 5,
@@ -41822,7 +41823,7 @@ static ModifierTierData tiers_normal_497[] = {
     },
 };
 
-static ModifierTierData tiers_normal_498[] = {
+ModifierTierData tiers_normal_498[] = {
     {
         .tier_name = "of the Parasite",
         .level_req = 21,
@@ -41885,7 +41886,7 @@ static ModifierTierData tiers_normal_498[] = {
     },
 };
 
-static ModifierTierData tiers_normal_499[] = {
+ModifierTierData tiers_normal_499[] = {
     {
         .tier_name = "of the Thirsty",
         .level_req = 21,
@@ -41948,7 +41949,7 @@ static ModifierTierData tiers_normal_499[] = {
     },
 };
 
-static ModifierTierData tiers_normal_500[] = {
+ModifierTierData tiers_normal_500[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -42047,7 +42048,7 @@ static ModifierTierData tiers_normal_500[] = {
     },
 };
 
-static ModifierTierData tiers_normal_501[] = {
+ModifierTierData tiers_normal_501[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -42146,7 +42147,7 @@ static ModifierTierData tiers_normal_501[] = {
     },
 };
 
-static ModifierTierData tiers_normal_502[] = {
+ModifierTierData tiers_normal_502[] = {
     {
         .tier_name = "of Rejuvenation",
         .level_req = 8,
@@ -42197,7 +42198,7 @@ static ModifierTierData tiers_normal_502[] = {
     },
 };
 
-static ModifierTierData tiers_normal_503[] = {
+ModifierTierData tiers_normal_503[] = {
     {
         .tier_name = "of Skill",
         .level_req = 1,
@@ -42248,7 +42249,7 @@ static ModifierTierData tiers_normal_503[] = {
     },
 };
 
-static ModifierTierData tiers_normal_504[] = {
+ModifierTierData tiers_normal_504[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -42311,7 +42312,7 @@ static ModifierTierData tiers_normal_504[] = {
     },
 };
 
-static ModifierTierData tiers_normal_505[] = {
+ModifierTierData tiers_normal_505[] = {
     {
         .tier_name = "of Plunder",
         .level_req = 3,
@@ -42374,7 +42375,7 @@ static ModifierTierData tiers_normal_505[] = {
     },
 };
 
-static ModifierTierData tiers_normal_506[] = {
+ModifierTierData tiers_normal_506[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -42437,7 +42438,7 @@ static ModifierTierData tiers_normal_506[] = {
     },
 };
 
-static ModifierTierData tiers_normal_507[] = {
+ModifierTierData tiers_normal_507[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -42500,7 +42501,7 @@ static ModifierTierData tiers_normal_507[] = {
     },
 };
 
-static ModifierTierData tiers_normal_508[] = {
+ModifierTierData tiers_normal_508[] = {
     {
         .tier_name = "of Enlivening",
         .level_req = 1,
@@ -42551,7 +42552,7 @@ static ModifierTierData tiers_normal_508[] = {
     },
 };
 
-static ModifierTierData tiers_normal_509[] = {
+ModifierTierData tiers_normal_509[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -42674,7 +42675,7 @@ static ModifierTierData tiers_normal_509[] = {
     },
 };
 
-static ModifierTierData tiers_normal_510[] = {
+ModifierTierData tiers_normal_510[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -42797,7 +42798,7 @@ static ModifierTierData tiers_normal_510[] = {
     },
 };
 
-static ModifierTierData tiers_normal_511[] = {
+ModifierTierData tiers_normal_511[] = {
     {
         .tier_name = "Lacquered",
         .level_req = 1,
@@ -42896,7 +42897,7 @@ static ModifierTierData tiers_normal_511[] = {
     },
 };
 
-static ModifierTierData tiers_normal_512[] = {
+ModifierTierData tiers_normal_512[] = {
     {
         .tier_name = "Agile",
         .level_req = 1,
@@ -42995,7 +42996,7 @@ static ModifierTierData tiers_normal_512[] = {
     },
 };
 
-static ModifierTierData tiers_normal_513[] = {
+ModifierTierData tiers_normal_513[] = {
     {
         .tier_name = "Shining",
         .level_req = 1,
@@ -43094,7 +43095,7 @@ static ModifierTierData tiers_normal_513[] = {
     },
 };
 
-static ModifierTierData tiers_normal_514[] = {
+ModifierTierData tiers_normal_514[] = {
     {
         .tier_name = "Reinforced",
         .level_req = 2,
@@ -43181,7 +43182,7 @@ static ModifierTierData tiers_normal_514[] = {
     },
 };
 
-static ModifierTierData tiers_normal_515[] = {
+ModifierTierData tiers_normal_515[] = {
     {
         .tier_name = "Shade's",
         .level_req = 2,
@@ -43268,7 +43269,7 @@ static ModifierTierData tiers_normal_515[] = {
     },
 };
 
-static ModifierTierData tiers_normal_516[] = {
+ModifierTierData tiers_normal_516[] = {
     {
         .tier_name = "Protective",
         .level_req = 2,
@@ -43355,7 +43356,7 @@ static ModifierTierData tiers_normal_516[] = {
     },
 };
 
-static ModifierTierData tiers_normal_517[] = {
+ModifierTierData tiers_normal_517[] = {
     {
         .tier_name = "Oyster's",
         .level_req = 8,
@@ -43430,7 +43431,7 @@ static ModifierTierData tiers_normal_517[] = {
     },
 };
 
-static ModifierTierData tiers_normal_518[] = {
+ModifierTierData tiers_normal_518[] = {
     {
         .tier_name = "Flea's",
         .level_req = 8,
@@ -43505,7 +43506,7 @@ static ModifierTierData tiers_normal_518[] = {
     },
 };
 
-static ModifierTierData tiers_normal_519[] = {
+ModifierTierData tiers_normal_519[] = {
     {
         .tier_name = "Monk's",
         .level_req = 8,
@@ -43580,7 +43581,7 @@ static ModifierTierData tiers_normal_519[] = {
     },
 };
 
-static ModifierTierData tiers_normal_520[] = {
+ModifierTierData tiers_normal_520[] = {
     {
         .tier_name = "Imposing",
         .level_req = 8,
@@ -43655,7 +43656,7 @@ static ModifierTierData tiers_normal_520[] = {
     },
 };
 
-static ModifierTierData tiers_normal_521[] = {
+ModifierTierData tiers_normal_521[] = {
     {
         .tier_name = "Nomad's",
         .level_req = 8,
@@ -43730,7 +43731,7 @@ static ModifierTierData tiers_normal_521[] = {
     },
 };
 
-static ModifierTierData tiers_normal_522[] = {
+ModifierTierData tiers_normal_522[] = {
     {
         .tier_name = "Imbued",
         .level_req = 8,
@@ -43805,7 +43806,7 @@ static ModifierTierData tiers_normal_522[] = {
     },
 };
 
-static ModifierTierData tiers_normal_523[] = {
+ModifierTierData tiers_normal_523[] = {
     {
         .tier_name = "Precise",
         .level_req = 1,
@@ -43916,7 +43917,7 @@ static ModifierTierData tiers_normal_523[] = {
     },
 };
 
-static ModifierTierData tiers_normal_524[] = {
+ModifierTierData tiers_normal_524[] = {
     {
         .tier_name = "Magpie's",
         .level_req = 10,
@@ -43979,7 +43980,7 @@ static ModifierTierData tiers_normal_524[] = {
     },
 };
 
-static ModifierTierData tiers_normal_525[] = {
+ModifierTierData tiers_normal_525[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -44078,7 +44079,7 @@ static ModifierTierData tiers_normal_525[] = {
     },
 };
 
-static ModifierTierData tiers_normal_526[] = {
+ModifierTierData tiers_normal_526[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -44177,7 +44178,7 @@ static ModifierTierData tiers_normal_526[] = {
     },
 };
 
-static ModifierTierData tiers_normal_527[] = {
+ModifierTierData tiers_normal_527[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -44288,7 +44289,7 @@ static ModifierTierData tiers_normal_527[] = {
     },
 };
 
-static ModifierTierData tiers_normal_528[] = {
+ModifierTierData tiers_normal_528[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -44387,7 +44388,7 @@ static ModifierTierData tiers_normal_528[] = {
     },
 };
 
-static ModifierTierData tiers_normal_529[] = {
+ModifierTierData tiers_normal_529[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -44486,7 +44487,7 @@ static ModifierTierData tiers_normal_529[] = {
     },
 };
 
-static ModifierTierData tiers_normal_530[] = {
+ModifierTierData tiers_normal_530[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -44585,7 +44586,7 @@ static ModifierTierData tiers_normal_530[] = {
     },
 };
 
-static ModifierTierData tiers_normal_531[] = {
+ModifierTierData tiers_normal_531[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -44660,7 +44661,7 @@ static ModifierTierData tiers_normal_531[] = {
     },
 };
 
-static ModifierTierData tiers_normal_532[] = {
+ModifierTierData tiers_normal_532[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -44723,7 +44724,7 @@ static ModifierTierData tiers_normal_532[] = {
     },
 };
 
-static ModifierTierData tiers_normal_533[] = {
+ModifierTierData tiers_normal_533[] = {
     {
         .tier_name = "of the Taskmaster",
         .level_req = 5,
@@ -44750,7 +44751,7 @@ static ModifierTierData tiers_normal_533[] = {
     },
 };
 
-static ModifierTierData tiers_normal_534[] = {
+ModifierTierData tiers_normal_534[] = {
     {
         .tier_name = "of the Newt",
         .level_req = 1,
@@ -44849,7 +44850,7 @@ static ModifierTierData tiers_normal_534[] = {
     },
 };
 
-static ModifierTierData tiers_normal_535[] = {
+ModifierTierData tiers_normal_535[] = {
     {
         .tier_name = "of Menace",
         .level_req = 5,
@@ -44912,7 +44913,7 @@ static ModifierTierData tiers_normal_535[] = {
     },
 };
 
-static ModifierTierData tiers_normal_536[] = {
+ModifierTierData tiers_normal_536[] = {
     {
         .tier_name = "of Plunder",
         .level_req = 3,
@@ -44975,7 +44976,7 @@ static ModifierTierData tiers_normal_536[] = {
     },
 };
 
-static ModifierTierData tiers_normal_537[] = {
+ModifierTierData tiers_normal_537[] = {
     {
         .tier_name = "of Shining",
         .level_req = 8,
@@ -45014,7 +45015,7 @@ static ModifierTierData tiers_normal_537[] = {
     },
 };
 
-static ModifierTierData tiers_normal_538[] = {
+ModifierTierData tiers_normal_538[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -45077,7 +45078,7 @@ static ModifierTierData tiers_normal_538[] = {
     },
 };
 
-static ModifierTierData tiers_normal_539[] = {
+ModifierTierData tiers_normal_539[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -45140,7 +45141,7 @@ static ModifierTierData tiers_normal_539[] = {
     },
 };
 
-static ModifierTierData tiers_normal_540[] = {
+ModifierTierData tiers_normal_540[] = {
     {
         .tier_name = "of Enlivening",
         .level_req = 1,
@@ -45191,7 +45192,7 @@ static ModifierTierData tiers_normal_540[] = {
     },
 };
 
-static ModifierTierData tiers_normal_541[] = {
+ModifierTierData tiers_normal_541[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -45314,7 +45315,7 @@ static ModifierTierData tiers_normal_541[] = {
     },
 };
 
-static ModifierTierData tiers_normal_542[] = {
+ModifierTierData tiers_normal_542[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -45437,7 +45438,7 @@ static ModifierTierData tiers_normal_542[] = {
     },
 };
 
-static ModifierTierData tiers_normal_543[] = {
+ModifierTierData tiers_normal_543[] = {
     {
         .tier_name = "Supple",
         .level_req = 1,
@@ -45500,7 +45501,7 @@ static ModifierTierData tiers_normal_543[] = {
     },
 };
 
-static ModifierTierData tiers_normal_544[] = {
+ModifierTierData tiers_normal_544[] = {
     {
         .tier_name = "Blessed",
         .level_req = 1,
@@ -45563,7 +45564,7 @@ static ModifierTierData tiers_normal_544[] = {
     },
 };
 
-static ModifierTierData tiers_normal_545[] = {
+ModifierTierData tiers_normal_545[] = {
     {
         .tier_name = "Will-o-wisp's",
         .level_req = 1,
@@ -45626,7 +45627,7 @@ static ModifierTierData tiers_normal_545[] = {
     },
 };
 
-static ModifierTierData tiers_normal_546[] = {
+ModifierTierData tiers_normal_546[] = {
     {
         .tier_name = "Scrapper's",
         .level_req = 2,
@@ -45713,7 +45714,7 @@ static ModifierTierData tiers_normal_546[] = {
     },
 };
 
-static ModifierTierData tiers_normal_547[] = {
+ModifierTierData tiers_normal_547[] = {
     {
         .tier_name = "Infixed",
         .level_req = 2,
@@ -45800,7 +45801,7 @@ static ModifierTierData tiers_normal_547[] = {
     },
 };
 
-static ModifierTierData tiers_normal_548[] = {
+ModifierTierData tiers_normal_548[] = {
     {
         .tier_name = "Shadowy",
         .level_req = 2,
@@ -45887,7 +45888,7 @@ static ModifierTierData tiers_normal_548[] = {
     },
 };
 
-static ModifierTierData tiers_normal_549[] = {
+ModifierTierData tiers_normal_549[] = {
     {
         .tier_name = "Bully's",
         .level_req = 8,
@@ -45962,7 +45963,7 @@ static ModifierTierData tiers_normal_549[] = {
     },
 };
 
-static ModifierTierData tiers_normal_550[] = {
+ModifierTierData tiers_normal_550[] = {
     {
         .tier_name = "Augur's",
         .level_req = 8,
@@ -46037,7 +46038,7 @@ static ModifierTierData tiers_normal_550[] = {
     },
 };
 
-static ModifierTierData tiers_normal_551[] = {
+ModifierTierData tiers_normal_551[] = {
     {
         .tier_name = "Poet's",
         .level_req = 8,
@@ -46112,7 +46113,7 @@ static ModifierTierData tiers_normal_551[] = {
     },
 };
 
-static ModifierTierData tiers_normal_552[] = {
+ModifierTierData tiers_normal_552[] = {
     {
         .tier_name = "Rhoa's",
         .level_req = 8,
@@ -46187,7 +46188,7 @@ static ModifierTierData tiers_normal_552[] = {
     },
 };
 
-static ModifierTierData tiers_normal_553[] = {
+ModifierTierData tiers_normal_553[] = {
     {
         .tier_name = "Coelacanth's",
         .level_req = 8,
@@ -46262,7 +46263,7 @@ static ModifierTierData tiers_normal_553[] = {
     },
 };
 
-static ModifierTierData tiers_normal_554[] = {
+ModifierTierData tiers_normal_554[] = {
     {
         .tier_name = "Vulture's",
         .level_req = 8,
@@ -46337,7 +46338,7 @@ static ModifierTierData tiers_normal_554[] = {
     },
 };
 
-static ModifierTierData tiers_normal_555[] = {
+ModifierTierData tiers_normal_555[] = {
     {
         .tier_name = "Precise",
         .level_req = 1,
@@ -46448,7 +46449,7 @@ static ModifierTierData tiers_normal_555[] = {
     },
 };
 
-static ModifierTierData tiers_normal_556[] = {
+ModifierTierData tiers_normal_556[] = {
     {
         .tier_name = "Magpie's",
         .level_req = 10,
@@ -46511,7 +46512,7 @@ static ModifierTierData tiers_normal_556[] = {
     },
 };
 
-static ModifierTierData tiers_normal_557[] = {
+ModifierTierData tiers_normal_557[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -46610,7 +46611,7 @@ static ModifierTierData tiers_normal_557[] = {
     },
 };
 
-static ModifierTierData tiers_normal_558[] = {
+ModifierTierData tiers_normal_558[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -46709,7 +46710,7 @@ static ModifierTierData tiers_normal_558[] = {
     },
 };
 
-static ModifierTierData tiers_normal_559[] = {
+ModifierTierData tiers_normal_559[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -46820,7 +46821,7 @@ static ModifierTierData tiers_normal_559[] = {
     },
 };
 
-static ModifierTierData tiers_normal_560[] = {
+ModifierTierData tiers_normal_560[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -46919,7 +46920,7 @@ static ModifierTierData tiers_normal_560[] = {
     },
 };
 
-static ModifierTierData tiers_normal_561[] = {
+ModifierTierData tiers_normal_561[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -47018,7 +47019,7 @@ static ModifierTierData tiers_normal_561[] = {
     },
 };
 
-static ModifierTierData tiers_normal_562[] = {
+ModifierTierData tiers_normal_562[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -47117,7 +47118,7 @@ static ModifierTierData tiers_normal_562[] = {
     },
 };
 
-static ModifierTierData tiers_normal_563[] = {
+ModifierTierData tiers_normal_563[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -47192,7 +47193,7 @@ static ModifierTierData tiers_normal_563[] = {
     },
 };
 
-static ModifierTierData tiers_normal_564[] = {
+ModifierTierData tiers_normal_564[] = {
     {
         .tier_name = "of the Worthy",
         .level_req = 24,
@@ -47255,7 +47256,7 @@ static ModifierTierData tiers_normal_564[] = {
     },
 };
 
-static ModifierTierData tiers_normal_565[] = {
+ModifierTierData tiers_normal_565[] = {
     {
         .tier_name = "of the Taskmaster",
         .level_req = 5,
@@ -47282,7 +47283,7 @@ static ModifierTierData tiers_normal_565[] = {
     },
 };
 
-static ModifierTierData tiers_normal_566[] = {
+ModifierTierData tiers_normal_566[] = {
     {
         .tier_name = "of the Newt",
         .level_req = 1,
@@ -47381,7 +47382,7 @@ static ModifierTierData tiers_normal_566[] = {
     },
 };
 
-static ModifierTierData tiers_normal_567[] = {
+ModifierTierData tiers_normal_567[] = {
     {
         .tier_name = "of Menace",
         .level_req = 5,
@@ -47444,7 +47445,7 @@ static ModifierTierData tiers_normal_567[] = {
     },
 };
 
-static ModifierTierData tiers_normal_568[] = {
+ModifierTierData tiers_normal_568[] = {
     {
         .tier_name = "of Plunder",
         .level_req = 3,
@@ -47507,7 +47508,7 @@ static ModifierTierData tiers_normal_568[] = {
     },
 };
 
-static ModifierTierData tiers_normal_569[] = {
+ModifierTierData tiers_normal_569[] = {
     {
         .tier_name = "of Shining",
         .level_req = 8,
@@ -47546,7 +47547,7 @@ static ModifierTierData tiers_normal_569[] = {
     },
 };
 
-static ModifierTierData tiers_normal_570[] = {
+ModifierTierData tiers_normal_570[] = {
     {
         .tier_name = "of Covering",
         .level_req = 1,
@@ -47609,7 +47610,7 @@ static ModifierTierData tiers_normal_570[] = {
     },
 };
 
-static ModifierTierData tiers_normal_571[] = {
+ModifierTierData tiers_normal_571[] = {
     {
         .tier_name = "of Deflecting",
         .level_req = 1,
@@ -47672,7 +47673,7 @@ static ModifierTierData tiers_normal_571[] = {
     },
 };
 
-static ModifierTierData tiers_normal_572[] = {
+ModifierTierData tiers_normal_572[] = {
     {
         .tier_name = "of Enlivening",
         .level_req = 1,
@@ -47723,7 +47724,7 @@ static ModifierTierData tiers_normal_572[] = {
     },
 };
 
-static ModifierTierData tiers_normal_573[] = {
+ModifierTierData tiers_normal_573[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -47822,7 +47823,7 @@ static ModifierTierData tiers_normal_573[] = {
     },
 };
 
-static ModifierTierData tiers_normal_574[] = {
+ModifierTierData tiers_normal_574[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -47969,7 +47970,7 @@ static ModifierTierData tiers_normal_574[] = {
     },
 };
 
-static ModifierTierData tiers_normal_575[] = {
+ModifierTierData tiers_normal_575[] = {
     {
         .tier_name = "Agile",
         .level_req = 1,
@@ -48080,7 +48081,7 @@ static ModifierTierData tiers_normal_575[] = {
     },
 };
 
-static ModifierTierData tiers_normal_576[] = {
+ModifierTierData tiers_normal_576[] = {
     {
         .tier_name = "Glinting",
         .level_req = 1,
@@ -48191,7 +48192,7 @@ static ModifierTierData tiers_normal_576[] = {
     },
 };
 
-static ModifierTierData tiers_normal_577[] = {
+ModifierTierData tiers_normal_577[] = {
     {
         .tier_name = "Heated",
         .level_req = 1,
@@ -48302,7 +48303,7 @@ static ModifierTierData tiers_normal_577[] = {
     },
 };
 
-static ModifierTierData tiers_normal_578[] = {
+ModifierTierData tiers_normal_578[] = {
     {
         .tier_name = "Frosted",
         .level_req = 1,
@@ -48413,7 +48414,7 @@ static ModifierTierData tiers_normal_578[] = {
     },
 };
 
-static ModifierTierData tiers_normal_579[] = {
+ModifierTierData tiers_normal_579[] = {
     {
         .tier_name = "Humming",
         .level_req = 1,
@@ -48524,7 +48525,7 @@ static ModifierTierData tiers_normal_579[] = {
     },
 };
 
-static ModifierTierData tiers_normal_580[] = {
+ModifierTierData tiers_normal_580[] = {
     {
         .tier_name = "Precise",
         .level_req = 1,
@@ -48623,7 +48624,7 @@ static ModifierTierData tiers_normal_580[] = {
     },
 };
 
-static ModifierTierData tiers_normal_581[] = {
+ModifierTierData tiers_normal_581[] = {
     {
         .tier_name = "Magpie's",
         .level_req = 10,
@@ -48686,7 +48687,7 @@ static ModifierTierData tiers_normal_581[] = {
     },
 };
 
-static ModifierTierData tiers_normal_582[] = {
+ModifierTierData tiers_normal_582[] = {
     {
         .tier_name = "Searing",
         .level_req = 8,
@@ -48761,7 +48762,7 @@ static ModifierTierData tiers_normal_582[] = {
     },
 };
 
-static ModifierTierData tiers_normal_583[] = {
+ModifierTierData tiers_normal_583[] = {
     {
         .tier_name = "Bitter",
         .level_req = 8,
@@ -48836,7 +48837,7 @@ static ModifierTierData tiers_normal_583[] = {
     },
 };
 
-static ModifierTierData tiers_normal_584[] = {
+ModifierTierData tiers_normal_584[] = {
     {
         .tier_name = "Charged",
         .level_req = 8,
@@ -48911,7 +48912,7 @@ static ModifierTierData tiers_normal_584[] = {
     },
 };
 
-static ModifierTierData tiers_normal_585[] = {
+ModifierTierData tiers_normal_585[] = {
     {
         .tier_name = "Impure",
         .level_req = 8,
@@ -48986,7 +48987,7 @@ static ModifierTierData tiers_normal_585[] = {
     },
 };
 
-static ModifierTierData tiers_normal_586[] = {
+ModifierTierData tiers_normal_586[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -49085,7 +49086,7 @@ static ModifierTierData tiers_normal_586[] = {
     },
 };
 
-static ModifierTierData tiers_normal_587[] = {
+ModifierTierData tiers_normal_587[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -49196,7 +49197,7 @@ static ModifierTierData tiers_normal_587[] = {
     },
 };
 
-static ModifierTierData tiers_normal_588[] = {
+ModifierTierData tiers_normal_588[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -49295,7 +49296,7 @@ static ModifierTierData tiers_normal_588[] = {
     },
 };
 
-static ModifierTierData tiers_normal_589[] = {
+ModifierTierData tiers_normal_589[] = {
     {
         .tier_name = "of the Clouds",
         .level_req = 1,
@@ -49346,7 +49347,7 @@ static ModifierTierData tiers_normal_589[] = {
     },
 };
 
-static ModifierTierData tiers_normal_590[] = {
+ModifierTierData tiers_normal_590[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -49445,7 +49446,7 @@ static ModifierTierData tiers_normal_590[] = {
     },
 };
 
-static ModifierTierData tiers_normal_591[] = {
+ModifierTierData tiers_normal_591[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -49544,7 +49545,7 @@ static ModifierTierData tiers_normal_591[] = {
     },
 };
 
-static ModifierTierData tiers_normal_592[] = {
+ModifierTierData tiers_normal_592[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -49643,7 +49644,7 @@ static ModifierTierData tiers_normal_592[] = {
     },
 };
 
-static ModifierTierData tiers_normal_593[] = {
+ModifierTierData tiers_normal_593[] = {
     {
         .tier_name = "of the Crystal",
         .level_req = 12,
@@ -49706,7 +49707,7 @@ static ModifierTierData tiers_normal_593[] = {
     },
 };
 
-static ModifierTierData tiers_normal_594[] = {
+ModifierTierData tiers_normal_594[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -49781,7 +49782,7 @@ static ModifierTierData tiers_normal_594[] = {
     },
 };
 
-static ModifierTierData tiers_normal_595[] = {
+ModifierTierData tiers_normal_595[] = {
     {
         .tier_name = "of the Newt",
         .level_req = 1,
@@ -49868,7 +49869,7 @@ static ModifierTierData tiers_normal_595[] = {
     },
 };
 
-static ModifierTierData tiers_normal_596[] = {
+ModifierTierData tiers_normal_596[] = {
     {
         .tier_name = "of Excitement",
         .level_req = 1,
@@ -49943,7 +49944,7 @@ static ModifierTierData tiers_normal_596[] = {
     },
 };
 
-static ModifierTierData tiers_normal_597[] = {
+ModifierTierData tiers_normal_597[] = {
     {
         .tier_name = "of the Parasite",
         .level_req = 21,
@@ -49982,7 +49983,7 @@ static ModifierTierData tiers_normal_597[] = {
     },
 };
 
-static ModifierTierData tiers_normal_598[] = {
+ModifierTierData tiers_normal_598[] = {
     {
         .tier_name = "of the Thirsty",
         .level_req = 21,
@@ -50021,7 +50022,7 @@ static ModifierTierData tiers_normal_598[] = {
     },
 };
 
-static ModifierTierData tiers_normal_599[] = {
+ModifierTierData tiers_normal_599[] = {
     {
         .tier_name = "of Success",
         .level_req = 1,
@@ -50096,7 +50097,7 @@ static ModifierTierData tiers_normal_599[] = {
     },
 };
 
-static ModifierTierData tiers_normal_600[] = {
+ModifierTierData tiers_normal_600[] = {
     {
         .tier_name = "of Absorption",
         .level_req = 1,
@@ -50171,7 +50172,7 @@ static ModifierTierData tiers_normal_600[] = {
     },
 };
 
-static ModifierTierData tiers_normal_601[] = {
+ModifierTierData tiers_normal_601[] = {
     {
         .tier_name = "of Talent",
         .level_req = 1,
@@ -50222,7 +50223,7 @@ static ModifierTierData tiers_normal_601[] = {
     },
 };
 
-static ModifierTierData tiers_normal_602[] = {
+ModifierTierData tiers_normal_602[] = {
     {
         .tier_name = "of Plunder",
         .level_req = 3,
@@ -50285,7 +50286,7 @@ static ModifierTierData tiers_normal_602[] = {
     },
 };
 
-static ModifierTierData tiers_normal_603[] = {
+ModifierTierData tiers_normal_603[] = {
     {
         .tier_name = "of Warmth",
         .level_req = 8,
@@ -50324,7 +50325,7 @@ static ModifierTierData tiers_normal_603[] = {
     },
 };
 
-static ModifierTierData tiers_normal_604[] = {
+ModifierTierData tiers_normal_604[] = {
     {
         .tier_name = "Hale",
         .level_req = 1,
@@ -50447,7 +50448,7 @@ static ModifierTierData tiers_normal_604[] = {
     },
 };
 
-static ModifierTierData tiers_normal_605[] = {
+ModifierTierData tiers_normal_605[] = {
     {
         .tier_name = "Beryl",
         .level_req = 1,
@@ -50570,7 +50571,7 @@ static ModifierTierData tiers_normal_605[] = {
     },
 };
 
-static ModifierTierData tiers_normal_606[] = {
+ModifierTierData tiers_normal_606[] = {
     {
         .tier_name = "Shining",
         .level_req = 1,
@@ -50693,7 +50694,7 @@ static ModifierTierData tiers_normal_606[] = {
     },
 };
 
-static ModifierTierData tiers_normal_607[] = {
+ModifierTierData tiers_normal_607[] = {
     {
         .tier_name = "Reinforced",
         .level_req = 2,
@@ -50780,7 +50781,7 @@ static ModifierTierData tiers_normal_607[] = {
     },
 };
 
-static ModifierTierData tiers_normal_608[] = {
+ModifierTierData tiers_normal_608[] = {
     {
         .tier_name = "Shade's",
         .level_req = 2,
@@ -50867,7 +50868,7 @@ static ModifierTierData tiers_normal_608[] = {
     },
 };
 
-static ModifierTierData tiers_normal_609[] = {
+ModifierTierData tiers_normal_609[] = {
     {
         .tier_name = "Protective",
         .level_req = 2,
@@ -50954,7 +50955,7 @@ static ModifierTierData tiers_normal_609[] = {
     },
 };
 
-static ModifierTierData tiers_normal_610[] = {
+ModifierTierData tiers_normal_610[] = {
     {
         .tier_name = "Precise",
         .level_req = 1,
@@ -51053,7 +51054,7 @@ static ModifierTierData tiers_normal_610[] = {
     },
 };
 
-static ModifierTierData tiers_normal_611[] = {
+ModifierTierData tiers_normal_611[] = {
     {
         .tier_name = "Magpie's",
         .level_req = 10,
@@ -51116,7 +51117,7 @@ static ModifierTierData tiers_normal_611[] = {
     },
 };
 
-static ModifierTierData tiers_normal_612[] = {
+ModifierTierData tiers_normal_612[] = {
     {
         .tier_name = "Lady's",
         .level_req = 16,
@@ -51179,7 +51180,7 @@ static ModifierTierData tiers_normal_612[] = {
     },
 };
 
-static ModifierTierData tiers_normal_613[] = {
+ModifierTierData tiers_normal_613[] = {
     {
         .tier_name = "Apprentice's",
         .level_req = 1,
@@ -51254,7 +51255,7 @@ static ModifierTierData tiers_normal_613[] = {
     },
 };
 
-static ModifierTierData tiers_normal_614[] = {
+ModifierTierData tiers_normal_614[] = {
     {
         .tier_name = "of the Brute",
         .level_req = 1,
@@ -51353,7 +51354,7 @@ static ModifierTierData tiers_normal_614[] = {
     },
 };
 
-static ModifierTierData tiers_normal_615[] = {
+ModifierTierData tiers_normal_615[] = {
     {
         .tier_name = "of the Mongoose",
         .level_req = 1,
@@ -51452,7 +51453,7 @@ static ModifierTierData tiers_normal_615[] = {
     },
 };
 
-static ModifierTierData tiers_normal_616[] = {
+ModifierTierData tiers_normal_616[] = {
     {
         .tier_name = "of the Pupil",
         .level_req = 1,
@@ -51551,7 +51552,7 @@ static ModifierTierData tiers_normal_616[] = {
     },
 };
 
-static ModifierTierData tiers_normal_617[] = {
+ModifierTierData tiers_normal_617[] = {
     {
         .tier_name = "of the Clouds",
         .level_req = 1,
@@ -51662,7 +51663,7 @@ static ModifierTierData tiers_normal_617[] = {
     },
 };
 
-static ModifierTierData tiers_normal_618[] = {
+ModifierTierData tiers_normal_618[] = {
     {
         .tier_name = "of the Whelpling",
         .level_req = 1,
@@ -51761,7 +51762,7 @@ static ModifierTierData tiers_normal_618[] = {
     },
 };
 
-static ModifierTierData tiers_normal_619[] = {
+ModifierTierData tiers_normal_619[] = {
     {
         .tier_name = "of the Seal",
         .level_req = 1,
@@ -51860,7 +51861,7 @@ static ModifierTierData tiers_normal_619[] = {
     },
 };
 
-static ModifierTierData tiers_normal_620[] = {
+ModifierTierData tiers_normal_620[] = {
     {
         .tier_name = "of the Cloud",
         .level_req = 1,
@@ -51959,7 +51960,7 @@ static ModifierTierData tiers_normal_620[] = {
     },
 };
 
-static ModifierTierData tiers_normal_621[] = {
+ModifierTierData tiers_normal_621[] = {
     {
         .tier_name = "of the Crystal",
         .level_req = 12,
@@ -52034,7 +52035,7 @@ static ModifierTierData tiers_normal_621[] = {
     },
 };
 
-static ModifierTierData tiers_normal_622[] = {
+ModifierTierData tiers_normal_622[] = {
     {
         .tier_name = "of the Lost",
         .level_req = 16,
@@ -52109,7 +52110,7 @@ static ModifierTierData tiers_normal_622[] = {
     },
 };
 
-static ModifierTierData tiers_normal_623[] = {
+ModifierTierData tiers_normal_623[] = {
     {
         .tier_name = "of the Mage",
         .level_req = 5,
@@ -52148,7 +52149,7 @@ static ModifierTierData tiers_normal_623[] = {
     },
 };
 
-static ModifierTierData tiers_normal_624[] = {
+ModifierTierData tiers_normal_624[] = {
     {
         .tier_name = "of the Taskmaster",
         .level_req = 5,
@@ -52187,7 +52188,7 @@ static ModifierTierData tiers_normal_624[] = {
     },
 };
 
-static ModifierTierData tiers_normal_625[] = {
+ModifierTierData tiers_normal_625[] = {
     {
         .tier_name = "of Combat",
         .level_req = 5,
@@ -52226,7 +52227,7 @@ static ModifierTierData tiers_normal_625[] = {
     },
 };
 
-static ModifierTierData tiers_normal_626[] = {
+ModifierTierData tiers_normal_626[] = {
     {
         .tier_name = "of the Archer",
         .level_req = 5,
@@ -52265,7 +52266,7 @@ static ModifierTierData tiers_normal_626[] = {
     },
 };
 
-static ModifierTierData tiers_normal_627[] = {
+ModifierTierData tiers_normal_627[] = {
     {
         .tier_name = "of the Newt",
         .level_req = 1,
@@ -52388,7 +52389,7 @@ static ModifierTierData tiers_normal_627[] = {
     },
 };
 
-static ModifierTierData tiers_normal_628[] = {
+ModifierTierData tiers_normal_628[] = {
     {
         .tier_name = "of Excitement",
         .level_req = 1,
@@ -52463,7 +52464,7 @@ static ModifierTierData tiers_normal_628[] = {
     },
 };
 
-static ModifierTierData tiers_normal_629[] = {
+ModifierTierData tiers_normal_629[] = {
     {
         .tier_name = "of Talent",
         .level_req = 1,
@@ -52526,7 +52527,7 @@ static ModifierTierData tiers_normal_629[] = {
     },
 };
 
-static ModifierTierData tiers_normal_630[] = {
+ModifierTierData tiers_normal_630[] = {
     {
         .tier_name = "of Menace",
         .level_req = 5,
@@ -52601,7 +52602,7 @@ static ModifierTierData tiers_normal_630[] = {
     },
 };
 
-static ModifierTierData tiers_normal_631[] = {
+ModifierTierData tiers_normal_631[] = {
     {
         .tier_name = "of Ire",
         .level_req = 8,
@@ -52676,7 +52677,7 @@ static ModifierTierData tiers_normal_631[] = {
     },
 };
 
-static ModifierTierData tiers_normal_632[] = {
+ModifierTierData tiers_normal_632[] = {
     {
         .tier_name = "of Plunder",
         .level_req = 3,
@@ -52739,7 +52740,7 @@ static ModifierTierData tiers_normal_632[] = {
     },
 };
 
-static ModifierTierData tiers_normal_633[] = {
+ModifierTierData tiers_normal_633[] = {
     {
         .tier_name = "of Mending",
         .level_req = 30,
@@ -52802,7 +52803,7 @@ static ModifierTierData tiers_normal_633[] = {
     },
 };
 
-static ModifierTierData tiers_normal_634[] = {
+ModifierTierData tiers_normal_634[] = {
     {
         .tier_name = "of Reprieve",
         .level_req = 31,
@@ -52867,7 +52868,7 @@ static ModifierTierData tiers_normal_634[] = {
 
 
 // DESECRATED tier data
-static ModifierTierData tiers_desecrated_0[] = {
+ModifierTierData tiers_desecrated_0[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -52882,7 +52883,7 @@ static ModifierTierData tiers_desecrated_0[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_1[] = {
+ModifierTierData tiers_desecrated_1[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -52897,7 +52898,7 @@ static ModifierTierData tiers_desecrated_1[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_2[] = {
+ModifierTierData tiers_desecrated_2[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -52912,7 +52913,7 @@ static ModifierTierData tiers_desecrated_2[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_3[] = {
+ModifierTierData tiers_desecrated_3[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -52927,7 +52928,7 @@ static ModifierTierData tiers_desecrated_3[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_4[] = {
+ModifierTierData tiers_desecrated_4[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -52942,7 +52943,7 @@ static ModifierTierData tiers_desecrated_4[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_5[] = {
+ModifierTierData tiers_desecrated_5[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -52957,7 +52958,7 @@ static ModifierTierData tiers_desecrated_5[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_6[] = {
+ModifierTierData tiers_desecrated_6[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -52972,7 +52973,7 @@ static ModifierTierData tiers_desecrated_6[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_7[] = {
+ModifierTierData tiers_desecrated_7[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -52987,7 +52988,7 @@ static ModifierTierData tiers_desecrated_7[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_8[] = {
+ModifierTierData tiers_desecrated_8[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53002,7 +53003,7 @@ static ModifierTierData tiers_desecrated_8[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_9[] = {
+ModifierTierData tiers_desecrated_9[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53017,7 +53018,7 @@ static ModifierTierData tiers_desecrated_9[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_10[] = {
+ModifierTierData tiers_desecrated_10[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53032,7 +53033,7 @@ static ModifierTierData tiers_desecrated_10[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_11[] = {
+ModifierTierData tiers_desecrated_11[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53047,7 +53048,7 @@ static ModifierTierData tiers_desecrated_11[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_12[] = {
+ModifierTierData tiers_desecrated_12[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53062,7 +53063,7 @@ static ModifierTierData tiers_desecrated_12[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_13[] = {
+ModifierTierData tiers_desecrated_13[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53077,7 +53078,7 @@ static ModifierTierData tiers_desecrated_13[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_14[] = {
+ModifierTierData tiers_desecrated_14[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53092,7 +53093,7 @@ static ModifierTierData tiers_desecrated_14[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_15[] = {
+ModifierTierData tiers_desecrated_15[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53107,7 +53108,7 @@ static ModifierTierData tiers_desecrated_15[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_16[] = {
+ModifierTierData tiers_desecrated_16[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53122,7 +53123,7 @@ static ModifierTierData tiers_desecrated_16[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_17[] = {
+ModifierTierData tiers_desecrated_17[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53137,7 +53138,7 @@ static ModifierTierData tiers_desecrated_17[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_18[] = {
+ModifierTierData tiers_desecrated_18[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53152,7 +53153,7 @@ static ModifierTierData tiers_desecrated_18[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_19[] = {
+ModifierTierData tiers_desecrated_19[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53167,7 +53168,7 @@ static ModifierTierData tiers_desecrated_19[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_20[] = {
+ModifierTierData tiers_desecrated_20[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -53182,7 +53183,7 @@ static ModifierTierData tiers_desecrated_20[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_21[] = {
+ModifierTierData tiers_desecrated_21[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -53197,7 +53198,7 @@ static ModifierTierData tiers_desecrated_21[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_22[] = {
+ModifierTierData tiers_desecrated_22[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53212,7 +53213,7 @@ static ModifierTierData tiers_desecrated_22[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_23[] = {
+ModifierTierData tiers_desecrated_23[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53227,7 +53228,7 @@ static ModifierTierData tiers_desecrated_23[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_24[] = {
+ModifierTierData tiers_desecrated_24[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53242,7 +53243,7 @@ static ModifierTierData tiers_desecrated_24[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_25[] = {
+ModifierTierData tiers_desecrated_25[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53257,7 +53258,7 @@ static ModifierTierData tiers_desecrated_25[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_26[] = {
+ModifierTierData tiers_desecrated_26[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53272,7 +53273,7 @@ static ModifierTierData tiers_desecrated_26[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_27[] = {
+ModifierTierData tiers_desecrated_27[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53287,7 +53288,7 @@ static ModifierTierData tiers_desecrated_27[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_28[] = {
+ModifierTierData tiers_desecrated_28[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53302,7 +53303,7 @@ static ModifierTierData tiers_desecrated_28[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_29[] = {
+ModifierTierData tiers_desecrated_29[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53317,7 +53318,7 @@ static ModifierTierData tiers_desecrated_29[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_30[] = {
+ModifierTierData tiers_desecrated_30[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53332,7 +53333,7 @@ static ModifierTierData tiers_desecrated_30[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_31[] = {
+ModifierTierData tiers_desecrated_31[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -53347,7 +53348,7 @@ static ModifierTierData tiers_desecrated_31[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_32[] = {
+ModifierTierData tiers_desecrated_32[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53362,7 +53363,7 @@ static ModifierTierData tiers_desecrated_32[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_33[] = {
+ModifierTierData tiers_desecrated_33[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53377,7 +53378,7 @@ static ModifierTierData tiers_desecrated_33[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_34[] = {
+ModifierTierData tiers_desecrated_34[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53392,7 +53393,7 @@ static ModifierTierData tiers_desecrated_34[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_35[] = {
+ModifierTierData tiers_desecrated_35[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53407,7 +53408,7 @@ static ModifierTierData tiers_desecrated_35[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_36[] = {
+ModifierTierData tiers_desecrated_36[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53422,7 +53423,7 @@ static ModifierTierData tiers_desecrated_36[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_37[] = {
+ModifierTierData tiers_desecrated_37[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53437,7 +53438,7 @@ static ModifierTierData tiers_desecrated_37[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_38[] = {
+ModifierTierData tiers_desecrated_38[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53452,7 +53453,7 @@ static ModifierTierData tiers_desecrated_38[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_39[] = {
+ModifierTierData tiers_desecrated_39[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53467,7 +53468,7 @@ static ModifierTierData tiers_desecrated_39[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_40[] = {
+ModifierTierData tiers_desecrated_40[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53482,7 +53483,7 @@ static ModifierTierData tiers_desecrated_40[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_41[] = {
+ModifierTierData tiers_desecrated_41[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -53497,7 +53498,7 @@ static ModifierTierData tiers_desecrated_41[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_42[] = {
+ModifierTierData tiers_desecrated_42[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -53512,7 +53513,7 @@ static ModifierTierData tiers_desecrated_42[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_43[] = {
+ModifierTierData tiers_desecrated_43[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53527,7 +53528,7 @@ static ModifierTierData tiers_desecrated_43[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_44[] = {
+ModifierTierData tiers_desecrated_44[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53542,7 +53543,7 @@ static ModifierTierData tiers_desecrated_44[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_45[] = {
+ModifierTierData tiers_desecrated_45[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53557,7 +53558,7 @@ static ModifierTierData tiers_desecrated_45[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_46[] = {
+ModifierTierData tiers_desecrated_46[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53572,7 +53573,7 @@ static ModifierTierData tiers_desecrated_46[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_47[] = {
+ModifierTierData tiers_desecrated_47[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53587,7 +53588,7 @@ static ModifierTierData tiers_desecrated_47[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_48[] = {
+ModifierTierData tiers_desecrated_48[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53602,7 +53603,7 @@ static ModifierTierData tiers_desecrated_48[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_49[] = {
+ModifierTierData tiers_desecrated_49[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53617,7 +53618,7 @@ static ModifierTierData tiers_desecrated_49[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_50[] = {
+ModifierTierData tiers_desecrated_50[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53632,7 +53633,7 @@ static ModifierTierData tiers_desecrated_50[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_51[] = {
+ModifierTierData tiers_desecrated_51[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53647,7 +53648,7 @@ static ModifierTierData tiers_desecrated_51[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_52[] = {
+ModifierTierData tiers_desecrated_52[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53662,7 +53663,7 @@ static ModifierTierData tiers_desecrated_52[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_53[] = {
+ModifierTierData tiers_desecrated_53[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53677,7 +53678,7 @@ static ModifierTierData tiers_desecrated_53[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_54[] = {
+ModifierTierData tiers_desecrated_54[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53692,7 +53693,7 @@ static ModifierTierData tiers_desecrated_54[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_55[] = {
+ModifierTierData tiers_desecrated_55[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53707,7 +53708,7 @@ static ModifierTierData tiers_desecrated_55[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_56[] = {
+ModifierTierData tiers_desecrated_56[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -53722,7 +53723,7 @@ static ModifierTierData tiers_desecrated_56[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_57[] = {
+ModifierTierData tiers_desecrated_57[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53737,7 +53738,7 @@ static ModifierTierData tiers_desecrated_57[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_58[] = {
+ModifierTierData tiers_desecrated_58[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53752,7 +53753,7 @@ static ModifierTierData tiers_desecrated_58[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_59[] = {
+ModifierTierData tiers_desecrated_59[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53767,7 +53768,7 @@ static ModifierTierData tiers_desecrated_59[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_60[] = {
+ModifierTierData tiers_desecrated_60[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53782,7 +53783,7 @@ static ModifierTierData tiers_desecrated_60[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_61[] = {
+ModifierTierData tiers_desecrated_61[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -53797,7 +53798,7 @@ static ModifierTierData tiers_desecrated_61[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_62[] = {
+ModifierTierData tiers_desecrated_62[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53812,7 +53813,7 @@ static ModifierTierData tiers_desecrated_62[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_63[] = {
+ModifierTierData tiers_desecrated_63[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53827,7 +53828,7 @@ static ModifierTierData tiers_desecrated_63[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_64[] = {
+ModifierTierData tiers_desecrated_64[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -53842,7 +53843,7 @@ static ModifierTierData tiers_desecrated_64[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_65[] = {
+ModifierTierData tiers_desecrated_65[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53857,7 +53858,7 @@ static ModifierTierData tiers_desecrated_65[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_66[] = {
+ModifierTierData tiers_desecrated_66[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -53872,7 +53873,7 @@ static ModifierTierData tiers_desecrated_66[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_67[] = {
+ModifierTierData tiers_desecrated_67[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53887,7 +53888,7 @@ static ModifierTierData tiers_desecrated_67[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_68[] = {
+ModifierTierData tiers_desecrated_68[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53902,7 +53903,7 @@ static ModifierTierData tiers_desecrated_68[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_69[] = {
+ModifierTierData tiers_desecrated_69[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -53917,7 +53918,7 @@ static ModifierTierData tiers_desecrated_69[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_70[] = {
+ModifierTierData tiers_desecrated_70[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -53932,7 +53933,7 @@ static ModifierTierData tiers_desecrated_70[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_71[] = {
+ModifierTierData tiers_desecrated_71[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -53947,7 +53948,7 @@ static ModifierTierData tiers_desecrated_71[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_72[] = {
+ModifierTierData tiers_desecrated_72[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -53962,7 +53963,7 @@ static ModifierTierData tiers_desecrated_72[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_73[] = {
+ModifierTierData tiers_desecrated_73[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53977,7 +53978,7 @@ static ModifierTierData tiers_desecrated_73[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_74[] = {
+ModifierTierData tiers_desecrated_74[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -53992,7 +53993,7 @@ static ModifierTierData tiers_desecrated_74[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_75[] = {
+ModifierTierData tiers_desecrated_75[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54007,7 +54008,7 @@ static ModifierTierData tiers_desecrated_75[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_76[] = {
+ModifierTierData tiers_desecrated_76[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54022,7 +54023,7 @@ static ModifierTierData tiers_desecrated_76[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_77[] = {
+ModifierTierData tiers_desecrated_77[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54037,7 +54038,7 @@ static ModifierTierData tiers_desecrated_77[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_78[] = {
+ModifierTierData tiers_desecrated_78[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54052,7 +54053,7 @@ static ModifierTierData tiers_desecrated_78[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_79[] = {
+ModifierTierData tiers_desecrated_79[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54067,7 +54068,7 @@ static ModifierTierData tiers_desecrated_79[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_80[] = {
+ModifierTierData tiers_desecrated_80[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54082,7 +54083,7 @@ static ModifierTierData tiers_desecrated_80[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_81[] = {
+ModifierTierData tiers_desecrated_81[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -54097,7 +54098,7 @@ static ModifierTierData tiers_desecrated_81[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_82[] = {
+ModifierTierData tiers_desecrated_82[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -54112,7 +54113,7 @@ static ModifierTierData tiers_desecrated_82[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_83[] = {
+ModifierTierData tiers_desecrated_83[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -54127,7 +54128,7 @@ static ModifierTierData tiers_desecrated_83[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_84[] = {
+ModifierTierData tiers_desecrated_84[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -54142,7 +54143,7 @@ static ModifierTierData tiers_desecrated_84[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_85[] = {
+ModifierTierData tiers_desecrated_85[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -54157,7 +54158,7 @@ static ModifierTierData tiers_desecrated_85[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_86[] = {
+ModifierTierData tiers_desecrated_86[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -54172,7 +54173,7 @@ static ModifierTierData tiers_desecrated_86[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_87[] = {
+ModifierTierData tiers_desecrated_87[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -54187,7 +54188,7 @@ static ModifierTierData tiers_desecrated_87[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_88[] = {
+ModifierTierData tiers_desecrated_88[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54202,7 +54203,7 @@ static ModifierTierData tiers_desecrated_88[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_89[] = {
+ModifierTierData tiers_desecrated_89[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54217,7 +54218,7 @@ static ModifierTierData tiers_desecrated_89[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_90[] = {
+ModifierTierData tiers_desecrated_90[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54232,7 +54233,7 @@ static ModifierTierData tiers_desecrated_90[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_91[] = {
+ModifierTierData tiers_desecrated_91[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54247,7 +54248,7 @@ static ModifierTierData tiers_desecrated_91[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_92[] = {
+ModifierTierData tiers_desecrated_92[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54262,7 +54263,7 @@ static ModifierTierData tiers_desecrated_92[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_93[] = {
+ModifierTierData tiers_desecrated_93[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54277,7 +54278,7 @@ static ModifierTierData tiers_desecrated_93[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_94[] = {
+ModifierTierData tiers_desecrated_94[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54292,7 +54293,7 @@ static ModifierTierData tiers_desecrated_94[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_95[] = {
+ModifierTierData tiers_desecrated_95[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54307,7 +54308,7 @@ static ModifierTierData tiers_desecrated_95[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_96[] = {
+ModifierTierData tiers_desecrated_96[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -54322,7 +54323,7 @@ static ModifierTierData tiers_desecrated_96[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_97[] = {
+ModifierTierData tiers_desecrated_97[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -54337,7 +54338,7 @@ static ModifierTierData tiers_desecrated_97[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_98[] = {
+ModifierTierData tiers_desecrated_98[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -54352,7 +54353,7 @@ static ModifierTierData tiers_desecrated_98[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_99[] = {
+ModifierTierData tiers_desecrated_99[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -54367,7 +54368,7 @@ static ModifierTierData tiers_desecrated_99[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_100[] = {
+ModifierTierData tiers_desecrated_100[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -54382,7 +54383,7 @@ static ModifierTierData tiers_desecrated_100[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_101[] = {
+ModifierTierData tiers_desecrated_101[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54397,7 +54398,7 @@ static ModifierTierData tiers_desecrated_101[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_102[] = {
+ModifierTierData tiers_desecrated_102[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54412,7 +54413,7 @@ static ModifierTierData tiers_desecrated_102[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_103[] = {
+ModifierTierData tiers_desecrated_103[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54427,7 +54428,7 @@ static ModifierTierData tiers_desecrated_103[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_104[] = {
+ModifierTierData tiers_desecrated_104[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54442,7 +54443,7 @@ static ModifierTierData tiers_desecrated_104[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_105[] = {
+ModifierTierData tiers_desecrated_105[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54457,7 +54458,7 @@ static ModifierTierData tiers_desecrated_105[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_106[] = {
+ModifierTierData tiers_desecrated_106[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54472,7 +54473,7 @@ static ModifierTierData tiers_desecrated_106[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_107[] = {
+ModifierTierData tiers_desecrated_107[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54487,7 +54488,7 @@ static ModifierTierData tiers_desecrated_107[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_108[] = {
+ModifierTierData tiers_desecrated_108[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54502,7 +54503,7 @@ static ModifierTierData tiers_desecrated_108[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_109[] = {
+ModifierTierData tiers_desecrated_109[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54517,7 +54518,7 @@ static ModifierTierData tiers_desecrated_109[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_110[] = {
+ModifierTierData tiers_desecrated_110[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54532,7 +54533,7 @@ static ModifierTierData tiers_desecrated_110[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_111[] = {
+ModifierTierData tiers_desecrated_111[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54547,7 +54548,7 @@ static ModifierTierData tiers_desecrated_111[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_112[] = {
+ModifierTierData tiers_desecrated_112[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54562,7 +54563,7 @@ static ModifierTierData tiers_desecrated_112[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_113[] = {
+ModifierTierData tiers_desecrated_113[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54577,7 +54578,7 @@ static ModifierTierData tiers_desecrated_113[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_114[] = {
+ModifierTierData tiers_desecrated_114[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54592,7 +54593,7 @@ static ModifierTierData tiers_desecrated_114[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_115[] = {
+ModifierTierData tiers_desecrated_115[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54607,7 +54608,7 @@ static ModifierTierData tiers_desecrated_115[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_116[] = {
+ModifierTierData tiers_desecrated_116[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54622,7 +54623,7 @@ static ModifierTierData tiers_desecrated_116[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_117[] = {
+ModifierTierData tiers_desecrated_117[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54637,7 +54638,7 @@ static ModifierTierData tiers_desecrated_117[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_118[] = {
+ModifierTierData tiers_desecrated_118[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54652,7 +54653,7 @@ static ModifierTierData tiers_desecrated_118[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_119[] = {
+ModifierTierData tiers_desecrated_119[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54667,7 +54668,7 @@ static ModifierTierData tiers_desecrated_119[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_120[] = {
+ModifierTierData tiers_desecrated_120[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54682,7 +54683,7 @@ static ModifierTierData tiers_desecrated_120[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_121[] = {
+ModifierTierData tiers_desecrated_121[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54697,7 +54698,7 @@ static ModifierTierData tiers_desecrated_121[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_122[] = {
+ModifierTierData tiers_desecrated_122[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54712,7 +54713,7 @@ static ModifierTierData tiers_desecrated_122[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_123[] = {
+ModifierTierData tiers_desecrated_123[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54727,7 +54728,7 @@ static ModifierTierData tiers_desecrated_123[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_124[] = {
+ModifierTierData tiers_desecrated_124[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54742,7 +54743,7 @@ static ModifierTierData tiers_desecrated_124[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_125[] = {
+ModifierTierData tiers_desecrated_125[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54757,7 +54758,7 @@ static ModifierTierData tiers_desecrated_125[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_126[] = {
+ModifierTierData tiers_desecrated_126[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54772,7 +54773,7 @@ static ModifierTierData tiers_desecrated_126[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_127[] = {
+ModifierTierData tiers_desecrated_127[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54787,7 +54788,7 @@ static ModifierTierData tiers_desecrated_127[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_128[] = {
+ModifierTierData tiers_desecrated_128[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54802,7 +54803,7 @@ static ModifierTierData tiers_desecrated_128[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_129[] = {
+ModifierTierData tiers_desecrated_129[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54817,7 +54818,7 @@ static ModifierTierData tiers_desecrated_129[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_130[] = {
+ModifierTierData tiers_desecrated_130[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54832,7 +54833,7 @@ static ModifierTierData tiers_desecrated_130[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_131[] = {
+ModifierTierData tiers_desecrated_131[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54847,7 +54848,7 @@ static ModifierTierData tiers_desecrated_131[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_132[] = {
+ModifierTierData tiers_desecrated_132[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54862,7 +54863,7 @@ static ModifierTierData tiers_desecrated_132[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_133[] = {
+ModifierTierData tiers_desecrated_133[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54877,7 +54878,7 @@ static ModifierTierData tiers_desecrated_133[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_134[] = {
+ModifierTierData tiers_desecrated_134[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54892,7 +54893,7 @@ static ModifierTierData tiers_desecrated_134[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_135[] = {
+ModifierTierData tiers_desecrated_135[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -54907,7 +54908,7 @@ static ModifierTierData tiers_desecrated_135[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_136[] = {
+ModifierTierData tiers_desecrated_136[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54922,7 +54923,7 @@ static ModifierTierData tiers_desecrated_136[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_137[] = {
+ModifierTierData tiers_desecrated_137[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54937,7 +54938,7 @@ static ModifierTierData tiers_desecrated_137[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_138[] = {
+ModifierTierData tiers_desecrated_138[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54952,7 +54953,7 @@ static ModifierTierData tiers_desecrated_138[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_139[] = {
+ModifierTierData tiers_desecrated_139[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54967,7 +54968,7 @@ static ModifierTierData tiers_desecrated_139[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_140[] = {
+ModifierTierData tiers_desecrated_140[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -54982,7 +54983,7 @@ static ModifierTierData tiers_desecrated_140[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_141[] = {
+ModifierTierData tiers_desecrated_141[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -54997,7 +54998,7 @@ static ModifierTierData tiers_desecrated_141[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_142[] = {
+ModifierTierData tiers_desecrated_142[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55012,7 +55013,7 @@ static ModifierTierData tiers_desecrated_142[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_143[] = {
+ModifierTierData tiers_desecrated_143[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55027,7 +55028,7 @@ static ModifierTierData tiers_desecrated_143[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_144[] = {
+ModifierTierData tiers_desecrated_144[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55042,7 +55043,7 @@ static ModifierTierData tiers_desecrated_144[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_145[] = {
+ModifierTierData tiers_desecrated_145[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55057,7 +55058,7 @@ static ModifierTierData tiers_desecrated_145[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_146[] = {
+ModifierTierData tiers_desecrated_146[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55072,7 +55073,7 @@ static ModifierTierData tiers_desecrated_146[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_147[] = {
+ModifierTierData tiers_desecrated_147[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -55087,7 +55088,7 @@ static ModifierTierData tiers_desecrated_147[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_148[] = {
+ModifierTierData tiers_desecrated_148[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -55102,7 +55103,7 @@ static ModifierTierData tiers_desecrated_148[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_149[] = {
+ModifierTierData tiers_desecrated_149[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -55117,7 +55118,7 @@ static ModifierTierData tiers_desecrated_149[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_150[] = {
+ModifierTierData tiers_desecrated_150[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -55132,7 +55133,7 @@ static ModifierTierData tiers_desecrated_150[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_151[] = {
+ModifierTierData tiers_desecrated_151[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -55147,7 +55148,7 @@ static ModifierTierData tiers_desecrated_151[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_152[] = {
+ModifierTierData tiers_desecrated_152[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -55162,7 +55163,7 @@ static ModifierTierData tiers_desecrated_152[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_153[] = {
+ModifierTierData tiers_desecrated_153[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55177,7 +55178,7 @@ static ModifierTierData tiers_desecrated_153[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_154[] = {
+ModifierTierData tiers_desecrated_154[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55192,7 +55193,7 @@ static ModifierTierData tiers_desecrated_154[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_155[] = {
+ModifierTierData tiers_desecrated_155[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55207,7 +55208,7 @@ static ModifierTierData tiers_desecrated_155[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_156[] = {
+ModifierTierData tiers_desecrated_156[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55222,7 +55223,7 @@ static ModifierTierData tiers_desecrated_156[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_157[] = {
+ModifierTierData tiers_desecrated_157[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55237,7 +55238,7 @@ static ModifierTierData tiers_desecrated_157[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_158[] = {
+ModifierTierData tiers_desecrated_158[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55252,7 +55253,7 @@ static ModifierTierData tiers_desecrated_158[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_159[] = {
+ModifierTierData tiers_desecrated_159[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55267,7 +55268,7 @@ static ModifierTierData tiers_desecrated_159[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_160[] = {
+ModifierTierData tiers_desecrated_160[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55282,7 +55283,7 @@ static ModifierTierData tiers_desecrated_160[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_161[] = {
+ModifierTierData tiers_desecrated_161[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55297,7 +55298,7 @@ static ModifierTierData tiers_desecrated_161[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_162[] = {
+ModifierTierData tiers_desecrated_162[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55312,7 +55313,7 @@ static ModifierTierData tiers_desecrated_162[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_163[] = {
+ModifierTierData tiers_desecrated_163[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55327,7 +55328,7 @@ static ModifierTierData tiers_desecrated_163[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_164[] = {
+ModifierTierData tiers_desecrated_164[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55342,7 +55343,7 @@ static ModifierTierData tiers_desecrated_164[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_165[] = {
+ModifierTierData tiers_desecrated_165[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55357,7 +55358,7 @@ static ModifierTierData tiers_desecrated_165[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_166[] = {
+ModifierTierData tiers_desecrated_166[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55372,7 +55373,7 @@ static ModifierTierData tiers_desecrated_166[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_167[] = {
+ModifierTierData tiers_desecrated_167[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55387,7 +55388,7 @@ static ModifierTierData tiers_desecrated_167[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_168[] = {
+ModifierTierData tiers_desecrated_168[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55402,7 +55403,7 @@ static ModifierTierData tiers_desecrated_168[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_169[] = {
+ModifierTierData tiers_desecrated_169[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55417,7 +55418,7 @@ static ModifierTierData tiers_desecrated_169[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_170[] = {
+ModifierTierData tiers_desecrated_170[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55432,7 +55433,7 @@ static ModifierTierData tiers_desecrated_170[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_171[] = {
+ModifierTierData tiers_desecrated_171[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55447,7 +55448,7 @@ static ModifierTierData tiers_desecrated_171[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_172[] = {
+ModifierTierData tiers_desecrated_172[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55462,7 +55463,7 @@ static ModifierTierData tiers_desecrated_172[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_173[] = {
+ModifierTierData tiers_desecrated_173[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55477,7 +55478,7 @@ static ModifierTierData tiers_desecrated_173[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_174[] = {
+ModifierTierData tiers_desecrated_174[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55492,7 +55493,7 @@ static ModifierTierData tiers_desecrated_174[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_175[] = {
+ModifierTierData tiers_desecrated_175[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55507,7 +55508,7 @@ static ModifierTierData tiers_desecrated_175[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_176[] = {
+ModifierTierData tiers_desecrated_176[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -55522,7 +55523,7 @@ static ModifierTierData tiers_desecrated_176[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_177[] = {
+ModifierTierData tiers_desecrated_177[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55537,7 +55538,7 @@ static ModifierTierData tiers_desecrated_177[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_178[] = {
+ModifierTierData tiers_desecrated_178[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55552,7 +55553,7 @@ static ModifierTierData tiers_desecrated_178[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_179[] = {
+ModifierTierData tiers_desecrated_179[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55567,7 +55568,7 @@ static ModifierTierData tiers_desecrated_179[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_180[] = {
+ModifierTierData tiers_desecrated_180[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55582,7 +55583,7 @@ static ModifierTierData tiers_desecrated_180[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_181[] = {
+ModifierTierData tiers_desecrated_181[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55597,7 +55598,7 @@ static ModifierTierData tiers_desecrated_181[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_182[] = {
+ModifierTierData tiers_desecrated_182[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55612,7 +55613,7 @@ static ModifierTierData tiers_desecrated_182[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_183[] = {
+ModifierTierData tiers_desecrated_183[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55627,7 +55628,7 @@ static ModifierTierData tiers_desecrated_183[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_184[] = {
+ModifierTierData tiers_desecrated_184[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55642,7 +55643,7 @@ static ModifierTierData tiers_desecrated_184[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_185[] = {
+ModifierTierData tiers_desecrated_185[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55657,7 +55658,7 @@ static ModifierTierData tiers_desecrated_185[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_186[] = {
+ModifierTierData tiers_desecrated_186[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55672,7 +55673,7 @@ static ModifierTierData tiers_desecrated_186[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_187[] = {
+ModifierTierData tiers_desecrated_187[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55687,7 +55688,7 @@ static ModifierTierData tiers_desecrated_187[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_188[] = {
+ModifierTierData tiers_desecrated_188[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55702,7 +55703,7 @@ static ModifierTierData tiers_desecrated_188[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_189[] = {
+ModifierTierData tiers_desecrated_189[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55717,7 +55718,7 @@ static ModifierTierData tiers_desecrated_189[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_190[] = {
+ModifierTierData tiers_desecrated_190[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55732,7 +55733,7 @@ static ModifierTierData tiers_desecrated_190[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_191[] = {
+ModifierTierData tiers_desecrated_191[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55747,7 +55748,7 @@ static ModifierTierData tiers_desecrated_191[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_192[] = {
+ModifierTierData tiers_desecrated_192[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55762,7 +55763,7 @@ static ModifierTierData tiers_desecrated_192[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_193[] = {
+ModifierTierData tiers_desecrated_193[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55777,7 +55778,7 @@ static ModifierTierData tiers_desecrated_193[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_194[] = {
+ModifierTierData tiers_desecrated_194[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55792,7 +55793,7 @@ static ModifierTierData tiers_desecrated_194[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_195[] = {
+ModifierTierData tiers_desecrated_195[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55807,7 +55808,7 @@ static ModifierTierData tiers_desecrated_195[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_196[] = {
+ModifierTierData tiers_desecrated_196[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55822,7 +55823,7 @@ static ModifierTierData tiers_desecrated_196[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_197[] = {
+ModifierTierData tiers_desecrated_197[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55837,7 +55838,7 @@ static ModifierTierData tiers_desecrated_197[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_198[] = {
+ModifierTierData tiers_desecrated_198[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55852,7 +55853,7 @@ static ModifierTierData tiers_desecrated_198[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_199[] = {
+ModifierTierData tiers_desecrated_199[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55867,7 +55868,7 @@ static ModifierTierData tiers_desecrated_199[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_200[] = {
+ModifierTierData tiers_desecrated_200[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -55882,7 +55883,7 @@ static ModifierTierData tiers_desecrated_200[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_201[] = {
+ModifierTierData tiers_desecrated_201[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55897,7 +55898,7 @@ static ModifierTierData tiers_desecrated_201[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_202[] = {
+ModifierTierData tiers_desecrated_202[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55912,7 +55913,7 @@ static ModifierTierData tiers_desecrated_202[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_203[] = {
+ModifierTierData tiers_desecrated_203[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55927,7 +55928,7 @@ static ModifierTierData tiers_desecrated_203[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_204[] = {
+ModifierTierData tiers_desecrated_204[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55942,7 +55943,7 @@ static ModifierTierData tiers_desecrated_204[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_205[] = {
+ModifierTierData tiers_desecrated_205[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55957,7 +55958,7 @@ static ModifierTierData tiers_desecrated_205[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_206[] = {
+ModifierTierData tiers_desecrated_206[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -55972,7 +55973,7 @@ static ModifierTierData tiers_desecrated_206[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_207[] = {
+ModifierTierData tiers_desecrated_207[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -55987,7 +55988,7 @@ static ModifierTierData tiers_desecrated_207[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_208[] = {
+ModifierTierData tiers_desecrated_208[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56002,7 +56003,7 @@ static ModifierTierData tiers_desecrated_208[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_209[] = {
+ModifierTierData tiers_desecrated_209[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56017,7 +56018,7 @@ static ModifierTierData tiers_desecrated_209[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_210[] = {
+ModifierTierData tiers_desecrated_210[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56032,7 +56033,7 @@ static ModifierTierData tiers_desecrated_210[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_211[] = {
+ModifierTierData tiers_desecrated_211[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56047,7 +56048,7 @@ static ModifierTierData tiers_desecrated_211[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_212[] = {
+ModifierTierData tiers_desecrated_212[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56062,7 +56063,7 @@ static ModifierTierData tiers_desecrated_212[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_213[] = {
+ModifierTierData tiers_desecrated_213[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56077,7 +56078,7 @@ static ModifierTierData tiers_desecrated_213[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_214[] = {
+ModifierTierData tiers_desecrated_214[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56092,7 +56093,7 @@ static ModifierTierData tiers_desecrated_214[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_215[] = {
+ModifierTierData tiers_desecrated_215[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56107,7 +56108,7 @@ static ModifierTierData tiers_desecrated_215[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_216[] = {
+ModifierTierData tiers_desecrated_216[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56122,7 +56123,7 @@ static ModifierTierData tiers_desecrated_216[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_217[] = {
+ModifierTierData tiers_desecrated_217[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56137,7 +56138,7 @@ static ModifierTierData tiers_desecrated_217[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_218[] = {
+ModifierTierData tiers_desecrated_218[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56152,7 +56153,7 @@ static ModifierTierData tiers_desecrated_218[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_219[] = {
+ModifierTierData tiers_desecrated_219[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56167,7 +56168,7 @@ static ModifierTierData tiers_desecrated_219[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_220[] = {
+ModifierTierData tiers_desecrated_220[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56182,7 +56183,7 @@ static ModifierTierData tiers_desecrated_220[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_221[] = {
+ModifierTierData tiers_desecrated_221[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56197,7 +56198,7 @@ static ModifierTierData tiers_desecrated_221[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_222[] = {
+ModifierTierData tiers_desecrated_222[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56212,7 +56213,7 @@ static ModifierTierData tiers_desecrated_222[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_223[] = {
+ModifierTierData tiers_desecrated_223[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56227,7 +56228,7 @@ static ModifierTierData tiers_desecrated_223[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_224[] = {
+ModifierTierData tiers_desecrated_224[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56242,7 +56243,7 @@ static ModifierTierData tiers_desecrated_224[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_225[] = {
+ModifierTierData tiers_desecrated_225[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56257,7 +56258,7 @@ static ModifierTierData tiers_desecrated_225[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_226[] = {
+ModifierTierData tiers_desecrated_226[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56272,7 +56273,7 @@ static ModifierTierData tiers_desecrated_226[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_227[] = {
+ModifierTierData tiers_desecrated_227[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56287,7 +56288,7 @@ static ModifierTierData tiers_desecrated_227[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_228[] = {
+ModifierTierData tiers_desecrated_228[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56302,7 +56303,7 @@ static ModifierTierData tiers_desecrated_228[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_229[] = {
+ModifierTierData tiers_desecrated_229[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56317,7 +56318,7 @@ static ModifierTierData tiers_desecrated_229[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_230[] = {
+ModifierTierData tiers_desecrated_230[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56332,7 +56333,7 @@ static ModifierTierData tiers_desecrated_230[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_231[] = {
+ModifierTierData tiers_desecrated_231[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56347,7 +56348,7 @@ static ModifierTierData tiers_desecrated_231[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_232[] = {
+ModifierTierData tiers_desecrated_232[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56362,7 +56363,7 @@ static ModifierTierData tiers_desecrated_232[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_233[] = {
+ModifierTierData tiers_desecrated_233[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56377,7 +56378,7 @@ static ModifierTierData tiers_desecrated_233[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_234[] = {
+ModifierTierData tiers_desecrated_234[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56392,7 +56393,7 @@ static ModifierTierData tiers_desecrated_234[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_235[] = {
+ModifierTierData tiers_desecrated_235[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56407,7 +56408,7 @@ static ModifierTierData tiers_desecrated_235[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_236[] = {
+ModifierTierData tiers_desecrated_236[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56422,7 +56423,7 @@ static ModifierTierData tiers_desecrated_236[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_237[] = {
+ModifierTierData tiers_desecrated_237[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56437,7 +56438,7 @@ static ModifierTierData tiers_desecrated_237[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_238[] = {
+ModifierTierData tiers_desecrated_238[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56452,7 +56453,7 @@ static ModifierTierData tiers_desecrated_238[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_239[] = {
+ModifierTierData tiers_desecrated_239[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56467,7 +56468,7 @@ static ModifierTierData tiers_desecrated_239[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_240[] = {
+ModifierTierData tiers_desecrated_240[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56482,7 +56483,7 @@ static ModifierTierData tiers_desecrated_240[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_241[] = {
+ModifierTierData tiers_desecrated_241[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56497,7 +56498,7 @@ static ModifierTierData tiers_desecrated_241[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_242[] = {
+ModifierTierData tiers_desecrated_242[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56512,7 +56513,7 @@ static ModifierTierData tiers_desecrated_242[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_243[] = {
+ModifierTierData tiers_desecrated_243[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56527,7 +56528,7 @@ static ModifierTierData tiers_desecrated_243[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_244[] = {
+ModifierTierData tiers_desecrated_244[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56542,7 +56543,7 @@ static ModifierTierData tiers_desecrated_244[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_245[] = {
+ModifierTierData tiers_desecrated_245[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56557,7 +56558,7 @@ static ModifierTierData tiers_desecrated_245[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_246[] = {
+ModifierTierData tiers_desecrated_246[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56572,7 +56573,7 @@ static ModifierTierData tiers_desecrated_246[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_247[] = {
+ModifierTierData tiers_desecrated_247[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56587,7 +56588,7 @@ static ModifierTierData tiers_desecrated_247[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_248[] = {
+ModifierTierData tiers_desecrated_248[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56602,7 +56603,7 @@ static ModifierTierData tiers_desecrated_248[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_249[] = {
+ModifierTierData tiers_desecrated_249[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56617,7 +56618,7 @@ static ModifierTierData tiers_desecrated_249[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_250[] = {
+ModifierTierData tiers_desecrated_250[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56632,7 +56633,7 @@ static ModifierTierData tiers_desecrated_250[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_251[] = {
+ModifierTierData tiers_desecrated_251[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56647,7 +56648,7 @@ static ModifierTierData tiers_desecrated_251[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_252[] = {
+ModifierTierData tiers_desecrated_252[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56662,7 +56663,7 @@ static ModifierTierData tiers_desecrated_252[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_253[] = {
+ModifierTierData tiers_desecrated_253[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56677,7 +56678,7 @@ static ModifierTierData tiers_desecrated_253[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_254[] = {
+ModifierTierData tiers_desecrated_254[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56692,7 +56693,7 @@ static ModifierTierData tiers_desecrated_254[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_255[] = {
+ModifierTierData tiers_desecrated_255[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56707,7 +56708,7 @@ static ModifierTierData tiers_desecrated_255[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_256[] = {
+ModifierTierData tiers_desecrated_256[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56722,7 +56723,7 @@ static ModifierTierData tiers_desecrated_256[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_257[] = {
+ModifierTierData tiers_desecrated_257[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56737,7 +56738,7 @@ static ModifierTierData tiers_desecrated_257[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_258[] = {
+ModifierTierData tiers_desecrated_258[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56752,7 +56753,7 @@ static ModifierTierData tiers_desecrated_258[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_259[] = {
+ModifierTierData tiers_desecrated_259[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56767,7 +56768,7 @@ static ModifierTierData tiers_desecrated_259[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_260[] = {
+ModifierTierData tiers_desecrated_260[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56782,7 +56783,7 @@ static ModifierTierData tiers_desecrated_260[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_261[] = {
+ModifierTierData tiers_desecrated_261[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56797,7 +56798,7 @@ static ModifierTierData tiers_desecrated_261[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_262[] = {
+ModifierTierData tiers_desecrated_262[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56812,7 +56813,7 @@ static ModifierTierData tiers_desecrated_262[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_263[] = {
+ModifierTierData tiers_desecrated_263[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56827,7 +56828,7 @@ static ModifierTierData tiers_desecrated_263[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_264[] = {
+ModifierTierData tiers_desecrated_264[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56842,7 +56843,7 @@ static ModifierTierData tiers_desecrated_264[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_265[] = {
+ModifierTierData tiers_desecrated_265[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56857,7 +56858,7 @@ static ModifierTierData tiers_desecrated_265[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_266[] = {
+ModifierTierData tiers_desecrated_266[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56872,7 +56873,7 @@ static ModifierTierData tiers_desecrated_266[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_267[] = {
+ModifierTierData tiers_desecrated_267[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56887,7 +56888,7 @@ static ModifierTierData tiers_desecrated_267[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_268[] = {
+ModifierTierData tiers_desecrated_268[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56902,7 +56903,7 @@ static ModifierTierData tiers_desecrated_268[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_269[] = {
+ModifierTierData tiers_desecrated_269[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -56917,7 +56918,7 @@ static ModifierTierData tiers_desecrated_269[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_270[] = {
+ModifierTierData tiers_desecrated_270[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56932,7 +56933,7 @@ static ModifierTierData tiers_desecrated_270[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_271[] = {
+ModifierTierData tiers_desecrated_271[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56947,7 +56948,7 @@ static ModifierTierData tiers_desecrated_271[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_272[] = {
+ModifierTierData tiers_desecrated_272[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56962,7 +56963,7 @@ static ModifierTierData tiers_desecrated_272[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_273[] = {
+ModifierTierData tiers_desecrated_273[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -56977,7 +56978,7 @@ static ModifierTierData tiers_desecrated_273[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_274[] = {
+ModifierTierData tiers_desecrated_274[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -56992,7 +56993,7 @@ static ModifierTierData tiers_desecrated_274[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_275[] = {
+ModifierTierData tiers_desecrated_275[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57007,7 +57008,7 @@ static ModifierTierData tiers_desecrated_275[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_276[] = {
+ModifierTierData tiers_desecrated_276[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57022,7 +57023,7 @@ static ModifierTierData tiers_desecrated_276[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_277[] = {
+ModifierTierData tiers_desecrated_277[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57037,7 +57038,7 @@ static ModifierTierData tiers_desecrated_277[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_278[] = {
+ModifierTierData tiers_desecrated_278[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57052,7 +57053,7 @@ static ModifierTierData tiers_desecrated_278[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_279[] = {
+ModifierTierData tiers_desecrated_279[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57067,7 +57068,7 @@ static ModifierTierData tiers_desecrated_279[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_280[] = {
+ModifierTierData tiers_desecrated_280[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57082,7 +57083,7 @@ static ModifierTierData tiers_desecrated_280[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_281[] = {
+ModifierTierData tiers_desecrated_281[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57097,7 +57098,7 @@ static ModifierTierData tiers_desecrated_281[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_282[] = {
+ModifierTierData tiers_desecrated_282[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57112,7 +57113,7 @@ static ModifierTierData tiers_desecrated_282[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_283[] = {
+ModifierTierData tiers_desecrated_283[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57127,7 +57128,7 @@ static ModifierTierData tiers_desecrated_283[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_284[] = {
+ModifierTierData tiers_desecrated_284[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57142,7 +57143,7 @@ static ModifierTierData tiers_desecrated_284[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_285[] = {
+ModifierTierData tiers_desecrated_285[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57157,7 +57158,7 @@ static ModifierTierData tiers_desecrated_285[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_286[] = {
+ModifierTierData tiers_desecrated_286[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57172,7 +57173,7 @@ static ModifierTierData tiers_desecrated_286[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_287[] = {
+ModifierTierData tiers_desecrated_287[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57187,7 +57188,7 @@ static ModifierTierData tiers_desecrated_287[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_288[] = {
+ModifierTierData tiers_desecrated_288[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57202,7 +57203,7 @@ static ModifierTierData tiers_desecrated_288[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_289[] = {
+ModifierTierData tiers_desecrated_289[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57217,7 +57218,7 @@ static ModifierTierData tiers_desecrated_289[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_290[] = {
+ModifierTierData tiers_desecrated_290[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57232,7 +57233,7 @@ static ModifierTierData tiers_desecrated_290[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_291[] = {
+ModifierTierData tiers_desecrated_291[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57247,7 +57248,7 @@ static ModifierTierData tiers_desecrated_291[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_292[] = {
+ModifierTierData tiers_desecrated_292[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57262,7 +57263,7 @@ static ModifierTierData tiers_desecrated_292[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_293[] = {
+ModifierTierData tiers_desecrated_293[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57277,7 +57278,7 @@ static ModifierTierData tiers_desecrated_293[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_294[] = {
+ModifierTierData tiers_desecrated_294[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57292,7 +57293,7 @@ static ModifierTierData tiers_desecrated_294[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_295[] = {
+ModifierTierData tiers_desecrated_295[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57307,7 +57308,7 @@ static ModifierTierData tiers_desecrated_295[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_296[] = {
+ModifierTierData tiers_desecrated_296[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57322,7 +57323,7 @@ static ModifierTierData tiers_desecrated_296[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_297[] = {
+ModifierTierData tiers_desecrated_297[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57337,7 +57338,7 @@ static ModifierTierData tiers_desecrated_297[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_298[] = {
+ModifierTierData tiers_desecrated_298[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57352,7 +57353,7 @@ static ModifierTierData tiers_desecrated_298[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_299[] = {
+ModifierTierData tiers_desecrated_299[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57367,7 +57368,7 @@ static ModifierTierData tiers_desecrated_299[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_300[] = {
+ModifierTierData tiers_desecrated_300[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57382,7 +57383,7 @@ static ModifierTierData tiers_desecrated_300[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_301[] = {
+ModifierTierData tiers_desecrated_301[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57397,7 +57398,7 @@ static ModifierTierData tiers_desecrated_301[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_302[] = {
+ModifierTierData tiers_desecrated_302[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57412,7 +57413,7 @@ static ModifierTierData tiers_desecrated_302[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_303[] = {
+ModifierTierData tiers_desecrated_303[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57427,7 +57428,7 @@ static ModifierTierData tiers_desecrated_303[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_304[] = {
+ModifierTierData tiers_desecrated_304[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57442,7 +57443,7 @@ static ModifierTierData tiers_desecrated_304[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_305[] = {
+ModifierTierData tiers_desecrated_305[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57457,7 +57458,7 @@ static ModifierTierData tiers_desecrated_305[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_306[] = {
+ModifierTierData tiers_desecrated_306[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -57472,7 +57473,7 @@ static ModifierTierData tiers_desecrated_306[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_307[] = {
+ModifierTierData tiers_desecrated_307[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -57487,7 +57488,7 @@ static ModifierTierData tiers_desecrated_307[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_308[] = {
+ModifierTierData tiers_desecrated_308[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -57502,7 +57503,7 @@ static ModifierTierData tiers_desecrated_308[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_309[] = {
+ModifierTierData tiers_desecrated_309[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -57517,7 +57518,7 @@ static ModifierTierData tiers_desecrated_309[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_310[] = {
+ModifierTierData tiers_desecrated_310[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -57532,7 +57533,7 @@ static ModifierTierData tiers_desecrated_310[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_311[] = {
+ModifierTierData tiers_desecrated_311[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -57547,7 +57548,7 @@ static ModifierTierData tiers_desecrated_311[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_312[] = {
+ModifierTierData tiers_desecrated_312[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -57562,7 +57563,7 @@ static ModifierTierData tiers_desecrated_312[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_313[] = {
+ModifierTierData tiers_desecrated_313[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57577,7 +57578,7 @@ static ModifierTierData tiers_desecrated_313[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_314[] = {
+ModifierTierData tiers_desecrated_314[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57592,7 +57593,7 @@ static ModifierTierData tiers_desecrated_314[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_315[] = {
+ModifierTierData tiers_desecrated_315[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57607,7 +57608,7 @@ static ModifierTierData tiers_desecrated_315[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_316[] = {
+ModifierTierData tiers_desecrated_316[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57622,7 +57623,7 @@ static ModifierTierData tiers_desecrated_316[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_317[] = {
+ModifierTierData tiers_desecrated_317[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57637,7 +57638,7 @@ static ModifierTierData tiers_desecrated_317[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_318[] = {
+ModifierTierData tiers_desecrated_318[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57652,7 +57653,7 @@ static ModifierTierData tiers_desecrated_318[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_319[] = {
+ModifierTierData tiers_desecrated_319[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57667,7 +57668,7 @@ static ModifierTierData tiers_desecrated_319[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_320[] = {
+ModifierTierData tiers_desecrated_320[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57682,7 +57683,7 @@ static ModifierTierData tiers_desecrated_320[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_321[] = {
+ModifierTierData tiers_desecrated_321[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57697,7 +57698,7 @@ static ModifierTierData tiers_desecrated_321[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_322[] = {
+ModifierTierData tiers_desecrated_322[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57712,7 +57713,7 @@ static ModifierTierData tiers_desecrated_322[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_323[] = {
+ModifierTierData tiers_desecrated_323[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57727,7 +57728,7 @@ static ModifierTierData tiers_desecrated_323[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_324[] = {
+ModifierTierData tiers_desecrated_324[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -57742,7 +57743,7 @@ static ModifierTierData tiers_desecrated_324[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_325[] = {
+ModifierTierData tiers_desecrated_325[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57757,7 +57758,7 @@ static ModifierTierData tiers_desecrated_325[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_326[] = {
+ModifierTierData tiers_desecrated_326[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57772,7 +57773,7 @@ static ModifierTierData tiers_desecrated_326[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_327[] = {
+ModifierTierData tiers_desecrated_327[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57787,7 +57788,7 @@ static ModifierTierData tiers_desecrated_327[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_328[] = {
+ModifierTierData tiers_desecrated_328[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -57802,7 +57803,7 @@ static ModifierTierData tiers_desecrated_328[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_329[] = {
+ModifierTierData tiers_desecrated_329[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -57817,7 +57818,7 @@ static ModifierTierData tiers_desecrated_329[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_330[] = {
+ModifierTierData tiers_desecrated_330[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -57832,7 +57833,7 @@ static ModifierTierData tiers_desecrated_330[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_331[] = {
+ModifierTierData tiers_desecrated_331[] = {
     {
         .tier_name = "Amanamu's",
         .level_req = 65,
@@ -57847,7 +57848,7 @@ static ModifierTierData tiers_desecrated_331[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_332[] = {
+ModifierTierData tiers_desecrated_332[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -57862,7 +57863,7 @@ static ModifierTierData tiers_desecrated_332[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_333[] = {
+ModifierTierData tiers_desecrated_333[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -57877,7 +57878,7 @@ static ModifierTierData tiers_desecrated_333[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_334[] = {
+ModifierTierData tiers_desecrated_334[] = {
     {
         .tier_name = "Kurgal's",
         .level_req = 65,
@@ -57892,7 +57893,7 @@ static ModifierTierData tiers_desecrated_334[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_335[] = {
+ModifierTierData tiers_desecrated_335[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -57907,7 +57908,7 @@ static ModifierTierData tiers_desecrated_335[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_336[] = {
+ModifierTierData tiers_desecrated_336[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -57922,7 +57923,7 @@ static ModifierTierData tiers_desecrated_336[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_337[] = {
+ModifierTierData tiers_desecrated_337[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -57937,7 +57938,7 @@ static ModifierTierData tiers_desecrated_337[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_338[] = {
+ModifierTierData tiers_desecrated_338[] = {
     {
         .tier_name = "Ulaman's",
         .level_req = 65,
@@ -57952,7 +57953,7 @@ static ModifierTierData tiers_desecrated_338[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_339[] = {
+ModifierTierData tiers_desecrated_339[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57967,7 +57968,7 @@ static ModifierTierData tiers_desecrated_339[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_340[] = {
+ModifierTierData tiers_desecrated_340[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -57982,7 +57983,7 @@ static ModifierTierData tiers_desecrated_340[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_341[] = {
+ModifierTierData tiers_desecrated_341[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -57997,7 +57998,7 @@ static ModifierTierData tiers_desecrated_341[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_342[] = {
+ModifierTierData tiers_desecrated_342[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -58012,7 +58013,7 @@ static ModifierTierData tiers_desecrated_342[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_343[] = {
+ModifierTierData tiers_desecrated_343[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -58027,7 +58028,7 @@ static ModifierTierData tiers_desecrated_343[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_344[] = {
+ModifierTierData tiers_desecrated_344[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -58042,7 +58043,7 @@ static ModifierTierData tiers_desecrated_344[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_345[] = {
+ModifierTierData tiers_desecrated_345[] = {
     {
         .tier_name = "of Amanamu",
         .level_req = 65,
@@ -58057,7 +58058,7 @@ static ModifierTierData tiers_desecrated_345[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_346[] = {
+ModifierTierData tiers_desecrated_346[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -58072,7 +58073,7 @@ static ModifierTierData tiers_desecrated_346[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_347[] = {
+ModifierTierData tiers_desecrated_347[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -58087,7 +58088,7 @@ static ModifierTierData tiers_desecrated_347[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_348[] = {
+ModifierTierData tiers_desecrated_348[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -58102,7 +58103,7 @@ static ModifierTierData tiers_desecrated_348[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_349[] = {
+ModifierTierData tiers_desecrated_349[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -58117,7 +58118,7 @@ static ModifierTierData tiers_desecrated_349[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_350[] = {
+ModifierTierData tiers_desecrated_350[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -58132,7 +58133,7 @@ static ModifierTierData tiers_desecrated_350[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_351[] = {
+ModifierTierData tiers_desecrated_351[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -58147,7 +58148,7 @@ static ModifierTierData tiers_desecrated_351[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_352[] = {
+ModifierTierData tiers_desecrated_352[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -58162,7 +58163,7 @@ static ModifierTierData tiers_desecrated_352[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_353[] = {
+ModifierTierData tiers_desecrated_353[] = {
     {
         .tier_name = "of Kurgal",
         .level_req = 65,
@@ -58177,7 +58178,7 @@ static ModifierTierData tiers_desecrated_353[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_354[] = {
+ModifierTierData tiers_desecrated_354[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -58192,7 +58193,7 @@ static ModifierTierData tiers_desecrated_354[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_355[] = {
+ModifierTierData tiers_desecrated_355[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -58207,7 +58208,7 @@ static ModifierTierData tiers_desecrated_355[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_356[] = {
+ModifierTierData tiers_desecrated_356[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -58222,7 +58223,7 @@ static ModifierTierData tiers_desecrated_356[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_357[] = {
+ModifierTierData tiers_desecrated_357[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -58237,7 +58238,7 @@ static ModifierTierData tiers_desecrated_357[] = {
     },
 };
 
-static ModifierTierData tiers_desecrated_358[] = {
+ModifierTierData tiers_desecrated_358[] = {
     {
         .tier_name = "of Ulaman",
         .level_req = 65,
@@ -58254,7 +58255,7 @@ static ModifierTierData tiers_desecrated_358[] = {
 
 
 // ESSENCE tier data
-static ModifierTierData tiers_essence_0[] = {
+ModifierTierData tiers_essence_0[] = {
     {
         .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
@@ -58293,7 +58294,7 @@ static ModifierTierData tiers_essence_0[] = {
     },
 };
 
-static ModifierTierData tiers_essence_1[] = {
+ModifierTierData tiers_essence_1[] = {
     {
         .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
@@ -58332,7 +58333,7 @@ static ModifierTierData tiers_essence_1[] = {
     },
 };
 
-static ModifierTierData tiers_essence_2[] = {
+ModifierTierData tiers_essence_2[] = {
     {
         .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
@@ -58371,7 +58372,7 @@ static ModifierTierData tiers_essence_2[] = {
     },
 };
 
-static ModifierTierData tiers_essence_3[] = {
+ModifierTierData tiers_essence_3[] = {
     {
         .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
@@ -58410,7 +58411,7 @@ static ModifierTierData tiers_essence_3[] = {
     },
 };
 
-static ModifierTierData tiers_essence_4[] = {
+ModifierTierData tiers_essence_4[] = {
     {
         .tier_name = "Lesser Essence of Battle",
         .level_req = 18,
@@ -58449,7 +58450,7 @@ static ModifierTierData tiers_essence_4[] = {
     },
 };
 
-static ModifierTierData tiers_essence_5[] = {
+ModifierTierData tiers_essence_5[] = {
     {
         .tier_name = "Lesser Essence of Haste",
         .level_req = 22,
@@ -58488,7 +58489,7 @@ static ModifierTierData tiers_essence_5[] = {
     },
 };
 
-static ModifierTierData tiers_essence_6[] = {
+ModifierTierData tiers_essence_6[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -58527,7 +58528,7 @@ static ModifierTierData tiers_essence_6[] = {
     },
 };
 
-static ModifierTierData tiers_essence_7[] = {
+ModifierTierData tiers_essence_7[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -58566,7 +58567,7 @@ static ModifierTierData tiers_essence_7[] = {
     },
 };
 
-static ModifierTierData tiers_essence_8[] = {
+ModifierTierData tiers_essence_8[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -58605,7 +58606,7 @@ static ModifierTierData tiers_essence_8[] = {
     },
 };
 
-static ModifierTierData tiers_essence_9[] = {
+ModifierTierData tiers_essence_9[] = {
     {
         .tier_name = "Lesser Essence of Seeking",
         .level_req = 20,
@@ -58644,7 +58645,7 @@ static ModifierTierData tiers_essence_9[] = {
     },
 };
 
-static ModifierTierData tiers_essence_10[] = {
+ModifierTierData tiers_essence_10[] = {
     {
         .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
@@ -58683,7 +58684,7 @@ static ModifierTierData tiers_essence_10[] = {
     },
 };
 
-static ModifierTierData tiers_essence_11[] = {
+ModifierTierData tiers_essence_11[] = {
     {
         .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
@@ -58722,7 +58723,7 @@ static ModifierTierData tiers_essence_11[] = {
     },
 };
 
-static ModifierTierData tiers_essence_12[] = {
+ModifierTierData tiers_essence_12[] = {
     {
         .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
@@ -58761,7 +58762,7 @@ static ModifierTierData tiers_essence_12[] = {
     },
 };
 
-static ModifierTierData tiers_essence_13[] = {
+ModifierTierData tiers_essence_13[] = {
     {
         .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
@@ -58800,7 +58801,7 @@ static ModifierTierData tiers_essence_13[] = {
     },
 };
 
-static ModifierTierData tiers_essence_14[] = {
+ModifierTierData tiers_essence_14[] = {
     {
         .tier_name = "Lesser Essence of Battle",
         .level_req = 18,
@@ -58839,7 +58840,7 @@ static ModifierTierData tiers_essence_14[] = {
     },
 };
 
-static ModifierTierData tiers_essence_15[] = {
+ModifierTierData tiers_essence_15[] = {
     {
         .tier_name = "Lesser Essence of Haste",
         .level_req = 22,
@@ -58878,7 +58879,7 @@ static ModifierTierData tiers_essence_15[] = {
     },
 };
 
-static ModifierTierData tiers_essence_16[] = {
+ModifierTierData tiers_essence_16[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -58917,7 +58918,7 @@ static ModifierTierData tiers_essence_16[] = {
     },
 };
 
-static ModifierTierData tiers_essence_17[] = {
+ModifierTierData tiers_essence_17[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -58956,7 +58957,7 @@ static ModifierTierData tiers_essence_17[] = {
     },
 };
 
-static ModifierTierData tiers_essence_18[] = {
+ModifierTierData tiers_essence_18[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -58995,7 +58996,7 @@ static ModifierTierData tiers_essence_18[] = {
     },
 };
 
-static ModifierTierData tiers_essence_19[] = {
+ModifierTierData tiers_essence_19[] = {
     {
         .tier_name = "Lesser Essence of Seeking",
         .level_req = 20,
@@ -59034,7 +59035,7 @@ static ModifierTierData tiers_essence_19[] = {
     },
 };
 
-static ModifierTierData tiers_essence_20[] = {
+ModifierTierData tiers_essence_20[] = {
     {
         .tier_name = "Lesser Essence of Sorcery",
         .level_req = 8,
@@ -59073,7 +59074,7 @@ static ModifierTierData tiers_essence_20[] = {
     },
 };
 
-static ModifierTierData tiers_essence_21[] = {
+ModifierTierData tiers_essence_21[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -59112,7 +59113,7 @@ static ModifierTierData tiers_essence_21[] = {
     },
 };
 
-static ModifierTierData tiers_essence_22[] = {
+ModifierTierData tiers_essence_22[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -59151,7 +59152,7 @@ static ModifierTierData tiers_essence_22[] = {
     },
 };
 
-static ModifierTierData tiers_essence_23[] = {
+ModifierTierData tiers_essence_23[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -59190,7 +59191,7 @@ static ModifierTierData tiers_essence_23[] = {
     },
 };
 
-static ModifierTierData tiers_essence_24[] = {
+ModifierTierData tiers_essence_24[] = {
     {
         .tier_name = "Lesser Essence of Seeking",
         .level_req = 21,
@@ -59229,7 +59230,7 @@ static ModifierTierData tiers_essence_24[] = {
     },
 };
 
-static ModifierTierData tiers_essence_25[] = {
+ModifierTierData tiers_essence_25[] = {
     {
         .tier_name = "Lesser Essence of Alacrity",
         .level_req = 15,
@@ -59268,7 +59269,7 @@ static ModifierTierData tiers_essence_25[] = {
     },
 };
 
-static ModifierTierData tiers_essence_26[] = {
+ModifierTierData tiers_essence_26[] = {
     {
         .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
@@ -59307,7 +59308,7 @@ static ModifierTierData tiers_essence_26[] = {
     },
 };
 
-static ModifierTierData tiers_essence_27[] = {
+ModifierTierData tiers_essence_27[] = {
     {
         .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
@@ -59346,7 +59347,7 @@ static ModifierTierData tiers_essence_27[] = {
     },
 };
 
-static ModifierTierData tiers_essence_28[] = {
+ModifierTierData tiers_essence_28[] = {
     {
         .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
@@ -59385,7 +59386,7 @@ static ModifierTierData tiers_essence_28[] = {
     },
 };
 
-static ModifierTierData tiers_essence_29[] = {
+ModifierTierData tiers_essence_29[] = {
     {
         .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
@@ -59424,7 +59425,7 @@ static ModifierTierData tiers_essence_29[] = {
     },
 };
 
-static ModifierTierData tiers_essence_30[] = {
+ModifierTierData tiers_essence_30[] = {
     {
         .tier_name = "Lesser Essence of Battle",
         .level_req = 18,
@@ -59463,7 +59464,7 @@ static ModifierTierData tiers_essence_30[] = {
     },
 };
 
-static ModifierTierData tiers_essence_31[] = {
+ModifierTierData tiers_essence_31[] = {
     {
         .tier_name = "Lesser Essence of Haste",
         .level_req = 22,
@@ -59502,7 +59503,7 @@ static ModifierTierData tiers_essence_31[] = {
     },
 };
 
-static ModifierTierData tiers_essence_32[] = {
+ModifierTierData tiers_essence_32[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -59541,7 +59542,7 @@ static ModifierTierData tiers_essence_32[] = {
     },
 };
 
-static ModifierTierData tiers_essence_33[] = {
+ModifierTierData tiers_essence_33[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -59580,7 +59581,7 @@ static ModifierTierData tiers_essence_33[] = {
     },
 };
 
-static ModifierTierData tiers_essence_34[] = {
+ModifierTierData tiers_essence_34[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -59619,7 +59620,7 @@ static ModifierTierData tiers_essence_34[] = {
     },
 };
 
-static ModifierTierData tiers_essence_35[] = {
+ModifierTierData tiers_essence_35[] = {
     {
         .tier_name = "Lesser Essence of Seeking",
         .level_req = 20,
@@ -59658,7 +59659,7 @@ static ModifierTierData tiers_essence_35[] = {
     },
 };
 
-static ModifierTierData tiers_essence_36[] = {
+ModifierTierData tiers_essence_36[] = {
     {
         .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
@@ -59697,7 +59698,7 @@ static ModifierTierData tiers_essence_36[] = {
     },
 };
 
-static ModifierTierData tiers_essence_37[] = {
+ModifierTierData tiers_essence_37[] = {
     {
         .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
@@ -59736,7 +59737,7 @@ static ModifierTierData tiers_essence_37[] = {
     },
 };
 
-static ModifierTierData tiers_essence_38[] = {
+ModifierTierData tiers_essence_38[] = {
     {
         .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
@@ -59775,7 +59776,7 @@ static ModifierTierData tiers_essence_38[] = {
     },
 };
 
-static ModifierTierData tiers_essence_39[] = {
+ModifierTierData tiers_essence_39[] = {
     {
         .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
@@ -59814,7 +59815,7 @@ static ModifierTierData tiers_essence_39[] = {
     },
 };
 
-static ModifierTierData tiers_essence_40[] = {
+ModifierTierData tiers_essence_40[] = {
     {
         .tier_name = "Lesser Essence of Battle",
         .level_req = 18,
@@ -59853,7 +59854,7 @@ static ModifierTierData tiers_essence_40[] = {
     },
 };
 
-static ModifierTierData tiers_essence_41[] = {
+ModifierTierData tiers_essence_41[] = {
     {
         .tier_name = "Lesser Essence of Haste",
         .level_req = 22,
@@ -59892,7 +59893,7 @@ static ModifierTierData tiers_essence_41[] = {
     },
 };
 
-static ModifierTierData tiers_essence_42[] = {
+ModifierTierData tiers_essence_42[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -59931,7 +59932,7 @@ static ModifierTierData tiers_essence_42[] = {
     },
 };
 
-static ModifierTierData tiers_essence_43[] = {
+ModifierTierData tiers_essence_43[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -59970,7 +59971,7 @@ static ModifierTierData tiers_essence_43[] = {
     },
 };
 
-static ModifierTierData tiers_essence_44[] = {
+ModifierTierData tiers_essence_44[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60009,7 +60010,7 @@ static ModifierTierData tiers_essence_44[] = {
     },
 };
 
-static ModifierTierData tiers_essence_45[] = {
+ModifierTierData tiers_essence_45[] = {
     {
         .tier_name = "Lesser Essence of Seeking",
         .level_req = 20,
@@ -60048,7 +60049,7 @@ static ModifierTierData tiers_essence_45[] = {
     },
 };
 
-static ModifierTierData tiers_essence_46[] = {
+ModifierTierData tiers_essence_46[] = {
     {
         .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
@@ -60087,7 +60088,7 @@ static ModifierTierData tiers_essence_46[] = {
     },
 };
 
-static ModifierTierData tiers_essence_47[] = {
+ModifierTierData tiers_essence_47[] = {
     {
         .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
@@ -60126,7 +60127,7 @@ static ModifierTierData tiers_essence_47[] = {
     },
 };
 
-static ModifierTierData tiers_essence_48[] = {
+ModifierTierData tiers_essence_48[] = {
     {
         .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
@@ -60165,7 +60166,7 @@ static ModifierTierData tiers_essence_48[] = {
     },
 };
 
-static ModifierTierData tiers_essence_49[] = {
+ModifierTierData tiers_essence_49[] = {
     {
         .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
@@ -60204,7 +60205,7 @@ static ModifierTierData tiers_essence_49[] = {
     },
 };
 
-static ModifierTierData tiers_essence_50[] = {
+ModifierTierData tiers_essence_50[] = {
     {
         .tier_name = "Lesser Essence of Battle",
         .level_req = 18,
@@ -60243,7 +60244,7 @@ static ModifierTierData tiers_essence_50[] = {
     },
 };
 
-static ModifierTierData tiers_essence_51[] = {
+ModifierTierData tiers_essence_51[] = {
     {
         .tier_name = "Lesser Essence of Haste",
         .level_req = 22,
@@ -60282,7 +60283,7 @@ static ModifierTierData tiers_essence_51[] = {
     },
 };
 
-static ModifierTierData tiers_essence_52[] = {
+ModifierTierData tiers_essence_52[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60321,7 +60322,7 @@ static ModifierTierData tiers_essence_52[] = {
     },
 };
 
-static ModifierTierData tiers_essence_53[] = {
+ModifierTierData tiers_essence_53[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60360,7 +60361,7 @@ static ModifierTierData tiers_essence_53[] = {
     },
 };
 
-static ModifierTierData tiers_essence_54[] = {
+ModifierTierData tiers_essence_54[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60399,7 +60400,7 @@ static ModifierTierData tiers_essence_54[] = {
     },
 };
 
-static ModifierTierData tiers_essence_55[] = {
+ModifierTierData tiers_essence_55[] = {
     {
         .tier_name = "Lesser Essence of Seeking",
         .level_req = 20,
@@ -60438,7 +60439,7 @@ static ModifierTierData tiers_essence_55[] = {
     },
 };
 
-static ModifierTierData tiers_essence_56[] = {
+ModifierTierData tiers_essence_56[] = {
     {
         .tier_name = "Lesser Essence of Command",
         .level_req = 8,
@@ -60477,7 +60478,7 @@ static ModifierTierData tiers_essence_56[] = {
     },
 };
 
-static ModifierTierData tiers_essence_57[] = {
+ModifierTierData tiers_essence_57[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60516,7 +60517,7 @@ static ModifierTierData tiers_essence_57[] = {
     },
 };
 
-static ModifierTierData tiers_essence_58[] = {
+ModifierTierData tiers_essence_58[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60555,7 +60556,7 @@ static ModifierTierData tiers_essence_58[] = {
     },
 };
 
-static ModifierTierData tiers_essence_59[] = {
+ModifierTierData tiers_essence_59[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60594,7 +60595,7 @@ static ModifierTierData tiers_essence_59[] = {
     },
 };
 
-static ModifierTierData tiers_essence_60[] = {
+ModifierTierData tiers_essence_60[] = {
     {
         .tier_name = "Lesser Essence of Abrasion",
         .level_req = 8,
@@ -60633,7 +60634,7 @@ static ModifierTierData tiers_essence_60[] = {
     },
 };
 
-static ModifierTierData tiers_essence_61[] = {
+ModifierTierData tiers_essence_61[] = {
     {
         .tier_name = "Lesser Essence of Flames",
         .level_req = 8,
@@ -60672,7 +60673,7 @@ static ModifierTierData tiers_essence_61[] = {
     },
 };
 
-static ModifierTierData tiers_essence_62[] = {
+ModifierTierData tiers_essence_62[] = {
     {
         .tier_name = "Lesser Essence of Ice",
         .level_req = 8,
@@ -60711,7 +60712,7 @@ static ModifierTierData tiers_essence_62[] = {
     },
 };
 
-static ModifierTierData tiers_essence_63[] = {
+ModifierTierData tiers_essence_63[] = {
     {
         .tier_name = "Lesser Essence of Electricity",
         .level_req = 8,
@@ -60750,7 +60751,7 @@ static ModifierTierData tiers_essence_63[] = {
     },
 };
 
-static ModifierTierData tiers_essence_64[] = {
+ModifierTierData tiers_essence_64[] = {
     {
         .tier_name = "Lesser Essence of Battle",
         .level_req = 18,
@@ -60789,7 +60790,7 @@ static ModifierTierData tiers_essence_64[] = {
     },
 };
 
-static ModifierTierData tiers_essence_65[] = {
+ModifierTierData tiers_essence_65[] = {
     {
         .tier_name = "Lesser Essence of Haste",
         .level_req = 22,
@@ -60828,7 +60829,7 @@ static ModifierTierData tiers_essence_65[] = {
     },
 };
 
-static ModifierTierData tiers_essence_66[] = {
+ModifierTierData tiers_essence_66[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60867,7 +60868,7 @@ static ModifierTierData tiers_essence_66[] = {
     },
 };
 
-static ModifierTierData tiers_essence_67[] = {
+ModifierTierData tiers_essence_67[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60906,7 +60907,7 @@ static ModifierTierData tiers_essence_67[] = {
     },
 };
 
-static ModifierTierData tiers_essence_68[] = {
+ModifierTierData tiers_essence_68[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -60945,7 +60946,7 @@ static ModifierTierData tiers_essence_68[] = {
     },
 };
 
-static ModifierTierData tiers_essence_69[] = {
+ModifierTierData tiers_essence_69[] = {
     {
         .tier_name = "Lesser Essence of Seeking",
         .level_req = 20,
@@ -60984,7 +60985,7 @@ static ModifierTierData tiers_essence_69[] = {
     },
 };
 
-static ModifierTierData tiers_essence_70[] = {
+ModifierTierData tiers_essence_70[] = {
     {
         .tier_name = "Lesser Essence of Sorcery",
         .level_req = 8,
@@ -61023,7 +61024,7 @@ static ModifierTierData tiers_essence_70[] = {
     },
 };
 
-static ModifierTierData tiers_essence_71[] = {
+ModifierTierData tiers_essence_71[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -61062,7 +61063,7 @@ static ModifierTierData tiers_essence_71[] = {
     },
 };
 
-static ModifierTierData tiers_essence_72[] = {
+ModifierTierData tiers_essence_72[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -61101,7 +61102,7 @@ static ModifierTierData tiers_essence_72[] = {
     },
 };
 
-static ModifierTierData tiers_essence_73[] = {
+ModifierTierData tiers_essence_73[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -61140,7 +61141,7 @@ static ModifierTierData tiers_essence_73[] = {
     },
 };
 
-static ModifierTierData tiers_essence_74[] = {
+ModifierTierData tiers_essence_74[] = {
     {
         .tier_name = "Lesser Essence of Seeking",
         .level_req = 21,
@@ -61179,7 +61180,7 @@ static ModifierTierData tiers_essence_74[] = {
     },
 };
 
-static ModifierTierData tiers_essence_75[] = {
+ModifierTierData tiers_essence_75[] = {
     {
         .tier_name = "Lesser Essence of Alacrity",
         .level_req = 15,
@@ -61218,7 +61219,7 @@ static ModifierTierData tiers_essence_75[] = {
     },
 };
 
-static ModifierTierData tiers_essence_76[] = {
+ModifierTierData tiers_essence_76[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -61257,7 +61258,7 @@ static ModifierTierData tiers_essence_76[] = {
     },
 };
 
-static ModifierTierData tiers_essence_77[] = {
+ModifierTierData tiers_essence_77[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -61296,7 +61297,7 @@ static ModifierTierData tiers_essence_77[] = {
     },
 };
 
-static ModifierTierData tiers_essence_78[] = {
+ModifierTierData tiers_essence_78[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -61335,7 +61336,7 @@ static ModifierTierData tiers_essence_78[] = {
     },
 };
 
-static ModifierTierData tiers_essence_79[] = {
+ModifierTierData tiers_essence_79[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -61374,7 +61375,7 @@ static ModifierTierData tiers_essence_79[] = {
     },
 };
 
-static ModifierTierData tiers_essence_80[] = {
+ModifierTierData tiers_essence_80[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -61413,7 +61414,7 @@ static ModifierTierData tiers_essence_80[] = {
     },
 };
 
-static ModifierTierData tiers_essence_81[] = {
+ModifierTierData tiers_essence_81[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -61452,7 +61453,7 @@ static ModifierTierData tiers_essence_81[] = {
     },
 };
 
-static ModifierTierData tiers_essence_82[] = {
+ModifierTierData tiers_essence_82[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -61491,7 +61492,7 @@ static ModifierTierData tiers_essence_82[] = {
     },
 };
 
-static ModifierTierData tiers_essence_83[] = {
+ModifierTierData tiers_essence_83[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -61530,7 +61531,7 @@ static ModifierTierData tiers_essence_83[] = {
     },
 };
 
-static ModifierTierData tiers_essence_84[] = {
+ModifierTierData tiers_essence_84[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -61569,7 +61570,7 @@ static ModifierTierData tiers_essence_84[] = {
     },
 };
 
-static ModifierTierData tiers_essence_85[] = {
+ModifierTierData tiers_essence_85[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -61608,7 +61609,7 @@ static ModifierTierData tiers_essence_85[] = {
     },
 };
 
-static ModifierTierData tiers_essence_86[] = {
+ModifierTierData tiers_essence_86[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -61647,7 +61648,7 @@ static ModifierTierData tiers_essence_86[] = {
     },
 };
 
-static ModifierTierData tiers_essence_87[] = {
+ModifierTierData tiers_essence_87[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -61686,7 +61687,7 @@ static ModifierTierData tiers_essence_87[] = {
     },
 };
 
-static ModifierTierData tiers_essence_88[] = {
+ModifierTierData tiers_essence_88[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -61725,7 +61726,7 @@ static ModifierTierData tiers_essence_88[] = {
     },
 };
 
-static ModifierTierData tiers_essence_89[] = {
+ModifierTierData tiers_essence_89[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -61764,7 +61765,7 @@ static ModifierTierData tiers_essence_89[] = {
     },
 };
 
-static ModifierTierData tiers_essence_90[] = {
+ModifierTierData tiers_essence_90[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -61803,7 +61804,7 @@ static ModifierTierData tiers_essence_90[] = {
     },
 };
 
-static ModifierTierData tiers_essence_91[] = {
+ModifierTierData tiers_essence_91[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -61842,7 +61843,7 @@ static ModifierTierData tiers_essence_91[] = {
     },
 };
 
-static ModifierTierData tiers_essence_92[] = {
+ModifierTierData tiers_essence_92[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -61881,7 +61882,7 @@ static ModifierTierData tiers_essence_92[] = {
     },
 };
 
-static ModifierTierData tiers_essence_93[] = {
+ModifierTierData tiers_essence_93[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -61920,7 +61921,7 @@ static ModifierTierData tiers_essence_93[] = {
     },
 };
 
-static ModifierTierData tiers_essence_94[] = {
+ModifierTierData tiers_essence_94[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -61959,7 +61960,7 @@ static ModifierTierData tiers_essence_94[] = {
     },
 };
 
-static ModifierTierData tiers_essence_95[] = {
+ModifierTierData tiers_essence_95[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -61998,7 +61999,7 @@ static ModifierTierData tiers_essence_95[] = {
     },
 };
 
-static ModifierTierData tiers_essence_96[] = {
+ModifierTierData tiers_essence_96[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -62037,7 +62038,7 @@ static ModifierTierData tiers_essence_96[] = {
     },
 };
 
-static ModifierTierData tiers_essence_97[] = {
+ModifierTierData tiers_essence_97[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -62076,7 +62077,7 @@ static ModifierTierData tiers_essence_97[] = {
     },
 };
 
-static ModifierTierData tiers_essence_98[] = {
+ModifierTierData tiers_essence_98[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -62115,7 +62116,7 @@ static ModifierTierData tiers_essence_98[] = {
     },
 };
 
-static ModifierTierData tiers_essence_99[] = {
+ModifierTierData tiers_essence_99[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -62154,7 +62155,7 @@ static ModifierTierData tiers_essence_99[] = {
     },
 };
 
-static ModifierTierData tiers_essence_100[] = {
+ModifierTierData tiers_essence_100[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -62193,7 +62194,7 @@ static ModifierTierData tiers_essence_100[] = {
     },
 };
 
-static ModifierTierData tiers_essence_101[] = {
+ModifierTierData tiers_essence_101[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -62232,7 +62233,7 @@ static ModifierTierData tiers_essence_101[] = {
     },
 };
 
-static ModifierTierData tiers_essence_102[] = {
+ModifierTierData tiers_essence_102[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -62271,7 +62272,7 @@ static ModifierTierData tiers_essence_102[] = {
     },
 };
 
-static ModifierTierData tiers_essence_103[] = {
+ModifierTierData tiers_essence_103[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -62310,7 +62311,7 @@ static ModifierTierData tiers_essence_103[] = {
     },
 };
 
-static ModifierTierData tiers_essence_104[] = {
+ModifierTierData tiers_essence_104[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -62349,7 +62350,7 @@ static ModifierTierData tiers_essence_104[] = {
     },
 };
 
-static ModifierTierData tiers_essence_105[] = {
+ModifierTierData tiers_essence_105[] = {
     {
         .tier_name = "Lesser Essence of Sorcery",
         .level_req = 8,
@@ -62388,7 +62389,7 @@ static ModifierTierData tiers_essence_105[] = {
     },
 };
 
-static ModifierTierData tiers_essence_106[] = {
+ModifierTierData tiers_essence_106[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -62427,7 +62428,7 @@ static ModifierTierData tiers_essence_106[] = {
     },
 };
 
-static ModifierTierData tiers_essence_107[] = {
+ModifierTierData tiers_essence_107[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -62466,7 +62467,7 @@ static ModifierTierData tiers_essence_107[] = {
     },
 };
 
-static ModifierTierData tiers_essence_108[] = {
+ModifierTierData tiers_essence_108[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -62505,7 +62506,7 @@ static ModifierTierData tiers_essence_108[] = {
     },
 };
 
-static ModifierTierData tiers_essence_109[] = {
+ModifierTierData tiers_essence_109[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -62544,7 +62545,7 @@ static ModifierTierData tiers_essence_109[] = {
     },
 };
 
-static ModifierTierData tiers_essence_110[] = {
+ModifierTierData tiers_essence_110[] = {
     {
         .tier_name = "Lesser Essence of Seeking",
         .level_req = 21,
@@ -62583,7 +62584,7 @@ static ModifierTierData tiers_essence_110[] = {
     },
 };
 
-static ModifierTierData tiers_essence_111[] = {
+ModifierTierData tiers_essence_111[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -62622,7 +62623,7 @@ static ModifierTierData tiers_essence_111[] = {
     },
 };
 
-static ModifierTierData tiers_essence_112[] = {
+ModifierTierData tiers_essence_112[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -62661,7 +62662,7 @@ static ModifierTierData tiers_essence_112[] = {
     },
 };
 
-static ModifierTierData tiers_essence_113[] = {
+ModifierTierData tiers_essence_113[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -62700,7 +62701,7 @@ static ModifierTierData tiers_essence_113[] = {
     },
 };
 
-static ModifierTierData tiers_essence_114[] = {
+ModifierTierData tiers_essence_114[] = {
     {
         .tier_name = "Lesser Essence of Alacrity",
         .level_req = 15,
@@ -62739,7 +62740,7 @@ static ModifierTierData tiers_essence_114[] = {
     },
 };
 
-static ModifierTierData tiers_essence_115[] = {
+ModifierTierData tiers_essence_115[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -62778,7 +62779,7 @@ static ModifierTierData tiers_essence_115[] = {
     },
 };
 
-static ModifierTierData tiers_essence_116[] = {
+ModifierTierData tiers_essence_116[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -62817,7 +62818,7 @@ static ModifierTierData tiers_essence_116[] = {
     },
 };
 
-static ModifierTierData tiers_essence_117[] = {
+ModifierTierData tiers_essence_117[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -62856,7 +62857,7 @@ static ModifierTierData tiers_essence_117[] = {
     },
 };
 
-static ModifierTierData tiers_essence_118[] = {
+ModifierTierData tiers_essence_118[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -62895,7 +62896,7 @@ static ModifierTierData tiers_essence_118[] = {
     },
 };
 
-static ModifierTierData tiers_essence_119[] = {
+ModifierTierData tiers_essence_119[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -62934,7 +62935,7 @@ static ModifierTierData tiers_essence_119[] = {
     },
 };
 
-static ModifierTierData tiers_essence_120[] = {
+ModifierTierData tiers_essence_120[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -62973,7 +62974,7 @@ static ModifierTierData tiers_essence_120[] = {
     },
 };
 
-static ModifierTierData tiers_essence_121[] = {
+ModifierTierData tiers_essence_121[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -63012,7 +63013,7 @@ static ModifierTierData tiers_essence_121[] = {
     },
 };
 
-static ModifierTierData tiers_essence_122[] = {
+ModifierTierData tiers_essence_122[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -63051,7 +63052,7 @@ static ModifierTierData tiers_essence_122[] = {
     },
 };
 
-static ModifierTierData tiers_essence_123[] = {
+ModifierTierData tiers_essence_123[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -63090,7 +63091,7 @@ static ModifierTierData tiers_essence_123[] = {
     },
 };
 
-static ModifierTierData tiers_essence_124[] = {
+ModifierTierData tiers_essence_124[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -63129,7 +63130,7 @@ static ModifierTierData tiers_essence_124[] = {
     },
 };
 
-static ModifierTierData tiers_essence_125[] = {
+ModifierTierData tiers_essence_125[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -63168,7 +63169,7 @@ static ModifierTierData tiers_essence_125[] = {
     },
 };
 
-static ModifierTierData tiers_essence_126[] = {
+ModifierTierData tiers_essence_126[] = {
     {
         .tier_name = "Lesser Essence of Battle",
         .level_req = 18,
@@ -63207,7 +63208,7 @@ static ModifierTierData tiers_essence_126[] = {
     },
 };
 
-static ModifierTierData tiers_essence_127[] = {
+ModifierTierData tiers_essence_127[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -63246,7 +63247,7 @@ static ModifierTierData tiers_essence_127[] = {
     },
 };
 
-static ModifierTierData tiers_essence_128[] = {
+ModifierTierData tiers_essence_128[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -63285,7 +63286,7 @@ static ModifierTierData tiers_essence_128[] = {
     },
 };
 
-static ModifierTierData tiers_essence_129[] = {
+ModifierTierData tiers_essence_129[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -63324,7 +63325,7 @@ static ModifierTierData tiers_essence_129[] = {
     },
 };
 
-static ModifierTierData tiers_essence_130[] = {
+ModifierTierData tiers_essence_130[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -63363,7 +63364,7 @@ static ModifierTierData tiers_essence_130[] = {
     },
 };
 
-static ModifierTierData tiers_essence_131[] = {
+ModifierTierData tiers_essence_131[] = {
     {
         .tier_name = "Lesser Essence of the Mind",
         .level_req = 16,
@@ -63402,7 +63403,7 @@ static ModifierTierData tiers_essence_131[] = {
     },
 };
 
-static ModifierTierData tiers_essence_132[] = {
+ModifierTierData tiers_essence_132[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -63441,7 +63442,7 @@ static ModifierTierData tiers_essence_132[] = {
     },
 };
 
-static ModifierTierData tiers_essence_133[] = {
+ModifierTierData tiers_essence_133[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -63480,7 +63481,7 @@ static ModifierTierData tiers_essence_133[] = {
     },
 };
 
-static ModifierTierData tiers_essence_134[] = {
+ModifierTierData tiers_essence_134[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -63519,7 +63520,7 @@ static ModifierTierData tiers_essence_134[] = {
     },
 };
 
-static ModifierTierData tiers_essence_135[] = {
+ModifierTierData tiers_essence_135[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -63558,7 +63559,7 @@ static ModifierTierData tiers_essence_135[] = {
     },
 };
 
-static ModifierTierData tiers_essence_136[] = {
+ModifierTierData tiers_essence_136[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -63597,7 +63598,7 @@ static ModifierTierData tiers_essence_136[] = {
     },
 };
 
-static ModifierTierData tiers_essence_137[] = {
+ModifierTierData tiers_essence_137[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -63636,7 +63637,7 @@ static ModifierTierData tiers_essence_137[] = {
     },
 };
 
-static ModifierTierData tiers_essence_138[] = {
+ModifierTierData tiers_essence_138[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -63675,7 +63676,7 @@ static ModifierTierData tiers_essence_138[] = {
     },
 };
 
-static ModifierTierData tiers_essence_139[] = {
+ModifierTierData tiers_essence_139[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -63714,7 +63715,7 @@ static ModifierTierData tiers_essence_139[] = {
     },
 };
 
-static ModifierTierData tiers_essence_140[] = {
+ModifierTierData tiers_essence_140[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -63753,7 +63754,7 @@ static ModifierTierData tiers_essence_140[] = {
     },
 };
 
-static ModifierTierData tiers_essence_141[] = {
+ModifierTierData tiers_essence_141[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -63792,7 +63793,7 @@ static ModifierTierData tiers_essence_141[] = {
     },
 };
 
-static ModifierTierData tiers_essence_142[] = {
+ModifierTierData tiers_essence_142[] = {
     {
         .tier_name = "Lesser Essence of Opulence",
         .level_req = 24,
@@ -63831,7 +63832,7 @@ static ModifierTierData tiers_essence_142[] = {
     },
 };
 
-static ModifierTierData tiers_essence_143[] = {
+ModifierTierData tiers_essence_143[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -63870,7 +63871,7 @@ static ModifierTierData tiers_essence_143[] = {
     },
 };
 
-static ModifierTierData tiers_essence_144[] = {
+ModifierTierData tiers_essence_144[] = {
     {
         .tier_name = "Lesser Essence of the Mind",
         .level_req = 16,
@@ -63909,7 +63910,7 @@ static ModifierTierData tiers_essence_144[] = {
     },
 };
 
-static ModifierTierData tiers_essence_145[] = {
+ModifierTierData tiers_essence_145[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -63948,7 +63949,7 @@ static ModifierTierData tiers_essence_145[] = {
     },
 };
 
-static ModifierTierData tiers_essence_146[] = {
+ModifierTierData tiers_essence_146[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -63987,7 +63988,7 @@ static ModifierTierData tiers_essence_146[] = {
     },
 };
 
-static ModifierTierData tiers_essence_147[] = {
+ModifierTierData tiers_essence_147[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64026,7 +64027,7 @@ static ModifierTierData tiers_essence_147[] = {
     },
 };
 
-static ModifierTierData tiers_essence_148[] = {
+ModifierTierData tiers_essence_148[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64065,7 +64066,7 @@ static ModifierTierData tiers_essence_148[] = {
     },
 };
 
-static ModifierTierData tiers_essence_149[] = {
+ModifierTierData tiers_essence_149[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64104,7 +64105,7 @@ static ModifierTierData tiers_essence_149[] = {
     },
 };
 
-static ModifierTierData tiers_essence_150[] = {
+ModifierTierData tiers_essence_150[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64143,7 +64144,7 @@ static ModifierTierData tiers_essence_150[] = {
     },
 };
 
-static ModifierTierData tiers_essence_151[] = {
+ModifierTierData tiers_essence_151[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -64182,7 +64183,7 @@ static ModifierTierData tiers_essence_151[] = {
     },
 };
 
-static ModifierTierData tiers_essence_152[] = {
+ModifierTierData tiers_essence_152[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -64221,7 +64222,7 @@ static ModifierTierData tiers_essence_152[] = {
     },
 };
 
-static ModifierTierData tiers_essence_153[] = {
+ModifierTierData tiers_essence_153[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -64260,7 +64261,7 @@ static ModifierTierData tiers_essence_153[] = {
     },
 };
 
-static ModifierTierData tiers_essence_154[] = {
+ModifierTierData tiers_essence_154[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -64299,7 +64300,7 @@ static ModifierTierData tiers_essence_154[] = {
     },
 };
 
-static ModifierTierData tiers_essence_155[] = {
+ModifierTierData tiers_essence_155[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -64338,7 +64339,7 @@ static ModifierTierData tiers_essence_155[] = {
     },
 };
 
-static ModifierTierData tiers_essence_156[] = {
+ModifierTierData tiers_essence_156[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -64377,7 +64378,7 @@ static ModifierTierData tiers_essence_156[] = {
     },
 };
 
-static ModifierTierData tiers_essence_157[] = {
+ModifierTierData tiers_essence_157[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -64416,7 +64417,7 @@ static ModifierTierData tiers_essence_157[] = {
     },
 };
 
-static ModifierTierData tiers_essence_158[] = {
+ModifierTierData tiers_essence_158[] = {
     {
         .tier_name = "Lesser Essence of Opulence",
         .level_req = 24,
@@ -64455,7 +64456,7 @@ static ModifierTierData tiers_essence_158[] = {
     },
 };
 
-static ModifierTierData tiers_essence_159[] = {
+ModifierTierData tiers_essence_159[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -64494,7 +64495,7 @@ static ModifierTierData tiers_essence_159[] = {
     },
 };
 
-static ModifierTierData tiers_essence_160[] = {
+ModifierTierData tiers_essence_160[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64533,7 +64534,7 @@ static ModifierTierData tiers_essence_160[] = {
     },
 };
 
-static ModifierTierData tiers_essence_161[] = {
+ModifierTierData tiers_essence_161[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64572,7 +64573,7 @@ static ModifierTierData tiers_essence_161[] = {
     },
 };
 
-static ModifierTierData tiers_essence_162[] = {
+ModifierTierData tiers_essence_162[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64611,7 +64612,7 @@ static ModifierTierData tiers_essence_162[] = {
     },
 };
 
-static ModifierTierData tiers_essence_163[] = {
+ModifierTierData tiers_essence_163[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64650,7 +64651,7 @@ static ModifierTierData tiers_essence_163[] = {
     },
 };
 
-static ModifierTierData tiers_essence_164[] = {
+ModifierTierData tiers_essence_164[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64689,7 +64690,7 @@ static ModifierTierData tiers_essence_164[] = {
     },
 };
 
-static ModifierTierData tiers_essence_165[] = {
+ModifierTierData tiers_essence_165[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -64728,7 +64729,7 @@ static ModifierTierData tiers_essence_165[] = {
     },
 };
 
-static ModifierTierData tiers_essence_166[] = {
+ModifierTierData tiers_essence_166[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -64767,7 +64768,7 @@ static ModifierTierData tiers_essence_166[] = {
     },
 };
 
-static ModifierTierData tiers_essence_167[] = {
+ModifierTierData tiers_essence_167[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -64806,7 +64807,7 @@ static ModifierTierData tiers_essence_167[] = {
     },
 };
 
-static ModifierTierData tiers_essence_168[] = {
+ModifierTierData tiers_essence_168[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -64845,7 +64846,7 @@ static ModifierTierData tiers_essence_168[] = {
     },
 };
 
-static ModifierTierData tiers_essence_169[] = {
+ModifierTierData tiers_essence_169[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -64884,7 +64885,7 @@ static ModifierTierData tiers_essence_169[] = {
     },
 };
 
-static ModifierTierData tiers_essence_170[] = {
+ModifierTierData tiers_essence_170[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -64923,7 +64924,7 @@ static ModifierTierData tiers_essence_170[] = {
     },
 };
 
-static ModifierTierData tiers_essence_171[] = {
+ModifierTierData tiers_essence_171[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -64962,7 +64963,7 @@ static ModifierTierData tiers_essence_171[] = {
     },
 };
 
-static ModifierTierData tiers_essence_172[] = {
+ModifierTierData tiers_essence_172[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -65001,7 +65002,7 @@ static ModifierTierData tiers_essence_172[] = {
     },
 };
 
-static ModifierTierData tiers_essence_173[] = {
+ModifierTierData tiers_essence_173[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -65040,7 +65041,7 @@ static ModifierTierData tiers_essence_173[] = {
     },
 };
 
-static ModifierTierData tiers_essence_174[] = {
+ModifierTierData tiers_essence_174[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -65079,7 +65080,7 @@ static ModifierTierData tiers_essence_174[] = {
     },
 };
 
-static ModifierTierData tiers_essence_175[] = {
+ModifierTierData tiers_essence_175[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -65118,7 +65119,7 @@ static ModifierTierData tiers_essence_175[] = {
     },
 };
 
-static ModifierTierData tiers_essence_176[] = {
+ModifierTierData tiers_essence_176[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -65157,7 +65158,7 @@ static ModifierTierData tiers_essence_176[] = {
     },
 };
 
-static ModifierTierData tiers_essence_177[] = {
+ModifierTierData tiers_essence_177[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -65196,7 +65197,7 @@ static ModifierTierData tiers_essence_177[] = {
     },
 };
 
-static ModifierTierData tiers_essence_178[] = {
+ModifierTierData tiers_essence_178[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -65235,7 +65236,7 @@ static ModifierTierData tiers_essence_178[] = {
     },
 };
 
-static ModifierTierData tiers_essence_179[] = {
+ModifierTierData tiers_essence_179[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -65274,7 +65275,7 @@ static ModifierTierData tiers_essence_179[] = {
     },
 };
 
-static ModifierTierData tiers_essence_180[] = {
+ModifierTierData tiers_essence_180[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -65313,7 +65314,7 @@ static ModifierTierData tiers_essence_180[] = {
     },
 };
 
-static ModifierTierData tiers_essence_181[] = {
+ModifierTierData tiers_essence_181[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -65352,7 +65353,7 @@ static ModifierTierData tiers_essence_181[] = {
     },
 };
 
-static ModifierTierData tiers_essence_182[] = {
+ModifierTierData tiers_essence_182[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -65391,7 +65392,7 @@ static ModifierTierData tiers_essence_182[] = {
     },
 };
 
-static ModifierTierData tiers_essence_183[] = {
+ModifierTierData tiers_essence_183[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -65430,7 +65431,7 @@ static ModifierTierData tiers_essence_183[] = {
     },
 };
 
-static ModifierTierData tiers_essence_184[] = {
+ModifierTierData tiers_essence_184[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -65469,7 +65470,7 @@ static ModifierTierData tiers_essence_184[] = {
     },
 };
 
-static ModifierTierData tiers_essence_185[] = {
+ModifierTierData tiers_essence_185[] = {
     {
         .tier_name = "Lesser Essence of the Mind",
         .level_req = 16,
@@ -65508,7 +65509,7 @@ static ModifierTierData tiers_essence_185[] = {
     },
 };
 
-static ModifierTierData tiers_essence_186[] = {
+ModifierTierData tiers_essence_186[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -65547,7 +65548,7 @@ static ModifierTierData tiers_essence_186[] = {
     },
 };
 
-static ModifierTierData tiers_essence_187[] = {
+ModifierTierData tiers_essence_187[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -65586,7 +65587,7 @@ static ModifierTierData tiers_essence_187[] = {
     },
 };
 
-static ModifierTierData tiers_essence_188[] = {
+ModifierTierData tiers_essence_188[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -65625,7 +65626,7 @@ static ModifierTierData tiers_essence_188[] = {
     },
 };
 
-static ModifierTierData tiers_essence_189[] = {
+ModifierTierData tiers_essence_189[] = {
     {
         .tier_name = "Greater Essence of Battle",
         .level_req = 58,
@@ -65640,7 +65641,7 @@ static ModifierTierData tiers_essence_189[] = {
     },
 };
 
-static ModifierTierData tiers_essence_190[] = {
+ModifierTierData tiers_essence_190[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -65679,7 +65680,7 @@ static ModifierTierData tiers_essence_190[] = {
     },
 };
 
-static ModifierTierData tiers_essence_191[] = {
+ModifierTierData tiers_essence_191[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -65718,7 +65719,7 @@ static ModifierTierData tiers_essence_191[] = {
     },
 };
 
-static ModifierTierData tiers_essence_192[] = {
+ModifierTierData tiers_essence_192[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -65757,7 +65758,7 @@ static ModifierTierData tiers_essence_192[] = {
     },
 };
 
-static ModifierTierData tiers_essence_193[] = {
+ModifierTierData tiers_essence_193[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -65796,7 +65797,7 @@ static ModifierTierData tiers_essence_193[] = {
     },
 };
 
-static ModifierTierData tiers_essence_194[] = {
+ModifierTierData tiers_essence_194[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -65835,7 +65836,7 @@ static ModifierTierData tiers_essence_194[] = {
     },
 };
 
-static ModifierTierData tiers_essence_195[] = {
+ModifierTierData tiers_essence_195[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -65874,7 +65875,7 @@ static ModifierTierData tiers_essence_195[] = {
     },
 };
 
-static ModifierTierData tiers_essence_196[] = {
+ModifierTierData tiers_essence_196[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -65913,7 +65914,7 @@ static ModifierTierData tiers_essence_196[] = {
     },
 };
 
-static ModifierTierData tiers_essence_197[] = {
+ModifierTierData tiers_essence_197[] = {
     {
         .tier_name = "Lesser Essence of Opulence",
         .level_req = 24,
@@ -65952,7 +65953,7 @@ static ModifierTierData tiers_essence_197[] = {
     },
 };
 
-static ModifierTierData tiers_essence_198[] = {
+ModifierTierData tiers_essence_198[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -65991,7 +65992,7 @@ static ModifierTierData tiers_essence_198[] = {
     },
 };
 
-static ModifierTierData tiers_essence_199[] = {
+ModifierTierData tiers_essence_199[] = {
     {
         .tier_name = "Lesser Essence of the Mind",
         .level_req = 16,
@@ -66030,7 +66031,7 @@ static ModifierTierData tiers_essence_199[] = {
     },
 };
 
-static ModifierTierData tiers_essence_200[] = {
+ModifierTierData tiers_essence_200[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -66069,7 +66070,7 @@ static ModifierTierData tiers_essence_200[] = {
     },
 };
 
-static ModifierTierData tiers_essence_201[] = {
+ModifierTierData tiers_essence_201[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -66108,7 +66109,7 @@ static ModifierTierData tiers_essence_201[] = {
     },
 };
 
-static ModifierTierData tiers_essence_202[] = {
+ModifierTierData tiers_essence_202[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -66147,7 +66148,7 @@ static ModifierTierData tiers_essence_202[] = {
     },
 };
 
-static ModifierTierData tiers_essence_203[] = {
+ModifierTierData tiers_essence_203[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -66186,7 +66187,7 @@ static ModifierTierData tiers_essence_203[] = {
     },
 };
 
-static ModifierTierData tiers_essence_204[] = {
+ModifierTierData tiers_essence_204[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -66225,7 +66226,7 @@ static ModifierTierData tiers_essence_204[] = {
     },
 };
 
-static ModifierTierData tiers_essence_205[] = {
+ModifierTierData tiers_essence_205[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -66264,7 +66265,7 @@ static ModifierTierData tiers_essence_205[] = {
     },
 };
 
-static ModifierTierData tiers_essence_206[] = {
+ModifierTierData tiers_essence_206[] = {
     {
         .tier_name = "Greater Essence of Battle",
         .level_req = 58,
@@ -66279,7 +66280,7 @@ static ModifierTierData tiers_essence_206[] = {
     },
 };
 
-static ModifierTierData tiers_essence_207[] = {
+ModifierTierData tiers_essence_207[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -66318,7 +66319,7 @@ static ModifierTierData tiers_essence_207[] = {
     },
 };
 
-static ModifierTierData tiers_essence_208[] = {
+ModifierTierData tiers_essence_208[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -66357,7 +66358,7 @@ static ModifierTierData tiers_essence_208[] = {
     },
 };
 
-static ModifierTierData tiers_essence_209[] = {
+ModifierTierData tiers_essence_209[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -66396,7 +66397,7 @@ static ModifierTierData tiers_essence_209[] = {
     },
 };
 
-static ModifierTierData tiers_essence_210[] = {
+ModifierTierData tiers_essence_210[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -66435,7 +66436,7 @@ static ModifierTierData tiers_essence_210[] = {
     },
 };
 
-static ModifierTierData tiers_essence_211[] = {
+ModifierTierData tiers_essence_211[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -66474,7 +66475,7 @@ static ModifierTierData tiers_essence_211[] = {
     },
 };
 
-static ModifierTierData tiers_essence_212[] = {
+ModifierTierData tiers_essence_212[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -66513,7 +66514,7 @@ static ModifierTierData tiers_essence_212[] = {
     },
 };
 
-static ModifierTierData tiers_essence_213[] = {
+ModifierTierData tiers_essence_213[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -66552,7 +66553,7 @@ static ModifierTierData tiers_essence_213[] = {
     },
 };
 
-static ModifierTierData tiers_essence_214[] = {
+ModifierTierData tiers_essence_214[] = {
     {
         .tier_name = "Lesser Essence of Opulence",
         .level_req = 24,
@@ -66591,7 +66592,7 @@ static ModifierTierData tiers_essence_214[] = {
     },
 };
 
-static ModifierTierData tiers_essence_215[] = {
+ModifierTierData tiers_essence_215[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -66630,7 +66631,7 @@ static ModifierTierData tiers_essence_215[] = {
     },
 };
 
-static ModifierTierData tiers_essence_216[] = {
+ModifierTierData tiers_essence_216[] = {
     {
         .tier_name = "Lesser Essence of the Mind",
         .level_req = 16,
@@ -66669,7 +66670,7 @@ static ModifierTierData tiers_essence_216[] = {
     },
 };
 
-static ModifierTierData tiers_essence_217[] = {
+ModifierTierData tiers_essence_217[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -66708,7 +66709,7 @@ static ModifierTierData tiers_essence_217[] = {
     },
 };
 
-static ModifierTierData tiers_essence_218[] = {
+ModifierTierData tiers_essence_218[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -66747,7 +66748,7 @@ static ModifierTierData tiers_essence_218[] = {
     },
 };
 
-static ModifierTierData tiers_essence_219[] = {
+ModifierTierData tiers_essence_219[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -66786,7 +66787,7 @@ static ModifierTierData tiers_essence_219[] = {
     },
 };
 
-static ModifierTierData tiers_essence_220[] = {
+ModifierTierData tiers_essence_220[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -66825,7 +66826,7 @@ static ModifierTierData tiers_essence_220[] = {
     },
 };
 
-static ModifierTierData tiers_essence_221[] = {
+ModifierTierData tiers_essence_221[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -66864,7 +66865,7 @@ static ModifierTierData tiers_essence_221[] = {
     },
 };
 
-static ModifierTierData tiers_essence_222[] = {
+ModifierTierData tiers_essence_222[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -66903,7 +66904,7 @@ static ModifierTierData tiers_essence_222[] = {
     },
 };
 
-static ModifierTierData tiers_essence_223[] = {
+ModifierTierData tiers_essence_223[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -66942,7 +66943,7 @@ static ModifierTierData tiers_essence_223[] = {
     },
 };
 
-static ModifierTierData tiers_essence_224[] = {
+ModifierTierData tiers_essence_224[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -66981,7 +66982,7 @@ static ModifierTierData tiers_essence_224[] = {
     },
 };
 
-static ModifierTierData tiers_essence_225[] = {
+ModifierTierData tiers_essence_225[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -67020,7 +67021,7 @@ static ModifierTierData tiers_essence_225[] = {
     },
 };
 
-static ModifierTierData tiers_essence_226[] = {
+ModifierTierData tiers_essence_226[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -67059,7 +67060,7 @@ static ModifierTierData tiers_essence_226[] = {
     },
 };
 
-static ModifierTierData tiers_essence_227[] = {
+ModifierTierData tiers_essence_227[] = {
     {
         .tier_name = "Lesser Essence of Opulence",
         .level_req = 24,
@@ -67098,7 +67099,7 @@ static ModifierTierData tiers_essence_227[] = {
     },
 };
 
-static ModifierTierData tiers_essence_228[] = {
+ModifierTierData tiers_essence_228[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 16,
@@ -67137,7 +67138,7 @@ static ModifierTierData tiers_essence_228[] = {
     },
 };
 
-static ModifierTierData tiers_essence_229[] = {
+ModifierTierData tiers_essence_229[] = {
     {
         .tier_name = "Lesser Essence of the Mind",
         .level_req = 16,
@@ -67176,7 +67177,7 @@ static ModifierTierData tiers_essence_229[] = {
     },
 };
 
-static ModifierTierData tiers_essence_230[] = {
+ModifierTierData tiers_essence_230[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -67215,7 +67216,7 @@ static ModifierTierData tiers_essence_230[] = {
     },
 };
 
-static ModifierTierData tiers_essence_231[] = {
+ModifierTierData tiers_essence_231[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -67254,7 +67255,7 @@ static ModifierTierData tiers_essence_231[] = {
     },
 };
 
-static ModifierTierData tiers_essence_232[] = {
+ModifierTierData tiers_essence_232[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -67293,7 +67294,7 @@ static ModifierTierData tiers_essence_232[] = {
     },
 };
 
-static ModifierTierData tiers_essence_233[] = {
+ModifierTierData tiers_essence_233[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -67332,7 +67333,7 @@ static ModifierTierData tiers_essence_233[] = {
     },
 };
 
-static ModifierTierData tiers_essence_234[] = {
+ModifierTierData tiers_essence_234[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -67371,7 +67372,7 @@ static ModifierTierData tiers_essence_234[] = {
     },
 };
 
-static ModifierTierData tiers_essence_235[] = {
+ModifierTierData tiers_essence_235[] = {
     {
         .tier_name = "Lesser Essence of Enhancement",
         .level_req = 16,
@@ -67410,7 +67411,7 @@ static ModifierTierData tiers_essence_235[] = {
     },
 };
 
-static ModifierTierData tiers_essence_236[] = {
+ModifierTierData tiers_essence_236[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -67449,7 +67450,7 @@ static ModifierTierData tiers_essence_236[] = {
     },
 };
 
-static ModifierTierData tiers_essence_237[] = {
+ModifierTierData tiers_essence_237[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -67488,7 +67489,7 @@ static ModifierTierData tiers_essence_237[] = {
     },
 };
 
-static ModifierTierData tiers_essence_238[] = {
+ModifierTierData tiers_essence_238[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -67527,7 +67528,7 @@ static ModifierTierData tiers_essence_238[] = {
     },
 };
 
-static ModifierTierData tiers_essence_239[] = {
+ModifierTierData tiers_essence_239[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -67566,7 +67567,7 @@ static ModifierTierData tiers_essence_239[] = {
     },
 };
 
-static ModifierTierData tiers_essence_240[] = {
+ModifierTierData tiers_essence_240[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -67605,7 +67606,7 @@ static ModifierTierData tiers_essence_240[] = {
     },
 };
 
-static ModifierTierData tiers_essence_241[] = {
+ModifierTierData tiers_essence_241[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -67644,7 +67645,7 @@ static ModifierTierData tiers_essence_241[] = {
     },
 };
 
-static ModifierTierData tiers_essence_242[] = {
+ModifierTierData tiers_essence_242[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -67683,7 +67684,7 @@ static ModifierTierData tiers_essence_242[] = {
     },
 };
 
-static ModifierTierData tiers_essence_243[] = {
+ModifierTierData tiers_essence_243[] = {
     {
         .tier_name = "Lesser Essence of Opulence",
         .level_req = 24,
@@ -67722,7 +67723,7 @@ static ModifierTierData tiers_essence_243[] = {
     },
 };
 
-static ModifierTierData tiers_essence_244[] = {
+ModifierTierData tiers_essence_244[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 6,
@@ -67749,7 +67750,7 @@ static ModifierTierData tiers_essence_244[] = {
     },
 };
 
-static ModifierTierData tiers_essence_245[] = {
+ModifierTierData tiers_essence_245[] = {
     {
         .tier_name = "Lesser Essence of the Mind",
         .level_req = 16,
@@ -67788,7 +67789,7 @@ static ModifierTierData tiers_essence_245[] = {
     },
 };
 
-static ModifierTierData tiers_essence_246[] = {
+ModifierTierData tiers_essence_246[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -67827,7 +67828,7 @@ static ModifierTierData tiers_essence_246[] = {
     },
 };
 
-static ModifierTierData tiers_essence_247[] = {
+ModifierTierData tiers_essence_247[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -67866,7 +67867,7 @@ static ModifierTierData tiers_essence_247[] = {
     },
 };
 
-static ModifierTierData tiers_essence_248[] = {
+ModifierTierData tiers_essence_248[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -67905,7 +67906,7 @@ static ModifierTierData tiers_essence_248[] = {
     },
 };
 
-static ModifierTierData tiers_essence_249[] = {
+ModifierTierData tiers_essence_249[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -67944,7 +67945,7 @@ static ModifierTierData tiers_essence_249[] = {
     },
 };
 
-static ModifierTierData tiers_essence_250[] = {
+ModifierTierData tiers_essence_250[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -67983,7 +67984,7 @@ static ModifierTierData tiers_essence_250[] = {
     },
 };
 
-static ModifierTierData tiers_essence_251[] = {
+ModifierTierData tiers_essence_251[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -68022,7 +68023,7 @@ static ModifierTierData tiers_essence_251[] = {
     },
 };
 
-static ModifierTierData tiers_essence_252[] = {
+ModifierTierData tiers_essence_252[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -68061,7 +68062,7 @@ static ModifierTierData tiers_essence_252[] = {
     },
 };
 
-static ModifierTierData tiers_essence_253[] = {
+ModifierTierData tiers_essence_253[] = {
     {
         .tier_name = "Lesser Essence of Opulence",
         .level_req = 24,
@@ -68100,7 +68101,7 @@ static ModifierTierData tiers_essence_253[] = {
     },
 };
 
-static ModifierTierData tiers_essence_254[] = {
+ModifierTierData tiers_essence_254[] = {
     {
         .tier_name = "Lesser Essence of the Body",
         .level_req = 6,
@@ -68139,7 +68140,7 @@ static ModifierTierData tiers_essence_254[] = {
     },
 };
 
-static ModifierTierData tiers_essence_255[] = {
+ModifierTierData tiers_essence_255[] = {
     {
         .tier_name = "Lesser Essence of the Mind",
         .level_req = 16,
@@ -68178,7 +68179,7 @@ static ModifierTierData tiers_essence_255[] = {
     },
 };
 
-static ModifierTierData tiers_essence_256[] = {
+ModifierTierData tiers_essence_256[] = {
     {
         .tier_name = "Lesser Essence of Ruin",
         .level_req = 16,
@@ -68217,7 +68218,7 @@ static ModifierTierData tiers_essence_256[] = {
     },
 };
 
-static ModifierTierData tiers_essence_257[] = {
+ModifierTierData tiers_essence_257[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -68256,7 +68257,7 @@ static ModifierTierData tiers_essence_257[] = {
     },
 };
 
-static ModifierTierData tiers_essence_258[] = {
+ModifierTierData tiers_essence_258[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -68295,7 +68296,7 @@ static ModifierTierData tiers_essence_258[] = {
     },
 };
 
-static ModifierTierData tiers_essence_259[] = {
+ModifierTierData tiers_essence_259[] = {
     {
         .tier_name = "Lesser Essence of the Infinite",
         .level_req = 11,
@@ -68334,7 +68335,7 @@ static ModifierTierData tiers_essence_259[] = {
     },
 };
 
-static ModifierTierData tiers_essence_260[] = {
+ModifierTierData tiers_essence_260[] = {
     {
         .tier_name = "Lesser Essence of Insulation",
         .level_req = 12,
@@ -68373,7 +68374,7 @@ static ModifierTierData tiers_essence_260[] = {
     },
 };
 
-static ModifierTierData tiers_essence_261[] = {
+ModifierTierData tiers_essence_261[] = {
     {
         .tier_name = "Lesser Essence of Thawing",
         .level_req = 12,
@@ -68412,7 +68413,7 @@ static ModifierTierData tiers_essence_261[] = {
     },
 };
 
-static ModifierTierData tiers_essence_262[] = {
+ModifierTierData tiers_essence_262[] = {
     {
         .tier_name = "Lesser Essence of Grounding",
         .level_req = 12,
@@ -68451,7 +68452,7 @@ static ModifierTierData tiers_essence_262[] = {
     },
 };
 
-static ModifierTierData tiers_essence_263[] = {
+ModifierTierData tiers_essence_263[] = {
     {
         .tier_name = "Lesser Essence of Opulence",
         .level_req = 24,
@@ -68492,7 +68493,7 @@ static ModifierTierData tiers_essence_263[] = {
 
 
 // PERFECT_ESSENCE tier data
-static ModifierTierData tiers_perfect_essence_0[] = {
+ModifierTierData tiers_perfect_essence_0[] = {
     {
         .tier_name = "Perfect Essence of Abrasion",
         .level_req = 72,
@@ -68507,7 +68508,7 @@ static ModifierTierData tiers_perfect_essence_0[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_1[] = {
+ModifierTierData tiers_perfect_essence_1[] = {
     {
         .tier_name = "Perfect Essence of Flames",
         .level_req = 72,
@@ -68522,7 +68523,7 @@ static ModifierTierData tiers_perfect_essence_1[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_2[] = {
+ModifierTierData tiers_perfect_essence_2[] = {
     {
         .tier_name = "Perfect Essence of Ice",
         .level_req = 72,
@@ -68537,7 +68538,7 @@ static ModifierTierData tiers_perfect_essence_2[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_3[] = {
+ModifierTierData tiers_perfect_essence_3[] = {
     {
         .tier_name = "Perfect Essence of Electricity",
         .level_req = 72,
@@ -68552,7 +68553,7 @@ static ModifierTierData tiers_perfect_essence_3[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_4[] = {
+ModifierTierData tiers_perfect_essence_4[] = {
     {
         .tier_name = "Perfect Essence of Battle",
         .level_req = 72,
@@ -68567,7 +68568,7 @@ static ModifierTierData tiers_perfect_essence_4[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_5[] = {
+ModifierTierData tiers_perfect_essence_5[] = {
     {
         .tier_name = "Perfect Essence of Haste",
         .level_req = 72,
@@ -68582,7 +68583,7 @@ static ModifierTierData tiers_perfect_essence_5[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_6[] = {
+ModifierTierData tiers_perfect_essence_6[] = {
     {
         .tier_name = "Perfect Essence of Abrasion",
         .level_req = 72,
@@ -68597,7 +68598,7 @@ static ModifierTierData tiers_perfect_essence_6[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_7[] = {
+ModifierTierData tiers_perfect_essence_7[] = {
     {
         .tier_name = "Perfect Essence of Flames",
         .level_req = 72,
@@ -68612,7 +68613,7 @@ static ModifierTierData tiers_perfect_essence_7[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_8[] = {
+ModifierTierData tiers_perfect_essence_8[] = {
     {
         .tier_name = "Perfect Essence of Ice",
         .level_req = 72,
@@ -68627,7 +68628,7 @@ static ModifierTierData tiers_perfect_essence_8[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_9[] = {
+ModifierTierData tiers_perfect_essence_9[] = {
     {
         .tier_name = "Perfect Essence of Electricity",
         .level_req = 72,
@@ -68642,7 +68643,7 @@ static ModifierTierData tiers_perfect_essence_9[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_10[] = {
+ModifierTierData tiers_perfect_essence_10[] = {
     {
         .tier_name = "Perfect Essence of Battle",
         .level_req = 72,
@@ -68657,7 +68658,7 @@ static ModifierTierData tiers_perfect_essence_10[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_11[] = {
+ModifierTierData tiers_perfect_essence_11[] = {
     {
         .tier_name = "Perfect Essence of Haste",
         .level_req = 72,
@@ -68672,7 +68673,7 @@ static ModifierTierData tiers_perfect_essence_11[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_12[] = {
+ModifierTierData tiers_perfect_essence_12[] = {
     {
         .tier_name = "Perfect Essence of Sorcery",
         .level_req = 72,
@@ -68687,7 +68688,7 @@ static ModifierTierData tiers_perfect_essence_12[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_13[] = {
+ModifierTierData tiers_perfect_essence_13[] = {
     {
         .tier_name = "Perfect Essence of Alacrity",
         .level_req = 72,
@@ -68702,7 +68703,7 @@ static ModifierTierData tiers_perfect_essence_13[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_14[] = {
+ModifierTierData tiers_perfect_essence_14[] = {
     {
         .tier_name = "Perfect Essence of Abrasion",
         .level_req = 72,
@@ -68717,7 +68718,7 @@ static ModifierTierData tiers_perfect_essence_14[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_15[] = {
+ModifierTierData tiers_perfect_essence_15[] = {
     {
         .tier_name = "Perfect Essence of Flames",
         .level_req = 72,
@@ -68732,7 +68733,7 @@ static ModifierTierData tiers_perfect_essence_15[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_16[] = {
+ModifierTierData tiers_perfect_essence_16[] = {
     {
         .tier_name = "Perfect Essence of Ice",
         .level_req = 72,
@@ -68747,7 +68748,7 @@ static ModifierTierData tiers_perfect_essence_16[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_17[] = {
+ModifierTierData tiers_perfect_essence_17[] = {
     {
         .tier_name = "Perfect Essence of Electricity",
         .level_req = 72,
@@ -68762,7 +68763,7 @@ static ModifierTierData tiers_perfect_essence_17[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_18[] = {
+ModifierTierData tiers_perfect_essence_18[] = {
     {
         .tier_name = "Perfect Essence of Battle",
         .level_req = 72,
@@ -68777,7 +68778,7 @@ static ModifierTierData tiers_perfect_essence_18[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_19[] = {
+ModifierTierData tiers_perfect_essence_19[] = {
     {
         .tier_name = "Perfect Essence of Haste",
         .level_req = 72,
@@ -68792,7 +68793,7 @@ static ModifierTierData tiers_perfect_essence_19[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_20[] = {
+ModifierTierData tiers_perfect_essence_20[] = {
     {
         .tier_name = "Perfect Essence of Abrasion",
         .level_req = 72,
@@ -68807,7 +68808,7 @@ static ModifierTierData tiers_perfect_essence_20[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_21[] = {
+ModifierTierData tiers_perfect_essence_21[] = {
     {
         .tier_name = "Perfect Essence of Flames",
         .level_req = 72,
@@ -68822,7 +68823,7 @@ static ModifierTierData tiers_perfect_essence_21[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_22[] = {
+ModifierTierData tiers_perfect_essence_22[] = {
     {
         .tier_name = "Perfect Essence of Ice",
         .level_req = 72,
@@ -68837,7 +68838,7 @@ static ModifierTierData tiers_perfect_essence_22[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_23[] = {
+ModifierTierData tiers_perfect_essence_23[] = {
     {
         .tier_name = "Perfect Essence of Electricity",
         .level_req = 72,
@@ -68852,7 +68853,7 @@ static ModifierTierData tiers_perfect_essence_23[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_24[] = {
+ModifierTierData tiers_perfect_essence_24[] = {
     {
         .tier_name = "Perfect Essence of Battle",
         .level_req = 72,
@@ -68867,7 +68868,7 @@ static ModifierTierData tiers_perfect_essence_24[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_25[] = {
+ModifierTierData tiers_perfect_essence_25[] = {
     {
         .tier_name = "Perfect Essence of Haste",
         .level_req = 72,
@@ -68882,7 +68883,7 @@ static ModifierTierData tiers_perfect_essence_25[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_26[] = {
+ModifierTierData tiers_perfect_essence_26[] = {
     {
         .tier_name = "Perfect Essence of Abrasion",
         .level_req = 72,
@@ -68897,7 +68898,7 @@ static ModifierTierData tiers_perfect_essence_26[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_27[] = {
+ModifierTierData tiers_perfect_essence_27[] = {
     {
         .tier_name = "Perfect Essence of Flames",
         .level_req = 72,
@@ -68912,7 +68913,7 @@ static ModifierTierData tiers_perfect_essence_27[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_28[] = {
+ModifierTierData tiers_perfect_essence_28[] = {
     {
         .tier_name = "Perfect Essence of Ice",
         .level_req = 72,
@@ -68927,7 +68928,7 @@ static ModifierTierData tiers_perfect_essence_28[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_29[] = {
+ModifierTierData tiers_perfect_essence_29[] = {
     {
         .tier_name = "Perfect Essence of Electricity",
         .level_req = 72,
@@ -68942,7 +68943,7 @@ static ModifierTierData tiers_perfect_essence_29[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_30[] = {
+ModifierTierData tiers_perfect_essence_30[] = {
     {
         .tier_name = "Perfect Essence of Battle",
         .level_req = 72,
@@ -68957,7 +68958,7 @@ static ModifierTierData tiers_perfect_essence_30[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_31[] = {
+ModifierTierData tiers_perfect_essence_31[] = {
     {
         .tier_name = "Perfect Essence of Haste",
         .level_req = 72,
@@ -68972,7 +68973,7 @@ static ModifierTierData tiers_perfect_essence_31[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_32[] = {
+ModifierTierData tiers_perfect_essence_32[] = {
     {
         .tier_name = "Perfect Essence of Command",
         .level_req = 72,
@@ -68987,7 +68988,7 @@ static ModifierTierData tiers_perfect_essence_32[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_33[] = {
+ModifierTierData tiers_perfect_essence_33[] = {
     {
         .tier_name = "Perfect Essence of Abrasion",
         .level_req = 72,
@@ -69002,7 +69003,7 @@ static ModifierTierData tiers_perfect_essence_33[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_34[] = {
+ModifierTierData tiers_perfect_essence_34[] = {
     {
         .tier_name = "Perfect Essence of Flames",
         .level_req = 72,
@@ -69017,7 +69018,7 @@ static ModifierTierData tiers_perfect_essence_34[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_35[] = {
+ModifierTierData tiers_perfect_essence_35[] = {
     {
         .tier_name = "Perfect Essence of Ice",
         .level_req = 72,
@@ -69032,7 +69033,7 @@ static ModifierTierData tiers_perfect_essence_35[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_36[] = {
+ModifierTierData tiers_perfect_essence_36[] = {
     {
         .tier_name = "Perfect Essence of Electricity",
         .level_req = 72,
@@ -69047,7 +69048,7 @@ static ModifierTierData tiers_perfect_essence_36[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_37[] = {
+ModifierTierData tiers_perfect_essence_37[] = {
     {
         .tier_name = "Perfect Essence of Battle",
         .level_req = 72,
@@ -69062,7 +69063,7 @@ static ModifierTierData tiers_perfect_essence_37[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_38[] = {
+ModifierTierData tiers_perfect_essence_38[] = {
     {
         .tier_name = "Perfect Essence of Haste",
         .level_req = 72,
@@ -69077,7 +69078,7 @@ static ModifierTierData tiers_perfect_essence_38[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_39[] = {
+ModifierTierData tiers_perfect_essence_39[] = {
     {
         .tier_name = "Perfect Essence of Sorcery",
         .level_req = 72,
@@ -69092,7 +69093,7 @@ static ModifierTierData tiers_perfect_essence_39[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_40[] = {
+ModifierTierData tiers_perfect_essence_40[] = {
     {
         .tier_name = "Perfect Essence of Alacrity",
         .level_req = 72,
@@ -69107,7 +69108,7 @@ static ModifierTierData tiers_perfect_essence_40[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_41[] = {
+ModifierTierData tiers_perfect_essence_41[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 33,
@@ -69122,7 +69123,7 @@ static ModifierTierData tiers_perfect_essence_41[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_42[] = {
+ModifierTierData tiers_perfect_essence_42[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 33,
@@ -69137,7 +69138,7 @@ static ModifierTierData tiers_perfect_essence_42[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_43[] = {
+ModifierTierData tiers_perfect_essence_43[] = {
     {
         .tier_name = "Perfect Essence of Sorcery",
         .level_req = 72,
@@ -69152,7 +69153,7 @@ static ModifierTierData tiers_perfect_essence_43[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_44[] = {
+ModifierTierData tiers_perfect_essence_44[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 48,
@@ -69167,7 +69168,7 @@ static ModifierTierData tiers_perfect_essence_44[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_45[] = {
+ModifierTierData tiers_perfect_essence_45[] = {
     {
         .tier_name = "Perfect Essence of Alacrity",
         .level_req = 72,
@@ -69182,7 +69183,7 @@ static ModifierTierData tiers_perfect_essence_45[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_46[] = {
+ModifierTierData tiers_perfect_essence_46[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 33,
@@ -69197,7 +69198,7 @@ static ModifierTierData tiers_perfect_essence_46[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_47[] = {
+ModifierTierData tiers_perfect_essence_47[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 60,
@@ -69212,7 +69213,7 @@ static ModifierTierData tiers_perfect_essence_47[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_48[] = {
+ModifierTierData tiers_perfect_essence_48[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 65,
@@ -69227,7 +69228,7 @@ static ModifierTierData tiers_perfect_essence_48[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_49[] = {
+ModifierTierData tiers_perfect_essence_49[] = {
     {
         .tier_name = "Perfect Essence of Horror",
         .level_req = 1,
@@ -69242,7 +69243,7 @@ static ModifierTierData tiers_perfect_essence_49[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_50[] = {
+ModifierTierData tiers_perfect_essence_50[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 65,
@@ -69257,7 +69258,7 @@ static ModifierTierData tiers_perfect_essence_50[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_51[] = {
+ModifierTierData tiers_perfect_essence_51[] = {
     {
         .tier_name = "Perfect Essence of Horror",
         .level_req = 1,
@@ -69272,7 +69273,7 @@ static ModifierTierData tiers_perfect_essence_51[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_52[] = {
+ModifierTierData tiers_perfect_essence_52[] = {
     {
         .tier_name = "Perfect Essence of the Body",
         .level_req = 72,
@@ -69287,7 +69288,7 @@ static ModifierTierData tiers_perfect_essence_52[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_53[] = {
+ModifierTierData tiers_perfect_essence_53[] = {
     {
         .tier_name = "Perfect Essence of Ruin",
         .level_req = 72,
@@ -69302,7 +69303,7 @@ static ModifierTierData tiers_perfect_essence_53[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_54[] = {
+ModifierTierData tiers_perfect_essence_54[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 63,
@@ -69317,7 +69318,7 @@ static ModifierTierData tiers_perfect_essence_54[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_55[] = {
+ModifierTierData tiers_perfect_essence_55[] = {
     {
         .tier_name = "Perfect Essence of Seeking",
         .level_req = 72,
@@ -69332,7 +69333,7 @@ static ModifierTierData tiers_perfect_essence_55[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_56[] = {
+ModifierTierData tiers_perfect_essence_56[] = {
     {
         .tier_name = "Perfect Essence of the Body",
         .level_req = 72,
@@ -69347,7 +69348,7 @@ static ModifierTierData tiers_perfect_essence_56[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_57[] = {
+ModifierTierData tiers_perfect_essence_57[] = {
     {
         .tier_name = "Perfect Essence of Ruin",
         .level_req = 72,
@@ -69362,7 +69363,7 @@ static ModifierTierData tiers_perfect_essence_57[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_58[] = {
+ModifierTierData tiers_perfect_essence_58[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 63,
@@ -69377,7 +69378,7 @@ static ModifierTierData tiers_perfect_essence_58[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_59[] = {
+ModifierTierData tiers_perfect_essence_59[] = {
     {
         .tier_name = "Perfect Essence of Seeking",
         .level_req = 72,
@@ -69392,7 +69393,7 @@ static ModifierTierData tiers_perfect_essence_59[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_60[] = {
+ModifierTierData tiers_perfect_essence_60[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 45,
@@ -69407,7 +69408,7 @@ static ModifierTierData tiers_perfect_essence_60[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_61[] = {
+ModifierTierData tiers_perfect_essence_61[] = {
     {
         .tier_name = "Perfect Essence of Horror",
         .level_req = 1,
@@ -69422,7 +69423,7 @@ static ModifierTierData tiers_perfect_essence_61[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_62[] = {
+ModifierTierData tiers_perfect_essence_62[] = {
     {
         .tier_name = "Perfect Essence of Grounding",
         .level_req = 72,
@@ -69437,7 +69438,7 @@ static ModifierTierData tiers_perfect_essence_62[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_63[] = {
+ModifierTierData tiers_perfect_essence_63[] = {
     {
         .tier_name = "Perfect Essence of Opulence",
         .level_req = 72,
@@ -69452,7 +69453,7 @@ static ModifierTierData tiers_perfect_essence_63[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_64[] = {
+ModifierTierData tiers_perfect_essence_64[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 45,
@@ -69467,7 +69468,7 @@ static ModifierTierData tiers_perfect_essence_64[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_65[] = {
+ModifierTierData tiers_perfect_essence_65[] = {
     {
         .tier_name = "Perfect Essence of Horror",
         .level_req = 1,
@@ -69482,7 +69483,7 @@ static ModifierTierData tiers_perfect_essence_65[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_66[] = {
+ModifierTierData tiers_perfect_essence_66[] = {
     {
         .tier_name = "Perfect Essence of Grounding",
         .level_req = 72,
@@ -69497,7 +69498,7 @@ static ModifierTierData tiers_perfect_essence_66[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_67[] = {
+ModifierTierData tiers_perfect_essence_67[] = {
     {
         .tier_name = "Perfect Essence of Opulence",
         .level_req = 72,
@@ -69512,7 +69513,7 @@ static ModifierTierData tiers_perfect_essence_67[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_68[] = {
+ModifierTierData tiers_perfect_essence_68[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 5,
@@ -69527,7 +69528,7 @@ static ModifierTierData tiers_perfect_essence_68[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_69[] = {
+ModifierTierData tiers_perfect_essence_69[] = {
     {
         .tier_name = "Perfect Essence of Thawing",
         .level_req = 72,
@@ -69542,7 +69543,7 @@ static ModifierTierData tiers_perfect_essence_69[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_70[] = {
+ModifierTierData tiers_perfect_essence_70[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 5,
@@ -69557,7 +69558,7 @@ static ModifierTierData tiers_perfect_essence_70[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_71[] = {
+ModifierTierData tiers_perfect_essence_71[] = {
     {
         .tier_name = "Perfect Essence of Thawing",
         .level_req = 72,
@@ -69572,7 +69573,7 @@ static ModifierTierData tiers_perfect_essence_71[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_72[] = {
+ModifierTierData tiers_perfect_essence_72[] = {
     {
         .tier_name = "Perfect Essence of the Mind",
         .level_req = 72,
@@ -69587,7 +69588,7 @@ static ModifierTierData tiers_perfect_essence_72[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_73[] = {
+ModifierTierData tiers_perfect_essence_73[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 55,
@@ -69602,7 +69603,7 @@ static ModifierTierData tiers_perfect_essence_73[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_74[] = {
+ModifierTierData tiers_perfect_essence_74[] = {
     {
         .tier_name = "Perfect Essence of Enhancement",
         .level_req = 72,
@@ -69617,7 +69618,7 @@ static ModifierTierData tiers_perfect_essence_74[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_75[] = {
+ModifierTierData tiers_perfect_essence_75[] = {
     {
         .tier_name = "Perfect Essence of the Infinite",
         .level_req = 72,
@@ -69632,7 +69633,7 @@ static ModifierTierData tiers_perfect_essence_75[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_76[] = {
+ModifierTierData tiers_perfect_essence_76[] = {
     {
         .tier_name = "Perfect Essence of the Infinite",
         .level_req = 72,
@@ -69647,7 +69648,7 @@ static ModifierTierData tiers_perfect_essence_76[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_77[] = {
+ModifierTierData tiers_perfect_essence_77[] = {
     {
         .tier_name = "Perfect Essence of the Infinite",
         .level_req = 72,
@@ -69662,7 +69663,7 @@ static ModifierTierData tiers_perfect_essence_77[] = {
     },
 };
 
-static ModifierTierData tiers_perfect_essence_78[] = {
+ModifierTierData tiers_perfect_essence_78[] = {
     {
         .tier_name = "Perfect Essence of Hysteria",
         .level_req = 68,
@@ -69678,7 +69679,12 @@ static ModifierTierData tiers_perfect_essence_78[] = {
 };
 
 
-void init_modifiers_data(void) {
+Modifier* init_normal_modifiers_data(void) {
+
+	// Allocating the arrays
+
+    MODIFIERS_NORMAL = malloc(sizeof(Modifier) * MODIFIERS_NORMAL_COUNT);
+
     // NORMAL modifiers
     MODIFIERS_NORMAL[0] = (Modifier){
         .id = 0,
@@ -76666,6 +76672,14 @@ void init_modifiers_data(void) {
         .fractured = false
     };
 
+	return MODIFIERS_NORMAL;
+}
+
+Modifier* init_desecrated_modifiers_data()
+{
+
+    MODIFIERS_DESECRATED = malloc(sizeof(Modifier) * MODIFIERS_DESECRATED_COUNT);
+
     // DESECRATED modifiers
     MODIFIERS_DESECRATED[0] = (Modifier){
         .id = 0,
@@ -80617,6 +80631,15 @@ void init_modifiers_data(void) {
         .fractured = false
     };
 
+	return MODIFIERS_DESECRATED;
+}
+
+Modifier* init_essence_modifiers_data()
+{
+
+	MODIFIERS_ESSENCE = malloc(sizeof(Modifier) * MODIFIERS_ESSENCE_COUNT);
+
+
     // ESSENCE modifiers
     MODIFIERS_ESSENCE[0] = (Modifier){
         .id = 0,
@@ -83522,6 +83545,13 @@ void init_modifiers_data(void) {
         .tiers = tiers_essence_263,
         .fractured = false
     };
+
+	return MODIFIERS_ESSENCE;
+}
+
+Modifier* init_modifier_perfect_essence() {
+
+	MODIFIERS_PERFECT_ESSENCE = malloc(sizeof(Modifier) * MODIFIERS_PERFECT_ESSENCE_COUNT);
 
     // PERFECT_ESSENCE modifiers
     MODIFIERS_PERFECT_ESSENCE[0] = (Modifier){

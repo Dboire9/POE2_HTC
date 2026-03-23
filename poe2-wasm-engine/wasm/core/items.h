@@ -56,6 +56,7 @@ typedef struct {
     const Modifier* suffixes[3];
     int desired_suffix_tiers[3]; // Store the desired tier for each suffix
 	uint8_t suffix_count;
+	bool fractured; // Whether this item instance has fractured modifiers
 } ItemInstance;
 
 // Item database

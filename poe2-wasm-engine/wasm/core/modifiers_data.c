@@ -69688,7 +69688,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_0
+        .tiers = tiers_normal_0,
+        .fractured = false,
     };
     MODIFIERS_NORMAL[1] = (Modifier){
         .id = 1,
@@ -69698,7 +69699,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_1
+        .tiers = tiers_normal_1,
+        .fractured = false
     };
     MODIFIERS_NORMAL[2] = (Modifier){
         .id = 2,
@@ -69708,7 +69710,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_2
+        .tiers = tiers_normal_2,
+        .fractured = false
     };
     MODIFIERS_NORMAL[3] = (Modifier){
         .id = 3,
@@ -69718,7 +69721,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_3
+        .tiers = tiers_normal_3,
+        .fractured = false
     };
     MODIFIERS_NORMAL[4] = (Modifier){
         .id = 4,
@@ -69728,7 +69732,8 @@ void init_modifiers_data(void) {
         .name = "LocalPhysicalDamagePercent",
         .description = "#% increased Physical Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_4
+        .tiers = tiers_normal_4,
+        .fractured = false
     };
     MODIFIERS_NORMAL[5] = (Modifier){
         .id = 5,
@@ -69738,7 +69743,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_5
+        .tiers = tiers_normal_5,
+        .fractured = false
     };
     MODIFIERS_NORMAL[6] = (Modifier){
         .id = 6,
@@ -69748,7 +69754,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_6
+        .tiers = tiers_normal_6,
+        .fractured = false
     };
     MODIFIERS_NORMAL[7] = (Modifier){
         .id = 7,
@@ -69758,7 +69765,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedWeaponElementalDamagePercent",
         .description = "#% increased Elemental Damage with Attacks",
         .tier_count = 6,
-        .tiers = tiers_normal_7
+        .tiers = tiers_normal_7,
+        .fractured = false
     };
     MODIFIERS_NORMAL[8] = (Modifier){
         .id = 8,
@@ -69768,7 +69776,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_8
+        .tiers = tiers_normal_8,
+        .fractured = false
     };
     MODIFIERS_NORMAL[9] = (Modifier){
         .id = 9,
@@ -69778,7 +69787,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_9
+        .tiers = tiers_normal_9,
+        .fractured = false
     };
     MODIFIERS_NORMAL[10] = (Modifier){
         .id = 10,
@@ -69788,7 +69798,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Melee Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_10
+        .tiers = tiers_normal_10,
+        .fractured = false
     };
     MODIFIERS_NORMAL[11] = (Modifier){
         .id = 11,
@@ -69798,7 +69809,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "Leeches #% of Physical Damage as Life",
         .tier_count = 5,
-        .tiers = tiers_normal_11
+        .tiers = tiers_normal_11,
+        .fractured = false
     };
     MODIFIERS_NORMAL[12] = (Modifier){
         .id = 12,
@@ -69808,7 +69820,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeech",
         .description = "Leeches #% of Physical Damage as Mana",
         .tier_count = 5,
-        .tiers = tiers_normal_12
+        .tiers = tiers_normal_12,
+        .fractured = false
     };
     MODIFIERS_NORMAL[13] = (Modifier){
         .id = 13,
@@ -69818,7 +69831,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_13
+        .tiers = tiers_normal_13,
+        .fractured = false
     };
     MODIFIERS_NORMAL[14] = (Modifier){
         .id = 14,
@@ -69828,7 +69842,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_14
+        .tiers = tiers_normal_14,
+        .fractured = false
     };
     MODIFIERS_NORMAL[15] = (Modifier){
         .id = 15,
@@ -69838,7 +69853,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainPerTarget",
         .description = "Grants # Life per Enemy Hit",
         .tier_count = 4,
-        .tiers = tiers_normal_15
+        .tiers = tiers_normal_15,
+        .fractured = false
     };
     MODIFIERS_NORMAL[16] = (Modifier){
         .id = 16,
@@ -69848,7 +69864,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 8,
-        .tiers = tiers_normal_16
+        .tiers = tiers_normal_16,
+        .fractured = false
     };
     MODIFIERS_NORMAL[17] = (Modifier){
         .id = 17,
@@ -69858,7 +69875,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 6,
-        .tiers = tiers_normal_17
+        .tiers = tiers_normal_17,
+        .fractured = false
     };
     MODIFIERS_NORMAL[18] = (Modifier){
         .id = 18,
@@ -69868,7 +69886,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "+#% to Critical Damage Bonus",
         .tier_count = 6,
-        .tiers = tiers_normal_18
+        .tiers = tiers_normal_18,
+        .fractured = false
     };
     MODIFIERS_NORMAL[19] = (Modifier){
         .id = 19,
@@ -69878,7 +69897,8 @@ void init_modifiers_data(void) {
         .name = "LightRadiusAndAccuracy",
         .description = "+# to Accuracy Rating / #% increased Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_19
+        .tiers = tiers_normal_19,
+        .fractured = false
     };
     MODIFIERS_NORMAL[20] = (Modifier){
         .id = 20,
@@ -69888,7 +69908,8 @@ void init_modifiers_data(void) {
         .name = "StunDurationIncreasePercent",
         .description = "#% increased Stun Duration",
         .tier_count = 6,
-        .tiers = tiers_normal_20
+        .tiers = tiers_normal_20,
+        .fractured = false
     };
     MODIFIERS_NORMAL[21] = (Modifier){
         .id = 21,
@@ -69898,7 +69919,8 @@ void init_modifiers_data(void) {
         .name = "StunDamageIncrease",
         .description = "Causes #% increased Stun Buildup",
         .tier_count = 6,
-        .tiers = tiers_normal_21
+        .tiers = tiers_normal_21,
+        .fractured = false
     };
     MODIFIERS_NORMAL[22] = (Modifier){
         .id = 22,
@@ -69908,7 +69930,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_22
+        .tiers = tiers_normal_22,
+        .fractured = false
     };
     MODIFIERS_NORMAL[23] = (Modifier){
         .id = 23,
@@ -69918,7 +69941,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_23
+        .tiers = tiers_normal_23,
+        .fractured = false
     };
     MODIFIERS_NORMAL[24] = (Modifier){
         .id = 24,
@@ -69928,7 +69952,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_24
+        .tiers = tiers_normal_24,
+        .fractured = false
     };
     MODIFIERS_NORMAL[25] = (Modifier){
         .id = 25,
@@ -69938,7 +69963,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_25
+        .tiers = tiers_normal_25,
+        .fractured = false
     };
     MODIFIERS_NORMAL[26] = (Modifier){
         .id = 26,
@@ -69948,7 +69974,8 @@ void init_modifiers_data(void) {
         .name = "LocalPhysicalDamagePercent",
         .description = "#% increased Physical Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_26
+        .tiers = tiers_normal_26,
+        .fractured = false
     };
     MODIFIERS_NORMAL[27] = (Modifier){
         .id = 27,
@@ -69958,7 +69985,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_27
+        .tiers = tiers_normal_27,
+        .fractured = false
     };
     MODIFIERS_NORMAL[28] = (Modifier){
         .id = 28,
@@ -69968,7 +69996,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_28
+        .tiers = tiers_normal_28,
+        .fractured = false
     };
     MODIFIERS_NORMAL[29] = (Modifier){
         .id = 29,
@@ -69978,7 +70007,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedWeaponElementalDamagePercent",
         .description = "#% increased Elemental Damage with Attacks",
         .tier_count = 6,
-        .tiers = tiers_normal_29
+        .tiers = tiers_normal_29,
+        .fractured = false
     };
     MODIFIERS_NORMAL[30] = (Modifier){
         .id = 30,
@@ -69988,7 +70018,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_30
+        .tiers = tiers_normal_30,
+        .fractured = false
     };
     MODIFIERS_NORMAL[31] = (Modifier){
         .id = 31,
@@ -69998,7 +70029,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_31
+        .tiers = tiers_normal_31,
+        .fractured = false
     };
     MODIFIERS_NORMAL[32] = (Modifier){
         .id = 32,
@@ -70008,7 +70040,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_32
+        .tiers = tiers_normal_32,
+        .fractured = false
     };
     MODIFIERS_NORMAL[33] = (Modifier){
         .id = 33,
@@ -70018,7 +70051,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Melee Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_33
+        .tiers = tiers_normal_33,
+        .fractured = false
     };
     MODIFIERS_NORMAL[34] = (Modifier){
         .id = 34,
@@ -70028,7 +70062,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "Leeches #% of Physical Damage as Life",
         .tier_count = 5,
-        .tiers = tiers_normal_34
+        .tiers = tiers_normal_34,
+        .fractured = false
     };
     MODIFIERS_NORMAL[35] = (Modifier){
         .id = 35,
@@ -70038,7 +70073,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeech",
         .description = "Leeches #% of Physical Damage as Mana",
         .tier_count = 5,
-        .tiers = tiers_normal_35
+        .tiers = tiers_normal_35,
+        .fractured = false
     };
     MODIFIERS_NORMAL[36] = (Modifier){
         .id = 36,
@@ -70048,7 +70084,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_36
+        .tiers = tiers_normal_36,
+        .fractured = false
     };
     MODIFIERS_NORMAL[37] = (Modifier){
         .id = 37,
@@ -70058,7 +70095,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_37
+        .tiers = tiers_normal_37,
+        .fractured = false
     };
     MODIFIERS_NORMAL[38] = (Modifier){
         .id = 38,
@@ -70068,7 +70106,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainPerTarget",
         .description = "Grants # Life per Enemy Hit",
         .tier_count = 4,
-        .tiers = tiers_normal_38
+        .tiers = tiers_normal_38,
+        .fractured = false
     };
     MODIFIERS_NORMAL[39] = (Modifier){
         .id = 39,
@@ -70078,7 +70117,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 8,
-        .tiers = tiers_normal_39
+        .tiers = tiers_normal_39,
+        .fractured = false
     };
     MODIFIERS_NORMAL[40] = (Modifier){
         .id = 40,
@@ -70088,7 +70128,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 6,
-        .tiers = tiers_normal_40
+        .tiers = tiers_normal_40,
+        .fractured = false
     };
     MODIFIERS_NORMAL[41] = (Modifier){
         .id = 41,
@@ -70098,7 +70139,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "+#% to Critical Damage Bonus",
         .tier_count = 6,
-        .tiers = tiers_normal_41
+        .tiers = tiers_normal_41,
+        .fractured = false
     };
     MODIFIERS_NORMAL[42] = (Modifier){
         .id = 42,
@@ -70108,7 +70150,8 @@ void init_modifiers_data(void) {
         .name = "LightRadiusAndAccuracy",
         .description = "+# to Accuracy Rating / #% increased Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_42
+        .tiers = tiers_normal_42,
+        .fractured = false
     };
     MODIFIERS_NORMAL[43] = (Modifier){
         .id = 43,
@@ -70118,7 +70161,8 @@ void init_modifiers_data(void) {
         .name = "StunDurationIncreasePercent",
         .description = "#% increased Stun Duration",
         .tier_count = 6,
-        .tiers = tiers_normal_43
+        .tiers = tiers_normal_43,
+        .fractured = false
     };
     MODIFIERS_NORMAL[44] = (Modifier){
         .id = 44,
@@ -70128,7 +70172,8 @@ void init_modifiers_data(void) {
         .name = "StunDamageIncrease",
         .description = "Causes #% increased Stun Buildup",
         .tier_count = 6,
-        .tiers = tiers_normal_44
+        .tiers = tiers_normal_44,
+        .fractured = false
     };
     MODIFIERS_NORMAL[45] = (Modifier){
         .id = 45,
@@ -70138,7 +70183,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 11,
-        .tiers = tiers_normal_45
+        .tiers = tiers_normal_45,
+        .fractured = false
     };
     MODIFIERS_NORMAL[46] = (Modifier){
         .id = 46,
@@ -70148,7 +70194,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "+#% Increased Spell Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_46
+        .tiers = tiers_normal_46,
+        .fractured = false
     };
     MODIFIERS_NORMAL[47] = (Modifier){
         .id = 47,
@@ -70158,7 +70205,8 @@ void init_modifiers_data(void) {
         .name = "SpellDamageAndMana",
         .description = "+#% increased Spell Damage\n+# to maximum Mana",
         .tier_count = 7,
-        .tiers = tiers_normal_47
+        .tiers = tiers_normal_47,
+        .fractured = false
     };
     MODIFIERS_NORMAL[48] = (Modifier){
         .id = 48,
@@ -70168,7 +70216,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Fire Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_48
+        .tiers = tiers_normal_48,
+        .fractured = false
     };
     MODIFIERS_NORMAL[49] = (Modifier){
         .id = 49,
@@ -70178,7 +70227,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Cold Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_49
+        .tiers = tiers_normal_49,
+        .fractured = false
     };
     MODIFIERS_NORMAL[50] = (Modifier){
         .id = 50,
@@ -70188,7 +70238,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Lightning Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_50
+        .tiers = tiers_normal_50,
+        .fractured = false
     };
     MODIFIERS_NORMAL[51] = (Modifier){
         .id = 51,
@@ -70198,7 +70249,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Chaos Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_51
+        .tiers = tiers_normal_51,
+        .fractured = false
     };
     MODIFIERS_NORMAL[52] = (Modifier){
         .id = 52,
@@ -70208,7 +70260,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Spell Physical Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_52
+        .tiers = tiers_normal_52,
+        .fractured = false
     };
     MODIFIERS_NORMAL[53] = (Modifier){
         .id = 53,
@@ -70218,7 +70271,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "% of Damage as Extra Fire Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_53
+        .tiers = tiers_normal_53,
+        .fractured = false
     };
     MODIFIERS_NORMAL[54] = (Modifier){
         .id = 54,
@@ -70228,7 +70282,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "% of Damage as Extra Cold Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_54
+        .tiers = tiers_normal_54,
+        .fractured = false
     };
     MODIFIERS_NORMAL[55] = (Modifier){
         .id = 55,
@@ -70238,7 +70293,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "% of Damage as Extra Lightning Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_55
+        .tiers = tiers_normal_55,
+        .fractured = false
     };
     MODIFIERS_NORMAL[56] = (Modifier){
         .id = 56,
@@ -70248,7 +70304,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_56
+        .tiers = tiers_normal_56,
+        .fractured = false
     };
     MODIFIERS_NORMAL[57] = (Modifier){
         .id = 57,
@@ -70258,7 +70315,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "#% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_57
+        .tiers = tiers_normal_57,
+        .fractured = false
     };
     MODIFIERS_NORMAL[58] = (Modifier){
         .id = 58,
@@ -70268,7 +70326,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Spell Skills",
         .tier_count = 4,
-        .tiers = tiers_normal_58
+        .tiers = tiers_normal_58,
+        .fractured = false
     };
     MODIFIERS_NORMAL[59] = (Modifier){
         .id = 59,
@@ -70278,7 +70337,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Fire Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_59
+        .tiers = tiers_normal_59,
+        .fractured = false
     };
     MODIFIERS_NORMAL[60] = (Modifier){
         .id = 60,
@@ -70288,7 +70348,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Cold Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_60
+        .tiers = tiers_normal_60,
+        .fractured = false
     };
     MODIFIERS_NORMAL[61] = (Modifier){
         .id = 61,
@@ -70298,7 +70359,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Lightning Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_61
+        .tiers = tiers_normal_61,
+        .fractured = false
     };
     MODIFIERS_NORMAL[62] = (Modifier){
         .id = 62,
@@ -70308,7 +70370,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Chaos Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_62
+        .tiers = tiers_normal_62,
+        .fractured = false
     };
     MODIFIERS_NORMAL[63] = (Modifier){
         .id = 63,
@@ -70318,7 +70381,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Physical Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_63
+        .tiers = tiers_normal_63,
+        .fractured = false
     };
     MODIFIERS_NORMAL[64] = (Modifier){
         .id = 64,
@@ -70328,7 +70392,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate",
         .tier_count = 6,
-        .tiers = tiers_normal_64
+        .tiers = tiers_normal_64,
+        .fractured = false
     };
     MODIFIERS_NORMAL[65] = (Modifier){
         .id = 65,
@@ -70338,7 +70403,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_65
+        .tiers = tiers_normal_65,
+        .fractured = false
     };
     MODIFIERS_NORMAL[66] = (Modifier){
         .id = 66,
@@ -70348,7 +70414,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_66
+        .tiers = tiers_normal_66,
+        .fractured = false
     };
     MODIFIERS_NORMAL[67] = (Modifier){
         .id = 67,
@@ -70358,7 +70425,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed",
         .tier_count = 7,
-        .tiers = tiers_normal_67
+        .tiers = tiers_normal_67,
+        .fractured = false
     };
     MODIFIERS_NORMAL[68] = (Modifier){
         .id = 68,
@@ -70368,7 +70436,8 @@ void init_modifiers_data(void) {
         .name = "SpellCriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance for Spells",
         .tier_count = 6,
-        .tiers = tiers_normal_68
+        .tiers = tiers_normal_68,
+        .fractured = false
     };
     MODIFIERS_NORMAL[69] = (Modifier){
         .id = 69,
@@ -70378,7 +70447,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Spell Damage Bonus",
         .tier_count = 6,
-        .tiers = tiers_normal_69
+        .tiers = tiers_normal_69,
+        .fractured = false
     };
     MODIFIERS_NORMAL[70] = (Modifier){
         .id = 70,
@@ -70388,7 +70458,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate / #%Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_70
+        .tiers = tiers_normal_70,
+        .fractured = false
     };
     MODIFIERS_NORMAL[71] = (Modifier){
         .id = 71,
@@ -70398,7 +70469,8 @@ void init_modifiers_data(void) {
         .name = "IgniteChanceIncrease",
         .description = "#% increased Flammability Magnitude",
         .tier_count = 5,
-        .tiers = tiers_normal_71
+        .tiers = tiers_normal_71,
+        .fractured = false
     };
     MODIFIERS_NORMAL[72] = (Modifier){
         .id = 72,
@@ -70408,7 +70480,8 @@ void init_modifiers_data(void) {
         .name = "FreezeDamageIncrease",
         .description = "#% increased Freeze Buildup",
         .tier_count = 5,
-        .tiers = tiers_normal_72
+        .tiers = tiers_normal_72,
+        .fractured = false
     };
     MODIFIERS_NORMAL[73] = (Modifier){
         .id = 73,
@@ -70418,7 +70491,8 @@ void init_modifiers_data(void) {
         .name = "ShockChanceIncrease",
         .description = "#% increased chance to Shock",
         .tier_count = 5,
-        .tiers = tiers_normal_73
+        .tiers = tiers_normal_73,
+        .fractured = false
     };
     MODIFIERS_NORMAL[74] = (Modifier){
         .id = 74,
@@ -70428,7 +70502,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_74
+        .tiers = tiers_normal_74,
+        .fractured = false
     };
     MODIFIERS_NORMAL[75] = (Modifier){
         .id = 75,
@@ -70438,7 +70513,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_75
+        .tiers = tiers_normal_75,
+        .fractured = false
     };
     MODIFIERS_NORMAL[76] = (Modifier){
         .id = 76,
@@ -70448,7 +70524,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_76
+        .tiers = tiers_normal_76,
+        .fractured = false
     };
     MODIFIERS_NORMAL[77] = (Modifier){
         .id = 77,
@@ -70458,7 +70535,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_77
+        .tiers = tiers_normal_77,
+        .fractured = false
     };
     MODIFIERS_NORMAL[78] = (Modifier){
         .id = 78,
@@ -70468,7 +70546,8 @@ void init_modifiers_data(void) {
         .name = "LocalPhysicalDamagePercent",
         .description = "#% increased Physical Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_78
+        .tiers = tiers_normal_78,
+        .fractured = false
     };
     MODIFIERS_NORMAL[79] = (Modifier){
         .id = 79,
@@ -70478,7 +70557,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_79
+        .tiers = tiers_normal_79,
+        .fractured = false
     };
     MODIFIERS_NORMAL[80] = (Modifier){
         .id = 80,
@@ -70488,7 +70568,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_80
+        .tiers = tiers_normal_80,
+        .fractured = false
     };
     MODIFIERS_NORMAL[81] = (Modifier){
         .id = 81,
@@ -70498,7 +70579,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedWeaponElementalDamagePercent",
         .description = "#% increased Elemental Damage with Attacks",
         .tier_count = 6,
-        .tiers = tiers_normal_81
+        .tiers = tiers_normal_81,
+        .fractured = false
     };
     MODIFIERS_NORMAL[82] = (Modifier){
         .id = 82,
@@ -70508,7 +70590,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_82
+        .tiers = tiers_normal_82,
+        .fractured = false
     };
     MODIFIERS_NORMAL[83] = (Modifier){
         .id = 83,
@@ -70518,7 +70601,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_83
+        .tiers = tiers_normal_83,
+        .fractured = false
     };
     MODIFIERS_NORMAL[84] = (Modifier){
         .id = 84,
@@ -70528,7 +70612,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_84
+        .tiers = tiers_normal_84,
+        .fractured = false
     };
     MODIFIERS_NORMAL[85] = (Modifier){
         .id = 85,
@@ -70538,7 +70623,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Projectile Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_85
+        .tiers = tiers_normal_85,
+        .fractured = false
     };
     MODIFIERS_NORMAL[86] = (Modifier){
         .id = 86,
@@ -70548,7 +70634,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "Leeches #% of Physical Damage as Life",
         .tier_count = 4,
-        .tiers = tiers_normal_86
+        .tiers = tiers_normal_86,
+        .fractured = false
     };
     MODIFIERS_NORMAL[87] = (Modifier){
         .id = 87,
@@ -70558,7 +70645,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeech",
         .description = "Leeches #% of Physical Damage as Mana",
         .tier_count = 4,
-        .tiers = tiers_normal_87
+        .tiers = tiers_normal_87,
+        .fractured = false
     };
     MODIFIERS_NORMAL[88] = (Modifier){
         .id = 88,
@@ -70568,7 +70656,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_88
+        .tiers = tiers_normal_88,
+        .fractured = false
     };
     MODIFIERS_NORMAL[89] = (Modifier){
         .id = 89,
@@ -70578,7 +70667,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_89
+        .tiers = tiers_normal_89,
+        .fractured = false
     };
     MODIFIERS_NORMAL[90] = (Modifier){
         .id = 90,
@@ -70588,7 +70678,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainPerTarget",
         .description = "Grants # Life per Enemy Hit",
         .tier_count = 4,
-        .tiers = tiers_normal_90
+        .tiers = tiers_normal_90,
+        .fractured = false
     };
     MODIFIERS_NORMAL[91] = (Modifier){
         .id = 91,
@@ -70598,7 +70689,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 5,
-        .tiers = tiers_normal_91
+        .tiers = tiers_normal_91,
+        .fractured = false
     };
     MODIFIERS_NORMAL[92] = (Modifier){
         .id = 92,
@@ -70608,7 +70700,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 6,
-        .tiers = tiers_normal_92
+        .tiers = tiers_normal_92,
+        .fractured = false
     };
     MODIFIERS_NORMAL[93] = (Modifier){
         .id = 93,
@@ -70618,7 +70711,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "+#% to Critical Damage Bonus",
         .tier_count = 6,
-        .tiers = tiers_normal_93
+        .tiers = tiers_normal_93,
+        .fractured = false
     };
     MODIFIERS_NORMAL[94] = (Modifier){
         .id = 94,
@@ -70628,7 +70722,8 @@ void init_modifiers_data(void) {
         .name = "LightRadiusAndAccuracy",
         .description = "+# to Accuracy Rating / #% increased Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_94
+        .tiers = tiers_normal_94,
+        .fractured = false
     };
     MODIFIERS_NORMAL[95] = (Modifier){
         .id = 95,
@@ -70638,7 +70733,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalAmmo",
         .description = "Loads # additional bolt(s)",
         .tier_count = 2,
-        .tiers = tiers_normal_95
+        .tiers = tiers_normal_95,
+        .fractured = false
     };
     MODIFIERS_NORMAL[96] = (Modifier){
         .id = 96,
@@ -70648,7 +70744,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_96
+        .tiers = tiers_normal_96,
+        .fractured = false
     };
     MODIFIERS_NORMAL[97] = (Modifier){
         .id = 97,
@@ -70658,7 +70755,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_97
+        .tiers = tiers_normal_97,
+        .fractured = false
     };
     MODIFIERS_NORMAL[98] = (Modifier){
         .id = 98,
@@ -70668,7 +70766,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_98
+        .tiers = tiers_normal_98,
+        .fractured = false
     };
     MODIFIERS_NORMAL[99] = (Modifier){
         .id = 99,
@@ -70678,7 +70777,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_99
+        .tiers = tiers_normal_99,
+        .fractured = false
     };
     MODIFIERS_NORMAL[100] = (Modifier){
         .id = 100,
@@ -70688,7 +70788,8 @@ void init_modifiers_data(void) {
         .name = "LocalPhysicalDamagePercent",
         .description = "#% increased Physical Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_100
+        .tiers = tiers_normal_100,
+        .fractured = false
     };
     MODIFIERS_NORMAL[101] = (Modifier){
         .id = 101,
@@ -70698,7 +70799,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_101
+        .tiers = tiers_normal_101,
+        .fractured = false
     };
     MODIFIERS_NORMAL[102] = (Modifier){
         .id = 102,
@@ -70708,7 +70810,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_102
+        .tiers = tiers_normal_102,
+        .fractured = false
     };
     MODIFIERS_NORMAL[103] = (Modifier){
         .id = 103,
@@ -70718,7 +70821,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedWeaponElementalDamagePercent",
         .description = "#% increased Elemental Damage with Attacks",
         .tier_count = 6,
-        .tiers = tiers_normal_103
+        .tiers = tiers_normal_103,
+        .fractured = false
     };
     MODIFIERS_NORMAL[104] = (Modifier){
         .id = 104,
@@ -70728,7 +70832,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_104
+        .tiers = tiers_normal_104,
+        .fractured = false
     };
     MODIFIERS_NORMAL[105] = (Modifier){
         .id = 105,
@@ -70738,7 +70843,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_105
+        .tiers = tiers_normal_105,
+        .fractured = false
     };
     MODIFIERS_NORMAL[106] = (Modifier){
         .id = 106,
@@ -70748,7 +70854,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Projectile Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_106
+        .tiers = tiers_normal_106,
+        .fractured = false
     };
     MODIFIERS_NORMAL[107] = (Modifier){
         .id = 107,
@@ -70758,7 +70865,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "Leeches #% of Physical Damage as Life",
         .tier_count = 4,
-        .tiers = tiers_normal_107
+        .tiers = tiers_normal_107,
+        .fractured = false
     };
     MODIFIERS_NORMAL[108] = (Modifier){
         .id = 108,
@@ -70768,7 +70876,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeech",
         .description = "Leeches #% of Physical Damage as Mana",
         .tier_count = 4,
-        .tiers = tiers_normal_108
+        .tiers = tiers_normal_108,
+        .fractured = false
     };
     MODIFIERS_NORMAL[109] = (Modifier){
         .id = 109,
@@ -70778,7 +70887,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_109
+        .tiers = tiers_normal_109,
+        .fractured = false
     };
     MODIFIERS_NORMAL[110] = (Modifier){
         .id = 110,
@@ -70788,7 +70898,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_110
+        .tiers = tiers_normal_110,
+        .fractured = false
     };
     MODIFIERS_NORMAL[111] = (Modifier){
         .id = 111,
@@ -70798,7 +70909,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainPerTarget",
         .description = "Grants # Life per Enemy Hit",
         .tier_count = 4,
-        .tiers = tiers_normal_111
+        .tiers = tiers_normal_111,
+        .fractured = false
     };
     MODIFIERS_NORMAL[112] = (Modifier){
         .id = 112,
@@ -70808,7 +70920,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 5,
-        .tiers = tiers_normal_112
+        .tiers = tiers_normal_112,
+        .fractured = false
     };
     MODIFIERS_NORMAL[113] = (Modifier){
         .id = 113,
@@ -70818,7 +70931,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 6,
-        .tiers = tiers_normal_113
+        .tiers = tiers_normal_113,
+        .fractured = false
     };
     MODIFIERS_NORMAL[114] = (Modifier){
         .id = 114,
@@ -70828,7 +70942,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "+#% to Critical Damage Bonus",
         .tier_count = 6,
-        .tiers = tiers_normal_114
+        .tiers = tiers_normal_114,
+        .fractured = false
     };
     MODIFIERS_NORMAL[115] = (Modifier){
         .id = 115,
@@ -70838,7 +70953,8 @@ void init_modifiers_data(void) {
         .name = "LightRadiusAndAccuracy",
         .description = "+# to Accuracy Rating / #% increased Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_115
+        .tiers = tiers_normal_115,
+        .fractured = false
     };
     MODIFIERS_NORMAL[116] = (Modifier){
         .id = 116,
@@ -70848,7 +70964,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalArrows",
         .description = "Bow Attacks fire # additional Arrows",
         .tier_count = 2,
-        .tiers = tiers_normal_116
+        .tiers = tiers_normal_116,
+        .fractured = false
     };
     MODIFIERS_NORMAL[117] = (Modifier){
         .id = 117,
@@ -70858,7 +70975,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_117
+        .tiers = tiers_normal_117,
+        .fractured = false
     };
     MODIFIERS_NORMAL[118] = (Modifier){
         .id = 118,
@@ -70868,7 +70986,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_118
+        .tiers = tiers_normal_118,
+        .fractured = false
     };
     MODIFIERS_NORMAL[119] = (Modifier){
         .id = 119,
@@ -70878,7 +70997,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_119
+        .tiers = tiers_normal_119,
+        .fractured = false
     };
     MODIFIERS_NORMAL[120] = (Modifier){
         .id = 120,
@@ -70888,7 +71008,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_120
+        .tiers = tiers_normal_120,
+        .fractured = false
     };
     MODIFIERS_NORMAL[121] = (Modifier){
         .id = 121,
@@ -70898,7 +71019,8 @@ void init_modifiers_data(void) {
         .name = "LocalPhysicalDamagePercent",
         .description = "#% increased Physical Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_121
+        .tiers = tiers_normal_121,
+        .fractured = false
     };
     MODIFIERS_NORMAL[122] = (Modifier){
         .id = 122,
@@ -70908,7 +71030,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_122
+        .tiers = tiers_normal_122,
+        .fractured = false
     };
     MODIFIERS_NORMAL[123] = (Modifier){
         .id = 123,
@@ -70918,7 +71041,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_123
+        .tiers = tiers_normal_123,
+        .fractured = false
     };
     MODIFIERS_NORMAL[124] = (Modifier){
         .id = 124,
@@ -70928,7 +71052,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedWeaponElementalDamagePercent",
         .description = "#% increased Elemental Damage with Attacks",
         .tier_count = 6,
-        .tiers = tiers_normal_124
+        .tiers = tiers_normal_124,
+        .fractured = false
     };
     MODIFIERS_NORMAL[125] = (Modifier){
         .id = 125,
@@ -70938,7 +71063,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_125
+        .tiers = tiers_normal_125,
+        .fractured = false
     };
     MODIFIERS_NORMAL[126] = (Modifier){
         .id = 126,
@@ -70948,7 +71074,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_126
+        .tiers = tiers_normal_126,
+        .fractured = false
     };
     MODIFIERS_NORMAL[127] = (Modifier){
         .id = 127,
@@ -70958,7 +71085,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Melee Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_127
+        .tiers = tiers_normal_127,
+        .fractured = false
     };
     MODIFIERS_NORMAL[128] = (Modifier){
         .id = 128,
@@ -70968,7 +71096,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "Leeches #% of Physical Damage as Life",
         .tier_count = 5,
-        .tiers = tiers_normal_128
+        .tiers = tiers_normal_128,
+        .fractured = false
     };
     MODIFIERS_NORMAL[129] = (Modifier){
         .id = 129,
@@ -70978,7 +71107,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeech",
         .description = "Leeches #% of Physical Damage as Mana",
         .tier_count = 5,
-        .tiers = tiers_normal_129
+        .tiers = tiers_normal_129,
+        .fractured = false
     };
     MODIFIERS_NORMAL[130] = (Modifier){
         .id = 130,
@@ -70988,7 +71118,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_130
+        .tiers = tiers_normal_130,
+        .fractured = false
     };
     MODIFIERS_NORMAL[131] = (Modifier){
         .id = 131,
@@ -70998,7 +71129,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_131
+        .tiers = tiers_normal_131,
+        .fractured = false
     };
     MODIFIERS_NORMAL[132] = (Modifier){
         .id = 132,
@@ -71008,7 +71140,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainPerTarget",
         .description = "Grants # Life per Enemy Hit",
         .tier_count = 4,
-        .tiers = tiers_normal_132
+        .tiers = tiers_normal_132,
+        .fractured = false
     };
     MODIFIERS_NORMAL[133] = (Modifier){
         .id = 133,
@@ -71018,7 +71151,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 8,
-        .tiers = tiers_normal_133
+        .tiers = tiers_normal_133,
+        .fractured = false
     };
     MODIFIERS_NORMAL[134] = (Modifier){
         .id = 134,
@@ -71028,7 +71162,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 6,
-        .tiers = tiers_normal_134
+        .tiers = tiers_normal_134,
+        .fractured = false
     };
     MODIFIERS_NORMAL[135] = (Modifier){
         .id = 135,
@@ -71038,7 +71173,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "+#% to Critical Damage Bonus",
         .tier_count = 6,
-        .tiers = tiers_normal_135
+        .tiers = tiers_normal_135,
+        .fractured = false
     };
     MODIFIERS_NORMAL[136] = (Modifier){
         .id = 136,
@@ -71048,7 +71184,8 @@ void init_modifiers_data(void) {
         .name = "LightRadiusAndAccuracy",
         .description = "+# to Accuracy Rating / #% increased Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_136
+        .tiers = tiers_normal_136,
+        .fractured = false
     };
     MODIFIERS_NORMAL[137] = (Modifier){
         .id = 137,
@@ -71058,7 +71195,8 @@ void init_modifiers_data(void) {
         .name = "StunDurationIncreasePercent",
         .description = "#% increased Stun Duration",
         .tier_count = 6,
-        .tiers = tiers_normal_137
+        .tiers = tiers_normal_137,
+        .fractured = false
     };
     MODIFIERS_NORMAL[138] = (Modifier){
         .id = 138,
@@ -71068,7 +71206,8 @@ void init_modifiers_data(void) {
         .name = "StunDamageIncrease",
         .description = "Causes #% increased Stun Buildup",
         .tier_count = 6,
-        .tiers = tiers_normal_138
+        .tiers = tiers_normal_138,
+        .fractured = false
     };
     MODIFIERS_NORMAL[139] = (Modifier){
         .id = 139,
@@ -71078,7 +71217,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 11,
-        .tiers = tiers_normal_139
+        .tiers = tiers_normal_139,
+        .fractured = false
     };
     MODIFIERS_NORMAL[140] = (Modifier){
         .id = 140,
@@ -71088,7 +71228,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Allies in your Presence deal # to # added Attack Physical Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_140
+        .tiers = tiers_normal_140,
+        .fractured = false
     };
     MODIFIERS_NORMAL[141] = (Modifier){
         .id = 141,
@@ -71098,7 +71239,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Allies in your Presence deal # to # added Attack Fire Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_141
+        .tiers = tiers_normal_141,
+        .fractured = false
     };
     MODIFIERS_NORMAL[142] = (Modifier){
         .id = 142,
@@ -71108,7 +71250,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Allies in your Presence deal # to # added Attack Cold Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_142
+        .tiers = tiers_normal_142,
+        .fractured = false
     };
     MODIFIERS_NORMAL[143] = (Modifier){
         .id = 143,
@@ -71118,7 +71261,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Allies in your Presence deal # to # added Attack Lightning Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_143
+        .tiers = tiers_normal_143,
+        .fractured = false
     };
     MODIFIERS_NORMAL[144] = (Modifier){
         .id = 144,
@@ -71128,7 +71272,8 @@ void init_modifiers_data(void) {
         .name = "AllDamage",
         .description = "Allies in your Presence deal #% increased Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_144
+        .tiers = tiers_normal_144,
+        .fractured = false
     };
     MODIFIERS_NORMAL[145] = (Modifier){
         .id = 145,
@@ -71138,7 +71283,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedSpiritPercent",
         .description = "#% increased Spirit",
         .tier_count = 8,
-        .tiers = tiers_normal_145
+        .tiers = tiers_normal_145,
+        .fractured = false
     };
     MODIFIERS_NORMAL[146] = (Modifier){
         .id = 146,
@@ -71148,7 +71294,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedSpiritAndMana",
         .description = "#% increased Spirit\n+# to maximum Mana",
         .tier_count = 7,
-        .tiers = tiers_normal_146
+        .tiers = tiers_normal_146,
+        .fractured = false
     };
     MODIFIERS_NORMAL[147] = (Modifier){
         .id = 147,
@@ -71158,7 +71305,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_147
+        .tiers = tiers_normal_147,
+        .fractured = false
     };
     MODIFIERS_NORMAL[148] = (Modifier){
         .id = 148,
@@ -71168,7 +71316,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_148
+        .tiers = tiers_normal_148,
+        .fractured = false
     };
     MODIFIERS_NORMAL[149] = (Modifier){
         .id = 149,
@@ -71178,7 +71327,8 @@ void init_modifiers_data(void) {
         .name = "AllResistances",
         .description = "Allies in your Presence have +(#–#)% to all Elemental Resistances",
         .tier_count = 6,
-        .tiers = tiers_normal_149
+        .tiers = tiers_normal_149,
+        .fractured = false
     };
     MODIFIERS_NORMAL[150] = (Modifier){
         .id = 150,
@@ -71188,7 +71338,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "#% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_150
+        .tiers = tiers_normal_150,
+        .fractured = false
     };
     MODIFIERS_NORMAL[151] = (Modifier){
         .id = 151,
@@ -71198,7 +71349,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Minion Skills",
         .tier_count = 4,
-        .tiers = tiers_normal_151
+        .tiers = tiers_normal_151,
+        .fractured = false
     };
     MODIFIERS_NORMAL[152] = (Modifier){
         .id = 152,
@@ -71208,7 +71360,8 @@ void init_modifiers_data(void) {
         .name = "LifeRegeneration",
         .description = "Regenerate #(–#) Life per second for Allies in your Presence",
         .tier_count = 10,
-        .tiers = tiers_normal_152
+        .tiers = tiers_normal_152,
+        .fractured = false
     };
     MODIFIERS_NORMAL[153] = (Modifier){
         .id = 153,
@@ -71218,7 +71371,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed for Allies in your Presence",
         .tier_count = 4,
-        .tiers = tiers_normal_153
+        .tiers = tiers_normal_153,
+        .fractured = false
     };
     MODIFIERS_NORMAL[154] = (Modifier){
         .id = 154,
@@ -71228,7 +71382,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed for Allies in your Presence",
         .tier_count = 4,
-        .tiers = tiers_normal_154
+        .tiers = tiers_normal_154,
+        .fractured = false
     };
     MODIFIERS_NORMAL[155] = (Modifier){
         .id = 155,
@@ -71238,7 +71393,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance for Allies in your Presence",
         .tier_count = 6,
-        .tiers = tiers_normal_155
+        .tiers = tiers_normal_155,
+        .fractured = false
     };
     MODIFIERS_NORMAL[156] = (Modifier){
         .id = 156,
@@ -71248,7 +71404,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Damage Bonus for Allies in your Presence",
         .tier_count = 6,
-        .tiers = tiers_normal_156
+        .tiers = tiers_normal_156,
+        .fractured = false
     };
     MODIFIERS_NORMAL[157] = (Modifier){
         .id = 157,
@@ -71258,7 +71415,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate / #%Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_157
+        .tiers = tiers_normal_157,
+        .fractured = false
     };
     MODIFIERS_NORMAL[158] = (Modifier){
         .id = 158,
@@ -71268,7 +71426,8 @@ void init_modifiers_data(void) {
         .name = "PresenceRadius",
         .description = "#% increased Presence Area of Effect for Allies",
         .tier_count = 4,
-        .tiers = tiers_normal_158
+        .tiers = tiers_normal_158,
+        .fractured = false
     };
     MODIFIERS_NORMAL[159] = (Modifier){
         .id = 159,
@@ -71278,7 +71437,8 @@ void init_modifiers_data(void) {
         .name = "MinionLife",
         .description = "#% increased maximum Life for Minions",
         .tier_count = 6,
-        .tiers = tiers_normal_159
+        .tiers = tiers_normal_159,
+        .fractured = false
     };
     MODIFIERS_NORMAL[160] = (Modifier){
         .id = 160,
@@ -71288,7 +71448,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 9,
-        .tiers = tiers_normal_160
+        .tiers = tiers_normal_160,
+        .fractured = false
     };
     MODIFIERS_NORMAL[161] = (Modifier){
         .id = 161,
@@ -71298,7 +71459,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_161
+        .tiers = tiers_normal_161,
+        .fractured = false
     };
     MODIFIERS_NORMAL[162] = (Modifier){
         .id = 162,
@@ -71308,7 +71470,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_162
+        .tiers = tiers_normal_162,
+        .fractured = false
     };
     MODIFIERS_NORMAL[163] = (Modifier){
         .id = 163,
@@ -71318,7 +71481,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 10,
-        .tiers = tiers_normal_163
+        .tiers = tiers_normal_163,
+        .fractured = false
     };
     MODIFIERS_NORMAL[164] = (Modifier){
         .id = 164,
@@ -71328,7 +71492,8 @@ void init_modifiers_data(void) {
         .name = "LocalPhysicalDamagePercent",
         .description = "#% increased Physical Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_164
+        .tiers = tiers_normal_164,
+        .fractured = false
     };
     MODIFIERS_NORMAL[165] = (Modifier){
         .id = 165,
@@ -71338,7 +71503,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_165
+        .tiers = tiers_normal_165,
+        .fractured = false
     };
     MODIFIERS_NORMAL[166] = (Modifier){
         .id = 166,
@@ -71348,7 +71514,8 @@ void init_modifiers_data(void) {
         .name = "LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
         .description = "#% increased Physical Damage\n+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_166
+        .tiers = tiers_normal_166,
+        .fractured = false
     };
     MODIFIERS_NORMAL[167] = (Modifier){
         .id = 167,
@@ -71358,7 +71525,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedWeaponElementalDamagePercent",
         .description = "#% increased Elemental Damage with Attacks",
         .tier_count = 6,
-        .tiers = tiers_normal_167
+        .tiers = tiers_normal_167,
+        .fractured = false
     };
     MODIFIERS_NORMAL[168] = (Modifier){
         .id = 168,
@@ -71368,7 +71536,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_168
+        .tiers = tiers_normal_168,
+        .fractured = false
     };
     MODIFIERS_NORMAL[169] = (Modifier){
         .id = 169,
@@ -71378,7 +71547,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_169
+        .tiers = tiers_normal_169,
+        .fractured = false
     };
     MODIFIERS_NORMAL[170] = (Modifier){
         .id = 170,
@@ -71388,7 +71558,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_170
+        .tiers = tiers_normal_170,
+        .fractured = false
     };
     MODIFIERS_NORMAL[171] = (Modifier){
         .id = 171,
@@ -71398,7 +71569,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Melee Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_171
+        .tiers = tiers_normal_171,
+        .fractured = false
     };
     MODIFIERS_NORMAL[172] = (Modifier){
         .id = 172,
@@ -71408,7 +71580,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Projectile Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_172
+        .tiers = tiers_normal_172,
+        .fractured = false
     };
     MODIFIERS_NORMAL[173] = (Modifier){
         .id = 173,
@@ -71418,7 +71591,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "Leeches #% of Physical Damage as Life",
         .tier_count = 5,
-        .tiers = tiers_normal_173
+        .tiers = tiers_normal_173,
+        .fractured = false
     };
     MODIFIERS_NORMAL[174] = (Modifier){
         .id = 174,
@@ -71428,7 +71602,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeech",
         .description = "Leeches #% of Physical Damage as Mana",
         .tier_count = 5,
-        .tiers = tiers_normal_174
+        .tiers = tiers_normal_174,
+        .fractured = false
     };
     MODIFIERS_NORMAL[175] = (Modifier){
         .id = 175,
@@ -71438,7 +71613,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_175
+        .tiers = tiers_normal_175,
+        .fractured = false
     };
     MODIFIERS_NORMAL[176] = (Modifier){
         .id = 176,
@@ -71448,7 +71624,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_176
+        .tiers = tiers_normal_176,
+        .fractured = false
     };
     MODIFIERS_NORMAL[177] = (Modifier){
         .id = 177,
@@ -71458,7 +71635,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainPerTarget",
         .description = "Grants # Life per Enemy Hit",
         .tier_count = 4,
-        .tiers = tiers_normal_177
+        .tiers = tiers_normal_177,
+        .fractured = false
     };
     MODIFIERS_NORMAL[178] = (Modifier){
         .id = 178,
@@ -71468,7 +71646,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 8,
-        .tiers = tiers_normal_178
+        .tiers = tiers_normal_178,
+        .fractured = false
     };
     MODIFIERS_NORMAL[179] = (Modifier){
         .id = 179,
@@ -71478,7 +71657,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 6,
-        .tiers = tiers_normal_179
+        .tiers = tiers_normal_179,
+        .fractured = false
     };
     MODIFIERS_NORMAL[180] = (Modifier){
         .id = 180,
@@ -71488,7 +71668,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "+#% to Critical Damage Bonus",
         .tier_count = 6,
-        .tiers = tiers_normal_180
+        .tiers = tiers_normal_180,
+        .fractured = false
     };
     MODIFIERS_NORMAL[181] = (Modifier){
         .id = 181,
@@ -71498,7 +71679,8 @@ void init_modifiers_data(void) {
         .name = "LightRadiusAndAccuracy",
         .description = "+# to Accuracy Rating / #% increased Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_181
+        .tiers = tiers_normal_181,
+        .fractured = false
     };
     MODIFIERS_NORMAL[182] = (Modifier){
         .id = 182,
@@ -71508,7 +71690,8 @@ void init_modifiers_data(void) {
         .name = "StunDurationIncreasePercent",
         .description = "#% increased Stun Duration",
         .tier_count = 6,
-        .tiers = tiers_normal_182
+        .tiers = tiers_normal_182,
+        .fractured = false
     };
     MODIFIERS_NORMAL[183] = (Modifier){
         .id = 183,
@@ -71518,7 +71701,8 @@ void init_modifiers_data(void) {
         .name = "StunDamageIncrease",
         .description = "Causes #% increased Stun Buildup",
         .tier_count = 6,
-        .tiers = tiers_normal_183
+        .tiers = tiers_normal_183,
+        .fractured = false
     };
     MODIFIERS_NORMAL[184] = (Modifier){
         .id = 184,
@@ -71528,7 +71712,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 11,
-        .tiers = tiers_normal_184
+        .tiers = tiers_normal_184,
+        .fractured = false
     };
     MODIFIERS_NORMAL[185] = (Modifier){
         .id = 185,
@@ -71538,7 +71723,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "+#% Increased Spell Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_185
+        .tiers = tiers_normal_185,
+        .fractured = false
     };
     MODIFIERS_NORMAL[186] = (Modifier){
         .id = 186,
@@ -71548,7 +71734,8 @@ void init_modifiers_data(void) {
         .name = "SpellDamageAndMana",
         .description = "+#% increased Spell Damage\n+# to maximum Mana",
         .tier_count = 7,
-        .tiers = tiers_normal_186
+        .tiers = tiers_normal_186,
+        .fractured = false
     };
     MODIFIERS_NORMAL[187] = (Modifier){
         .id = 187,
@@ -71558,7 +71745,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "+#% Increased Fire Spell Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_187
+        .tiers = tiers_normal_187,
+        .fractured = false
     };
     MODIFIERS_NORMAL[188] = (Modifier){
         .id = 188,
@@ -71568,7 +71756,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "+#% Increased Cold Spell Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_188
+        .tiers = tiers_normal_188,
+        .fractured = false
     };
     MODIFIERS_NORMAL[189] = (Modifier){
         .id = 189,
@@ -71578,7 +71767,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "+#% Increased Lightning Spell Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_189
+        .tiers = tiers_normal_189,
+        .fractured = false
     };
     MODIFIERS_NORMAL[190] = (Modifier){
         .id = 190,
@@ -71588,7 +71778,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "+#% Increased Chaos Spell Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_190
+        .tiers = tiers_normal_190,
+        .fractured = false
     };
     MODIFIERS_NORMAL[191] = (Modifier){
         .id = 191,
@@ -71598,7 +71789,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "+#% Increased Physical Spell Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_191
+        .tiers = tiers_normal_191,
+        .fractured = false
     };
     MODIFIERS_NORMAL[192] = (Modifier){
         .id = 192,
@@ -71608,7 +71800,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "% of Damage as Extra Fire Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_192
+        .tiers = tiers_normal_192,
+        .fractured = false
     };
     MODIFIERS_NORMAL[193] = (Modifier){
         .id = 193,
@@ -71618,7 +71811,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "% of Damage as Extra Cold Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_193
+        .tiers = tiers_normal_193,
+        .fractured = false
     };
     MODIFIERS_NORMAL[194] = (Modifier){
         .id = 194,
@@ -71628,7 +71822,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "% of Damage as Extra Lightning Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_194
+        .tiers = tiers_normal_194,
+        .fractured = false
     };
     MODIFIERS_NORMAL[195] = (Modifier){
         .id = 195,
@@ -71638,7 +71833,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_195
+        .tiers = tiers_normal_195,
+        .fractured = false
     };
     MODIFIERS_NORMAL[196] = (Modifier){
         .id = 196,
@@ -71648,7 +71844,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "#% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_196
+        .tiers = tiers_normal_196,
+        .fractured = false
     };
     MODIFIERS_NORMAL[197] = (Modifier){
         .id = 197,
@@ -71658,7 +71855,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "# to Level of all Spell Skills",
         .tier_count = 4,
-        .tiers = tiers_normal_197
+        .tiers = tiers_normal_197,
+        .fractured = false
     };
     MODIFIERS_NORMAL[198] = (Modifier){
         .id = 198,
@@ -71668,7 +71866,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "# to Level of all Fire Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_198
+        .tiers = tiers_normal_198,
+        .fractured = false
     };
     MODIFIERS_NORMAL[199] = (Modifier){
         .id = 199,
@@ -71678,7 +71877,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "# to Level of all Cold Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_199
+        .tiers = tiers_normal_199,
+        .fractured = false
     };
     MODIFIERS_NORMAL[200] = (Modifier){
         .id = 200,
@@ -71688,7 +71888,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "# to Level of all Lightning Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_200
+        .tiers = tiers_normal_200,
+        .fractured = false
     };
     MODIFIERS_NORMAL[201] = (Modifier){
         .id = 201,
@@ -71698,7 +71899,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "# to Level of all Chaos Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_201
+        .tiers = tiers_normal_201,
+        .fractured = false
     };
     MODIFIERS_NORMAL[202] = (Modifier){
         .id = 202,
@@ -71708,7 +71910,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "# to Level of all Physical Spell Skills",
         .tier_count = 5,
-        .tiers = tiers_normal_202
+        .tiers = tiers_normal_202,
+        .fractured = false
     };
     MODIFIERS_NORMAL[203] = (Modifier){
         .id = 203,
@@ -71718,7 +71921,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate",
         .tier_count = 6,
-        .tiers = tiers_normal_203
+        .tiers = tiers_normal_203,
+        .fractured = false
     };
     MODIFIERS_NORMAL[204] = (Modifier){
         .id = 204,
@@ -71728,7 +71932,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_204
+        .tiers = tiers_normal_204,
+        .fractured = false
     };
     MODIFIERS_NORMAL[205] = (Modifier){
         .id = 205,
@@ -71738,7 +71943,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_205
+        .tiers = tiers_normal_205,
+        .fractured = false
     };
     MODIFIERS_NORMAL[206] = (Modifier){
         .id = 206,
@@ -71748,7 +71954,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed",
         .tier_count = 7,
-        .tiers = tiers_normal_206
+        .tiers = tiers_normal_206,
+        .fractured = false
     };
     MODIFIERS_NORMAL[207] = (Modifier){
         .id = 207,
@@ -71758,7 +71965,8 @@ void init_modifiers_data(void) {
         .name = "SpellCriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance for Spells",
         .tier_count = 6,
-        .tiers = tiers_normal_207
+        .tiers = tiers_normal_207,
+        .fractured = false
     };
     MODIFIERS_NORMAL[208] = (Modifier){
         .id = 208,
@@ -71768,7 +71976,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Spell Damage Bonus",
         .tier_count = 6,
-        .tiers = tiers_normal_208
+        .tiers = tiers_normal_208,
+        .fractured = false
     };
     MODIFIERS_NORMAL[209] = (Modifier){
         .id = 209,
@@ -71778,7 +71987,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate / #%Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_209
+        .tiers = tiers_normal_209,
+        .fractured = false
     };
     MODIFIERS_NORMAL[210] = (Modifier){
         .id = 210,
@@ -71788,7 +71998,8 @@ void init_modifiers_data(void) {
         .name = "IgniteChanceIncrease",
         .description = "#% increased Flammability Magnitude",
         .tier_count = 5,
-        .tiers = tiers_normal_210
+        .tiers = tiers_normal_210,
+        .fractured = false
     };
     MODIFIERS_NORMAL[211] = (Modifier){
         .id = 211,
@@ -71798,7 +72009,8 @@ void init_modifiers_data(void) {
         .name = "FreezeDamageIncrease",
         .description = "#% increased Freeze Buildup",
         .tier_count = 5,
-        .tiers = tiers_normal_211
+        .tiers = tiers_normal_211,
+        .fractured = false
     };
     MODIFIERS_NORMAL[212] = (Modifier){
         .id = 212,
@@ -71808,7 +72020,8 @@ void init_modifiers_data(void) {
         .name = "ShockChanceIncrease",
         .description = "#% increased chance to Shock",
         .tier_count = 5,
-        .tiers = tiers_normal_212
+        .tiers = tiers_normal_212,
+        .fractured = false
     };
     MODIFIERS_NORMAL[213] = (Modifier){
         .id = 213,
@@ -71818,7 +72031,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 11,
-        .tiers = tiers_normal_213
+        .tiers = tiers_normal_213,
+        .fractured = false
     };
     MODIFIERS_NORMAL[214] = (Modifier){
         .id = 214,
@@ -71828,7 +72042,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour",
         .tier_count = 10,
-        .tiers = tiers_normal_214
+        .tiers = tiers_normal_214,
+        .fractured = false
     };
     MODIFIERS_NORMAL[215] = (Modifier){
         .id = 215,
@@ -71838,7 +72053,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 8,
-        .tiers = tiers_normal_215
+        .tiers = tiers_normal_215,
+        .fractured = false
     };
     MODIFIERS_NORMAL[216] = (Modifier){
         .id = 216,
@@ -71848,7 +72064,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Armour\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_216
+        .tiers = tiers_normal_216,
+        .fractured = false
     };
     MODIFIERS_NORMAL[217] = (Modifier){
         .id = 217,
@@ -71858,7 +72075,8 @@ void init_modifiers_data(void) {
         .name = "Thorns",
         .description = "# to # Physical Thorns damage",
         .tier_count = 7,
-        .tiers = tiers_normal_217
+        .tiers = tiers_normal_217,
+        .fractured = false
     };
     MODIFIERS_NORMAL[218] = (Modifier){
         .id = 218,
@@ -71868,7 +72086,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedShieldBlockPercentage",
         .description = "(#–#)% increased Block chance",
         .tier_count = 3,
-        .tiers = tiers_normal_218
+        .tiers = tiers_normal_218,
+        .fractured = false
     };
     MODIFIERS_NORMAL[219] = (Modifier){
         .id = 219,
@@ -71878,7 +72097,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_219
+        .tiers = tiers_normal_219,
+        .fractured = false
     };
     MODIFIERS_NORMAL[220] = (Modifier){
         .id = 220,
@@ -71888,7 +72108,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_220
+        .tiers = tiers_normal_220,
+        .fractured = false
     };
     MODIFIERS_NORMAL[221] = (Modifier){
         .id = 221,
@@ -71898,7 +72119,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_221
+        .tiers = tiers_normal_221,
+        .fractured = false
     };
     MODIFIERS_NORMAL[222] = (Modifier){
         .id = 222,
@@ -71908,7 +72130,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_222
+        .tiers = tiers_normal_222,
+        .fractured = false
     };
     MODIFIERS_NORMAL[223] = (Modifier){
         .id = 223,
@@ -71918,7 +72141,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_223
+        .tiers = tiers_normal_223,
+        .fractured = false
     };
     MODIFIERS_NORMAL[224] = (Modifier){
         .id = 224,
@@ -71928,7 +72152,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_224
+        .tiers = tiers_normal_224,
+        .fractured = false
     };
     MODIFIERS_NORMAL[225] = (Modifier){
         .id = 225,
@@ -71938,7 +72163,8 @@ void init_modifiers_data(void) {
         .name = "StunThreshold",
         .description = "+# to Stun Threshold",
         .tier_count = 10,
-        .tiers = tiers_normal_225
+        .tiers = tiers_normal_225,
+        .fractured = false
     };
     MODIFIERS_NORMAL[226] = (Modifier){
         .id = 226,
@@ -71948,7 +72174,8 @@ void init_modifiers_data(void) {
         .name = "ReducedPhysicalDamageTaken",
         .description = "#% additional Physical Damage Reduction",
         .tier_count = 5,
-        .tiers = tiers_normal_226
+        .tiers = tiers_normal_226,
+        .fractured = false
     };
     MODIFIERS_NORMAL[227] = (Modifier){
         .id = 227,
@@ -71958,7 +72185,8 @@ void init_modifiers_data(void) {
         .name = "MaximumFireResist",
         .description = "+#% to Maximum Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_227
+        .tiers = tiers_normal_227,
+        .fractured = false
     };
     MODIFIERS_NORMAL[228] = (Modifier){
         .id = 228,
@@ -71968,7 +72196,8 @@ void init_modifiers_data(void) {
         .name = "MaximumColdResist",
         .description = "+#% to Maximum Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_228
+        .tiers = tiers_normal_228,
+        .fractured = false
     };
     MODIFIERS_NORMAL[229] = (Modifier){
         .id = 229,
@@ -71978,7 +72207,8 @@ void init_modifiers_data(void) {
         .name = "MaximumLightningResist",
         .description = "+#% to Maximum Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_229
+        .tiers = tiers_normal_229,
+        .fractured = false
     };
     MODIFIERS_NORMAL[230] = (Modifier){
         .id = 230,
@@ -71988,7 +72218,8 @@ void init_modifiers_data(void) {
         .name = "MaximumChaosResist",
         .description = "+#% to Maximum Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_230
+        .tiers = tiers_normal_230,
+        .fractured = false
     };
     MODIFIERS_NORMAL[231] = (Modifier){
         .id = 231,
@@ -71998,7 +72229,8 @@ void init_modifiers_data(void) {
         .name = "MaximumResistances",
         .description = "+#% to all Maximum Elemental Resistances",
         .tier_count = 2,
-        .tiers = tiers_normal_231
+        .tiers = tiers_normal_231,
+        .fractured = false
     };
     MODIFIERS_NORMAL[232] = (Modifier){
         .id = 232,
@@ -72008,7 +72240,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_232
+        .tiers = tiers_normal_232,
+        .fractured = false
     };
     MODIFIERS_NORMAL[233] = (Modifier){
         .id = 233,
@@ -72018,7 +72251,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 11,
-        .tiers = tiers_normal_233
+        .tiers = tiers_normal_233,
+        .fractured = false
     };
     MODIFIERS_NORMAL[234] = (Modifier){
         .id = 234,
@@ -72028,7 +72262,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour\n+# to Evasion Rating",
         .tier_count = 7,
-        .tiers = tiers_normal_234
+        .tiers = tiers_normal_234,
+        .fractured = false
     };
     MODIFIERS_NORMAL[235] = (Modifier){
         .id = 235,
@@ -72038,7 +72273,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour\n+# to maximum Energy Shield",
         .tier_count = 8,
-        .tiers = tiers_normal_235
+        .tiers = tiers_normal_235,
+        .fractured = false
     };
     MODIFIERS_NORMAL[236] = (Modifier){
         .id = 236,
@@ -72048,7 +72284,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 8,
-        .tiers = tiers_normal_236
+        .tiers = tiers_normal_236,
+        .fractured = false
     };
     MODIFIERS_NORMAL[237] = (Modifier){
         .id = 237,
@@ -72058,7 +72295,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 8,
-        .tiers = tiers_normal_237
+        .tiers = tiers_normal_237,
+        .fractured = false
     };
     MODIFIERS_NORMAL[238] = (Modifier){
         .id = 238,
@@ -72068,7 +72306,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Armour and Evasion\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_238
+        .tiers = tiers_normal_238,
+        .fractured = false
     };
     MODIFIERS_NORMAL[239] = (Modifier){
         .id = 239,
@@ -72078,7 +72317,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Armour and Energy Shield\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_239
+        .tiers = tiers_normal_239,
+        .fractured = false
     };
     MODIFIERS_NORMAL[240] = (Modifier){
         .id = 240,
@@ -72088,7 +72328,8 @@ void init_modifiers_data(void) {
         .name = "Thorns",
         .description = "# to # Physical Thorns damage",
         .tier_count = 7,
-        .tiers = tiers_normal_240
+        .tiers = tiers_normal_240,
+        .fractured = false
     };
     MODIFIERS_NORMAL[241] = (Modifier){
         .id = 241,
@@ -72098,7 +72339,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedShieldBlockPercentage",
         .description = "(#–#)% increased Block chance",
         .tier_count = 3,
-        .tiers = tiers_normal_241
+        .tiers = tiers_normal_241,
+        .fractured = false
     };
     MODIFIERS_NORMAL[242] = (Modifier){
         .id = 242,
@@ -72108,7 +72350,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_242
+        .tiers = tiers_normal_242,
+        .fractured = false
     };
     MODIFIERS_NORMAL[243] = (Modifier){
         .id = 243,
@@ -72118,7 +72361,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_243
+        .tiers = tiers_normal_243,
+        .fractured = false
     };
     MODIFIERS_NORMAL[244] = (Modifier){
         .id = 244,
@@ -72128,7 +72372,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_244
+        .tiers = tiers_normal_244,
+        .fractured = false
     };
     MODIFIERS_NORMAL[245] = (Modifier){
         .id = 245,
@@ -72138,7 +72383,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_245
+        .tiers = tiers_normal_245,
+        .fractured = false
     };
     MODIFIERS_NORMAL[246] = (Modifier){
         .id = 246,
@@ -72148,7 +72394,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_246
+        .tiers = tiers_normal_246,
+        .fractured = false
     };
     MODIFIERS_NORMAL[247] = (Modifier){
         .id = 247,
@@ -72158,7 +72405,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_247
+        .tiers = tiers_normal_247,
+        .fractured = false
     };
     MODIFIERS_NORMAL[248] = (Modifier){
         .id = 248,
@@ -72168,7 +72416,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_248
+        .tiers = tiers_normal_248,
+        .fractured = false
     };
     MODIFIERS_NORMAL[249] = (Modifier){
         .id = 249,
@@ -72178,7 +72427,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_249
+        .tiers = tiers_normal_249,
+        .fractured = false
     };
     MODIFIERS_NORMAL[250] = (Modifier){
         .id = 250,
@@ -72188,7 +72438,8 @@ void init_modifiers_data(void) {
         .name = "StunThreshold",
         .description = "+# to Stun Threshold",
         .tier_count = 10,
-        .tiers = tiers_normal_250
+        .tiers = tiers_normal_250,
+        .fractured = false
     };
     MODIFIERS_NORMAL[251] = (Modifier){
         .id = 251,
@@ -72198,7 +72449,8 @@ void init_modifiers_data(void) {
         .name = "ReducedPhysicalDamageTaken",
         .description = "#% additional Physical Damage Reduction",
         .tier_count = 5,
-        .tiers = tiers_normal_251
+        .tiers = tiers_normal_251,
+        .fractured = false
     };
     MODIFIERS_NORMAL[252] = (Modifier){
         .id = 252,
@@ -72208,7 +72460,8 @@ void init_modifiers_data(void) {
         .name = "MaximumFireResist",
         .description = "+#% to Maximum Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_252
+        .tiers = tiers_normal_252,
+        .fractured = false
     };
     MODIFIERS_NORMAL[253] = (Modifier){
         .id = 253,
@@ -72218,7 +72471,8 @@ void init_modifiers_data(void) {
         .name = "MaximumColdResist",
         .description = "+#% to Maximum Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_253
+        .tiers = tiers_normal_253,
+        .fractured = false
     };
     MODIFIERS_NORMAL[254] = (Modifier){
         .id = 254,
@@ -72228,7 +72482,8 @@ void init_modifiers_data(void) {
         .name = "MaximumLightningResist",
         .description = "+#% to Maximum Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_254
+        .tiers = tiers_normal_254,
+        .fractured = false
     };
     MODIFIERS_NORMAL[255] = (Modifier){
         .id = 255,
@@ -72238,7 +72493,8 @@ void init_modifiers_data(void) {
         .name = "MaximumChaosResist",
         .description = "+#% to Maximum Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_255
+        .tiers = tiers_normal_255,
+        .fractured = false
     };
     MODIFIERS_NORMAL[256] = (Modifier){
         .id = 256,
@@ -72248,7 +72504,8 @@ void init_modifiers_data(void) {
         .name = "MaximumResistances",
         .description = "+#% to all Maximum Elemental Resistances",
         .tier_count = 2,
-        .tiers = tiers_normal_256
+        .tiers = tiers_normal_256,
+        .fractured = false
     };
     MODIFIERS_NORMAL[257] = (Modifier){
         .id = 257,
@@ -72258,7 +72515,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_257
+        .tiers = tiers_normal_257,
+        .fractured = false
     };
     MODIFIERS_NORMAL[258] = (Modifier){
         .id = 258,
@@ -72268,7 +72526,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 6,
-        .tiers = tiers_normal_258
+        .tiers = tiers_normal_258,
+        .fractured = false
     };
     MODIFIERS_NORMAL[259] = (Modifier){
         .id = 259,
@@ -72278,7 +72537,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldRegeneration",
         .description = "#% increased Energy Shield Recharge Rate",
         .tier_count = 6,
-        .tiers = tiers_normal_259
+        .tiers = tiers_normal_259,
+        .fractured = false
     };
     MODIFIERS_NORMAL[260] = (Modifier){
         .id = 260,
@@ -72288,7 +72548,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 11,
-        .tiers = tiers_normal_260
+        .tiers = tiers_normal_260,
+        .fractured = false
     };
     MODIFIERS_NORMAL[261] = (Modifier){
         .id = 261,
@@ -72298,7 +72559,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to maximum Energy Shield",
         .tier_count = 10,
-        .tiers = tiers_normal_261
+        .tiers = tiers_normal_261,
+        .fractured = false
     };
     MODIFIERS_NORMAL[262] = (Modifier){
         .id = 262,
@@ -72308,7 +72570,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_262
+        .tiers = tiers_normal_262,
+        .fractured = false
     };
     MODIFIERS_NORMAL[263] = (Modifier){
         .id = 263,
@@ -72318,7 +72581,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndMana",
         .description = "#% increased Energy Shield\n+# to maximum Mana",
         .tier_count = 6,
-        .tiers = tiers_normal_263
+        .tiers = tiers_normal_263,
+        .fractured = false
     };
     MODIFIERS_NORMAL[264] = (Modifier){
         .id = 264,
@@ -72328,7 +72592,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "+#% Increased Spell Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_264
+        .tiers = tiers_normal_264,
+        .fractured = false
     };
     MODIFIERS_NORMAL[265] = (Modifier){
         .id = 265,
@@ -72338,7 +72603,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Fire Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_265
+        .tiers = tiers_normal_265,
+        .fractured = false
     };
     MODIFIERS_NORMAL[266] = (Modifier){
         .id = 266,
@@ -72348,7 +72614,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Cold Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_266
+        .tiers = tiers_normal_266,
+        .fractured = false
     };
     MODIFIERS_NORMAL[267] = (Modifier){
         .id = 267,
@@ -72358,7 +72625,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Lightning Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_267
+        .tiers = tiers_normal_267,
+        .fractured = false
     };
     MODIFIERS_NORMAL[268] = (Modifier){
         .id = 268,
@@ -72368,7 +72636,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Chaos Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_268
+        .tiers = tiers_normal_268,
+        .fractured = false
     };
     MODIFIERS_NORMAL[269] = (Modifier){
         .id = 269,
@@ -72378,7 +72647,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "+#% Increased Spell Physical Damage",
         .tier_count = 8,
-        .tiers = tiers_normal_269
+        .tiers = tiers_normal_269,
+        .fractured = false
     };
     MODIFIERS_NORMAL[270] = (Modifier){
         .id = 270,
@@ -72388,7 +72658,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_270
+        .tiers = tiers_normal_270,
+        .fractured = false
     };
     MODIFIERS_NORMAL[271] = (Modifier){
         .id = 271,
@@ -72398,7 +72669,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_271
+        .tiers = tiers_normal_271,
+        .fractured = false
     };
     MODIFIERS_NORMAL[272] = (Modifier){
         .id = 272,
@@ -72408,7 +72680,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_272
+        .tiers = tiers_normal_272,
+        .fractured = false
     };
     MODIFIERS_NORMAL[273] = (Modifier){
         .id = 273,
@@ -72418,7 +72691,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_273
+        .tiers = tiers_normal_273,
+        .fractured = false
     };
     MODIFIERS_NORMAL[274] = (Modifier){
         .id = 274,
@@ -72428,7 +72702,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_274
+        .tiers = tiers_normal_274,
+        .fractured = false
     };
     MODIFIERS_NORMAL[275] = (Modifier){
         .id = 275,
@@ -72438,7 +72713,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "#% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_275
+        .tiers = tiers_normal_275,
+        .fractured = false
     };
     MODIFIERS_NORMAL[276] = (Modifier){
         .id = 276,
@@ -72448,7 +72724,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Spell Skills",
         .tier_count = 2,
-        .tiers = tiers_normal_276
+        .tiers = tiers_normal_276,
+        .fractured = false
     };
     MODIFIERS_NORMAL[277] = (Modifier){
         .id = 277,
@@ -72458,7 +72735,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate",
         .tier_count = 6,
-        .tiers = tiers_normal_277
+        .tiers = tiers_normal_277,
+        .fractured = false
     };
     MODIFIERS_NORMAL[278] = (Modifier){
         .id = 278,
@@ -72468,7 +72746,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed",
         .tier_count = 6,
-        .tiers = tiers_normal_278
+        .tiers = tiers_normal_278,
+        .fractured = false
     };
     MODIFIERS_NORMAL[279] = (Modifier){
         .id = 279,
@@ -72478,7 +72757,8 @@ void init_modifiers_data(void) {
         .name = "SpellCriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance for Spells",
         .tier_count = 5,
-        .tiers = tiers_normal_279
+        .tiers = tiers_normal_279,
+        .fractured = false
     };
     MODIFIERS_NORMAL[280] = (Modifier){
         .id = 280,
@@ -72488,7 +72768,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Spell Damage Bonus",
         .tier_count = 5,
-        .tiers = tiers_normal_280
+        .tiers = tiers_normal_280,
+        .fractured = false
     };
     MODIFIERS_NORMAL[281] = (Modifier){
         .id = 281,
@@ -72498,7 +72779,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldRegeneration",
         .description = "#% increased Energy Shield Recharge Rate",
         .tier_count = 6,
-        .tiers = tiers_normal_281
+        .tiers = tiers_normal_281,
+        .fractured = false
     };
     MODIFIERS_NORMAL[282] = (Modifier){
         .id = 282,
@@ -72508,7 +72790,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldDelay",
         .description = "#% faster start of Energy Shield Recharge",
         .tier_count = 6,
-        .tiers = tiers_normal_282
+        .tiers = tiers_normal_282,
+        .fractured = false
     };
     MODIFIERS_NORMAL[283] = (Modifier){
         .id = 283,
@@ -72518,7 +72801,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 11,
-        .tiers = tiers_normal_283
+        .tiers = tiers_normal_283,
+        .fractured = false
     };
     MODIFIERS_NORMAL[284] = (Modifier){
         .id = 284,
@@ -72528,7 +72812,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Evasion Rating",
         .tier_count = 10,
-        .tiers = tiers_normal_284
+        .tiers = tiers_normal_284,
+        .fractured = false
     };
     MODIFIERS_NORMAL[285] = (Modifier){
         .id = 285,
@@ -72538,7 +72823,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_285
+        .tiers = tiers_normal_285,
+        .fractured = false
     };
     MODIFIERS_NORMAL[286] = (Modifier){
         .id = 286,
@@ -72548,7 +72834,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Evasion Rating\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_286
+        .tiers = tiers_normal_286,
+        .fractured = false
     };
     MODIFIERS_NORMAL[287] = (Modifier){
         .id = 287,
@@ -72558,7 +72845,8 @@ void init_modifiers_data(void) {
         .name = "Thorns",
         .description = "# to # Physical Thorns damage",
         .tier_count = 7,
-        .tiers = tiers_normal_287
+        .tiers = tiers_normal_287,
+        .fractured = false
     };
     MODIFIERS_NORMAL[288] = (Modifier){
         .id = 288,
@@ -72568,7 +72856,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedShieldBlockPercentage",
         .description = "(#–#)% increased Block chance",
         .tier_count = 3,
-        .tiers = tiers_normal_288
+        .tiers = tiers_normal_288,
+        .fractured = false
     };
     MODIFIERS_NORMAL[289] = (Modifier){
         .id = 289,
@@ -72578,7 +72867,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_289
+        .tiers = tiers_normal_289,
+        .fractured = false
     };
     MODIFIERS_NORMAL[290] = (Modifier){
         .id = 290,
@@ -72588,7 +72878,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_290
+        .tiers = tiers_normal_290,
+        .fractured = false
     };
     MODIFIERS_NORMAL[291] = (Modifier){
         .id = 291,
@@ -72598,7 +72889,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_291
+        .tiers = tiers_normal_291,
+        .fractured = false
     };
     MODIFIERS_NORMAL[292] = (Modifier){
         .id = 292,
@@ -72608,7 +72900,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_292
+        .tiers = tiers_normal_292,
+        .fractured = false
     };
     MODIFIERS_NORMAL[293] = (Modifier){
         .id = 293,
@@ -72618,7 +72911,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_293
+        .tiers = tiers_normal_293,
+        .fractured = false
     };
     MODIFIERS_NORMAL[294] = (Modifier){
         .id = 294,
@@ -72628,7 +72922,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_294
+        .tiers = tiers_normal_294,
+        .fractured = false
     };
     MODIFIERS_NORMAL[295] = (Modifier){
         .id = 295,
@@ -72638,7 +72933,8 @@ void init_modifiers_data(void) {
         .name = "StunThreshold",
         .description = "+# to Stun Threshold",
         .tier_count = 10,
-        .tiers = tiers_normal_295
+        .tiers = tiers_normal_295,
+        .fractured = false
     };
     MODIFIERS_NORMAL[296] = (Modifier){
         .id = 296,
@@ -72648,7 +72944,8 @@ void init_modifiers_data(void) {
         .name = "MaximumFireResist",
         .description = "+#% to Maximum Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_296
+        .tiers = tiers_normal_296,
+        .fractured = false
     };
     MODIFIERS_NORMAL[297] = (Modifier){
         .id = 297,
@@ -72658,7 +72955,8 @@ void init_modifiers_data(void) {
         .name = "MaximumColdResist",
         .description = "+#% to Maximum Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_297
+        .tiers = tiers_normal_297,
+        .fractured = false
     };
     MODIFIERS_NORMAL[298] = (Modifier){
         .id = 298,
@@ -72668,7 +72966,8 @@ void init_modifiers_data(void) {
         .name = "MaximumLightningResist",
         .description = "+#% to Maximum Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_298
+        .tiers = tiers_normal_298,
+        .fractured = false
     };
     MODIFIERS_NORMAL[299] = (Modifier){
         .id = 299,
@@ -72678,7 +72977,8 @@ void init_modifiers_data(void) {
         .name = "MaximumChaosResist",
         .description = "+#% to Maximum Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_normal_299
+        .tiers = tiers_normal_299,
+        .fractured = false
     };
     MODIFIERS_NORMAL[300] = (Modifier){
         .id = 300,
@@ -72688,7 +72988,8 @@ void init_modifiers_data(void) {
         .name = "MaximumResistances",
         .description = "+#% to all Maximum Elemental Resistances",
         .tier_count = 2,
-        .tiers = tiers_normal_300
+        .tiers = tiers_normal_300,
+        .fractured = false
     };
     MODIFIERS_NORMAL[301] = (Modifier){
         .id = 301,
@@ -72698,7 +72999,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 6,
-        .tiers = tiers_normal_301
+        .tiers = tiers_normal_301,
+        .fractured = false
     };
     MODIFIERS_NORMAL[302] = (Modifier){
         .id = 302,
@@ -72708,7 +73010,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_302
+        .tiers = tiers_normal_302,
+        .fractured = false
     };
     MODIFIERS_NORMAL[303] = (Modifier){
         .id = 303,
@@ -72718,7 +73021,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_303
+        .tiers = tiers_normal_303,
+        .fractured = false
     };
     MODIFIERS_NORMAL[304] = (Modifier){
         .id = 304,
@@ -72728,7 +73032,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_304
+        .tiers = tiers_normal_304,
+        .fractured = false
     };
     MODIFIERS_NORMAL[305] = (Modifier){
         .id = 305,
@@ -72738,7 +73043,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_305
+        .tiers = tiers_normal_305,
+        .fractured = false
     };
     MODIFIERS_NORMAL[306] = (Modifier){
         .id = 306,
@@ -72748,7 +73054,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 9,
-        .tiers = tiers_normal_306
+        .tiers = tiers_normal_306,
+        .fractured = false
     };
     MODIFIERS_NORMAL[307] = (Modifier){
         .id = 307,
@@ -72758,7 +73065,8 @@ void init_modifiers_data(void) {
         .name = "ProjectileSpeed",
         .description = "#% increased Projectile Speed",
         .tier_count = 5,
-        .tiers = tiers_normal_307
+        .tiers = tiers_normal_307,
+        .fractured = false
     };
     MODIFIERS_NORMAL[308] = (Modifier){
         .id = 308,
@@ -72768,7 +73076,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedDamageWithBowSkillsPercent",
         .description = "#% increased Damage with Bow Skills",
         .tier_count = 6,
-        .tiers = tiers_normal_308
+        .tiers = tiers_normal_308,
+        .fractured = false
     };
     MODIFIERS_NORMAL[309] = (Modifier){
         .id = 309,
@@ -72778,7 +73087,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_309
+        .tiers = tiers_normal_309,
+        .fractured = false
     };
     MODIFIERS_NORMAL[310] = (Modifier){
         .id = 310,
@@ -72788,7 +73098,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Projectile Skills",
         .tier_count = 2,
-        .tiers = tiers_normal_310
+        .tiers = tiers_normal_310,
+        .fractured = false
     };
     MODIFIERS_NORMAL[311] = (Modifier){
         .id = 311,
@@ -72798,7 +73109,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 6,
-        .tiers = tiers_normal_311
+        .tiers = tiers_normal_311,
+        .fractured = false
     };
     MODIFIERS_NORMAL[312] = (Modifier){
         .id = 312,
@@ -72808,7 +73120,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 6,
-        .tiers = tiers_normal_312
+        .tiers = tiers_normal_312,
+        .fractured = false
     };
     MODIFIERS_NORMAL[313] = (Modifier){
         .id = 313,
@@ -72818,7 +73131,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 4,
-        .tiers = tiers_normal_313
+        .tiers = tiers_normal_313,
+        .fractured = false
     };
     MODIFIERS_NORMAL[314] = (Modifier){
         .id = 314,
@@ -72828,7 +73142,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance for Attacks",
         .tier_count = 6,
-        .tiers = tiers_normal_314
+        .tiers = tiers_normal_314,
+        .fractured = false
     };
     MODIFIERS_NORMAL[315] = (Modifier){
         .id = 315,
@@ -72838,7 +73153,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Damage Bonus for Attack Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_315
+        .tiers = tiers_normal_315,
+        .fractured = false
     };
     MODIFIERS_NORMAL[316] = (Modifier){
         .id = 316,
@@ -72848,7 +73164,8 @@ void init_modifiers_data(void) {
         .name = "ChanceToPierce",
         .description = "#% chance to Pierce an Enemy",
         .tier_count = 5,
-        .tiers = tiers_normal_316
+        .tiers = tiers_normal_316,
+        .fractured = false
     };
     MODIFIERS_NORMAL[317] = (Modifier){
         .id = 317,
@@ -72858,7 +73175,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 9,
-        .tiers = tiers_normal_317
+        .tiers = tiers_normal_317,
+        .fractured = false
     };
     MODIFIERS_NORMAL[318] = (Modifier){
         .id = 318,
@@ -72868,7 +73186,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 9,
-        .tiers = tiers_normal_318
+        .tiers = tiers_normal_318,
+        .fractured = false
     };
     MODIFIERS_NORMAL[319] = (Modifier){
         .id = 319,
@@ -72878,7 +73197,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour",
         .tier_count = 7,
-        .tiers = tiers_normal_319
+        .tiers = tiers_normal_319,
+        .fractured = false
     };
     MODIFIERS_NORMAL[320] = (Modifier){
         .id = 320,
@@ -72888,7 +73208,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Evasion Rating",
         .tier_count = 7,
-        .tiers = tiers_normal_320
+        .tiers = tiers_normal_320,
+        .fractured = false
     };
     MODIFIERS_NORMAL[321] = (Modifier){
         .id = 321,
@@ -72898,7 +73219,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to maximum Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_321
+        .tiers = tiers_normal_321,
+        .fractured = false
     };
     MODIFIERS_NORMAL[322] = (Modifier){
         .id = 322,
@@ -72908,7 +73230,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 7,
-        .tiers = tiers_normal_322
+        .tiers = tiers_normal_322,
+        .fractured = false
     };
     MODIFIERS_NORMAL[323] = (Modifier){
         .id = 323,
@@ -72918,7 +73241,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion Rating",
         .tier_count = 7,
-        .tiers = tiers_normal_323
+        .tiers = tiers_normal_323,
+        .fractured = false
     };
     MODIFIERS_NORMAL[324] = (Modifier){
         .id = 324,
@@ -72928,7 +73252,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_324
+        .tiers = tiers_normal_324,
+        .fractured = false
     };
     MODIFIERS_NORMAL[325] = (Modifier){
         .id = 325,
@@ -72938,7 +73263,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Armour\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_325
+        .tiers = tiers_normal_325,
+        .fractured = false
     };
     MODIFIERS_NORMAL[326] = (Modifier){
         .id = 326,
@@ -72948,7 +73274,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Evasion Rating\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_326
+        .tiers = tiers_normal_326,
+        .fractured = false
     };
     MODIFIERS_NORMAL[327] = (Modifier){
         .id = 327,
@@ -72958,7 +73285,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Energy Shield\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_327
+        .tiers = tiers_normal_327,
+        .fractured = false
     };
     MODIFIERS_NORMAL[328] = (Modifier){
         .id = 328,
@@ -72968,7 +73296,8 @@ void init_modifiers_data(void) {
         .name = "MovementVelocity",
         .description = "#% increased Movement Speed",
         .tier_count = 6,
-        .tiers = tiers_normal_328
+        .tiers = tiers_normal_328,
+        .fractured = false
     };
     MODIFIERS_NORMAL[329] = (Modifier){
         .id = 329,
@@ -72978,7 +73307,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_329
+        .tiers = tiers_normal_329,
+        .fractured = false
     };
     MODIFIERS_NORMAL[330] = (Modifier){
         .id = 330,
@@ -72988,7 +73318,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 9,
-        .tiers = tiers_normal_330
+        .tiers = tiers_normal_330,
+        .fractured = false
     };
     MODIFIERS_NORMAL[331] = (Modifier){
         .id = 331,
@@ -72998,7 +73329,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_331
+        .tiers = tiers_normal_331,
+        .fractured = false
     };
     MODIFIERS_NORMAL[332] = (Modifier){
         .id = 332,
@@ -73008,7 +73340,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_332
+        .tiers = tiers_normal_332,
+        .fractured = false
     };
     MODIFIERS_NORMAL[333] = (Modifier){
         .id = 333,
@@ -73018,7 +73351,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_333
+        .tiers = tiers_normal_333,
+        .fractured = false
     };
     MODIFIERS_NORMAL[334] = (Modifier){
         .id = 334,
@@ -73028,7 +73362,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_334
+        .tiers = tiers_normal_334,
+        .fractured = false
     };
     MODIFIERS_NORMAL[335] = (Modifier){
         .id = 335,
@@ -73038,7 +73373,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_335
+        .tiers = tiers_normal_335,
+        .fractured = false
     };
     MODIFIERS_NORMAL[336] = (Modifier){
         .id = 336,
@@ -73048,7 +73384,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_336
+        .tiers = tiers_normal_336,
+        .fractured = false
     };
     MODIFIERS_NORMAL[337] = (Modifier){
         .id = 337,
@@ -73058,7 +73395,8 @@ void init_modifiers_data(void) {
         .name = "StunThreshold",
         .description = "+# to Stun Threshold",
         .tier_count = 11,
-        .tiers = tiers_normal_337
+        .tiers = tiers_normal_337,
+        .fractured = false
     };
     MODIFIERS_NORMAL[338] = (Modifier){
         .id = 338,
@@ -73068,7 +73406,8 @@ void init_modifiers_data(void) {
         .name = "LifeRegeneration",
         .description = "# Life Regeneration per second",
         .tier_count = 8,
-        .tiers = tiers_normal_338
+        .tiers = tiers_normal_338,
+        .fractured = false
     };
     MODIFIERS_NORMAL[339] = (Modifier){
         .id = 339,
@@ -73078,7 +73417,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_339
+        .tiers = tiers_normal_339,
+        .fractured = false
     };
     MODIFIERS_NORMAL[340] = (Modifier){
         .id = 340,
@@ -73088,7 +73428,8 @@ void init_modifiers_data(void) {
         .name = "ReducedShockDuration",
         .description = "#% reduced Shock duration on you",
         .tier_count = 5,
-        .tiers = tiers_normal_340
+        .tiers = tiers_normal_340,
+        .fractured = false
     };
     MODIFIERS_NORMAL[341] = (Modifier){
         .id = 341,
@@ -73098,7 +73439,8 @@ void init_modifiers_data(void) {
         .name = "ReducedChillDuration",
         .description = "#% reduced Chill Duration on you",
         .tier_count = 5,
-        .tiers = tiers_normal_341
+        .tiers = tiers_normal_341,
+        .fractured = false
     };
     MODIFIERS_NORMAL[342] = (Modifier){
         .id = 342,
@@ -73108,7 +73450,8 @@ void init_modifiers_data(void) {
         .name = "ReducedFreezeDuration",
         .description = "#% reduced Freeze Duration on you",
         .tier_count = 5,
-        .tiers = tiers_normal_342
+        .tiers = tiers_normal_342,
+        .fractured = false
     };
     MODIFIERS_NORMAL[343] = (Modifier){
         .id = 343,
@@ -73118,7 +73461,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 5,
-        .tiers = tiers_normal_343
+        .tiers = tiers_normal_343,
+        .fractured = false
     };
     MODIFIERS_NORMAL[344] = (Modifier){
         .id = 344,
@@ -73128,7 +73472,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 5,
-        .tiers = tiers_normal_344
+        .tiers = tiers_normal_344,
+        .fractured = false
     };
     MODIFIERS_NORMAL[345] = (Modifier){
         .id = 345,
@@ -73138,7 +73483,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldRegeneration",
         .description = "#% increased Energy Shield Recharge Rate",
         .tier_count = 4,
-        .tiers = tiers_normal_345
+        .tiers = tiers_normal_345,
+        .fractured = false
     };
     MODIFIERS_NORMAL[346] = (Modifier){
         .id = 346,
@@ -73148,7 +73494,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 9,
-        .tiers = tiers_normal_346
+        .tiers = tiers_normal_346,
+        .fractured = false
     };
     MODIFIERS_NORMAL[347] = (Modifier){
         .id = 347,
@@ -73158,7 +73505,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 9,
-        .tiers = tiers_normal_347
+        .tiers = tiers_normal_347,
+        .fractured = false
     };
     MODIFIERS_NORMAL[348] = (Modifier){
         .id = 348,
@@ -73168,7 +73516,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour\n+# to Evasion Rating",
         .tier_count = 4,
-        .tiers = tiers_normal_348
+        .tiers = tiers_normal_348,
+        .fractured = false
     };
     MODIFIERS_NORMAL[349] = (Modifier){
         .id = 349,
@@ -73178,7 +73527,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour\n+# to maximum Energy Shield",
         .tier_count = 4,
-        .tiers = tiers_normal_349
+        .tiers = tiers_normal_349,
+        .fractured = false
     };
     MODIFIERS_NORMAL[350] = (Modifier){
         .id = 350,
@@ -73188,7 +73538,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Evasion Rating\n+# to maximum Energy Shield",
         .tier_count = 4,
-        .tiers = tiers_normal_350
+        .tiers = tiers_normal_350,
+        .fractured = false
     };
     MODIFIERS_NORMAL[351] = (Modifier){
         .id = 351,
@@ -73198,7 +73549,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 7,
-        .tiers = tiers_normal_351
+        .tiers = tiers_normal_351,
+        .fractured = false
     };
     MODIFIERS_NORMAL[352] = (Modifier){
         .id = 352,
@@ -73208,7 +73560,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_352
+        .tiers = tiers_normal_352,
+        .fractured = false
     };
     MODIFIERS_NORMAL[353] = (Modifier){
         .id = 353,
@@ -73218,7 +73571,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion and Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_353
+        .tiers = tiers_normal_353,
+        .fractured = false
     };
     MODIFIERS_NORMAL[354] = (Modifier){
         .id = 354,
@@ -73228,7 +73582,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Armour and Evasion\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_354
+        .tiers = tiers_normal_354,
+        .fractured = false
     };
     MODIFIERS_NORMAL[355] = (Modifier){
         .id = 355,
@@ -73238,7 +73593,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Armour and Energy Shield\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_355
+        .tiers = tiers_normal_355,
+        .fractured = false
     };
     MODIFIERS_NORMAL[356] = (Modifier){
         .id = 356,
@@ -73248,7 +73604,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercentAndStunThreshold",
         .description = "#% increased Evasion and Energy Shield\n+# to Stun Threshold",
         .tier_count = 6,
-        .tiers = tiers_normal_356
+        .tiers = tiers_normal_356,
+        .fractured = false
     };
     MODIFIERS_NORMAL[357] = (Modifier){
         .id = 357,
@@ -73258,7 +73615,8 @@ void init_modifiers_data(void) {
         .name = "MovementVelocity",
         .description = "#% increased Movement Speed",
         .tier_count = 6,
-        .tiers = tiers_normal_357
+        .tiers = tiers_normal_357,
+        .fractured = false
     };
     MODIFIERS_NORMAL[358] = (Modifier){
         .id = 358,
@@ -73268,7 +73626,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_358
+        .tiers = tiers_normal_358,
+        .fractured = false
     };
     MODIFIERS_NORMAL[359] = (Modifier){
         .id = 359,
@@ -73278,7 +73637,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 9,
-        .tiers = tiers_normal_359
+        .tiers = tiers_normal_359,
+        .fractured = false
     };
     MODIFIERS_NORMAL[360] = (Modifier){
         .id = 360,
@@ -73288,7 +73648,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_360
+        .tiers = tiers_normal_360,
+        .fractured = false
     };
     MODIFIERS_NORMAL[361] = (Modifier){
         .id = 361,
@@ -73298,7 +73659,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_361
+        .tiers = tiers_normal_361,
+        .fractured = false
     };
     MODIFIERS_NORMAL[362] = (Modifier){
         .id = 362,
@@ -73308,7 +73670,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_362
+        .tiers = tiers_normal_362,
+        .fractured = false
     };
     MODIFIERS_NORMAL[363] = (Modifier){
         .id = 363,
@@ -73318,7 +73681,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_363
+        .tiers = tiers_normal_363,
+        .fractured = false
     };
     MODIFIERS_NORMAL[364] = (Modifier){
         .id = 364,
@@ -73328,7 +73692,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_364
+        .tiers = tiers_normal_364,
+        .fractured = false
     };
     MODIFIERS_NORMAL[365] = (Modifier){
         .id = 365,
@@ -73338,7 +73703,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_365
+        .tiers = tiers_normal_365,
+        .fractured = false
     };
     MODIFIERS_NORMAL[366] = (Modifier){
         .id = 366,
@@ -73348,7 +73714,8 @@ void init_modifiers_data(void) {
         .name = "StunThreshold",
         .description = "+# to Stun Threshold",
         .tier_count = 11,
-        .tiers = tiers_normal_366
+        .tiers = tiers_normal_366,
+        .fractured = false
     };
     MODIFIERS_NORMAL[367] = (Modifier){
         .id = 367,
@@ -73358,7 +73725,8 @@ void init_modifiers_data(void) {
         .name = "LifeRegeneration",
         .description = "# Life Regeneration per second",
         .tier_count = 8,
-        .tiers = tiers_normal_367
+        .tiers = tiers_normal_367,
+        .fractured = false
     };
     MODIFIERS_NORMAL[368] = (Modifier){
         .id = 368,
@@ -73368,7 +73736,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_368
+        .tiers = tiers_normal_368,
+        .fractured = false
     };
     MODIFIERS_NORMAL[369] = (Modifier){
         .id = 369,
@@ -73378,7 +73747,8 @@ void init_modifiers_data(void) {
         .name = "ReducedShockDuration",
         .description = "#% reduced Shock duration on you",
         .tier_count = 5,
-        .tiers = tiers_normal_369
+        .tiers = tiers_normal_369,
+        .fractured = false
     };
     MODIFIERS_NORMAL[370] = (Modifier){
         .id = 370,
@@ -73388,7 +73758,8 @@ void init_modifiers_data(void) {
         .name = "ReducedChillDuration",
         .description = "#% reduced Chill Duration on you",
         .tier_count = 5,
-        .tiers = tiers_normal_370
+        .tiers = tiers_normal_370,
+        .fractured = false
     };
     MODIFIERS_NORMAL[371] = (Modifier){
         .id = 371,
@@ -73398,7 +73769,8 @@ void init_modifiers_data(void) {
         .name = "ReducedFreezeDuration",
         .description = "#% reduced Freeze Duration on you",
         .tier_count = 5,
-        .tiers = tiers_normal_371
+        .tiers = tiers_normal_371,
+        .fractured = false
     };
     MODIFIERS_NORMAL[372] = (Modifier){
         .id = 372,
@@ -73408,7 +73780,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 5,
-        .tiers = tiers_normal_372
+        .tiers = tiers_normal_372,
+        .fractured = false
     };
     MODIFIERS_NORMAL[373] = (Modifier){
         .id = 373,
@@ -73418,7 +73791,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 5,
-        .tiers = tiers_normal_373
+        .tiers = tiers_normal_373,
+        .fractured = false
     };
     MODIFIERS_NORMAL[374] = (Modifier){
         .id = 374,
@@ -73428,7 +73802,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldRegeneration",
         .description = "#% increased Energy Shield Recharge Rate",
         .tier_count = 4,
-        .tiers = tiers_normal_374
+        .tiers = tiers_normal_374,
+        .fractured = false
     };
     MODIFIERS_NORMAL[375] = (Modifier){
         .id = 375,
@@ -73438,7 +73813,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 13,
-        .tiers = tiers_normal_375
+        .tiers = tiers_normal_375,
+        .fractured = false
     };
     MODIFIERS_NORMAL[376] = (Modifier){
         .id = 376,
@@ -73448,7 +73824,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour\n+# to Evasion Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_376
+        .tiers = tiers_normal_376,
+        .fractured = false
     };
     MODIFIERS_NORMAL[377] = (Modifier){
         .id = 377,
@@ -73458,7 +73835,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour\n+# to maximum Energy Shield",
         .tier_count = 8,
-        .tiers = tiers_normal_377
+        .tiers = tiers_normal_377,
+        .fractured = false
     };
     MODIFIERS_NORMAL[378] = (Modifier){
         .id = 378,
@@ -73468,7 +73846,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Evasion Rating\n+# to maximum Energy Shield",
         .tier_count = 8,
-        .tiers = tiers_normal_378
+        .tiers = tiers_normal_378,
+        .fractured = false
     };
     MODIFIERS_NORMAL[379] = (Modifier){
         .id = 379,
@@ -73478,7 +73857,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 8,
-        .tiers = tiers_normal_379
+        .tiers = tiers_normal_379,
+        .fractured = false
     };
     MODIFIERS_NORMAL[380] = (Modifier){
         .id = 380,
@@ -73488,7 +73868,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 8,
-        .tiers = tiers_normal_380
+        .tiers = tiers_normal_380,
+        .fractured = false
     };
     MODIFIERS_NORMAL[381] = (Modifier){
         .id = 381,
@@ -73498,7 +73879,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion and Energy Shield",
         .tier_count = 8,
-        .tiers = tiers_normal_381
+        .tiers = tiers_normal_381,
+        .fractured = false
     };
     MODIFIERS_NORMAL[382] = (Modifier){
         .id = 382,
@@ -73508,7 +73890,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Armour and Evasion\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_382
+        .tiers = tiers_normal_382,
+        .fractured = false
     };
     MODIFIERS_NORMAL[383] = (Modifier){
         .id = 383,
@@ -73518,7 +73901,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Armour and Energy Shield\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_383
+        .tiers = tiers_normal_383,
+        .fractured = false
     };
     MODIFIERS_NORMAL[384] = (Modifier){
         .id = 384,
@@ -73528,7 +73912,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Evasion and Energy Shield\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_384
+        .tiers = tiers_normal_384,
+        .fractured = false
     };
     MODIFIERS_NORMAL[385] = (Modifier){
         .id = 385,
@@ -73538,7 +73923,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndDefencePercent",
         .description = "+# to Armour\n+# to Evasion Rating\n#% increased Armour and Evasion",
         .tier_count = 6,
-        .tiers = tiers_normal_385
+        .tiers = tiers_normal_385,
+        .fractured = false
     };
     MODIFIERS_NORMAL[386] = (Modifier){
         .id = 386,
@@ -73548,7 +73934,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndDefencePercent",
         .description = "+# to Armour\n+# to maximum Energy Shield\n#% increased Armour and Energy Shield",
         .tier_count = 6,
-        .tiers = tiers_normal_386
+        .tiers = tiers_normal_386,
+        .fractured = false
     };
     MODIFIERS_NORMAL[387] = (Modifier){
         .id = 387,
@@ -73558,7 +73945,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndDefencePercent",
         .description = "+# to Evasion Rating\n+# to maximum Energy Shield\n#% increased Evasion and Energy Shield",
         .tier_count = 6,
-        .tiers = tiers_normal_387
+        .tiers = tiers_normal_387,
+        .fractured = false
     };
     MODIFIERS_NORMAL[388] = (Modifier){
         .id = 388,
@@ -73568,7 +73956,8 @@ void init_modifiers_data(void) {
         .name = "Thorns",
         .description = "# to # Physical Thorns damage",
         .tier_count = 7,
-        .tiers = tiers_normal_388
+        .tiers = tiers_normal_388,
+        .fractured = false
     };
     MODIFIERS_NORMAL[389] = (Modifier){
         .id = 389,
@@ -73578,7 +73967,8 @@ void init_modifiers_data(void) {
         .name = "",
         .description = "+# to Spirit",
         .tier_count = 8,
-        .tiers = tiers_normal_389
+        .tiers = tiers_normal_389,
+        .fractured = false
     };
     MODIFIERS_NORMAL[390] = (Modifier){
         .id = 390,
@@ -73588,7 +73978,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_390
+        .tiers = tiers_normal_390,
+        .fractured = false
     };
     MODIFIERS_NORMAL[391] = (Modifier){
         .id = 391,
@@ -73598,7 +73989,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 9,
-        .tiers = tiers_normal_391
+        .tiers = tiers_normal_391,
+        .fractured = false
     };
     MODIFIERS_NORMAL[392] = (Modifier){
         .id = 392,
@@ -73608,7 +74000,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_392
+        .tiers = tiers_normal_392,
+        .fractured = false
     };
     MODIFIERS_NORMAL[393] = (Modifier){
         .id = 393,
@@ -73618,7 +74011,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_393
+        .tiers = tiers_normal_393,
+        .fractured = false
     };
     MODIFIERS_NORMAL[394] = (Modifier){
         .id = 394,
@@ -73628,7 +74022,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_394
+        .tiers = tiers_normal_394,
+        .fractured = false
     };
     MODIFIERS_NORMAL[395] = (Modifier){
         .id = 395,
@@ -73638,7 +74033,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_395
+        .tiers = tiers_normal_395,
+        .fractured = false
     };
     MODIFIERS_NORMAL[396] = (Modifier){
         .id = 396,
@@ -73648,7 +74044,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_396
+        .tiers = tiers_normal_396,
+        .fractured = false
     };
     MODIFIERS_NORMAL[397] = (Modifier){
         .id = 397,
@@ -73658,7 +74055,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_397
+        .tiers = tiers_normal_397,
+        .fractured = false
     };
     MODIFIERS_NORMAL[398] = (Modifier){
         .id = 398,
@@ -73668,7 +74066,8 @@ void init_modifiers_data(void) {
         .name = "StunThreshold",
         .description = "+# to Stun Threshold",
         .tier_count = 10,
-        .tiers = tiers_normal_398
+        .tiers = tiers_normal_398,
+        .fractured = false
     };
     MODIFIERS_NORMAL[399] = (Modifier){
         .id = 399,
@@ -73678,7 +74077,8 @@ void init_modifiers_data(void) {
         .name = "LifeRegeneration",
         .description = "# Life Regeneration per second",
         .tier_count = 11,
-        .tiers = tiers_normal_399
+        .tiers = tiers_normal_399,
+        .fractured = false
     };
     MODIFIERS_NORMAL[400] = (Modifier){
         .id = 400,
@@ -73688,7 +74088,8 @@ void init_modifiers_data(void) {
         .name = "ReducedBleedingDuration",
         .description = "#% reduced Duration of Bleeding on You",
         .tier_count = 5,
-        .tiers = tiers_normal_400
+        .tiers = tiers_normal_400,
+        .fractured = false
     };
     MODIFIERS_NORMAL[401] = (Modifier){
         .id = 401,
@@ -73698,7 +74099,8 @@ void init_modifiers_data(void) {
         .name = "ReducedPoisonDuration",
         .description = "#% reduced Poison Duration on You",
         .tier_count = 5,
-        .tiers = tiers_normal_401
+        .tiers = tiers_normal_401,
+        .fractured = false
     };
     MODIFIERS_NORMAL[402] = (Modifier){
         .id = 402,
@@ -73708,7 +74110,8 @@ void init_modifiers_data(void) {
         .name = "ReducedIgniteDuration",
         .description = "#% reduced Ignite Duration on You",
         .tier_count = 5,
-        .tiers = tiers_normal_402
+        .tiers = tiers_normal_402,
+        .fractured = false
     };
     MODIFIERS_NORMAL[403] = (Modifier){
         .id = 403,
@@ -73718,7 +74121,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_403
+        .tiers = tiers_normal_403,
+        .fractured = false
     };
     MODIFIERS_NORMAL[404] = (Modifier){
         .id = 404,
@@ -73728,7 +74132,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 6,
-        .tiers = tiers_normal_404
+        .tiers = tiers_normal_404,
+        .fractured = false
     };
     MODIFIERS_NORMAL[405] = (Modifier){
         .id = 405,
@@ -73738,7 +74143,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldDelay",
         .description = "#% faster start of Energy Shield Recharge",
         .tier_count = 6,
-        .tiers = tiers_normal_405
+        .tiers = tiers_normal_405,
+        .fractured = false
     };
     MODIFIERS_NORMAL[406] = (Modifier){
         .id = 406,
@@ -73748,7 +74154,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 13,
-        .tiers = tiers_normal_406
+        .tiers = tiers_normal_406,
+        .fractured = false
     };
     MODIFIERS_NORMAL[407] = (Modifier){
         .id = 407,
@@ -73758,7 +74165,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour",
         .tier_count = 11,
-        .tiers = tiers_normal_407
+        .tiers = tiers_normal_407,
+        .fractured = false
     };
     MODIFIERS_NORMAL[408] = (Modifier){
         .id = 408,
@@ -73768,7 +74176,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Evasion Rating",
         .tier_count = 11,
-        .tiers = tiers_normal_408
+        .tiers = tiers_normal_408,
+        .fractured = false
     };
     MODIFIERS_NORMAL[409] = (Modifier){
         .id = 409,
@@ -73778,7 +74187,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to maximum Energy Shield",
         .tier_count = 11,
-        .tiers = tiers_normal_409
+        .tiers = tiers_normal_409,
+        .fractured = false
     };
     MODIFIERS_NORMAL[410] = (Modifier){
         .id = 410,
@@ -73788,7 +74198,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 8,
-        .tiers = tiers_normal_410
+        .tiers = tiers_normal_410,
+        .fractured = false
     };
     MODIFIERS_NORMAL[411] = (Modifier){
         .id = 411,
@@ -73798,7 +74209,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_411
+        .tiers = tiers_normal_411,
+        .fractured = false
     };
     MODIFIERS_NORMAL[412] = (Modifier){
         .id = 412,
@@ -73808,7 +74220,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 8,
-        .tiers = tiers_normal_412
+        .tiers = tiers_normal_412,
+        .fractured = false
     };
     MODIFIERS_NORMAL[413] = (Modifier){
         .id = 413,
@@ -73818,7 +74231,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Armour\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_413
+        .tiers = tiers_normal_413,
+        .fractured = false
     };
     MODIFIERS_NORMAL[414] = (Modifier){
         .id = 414,
@@ -73828,7 +74242,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Evasion Rating\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_414
+        .tiers = tiers_normal_414,
+        .fractured = false
     };
     MODIFIERS_NORMAL[415] = (Modifier){
         .id = 415,
@@ -73838,7 +74253,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Energy Shield\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_415
+        .tiers = tiers_normal_415,
+        .fractured = false
     };
     MODIFIERS_NORMAL[416] = (Modifier){
         .id = 416,
@@ -73848,7 +74264,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndDefencePercent",
         .description = "+# to Armour\n#% increased Armour",
         .tier_count = 6,
-        .tiers = tiers_normal_416
+        .tiers = tiers_normal_416,
+        .fractured = false
     };
     MODIFIERS_NORMAL[417] = (Modifier){
         .id = 417,
@@ -73858,7 +74275,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndDefencePercent",
         .description = "+# to Evasion Rating\n#% increased Evasion Rating",
         .tier_count = 6,
-        .tiers = tiers_normal_417
+        .tiers = tiers_normal_417,
+        .fractured = false
     };
     MODIFIERS_NORMAL[418] = (Modifier){
         .id = 418,
@@ -73868,7 +74286,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndDefencePercent",
         .description = "+# to maximum Energy Shield\n#% increased Energy Shield",
         .tier_count = 6,
-        .tiers = tiers_normal_418
+        .tiers = tiers_normal_418,
+        .fractured = false
     };
     MODIFIERS_NORMAL[419] = (Modifier){
         .id = 419,
@@ -73878,7 +74297,8 @@ void init_modifiers_data(void) {
         .name = "Thorns",
         .description = "# to # Physical Thorns damage",
         .tier_count = 7,
-        .tiers = tiers_normal_419
+        .tiers = tiers_normal_419,
+        .fractured = false
     };
     MODIFIERS_NORMAL[420] = (Modifier){
         .id = 420,
@@ -73888,7 +74308,8 @@ void init_modifiers_data(void) {
         .name = "",
         .description = "+# to Spirit",
         .tier_count = 8,
-        .tiers = tiers_normal_420
+        .tiers = tiers_normal_420,
+        .fractured = false
     };
     MODIFIERS_NORMAL[421] = (Modifier){
         .id = 421,
@@ -73898,7 +74319,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_421
+        .tiers = tiers_normal_421,
+        .fractured = false
     };
     MODIFIERS_NORMAL[422] = (Modifier){
         .id = 422,
@@ -73908,7 +74330,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_422
+        .tiers = tiers_normal_422,
+        .fractured = false
     };
     MODIFIERS_NORMAL[423] = (Modifier){
         .id = 423,
@@ -73918,7 +74341,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_423
+        .tiers = tiers_normal_423,
+        .fractured = false
     };
     MODIFIERS_NORMAL[424] = (Modifier){
         .id = 424,
@@ -73928,7 +74352,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_424
+        .tiers = tiers_normal_424,
+        .fractured = false
     };
     MODIFIERS_NORMAL[425] = (Modifier){
         .id = 425,
@@ -73938,7 +74363,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_425
+        .tiers = tiers_normal_425,
+        .fractured = false
     };
     MODIFIERS_NORMAL[426] = (Modifier){
         .id = 426,
@@ -73948,7 +74374,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_426
+        .tiers = tiers_normal_426,
+        .fractured = false
     };
     MODIFIERS_NORMAL[427] = (Modifier){
         .id = 427,
@@ -73958,7 +74385,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_427
+        .tiers = tiers_normal_427,
+        .fractured = false
     };
     MODIFIERS_NORMAL[428] = (Modifier){
         .id = 428,
@@ -73968,7 +74396,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_428
+        .tiers = tiers_normal_428,
+        .fractured = false
     };
     MODIFIERS_NORMAL[429] = (Modifier){
         .id = 429,
@@ -73978,7 +74407,8 @@ void init_modifiers_data(void) {
         .name = "StunThreshold",
         .description = "+# to Stun Threshold",
         .tier_count = 10,
-        .tiers = tiers_normal_429
+        .tiers = tiers_normal_429,
+        .fractured = false
     };
     MODIFIERS_NORMAL[430] = (Modifier){
         .id = 430,
@@ -73988,7 +74418,8 @@ void init_modifiers_data(void) {
         .name = "LifeRegeneration",
         .description = "# Life Regeneration per second",
         .tier_count = 11,
-        .tiers = tiers_normal_430
+        .tiers = tiers_normal_430,
+        .fractured = false
     };
     MODIFIERS_NORMAL[431] = (Modifier){
         .id = 431,
@@ -73998,7 +74429,8 @@ void init_modifiers_data(void) {
         .name = "ReducedBleedingDuration",
         .description = "#% reduced Duration of Bleeding on You",
         .tier_count = 5,
-        .tiers = tiers_normal_431
+        .tiers = tiers_normal_431,
+        .fractured = false
     };
     MODIFIERS_NORMAL[432] = (Modifier){
         .id = 432,
@@ -74008,7 +74440,8 @@ void init_modifiers_data(void) {
         .name = "ReducedPoisonDuration",
         .description = "#% reduced Poison Duration on You",
         .tier_count = 5,
-        .tiers = tiers_normal_432
+        .tiers = tiers_normal_432,
+        .fractured = false
     };
     MODIFIERS_NORMAL[433] = (Modifier){
         .id = 433,
@@ -74018,7 +74451,8 @@ void init_modifiers_data(void) {
         .name = "ReducedIgniteDuration",
         .description = "#% reduced Ignite Duration on You",
         .tier_count = 5,
-        .tiers = tiers_normal_433
+        .tiers = tiers_normal_433,
+        .fractured = false
     };
     MODIFIERS_NORMAL[434] = (Modifier){
         .id = 434,
@@ -74028,7 +74462,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_434
+        .tiers = tiers_normal_434,
+        .fractured = false
     };
     MODIFIERS_NORMAL[435] = (Modifier){
         .id = 435,
@@ -74038,7 +74473,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 6,
-        .tiers = tiers_normal_435
+        .tiers = tiers_normal_435,
+        .fractured = false
     };
     MODIFIERS_NORMAL[436] = (Modifier){
         .id = 436,
@@ -74048,7 +74484,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldDelay",
         .description = "#% faster start of Energy Shield Recharge",
         .tier_count = 6,
-        .tiers = tiers_normal_436
+        .tiers = tiers_normal_436,
+        .fractured = false
     };
     MODIFIERS_NORMAL[437] = (Modifier){
         .id = 437,
@@ -74058,7 +74495,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 9,
-        .tiers = tiers_normal_437
+        .tiers = tiers_normal_437,
+        .fractured = false
     };
     MODIFIERS_NORMAL[438] = (Modifier){
         .id = 438,
@@ -74068,7 +74506,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 9,
-        .tiers = tiers_normal_438
+        .tiers = tiers_normal_438,
+        .fractured = false
     };
     MODIFIERS_NORMAL[439] = (Modifier){
         .id = 439,
@@ -74078,7 +74517,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour",
         .tier_count = 7,
-        .tiers = tiers_normal_439
+        .tiers = tiers_normal_439,
+        .fractured = false
     };
     MODIFIERS_NORMAL[440] = (Modifier){
         .id = 440,
@@ -74088,7 +74528,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Evasion Rating",
         .tier_count = 7,
-        .tiers = tiers_normal_440
+        .tiers = tiers_normal_440,
+        .fractured = false
     };
     MODIFIERS_NORMAL[441] = (Modifier){
         .id = 441,
@@ -74098,7 +74539,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to maximum Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_441
+        .tiers = tiers_normal_441,
+        .fractured = false
     };
     MODIFIERS_NORMAL[442] = (Modifier){
         .id = 442,
@@ -74108,7 +74550,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 7,
-        .tiers = tiers_normal_442
+        .tiers = tiers_normal_442,
+        .fractured = false
     };
     MODIFIERS_NORMAL[443] = (Modifier){
         .id = 443,
@@ -74118,7 +74561,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion Rating",
         .tier_count = 7,
-        .tiers = tiers_normal_443
+        .tiers = tiers_normal_443,
+        .fractured = false
     };
     MODIFIERS_NORMAL[444] = (Modifier){
         .id = 444,
@@ -74128,7 +74572,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_444
+        .tiers = tiers_normal_444,
+        .fractured = false
     };
     MODIFIERS_NORMAL[445] = (Modifier){
         .id = 445,
@@ -74138,7 +74583,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Armour +# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_445
+        .tiers = tiers_normal_445,
+        .fractured = false
     };
     MODIFIERS_NORMAL[446] = (Modifier){
         .id = 446,
@@ -74148,7 +74594,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Evasion Rating +# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_446
+        .tiers = tiers_normal_446,
+        .fractured = false
     };
     MODIFIERS_NORMAL[447] = (Modifier){
         .id = 447,
@@ -74158,7 +74605,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Energy Shield +# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_447
+        .tiers = tiers_normal_447,
+        .fractured = false
     };
     MODIFIERS_NORMAL[448] = (Modifier){
         .id = 448,
@@ -74168,7 +74616,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_448
+        .tiers = tiers_normal_448,
+        .fractured = false
     };
     MODIFIERS_NORMAL[449] = (Modifier){
         .id = 449,
@@ -74178,7 +74627,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_449
+        .tiers = tiers_normal_449,
+        .fractured = false
     };
     MODIFIERS_NORMAL[450] = (Modifier){
         .id = 450,
@@ -74188,7 +74638,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_450
+        .tiers = tiers_normal_450,
+        .fractured = false
     };
     MODIFIERS_NORMAL[451] = (Modifier){
         .id = 451,
@@ -74198,7 +74649,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_451
+        .tiers = tiers_normal_451,
+        .fractured = false
     };
     MODIFIERS_NORMAL[452] = (Modifier){
         .id = 452,
@@ -74208,7 +74660,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 9,
-        .tiers = tiers_normal_452
+        .tiers = tiers_normal_452,
+        .fractured = false
     };
     MODIFIERS_NORMAL[453] = (Modifier){
         .id = 453,
@@ -74218,7 +74671,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_453
+        .tiers = tiers_normal_453,
+        .fractured = false
     };
     MODIFIERS_NORMAL[454] = (Modifier){
         .id = 454,
@@ -74228,7 +74682,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 9,
-        .tiers = tiers_normal_454
+        .tiers = tiers_normal_454,
+        .fractured = false
     };
     MODIFIERS_NORMAL[455] = (Modifier){
         .id = 455,
@@ -74238,7 +74693,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_455
+        .tiers = tiers_normal_455,
+        .fractured = false
     };
     MODIFIERS_NORMAL[456] = (Modifier){
         .id = 456,
@@ -74248,7 +74704,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_456
+        .tiers = tiers_normal_456,
+        .fractured = false
     };
     MODIFIERS_NORMAL[457] = (Modifier){
         .id = 457,
@@ -74258,7 +74715,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_457
+        .tiers = tiers_normal_457,
+        .fractured = false
     };
     MODIFIERS_NORMAL[458] = (Modifier){
         .id = 458,
@@ -74268,7 +74726,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_458
+        .tiers = tiers_normal_458,
+        .fractured = false
     };
     MODIFIERS_NORMAL[459] = (Modifier){
         .id = 459,
@@ -74278,7 +74737,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_459
+        .tiers = tiers_normal_459,
+        .fractured = false
     };
     MODIFIERS_NORMAL[460] = (Modifier){
         .id = 460,
@@ -74288,7 +74748,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_460
+        .tiers = tiers_normal_460,
+        .fractured = false
     };
     MODIFIERS_NORMAL[461] = (Modifier){
         .id = 461,
@@ -74298,7 +74759,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Melee Skills",
         .tier_count = 2,
-        .tiers = tiers_normal_461
+        .tiers = tiers_normal_461,
+        .fractured = false
     };
     MODIFIERS_NORMAL[462] = (Modifier){
         .id = 462,
@@ -74308,7 +74770,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "Leeches #% of Physical Damage as Life",
         .tier_count = 5,
-        .tiers = tiers_normal_462
+        .tiers = tiers_normal_462,
+        .fractured = false
     };
     MODIFIERS_NORMAL[463] = (Modifier){
         .id = 463,
@@ -74318,7 +74781,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeech",
         .description = "Leeches #% of Physical Damage as Mana",
         .tier_count = 5,
-        .tiers = tiers_normal_463
+        .tiers = tiers_normal_463,
+        .fractured = false
     };
     MODIFIERS_NORMAL[464] = (Modifier){
         .id = 464,
@@ -74328,7 +74792,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_464
+        .tiers = tiers_normal_464,
+        .fractured = false
     };
     MODIFIERS_NORMAL[465] = (Modifier){
         .id = 465,
@@ -74338,7 +74803,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_465
+        .tiers = tiers_normal_465,
+        .fractured = false
     };
     MODIFIERS_NORMAL[466] = (Modifier){
         .id = 466,
@@ -74348,7 +74814,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainPerTarget",
         .description = "Grants # Life per Enemy Hit",
         .tier_count = 4,
-        .tiers = tiers_normal_466
+        .tiers = tiers_normal_466,
+        .fractured = false
     };
     MODIFIERS_NORMAL[467] = (Modifier){
         .id = 467,
@@ -74358,7 +74825,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 4,
-        .tiers = tiers_normal_467
+        .tiers = tiers_normal_467,
+        .fractured = false
     };
     MODIFIERS_NORMAL[468] = (Modifier){
         .id = 468,
@@ -74368,7 +74836,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Damage Bonus",
         .tier_count = 5,
-        .tiers = tiers_normal_468
+        .tiers = tiers_normal_468,
+        .fractured = false
     };
     MODIFIERS_NORMAL[469] = (Modifier){
         .id = 469,
@@ -74378,7 +74847,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_469
+        .tiers = tiers_normal_469,
+        .fractured = false
     };
     MODIFIERS_NORMAL[470] = (Modifier){
         .id = 470,
@@ -74388,7 +74858,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 5,
-        .tiers = tiers_normal_470
+        .tiers = tiers_normal_470,
+        .fractured = false
     };
     MODIFIERS_NORMAL[471] = (Modifier){
         .id = 471,
@@ -74398,7 +74869,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 5,
-        .tiers = tiers_normal_471
+        .tiers = tiers_normal_471,
+        .fractured = false
     };
     MODIFIERS_NORMAL[472] = (Modifier){
         .id = 472,
@@ -74408,7 +74880,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldRegeneration",
         .description = "#% increased Energy Shield Recharge Rate",
         .tier_count = 4,
-        .tiers = tiers_normal_472
+        .tiers = tiers_normal_472,
+        .fractured = false
     };
     MODIFIERS_NORMAL[473] = (Modifier){
         .id = 473,
@@ -74418,7 +74891,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 9,
-        .tiers = tiers_normal_473
+        .tiers = tiers_normal_473,
+        .fractured = false
     };
     MODIFIERS_NORMAL[474] = (Modifier){
         .id = 474,
@@ -74428,7 +74902,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 9,
-        .tiers = tiers_normal_474
+        .tiers = tiers_normal_474,
+        .fractured = false
     };
     MODIFIERS_NORMAL[475] = (Modifier){
         .id = 475,
@@ -74438,7 +74913,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour\n+# to Evasion Rating",
         .tier_count = 4,
-        .tiers = tiers_normal_475
+        .tiers = tiers_normal_475,
+        .fractured = false
     };
     MODIFIERS_NORMAL[476] = (Modifier){
         .id = 476,
@@ -74448,7 +74924,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour\n+# to maximum Energy Shield",
         .tier_count = 4,
-        .tiers = tiers_normal_476
+        .tiers = tiers_normal_476,
+        .fractured = false
     };
     MODIFIERS_NORMAL[477] = (Modifier){
         .id = 477,
@@ -74458,7 +74935,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Evasion Rating\n+# to maximum Energy Shield",
         .tier_count = 4,
-        .tiers = tiers_normal_477
+        .tiers = tiers_normal_477,
+        .fractured = false
     };
     MODIFIERS_NORMAL[478] = (Modifier){
         .id = 478,
@@ -74468,7 +74946,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 7,
-        .tiers = tiers_normal_478
+        .tiers = tiers_normal_478,
+        .fractured = false
     };
     MODIFIERS_NORMAL[479] = (Modifier){
         .id = 479,
@@ -74478,7 +74957,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_479
+        .tiers = tiers_normal_479,
+        .fractured = false
     };
     MODIFIERS_NORMAL[480] = (Modifier){
         .id = 480,
@@ -74488,7 +74968,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion and Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_480
+        .tiers = tiers_normal_480,
+        .fractured = false
     };
     MODIFIERS_NORMAL[481] = (Modifier){
         .id = 481,
@@ -74498,7 +74979,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Armour and Evasion\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_481
+        .tiers = tiers_normal_481,
+        .fractured = false
     };
     MODIFIERS_NORMAL[482] = (Modifier){
         .id = 482,
@@ -74508,7 +74990,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Armour and Energy Shield\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_482
+        .tiers = tiers_normal_482,
+        .fractured = false
     };
     MODIFIERS_NORMAL[483] = (Modifier){
         .id = 483,
@@ -74518,7 +75001,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Evasion and Energy Shield\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_483
+        .tiers = tiers_normal_483,
+        .fractured = false
     };
     MODIFIERS_NORMAL[484] = (Modifier){
         .id = 484,
@@ -74528,7 +75012,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_484
+        .tiers = tiers_normal_484,
+        .fractured = false
     };
     MODIFIERS_NORMAL[485] = (Modifier){
         .id = 485,
@@ -74538,7 +75023,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_485
+        .tiers = tiers_normal_485,
+        .fractured = false
     };
     MODIFIERS_NORMAL[486] = (Modifier){
         .id = 486,
@@ -74548,7 +75034,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_486
+        .tiers = tiers_normal_486,
+        .fractured = false
     };
     MODIFIERS_NORMAL[487] = (Modifier){
         .id = 487,
@@ -74558,7 +75045,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_487
+        .tiers = tiers_normal_487,
+        .fractured = false
     };
     MODIFIERS_NORMAL[488] = (Modifier){
         .id = 488,
@@ -74568,7 +75056,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 9,
-        .tiers = tiers_normal_488
+        .tiers = tiers_normal_488,
+        .fractured = false
     };
     MODIFIERS_NORMAL[489] = (Modifier){
         .id = 489,
@@ -74578,7 +75067,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_489
+        .tiers = tiers_normal_489,
+        .fractured = false
     };
     MODIFIERS_NORMAL[490] = (Modifier){
         .id = 490,
@@ -74588,7 +75078,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 9,
-        .tiers = tiers_normal_490
+        .tiers = tiers_normal_490,
+        .fractured = false
     };
     MODIFIERS_NORMAL[491] = (Modifier){
         .id = 491,
@@ -74598,7 +75089,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_491
+        .tiers = tiers_normal_491,
+        .fractured = false
     };
     MODIFIERS_NORMAL[492] = (Modifier){
         .id = 492,
@@ -74608,7 +75100,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_492
+        .tiers = tiers_normal_492,
+        .fractured = false
     };
     MODIFIERS_NORMAL[493] = (Modifier){
         .id = 493,
@@ -74618,7 +75111,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_493
+        .tiers = tiers_normal_493,
+        .fractured = false
     };
     MODIFIERS_NORMAL[494] = (Modifier){
         .id = 494,
@@ -74628,7 +75122,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_494
+        .tiers = tiers_normal_494,
+        .fractured = false
     };
     MODIFIERS_NORMAL[495] = (Modifier){
         .id = 495,
@@ -74638,7 +75133,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_495
+        .tiers = tiers_normal_495,
+        .fractured = false
     };
     MODIFIERS_NORMAL[496] = (Modifier){
         .id = 496,
@@ -74648,7 +75144,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_496
+        .tiers = tiers_normal_496,
+        .fractured = false
     };
     MODIFIERS_NORMAL[497] = (Modifier){
         .id = 497,
@@ -74658,7 +75155,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Melee Skills",
         .tier_count = 2,
-        .tiers = tiers_normal_497
+        .tiers = tiers_normal_497,
+        .fractured = false
     };
     MODIFIERS_NORMAL[498] = (Modifier){
         .id = 498,
@@ -74668,7 +75166,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "Leeches #% of Physical Damage as Life",
         .tier_count = 5,
-        .tiers = tiers_normal_498
+        .tiers = tiers_normal_498,
+        .fractured = false
     };
     MODIFIERS_NORMAL[499] = (Modifier){
         .id = 499,
@@ -74678,7 +75177,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeech",
         .description = "Leeches #% of Physical Damage as Mana",
         .tier_count = 5,
-        .tiers = tiers_normal_499
+        .tiers = tiers_normal_499,
+        .fractured = false
     };
     MODIFIERS_NORMAL[500] = (Modifier){
         .id = 500,
@@ -74688,7 +75188,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_500
+        .tiers = tiers_normal_500,
+        .fractured = false
     };
     MODIFIERS_NORMAL[501] = (Modifier){
         .id = 501,
@@ -74698,7 +75199,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 8,
-        .tiers = tiers_normal_501
+        .tiers = tiers_normal_501,
+        .fractured = false
     };
     MODIFIERS_NORMAL[502] = (Modifier){
         .id = 502,
@@ -74708,7 +75210,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainPerTarget",
         .description = "Grants # Life per Enemy Hit",
         .tier_count = 4,
-        .tiers = tiers_normal_502
+        .tiers = tiers_normal_502,
+        .fractured = false
     };
     MODIFIERS_NORMAL[503] = (Modifier){
         .id = 503,
@@ -74718,7 +75221,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 4,
-        .tiers = tiers_normal_503
+        .tiers = tiers_normal_503,
+        .fractured = false
     };
     MODIFIERS_NORMAL[504] = (Modifier){
         .id = 504,
@@ -74728,7 +75232,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Damage Bonus",
         .tier_count = 5,
-        .tiers = tiers_normal_504
+        .tiers = tiers_normal_504,
+        .fractured = false
     };
     MODIFIERS_NORMAL[505] = (Modifier){
         .id = 505,
@@ -74738,7 +75243,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_505
+        .tiers = tiers_normal_505,
+        .fractured = false
     };
     MODIFIERS_NORMAL[506] = (Modifier){
         .id = 506,
@@ -74748,7 +75254,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 5,
-        .tiers = tiers_normal_506
+        .tiers = tiers_normal_506,
+        .fractured = false
     };
     MODIFIERS_NORMAL[507] = (Modifier){
         .id = 507,
@@ -74758,7 +75265,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 5,
-        .tiers = tiers_normal_507
+        .tiers = tiers_normal_507,
+        .fractured = false
     };
     MODIFIERS_NORMAL[508] = (Modifier){
         .id = 508,
@@ -74768,7 +75276,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldRegeneration",
         .description = "#% increased Energy Shield Recharge Rate",
         .tier_count = 4,
-        .tiers = tiers_normal_508
+        .tiers = tiers_normal_508,
+        .fractured = false
     };
     MODIFIERS_NORMAL[509] = (Modifier){
         .id = 509,
@@ -74778,7 +75287,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 10,
-        .tiers = tiers_normal_509
+        .tiers = tiers_normal_509,
+        .fractured = false
     };
     MODIFIERS_NORMAL[510] = (Modifier){
         .id = 510,
@@ -74788,7 +75298,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 10,
-        .tiers = tiers_normal_510
+        .tiers = tiers_normal_510,
+        .fractured = false
     };
     MODIFIERS_NORMAL[511] = (Modifier){
         .id = 511,
@@ -74798,7 +75309,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour",
         .tier_count = 8,
-        .tiers = tiers_normal_511
+        .tiers = tiers_normal_511,
+        .fractured = false
     };
     MODIFIERS_NORMAL[512] = (Modifier){
         .id = 512,
@@ -74808,7 +75320,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Evasion Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_512
+        .tiers = tiers_normal_512,
+        .fractured = false
     };
     MODIFIERS_NORMAL[513] = (Modifier){
         .id = 513,
@@ -74818,7 +75331,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to maximum Energy Shield",
         .tier_count = 8,
-        .tiers = tiers_normal_513
+        .tiers = tiers_normal_513,
+        .fractured = false
     };
     MODIFIERS_NORMAL[514] = (Modifier){
         .id = 514,
@@ -74828,7 +75342,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 7,
-        .tiers = tiers_normal_514
+        .tiers = tiers_normal_514,
+        .fractured = false
     };
     MODIFIERS_NORMAL[515] = (Modifier){
         .id = 515,
@@ -74838,7 +75353,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion Rating",
         .tier_count = 7,
-        .tiers = tiers_normal_515
+        .tiers = tiers_normal_515,
+        .fractured = false
     };
     MODIFIERS_NORMAL[516] = (Modifier){
         .id = 516,
@@ -74848,7 +75364,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_516
+        .tiers = tiers_normal_516,
+        .fractured = false
     };
     MODIFIERS_NORMAL[517] = (Modifier){
         .id = 517,
@@ -74858,7 +75375,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Armour\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_517
+        .tiers = tiers_normal_517,
+        .fractured = false
     };
     MODIFIERS_NORMAL[518] = (Modifier){
         .id = 518,
@@ -74868,7 +75386,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Evasion Rating\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_518
+        .tiers = tiers_normal_518,
+        .fractured = false
     };
     MODIFIERS_NORMAL[519] = (Modifier){
         .id = 519,
@@ -74878,7 +75397,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Energy Shield\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_519
+        .tiers = tiers_normal_519,
+        .fractured = false
     };
     MODIFIERS_NORMAL[520] = (Modifier){
         .id = 520,
@@ -74888,7 +75408,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndMana",
         .description = "#% increased Armour\n+# to maximum Mana",
         .tier_count = 6,
-        .tiers = tiers_normal_520
+        .tiers = tiers_normal_520,
+        .fractured = false
     };
     MODIFIERS_NORMAL[521] = (Modifier){
         .id = 521,
@@ -74898,7 +75419,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndMana",
         .description = "#% increased Evasion Rating\n+# to maximum Mana",
         .tier_count = 6,
-        .tiers = tiers_normal_521
+        .tiers = tiers_normal_521,
+        .fractured = false
     };
     MODIFIERS_NORMAL[522] = (Modifier){
         .id = 522,
@@ -74908,7 +75430,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndMana",
         .description = "#% increased Energy Shield\n+# to maximum Mana",
         .tier_count = 6,
-        .tiers = tiers_normal_522
+        .tiers = tiers_normal_522,
+        .fractured = false
     };
     MODIFIERS_NORMAL[523] = (Modifier){
         .id = 523,
@@ -74918,7 +75441,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 9,
-        .tiers = tiers_normal_523
+        .tiers = tiers_normal_523,
+        .fractured = false
     };
     MODIFIERS_NORMAL[524] = (Modifier){
         .id = 524,
@@ -74928,7 +75452,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncreasePrefix",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_524
+        .tiers = tiers_normal_524,
+        .fractured = false
     };
     MODIFIERS_NORMAL[525] = (Modifier){
         .id = 525,
@@ -74938,7 +75463,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_525
+        .tiers = tiers_normal_525,
+        .fractured = false
     };
     MODIFIERS_NORMAL[526] = (Modifier){
         .id = 526,
@@ -74948,7 +75474,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_526
+        .tiers = tiers_normal_526,
+        .fractured = false
     };
     MODIFIERS_NORMAL[527] = (Modifier){
         .id = 527,
@@ -74958,7 +75485,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 9,
-        .tiers = tiers_normal_527
+        .tiers = tiers_normal_527,
+        .fractured = false
     };
     MODIFIERS_NORMAL[528] = (Modifier){
         .id = 528,
@@ -74968,7 +75496,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_528
+        .tiers = tiers_normal_528,
+        .fractured = false
     };
     MODIFIERS_NORMAL[529] = (Modifier){
         .id = 529,
@@ -74978,7 +75507,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_529
+        .tiers = tiers_normal_529,
+        .fractured = false
     };
     MODIFIERS_NORMAL[530] = (Modifier){
         .id = 530,
@@ -74988,7 +75518,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_530
+        .tiers = tiers_normal_530,
+        .fractured = false
     };
     MODIFIERS_NORMAL[531] = (Modifier){
         .id = 531,
@@ -74998,7 +75529,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_531
+        .tiers = tiers_normal_531,
+        .fractured = false
     };
     MODIFIERS_NORMAL[532] = (Modifier){
         .id = 532,
@@ -75008,7 +75540,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_532
+        .tiers = tiers_normal_532,
+        .fractured = false
     };
     MODIFIERS_NORMAL[533] = (Modifier){
         .id = 533,
@@ -75018,7 +75551,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Minion Skills",
         .tier_count = 2,
-        .tiers = tiers_normal_533
+        .tiers = tiers_normal_533,
+        .fractured = false
     };
     MODIFIERS_NORMAL[534] = (Modifier){
         .id = 534,
@@ -75028,7 +75562,8 @@ void init_modifiers_data(void) {
         .name = "LifeRegeneration",
         .description = "# Life Regeneration per second",
         .tier_count = 8,
-        .tiers = tiers_normal_534
+        .tiers = tiers_normal_534,
+        .fractured = false
     };
     MODIFIERS_NORMAL[535] = (Modifier){
         .id = 535,
@@ -75038,7 +75573,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance",
         .tier_count = 5,
-        .tiers = tiers_normal_535
+        .tiers = tiers_normal_535,
+        .fractured = false
     };
     MODIFIERS_NORMAL[536] = (Modifier){
         .id = 536,
@@ -75048,7 +75584,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_536
+        .tiers = tiers_normal_536,
+        .fractured = false
     };
     MODIFIERS_NORMAL[537] = (Modifier){
         .id = 537,
@@ -75058,7 +75595,8 @@ void init_modifiers_data(void) {
         .name = "LightRadiusAndAccuracy",
         .description = "+# to Accuracy Rating / #% increased Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_537
+        .tiers = tiers_normal_537,
+        .fractured = false
     };
     MODIFIERS_NORMAL[538] = (Modifier){
         .id = 538,
@@ -75068,7 +75606,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 5,
-        .tiers = tiers_normal_538
+        .tiers = tiers_normal_538,
+        .fractured = false
     };
     MODIFIERS_NORMAL[539] = (Modifier){
         .id = 539,
@@ -75078,7 +75617,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 5,
-        .tiers = tiers_normal_539
+        .tiers = tiers_normal_539,
+        .fractured = false
     };
     MODIFIERS_NORMAL[540] = (Modifier){
         .id = 540,
@@ -75088,7 +75628,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldRegeneration",
         .description = "#% increased Energy Shield Recharge Rate",
         .tier_count = 4,
-        .tiers = tiers_normal_540
+        .tiers = tiers_normal_540,
+        .fractured = false
     };
     MODIFIERS_NORMAL[541] = (Modifier){
         .id = 541,
@@ -75098,7 +75639,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 10,
-        .tiers = tiers_normal_541
+        .tiers = tiers_normal_541,
+        .fractured = false
     };
     MODIFIERS_NORMAL[542] = (Modifier){
         .id = 542,
@@ -75108,7 +75650,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 10,
-        .tiers = tiers_normal_542
+        .tiers = tiers_normal_542,
+        .fractured = false
     };
     MODIFIERS_NORMAL[543] = (Modifier){
         .id = 543,
@@ -75118,7 +75661,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour and +# to Evasion Rating",
         .tier_count = 5,
-        .tiers = tiers_normal_543
+        .tiers = tiers_normal_543,
+        .fractured = false
     };
     MODIFIERS_NORMAL[544] = (Modifier){
         .id = 544,
@@ -75128,7 +75672,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Armour and +# to maximum Energy Shield",
         .tier_count = 5,
-        .tiers = tiers_normal_544
+        .tiers = tiers_normal_544,
+        .fractured = false
     };
     MODIFIERS_NORMAL[545] = (Modifier){
         .id = 545,
@@ -75138,7 +75683,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefences",
         .description = "+# to Evasion Rating and +# to maximum Energy Shield",
         .tier_count = 5,
-        .tiers = tiers_normal_545
+        .tiers = tiers_normal_545,
+        .fractured = false
     };
     MODIFIERS_NORMAL[546] = (Modifier){
         .id = 546,
@@ -75148,7 +75694,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 7,
-        .tiers = tiers_normal_546
+        .tiers = tiers_normal_546,
+        .fractured = false
     };
     MODIFIERS_NORMAL[547] = (Modifier){
         .id = 547,
@@ -75158,7 +75705,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_547
+        .tiers = tiers_normal_547,
+        .fractured = false
     };
     MODIFIERS_NORMAL[548] = (Modifier){
         .id = 548,
@@ -75168,7 +75716,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion and Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_548
+        .tiers = tiers_normal_548,
+        .fractured = false
     };
     MODIFIERS_NORMAL[549] = (Modifier){
         .id = 549,
@@ -75178,7 +75727,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Armour and Evasion\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_549
+        .tiers = tiers_normal_549,
+        .fractured = false
     };
     MODIFIERS_NORMAL[550] = (Modifier){
         .id = 550,
@@ -75188,7 +75738,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Armour and Energy Shield\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_550
+        .tiers = tiers_normal_550,
+        .fractured = false
     };
     MODIFIERS_NORMAL[551] = (Modifier){
         .id = 551,
@@ -75198,7 +75749,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndLife",
         .description = "#% increased Evasion and Energy Shield\n+# to maximum Life",
         .tier_count = 6,
-        .tiers = tiers_normal_551
+        .tiers = tiers_normal_551,
+        .fractured = false
     };
     MODIFIERS_NORMAL[552] = (Modifier){
         .id = 552,
@@ -75208,7 +75760,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndMana",
         .description = "#% increased Armour and Evasion\n+# to maximum Mana",
         .tier_count = 6,
-        .tiers = tiers_normal_552
+        .tiers = tiers_normal_552,
+        .fractured = false
     };
     MODIFIERS_NORMAL[553] = (Modifier){
         .id = 553,
@@ -75218,7 +75771,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndMana",
         .description = "#% increased Armour and Energy Shield\n+# to maximum Mana",
         .tier_count = 6,
-        .tiers = tiers_normal_553
+        .tiers = tiers_normal_553,
+        .fractured = false
     };
     MODIFIERS_NORMAL[554] = (Modifier){
         .id = 554,
@@ -75228,7 +75782,8 @@ void init_modifiers_data(void) {
         .name = "BaseLocalDefencesAndMana",
         .description = "#% increased Evasion and Energy Shield\n+# to maximum Mana",
         .tier_count = 6,
-        .tiers = tiers_normal_554
+        .tiers = tiers_normal_554,
+        .fractured = false
     };
     MODIFIERS_NORMAL[555] = (Modifier){
         .id = 555,
@@ -75238,7 +75793,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 9,
-        .tiers = tiers_normal_555
+        .tiers = tiers_normal_555,
+        .fractured = false
     };
     MODIFIERS_NORMAL[556] = (Modifier){
         .id = 556,
@@ -75248,7 +75804,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncreasePrefix",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_556
+        .tiers = tiers_normal_556,
+        .fractured = false
     };
     MODIFIERS_NORMAL[557] = (Modifier){
         .id = 557,
@@ -75258,7 +75815,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_557
+        .tiers = tiers_normal_557,
+        .fractured = false
     };
     MODIFIERS_NORMAL[558] = (Modifier){
         .id = 558,
@@ -75268,7 +75826,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_558
+        .tiers = tiers_normal_558,
+        .fractured = false
     };
     MODIFIERS_NORMAL[559] = (Modifier){
         .id = 559,
@@ -75278,7 +75837,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 9,
-        .tiers = tiers_normal_559
+        .tiers = tiers_normal_559,
+        .fractured = false
     };
     MODIFIERS_NORMAL[560] = (Modifier){
         .id = 560,
@@ -75288,7 +75848,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_560
+        .tiers = tiers_normal_560,
+        .fractured = false
     };
     MODIFIERS_NORMAL[561] = (Modifier){
         .id = 561,
@@ -75298,7 +75859,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_561
+        .tiers = tiers_normal_561,
+        .fractured = false
     };
     MODIFIERS_NORMAL[562] = (Modifier){
         .id = 562,
@@ -75308,7 +75870,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_562
+        .tiers = tiers_normal_562,
+        .fractured = false
     };
     MODIFIERS_NORMAL[563] = (Modifier){
         .id = 563,
@@ -75318,7 +75881,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_563
+        .tiers = tiers_normal_563,
+        .fractured = false
     };
     MODIFIERS_NORMAL[564] = (Modifier){
         .id = 564,
@@ -75328,7 +75892,8 @@ void init_modifiers_data(void) {
         .name = "LocalAttributeRequirements",
         .description = "% reduced Attribute Requirements",
         .tier_count = 5,
-        .tiers = tiers_normal_564
+        .tiers = tiers_normal_564,
+        .fractured = false
     };
     MODIFIERS_NORMAL[565] = (Modifier){
         .id = 565,
@@ -75338,7 +75903,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Minion Skills",
         .tier_count = 2,
-        .tiers = tiers_normal_565
+        .tiers = tiers_normal_565,
+        .fractured = false
     };
     MODIFIERS_NORMAL[566] = (Modifier){
         .id = 566,
@@ -75348,7 +75914,8 @@ void init_modifiers_data(void) {
         .name = "LifeRegeneration",
         .description = "# Life Regeneration per second",
         .tier_count = 8,
-        .tiers = tiers_normal_566
+        .tiers = tiers_normal_566,
+        .fractured = false
     };
     MODIFIERS_NORMAL[567] = (Modifier){
         .id = 567,
@@ -75358,7 +75925,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance",
         .tier_count = 5,
-        .tiers = tiers_normal_567
+        .tiers = tiers_normal_567,
+        .fractured = false
     };
     MODIFIERS_NORMAL[568] = (Modifier){
         .id = 568,
@@ -75368,7 +75936,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_568
+        .tiers = tiers_normal_568,
+        .fractured = false
     };
     MODIFIERS_NORMAL[569] = (Modifier){
         .id = 569,
@@ -75378,7 +75947,8 @@ void init_modifiers_data(void) {
         .name = "LightRadiusAndAccuracy",
         .description = "+# to Accuracy Rating / #% increased Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_569
+        .tiers = tiers_normal_569,
+        .fractured = false
     };
     MODIFIERS_NORMAL[570] = (Modifier){
         .id = 570,
@@ -75388,7 +75958,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToElementalDamage",
         .description = "+#% of Armour also applies to Elemental Damage",
         .tier_count = 5,
-        .tiers = tiers_normal_570
+        .tiers = tiers_normal_570,
+        .fractured = false
     };
     MODIFIERS_NORMAL[571] = (Modifier){
         .id = 571,
@@ -75398,7 +75969,8 @@ void init_modifiers_data(void) {
         .name = "EvasionAppliesToDeflection",
         .description = "Gain Deflection Rating equal to #% of Evasion Rating",
         .tier_count = 5,
-        .tiers = tiers_normal_571
+        .tiers = tiers_normal_571,
+        .fractured = false
     };
     MODIFIERS_NORMAL[572] = (Modifier){
         .id = 572,
@@ -75408,7 +75980,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldRegeneration",
         .description = "#% increased Energy Shield Recharge Rate",
         .tier_count = 4,
-        .tiers = tiers_normal_572
+        .tiers = tiers_normal_572,
+        .fractured = false
     };
     MODIFIERS_NORMAL[573] = (Modifier){
         .id = 573,
@@ -75418,7 +75991,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 8,
-        .tiers = tiers_normal_573
+        .tiers = tiers_normal_573,
+        .fractured = false
     };
     MODIFIERS_NORMAL[574] = (Modifier){
         .id = 574,
@@ -75428,7 +76002,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 12,
-        .tiers = tiers_normal_574
+        .tiers = tiers_normal_574,
+        .fractured = false
     };
     MODIFIERS_NORMAL[575] = (Modifier){
         .id = 575,
@@ -75438,7 +76013,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedEvasionRating",
         .description = "+# to Evasion Rating",
         .tier_count = 9,
-        .tiers = tiers_normal_575
+        .tiers = tiers_normal_575,
+        .fractured = false
     };
     MODIFIERS_NORMAL[576] = (Modifier){
         .id = 576,
@@ -75448,7 +76024,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_576
+        .tiers = tiers_normal_576,
+        .fractured = false
     };
     MODIFIERS_NORMAL[577] = (Modifier){
         .id = 577,
@@ -75458,7 +76035,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_577
+        .tiers = tiers_normal_577,
+        .fractured = false
     };
     MODIFIERS_NORMAL[578] = (Modifier){
         .id = 578,
@@ -75468,7 +76046,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_578
+        .tiers = tiers_normal_578,
+        .fractured = false
     };
     MODIFIERS_NORMAL[579] = (Modifier){
         .id = 579,
@@ -75478,7 +76057,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage to Attacks",
         .tier_count = 9,
-        .tiers = tiers_normal_579
+        .tiers = tiers_normal_579,
+        .fractured = false
     };
     MODIFIERS_NORMAL[580] = (Modifier){
         .id = 580,
@@ -75488,7 +76068,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_580
+        .tiers = tiers_normal_580,
+        .fractured = false
     };
     MODIFIERS_NORMAL[581] = (Modifier){
         .id = 581,
@@ -75498,7 +76079,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncreasePrefix",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_581
+        .tiers = tiers_normal_581,
+        .fractured = false
     };
     MODIFIERS_NORMAL[582] = (Modifier){
         .id = 582,
@@ -75508,7 +76090,8 @@ void init_modifiers_data(void) {
         .name = "FireDamagePercentage",
         .description = "+#% increased Fire Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_582
+        .tiers = tiers_normal_582,
+        .fractured = false
     };
     MODIFIERS_NORMAL[583] = (Modifier){
         .id = 583,
@@ -75518,7 +76101,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamagePercentage",
         .description = "+#% increased Cold Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_583
+        .tiers = tiers_normal_583,
+        .fractured = false
     };
     MODIFIERS_NORMAL[584] = (Modifier){
         .id = 584,
@@ -75528,7 +76112,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamagePercentage",
         .description = "+#% increased Lightning Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_584
+        .tiers = tiers_normal_584,
+        .fractured = false
     };
     MODIFIERS_NORMAL[585] = (Modifier){
         .id = 585,
@@ -75538,7 +76123,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedChaosDamage",
         .description = "+#% increased Chaos Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_585
+        .tiers = tiers_normal_585,
+        .fractured = false
     };
     MODIFIERS_NORMAL[586] = (Modifier){
         .id = 586,
@@ -75548,7 +76134,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_586
+        .tiers = tiers_normal_586,
+        .fractured = false
     };
     MODIFIERS_NORMAL[587] = (Modifier){
         .id = 587,
@@ -75558,7 +76145,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 9,
-        .tiers = tiers_normal_587
+        .tiers = tiers_normal_587,
+        .fractured = false
     };
     MODIFIERS_NORMAL[588] = (Modifier){
         .id = 588,
@@ -75568,7 +76156,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_588
+        .tiers = tiers_normal_588,
+        .fractured = false
     };
     MODIFIERS_NORMAL[589] = (Modifier){
         .id = 589,
@@ -75578,7 +76167,8 @@ void init_modifiers_data(void) {
         .name = "AllAttributes",
         .description = "+# to all Attributes",
         .tier_count = 4,
-        .tiers = tiers_normal_589
+        .tiers = tiers_normal_589,
+        .fractured = false
     };
     MODIFIERS_NORMAL[590] = (Modifier){
         .id = 590,
@@ -75588,7 +76178,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_590
+        .tiers = tiers_normal_590,
+        .fractured = false
     };
     MODIFIERS_NORMAL[591] = (Modifier){
         .id = 591,
@@ -75598,7 +76189,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_591
+        .tiers = tiers_normal_591,
+        .fractured = false
     };
     MODIFIERS_NORMAL[592] = (Modifier){
         .id = 592,
@@ -75608,7 +76200,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_592
+        .tiers = tiers_normal_592,
+        .fractured = false
     };
     MODIFIERS_NORMAL[593] = (Modifier){
         .id = 593,
@@ -75618,7 +76211,8 @@ void init_modifiers_data(void) {
         .name = "AllResistances",
         .description = "+#% to all Elemental Resistances",
         .tier_count = 5,
-        .tiers = tiers_normal_593
+        .tiers = tiers_normal_593,
+        .fractured = false
     };
     MODIFIERS_NORMAL[594] = (Modifier){
         .id = 594,
@@ -75628,7 +76222,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_594
+        .tiers = tiers_normal_594,
+        .fractured = false
     };
     MODIFIERS_NORMAL[595] = (Modifier){
         .id = 595,
@@ -75638,7 +76233,8 @@ void init_modifiers_data(void) {
         .name = "LifeRegeneration",
         .description = "# Life Regeneration per second",
         .tier_count = 7,
-        .tiers = tiers_normal_595
+        .tiers = tiers_normal_595,
+        .fractured = false
     };
     MODIFIERS_NORMAL[596] = (Modifier){
         .id = 596,
@@ -75648,7 +76244,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate",
         .tier_count = 6,
-        .tiers = tiers_normal_596
+        .tiers = tiers_normal_596,
+        .fractured = false
     };
     MODIFIERS_NORMAL[597] = (Modifier){
         .id = 597,
@@ -75658,7 +76255,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "Leeches #% of Physical Damage as Life",
         .tier_count = 3,
-        .tiers = tiers_normal_597
+        .tiers = tiers_normal_597,
+        .fractured = false
     };
     MODIFIERS_NORMAL[598] = (Modifier){
         .id = 598,
@@ -75668,7 +76266,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeech",
         .description = "Leeches #% of Physical Damage as Mana",
         .tier_count = 3,
-        .tiers = tiers_normal_598
+        .tiers = tiers_normal_598,
+        .fractured = false
     };
     MODIFIERS_NORMAL[599] = (Modifier){
         .id = 599,
@@ -75678,7 +76277,8 @@ void init_modifiers_data(void) {
         .name = "LifeGainedFromEnemyDeath",
         .description = "Gain # Life per Enemy Killed",
         .tier_count = 6,
-        .tiers = tiers_normal_599
+        .tiers = tiers_normal_599,
+        .fractured = false
     };
     MODIFIERS_NORMAL[600] = (Modifier){
         .id = 600,
@@ -75688,7 +76288,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedFromEnemyDeath",
         .description = "Gain # Mana per Enemy Killed",
         .tier_count = 6,
-        .tiers = tiers_normal_600
+        .tiers = tiers_normal_600,
+        .fractured = false
     };
     MODIFIERS_NORMAL[601] = (Modifier){
         .id = 601,
@@ -75698,7 +76299,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed",
         .tier_count = 4,
-        .tiers = tiers_normal_601
+        .tiers = tiers_normal_601,
+        .fractured = false
     };
     MODIFIERS_NORMAL[602] = (Modifier){
         .id = 602,
@@ -75708,7 +76310,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_602
+        .tiers = tiers_normal_602,
+        .fractured = false
     };
     MODIFIERS_NORMAL[603] = (Modifier){
         .id = 603,
@@ -75718,7 +76321,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate / #%Light Radius",
         .tier_count = 3,
-        .tiers = tiers_normal_603
+        .tiers = tiers_normal_603,
+        .fractured = false
     };
     MODIFIERS_NORMAL[604] = (Modifier){
         .id = 604,
@@ -75728,7 +76332,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 10,
-        .tiers = tiers_normal_604
+        .tiers = tiers_normal_604,
+        .fractured = false
     };
     MODIFIERS_NORMAL[605] = (Modifier){
         .id = 605,
@@ -75738,7 +76343,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 10,
-        .tiers = tiers_normal_605
+        .tiers = tiers_normal_605,
+        .fractured = false
     };
     MODIFIERS_NORMAL[606] = (Modifier){
         .id = 606,
@@ -75748,7 +76354,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedEnergyShield",
         .description = "+# to maximum Energy Shield",
         .tier_count = 10,
-        .tiers = tiers_normal_606
+        .tiers = tiers_normal_606,
+        .fractured = false
     };
     MODIFIERS_NORMAL[607] = (Modifier){
         .id = 607,
@@ -75758,7 +76365,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedPhysicalDamageReductionRatingPercent",
         .description = "#% increased Armour",
         .tier_count = 7,
-        .tiers = tiers_normal_607
+        .tiers = tiers_normal_607,
+        .fractured = false
     };
     MODIFIERS_NORMAL[608] = (Modifier){
         .id = 608,
@@ -75768,7 +76376,8 @@ void init_modifiers_data(void) {
         .name = "EvasionRatingPercent",
         .description = "#% increased Evasion Rating",
         .tier_count = 7,
-        .tiers = tiers_normal_608
+        .tiers = tiers_normal_608,
+        .fractured = false
     };
     MODIFIERS_NORMAL[609] = (Modifier){
         .id = 609,
@@ -75778,7 +76387,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 7,
-        .tiers = tiers_normal_609
+        .tiers = tiers_normal_609,
+        .fractured = false
     };
     MODIFIERS_NORMAL[610] = (Modifier){
         .id = 610,
@@ -75788,7 +76398,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 8,
-        .tiers = tiers_normal_610
+        .tiers = tiers_normal_610,
+        .fractured = false
     };
     MODIFIERS_NORMAL[611] = (Modifier){
         .id = 611,
@@ -75798,7 +76409,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncreasePrefix",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_611
+        .tiers = tiers_normal_611,
+        .fractured = false
     };
     MODIFIERS_NORMAL[612] = (Modifier){
         .id = 612,
@@ -75808,7 +76420,8 @@ void init_modifiers_data(void) {
         .name = "",
         .description = "+# to Spirit",
         .tier_count = 5,
-        .tiers = tiers_normal_612
+        .tiers = tiers_normal_612,
+        .fractured = false
     };
     MODIFIERS_NORMAL[613] = (Modifier){
         .id = 613,
@@ -75818,7 +76431,8 @@ void init_modifiers_data(void) {
         .name = "SpellDamage",
         .description = "+#% Increased Spell Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_613
+        .tiers = tiers_normal_613,
+        .fractured = false
     };
     MODIFIERS_NORMAL[614] = (Modifier){
         .id = 614,
@@ -75828,7 +76442,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 8,
-        .tiers = tiers_normal_614
+        .tiers = tiers_normal_614,
+        .fractured = false
     };
     MODIFIERS_NORMAL[615] = (Modifier){
         .id = 615,
@@ -75838,7 +76453,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 8,
-        .tiers = tiers_normal_615
+        .tiers = tiers_normal_615,
+        .fractured = false
     };
     MODIFIERS_NORMAL[616] = (Modifier){
         .id = 616,
@@ -75848,7 +76464,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 8,
-        .tiers = tiers_normal_616
+        .tiers = tiers_normal_616,
+        .fractured = false
     };
     MODIFIERS_NORMAL[617] = (Modifier){
         .id = 617,
@@ -75858,7 +76475,8 @@ void init_modifiers_data(void) {
         .name = "AllAttributes",
         .description = "+# to all Attributes",
         .tier_count = 9,
-        .tiers = tiers_normal_617
+        .tiers = tiers_normal_617,
+        .fractured = false
     };
     MODIFIERS_NORMAL[618] = (Modifier){
         .id = 618,
@@ -75868,7 +76486,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_618
+        .tiers = tiers_normal_618,
+        .fractured = false
     };
     MODIFIERS_NORMAL[619] = (Modifier){
         .id = 619,
@@ -75878,7 +76497,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_619
+        .tiers = tiers_normal_619,
+        .fractured = false
     };
     MODIFIERS_NORMAL[620] = (Modifier){
         .id = 620,
@@ -75888,7 +76508,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 8,
-        .tiers = tiers_normal_620
+        .tiers = tiers_normal_620,
+        .fractured = false
     };
     MODIFIERS_NORMAL[621] = (Modifier){
         .id = 621,
@@ -75898,7 +76519,8 @@ void init_modifiers_data(void) {
         .name = "AllResistances",
         .description = "+#% to all Elemental Resistances",
         .tier_count = 6,
-        .tiers = tiers_normal_621
+        .tiers = tiers_normal_621,
+        .fractured = false
     };
     MODIFIERS_NORMAL[622] = (Modifier){
         .id = 622,
@@ -75908,7 +76530,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 6,
-        .tiers = tiers_normal_622
+        .tiers = tiers_normal_622,
+        .fractured = false
     };
     MODIFIERS_NORMAL[623] = (Modifier){
         .id = 623,
@@ -75918,7 +76541,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Spell Skills",
         .tier_count = 3,
-        .tiers = tiers_normal_623
+        .tiers = tiers_normal_623,
+        .fractured = false
     };
     MODIFIERS_NORMAL[624] = (Modifier){
         .id = 624,
@@ -75928,7 +76552,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Minion Skills",
         .tier_count = 3,
-        .tiers = tiers_normal_624
+        .tiers = tiers_normal_624,
+        .fractured = false
     };
     MODIFIERS_NORMAL[625] = (Modifier){
         .id = 625,
@@ -75938,7 +76563,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Melee Skills",
         .tier_count = 3,
-        .tiers = tiers_normal_625
+        .tiers = tiers_normal_625,
+        .fractured = false
     };
     MODIFIERS_NORMAL[626] = (Modifier){
         .id = 626,
@@ -75948,7 +76574,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Projectile Skills",
         .tier_count = 3,
-        .tiers = tiers_normal_626
+        .tiers = tiers_normal_626,
+        .fractured = false
     };
     MODIFIERS_NORMAL[627] = (Modifier){
         .id = 627,
@@ -75958,7 +76585,8 @@ void init_modifiers_data(void) {
         .name = "LifeRegeneration",
         .description = "# Life Regeneration per second",
         .tier_count = 10,
-        .tiers = tiers_normal_627
+        .tiers = tiers_normal_627,
+        .fractured = false
     };
     MODIFIERS_NORMAL[628] = (Modifier){
         .id = 628,
@@ -75968,7 +76596,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate",
         .tier_count = 6,
-        .tiers = tiers_normal_628
+        .tiers = tiers_normal_628,
+        .fractured = false
     };
     MODIFIERS_NORMAL[629] = (Modifier){
         .id = 629,
@@ -75978,7 +76607,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed",
         .tier_count = 5,
-        .tiers = tiers_normal_629
+        .tiers = tiers_normal_629,
+        .fractured = false
     };
     MODIFIERS_NORMAL[630] = (Modifier){
         .id = 630,
@@ -75988,7 +76618,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance",
         .tier_count = 6,
-        .tiers = tiers_normal_630
+        .tiers = tiers_normal_630,
+        .fractured = false
     };
     MODIFIERS_NORMAL[631] = (Modifier){
         .id = 631,
@@ -75998,7 +76629,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Damage Bonus for Attack Damage",
         .tier_count = 6,
-        .tiers = tiers_normal_631
+        .tiers = tiers_normal_631,
+        .fractured = false
     };
     MODIFIERS_NORMAL[632] = (Modifier){
         .id = 632,
@@ -76008,7 +76640,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 5,
-        .tiers = tiers_normal_632
+        .tiers = tiers_normal_632,
+        .fractured = false
     };
     MODIFIERS_NORMAL[633] = (Modifier){
         .id = 633,
@@ -76018,7 +76651,8 @@ void init_modifiers_data(void) {
         .name = "DamageTakenGainedAsLife",
         .description = "#% of Damage taken Recouped as Life",
         .tier_count = 5,
-        .tiers = tiers_normal_633
+        .tiers = tiers_normal_633,
+        .fractured = false
     };
     MODIFIERS_NORMAL[634] = (Modifier){
         .id = 634,
@@ -76028,7 +76662,8 @@ void init_modifiers_data(void) {
         .name = "PercentDamageGoesToMana",
         .description = "#% of Damage taken Recouped as Mana",
         .tier_count = 5,
-        .tiers = tiers_normal_634
+        .tiers = tiers_normal_634,
+        .fractured = false
     };
 
     // DESECRATED modifiers
@@ -76040,7 +76675,8 @@ void init_modifiers_data(void) {
         .name = "DamagevsArmourBrokenEnemies",
         .description = "% increased Damage against Enemies with Fully Broken Armour",
         .tier_count = 1,
-        .tiers = tiers_desecrated_0
+        .tiers = tiers_desecrated_0,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[1] = (Modifier){
         .id = 1,
@@ -76050,7 +76686,8 @@ void init_modifiers_data(void) {
         .name = "FireResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Fire Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_1
+        .tiers = tiers_desecrated_1,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[2] = (Modifier){
         .id = 2,
@@ -76060,7 +76697,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Cold Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_2
+        .tiers = tiers_desecrated_2,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[3] = (Modifier){
         .id = 3,
@@ -76070,7 +76708,8 @@ void init_modifiers_data(void) {
         .name = "ExertedAttackDamage",
         .description = "Empowered Attacks deal #% increased Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_3
+        .tiers = tiers_desecrated_3,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[4] = (Modifier){
         .id = 4,
@@ -76080,7 +76719,8 @@ void init_modifiers_data(void) {
         .name = "LocalPhysicalDamagePercent",
         .description = "#% increased Physical Damage, #% reduced Attack Speed",
         .tier_count = 1,
-        .tiers = tiers_desecrated_4
+        .tiers = tiers_desecrated_4,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[5] = (Modifier){
         .id = 5,
@@ -76090,7 +76730,8 @@ void init_modifiers_data(void) {
         .name = "TotemDamage",
         .description = "% increased Damage while you have a Totem",
         .tier_count = 1,
-        .tiers = tiers_desecrated_5
+        .tiers = tiers_desecrated_5,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[6] = (Modifier){
         .id = 6,
@@ -76100,7 +76741,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalTotems",
         .description = "Melee Attack Skills have +1 to maximum number of Summoned Totems",
         .tier_count = 1,
-        .tiers = tiers_desecrated_6
+        .tiers = tiers_desecrated_6,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[7] = (Modifier){
         .id = 7,
@@ -76110,7 +76752,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Lightning Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_7
+        .tiers = tiers_desecrated_7,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[8] = (Modifier){
         .id = 8,
@@ -76120,7 +76763,8 @@ void init_modifiers_data(void) {
         .name = "FissureChance",
         .description = "Fissure Skills have (#–#)% chance to create an additional Fissure",
         .tier_count = 1,
-        .tiers = tiers_desecrated_8
+        .tiers = tiers_desecrated_8,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[9] = (Modifier){
         .id = 9,
@@ -76130,7 +76774,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_9
+        .tiers = tiers_desecrated_9,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[10] = (Modifier){
         .id = 10,
@@ -76140,7 +76785,8 @@ void init_modifiers_data(void) {
         .name = "AftershockChance",
         .description = "Mace Slam Skills you use yourself have +#% chance to cause Aftershocks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_10
+        .tiers = tiers_desecrated_10,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[11] = (Modifier){
         .id = 11,
@@ -76150,7 +76796,8 @@ void init_modifiers_data(void) {
         .name = "ArmourPenetration",
         .description = "Break Armour equal to #% of Physical Damage dealt",
         .tier_count = 1,
-        .tiers = tiers_desecrated_11
+        .tiers = tiers_desecrated_11,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[12] = (Modifier){
         .id = 12,
@@ -76160,7 +76807,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Cost Efficiency of Attacks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_12
+        .tiers = tiers_desecrated_12,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[13] = (Modifier){
         .id = 13,
@@ -76170,7 +76818,8 @@ void init_modifiers_data(void) {
         .name = "WarcryCooldownSpeed",
         .description = "#% increased Warcry Cooldown Recovery Rate",
         .tier_count = 1,
-        .tiers = tiers_desecrated_13
+        .tiers = tiers_desecrated_13,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[14] = (Modifier){
         .id = 14,
@@ -76180,7 +76829,8 @@ void init_modifiers_data(void) {
         .name = "SummonTotemCastSpeed",
         .description = "#% increased Totem Placement Speed",
         .tier_count = 1,
-        .tiers = tiers_desecrated_14
+        .tiers = tiers_desecrated_14,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[15] = (Modifier){
         .id = 15,
@@ -76190,7 +76840,8 @@ void init_modifiers_data(void) {
         .name = "LifeCost",
         .description = "#% of Skill Mana Costs Converted to Life Costs",
         .tier_count = 1,
-        .tiers = tiers_desecrated_15
+        .tiers = tiers_desecrated_15,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[16] = (Modifier){
         .id = 16,
@@ -76200,7 +76851,8 @@ void init_modifiers_data(void) {
         .name = "FireResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Fire Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_16
+        .tiers = tiers_desecrated_16,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[17] = (Modifier){
         .id = 17,
@@ -76210,7 +76862,8 @@ void init_modifiers_data(void) {
         .name = "FireDamagePercentagePrefix",
         .description = "% increased Fire Damage\n(14–23)% increased Ignite Magnitude",
         .tier_count = 1,
-        .tiers = tiers_desecrated_17
+        .tiers = tiers_desecrated_17,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[18] = (Modifier){
         .id = 18,
@@ -76220,7 +76873,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Cold Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_18
+        .tiers = tiers_desecrated_18,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[19] = (Modifier){
         .id = 19,
@@ -76230,7 +76884,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamagePercentagePrefix",
         .description = "% increased Cold Damage\n(14–23)% increased Freeze Buildup",
         .tier_count = 1,
-        .tiers = tiers_desecrated_19
+        .tiers = tiers_desecrated_19,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[20] = (Modifier){
         .id = 20,
@@ -76240,7 +76895,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Lightning Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_20
+        .tiers = tiers_desecrated_20,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[21] = (Modifier){
         .id = 21,
@@ -76250,7 +76906,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamagePercentagePrefix",
         .description = "% increased Lightning Damage\n(14–23)% increased Magnitude of Shock you inflict",
         .tier_count = 1,
-        .tiers = tiers_desecrated_21
+        .tiers = tiers_desecrated_21,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[22] = (Modifier){
         .id = 22,
@@ -76260,7 +76917,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_22
+        .tiers = tiers_desecrated_22,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[23] = (Modifier){
         .id = 23,
@@ -76270,7 +76928,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalComboChance",
         .description = "#% chance to build an additional Combo on Hit",
         .tier_count = 1,
-        .tiers = tiers_desecrated_23
+        .tiers = tiers_desecrated_23,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[24] = (Modifier){
         .id = 24,
@@ -76280,7 +76939,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Cost Efficiency of Attacks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_24
+        .tiers = tiers_desecrated_24,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[25] = (Modifier){
         .id = 25,
@@ -76290,7 +76950,8 @@ void init_modifiers_data(void) {
         .name = "RecoverManaOnExpendingCombo",
         .description = "Recover #% of Maximum Mana when you expend at least 10 Combo",
         .tier_count = 1,
-        .tiers = tiers_desecrated_25
+        .tiers = tiers_desecrated_25,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[26] = (Modifier){
         .id = 26,
@@ -76300,7 +76961,8 @@ void init_modifiers_data(void) {
         .name = "RecoverLifeOnExpendingCombo",
         .description = "Recover #% of Maximum Life when you expend at least 10 Combo",
         .tier_count = 1,
-        .tiers = tiers_desecrated_26
+        .tiers = tiers_desecrated_26,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[27] = (Modifier){
         .id = 27,
@@ -76310,7 +76972,8 @@ void init_modifiers_data(void) {
         .name = "LifeCost",
         .description = "#% of Skill Mana Costs Converted to Life Costs",
         .tier_count = 1,
-        .tiers = tiers_desecrated_27
+        .tiers = tiers_desecrated_27,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[28] = (Modifier){
         .id = 28,
@@ -76320,7 +76983,8 @@ void init_modifiers_data(void) {
         .name = "",
         .description = "+# to Spirit",
         .tier_count = 1,
-        .tiers = tiers_desecrated_28
+        .tiers = tiers_desecrated_28,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[29] = (Modifier){
         .id = 29,
@@ -76330,7 +76994,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "#% increased Spell Damage with Spells that cost Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_29
+        .tiers = tiers_desecrated_29,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[30] = (Modifier){
         .id = 30,
@@ -76340,7 +77005,8 @@ void init_modifiers_data(void) {
         .name = "ElementalInfusion",
         .description = "+# to maximum number of Elemental Infusions",
         .tier_count = 1,
-        .tiers = tiers_desecrated_30
+        .tiers = tiers_desecrated_30,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[31] = (Modifier){
         .id = 31,
@@ -76350,7 +77016,8 @@ void init_modifiers_data(void) {
         .name = "AilmentEffect",
         .description = "#% increased Magnitude of Damaging Ailments you inflict",
         .tier_count = 1,
-        .tiers = tiers_desecrated_31
+        .tiers = tiers_desecrated_31,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[32] = (Modifier){
         .id = 32,
@@ -76360,7 +77027,8 @@ void init_modifiers_data(void) {
         .name = "ArchonDuration",
         .description = "#% increased Archon Buff duration",
         .tier_count = 1,
-        .tiers = tiers_desecrated_32
+        .tiers = tiers_desecrated_32,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[33] = (Modifier){
         .id = 33,
@@ -76370,7 +77038,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalBlock",
         .description = "+#% to Block chance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_33
+        .tiers = tiers_desecrated_33,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[34] = (Modifier){
         .id = 34,
@@ -76380,7 +77049,8 @@ void init_modifiers_data(void) {
         .name = "SkillLifeCost",
         .description = "#% of Spell Mana Cost Converted to Life Cost",
         .tier_count = 1,
-        .tiers = tiers_desecrated_34
+        .tiers = tiers_desecrated_34,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[35] = (Modifier){
         .id = 35,
@@ -76390,7 +77060,8 @@ void init_modifiers_data(void) {
         .name = "ArchonDelayRecovery",
         .description = "Archon recovery period expires #% faster",
         .tier_count = 1,
-        .tiers = tiers_desecrated_35
+        .tiers = tiers_desecrated_35,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[36] = (Modifier){
         .id = 36,
@@ -76400,7 +77071,8 @@ void init_modifiers_data(void) {
         .name = "CastSpeedOnLowLife",
         .description = "#% increased Cast Speed when on Low Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_36
+        .tiers = tiers_desecrated_36,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[37] = (Modifier){
         .id = 37,
@@ -76410,7 +77082,8 @@ void init_modifiers_data(void) {
         .name = "GrenadeCooldownUse",
         .description = "Grenade Skills have +# Cooldown Use",
         .tier_count = 1,
-        .tiers = tiers_desecrated_37
+        .tiers = tiers_desecrated_37,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[38] = (Modifier){
         .id = 38,
@@ -76420,7 +77093,8 @@ void init_modifiers_data(void) {
         .name = "GrenadeDamage",
         .description = "#% increased Grenade Damage\n#% increased Grenade Duration",
         .tier_count = 1,
-        .tiers = tiers_desecrated_38
+        .tiers = tiers_desecrated_38,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[39] = (Modifier){
         .id = 39,
@@ -76430,7 +77104,8 @@ void init_modifiers_data(void) {
         .name = "FireResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Fire Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_39
+        .tiers = tiers_desecrated_39,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[40] = (Modifier){
         .id = 40,
@@ -76440,7 +77115,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Cold Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_40
+        .tiers = tiers_desecrated_40,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[41] = (Modifier){
         .id = 41,
@@ -76450,7 +77126,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalBallistaTotem",
         .description = "+# to maximum number of Summoned Ballista Totems",
         .tier_count = 1,
-        .tiers = tiers_desecrated_41
+        .tiers = tiers_desecrated_41,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[42] = (Modifier){
         .id = 42,
@@ -76460,7 +77137,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Lightning Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_42
+        .tiers = tiers_desecrated_42,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[43] = (Modifier){
         .id = 43,
@@ -76470,7 +77148,8 @@ void init_modifiers_data(void) {
         .name = "GrenadeAdditionalDetonationChance",
         .description = "Grenades have #% chance to activate a second time",
         .tier_count = 1,
-        .tiers = tiers_desecrated_43
+        .tiers = tiers_desecrated_43,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[44] = (Modifier){
         .id = 44,
@@ -76480,7 +77159,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_44
+        .tiers = tiers_desecrated_44,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[45] = (Modifier){
         .id = 45,
@@ -76490,7 +77170,8 @@ void init_modifiers_data(void) {
         .name = "CrossbowImmediateReloadChance",
         .description = "#% chance when you Reload a Crossbow to be immediate",
         .tier_count = 1,
-        .tiers = tiers_desecrated_45
+        .tiers = tiers_desecrated_45,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[46] = (Modifier){
         .id = 46,
@@ -76500,7 +77181,8 @@ void init_modifiers_data(void) {
         .name = "CrossbowReloadSpeed",
         .description = "#% increased Reload Speed",
         .tier_count = 1,
-        .tiers = tiers_desecrated_46
+        .tiers = tiers_desecrated_46,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[47] = (Modifier){
         .id = 47,
@@ -76510,7 +77192,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Cost Efficiency of Attacks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_47
+        .tiers = tiers_desecrated_47,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[48] = (Modifier){
         .id = 48,
@@ -76520,7 +77203,8 @@ void init_modifiers_data(void) {
         .name = "Chain",
         .description = "Attacks Chain an additional time",
         .tier_count = 1,
-        .tiers = tiers_desecrated_48
+        .tiers = tiers_desecrated_48,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[49] = (Modifier){
         .id = 49,
@@ -76530,7 +77214,8 @@ void init_modifiers_data(void) {
         .name = "LifeCost",
         .description = "#% of Skill Mana Costs Converted to Life Costs",
         .tier_count = 1,
-        .tiers = tiers_desecrated_49
+        .tiers = tiers_desecrated_49,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[50] = (Modifier){
         .id = 50,
@@ -76540,7 +77225,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackAreaOfEffect",
         .description = "#% increased Area of Effect for Attacks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_50
+        .tiers = tiers_desecrated_50,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[51] = (Modifier){
         .id = 51,
@@ -76550,7 +77236,8 @@ void init_modifiers_data(void) {
         .name = "CompanionDamage",
         .description = "Companions deal #% increased Damage\n#% increased Damage while your Companion is in your Presence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_51
+        .tiers = tiers_desecrated_51,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[52] = (Modifier){
         .id = 52,
@@ -76560,7 +77247,8 @@ void init_modifiers_data(void) {
         .name = "FireResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Fire Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_52
+        .tiers = tiers_desecrated_52,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[53] = (Modifier){
         .id = 53,
@@ -76570,7 +77258,8 @@ void init_modifiers_data(void) {
         .name = "ChainFromTerrain",
         .description = "Projectiles have #% chance to Chain an additional time from terrain",
         .tier_count = 1,
-        .tiers = tiers_desecrated_53
+        .tiers = tiers_desecrated_53,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[54] = (Modifier){
         .id = 54,
@@ -76580,7 +77269,8 @@ void init_modifiers_data(void) {
         .name = "EquipmentModifierEffect",
         .description = "#% increased bonuses gained from Equipped Quiver",
         .tier_count = 1,
-        .tiers = tiers_desecrated_54
+        .tiers = tiers_desecrated_54,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[55] = (Modifier){
         .id = 55,
@@ -76590,7 +77280,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Cold Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_55
+        .tiers = tiers_desecrated_55,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[56] = (Modifier){
         .id = 56,
@@ -76600,7 +77291,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Lightning Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_56
+        .tiers = tiers_desecrated_56,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[57] = (Modifier){
         .id = 57,
@@ -76610,7 +77302,8 @@ void init_modifiers_data(void) {
         .name = "ChanceToPierce",
         .description = "#% chance to Pierce an Enemy",
         .tier_count = 1,
-        .tiers = tiers_desecrated_57
+        .tiers = tiers_desecrated_57,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[58] = (Modifier){
         .id = 58,
@@ -76620,7 +77313,8 @@ void init_modifiers_data(void) {
         .name = "CompanionAttackSpeed",
         .description = "#% increased Attack Speed\nCompanions have #% increased Attack Speed",
         .tier_count = 1,
-        .tiers = tiers_desecrated_58
+        .tiers = tiers_desecrated_58,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[59] = (Modifier){
         .id = 59,
@@ -76630,7 +77324,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_59
+        .tiers = tiers_desecrated_59,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[60] = (Modifier){
         .id = 60,
@@ -76640,7 +77335,8 @@ void init_modifiers_data(void) {
         .name = "Immobilise",
         .description = "#% increased Immobilisation buildup",
         .tier_count = 1,
-        .tiers = tiers_desecrated_60
+        .tiers = tiers_desecrated_60,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[61] = (Modifier){
         .id = 61,
@@ -76650,7 +77346,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Cost Efficiency of Attacks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_61
+        .tiers = tiers_desecrated_61,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[62] = (Modifier){
         .id = 62,
@@ -76660,7 +77357,8 @@ void init_modifiers_data(void) {
         .name = "LifeCost",
         .description = "#% of Skill Mana Costs Converted to Life Costs",
         .tier_count = 1,
-        .tiers = tiers_desecrated_62
+        .tiers = tiers_desecrated_62,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[63] = (Modifier){
         .id = 63,
@@ -76670,7 +77368,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalProjectiles",
         .description = "Projectile Attacks have a #% chance to fire two additional Projectiles while moving",
         .tier_count = 1,
-        .tiers = tiers_desecrated_63
+        .tiers = tiers_desecrated_63,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[64] = (Modifier){
         .id = 64,
@@ -76680,7 +77379,8 @@ void init_modifiers_data(void) {
         .name = "CompanionDamage",
         .description = "#% increased Attack Speed\n#% increased Attack Speed while your Companion is in your Presence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_64
+        .tiers = tiers_desecrated_64,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[65] = (Modifier){
         .id = 65,
@@ -76690,7 +77390,8 @@ void init_modifiers_data(void) {
         .name = "DamagevsArmourBrokenEnemies",
         .description = "% increased Damage against Enemies with Fully Broken Armour",
         .tier_count = 1,
-        .tiers = tiers_desecrated_65
+        .tiers = tiers_desecrated_65,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[66] = (Modifier){
         .id = 66,
@@ -76700,7 +77401,8 @@ void init_modifiers_data(void) {
         .name = "FireResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Fire Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_66
+        .tiers = tiers_desecrated_66,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[67] = (Modifier){
         .id = 67,
@@ -76710,7 +77412,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Cold Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_67
+        .tiers = tiers_desecrated_67,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[68] = (Modifier){
         .id = 68,
@@ -76720,7 +77423,8 @@ void init_modifiers_data(void) {
         .name = "ExertedAttackDamage",
         .description = "Empowered Attacks deal #% increased Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_68
+        .tiers = tiers_desecrated_68,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[69] = (Modifier){
         .id = 69,
@@ -76730,7 +77434,8 @@ void init_modifiers_data(void) {
         .name = "LocalPhysicalDamagePercent",
         .description = "#% increased Physical Damage, #% reduced Attack Speed",
         .tier_count = 1,
-        .tiers = tiers_desecrated_69
+        .tiers = tiers_desecrated_69,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[70] = (Modifier){
         .id = 70,
@@ -76740,7 +77445,8 @@ void init_modifiers_data(void) {
         .name = "TotemDamage",
         .description = "% increased Damage while you have a Totem",
         .tier_count = 1,
-        .tiers = tiers_desecrated_70
+        .tiers = tiers_desecrated_70,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[71] = (Modifier){
         .id = 71,
@@ -76750,7 +77456,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalTotems",
         .description = "Melee Attack Skills have +1 to maximum number of Summoned Totems",
         .tier_count = 1,
-        .tiers = tiers_desecrated_71
+        .tiers = tiers_desecrated_71,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[72] = (Modifier){
         .id = 72,
@@ -76760,7 +77467,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Lightning Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_72
+        .tiers = tiers_desecrated_72,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[73] = (Modifier){
         .id = 73,
@@ -76770,7 +77478,8 @@ void init_modifiers_data(void) {
         .name = "FissureChance",
         .description = "Fissure Skills have (#–#)% chance to create an additional Fissure",
         .tier_count = 1,
-        .tiers = tiers_desecrated_73
+        .tiers = tiers_desecrated_73,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[74] = (Modifier){
         .id = 74,
@@ -76780,7 +77489,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_74
+        .tiers = tiers_desecrated_74,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[75] = (Modifier){
         .id = 75,
@@ -76790,7 +77500,8 @@ void init_modifiers_data(void) {
         .name = "AftershockChance",
         .description = "Mace Slam Skills you use yourself have +#% chance to cause Aftershocks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_75
+        .tiers = tiers_desecrated_75,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[76] = (Modifier){
         .id = 76,
@@ -76800,7 +77511,8 @@ void init_modifiers_data(void) {
         .name = "ArmourPenetration",
         .description = "Break Armour equal to #% of Physical Damage dealt",
         .tier_count = 1,
-        .tiers = tiers_desecrated_76
+        .tiers = tiers_desecrated_76,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[77] = (Modifier){
         .id = 77,
@@ -76810,7 +77522,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Cost Efficiency of Attacks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_77
+        .tiers = tiers_desecrated_77,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[78] = (Modifier){
         .id = 78,
@@ -76820,7 +77533,8 @@ void init_modifiers_data(void) {
         .name = "WarcryCooldownSpeed",
         .description = "#% increased Warcry Cooldown Recovery Rate",
         .tier_count = 1,
-        .tiers = tiers_desecrated_78
+        .tiers = tiers_desecrated_78,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[79] = (Modifier){
         .id = 79,
@@ -76830,7 +77544,8 @@ void init_modifiers_data(void) {
         .name = "SummonTotemCastSpeed",
         .description = "#% increased Totem Placement Speed",
         .tier_count = 1,
-        .tiers = tiers_desecrated_79
+        .tiers = tiers_desecrated_79,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[80] = (Modifier){
         .id = 80,
@@ -76840,7 +77555,8 @@ void init_modifiers_data(void) {
         .name = "LifeCost",
         .description = "#% of Skill Mana Costs Converted to Life Costs",
         .tier_count = 1,
-        .tiers = tiers_desecrated_80
+        .tiers = tiers_desecrated_80,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[81] = (Modifier){
         .id = 81,
@@ -76850,7 +77566,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackAreaOfEffect",
         .description = "#% increased Area of Effect for Attacks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_81
+        .tiers = tiers_desecrated_81,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[82] = (Modifier){
         .id = 82,
@@ -76860,7 +77577,8 @@ void init_modifiers_data(void) {
         .name = "CompanionDamage",
         .description = "Companions deal #% increased Damage\n#% increased Damage while your Companion is in your Presence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_82
+        .tiers = tiers_desecrated_82,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[83] = (Modifier){
         .id = 83,
@@ -76870,7 +77588,8 @@ void init_modifiers_data(void) {
         .name = "FireResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Fire Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_83
+        .tiers = tiers_desecrated_83,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[84] = (Modifier){
         .id = 84,
@@ -76880,7 +77599,8 @@ void init_modifiers_data(void) {
         .name = "ChainFromTerrain",
         .description = "Projectiles have #% chance to Chain an additional time from terrain",
         .tier_count = 1,
-        .tiers = tiers_desecrated_84
+        .tiers = tiers_desecrated_84,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[85] = (Modifier){
         .id = 85,
@@ -76890,7 +77610,8 @@ void init_modifiers_data(void) {
         .name = "MeleeDamage",
         .description = "#% increased Melee Damage if you've dealt a Projectile Attack Hit in the past eight seconds",
         .tier_count = 1,
-        .tiers = tiers_desecrated_85
+        .tiers = tiers_desecrated_85,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[86] = (Modifier){
         .id = 86,
@@ -76900,7 +77621,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Cold Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_86
+        .tiers = tiers_desecrated_86,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[87] = (Modifier){
         .id = 87,
@@ -76910,7 +77632,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistancePenetration",
         .description = "Attacks with this Weapon Penetrate #% Lightning Resistance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_87
+        .tiers = tiers_desecrated_87,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[88] = (Modifier){
         .id = 88,
@@ -76920,7 +77643,8 @@ void init_modifiers_data(void) {
         .name = "ChanceToPierce",
         .description = "#% chance to Pierce an Enemy",
         .tier_count = 1,
-        .tiers = tiers_desecrated_88
+        .tiers = tiers_desecrated_88,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[89] = (Modifier){
         .id = 89,
@@ -76930,7 +77654,8 @@ void init_modifiers_data(void) {
         .name = "CompanionAttackSpeed",
         .description = "#% increased Attack Speed\nCompanions have #% increased Attack Speed",
         .tier_count = 1,
-        .tiers = tiers_desecrated_89
+        .tiers = tiers_desecrated_89,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[90] = (Modifier){
         .id = 90,
@@ -76940,7 +77665,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_90
+        .tiers = tiers_desecrated_90,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[91] = (Modifier){
         .id = 91,
@@ -76950,7 +77676,8 @@ void init_modifiers_data(void) {
         .name = "Immobilise",
         .description = "#% increased Immobilisation buildup",
         .tier_count = 1,
-        .tiers = tiers_desecrated_91
+        .tiers = tiers_desecrated_91,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[92] = (Modifier){
         .id = 92,
@@ -76960,7 +77687,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Cost Efficiency of Attacks",
         .tier_count = 1,
-        .tiers = tiers_desecrated_92
+        .tiers = tiers_desecrated_92,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[93] = (Modifier){
         .id = 93,
@@ -76970,7 +77698,8 @@ void init_modifiers_data(void) {
         .name = "LifeCost",
         .description = "#% of Skill Mana Costs Converted to Life Costs",
         .tier_count = 1,
-        .tiers = tiers_desecrated_93
+        .tiers = tiers_desecrated_93,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[94] = (Modifier){
         .id = 94,
@@ -76980,7 +77709,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalProjectiles",
         .description = "Projectile Attacks have a #% chance to fire two additional Projectiles while moving",
         .tier_count = 1,
-        .tiers = tiers_desecrated_94
+        .tiers = tiers_desecrated_94,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[95] = (Modifier){
         .id = 95,
@@ -76990,7 +77720,8 @@ void init_modifiers_data(void) {
         .name = "CompanionDamage",
         .description = "#% increased Attack Speed\n#% increased Attack Speed while your Companion is in your Presence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_95
+        .tiers = tiers_desecrated_95,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[96] = (Modifier){
         .id = 96,
@@ -77000,7 +77731,8 @@ void init_modifiers_data(void) {
         .name = "MinionDamage",
         .description = "#% increased Spell Damage\nMinions deal #% increased Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_96
+        .tiers = tiers_desecrated_96,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[97] = (Modifier){
         .id = 97,
@@ -77010,7 +77742,8 @@ void init_modifiers_data(void) {
         .name = "WeaponDamageTypePrefix",
         .description = "#% increased Elemental Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_97
+        .tiers = tiers_desecrated_97,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[98] = (Modifier){
         .id = 98,
@@ -77020,7 +77753,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "#% increased Spell Damage with Spells that cost Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_98
+        .tiers = tiers_desecrated_98,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[99] = (Modifier){
         .id = 99,
@@ -77030,7 +77764,8 @@ void init_modifiers_data(void) {
         .name = "BleedingDamage",
         .description = "#% increased Magnitude of Bleeding you inflict",
         .tier_count = 1,
-        .tiers = tiers_desecrated_99
+        .tiers = tiers_desecrated_99,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[100] = (Modifier){
         .id = 100,
@@ -77040,7 +77775,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain #% of Damage as Extra Physical Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_100
+        .tiers = tiers_desecrated_100,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[101] = (Modifier){
         .id = 101,
@@ -77050,7 +77786,8 @@ void init_modifiers_data(void) {
         .name = "HinderedEnemyTakeIncreasedDamage",
         .description = "Enemies Hindered by you take #% increased Elemental Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_101
+        .tiers = tiers_desecrated_101,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[102] = (Modifier){
         .id = 102,
@@ -77060,7 +77797,8 @@ void init_modifiers_data(void) {
         .name = "HinderedEnemyTakeIncreasedDamage",
         .description = "Enemies Hindered by you take #% increased Chaos Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_102
+        .tiers = tiers_desecrated_102,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[103] = (Modifier){
         .id = 103,
@@ -77070,7 +77808,8 @@ void init_modifiers_data(void) {
         .name = "HinderedEnemyTakeIncreasedDamage",
         .description = "Enemies Hindered by you take #% increased Physical Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_103
+        .tiers = tiers_desecrated_103,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[104] = (Modifier){
         .id = 104,
@@ -77080,7 +77819,8 @@ void init_modifiers_data(void) {
         .name = "SpellAreaOfEffect",
         .description = "Spell Skills have #% increased Area of Effect",
         .tier_count = 1,
-        .tiers = tiers_desecrated_104
+        .tiers = tiers_desecrated_104,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[105] = (Modifier){
         .id = 105,
@@ -77090,7 +77830,8 @@ void init_modifiers_data(void) {
         .name = "SkillLifeCost",
         .description = "#% increased Cost Efficiency\n#% of Spell Mana Cost Converted to Life Cost",
         .tier_count = 1,
-        .tiers = tiers_desecrated_105
+        .tiers = tiers_desecrated_105,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[106] = (Modifier){
         .id = 106,
@@ -77100,7 +77841,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed while on Full Mana\n#% increased Cast Speed for each different Non-Instant Spell you've Cast Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_106
+        .tiers = tiers_desecrated_106,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[107] = (Modifier){
         .id = 107,
@@ -77110,7 +77852,8 @@ void init_modifiers_data(void) {
         .name = "ArmourBreak",
         .description = "#% increased Armour",
         .tier_count = 1,
-        .tiers = tiers_desecrated_107
+        .tiers = tiers_desecrated_107,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[108] = (Modifier){
         .id = 108,
@@ -77120,7 +77863,8 @@ void init_modifiers_data(void) {
         .name = "CriticalArmourBreak",
         .description = "Break Armour on Critical Hit with Spells equal to #% of Physical Damage dealt",
         .tier_count = 1,
-        .tiers = tiers_desecrated_108
+        .tiers = tiers_desecrated_108,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[109] = (Modifier){
         .id = 109,
@@ -77130,7 +77874,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_109
+        .tiers = tiers_desecrated_109,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[110] = (Modifier){
         .id = 110,
@@ -77140,7 +77885,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_110
+        .tiers = tiers_desecrated_110,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[111] = (Modifier){
         .id = 111,
@@ -77150,7 +77896,8 @@ void init_modifiers_data(void) {
         .name = "ShieldSkillsStunningAlsoFullyBreaksArmour",
         .description = "Hits with Shield Skills which Heavy Stun enemies fully Break Armour",
         .tier_count = 1,
-        .tiers = tiers_desecrated_111
+        .tiers = tiers_desecrated_111,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[112] = (Modifier){
         .id = 112,
@@ -77160,7 +77907,8 @@ void init_modifiers_data(void) {
         .name = "HeavyStunDecayRate",
         .description = "Your Heavy Stun buildup empties (#–#)% faster",
         .tier_count = 1,
-        .tiers = tiers_desecrated_112
+        .tiers = tiers_desecrated_112,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[113] = (Modifier){
         .id = 113,
@@ -77170,7 +77918,8 @@ void init_modifiers_data(void) {
         .name = "MaximumResistances",
         .description = "+#% to all Maximum Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_113
+        .tiers = tiers_desecrated_113,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[114] = (Modifier){
         .id = 114,
@@ -77180,7 +77929,8 @@ void init_modifiers_data(void) {
         .name = "DamageTakenGainedAsLife",
         .description = "#% of Damage taken Recouped as Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_114
+        .tiers = tiers_desecrated_114,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[115] = (Modifier){
         .id = 115,
@@ -77190,7 +77940,8 @@ void init_modifiers_data(void) {
         .name = "ReducedCurseEffect",
         .description = "#% reduced effect of Curses on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_115
+        .tiers = tiers_desecrated_115,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[116] = (Modifier){
         .id = 116,
@@ -77200,7 +77951,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_116
+        .tiers = tiers_desecrated_116,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[117] = (Modifier){
         .id = 117,
@@ -77210,7 +77962,8 @@ void init_modifiers_data(void) {
         .name = "PercentDamageGoesToMana",
         .description = "#% of Damage taken Recouped as Mana",
         .tier_count = 1,
-        .tiers = tiers_desecrated_117
+        .tiers = tiers_desecrated_117,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[118] = (Modifier){
         .id = 118,
@@ -77220,7 +77973,8 @@ void init_modifiers_data(void) {
         .name = "GainManaOnBlock",
         .description = "(#–#) Mana gained when you Block",
         .tier_count = 1,
-        .tiers = tiers_desecrated_118
+        .tiers = tiers_desecrated_118,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[119] = (Modifier){
         .id = 119,
@@ -77230,7 +77984,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToChaosDamage",
         .description = "+#% of Armour also applies to Chaos Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_119
+        .tiers = tiers_desecrated_119,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[120] = (Modifier){
         .id = 120,
@@ -77240,7 +77995,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_120
+        .tiers = tiers_desecrated_120,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[121] = (Modifier){
         .id = 121,
@@ -77250,7 +78006,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_121
+        .tiers = tiers_desecrated_121,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[122] = (Modifier){
         .id = 122,
@@ -77260,7 +78017,8 @@ void init_modifiers_data(void) {
         .name = "ChanceToTakeCriticalStrike",
         .description = "Hits have #% reduced Critical Hit Chance against you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_122
+        .tiers = tiers_desecrated_122,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[123] = (Modifier){
         .id = 123,
@@ -77270,7 +78028,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_123
+        .tiers = tiers_desecrated_123,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[124] = (Modifier){
         .id = 124,
@@ -77280,7 +78039,8 @@ void init_modifiers_data(void) {
         .name = "You take (#–#)% of damage from Blocked Hits while Active Blocking\n",
         .description = "(#–#)% of Physical Damage taken as Lightning while Active Blocking",
         .tier_count = 1,
-        .tiers = tiers_desecrated_124
+        .tiers = tiers_desecrated_124,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[125] = (Modifier){
         .id = 125,
@@ -77290,7 +78050,8 @@ void init_modifiers_data(void) {
         .name = "MaximumBlockChance",
         .description = "+(#–#)% to maximum Block chance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_125
+        .tiers = tiers_desecrated_125,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[126] = (Modifier){
         .id = 126,
@@ -77300,7 +78061,8 @@ void init_modifiers_data(void) {
         .name = "ParriedDebuffDuration",
         .description = "(#–#)% increased Parried Debuff Duration",
         .tier_count = 1,
-        .tiers = tiers_desecrated_126
+        .tiers = tiers_desecrated_126,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[127] = (Modifier){
         .id = 127,
@@ -77310,7 +78072,8 @@ void init_modifiers_data(void) {
         .name = "ParriedDebuffMagnitude",
         .description = "(#–#)% increased Parried Debuff Magnitude",
         .tier_count = 1,
-        .tiers = tiers_desecrated_127
+        .tiers = tiers_desecrated_127,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[128] = (Modifier){
         .id = 128,
@@ -77320,7 +78083,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_128
+        .tiers = tiers_desecrated_128,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[129] = (Modifier){
         .id = 129,
@@ -77330,7 +78094,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_129
+        .tiers = tiers_desecrated_129,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[130] = (Modifier){
         .id = 130,
@@ -77340,7 +78105,8 @@ void init_modifiers_data(void) {
         .name = "ShieldSkillsStunningAlsoFullyBreaksArmour",
         .description = "Hits with Shield Skills which Heavy Stun enemies fully Break Armour",
         .tier_count = 1,
-        .tiers = tiers_desecrated_130
+        .tiers = tiers_desecrated_130,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[131] = (Modifier){
         .id = 131,
@@ -77350,7 +78116,8 @@ void init_modifiers_data(void) {
         .name = "HeavyStunDecayRate",
         .description = "Your Heavy Stun buildup empties (#–#)% faster",
         .tier_count = 1,
-        .tiers = tiers_desecrated_131
+        .tiers = tiers_desecrated_131,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[132] = (Modifier){
         .id = 132,
@@ -77360,7 +78127,8 @@ void init_modifiers_data(void) {
         .name = "MaximumResistances",
         .description = "+#% to all Maximum Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_132
+        .tiers = tiers_desecrated_132,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[133] = (Modifier){
         .id = 133,
@@ -77370,7 +78138,8 @@ void init_modifiers_data(void) {
         .name = "DamageTakenGainedAsLife",
         .description = "#% of Damage taken Recouped as Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_133
+        .tiers = tiers_desecrated_133,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[134] = (Modifier){
         .id = 134,
@@ -77380,7 +78149,8 @@ void init_modifiers_data(void) {
         .name = "ReducedCurseEffect",
         .description = "#% reduced effect of Curses on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_134
+        .tiers = tiers_desecrated_134,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[135] = (Modifier){
         .id = 135,
@@ -77390,7 +78160,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_135
+        .tiers = tiers_desecrated_135,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[136] = (Modifier){
         .id = 136,
@@ -77400,7 +78171,8 @@ void init_modifiers_data(void) {
         .name = "PercentDamageGoesToMana",
         .description = "#% of Damage taken Recouped as Mana",
         .tier_count = 1,
-        .tiers = tiers_desecrated_136
+        .tiers = tiers_desecrated_136,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[137] = (Modifier){
         .id = 137,
@@ -77410,7 +78182,8 @@ void init_modifiers_data(void) {
         .name = "GainManaOnBlock",
         .description = "(#–#) Mana gained when you Block",
         .tier_count = 1,
-        .tiers = tiers_desecrated_137
+        .tiers = tiers_desecrated_137,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[138] = (Modifier){
         .id = 138,
@@ -77420,7 +78193,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToChaosDamage",
         .description = "+#% of Armour also applies to Chaos Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_138
+        .tiers = tiers_desecrated_138,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[139] = (Modifier){
         .id = 139,
@@ -77430,7 +78204,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_139
+        .tiers = tiers_desecrated_139,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[140] = (Modifier){
         .id = 140,
@@ -77440,7 +78215,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_140
+        .tiers = tiers_desecrated_140,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[141] = (Modifier){
         .id = 141,
@@ -77450,7 +78226,8 @@ void init_modifiers_data(void) {
         .name = "ChanceToTakeCriticalStrike",
         .description = "Hits have #% reduced Critical Hit Chance against you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_141
+        .tiers = tiers_desecrated_141,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[142] = (Modifier){
         .id = 142,
@@ -77460,7 +78237,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_142
+        .tiers = tiers_desecrated_142,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[143] = (Modifier){
         .id = 143,
@@ -77470,7 +78248,8 @@ void init_modifiers_data(void) {
         .name = "You take (#–#)% of damage from Blocked Hits while Active Blocking\n",
         .description = "(#–#)% of Physical Damage taken as Lightning while Active Blocking",
         .tier_count = 1,
-        .tiers = tiers_desecrated_143
+        .tiers = tiers_desecrated_143,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[144] = (Modifier){
         .id = 144,
@@ -77480,7 +78259,8 @@ void init_modifiers_data(void) {
         .name = "MaximumBlockChance",
         .description = "+(#–#)% to maximum Block chance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_144
+        .tiers = tiers_desecrated_144,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[145] = (Modifier){
         .id = 145,
@@ -77490,7 +78270,8 @@ void init_modifiers_data(void) {
         .name = "ParriedDebuffDuration",
         .description = "(#–#)% increased Parried Debuff Duration",
         .tier_count = 1,
-        .tiers = tiers_desecrated_145
+        .tiers = tiers_desecrated_145,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[146] = (Modifier){
         .id = 146,
@@ -77500,7 +78281,8 @@ void init_modifiers_data(void) {
         .name = "ParriedDebuffMagnitude",
         .description = "(#–#)% increased Parried Debuff Magnitude",
         .tier_count = 1,
-        .tiers = tiers_desecrated_146
+        .tiers = tiers_desecrated_146,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[147] = (Modifier){
         .id = 147,
@@ -77510,7 +78292,8 @@ void init_modifiers_data(void) {
         .name = "OfferingEffect",
         .description = "Offering Skills have #% increased Buff effect",
         .tier_count = 1,
-        .tiers = tiers_desecrated_147
+        .tiers = tiers_desecrated_147,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[148] = (Modifier){
         .id = 148,
@@ -77520,7 +78303,8 @@ void init_modifiers_data(void) {
         .name = "CurseEffectiveness",
         .description = "#% increased Curse Magnitudes",
         .tier_count = 1,
-        .tiers = tiers_desecrated_148
+        .tiers = tiers_desecrated_148,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[149] = (Modifier){
         .id = 149,
@@ -77530,7 +78314,8 @@ void init_modifiers_data(void) {
         .name = "SpellAreaOfEffect",
         .description = "Spell Skills have #% increased Area of Effect",
         .tier_count = 1,
-        .tiers = tiers_desecrated_149
+        .tiers = tiers_desecrated_149,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[150] = (Modifier){
         .id = 150,
@@ -77540,7 +78325,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "Invocated Spells deal #% increased Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_150
+        .tiers = tiers_desecrated_150,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[151] = (Modifier){
         .id = 151,
@@ -77550,7 +78336,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalSpellTotem",
         .description = "Spell Skills have +# to maximum number of Summoned Totems",
         .tier_count = 1,
-        .tiers = tiers_desecrated_151
+        .tiers = tiers_desecrated_151,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[152] = (Modifier){
         .id = 152,
@@ -77560,7 +78347,8 @@ void init_modifiers_data(void) {
         .name = "SpellDamage",
         .description = "#% increased Spell Damage while wielding a Melee Weapon",
         .tier_count = 1,
-        .tiers = tiers_desecrated_152
+        .tiers = tiers_desecrated_152,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[153] = (Modifier){
         .id = 153,
@@ -77570,7 +78358,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_153
+        .tiers = tiers_desecrated_153,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[154] = (Modifier){
         .id = 154,
@@ -77580,7 +78369,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_154
+        .tiers = tiers_desecrated_154,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[155] = (Modifier){
         .id = 155,
@@ -77590,7 +78380,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Minion Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_155
+        .tiers = tiers_desecrated_155,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[156] = (Modifier){
         .id = 156,
@@ -77600,7 +78391,8 @@ void init_modifiers_data(void) {
         .name = "CurseDelay",
         .description = "#% faster Curse Activation",
         .tier_count = 1,
-        .tiers = tiers_desecrated_156
+        .tiers = tiers_desecrated_156,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[157] = (Modifier){
         .id = 157,
@@ -77610,7 +78402,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_157
+        .tiers = tiers_desecrated_157,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[158] = (Modifier){
         .id = 158,
@@ -77620,7 +78413,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_158
+        .tiers = tiers_desecrated_158,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[159] = (Modifier){
         .id = 159,
@@ -77630,7 +78424,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_159
+        .tiers = tiers_desecrated_159,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[160] = (Modifier){
         .id = 160,
@@ -77640,7 +78435,8 @@ void init_modifiers_data(void) {
         .name = "ChanceToGainAnAdditionalInfusion",
         .description = "#% chance when collecting an Elemental Infusion to gain an additional Elemental Infusion of the same type",
         .tier_count = 1,
-        .tiers = tiers_desecrated_160
+        .tiers = tiers_desecrated_160,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[161] = (Modifier){
         .id = 161,
@@ -77650,7 +78446,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_desecrated_161
+        .tiers = tiers_desecrated_161,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[162] = (Modifier){
         .id = 162,
@@ -77660,7 +78457,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_162
+        .tiers = tiers_desecrated_162,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[163] = (Modifier){
         .id = 163,
@@ -77670,7 +78468,8 @@ void init_modifiers_data(void) {
         .name = "SkillLifeCost",
         .description = "#% of Spell Mana Cost Converted to Life Cost",
         .tier_count = 1,
-        .tiers = tiers_desecrated_163
+        .tiers = tiers_desecrated_163,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[164] = (Modifier){
         .id = 164,
@@ -77680,7 +78479,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_164
+        .tiers = tiers_desecrated_164,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[165] = (Modifier){
         .id = 165,
@@ -77690,7 +78490,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_165
+        .tiers = tiers_desecrated_165,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[166] = (Modifier){
         .id = 166,
@@ -77700,7 +78501,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_166
+        .tiers = tiers_desecrated_166,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[167] = (Modifier){
         .id = 167,
@@ -77710,7 +78512,8 @@ void init_modifiers_data(void) {
         .name = "ReducedCurseEffect",
         .description = "#% reduced effect of Curses on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_167
+        .tiers = tiers_desecrated_167,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[168] = (Modifier){
         .id = 168,
@@ -77720,7 +78523,8 @@ void init_modifiers_data(void) {
         .name = "MaximumResistances",
         .description = "+#% to all Maximum Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_168
+        .tiers = tiers_desecrated_168,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[169] = (Modifier){
         .id = 169,
@@ -77730,7 +78534,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_169
+        .tiers = tiers_desecrated_169,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[170] = (Modifier){
         .id = 170,
@@ -77740,7 +78545,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_170
+        .tiers = tiers_desecrated_170,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[171] = (Modifier){
         .id = 171,
@@ -77750,7 +78556,8 @@ void init_modifiers_data(void) {
         .name = "PercentDamageGoesToMana",
         .description = "#% of Damage taken Recouped as Mana",
         .tier_count = 1,
-        .tiers = tiers_desecrated_171
+        .tiers = tiers_desecrated_171,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[172] = (Modifier){
         .id = 172,
@@ -77760,7 +78567,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_172
+        .tiers = tiers_desecrated_172,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[173] = (Modifier){
         .id = 173,
@@ -77770,7 +78578,8 @@ void init_modifiers_data(void) {
         .name = "ChanceToTakeCriticalStrike",
         .description = "Hits have #% reduced Critical Hit Chance against you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_173
+        .tiers = tiers_desecrated_173,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[174] = (Modifier){
         .id = 174,
@@ -77780,7 +78589,8 @@ void init_modifiers_data(void) {
         .name = "MaximumBlockChance",
         .description = "+(#–#)% to maximum Block chance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_174
+        .tiers = tiers_desecrated_174,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[175] = (Modifier){
         .id = 175,
@@ -77790,7 +78600,8 @@ void init_modifiers_data(void) {
         .name = "ParriedDebuffMagnitude",
         .description = "(#–#)% increased Parried Debuff Magnitude",
         .tier_count = 1,
-        .tiers = tiers_desecrated_175
+        .tiers = tiers_desecrated_175,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[176] = (Modifier){
         .id = 176,
@@ -77800,7 +78611,8 @@ void init_modifiers_data(void) {
         .name = "ProjectileSpeedToDamage",
         .description = "Increases and Reductions to Projectile Speed also apply to Damage with Bows",
         .tier_count = 1,
-        .tiers = tiers_desecrated_176
+        .tiers = tiers_desecrated_176,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[177] = (Modifier){
         .id = 177,
@@ -77810,7 +78622,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_desecrated_177
+        .tiers = tiers_desecrated_177,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[178] = (Modifier){
         .id = 178,
@@ -77820,7 +78633,8 @@ void init_modifiers_data(void) {
         .name = "LifeCost",
         .description = "#% of Skill Mana Costs Converted to Life Costs",
         .tier_count = 1,
-        .tiers = tiers_desecrated_178
+        .tiers = tiers_desecrated_178,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[179] = (Modifier){
         .id = 179,
@@ -77830,7 +78644,8 @@ void init_modifiers_data(void) {
         .name = "AdditionalProjectiles",
         .description = "Projectile Attacks have a #% chance to fire two additional Projectiles while moving",
         .tier_count = 1,
-        .tiers = tiers_desecrated_179
+        .tiers = tiers_desecrated_179,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[180] = (Modifier){
         .id = 180,
@@ -77840,7 +78655,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_180
+        .tiers = tiers_desecrated_180,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[181] = (Modifier){
         .id = 181,
@@ -77850,7 +78666,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_181
+        .tiers = tiers_desecrated_181,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[182] = (Modifier){
         .id = 182,
@@ -77860,7 +78677,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_182
+        .tiers = tiers_desecrated_182,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[183] = (Modifier){
         .id = 183,
@@ -77870,7 +78688,8 @@ void init_modifiers_data(void) {
         .name = "DodgeRollDistance",
         .description = "+#.# metres to Dodge Roll distance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_183
+        .tiers = tiers_desecrated_183,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[184] = (Modifier){
         .id = 184,
@@ -77880,7 +78699,8 @@ void init_modifiers_data(void) {
         .name = "SlowPotencyReduction",
         .description = "#% reduced Slowing Potency of Debuffs on You",
         .tier_count = 1,
-        .tiers = tiers_desecrated_184
+        .tiers = tiers_desecrated_184,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[185] = (Modifier){
         .id = 185,
@@ -77890,7 +78710,8 @@ void init_modifiers_data(void) {
         .name = "ReducedSelfIgniteDuration",
         .description = "#% reduced Ignite Duration on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_185
+        .tiers = tiers_desecrated_185,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[186] = (Modifier){
         .id = 186,
@@ -77900,7 +78721,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_186
+        .tiers = tiers_desecrated_186,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[187] = (Modifier){
         .id = 187,
@@ -77910,7 +78732,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_187
+        .tiers = tiers_desecrated_187,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[188] = (Modifier){
         .id = 188,
@@ -77920,7 +78743,8 @@ void init_modifiers_data(void) {
         .name = "ReducedBleedingDuration",
         .description = "#% reduced Duration of Bleeding on You",
         .tier_count = 1,
-        .tiers = tiers_desecrated_188
+        .tiers = tiers_desecrated_188,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[189] = (Modifier){
         .id = 189,
@@ -77930,7 +78754,8 @@ void init_modifiers_data(void) {
         .name = "ReducedPoisonDuration",
         .description = "#% reduced Poison Duration on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_189
+        .tiers = tiers_desecrated_189,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[190] = (Modifier){
         .id = 190,
@@ -77940,7 +78765,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency if you have Dodge Rolled Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_190
+        .tiers = tiers_desecrated_190,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[191] = (Modifier){
         .id = 191,
@@ -77950,7 +78776,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate while stationary",
         .tier_count = 1,
-        .tiers = tiers_desecrated_191
+        .tiers = tiers_desecrated_191,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[192] = (Modifier){
         .id = 192,
@@ -77960,7 +78787,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_192
+        .tiers = tiers_desecrated_192,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[193] = (Modifier){
         .id = 193,
@@ -77970,7 +78798,8 @@ void init_modifiers_data(void) {
         .name = "CorruptedBloodImmunity",
         .description = "Corrupted Blood cannot be inflicted on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_193
+        .tiers = tiers_desecrated_193,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[194] = (Modifier){
         .id = 194,
@@ -77980,7 +78809,8 @@ void init_modifiers_data(void) {
         .name = "MovementVelocityPenalty",
         .description = "#% reduced Movement Speed Penalty from using Skills while moving",
         .tier_count = 1,
-        .tiers = tiers_desecrated_194
+        .tiers = tiers_desecrated_194,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[195] = (Modifier){
         .id = 195,
@@ -77990,7 +78820,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_195
+        .tiers = tiers_desecrated_195,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[196] = (Modifier){
         .id = 196,
@@ -78000,7 +78831,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_196
+        .tiers = tiers_desecrated_196,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[197] = (Modifier){
         .id = 197,
@@ -78010,7 +78842,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_197
+        .tiers = tiers_desecrated_197,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[198] = (Modifier){
         .id = 198,
@@ -78020,7 +78853,8 @@ void init_modifiers_data(void) {
         .name = "DodgeRollDistance",
         .description = "+#.# metres to Dodge Roll distance",
         .tier_count = 1,
-        .tiers = tiers_desecrated_198
+        .tiers = tiers_desecrated_198,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[199] = (Modifier){
         .id = 199,
@@ -78030,7 +78864,8 @@ void init_modifiers_data(void) {
         .name = "SlowPotencyReduction",
         .description = "#% reduced Slowing Potency of Debuffs on You",
         .tier_count = 1,
-        .tiers = tiers_desecrated_199
+        .tiers = tiers_desecrated_199,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[200] = (Modifier){
         .id = 200,
@@ -78040,7 +78875,8 @@ void init_modifiers_data(void) {
         .name = "ReducedSelfIgniteDuration",
         .description = "#% reduced Ignite Duration on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_200
+        .tiers = tiers_desecrated_200,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[201] = (Modifier){
         .id = 201,
@@ -78050,7 +78886,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_201
+        .tiers = tiers_desecrated_201,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[202] = (Modifier){
         .id = 202,
@@ -78060,7 +78897,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_202
+        .tiers = tiers_desecrated_202,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[203] = (Modifier){
         .id = 203,
@@ -78070,7 +78908,8 @@ void init_modifiers_data(void) {
         .name = "ReducedBleedingDuration",
         .description = "#% reduced Duration of Bleeding on You",
         .tier_count = 1,
-        .tiers = tiers_desecrated_203
+        .tiers = tiers_desecrated_203,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[204] = (Modifier){
         .id = 204,
@@ -78080,7 +78919,8 @@ void init_modifiers_data(void) {
         .name = "ReducedPoisonDuration",
         .description = "#% reduced Poison Duration on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_204
+        .tiers = tiers_desecrated_204,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[205] = (Modifier){
         .id = 205,
@@ -78090,7 +78930,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency if you have Dodge Rolled Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_205
+        .tiers = tiers_desecrated_205,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[206] = (Modifier){
         .id = 206,
@@ -78100,7 +78941,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate while stationary",
         .tier_count = 1,
-        .tiers = tiers_desecrated_206
+        .tiers = tiers_desecrated_206,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[207] = (Modifier){
         .id = 207,
@@ -78110,7 +78952,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_207
+        .tiers = tiers_desecrated_207,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[208] = (Modifier){
         .id = 208,
@@ -78120,7 +78963,8 @@ void init_modifiers_data(void) {
         .name = "CorruptedBloodImmunity",
         .description = "Corrupted Blood cannot be inflicted on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_208
+        .tiers = tiers_desecrated_208,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[209] = (Modifier){
         .id = 209,
@@ -78130,7 +78974,8 @@ void init_modifiers_data(void) {
         .name = "MovementVelocityPenalty",
         .description = "#% reduced Movement Speed Penalty from using Skills while moving",
         .tier_count = 1,
-        .tiers = tiers_desecrated_209
+        .tiers = tiers_desecrated_209,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[210] = (Modifier){
         .id = 210,
@@ -78140,7 +78985,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_210
+        .tiers = tiers_desecrated_210,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[211] = (Modifier){
         .id = 211,
@@ -78150,7 +78996,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_211
+        .tiers = tiers_desecrated_211,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[212] = (Modifier){
         .id = 212,
@@ -78160,7 +79007,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_212
+        .tiers = tiers_desecrated_212,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[213] = (Modifier){
         .id = 213,
@@ -78170,7 +79018,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_213
+        .tiers = tiers_desecrated_213,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[214] = (Modifier){
         .id = 214,
@@ -78180,7 +79029,8 @@ void init_modifiers_data(void) {
         .name = "ReducedCurseEffect",
         .description = "#% reduced effect of Curses on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_214
+        .tiers = tiers_desecrated_214,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[215] = (Modifier){
         .id = 215,
@@ -78190,7 +79040,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_215
+        .tiers = tiers_desecrated_215,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[216] = (Modifier){
         .id = 216,
@@ -78200,7 +79051,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_216
+        .tiers = tiers_desecrated_216,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[217] = (Modifier){
         .id = 217,
@@ -78210,7 +79062,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_217
+        .tiers = tiers_desecrated_217,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[218] = (Modifier){
         .id = 218,
@@ -78220,7 +79073,8 @@ void init_modifiers_data(void) {
         .name = "PercentDamageGoesToMana",
         .description = "#% of Damage taken Recouped as Mana",
         .tier_count = 1,
-        .tiers = tiers_desecrated_218
+        .tiers = tiers_desecrated_218,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[219] = (Modifier){
         .id = 219,
@@ -78230,7 +79084,8 @@ void init_modifiers_data(void) {
         .name = "ChanceToTakeCriticalStrike",
         .description = "Hits have #% reduced Critical Hit Chance against you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_219
+        .tiers = tiers_desecrated_219,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[220] = (Modifier){
         .id = 220,
@@ -78240,7 +79095,8 @@ void init_modifiers_data(void) {
         .name = "CompanionReservationEfficiency",
         .description = "#% increased Reservation Efficiency of Companion Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_220
+        .tiers = tiers_desecrated_220,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[221] = (Modifier){
         .id = 221,
@@ -78250,7 +79106,8 @@ void init_modifiers_data(void) {
         .name = "DeflectDamageTaken",
         .description = "Prevent +#% of Damage from Deflected Hits",
         .tier_count = 1,
-        .tiers = tiers_desecrated_221
+        .tiers = tiers_desecrated_221,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[222] = (Modifier){
         .id = 222,
@@ -78260,7 +79117,8 @@ void init_modifiers_data(void) {
         .name = "DamageRemovedFromManaBeforeLife",
         .description = "#% of Damage is taken from Mana before Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_222
+        .tiers = tiers_desecrated_222,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[223] = (Modifier){
         .id = 223,
@@ -78270,7 +79128,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_223
+        .tiers = tiers_desecrated_223,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[224] = (Modifier){
         .id = 224,
@@ -78280,7 +79139,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_224
+        .tiers = tiers_desecrated_224,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[225] = (Modifier){
         .id = 225,
@@ -78290,7 +79150,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_225
+        .tiers = tiers_desecrated_225,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[226] = (Modifier){
         .id = 226,
@@ -78300,7 +79161,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_226
+        .tiers = tiers_desecrated_226,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[227] = (Modifier){
         .id = 227,
@@ -78310,7 +79172,8 @@ void init_modifiers_data(void) {
         .name = "ReducedCurseEffect",
         .description = "#% reduced effect of Curses on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_227
+        .tiers = tiers_desecrated_227,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[228] = (Modifier){
         .id = 228,
@@ -78320,7 +79183,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_228
+        .tiers = tiers_desecrated_228,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[229] = (Modifier){
         .id = 229,
@@ -78330,7 +79194,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_229
+        .tiers = tiers_desecrated_229,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[230] = (Modifier){
         .id = 230,
@@ -78340,7 +79205,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_230
+        .tiers = tiers_desecrated_230,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[231] = (Modifier){
         .id = 231,
@@ -78350,7 +79216,8 @@ void init_modifiers_data(void) {
         .name = "PercentDamageGoesToMana",
         .description = "#% of Damage taken Recouped as Mana",
         .tier_count = 1,
-        .tiers = tiers_desecrated_231
+        .tiers = tiers_desecrated_231,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[232] = (Modifier){
         .id = 232,
@@ -78360,7 +79227,8 @@ void init_modifiers_data(void) {
         .name = "ChanceToTakeCriticalStrike",
         .description = "Hits have #% reduced Critical Hit Chance against you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_232
+        .tiers = tiers_desecrated_232,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[233] = (Modifier){
         .id = 233,
@@ -78370,7 +79238,8 @@ void init_modifiers_data(void) {
         .name = "CompanionReservationEfficiency",
         .description = "#% increased Reservation Efficiency of Companion Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_233
+        .tiers = tiers_desecrated_233,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[234] = (Modifier){
         .id = 234,
@@ -78380,7 +79249,8 @@ void init_modifiers_data(void) {
         .name = "DeflectDamageTaken",
         .description = "Prevent +#% of Damage from Deflected Hits",
         .tier_count = 1,
-        .tiers = tiers_desecrated_234
+        .tiers = tiers_desecrated_234,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[235] = (Modifier){
         .id = 235,
@@ -78390,7 +79260,8 @@ void init_modifiers_data(void) {
         .name = "DamageRemovedFromManaBeforeLife",
         .description = "#% of Damage is taken from Mana before Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_235
+        .tiers = tiers_desecrated_235,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[236] = (Modifier){
         .id = 236,
@@ -78400,7 +79271,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_236
+        .tiers = tiers_desecrated_236,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[237] = (Modifier){
         .id = 237,
@@ -78410,7 +79282,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_237
+        .tiers = tiers_desecrated_237,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[238] = (Modifier){
         .id = 238,
@@ -78420,7 +79293,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_238
+        .tiers = tiers_desecrated_238,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[239] = (Modifier){
         .id = 239,
@@ -78430,7 +79304,8 @@ void init_modifiers_data(void) {
         .name = "DazeBuildup",
         .description = "#% chance to Daze on Hit",
         .tier_count = 1,
-        .tiers = tiers_desecrated_239
+        .tiers = tiers_desecrated_239,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[240] = (Modifier){
         .id = 240,
@@ -78440,7 +79315,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_240
+        .tiers = tiers_desecrated_240,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[241] = (Modifier){
         .id = 241,
@@ -78450,7 +79326,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_241
+        .tiers = tiers_desecrated_241,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[242] = (Modifier){
         .id = 242,
@@ -78460,7 +79337,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_desecrated_242
+        .tiers = tiers_desecrated_242,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[243] = (Modifier){
         .id = 243,
@@ -78470,7 +79348,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_243
+        .tiers = tiers_desecrated_243,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[244] = (Modifier){
         .id = 244,
@@ -78480,7 +79359,8 @@ void init_modifiers_data(void) {
         .name = "AilmentEffect",
         .description = "#% increased Magnitude of Ailments you inflict",
         .tier_count = 1,
-        .tiers = tiers_desecrated_244
+        .tiers = tiers_desecrated_244,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[245] = (Modifier){
         .id = 245,
@@ -78490,7 +79370,8 @@ void init_modifiers_data(void) {
         .name = "BleedChanceIncrease",
         .description = "#% increased chance to inflict Bleeding",
         .tier_count = 1,
-        .tiers = tiers_desecrated_245
+        .tiers = tiers_desecrated_245,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[246] = (Modifier){
         .id = 246,
@@ -78500,7 +79381,8 @@ void init_modifiers_data(void) {
         .name = "PoisonChanceIncrease",
         .description = "#% increased chance to Poison",
         .tier_count = 1,
-        .tiers = tiers_desecrated_246
+        .tiers = tiers_desecrated_246,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[247] = (Modifier){
         .id = 247,
@@ -78510,7 +79392,8 @@ void init_modifiers_data(void) {
         .name = "InstantLeechPercent",
         .description = "#% of Leech is Instant",
         .tier_count = 1,
-        .tiers = tiers_desecrated_247
+        .tiers = tiers_desecrated_247,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[248] = (Modifier){
         .id = 248,
@@ -78520,7 +79403,8 @@ void init_modifiers_data(void) {
         .name = "CurseAreaOfEffect",
         .description = "#% increased Area of Effect of Curses",
         .tier_count = 1,
-        .tiers = tiers_desecrated_248
+        .tiers = tiers_desecrated_248,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[249] = (Modifier){
         .id = 249,
@@ -78530,7 +79414,8 @@ void init_modifiers_data(void) {
         .name = "Immobilise",
         .description = "#% increased Immobilisation buildup",
         .tier_count = 1,
-        .tiers = tiers_desecrated_249
+        .tiers = tiers_desecrated_249,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[250] = (Modifier){
         .id = 250,
@@ -78540,7 +79425,8 @@ void init_modifiers_data(void) {
         .name = "ArcaneSurgeOnCrit",
         .description = "#% chance to Gain Arcane Surge when you deal a Critical Hit",
         .tier_count = 1,
-        .tiers = tiers_desecrated_250
+        .tiers = tiers_desecrated_250,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[251] = (Modifier){
         .id = 251,
@@ -78550,7 +79436,8 @@ void init_modifiers_data(void) {
         .name = "CastSpeedOnFullLife",
         .description = "#% increased Cast Speed when on Full Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_251
+        .tiers = tiers_desecrated_251,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[252] = (Modifier){
         .id = 252,
@@ -78560,7 +79447,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedSpeed",
         .description = "#% increased Skill Speed if you've consumed a Frenzy Charge Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_252
+        .tiers = tiers_desecrated_252,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[253] = (Modifier){
         .id = 253,
@@ -78570,7 +79458,8 @@ void init_modifiers_data(void) {
         .name = "IncisionChance",
         .description = "#% chance for Attack Hits to apply Incision",
         .tier_count = 1,
-        .tiers = tiers_desecrated_253
+        .tiers = tiers_desecrated_253,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[254] = (Modifier){
         .id = 254,
@@ -78580,7 +79469,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_254
+        .tiers = tiers_desecrated_254,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[255] = (Modifier){
         .id = 255,
@@ -78590,7 +79480,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_255
+        .tiers = tiers_desecrated_255,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[256] = (Modifier){
         .id = 256,
@@ -78600,7 +79491,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_256
+        .tiers = tiers_desecrated_256,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[257] = (Modifier){
         .id = 257,
@@ -78610,7 +79502,8 @@ void init_modifiers_data(void) {
         .name = "DazeBuildup",
         .description = "#% chance to Daze on Hit",
         .tier_count = 1,
-        .tiers = tiers_desecrated_257
+        .tiers = tiers_desecrated_257,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[258] = (Modifier){
         .id = 258,
@@ -78620,7 +79513,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_258
+        .tiers = tiers_desecrated_258,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[259] = (Modifier){
         .id = 259,
@@ -78630,7 +79524,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_259
+        .tiers = tiers_desecrated_259,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[260] = (Modifier){
         .id = 260,
@@ -78640,7 +79535,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_desecrated_260
+        .tiers = tiers_desecrated_260,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[261] = (Modifier){
         .id = 261,
@@ -78650,7 +79546,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_261
+        .tiers = tiers_desecrated_261,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[262] = (Modifier){
         .id = 262,
@@ -78660,7 +79557,8 @@ void init_modifiers_data(void) {
         .name = "AilmentEffect",
         .description = "#% increased Magnitude of Ailments you inflict",
         .tier_count = 1,
-        .tiers = tiers_desecrated_262
+        .tiers = tiers_desecrated_262,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[263] = (Modifier){
         .id = 263,
@@ -78670,7 +79568,8 @@ void init_modifiers_data(void) {
         .name = "BleedChanceIncrease",
         .description = "#% increased chance to inflict Bleeding",
         .tier_count = 1,
-        .tiers = tiers_desecrated_263
+        .tiers = tiers_desecrated_263,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[264] = (Modifier){
         .id = 264,
@@ -78680,7 +79579,8 @@ void init_modifiers_data(void) {
         .name = "PoisonChanceIncrease",
         .description = "#% increased chance to Poison",
         .tier_count = 1,
-        .tiers = tiers_desecrated_264
+        .tiers = tiers_desecrated_264,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[265] = (Modifier){
         .id = 265,
@@ -78690,7 +79590,8 @@ void init_modifiers_data(void) {
         .name = "InstantLeechPercent",
         .description = "#% of Leech is Instant",
         .tier_count = 1,
-        .tiers = tiers_desecrated_265
+        .tiers = tiers_desecrated_265,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[266] = (Modifier){
         .id = 266,
@@ -78700,7 +79601,8 @@ void init_modifiers_data(void) {
         .name = "CurseAreaOfEffect",
         .description = "#% increased Area of Effect of Curses",
         .tier_count = 1,
-        .tiers = tiers_desecrated_266
+        .tiers = tiers_desecrated_266,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[267] = (Modifier){
         .id = 267,
@@ -78710,7 +79612,8 @@ void init_modifiers_data(void) {
         .name = "Immobilise",
         .description = "#% increased Immobilisation buildup",
         .tier_count = 1,
-        .tiers = tiers_desecrated_267
+        .tiers = tiers_desecrated_267,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[268] = (Modifier){
         .id = 268,
@@ -78720,7 +79623,8 @@ void init_modifiers_data(void) {
         .name = "ArcaneSurgeOnCrit",
         .description = "#% chance to Gain Arcane Surge when you deal a Critical Hit",
         .tier_count = 1,
-        .tiers = tiers_desecrated_268
+        .tiers = tiers_desecrated_268,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[269] = (Modifier){
         .id = 269,
@@ -78730,7 +79634,8 @@ void init_modifiers_data(void) {
         .name = "CastSpeedOnFullLife",
         .description = "#% increased Cast Speed when on Full Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_269
+        .tiers = tiers_desecrated_269,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[270] = (Modifier){
         .id = 270,
@@ -78740,7 +79645,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedSpeed",
         .description = "#% increased Skill Speed if you've consumed a Frenzy Charge Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_270
+        .tiers = tiers_desecrated_270,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[271] = (Modifier){
         .id = 271,
@@ -78750,7 +79656,8 @@ void init_modifiers_data(void) {
         .name = "IncisionChance",
         .description = "#% chance for Attack Hits to apply Incision",
         .tier_count = 1,
-        .tiers = tiers_desecrated_271
+        .tiers = tiers_desecrated_271,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[272] = (Modifier){
         .id = 272,
@@ -78760,7 +79667,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_272
+        .tiers = tiers_desecrated_272,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[273] = (Modifier){
         .id = 273,
@@ -78770,7 +79678,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_273
+        .tiers = tiers_desecrated_273,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[274] = (Modifier){
         .id = 274,
@@ -78780,7 +79689,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_274
+        .tiers = tiers_desecrated_274,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[275] = (Modifier){
         .id = 275,
@@ -78790,7 +79700,8 @@ void init_modifiers_data(void) {
         .name = "DamageTakenGainedAsLife",
         .description = "#% of Damage taken Recouped as Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_275
+        .tiers = tiers_desecrated_275,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[276] = (Modifier){
         .id = 276,
@@ -78800,7 +79711,8 @@ void init_modifiers_data(void) {
         .name = "GloryGeneration",
         .description = "#% increased Glory generation",
         .tier_count = 1,
-        .tiers = tiers_desecrated_276
+        .tiers = tiers_desecrated_276,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[277] = (Modifier){
         .id = 277,
@@ -78810,7 +79722,8 @@ void init_modifiers_data(void) {
         .name = "PresenceRadius",
         .description = "#% increased Presence Area of Effect",
         .tier_count = 1,
-        .tiers = tiers_desecrated_277
+        .tiers = tiers_desecrated_277,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[278] = (Modifier){
         .id = 278,
@@ -78820,7 +79733,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_278
+        .tiers = tiers_desecrated_278,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[279] = (Modifier){
         .id = 279,
@@ -78830,7 +79744,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_279
+        .tiers = tiers_desecrated_279,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[280] = (Modifier){
         .id = 280,
@@ -78840,7 +79755,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_280
+        .tiers = tiers_desecrated_280,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[281] = (Modifier){
         .id = 281,
@@ -78850,7 +79766,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToChaosDamage",
         .description = "+#% of Armour also applies to Chaos Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_281
+        .tiers = tiers_desecrated_281,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[282] = (Modifier){
         .id = 282,
@@ -78860,7 +79777,8 @@ void init_modifiers_data(void) {
         .name = "ElementalDamageTakenRecoupedAsEnergyShield",
         .description = "#% of Elemental Damage taken Recouped as Energy Shield",
         .tier_count = 1,
-        .tiers = tiers_desecrated_282
+        .tiers = tiers_desecrated_282,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[283] = (Modifier){
         .id = 283,
@@ -78870,7 +79788,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_desecrated_283
+        .tiers = tiers_desecrated_283,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[284] = (Modifier){
         .id = 284,
@@ -78880,7 +79799,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_284
+        .tiers = tiers_desecrated_284,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[285] = (Modifier){
         .id = 285,
@@ -78890,7 +79810,8 @@ void init_modifiers_data(void) {
         .name = "LifeCostEfficiency",
         .description = "#% increased Life Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_desecrated_285
+        .tiers = tiers_desecrated_285,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[286] = (Modifier){
         .id = 286,
@@ -78900,7 +79821,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Damage Bonus",
         .tier_count = 1,
-        .tiers = tiers_desecrated_286
+        .tiers = tiers_desecrated_286,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[287] = (Modifier){
         .id = 287,
@@ -78910,7 +79832,8 @@ void init_modifiers_data(void) {
         .name = "MarkDamage",
         .description = "Enemies you Mark take #% increased Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_287
+        .tiers = tiers_desecrated_287,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[288] = (Modifier){
         .id = 288,
@@ -78920,7 +79843,8 @@ void init_modifiers_data(void) {
         .name = "ArcaneSurgeEffect",
         .description = "#% increased effect of Arcane Surge on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_288
+        .tiers = tiers_desecrated_288,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[289] = (Modifier){
         .id = 289,
@@ -78930,7 +79854,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_289
+        .tiers = tiers_desecrated_289,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[290] = (Modifier){
         .id = 290,
@@ -78940,7 +79865,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_290
+        .tiers = tiers_desecrated_290,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[291] = (Modifier){
         .id = 291,
@@ -78950,7 +79876,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_291
+        .tiers = tiers_desecrated_291,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[292] = (Modifier){
         .id = 292,
@@ -78960,7 +79887,8 @@ void init_modifiers_data(void) {
         .name = "DamageTakenGainedAsLife",
         .description = "#% of Damage taken Recouped as Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_292
+        .tiers = tiers_desecrated_292,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[293] = (Modifier){
         .id = 293,
@@ -78970,7 +79898,8 @@ void init_modifiers_data(void) {
         .name = "GloryGeneration",
         .description = "#% increased Glory generation",
         .tier_count = 1,
-        .tiers = tiers_desecrated_293
+        .tiers = tiers_desecrated_293,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[294] = (Modifier){
         .id = 294,
@@ -78980,7 +79909,8 @@ void init_modifiers_data(void) {
         .name = "PresenceRadius",
         .description = "#% increased Presence Area of Effect",
         .tier_count = 1,
-        .tiers = tiers_desecrated_294
+        .tiers = tiers_desecrated_294,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[295] = (Modifier){
         .id = 295,
@@ -78990,7 +79920,8 @@ void init_modifiers_data(void) {
         .name = "SpiritReservationEfficiency",
         .description = "#% increased Spirit Reservation Efficiency of Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_295
+        .tiers = tiers_desecrated_295,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[296] = (Modifier){
         .id = 296,
@@ -79000,7 +79931,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_296
+        .tiers = tiers_desecrated_296,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[297] = (Modifier){
         .id = 297,
@@ -79010,7 +79942,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_297
+        .tiers = tiers_desecrated_297,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[298] = (Modifier){
         .id = 298,
@@ -79020,7 +79953,8 @@ void init_modifiers_data(void) {
         .name = "ArmourAppliesToChaosDamage",
         .description = "+#% of Armour also applies to Chaos Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_298
+        .tiers = tiers_desecrated_298,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[299] = (Modifier){
         .id = 299,
@@ -79030,7 +79964,8 @@ void init_modifiers_data(void) {
         .name = "ElementalDamageTakenRecoupedAsEnergyShield",
         .description = "#% of Elemental Damage taken Recouped as Energy Shield",
         .tier_count = 1,
-        .tiers = tiers_desecrated_299
+        .tiers = tiers_desecrated_299,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[300] = (Modifier){
         .id = 300,
@@ -79040,7 +79975,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_desecrated_300
+        .tiers = tiers_desecrated_300,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[301] = (Modifier){
         .id = 301,
@@ -79050,7 +79986,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_301
+        .tiers = tiers_desecrated_301,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[302] = (Modifier){
         .id = 302,
@@ -79060,7 +79997,8 @@ void init_modifiers_data(void) {
         .name = "LifeCostEfficiency",
         .description = "#% increased Life Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_desecrated_302
+        .tiers = tiers_desecrated_302,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[303] = (Modifier){
         .id = 303,
@@ -79070,7 +80008,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Damage Bonus",
         .tier_count = 1,
-        .tiers = tiers_desecrated_303
+        .tiers = tiers_desecrated_303,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[304] = (Modifier){
         .id = 304,
@@ -79080,7 +80019,8 @@ void init_modifiers_data(void) {
         .name = "MarkDamage",
         .description = "Enemies you Mark take #% increased Damage",
         .tier_count = 1,
-        .tiers = tiers_desecrated_304
+        .tiers = tiers_desecrated_304,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[305] = (Modifier){
         .id = 305,
@@ -79090,7 +80030,8 @@ void init_modifiers_data(void) {
         .name = "ArcaneSurgeEffect",
         .description = "#% increased effect of Arcane Surge on you",
         .tier_count = 1,
-        .tiers = tiers_desecrated_305
+        .tiers = tiers_desecrated_305,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[306] = (Modifier){
         .id = 306,
@@ -79100,7 +80041,8 @@ void init_modifiers_data(void) {
         .name = "RemnantEffect",
         .description = "Remnants have #% increased effect",
         .tier_count = 1,
-        .tiers = tiers_desecrated_306
+        .tiers = tiers_desecrated_306,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[307] = (Modifier){
         .id = 307,
@@ -79110,7 +80052,8 @@ void init_modifiers_data(void) {
         .name = "ElementalAilmentEffect",
         .description = "#% increased Magnitude of Ignite if you've consumed an Endurance Charge Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_307
+        .tiers = tiers_desecrated_307,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[308] = (Modifier){
         .id = 308,
@@ -79120,7 +80063,8 @@ void init_modifiers_data(void) {
         .name = "ElementalAilmentEffect",
         .description = "#% increased Freeze Buildup if you've consumed a Power Charge Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_308
+        .tiers = tiers_desecrated_308,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[309] = (Modifier){
         .id = 309,
@@ -79130,7 +80074,8 @@ void init_modifiers_data(void) {
         .name = "ElementalAilmentEffect",
         .description = "#% increased Magnitude of Shock if you've consumed a Frenzy Charge Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_309
+        .tiers = tiers_desecrated_309,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[310] = (Modifier){
         .id = 310,
@@ -79140,7 +80085,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMinionDamageIfYouHitEnemy",
         .description = "Minions deal #% increased Damage if you've Hit Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_310
+        .tiers = tiers_desecrated_310,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[311] = (Modifier){
         .id = 311,
@@ -79150,7 +80096,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedSpellDamageOnFullEnergyShield",
         .description = "#% increased Spell Damage while on Full Energy Shield",
         .tier_count = 1,
-        .tiers = tiers_desecrated_311
+        .tiers = tiers_desecrated_311,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[312] = (Modifier){
         .id = 312,
@@ -79160,7 +80107,8 @@ void init_modifiers_data(void) {
         .name = "AttackDamage",
         .description = "#% increased Attack Damage while on Low Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_312
+        .tiers = tiers_desecrated_312,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[313] = (Modifier){
         .id = 313,
@@ -79170,7 +80118,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_313
+        .tiers = tiers_desecrated_313,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[314] = (Modifier){
         .id = 314,
@@ -79180,7 +80129,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_314
+        .tiers = tiers_desecrated_314,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[315] = (Modifier){
         .id = 315,
@@ -79190,7 +80140,8 @@ void init_modifiers_data(void) {
         .name = "SkillEffectDuration",
         .description = "#% increased Skill Effect Duration",
         .tier_count = 1,
-        .tiers = tiers_desecrated_315
+        .tiers = tiers_desecrated_315,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[316] = (Modifier){
         .id = 316,
@@ -79200,7 +80151,8 @@ void init_modifiers_data(void) {
         .name = "RemnantPickupRadius",
         .description = "Remnants can be collected from #% further away",
         .tier_count = 1,
-        .tiers = tiers_desecrated_316
+        .tiers = tiers_desecrated_316,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[317] = (Modifier){
         .id = 317,
@@ -79210,7 +80162,8 @@ void init_modifiers_data(void) {
         .name = "LifeLeech",
         .description = "#% increased amount of Life Leeched",
         .tier_count = 1,
-        .tiers = tiers_desecrated_317
+        .tiers = tiers_desecrated_317,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[318] = (Modifier){
         .id = 318,
@@ -79220,7 +80173,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_318
+        .tiers = tiers_desecrated_318,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[319] = (Modifier){
         .id = 319,
@@ -79230,7 +80184,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_319
+        .tiers = tiers_desecrated_319,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[320] = (Modifier){
         .id = 320,
@@ -79240,7 +80195,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_320
+        .tiers = tiers_desecrated_320,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[321] = (Modifier){
         .id = 321,
@@ -79250,7 +80206,8 @@ void init_modifiers_data(void) {
         .name = "CooldownRecovery",
         .description = "#% increased Cooldown Recovery Rate",
         .tier_count = 1,
-        .tiers = tiers_desecrated_321
+        .tiers = tiers_desecrated_321,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[322] = (Modifier){
         .id = 322,
@@ -79260,7 +80217,8 @@ void init_modifiers_data(void) {
         .name = "ExposureEffect",
         .description = "#% increased Exposure Effect",
         .tier_count = 1,
-        .tiers = tiers_desecrated_322
+        .tiers = tiers_desecrated_322,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[323] = (Modifier){
         .id = 323,
@@ -79270,7 +80228,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedOnKillPercentage",
         .description = "Recover #% of maximum Mana on Kill",
         .tier_count = 1,
-        .tiers = tiers_desecrated_323
+        .tiers = tiers_desecrated_323,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[324] = (Modifier){
         .id = 324,
@@ -79280,7 +80239,8 @@ void init_modifiers_data(void) {
         .name = "ManaLeechAmount",
         .description = "#% increased amount of Mana Leeched",
         .tier_count = 1,
-        .tiers = tiers_desecrated_324
+        .tiers = tiers_desecrated_324,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[325] = (Modifier){
         .id = 325,
@@ -79290,7 +80250,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_325
+        .tiers = tiers_desecrated_325,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[326] = (Modifier){
         .id = 326,
@@ -79300,7 +80261,8 @@ void init_modifiers_data(void) {
         .name = "RecoverPercentMaxLifeOnKill",
         .description = "Recover #% of maximum Life on Kill",
         .tier_count = 1,
-        .tiers = tiers_desecrated_326
+        .tiers = tiers_desecrated_326,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[327] = (Modifier){
         .id = 327,
@@ -79310,7 +80272,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedSpeed",
         .description = "#% increased Skill Speed",
         .tier_count = 1,
-        .tiers = tiers_desecrated_327
+        .tiers = tiers_desecrated_327,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[328] = (Modifier){
         .id = 328,
@@ -79320,7 +80283,8 @@ void init_modifiers_data(void) {
         .name = "AllDefences",
         .description = "#% increased Global Defences",
         .tier_count = 1,
-        .tiers = tiers_desecrated_328
+        .tiers = tiers_desecrated_328,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[329] = (Modifier){
         .id = 329,
@@ -79330,7 +80294,8 @@ void init_modifiers_data(void) {
         .name = "RemnantEffect",
         .description = "Remnants have #% increased effect",
         .tier_count = 1,
-        .tiers = tiers_desecrated_329
+        .tiers = tiers_desecrated_329,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[330] = (Modifier){
         .id = 330,
@@ -79340,7 +80305,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMinionDamageIfYouHitEnemy",
         .description = "Minions deal #% increased Damage if you've Hit Recently",
         .tier_count = 1,
-        .tiers = tiers_desecrated_330
+        .tiers = tiers_desecrated_330,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[331] = (Modifier){
         .id = 331,
@@ -79350,7 +80316,8 @@ void init_modifiers_data(void) {
         .name = "BodyArmourFromBodyArmour",
         .description = "#% increased Armour from Equipped Body Armour",
         .tier_count = 1,
-        .tiers = tiers_desecrated_331
+        .tiers = tiers_desecrated_331,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[332] = (Modifier){
         .id = 332,
@@ -79360,7 +80327,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedSpellDamageOnFullEnergyShield",
         .description = "#% increased Spell Damage while on Full Energy Shield",
         .tier_count = 1,
-        .tiers = tiers_desecrated_332
+        .tiers = tiers_desecrated_332,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[333] = (Modifier){
         .id = 333,
@@ -79370,7 +80338,8 @@ void init_modifiers_data(void) {
         .name = "InvocatedSpellHalfEnergyChance",
         .description = "Invocated Spells have #% chance to consume half as much Energy",
         .tier_count = 1,
-        .tiers = tiers_desecrated_333
+        .tiers = tiers_desecrated_333,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[334] = (Modifier){
         .id = 334,
@@ -79380,7 +80349,8 @@ void init_modifiers_data(void) {
         .name = "MaximumEnergyShieldFromBodyArmour",
         .description = "#% increased Energy Shield from Equipped Body Armour",
         .tier_count = 1,
-        .tiers = tiers_desecrated_334
+        .tiers = tiers_desecrated_334,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[335] = (Modifier){
         .id = 335,
@@ -79390,7 +80360,8 @@ void init_modifiers_data(void) {
         .name = "GloryChanceToNotConsume",
         .description = "Skills have a #% chance to not consume Glory",
         .tier_count = 1,
-        .tiers = tiers_desecrated_335
+        .tiers = tiers_desecrated_335,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[336] = (Modifier){
         .id = 336,
@@ -79400,7 +80371,8 @@ void init_modifiers_data(void) {
         .name = "EvasionRatingFromBodyArmour",
         .description = "#% increased Evasion Rating from Equipped Body Armour",
         .tier_count = 1,
-        .tiers = tiers_desecrated_336
+        .tiers = tiers_desecrated_336,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[337] = (Modifier){
         .id = 337,
@@ -79410,7 +80382,8 @@ void init_modifiers_data(void) {
         .name = "AttackDamage",
         .description = "#% increased Attack Damage while on Low Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_337
+        .tiers = tiers_desecrated_337,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[338] = (Modifier){
         .id = 338,
@@ -79420,7 +80393,8 @@ void init_modifiers_data(void) {
         .name = "GlobalDeflectionRating",
         .description = "#% increased Deflection Rating",
         .tier_count = 1,
-        .tiers = tiers_desecrated_338
+        .tiers = tiers_desecrated_338,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[339] = (Modifier){
         .id = 339,
@@ -79430,7 +80404,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndIntelligence",
         .description = "+# to Strength and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_339
+        .tiers = tiers_desecrated_339,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[340] = (Modifier){
         .id = 340,
@@ -79440,7 +80415,8 @@ void init_modifiers_data(void) {
         .name = "StrengthAndDexterity",
         .description = "+# to Strength and Dexterity",
         .tier_count = 1,
-        .tiers = tiers_desecrated_340
+        .tiers = tiers_desecrated_340,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[341] = (Modifier){
         .id = 341,
@@ -79450,7 +80426,8 @@ void init_modifiers_data(void) {
         .name = "SkillEffectDuration",
         .description = "#% increased Skill Effect Duration",
         .tier_count = 1,
-        .tiers = tiers_desecrated_341
+        .tiers = tiers_desecrated_341,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[342] = (Modifier){
         .id = 342,
@@ -79460,7 +80437,8 @@ void init_modifiers_data(void) {
         .name = "RemnantPickupRadius",
         .description = "Remnants can be collected from #% further away",
         .tier_count = 1,
-        .tiers = tiers_desecrated_342
+        .tiers = tiers_desecrated_342,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[343] = (Modifier){
         .id = 343,
@@ -79470,7 +80448,8 @@ void init_modifiers_data(void) {
         .name = "FireAndChaosDamageResistance",
         .description = "+#% to Fire and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_343
+        .tiers = tiers_desecrated_343,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[344] = (Modifier){
         .id = 344,
@@ -79480,7 +80459,8 @@ void init_modifiers_data(void) {
         .name = "AuraEffect",
         .description = "Aura Skills have #% increased Magnitudes",
         .tier_count = 1,
-        .tiers = tiers_desecrated_344
+        .tiers = tiers_desecrated_344,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[345] = (Modifier){
         .id = 345,
@@ -79490,7 +80470,8 @@ void init_modifiers_data(void) {
         .name = "GlobalItemAttributeRequirements",
         .description = "Equipment and Skill Gems have #% reduced Attribute Requirements",
         .tier_count = 1,
-        .tiers = tiers_desecrated_345
+        .tiers = tiers_desecrated_345,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[346] = (Modifier){
         .id = 346,
@@ -79500,7 +80481,8 @@ void init_modifiers_data(void) {
         .name = "ManaGainedOnKillPercentage",
         .description = "Recover #% of maximum Mana on Kill",
         .tier_count = 1,
-        .tiers = tiers_desecrated_346
+        .tiers = tiers_desecrated_346,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[347] = (Modifier){
         .id = 347,
@@ -79510,7 +80492,8 @@ void init_modifiers_data(void) {
         .name = "ExposureEffect",
         .description = "#% increased Exposure Effect",
         .tier_count = 1,
-        .tiers = tiers_desecrated_347
+        .tiers = tiers_desecrated_347,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[348] = (Modifier){
         .id = 348,
@@ -79520,7 +80503,8 @@ void init_modifiers_data(void) {
         .name = "CooldownRecovery",
         .description = "#% increased Cooldown Recovery Rate",
         .tier_count = 1,
-        .tiers = tiers_desecrated_348
+        .tiers = tiers_desecrated_348,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[349] = (Modifier){
         .id = 349,
@@ -79530,7 +80514,8 @@ void init_modifiers_data(void) {
         .name = "ColdAndChaosDamageResistance",
         .description = "+#% to Cold and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_349
+        .tiers = tiers_desecrated_349,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[350] = (Modifier){
         .id = 350,
@@ -79540,7 +80525,8 @@ void init_modifiers_data(void) {
         .name = "DexterityAndIntelligence",
         .description = "+# to Dexterity and Intelligence",
         .tier_count = 1,
-        .tiers = tiers_desecrated_350
+        .tiers = tiers_desecrated_350,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[351] = (Modifier){
         .id = 351,
@@ -79550,7 +80536,8 @@ void init_modifiers_data(void) {
         .name = "GlobalSkillGemQuality",
         .description = "+#% to Quality of all Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_351
+        .tiers = tiers_desecrated_351,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[352] = (Modifier){
         .id = 352,
@@ -79560,7 +80547,8 @@ void init_modifiers_data(void) {
         .name = "DamageRemovedFromManaBeforeLife",
         .description = "#% of Damage is taken from Mana before Life",
         .tier_count = 1,
-        .tiers = tiers_desecrated_352
+        .tiers = tiers_desecrated_352,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[353] = (Modifier){
         .id = 353,
@@ -79570,7 +80558,8 @@ void init_modifiers_data(void) {
         .name = "MinionCooldown",
         .description = "Minions have #% increased Cooldown Recovery Rate",
         .tier_count = 1,
-        .tiers = tiers_desecrated_353
+        .tiers = tiers_desecrated_353,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[354] = (Modifier){
         .id = 354,
@@ -79580,7 +80569,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedSpeed",
         .description = "#% increased Skill Speed",
         .tier_count = 1,
-        .tiers = tiers_desecrated_354
+        .tiers = tiers_desecrated_354,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[355] = (Modifier){
         .id = 355,
@@ -79590,7 +80580,8 @@ void init_modifiers_data(void) {
         .name = "RecoverPercentMaxLifeOnKill",
         .description = "Recover #% of maximum Life on Kill",
         .tier_count = 1,
-        .tiers = tiers_desecrated_355
+        .tiers = tiers_desecrated_355,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[356] = (Modifier){
         .id = 356,
@@ -79600,7 +80591,8 @@ void init_modifiers_data(void) {
         .name = "LightningAndChaosDamageResistance",
         .description = "+#% to Lightning and Chaos Resistances",
         .tier_count = 1,
-        .tiers = tiers_desecrated_356
+        .tiers = tiers_desecrated_356,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[357] = (Modifier){
         .id = 357,
@@ -79610,7 +80602,8 @@ void init_modifiers_data(void) {
         .name = "HeraldReservationEfficiency",
         .description = "#% increased Reservation Efficiency of Herald Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_357
+        .tiers = tiers_desecrated_357,
+        .fractured = false
     };
     MODIFIERS_DESECRATED[358] = (Modifier){
         .id = 358,
@@ -79620,7 +80613,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Skills",
         .tier_count = 1,
-        .tiers = tiers_desecrated_358
+        .tiers = tiers_desecrated_358,
+        .fractured = false
     };
 
     // ESSENCE modifiers
@@ -79632,7 +80626,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_0
+        .tiers = tiers_essence_0,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[1] = (Modifier){
         .id = 1,
@@ -79642,7 +80637,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_1
+        .tiers = tiers_essence_1,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[2] = (Modifier){
         .id = 2,
@@ -79652,7 +80648,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_2
+        .tiers = tiers_essence_2,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[3] = (Modifier){
         .id = 3,
@@ -79662,7 +80659,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_3
+        .tiers = tiers_essence_3,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[4] = (Modifier){
         .id = 4,
@@ -79672,7 +80670,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 3,
-        .tiers = tiers_essence_4
+        .tiers = tiers_essence_4,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[5] = (Modifier){
         .id = 5,
@@ -79682,7 +80681,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 3,
-        .tiers = tiers_essence_5
+        .tiers = tiers_essence_5,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[6] = (Modifier){
         .id = 6,
@@ -79692,7 +80692,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_6
+        .tiers = tiers_essence_6,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[7] = (Modifier){
         .id = 7,
@@ -79702,7 +80703,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_7
+        .tiers = tiers_essence_7,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[8] = (Modifier){
         .id = 8,
@@ -79712,7 +80714,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_8
+        .tiers = tiers_essence_8,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[9] = (Modifier){
         .id = 9,
@@ -79722,7 +80725,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 3,
-        .tiers = tiers_essence_9
+        .tiers = tiers_essence_9,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[10] = (Modifier){
         .id = 10,
@@ -79732,7 +80736,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_10
+        .tiers = tiers_essence_10,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[11] = (Modifier){
         .id = 11,
@@ -79742,7 +80747,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_11
+        .tiers = tiers_essence_11,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[12] = (Modifier){
         .id = 12,
@@ -79752,7 +80758,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_12
+        .tiers = tiers_essence_12,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[13] = (Modifier){
         .id = 13,
@@ -79762,7 +80769,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_13
+        .tiers = tiers_essence_13,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[14] = (Modifier){
         .id = 14,
@@ -79772,7 +80780,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 3,
-        .tiers = tiers_essence_14
+        .tiers = tiers_essence_14,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[15] = (Modifier){
         .id = 15,
@@ -79782,7 +80791,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 3,
-        .tiers = tiers_essence_15
+        .tiers = tiers_essence_15,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[16] = (Modifier){
         .id = 16,
@@ -79792,7 +80802,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_16
+        .tiers = tiers_essence_16,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[17] = (Modifier){
         .id = 17,
@@ -79802,7 +80813,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_17
+        .tiers = tiers_essence_17,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[18] = (Modifier){
         .id = 18,
@@ -79812,7 +80824,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_18
+        .tiers = tiers_essence_18,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[19] = (Modifier){
         .id = 19,
@@ -79822,7 +80835,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 3,
-        .tiers = tiers_essence_19
+        .tiers = tiers_essence_19,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[20] = (Modifier){
         .id = 20,
@@ -79832,7 +80846,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "#% increased Spell Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_20
+        .tiers = tiers_essence_20,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[21] = (Modifier){
         .id = 21,
@@ -79842,7 +80857,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_21
+        .tiers = tiers_essence_21,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[22] = (Modifier){
         .id = 22,
@@ -79852,7 +80868,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_22
+        .tiers = tiers_essence_22,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[23] = (Modifier){
         .id = 23,
@@ -79862,7 +80879,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_23
+        .tiers = tiers_essence_23,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[24] = (Modifier){
         .id = 24,
@@ -79872,7 +80890,8 @@ void init_modifiers_data(void) {
         .name = "SpellCriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance for Spells",
         .tier_count = 3,
-        .tiers = tiers_essence_24
+        .tiers = tiers_essence_24,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[25] = (Modifier){
         .id = 25,
@@ -79882,7 +80901,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed",
         .tier_count = 3,
-        .tiers = tiers_essence_25
+        .tiers = tiers_essence_25,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[26] = (Modifier){
         .id = 26,
@@ -79892,7 +80912,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_26
+        .tiers = tiers_essence_26,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[27] = (Modifier){
         .id = 27,
@@ -79902,7 +80923,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_27
+        .tiers = tiers_essence_27,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[28] = (Modifier){
         .id = 28,
@@ -79912,7 +80934,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_28
+        .tiers = tiers_essence_28,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[29] = (Modifier){
         .id = 29,
@@ -79922,7 +80945,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_29
+        .tiers = tiers_essence_29,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[30] = (Modifier){
         .id = 30,
@@ -79932,7 +80956,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 3,
-        .tiers = tiers_essence_30
+        .tiers = tiers_essence_30,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[31] = (Modifier){
         .id = 31,
@@ -79942,7 +80967,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 3,
-        .tiers = tiers_essence_31
+        .tiers = tiers_essence_31,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[32] = (Modifier){
         .id = 32,
@@ -79952,7 +80978,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_32
+        .tiers = tiers_essence_32,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[33] = (Modifier){
         .id = 33,
@@ -79962,7 +80989,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_33
+        .tiers = tiers_essence_33,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[34] = (Modifier){
         .id = 34,
@@ -79972,7 +81000,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_34
+        .tiers = tiers_essence_34,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[35] = (Modifier){
         .id = 35,
@@ -79982,7 +81011,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 3,
-        .tiers = tiers_essence_35
+        .tiers = tiers_essence_35,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[36] = (Modifier){
         .id = 36,
@@ -79992,7 +81022,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_36
+        .tiers = tiers_essence_36,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[37] = (Modifier){
         .id = 37,
@@ -80002,7 +81033,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_37
+        .tiers = tiers_essence_37,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[38] = (Modifier){
         .id = 38,
@@ -80012,7 +81044,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_38
+        .tiers = tiers_essence_38,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[39] = (Modifier){
         .id = 39,
@@ -80022,7 +81055,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_39
+        .tiers = tiers_essence_39,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[40] = (Modifier){
         .id = 40,
@@ -80032,7 +81066,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 3,
-        .tiers = tiers_essence_40
+        .tiers = tiers_essence_40,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[41] = (Modifier){
         .id = 41,
@@ -80042,7 +81077,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 3,
-        .tiers = tiers_essence_41
+        .tiers = tiers_essence_41,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[42] = (Modifier){
         .id = 42,
@@ -80052,7 +81088,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_42
+        .tiers = tiers_essence_42,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[43] = (Modifier){
         .id = 43,
@@ -80062,7 +81099,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_43
+        .tiers = tiers_essence_43,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[44] = (Modifier){
         .id = 44,
@@ -80072,7 +81110,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_44
+        .tiers = tiers_essence_44,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[45] = (Modifier){
         .id = 45,
@@ -80082,7 +81121,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 3,
-        .tiers = tiers_essence_45
+        .tiers = tiers_essence_45,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[46] = (Modifier){
         .id = 46,
@@ -80092,7 +81132,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_46
+        .tiers = tiers_essence_46,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[47] = (Modifier){
         .id = 47,
@@ -80102,7 +81143,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_47
+        .tiers = tiers_essence_47,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[48] = (Modifier){
         .id = 48,
@@ -80112,7 +81154,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_48
+        .tiers = tiers_essence_48,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[49] = (Modifier){
         .id = 49,
@@ -80122,7 +81165,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_49
+        .tiers = tiers_essence_49,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[50] = (Modifier){
         .id = 50,
@@ -80132,7 +81176,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 3,
-        .tiers = tiers_essence_50
+        .tiers = tiers_essence_50,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[51] = (Modifier){
         .id = 51,
@@ -80142,7 +81187,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 3,
-        .tiers = tiers_essence_51
+        .tiers = tiers_essence_51,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[52] = (Modifier){
         .id = 52,
@@ -80152,7 +81198,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_52
+        .tiers = tiers_essence_52,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[53] = (Modifier){
         .id = 53,
@@ -80162,7 +81209,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_53
+        .tiers = tiers_essence_53,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[54] = (Modifier){
         .id = 54,
@@ -80172,7 +81220,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_54
+        .tiers = tiers_essence_54,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[55] = (Modifier){
         .id = 55,
@@ -80182,7 +81231,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 3,
-        .tiers = tiers_essence_55
+        .tiers = tiers_essence_55,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[56] = (Modifier){
         .id = 56,
@@ -80192,7 +81242,8 @@ void init_modifiers_data(void) {
         .name = "AllDamage",
         .description = "Allies in your Presence deal #% increased damage",
         .tier_count = 3,
-        .tiers = tiers_essence_56
+        .tiers = tiers_essence_56,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[57] = (Modifier){
         .id = 57,
@@ -80202,7 +81253,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_57
+        .tiers = tiers_essence_57,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[58] = (Modifier){
         .id = 58,
@@ -80212,7 +81264,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_58
+        .tiers = tiers_essence_58,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[59] = (Modifier){
         .id = 59,
@@ -80222,7 +81275,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_59
+        .tiers = tiers_essence_59,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[60] = (Modifier){
         .id = 60,
@@ -80232,7 +81286,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamage",
         .description = "Adds # to # Physical Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_60
+        .tiers = tiers_essence_60,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[61] = (Modifier){
         .id = 61,
@@ -80242,7 +81297,8 @@ void init_modifiers_data(void) {
         .name = "FireDamage",
         .description = "Adds # to # Fire Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_61
+        .tiers = tiers_essence_61,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[62] = (Modifier){
         .id = 62,
@@ -80252,7 +81308,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamage",
         .description = "Adds # to # Cold Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_62
+        .tiers = tiers_essence_62,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[63] = (Modifier){
         .id = 63,
@@ -80262,7 +81319,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamage",
         .description = "Adds # to # Lightning Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_63
+        .tiers = tiers_essence_63,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[64] = (Modifier){
         .id = 64,
@@ -80272,7 +81330,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 3,
-        .tiers = tiers_essence_64
+        .tiers = tiers_essence_64,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[65] = (Modifier){
         .id = 65,
@@ -80282,7 +81341,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAttackSpeed",
         .description = "#% increased Attack Speed",
         .tier_count = 3,
-        .tiers = tiers_essence_65
+        .tiers = tiers_essence_65,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[66] = (Modifier){
         .id = 66,
@@ -80292,7 +81352,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_66
+        .tiers = tiers_essence_66,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[67] = (Modifier){
         .id = 67,
@@ -80302,7 +81363,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_67
+        .tiers = tiers_essence_67,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[68] = (Modifier){
         .id = 68,
@@ -80312,7 +81374,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_68
+        .tiers = tiers_essence_68,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[69] = (Modifier){
         .id = 69,
@@ -80322,7 +81385,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeChanceIncrease",
         .description = "+#% to Critical Hit Chance",
         .tier_count = 3,
-        .tiers = tiers_essence_69
+        .tiers = tiers_essence_69,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[70] = (Modifier){
         .id = 70,
@@ -80332,7 +81396,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "#% increased Spell Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_70
+        .tiers = tiers_essence_70,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[71] = (Modifier){
         .id = 71,
@@ -80342,7 +81407,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_71
+        .tiers = tiers_essence_71,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[72] = (Modifier){
         .id = 72,
@@ -80352,7 +81418,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_72
+        .tiers = tiers_essence_72,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[73] = (Modifier){
         .id = 73,
@@ -80362,7 +81429,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_73
+        .tiers = tiers_essence_73,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[74] = (Modifier){
         .id = 74,
@@ -80372,7 +81440,8 @@ void init_modifiers_data(void) {
         .name = "SpellCriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance for Spells",
         .tier_count = 3,
-        .tiers = tiers_essence_74
+        .tiers = tiers_essence_74,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[75] = (Modifier){
         .id = 75,
@@ -80382,7 +81451,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed",
         .tier_count = 3,
-        .tiers = tiers_essence_75
+        .tiers = tiers_essence_75,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[76] = (Modifier){
         .id = 76,
@@ -80392,7 +81462,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_76
+        .tiers = tiers_essence_76,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[77] = (Modifier){
         .id = 77,
@@ -80402,7 +81473,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_77
+        .tiers = tiers_essence_77,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[78] = (Modifier){
         .id = 78,
@@ -80412,7 +81484,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_78
+        .tiers = tiers_essence_78,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[79] = (Modifier){
         .id = 79,
@@ -80422,7 +81495,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_79
+        .tiers = tiers_essence_79,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[80] = (Modifier){
         .id = 80,
@@ -80432,7 +81506,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_80
+        .tiers = tiers_essence_80,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[81] = (Modifier){
         .id = 81,
@@ -80442,7 +81517,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_81
+        .tiers = tiers_essence_81,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[82] = (Modifier){
         .id = 82,
@@ -80452,7 +81528,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_82
+        .tiers = tiers_essence_82,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[83] = (Modifier){
         .id = 83,
@@ -80462,7 +81539,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_83
+        .tiers = tiers_essence_83,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[84] = (Modifier){
         .id = 84,
@@ -80472,7 +81550,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_84
+        .tiers = tiers_essence_84,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[85] = (Modifier){
         .id = 85,
@@ -80482,7 +81561,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_85
+        .tiers = tiers_essence_85,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[86] = (Modifier){
         .id = 86,
@@ -80492,7 +81572,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_86
+        .tiers = tiers_essence_86,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[87] = (Modifier){
         .id = 87,
@@ -80502,7 +81583,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_87
+        .tiers = tiers_essence_87,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[88] = (Modifier){
         .id = 88,
@@ -80512,7 +81594,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_88
+        .tiers = tiers_essence_88,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[89] = (Modifier){
         .id = 89,
@@ -80522,7 +81605,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_89
+        .tiers = tiers_essence_89,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[90] = (Modifier){
         .id = 90,
@@ -80532,7 +81616,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_90
+        .tiers = tiers_essence_90,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[91] = (Modifier){
         .id = 91,
@@ -80542,7 +81627,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_91
+        .tiers = tiers_essence_91,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[92] = (Modifier){
         .id = 92,
@@ -80552,7 +81638,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_92
+        .tiers = tiers_essence_92,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[93] = (Modifier){
         .id = 93,
@@ -80562,7 +81649,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_93
+        .tiers = tiers_essence_93,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[94] = (Modifier){
         .id = 94,
@@ -80572,7 +81660,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_94
+        .tiers = tiers_essence_94,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[95] = (Modifier){
         .id = 95,
@@ -80582,7 +81671,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_95
+        .tiers = tiers_essence_95,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[96] = (Modifier){
         .id = 96,
@@ -80592,7 +81682,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_96
+        .tiers = tiers_essence_96,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[97] = (Modifier){
         .id = 97,
@@ -80602,7 +81693,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_97
+        .tiers = tiers_essence_97,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[98] = (Modifier){
         .id = 98,
@@ -80612,7 +81704,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_98
+        .tiers = tiers_essence_98,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[99] = (Modifier){
         .id = 99,
@@ -80622,7 +81715,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_99
+        .tiers = tiers_essence_99,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[100] = (Modifier){
         .id = 100,
@@ -80632,7 +81726,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_100
+        .tiers = tiers_essence_100,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[101] = (Modifier){
         .id = 101,
@@ -80642,7 +81737,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_101
+        .tiers = tiers_essence_101,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[102] = (Modifier){
         .id = 102,
@@ -80652,7 +81748,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_102
+        .tiers = tiers_essence_102,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[103] = (Modifier){
         .id = 103,
@@ -80662,7 +81759,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_103
+        .tiers = tiers_essence_103,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[104] = (Modifier){
         .id = 104,
@@ -80672,7 +81770,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_104
+        .tiers = tiers_essence_104,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[105] = (Modifier){
         .id = 105,
@@ -80682,7 +81781,8 @@ void init_modifiers_data(void) {
         .name = "WeaponCasterDamagePrefix",
         .description = "#% increased Spell Damage",
         .tier_count = 3,
-        .tiers = tiers_essence_105
+        .tiers = tiers_essence_105,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[106] = (Modifier){
         .id = 106,
@@ -80692,7 +81792,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_106
+        .tiers = tiers_essence_106,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[107] = (Modifier){
         .id = 107,
@@ -80702,7 +81803,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_107
+        .tiers = tiers_essence_107,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[108] = (Modifier){
         .id = 108,
@@ -80712,7 +81814,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_108
+        .tiers = tiers_essence_108,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[109] = (Modifier){
         .id = 109,
@@ -80722,7 +81825,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_109
+        .tiers = tiers_essence_109,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[110] = (Modifier){
         .id = 110,
@@ -80732,7 +81836,8 @@ void init_modifiers_data(void) {
         .name = "SpellCriticalStrikeChanceIncrease",
         .description = "#% increased Critical Hit Chance for Spells",
         .tier_count = 3,
-        .tiers = tiers_essence_110
+        .tiers = tiers_essence_110,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[111] = (Modifier){
         .id = 111,
@@ -80742,7 +81847,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_111
+        .tiers = tiers_essence_111,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[112] = (Modifier){
         .id = 112,
@@ -80752,7 +81858,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_112
+        .tiers = tiers_essence_112,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[113] = (Modifier){
         .id = 113,
@@ -80762,7 +81869,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_113
+        .tiers = tiers_essence_113,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[114] = (Modifier){
         .id = 114,
@@ -80772,7 +81880,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedCastSpeed",
         .description = "#% increased Cast Speed",
         .tier_count = 3,
-        .tiers = tiers_essence_114
+        .tiers = tiers_essence_114,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[115] = (Modifier){
         .id = 115,
@@ -80782,7 +81891,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_115
+        .tiers = tiers_essence_115,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[116] = (Modifier){
         .id = 116,
@@ -80792,7 +81902,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_116
+        .tiers = tiers_essence_116,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[117] = (Modifier){
         .id = 117,
@@ -80802,7 +81913,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_117
+        .tiers = tiers_essence_117,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[118] = (Modifier){
         .id = 118,
@@ -80812,7 +81924,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_118
+        .tiers = tiers_essence_118,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[119] = (Modifier){
         .id = 119,
@@ -80822,7 +81935,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_119
+        .tiers = tiers_essence_119,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[120] = (Modifier){
         .id = 120,
@@ -80832,7 +81946,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_120
+        .tiers = tiers_essence_120,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[121] = (Modifier){
         .id = 121,
@@ -80842,7 +81957,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_121
+        .tiers = tiers_essence_121,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[122] = (Modifier){
         .id = 122,
@@ -80852,7 +81968,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_122
+        .tiers = tiers_essence_122,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[123] = (Modifier){
         .id = 123,
@@ -80862,7 +81979,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_123
+        .tiers = tiers_essence_123,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[124] = (Modifier){
         .id = 124,
@@ -80872,7 +81990,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_124
+        .tiers = tiers_essence_124,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[125] = (Modifier){
         .id = 125,
@@ -80882,7 +82001,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_125
+        .tiers = tiers_essence_125,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[126] = (Modifier){
         .id = 126,
@@ -80892,7 +82012,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 3,
-        .tiers = tiers_essence_126
+        .tiers = tiers_essence_126,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[127] = (Modifier){
         .id = 127,
@@ -80902,7 +82023,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_127
+        .tiers = tiers_essence_127,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[128] = (Modifier){
         .id = 128,
@@ -80912,7 +82034,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_128
+        .tiers = tiers_essence_128,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[129] = (Modifier){
         .id = 129,
@@ -80922,7 +82045,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_129
+        .tiers = tiers_essence_129,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[130] = (Modifier){
         .id = 130,
@@ -80932,7 +82056,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_130
+        .tiers = tiers_essence_130,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[131] = (Modifier){
         .id = 131,
@@ -80942,7 +82067,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 3,
-        .tiers = tiers_essence_131
+        .tiers = tiers_essence_131,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[132] = (Modifier){
         .id = 132,
@@ -80952,7 +82078,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_132
+        .tiers = tiers_essence_132,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[133] = (Modifier){
         .id = 133,
@@ -80962,7 +82089,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_133
+        .tiers = tiers_essence_133,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[134] = (Modifier){
         .id = 134,
@@ -80972,7 +82100,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_134
+        .tiers = tiers_essence_134,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[135] = (Modifier){
         .id = 135,
@@ -80982,7 +82111,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_135
+        .tiers = tiers_essence_135,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[136] = (Modifier){
         .id = 136,
@@ -80992,7 +82122,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_136
+        .tiers = tiers_essence_136,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[137] = (Modifier){
         .id = 137,
@@ -81002,7 +82133,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_137
+        .tiers = tiers_essence_137,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[138] = (Modifier){
         .id = 138,
@@ -81012,7 +82144,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_138
+        .tiers = tiers_essence_138,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[139] = (Modifier){
         .id = 139,
@@ -81022,7 +82155,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_139
+        .tiers = tiers_essence_139,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[140] = (Modifier){
         .id = 140,
@@ -81032,7 +82166,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_140
+        .tiers = tiers_essence_140,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[141] = (Modifier){
         .id = 141,
@@ -81042,7 +82177,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_141
+        .tiers = tiers_essence_141,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[142] = (Modifier){
         .id = 142,
@@ -81052,7 +82188,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 3,
-        .tiers = tiers_essence_142
+        .tiers = tiers_essence_142,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[143] = (Modifier){
         .id = 143,
@@ -81062,7 +82199,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_143
+        .tiers = tiers_essence_143,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[144] = (Modifier){
         .id = 144,
@@ -81072,7 +82210,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 3,
-        .tiers = tiers_essence_144
+        .tiers = tiers_essence_144,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[145] = (Modifier){
         .id = 145,
@@ -81082,7 +82221,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_145
+        .tiers = tiers_essence_145,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[146] = (Modifier){
         .id = 146,
@@ -81092,7 +82232,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_146
+        .tiers = tiers_essence_146,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[147] = (Modifier){
         .id = 147,
@@ -81102,7 +82243,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_147
+        .tiers = tiers_essence_147,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[148] = (Modifier){
         .id = 148,
@@ -81112,7 +82254,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_148
+        .tiers = tiers_essence_148,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[149] = (Modifier){
         .id = 149,
@@ -81122,7 +82265,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_149
+        .tiers = tiers_essence_149,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[150] = (Modifier){
         .id = 150,
@@ -81132,7 +82276,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_150
+        .tiers = tiers_essence_150,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[151] = (Modifier){
         .id = 151,
@@ -81142,7 +82287,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_151
+        .tiers = tiers_essence_151,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[152] = (Modifier){
         .id = 152,
@@ -81152,7 +82298,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_152
+        .tiers = tiers_essence_152,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[153] = (Modifier){
         .id = 153,
@@ -81162,7 +82309,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_153
+        .tiers = tiers_essence_153,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[154] = (Modifier){
         .id = 154,
@@ -81172,7 +82320,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_154
+        .tiers = tiers_essence_154,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[155] = (Modifier){
         .id = 155,
@@ -81182,7 +82331,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_155
+        .tiers = tiers_essence_155,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[156] = (Modifier){
         .id = 156,
@@ -81192,7 +82342,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_156
+        .tiers = tiers_essence_156,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[157] = (Modifier){
         .id = 157,
@@ -81202,7 +82353,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_157
+        .tiers = tiers_essence_157,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[158] = (Modifier){
         .id = 158,
@@ -81212,7 +82364,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 3,
-        .tiers = tiers_essence_158
+        .tiers = tiers_essence_158,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[159] = (Modifier){
         .id = 159,
@@ -81222,7 +82375,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_159
+        .tiers = tiers_essence_159,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[160] = (Modifier){
         .id = 160,
@@ -81232,7 +82386,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_160
+        .tiers = tiers_essence_160,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[161] = (Modifier){
         .id = 161,
@@ -81242,7 +82397,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_161
+        .tiers = tiers_essence_161,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[162] = (Modifier){
         .id = 162,
@@ -81252,7 +82408,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_162
+        .tiers = tiers_essence_162,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[163] = (Modifier){
         .id = 163,
@@ -81262,7 +82419,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_163
+        .tiers = tiers_essence_163,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[164] = (Modifier){
         .id = 164,
@@ -81272,7 +82430,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_164
+        .tiers = tiers_essence_164,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[165] = (Modifier){
         .id = 165,
@@ -81282,7 +82441,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_165
+        .tiers = tiers_essence_165,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[166] = (Modifier){
         .id = 166,
@@ -81292,7 +82452,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_166
+        .tiers = tiers_essence_166,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[167] = (Modifier){
         .id = 167,
@@ -81302,7 +82463,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_167
+        .tiers = tiers_essence_167,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[168] = (Modifier){
         .id = 168,
@@ -81312,7 +82474,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_168
+        .tiers = tiers_essence_168,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[169] = (Modifier){
         .id = 169,
@@ -81322,7 +82485,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_169
+        .tiers = tiers_essence_169,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[170] = (Modifier){
         .id = 170,
@@ -81332,7 +82496,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_170
+        .tiers = tiers_essence_170,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[171] = (Modifier){
         .id = 171,
@@ -81342,7 +82507,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_171
+        .tiers = tiers_essence_171,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[172] = (Modifier){
         .id = 172,
@@ -81352,7 +82518,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_172
+        .tiers = tiers_essence_172,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[173] = (Modifier){
         .id = 173,
@@ -81362,7 +82529,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_173
+        .tiers = tiers_essence_173,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[174] = (Modifier){
         .id = 174,
@@ -81372,7 +82540,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_174
+        .tiers = tiers_essence_174,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[175] = (Modifier){
         .id = 175,
@@ -81382,7 +82551,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_175
+        .tiers = tiers_essence_175,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[176] = (Modifier){
         .id = 176,
@@ -81392,7 +82562,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_176
+        .tiers = tiers_essence_176,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[177] = (Modifier){
         .id = 177,
@@ -81402,7 +82573,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_177
+        .tiers = tiers_essence_177,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[178] = (Modifier){
         .id = 178,
@@ -81412,7 +82584,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_178
+        .tiers = tiers_essence_178,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[179] = (Modifier){
         .id = 179,
@@ -81422,7 +82595,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_179
+        .tiers = tiers_essence_179,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[180] = (Modifier){
         .id = 180,
@@ -81432,7 +82606,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_180
+        .tiers = tiers_essence_180,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[181] = (Modifier){
         .id = 181,
@@ -81442,7 +82617,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_181
+        .tiers = tiers_essence_181,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[182] = (Modifier){
         .id = 182,
@@ -81452,7 +82628,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_182
+        .tiers = tiers_essence_182,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[183] = (Modifier){
         .id = 183,
@@ -81462,7 +82639,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_183
+        .tiers = tiers_essence_183,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[184] = (Modifier){
         .id = 184,
@@ -81472,7 +82650,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_184
+        .tiers = tiers_essence_184,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[185] = (Modifier){
         .id = 185,
@@ -81482,7 +82661,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 3,
-        .tiers = tiers_essence_185
+        .tiers = tiers_essence_185,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[186] = (Modifier){
         .id = 186,
@@ -81492,7 +82672,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_186
+        .tiers = tiers_essence_186,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[187] = (Modifier){
         .id = 187,
@@ -81502,7 +82683,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_187
+        .tiers = tiers_essence_187,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[188] = (Modifier){
         .id = 188,
@@ -81512,7 +82694,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_188
+        .tiers = tiers_essence_188,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[189] = (Modifier){
         .id = 189,
@@ -81522,7 +82705,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 1,
-        .tiers = tiers_essence_189
+        .tiers = tiers_essence_189,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[190] = (Modifier){
         .id = 190,
@@ -81532,7 +82716,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_190
+        .tiers = tiers_essence_190,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[191] = (Modifier){
         .id = 191,
@@ -81542,7 +82727,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_191
+        .tiers = tiers_essence_191,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[192] = (Modifier){
         .id = 192,
@@ -81552,7 +82738,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_192
+        .tiers = tiers_essence_192,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[193] = (Modifier){
         .id = 193,
@@ -81562,7 +82749,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_193
+        .tiers = tiers_essence_193,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[194] = (Modifier){
         .id = 194,
@@ -81572,7 +82760,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_194
+        .tiers = tiers_essence_194,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[195] = (Modifier){
         .id = 195,
@@ -81582,7 +82771,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_195
+        .tiers = tiers_essence_195,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[196] = (Modifier){
         .id = 196,
@@ -81592,7 +82782,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_196
+        .tiers = tiers_essence_196,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[197] = (Modifier){
         .id = 197,
@@ -81602,7 +82793,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 3,
-        .tiers = tiers_essence_197
+        .tiers = tiers_essence_197,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[198] = (Modifier){
         .id = 198,
@@ -81612,7 +82804,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_198
+        .tiers = tiers_essence_198,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[199] = (Modifier){
         .id = 199,
@@ -81622,7 +82815,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 3,
-        .tiers = tiers_essence_199
+        .tiers = tiers_essence_199,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[200] = (Modifier){
         .id = 200,
@@ -81632,7 +82826,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_200
+        .tiers = tiers_essence_200,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[201] = (Modifier){
         .id = 201,
@@ -81642,7 +82837,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_201
+        .tiers = tiers_essence_201,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[202] = (Modifier){
         .id = 202,
@@ -81652,7 +82848,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_202
+        .tiers = tiers_essence_202,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[203] = (Modifier){
         .id = 203,
@@ -81662,7 +82859,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_203
+        .tiers = tiers_essence_203,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[204] = (Modifier){
         .id = 204,
@@ -81672,7 +82870,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_204
+        .tiers = tiers_essence_204,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[205] = (Modifier){
         .id = 205,
@@ -81682,7 +82881,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_205
+        .tiers = tiers_essence_205,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[206] = (Modifier){
         .id = 206,
@@ -81692,7 +82892,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedAccuracy",
         .description = "+# to Accuracy Rating",
         .tier_count = 1,
-        .tiers = tiers_essence_206
+        .tiers = tiers_essence_206,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[207] = (Modifier){
         .id = 207,
@@ -81702,7 +82903,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_207
+        .tiers = tiers_essence_207,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[208] = (Modifier){
         .id = 208,
@@ -81712,7 +82914,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_208
+        .tiers = tiers_essence_208,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[209] = (Modifier){
         .id = 209,
@@ -81722,7 +82925,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_209
+        .tiers = tiers_essence_209,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[210] = (Modifier){
         .id = 210,
@@ -81732,7 +82936,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_210
+        .tiers = tiers_essence_210,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[211] = (Modifier){
         .id = 211,
@@ -81742,7 +82947,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_211
+        .tiers = tiers_essence_211,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[212] = (Modifier){
         .id = 212,
@@ -81752,7 +82958,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_212
+        .tiers = tiers_essence_212,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[213] = (Modifier){
         .id = 213,
@@ -81762,7 +82969,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_213
+        .tiers = tiers_essence_213,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[214] = (Modifier){
         .id = 214,
@@ -81772,7 +82980,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 3,
-        .tiers = tiers_essence_214
+        .tiers = tiers_essence_214,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[215] = (Modifier){
         .id = 215,
@@ -81782,7 +82991,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_215
+        .tiers = tiers_essence_215,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[216] = (Modifier){
         .id = 216,
@@ -81792,7 +83002,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 3,
-        .tiers = tiers_essence_216
+        .tiers = tiers_essence_216,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[217] = (Modifier){
         .id = 217,
@@ -81802,7 +83013,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_217
+        .tiers = tiers_essence_217,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[218] = (Modifier){
         .id = 218,
@@ -81812,7 +83024,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_218
+        .tiers = tiers_essence_218,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[219] = (Modifier){
         .id = 219,
@@ -81822,7 +83035,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_219
+        .tiers = tiers_essence_219,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[220] = (Modifier){
         .id = 220,
@@ -81832,7 +83046,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_220
+        .tiers = tiers_essence_220,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[221] = (Modifier){
         .id = 221,
@@ -81842,7 +83057,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_221
+        .tiers = tiers_essence_221,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[222] = (Modifier){
         .id = 222,
@@ -81852,7 +83068,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_222
+        .tiers = tiers_essence_222,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[223] = (Modifier){
         .id = 223,
@@ -81862,7 +83079,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_223
+        .tiers = tiers_essence_223,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[224] = (Modifier){
         .id = 224,
@@ -81872,7 +83090,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_224
+        .tiers = tiers_essence_224,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[225] = (Modifier){
         .id = 225,
@@ -81882,7 +83101,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_225
+        .tiers = tiers_essence_225,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[226] = (Modifier){
         .id = 226,
@@ -81892,7 +83112,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_226
+        .tiers = tiers_essence_226,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[227] = (Modifier){
         .id = 227,
@@ -81902,7 +83123,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 3,
-        .tiers = tiers_essence_227
+        .tiers = tiers_essence_227,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[228] = (Modifier){
         .id = 228,
@@ -81912,7 +83134,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_228
+        .tiers = tiers_essence_228,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[229] = (Modifier){
         .id = 229,
@@ -81922,7 +83145,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 3,
-        .tiers = tiers_essence_229
+        .tiers = tiers_essence_229,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[230] = (Modifier){
         .id = 230,
@@ -81932,7 +83156,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour",
         .tier_count = 3,
-        .tiers = tiers_essence_230
+        .tiers = tiers_essence_230,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[231] = (Modifier){
         .id = 231,
@@ -81942,7 +83167,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_231
+        .tiers = tiers_essence_231,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[232] = (Modifier){
         .id = 232,
@@ -81952,7 +83178,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_232
+        .tiers = tiers_essence_232,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[233] = (Modifier){
         .id = 233,
@@ -81962,7 +83189,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Evasion",
         .tier_count = 3,
-        .tiers = tiers_essence_233
+        .tiers = tiers_essence_233,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[234] = (Modifier){
         .id = 234,
@@ -81972,7 +83200,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Armour and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_234
+        .tiers = tiers_essence_234,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[235] = (Modifier){
         .id = 235,
@@ -81982,7 +83211,8 @@ void init_modifiers_data(void) {
         .name = "DefencesPercent",
         .description = "#% increased Evasion and Energy Shield",
         .tier_count = 3,
-        .tiers = tiers_essence_235
+        .tiers = tiers_essence_235,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[236] = (Modifier){
         .id = 236,
@@ -81992,7 +83222,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_236
+        .tiers = tiers_essence_236,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[237] = (Modifier){
         .id = 237,
@@ -82002,7 +83233,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_237
+        .tiers = tiers_essence_237,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[238] = (Modifier){
         .id = 238,
@@ -82012,7 +83244,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_238
+        .tiers = tiers_essence_238,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[239] = (Modifier){
         .id = 239,
@@ -82022,7 +83255,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_239
+        .tiers = tiers_essence_239,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[240] = (Modifier){
         .id = 240,
@@ -82032,7 +83266,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_240
+        .tiers = tiers_essence_240,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[241] = (Modifier){
         .id = 241,
@@ -82042,7 +83277,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_241
+        .tiers = tiers_essence_241,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[242] = (Modifier){
         .id = 242,
@@ -82052,7 +83288,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_242
+        .tiers = tiers_essence_242,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[243] = (Modifier){
         .id = 243,
@@ -82062,7 +83299,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 3,
-        .tiers = tiers_essence_243
+        .tiers = tiers_essence_243,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[244] = (Modifier){
         .id = 244,
@@ -82072,7 +83310,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 2,
-        .tiers = tiers_essence_244
+        .tiers = tiers_essence_244,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[245] = (Modifier){
         .id = 245,
@@ -82082,7 +83321,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 3,
-        .tiers = tiers_essence_245
+        .tiers = tiers_essence_245,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[246] = (Modifier){
         .id = 246,
@@ -82092,7 +83332,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_246
+        .tiers = tiers_essence_246,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[247] = (Modifier){
         .id = 247,
@@ -82102,7 +83343,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_247
+        .tiers = tiers_essence_247,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[248] = (Modifier){
         .id = 248,
@@ -82112,7 +83354,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_248
+        .tiers = tiers_essence_248,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[249] = (Modifier){
         .id = 249,
@@ -82122,7 +83365,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_249
+        .tiers = tiers_essence_249,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[250] = (Modifier){
         .id = 250,
@@ -82132,7 +83376,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_250
+        .tiers = tiers_essence_250,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[251] = (Modifier){
         .id = 251,
@@ -82142,7 +83387,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_251
+        .tiers = tiers_essence_251,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[252] = (Modifier){
         .id = 252,
@@ -82152,7 +83398,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_252
+        .tiers = tiers_essence_252,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[253] = (Modifier){
         .id = 253,
@@ -82162,7 +83409,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 3,
-        .tiers = tiers_essence_253
+        .tiers = tiers_essence_253,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[254] = (Modifier){
         .id = 254,
@@ -82172,7 +83420,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedLife",
         .description = "+# to maximum Life",
         .tier_count = 3,
-        .tiers = tiers_essence_254
+        .tiers = tiers_essence_254,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[255] = (Modifier){
         .id = 255,
@@ -82182,7 +83431,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedMana",
         .description = "+# to maximum Mana",
         .tier_count = 3,
-        .tiers = tiers_essence_255
+        .tiers = tiers_essence_255,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[256] = (Modifier){
         .id = 256,
@@ -82192,7 +83442,8 @@ void init_modifiers_data(void) {
         .name = "ChaosResistance",
         .description = "+#% to Chaos Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_256
+        .tiers = tiers_essence_256,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[257] = (Modifier){
         .id = 257,
@@ -82202,7 +83453,8 @@ void init_modifiers_data(void) {
         .name = "Strength",
         .description = "+# to Strength",
         .tier_count = 3,
-        .tiers = tiers_essence_257
+        .tiers = tiers_essence_257,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[258] = (Modifier){
         .id = 258,
@@ -82212,7 +83464,8 @@ void init_modifiers_data(void) {
         .name = "Dexterity",
         .description = "+# to Dexterity",
         .tier_count = 3,
-        .tiers = tiers_essence_258
+        .tiers = tiers_essence_258,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[259] = (Modifier){
         .id = 259,
@@ -82222,7 +83475,8 @@ void init_modifiers_data(void) {
         .name = "Intelligence",
         .description = "+# to Intelligence",
         .tier_count = 3,
-        .tiers = tiers_essence_259
+        .tiers = tiers_essence_259,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[260] = (Modifier){
         .id = 260,
@@ -82232,7 +83486,8 @@ void init_modifiers_data(void) {
         .name = "FireResistance",
         .description = "+#% to Fire Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_260
+        .tiers = tiers_essence_260,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[261] = (Modifier){
         .id = 261,
@@ -82242,7 +83497,8 @@ void init_modifiers_data(void) {
         .name = "ColdResistance",
         .description = "+#% to Cold Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_261
+        .tiers = tiers_essence_261,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[262] = (Modifier){
         .id = 262,
@@ -82252,7 +83508,8 @@ void init_modifiers_data(void) {
         .name = "LightningResistance",
         .description = "+#% to Lightning Resistance",
         .tier_count = 3,
-        .tiers = tiers_essence_262
+        .tiers = tiers_essence_262,
+        .fractured = false
     };
     MODIFIERS_ESSENCE[263] = (Modifier){
         .id = 263,
@@ -82262,7 +83519,8 @@ void init_modifiers_data(void) {
         .name = "ItemFoundRarityIncrease",
         .description = "#% increased Rarity of Items found",
         .tier_count = 3,
-        .tiers = tiers_essence_263
+        .tiers = tiers_essence_263,
+        .fractured = false
     };
 
     // PERFECT_ESSENCE modifiers
@@ -82274,7 +83532,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Physical Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_0
+        .tiers = tiers_perfect_essence_0,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[1] = (Modifier){
         .id = 1,
@@ -82284,7 +83543,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Fire Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_1
+        .tiers = tiers_perfect_essence_1,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[2] = (Modifier){
         .id = 2,
@@ -82294,7 +83554,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Cold Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_2
+        .tiers = tiers_perfect_essence_2,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[3] = (Modifier){
         .id = 3,
@@ -82304,7 +83565,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Lightning Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_3
+        .tiers = tiers_perfect_essence_3,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[4] = (Modifier){
         .id = 4,
@@ -82314,7 +83576,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Attack Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_4
+        .tiers = tiers_perfect_essence_4,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[5] = (Modifier){
         .id = 5,
@@ -82324,7 +83587,8 @@ void init_modifiers_data(void) {
         .name = "Onslaught",
         .description = "#% chance to gain Onslaught on Killing Hits with this Weapon",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_5
+        .tiers = tiers_perfect_essence_5,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[6] = (Modifier){
         .id = 6,
@@ -82334,7 +83598,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Physical Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_6
+        .tiers = tiers_perfect_essence_6,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[7] = (Modifier){
         .id = 7,
@@ -82344,7 +83609,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Fire Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_7
+        .tiers = tiers_perfect_essence_7,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[8] = (Modifier){
         .id = 8,
@@ -82354,7 +83620,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Cold Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_8
+        .tiers = tiers_perfect_essence_8,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[9] = (Modifier){
         .id = 9,
@@ -82364,7 +83631,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Lightning Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_9
+        .tiers = tiers_perfect_essence_9,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[10] = (Modifier){
         .id = 10,
@@ -82374,7 +83642,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Attack Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_10
+        .tiers = tiers_perfect_essence_10,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[11] = (Modifier){
         .id = 11,
@@ -82384,7 +83653,8 @@ void init_modifiers_data(void) {
         .name = "Onslaught",
         .description = "#% chance to gain Onslaught on Killing Hits with this Weapon",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_11
+        .tiers = tiers_perfect_essence_11,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[12] = (Modifier){
         .id = 12,
@@ -82394,7 +83664,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Spell Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_12
+        .tiers = tiers_perfect_essence_12,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[13] = (Modifier){
         .id = 13,
@@ -82404,7 +83675,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_13
+        .tiers = tiers_perfect_essence_13,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[14] = (Modifier){
         .id = 14,
@@ -82414,7 +83686,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Physical Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_14
+        .tiers = tiers_perfect_essence_14,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[15] = (Modifier){
         .id = 15,
@@ -82424,7 +83697,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Fire Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_15
+        .tiers = tiers_perfect_essence_15,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[16] = (Modifier){
         .id = 16,
@@ -82434,7 +83708,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Cold Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_16
+        .tiers = tiers_perfect_essence_16,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[17] = (Modifier){
         .id = 17,
@@ -82444,7 +83719,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Lightning Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_17
+        .tiers = tiers_perfect_essence_17,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[18] = (Modifier){
         .id = 18,
@@ -82454,7 +83730,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Attack Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_18
+        .tiers = tiers_perfect_essence_18,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[19] = (Modifier){
         .id = 19,
@@ -82464,7 +83741,8 @@ void init_modifiers_data(void) {
         .name = "Onslaught",
         .description = "#% chance to gain Onslaught on Killing Hits with this Weapon",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_19
+        .tiers = tiers_perfect_essence_19,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[20] = (Modifier){
         .id = 20,
@@ -82474,7 +83752,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Physical Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_20
+        .tiers = tiers_perfect_essence_20,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[21] = (Modifier){
         .id = 21,
@@ -82484,7 +83763,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Fire Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_21
+        .tiers = tiers_perfect_essence_21,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[22] = (Modifier){
         .id = 22,
@@ -82494,7 +83774,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Cold Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_22
+        .tiers = tiers_perfect_essence_22,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[23] = (Modifier){
         .id = 23,
@@ -82504,7 +83785,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Lightning Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_23
+        .tiers = tiers_perfect_essence_23,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[24] = (Modifier){
         .id = 24,
@@ -82514,7 +83796,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Attack Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_24
+        .tiers = tiers_perfect_essence_24,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[25] = (Modifier){
         .id = 25,
@@ -82524,7 +83807,8 @@ void init_modifiers_data(void) {
         .name = "Onslaught",
         .description = "#% chance to gain Onslaught on Killing Hits with this Weapon",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_25
+        .tiers = tiers_perfect_essence_25,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[26] = (Modifier){
         .id = 26,
@@ -82534,7 +83818,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Physical Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_26
+        .tiers = tiers_perfect_essence_26,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[27] = (Modifier){
         .id = 27,
@@ -82544,7 +83829,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Fire Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_27
+        .tiers = tiers_perfect_essence_27,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[28] = (Modifier){
         .id = 28,
@@ -82554,7 +83840,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Cold Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_28
+        .tiers = tiers_perfect_essence_28,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[29] = (Modifier){
         .id = 29,
@@ -82564,7 +83851,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Lightning Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_29
+        .tiers = tiers_perfect_essence_29,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[30] = (Modifier){
         .id = 30,
@@ -82574,7 +83862,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Attack Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_30
+        .tiers = tiers_perfect_essence_30,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[31] = (Modifier){
         .id = 31,
@@ -82584,7 +83873,8 @@ void init_modifiers_data(void) {
         .name = "Onslaught",
         .description = "#% chance to gain Onslaught on Killing Hits with this Weapon",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_31
+        .tiers = tiers_perfect_essence_31,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[32] = (Modifier){
         .id = 32,
@@ -82594,7 +83884,8 @@ void init_modifiers_data(void) {
         .name = "AuraEffect",
         .description = "Aura Skills have (#–#)% increased Magnitudes",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_32
+        .tiers = tiers_perfect_essence_32,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[33] = (Modifier){
         .id = 33,
@@ -82604,7 +83895,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Physical Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_33
+        .tiers = tiers_perfect_essence_33,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[34] = (Modifier){
         .id = 34,
@@ -82614,7 +83906,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Fire Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_34
+        .tiers = tiers_perfect_essence_34,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[35] = (Modifier){
         .id = 35,
@@ -82624,7 +83917,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Cold Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_35
+        .tiers = tiers_perfect_essence_35,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[36] = (Modifier){
         .id = 36,
@@ -82634,7 +83928,8 @@ void init_modifiers_data(void) {
         .name = "MartialWeaponGainedDamage",
         .description = "Gain # % of Damage as Extra Lightning Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_36
+        .tiers = tiers_perfect_essence_36,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[37] = (Modifier){
         .id = 37,
@@ -82644,7 +83939,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Attack Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_37
+        .tiers = tiers_perfect_essence_37,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[38] = (Modifier){
         .id = 38,
@@ -82654,7 +83950,8 @@ void init_modifiers_data(void) {
         .name = "Onslaught",
         .description = "#% chance to gain Onslaught on Killing Hits with this Weapon",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_38
+        .tiers = tiers_perfect_essence_38,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[39] = (Modifier){
         .id = 39,
@@ -82664,7 +83961,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Spell Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_39
+        .tiers = tiers_perfect_essence_39,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[40] = (Modifier){
         .id = 40,
@@ -82674,7 +83972,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_40
+        .tiers = tiers_perfect_essence_40,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[41] = (Modifier){
         .id = 41,
@@ -82684,7 +83983,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedShieldBlockPercentage",
         .description = "(#–#)% increased Block chance",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_41
+        .tiers = tiers_perfect_essence_41,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[42] = (Modifier){
         .id = 42,
@@ -82694,7 +83994,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedShieldBlockPercentage",
         .description = "(#–#)% increased Block chance",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_42
+        .tiers = tiers_perfect_essence_42,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[43] = (Modifier){
         .id = 43,
@@ -82704,7 +84005,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Spell Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_43
+        .tiers = tiers_perfect_essence_43,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[44] = (Modifier){
         .id = 44,
@@ -82714,7 +84016,8 @@ void init_modifiers_data(void) {
         .name = "EnergyShieldRegeneration",
         .description = "#% increased Energy Shield Recharge Rate",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_44
+        .tiers = tiers_perfect_essence_44,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[45] = (Modifier){
         .id = 45,
@@ -82724,7 +84027,8 @@ void init_modifiers_data(void) {
         .name = "ManaCostEfficiency",
         .description = "#% increased Mana Cost Efficiency",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_45
+        .tiers = tiers_perfect_essence_45,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[46] = (Modifier){
         .id = 46,
@@ -82734,7 +84038,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedShieldBlockPercentage",
         .description = "(#–#)% increased Block chance",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_46
+        .tiers = tiers_perfect_essence_46,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[47] = (Modifier){
         .id = 47,
@@ -82744,7 +84049,8 @@ void init_modifiers_data(void) {
         .name = "IncreasedDamageWithBowSkillsPercent",
         .description = "#% increased Damage with Bow Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_47
+        .tiers = tiers_perfect_essence_47,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[48] = (Modifier){
         .id = 48,
@@ -82754,7 +84060,8 @@ void init_modifiers_data(void) {
         .name = "MovementVelocity",
         .description = "#% increased Movement Speed (Essence of Hysteria)",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_48
+        .tiers = tiers_perfect_essence_48,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[49] = (Modifier){
         .id = 49,
@@ -82764,7 +84071,8 @@ void init_modifiers_data(void) {
         .name = "SoulCore",
         .description = "#% increased effect of Socketed Items",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_49
+        .tiers = tiers_perfect_essence_49,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[50] = (Modifier){
         .id = 50,
@@ -82774,7 +84082,8 @@ void init_modifiers_data(void) {
         .name = "MovementVelocity",
         .description = "#% increased Movement Speed",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_50
+        .tiers = tiers_perfect_essence_50,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[51] = (Modifier){
         .id = 51,
@@ -82784,7 +84093,8 @@ void init_modifiers_data(void) {
         .name = "SoulCore",
         .description = "#% increased effect of Socketed Items",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_51
+        .tiers = tiers_perfect_essence_51,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[52] = (Modifier){
         .id = 52,
@@ -82794,7 +84104,8 @@ void init_modifiers_data(void) {
         .name = "MaximumLifeIncreasePercent",
         .description = "#% increased maximum Life",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_52
+        .tiers = tiers_perfect_essence_52,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[53] = (Modifier){
         .id = 53,
@@ -82804,7 +84115,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamageTakenAsChaos",
         .description = "#% of Physical Damage from Hits taken as Chaos Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_53
+        .tiers = tiers_perfect_essence_53,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[54] = (Modifier){
         .id = 54,
@@ -82814,7 +84126,8 @@ void init_modifiers_data(void) {
         .name = "Thorns",
         .description = "# to # Physical Thorns damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_54
+        .tiers = tiers_perfect_essence_54,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[55] = (Modifier){
         .id = 55,
@@ -82824,7 +84137,8 @@ void init_modifiers_data(void) {
         .name = "ReducedCriticalStrikeDamageTaken",
         .description = "Hits against you have #% reduced Critical Damage Bonus",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_55
+        .tiers = tiers_perfect_essence_55,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[56] = (Modifier){
         .id = 56,
@@ -82834,7 +84148,8 @@ void init_modifiers_data(void) {
         .name = "MaximumLifeIncreasePercent",
         .description = "#% increased maximum Life",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_56
+        .tiers = tiers_perfect_essence_56,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[57] = (Modifier){
         .id = 57,
@@ -82844,7 +84159,8 @@ void init_modifiers_data(void) {
         .name = "PhysicalDamageTakenAsChaos",
         .description = "#% of Physical Damage from Hits taken as Chaos Damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_57
+        .tiers = tiers_perfect_essence_57,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[58] = (Modifier){
         .id = 58,
@@ -82854,7 +84170,8 @@ void init_modifiers_data(void) {
         .name = "Thorns",
         .description = "# to # Physical Thorns damage",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_58
+        .tiers = tiers_perfect_essence_58,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[59] = (Modifier){
         .id = 59,
@@ -82864,7 +84181,8 @@ void init_modifiers_data(void) {
         .name = "ReducedCriticalStrikeDamageTaken",
         .description = "Hits against you have #% reduced Critical Damage Bonus",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_59
+        .tiers = tiers_perfect_essence_59,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[60] = (Modifier){
         .id = 60,
@@ -82874,7 +84192,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Damage Bonus",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_60
+        .tiers = tiers_perfect_essence_60,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[61] = (Modifier){
         .id = 61,
@@ -82884,7 +84203,8 @@ void init_modifiers_data(void) {
         .name = "SoulCore",
         .description = "#% increased effect of Socketed Items",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_61
+        .tiers = tiers_perfect_essence_61,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[62] = (Modifier){
         .id = 62,
@@ -82894,7 +84214,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamageTakenRecoupedAsLife",
         .description = "#% of Lightning Damage taken Recouped as Life",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_62
+        .tiers = tiers_perfect_essence_62,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[63] = (Modifier){
         .id = 63,
@@ -82904,7 +84225,8 @@ void init_modifiers_data(void) {
         .name = "EssenceGoldDropped",
         .description = "#% increased Quantity of Gold Dropped by Slain Enemies",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_63
+        .tiers = tiers_perfect_essence_63,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[64] = (Modifier){
         .id = 64,
@@ -82914,7 +84236,8 @@ void init_modifiers_data(void) {
         .name = "CriticalStrikeMultiplier",
         .description = "#% increased Critical Damage Bonus",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_64
+        .tiers = tiers_perfect_essence_64,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[65] = (Modifier){
         .id = 65,
@@ -82924,7 +84247,8 @@ void init_modifiers_data(void) {
         .name = "SoulCore",
         .description = "#% increased effect of Socketed Items",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_65
+        .tiers = tiers_perfect_essence_65,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[66] = (Modifier){
         .id = 66,
@@ -82934,7 +84258,8 @@ void init_modifiers_data(void) {
         .name = "LightningDamageTakenRecoupedAsLife",
         .description = "#% of Lightning Damage taken Recouped as Life",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_66
+        .tiers = tiers_perfect_essence_66,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[67] = (Modifier){
         .id = 67,
@@ -82944,7 +84269,8 @@ void init_modifiers_data(void) {
         .name = "EssenceGoldDropped",
         .description = "#% increased Quantity of Gold Dropped by Slain Enemies",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_67
+        .tiers = tiers_perfect_essence_67,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[68] = (Modifier){
         .id = 68,
@@ -82954,7 +84280,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Minion Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_68
+        .tiers = tiers_perfect_essence_68,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[69] = (Modifier){
         .id = 69,
@@ -82964,7 +84291,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamageTakenRecoupedAsLife",
         .description = "#% of Cold Damage taken Recouped as Life",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_69
+        .tiers = tiers_perfect_essence_69,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[70] = (Modifier){
         .id = 70,
@@ -82974,7 +84302,8 @@ void init_modifiers_data(void) {
         .name = "IncreaseSocketedGemLevel",
         .description = "+# to Level of all Minion Skills",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_70
+        .tiers = tiers_perfect_essence_70,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[71] = (Modifier){
         .id = 71,
@@ -82984,7 +84313,8 @@ void init_modifiers_data(void) {
         .name = "ColdDamageTakenRecoupedAsLife",
         .description = "#% of Cold Damage taken Recouped as Life",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_71
+        .tiers = tiers_perfect_essence_71,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[72] = (Modifier){
         .id = 72,
@@ -82994,7 +84324,8 @@ void init_modifiers_data(void) {
         .name = "MaximumManaIncreasePercent",
         .description = "#% increased maximum Mana",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_72
+        .tiers = tiers_perfect_essence_72,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[73] = (Modifier){
         .id = 73,
@@ -83004,7 +84335,8 @@ void init_modifiers_data(void) {
         .name = "ManaRegeneration",
         .description = "#% increased Mana Regeneration Rate",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_73
+        .tiers = tiers_perfect_essence_73,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[74] = (Modifier){
         .id = 74,
@@ -83014,7 +84346,8 @@ void init_modifiers_data(void) {
         .name = "AllDefences",
         .description = "#% increased Global Defences",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_74
+        .tiers = tiers_perfect_essence_74,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[75] = (Modifier){
         .id = 75,
@@ -83024,7 +84357,8 @@ void init_modifiers_data(void) {
         .name = "PercentageStrength",
         .description = "#% increased Strength",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_75
+        .tiers = tiers_perfect_essence_75,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[76] = (Modifier){
         .id = 76,
@@ -83034,7 +84368,8 @@ void init_modifiers_data(void) {
         .name = "PercentageDexterity",
         .description = "#% increased Dexterity",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_76
+        .tiers = tiers_perfect_essence_76,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[77] = (Modifier){
         .id = 77,
@@ -83044,7 +84379,8 @@ void init_modifiers_data(void) {
         .name = "PercentageIntelligence",
         .description = "#% increased Intelligence",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_77
+        .tiers = tiers_perfect_essence_77,
+        .fractured = false
     };
     MODIFIERS_PERFECT_ESSENCE[78] = (Modifier){
         .id = 78,
@@ -83054,7 +84390,8 @@ void init_modifiers_data(void) {
         .name = "DamageTakenGainedAsLife",
         .description = "#% of Damage taken Recouped as Life",
         .tier_count = 1,
-        .tiers = tiers_perfect_essence_78
+        .tiers = tiers_perfect_essence_78,
+        .fractured = false
     };
 
 }

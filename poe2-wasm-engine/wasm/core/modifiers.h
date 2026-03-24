@@ -45,7 +45,7 @@ typedef struct {
     char name[128];            // Modifier family/group name (e.g., "IncreasedMana", "FireResistance")
     char description[256];
     uint8_t tier_count;        // Number of tiers (1-9)
-    ModifierTierData* tiers;   // Pointer to tier array
+    const ModifierTierData* tiers;   // Pointer to tier array
 	bool fractured;           // Whether this mod is fractured
 } Modifier;
 

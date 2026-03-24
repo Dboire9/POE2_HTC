@@ -22,4 +22,6 @@ Modifier* init_perfect_essence_modifiers_data(void);
 // Helper to get modifier by source and index
 Modifier* get_modifier(ModifierSource source, int index);
 
+ModifierTierData* init_tiers(ModifierSource source, uint16_t mod_id, uint8_t tier_count);
+
 #endif

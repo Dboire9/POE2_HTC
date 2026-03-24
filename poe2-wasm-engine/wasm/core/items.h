@@ -4,6 +4,7 @@
  #include <stdint.h>
  #include "modifiers.h"
 
+
 struct Modifier;
 
 // Item rarity levels
@@ -59,15 +60,14 @@ typedef struct {
 	bool fractured; // Whether this item instance has fractured modifiers
 } ItemInstance;
 
-// Item database
-extern Item ITEMS[];
-extern const int ITEMS_COUNT;
-
-// Initialize items database (load from compiled data)
-void init_items(void);
 
 // Lookup functions
 Item* get_item_by_id(uint16_t id);
 Item* get_item_by_name(const char* name);
+
+// Initializing the Item Instance for beginning the crafting process
+
+ItemInstance* init_item_instance(int item_id, int item_level, uint8_t rarity);
+void free_item_instance(ItemInstance* instance);
 
 #endif // ITEMS_H

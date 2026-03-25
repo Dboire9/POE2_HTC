@@ -2,7 +2,7 @@
  #define ITEMS_H
 
  #include <stdint.h>
- #include "modifiers.h"
+ #include "../modifiers/modifiers.h"
 
 
 struct Modifier;
@@ -68,6 +68,7 @@ Item* get_item_by_name(const char* name);
 // Initializing the Item Instance for beginning the crafting process
 
 ItemInstance* init_item_instance(int item_id, int item_level, uint8_t rarity);
+ItemInstance* copy_item_instance(const ItemInstance* src);
 void free_item_instance(ItemInstance* instance);
 
 #endif // ITEMS_H

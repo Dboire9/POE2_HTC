@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "modifiers.h"
+#include "../modifiers/modifiers.h"
 #include "item_mod_lookup.h"
 
 ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool is_suffix, int* out_count);

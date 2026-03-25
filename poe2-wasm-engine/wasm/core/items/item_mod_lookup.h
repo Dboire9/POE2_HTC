@@ -2,7 +2,7 @@
 #define ITEM_MOD_LOOKUP_H
 
 #include <stdint.h>
-#include "modifiers.h"
+#include "../modifiers/modifiers.h"
 
 // Lookup entry: source, per-source index, and max tier limit
 typedef struct {

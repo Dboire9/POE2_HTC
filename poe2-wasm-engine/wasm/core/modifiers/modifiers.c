@@ -1,6 +1,6 @@
 #include "modifiers.h"
 #include "modifiers_data.h"
-#include "items.h"
+#include "../items/items.h"
 #include <string.h>
 
 void init_modifiers(void) {

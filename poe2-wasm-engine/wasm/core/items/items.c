@@ -30,6 +30,31 @@ ItemInstance* init_item_instance(int item_id, int item_level, uint8_t rarity)
     return instance;
 }
 
+ItemInstance* copy_item_instance(const ItemInstance* src)
+{
+    if (!src) return NULL;
+
+    ItemInstance* copy = malloc(sizeof(ItemInstance));
+    if (!copy) return NULL;
+
+    // base_item is a const pointer to global data, just copy the pointer
+    copy->base_item   = src->base_item;
+    copy->item_level  = src->item_level;
+    copy->rarity      = src->rarity;
+    copy->fractured   = src->fractured;
+    copy->prefix_count = src->prefix_count;
+    copy->suffix_count = src->suffix_count;
+
+    for (int i = 0; i < 3; i++) {
+        copy->prefixes[i]             = src->prefixes[i]; // pointer to global, no deep copy
+        copy->desired_prefix_tiers[i] = src->desired_prefix_tiers[i];
+        copy->suffixes[i]             = src->suffixes[i];
+        copy->desired_suffix_tiers[i] = src->desired_suffix_tiers[i];
+    }
+
+    return copy;
+}
+
 void free_item_instance(ItemInstance* instance) 
 {
     free(instance);

@@ -1,72 +1,70 @@
-# POE2 Crafting Calculator - WASM Build
-CC = emcc
-CFLAGS = -O3 \
-         -s EXPORTED_FUNCTIONS='["_malloc","_free"]' \
-         -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","UTF8ToString"]' \
-         -s ALLOW_MEMORY_GROWTH=1 \
-         -s INITIAL_MEMORY=64MB \
-         -Wall -Wextra
+# ─────────────────────────────────────────
+# Compiler & flags
+# ─────────────────────────────────────────
 
-# Source files
-CORE_SRC = core/items.c core/modifiers.c core/calculator.c core/probability.c \
-           core/items_data.c core/modifiers_data.c core/item_mod_lookup.c
-CRAFTING_SRC = core/crafting/crafting_algorithm.c core/crafting/crafting_helpers.c \
-               core/crafting/heuristic.c core/crafting/json_parser.c \
-               core/crafting/node_operations.c core/crafting/node_pool.c \
-               core/crafting/path_reconstruction.c core/crafting/pruning.c
-CURRENCY_SRC = core/currencies/annulment_orb.c core/currencies/augmentation_orb.c \
-               core/currencies/desecrated.c core/currencies/essence.c \
-               core/currencies/exalted_orb.c core/currencies/regal_orb.c \
-               core/currencies/transmutation_orb.c
-THREAD_SRC =
-MEMORY_SRC = memory/cache.c memory/allocator.c
-API_SRC = api.c
+CC      = gcc
+CFLAGS  = -Wall -Wextra -g -pthread
+INCLUDE = -I./core
 
-ALL_SRC = $(CORE_SRC) $(CRAFTING_SRC) $(CURRENCY_SRC) $(THREAD_SRC) $(MEMORY_SRC) $(API_SRC)
+# ─────────────────────────────────────────
+# Directories
+# ─────────────────────────────────────────
 
-# Output directory
-OUT_DIR = ../public
+CORE_DIR       = core
+BUILD_DIR      = build
+TEST_DIR       = test
 
+# ─────────────────────────────────────────
+# Core sources
+# ─────────────────────────────────────────
+
+CORE_SRCS = \
+	$(CORE_DIR)/crafting/computation.c        \
+	$(CORE_DIR)/threads/threads.c             \
+	$(CORE_DIR)/items/items.c                 \
+	$(CORE_DIR)/items/items_data.c            \
+	$(CORE_DIR)/items/item_lookup_impl.c      \
+	$(CORE_DIR)/items/item_mod_lookup.c       \
+	$(CORE_DIR)/modifiers/modifiers.c         \
+	$(CORE_DIR)/modifiers/modifiers_data.c    \
+
+CORE_OBJS = $(patsubst $(CORE_DIR)/%.c, $(BUILD_DIR)/%.o, $(CORE_SRCS))
+
+# ─────────────────────────────────────────
+# Test binaries
+# ─────────────────────────────────────────
+
+TEST_CHOOSE   = $(TEST_DIR)/choose
+TEST_ITEM_MOD = $(TEST_DIR)/item_modifiers_check
+
+# ─────────────────────────────────────────
+# Default target — build all tests
+# ─────────────────────────────────────────
+
+all: $(TEST_CHOOSE)
+
+# ─────────────────────────────────────────
+# Test binaries linking
+# ─────────────────────────────────────────
+
+$(TEST_CHOOSE): $(TEST_DIR)/choose.c $(TEST_DIR)/item_modifiers_check.c $(CORE_OBJS)
+	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
+
+# ─────────────────────────────────────────
+# Compile core object files
+# ─────────────────────────────────────────
+
+$(BUILD_DIR)/%.o: $(CORE_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+
+# ─────────────────────────────────────────
 # Targets
-.PHONY: all release debug clean test
-
-all: $(OUT_DIR)/poe2.js
-
-$(OUT_DIR)/poe2.js: $(ALL_SRC)
-	@mkdir -p $(OUT_DIR)
-	$(CC) $(CFLAGS) $(ALL_SRC) -o $@
-	@echo "Build complete: $@"
-
-release: CFLAGS += -DNDEBUG -s ASSERTIONS=0 -flto
-release: clean $(OUT_DIR)/poe2.js
-	@echo "Release build complete"
-
-debug: CFLAGS += -g -DDEBUG -s ASSERTIONS=1 -s SAFE_HEAP=1
-debug: clean $(OUT_DIR)/poe2.js
-	@echo "Debug build complete"
-
-# Native build for testing (no Emscripten)
-test: $(ALL_SRC)
-	gcc -g -pthread -DTEST_NATIVE -o test_native $(ALL_SRC) -lm
-	./test_native
-	@echo "Native test complete"
+# ─────────────────────────────────────────
 
 clean:
-	rm -f $(OUT_DIR)/poe2.{js,wasm}
-	rm -f test_native
-	@echo "Clean complete"
+	rm -rf $(BUILD_DIR) $(TEST_CHOOSE) $(TEST_ITEM_MOD)
 
-# Help
-help:
-	@echo "POE2 Crafting Calculator - WASM Build System"
-	@echo ""
-	@echo "Targets:"
-	@echo "  make          - Build development version"
-	@echo "  make release  - Build optimized release version"
-	@echo "  make debug    - Build with debug symbols and assertions"
-	@echo "  make test     - Build and run native tests"
-	@echo "  make clean    - Remove build artifacts"
-	@echo ""
-	@echo "Requirements:"
-	@echo "  - Emscripten SDK (emcc)"
-	@echo "  - GCC (for native tests)"
+rebuild: clean all
+
+.PHONY: all clean rebuild

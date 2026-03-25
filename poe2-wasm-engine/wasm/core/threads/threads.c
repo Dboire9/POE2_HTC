@@ -2,8 +2,8 @@
 #include <pthread.h>
 
 #include "threads.h"
-#include "computation.h"
-#include "items.h"
+#include "../crafting/computation.h"
+#include "../items/items.h"
 
 // ─────────────────────────────────────────
 // Work queue
@@ -180,6 +180,7 @@ static void* worker_thread(void* arg)
 
 void run_thread_pool(WorkQueue* q, WorkerArgs* args, int num_threads)
 {
+	(void)q;
     pthread_t* threads = malloc(sizeof(pthread_t) * num_threads);
     if (!threads) return;
 

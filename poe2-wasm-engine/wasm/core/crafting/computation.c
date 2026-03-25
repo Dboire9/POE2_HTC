@@ -5,6 +5,7 @@
 #include <pthread.h>
 
 #include "computation.h"
+#include "../threads/threads.h"
 
 
 // ─────────────────────────────────────────
@@ -88,4 +89,194 @@ void free_tree_struct(SearchTree* tree)
     free_tree(tree->root);
     pthread_mutex_destroy(&tree->best_mutex);
     free(tree);
+}
+
+// ─────────────────────────────────────────
+// Action validity
+// ─────────────────────────────────────────
+
+int action_is_valid(const ItemInstance* item, CraftActionType action)
+{
+    switch (action)
+    {
+        case ACTION_TRANSMUTE:
+            return item->rarity == RARITY_NORMAL;
+
+        case ACTION_AUGMENTATION:
+            return item->rarity == RARITY_MAGIC
+                && (item->prefix_count + item->suffix_count) < 2;
+
+        case ACTION_REGAL:
+            return item->rarity == RARITY_MAGIC;
+
+        case ACTION_ANNULMENT:
+            return (item->rarity == RARITY_MAGIC || item->rarity == RARITY_RARE)
+                && (item->prefix_count + item->suffix_count) > 0;
+
+        case ACTION_EXALT:
+            return item->rarity == RARITY_RARE
+                && (item->prefix_count + item->suffix_count) < 6;
+
+        case ACTION_CHAOS:
+            return item->rarity == RARITY_RARE
+				&& (item->prefix_count + item->suffix_count) > 0;
+
+        case ACTION_ESSENCE:
+            return item->rarity == RARITY_NORMAL;
+		
+		case ACTION_PERFECT_ESSENCE:
+			return item->rarity == RARITY_RARE
+				&& (item->prefix_count + item->suffix_count) < 1;
+
+        default:
+            return 0;
+    }
+}
+
+// ─────────────────────────────────────────
+// Scoring — TODO
+// ─────────────────────────────────────────
+
+int score_item(const ItemInstance* current, const ItemInstance* target)
+{
+    int score = 0;
+
+    // TODO
+
+    (void)current; (void)target;
+    return score;
+}
+
+// ─────────────────────────────────────────
+// Pruning — TODO
+// ─────────────────────────────────────────
+
+int should_prune(CraftNode* node, SearchTree* tree, const ItemInstance* target, int max_depth)
+{
+    // TODO
+
+    (void)node; (void)tree; (void)target; (void)max_depth;
+    return 0;
+}
+
+// ─────────────────────────────────────────
+// Apply action — TODO
+// ─────────────────────────────────────────
+
+ItemInstance* apply_action(const ItemInstance* item, CraftActionType action)
+{
+    ItemInstance* next = copy_item_instance(item);
+    if (!next) return NULL;
+
+    switch (action)
+    {
+        case ACTION_TRANSMUTE:    /* TODO */ break;
+        case ACTION_AUGMENTATION: /* TODO */ break;
+        case ACTION_REGAL:        /* TODO */ break;
+        case ACTION_ANNULMENT:    /* TODO */ break;
+        case ACTION_EXALT:        /* TODO */ break;
+        case ACTION_CHAOS:        /* TODO */ break;
+        case ACTION_ESSENCE:      /* TODO */ break;
+		case ACTION_PERFECT_ESSENCE: /* TODO */ break;
+        default:
+            free_item_instance(next);
+            return NULL;
+    }
+
+    return next;
+}
+
+// ─────────────────────────────────────────
+// Build history
+// ─────────────────────────────────────────
+
+HistoryStep* build_history(CraftNode* best_node, int* out_step_count)
+{
+    if (!best_node) {
+        *out_step_count = 0;
+        return NULL;
+    }
+
+    int depth = best_node->depth;
+    *out_step_count = depth + 1;
+
+    HistoryStep* steps = malloc(sizeof(HistoryStep) * (*out_step_count));
+    if (!steps) return NULL;
+
+    CraftNode* cur = best_node;
+    for (int i = depth; i >= 0; i--)
+    {
+        steps[i].step          = i;
+        steps[i].action        = cur->action;
+        steps[i].score         = cur->score;
+        steps[i].item_snapshot = copy_item_instance(cur->item_state);
+        cur = cur->parent;
+    }
+
+    return steps;
+}
+
+// ─────────────────────────────────────────
+// Compute
+// ─────────────────────────────────────────
+
+CraftResult* compute(ItemInstance* initial_item, ItemInstance* target, int num_threads, int max_depth)
+{
+    SearchTree* tree = create_tree(initial_item);
+    if (!tree) return NULL;
+
+    WorkQueue* queue = create_queue();
+    if (!queue) {
+        free_tree_struct(tree);
+        return NULL;
+    }
+    queue_push(queue, tree->root);
+
+    WorkerArgs* args = malloc(sizeof(WorkerArgs) * num_threads);
+    if (!args) {
+        free_queue(queue);
+        free_tree_struct(tree);
+        return NULL;
+    }
+
+    for (int t = 0; t < num_threads; t++)
+    {
+        args[t].queue     = queue;
+        args[t].tree      = tree;
+        args[t].target    = target;
+        args[t].max_depth = max_depth;
+    }
+
+    run_thread_pool(queue, args, num_threads);
+
+    free(args);
+    free_queue(queue);
+
+    CraftResult* result = malloc(sizeof(CraftResult));
+    if (!result) {
+        free_tree_struct(tree);
+        return NULL;
+    }
+
+    result->steps          = build_history(tree->best_node, &result->step_count);
+    result->final_score    = tree->best_score;
+    result->nodes_explored = 0;
+    result->nodes_pruned   = 0;
+
+    free_tree_struct(tree);
+
+    return result;
+}
+
+// ─────────────────────────────────────────
+// Cleanup
+// ─────────────────────────────────────────
+
+void free_result(CraftResult* result)
+{
+    if (!result) return;
+    for (int i = 0; i < result->step_count; i++)
+        free_item_instance(result->steps[i].item_snapshot);
+    free(result->steps);
+    free(result);
 }

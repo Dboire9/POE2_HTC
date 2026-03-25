@@ -2,7 +2,7 @@
 #define THREADS_H
 
 #include <pthread.h>
-#include "computation.h"
+#include "../crafting/computation.h"
 
 // ─────────────────────────────────────────
 // Work queue node (linked list)

@@ -93,7 +93,7 @@ void          free_tree_struct(SearchTree* tree);
 int           score_item(const ItemInstance* current, const ItemInstance* target);
 int           should_prune(CraftNode* node, SearchTree* tree, const ItemInstance* target, int max_depth);
 int           action_is_valid(const ItemInstance* item, CraftActionType action);
-ItemInstance* apply_action(const ItemInstance* item, CraftActionType action);
+ItemInstance** apply_action(const ItemInstance* item, CraftActionType action, int* out_count);
 
 // ─────────────────────────────────────────
 // Main API

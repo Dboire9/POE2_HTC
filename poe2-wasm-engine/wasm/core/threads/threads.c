@@ -3,7 +3,7 @@
 
 #include "threads.h"
 #include "../crafting/computation.h"
-#include "../items/items.h"
+#include "items/items.h"
 
 // ─────────────────────────────────────────
 // Work queue
@@ -145,27 +145,38 @@ static void* worker_thread(void* arg)
             continue;
         }
 
-        // Expand
-        node->children = malloc(sizeof(CraftNode*) * ACTION_COUNT);
-        if (!node->children) {
-            queue_finish_item(args->queue);
-            continue;
-        }
+        // Expand — allocate children array, will realloc as needed
+        node->children    = NULL;
         node->child_count = 0;
 
         for (int a = 0; a < ACTION_COUNT; a++)
         {
             if (!action_is_valid(node->item_state, (CraftActionType)a)) continue;
 
-            ItemInstance* next_item = apply_action(node->item_state, (CraftActionType)a);
-            if (!next_item) continue;
+            int result_count = 0;
+            ItemInstance** results = apply_action(node->item_state, (CraftActionType)a, &result_count);
+            if (!results) continue;
 
-            CraftNode* child = create_node(next_item, (CraftActionType)a, node, node->depth + 1);
-            free_item_instance(next_item);
-            if (!child) continue;
+            // Grow children array to fit new results
+            CraftNode** new_children = realloc(node->children,
+                sizeof(CraftNode*) * (node->child_count + result_count));
+            if (!new_children) {
+                for (int r = 0; r < result_count; r++) free_item_instance(results[r]);
+                free(results);
+                continue;
+            }
+            node->children = new_children;
 
-            node->children[node->child_count++] = child;
-            queue_push(args->queue, child);
+            for (int r = 0; r < result_count; r++)
+            {
+                CraftNode* child = create_node(results[r], (CraftActionType)a, node, node->depth + 1);
+                free_item_instance(results[r]);
+                if (!child) continue;
+                node->children[node->child_count++] = child;
+                queue_push(args->queue, child);
+            }
+
+            free(results);
         }
 
         queue_finish_item(args->queue);
@@ -180,7 +191,8 @@ static void* worker_thread(void* arg)
 
 void run_thread_pool(WorkQueue* q, WorkerArgs* args, int num_threads)
 {
-	(void)q;
+    (void)q;
+
     pthread_t* threads = malloc(sizeof(pthread_t) * num_threads);
     if (!threads) return;
 

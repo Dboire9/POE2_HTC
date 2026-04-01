@@ -228,4 +228,7 @@ extern ModifierLookup staves_desecrated_suffixes[5];
 extern ModifierLookup staves_essence_prefixes[1];
 extern ModifierLookup staves_essence_suffixes[7];
 
+#include <stdbool.h>
+ModifierLookup* get_lookup_table(int item_id, ModifierSource source, bool is_suffix, int* out_count);
+
 #endif

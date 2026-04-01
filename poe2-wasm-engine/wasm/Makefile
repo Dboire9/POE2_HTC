@@ -27,6 +27,8 @@ CORE_SRCS = \
 	$(CORE_DIR)/items/item_mod_lookup.c       \
 	$(CORE_DIR)/modifiers/modifiers.c         \
 	$(CORE_DIR)/modifiers/modifiers_data.c    \
+	$(CORE_DIR)/crafting/craft_utils.c        \
+	$(CORE_DIR)/currencies/transmute.c        \
 
 CORE_OBJS = $(patsubst $(CORE_DIR)/%.c, $(BUILD_DIR)/%.o, $(CORE_SRCS))
 

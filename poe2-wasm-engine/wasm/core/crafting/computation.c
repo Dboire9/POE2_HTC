@@ -6,6 +6,8 @@
 
 #include "computation.h"
 #include "../threads/threads.h"
+#include "../currencies/currency.h"
+
 
 
 // ─────────────────────────────────────────
@@ -163,27 +165,23 @@ int should_prune(CraftNode* node, SearchTree* tree, const ItemInstance* target, 
 // Apply action — TODO
 // ─────────────────────────────────────────
 
-ItemInstance* apply_action(const ItemInstance* item, CraftActionType action)
+ItemInstance** apply_action(const ItemInstance* item, CraftActionType action, int* out_count)
 {
-    ItemInstance* next = copy_item_instance(item);
-    if (!next) return NULL;
+    *out_count = 0;
 
     switch (action)
     {
-        case ACTION_TRANSMUTE:    /* TODO */ break;
-        case ACTION_AUGMENTATION: /* TODO */ break;
-        case ACTION_REGAL:        /* TODO */ break;
-        case ACTION_ANNULMENT:    /* TODO */ break;
-        case ACTION_EXALT:        /* TODO */ break;
-        case ACTION_CHAOS:        /* TODO */ break;
-        case ACTION_ESSENCE:      /* TODO */ break;
-		case ACTION_PERFECT_ESSENCE: /* TODO */ break;
-        default:
-            free_item_instance(next);
-            return NULL;
+        case ACTION_TRANSMUTE:      	 return apply_transmute(item, out_count);
+        // case ACTION_AUGMENTATION:   	 return apply_augmentation(item, out_count);
+        // case ACTION_REGAL:           return apply_regal(item, out_count);
+        // case ACTION_SCOUR:           return apply_scour(item, out_count);
+        // case ACTION_ANNULMENT:       return apply_annulment(item, out_count);
+        // case ACTION_EXALT:           return apply_exalt(item, out_count);
+        // case ACTION_CHAOS:           return apply_chaos(item, out_count);
+        // case ACTION_ESSENCE:         return apply_essence(item, out_count);
+        // case ACTION_PERFECT_ESSENCE: return apply_perfect_essence(item, out_count);
+        default:                     return NULL;
     }
-
-    return next;
 }
 
 // ─────────────────────────────────────────

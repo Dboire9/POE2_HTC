@@ -34,3 +34,6 @@ Thumbs.db
 
 # Bahs Script
 *.sh
+
+# Objects
+*.o

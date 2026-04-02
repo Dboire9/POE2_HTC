@@ -33,6 +33,8 @@ CORE_SRCS = \
 	$(CORE_DIR)/currencies/regal.c            \
 	$(CORE_DIR)/currencies/annulment_orb.c    \
 	$(CORE_DIR)/currencies/exalted_orb.c      \
+	$(CORE_DIR)/currencies/chaos_orb.c        \
+	$(CORE_DIR)/currencies/desecrated.c       \
 
 CORE_OBJS = $(patsubst $(CORE_DIR)/%.c, $(BUILD_DIR)/%.o, $(CORE_SRCS))
 

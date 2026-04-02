@@ -124,6 +124,89 @@ ItemInstance** get_all_possible_additions(const ItemInstance* item, ModifierSour
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Tiered normal-source helpers (Normal/Greater/Perfect orb variants)
+// Only includes mods with a tier in [min_tier_level, item_level]
+// ─────────────────────────────────────────────────────────────────────────────
+
+ModifierEntry* get_valid_modifiers_with_min_tier(const ItemInstance* item, ModifierSource source, bool is_suffix, int min_tier_level, int* out_count)
+{
+    *out_count = 0;
+    if (!item || !item->base_item) return NULL;
+
+    int table_count = 0;
+    ModifierLookup* table = get_lookup_table(item->base_item->id, source, is_suffix, &table_count);
+    if (!table || table_count == 0) return NULL;
+
+    ModifierEntry* entries = malloc(sizeof(ModifierEntry) * table_count);
+    if (!entries) return NULL;
+
+    int count = 0;
+    for (int i = 0; i < table_count; i++)
+    {
+        const Modifier* mod = get_modifier_by_source_index(source, table[i].index);
+        if (!mod) continue;
+
+        uint8_t max_tier = table[i].max_tier_index;
+        if (max_tier >= mod->tier_count) max_tier = mod->tier_count - 1;
+
+        // Must have at least one tier in [min_tier_level, item_level]
+        bool any_tier_in_window = false;
+        for (int t = 0; t <= max_tier; t++) {
+            uint16_t lr = mod->tiers[t].level_req;
+            if ((int)lr >= min_tier_level && lr <= (uint16_t)item->item_level) {
+                any_tier_in_window = true;
+                break;
+            }
+        }
+        if (!any_tier_in_window) continue;
+
+        // Not already on the item
+        bool already_on_item = false;
+        if (!is_suffix) {
+            for (int s = 0; s < 3; s++)
+                if (item->prefixes[s] == mod) { already_on_item = true; break; }
+        } else {
+            for (int s = 0; s < 3; s++)
+                if (item->suffixes[s] == mod) { already_on_item = true; break; }
+        }
+        if (already_on_item) continue;
+
+        entries[count].modifier = mod;
+        entries[count].lookup   = &table[i];
+        count++;
+    }
+
+    *out_count = count;
+    if (count == 0) { free(entries); return NULL; }
+    return entries;
+}
+
+ItemInstance** get_all_possible_additions_with_min_tier(const ItemInstance* item, ModifierSource source, bool is_suffix, int min_tier_level, int* out_count)
+{
+    *out_count = 0;
+
+    int mod_count = 0;
+    ModifierEntry* entries = get_valid_modifiers_with_min_tier(item, source, is_suffix, min_tier_level, &mod_count);
+    if (!entries || mod_count == 0) return NULL;
+
+    ItemInstance** results = malloc(sizeof(ItemInstance*) * mod_count);
+    if (!results) { free(entries); return NULL; }
+
+    int count = 0;
+    for (int i = 0; i < mod_count; i++)
+    {
+        ItemInstance* next = add_modifier_to_item(item, entries[i].modifier, is_suffix);
+        if (!next) continue;
+        results[count++] = next;
+    }
+
+    free(entries);
+    *out_count = count;
+    if (count == 0) { free(results); return NULL; }
+    return results;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Desecrated helpers: merge SOURCE_NORMAL + SOURCE_DESECRATED into one pool,
 // filtered by a minimum tier level_req (0 = Preserved, 40 = Ancient, 64 = Gnawed)
 // ─────────────────────────────────────────────────────────────────────────────

@@ -3,42 +3,33 @@
 #include "currency.h"
 #include "../crafting/craft_utils.h"
 
-ItemInstance** apply_augmentation(const ItemInstance* item, int* out_count)
+// Magic item (0 or 1 mod) -> adds 1 mod. min_tier_level filters rollable tiers.
+static ItemInstance** apply_augmentation_internal(const ItemInstance* item, int min_tier_level, int* out_count)
 {
     *out_count = 0;
     if (!item || item->rarity != RARITY_MAGIC) return NULL;
 
-    // Can have 0 or 1 affix total (annulment can leave a magic item with 0 mods)
     int total = item->prefix_count + item->suffix_count;
     if (total > 1) return NULL;
 
     if (total == 1) {
-        // Has exactly one mod: add the missing affix type
         bool add_suffix = item->prefix_count == 1;
-        int result_count = 0;
-        ItemInstance** results = get_all_possible_additions(item, SOURCE_NORMAL, add_suffix, &result_count);
-        *out_count = result_count;
-        return results;
+        return get_all_possible_additions_with_min_tier(item, SOURCE_NORMAL, add_suffix, min_tier_level, out_count);
     }
 
-    // 0 mods: can add either a prefix or a suffix
+    // 0 mods: can add either prefix or suffix
     int prefix_count = 0, suffix_count = 0;
-    ItemInstance** prefix_results = get_all_possible_additions(item, SOURCE_NORMAL, false, &prefix_count);
-    ItemInstance** suffix_results = get_all_possible_additions(item, SOURCE_NORMAL, true,  &suffix_count);
+    ItemInstance** prefix_results = get_all_possible_additions_with_min_tier(item, SOURCE_NORMAL, false, min_tier_level, &prefix_count);
+    ItemInstance** suffix_results = get_all_possible_additions_with_min_tier(item, SOURCE_NORMAL, true,  min_tier_level, &suffix_count);
 
     int combined = prefix_count + suffix_count;
-    if (combined == 0) {
-        free(prefix_results);
-        free(suffix_results);
-        return NULL;
-    }
+    if (combined == 0) { free(prefix_results); free(suffix_results); return NULL; }
 
     ItemInstance** results = malloc(sizeof(ItemInstance*) * combined);
     if (!results) {
         for (int i = 0; i < prefix_count; i++) free_item_instance(prefix_results[i]);
         for (int i = 0; i < suffix_count; i++) free_item_instance(suffix_results[i]);
-        free(prefix_results);
-        free(suffix_results);
+        free(prefix_results); free(suffix_results);
         return NULL;
     }
 
@@ -46,9 +37,16 @@ ItemInstance** apply_augmentation(const ItemInstance* item, int* out_count)
     for (int i = 0; i < prefix_count; i++) results[idx++] = prefix_results[i];
     for (int i = 0; i < suffix_count; i++) results[idx++] = suffix_results[i];
 
-    free(prefix_results);
-    free(suffix_results);
-
+    free(prefix_results); free(suffix_results);
     *out_count = combined;
     return results;
 }
+
+ItemInstance** apply_augmentation(const ItemInstance* item, int* out_count)
+{ return apply_augmentation_internal(item, 0, out_count); }
+
+ItemInstance** apply_augmentation_greater(const ItemInstance* item, int* out_count)
+{ return apply_augmentation_internal(item, 55, out_count); }
+
+ItemInstance** apply_augmentation_perfect(const ItemInstance* item, int* out_count)
+{ return apply_augmentation_internal(item, 70, out_count); }

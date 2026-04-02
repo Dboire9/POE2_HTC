@@ -20,6 +20,12 @@ ModifierEntry* get_valid_modifiers(const ItemInstance* item, ModifierSource sour
 // Each result is malloc'd — caller must free each one + the array
 ItemInstance** get_all_possible_additions(const ItemInstance* item, ModifierSource source, bool is_suffix, int* out_count);
 
+// Tiered normal-source variant: only includes mods with at least one tier
+// whose level_req falls within [min_tier_level, item_level].
+// (Use min_tier_level=0 for Normal, 35/55 for Greater, 50/70 for Perfect.)
+ModifierEntry* get_valid_modifiers_with_min_tier(const ItemInstance* item, ModifierSource source, bool is_suffix, int min_tier_level, int* out_count);
+ItemInstance** get_all_possible_additions_with_min_tier(const ItemInstance* item, ModifierSource source, bool is_suffix, int min_tier_level, int* out_count);
+
 // Desecrated variant: merges SOURCE_NORMAL + SOURCE_DESECRATED pools.
 // Only includes mods where at least one accessible tier has level_req >= min_tier_level.
 // (Use min_tier_level=0 for Preserved, 40 for Ancient, 64 for Gnawed.)

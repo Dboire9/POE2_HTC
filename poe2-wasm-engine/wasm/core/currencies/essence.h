@@ -22,4 +22,25 @@ ItemInstance** apply_specific_essence(const ItemInstance* item,
                                       int essence_tier_index,
                                       int* out_count);
 
+// Apply a Perfect Essence to a RARE item.
+//
+// perfect_source_index : index into MODIFIERS_PERFECT_ESSENCE[]
+//
+// The perfect essence guarantees one specific mod.  Before adding it the
+// currency removes exactly one existing mod to make room, following these rules:
+//
+//   - If the guaranteed mod is a PREFIX and the item already has 3 prefixes
+//     -> only a prefix can be removed  (must free that slot)
+//   - If the guaranteed mod is a SUFFIX and the item already has 3 suffixes
+//     -> only a suffix can be removed  (must free that slot)
+//   - Otherwise (room already exists in the destination slot)
+//     -> any mod can be removed  (chaos-like)
+//
+// Each possible removal yields one outcome, so the returned array has
+// (eligible_removals) elements, each with the guaranteed mod already added.
+// Returns NULL / out_count=0 on failure.
+ItemInstance** apply_perfect_essence(const ItemInstance* item,
+                                     uint16_t perfect_source_index,
+                                     int* out_count);
+
 #endif // ESSENCE_H

@@ -15,6 +15,7 @@
 #include "../items/item_mod_lookup.h"
 #include "../modifiers/modifiers.h"
 #include "../modifiers/modifiers_data.h"
+#include "currency.h"
 
 // ── Mapping table ─────────────────────────────────────────────────────────────
 
@@ -175,5 +176,133 @@ ItemInstance** apply_specific_essence(const ItemInstance* item,
     if (!results) { free_item_instance(next); return NULL; }
     results[0] = next;
     *out_count = 1;
+    return results;
+}
+
+// ── Perfect Essence ───────────────────────────────────────────────────────────
+
+// Apply a Perfect Essence to a RARE item.
+// See header for the full removal-priority rules.
+ItemInstance** apply_perfect_essence(const ItemInstance* item,
+                                     uint16_t perfect_source_index,
+                                     int* out_count)
+{
+    *out_count = 0;
+    if (!item || !item->base_item) return NULL;
+    if (item->rarity != RARITY_RARE) return NULL;
+    if (perfect_source_index >= MODIFIERS_PERFECT_ESSENCE_COUNT) return NULL;
+
+    const Modifier* mod = &MODIFIERS_PERFECT_ESSENCE[perfect_source_index];
+    bool is_suffix = (mod->type == MOD_SUFFIX);
+
+    // Item level must satisfy the mod's (single) tier requirement
+    if ((int)mod->tiers[0].level_req > item->item_level) return NULL;
+
+    // Verify the mod is valid for this item type via the shared essence lookup table.
+    // Perfect essence entries are stored inside the SOURCE_ESSENCE tables (mixed),
+    // so we query SOURCE_ESSENCE and filter for SOURCE_PERFECT_ESSENCE entries.
+    int table_count = 0;
+    ModifierLookup* table = get_lookup_table(item->base_item->id,
+                                             SOURCE_ESSENCE,
+                                             is_suffix,
+                                             &table_count);
+    bool in_table = false;
+    for (int i = 0; i < table_count && !in_table; i++)
+        if (table[i].source == SOURCE_PERFECT_ESSENCE &&
+            table[i].index  == perfect_source_index) in_table = true;
+    if (!in_table) return NULL;
+
+    // Determine which pool(s) are eligible for removal:
+    //   full destination slot  -> must remove from that slot only
+    //   destination has room   -> any mod is eligible (chaos-like)
+    bool dest_prefix_full = (!is_suffix && item->prefix_count >= 3);
+    bool dest_suffix_full = ( is_suffix && item->suffix_count >= 3);
+
+    bool remove_from_prefix, remove_from_suffix;
+    if (dest_prefix_full) {
+        // Guaranteed mod is a prefix and all 3 prefix slots are taken
+        remove_from_prefix = true;
+        remove_from_suffix = false;
+    } else if (dest_suffix_full) {
+        // Guaranteed mod is a suffix and all 3 suffix slots are taken
+        remove_from_prefix = false;
+        remove_from_suffix = true;
+    } else {
+        // Room exists -> chaos-like, any mod can be removed
+        remove_from_prefix = (item->prefix_count > 0);
+        remove_from_suffix = (item->suffix_count > 0);
+    }
+
+    int eligible = 0;
+    if (remove_from_prefix) eligible += item->prefix_count;
+    if (remove_from_suffix) eligible += item->suffix_count;
+    if (eligible == 0) return NULL;
+
+    ItemInstance** results = malloc(sizeof(ItemInstance*) * eligible);
+    if (!results) return NULL;
+
+    int idx = 0;
+
+    // Branch: remove each eligible prefix
+    if (remove_from_prefix) {
+        for (int i = 0; i < item->prefix_count; i++) {
+            ItemInstance* next = copy_item_instance(item);
+            if (!next) continue;
+
+            // Shift out prefix[i]
+            for (int j = i; j < next->prefix_count - 1; j++) {
+                next->prefixes[j]             = next->prefixes[j + 1];
+                next->desired_prefix_tiers[j] = next->desired_prefix_tiers[j + 1];
+            }
+            next->prefixes[next->prefix_count - 1]             = NULL;
+            next->desired_prefix_tiers[next->prefix_count - 1] = 0;
+            next->prefix_count--;
+
+            // Add the guaranteed mod
+            if (!is_suffix) {
+                next->prefixes[next->prefix_count]             = mod;
+                next->desired_prefix_tiers[next->prefix_count] = 0; // single tier
+                next->prefix_count++;
+            } else {
+                next->suffixes[next->suffix_count]             = mod;
+                next->desired_suffix_tiers[next->suffix_count] = 0;
+                next->suffix_count++;
+            }
+
+            results[idx++] = next;
+        }
+    }
+
+    // Branch: remove each eligible suffix
+    if (remove_from_suffix) {
+        for (int i = 0; i < item->suffix_count; i++) {
+            ItemInstance* next = copy_item_instance(item);
+            if (!next) continue;
+
+            // Shift out suffix[i]
+            for (int j = i; j < next->suffix_count - 1; j++) {
+                next->suffixes[j]             = next->suffixes[j + 1];
+                next->desired_suffix_tiers[j] = next->desired_suffix_tiers[j + 1];
+            }
+            next->suffixes[next->suffix_count - 1]             = NULL;
+            next->desired_suffix_tiers[next->suffix_count - 1] = 0;
+            next->suffix_count--;
+
+            // Add the guaranteed mod
+            if (!is_suffix) {
+                next->prefixes[next->prefix_count]             = mod;
+                next->desired_prefix_tiers[next->prefix_count] = 0;
+                next->prefix_count++;
+            } else {
+                next->suffixes[next->suffix_count]             = mod;
+                next->desired_suffix_tiers[next->suffix_count] = 0;
+                next->suffix_count++;
+            }
+
+            results[idx++] = next;
+        }
+    }
+
+    *out_count = idx;
     return results;
 }

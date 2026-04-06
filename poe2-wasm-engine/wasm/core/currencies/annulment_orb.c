@@ -11,7 +11,6 @@ ItemInstance** apply_annulment(const ItemInstance* item, int* out_count)
     *out_count = 0;
     if (!item) return NULL;
 
-    // Must have at least 1 mod to remove
     int total = item->prefix_count + item->suffix_count;
     if (total == 0) return NULL;
 
@@ -26,7 +25,6 @@ ItemInstance** apply_annulment(const ItemInstance* item, int* out_count)
         ItemInstance* next = copy_item_instance(item);
         if (!next) continue;
 
-        // Shift remaining prefixes down over the removed one
         for (int j = i; j < next->prefix_count - 1; j++) {
             next->prefixes[j]             = next->prefixes[j + 1];
             next->desired_prefix_tiers[j] = next->desired_prefix_tiers[j + 1];
@@ -35,7 +33,6 @@ ItemInstance** apply_annulment(const ItemInstance* item, int* out_count)
         next->desired_prefix_tiers[next->prefix_count - 1] = 0;
         next->prefix_count--;
 
-        // Rarity stays the same (magic stays magic, rare stays rare)
         results[idx++] = next;
     }
 

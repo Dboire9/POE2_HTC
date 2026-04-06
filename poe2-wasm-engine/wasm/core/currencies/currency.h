@@ -36,4 +36,12 @@ ItemInstance** apply_desecrated_preserved(const ItemInstance* item, int* out_cou
 ItemInstance** apply_desecrated_ancient(const ItemInstance* item, int* out_count);  // tier >= 40
 ItemInstance** apply_desecrated_gnawed(const ItemInstance* item, int* out_count);   // tier >= 64
 
+// Essence (Magic -> Rare, forces a specific named essence mod at a specific tier)
+// essence_source_index: index into MODIFIERS_ESSENCE[] for the mod family
+// essence_tier_index:   0 = Lesser Essence, 1 = Essence, 2 = Greater Essence
+ItemInstance** apply_specific_essence(const ItemInstance* item,
+                                      uint16_t essence_source_index,
+                                      int essence_tier_index,
+                                      int* out_count);
+
 #endif // CURRENCY_H

@@ -1,0 +1,61 @@
+{
+  "patch": "0.5",
+  "note": "Crafting plans for the plan-evaluator differential (TS evaluatePlan vs Java PlanProbe). Each plan is a legal sequence at item level 100. Together they exercise state threading: both-slots-open throughout, the transition into a one-side-full branch, and an annul removal mid-sequence.",
+  "plans": [
+    {
+      "name": "wand_both_open_4",
+      "base": "Wands",
+      "level": 100,
+      "steps": [
+        { "currency": "transmute", "add": "Wands/MAXIMUM_MANA" },
+        { "currency": "augment", "add": "Wands/INTELLIGENCE" },
+        { "currency": "regal", "add": "Wands/INCREASED_SPELL_DAMAGE" },
+        { "currency": "exalt", "add": "Wands/MANA_REGENERATION_RATE" }
+      ]
+    },
+    {
+      "name": "wand_prefixes_full_then_suffix",
+      "base": "Wands",
+      "level": 100,
+      "steps": [
+        { "currency": "transmute", "add": "Wands/MAXIMUM_MANA" },
+        { "currency": "augment", "add": "Wands/INTELLIGENCE" },
+        { "currency": "regal", "add": "Wands/INCREASED_SPELL_DAMAGE" },
+        { "currency": "exalt", "add": "Wands/DAMAGE_AS_EXTRA_FIRE_DAMAGE" },
+        { "currency": "exalt", "add": "Wands/MANA_REGENERATION_RATE" }
+      ]
+    },
+    {
+      "name": "wand_with_annul",
+      "base": "Wands",
+      "level": 100,
+      "steps": [
+        { "currency": "transmute", "add": "Wands/MAXIMUM_MANA" },
+        { "currency": "augment", "add": "Wands/INTELLIGENCE" },
+        { "currency": "regal", "add": "Wands/INCREASED_SPELL_DAMAGE" },
+        { "currency": "annul", "remove": "Wands/MAXIMUM_MANA" }
+      ]
+    },
+    {
+      "name": "bodystr_mixed",
+      "base": "Body_Armours_str",
+      "level": 100,
+      "steps": [
+        { "currency": "transmute", "add": "Body_Armours_Normal/BASE_MAXIMUM_LIFE" },
+        { "currency": "augment", "add": "Body_Armours_Normal/STRENGTH" },
+        { "currency": "regal", "add": "Body_Armours_Normal/BASE_ARMOUR" }
+      ]
+    },
+    {
+      "name": "wand_perfect_essence_finish",
+      "base": "Wands",
+      "level": 100,
+      "steps": [
+        { "currency": "transmute", "add": "Wands/MAXIMUM_MANA" },
+        { "currency": "augment", "add": "Wands/INTELLIGENCE" },
+        { "currency": "regal", "add": "Wands/INCREASED_SPELL_DAMAGE" },
+        { "currency": "perfect-essence", "remove": "Wands/INTELLIGENCE", "add": "Wands/MANA_REGENERATION_RATE" }
+      ]
+    }
+  ]
+}

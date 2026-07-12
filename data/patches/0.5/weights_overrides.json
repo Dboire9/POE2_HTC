@@ -1,0 +1,14 @@
+{
+  "patch": "0.5",
+  "generated": "2026-07-04",
+  "source": "SEED STUB — hand-authored, community-verified weight corrections. ALWAYS wins over the base spawn weight in mods.json (per CLAUDE.md: never 'fix' a probability by editing engine logic when the weight data is the problem). Game-file spawn_weights are outdated for many mods (see pathofcrafting.net/attribution). Empty until Phase-0 refresh.",
+  "note": "Each override targets a specific mod id + tier and MUST carry a source comment. Example shape (remove when real data is added):",
+  "example": {
+    "modId": "Wands/MAXIMUM_MANA",
+    "tier": "Blue",
+    "weight": 1000,
+    "reason": "why this differs from mods.json base weight",
+    "sourceUrl": "https://..."
+  },
+  "overrides": []
+}

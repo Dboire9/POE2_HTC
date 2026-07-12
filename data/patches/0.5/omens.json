@@ -1,0 +1,126 @@
+{
+  "patch": "0.5",
+  "generated": "2026-07-04",
+  "updated": "2026-07-05",
+  "source": "Omen inventory extracted verbatim from core/Currency/*.java (via currencies.json). `impl` maps each omen to the packages/engine function + option that realises it; `verified:true` = implemented AND covered by a dedicated per-omen unit test (omens.test.ts) plus, where Java models it, a differential test. Audit the catalog vs poe2db at the 0.5 refresh.",
+  "count": 13,
+  "omens": [
+    {
+      "id": "OmenofSinistralExaltation",
+      "currency": "exalted",
+      "action": "add-affix",
+      "constrainTo": "prefix",
+      "impl": { "fn": "exaltProbability", "option": { "constrainTo": "prefix" } },
+      "verified": true,
+      "note": "Exalt adds a prefix only (ExaltAndRegalProbability.NormalCompute, prefixes-only). Differential-green via AddAffixProbe."
+    },
+    {
+      "id": "OmenofDextralExaltation",
+      "currency": "exalted",
+      "action": "add-affix",
+      "constrainTo": "suffix",
+      "impl": { "fn": "exaltProbability", "option": { "constrainTo": "suffix" } },
+      "verified": true,
+      "note": "Exalt adds a suffix only. Differential-green via AddAffixProbe."
+    },
+    {
+      "id": "OmenofGreaterExaltation",
+      "currency": "exalted",
+      "action": "add-affix",
+      "extraMods": 1,
+      "impl": null,
+      "verified": false,
+      "deferred": "phase-2-beam-search",
+      "note": "Adds an extra modifier (2 total) — a MULTI-affix transformation, not a single-add probability. Java returns 0 (unimplemented). Belongs to the sequence/optimizer layer (P(both mods) = compound of two draws); no single-step engine fn yet."
+    },
+    {
+      "id": "OmenofSinistralAnnulment",
+      "currency": "annulment",
+      "action": "remove-affix",
+      "constrainTo": "prefix",
+      "impl": { "fn": "annulProbability", "option": { "omen": "sinistral" } },
+      "verified": true,
+      "note": "Annul removes a prefix only (1/prefixes). Differential-green via AnnulProbe."
+    },
+    {
+      "id": "OmenofDextralAnnulment",
+      "currency": "annulment",
+      "action": "remove-affix",
+      "constrainTo": "suffix",
+      "impl": { "fn": "annulProbability", "option": { "omen": "dextral" } },
+      "verified": true,
+      "note": "Annul removes a suffix only (1/suffixes). Differential-green via AnnulProbe."
+    },
+    {
+      "id": "OmenofLight",
+      "currency": "annulment",
+      "action": "remove-affix",
+      "impl": { "fn": "annulProbability", "option": { "omen": "light" } },
+      "verified": true,
+      "note": "Removes a desecrated mod with certainty on a desecrated item (else 0). Hand-tested; audit exact scope vs poe2db 0.5."
+    },
+    {
+      "id": "OmenofSinistralCrystallisation",
+      "currency": "essence",
+      "action": "essence",
+      "constrainTo": "prefix",
+      "impl": { "fn": "perfectEssenceProbability", "option": { "omen": "sinistral" } },
+      "verified": true,
+      "note": "Perfect essence removes only a prefix (1/prefixes). Differential-green via EssenceProbe."
+    },
+    {
+      "id": "OmenofDextralCrystallisation",
+      "currency": "essence",
+      "action": "essence",
+      "constrainTo": "suffix",
+      "impl": { "fn": "perfectEssenceProbability", "option": { "omen": "dextral" } },
+      "verified": true,
+      "note": "Perfect essence removes only a suffix (1/suffixes). Differential-green via EssenceProbe."
+    },
+    {
+      "id": "OmenofDextralNecromancy",
+      "currency": "desecrated",
+      "action": "desecrate",
+      "constrainTo": "suffix",
+      "impl": { "fn": "desecrationProbability", "option": { "constrainTo": "suffix" } },
+      "verified": true,
+      "note": "Default desecration restricted to a suffix (combined normal ∪ desecrated suffix pool). No Java counterpart (D4 in validation.md); hand-tested."
+    },
+    {
+      "id": "OmenofSinistralNecromancy",
+      "currency": "desecrated",
+      "action": "desecrate",
+      "constrainTo": "prefix",
+      "impl": { "fn": "desecrationProbability", "option": { "constrainTo": "prefix" } },
+      "verified": true,
+      "note": "Default desecration restricted to a prefix (combined normal ∪ desecrated prefix pool). No Java counterpart (D4); hand-tested."
+    },
+    {
+      "id": "OmenoftheBlackblooded",
+      "currency": "desecrated",
+      "action": "desecrate",
+      "boss": "kurgal",
+      "impl": { "fn": "desecrationBossProbability", "option": { "omen": "blackblooded" } },
+      "verified": true,
+      "note": "Desecration forced to Kurgal's pool: 1/(count of kurgal desecrated mods of the slot). Count-uniform (D3). Differential-green via DesecrationProbe."
+    },
+    {
+      "id": "OmenoftheLiege",
+      "currency": "desecrated",
+      "action": "desecrate",
+      "boss": "amanamu",
+      "impl": { "fn": "desecrationBossProbability", "option": { "omen": "liege" } },
+      "verified": true,
+      "note": "Desecration forced to Amanamu's pool: 1/(count of amanamu desecrated mods of the slot). Differential-green via DesecrationProbe."
+    },
+    {
+      "id": "OmenoftheSovereign",
+      "currency": "desecrated",
+      "action": "desecrate",
+      "boss": "ulaman",
+      "impl": { "fn": "desecrationBossProbability", "option": { "omen": "sovereign" } },
+      "verified": true,
+      "note": "Desecration forced to Ulaman's pool: 1/(count of ulaman desecrated mods of the slot). Differential-green via DesecrationProbe."
+    }
+  ]
+}

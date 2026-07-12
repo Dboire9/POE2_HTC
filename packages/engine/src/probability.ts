@@ -1,0 +1,412 @@
+import type { AffixType, CurrencyTier, ItemBase, ItemState, PatchData, PlacedMod } from './types.ts';
+import { CURRENCY_FLOOR } from './types.ts';
+import { familyAvailable, itemFamilies, modTierWeight, poolTotalWeight, resolveMod } from './pool.ts';
+import { prefixCount, prefixesFull, suffixCount, suffixesFull, whiteItem } from './item.ts';
+
+export interface AddAffixOptions {
+  /** Currency-strength floor ilvl. Default 0 (base). */
+  floor?: number;
+  /** Only the desired tier and better (higher ilvl). Index into mod.tiers. Default 0 (any tier). */
+  minTierIndex?: number;
+  /** Omen constraint: restrict the roll to one side (Sinistral = prefix, Dextral = suffix). */
+  constrainTo?: AffixType;
+  /**
+   * Families already on the item, excluded from the denominator (real-game family exclusion, D6).
+   * Omit for the Java-parity denominator (no exclusion). The currency wrappers set this from the item.
+   */
+  occupiedFamilies?: ReadonlySet<string>;
+  /**
+   * Max mods per side for the slot-branch: magic = 1, rare = 3 (D2). Default 3 (Java-parity, which
+   * treats every rarity as 3+3). The currency wrappers set this from the currency's result rarity.
+   */
+  slotLimit?: number;
+}
+
+/**
+ * Analytic probability that adding one random affix yields `desiredModId`.
+ * Faithful port of `ExaltAndRegalProbability.NormalCompute` (shared by transmute/aug/regal/exalt):
+ *
+ *   numerator   = summed weight of the desired mod's eligible tiers
+ *   denominator = total eligible weight of the pool(s) the roll draws from, per the slot state
+ *
+ * The caller is responsible for legality (family available, correct rarity/slots) — this only does
+ * the weight-pool math, exactly as the Java routine does.
+ */
+export function addAffixProbability(data: PatchData, item: ItemState, desiredModId: string, opts: AddAffixOptions = {}): number {
+  return addAffixProbabilityFromPools(
+    data, item, desiredModId, item.base.pools.normal.prefixes, item.base.pools.normal.suffixes, opts,
+  );
+}
+
+/**
+ * Shared slot-branch weight-pool math, parameterised by the prefix/suffix id-pools it draws from.
+ * `addAffixProbability` passes the base's normal pools; desecration passes normal ∪ desecrated.
+ */
+function addAffixProbabilityFromPools(
+  data: PatchData, item: ItemState, desiredModId: string,
+  prefixPool: readonly string[], suffixPool: readonly string[], opts: AddAffixOptions = {},
+): number {
+  const mod = resolveMod(data, desiredModId);
+  const floor = opts.floor ?? 0;
+  const cap = item.level;
+  const constrainTo = opts.constrainTo;
+
+  // A one-sided omen can't produce a mod of the other side.
+  if (constrainTo !== undefined && mod.type !== constrainTo) return 0;
+
+  const weight = modTierWeight(mod, floor, cap, opts.minTierIndex ?? 0);
+  if (weight === 0) return 0;
+
+  const usePrefixes = constrainTo !== 'suffix';
+  const useSuffixes = constrainTo !== 'prefix';
+  const exclude = opts.occupiedFamilies;
+  const totalPrefix = usePrefixes ? poolTotalWeight(data, prefixPool, floor, cap, exclude) : 0;
+  const totalSuffix = useSuffixes ? poolTotalWeight(data, suffixPool, floor, cap, exclude) : 0;
+
+  const limit = opts.slotLimit ?? 3;
+  const pf = prefixCount(item);
+  const sf = suffixCount(item);
+  const hasPrefixes = usePrefixes && totalPrefix > 0;
+  const hasSuffixes = useSuffixes && totalSuffix > 0;
+
+  // Both sides open → draw from the combined pool.
+  if (pf < limit && sf < limit && hasPrefixes && hasSuffixes) {
+    return weight / (totalPrefix + totalSuffix);
+  }
+  // Only prefixes reachable (suffixes full or unavailable).
+  if (mod.type === 'prefix' && pf < limit && hasPrefixes && (sf >= limit || !hasSuffixes)) {
+    return weight / totalPrefix;
+  }
+  // Only suffixes reachable.
+  if (mod.type === 'suffix' && sf < limit && hasSuffixes && (pf >= limit || !hasPrefixes)) {
+    return weight / totalSuffix;
+  }
+  return 0;
+}
+
+/** Currencies that add one random NORMAL-pool affix — they share the same weight-pool math and
+ *  differ only in the item rarity they act on. */
+export type NormalAddCurrency = 'transmute' | 'augment' | 'regal' | 'exalt';
+
+/** Rarity a currency legally acts on (transmute white, aug/regal magic, exalt rare). */
+const VALID_RARITY: Record<NormalAddCurrency, ReadonlySet<ItemState['rarity']>> = {
+  transmute: new Set(['normal']),
+  augment: new Set(['magic']),
+  regal: new Set(['magic']),
+  exalt: new Set(['rare']),
+};
+
+/**
+ * Max mods per side for the slot-branch, by the RESULT rarity of the currency (D2, magic = 1+1):
+ * transmute/augment leave the item Magic (1/side); regal/exalt leave it Rare (3/side). So augment on
+ * a 1-prefix Magic item can only add a suffix, while regal (which converts to Rare) may add either.
+ */
+const RESULT_SLOT_LIMIT: Record<NormalAddCurrency, number> = {
+  transmute: 1, augment: 1, regal: 3, exalt: 3,
+};
+
+export interface CurrencyOptions {
+  /** Orb strength (raises the tier floor). Default 'base'. */
+  currencyTier?: CurrencyTier;
+  /** Desired tier or better. Default 0 (any tier of the mod). */
+  minTierIndex?: number;
+  /** Omen: 'prefix' (Sinistral) or 'suffix' (Dextral). */
+  constrainTo?: AffixType;
+}
+
+/**
+ * Probability that `currency` adds `desiredModId` to `item`, 0 if the move is illegal: wrong rarity,
+ * mod not a normal-pool mod of the base, its family already present, or its side is full. Legal
+ * cases defer to the shared `addAffixProbability` (the Java NormalCompute math).
+ */
+export function addNormalAffixProbability(
+  data: PatchData, item: ItemState, currency: NormalAddCurrency, desiredModId: string, opts: CurrencyOptions = {},
+): number {
+  if (!VALID_RARITY[currency].has(item.rarity)) return 0;
+  const mod = data.mods.get(desiredModId);
+  if (!mod || mod.source !== 'normal') return 0;
+  const pool = item.base.pools.normal;
+  if (!pool.prefixes.includes(desiredModId) && !pool.suffixes.includes(desiredModId)) return 0;
+  if (!familyAvailable(data, item, mod)) return 0;
+  const limit = RESULT_SLOT_LIMIT[currency]; // magic result = 1/side, rare result = 3/side (D2)
+  if (mod.type === 'prefix' && item.prefixes.length >= limit) return 0;
+  if (mod.type === 'suffix' && item.suffixes.length >= limit) return 0;
+
+  const addOpts: AddAffixOptions = {
+    floor: CURRENCY_FLOOR[opts.currencyTier ?? 'base'],
+    occupiedFamilies: itemFamilies(data, item), // real-game family exclusion (D6)
+    slotLimit: limit, // magic 1+1 slot enforcement (D2)
+  };
+  if (opts.minTierIndex !== undefined) addOpts.minTierIndex = opts.minTierIndex;
+  if (opts.constrainTo !== undefined) addOpts.constrainTo = opts.constrainTo;
+  return addAffixProbability(data, item, desiredModId, addOpts);
+}
+
+export interface TransmuteOptions extends CurrencyOptions {
+  /** Item level (tier ilvl cap). Default 100. */
+  level?: number;
+}
+
+/** Transmutation orb on a white `base` → one random normal affix (both slots open). */
+export function transmuteProbability(data: PatchData, base: ItemBase, desiredModId: string, opts: TransmuteOptions = {}): number {
+  return addNormalAffixProbability(data, whiteItem(base, opts.level ?? 100), 'transmute', desiredModId, opts);
+}
+
+/** Augmentation orb on a magic `item` → fills its open affix slot from the normal pool. */
+export function augmentationProbability(data: PatchData, item: ItemState, desiredModId: string, opts: CurrencyOptions = {}): number {
+  return addNormalAffixProbability(data, item, 'augment', desiredModId, opts);
+}
+
+/** Regal orb on a magic `item` (→ rare) → adds one normal affix. */
+export function regalProbability(data: PatchData, item: ItemState, desiredModId: string, opts: CurrencyOptions = {}): number {
+  return addNormalAffixProbability(data, item, 'regal', desiredModId, opts);
+}
+
+/** Exalted orb on a rare `item` → adds one normal affix to an open slot. */
+export function exaltProbability(data: PatchData, item: ItemState, desiredModId: string, opts: CurrencyOptions = {}): number {
+  return addNormalAffixProbability(data, item, 'exalt', desiredModId, opts);
+}
+
+/** Annulment omen: none (any mod), sinistral (prefix only), dextral (suffix only), light (desecrated). */
+export type AnnulOmen = 'none' | 'sinistral' | 'dextral' | 'light';
+
+/**
+ * Probability that an Orb of Annulment removes the mod `targetModId` currently on `item`.
+ * Faithful port of `AnnulProbability.ComputePercentageAnnul` — annul removes a uniformly random mod:
+ *   none      → 1 / (total mods)
+ *   sinistral → 1 / (prefixes)   for a prefix,  else 0
+ *   dextral   → 1 / (suffixes)   for a suffix,  else 0
+ *   light     → 1 if the target is a desecrated mod on a desecrated item, else 0
+ * Returns 0 if the target isn't on the item.
+ */
+export function annulProbability(data: PatchData, item: ItemState, targetModId: string, opts: { omen?: AnnulOmen } = {}): number {
+  const onPrefix = item.prefixes.some((p) => p.modId === targetModId);
+  const onSuffix = item.suffixes.some((p) => p.modId === targetModId);
+  if (!onPrefix && !onSuffix) return 0;
+
+  const pf = item.prefixes.length;
+  const sf = item.suffixes.length;
+  switch (opts.omen ?? 'none') {
+    case 'none': return pf + sf > 0 ? 1 / (pf + sf) : 0;
+    case 'sinistral': return onPrefix && pf > 0 ? 1 / pf : 0;
+    case 'dextral': return onSuffix && sf > 0 ? 1 / sf : 0;
+    case 'light': {
+      const mod = data.mods.get(targetModId);
+      return item.desecrated === true && mod?.source === 'desecrated' ? 1 : 0;
+    }
+  }
+}
+
+/** Remove the first placed mod matching `modId` (prefixes then suffixes), keeping rarity/level. */
+function removeFromItem(item: ItemState, modId: string): ItemState {
+  const drop = (arr: readonly PlacedMod[]): PlacedMod[] => {
+    const i = arr.findIndex((p) => p.modId === modId);
+    return i < 0 ? [...arr] : [...arr.slice(0, i), ...arr.slice(i + 1)];
+  };
+  const inPrefix = item.prefixes.some((p) => p.modId === modId);
+  return { ...item, prefixes: inPrefix ? drop(item.prefixes) : [...item.prefixes], suffixes: inPrefix ? [...item.suffixes] : drop(item.suffixes) };
+}
+
+/**
+ * Chaos Orb (PoE2): on a **Rare** item, remove one **uniformly-random** existing mod and add one new
+ * **weighted** mod. The probability of the specific swap "remove `removeModId`, add `addModId`" factors
+ * cleanly into P(remove it) × P(add it):
+ *   • removal = a no-omen Annulment → 1 / (total mods on the item), 0 if the mod isn't there;
+ *   • add     = an Exalt on the freed item → weighted, any open side (the add is NOT tied to the removed
+ *     mod's side — a removed suffix can be replaced by a prefix), family-excluding the mods that remain.
+ * `opts` tune the add (orb tier, tier target). Base orb only — Whittling / side-lock omens come later.
+ */
+export function chaosProbability(
+  data: PatchData, item: ItemState, removeModId: string, addModId: string, opts: CurrencyOptions = {},
+): number {
+  if (item.rarity !== 'rare') return 0; // Chaos Orbs act on Rare items
+  const removeP = annulProbability(data, item, removeModId); // uniform 1/total; 0 if not on the item
+  if (removeP === 0) return 0;
+  return removeP * exaltProbability(data, removeFromItem(item, removeModId), addModId, opts);
+}
+
+/** Number of modifiers an Orb of Alchemy rolls onto a white item (PoE2: fixed at 4). */
+export const ALCHEMY_MOD_COUNT = 4;
+
+/**
+ * Orb of Alchemy (PoE2): a white item becomes Rare with 4 modifiers rolled at once — equivalent to 4
+ * sequential weighted draws from the normal pool without replacement (family-excluded, max 3 per side,
+ * random side). Returns P(all of `targetModIds` land among the 4). Exact via recursion over the draws
+ * (each level's pool shrinks as families fill and a side caps out); "any tier" targets for now. 0 if a
+ * target is off-pool, if there are >4 targets, or if the targets can't co-exist (shared family / side).
+ */
+export function alchemyProbability(
+  data: PatchData, base: ItemBase, targetModIds: readonly string[], opts: { level?: number } = {},
+): number {
+  const level = opts.level ?? 100;
+  const targets = new Set(targetModIds);
+  if (targets.size === 0 || targets.size > ALCHEMY_MOD_COUNT) return 0;
+  const build = (ids: readonly string[], side: AffixType) =>
+    ids.map((id) => { const m = resolveMod(data, id); return { id, family: m.family, side, w: modTierWeight(m, 0, level, 0) }; })
+      .filter((x) => x.w > 0);
+  const pre = build(base.pools.normal.prefixes, 'prefix');
+  const suf = build(base.pools.normal.suffixes, 'suffix');
+  const reachable = new Set([...pre, ...suf].map((x) => x.id));
+  for (const t of targets) if (!reachable.has(t)) return 0;
+
+  const limit = 3; // max mods per side on a Rare
+  const need = new Set(targets);
+  const occupied = new Set<string>();
+  const f = (draws: number, pf: number, sf: number): number => {
+    if (need.size === 0) return 1;      // every target already landed
+    if (draws < need.size) return 0;    // too few draws left to catch them all
+    const pool = [...(pf < limit ? pre : []), ...(sf < limit ? suf : [])].filter((x) => !occupied.has(x.family));
+    let total = 0;
+    for (const x of pool) total += x.w;
+    if (total === 0) return 0;
+    let p = 0;
+    for (const x of pool) {
+      occupied.add(x.family);
+      const wasNeeded = need.delete(x.id); // true iff x was a still-needed target
+      p += (x.w / total) * f(draws - 1, x.side === 'prefix' ? pf + 1 : pf, x.side === 'suffix' ? sf + 1 : sf);
+      if (wasNeeded) need.add(x.id);
+      occupied.delete(x.family);
+    }
+    return p;
+  };
+  return f(ALCHEMY_MOD_COUNT, 0, 0);
+}
+
+/** Essence omen: none (any mod removed), sinistral (prefix-only removal), dextral (suffix-only removal). */
+export type EssenceOmen = 'none' | 'sinistral' | 'dextral';
+
+/**
+ * Probability that a **perfect essence** removes the specific mod `removedModId`.
+ * A perfect essence adds its guaranteed mod (of slot `essenceType`, deterministic — see
+ * `essenceForcedProbability`) while removing one random existing mod; this is that random-remove
+ * component. Faithful port of `EssenceProbability.ComputePercentageEssence` (pf/sf = prefix/suffix
+ * counts *before* the essence):
+ *
+ *   none      → 1/pf if the essence adds a prefix and the item has no suffixes (sf===0, pf!==0);
+ *               1/sf symmetrically for a suffix essence with no prefixes; otherwise 1/(pf+sf)
+ *   sinistral → 1/pf, but 0 unless the removed mod is a prefix
+ *   dextral   → 1/sf, but 0 unless the removed mod is a suffix
+ *
+ * Returns 0 if `removedModId` isn't on the item.
+ */
+export function perfectEssenceProbability(
+  data: PatchData,
+  item: ItemState,
+  essenceType: AffixType,
+  removedModId: string,
+  opts: { omen?: EssenceOmen } = {},
+): number {
+  const onPrefix = item.prefixes.some((p) => p.modId === removedModId);
+  const onSuffix = item.suffixes.some((p) => p.modId === removedModId);
+  if (!onPrefix && !onSuffix) return 0;
+
+  const pf = item.prefixes.length;
+  const sf = item.suffixes.length;
+  switch (opts.omen ?? 'none') {
+    case 'none': {
+      if (essenceType === 'prefix' && sf === 0 && pf !== 0) return 1 / pf;
+      if (essenceType === 'suffix' && pf === 0 && sf !== 0) return 1 / sf;
+      return pf + sf > 0 ? 1 / (pf + sf) : 0;
+    }
+    case 'sinistral': return onPrefix && pf > 0 ? 1 / pf : 0;
+    case 'dextral': return onSuffix && sf > 0 ? 1 / sf : 0;
+  }
+}
+
+/**
+ * A non-perfect essence (Lesser/Normal/Greater) forces its guaranteed mod, deterministically — so
+ * the probability of obtaining it is 1 (no weights; user: "the essence is deterministic"). Per the
+ * PoE2 rule these apply ONLY to a **Magic** item (adding the mod and converting it to Rare), never a
+ * white or an already-Rare item. Returns 1 only if the forced add is legal: item is Magic, the mod
+ * exists, its side has an open slot, its family isn't already present, and the chosen essence level's
+ * tier is within the item's level; otherwise 0. `essenceTier` selects which level (Lesser/Normal/
+ * Greater) — an essence mod's tiers ARE its levels; it defaults to the lowest (Lesser).
+ */
+export function essenceForcedProbability(
+  data: PatchData, item: ItemState, forcedModId: string, essenceTier?: number,
+): number {
+  if (item.rarity !== 'magic') return 0; // regular essences apply only to magic items
+  const mod = data.mods.get(forcedModId);
+  if (!mod) return 0;
+  const slotOpen = mod.type === 'prefix' ? !prefixesFull(item) : !suffixesFull(item);
+  if (!slotOpen) return 0;
+  if (!familyAvailable(data, item, mod)) return 0;
+  const tier = mod.tiers[essenceTier ?? 0];
+  if (tier === undefined || tier.ilvl > item.level) return 0;
+  return 1;
+}
+
+/** Desecration boss omen: Blackblooded=Kurgal, Liege=Amanamu, Sovereign=Ulaman. */
+export type DesecrationBossOmen = 'blackblooded' | 'liege' | 'sovereign';
+const DES_BOSS_TAG: Record<DesecrationBossOmen, string> = {
+  blackblooded: 'kurgal_mod', liege: 'amanamu_mod', sovereign: 'ulaman_mod',
+};
+
+/**
+ * Boss-omen desecration probability — faithful port of
+ * `DesProbability.ComputePercentageDesecrated_currency`. A boss omen forces the desecration to add a
+ * uniformly-random mod from that boss's desecrated pool for the added mod's slot:
+ *   P = 1 / (count of that boss's desecrated mods of the slot), 0 unless `desiredModId` carries the
+ *   boss tag.
+ * Java is COUNT-uniform here — it ignores mod weights (the 0.5 boss pools mix weights 1/3/1000, all
+ * counted as one) — so this mirrors that exactly. When real weight-based desecration is adopted at
+ * the poe2db refresh this becomes weight/Σweight; tracked for Phase 3. This is the ONLY desecration
+ * path Java models; the plain combined-pool desecration is a separate engine addition.
+ */
+export function desecrationBossProbability(
+  data: PatchData, item: ItemState, desiredModId: string, opts: { omen: DesecrationBossOmen },
+): number {
+  const mod = data.mods.get(desiredModId);
+  if (!mod) return 0;
+  const tag = DES_BOSS_TAG[opts.omen];
+  if (!mod.tags.includes(tag)) return 0;
+  const pool = mod.type === 'prefix' ? item.base.pools.desecrated.prefixes : item.base.pools.desecrated.suffixes;
+  let count = 0;
+  for (const id of pool) {
+    const pm = data.mods.get(id);
+    if (pm && pm.tags.includes(tag)) count++;
+  }
+  return count > 0 ? 1 / count : 0;
+}
+
+export interface DesecrationOptions {
+  /** Bone-strength floor ilvl (raises the tier floor). Default 0. */
+  floor?: number;
+  /** Desired tier or better. Default 0 (any tier). */
+  minTierIndex?: number;
+  /** Necromancy omen: 'prefix' (Sinistral) or 'suffix' (Dextral) restricts the roll to one side. */
+  constrainTo?: AffixType;
+}
+
+/**
+ * Default (no boss omen) desecration probability. The Java engine does NOT model this (its omen enum
+ * has no None); per the user's rule the desecrated mods are "meddled with the classic ones", so a
+ * plain desecration draws from the COMBINED normal ∪ desecrated pool for the mod's slot, by weight:
+ *
+ *   P(desiredMod) = weight(desiredMod eligible tiers) / Σ weights of (normal ∪ desecrated) of the slot
+ *
+ * On a uniform pool this reduces to 1/(normal+desecrated count) — the user's "1 / normal+desecrated"
+ * shorthand — but it honours real weights where they differ. Reuses the shared slot-branch math, so
+ * both-open / prefix-only / suffix-only and the Sinistral/Dextral (`constrainTo`) constraint all
+ * behave as for a normal add. Returns 0 for an illegal add (wrong source, family present, side full,
+ * or the mod isn't in the base's combined pool). Not differential-tested — no Java counterpart.
+ */
+export function desecrationProbability(
+  data: PatchData, item: ItemState, desiredModId: string, opts: DesecrationOptions = {},
+): number {
+  const mod = data.mods.get(desiredModId);
+  if (!mod) return 0;
+  if (mod.source !== 'normal' && mod.source !== 'desecrated') return 0;
+  if (!familyAvailable(data, item, mod)) return 0;
+  if (mod.type === 'prefix' && prefixesFull(item)) return 0;
+  if (mod.type === 'suffix' && suffixesFull(item)) return 0;
+
+  const prefixPool = [...item.base.pools.normal.prefixes, ...item.base.pools.desecrated.prefixes];
+  const suffixPool = [...item.base.pools.normal.suffixes, ...item.base.pools.desecrated.suffixes];
+  if (!prefixPool.includes(desiredModId) && !suffixPool.includes(desiredModId)) return 0;
+
+  const addOpts: AddAffixOptions = { floor: opts.floor ?? 0, occupiedFamilies: itemFamilies(data, item) };
+  if (opts.minTierIndex !== undefined) addOpts.minTierIndex = opts.minTierIndex;
+  if (opts.constrainTo !== undefined) addOpts.constrainTo = opts.constrainTo;
+  return addAffixProbabilityFromPools(data, item, desiredModId, prefixPool, suffixPool, addOpts);
+}

@@ -1,0 +1,26 @@
+{
+  "patch": "0.5",
+  "scenarios": {
+    "magic_wands_1prefix": {
+      "Wands/MAXIMUM_MANA": { "none": 1.0, "sinistral": 1.0, "dextral": 0.0 }
+    },
+    "magic_wands_1suffix": {
+      "Wands/INTELLIGENCE": { "none": 1.0, "sinistral": 0.0, "dextral": 1.0 }
+    },
+    "rare_wands_3suffix": {
+      "Wands/INTELLIGENCE": { "none": 0.3333333333333333, "sinistral": 0.0, "dextral": 0.3333333333333333 },
+      "Wands/MANA_REGENERATION_RATE": { "none": 0.3333333333333333, "sinistral": 0.0, "dextral": 0.3333333333333333 },
+      "Wands/INCREASED_CAST_SPEED": { "none": 0.3333333333333333, "sinistral": 0.0, "dextral": 0.3333333333333333 }
+    },
+    "rare_wands_3prefix": {
+      "Wands/MAXIMUM_MANA": { "none": 0.3333333333333333, "sinistral": 0.3333333333333333, "dextral": 0.0 },
+      "Wands/INCREASED_SPELL_DAMAGE": { "none": 0.3333333333333333, "sinistral": 0.3333333333333333, "dextral": 0.0 },
+      "Wands/DAMAGE_AS_EXTRA_FIRE_DAMAGE": { "none": 0.3333333333333333, "sinistral": 0.3333333333333333, "dextral": 0.0 }
+    },
+    "bodystr_2prefix_1suffix": {
+      "Body_Armours_Normal/BASE_MAXIMUM_LIFE": { "none": 0.3333333333333333, "sinistral": 0.5, "dextral": 0.0 },
+      "Body_Armours_Normal/BASE_ARMOUR": { "none": 0.3333333333333333, "sinistral": 0.5, "dextral": 0.0 },
+      "Body_Armours_Normal/STRENGTH": { "none": 0.3333333333333333, "sinistral": 0.0, "dextral": 1.0 }
+    }
+  }
+}

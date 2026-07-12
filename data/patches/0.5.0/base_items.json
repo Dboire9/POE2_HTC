@@ -1,0 +1,1843 @@
+{
+  "patch": "0.5.0",
+  "generated": "2026-07-04",
+  "source": "regenerated from RePoE-fork PoE2 dump (client 4.5.4.3); NORMAL pools only (essence/desecrated deferred). Structure (tiers/ilvl/ranges/pools) is authoritative; WEIGHTS are game-file placeholders (uniformly 1/0 in the 0.5 dump) and MUST be replaced by community-verified weights via weights_overrides.json before probabilities are meaningful.",
+  "count": 41,
+  "items": [
+    {
+      "id": "Amulets",
+      "name": "Amulets",
+      "category": "Amulets",
+      "class": "Amulets",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Amulets/IncreasedLife",
+            "Amulets/MaximumLifeIncreasePercent",
+            "Amulets/IncreasedMana",
+            "Amulets/MaximumManaIncreasePercent",
+            "Amulets/EnergyShield",
+            "Amulets/GlobalPhysicalDamageReductionRatingPercent",
+            "Amulets/GlobalEvasionRatingPercent",
+            "Amulets/GlobalEnergyShieldPercent",
+            "Amulets/IncreasedAccuracy",
+            "Amulets/ItemFoundRarityIncreasePrefix",
+            "Amulets/BaseSpirit",
+            "Amulets/SpellDamage"
+          ],
+          "suffixes": [
+            "Amulets/Strength",
+            "Amulets/Dexterity",
+            "Amulets/Intelligence",
+            "Amulets/AllAttributes",
+            "Amulets/FireResistance",
+            "Amulets/ColdResistance",
+            "Amulets/LightningResistance",
+            "Amulets/AllResistances",
+            "Amulets/ChaosResistance",
+            "Amulets/GlobalIncreaseSpellSkillGemLevel",
+            "Amulets/GlobalIncreaseMinionSpellSkillGemLevel",
+            "Amulets/GlobalIncreaseMeleeSkillGemLevel",
+            "Amulets/GlobalIncreaseProjectileSkillGemLevel",
+            "Amulets/LifeRegeneration",
+            "Amulets/ManaRegeneration",
+            "Amulets/CriticalStrikeChance",
+            "Amulets/CriticalStrikeMultiplier",
+            "Amulets/ItemFoundRarityIncrease",
+            "Amulets/DamageTakenGainedAsLife",
+            "Amulets/PercentDamageGoesToMana",
+            "Amulets/IncreasedCastSpeed"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Body_Armours_dex",
+      "name": "Body_Armours_dex",
+      "category": "Body_Armours",
+      "class": "Body Armours",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Body_Armours_dex/IncreasedLife",
+            "Body_Armours_dex/LocalEvasionRating",
+            "Body_Armours_dex/LocalEvasionRatingIncreasePercent",
+            "Body_Armours_dex/LocalIncreasedEvasionAndLife",
+            "Body_Armours_dex/LocalIncreasedEvasionAndBase",
+            "Body_Armours_dex/ThornsPhysicalDamage",
+            "Body_Armours_dex/BaseSpirit"
+          ],
+          "suffixes": [
+            "Body_Armours_dex/Dexterity",
+            "Body_Armours_dex/FireResistance",
+            "Body_Armours_dex/ColdResistance",
+            "Body_Armours_dex/LightningResistance",
+            "Body_Armours_dex/ChaosResistance",
+            "Body_Armours_dex/LocalAttributeRequirements",
+            "Body_Armours_dex/StunThreshold",
+            "Body_Armours_dex/LifeRegeneration",
+            "Body_Armours_dex/ReducedBleedDuration",
+            "Body_Armours_dex/ReducedPoisonDuration",
+            "Body_Armours_dex/ReducedBurnDuration",
+            "Body_Armours_dex/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Body_Armours_dex_int",
+      "name": "Body_Armours_dex_int",
+      "category": "Body_Armours",
+      "class": "Body Armours",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Body_Armours_dex_int/IncreasedLife",
+            "Body_Armours_dex_int/LocalBaseEvasionRatingAndEnergyShield",
+            "Body_Armours_dex_int/LocalEvasionAndEnergyShield",
+            "Body_Armours_dex_int/LocalIncreasedEvasionAndEnergyShieldAndLife",
+            "Body_Armours_dex_int/LocalIncreasedEvasionAndEnergyShieldAndBase",
+            "Body_Armours_dex_int/ThornsPhysicalDamage",
+            "Body_Armours_dex_int/BaseSpirit"
+          ],
+          "suffixes": [
+            "Body_Armours_dex_int/Dexterity",
+            "Body_Armours_dex_int/Intelligence",
+            "Body_Armours_dex_int/FireResistance",
+            "Body_Armours_dex_int/ColdResistance",
+            "Body_Armours_dex_int/LightningResistance",
+            "Body_Armours_dex_int/ChaosResistance",
+            "Body_Armours_dex_int/LocalAttributeRequirements",
+            "Body_Armours_dex_int/StunThreshold",
+            "Body_Armours_dex_int/LifeRegeneration",
+            "Body_Armours_dex_int/ReducedBleedDuration",
+            "Body_Armours_dex_int/ReducedPoisonDuration",
+            "Body_Armours_dex_int/ReducedBurnDuration",
+            "Body_Armours_dex_int/EnergyShieldRegeneration",
+            "Body_Armours_dex_int/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Body_Armours_int",
+      "name": "Body_Armours_int",
+      "category": "Body_Armours",
+      "class": "Body Armours",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Body_Armours_int/IncreasedLife",
+            "Body_Armours_int/LocalEnergyShield",
+            "Body_Armours_int/LocalEnergyShieldPercent",
+            "Body_Armours_int/LocalIncreasedEnergyShieldAndLife",
+            "Body_Armours_int/LocalIncreasedEnergyShieldAndBase",
+            "Body_Armours_int/ThornsPhysicalDamage",
+            "Body_Armours_int/BaseSpirit"
+          ],
+          "suffixes": [
+            "Body_Armours_int/Intelligence",
+            "Body_Armours_int/FireResistance",
+            "Body_Armours_int/ColdResistance",
+            "Body_Armours_int/LightningResistance",
+            "Body_Armours_int/ChaosResistance",
+            "Body_Armours_int/LocalAttributeRequirements",
+            "Body_Armours_int/StunThreshold",
+            "Body_Armours_int/LifeRegeneration",
+            "Body_Armours_int/ReducedBleedDuration",
+            "Body_Armours_int/ReducedPoisonDuration",
+            "Body_Armours_int/ReducedBurnDuration",
+            "Body_Armours_int/EnergyShieldRegeneration"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Body_Armours_str",
+      "name": "Body_Armours_str",
+      "category": "Body_Armours",
+      "class": "Body Armours",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Body_Armours_str/IncreasedLife",
+            "Body_Armours_str/LocalPhysicalDamageReductionRating",
+            "Body_Armours_str/LocalPhysicalDamageReductionRatingPercent",
+            "Body_Armours_str/LocalIncreasedArmourAndLife",
+            "Body_Armours_str/LocalIncreasedArmourAndBase",
+            "Body_Armours_str/ThornsPhysicalDamage",
+            "Body_Armours_str/BaseSpirit"
+          ],
+          "suffixes": [
+            "Body_Armours_str/Strength",
+            "Body_Armours_str/FireResistance",
+            "Body_Armours_str/ColdResistance",
+            "Body_Armours_str/LightningResistance",
+            "Body_Armours_str/ChaosResistance",
+            "Body_Armours_str/LocalAttributeRequirements",
+            "Body_Armours_str/StunThreshold",
+            "Body_Armours_str/LifeRegeneration",
+            "Body_Armours_str/ReducedBleedDuration",
+            "Body_Armours_str/ReducedPoisonDuration",
+            "Body_Armours_str/ReducedBurnDuration",
+            "Body_Armours_str/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Body_Armours_str_dex",
+      "name": "Body_Armours_str_dex",
+      "category": "Body_Armours",
+      "class": "Body Armours",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Body_Armours_str_dex/IncreasedLife",
+            "Body_Armours_str_dex/LocalBaseArmourAndEvasionRating",
+            "Body_Armours_str_dex/LocalArmourAndEvasion",
+            "Body_Armours_str_dex/LocalIncreasedArmourAndEvasionAndLife",
+            "Body_Armours_str_dex/LocalIncreasedArmourAndEvasionAndBase",
+            "Body_Armours_str_dex/ThornsPhysicalDamage",
+            "Body_Armours_str_dex/BaseSpirit"
+          ],
+          "suffixes": [
+            "Body_Armours_str_dex/Strength",
+            "Body_Armours_str_dex/Dexterity",
+            "Body_Armours_str_dex/FireResistance",
+            "Body_Armours_str_dex/ColdResistance",
+            "Body_Armours_str_dex/LightningResistance",
+            "Body_Armours_str_dex/ChaosResistance",
+            "Body_Armours_str_dex/LocalAttributeRequirements",
+            "Body_Armours_str_dex/StunThreshold",
+            "Body_Armours_str_dex/LifeRegeneration",
+            "Body_Armours_str_dex/ReducedBleedDuration",
+            "Body_Armours_str_dex/ReducedPoisonDuration",
+            "Body_Armours_str_dex/ReducedBurnDuration",
+            "Body_Armours_str_dex/ArmourAppliesToElementalDamage",
+            "Body_Armours_str_dex/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Body_Armours_str_int",
+      "name": "Body_Armours_str_int",
+      "category": "Body_Armours",
+      "class": "Body Armours",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Body_Armours_str_int/IncreasedLife",
+            "Body_Armours_str_int/LocalBaseArmourAndEnergyShield",
+            "Body_Armours_str_int/LocalArmourAndEnergyShield",
+            "Body_Armours_str_int/LocalIncreasedArmourAndEnergyShieldAndLife",
+            "Body_Armours_str_int/LocalIncreasedArmourAndEnergyShieldAndBase",
+            "Body_Armours_str_int/ThornsPhysicalDamage",
+            "Body_Armours_str_int/BaseSpirit"
+          ],
+          "suffixes": [
+            "Body_Armours_str_int/Strength",
+            "Body_Armours_str_int/Intelligence",
+            "Body_Armours_str_int/FireResistance",
+            "Body_Armours_str_int/ColdResistance",
+            "Body_Armours_str_int/LightningResistance",
+            "Body_Armours_str_int/ChaosResistance",
+            "Body_Armours_str_int/LocalAttributeRequirements",
+            "Body_Armours_str_int/StunThreshold",
+            "Body_Armours_str_int/LifeRegeneration",
+            "Body_Armours_str_int/ReducedBleedDuration",
+            "Body_Armours_str_int/ReducedPoisonDuration",
+            "Body_Armours_str_int/ReducedBurnDuration",
+            "Body_Armours_str_int/EnergyShieldRegeneration",
+            "Body_Armours_str_int/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Boots_dex",
+      "name": "Boots_dex",
+      "category": "Boots",
+      "class": "Boots",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Boots_dex/IncreasedLife",
+            "Boots_dex/IncreasedMana",
+            "Boots_dex/LocalEvasionRating",
+            "Boots_dex/LocalEvasionRatingIncreasePercent",
+            "Boots_dex/LocalEvasionAndStunThreshold",
+            "Boots_dex/MovementVelocity"
+          ],
+          "suffixes": [
+            "Boots_dex/Dexterity",
+            "Boots_dex/FireResistance",
+            "Boots_dex/ColdResistance",
+            "Boots_dex/LightningResistance",
+            "Boots_dex/ChaosResistance",
+            "Boots_dex/LocalAttributeRequirements",
+            "Boots_dex/StunThreshold",
+            "Boots_dex/LifeRegeneration",
+            "Boots_dex/ItemFoundRarityIncrease",
+            "Boots_dex/ReducedShockDuration",
+            "Boots_dex/ReducedChillDuration",
+            "Boots_dex/ReducedFreezeDuration",
+            "Boots_dex/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Boots_dex_int",
+      "name": "Boots_dex_int",
+      "category": "Boots",
+      "class": "Boots",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Boots_dex_int/IncreasedLife",
+            "Boots_dex_int/IncreasedMana",
+            "Boots_dex_int/LocalBaseEvasionRatingAndEnergyShield",
+            "Boots_dex_int/LocalEvasionAndEnergyShield",
+            "Boots_dex_int/LocalEvasionAndEnergyShieldAndStunThreshold",
+            "Boots_dex_int/MovementVelocity"
+          ],
+          "suffixes": [
+            "Boots_dex_int/Dexterity",
+            "Boots_dex_int/Intelligence",
+            "Boots_dex_int/FireResistance",
+            "Boots_dex_int/ColdResistance",
+            "Boots_dex_int/LightningResistance",
+            "Boots_dex_int/ChaosResistance",
+            "Boots_dex_int/LocalAttributeRequirements",
+            "Boots_dex_int/StunThreshold",
+            "Boots_dex_int/LifeRegeneration",
+            "Boots_dex_int/ItemFoundRarityIncrease",
+            "Boots_dex_int/ReducedShockDuration",
+            "Boots_dex_int/ReducedChillDuration",
+            "Boots_dex_int/ReducedFreezeDuration",
+            "Boots_dex_int/EnergyShieldRegeneration",
+            "Boots_dex_int/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Boots_int",
+      "name": "Boots_int",
+      "category": "Boots",
+      "class": "Boots",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Boots_int/IncreasedLife",
+            "Boots_int/IncreasedMana",
+            "Boots_int/LocalEnergyShield",
+            "Boots_int/LocalEnergyShieldPercent",
+            "Boots_int/LocalEnergyShieldAndStunThreshold",
+            "Boots_int/MovementVelocity"
+          ],
+          "suffixes": [
+            "Boots_int/Intelligence",
+            "Boots_int/FireResistance",
+            "Boots_int/ColdResistance",
+            "Boots_int/LightningResistance",
+            "Boots_int/ChaosResistance",
+            "Boots_int/LocalAttributeRequirements",
+            "Boots_int/StunThreshold",
+            "Boots_int/LifeRegeneration",
+            "Boots_int/ItemFoundRarityIncrease",
+            "Boots_int/ReducedShockDuration",
+            "Boots_int/ReducedChillDuration",
+            "Boots_int/ReducedFreezeDuration",
+            "Boots_int/EnergyShieldRegeneration"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Boots_str",
+      "name": "Boots_str",
+      "category": "Boots",
+      "class": "Boots",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Boots_str/IncreasedLife",
+            "Boots_str/IncreasedMana",
+            "Boots_str/LocalPhysicalDamageReductionRating",
+            "Boots_str/LocalPhysicalDamageReductionRatingPercent",
+            "Boots_str/LocalArmourAndStunThreshold",
+            "Boots_str/MovementVelocity"
+          ],
+          "suffixes": [
+            "Boots_str/Strength",
+            "Boots_str/FireResistance",
+            "Boots_str/ColdResistance",
+            "Boots_str/LightningResistance",
+            "Boots_str/ChaosResistance",
+            "Boots_str/LocalAttributeRequirements",
+            "Boots_str/StunThreshold",
+            "Boots_str/LifeRegeneration",
+            "Boots_str/ItemFoundRarityIncrease",
+            "Boots_str/ReducedShockDuration",
+            "Boots_str/ReducedChillDuration",
+            "Boots_str/ReducedFreezeDuration",
+            "Boots_str/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Boots_str_dex",
+      "name": "Boots_str_dex",
+      "category": "Boots",
+      "class": "Boots",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Boots_str_dex/IncreasedLife",
+            "Boots_str_dex/IncreasedMana",
+            "Boots_str_dex/LocalBaseArmourAndEvasionRating",
+            "Boots_str_dex/LocalArmourAndEvasion",
+            "Boots_str_dex/LocalArmourAndEvasionAndStunThreshold",
+            "Boots_str_dex/MovementVelocity"
+          ],
+          "suffixes": [
+            "Boots_str_dex/Strength",
+            "Boots_str_dex/Dexterity",
+            "Boots_str_dex/FireResistance",
+            "Boots_str_dex/ColdResistance",
+            "Boots_str_dex/LightningResistance",
+            "Boots_str_dex/ChaosResistance",
+            "Boots_str_dex/LocalAttributeRequirements",
+            "Boots_str_dex/StunThreshold",
+            "Boots_str_dex/LifeRegeneration",
+            "Boots_str_dex/ItemFoundRarityIncrease",
+            "Boots_str_dex/ReducedShockDuration",
+            "Boots_str_dex/ReducedChillDuration",
+            "Boots_str_dex/ReducedFreezeDuration",
+            "Boots_str_dex/ArmourAppliesToElementalDamage",
+            "Boots_str_dex/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Boots_str_int",
+      "name": "Boots_str_int",
+      "category": "Boots",
+      "class": "Boots",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Boots_str_int/IncreasedLife",
+            "Boots_str_int/IncreasedMana",
+            "Boots_str_int/LocalBaseArmourAndEnergyShield",
+            "Boots_str_int/LocalArmourAndEnergyShield",
+            "Boots_str_int/LocalArmourAndEnergyShieldAndStunThreshold",
+            "Boots_str_int/MovementVelocity"
+          ],
+          "suffixes": [
+            "Boots_str_int/Strength",
+            "Boots_str_int/Intelligence",
+            "Boots_str_int/FireResistance",
+            "Boots_str_int/ColdResistance",
+            "Boots_str_int/LightningResistance",
+            "Boots_str_int/ChaosResistance",
+            "Boots_str_int/LocalAttributeRequirements",
+            "Boots_str_int/StunThreshold",
+            "Boots_str_int/LifeRegeneration",
+            "Boots_str_int/ItemFoundRarityIncrease",
+            "Boots_str_int/ReducedShockDuration",
+            "Boots_str_int/ReducedChillDuration",
+            "Boots_str_int/ReducedFreezeDuration",
+            "Boots_str_int/EnergyShieldRegeneration",
+            "Boots_str_int/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Bows",
+      "name": "Bows",
+      "category": "Bows",
+      "class": "Bows",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Bows/LocalPhysicalDamage",
+            "Bows/LocalFireDamage",
+            "Bows/LocalColdDamage",
+            "Bows/LocalLightningDamage",
+            "Bows/LocalPhysicalDamagePercent",
+            "Bows/LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+            "Bows/LocalAccuracyRating",
+            "Bows/IncreasedWeaponElementalDamagePercent"
+          ],
+          "suffixes": [
+            "Bows/Dexterity",
+            "Bows/LocalAttributeRequirements",
+            "Bows/GlobalIncreaseProjectileSkillGemLevelWeapon",
+            "Bows/LifeLeechLocalPermyriad",
+            "Bows/ManaLeechLocalPermyriad",
+            "Bows/LifeGainedFromEnemyDeath",
+            "Bows/ManaGainedFromEnemyDeath",
+            "Bows/LifeGainPerTargetLocal",
+            "Bows/LocalIncreasedAttackSpeed",
+            "Bows/LocalBaseCriticalStrikeChance",
+            "Bows/LocalCriticalStrikeMultiplier",
+            "Bows/LocalLightRadiusAndAccuracy",
+            "Bows/AdditionalArrowChanceCanExceed100%"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Bucklers",
+      "name": "Bucklers",
+      "category": "Bucklers",
+      "class": "Bucklers",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Bucklers/IncreasedLife",
+            "Bucklers/LocalEvasionRating",
+            "Bucklers/LocalEvasionRatingIncreasePercent",
+            "Bucklers/LocalEvasionAndStunThreshold",
+            "Bucklers/ThornsPhysicalDamage",
+            "Bucklers/LocalIncreasedBlockPercentage"
+          ],
+          "suffixes": [
+            "Bucklers/Dexterity",
+            "Bucklers/FireResistance",
+            "Bucklers/ColdResistance",
+            "Bucklers/LightningResistance",
+            "Bucklers/ChaosResistance",
+            "Bucklers/LocalAttributeRequirements",
+            "Bucklers/StunThreshold",
+            "Bucklers/MaximumFireResist",
+            "Bucklers/MaximumColdResist",
+            "Bucklers/MaximumLightningResistance",
+            "Bucklers/MaximumChaosResistance",
+            "Bucklers/MaximumElementalResistance",
+            "Bucklers/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Crossbows",
+      "name": "Crossbows",
+      "category": "Crossbows",
+      "class": "Crossbows",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Crossbows/LocalPhysicalDamage",
+            "Crossbows/LocalFireDamage",
+            "Crossbows/LocalColdDamage",
+            "Crossbows/LocalLightningDamage",
+            "Crossbows/LocalPhysicalDamagePercent",
+            "Crossbows/LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+            "Crossbows/LocalAccuracyRating",
+            "Crossbows/IncreasedWeaponElementalDamagePercent"
+          ],
+          "suffixes": [
+            "Crossbows/Strength",
+            "Crossbows/Dexterity",
+            "Crossbows/LocalAttributeRequirements",
+            "Crossbows/GlobalIncreaseProjectileSkillGemLevelWeapon",
+            "Crossbows/LifeLeechLocalPermyriad",
+            "Crossbows/ManaLeechLocalPermyriad",
+            "Crossbows/LifeGainedFromEnemyDeath",
+            "Crossbows/ManaGainedFromEnemyDeath",
+            "Crossbows/LifeGainPerTargetLocal",
+            "Crossbows/LocalIncreasedAttackSpeed",
+            "Crossbows/LocalBaseCriticalStrikeChance",
+            "Crossbows/LocalCriticalStrikeMultiplier",
+            "Crossbows/LocalLightRadiusAndAccuracy",
+            "Crossbows/AdditionalAmmo"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Foci",
+      "name": "Foci",
+      "category": "Foci",
+      "class": "Foci",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Foci/IncreasedMana",
+            "Foci/LocalEnergyShield",
+            "Foci/LocalEnergyShieldPercent",
+            "Foci/LocalIncreasedEnergyShieldAndMana",
+            "Foci/WeaponSpellDamage",
+            "Foci/FireDamageWeaponPrefix",
+            "Foci/ColdDamageWeaponPrefix",
+            "Foci/LightningDamageWeaponPrefix",
+            "Foci/ChaosDamageWeaponPrefix",
+            "Foci/PhysicalSpellDamageWeaponPrefix"
+          ],
+          "suffixes": [
+            "Foci/Intelligence",
+            "Foci/FireResistance",
+            "Foci/ColdResistance",
+            "Foci/LightningResistance",
+            "Foci/ChaosResistance",
+            "Foci/LocalAttributeRequirements",
+            "Foci/GlobalIncreaseSpellSkillGemLevel",
+            "Foci/ManaRegeneration",
+            "Foci/IncreasedCastSpeed",
+            "Foci/SpellCriticalStrikeChance",
+            "Foci/SpellCriticalStrikeMultiplier",
+            "Foci/EnergyShieldRegeneration"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Gloves_dex",
+      "name": "Gloves_dex",
+      "category": "Gloves",
+      "class": "Gloves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Gloves_dex/IncreasedLife",
+            "Gloves_dex/IncreasedMana",
+            "Gloves_dex/LocalEvasionRating",
+            "Gloves_dex/LocalEvasionRatingIncreasePercent",
+            "Gloves_dex/LocalIncreasedEvasionAndLife",
+            "Gloves_dex/PhysicalDamage",
+            "Gloves_dex/FireDamage",
+            "Gloves_dex/ColdDamage",
+            "Gloves_dex/LightningDamage",
+            "Gloves_dex/IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_dex/Dexterity",
+            "Gloves_dex/FireResistance",
+            "Gloves_dex/ColdResistance",
+            "Gloves_dex/LightningResistance",
+            "Gloves_dex/ChaosResistance",
+            "Gloves_dex/LocalAttributeRequirements",
+            "Gloves_dex/GlobalIncreaseMeleeSkillGemLevel",
+            "Gloves_dex/LifeLeechPermyriad",
+            "Gloves_dex/ManaLeechPermyriad",
+            "Gloves_dex/LifeGainedFromEnemyDeath",
+            "Gloves_dex/ManaGainedFromEnemyDeath",
+            "Gloves_dex/LifeGainPerTarget",
+            "Gloves_dex/IncreasedAttackSpeed",
+            "Gloves_dex/CriticalStrikeMultiplier",
+            "Gloves_dex/ItemFoundRarityIncrease",
+            "Gloves_dex/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Gloves_dex_int",
+      "name": "Gloves_dex_int",
+      "category": "Gloves",
+      "class": "Gloves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Gloves_dex_int/IncreasedLife",
+            "Gloves_dex_int/IncreasedMana",
+            "Gloves_dex_int/LocalBaseEvasionRatingAndEnergyShield",
+            "Gloves_dex_int/LocalEvasionAndEnergyShield",
+            "Gloves_dex_int/LocalIncreasedEvasionAndEnergyShieldAndLife",
+            "Gloves_dex_int/PhysicalDamage",
+            "Gloves_dex_int/FireDamage",
+            "Gloves_dex_int/ColdDamage",
+            "Gloves_dex_int/LightningDamage",
+            "Gloves_dex_int/IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_dex_int/Dexterity",
+            "Gloves_dex_int/Intelligence",
+            "Gloves_dex_int/FireResistance",
+            "Gloves_dex_int/ColdResistance",
+            "Gloves_dex_int/LightningResistance",
+            "Gloves_dex_int/ChaosResistance",
+            "Gloves_dex_int/LocalAttributeRequirements",
+            "Gloves_dex_int/GlobalIncreaseMeleeSkillGemLevel",
+            "Gloves_dex_int/LifeLeechPermyriad",
+            "Gloves_dex_int/ManaLeechPermyriad",
+            "Gloves_dex_int/LifeGainedFromEnemyDeath",
+            "Gloves_dex_int/ManaGainedFromEnemyDeath",
+            "Gloves_dex_int/LifeGainPerTarget",
+            "Gloves_dex_int/IncreasedAttackSpeed",
+            "Gloves_dex_int/CriticalStrikeMultiplier",
+            "Gloves_dex_int/ItemFoundRarityIncrease",
+            "Gloves_dex_int/EnergyShieldRegeneration",
+            "Gloves_dex_int/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Gloves_int",
+      "name": "Gloves_int",
+      "category": "Gloves",
+      "class": "Gloves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Gloves_int/IncreasedLife",
+            "Gloves_int/IncreasedMana",
+            "Gloves_int/LocalEnergyShield",
+            "Gloves_int/LocalEnergyShieldPercent",
+            "Gloves_int/LocalIncreasedEnergyShieldAndLife",
+            "Gloves_int/PhysicalDamage",
+            "Gloves_int/FireDamage",
+            "Gloves_int/ColdDamage",
+            "Gloves_int/LightningDamage",
+            "Gloves_int/IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_int/Dexterity",
+            "Gloves_int/Intelligence",
+            "Gloves_int/FireResistance",
+            "Gloves_int/ColdResistance",
+            "Gloves_int/LightningResistance",
+            "Gloves_int/ChaosResistance",
+            "Gloves_int/LocalAttributeRequirements",
+            "Gloves_int/GlobalIncreaseMeleeSkillGemLevel",
+            "Gloves_int/LifeLeechPermyriad",
+            "Gloves_int/ManaLeechPermyriad",
+            "Gloves_int/LifeGainedFromEnemyDeath",
+            "Gloves_int/ManaGainedFromEnemyDeath",
+            "Gloves_int/LifeGainPerTarget",
+            "Gloves_int/IncreasedAttackSpeed",
+            "Gloves_int/CriticalStrikeMultiplier",
+            "Gloves_int/ItemFoundRarityIncrease",
+            "Gloves_int/EnergyShieldRegeneration"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Gloves_str",
+      "name": "Gloves_str",
+      "category": "Gloves",
+      "class": "Gloves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Gloves_str/IncreasedLife",
+            "Gloves_str/IncreasedMana",
+            "Gloves_str/LocalPhysicalDamageReductionRating",
+            "Gloves_str/LocalPhysicalDamageReductionRatingPercent",
+            "Gloves_str/LocalIncreasedArmourAndLife",
+            "Gloves_str/PhysicalDamage",
+            "Gloves_str/FireDamage",
+            "Gloves_str/ColdDamage",
+            "Gloves_str/LightningDamage",
+            "Gloves_str/IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_str/Strength",
+            "Gloves_str/Dexterity",
+            "Gloves_str/FireResistance",
+            "Gloves_str/ColdResistance",
+            "Gloves_str/LightningResistance",
+            "Gloves_str/ChaosResistance",
+            "Gloves_str/LocalAttributeRequirements",
+            "Gloves_str/GlobalIncreaseMeleeSkillGemLevel",
+            "Gloves_str/LifeLeechPermyriad",
+            "Gloves_str/ManaLeechPermyriad",
+            "Gloves_str/LifeGainedFromEnemyDeath",
+            "Gloves_str/ManaGainedFromEnemyDeath",
+            "Gloves_str/LifeGainPerTarget",
+            "Gloves_str/IncreasedAttackSpeed",
+            "Gloves_str/CriticalStrikeMultiplier",
+            "Gloves_str/ItemFoundRarityIncrease",
+            "Gloves_str/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Gloves_str_dex",
+      "name": "Gloves_str_dex",
+      "category": "Gloves",
+      "class": "Gloves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Gloves_str_dex/IncreasedLife",
+            "Gloves_str_dex/IncreasedMana",
+            "Gloves_str_dex/LocalBaseArmourAndEvasionRating",
+            "Gloves_str_dex/LocalArmourAndEvasion",
+            "Gloves_str_dex/LocalIncreasedArmourAndEvasionAndLife",
+            "Gloves_str_dex/PhysicalDamage",
+            "Gloves_str_dex/FireDamage",
+            "Gloves_str_dex/ColdDamage",
+            "Gloves_str_dex/LightningDamage",
+            "Gloves_str_dex/IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_str_dex/Strength",
+            "Gloves_str_dex/Dexterity",
+            "Gloves_str_dex/FireResistance",
+            "Gloves_str_dex/ColdResistance",
+            "Gloves_str_dex/LightningResistance",
+            "Gloves_str_dex/ChaosResistance",
+            "Gloves_str_dex/LocalAttributeRequirements",
+            "Gloves_str_dex/GlobalIncreaseMeleeSkillGemLevel",
+            "Gloves_str_dex/LifeLeechPermyriad",
+            "Gloves_str_dex/ManaLeechPermyriad",
+            "Gloves_str_dex/LifeGainedFromEnemyDeath",
+            "Gloves_str_dex/ManaGainedFromEnemyDeath",
+            "Gloves_str_dex/LifeGainPerTarget",
+            "Gloves_str_dex/IncreasedAttackSpeed",
+            "Gloves_str_dex/CriticalStrikeMultiplier",
+            "Gloves_str_dex/ItemFoundRarityIncrease",
+            "Gloves_str_dex/ArmourAppliesToElementalDamage",
+            "Gloves_str_dex/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Gloves_str_int",
+      "name": "Gloves_str_int",
+      "category": "Gloves",
+      "class": "Gloves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Gloves_str_int/IncreasedLife",
+            "Gloves_str_int/IncreasedMana",
+            "Gloves_str_int/LocalBaseArmourAndEnergyShield",
+            "Gloves_str_int/LocalArmourAndEnergyShield",
+            "Gloves_str_int/LocalIncreasedArmourAndEnergyShieldAndLife",
+            "Gloves_str_int/PhysicalDamage",
+            "Gloves_str_int/FireDamage",
+            "Gloves_str_int/ColdDamage",
+            "Gloves_str_int/LightningDamage",
+            "Gloves_str_int/IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_str_int/Strength",
+            "Gloves_str_int/Dexterity",
+            "Gloves_str_int/Intelligence",
+            "Gloves_str_int/FireResistance",
+            "Gloves_str_int/ColdResistance",
+            "Gloves_str_int/LightningResistance",
+            "Gloves_str_int/ChaosResistance",
+            "Gloves_str_int/LocalAttributeRequirements",
+            "Gloves_str_int/GlobalIncreaseMeleeSkillGemLevel",
+            "Gloves_str_int/LifeLeechPermyriad",
+            "Gloves_str_int/ManaLeechPermyriad",
+            "Gloves_str_int/LifeGainedFromEnemyDeath",
+            "Gloves_str_int/ManaGainedFromEnemyDeath",
+            "Gloves_str_int/LifeGainPerTarget",
+            "Gloves_str_int/IncreasedAttackSpeed",
+            "Gloves_str_int/CriticalStrikeMultiplier",
+            "Gloves_str_int/ItemFoundRarityIncrease",
+            "Gloves_str_int/EnergyShieldRegeneration",
+            "Gloves_str_int/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Helmets_dex",
+      "name": "Helmets_dex",
+      "category": "Helmets",
+      "class": "Helmets",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Helmets_dex/IncreasedLife",
+            "Helmets_dex/IncreasedMana",
+            "Helmets_dex/LocalEvasionRating",
+            "Helmets_dex/LocalEvasionRatingIncreasePercent",
+            "Helmets_dex/LocalIncreasedEvasionAndLife",
+            "Helmets_dex/LocalIncreasedEvasionAndMana",
+            "Helmets_dex/IncreasedAccuracy",
+            "Helmets_dex/ItemFoundRarityIncreasePrefix"
+          ],
+          "suffixes": [
+            "Helmets_dex/Dexterity",
+            "Helmets_dex/Intelligence",
+            "Helmets_dex/FireResistance",
+            "Helmets_dex/ColdResistance",
+            "Helmets_dex/LightningResistance",
+            "Helmets_dex/ChaosResistance",
+            "Helmets_dex/LocalAttributeRequirements",
+            "Helmets_dex/GlobalIncreaseMinionSpellSkillGemLevel",
+            "Helmets_dex/LifeRegeneration",
+            "Helmets_dex/CriticalStrikeChance",
+            "Helmets_dex/ItemFoundRarityIncrease",
+            "Helmets_dex/LightRadiusAndAccuracy",
+            "Helmets_dex/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Helmets_dex_int",
+      "name": "Helmets_dex_int",
+      "category": "Helmets",
+      "class": "Helmets",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Helmets_dex_int/IncreasedLife",
+            "Helmets_dex_int/IncreasedMana",
+            "Helmets_dex_int/LocalBaseEvasionRatingAndEnergyShield",
+            "Helmets_dex_int/LocalEvasionAndEnergyShield",
+            "Helmets_dex_int/LocalIncreasedEvasionAndEnergyShieldAndLife",
+            "Helmets_dex_int/LocalIncreasedEvasionAndEnergyShieldAndMana",
+            "Helmets_dex_int/IncreasedAccuracy",
+            "Helmets_dex_int/ItemFoundRarityIncreasePrefix"
+          ],
+          "suffixes": [
+            "Helmets_dex_int/Dexterity",
+            "Helmets_dex_int/Intelligence",
+            "Helmets_dex_int/FireResistance",
+            "Helmets_dex_int/ColdResistance",
+            "Helmets_dex_int/LightningResistance",
+            "Helmets_dex_int/ChaosResistance",
+            "Helmets_dex_int/LocalAttributeRequirements",
+            "Helmets_dex_int/GlobalIncreaseMinionSpellSkillGemLevel",
+            "Helmets_dex_int/LifeRegeneration",
+            "Helmets_dex_int/CriticalStrikeChance",
+            "Helmets_dex_int/ItemFoundRarityIncrease",
+            "Helmets_dex_int/LightRadiusAndAccuracy",
+            "Helmets_dex_int/EnergyShieldRegeneration",
+            "Helmets_dex_int/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Helmets_int",
+      "name": "Helmets_int",
+      "category": "Helmets",
+      "class": "Helmets",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Helmets_int/IncreasedLife",
+            "Helmets_int/IncreasedMana",
+            "Helmets_int/LocalEnergyShield",
+            "Helmets_int/LocalEnergyShieldPercent",
+            "Helmets_int/LocalIncreasedEnergyShieldAndLife",
+            "Helmets_int/LocalIncreasedEnergyShieldAndMana",
+            "Helmets_int/IncreasedAccuracy",
+            "Helmets_int/ItemFoundRarityIncreasePrefix"
+          ],
+          "suffixes": [
+            "Helmets_int/Intelligence",
+            "Helmets_int/FireResistance",
+            "Helmets_int/ColdResistance",
+            "Helmets_int/LightningResistance",
+            "Helmets_int/ChaosResistance",
+            "Helmets_int/LocalAttributeRequirements",
+            "Helmets_int/GlobalIncreaseMinionSpellSkillGemLevel",
+            "Helmets_int/LifeRegeneration",
+            "Helmets_int/CriticalStrikeChance",
+            "Helmets_int/ItemFoundRarityIncrease",
+            "Helmets_int/LightRadiusAndAccuracy",
+            "Helmets_int/EnergyShieldRegeneration"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Helmets_str",
+      "name": "Helmets_str",
+      "category": "Helmets",
+      "class": "Helmets",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Helmets_str/IncreasedLife",
+            "Helmets_str/IncreasedMana",
+            "Helmets_str/LocalPhysicalDamageReductionRating",
+            "Helmets_str/LocalPhysicalDamageReductionRatingPercent",
+            "Helmets_str/LocalIncreasedArmourAndLife",
+            "Helmets_str/LocalIncreasedArmourAndMana",
+            "Helmets_str/IncreasedAccuracy",
+            "Helmets_str/ItemFoundRarityIncreasePrefix"
+          ],
+          "suffixes": [
+            "Helmets_str/Strength",
+            "Helmets_str/Intelligence",
+            "Helmets_str/FireResistance",
+            "Helmets_str/ColdResistance",
+            "Helmets_str/LightningResistance",
+            "Helmets_str/ChaosResistance",
+            "Helmets_str/LocalAttributeRequirements",
+            "Helmets_str/GlobalIncreaseMinionSpellSkillGemLevel",
+            "Helmets_str/LifeRegeneration",
+            "Helmets_str/CriticalStrikeChance",
+            "Helmets_str/ItemFoundRarityIncrease",
+            "Helmets_str/LightRadiusAndAccuracy",
+            "Helmets_str/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Helmets_str_dex",
+      "name": "Helmets_str_dex",
+      "category": "Helmets",
+      "class": "Helmets",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Helmets_str_dex/IncreasedLife",
+            "Helmets_str_dex/IncreasedMana",
+            "Helmets_str_dex/LocalBaseArmourAndEvasionRating",
+            "Helmets_str_dex/LocalArmourAndEvasion",
+            "Helmets_str_dex/LocalIncreasedArmourAndEvasionAndLife",
+            "Helmets_str_dex/LocalIncreasedArmourAndEvasionAndMana",
+            "Helmets_str_dex/IncreasedAccuracy",
+            "Helmets_str_dex/ItemFoundRarityIncreasePrefix"
+          ],
+          "suffixes": [
+            "Helmets_str_dex/Strength",
+            "Helmets_str_dex/Dexterity",
+            "Helmets_str_dex/Intelligence",
+            "Helmets_str_dex/FireResistance",
+            "Helmets_str_dex/ColdResistance",
+            "Helmets_str_dex/LightningResistance",
+            "Helmets_str_dex/ChaosResistance",
+            "Helmets_str_dex/LocalAttributeRequirements",
+            "Helmets_str_dex/GlobalIncreaseMinionSpellSkillGemLevel",
+            "Helmets_str_dex/LifeRegeneration",
+            "Helmets_str_dex/CriticalStrikeChance",
+            "Helmets_str_dex/ItemFoundRarityIncrease",
+            "Helmets_str_dex/LightRadiusAndAccuracy",
+            "Helmets_str_dex/ArmourAppliesToElementalDamage",
+            "Helmets_str_dex/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Helmets_str_int",
+      "name": "Helmets_str_int",
+      "category": "Helmets",
+      "class": "Helmets",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Helmets_str_int/IncreasedLife",
+            "Helmets_str_int/IncreasedMana",
+            "Helmets_str_int/LocalBaseArmourAndEnergyShield",
+            "Helmets_str_int/LocalArmourAndEnergyShield",
+            "Helmets_str_int/LocalIncreasedArmourAndEnergyShieldAndLife",
+            "Helmets_str_int/LocalIncreasedArmourAndEnergyShieldAndMana",
+            "Helmets_str_int/IncreasedAccuracy",
+            "Helmets_str_int/ItemFoundRarityIncreasePrefix"
+          ],
+          "suffixes": [
+            "Helmets_str_int/Strength",
+            "Helmets_str_int/Intelligence",
+            "Helmets_str_int/FireResistance",
+            "Helmets_str_int/ColdResistance",
+            "Helmets_str_int/LightningResistance",
+            "Helmets_str_int/ChaosResistance",
+            "Helmets_str_int/LocalAttributeRequirements",
+            "Helmets_str_int/GlobalIncreaseMinionSpellSkillGemLevel",
+            "Helmets_str_int/LifeRegeneration",
+            "Helmets_str_int/CriticalStrikeChance",
+            "Helmets_str_int/ItemFoundRarityIncrease",
+            "Helmets_str_int/LightRadiusAndAccuracy",
+            "Helmets_str_int/EnergyShieldRegeneration",
+            "Helmets_str_int/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "OneHand_Maces",
+      "name": "OneHand_Maces",
+      "category": "OneHand_Maces",
+      "class": "One Hand Maces",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "OneHand_Maces/LocalPhysicalDamage",
+            "OneHand_Maces/LocalFireDamage",
+            "OneHand_Maces/LocalColdDamage",
+            "OneHand_Maces/LocalLightningDamage",
+            "OneHand_Maces/LocalPhysicalDamagePercent",
+            "OneHand_Maces/LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+            "OneHand_Maces/LocalAccuracyRating",
+            "OneHand_Maces/IncreasedWeaponElementalDamagePercent"
+          ],
+          "suffixes": [
+            "OneHand_Maces/Strength",
+            "OneHand_Maces/LocalAttributeRequirements",
+            "OneHand_Maces/GlobalIncreaseMeleeSkillGemLevel",
+            "OneHand_Maces/LifeLeechLocalPermyriad",
+            "OneHand_Maces/ManaLeechLocalPermyriad",
+            "OneHand_Maces/LifeGainedFromEnemyDeath",
+            "OneHand_Maces/ManaGainedFromEnemyDeath",
+            "OneHand_Maces/LifeGainPerTargetLocal",
+            "OneHand_Maces/LocalIncreasedAttackSpeed",
+            "OneHand_Maces/LocalBaseCriticalStrikeChance",
+            "OneHand_Maces/LocalCriticalStrikeMultiplier",
+            "OneHand_Maces/LocalLightRadiusAndAccuracy",
+            "OneHand_Maces/LocalStunDuration",
+            "OneHand_Maces/LocalStunDamageIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Quarterstaves",
+      "name": "Quarterstaves",
+      "category": "Quarterstaves",
+      "class": "Quarterstaves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Quarterstaves/LocalPhysicalDamage",
+            "Quarterstaves/LocalFireDamage",
+            "Quarterstaves/LocalColdDamage",
+            "Quarterstaves/LocalLightningDamage",
+            "Quarterstaves/LocalPhysicalDamagePercent",
+            "Quarterstaves/LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+            "Quarterstaves/LocalAccuracyRating",
+            "Quarterstaves/IncreasedWeaponElementalDamagePercent"
+          ],
+          "suffixes": [
+            "Quarterstaves/Dexterity",
+            "Quarterstaves/Intelligence",
+            "Quarterstaves/LocalAttributeRequirements",
+            "Quarterstaves/GlobalIncreaseMeleeSkillGemLevelWeapon",
+            "Quarterstaves/LifeLeechLocalPermyriad",
+            "Quarterstaves/ManaLeechLocalPermyriad",
+            "Quarterstaves/LifeGainedFromEnemyDeath",
+            "Quarterstaves/ManaGainedFromEnemyDeath",
+            "Quarterstaves/LifeGainPerTargetLocal",
+            "Quarterstaves/LocalIncreasedAttackSpeed",
+            "Quarterstaves/LocalBaseCriticalStrikeChance",
+            "Quarterstaves/LocalCriticalStrikeMultiplier",
+            "Quarterstaves/LocalLightRadiusAndAccuracy",
+            "Quarterstaves/LocalStunDuration",
+            "Quarterstaves/LocalStunDamageIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Quivers",
+      "name": "Quivers",
+      "category": "Quivers",
+      "class": "Quivers",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Quivers/PhysicalDamage",
+            "Quivers/FireDamage",
+            "Quivers/ColdDamage",
+            "Quivers/LightningDamage",
+            "Quivers/IncreasedAccuracy",
+            "Quivers/ProjectileSpeed",
+            "Quivers/DamageWithBowSkills"
+          ],
+          "suffixes": [
+            "Quivers/Dexterity",
+            "Quivers/GlobalIncreaseProjectileSkillGemLevel",
+            "Quivers/LifeGainedFromEnemyDeath",
+            "Quivers/ManaGainedFromEnemyDeath",
+            "Quivers/IncreasedAttackSpeed",
+            "Quivers/AttackCriticalStrikeChance",
+            "Quivers/AttackCriticalStrikeMultiplier",
+            "Quivers/ChanceToPierce",
+            "Quivers/AdditionalArrowChanceCanExceed100%"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Rings",
+      "name": "Rings",
+      "category": "Rings",
+      "class": "Rings",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Rings/IncreasedLife",
+            "Rings/IncreasedMana",
+            "Rings/EvasionRating",
+            "Rings/PhysicalDamage",
+            "Rings/FireDamage",
+            "Rings/ColdDamage",
+            "Rings/LightningDamage",
+            "Rings/IncreasedAccuracy",
+            "Rings/ItemFoundRarityIncreasePrefix",
+            "Rings/FireDamagePercentage",
+            "Rings/ColdDamagePercentage",
+            "Rings/LightningDamagePercentage",
+            "Rings/IncreasedChaosDamage"
+          ],
+          "suffixes": [
+            "Rings/Strength",
+            "Rings/Dexterity",
+            "Rings/Intelligence",
+            "Rings/AllAttributes",
+            "Rings/FireResistance",
+            "Rings/ColdResistance",
+            "Rings/LightningResistance",
+            "Rings/AllResistances",
+            "Rings/ChaosResistance",
+            "Rings/LifeRegeneration",
+            "Rings/ManaRegeneration",
+            "Rings/LifeLeechPermyriad",
+            "Rings/ManaLeechPermyriad",
+            "Rings/LifeGainedFromEnemyDeath",
+            "Rings/ManaGainedFromEnemyDeath",
+            "Rings/ItemFoundRarityIncrease",
+            "Rings/LightRadiusAndManaRegeneration",
+            "Rings/IncreasedCastSpeed"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Sceptres",
+      "name": "Sceptres",
+      "category": "Sceptres",
+      "class": "Sceptres",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Sceptres/IncreasedMana",
+            "Sceptres/AlliesInPresenceAddedPhysicalDamage",
+            "Sceptres/AlliesInPresenceAddedFireDamage",
+            "Sceptres/AlliesInPresenceAddedColdDamage",
+            "Sceptres/AlliesInPresenceAddedLightningDamage",
+            "Sceptres/AlliesInPresenceAllDamage",
+            "Sceptres/LocalIncreasedSpiritPercent",
+            "Sceptres/LocalIncreasedSpiritAndMana"
+          ],
+          "suffixes": [
+            "Sceptres/Strength",
+            "Sceptres/Intelligence",
+            "Sceptres/AlliesInPresenceAllResistances",
+            "Sceptres/LocalAttributeRequirements",
+            "Sceptres/GlobalIncreaseMinionSpellSkillGemLevelWeapon",
+            "Sceptres/AlliesInPresenceLifeRegeneration",
+            "Sceptres/ManaRegeneration",
+            "Sceptres/AlliesInPresenceIncreasedAttackSpeed",
+            "Sceptres/AlliesInPresenceIncreasedCastSpeed",
+            "Sceptres/AlliesInPresenceCriticalStrikeChance",
+            "Sceptres/AlliesInPresenceCriticalStrikeMultiplier",
+            "Sceptres/LightRadiusAndManaRegeneration",
+            "Sceptres/PresenceRadius",
+            "Sceptres/MinionLife"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Shields_str",
+      "name": "Shields_str",
+      "category": "Shields",
+      "class": "Shields",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Shields_str/IncreasedLife",
+            "Shields_str/LocalPhysicalDamageReductionRating",
+            "Shields_str/LocalPhysicalDamageReductionRatingPercent",
+            "Shields_str/LocalArmourAndStunThreshold",
+            "Shields_str/ThornsPhysicalDamage",
+            "Shields_str/LocalIncreasedBlockPercentage"
+          ],
+          "suffixes": [
+            "Shields_str/Strength",
+            "Shields_str/FireResistance",
+            "Shields_str/ColdResistance",
+            "Shields_str/LightningResistance",
+            "Shields_str/ChaosResistance",
+            "Shields_str/LocalAttributeRequirements",
+            "Shields_str/StunThreshold",
+            "Shields_str/ReducedPhysicalDamageTaken",
+            "Shields_str/MaximumFireResist",
+            "Shields_str/MaximumColdResist",
+            "Shields_str/MaximumLightningResistance",
+            "Shields_str/MaximumChaosResistance",
+            "Shields_str/MaximumElementalResistance",
+            "Shields_str/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Shields_str_dex",
+      "name": "Shields_str_dex",
+      "category": "Shields",
+      "class": "Shields",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Shields_str_dex/IncreasedLife",
+            "Shields_str_dex/LocalBaseArmourAndEvasionRating",
+            "Shields_str_dex/LocalArmourAndEvasion",
+            "Shields_str_dex/LocalArmourAndEvasionAndStunThreshold",
+            "Shields_str_dex/ThornsPhysicalDamage",
+            "Shields_str_dex/LocalIncreasedBlockPercentage"
+          ],
+          "suffixes": [
+            "Shields_str_dex/Strength",
+            "Shields_str_dex/Dexterity",
+            "Shields_str_dex/FireResistance",
+            "Shields_str_dex/ColdResistance",
+            "Shields_str_dex/LightningResistance",
+            "Shields_str_dex/ChaosResistance",
+            "Shields_str_dex/LocalAttributeRequirements",
+            "Shields_str_dex/StunThreshold",
+            "Shields_str_dex/ReducedExtraDamageFromCrits",
+            "Shields_str_dex/MaximumFireResist",
+            "Shields_str_dex/MaximumColdResist",
+            "Shields_str_dex/MaximumLightningResistance",
+            "Shields_str_dex/MaximumChaosResistance",
+            "Shields_str_dex/MaximumElementalResistance",
+            "Shields_str_dex/ArmourAppliesToElementalDamage",
+            "Shields_str_dex/EvasionAppliesToDeflection"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Shields_str_int",
+      "name": "Shields_str_int",
+      "category": "Shields",
+      "class": "Shields",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Shields_str_int/IncreasedLife",
+            "Shields_str_int/LocalBaseArmourAndEnergyShield",
+            "Shields_str_int/LocalArmourAndEnergyShield",
+            "Shields_str_int/LocalArmourAndEnergyShieldAndStunThreshold",
+            "Shields_str_int/ThornsPhysicalDamage",
+            "Shields_str_int/LocalIncreasedBlockPercentage"
+          ],
+          "suffixes": [
+            "Shields_str_int/Strength",
+            "Shields_str_int/Intelligence",
+            "Shields_str_int/FireResistance",
+            "Shields_str_int/ColdResistance",
+            "Shields_str_int/LightningResistance",
+            "Shields_str_int/AllResistances",
+            "Shields_str_int/ChaosResistance",
+            "Shields_str_int/LocalAttributeRequirements",
+            "Shields_str_int/StunThreshold",
+            "Shields_str_int/MaximumFireResist",
+            "Shields_str_int/MaximumColdResist",
+            "Shields_str_int/MaximumLightningResistance",
+            "Shields_str_int/MaximumChaosResistance",
+            "Shields_str_int/MaximumElementalResistance",
+            "Shields_str_int/EnergyShieldRegeneration",
+            "Shields_str_int/ArmourAppliesToElementalDamage"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Spears",
+      "name": "Spears",
+      "category": "Spears",
+      "class": "Spears",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Spears/LocalPhysicalDamage",
+            "Spears/LocalFireDamage",
+            "Spears/LocalColdDamage",
+            "Spears/LocalLightningDamage",
+            "Spears/LocalPhysicalDamagePercent",
+            "Spears/LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+            "Spears/LocalAccuracyRating",
+            "Spears/IncreasedWeaponElementalDamagePercent"
+          ],
+          "suffixes": [
+            "Spears/Strength",
+            "Spears/Dexterity",
+            "Spears/LocalAttributeRequirements",
+            "Spears/GlobalIncreaseMeleeSkillGemLevel",
+            "Spears/GlobalIncreaseProjectileSkillGemLevelWeapon",
+            "Spears/LifeLeechLocalPermyriad",
+            "Spears/ManaLeechLocalPermyriad",
+            "Spears/LifeGainedFromEnemyDeath",
+            "Spears/ManaGainedFromEnemyDeath",
+            "Spears/LifeGainPerTargetLocal",
+            "Spears/LocalIncreasedAttackSpeed",
+            "Spears/LocalBaseCriticalStrikeChance",
+            "Spears/LocalCriticalStrikeMultiplier",
+            "Spears/LocalLightRadiusAndAccuracy",
+            "Spears/LocalStunDuration",
+            "Spears/LocalStunDamageIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Staves",
+      "name": "Staves",
+      "category": "Staves",
+      "class": "Staves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Staves/IncreasedMana",
+            "Staves/WeaponSpellDamage",
+            "Staves/WeaponSpellDamageAndMana",
+            "Staves/FireDamageWeaponPrefix",
+            "Staves/ColdDamageWeaponPrefix",
+            "Staves/LightningDamageWeaponPrefix",
+            "Staves/ChaosDamageWeaponPrefix",
+            "Staves/PhysicalSpellDamageWeaponPrefix",
+            "Staves/DamageGainedAsFire",
+            "Staves/DamageGainedAsCold",
+            "Staves/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Staves/Intelligence",
+            "Staves/LocalAttributeRequirements",
+            "Staves/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreaseFireSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreaseColdSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreaseLightningSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreaseChaosSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreasePhysicalSpellSkillGemLevelWeapon",
+            "Staves/ManaRegeneration",
+            "Staves/LifeGainedFromEnemyDeath",
+            "Staves/ManaGainedFromEnemyDeath",
+            "Staves/IncreasedCastSpeed",
+            "Staves/SpellCriticalStrikeChance",
+            "Staves/SpellCriticalStrikeMultiplier",
+            "Staves/LightRadiusAndManaRegeneration",
+            "Staves/IgniteChanceIncrease",
+            "Staves/FreezeDamageIncrease",
+            "Staves/ShockChanceIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "TwoHand_Maces",
+      "name": "TwoHand_Maces",
+      "category": "TwoHand_Maces",
+      "class": "Two Hand Maces",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "TwoHand_Maces/LocalPhysicalDamage",
+            "TwoHand_Maces/LocalFireDamage",
+            "TwoHand_Maces/LocalColdDamage",
+            "TwoHand_Maces/LocalLightningDamage",
+            "TwoHand_Maces/LocalPhysicalDamagePercent",
+            "TwoHand_Maces/LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+            "TwoHand_Maces/LocalAccuracyRating",
+            "TwoHand_Maces/IncreasedWeaponElementalDamagePercent"
+          ],
+          "suffixes": [
+            "TwoHand_Maces/Strength",
+            "TwoHand_Maces/LocalAttributeRequirements",
+            "TwoHand_Maces/GlobalIncreaseMeleeSkillGemLevelWeapon",
+            "TwoHand_Maces/LifeLeechLocalPermyriad",
+            "TwoHand_Maces/ManaLeechLocalPermyriad",
+            "TwoHand_Maces/LifeGainedFromEnemyDeath",
+            "TwoHand_Maces/ManaGainedFromEnemyDeath",
+            "TwoHand_Maces/LifeGainPerTargetLocal",
+            "TwoHand_Maces/LocalIncreasedAttackSpeed",
+            "TwoHand_Maces/LocalBaseCriticalStrikeChance",
+            "TwoHand_Maces/LocalCriticalStrikeMultiplier",
+            "TwoHand_Maces/LocalLightRadiusAndAccuracy",
+            "TwoHand_Maces/LocalStunDuration",
+            "TwoHand_Maces/LocalStunDamageIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    },
+    {
+      "id": "Wands",
+      "name": "Wands",
+      "category": "Wands",
+      "class": "Wands",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Wands/IncreasedMana",
+            "Wands/WeaponSpellDamage",
+            "Wands/WeaponSpellDamageAndMana",
+            "Wands/FireDamageWeaponPrefix",
+            "Wands/ColdDamageWeaponPrefix",
+            "Wands/LightningDamageWeaponPrefix",
+            "Wands/ChaosDamageWeaponPrefix",
+            "Wands/PhysicalSpellDamageWeaponPrefix",
+            "Wands/DamageGainedAsFire",
+            "Wands/DamageGainedAsCold",
+            "Wands/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Wands/Intelligence",
+            "Wands/LocalAttributeRequirements",
+            "Wands/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreaseFireSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreaseColdSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreaseLightningSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreaseChaosSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreasePhysicalSpellSkillGemLevelWeapon",
+            "Wands/ManaRegeneration",
+            "Wands/LifeGainedFromEnemyDeath",
+            "Wands/ManaGainedFromEnemyDeath",
+            "Wands/IncreasedCastSpeed",
+            "Wands/SpellCriticalStrikeChance",
+            "Wands/SpellCriticalStrikeMultiplier",
+            "Wands/LightRadiusAndManaRegeneration",
+            "Wands/IgniteChanceIncrease",
+            "Wands/FreezeDamageIncrease",
+            "Wands/ShockChanceIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [],
+          "suffixes": []
+        },
+        "essence": {
+          "prefixes": [],
+          "suffixes": []
+        }
+      }
+    }
+  ]
+}

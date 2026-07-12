@@ -1,0 +1,9 @@
+{
+  "name": "@poe2htc/optimizer",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Clean-room analytic crafting optimizer. Searches crafting sequences and scores them with @poe2htc/engine's evaluatePlan; analytic-first, Monte-Carlo self-checked.",
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}

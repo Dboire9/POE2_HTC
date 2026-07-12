@@ -1,0 +1,9 @@
+{
+  "name": "@poe2htc/engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure TS crafting engine (item state, mod pools, currency rules, analytic probabilities). No I/O, no DOM.",
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}

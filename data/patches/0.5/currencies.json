@@ -1,0 +1,73 @@
+{
+  "patch": "0.5",
+  "generated": "2026-07-04",
+  "source": "catalog of the crafting-currency actions that EXIST in core/Currency/*.java. Identity, mod source/pool and omen lists are verbatim from the Java; the actual per-currency mechanics live in those classes and are ported in Phase 1 (not encoded here). NOTE: no Chaos Orb or Orb of Alchemy is implemented in the Java engine yet, though SPEC Phase 1 lists them.",
+  "currencyTiers": ["BASE", "GREATER", "DES_CURRENCY", "PERFECT"],
+  "count": 7,
+  "currencies": [
+    {
+      "id": "transmutation",
+      "name": "Orb of Transmutation",
+      "class": "TransmutationOrb",
+      "action": "add-affix",
+      "modSource": "normal",
+      "appliesTo": "normal->magic",
+      "omens": []
+    },
+    {
+      "id": "augmentation",
+      "name": "Orb of Augmentation",
+      "class": "AugmentationOrb",
+      "action": "add-affix",
+      "modSource": "normal",
+      "appliesTo": "magic",
+      "omens": []
+    },
+    {
+      "id": "regal",
+      "name": "Regal Orb",
+      "class": "RegalOrb",
+      "action": "add-affix",
+      "modSource": "normal",
+      "appliesTo": "magic->rare",
+      "omens": []
+    },
+    {
+      "id": "exalted",
+      "name": "Exalted Orb",
+      "class": "ExaltedOrb",
+      "action": "add-affix",
+      "modSource": "normal",
+      "appliesTo": "rare",
+      "omens": ["OmenofSinistralExaltation", "OmenofDextralExaltation", "OmenofGreaterExaltation"]
+    },
+    {
+      "id": "annulment",
+      "name": "Orb of Annulment",
+      "class": "AnnulmentOrb",
+      "action": "remove-affix",
+      "modSource": null,
+      "appliesTo": "magic|rare",
+      "omens": ["OmenofSinistralAnnulment", "OmenofDextralAnnulment", "OmenofLight"]
+    },
+    {
+      "id": "essence",
+      "name": "Essence",
+      "class": "Essence_currency",
+      "action": "add-essence-affix",
+      "modSource": "essence",
+      "appliesTo": "normal|magic",
+      "essenceTiers": ["LESSER", "NORMAL", "GREATER", "PERFECT"],
+      "omens": ["OmenofSinistralCrystallisation", "OmenofDextralCrystallisation"]
+    },
+    {
+      "id": "desecrated",
+      "name": "Desecrated Currency",
+      "class": "Desecrated_currency",
+      "action": "add-desecrated-affix",
+      "modSource": "desecrated",
+      "appliesTo": "rare",
+      "omens": ["OmenofDextralNecromancy", "OmenofSinistralNecromancy", "OmenoftheBlackblooded", "OmenoftheLiege", "OmenoftheSovereign"]
+    }
+  ]
+}

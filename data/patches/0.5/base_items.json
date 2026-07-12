@@ -1,0 +1,2655 @@
+{
+  "patch": "0.5",
+  "generated": "2026-07-04",
+  "source": "extracted-1to1-from-java-golden-reference; pre-0.5-refresh, values NOT yet verified",
+  "count": 41,
+  "items": [
+    {
+      "id": "Amulets",
+      "name": "Amulets",
+      "category": "Amulets",
+      "pools": {
+        "normal": { "prefixes": [
+          "Amulets/BASE_MAXIMUM_LIFE",
+          "Amulets/BASE_MAXIMUM_MANA",
+          "Amulets/BASE_ENERGY_SHIELD",
+          "Amulets/INCREASED_PERCENT_ARMOUR",
+          "Amulets/INCREASED_PERCENT_EVASION",
+          "Amulets/INCREASED_PERCENT_ENERGY_SHIELD",
+          "Amulets/ACCURACY_RATING",
+          "Amulets/ITEM_FOUND_RARITY_INCREASE_PREFIX",
+          "Amulets/BASE_SPIRIT",
+          "Amulets/INCREASED_SPELL_DAMAGE"
+        ], "suffixes": [
+          "Amulets/STRENGTH",
+          "Amulets/DEXTERITY",
+          "Amulets/INTELLIGENCE",
+          "Amulets/ALL_ATTRIBUTES",
+          "Amulets/FIRE_RESISTANCE",
+          "Amulets/COLD_RESISTANCE",
+          "Amulets/LIGHTNING_RESISTANCE",
+          "Amulets/ALL_RESISTANCES",
+          "Amulets/CHAOS_RESISTANCE",
+          "Amulets/ALL_SPELL_SKILL_LEVEL",
+          "Amulets/LEVEL_MINION_SKILL",
+          "Amulets/LEVEL_MELEE_SKILL",
+          "Amulets/LEVEL_PROJECTILE_SKILL",
+          "Amulets/LIFE_REGENERATION_PER_SECOND",
+          "Amulets/MANA_REGENERATION_RATE",
+          "Amulets/INCREASED_CAST_SPEED",
+          "Amulets/INCREASED_CRITICAL_HIT_CHANCE",
+          "Amulets/INCREASED_CRITICAL_DAMAGE_BONUS_FOR_ATTACKS",
+          "Amulets/ITEM_FOUND_RARITY_INCREASE",
+          "Amulets/DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Amulets/DAMAGE_TAKEN_RECOUPED_AS_MANA"
+        ] },
+        "desecrated": { "prefixes": [
+          "Amulets/DESECRATED_GLOBAL_DEFENCES",
+          "Amulets/DESECRATED_REMNANT_EFFECT",
+          "Amulets/DESECRATED_INCREASED_MINION_DAMAGE_IF_YOU_HIT_ENEMY",
+          "Amulets/DESECRATED_BODY_ARMOUR_FROM_BODY_ARMOUR",
+          "Amulets/DESECRATED_INCREASED_SPELL_DAMAGE_ON_FULL_ENERGY_SHIELD",
+          "Amulets/DESECRATED_INVOCATED_SPELL_HALF_ENERGY_CHANCE",
+          "Amulets/DESECRATED_MAXIMUM_ENERGY_SHIELD_FROM_BODY_ARMOUR",
+          "Amulets/DESECRATED_GLORY_CHANCE_TO_NOT_CONSUME",
+          "Amulets/DESECRATED_EVASION_RATING_FROM_BODY_ARMOUR",
+          "Amulets/DESECRATED_ATTACK_DAMAGE_LOW_LIFE",
+          "Amulets/DESECRATED_INCREASED_DEFLECTION_RATING"
+        ], "suffixes": [
+          "Amulets/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Amulets/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Amulets/DESECRATED_SKILL_EFFECT_DURATION",
+          "Amulets/DESECRATED_REMNANT_PICKUP_RADIUS",
+          "Amulets/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Amulets/DESECRATED_AURA_MAGNITUDES",
+          "Amulets/DESECRATED_GLOBAL_ITEM_ATTRIBUTE_REQUIREMENTS",
+          "Amulets/DESECRATED_MANA_GAINED_ON_KILL_PERCENTAGE",
+          "Amulets/DESECRATED_EXPOSURE_EFFECT",
+          "Amulets/DESECRATED_COOLDOWN_RECOVERY",
+          "Amulets/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Amulets/DESECRATED_GLOBAL_SKILL_GEM_QUALITY",
+          "Amulets/DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE",
+          "Amulets/DESECRATED_MINION_COOLDOWN",
+          "Amulets/DESECRATED_INCREASED_SKILL_SPEED",
+          "Amulets/DESECRATED_RECOVER_PERCENT_MAX_LIFE_ON_KILL",
+          "Amulets/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Amulets/DESECRATED_HERALD_RESERVATION_EFFICIENCY",
+          "Amulets/DESECRATED_LEVEL_ALL_SKILLS"
+        ] },
+        "essence": { "prefixes": [
+          "Amulets/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Amulets/ESSENCE_BASE_MAXIMUM_MANA",
+          "Amulets/ESSENCE_INCREASED_GLOBAL_DEFENCES"
+        ], "suffixes": [
+          "Amulets/ESSENCE_CHAOS_RESISTANCE",
+          "Amulets/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Amulets/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Amulets/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Amulets/ESSENCE_PERCENTAGE_ATTRIBUTES_STRENGTH",
+          "Amulets/ESSENCE_PERCENTAGE_ATTRIBUTES_DEXTERITY",
+          "Amulets/ESSENCE_PERCENTAGE_ATTRIBUTES_INTELLIGENCE",
+          "Amulets/ESSENCE_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Amulets/ESSENCE_FIRE_RESISTANCE",
+          "Amulets/ESSENCE_COLD_RESISTANCE",
+          "Amulets/ESSENCE_LIGHTNING_RESISTANCE",
+          "Amulets/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Body_Armours_dex",
+      "name": "Body_Armours_dex",
+      "category": "Body_Armours",
+      "pools": {
+        "normal": { "prefixes": [
+          "Body_Armours_Normal/BASE_MAXIMUM_LIFE",
+          "Body_Armours_Normal/BASE_EVASION",
+          "Body_Armours_Normal/INCREASED_PERCENT_EVASION",
+          "Body_Armours_Normal/HYBRID_INCREASED_PERCENT_EVASION_AND_LIFE",
+          "Body_Armours_Normal/HYBRID_BASE_AND_PERCENT_EVASION",
+          "Body_Armours_Normal/PHYSICAL_THORNS_DAMAGE",
+          "Body_Armours_Normal/BASE_SPIRIT"
+        ], "suffixes": [
+          "Body_Armours_Normal/DEXTERITY",
+          "Body_Armours_Normal/FIRE_RESISTANCE",
+          "Body_Armours_Normal/COLD_RESISTANCE",
+          "Body_Armours_Normal/LIGHTNING_RESISTANCE",
+          "Body_Armours_Normal/CHAOS_RESISTANCE",
+          "Body_Armours_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Body_Armours_Normal/BASE_STUN_THRESHOLD",
+          "Body_Armours_Normal/LIFE_REGENERATION_PER_SECOND",
+          "Body_Armours_Normal/REDUCED_BLEEDING_DURATION_ON_SELF",
+          "Body_Armours_Normal/REDUCED_POISON_DURATION_ON_SELF",
+          "Body_Armours_Normal/REDUCED_IGNITE_DURATION_ON_SELF",
+          "Body_Armours_Normal/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Body_Armours_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Body_Armours_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Body_Armours_Normal/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Body_Armours_Normal/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Body_Armours_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Body_Armours_Normal/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Body_Armours_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Normal/DESECRATED_COMPANION_RESERVATION_EFFICIENCY",
+          "Body_Armours_Normal/DESECRATED_PREVENT_DEFLECT_DAMAGE_TAKEN",
+          "Body_Armours_Normal/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION"
+        ] },
+        "essence": { "prefixes": [
+          "Body_Armours_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Body_Armours_Normal/ESSENCE_INCREASED_PERCENT_EVASION",
+          "Body_Armours_Normal/ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT",
+          "Body_Armours_Normal/ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS",
+          "Body_Armours_Normal/ESSENCE_PHYSICAL_THORNS_DAMAGE"
+        ], "suffixes": [
+          "Body_Armours_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Body_Armours_Normal/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Body_Armours_Normal/ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF",
+          "Body_Armours_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Body_Armours_Normal/ESSENCE_COLD_RESISTANCE",
+          "Body_Armours_Normal/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Body_Armours_dex_int",
+      "name": "Body_Armours_dex_int",
+      "category": "Body_Armours",
+      "pools": {
+        "normal": { "prefixes": [
+          "Body_Armours_Hybrid/BASE_MAXIMUM_LIFE",
+          "Body_Armours_Hybrid/HYBRID_BASE_EVASION_ENERGY_SHIELD",
+          "Body_Armours_Hybrid/HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD",
+          "Body_Armours_Hybrid/HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_LIFE",
+          "Body_Armours_Hybrid/HYBRID_BASE_AND_PERCENT_EVASION_ENERGY_SHIELD",
+          "Body_Armours_Hybrid/PHYSICAL_THORNS_DAMAGE",
+          "Body_Armours_Hybrid/BASE_SPIRIT"
+        ], "suffixes": [
+          "Body_Armours_Hybrid/DEXTERITY",
+          "Body_Armours_Hybrid/INTELLIGENCE",
+          "Body_Armours_Hybrid/FIRE_RESISTANCE",
+          "Body_Armours_Hybrid/COLD_RESISTANCE",
+          "Body_Armours_Hybrid/LIGHTNING_RESISTANCE",
+          "Body_Armours_Hybrid/CHAOS_RESISTANCE",
+          "Body_Armours_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Body_Armours_Hybrid/BASE_STUN_THRESHOLD",
+          "Body_Armours_Hybrid/LIFE_REGENERATION_PER_SECOND",
+          "Body_Armours_Hybrid/REDUCED_BLEEDING_DURATION_ON_SELF",
+          "Body_Armours_Hybrid/REDUCED_POISON_DURATION_ON_SELF",
+          "Body_Armours_Hybrid/REDUCED_IGNITE_DURATION_ON_SELF",
+          "Body_Armours_Hybrid/ENERGY_SHIELD_FASTER_START_RECHARGE",
+          "Body_Armours_Hybrid/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Body_Armours_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Body_Armours_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Body_Armours_Hybrid/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Body_Armours_Hybrid/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Body_Armours_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Body_Armours_Hybrid/DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE",
+          "Body_Armours_Hybrid/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Body_Armours_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Hybrid/DESECRATED_COMPANION_RESERVATION_EFFICIENCY",
+          "Body_Armours_Hybrid/DESECRATED_PREVENT_DEFLECT_DAMAGE_TAKEN",
+          "Body_Armours_Hybrid/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION"
+        ] },
+        "essence": { "prefixes": [
+          "Body_Armours_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Body_Armours_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD",
+          "Body_Armours_Hybrid/ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT",
+          "Body_Armours_Hybrid/ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS",
+          "Body_Armours_Hybrid/ESSENCE_PHYSICAL_THORNS_DAMAGE"
+        ], "suffixes": [
+          "Body_Armours_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Body_Armours_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Body_Armours_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Body_Armours_Hybrid/ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF",
+          "Body_Armours_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Body_Armours_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Body_Armours_Hybrid/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Body_Armours_int",
+      "name": "Body_Armours_int",
+      "category": "Body_Armours",
+      "pools": {
+        "normal": { "prefixes": [
+          "Body_Armours_Normal/BASE_MAXIMUM_LIFE",
+          "Body_Armours_Normal/BASE_ENERGY_SHIELD",
+          "Body_Armours_Normal/INCREASED_PERCENT_ENERGY_SHIELD",
+          "Body_Armours_Normal/HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_LIFE",
+          "Body_Armours_Normal/HYBRID_BASE_AND_PERCENT_ENERGY_SHIELD",
+          "Body_Armours_Normal/PHYSICAL_THORNS_DAMAGE",
+          "Body_Armours_Normal/BASE_SPIRIT"
+        ], "suffixes": [
+          "Body_Armours_Normal/INTELLIGENCE",
+          "Body_Armours_Normal/FIRE_RESISTANCE",
+          "Body_Armours_Normal/COLD_RESISTANCE",
+          "Body_Armours_Normal/LIGHTNING_RESISTANCE",
+          "Body_Armours_Normal/CHAOS_RESISTANCE",
+          "Body_Armours_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Body_Armours_Normal/BASE_STUN_THRESHOLD",
+          "Body_Armours_Normal/LIFE_REGENERATION_PER_SECOND",
+          "Body_Armours_Normal/REDUCED_BLEEDING_DURATION_ON_SELF",
+          "Body_Armours_Normal/REDUCED_POISON_DURATION_ON_SELF",
+          "Body_Armours_Normal/REDUCED_IGNITE_DURATION_ON_SELF",
+          "Body_Armours_Normal/ENERGY_SHIELD_FASTER_START_RECHARGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Body_Armours_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Body_Armours_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Body_Armours_Normal/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Body_Armours_Normal/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Body_Armours_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Body_Armours_Normal/DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE",
+          "Body_Armours_Normal/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Body_Armours_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Normal/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION"
+        ] },
+        "essence": { "prefixes": [
+          "Body_Armours_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Body_Armours_Normal/ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD",
+          "Body_Armours_Normal/ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT",
+          "Body_Armours_Normal/ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS",
+          "Body_Armours_Normal/ESSENCE_PHYSICAL_THORNS_DAMAGE"
+        ], "suffixes": [
+          "Body_Armours_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Body_Armours_Normal/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Body_Armours_Normal/ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF",
+          "Body_Armours_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Body_Armours_Normal/ESSENCE_COLD_RESISTANCE",
+          "Body_Armours_Normal/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Body_Armours_str",
+      "name": "Body_Armours_str",
+      "category": "Body_Armours",
+      "pools": {
+        "normal": { "prefixes": [
+          "Body_Armours_Normal/BASE_MAXIMUM_LIFE",
+          "Body_Armours_Normal/BASE_ARMOUR",
+          "Body_Armours_Normal/INCREASED_PERCENT_ARMOUR",
+          "Body_Armours_Normal/HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE",
+          "Body_Armours_Normal/HYBRID_BASE_AND_PERCENT_ARMOUR",
+          "Body_Armours_Normal/PHYSICAL_THORNS_DAMAGE",
+          "Body_Armours_Normal/BASE_SPIRIT"
+        ], "suffixes": [
+          "Body_Armours_Normal/STRENGTH",
+          "Body_Armours_Normal/FIRE_RESISTANCE",
+          "Body_Armours_Normal/COLD_RESISTANCE",
+          "Body_Armours_Normal/LIGHTNING_RESISTANCE",
+          "Body_Armours_Normal/CHAOS_RESISTANCE",
+          "Body_Armours_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Body_Armours_Normal/BASE_STUN_THRESHOLD",
+          "Body_Armours_Normal/LIFE_REGENERATION_PER_SECOND",
+          "Body_Armours_Normal/REDUCED_BLEEDING_DURATION_ON_SELF",
+          "Body_Armours_Normal/REDUCED_POISON_DURATION_ON_SELF",
+          "Body_Armours_Normal/REDUCED_IGNITE_DURATION_ON_SELF",
+          "Body_Armours_Normal/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Body_Armours_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Body_Armours_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Body_Armours_Normal/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Body_Armours_Normal/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Body_Armours_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Body_Armours_Normal/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Body_Armours_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Normal/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION"
+        ] },
+        "essence": { "prefixes": [
+          "Body_Armours_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Body_Armours_Normal/ESSENCE_INCREASED_PERCENT_ARMOUR",
+          "Body_Armours_Normal/ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT",
+          "Body_Armours_Normal/ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS",
+          "Body_Armours_Normal/ESSENCE_PHYSICAL_THORNS_DAMAGE"
+        ], "suffixes": [
+          "Body_Armours_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Body_Armours_Normal/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Body_Armours_Normal/ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF",
+          "Body_Armours_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Body_Armours_Normal/ESSENCE_COLD_RESISTANCE",
+          "Body_Armours_Normal/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Body_Armours_str_dex",
+      "name": "Body_Armours_str_dex",
+      "category": "Body_Armours",
+      "pools": {
+        "normal": { "prefixes": [
+          "Body_Armours_Hybrid/BASE_MAXIMUM_LIFE",
+          "Body_Armours_Hybrid/HYBRID_BASE_ARMOUR_EVASION",
+          "Body_Armours_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION",
+          "Body_Armours_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_LIFE",
+          "Body_Armours_Hybrid/HYBRID_BASE_AND_PERCENT_ARMOUR_EVASION",
+          "Body_Armours_Hybrid/PHYSICAL_THORNS_DAMAGE",
+          "Body_Armours_Hybrid/BASE_SPIRIT"
+        ], "suffixes": [
+          "Body_Armours_Hybrid/STRENGTH",
+          "Body_Armours_Hybrid/DEXTERITY",
+          "Body_Armours_Hybrid/FIRE_RESISTANCE",
+          "Body_Armours_Hybrid/COLD_RESISTANCE",
+          "Body_Armours_Hybrid/LIGHTNING_RESISTANCE",
+          "Body_Armours_Hybrid/CHAOS_RESISTANCE",
+          "Body_Armours_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Body_Armours_Hybrid/BASE_STUN_THRESHOLD",
+          "Body_Armours_Hybrid/LIFE_REGENERATION_PER_SECOND",
+          "Body_Armours_Hybrid/REDUCED_BLEEDING_DURATION_ON_SELF",
+          "Body_Armours_Hybrid/REDUCED_POISON_DURATION_ON_SELF",
+          "Body_Armours_Hybrid/REDUCED_IGNITE_DURATION_ON_SELF",
+          "Body_Armours_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE",
+          "Body_Armours_Hybrid/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Body_Armours_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Body_Armours_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Body_Armours_Hybrid/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Body_Armours_Hybrid/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Body_Armours_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Body_Armours_Hybrid/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Body_Armours_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Hybrid/DESECRATED_COMPANION_RESERVATION_EFFICIENCY",
+          "Body_Armours_Hybrid/DESECRATED_PREVENT_DEFLECT_DAMAGE_TAKEN",
+          "Body_Armours_Hybrid/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION"
+        ] },
+        "essence": { "prefixes": [
+          "Body_Armours_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Body_Armours_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_EVASION",
+          "Body_Armours_Hybrid/ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT",
+          "Body_Armours_Hybrid/ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS",
+          "Body_Armours_Hybrid/ESSENCE_PHYSICAL_THORNS_DAMAGE"
+        ], "suffixes": [
+          "Body_Armours_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Body_Armours_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Body_Armours_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Body_Armours_Hybrid/ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF",
+          "Body_Armours_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Body_Armours_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Body_Armours_Hybrid/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Body_Armours_str_int",
+      "name": "Body_Armours_str_int",
+      "category": "Body_Armours",
+      "pools": {
+        "normal": { "prefixes": [
+          "Body_Armours_Hybrid/BASE_MAXIMUM_LIFE",
+          "Body_Armours_Hybrid/HYBRID_BASE_ARMOUR_ENERGY_SHIELD",
+          "Body_Armours_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Body_Armours_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_LIFE",
+          "Body_Armours_Hybrid/HYBRID_BASE_AND_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Body_Armours_Hybrid/PHYSICAL_THORNS_DAMAGE",
+          "Body_Armours_Hybrid/BASE_SPIRIT"
+        ], "suffixes": [
+          "Body_Armours_Hybrid/STRENGTH",
+          "Body_Armours_Hybrid/INTELLIGENCE",
+          "Body_Armours_Hybrid/FIRE_RESISTANCE",
+          "Body_Armours_Hybrid/COLD_RESISTANCE",
+          "Body_Armours_Hybrid/LIGHTNING_RESISTANCE",
+          "Body_Armours_Hybrid/CHAOS_RESISTANCE",
+          "Body_Armours_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Body_Armours_Hybrid/BASE_STUN_THRESHOLD",
+          "Body_Armours_Hybrid/LIFE_REGENERATION_PER_SECOND",
+          "Body_Armours_Hybrid/REDUCED_BLEEDING_DURATION_ON_SELF",
+          "Body_Armours_Hybrid/REDUCED_POISON_DURATION_ON_SELF",
+          "Body_Armours_Hybrid/REDUCED_IGNITE_DURATION_ON_SELF",
+          "Body_Armours_Hybrid/ENERGY_SHIELD_FASTER_START_RECHARGE",
+          "Body_Armours_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Body_Armours_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Body_Armours_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Body_Armours_Hybrid/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Body_Armours_Hybrid/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Body_Armours_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Body_Armours_Hybrid/DESECRATED_DAMAGE_REMOVED_FROM_MANA_BEFORE_LIFE",
+          "Body_Armours_Hybrid/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Body_Armours_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Body_Armours_Hybrid/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION"
+        ] },
+        "essence": { "prefixes": [
+          "Body_Armours_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Body_Armours_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Body_Armours_Hybrid/ESSENCE_MAXIMUM_LIFE_INCREASE_PERCENT",
+          "Body_Armours_Hybrid/ESSENCE_PHYSICAL_DAMAGE_TAKEN_AS_CHAOS",
+          "Body_Armours_Hybrid/ESSENCE_PHYSICAL_THORNS_DAMAGE"
+        ], "suffixes": [
+          "Body_Armours_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Body_Armours_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Body_Armours_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Body_Armours_Hybrid/ESSENCE_REDUCED_CRITICAL_STRIKE_DAMAGE_TAKEN_ON_SELF",
+          "Body_Armours_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Body_Armours_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Body_Armours_Hybrid/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Boots_dex",
+      "name": "Boots_dex",
+      "category": "Boots",
+      "pools": {
+        "normal": { "prefixes": [
+          "Boots_Normal/BASE_MAXIMUM_LIFE",
+          "Boots_Normal/BASE_MAXIMUM_MANA",
+          "Boots_Normal/BASE_EVASION",
+          "Boots_Normal/INCREASED_PERCENT_EVASION",
+          "Boots_Normal/HYBRID_INCREASED_PERCENT_EVASION_AND_STUN",
+          "Boots_Normal/MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Normal/DEXTERITY",
+          "Boots_Normal/FIRE_RESISTANCE",
+          "Boots_Normal/COLD_RESISTANCE",
+          "Boots_Normal/LIGHTNING_RESISTANCE",
+          "Boots_Normal/CHAOS_RESISTANCE",
+          "Boots_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Boots_Normal/BASE_STUN_THRESHOLD",
+          "Boots_Normal/LIFE_REGENERATION_PER_SECOND",
+          "Boots_Normal/ITEM_FOUND_RARITY_INCREASE",
+          "Boots_Normal/REDUCED_SHOCK_DURATION",
+          "Boots_Normal/REDUCED_CHILL_DURATION",
+          "Boots_Normal/REDUCED_FREEZE_DURATION",
+          "Boots_Normal/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Boots_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Boots_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Boots_Normal/DESECRATED_DODGE_ROLL_DISTANCE",
+          "Boots_Normal/DESECRATED_SLOW_POTENCY_REDUCTION",
+          "Boots_Normal/DESECRATED_REDUCED_SELF_IGNITE_DURATION",
+          "Boots_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Boots_Normal/DESECRATED_REDUCED_BLEEDING_DURATION",
+          "Boots_Normal/DESECRATED_REDUCED_POISON_DURATION",
+          "Boots_Normal/DESECRATED_MANA_COST_EFFICIENCY_IF_DODGE_ROLL",
+          "Boots_Normal/DESECRATED_MANA_REGENERATION_WHILE_STATIONARY",
+          "Boots_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Normal/DESECRATED_CORRUPTED_BLOOD_IMMUNITY",
+          "Boots_Normal/DESECRATED_REDUCES_MOVEMENT_VELOCITY_PENALTY_SKILLS_WHEN_MOVING"
+        ] },
+        "essence": { "prefixes": [
+          "Boots_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Boots_Normal/ESSENCE_BASE_MAXIMUM_MANA",
+          "Boots_Normal/ESSENCE_INCREASED_PERCENT_EVASION",
+          "Boots_Normal/ESSENCE_INCREASED_MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Boots_Normal/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Boots_Normal/ESSENCE_SOUL_CORE",
+          "Boots_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Boots_Normal/ESSENCE_COLD_RESISTANCE",
+          "Boots_Normal/ESSENCE_LIGHTNING_RESISTANCE",
+          "Boots_Normal/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Boots_dex_int",
+      "name": "Boots_dex_int",
+      "category": "Boots",
+      "pools": {
+        "normal": { "prefixes": [
+          "Boots_Hybrid/BASE_MAXIMUM_LIFE",
+          "Boots_Hybrid/BASE_MAXIMUM_MANA",
+          "Boots_Hybrid/HYBRID_BASE_EVASION_ENERGY_SHIELD",
+          "Boots_Hybrid/HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD",
+          "Boots_Hybrid/HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_AND_STUN",
+          "Boots_Hybrid/MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Hybrid/DEXTERITY",
+          "Boots_Hybrid/INTELLIGENCE",
+          "Boots_Hybrid/FIRE_RESISTANCE",
+          "Boots_Hybrid/COLD_RESISTANCE",
+          "Boots_Hybrid/LIGHTNING_RESISTANCE",
+          "Boots_Hybrid/CHAOS_RESISTANCE",
+          "Boots_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Boots_Hybrid/BASE_STUN_THRESHOLD",
+          "Boots_Hybrid/LIFE_REGENERATION_PER_SECOND",
+          "Boots_Hybrid/ITEM_FOUND_RARITY_INCREASE",
+          "Boots_Hybrid/REDUCED_SHOCK_DURATION",
+          "Boots_Hybrid/REDUCED_CHILL_DURATION",
+          "Boots_Hybrid/REDUCED_FREEZE_DURATION",
+          "Boots_Hybrid/ENERGY_SHIELD_RECHARGE_RATE",
+          "Boots_Hybrid/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Boots_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Boots_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Boots_Hybrid/DESECRATED_DODGE_ROLL_DISTANCE",
+          "Boots_Hybrid/DESECRATED_SLOW_POTENCY_REDUCTION",
+          "Boots_Hybrid/DESECRATED_REDUCED_SELF_IGNITE_DURATION",
+          "Boots_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Boots_Hybrid/DESECRATED_REDUCED_BLEEDING_DURATION",
+          "Boots_Hybrid/DESECRATED_REDUCED_POISON_DURATION",
+          "Boots_Hybrid/DESECRATED_MANA_COST_EFFICIENCY_IF_DODGE_ROLL",
+          "Boots_Hybrid/DESECRATED_MANA_REGENERATION_WHILE_STATIONARY",
+          "Boots_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Hybrid/DESECRATED_CORRUPTED_BLOOD_IMMUNITY",
+          "Boots_Hybrid/DESECRATED_REDUCES_MOVEMENT_VELOCITY_PENALTY_SKILLS_WHEN_MOVING"
+        ] },
+        "essence": { "prefixes": [
+          "Boots_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Boots_Hybrid/ESSENCE_BASE_MAXIMUM_MANA",
+          "Boots_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD",
+          "Boots_Hybrid/ESSENCE_INCREASED_MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Boots_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Boots_Hybrid/ESSENCE_SOUL_CORE",
+          "Boots_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_LIGHTNING_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Boots_int",
+      "name": "Boots_int",
+      "category": "Boots",
+      "pools": {
+        "normal": { "prefixes": [
+          "Boots_Normal/BASE_MAXIMUM_LIFE",
+          "Boots_Normal/BASE_MAXIMUM_MANA",
+          "Boots_Normal/BASE_ENERGY_SHIELD",
+          "Boots_Normal/INCREASED_PERCENT_ENERGY_SHIELD",
+          "Boots_Normal/HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_STUN",
+          "Boots_Normal/MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Normal/INTELLIGENCE",
+          "Boots_Normal/FIRE_RESISTANCE",
+          "Boots_Normal/COLD_RESISTANCE",
+          "Boots_Normal/LIGHTNING_RESISTANCE",
+          "Boots_Normal/CHAOS_RESISTANCE",
+          "Boots_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Boots_Normal/BASE_STUN_THRESHOLD",
+          "Boots_Normal/LIFE_REGENERATION_PER_SECOND",
+          "Boots_Normal/ITEM_FOUND_RARITY_INCREASE",
+          "Boots_Normal/REDUCED_SHOCK_DURATION",
+          "Boots_Normal/REDUCED_CHILL_DURATION",
+          "Boots_Normal/REDUCED_FREEZE_DURATION",
+          "Boots_Normal/ENERGY_SHIELD_RECHARGE_RATE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Boots_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Boots_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Boots_Normal/DESECRATED_DODGE_ROLL_DISTANCE",
+          "Boots_Normal/DESECRATED_SLOW_POTENCY_REDUCTION",
+          "Boots_Normal/DESECRATED_REDUCED_SELF_IGNITE_DURATION",
+          "Boots_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Boots_Normal/DESECRATED_REDUCED_BLEEDING_DURATION",
+          "Boots_Normal/DESECRATED_REDUCED_POISON_DURATION",
+          "Boots_Normal/DESECRATED_MANA_COST_EFFICIENCY_IF_DODGE_ROLL",
+          "Boots_Normal/DESECRATED_MANA_REGENERATION_WHILE_STATIONARY",
+          "Boots_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Normal/DESECRATED_CORRUPTED_BLOOD_IMMUNITY",
+          "Boots_Normal/DESECRATED_REDUCES_MOVEMENT_VELOCITY_PENALTY_SKILLS_WHEN_MOVING"
+        ] },
+        "essence": { "prefixes": [
+          "Boots_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Boots_Normal/ESSENCE_BASE_MAXIMUM_MANA",
+          "Boots_Normal/ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD",
+          "Boots_Normal/ESSENCE_INCREASED_MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Boots_Normal/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Boots_Normal/ESSENCE_SOUL_CORE",
+          "Boots_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Boots_Normal/ESSENCE_COLD_RESISTANCE",
+          "Boots_Normal/ESSENCE_LIGHTNING_RESISTANCE",
+          "Boots_Normal/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Boots_str",
+      "name": "Boots_str",
+      "category": "Boots",
+      "pools": {
+        "normal": { "prefixes": [
+          "Boots_Normal/BASE_MAXIMUM_LIFE",
+          "Boots_Normal/BASE_MAXIMUM_MANA",
+          "Boots_Normal/BASE_ARMOUR",
+          "Boots_Normal/INCREASED_PERCENT_ARMOUR",
+          "Boots_Normal/HYBRID_INCREASED_PERCENT_ARMOUR_AND_STUN",
+          "Boots_Normal/MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Normal/STRENGTH",
+          "Boots_Normal/FIRE_RESISTANCE",
+          "Boots_Normal/COLD_RESISTANCE",
+          "Boots_Normal/LIGHTNING_RESISTANCE",
+          "Boots_Normal/CHAOS_RESISTANCE",
+          "Boots_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Boots_Normal/BASE_STUN_THRESHOLD",
+          "Boots_Normal/LIFE_REGENERATION_PER_SECOND",
+          "Boots_Normal/ITEM_FOUND_RARITY_INCREASE",
+          "Boots_Normal/REDUCED_SHOCK_DURATION",
+          "Boots_Normal/REDUCED_CHILL_DURATION",
+          "Boots_Normal/REDUCED_FREEZE_DURATION",
+          "Boots_Normal/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Boots_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Boots_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Boots_Normal/DESECRATED_DODGE_ROLL_DISTANCE",
+          "Boots_Normal/DESECRATED_SLOW_POTENCY_REDUCTION",
+          "Boots_Normal/DESECRATED_REDUCED_SELF_IGNITE_DURATION",
+          "Boots_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Boots_Normal/DESECRATED_REDUCED_BLEEDING_DURATION",
+          "Boots_Normal/DESECRATED_REDUCED_POISON_DURATION",
+          "Boots_Normal/DESECRATED_MANA_COST_EFFICIENCY_IF_DODGE_ROLL",
+          "Boots_Normal/DESECRATED_MANA_REGENERATION_WHILE_STATIONARY",
+          "Boots_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Normal/DESECRATED_CORRUPTED_BLOOD_IMMUNITY",
+          "Boots_Normal/DESECRATED_REDUCES_MOVEMENT_VELOCITY_PENALTY_SKILLS_WHEN_MOVING"
+        ] },
+        "essence": { "prefixes": [
+          "Boots_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Boots_Normal/ESSENCE_BASE_MAXIMUM_MANA",
+          "Boots_Normal/ESSENCE_INCREASED_PERCENT_ARMOUR",
+          "Boots_Normal/ESSENCE_INCREASED_MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Boots_Normal/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Boots_Normal/ESSENCE_SOUL_CORE",
+          "Boots_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Boots_Normal/ESSENCE_COLD_RESISTANCE",
+          "Boots_Normal/ESSENCE_LIGHTNING_RESISTANCE",
+          "Boots_Normal/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Boots_str_dex",
+      "name": "Boots_str_dex",
+      "category": "Boots",
+      "pools": {
+        "normal": { "prefixes": [
+          "Boots_Hybrid/BASE_MAXIMUM_LIFE",
+          "Boots_Hybrid/BASE_MAXIMUM_MANA",
+          "Boots_Hybrid/HYBRID_BASE_ARMOUR_EVASION",
+          "Boots_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION",
+          "Boots_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_AND_STUN",
+          "Boots_Hybrid/MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Hybrid/STRENGTH",
+          "Boots_Hybrid/DEXTERITY",
+          "Boots_Hybrid/FIRE_RESISTANCE",
+          "Boots_Hybrid/COLD_RESISTANCE",
+          "Boots_Hybrid/LIGHTNING_RESISTANCE",
+          "Boots_Hybrid/CHAOS_RESISTANCE",
+          "Boots_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Boots_Hybrid/BASE_STUN_THRESHOLD",
+          "Boots_Hybrid/LIFE_REGENERATION_PER_SECOND",
+          "Boots_Hybrid/ITEM_FOUND_RARITY_INCREASE",
+          "Boots_Hybrid/REDUCED_SHOCK_DURATION",
+          "Boots_Hybrid/REDUCED_CHILL_DURATION",
+          "Boots_Hybrid/REDUCED_FREEZE_DURATION",
+          "Boots_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE",
+          "Boots_Hybrid/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Boots_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Boots_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Boots_Hybrid/DESECRATED_DODGE_ROLL_DISTANCE",
+          "Boots_Hybrid/DESECRATED_SLOW_POTENCY_REDUCTION",
+          "Boots_Hybrid/DESECRATED_REDUCED_SELF_IGNITE_DURATION",
+          "Boots_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Boots_Hybrid/DESECRATED_REDUCED_BLEEDING_DURATION",
+          "Boots_Hybrid/DESECRATED_REDUCED_POISON_DURATION",
+          "Boots_Hybrid/DESECRATED_MANA_COST_EFFICIENCY_IF_DODGE_ROLL",
+          "Boots_Hybrid/DESECRATED_MANA_REGENERATION_WHILE_STATIONARY",
+          "Boots_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Hybrid/DESECRATED_CORRUPTED_BLOOD_IMMUNITY",
+          "Boots_Hybrid/DESECRATED_REDUCES_MOVEMENT_VELOCITY_PENALTY_SKILLS_WHEN_MOVING"
+        ] },
+        "essence": { "prefixes": [
+          "Boots_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Boots_Hybrid/ESSENCE_BASE_MAXIMUM_MANA",
+          "Boots_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_EVASION",
+          "Boots_Hybrid/ESSENCE_INCREASED_MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Boots_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Boots_Hybrid/ESSENCE_SOUL_CORE",
+          "Boots_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_LIGHTNING_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Boots_str_int",
+      "name": "Boots_str_int",
+      "category": "Boots",
+      "pools": {
+        "normal": { "prefixes": [
+          "Boots_Hybrid/BASE_MAXIMUM_LIFE",
+          "Boots_Hybrid/BASE_MAXIMUM_MANA",
+          "Boots_Hybrid/HYBRID_BASE_ARMOUR_ENERGY_SHIELD",
+          "Boots_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Boots_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_STUN",
+          "Boots_Hybrid/MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Hybrid/STRENGTH",
+          "Boots_Hybrid/INTELLIGENCE",
+          "Boots_Hybrid/FIRE_RESISTANCE",
+          "Boots_Hybrid/COLD_RESISTANCE",
+          "Boots_Hybrid/LIGHTNING_RESISTANCE",
+          "Boots_Hybrid/CHAOS_RESISTANCE",
+          "Boots_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Boots_Hybrid/BASE_STUN_THRESHOLD",
+          "Boots_Hybrid/LIFE_REGENERATION_PER_SECOND",
+          "Boots_Hybrid/ITEM_FOUND_RARITY_INCREASE",
+          "Boots_Hybrid/REDUCED_SHOCK_DURATION",
+          "Boots_Hybrid/REDUCED_CHILL_DURATION",
+          "Boots_Hybrid/REDUCED_FREEZE_DURATION",
+          "Boots_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE",
+          "Boots_Hybrid/ENERGY_SHIELD_RECHARGE_RATE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Boots_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Boots_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Boots_Hybrid/DESECRATED_DODGE_ROLL_DISTANCE",
+          "Boots_Hybrid/DESECRATED_SLOW_POTENCY_REDUCTION",
+          "Boots_Hybrid/DESECRATED_REDUCED_SELF_IGNITE_DURATION",
+          "Boots_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Boots_Hybrid/DESECRATED_REDUCED_BLEEDING_DURATION",
+          "Boots_Hybrid/DESECRATED_REDUCED_POISON_DURATION",
+          "Boots_Hybrid/DESECRATED_MANA_COST_EFFICIENCY_IF_DODGE_ROLL",
+          "Boots_Hybrid/DESECRATED_MANA_REGENERATION_WHILE_STATIONARY",
+          "Boots_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Boots_Hybrid/DESECRATED_CORRUPTED_BLOOD_IMMUNITY",
+          "Boots_Hybrid/DESECRATED_REDUCES_MOVEMENT_VELOCITY_PENALTY_SKILLS_WHEN_MOVING"
+        ] },
+        "essence": { "prefixes": [
+          "Boots_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Boots_Hybrid/ESSENCE_BASE_MAXIMUM_MANA",
+          "Boots_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Boots_Hybrid/ESSENCE_INCREASED_MOVEMENT_SPEED"
+        ], "suffixes": [
+          "Boots_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Boots_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Boots_Hybrid/ESSENCE_SOUL_CORE",
+          "Boots_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_LIGHTNING_RESISTANCE",
+          "Boots_Hybrid/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Bows",
+      "name": "Bows",
+      "category": "Bows",
+      "pools": {
+        "normal": { "prefixes": [
+          "Bows/PHYSICAL_DAMAGE_FLAT",
+          "Bows/FIRE_DAMAGE_FLAT",
+          "Bows/COLD_DAMAGE_FLAT",
+          "Bows/LIGHTNING_DAMAGE_FLAT",
+          "Bows/INCREASED_PHYSICAL_DAMAGE_PERCENT",
+          "Bows/HYBRID_INCREASED_PHYSICAL_DAMAGE_PERCENT_AND_ACCURACY_RATING",
+          "Bows/ACCURACY_RATING",
+          "Bows/INCREASED_ELEMENTAL_DAMAGE_WITH_ATTACKS"
+        ], "suffixes": [
+          "Bows/DEXTERITY",
+          "Bows/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Bows/LEVEL_PROJECTILE_SKILL",
+          "Bows/LIFE_LEECH",
+          "Bows/MANA_LEECH",
+          "Bows/LIFE_PER_ENEMY_KILLED",
+          "Bows/MANA_PER_ENEMY_KILLED",
+          "Bows/LIFE_PER_ENEMY_HIT",
+          "Bows/INCREASED_ATTACK_SPEED",
+          "Bows/CRITICAL_HIT_CHANCE",
+          "Bows/CRITICAL_DAMAGE_BONUS",
+          "Bows/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Bows/ADDITIONAL_ARROWS"
+        ] },
+        "desecrated": { "prefixes": [
+          "Bows/DESECRATED_INCREASED_ATTACK_AREA_OF_EFFECT",
+          "Bows/DESECRATED_COMPANION_DAMAGE",
+          "Bows/DESECRATED_FIRE_PENETRATION",
+          "Bows/DESECRATED_CHAIN_FROM_TERRAIN",
+          "Bows/DESECRATED_QUIVER_BONUS",
+          "Bows/DESECRATED_COLD_PENETRATION",
+          "Bows/DESECRATED_LIGHTNING_PENETRATION",
+          "Bows/DESECRATED_PROJECTILE_DAMAGE_FURTHER_6M"
+        ], "suffixes": [
+          "Bows/DESECRATED_CHANCE_TO_PIERCE",
+          "Bows/DESECRATED_COMPANION_ATTACK_SPEED",
+          "Bows/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Bows/DESECRATED_IMMOBILISATION_BUILDUP",
+          "Bows/DESECRATED_CRITICAL_STRIKE_CHANCE_INCREASE_FURTHER_6M",
+          "Bows/DESECRATED_MANA_COST_EFFICIENCY",
+          "Bows/DESECRATED_MANA_TO_LIFE_COST",
+          "Bows/DESECRATED_ADDITIONAL_PROJECTILES_WHILE_MOVING"
+        ] },
+        "essence": { "prefixes": [
+          "Bows/ESSENCE_PHYSICAL_DAMAGE_FLAT",
+          "Bows/ESSENCE_FIRE_DAMAGE_FLAT",
+          "Bows/ESSENCE_COLD_DAMAGE_FLAT",
+          "Bows/ESSENCE_LIGHTNING_DAMAGE_FLAT",
+          "Bows/ESSENCE_INCREASED_ACCURACY",
+          "Bows/ESSENCE_WEAPON_GAINED_DAMAGE_PHYSICAL",
+          "Bows/ESSENCE_WEAPON_GAINED_DAMAGE_FIRE",
+          "Bows/ESSENCE_WEAPON_GAINED_DAMAGE_COLD",
+          "Bows/ESSENCE_WEAPON_GAINED_DAMAGE_LIGHTNING"
+        ], "suffixes": [
+          "Bows/ESSENCE_INCREASED_ATTACK_SPEED",
+          "Bows/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Bows/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Bows/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Bows/ESSENCE_ALL_ATTACK_SKILL_LEVEL",
+          "Bows/ESSENCE_ONSLAUGHT",
+          "Bows/ESSENCE_CRITICAL_STRIKE_CHANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Bucklers",
+      "name": "Bucklers",
+      "category": "Bucklers",
+      "pools": {
+        "normal": { "prefixes": [
+          "Bucklers/BASE_MAXIMUM_LIFE",
+          "Bucklers/BASE_EVASION",
+          "Bucklers/INCREASED_PERCENT_EVASION",
+          "Bucklers/HYBRID_INCREASED_PERCENT_EVASION_AND_STUN",
+          "Bucklers/PHYSICAL_THORNS_DAMAGE",
+          "Bucklers/INCREASED_SHIELD_BLOCK_CHANCE"
+        ], "suffixes": [
+          "Bucklers/DEXTERITY",
+          "Bucklers/FIRE_RESISTANCE",
+          "Bucklers/COLD_RESISTANCE",
+          "Bucklers/LIGHTNING_RESISTANCE",
+          "Bucklers/CHAOS_RESISTANCE",
+          "Bucklers/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Bucklers/BASE_STUN_THRESHOLD",
+          "Bucklers/MAXIMUM_FIRE_RESIST",
+          "Bucklers/MAXIMUM_COLD_RESIST",
+          "Bucklers/MAXIMUM_LIGHTNING_RESIST",
+          "Bucklers/MAXIMUM_CHAOS_RESIST",
+          "Bucklers/ALL_MAXIMUM_RESISTANCES",
+          "Bucklers/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Bucklers/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Bucklers/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Bucklers/DESECRATED_ALL_MAXIMUM_RESISTANCES",
+          "Bucklers/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Bucklers/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Bucklers/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Bucklers/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Bucklers/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Bucklers/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION",
+          "Bucklers/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Bucklers/DESECRATED_MAXIMUM_BLOCK_CHANCE",
+          "Bucklers/DESECRATED_PARRIED_DEBUFF_MAGNITUDE"
+        ] },
+        "essence": { "prefixes": [
+          "Bucklers/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Bucklers/ESSENCE_INCREASED_PERCENT_ARMOUR",
+          "Bucklers/ESSENCE_INCREASED_PERCENT_EVASION",
+          "Bucklers/ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD",
+          "Bucklers/ESSENCE_INCREASED_SHIELD_BLOCK_PERCENTAGE"
+        ], "suffixes": [
+          "Bucklers/ESSENCE_CHAOS_RESISTANCE",
+          "Bucklers/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Bucklers/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Bucklers/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Bucklers/ESSENCE_FIRE_RESISTANCE",
+          "Bucklers/ESSENCE_COLD_RESISTANCE",
+          "Bucklers/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Crossbows",
+      "name": "Crossbows",
+      "category": "Crossbows",
+      "pools": {
+        "normal": { "prefixes": [
+          "Crossbows/PHYSICAL_DAMAGE_FLAT",
+          "Crossbows/FIRE_DAMAGE_FLAT",
+          "Crossbows/COLD_DAMAGE_FLAT",
+          "Crossbows/LIGHTNING_DAMAGE_FLAT",
+          "Crossbows/INCREASED_PHYSICAL_DAMAGE_PERCENT",
+          "Crossbows/HYBRID_INCREASED_PHYSICAL_DAMAGE_PERCENT_AND_ACCURACY_RATING",
+          "Crossbows/ACCURACY_RATING",
+          "Crossbows/INCREASED_ELEMENTAL_DAMAGE_WITH_ATTACKS"
+        ], "suffixes": [
+          "Crossbows/STRENGTH",
+          "Crossbows/DEXTERITY",
+          "Crossbows/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Crossbows/LEVEL_PROJECTILE_SKILL",
+          "Crossbows/LIFE_LEECH",
+          "Crossbows/MANA_LEECH",
+          "Crossbows/LIFE_PER_ENEMY_KILLED",
+          "Crossbows/MANA_PER_ENEMY_KILLED",
+          "Crossbows/LIFE_PER_ENEMY_HIT",
+          "Crossbows/INCREASED_ATTACK_SPEED",
+          "Crossbows/CRITICAL_HIT_CHANCE",
+          "Crossbows/CRITICAL_DAMAGE_BONUS",
+          "Crossbows/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Crossbows/ADDITIONAL_BOLT"
+        ] },
+        "desecrated": { "prefixes": [
+          "Crossbows/DESECRATED_GRENADE_COOLDOWN_USE",
+          "Crossbows/DESECRATED_INCREASED_GRENADE_DAMAGE_AND_DURATION",
+          "Crossbows/DESECRATED_FIRE_PENETRATION",
+          "Crossbows/DESECRATED_COLD_PENETRATION",
+          "Crossbows/DESECRATED_LIGHTNING_PENETRATION",
+          "Crossbows/DESECRATED_ADDITIONAL_BALLISTA_TOTEM",
+          "Crossbows/DESECRATED_INCREASED_DAMAGE_WITH_HITS_WITHIN_2M"
+        ], "suffixes": [
+          "Crossbows/DESECRATED_GRENADE_ADDITIONAL_DETONATION_CHANCE",
+          "Crossbows/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Crossbows/DESECRATED_CROSSBOW_IMMEDIATE_RELOAD_CHANCE",
+          "Crossbows/DESECRATED_CROSSBOW_RELOAD_SPEED",
+          "Crossbows/DESECRATED_MANA_COST_EFFICIENCY",
+          "Crossbows/DESECRATED_CHAIN",
+          "Crossbows/DESECRATED_CRITICAL_DAMAGE_BONUS_WITHIN_2M",
+          "Crossbows/DESECRATED_MANA_TO_LIFE_COST"
+        ] },
+        "essence": { "prefixes": [
+          "Crossbows/ESSENCE_PHYSICAL_DAMAGE_FLAT",
+          "Crossbows/ESSENCE_FIRE_DAMAGE_FLAT",
+          "Crossbows/ESSENCE_COLD_DAMAGE_FLAT",
+          "Crossbows/ESSENCE_LIGHTNING_DAMAGE_FLAT",
+          "Crossbows/ESSENCE_INCREASED_ACCURACY",
+          "Crossbows/ESSENCE_WEAPON_GAINED_DAMAGE_PHYSICAL",
+          "Crossbows/ESSENCE_WEAPON_GAINED_DAMAGE_FIRE",
+          "Crossbows/ESSENCE_WEAPON_GAINED_DAMAGE_COLD",
+          "Crossbows/ESSENCE_WEAPON_GAINED_DAMAGE_LIGHTNING"
+        ], "suffixes": [
+          "Crossbows/ESSENCE_INCREASED_ATTACK_SPEED",
+          "Crossbows/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Crossbows/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Crossbows/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Crossbows/ESSENCE_ALL_ATTACK_SKILL_LEVEL",
+          "Crossbows/ESSENCE_ONSLAUGHT",
+          "Crossbows/ESSENCE_CRITICAL_STRIKE_CHANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Foci",
+      "name": "Foci",
+      "category": "Foci",
+      "pools": {
+        "normal": { "prefixes": [
+          "Foci/MAXIMUM_MANA",
+          "Foci/INCREASED_SPELL_DAMAGE",
+          "Foci/HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_MANA",
+          "Foci/INCREASED_FIRE_DAMAGE",
+          "Foci/INCREASED_COLD_DAMAGE",
+          "Foci/INCREASED_LIGHTNING_DAMAGE",
+          "Foci/INCREASED_CHAOS_DAMAGE",
+          "Foci/INCREASED_SPELL_PHYSICAL_DAMAGE",
+          "Foci/INCREASED_PERCENT_ENERGY_SHIELD",
+          "Foci/BASE_ENERGY_SHIELD"
+        ], "suffixes": [
+          "Foci/INTELLIGENCE",
+          "Foci/FIRE_RESISTANCE",
+          "Foci/COLD_RESISTANCE",
+          "Foci/LIGHTNING_RESISTANCE",
+          "Foci/CHAOS_RESISTANCE",
+          "Foci/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Foci/ALL_SPELL_SKILL_LEVEL",
+          "Foci/MANA_REGENERATION_RATE",
+          "Foci/INCREASED_CAST_SPEED",
+          "Foci/INCREASED_CRITICAL_HIT_CHANCE_SPELLS",
+          "Foci/CRITICAL_SPELL_DAMAGE_BONUS",
+          "Foci/ENERGY_SHIELD_RECHARGE_RATE",
+          "Foci/ENERGY_SHIELD_FASTER_START_RECHARGE"
+        ] },
+        "desecrated": { "prefixes": [
+          "Foci/DESECRATED_OFFERING_EFFECT",
+          "Foci/DESECRATED_CURSE_EFFECTIVENESS",
+          "Foci/DESECRATED_SPELL_AREA_OF_EFFECT",
+          "Foci/DESECRATED_INVOCATED_SPELLS_INCREASED_DAMAGE",
+          "Foci/DESECRATED_ADDITIONAL_SPELL_TOTEM",
+          "Foci/DESECRATED_INCREASED_SPELL_DAMAGE_WHILE_MELEE_WEAPON"
+        ], "suffixes": [
+          "Foci/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Foci/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Foci/DESECRATED_LEVEL_MINION_SKILL",
+          "Foci/DESECRATED_FASTER_CURSE",
+          "Foci/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Foci/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Foci/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Foci/DESECRATED_CHANCE_TO_GAIN_ADDITIONAL_INFUSION",
+          "Foci/DESECRATED_MANA_COST_EFFICIENCY",
+          "Foci/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Foci/DESECRATED_SPELLS_FIRE_2_ADDITIONAL_PROJECTILE_CHANCE",
+          "Foci/DESECRATED_SKILL_LIFE_COST"
+        ] },
+        "essence": { "prefixes": [
+          "Foci/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Foci/ESSENCE_INCREASED_PERCENT_ARMOUR",
+          "Foci/ESSENCE_INCREASED_PERCENT_EVASION",
+          "Foci/ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD",
+          "Foci/ESSENCE_INCREASED_SPELL_DAMAGE"
+        ], "suffixes": [
+          "Foci/ESSENCE_CHAOS_RESISTANCE",
+          "Foci/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Foci/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Foci/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Foci/ESSENCE_ALL_SPELL_SKILL_LEVEL",
+          "Foci/ESSENCE_ENERGY_SHIELD_REGENERATION",
+          "Foci/ESSENCE_SPELL_CRITICAL_STRIKE_CHANCE_INCREASE",
+          "Foci/ESSENCE_FIRE_RESISTANCE",
+          "Foci/ESSENCE_COLD_RESISTANCE",
+          "Foci/ESSENCE_LIGHTNING_RESISTANCE",
+          "Foci/ESSENCE_INCREASED_CAST_SPEED",
+          "Foci/ESSENCE_MANA_COST_EFFICIENCY"
+        ] }
+      }
+    },
+    {
+      "id": "Gloves_dex",
+      "name": "Gloves_dex",
+      "category": "Gloves",
+      "pools": {
+        "normal": { "prefixes": [
+          "Gloves_Normal/BASE_MAXIMUM_LIFE",
+          "Gloves_Normal/BASE_MAXIMUM_MANA",
+          "Gloves_Normal/BASE_EVASION",
+          "Gloves_Normal/INCREASED_PERCENT_EVASION",
+          "Gloves_Normal/HYBRID_INCREASED_PERCENT_EVASION_AND_LIFE",
+          "Gloves_Normal/PHYSICAL_DAMAGE_FLAT",
+          "Gloves_Normal/FIRE_DAMAGE_FLAT",
+          "Gloves_Normal/COLD_DAMAGE_FLAT",
+          "Gloves_Normal/LIGHTNING_DAMAGE_FLAT",
+          "Gloves_Normal/ACCURACY_RATING"
+        ], "suffixes": [
+          "Gloves_Normal/DEXTERITY",
+          "Gloves_Normal/FIRE_RESISTANCE",
+          "Gloves_Normal/COLD_RESISTANCE",
+          "Gloves_Normal/LIGHTNING_RESISTANCE",
+          "Gloves_Normal/CHAOS_RESISTANCE",
+          "Gloves_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Gloves_Normal/LEVEL_MELEE_SKILL",
+          "Gloves_Normal/LIFE_LEECH",
+          "Gloves_Normal/MANA_LEECH",
+          "Gloves_Normal/LIFE_PER_ENEMY_KILLED",
+          "Gloves_Normal/MANA_PER_ENEMY_KILLED",
+          "Gloves_Normal/LIFE_PER_ENEMY_HIT",
+          "Gloves_Normal/INCREASED_ATTACK_SPEED",
+          "Gloves_Normal/CRITICAL_DAMAGE_BONUS",
+          "Gloves_Normal/ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Normal/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Gloves_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Gloves_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Gloves_Normal/DESECRATED_CURSE_AREA_OF_EFFECT",
+          "Gloves_Normal/DESECRATED_DAZE_ON_HIT",
+          "Gloves_Normal/DESECRATED_IMMOBILISE",
+          "Gloves_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Gloves_Normal/DESECRATED_MANA_COST_EFFICIENCY",
+          "Gloves_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Normal/DESECRATED_INCREASED_MAGNITUDE_AILMENT_EFFECT",
+          "Gloves_Normal/DESECRATED_BLEED_CHANCE_INCREASE",
+          "Gloves_Normal/DESECRATED_POISON_CHANCE_INCREASE"
+        ] },
+        "essence": { "prefixes": [
+          "Gloves_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Gloves_Normal/ESSENCE_BASE_MAXIMUM_MANA",
+          "Gloves_Normal/ESSENCE_INCREASED_ACCURACY"
+        ], "suffixes": [
+          "Gloves_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Gloves_Normal/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Gloves_Normal/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Gloves_Normal/ESSENCE_CRITICAL_DAMAGE_BONUS",
+          "Gloves_Normal/ESSENCE_SOUL_CORE",
+          "Gloves_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Gloves_Normal/ESSENCE_COLD_RESISTANCE",
+          "Gloves_Normal/ESSENCE_LIGHTNING_RESISTANCE",
+          "Gloves_Normal/ESSENCE_LIGHTNING_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Gloves_Normal/ESSENCE_ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Normal/ESSENCE_GOLD_DROPPED"
+        ] }
+      }
+    },
+    {
+      "id": "Gloves_dex_int",
+      "name": "Gloves_dex_int",
+      "category": "Gloves",
+      "pools": {
+        "normal": { "prefixes": [
+          "Gloves_Hybrid/BASE_MAXIMUM_LIFE",
+          "Gloves_Hybrid/BASE_MAXIMUM_MANA",
+          "Gloves_Hybrid/HYBRID_BASE_EVASION_ENERGY_SHIELD",
+          "Gloves_Hybrid/HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD",
+          "Gloves_Hybrid/HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_LIFE",
+          "Gloves_Hybrid/PHYSICAL_DAMAGE_FLAT",
+          "Gloves_Hybrid/FIRE_DAMAGE_FLAT",
+          "Gloves_Hybrid/COLD_DAMAGE_FLAT",
+          "Gloves_Hybrid/LIGHTNING_DAMAGE_FLAT",
+          "Gloves_Hybrid/ACCURACY_RATING"
+        ], "suffixes": [
+          "Gloves_Hybrid/DEXTERITY",
+          "Gloves_Hybrid/STRENGTH",
+          "Gloves_Hybrid/FIRE_RESISTANCE",
+          "Gloves_Hybrid/COLD_RESISTANCE",
+          "Gloves_Hybrid/LIGHTNING_RESISTANCE",
+          "Gloves_Hybrid/CHAOS_RESISTANCE",
+          "Gloves_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Gloves_Hybrid/LEVEL_MELEE_SKILL",
+          "Gloves_Hybrid/LIFE_LEECH",
+          "Gloves_Hybrid/MANA_LEECH",
+          "Gloves_Hybrid/LIFE_PER_ENEMY_KILLED",
+          "Gloves_Hybrid/MANA_PER_ENEMY_KILLED",
+          "Gloves_Hybrid/LIFE_PER_ENEMY_HIT",
+          "Gloves_Hybrid/INCREASED_ATTACK_SPEED",
+          "Gloves_Hybrid/CRITICAL_DAMAGE_BONUS",
+          "Gloves_Hybrid/ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Hybrid/ENERGY_SHIELD_RECHARGE_RATE",
+          "Gloves_Hybrid/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Gloves_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Gloves_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Gloves_Hybrid/DESECRATED_IMMOBILISE",
+          "Gloves_Hybrid/DESECRATED_DAZE_ON_HIT",
+          "Gloves_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Hybrid/DESECRATED_MANA_COST_EFFICIENCY",
+          "Gloves_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Gloves_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Hybrid/DESECRATED_ARCANE_SURGE_ON_CRIT",
+          "Gloves_Hybrid/DESECRATED_INCREASED_CAST_SPEED_ON_FULL_LIFE",
+          "Gloves_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Hybrid/DESECRATED_INCREASED_MAGNITUDE_AILMENT_EFFECT",
+          "Gloves_Hybrid/DESECRATED_BLEED_CHANCE_INCREASE",
+          "Gloves_Hybrid/DESECRATED_INCREASED_SKILL_SPEED_ON_FRENZY_CONSUMPTION",
+          "Gloves_Hybrid/DESECRATED_INCISION_CHANCE",
+          "Gloves_Hybrid/DESECRATED_POISON_CHANCE_INCREASE"
+        ] },
+        "essence": { "prefixes": [
+          "Gloves_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Gloves_Hybrid/ESSENCE_BASE_MAXIMUM_MANA",
+          "Gloves_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD",
+          "Gloves_Hybrid/ESSENCE_INCREASED_ACCURACY"
+        ], "suffixes": [
+          "Gloves_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Gloves_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Gloves_Hybrid/ESSENCE_CRITICAL_DAMAGE_BONUS",
+          "Gloves_Hybrid/ESSENCE_SOUL_CORE",
+          "Gloves_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_LIGHTNING_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_LIGHTNING_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Gloves_Hybrid/ESSENCE_ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Hybrid/ESSENCE_GOLD_DROPPED"
+        ] }
+      }
+    },
+    {
+      "id": "Gloves_int",
+      "name": "Gloves_int",
+      "category": "Gloves",
+      "pools": {
+        "normal": { "prefixes": [
+          "Gloves_Normal/BASE_MAXIMUM_LIFE",
+          "Gloves_Normal/BASE_MAXIMUM_MANA",
+          "Gloves_Normal/BASE_ENERGY_SHIELD",
+          "Gloves_Normal/INCREASED_PERCENT_ENERGY_SHIELD",
+          "Gloves_Normal/HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_LIFE",
+          "Gloves_Normal/PHYSICAL_DAMAGE_FLAT",
+          "Gloves_Normal/FIRE_DAMAGE_FLAT",
+          "Gloves_Normal/COLD_DAMAGE_FLAT",
+          "Gloves_Normal/LIGHTNING_DAMAGE_FLAT",
+          "Gloves_Normal/ACCURACY_RATING"
+        ], "suffixes": [
+          "Gloves_Normal/DEXTERITY",
+          "Gloves_Normal/INTELLIGENCE",
+          "Gloves_Normal/FIRE_RESISTANCE",
+          "Gloves_Normal/COLD_RESISTANCE",
+          "Gloves_Normal/LIGHTNING_RESISTANCE",
+          "Gloves_Normal/CHAOS_RESISTANCE",
+          "Gloves_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Gloves_Normal/LEVEL_MELEE_SKILL",
+          "Gloves_Normal/LIFE_LEECH",
+          "Gloves_Normal/MANA_LEECH",
+          "Gloves_Normal/LIFE_PER_ENEMY_KILLED",
+          "Gloves_Normal/MANA_PER_ENEMY_KILLED",
+          "Gloves_Normal/LIFE_PER_ENEMY_HIT",
+          "Gloves_Normal/INCREASED_ATTACK_SPEED",
+          "Gloves_Normal/CRITICAL_DAMAGE_BONUS",
+          "Gloves_Normal/ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Normal/ENERGY_SHIELD_RECHARGE_RATE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Gloves_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Gloves_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Gloves_Normal/DESECRATED_DAZE_ON_HIT",
+          "Gloves_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Gloves_Normal/DESECRATED_MANA_COST_EFFICIENCY",
+          "Gloves_Normal/DESECRATED_ARCANE_SURGE_ON_CRIT",
+          "Gloves_Normal/DESECRATED_INCREASED_CAST_SPEED_ON_FULL_LIFE",
+          "Gloves_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Normal/DESECRATED_INCREASED_MAGNITUDE_AILMENT_EFFECT",
+          "Gloves_Normal/DESECRATED_BLEED_CHANCE_INCREASE",
+          "Gloves_Normal/DESECRATED_INCREASED_SKILL_SPEED_ON_FRENZY_CONSUMPTION",
+          "Gloves_Normal/DESECRATED_INCISION_CHANCE",
+          "Gloves_Normal/DESECRATED_POISON_CHANCE_INCREASE"
+        ] },
+        "essence": { "prefixes": [
+          "Gloves_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Gloves_Normal/ESSENCE_BASE_MAXIMUM_MANA",
+          "Gloves_Normal/ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD",
+          "Gloves_Normal/ESSENCE_INCREASED_ACCURACY"
+        ], "suffixes": [
+          "Gloves_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Gloves_Normal/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Gloves_Normal/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Gloves_Normal/ESSENCE_CRITICAL_DAMAGE_BONUS",
+          "Gloves_Normal/ESSENCE_SOUL_CORE",
+          "Gloves_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Gloves_Normal/ESSENCE_COLD_RESISTANCE",
+          "Gloves_Normal/ESSENCE_LIGHTNING_RESISTANCE",
+          "Gloves_Normal/ESSENCE_LIGHTNING_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Gloves_Normal/ESSENCE_ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Normal/ESSENCE_GOLD_DROPPED"
+        ] }
+      }
+    },
+    {
+      "id": "Gloves_str",
+      "name": "Gloves_str",
+      "category": "Gloves",
+      "pools": {
+        "normal": { "prefixes": [
+          "Gloves_Normal/BASE_MAXIMUM_LIFE",
+          "Gloves_Normal/BASE_MAXIMUM_MANA",
+          "Gloves_Normal/BASE_ARMOUR",
+          "Gloves_Normal/INCREASED_PERCENT_ARMOUR",
+          "Gloves_Normal/HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE",
+          "Gloves_Normal/PHYSICAL_DAMAGE_FLAT",
+          "Gloves_Normal/FIRE_DAMAGE_FLAT",
+          "Gloves_Normal/COLD_DAMAGE_FLAT",
+          "Gloves_Normal/LIGHTNING_DAMAGE_FLAT",
+          "Gloves_Normal/ACCURACY_RATING"
+        ], "suffixes": [
+          "Gloves_Normal/STRENGTH",
+          "Gloves_Normal/DEXTERITY",
+          "Gloves_Normal/FIRE_RESISTANCE",
+          "Gloves_Normal/COLD_RESISTANCE",
+          "Gloves_Normal/LIGHTNING_RESISTANCE",
+          "Gloves_Normal/CHAOS_RESISTANCE",
+          "Gloves_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Gloves_Normal/LEVEL_MELEE_SKILL",
+          "Gloves_Normal/LIFE_LEECH",
+          "Gloves_Normal/MANA_LEECH",
+          "Gloves_Normal/LIFE_PER_ENEMY_KILLED",
+          "Gloves_Normal/MANA_PER_ENEMY_KILLED",
+          "Gloves_Normal/LIFE_PER_ENEMY_HIT",
+          "Gloves_Normal/INCREASED_ATTACK_SPEED",
+          "Gloves_Normal/CRITICAL_DAMAGE_BONUS",
+          "Gloves_Normal/ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Normal/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Gloves_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Gloves_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Gloves_Normal/DESECRATED_DAZE_ON_HIT",
+          "Gloves_Normal/DESECRATED_INSTANT_LEECH_PERCENT",
+          "Gloves_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Gloves_Normal/DESECRATED_MANA_COST_EFFICIENCY",
+          "Gloves_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Normal/DESECRATED_INCREASED_MAGNITUDE_AILMENT_EFFECT",
+          "Gloves_Normal/DESECRATED_BLEED_CHANCE_INCREASE",
+          "Gloves_Normal/DESECRATED_POISON_CHANCE_INCREASE"
+        ] },
+        "essence": { "prefixes": [
+          "Gloves_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Gloves_Normal/ESSENCE_BASE_MAXIMUM_MANA",
+          "Gloves_Normal/ESSENCE_INCREASED_PERCENT_ARMOUR",
+          "Gloves_Normal/ESSENCE_INCREASED_ACCURACY"
+        ], "suffixes": [
+          "Gloves_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Gloves_Normal/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Gloves_Normal/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Gloves_Normal/ESSENCE_CRITICAL_DAMAGE_BONUS",
+          "Gloves_Normal/ESSENCE_SOUL_CORE",
+          "Gloves_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Gloves_Normal/ESSENCE_COLD_RESISTANCE",
+          "Gloves_Normal/ESSENCE_LIGHTNING_RESISTANCE",
+          "Gloves_Normal/ESSENCE_LIGHTNING_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Gloves_Normal/ESSENCE_ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Normal/ESSENCE_GOLD_DROPPED"
+        ] }
+      }
+    },
+    {
+      "id": "Gloves_str_dex",
+      "name": "Gloves_str_dex",
+      "category": "Gloves",
+      "pools": {
+        "normal": { "prefixes": [
+          "Gloves_Hybrid/BASE_MAXIMUM_LIFE",
+          "Gloves_Hybrid/BASE_MAXIMUM_MANA",
+          "Gloves_Hybrid/HYBRID_BASE_ARMOUR_EVASION",
+          "Gloves_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION",
+          "Gloves_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_LIFE",
+          "Gloves_Hybrid/PHYSICAL_DAMAGE_FLAT",
+          "Gloves_Hybrid/FIRE_DAMAGE_FLAT",
+          "Gloves_Hybrid/COLD_DAMAGE_FLAT",
+          "Gloves_Hybrid/LIGHTNING_DAMAGE_FLAT",
+          "Gloves_Hybrid/ACCURACY_RATING"
+        ], "suffixes": [
+          "Gloves_Hybrid/STRENGTH",
+          "Gloves_Hybrid/DEXTERITY",
+          "Gloves_Hybrid/INTELLIGENCE",
+          "Gloves_Hybrid/FIRE_RESISTANCE",
+          "Gloves_Hybrid/COLD_RESISTANCE",
+          "Gloves_Hybrid/LIGHTNING_RESISTANCE",
+          "Gloves_Hybrid/CHAOS_RESISTANCE",
+          "Gloves_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Gloves_Hybrid/LEVEL_MELEE_SKILL",
+          "Gloves_Hybrid/LIFE_LEECH",
+          "Gloves_Hybrid/MANA_LEECH",
+          "Gloves_Hybrid/LIFE_PER_ENEMY_KILLED",
+          "Gloves_Hybrid/MANA_PER_ENEMY_KILLED",
+          "Gloves_Hybrid/LIFE_PER_ENEMY_HIT",
+          "Gloves_Hybrid/INCREASED_ATTACK_SPEED",
+          "Gloves_Hybrid/CRITICAL_DAMAGE_BONUS",
+          "Gloves_Hybrid/ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE",
+          "Gloves_Hybrid/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Gloves_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Gloves_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Gloves_Hybrid/DESECRATED_CURSE_AREA_OF_EFFECT",
+          "Gloves_Hybrid/DESECRATED_DAZE_ON_HIT",
+          "Gloves_Hybrid/DESECRATED_IMMOBILISE",
+          "Gloves_Hybrid/DESECRATED_INSTANT_LEECH_PERCENT",
+          "Gloves_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Gloves_Hybrid/DESECRATED_MANA_COST_EFFICIENCY",
+          "Gloves_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Hybrid/DESECRATED_INCREASED_MAGNITUDE_AILMENT_EFFECT",
+          "Gloves_Hybrid/DESECRATED_BLEED_CHANCE_INCREASE",
+          "Gloves_Hybrid/DESECRATED_POISON_CHANCE_INCREASE"
+        ] },
+        "essence": { "prefixes": [
+          "Gloves_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Gloves_Hybrid/ESSENCE_BASE_MAXIMUM_MANA",
+          "Gloves_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_EVASION",
+          "Gloves_Hybrid/ESSENCE_INCREASED_ACCURACY"
+        ], "suffixes": [
+          "Gloves_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Gloves_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Gloves_Hybrid/ESSENCE_CRITICAL_DAMAGE_BONUS",
+          "Gloves_Hybrid/ESSENCE_SOUL_CORE",
+          "Gloves_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_LIGHTNING_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_LIGHTNING_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Gloves_Hybrid/ESSENCE_ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Hybrid/ESSENCE_GOLD_DROPPED"
+        ] }
+      }
+    },
+    {
+      "id": "Gloves_str_int",
+      "name": "Gloves_str_int",
+      "category": "Gloves",
+      "pools": {
+        "normal": { "prefixes": [
+          "Gloves_Hybrid/BASE_MAXIMUM_LIFE",
+          "Gloves_Hybrid/BASE_MAXIMUM_MANA",
+          "Gloves_Hybrid/HYBRID_BASE_ARMOUR_ENERGY_SHIELD",
+          "Gloves_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Gloves_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_LIFE",
+          "Gloves_Hybrid/PHYSICAL_DAMAGE_FLAT",
+          "Gloves_Hybrid/FIRE_DAMAGE_FLAT",
+          "Gloves_Hybrid/COLD_DAMAGE_FLAT",
+          "Gloves_Hybrid/LIGHTNING_DAMAGE_FLAT",
+          "Gloves_Hybrid/ACCURACY_RATING"
+        ], "suffixes": [
+          "Gloves_Hybrid/STRENGTH",
+          "Gloves_Hybrid/DEXTERITY",
+          "Gloves_Hybrid/FIRE_RESISTANCE",
+          "Gloves_Hybrid/COLD_RESISTANCE",
+          "Gloves_Hybrid/LIGHTNING_RESISTANCE",
+          "Gloves_Hybrid/CHAOS_RESISTANCE",
+          "Gloves_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Gloves_Hybrid/LEVEL_MELEE_SKILL",
+          "Gloves_Hybrid/LIFE_LEECH",
+          "Gloves_Hybrid/MANA_LEECH",
+          "Gloves_Hybrid/LIFE_PER_ENEMY_KILLED",
+          "Gloves_Hybrid/MANA_PER_ENEMY_KILLED",
+          "Gloves_Hybrid/LIFE_PER_ENEMY_HIT",
+          "Gloves_Hybrid/INCREASED_ATTACK_SPEED",
+          "Gloves_Hybrid/CRITICAL_DAMAGE_BONUS",
+          "Gloves_Hybrid/ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Hybrid/ENERGY_SHIELD_RECHARGE_RATE",
+          "Gloves_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Gloves_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Gloves_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Gloves_Hybrid/DESECRATED_DAZE_ON_HIT",
+          "Gloves_Hybrid/DESECRATED_INSTANT_LEECH_PERCENT",
+          "Gloves_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Gloves_Hybrid/DESECRATED_MANA_COST_EFFICIENCY",
+          "Gloves_Hybrid/DESECRATED_ARCANE_SURGE_ON_CRIT",
+          "Gloves_Hybrid/DESECRATED_INCREASED_CAST_SPEED_ON_FULL_LIFE",
+          "Gloves_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Gloves_Hybrid/DESECRATED_INCREASED_MAGNITUDE_AILMENT_EFFECT",
+          "Gloves_Hybrid/DESECRATED_BLEED_CHANCE_INCREASE",
+          "Gloves_Hybrid/DESECRATED_INCREASED_SKILL_SPEED_ON_FRENZY_CONSUMPTION",
+          "Gloves_Hybrid/DESECRATED_INCISION_CHANCE",
+          "Gloves_Hybrid/DESECRATED_POISON_CHANCE_INCREASE"
+        ] },
+        "essence": { "prefixes": [
+          "Gloves_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Gloves_Hybrid/ESSENCE_BASE_MAXIMUM_MANA",
+          "Gloves_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Gloves_Hybrid/ESSENCE_INCREASED_ACCURACY"
+        ], "suffixes": [
+          "Gloves_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Gloves_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Gloves_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Gloves_Hybrid/ESSENCE_CRITICAL_DAMAGE_BONUS",
+          "Gloves_Hybrid/ESSENCE_SOUL_CORE",
+          "Gloves_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_LIGHTNING_RESISTANCE",
+          "Gloves_Hybrid/ESSENCE_LIGHTNING_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Gloves_Hybrid/ESSENCE_ITEM_FOUND_RARITY_INCREASE",
+          "Gloves_Hybrid/ESSENCE_GOLD_DROPPED"
+        ] }
+      }
+    },
+    {
+      "id": "Helmets_dex",
+      "name": "Helmets_dex",
+      "category": "Helmets",
+      "pools": {
+        "normal": { "prefixes": [
+          "Helmets_Normal/BASE_MAXIMUM_LIFE",
+          "Helmets_Normal/BASE_MAXIMUM_MANA",
+          "Helmets_Normal/BASE_EVASION",
+          "Helmets_Normal/INCREASED_PERCENT_EVASION",
+          "Helmets_Normal/HYBRID_INCREASED_PERCENT_EVASION_AND_LIFE",
+          "Helmets_Normal/HYBRID_INCREASED_PERCENT_EVASION_AND_MANA",
+          "Helmets_Normal/ACCURACY_RATING",
+          "Helmets_Normal/ITEM_FOUND_RARITY_INCREASE_PREFIX"
+        ], "suffixes": [
+          "Helmets_Normal/DEXTERITY",
+          "Helmets_Normal/INTELLIGENCE",
+          "Helmets_Normal/FIRE_RESISTANCE",
+          "Helmets_Normal/COLD_RESISTANCE",
+          "Helmets_Normal/LIGHTNING_RESISTANCE",
+          "Helmets_Normal/CHAOS_RESISTANCE",
+          "Helmets_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Helmets_Normal/LEVEL_MINION_SKILL",
+          "Helmets_Normal/LIFE_REGENERATION_PER_SECOND",
+          "Helmets_Normal/INCREASED_CRITICAL_HIT_CHANCE",
+          "Helmets_Normal/ITEM_FOUND_RARITY_INCREASE",
+          "Helmets_Normal/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Helmets_Normal/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Helmets_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Helmets_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Helmets_Normal/DESECRATED_PRESENCE_RADIUS",
+          "Helmets_Normal/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Helmets_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Helmets_Normal/DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD",
+          "Helmets_Normal/DESECRATED_MANA_COST_EFFICIENCY",
+          "Helmets_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Normal/DESECRATED_INCREASED_CRITICAL_DAMAGE_BONUS",
+          "Helmets_Normal/DESECRATED_LIFE_COST_EFFICIENCY",
+          "Helmets_Normal/DESECRATED_MARK_DAMAGE"
+        ] },
+        "essence": { "prefixes": [
+          "Helmets_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Helmets_Normal/ESSENCE_BASE_MAXIMUM_MANA",
+          "Helmets_Normal/ESSENCE_INCREASED_PERCENT_EVASION"
+        ], "suffixes": [
+          "Helmets_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Helmets_Normal/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Helmets_Normal/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Helmets_Normal/ESSENCE_LEVEL_MINION_SKILL",
+          "Helmets_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Helmets_Normal/ESSENCE_COLD_RESISTANCE",
+          "Helmets_Normal/ESSENCE_COLD_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Helmets_Normal/ESSENCE_LIGHTNING_RESISTANCE",
+          "Helmets_Normal/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Helmets_dex_int",
+      "name": "Helmets_dex_int",
+      "category": "Helmets",
+      "pools": {
+        "normal": { "prefixes": [
+          "Helmets_Hybrid/BASE_MAXIMUM_LIFE",
+          "Helmets_Hybrid/BASE_MAXIMUM_MANA",
+          "Helmets_Hybrid/BASE_EVASION_ENERGY_SHIELD",
+          "Helmets_Hybrid/INCREASED_PERCENT_EVASION_ENERGY_SHIELD",
+          "Helmets_Hybrid/HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_AND_LIFE",
+          "Helmets_Hybrid/HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD_AND_MANA",
+          "Helmets_Hybrid/ACCURACY_RATING",
+          "Helmets_Hybrid/ITEM_FOUND_RARITY_INCREASE_PREFIX"
+        ], "suffixes": [
+          "Helmets_Hybrid/DEXTERITY",
+          "Helmets_Hybrid/INTELLIGENCE",
+          "Helmets_Hybrid/FIRE_RESISTANCE",
+          "Helmets_Hybrid/COLD_RESISTANCE",
+          "Helmets_Hybrid/LIGHTNING_RESISTANCE",
+          "Helmets_Hybrid/CHAOS_RESISTANCE",
+          "Helmets_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Helmets_Hybrid/LEVEL_MINION_SKILL",
+          "Helmets_Hybrid/LIFE_REGENERATION_PER_SECOND",
+          "Helmets_Hybrid/INCREASED_CRITICAL_HIT_CHANCE",
+          "Helmets_Hybrid/ITEM_FOUND_RARITY_INCREASE",
+          "Helmets_Hybrid/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Helmets_Hybrid/ENERGY_SHIELD_RECHARGE_RATE",
+          "Helmets_Hybrid/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Helmets_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Helmets_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Helmets_Hybrid/DESECRATED_PRESENCE_RADIUS",
+          "Helmets_Hybrid/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Helmets_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Helmets_Hybrid/DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD",
+          "Helmets_Hybrid/DESECRATED_MANA_COST_EFFICIENCY",
+          "Helmets_Hybrid/DESECRATED_ARCANE_SURGE_EFFECT",
+          "Helmets_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Hybrid/DESECRATED_INCREASED_CRITICAL_DAMAGE_BONUS",
+          "Helmets_Hybrid/DESECRATED_LIFE_COST_EFFICIENCY",
+          "Helmets_Hybrid/DESECRATED_MARK_DAMAGE"
+        ] },
+        "essence": { "prefixes": [
+          "Helmets_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Helmets_Hybrid/ESSENCE_BASE_MAXIMUM_MANA",
+          "Helmets_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_EVASION_ENERGY_SHIELD"
+        ], "suffixes": [
+          "Helmets_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Helmets_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Helmets_Hybrid/ESSENCE_LEVEL_MINION_SKILL",
+          "Helmets_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_COLD_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Helmets_Hybrid/ESSENCE_LIGHTNING_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Helmets_int",
+      "name": "Helmets_int",
+      "category": "Helmets",
+      "pools": {
+        "normal": { "prefixes": [
+          "Helmets_Normal/BASE_MAXIMUM_LIFE",
+          "Helmets_Normal/BASE_MAXIMUM_MANA",
+          "Helmets_Normal/BASE_ENERGY_SHIELD",
+          "Helmets_Normal/INCREASED_PERCENT_ENERGY_SHIELD",
+          "Helmets_Normal/HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_LIFE",
+          "Helmets_Normal/HYBRID_INCREASED_PERCENT_ENERGY_SHIELD_AND_MANA",
+          "Helmets_Normal/ACCURACY_RATING",
+          "Helmets_Normal/ITEM_FOUND_RARITY_INCREASE_PREFIX"
+        ], "suffixes": [
+          "Helmets_Normal/INTELLIGENCE",
+          "Helmets_Normal/FIRE_RESISTANCE",
+          "Helmets_Normal/COLD_RESISTANCE",
+          "Helmets_Normal/LIGHTNING_RESISTANCE",
+          "Helmets_Normal/CHAOS_RESISTANCE",
+          "Helmets_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Helmets_Normal/LEVEL_MINION_SKILL",
+          "Helmets_Normal/LIFE_REGENERATION_PER_SECOND",
+          "Helmets_Normal/INCREASED_CRITICAL_HIT_CHANCE",
+          "Helmets_Normal/ITEM_FOUND_RARITY_INCREASE",
+          "Helmets_Normal/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Helmets_Normal/ENERGY_SHIELD_RECHARGE_RATE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Helmets_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Helmets_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Helmets_Normal/DESECRATED_PRESENCE_RADIUS",
+          "Helmets_Normal/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Helmets_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Helmets_Normal/DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD",
+          "Helmets_Normal/DESECRATED_MANA_COST_EFFICIENCY",
+          "Helmets_Normal/DESECRATED_ARCANE_SURGE_EFFECT",
+          "Helmets_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Normal/DESECRATED_LIFE_COST_EFFICIENCY"
+        ] },
+        "essence": { "prefixes": [
+          "Helmets_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Helmets_Normal/ESSENCE_BASE_MAXIMUM_MANA",
+          "Helmets_Normal/ESSENCE_INCREASED_PERCENT_ENERGY_SHIELD"
+        ], "suffixes": [
+          "Helmets_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Helmets_Normal/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Helmets_Normal/ESSENCE_LEVEL_MINION_SKILL",
+          "Helmets_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Helmets_Normal/ESSENCE_COLD_RESISTANCE",
+          "Helmets_Normal/ESSENCE_COLD_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Helmets_Normal/ESSENCE_LIGHTNING_RESISTANCE",
+          "Helmets_Normal/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Helmets_str",
+      "name": "Helmets_str",
+      "category": "Helmets",
+      "pools": {
+        "normal": { "prefixes": [
+          "Helmets_Normal/BASE_MAXIMUM_LIFE",
+          "Helmets_Normal/BASE_MAXIMUM_MANA",
+          "Helmets_Normal/BASE_ARMOUR",
+          "Helmets_Normal/INCREASED_PERCENT_ARMOUR",
+          "Helmets_Normal/HYBRID_INCREASED_PERCENT_ARMOUR_AND_LIFE",
+          "Helmets_Normal/HYBRID_INCREASED_PERCENT_ARMOUR_AND_MANA",
+          "Helmets_Normal/ACCURACY_RATING",
+          "Helmets_Normal/ITEM_FOUND_RARITY_INCREASE_PREFIX"
+        ], "suffixes": [
+          "Helmets_Normal/STRENGTH",
+          "Helmets_Normal/DEXTERITY",
+          "Helmets_Normal/FIRE_RESISTANCE",
+          "Helmets_Normal/COLD_RESISTANCE",
+          "Helmets_Normal/LIGHTNING_RESISTANCE",
+          "Helmets_Normal/CHAOS_RESISTANCE",
+          "Helmets_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Helmets_Normal/LEVEL_MINION_SKILL",
+          "Helmets_Normal/LIFE_REGENERATION_PER_SECOND",
+          "Helmets_Normal/INCREASED_CRITICAL_HIT_CHANCE",
+          "Helmets_Normal/ITEM_FOUND_RARITY_INCREASE",
+          "Helmets_Normal/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Helmets_Normal/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Helmets_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Helmets_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Helmets_Normal/DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Helmets_Normal/DESECRATED_GLORY_GENERATION",
+          "Helmets_Normal/DESECRATED_PRESENCE_RADIUS",
+          "Helmets_Normal/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Helmets_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Helmets_Normal/DESECRATED_ARMOUR_APPLIES_TO_CHAOS_DAMAGE",
+          "Helmets_Normal/DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD",
+          "Helmets_Normal/DESECRATED_MANA_COST_EFFICIENCY",
+          "Helmets_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Normal/DESECRATED_LIFE_COST_EFFICIENCY"
+        ] },
+        "essence": { "prefixes": [
+          "Helmets_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Helmets_Normal/ESSENCE_BASE_MAXIMUM_MANA",
+          "Helmets_Normal/ESSENCE_INCREASED_PERCENT_ARMOUR"
+        ], "suffixes": [
+          "Helmets_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Helmets_Normal/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Helmets_Normal/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Helmets_Normal/ESSENCE_LEVEL_MINION_SKILL",
+          "Helmets_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Helmets_Normal/ESSENCE_COLD_RESISTANCE",
+          "Helmets_Normal/ESSENCE_COLD_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Helmets_Normal/ESSENCE_LIGHTNING_RESISTANCE",
+          "Helmets_Normal/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Helmets_str_dex",
+      "name": "Helmets_str_dex",
+      "category": "Helmets",
+      "pools": {
+        "normal": { "prefixes": [
+          "Helmets_Hybrid/BASE_MAXIMUM_LIFE",
+          "Helmets_Hybrid/BASE_MAXIMUM_MANA",
+          "Helmets_Hybrid/BASE_ARMOUR_EVASION",
+          "Helmets_Hybrid/INCREASED_PERCENT_ARMOUR_EVASION",
+          "Helmets_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_AND_LIFE",
+          "Helmets_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_AND_MANA",
+          "Helmets_Hybrid/ACCURACY_RATING",
+          "Helmets_Hybrid/ITEM_FOUND_RARITY_INCREASE_PREFIX"
+        ], "suffixes": [
+          "Helmets_Hybrid/STRENGTH",
+          "Helmets_Hybrid/DEXTERITY",
+          "Helmets_Hybrid/FIRE_RESISTANCE",
+          "Helmets_Hybrid/COLD_RESISTANCE",
+          "Helmets_Hybrid/LIGHTNING_RESISTANCE",
+          "Helmets_Hybrid/CHAOS_RESISTANCE",
+          "Helmets_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Helmets_Hybrid/LEVEL_MINION_SKILL",
+          "Helmets_Hybrid/LIFE_REGENERATION_PER_SECOND",
+          "Helmets_Hybrid/INCREASED_CRITICAL_HIT_CHANCE",
+          "Helmets_Hybrid/ITEM_FOUND_RARITY_INCREASE",
+          "Helmets_Hybrid/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Helmets_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE",
+          "Helmets_Hybrid/EVASION_APPLIES_TO_DEFLECTION"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Helmets_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Helmets_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Helmets_Hybrid/DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Helmets_Hybrid/DESECRATED_GLORY_GENERATION",
+          "Helmets_Hybrid/DESECRATED_PRESENCE_RADIUS",
+          "Helmets_Hybrid/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Helmets_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Helmets_Hybrid/DESECRATED_ARMOUR_APPLIES_TO_CHAOS_DAMAGE",
+          "Helmets_Hybrid/DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD",
+          "Helmets_Hybrid/DESECRATED_MANA_COST_EFFICIENCY",
+          "Helmets_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Hybrid/DESECRATED_INCREASED_CRITICAL_DAMAGE_BONUS",
+          "Helmets_Hybrid/DESECRATED_LIFE_COST_EFFICIENCY",
+          "Helmets_Hybrid/DESECRATED_MARK_DAMAGE"
+        ] },
+        "essence": { "prefixes": [
+          "Helmets_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Helmets_Hybrid/ESSENCE_BASE_MAXIMUM_MANA",
+          "Helmets_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_EVASION"
+        ], "suffixes": [
+          "Helmets_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Helmets_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Helmets_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Helmets_Hybrid/ESSENCE_LEVEL_MINION_SKILL",
+          "Helmets_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_COLD_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Helmets_Hybrid/ESSENCE_LIGHTNING_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Helmets_str_int",
+      "name": "Helmets_str_int",
+      "category": "Helmets",
+      "pools": {
+        "normal": { "prefixes": [
+          "Helmets_Hybrid/BASE_MAXIMUM_LIFE",
+          "Helmets_Hybrid/BASE_MAXIMUM_MANA",
+          "Helmets_Hybrid/BASE_ARMOUR_ENERGY_SHIELD",
+          "Helmets_Hybrid/INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Helmets_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_LIFE",
+          "Helmets_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_MANA",
+          "Helmets_Hybrid/ACCURACY_RATING",
+          "Helmets_Hybrid/ITEM_FOUND_RARITY_INCREASE_PREFIX"
+        ], "suffixes": [
+          "Helmets_Hybrid/STRENGTH",
+          "Helmets_Hybrid/INTELLIGENCE",
+          "Helmets_Hybrid/FIRE_RESISTANCE",
+          "Helmets_Hybrid/COLD_RESISTANCE",
+          "Helmets_Hybrid/LIGHTNING_RESISTANCE",
+          "Helmets_Hybrid/CHAOS_RESISTANCE",
+          "Helmets_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Helmets_Hybrid/LEVEL_MINION_SKILL",
+          "Helmets_Hybrid/LIFE_REGENERATION_PER_SECOND",
+          "Helmets_Hybrid/INCREASED_CRITICAL_HIT_CHANCE",
+          "Helmets_Hybrid/ITEM_FOUND_RARITY_INCREASE",
+          "Helmets_Hybrid/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Helmets_Hybrid/ENERGY_SHIELD_RECHARGE_RATE",
+          "Helmets_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Helmets_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Helmets_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Helmets_Hybrid/DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Helmets_Hybrid/DESECRATED_GLORY_GENERATION",
+          "Helmets_Hybrid/DESECRATED_PRESENCE_RADIUS",
+          "Helmets_Hybrid/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Helmets_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Helmets_Hybrid/DESECRATED_ARMOUR_APPLIES_TO_CHAOS_DAMAGE",
+          "Helmets_Hybrid/DESECRATED_ELEMENTAL_DAMAGE_TAKEN_RECOUPED_AS_ENERGY_SHIELD",
+          "Helmets_Hybrid/DESECRATED_MANA_COST_EFFICIENCY",
+          "Helmets_Hybrid/DESECRATED_ARCANE_SURGE_EFFECT",
+          "Helmets_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Helmets_Hybrid/DESECRATED_LIFE_COST_EFFICIENCY"
+        ] },
+        "essence": { "prefixes": [
+          "Helmets_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Helmets_Hybrid/ESSENCE_BASE_MAXIMUM_MANA",
+          "Helmets_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD"
+        ], "suffixes": [
+          "Helmets_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Helmets_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Helmets_Hybrid/ESSENCE_LEVEL_MINION_SKILL",
+          "Helmets_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_COLD_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Helmets_Hybrid/ESSENCE_LIGHTNING_RESISTANCE",
+          "Helmets_Hybrid/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "OneHand_Maces",
+      "name": "OneHand_Maces",
+      "category": "OneHand_Maces",
+      "pools": {
+        "normal": { "prefixes": [
+          "OneHand_Maces/PHYSICAL_DAMAGE_FLAT",
+          "OneHand_Maces/FIRE_DAMAGE_FLAT",
+          "OneHand_Maces/COLD_DAMAGE_FLAT",
+          "OneHand_Maces/LIGHTNING_DAMAGE_FLAT",
+          "OneHand_Maces/INCREASED_PHYSICAL_DAMAGE_PERCENT",
+          "OneHand_Maces/HYBRID_INCREASED_PHYSICAL_DAMAGE_PERCENT_AND_ACCURACY_RATING",
+          "OneHand_Maces/ACCURACY_RATING",
+          "OneHand_Maces/INCREASED_ELEMENTAL_DAMAGE_WITH_ATTACKS"
+        ], "suffixes": [
+          "OneHand_Maces/STRENGTH",
+          "OneHand_Maces/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "OneHand_Maces/LEVEL_MELEE_SKILL",
+          "OneHand_Maces/LIFE_LEECH",
+          "OneHand_Maces/MANA_LEECH",
+          "OneHand_Maces/LIFE_PER_ENEMY_KILLED",
+          "OneHand_Maces/MANA_PER_ENEMY_KILLED",
+          "OneHand_Maces/LIFE_PER_ENEMY_HIT",
+          "OneHand_Maces/INCREASED_ATTACK_SPEED",
+          "OneHand_Maces/CRITICAL_HIT_CHANCE",
+          "OneHand_Maces/CRITICAL_DAMAGE_BONUS",
+          "OneHand_Maces/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "OneHand_Maces/INCREASED_STUN_DURATION",
+          "OneHand_Maces/INCREASED_STUN_BUILDUP"
+        ] },
+        "desecrated": { "prefixes": [
+          "OneHand_Maces/DESECRATED_DAMAGE_VS_FULLY_BROKEN_ARMOUR",
+          "OneHand_Maces/DESECRATED_FIRE_PENETRATION",
+          "OneHand_Maces/DESECRATED_COLD_PENETRATION",
+          "OneHand_Maces/DESECRATED_EMPOWERED_INCREASED_DAMAGE",
+          "OneHand_Maces/DESECRATED_INCREASED_PHYSICAL_DAMAGE_REDUCED_ATTACK_SPEED",
+          "OneHand_Maces/DESECRATED_INCREASED_DAMAGE_WHILE_TOTEM",
+          "OneHand_Maces/DESECRATED_ADDITIONAL_TOTEMS",
+          "OneHand_Maces/DESECRATED_LIGHTNING_PENETRATION"
+        ], "suffixes": [
+          "OneHand_Maces/DESECRATED_FISSURE_CHANCE",
+          "OneHand_Maces/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "OneHand_Maces/DESECRATED_AFTERSHOCK_CHANCE",
+          "OneHand_Maces/DESECRATED_ARMOUR_BREAK_PHYSICAL_DAMAGE_DEALT",
+          "OneHand_Maces/DESECRATED_MANA_COST_EFFICIENCY",
+          "OneHand_Maces/DESECRATED_WARCRY_COOLDOWN_SPEED",
+          "OneHand_Maces/DESECRATED_TOTEM_PLACEMENT_SPEED",
+          "OneHand_Maces/DESECRATED_MANA_TO_LIFE_COST"
+        ] },
+        "essence": { "prefixes": [
+          "OneHand_Maces/ESSENCE_PHYSICAL_DAMAGE_FLAT",
+          "OneHand_Maces/ESSENCE_FIRE_DAMAGE_FLAT",
+          "OneHand_Maces/ESSENCE_COLD_DAMAGE_FLAT",
+          "OneHand_Maces/ESSENCE_LIGHTNING_DAMAGE_FLAT",
+          "OneHand_Maces/ESSENCE_INCREASED_ACCURACY",
+          "OneHand_Maces/ESSENCE_WEAPON_GAINED_DAMAGE_PHYSICAL",
+          "OneHand_Maces/ESSENCE_WEAPON_GAINED_DAMAGE_FIRE",
+          "OneHand_Maces/ESSENCE_WEAPON_GAINED_DAMAGE_COLD",
+          "OneHand_Maces/ESSENCE_WEAPON_GAINED_DAMAGE_LIGHTNING"
+        ], "suffixes": [
+          "OneHand_Maces/ESSENCE_INCREASED_ATTACK_SPEED",
+          "OneHand_Maces/ESSENCE_ATTRIBUTES_STRENGTH",
+          "OneHand_Maces/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "OneHand_Maces/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "OneHand_Maces/ESSENCE_ALL_ATTACK_SKILL_LEVEL",
+          "OneHand_Maces/ESSENCE_ONSLAUGHT",
+          "OneHand_Maces/ESSENCE_CRITICAL_STRIKE_CHANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Quarterstaves",
+      "name": "Quarterstaves",
+      "category": "Quarterstaves",
+      "pools": {
+        "normal": { "prefixes": [
+          "Quarterstaves/PHYSICAL_DAMAGE_FLAT",
+          "Quarterstaves/FIRE_DAMAGE_FLAT",
+          "Quarterstaves/COLD_DAMAGE_FLAT",
+          "Quarterstaves/LIGHTNING_DAMAGE_FLAT",
+          "Quarterstaves/INCREASED_PHYSICAL_DAMAGE_PERCENT",
+          "Quarterstaves/HYBRID_INCREASED_PHYSICAL_DAMAGE_PERCENT_AND_ACCURACY_RATING",
+          "Quarterstaves/ACCURACY_RATING",
+          "Quarterstaves/INCREASED_ELEMENTAL_DAMAGE_WITH_ATTACKS"
+        ], "suffixes": [
+          "Quarterstaves/DEXTERITY",
+          "Quarterstaves/INTELLIGENCE",
+          "Quarterstaves/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Quarterstaves/LEVEL_MELEE_SKILL",
+          "Quarterstaves/LIFE_LEECH",
+          "Quarterstaves/MANA_LEECH",
+          "Quarterstaves/LIFE_PER_ENEMY_KILLED",
+          "Quarterstaves/MANA_PER_ENEMY_KILLED",
+          "Quarterstaves/LIFE_PER_ENEMY_HIT",
+          "Quarterstaves/INCREASED_ATTACK_SPEED",
+          "Quarterstaves/CRITICAL_HIT_CHANCE",
+          "Quarterstaves/CRITICAL_DAMAGE_BONUS",
+          "Quarterstaves/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Quarterstaves/INCREASED_STUN_DURATION",
+          "Quarterstaves/INCREASED_STUN_BUILDUP"
+        ] },
+        "desecrated": { "prefixes": [
+          "Quarterstaves/DESECRATED_FIRE_PENETRATION",
+          "Quarterstaves/DESECRATED_FIRE_DAMAGE_IGNITE_MAGNITUDE",
+          "Quarterstaves/DESECRATED_COLD_PENETRATION",
+          "Quarterstaves/DESECRATED_COLD_DAMAGE_FREEZE_BUILDUP",
+          "Quarterstaves/DESECRATED_LIGHTNING_PENETRATION",
+          "Quarterstaves/DESECRATED_LIGHTNING_DAMAGE_SHOCK_MAGNITUDE"
+        ], "suffixes": [
+          "Quarterstaves/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Quarterstaves/DESECRATED_ADDITIONAL_COMBO_CHANCE",
+          "Quarterstaves/DESECRATED_MANA_COST_EFFICIENCY",
+          "Quarterstaves/DESECRATED_RECOVER_MANA_ON_EXPENDING_COMBO",
+          "Quarterstaves/DESECRATED_RECOVER_LIFE_ON_EXPENDING_COMBO",
+          "Quarterstaves/DESECRATED_MANA_TO_LIFE_COST"
+        ] },
+        "essence": { "prefixes": [
+          "Quarterstaves/ESSENCE_PHYSICAL_DAMAGE_FLAT",
+          "Quarterstaves/ESSENCE_FIRE_DAMAGE_FLAT",
+          "Quarterstaves/ESSENCE_COLD_DAMAGE_FLAT",
+          "Quarterstaves/ESSENCE_LIGHTNING_DAMAGE_FLAT",
+          "Quarterstaves/ESSENCE_INCREASED_ACCURACY",
+          "Quarterstaves/ESSENCE_WEAPON_GAINED_DAMAGE_PHYSICAL",
+          "Quarterstaves/ESSENCE_WEAPON_GAINED_DAMAGE_FIRE",
+          "Quarterstaves/ESSENCE_WEAPON_GAINED_DAMAGE_COLD",
+          "Quarterstaves/ESSENCE_WEAPON_GAINED_DAMAGE_LIGHTNING"
+        ], "suffixes": [
+          "Quarterstaves/ESSENCE_INCREASED_ATTACK_SPEED",
+          "Quarterstaves/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Quarterstaves/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Quarterstaves/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Quarterstaves/ESSENCE_ALL_ATTACK_SKILL_LEVEL",
+          "Quarterstaves/ESSENCE_ONSLAUGHT",
+          "Quarterstaves/ESSENCE_CRITICAL_STRIKE_CHANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Quivers",
+      "name": "Quivers",
+      "category": "Quivers",
+      "pools": {
+        "normal": { "prefixes": [
+          "Quivers/PHYSICAL_DAMAGE_FLAT",
+          "Quivers/FIRE_DAMAGE_FLAT",
+          "Quivers/COLD_DAMAGE_FLAT",
+          "Quivers/LIGHTNING_DAMAGE_FLAT",
+          "Quivers/ACCURACY_RATING",
+          "Quivers/INCREASED_PROJECTILE_SPEED",
+          "Quivers/INCREASED_DAMAGE_WITH_BOW_SKILLS"
+        ], "suffixes": [
+          "Quivers/DEXTERITY",
+          "Quivers/LEVEL_PROJECTILE_SKILL",
+          "Quivers/LIFE_PER_ENEMY_KILLED",
+          "Quivers/MANA_PER_ENEMY_KILLED",
+          "Quivers/INCREASED_ATTACK_SPEED",
+          "Quivers/INCREASED_CRITICAL_HIT_CHANCE_FOR_ATTACKS",
+          "Quivers/INCREASED_CRITICAL_DAMAGE_BONUS_FOR_ATTACKS",
+          "Quivers/CHANCE_TO_PIERCE"
+        ] },
+        "desecrated": { "prefixes": [
+          "Quivers/DESECRATED_INCREASED_DAMAGE_WITH_HITS_WITHIN_2M",
+          "Quivers/DESECRATED_PROJECTILE_DAMAGE_FURTHER_6M",
+          "Quivers/DESECRATED_PROJECTILE_SPEED_TO_DAMAGE"
+        ], "suffixes": [
+          "Quivers/DESECRATED_CRITICAL_DAMAGE_BONUS_WITHIN_2M",
+          "Quivers/DESECRATED_MANA_COST_EFFICIENCY",
+          "Quivers/DESECRATED_CRITICAL_STRIKE_CHANCE_INCREASE_FURTHER_6M",
+          "Quivers/DESECRATED_MANA_TO_LIFE_COST",
+          "Quivers/DESECRATED_ADDITIONAL_PROJECTILES_WHILE_MOVING"
+        ] },
+        "essence": { "prefixes": [
+          "Quivers/ESSENCE_INCREASED_ACCURACY",
+          "Quivers/ESSENCE_INCREASED_DAMAGE_WITH_BOW_SKILLS"
+        ], "suffixes": [
+          "Quivers/ESSENCE_ATTRIBUTES_DEXTERITY"
+        ] }
+      }
+    },
+    {
+      "id": "Rings",
+      "name": "Rings",
+      "category": "Rings",
+      "pools": {
+        "normal": { "prefixes": [
+          "Rings/BASE_MAXIMUM_LIFE",
+          "Rings/BASE_MAXIMUM_MANA",
+          "Rings/BASE_EVASION",
+          "Rings/PHYSICAL_DAMAGE_FLAT",
+          "Rings/FIRE_DAMAGE_FLAT",
+          "Rings/COLD_DAMAGE_FLAT",
+          "Rings/LIGHTNING_DAMAGE_FLAT",
+          "Rings/ACCURACY_RATING",
+          "Rings/ITEM_FOUND_RARITY_INCREASE_PREFIX",
+          "Rings/INCREASED_FIRE_DAMAGE",
+          "Rings/INCREASED_COLD_DAMAGE",
+          "Rings/INCREASED_LIGHTNING_DAMAGE",
+          "Rings/INCREASED_CHAOS_DAMAGE"
+        ], "suffixes": [
+          "Rings/STRENGTH",
+          "Rings/DEXTERITY",
+          "Rings/INTELLIGENCE",
+          "Rings/ALL_ATTRIBUTES",
+          "Rings/FIRE_RESISTANCE",
+          "Rings/COLD_RESISTANCE",
+          "Rings/LIGHTNING_RESISTANCE",
+          "Rings/ALL_RESISTANCES",
+          "Rings/CHAOS_RESISTANCE",
+          "Rings/LIFE_REGENERATION_PER_SECOND",
+          "Rings/MANA_REGENERATION_RATE",
+          "Rings/LIFE_LEECH",
+          "Rings/MANA_LEECH",
+          "Rings/LIFE_PER_ENEMY_KILLED",
+          "Rings/MANA_PER_ENEMY_KILLED",
+          "Rings/INCREASED_CAST_SPEED",
+          "Rings/ITEM_FOUND_RARITY_INCREASE",
+          "Rings/HYBRID_MANA_REGENERATION_RATE_LIGHT_RADIUS"
+        ] },
+        "desecrated": { "prefixes": [
+          "Rings/DESECRATED_REMNANT_EFFECT",
+          "Rings/DESECRATED_INCREASED_IGNITE_MAGNITUDE_IF_ENDURANCE",
+          "Rings/DESECRATED_INCREASED_FREEZE_BUILDUP_IF_POWER",
+          "Rings/DESECRATED_INCREASED_SHOCK_MAGNITUDE_IF_FRENZY",
+          "Rings/DESECRATED_INCREASED_MINION_DAMAGE_IF_YOU_HIT_ENEMY",
+          "Rings/DESECRATED_INCREASED_SPELL_DAMAGE_ON_FULL_ENERGY_SHIELD",
+          "Rings/DESECRATED_ATTACK_DAMAGE_LOW_LIFE"
+        ], "suffixes": [
+          "Rings/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Rings/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Rings/DESECRATED_SKILL_EFFECT_DURATION",
+          "Rings/DESECRATED_REMNANT_PICKUP_RADIUS",
+          "Rings/DESECRATED_LIFE_LEECH_AMOUNT",
+          "Rings/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Rings/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Rings/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Rings/DESECRATED_COOLDOWN_RECOVERY",
+          "Rings/DESECRATED_EXPOSURE_EFFECT",
+          "Rings/DESECRATED_MANA_GAINED_ON_KILL_PERCENTAGE",
+          "Rings/DESECRATED_MANA_LEECH_AMOUNT",
+          "Rings/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Rings/DESECRATED_RECOVER_PERCENT_MAX_LIFE_ON_KILL",
+          "Rings/DESECRATED_INCREASED_SKILL_SPEED"
+        ] },
+        "essence": { "prefixes": [
+          "Rings/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Rings/ESSENCE_BASE_MAXIMUM_MANA",
+          "Rings/ESSENCE_MAXIMUM_MANA_INCREASE_PERCENT"
+        ], "suffixes": [
+          "Rings/ESSENCE_CHAOS_RESISTANCE",
+          "Rings/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Rings/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Rings/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Rings/ESSENCE_MANA_REGENERATION",
+          "Rings/ESSENCE_FIRE_RESISTANCE",
+          "Rings/ESSENCE_COLD_RESISTANCE",
+          "Rings/ESSENCE_LIGHTNING_RESISTANCE",
+          "Rings/ESSENCE_ITEM_FOUND_RARITY_INCREASE"
+        ] }
+      }
+    },
+    {
+      "id": "Sceptres",
+      "name": "Sceptres",
+      "category": "Sceptres",
+      "pools": {
+        "normal": { "prefixes": [
+          "Sceptres/MAXIMUM_MANA",
+          "Sceptres/PHYSICAL_DAMAGE_ALLIES",
+          "Sceptres/FIRE_DAMAGE_ALLIES",
+          "Sceptres/COLD_DAMAGE_ALLIES",
+          "Sceptres/LIGHTNING_DAMAGE_ALLIES",
+          "Sceptres/ALL_DAMAGE_ALLIES",
+          "Sceptres/INCREASED_SPIRIT",
+          "Sceptres/HYBRID_INCREASED_SPIRIT_MANA"
+        ], "suffixes": [
+          "Sceptres/STRENGTH",
+          "Sceptres/INTELLIGENCE",
+          "Sceptres/ALLIES_ALL_RESISTANCES",
+          "Sceptres/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Sceptres/MINION_SKILL_LEVEL",
+          "Sceptres/ALLIES_LIFE_REGENERATION",
+          "Sceptres/ALLIES_INCREASED_ATTACK_SPEED",
+          "Sceptres/ALLIES_INCREASED_CAST_SPEED",
+          "Sceptres/ALLIES_INCREASED_CRIT_CHANCE",
+          "Sceptres/ALLIES_INCREASED_CRIT_MULTIPLIER",
+          "Sceptres/HYBRID_MANA_REGENERATION_RATE_LIGHT_RADIUS",
+          "Sceptres/INCREASED_PRESENCE_RADIUS",
+          "Sceptres/MINIONS_INCREASED_LIFE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [] },
+        "essence": { "prefixes": [
+          "Sceptres/ESSENCE_ALLIES_INCREASED_DAMAGE"
+        ], "suffixes": [
+          "Sceptres/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Sceptres/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Sceptres/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Sceptres/ESSENCE_AURA_SKILLS_MAGNITUDE"
+        ] }
+      }
+    },
+    {
+      "id": "Shields_str",
+      "name": "Shields_str",
+      "category": "Shields",
+      "pools": {
+        "normal": { "prefixes": [
+          "Shields_Normal/BASE_MAXIMUM_LIFE",
+          "Shields_Normal/BASE_ARMOUR",
+          "Shields_Normal/INCREASED_PERCENT_ARMOUR",
+          "Shields_Normal/HYBRID_INCREASED_PERCENT_ARMOUR_AND_STUN",
+          "Shields_Normal/PHYSICAL_THORNS_DAMAGE",
+          "Shields_Normal/INCREASED_SHIELD_BLOCK_CHANCE"
+        ], "suffixes": [
+          "Shields_Normal/STRENGTH",
+          "Shields_Normal/FIRE_RESISTANCE",
+          "Shields_Normal/COLD_RESISTANCE",
+          "Shields_Normal/LIGHTNING_RESISTANCE",
+          "Shields_Normal/CHAOS_RESISTANCE",
+          "Shields_Normal/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Shields_Normal/BASE_STUN_THRESHOLD",
+          "Shields_Normal/PHYSICAL_DAMAGE_REDUCTION",
+          "Shields_Normal/MAXIMUM_FIRE_RESIST",
+          "Shields_Normal/MAXIMUM_COLD_RESIST",
+          "Shields_Normal/MAXIMUM_LIGHTNING_RESIST",
+          "Shields_Normal/MAXIMUM_CHAOS_RESIST",
+          "Shields_Normal/ALL_MAXIMUM_RESISTANCES",
+          "Shields_Normal/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Shields_Normal/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Shields_Normal/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Shields_Normal/DESECRATED_SHIELD_SKILLS_STUNNING_BREAKS_ARMOUR",
+          "Shields_Normal/DESECRATED_HEAVY_STUN_DECAY_RATE",
+          "Shields_Normal/DESECRATED_ALL_MAXIMUM_RESISTANCES",
+          "Shields_Normal/DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Shields_Normal/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Shields_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Shields_Normal/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Shields_Normal/DESECRATED_GAIN_MANA_ON_BLOCK",
+          "Shields_Normal/DESECRATED_ARMOUR_APPLIES_TO_CHAOS_DAMAGE",
+          "Shields_Normal/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Shields_Normal/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Shields_Normal/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION",
+          "Shields_Normal/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Shields_Normal/DESECRATED_PHYSICAL_DAMAGE_TAKEN_AS_LIGHTNING_WHILE_ACTIVE_BLOCKING",
+          "Shields_Normal/DESECRATED_MAXIMUM_BLOCK_CHANCE",
+          "Shields_Normal/DESECRATED_PARRIED_DEBUFF_DURATION",
+          "Shields_Normal/DESECRATED_PARRIED_DEBUFF_MAGNITUDE"
+        ] },
+        "essence": { "prefixes": [
+          "Shields_Normal/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Shields_Normal/ESSENCE_INCREASED_PERCENT_ARMOUR",
+          "Shields_Normal/ESSENCE_INCREASED_SHIELD_BLOCK_PERCENTAGE"
+        ], "suffixes": [
+          "Shields_Normal/ESSENCE_CHAOS_RESISTANCE",
+          "Shields_Normal/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Shields_Normal/ESSENCE_FIRE_RESISTANCE",
+          "Shields_Normal/ESSENCE_COLD_RESISTANCE",
+          "Shields_Normal/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Shields_str_dex",
+      "name": "Shields_str_dex",
+      "category": "Shields",
+      "pools": {
+        "normal": { "prefixes": [
+          "Shields_Hybrid/BASE_MAXIMUM_LIFE",
+          "Shields_Hybrid/HYBRID_BASE_ARMOUR_EVASION",
+          "Shields_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION",
+          "Shields_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_EVASION_AND_STUN",
+          "Shields_Hybrid/PHYSICAL_THORNS_DAMAGE",
+          "Shields_Hybrid/INCREASED_SHIELD_BLOCK_CHANCE"
+        ], "suffixes": [
+          "Shields_Hybrid/STRENGTH",
+          "Shields_Hybrid/DEXTERITY",
+          "Shields_Hybrid/FIRE_RESISTANCE",
+          "Shields_Hybrid/COLD_RESISTANCE",
+          "Shields_Hybrid/LIGHTNING_RESISTANCE",
+          "Shields_Hybrid/CHAOS_RESISTANCE",
+          "Shields_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Shields_Hybrid/BASE_STUN_THRESHOLD",
+          "Shields_Hybrid/PHYSICAL_DAMAGE_REDUCTION",
+          "Shields_Hybrid/MAXIMUM_FIRE_RESIST",
+          "Shields_Hybrid/MAXIMUM_COLD_RESIST",
+          "Shields_Hybrid/MAXIMUM_LIGHTNING_RESIST",
+          "Shields_Hybrid/MAXIMUM_CHAOS_RESIST",
+          "Shields_Hybrid/ALL_MAXIMUM_RESISTANCES",
+          "Shields_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Shields_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Shields_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Shields_Hybrid/DESECRATED_SHIELD_SKILLS_STUNNING_BREAKS_ARMOUR",
+          "Shields_Hybrid/DESECRATED_HEAVY_STUN_DECAY_RATE",
+          "Shields_Hybrid/DESECRATED_ALL_MAXIMUM_RESISTANCES",
+          "Shields_Hybrid/DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Shields_Hybrid/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Shields_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Shields_Hybrid/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Shields_Hybrid/DESECRATED_GAIN_MANA_ON_BLOCK",
+          "Shields_Hybrid/DESECRATED_ARMOUR_APPLIES_TO_CHAOS_DAMAGE",
+          "Shields_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Shields_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Shields_Hybrid/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION",
+          "Shields_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Shields_Hybrid/DESECRATED_PHYSICAL_DAMAGE_TAKEN_AS_LIGHTNING_WHILE_ACTIVE_BLOCKING",
+          "Shields_Hybrid/DESECRATED_MAXIMUM_BLOCK_CHANCE",
+          "Shields_Hybrid/DESECRATED_PARRIED_DEBUFF_DURATION",
+          "Shields_Hybrid/DESECRATED_PARRIED_DEBUFF_MAGNITUDE"
+        ] },
+        "essence": { "prefixes": [
+          "Shields_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Shields_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_EVASION",
+          "Shields_Hybrid/ESSENCE_INCREASED_SHIELD_BLOCK_PERCENTAGE"
+        ], "suffixes": [
+          "Shields_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Shields_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Shields_Hybrid/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Shields_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Shields_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Shields_Hybrid/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Shields_str_int",
+      "name": "Shields_str_int",
+      "category": "Shields",
+      "pools": {
+        "normal": { "prefixes": [
+          "Shields_Hybrid/BASE_MAXIMUM_LIFE",
+          "Shields_Hybrid/HYBRID_BASE_ARMOUR_ENERGY_SHIELD",
+          "Shields_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Shields_Hybrid/HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD_AND_STUN",
+          "Shields_Hybrid/PHYSICAL_THORNS_DAMAGE",
+          "Shields_Hybrid/INCREASED_SHIELD_BLOCK_CHANCE"
+        ], "suffixes": [
+          "Shields_Hybrid/STRENGTH",
+          "Shields_Hybrid/INTELLIGENCE",
+          "Shields_Hybrid/FIRE_RESISTANCE",
+          "Shields_Hybrid/COLD_RESISTANCE",
+          "Shields_Hybrid/LIGHTNING_RESISTANCE",
+          "Shields_Hybrid/CHAOS_RESISTANCE",
+          "Shields_Hybrid/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Shields_Hybrid/BASE_STUN_THRESHOLD",
+          "Shields_Hybrid/PHYSICAL_DAMAGE_REDUCTION",
+          "Shields_Hybrid/MAXIMUM_FIRE_RESIST",
+          "Shields_Hybrid/MAXIMUM_COLD_RESIST",
+          "Shields_Hybrid/MAXIMUM_LIGHTNING_RESIST",
+          "Shields_Hybrid/MAXIMUM_CHAOS_RESIST",
+          "Shields_Hybrid/ALL_MAXIMUM_RESISTANCES",
+          "Shields_Hybrid/ENERGY_SHIELD_RECHARGE_RATE",
+          "Shields_Hybrid/ARMOUR_APPLIES_TO_ELEMENTAL_DAMAGE"
+        ] },
+        "desecrated": { "prefixes": [], "suffixes": [
+          "Shields_Hybrid/DESECRATED_STRENGTH_AND_INTELLIGENCE",
+          "Shields_Hybrid/DESECRATED_STRENGTH_AND_DEXTERITY",
+          "Shields_Hybrid/DESECRATED_SHIELD_SKILLS_STUNNING_BREAKS_ARMOUR",
+          "Shields_Hybrid/DESECRATED_HEAVY_STUN_DECAY_RATE",
+          "Shields_Hybrid/DESECRATED_ALL_MAXIMUM_RESISTANCES",
+          "Shields_Hybrid/DESECRATED_DAMAGE_TAKEN_RECOUPED_AS_LIFE",
+          "Shields_Hybrid/DESECRATED_REDUCED_CURSE_EFFECT_ON_SELF",
+          "Shields_Hybrid/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Shields_Hybrid/DESECRATED_DAMAGE_RECOUPED_AS_MANA",
+          "Shields_Hybrid/DESECRATED_GAIN_MANA_ON_BLOCK",
+          "Shields_Hybrid/DESECRATED_ARMOUR_APPLIES_TO_CHAOS_DAMAGE",
+          "Shields_Hybrid/DESECRATED_DEXTERITY_AND_INTELLIGENCE",
+          "Shields_Hybrid/DESECRATED_COLD_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Shields_Hybrid/DESECRATED_CRITICAL_HIT_CHANCE_REDUCTION",
+          "Shields_Hybrid/DESECRATED_LIGHTNING_AND_CHAOS_DAMAGE_RESISTANCE",
+          "Shields_Hybrid/DESECRATED_PHYSICAL_DAMAGE_TAKEN_AS_LIGHTNING_WHILE_ACTIVE_BLOCKING",
+          "Shields_Hybrid/DESECRATED_MAXIMUM_BLOCK_CHANCE",
+          "Shields_Hybrid/DESECRATED_PARRIED_DEBUFF_DURATION",
+          "Shields_Hybrid/DESECRATED_PARRIED_DEBUFF_MAGNITUDE"
+        ] },
+        "essence": { "prefixes": [
+          "Shields_Hybrid/ESSENCE_BASE_MAXIMUM_LIFE",
+          "Shields_Hybrid/ESSENCE_HYBRID_INCREASED_PERCENT_ARMOUR_ENERGY_SHIELD",
+          "Shields_Hybrid/ESSENCE_INCREASED_SHIELD_BLOCK_PERCENTAGE"
+        ], "suffixes": [
+          "Shields_Hybrid/ESSENCE_CHAOS_RESISTANCE",
+          "Shields_Hybrid/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Shields_Hybrid/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Shields_Hybrid/ESSENCE_FIRE_RESISTANCE",
+          "Shields_Hybrid/ESSENCE_COLD_RESISTANCE",
+          "Shields_Hybrid/ESSENCE_LIGHTNING_RESISTANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Spears",
+      "name": "Spears",
+      "category": "Spears",
+      "pools": {
+        "normal": { "prefixes": [
+          "Spears/PHYSICAL_DAMAGE_FLAT",
+          "Spears/FIRE_DAMAGE_FLAT",
+          "Spears/COLD_DAMAGE_FLAT",
+          "Spears/LIGHTNING_DAMAGE_FLAT",
+          "Spears/INCREASED_PHYSICAL_DAMAGE_PERCENT",
+          "Spears/HYBRID_INCREASED_PHYSICAL_DAMAGE_PERCENT_AND_ACCURACY_RATING",
+          "Spears/ACCURACY_RATING",
+          "Spears/INCREASED_ELEMENTAL_DAMAGE_WITH_ATTACKS"
+        ], "suffixes": [
+          "Spears/STRENGTH",
+          "Spears/DEXTERITY",
+          "Spears/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Spears/LEVEL_MELEE_SKILL",
+          "Spears/LEVEL_PROJECTILE_SKILL",
+          "Spears/LIFE_LEECH",
+          "Spears/MANA_LEECH",
+          "Spears/LIFE_PER_ENEMY_KILLED",
+          "Spears/MANA_PER_ENEMY_KILLED",
+          "Spears/LIFE_PER_ENEMY_HIT",
+          "Spears/INCREASED_ATTACK_SPEED",
+          "Spears/CRITICAL_HIT_CHANCE",
+          "Spears/CRITICAL_DAMAGE_BONUS",
+          "Spears/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "Spears/INCREASED_STUN_DURATION",
+          "Spears/INCREASED_STUN_BUILDUP"
+        ] },
+        "desecrated": { "prefixes": [
+          "Spears/DESECRATED_INCREASED_ATTACK_AREA_OF_EFFECT",
+          "Spears/DESECRATED_COMPANION_DAMAGE",
+          "Spears/DESECRATED_FIRE_PENETRATION",
+          "Spears/DESECRATED_CHAIN_FROM_TERRAIN",
+          "Spears/DESECRATED_COLD_PENETRATION",
+          "Spears/DESECRATED_LIGHTNING_PENETRATION",
+          "Spears/DESECRATED_PROJECTILE_DAMAGE_FURTHER_6M"
+        ], "suffixes": [
+          "Spears/DESECRATED_CHANCE_TO_PIERCE",
+          "Spears/DESECRATED_COMPANION_ATTACK_SPEED",
+          "Spears/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "Spears/DESECRATED_IMMOBILISATION_BUILDUP",
+          "Spears/DESECRATED_CRITICAL_STRIKE_CHANCE_INCREASE_FURTHER_6M",
+          "Spears/DESECRATED_MANA_COST_EFFICIENCY",
+          "Spears/DESECRATED_MANA_TO_LIFE_COST",
+          "Spears/DESECRATED_ADDITIONAL_PROJECTILES_WHILE_MOVING"
+        ] },
+        "essence": { "prefixes": [
+          "Spears/ESSENCE_PHYSICAL_DAMAGE_FLAT",
+          "Spears/ESSENCE_FIRE_DAMAGE_FLAT",
+          "Spears/ESSENCE_COLD_DAMAGE_FLAT",
+          "Spears/ESSENCE_LIGHTNING_DAMAGE_FLAT",
+          "Spears/ESSENCE_INCREASED_ACCURACY",
+          "Spears/ESSENCE_WEAPON_GAINED_DAMAGE_PHYSICAL",
+          "Spears/ESSENCE_WEAPON_GAINED_DAMAGE_FIRE",
+          "Spears/ESSENCE_WEAPON_GAINED_DAMAGE_COLD",
+          "Spears/ESSENCE_WEAPON_GAINED_DAMAGE_LIGHTNING"
+        ], "suffixes": [
+          "Spears/ESSENCE_INCREASED_ATTACK_SPEED",
+          "Spears/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Spears/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Spears/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Spears/ESSENCE_ALL_ATTACK_SKILL_LEVEL",
+          "Spears/ESSENCE_ONSLAUGHT",
+          "Spears/ESSENCE_CRITICAL_STRIKE_CHANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Staves",
+      "name": "Staves",
+      "category": "Staves",
+      "pools": {
+        "normal": { "prefixes": [
+          "Staves/MAXIMUM_MANA",
+          "Staves/INCREASED_SPELL_DAMAGE",
+          "Staves/HYBRID_INCREASED_SPELL_DAMAGE_AND_MAXIMUM_MANA",
+          "Staves/INCREASED_FIRE_DAMAGE",
+          "Staves/INCREASED_COLD_DAMAGE",
+          "Staves/INCREASED_LIGHTNING_DAMAGE",
+          "Staves/INCREASED_CHAOS_DAMAGE",
+          "Staves/INCREASED_SPELL_PHYSICAL_DAMAGE",
+          "Staves/DAMAGE_AS_EXTRA_FIRE_DAMAGE",
+          "Staves/DAMAGE_AS_EXTRA_COLD_DAMAGE",
+          "Staves/DAMAGE_AS_EXTRA_LIGHTNING_DAMAGE"
+        ], "suffixes": [
+          "Staves/INTELLIGENCE",
+          "Staves/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Staves/ALL_SPELL_SKILL_LEVEL",
+          "Staves/FIRE_SKILL_LEVEL",
+          "Staves/COLD_SKILL_LEVEL",
+          "Staves/LIGHTNING_SKILL_LEVEL",
+          "Staves/CHAOS_SKILL_LEVEL",
+          "Staves/PHYSICAL_SKILL_LEVEL",
+          "Staves/MANA_REGENERATION_RATE",
+          "Staves/LIFE_PER_ENEMY_KILLED",
+          "Staves/MANA_PER_ENEMY_KILLED",
+          "Staves/INCREASED_CAST_SPEED",
+          "Staves/INCREASED_CRITICAL_HIT_CHANCE_SPELLS",
+          "Staves/CRITICAL_SPELL_DAMAGE_BONUS",
+          "Staves/HYBRID_MANA_REGENERATION_RATE_LIGHT_RADIUS",
+          "Staves/INCREASED_FLAMMABILITY_MAGNITUDE",
+          "Staves/INCREASED_FREEZE_BUILDUP",
+          "Staves/INCREASED_SHOCK_CHANCE"
+        ] },
+        "desecrated": { "prefixes": [
+          "Staves/DESECRATED_BASE_SPIRIT",
+          "Staves/DESECRATED_SPELL_DAMAGE_COST_LIFE",
+          "Staves/DESECRATED_SPELL_DAMAGE_PER_100_MANA",
+          "Staves/DESECRATED_SPELL_DAMAGE_PER_100_LIFE",
+          "Staves/DESECRATED_ELEMENTAL_INFUSION",
+          "Staves/DESECRATED_INCREASED_MAGNITUDE_AILMENT_EFFECT"
+        ], "suffixes": [
+          "Staves/DESECRATED_ARCHON_DURATION",
+          "Staves/DESECRATED_BLOCK_CHANCE",
+          "Staves/DESECRATED_SKILL_LIFE_COST",
+          "Staves/DESECRATED_ARCHON_DELAY_RECOVERY",
+          "Staves/DESECRATED_CAST_SPEED_ON_LOW_LIFE",
+          "Staves/DESECRATED_SPELLS_FIRE_2_ADDITIONAL_PROJECTILE_CHANCE"
+        ] },
+        "essence": { "prefixes": [
+          "Staves/ESSENCE_INCREASED_SPELL_DAMAGE"
+        ], "suffixes": [
+          "Staves/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Staves/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Staves/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Staves/ESSENCE_ALL_SPELL_SKILL_LEVEL",
+          "Staves/ESSENCE_SPELL_CRIT_CHANCE",
+          "Staves/ESSENCE_INCREASED_CAST_SPEED",
+          "Staves/ESSENCE_MANA_COST_EFFICIENCY"
+        ] }
+      }
+    },
+    {
+      "id": "TwoHand_Maces",
+      "name": "TwoHand_Maces",
+      "category": "TwoHand_Maces",
+      "pools": {
+        "normal": { "prefixes": [
+          "TwoHandMaces/PHYSICAL_DAMAGE_FLAT",
+          "TwoHandMaces/FIRE_DAMAGE_FLAT",
+          "TwoHandMaces/COLD_DAMAGE_FLAT",
+          "TwoHandMaces/LIGHTNING_DAMAGE_FLAT",
+          "TwoHandMaces/INCREASED_PHYSICAL_DAMAGE_PERCENT",
+          "TwoHandMaces/HYBRID_INCREASED_PHYSICAL_DAMAGE_PERCENT_AND_ACCURACY_RATING",
+          "TwoHandMaces/ACCURACY_RATING",
+          "TwoHandMaces/INCREASED_ELEMENTAL_DAMAGE_WITH_ATTACKS"
+        ], "suffixes": [
+          "TwoHandMaces/STRENGTH",
+          "TwoHandMaces/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "TwoHandMaces/LEVEL_MELEE_SKILL",
+          "TwoHandMaces/LIFE_LEECH",
+          "TwoHandMaces/MANA_LEECH",
+          "TwoHandMaces/LIFE_PER_ENEMY_KILLED",
+          "TwoHandMaces/MANA_PER_ENEMY_KILLED",
+          "TwoHandMaces/LIFE_PER_ENEMY_HIT",
+          "TwoHandMaces/INCREASED_ATTACK_SPEED",
+          "TwoHandMaces/CRITICAL_HIT_CHANCE",
+          "TwoHandMaces/CRITICAL_DAMAGE_BONUS",
+          "TwoHandMaces/HYBRID_ACCURACY_RATING_AND_LIGHT_RADIUS",
+          "TwoHandMaces/INCREASED_STUN_DURATION",
+          "TwoHandMaces/INCREASED_STUN_BUILDUP"
+        ] },
+        "desecrated": { "prefixes": [
+          "TwoHandMaces/DESECRATED_DAMAGE_VS_FULLY_BROKEN_ARMOUR",
+          "TwoHandMaces/DESECRATED_FIRE_PENETRATION",
+          "TwoHandMaces/DESECRATED_COLD_PENETRATION",
+          "TwoHandMaces/DESECRATED_EMPOWERED_INCREASED_DAMAGE",
+          "TwoHandMaces/DESECRATED_INCREASED_PHYSICAL_DAMAGE_REDUCED_ATTACK_SPEED",
+          "TwoHandMaces/DESECRATED_INCREASED_DAMAGE_WHILE_TOTEM",
+          "TwoHandMaces/DESECRATED_ADDITIONAL_TOTEMS",
+          "TwoHandMaces/DESECRATED_LIGHTNING_PENETRATION"
+        ], "suffixes": [
+          "TwoHandMaces/DESECRATED_FISSURE_CHANCE",
+          "TwoHandMaces/DESECRATED_SPIRIT_RESERVATION_EFFICIENCY",
+          "TwoHandMaces/DESECRATED_AFTERSHOCK_CHANCE",
+          "TwoHandMaces/DESECRATED_ARMOUR_BREAK_PHYSICAL_DAMAGE_DEALT",
+          "TwoHandMaces/DESECRATED_MANA_COST_EFFICIENCY",
+          "TwoHandMaces/DESECRATED_WARCRY_COOLDOWN_SPEED",
+          "TwoHandMaces/DESECRATED_TOTEM_PLACEMENT_SPEED",
+          "TwoHandMaces/DESECRATED_MANA_TO_LIFE_COST"
+        ] },
+        "essence": { "prefixes": [
+          "TwoHandMaces/ESSENCE_PHYSICAL_DAMAGE_FLAT",
+          "TwoHandMaces/ESSENCE_FIRE_DAMAGE_FLAT",
+          "TwoHandMaces/ESSENCE_COLD_DAMAGE_FLAT",
+          "TwoHandMaces/ESSENCE_LIGHTNING_DAMAGE_FLAT",
+          "TwoHandMaces/ESSENCE_INCREASED_ACCURACY",
+          "TwoHandMaces/ESSENCE_WEAPON_GAINED_DAMAGE_PHYSICAL",
+          "TwoHandMaces/ESSENCE_WEAPON_GAINED_DAMAGE_FIRE",
+          "TwoHandMaces/ESSENCE_WEAPON_GAINED_DAMAGE_COLD",
+          "TwoHandMaces/ESSENCE_WEAPON_GAINED_DAMAGE_LIGHTNING"
+        ], "suffixes": [
+          "TwoHandMaces/ESSENCE_INCREASED_ATTACK_SPEED",
+          "TwoHandMaces/ESSENCE_ATTRIBUTES_STRENGTH",
+          "TwoHandMaces/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "TwoHandMaces/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "TwoHandMaces/ESSENCE_ALL_ATTACK_SKILL_LEVEL",
+          "TwoHandMaces/ESSENCE_ONSLAUGHT",
+          "TwoHandMaces/ESSENCE_CRITICAL_STRIKE_CHANCE"
+        ] }
+      }
+    },
+    {
+      "id": "Wands",
+      "name": "Wands",
+      "category": "Wands",
+      "pools": {
+        "normal": { "prefixes": [
+          "Wands/MAXIMUM_MANA",
+          "Wands/INCREASED_SPELL_DAMAGE",
+          "Wands/HYBRID_INCREASED_SPELL_DAMAGE_AND_MAXIMUM_MANA",
+          "Wands/INCREASED_FIRE_SPELL_DAMAGE",
+          "Wands/INCREASED_COLD_SPELL_DAMAGE",
+          "Wands/INCREASED_LIGHTNING_SPELL_DAMAGE",
+          "Wands/INCREASED_CHAOS_SPELL_DAMAGE",
+          "Wands/INCREASED_PHYSICAL_SPELL_DAMAGE",
+          "Wands/DAMAGE_AS_EXTRA_FIRE_DAMAGE",
+          "Wands/DAMAGE_AS_EXTRA_COLD_DAMAGE",
+          "Wands/DAMAGE_AS_EXTRA_LIGHTNING_DAMAGE"
+        ], "suffixes": [
+          "Wands/INTELLIGENCE",
+          "Wands/REDUCED_ATTRIBUTE_REQUIREMENTS",
+          "Wands/ALL_SPELL_SKILL_LEVEL",
+          "Wands/FIRE_SKILL_LEVEL",
+          "Wands/COLD_SKILL_LEVEL",
+          "Wands/LIGHTNING_SKILL_LEVEL",
+          "Wands/CHAOS_SKILL_LEVEL",
+          "Wands/PHYSICAL_SKILL_LEVEL",
+          "Wands/MANA_REGENERATION_RATE",
+          "Wands/LIFE_PER_ENEMY_KILLED",
+          "Wands/MANA_PER_ENEMY_KILLED",
+          "Wands/INCREASED_CAST_SPEED",
+          "Wands/INCREASED_CRITICAL_HIT_CHANCE_SPELLS",
+          "Wands/CRITICAL_SPELL_DAMAGE_BONUS",
+          "Wands/HYBRID_MANA_REGENERATION_RATE_LIGHT_RADIUS",
+          "Wands/INCREASED_FLAMMABILITY_MAGNITUDE",
+          "Wands/INCREASED_FREEZE_BUILDUP",
+          "Wands/INCREASED_SHOCK_CHANCE"
+        ] },
+        "desecrated": { "prefixes": [
+          "Wands/DESECRATED_COMPANION_SPELL_DAMAGE",
+          "Wands/DESECRATED_INCREASED_ELEMENTAL_DAMAGE",
+          "Wands/DESECRATED_INCREASED_SPELL_DAMAGE_LIFE_COST",
+          "Wands/DESECRATED_INCREASED_MAGNITUDE_BLEEDING",
+          "Wands/DESECRATED_DAMAGE_AS_EXTRA_PHYSICAL_DAMAGE"
+        ], "suffixes": [
+          "Wands/DESECRATED_HINDERED_ENEMY_INCREASED_ELEMENTAL_DAMAGE",
+          "Wands/DESECRATED_HINDERED_ENEMY_INCREASED_CHAOS_DAMAGE",
+          "Wands/DESECRATED_HINDERED_ENEMY_INCREASED_PHYSICAL_DAMAGE",
+          "Wands/DESECRATED_SPELL_AREA_OF_EFFECT",
+          "Wands/DESECRATED_SPELL_LIFE_COST_AND_EFFICIENCY",
+          "Wands/DESECRATED_HYBRID_INCREASED_CAST_SPEED_FULL_MANA_AND_DIFFERENT_SPELLS",
+          "Wands/DESECRATED_BREAK_INCREASED_ARMOUR",
+          "Wands/DESECRATED_BREAK_ARMOUR_ON_CRIT"
+        ] },
+        "essence": { "prefixes": [
+          "Wands/ESSENCE_INCREASED_SPELL_DAMAGE"
+        ], "suffixes": [
+          "Wands/ESSENCE_ATTRIBUTES_STRENGTH",
+          "Wands/ESSENCE_ATTRIBUTES_DEXTERITY",
+          "Wands/ESSENCE_ATTRIBUTES_INTELLIGENCE",
+          "Wands/ESSENCE_ALL_SPELL_SKILL_LEVEL",
+          "Wands/ESSENCE_SPELL_CRIT_CHANCE",
+          "Wands/ESSENCE_INCREASED_CAST_SPEED",
+          "Wands/ESSENCE_MANA_COST_EFFICIENCY"
+        ] }
+      }
+    }
+  ]
+}

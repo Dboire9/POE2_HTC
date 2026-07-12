@@ -1,0 +1,12 @@
+{
+  "patch": "0.5",
+  "note": "Item states for the add-affix differential (TS vs Java). `placed` mods are put on at their lowest tier; side is derived from the mod type. These cover every branch of NormalCompute: both-slots-open, prefix-only (3 suffixes filled), suffix-only (3 prefixes filled), and family exclusion.",
+  "scenarios": [
+    { "name": "white_wands", "base": "Wands", "placed": [] },
+    { "name": "magic_wands_1prefix", "base": "Wands", "placed": ["Wands/MAXIMUM_MANA"] },
+    { "name": "magic_wands_1suffix", "base": "Wands", "placed": ["Wands/INTELLIGENCE"] },
+    { "name": "rare_wands_3suffix", "base": "Wands", "placed": ["Wands/INTELLIGENCE", "Wands/MANA_REGENERATION_RATE", "Wands/INCREASED_CAST_SPEED"] },
+    { "name": "rare_wands_3prefix", "base": "Wands", "placed": ["Wands/MAXIMUM_MANA", "Wands/INCREASED_SPELL_DAMAGE", "Wands/DAMAGE_AS_EXTRA_FIRE_DAMAGE"] },
+    { "name": "bodystr_2prefix_1suffix", "base": "Body_Armours_str", "placed": ["Body_Armours_Normal/BASE_MAXIMUM_LIFE", "Body_Armours_Normal/BASE_ARMOUR", "Body_Armours_Normal/STRENGTH"] }
+  ]
+}

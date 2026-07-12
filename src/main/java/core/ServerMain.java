@@ -225,7 +225,8 @@ public class ServerMain {
 				}
 
 				Class<?> itemClass = Class.forName(fullClassName);
-				Item_base itemInstance = (Item_base) itemClass.getDeclaredConstructor().newInstance();
+				// Resolve from JSON when USE_JSON_DATA is set, else the hardcoded class (default).
+				Item_base itemInstance = core.data.ItemBaseProvider.resolve(itemClass);
 
 				// Get modifiers from all sources
 				List<Modifier> normalPrefixes = itemInstance.getNormalAllowedPrefixes();
@@ -500,7 +501,8 @@ public class ServerMain {
 				}
 
 				Class<?> itemClass = Class.forName(fullClassName);
-				Item_base itemInstance = (Item_base) itemClass.getDeclaredConstructor().newInstance();
+				// Resolve from JSON when USE_JSON_DATA is set, else the hardcoded class (default).
+				Item_base itemInstance = core.data.ItemBaseProvider.resolve(itemClass);
 				DebugLogger.debug("Created NEW item instance: " + itemInstance.getClass().getSimpleName() + "@"
 						+ System.identityHashCode(itemInstance));
 

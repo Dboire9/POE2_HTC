@@ -28,7 +28,6 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:engine": "vitest run packages/engine",
-    "fixtures:java": "mvn -q -DskipTests compile && CP=\"target/classes:$(find ~/.m2 -name 'gson-*.jar' | sort | tail -1)\" && java -cp \"$CP\" core.data.TransmuteProbe data/patches/0.5 packages/engine/src/__fixtures__/transmute-java.json Wands Body_Armours_str Rings && java -cp \"$CP\" core.data.AddAffixProbe data/patches/0.5 packages/engine/src/__fixtures__/scenarios.json packages/engine/src/__fixtures__/addaffix-java.json && java -cp \"$CP\" core.data.AnnulProbe data/patches/0.5 packages/engine/src/__fixtures__/scenarios.json packages/engine/src/__fixtures__/annul-java.json && java -cp \"$CP\" core.data.EssenceProbe data/patches/0.5 packages/engine/src/__fixtures__/scenarios.json packages/engine/src/__fixtures__/essence-java.json && java -cp \"$CP\" core.data.DesecrationProbe data/patches/0.5 packages/engine/src/__fixtures__/desecration-java.json Amulets Wands Body_Armours_str Rings && java -cp \"$CP\" core.data.PlanProbe data/patches/0.5 packages/engine/src/__fixtures__/plans.json packages/engine/src/__fixtures__/plan-java.json",
     "update-data": "bash tools/refresh/run.sh"
   },
   "dependencies": {
@@ -80,35 +79,8 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "pom.xml",
-      "src/main/**/*",
-      "target/classes/**/*",
       "!src/**/*",
       "!electron/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": "target/poe-crafter-*-jar-with-dependencies.jar",
-        "to": "backend.jar"
-      },
-      {
-        "from": "jre",
-        "to": "jre"
-      },
-      {
-        "from": "target/classes",
-        "to": "target/classes",
-        "filter": [
-          "**/*"
-        ]
-      },
-      {
-        "from": "pom.xml",
-        "to": ".",
-        "filter": [
-          "pom.xml"
-        ]
-      }
     ],
     "win": {
       "target": [

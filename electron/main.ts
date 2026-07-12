@@ -1,17 +1,13 @@
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import * as path from 'path';
-import { spawn, ChildProcess } from 'child_process';
 import * as fs from 'fs';
 import * as http from 'http';
 import { autoUpdater } from 'electron-updater';
 
 let mainWindow: BrowserWindow | null = null;
-let backendProcess: ChildProcess | null = null;
-let isQuitting = false;
 
 // Use NODE_ENV for detection - set by electron:dev script
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-const BACKEND_PORT = parseInt(process.env.BACKEND_PORT || '8080', 10);
 const FRONTEND_PORT = 5173;
 
 // Setup log file
@@ -117,147 +113,6 @@ function waitForServer(url: string, timeout = 30000): Promise<void> {
   });
 }
 
-function startBackend(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    writeLog('========== Starting Java backend ==========');
-    // In development we run via Maven (requires mvn).
-    // In production the packaged app should start the Java runtime directly
-    // using the packaged JAR file.
-    const isPackaged = app.isPackaged;
-    let cmd: string;
-    let args: string[];
-    const options: any = { 
-      stdio: 'inherit',
-      windowsHide: true  // Hide console window on Windows
-    };
-
-    if (!isPackaged) {
-      // Use mvn to start the backend during development
-      const mvnCommand = process.platform === 'win32' ? 'mvn.cmd' : 'mvn';
-      cmd = mvnCommand;
-      args = ['exec:java', '-Dexec.mainClass=core.ServerMain', '-q'];
-      options.cwd = app.getAppPath();
-      writeLog(`Development mode: Using Maven`);
-      writeLog(`Command: ${cmd}`);
-      writeLog(`Args: ${args.join(' ')}`);
-      writeLog(`Working directory: ${options.cwd}`);
-    } else {
-      // Production: run the packaged JAR file with bundled JRE
-      const jrePath = path.join(process.resourcesPath, 'jre');
-      const javaExecutable = process.platform === 'win32' 
-        ? path.join(jrePath, 'bin', 'java.exe')
-        : path.join(jrePath, 'bin', 'java');
-      
-      writeLog(`Production mode: Using packaged JAR with bundled JRE`);
-      
-      // Check if bundled JRE exists
-      if (fs.existsSync(javaExecutable)) {
-        cmd = javaExecutable;
-        writeLog(`Using bundled JRE at: ${javaExecutable}`);
-      } else {
-        // Fallback to system Java
-        cmd = 'java';
-        writeLog(`Bundled JRE not found at: ${javaExecutable}`);
-        writeLog(`Falling back to system Java`);
-      }
-      
-      const jarPath = path.join(process.resourcesPath, 'backend.jar');
-      
-      writeLog(`Looking for backend JAR at: ${jarPath}`);
-      writeLog(`process.resourcesPath: ${process.resourcesPath}`);
-      writeLog(`JAR exists: ${fs.existsSync(jarPath)}`);
-      
-      // Check if JAR exists
-      if (!fs.existsSync(jarPath)) {
-        const error = `Backend JAR not found at: ${jarPath}`;
-        writeLog(`ERROR: ${error}`);
-        
-        // List files in resourcesPath to help debug
-        try {
-          const files = fs.readdirSync(process.resourcesPath);
-          writeLog(`Files in resourcesPath: ${files.join(', ')}`);
-        } catch (e) {
-          writeLog(`ERROR: Could not list resourcesPath: ${e}`);
-        }
-        
-        showErrorDialog(
-          'Backend JAR Missing',
-          `Could not find backend.jar at:\n${jarPath}\n\nThe application cannot start without this file.\n\nLog file: ${LOG_FILE}`
-        );
-        reject(new Error('Backend JAR not found'));
-        return;
-      }
-      
-      // Check if Java is available (only if not using bundled JRE)
-      if (cmd === 'java') {
-        try {
-          const javaCheck = spawn('java', ['-version'], { windowsHide: true });
-          javaCheck.on('error', (err) => {
-            writeLog(`ERROR: Java not found: ${err.message}`);
-            showErrorDialog(
-              'Java Not Found',
-              `Java is not installed or not in PATH.\n\nPlease install Java 21 or later from:\nhttps://adoptium.net/\n\nLog file: ${LOG_FILE}`
-            );
-          });
-        } catch (e) {
-          writeLog(`ERROR: Could not check Java: ${e}`);
-        }
-      }
-      
-      args = ['-jar', jarPath];
-      options.cwd = process.resourcesPath;
-      writeLog(`Command: ${cmd}`);
-      writeLog(`Args: ${args.join(' ')}`);
-      writeLog(`Working directory: ${options.cwd}`);
-    }
-
-    writeLog(`Spawning backend process...`);
-    try {
-      backendProcess = spawn(cmd, args, options);
-      writeLog(`Backend process spawned successfully (PID: ${backendProcess.pid})`);
-    } catch (spawnError: any) {
-      writeLog(`ERROR: Failed to spawn backend: ${spawnError.message}`);
-      showErrorDialog(
-        'Backend Start Failed',
-        `Could not start backend process:\n${spawnError.message}\n\nLog file: ${LOG_FILE}`
-      );
-      reject(spawnError);
-      return;
-    }
-
-    backendProcess.on('error', (error) => {
-      writeLog(`ERROR: Backend process error: ${error.message}`);
-      writeLog(`ERROR: Stack: ${error.stack}`);
-      showErrorDialog(
-        'Backend Process Error',
-        `Backend process encountered an error:\n${error.message}\n\nLog file: ${LOG_FILE}`
-      );
-      reject(error);
-    });
-
-    // Wait a bit for backend to start. If the backend exits early we'll reject.
-    const startTimeout = setTimeout(() => {
-      writeLog('Backend start delay passed (3s), assuming success');
-      resolve();
-    }, 3000);
-
-    backendProcess.on('exit', (code, signal) => {
-      clearTimeout(startTimeout);
-      const exitMsg = `Backend process exited with code ${code}, signal ${signal}`;
-      writeLog(exitMsg);
-      
-      // Don't show error if we're intentionally quitting
-      if (!isQuitting && code !== 0 && code !== null) {
-        showErrorDialog(
-          'Backend Process Exited',
-          `Backend stopped unexpectedly:\nExit code: ${code}\nSignal: ${signal}\n\nLog file: ${LOG_FILE}`
-        );
-        reject(new Error(`Backend exited with code ${code}`));
-      }
-    });
-  });
-}
-
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1920,
@@ -353,22 +208,14 @@ function createWindow() {
 app.whenReady().then(async () => {
   writeLog('========== App Ready ==========');
   try {
-    // Start backend first
-    writeLog('Step 1: Starting backend...');
-    await startBackend();
-    writeLog('Backend started successfully');
-    
-    // Wait for frontend in dev mode
+    // Wait for the Vite dev server in development (production loads the bundled files directly).
     if (isDev) {
-      writeLog('Step 2: Waiting for frontend dev server...');
+      writeLog('Waiting for frontend dev server...');
       await waitForServer(`http://localhost:${FRONTEND_PORT}`);
       writeLog('Frontend dev server ready');
-    } else {
-      writeLog('Step 2: Skipped (production mode - no dev server)');
     }
-    
-    // Then create window
-    writeLog('Step 3: Creating main window...');
+
+    writeLog('Creating main window...');
     createWindow();
     writeLog('Main window created');
 
@@ -560,27 +407,6 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
-  isQuitting = true;
-  
-  // Gracefully stop backend process when app quits
-  if (backendProcess && !backendProcess.killed) {
-    writeLog('Stopping backend gracefully...');
-    try {
-      // Try graceful shutdown first (SIGTERM)
-      backendProcess.kill('SIGTERM');
-      
-      // Force kill after 2 seconds if still running
-      setTimeout(() => {
-        if (backendProcess && !backendProcess.killed) {
-          writeLog('Forcing backend shutdown...');
-          backendProcess.kill('SIGKILL');
-        }
-      }, 2000);
-    } catch (error) {
-      writeLog(`Error stopping backend: ${error}`);
-    }
-  }
-  
   writeLog('========== App Quit ==========');
   if (logStream) {
     logStream.end();

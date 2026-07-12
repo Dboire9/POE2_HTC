@@ -1,51 +1,21 @@
-import React, { useState } from 'react';
-import { ItemsProvider } from './contexts/ItemsContext';
-import { ModifiersProvider } from './contexts/ModifiersContext';
-import { SimulationProvider } from './contexts/SimulationContext';
+import React from 'react';
 import { Toaster } from './components/ui/toaster';
 import { UpdateNotification } from './components/UpdateNotification';
-import ItemSelector from './features/items/ItemSelector';
-import ModifierSelector from './features/modifiers/ModifierSelector';
-import SimulationTrigger from './features/simulation/SimulationTrigger';
-import SimulationProgress from './features/simulation/SimulationProgress';
-import SimulationSummary from './features/simulation/SimulationSummary';
-import ResultsDisplay from './features/simulation/ResultsDisplay';
-import CurrencyExclusionPanel from './features/simulation/CurrencyExclusionPanel';
 import EngineLab from './features/engine/EngineLab';
-import { useSimulation } from './contexts/SimulationContext';
 
-type View = 'classic' | 'engine';
-
-// Import version from package.json
+// App version (shown in the header).
 const version = '0.9.7';
 
-// Helper function to open external links
+// Open a link in the user's browser — via the Electron bridge when present, else a normal window.open.
 const openExternalLink = (url: string) => {
-  console.log('openExternalLink called with:', url);
-  console.log('window.electronAPI:', window.electronAPI);
-  
   if (window.electronAPI?.openExternal) {
-    console.log('Using electronAPI.openExternal');
-    window.electronAPI.openExternal(url).then((result) => {
-      console.log('openExternal result:', result);
-    }).catch((error) => {
-      console.error('openExternal error:', error);
-    });
+    window.electronAPI.openExternal(url).catch((error) => console.error('openExternal error:', error));
   } else {
-    console.log('Using window.open fallback');
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 };
 
-// T018, T019: Integrate ItemsProvider and ItemSelector into App.tsx
-// T035, T036, T037: Integrate ModifiersProvider, ModifierSelector, and Toaster
-// T053, T054: Integrate SimulationProvider and simulation components
-
-// Inner component that has access to simulation context
-const AppContent: React.FC = () => {
-  const { excludedCurrencies, setExcludedCurrencies, minTier, setMinTier } = useSimulation();
-  const [view, setView] = useState<View>('engine');
-
+export default function App() {
   return (
     <div className="min-h-screen text-foreground bg-background">
       <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
@@ -58,7 +28,7 @@ const AppContent: React.FC = () => {
               <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Path of Exile 2 How to Craft</p>
             </div>
           </div>
-          
+
           <div className="hidden md:flex flex-col items-end gap-2 text-xs text-muted-foreground">
             <button
               onClick={() => openExternalLink('https://github.com/Dboire9')}
@@ -110,70 +80,11 @@ const AppContent: React.FC = () => {
       </header>
 
       <main className="container py-3 sm:py-4 px-3 sm:px-4">
-        {/* View toggle: local TS engine (new) vs the classic Java-API flow */}
-        <div className="mb-4 inline-flex rounded-lg border border-border bg-card p-1 text-sm">
-          <button
-            onClick={() => setView('engine')}
-            className={`px-3 py-1.5 rounded-md transition-colors ${
-              view === 'engine' ? 'bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            ⚡ Engine (local)
-          </button>
-          <button
-            onClick={() => setView('classic')}
-            className={`px-3 py-1.5 rounded-md transition-colors ${
-              view === 'classic' ? 'bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Classic (API)
-          </button>
-        </div>
-
-        {view === 'engine' && <EngineLab />}
-
-        {view === 'classic' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
-          {/* Phase 3: User Story 1 - Item Selection */}
-          <div className="lg:col-span-4 space-y-3">
-            <ItemSelector />
-            <CurrencyExclusionPanel
-              excludedCurrencies={excludedCurrencies}
-              onExcludedCurrenciesChange={setExcludedCurrencies}
-              minTier={0}
-              onMinTierChange={() => {}}
-            />
-          </div>
-
-          {/* Phase 4: User Story 2 - Modifier Selection */}
-          <div className="lg:col-span-8 space-y-3" data-section="modifiers">
-            <ModifierSelector />
-            <SimulationTrigger />
-          </div>
-
-          {/* Phase 5: User Story 3 - Simulation */}
-          <div className="lg:col-span-8 lg:col-start-5 space-y-3">
-            <SimulationProgress />
-            <SimulationSummary />
-            <ResultsDisplay />
-          </div>
-        </div>
-        )}
+        <EngineLab />
       </main>
-    </div>
-  );
-};
 
-export default function App() {
-  return (
-    <ItemsProvider>
-      <ModifiersProvider>
-        <SimulationProvider>
-          <AppContent />
-          <Toaster />
-          <UpdateNotification />
-        </SimulationProvider>
-      </ModifiersProvider>
-    </ItemsProvider>
+      <Toaster />
+      <UpdateNotification />
+    </div>
   );
 }

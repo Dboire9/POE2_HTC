@@ -59,16 +59,17 @@ Send an email to **dboire@student.42.fr** with:
 
 ### Running the Application
 
-- The application runs locally on your machine
-- No data is sent to external servers
-- All calculations happen client-side
-- Backend server only listens on `localhost:8080`
+- The application runs entirely on your machine
+- All calculations happen **client-side** in pure TypeScript — there is **no backend server** and no
+  local port is opened
+- No crafting data is sent to external servers
 
 ### Permissions
 
 The application requires:
-- **File System**: To store logs and configuration
-- **Network**: Only for localhost communication (frontend ↔ backend)
+- **File System**: To store configuration and (desktop) auto-update files
+- **Network**: Only for the desktop app's auto-updater and optional error/analytics reporting — not
+  for crafting, which is fully local
 - **No Sensitive Data**: Application doesn't access or store sensitive information
 
 ### Updates
@@ -79,13 +80,11 @@ The application requires:
 
 ## Known Security Considerations
 
-### Local Backend Server
+### No Local Server
 
-The Java backend runs on `localhost:8080`:
-- Only accessible from your machine
-- No external network access
-- No authentication required (local-only)
-- Windows Firewall may prompt - this is normal
+The app is fully client-side — there is **no backend process** and **no listening port** (the Java
+`localhost:8080` server was retired). Nothing to firewall, nothing to authenticate. Crafting
+computation happens in the same sandboxed context as the UI.
 
 ### Electron Security
 
@@ -98,23 +97,23 @@ We follow Electron security best practices:
 ### Third-Party Dependencies
 
 We regularly update dependencies to patch known vulnerabilities:
-- Frontend: npm packages
-- Backend: Maven dependencies
+- npm packages (app + engine)
 - Electron framework
-- Bundled JRE
 
-Check `npm audit` and Maven dependency reports in CI/CD.
+Check `npm audit` reports in CI/CD. (There are no Maven dependencies or bundled JRE anymore — the
+Java backend was retired.)
 
 ## Security Features
 
 ### Application
 
-- ✅ Local execution only
-- ✅ No telemetry or tracking
-- ✅ No cloud services
+- ✅ Crafting runs locally — no item/craft data leaves your machine
 - ✅ Open source (auditable)
 - ✅ Sandboxed Electron renderer
 - ✅ Automatic updates with signature verification
+- ℹ️ Uses **Sentry** (crash/error reporting) and **Vercel Analytics** (aggregate, privacy-preserving
+  usage metrics). These send diagnostics/analytics only — never your crafting inputs — and the code is
+  open for inspection.
 
 ### Development
 

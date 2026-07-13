@@ -1,71 +1,77 @@
-# Data layer (migration)
+# Data layer
 
-Phase 0 moved the engine's mod/item data out of hardcoded Java classes into per-patch JSON under
-`data/patches/<patch>/`, and gave the Java engine a JSON-backed load path so both the old and new
-engines can share one data source during the migration (SPEC Phase 0).
+All game data lives in versioned JSON under `data/patches/<patch>/`, never in source code. The
+pure-TypeScript engine (`packages/engine`) reads it directly — there is no database and no backend.
 
-## Files (`data/patches/0.5/`)
-
-| File | How produced | Notes |
-|------|--------------|-------|
-| `mods.json` | extracted 1:1 from `core/Item_modifiers/**` | 1351 mods, 5493 tiers |
-| `base_items.json` | extracted 1:1 from `core/Items/**` | 41 bases; pools are mod-id lists |
-| `essences.json` | derived from essence-sourced mods | essence → strength → forced mod ids |
-| `currencies.json` | authored catalog of `core/Currency/*.java` | identity + omens verbatim; mechanics stay in code |
-| `prices.json` | hand-authored seed stub | exalt-equivalent prices for Phase-2 cost mode |
-| `weights_overrides.json` | hand-authored seed stub | community weight corrections; win over `mods.json` |
-
-All stamped `{"patch","generated","source"}`. Current data is a **pre-0.5-refresh 1:1 snapshot of the
-Java** — values are not yet verified against real patch 0.5.0. The loader rejects mixed patches.
+> **History:** this split started as SPEC Phase 0, which moved the engine's mod/item data out of
+> hardcoded Java classes into per-patch JSON so the old Java engine and the new TS engine could share
+> one source during the migration. The Java engine has since been retired; the JSON data is now the
+> single source of truth, and the loader lives in `packages/engine` (`loadPatch.ts` / `indexPatch.ts`).
 
 ## Two patch datasets
 
-- **`data/patches/0.5/`** — the **Java baseline**: a 1:1 extraction of the hardcoded Java
-  (~0.2/0.3-era values). Used as the differential/round-trip reference; the golden path.
-- **`data/patches/0.5.0/`** — the **refreshed authoritative dataset** for patch 0.5.0:
-  - *structure* (41 bases, 933 normal mods, 6167 tiers — tiers/ilvls/ranges/pools) from the
-    RePoE-fork PoE2 dump (client 4.5.4.3);
-  - *spawn weights* from **poe2db community data** (`DropChance`), joined onto the structure by
-    (base, type, family, ilvl) — 100% of normal tiers filled. Game-file weights are useless
-    (0/1 only); poe2db carries the community-verified weights CLAUDE.md calls for.
-  - **NORMAL pools only.** essence/desecrated pools are deferred: poe2db's essence/desecrated
-    weights are *not* plain spawn weights (essence forces a mod; desecrated mods are mixed into
-    the normal pool by the desecration mechanic), so they belong to the Phase-1 engine mechanics.
-  - Loads through the Java engine via `USE_JSON_DATA=1 PATCH_DIR=data/patches/0.5.0`.
+- **`data/patches/0.5.0/`** — the **dataset the app ships**. Structure (bases, mods, tiers, ilvls,
+  ranges, pools) from the RePoE-fork PoE2 dump; **spawn weights from poe2db community data**, joined
+  onto the structure by `(base, type, family, ilvl)`. Cross-checked *exact* against Craft of Exile for
+  Wands / Amulets / Rings / Body Armour / Quivers (see [validation.md](validation.md), "External
+  cross-check, round 2"). Game-file weights are useless (0/1 only); poe2db carries the
+  community-verified weights the project relies on. **Normal pools only so far** — essence/desecrated
+  weights aren't plain spawn weights and belong to engine mechanics, so those pools are deferred.
+- **`data/patches/0.5/`** — the **Java-era snapshot**: a 1:1 extraction of the old hardcoded Java
+  (~0.2/0.3-era values). It is **stale vs the live game** and is kept for exactly one reason: it's the
+  engine's **differential anchor**. The frozen golden fixtures in
+  `packages/engine/src/__fixtures__/*-java.json` were generated from this data by the old Java engine;
+  the differential tests replay them (no live Java) to prove the TS port matches. Don't ship it.
 
-## Regenerate
+The two snapshots use **different mod-id schemes** — `0.5.0` is CamelCase (`IncreasedMana`), `0.5` is
+SCREAMING_SNAKE (`MAXIMUM_MANA`). The app and facade tests are id-agnostic (they list ids from the
+loaded data); a test that hardcodes ids must match whichever patch it loads.
+
+The loader **rejects mixed-patch data** — every file in a patch dir carries a `patch` stamp and they
+must agree.
+
+## Files (per patch dir)
+
+| File | How produced | Notes |
+|------|--------------|-------|
+| `mods.json` | RePoE structure + poe2db weights (0.5.0); Java extraction (0.5) | every mod: `text`, `family`, `type`, `source`, tiers |
+| `base_items.json` | same pipeline | each base's prefix/suffix pools as mod-id lists |
+| `essences.json` | derived from essence-sourced mods | essence → strength → forced mod ids |
+| `currencies.json` | authored catalog | currency identity + omens; mechanics stay in engine code |
+| `prices.json` | hand-authored | exalt-equivalent prices for the cost model |
+| `weights_overrides.json` | hand-authored, community-verified | **always wins over `mods.json`** |
+
+Each file is stamped `{"patch","generated","source"}`.
+
+## Rules
+
+- **`weights_overrides.json` beats base weights.** If a probability is wrong, fix the weight data (or
+  add an override with a source comment) — never "fix" it by editing engine logic.
+- **Data edits are surgical raw-text edits**, not a JSON re-stringify — that preserves integer-vs-decimal
+  ranges (e.g. `[15, 20]` staying integers, not `15.0`). Every edit carries a source comment in
+  `weights_overrides.json`.
+- Patch versioning is what makes a re-refresh safe: when 1.0 lands, drop a new `data/patches/1.0/`
+  and re-validate with the `scripts/coe-*` harness rather than mutating an existing snapshot.
+
+## Refresh the shipped data
 
 ```bash
-./tools/extractor/run.sh          # 0.5 baseline: mods.json, base_items.json, essences.json
-./tools/refresh/run.sh            # 0.5.0: RePoE structure -> poe2db weights -> diff report
+npm run update-data           # tools/refresh/ : RePoE structure -> poe2db weights -> diff report
 ```
+
 The refresh pipeline is `refresh.mjs` (RePoE structure) → `apply_weights.mjs` (poe2db weights) →
-`diff.mjs` (`docs/refresh-0.5.0-diff.md`). RePoE dumps and poe2db pages are cached under
-`tools/refresh/cache/` (gitignored). `currencies.json` / `prices.json` / `weights_overrides.json`
-are edited by hand.
+`diff.mjs` (writes `docs/refresh-0.5.0-diff.md`). RePoE dumps and poe2db pages are cached under
+`tools/refresh/cache/` (gitignored). `currencies.json` / `prices.json` / `weights_overrides.json` are
+edited by hand.
 
-## Java load path (`core/data/`)
+> `tools/extractor/` (the original Java-source extractor that produced the `0.5` snapshot) and the old
+> Java round-trip gate are historical — they targeted the retired Java engine and are no longer part
+> of the live workflow.
 
-- `PatchData` — parses the JSON (Gson tree API; preserves integer-vs-decimal ranges).
-- `ModifierFactory` — builds `Modifier` objects identical to the hardcoded statics.
-- `JsonItemBase` / `JsonItemRepository` — `Item_base` instances whose pools come from JSON, keyed by
-  base id (the hardcoded simple class name, e.g. `Wands`, `Body_Armours_str`).
-- `ItemBaseProvider` — the seam `ServerMain` calls to resolve a base. **Off by default.**
+## Data-integrity guardrail
 
-### Using the JSON data source
-
-```bash
-USE_JSON_DATA=1 PATCH_DIR=data/patches/0.5 mvn -q compile exec:java   # or run the built jar
-```
-Without `USE_JSON_DATA`, the server uses the hardcoded classes exactly as before (golden reference
-untouched — CLAUDE.md forbids deleting the Java until Phase 3 validation passes).
-
-## Round-trip gate
-
-```bash
-./tools/roundtrip/run.sh
-```
-`core.data.DataRoundTripCheck` compares, field-by-field, every hardcoded mod and every base pool
-against the JSON-built objects. It currently reports **IDENTICAL** (1351 mods, 41 bases), which is
-what makes flipping the engine to JSON safe. An HTTP smoke test confirms `/api/modifiers` returns
-byte-identical payloads in both modes.
+`packages/engine/src/dataIntegrity.test.ts` audits every shipped patch on each test run: no orphan
+pool refs, no duplicate ids, well-formed mods (group/field/type/≥1 tier), tiers ascending by ilvl with
+non-negative (rollable ⇒ positive) weights, mod `type` matching the pool side, and no family holding
+both a prefix and a suffix on one base. `0.5.0` runs against an **empty baseline** (fully clean — any
+regression fails immediately); `0.5` keeps its known-ambiguous Java-era findings as a ratchet.

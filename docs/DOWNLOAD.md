@@ -31,13 +31,13 @@ Look for: `POE2HTC-X.X.X.dmg`
 
 ## No Releases Yet?
 
-If no releases are available yet, you can build from source:
+If no releases are available yet, you can build from source (all you need is **Node.js 20+** — the app
+is pure TypeScript, no Java/Maven):
 
-1. Make sure you have **Java 21+** and **Node.js 20+** installed
-2. Clone the repository
-3. Run `npm install`
-4. Run `mvn clean package`
-5. Run `npm run electron:dev` for development mode
+1. Clone the repository
+2. Run `npm install --legacy-peer-deps`
+3. Run `npm run electron:dev` for development mode
+4. ...or `npm run electron:build` to produce an installer for your platform
 
 ---
 

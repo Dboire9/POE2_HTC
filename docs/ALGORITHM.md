@@ -1,642 +1,213 @@
-# POE2 HTC Crafting Algorithm - In-Depth Explanation
+# POE2 HTC Crafting Algorithm — In-Depth Explanation
 
-## Overview
-
-The POE2 HTC (How To Craft) algorithm is a sophisticated **Beam Search** optimization system designed to find the most efficient crafting sequences in Path of Exile 2. Given a base item and desired modifiers, it explores millions of possible crafting paths to identify sequences that maximize the probability of achieving the target item.
+> **What changed:** earlier versions of POE2 HTC used a **Beam Search** that *simulated* millions of
+> crafting sequences on a multithreaded Java backend. That approach is retired. The engine is now
+> **analytic**: it computes each plan's probability *exactly* from the modifier weight pools, and the
+> optimizer returns a **cost ↔ success Pareto frontier**. It's pure TypeScript, runs client-side, and
+> uses Monte-Carlo simulation only to *validate* the exact math. This document describes the current
+> design.
 
 ---
 
 ## Table of Contents
 
 1. [Problem Statement](#problem-statement)
-2. [Algorithm Architecture](#algorithm-architecture)
+2. [Why Analytic Instead of Search](#why-analytic-instead-of-search)
 3. [Core Concepts](#core-concepts)
-4. [Phase-by-Phase Breakdown](#phase-by-phase-breakdown)
-5. [Heuristic Scoring System](#heuristic-scoring-system)
-6. [Probability Calculation](#probability-calculation)
-7. [Beam Search Strategy](#beam-search-strategy)
-8. [Multithreading](#multithreading)
-9. [Example Walkthrough](#example-walkthrough)
+4. [Per-Currency Probability](#per-currency-probability)
+5. [Evaluating a Plan](#evaluating-a-plan)
+6. [Expected-Cost Model](#expected-cost-model)
+7. [The Pareto Optimizer](#the-pareto-optimizer)
+8. [From an Existing Item](#from-an-existing-item)
+9. [Monte-Carlo Validation](#monte-carlo-validation)
+10. [Worked Example](#worked-example)
 
 ---
 
 ## Problem Statement
 
-### The Challenge
+Given a **base item** and a set of **desired modifiers** (with target tiers), find crafting sequences
+that reach the goal, and report each one's **success probability** and **expected cost**.
 
-In Path of Exile 2, crafting an item with specific modifiers is a complex combinatorial problem:
+Path of Exile 2 crafting is a constrained combinatorial system:
 
-- **6 modifier slots** (3 prefixes + 3 suffixes)
-- **50+ different currencies** (Transmutes, Regals, Essences, Exalts, Annulments, etc.)
-- **40+ possible modifiers** per item type
-- **Modifier tiers** (T1 being best)
-- **Modifier families** (conflicting groups that can't coexist)
-- **Omens** (probability modifiers that affect currency outcomes)
-- **Probability variations** based on item level, modifier tags, and item state
+- Up to **3 prefixes + 3 suffixes** (magic items hold 1 + 1).
+- Currencies with distinct behaviors — Transmutation, Augmentation, Regal, Exalted, Chaos, Annulment,
+  Alchemy, Essences, Desecration — each in base/greater/perfect tiers where applicable.
+- **Modifier weights** determine roll odds; **families** are exclusion groups (at most one mod per
+  family per item); **item-level gates** restrict which tiers can appear; **omens** constrain currency
+  outcomes.
 
-The search space is astronomical: for a 6-modifier item, there can be **trillions** of possible crafting sequences.
-
-### The Goal
-
-Find crafting sequences that:
-1. **Achieve all 6 desired modifiers** with correct tiers
-2. **Maximize success probability** (minimize expected cost)
-3. **Complete in reasonable time** (seconds, not hours)
+The goal is exactness and speed: precise probabilities, computed locally in milliseconds.
 
 ---
 
-## Algorithm Architecture
+## Why Analytic Instead of Search
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    USER INPUT                               │
-│  Base Item + 6 Desired Modifiers + Threshold                │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│            PHASE 1: INITIALIZATION                          │
-│  • Create base candidates (Transmute → Magic Item)          │
-│  • Apply Augmentation (add 2nd modifier)                    │
-│  • Apply Regal (Magic → Rare, 3 modifiers)                  │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│            PHASE 2: BEAM SEARCH LOOP                        │
-│  For each candidate:                                        │
-│    1. Apply all possible currencies (Exalt, Essence, etc.)  │
-│    2. Score each result with heuristic function             │
-│    3. Keep all candidates that passes the score threshold   │
-│    4. Remove paths that have too low probability            │
-│    5. Repeat until target reached or no progress            │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│            PHASE 3: PROBABILITY CALCULATION                 │
-│  For each successful path:                                  │
-│    • Calculate exact probability for each step              │
-│    • Consider item state, modifier pools, omens             │
-│    • Compute cumulative success probability                 │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│            PHASE 4: RESULT RANKING                          │
-│  • Sort paths by probability (highest first)                │
-│  • Return top paths to user                                 │
-└─────────────────────────────────────────────────────────────┘
-```
+Simulation answers "how often did we succeed in N trials?" — with sampling noise, a runtime cost that
+grows with the precision you want, and no exact number for rare outcomes. But PoE2 currency outcomes
+are **weighted draws from a known pool**, so each step's probability is a closed-form ratio, and a
+plan's probability is the product of its steps'. There's nothing to sample.
+
+Consequences:
+
+- **Exact** probabilities, including for very rare crafts, with no variance.
+- **Fast** — evaluating a plan is a handful of pool sums, not thousands of trials.
+- **Composable** — expected cost and the Pareto frontier fall out of the same per-step numbers.
+
+Simulation is retained, but only as an independent check on the analytic engine (see
+[Monte-Carlo Validation](#monte-carlo-validation)).
 
 ---
 
 ## Core Concepts
 
-### 1. Crafting Candidate
-
-A `Crafting_Candidate` represents one possible state of an item during the crafting process.
-
-```java
-class Crafting_Candidate {
-    Crafting_Item item;              // Current item state
-    List<ModifierEvent> modifierHistory;  // Sequence of applied currencies
-    double score;                    // Heuristic score (higher = closer to goal)
-}
-```
-
-**Key Properties:**
-- **Item State**: Current modifiers, rarity, affix counts
-- **History**: Complete sequence of currencies applied (e.g., Transmute → Regal → Exalt → Essence)
-- **Score**: Heuristic evaluation of how "good" this path is
-
-### 2. Modifier Event
-
-A `ModifierEvent` records a single crafting action and its outcome.
-
-```java
-class ModifierEvent {
-    Crafting_Action action;          // Currency used (e.g., ExaltedOrb)
-    Modifier modifier;               // Modifier added/removed
-    ActionType type;                 // ADDED, REMOVED, REROLLED
-    Map<Crafting_Action, Double> source;  // Probability data
-}
-```
-
-### 3. Heuristic Score
-
-The heuristic function evaluates how close a candidate is to the goal:
+**Weight pool.** For a given item state, side (prefix/suffix), and item level, the *addable* mods are
+those that can still roll: correct side, family not already present, item level ≥ the tier's ilvl, and
+tier ≥ the currency's tier floor. Each has an integer weight `w`. The chance a single random add lands
+a specific target tier is
 
 ```
-Score = PrefixScore + SuffixScore
-
-PrefixScore = Σ (points for matching desired prefix modifiers)
-SuffixScore = Σ (points for matching desired suffix modifiers)
+P(target) = w(target) / Σ w(addable)
 ```
 
-**Scoring Rules:**
-- **Exact match (text + tier)**: +1000 points
-- **Tag overlap**: +100-300 points based on shared tags
-- **Undesired modifiers**: -500 points penalty
+**Family exclusion.** Each mod belongs to a `family`; an item may hold at most one mod per family.
+A family already on the item removes *all* of that family's tiers from the addable pool — this is what
+makes ordering matter and is the source of many subtle probability differences.
+
+**Item-level gates.** A tier with `ilvl = k` can only appear on an item of level ≥ k. Higher item
+level → more (and higher) tiers in the pool → different odds.
+
+**Currency tier floors.** base / greater / perfect currencies floor the accessible tiers at
+`0 / 35 / 50` respectively, biasing rolls toward better tiers.
+
+**Omens.** Omens constrain currency behavior — e.g. an **Exaltation** omen forces the added mod's side
+(**Sinistral** = prefix, **Dextral** = suffix); annul omens constrain which mod is removed. The engine
+models them as options on the relevant step.
 
 ---
 
-## Phase-by-Phase Breakdown
+## Per-Currency Probability
 
-### **PHASE 1: Initialization**
+Each currency has an exact probability function in `packages/engine/src/probability.ts`, returning an
+`f64` in `[0,1]`:
 
-#### Step 1.1: Transmutation (Normal → Magic)
+| Currency | What it does | Probability of the target outcome |
+|----------|--------------|-----------------------------------|
+| **Transmutation** | white → magic, +1 mod | `w(target) / Σ w(addable on the whole item)` |
+| **Augmentation** | magic, +1 mod | over the pool minus the existing mod's family/side |
+| **Regal** | magic → rare, +1 mod | like augmentation, on the rare pool |
+| **Exalted** | rare, +1 mod into an open slot | `w(target) / Σ w(addable)`; a Sinistral/Dextral omen restricts the pool to one side |
+| **Chaos** | remove one random mod, add one (PoE2) | `P(remove hits a non-target) × P(add lands target)` |
+| **Annulment** | remove one random mod | `1 / (#mods)` that it removes the named one (omen-constrained variants supported) |
+| **Alchemy** | white → rare with 4 random mods | probability the 4 draws include the chosen targets (an *opener*) |
+| **Essence** | forces a specific mod | deterministic for the forced mod; the rest roll normally |
+| **Desecration** | boss/desecrated pool add | over the desecrated pool |
 
-```java
-TransmutationOrb transmute = new TransmutationOrb();
-List<Crafting_Candidate> candidates = transmute.apply(baseItem, ...);
-```
-
-**What Happens:**
-- Takes a white (normal) item
-- Applies a Transmutation Orb
-- Generates **ALL possible outcomes** (one candidate per possible modifier)
-- Each candidate has 1 prefix OR 1 suffix
-- Example: For a bow, this might generate 21 candidates (8 prefixes + 13 suffixes)
-
-#### Step 1.2: Augmentation (Add 2nd Modifier)
-
-```java
-AugmentationOrb augment = new AugmentationOrb();
-candidates = augment.apply(baseItem, candidates, ...);
-```
-
-**What Happens:**
-- Takes each magic item with 1 modifier
-- Adds a 2nd modifier (ensures prefix + suffix)
-- Generates **all possible 2-modifier combinations**
-
-#### Step 1.3: Regal (Magic → Rare)
-
-```java
-RegalOrb regal = new RegalOrb();
-candidates = regal.apply(baseItem, candidates, ...);
-```
-
-**What Happens:**
-- Upgrades magic items (2 or 1 mods) to rare items (2 or 3 mods)
-- Adds 1 random prefix or suffix
-- Further expands candidate pool
-
-**Result:** We now have a massive pool of rare items with 3 modifiers, covering all possible starting combinations.
+Every function honors family exclusion, item-level gates, and tier floors described above.
 
 ---
 
-### **PHASE 2: Beam Search Loop (Iterative Refinement)**
+## Evaluating a Plan
 
-This is the core optimization phase where we apply currencies to build toward the 6 desired modifiers.
+A **plan** is an ordered list of `PlanStep`s (`packages/engine/src/plan.ts`). To evaluate it:
 
-#### Loop Structure
-
-```java
-while (!candidates.isEmpty() && iterationCount < maxIterations) {
-    // 1. Score current candidates
-    ComputingLastProbability.ComputingLastEventProbability(candidates, ...);
-    
-    // 2. Apply all possible currencies
-    RareLoop(baseItem, candidates, desiredMods, undesiredMods, ...);
-    
-    // 3. Filter and keep best candidates (beam pruning)
-    candidates = filterByThreshold(candidates, GLOBAL_THRESHOLD);
-    
-    iterationCount++;
-}
-```
-
-#### Currency Application in RareLoop
-
-For each candidate, the algorithm tries:
-
-1. **ExaltedOrb** - Add 1 random prefix or suffix (if slots available)
-2. **Essence Currency** - Add specific modifier + reroll others
-3. **Desecrated Currency** - Add specific low-tier modifier
-4. **AnnulmentOrb** - Remove 1 random modifier
-5. **All combinations with Omens** (probability modifiers)
-
-**Example Iteration:**
+1. Start from an `ItemState` (a white base via `whiteItem`, or an item you already own).
+2. For each step, compute its exact probability *in the current state* (`stepProbability`), then apply
+   the step to advance the state (`applyStep`) as if it succeeded.
+3. The plan's overall success is the **product** of the per-step probabilities; each step also reports
+   its own probability.
 
 ```
-Candidate: Bow with [+50 Phys Damage, +15% Attack Speed, +20 Life]
-Score: 2500
-
-Apply ExaltedOrb → 40 new candidates (one per possible 4th modifier)
-Apply Essence of Dread → 1 new candidate (adds +50% Crit Chance)
-Apply Annulment → 3 new candidates (remove each modifier)
-
-Total: ~44 new candidates from 1 input candidate
+P(plan) = Π_k  P(step_k | state after steps 1..k-1)
 ```
 
-#### Beam Pruning (Critical for Performance)
-
-After each iteration, candidates are filtered:
-
-```java
-if (candidate.score < threshold) {
-    discard();  // Too far from goal
-}
-
-if (probability < GLOBAL_THRESHOLD) {
-    discard();  // Success rate too low
-}
-
-keepTopN(candidates, beamWidth);  // Keep only best N candidates
-```
-
-**Beam Width Strategy:**
-- Start: ~100,000 candidates (after Regal)
-- After pruning: ~1,000-5,000 candidates per iteration
-- This prevents exponential explosion while keeping diverse paths
+`evaluatePlan(data, base, level, steps)` runs from white; `evaluatePlanFrom(data, startState, steps)`
+runs from any state (this powers the from-item flow). Because state is threaded through, the engine
+naturally accounts for how earlier mods shrink later pools via family exclusion.
 
 ---
 
-### **PHASE 3: Final Filtering**
+## Expected-Cost Model
 
-After the beam search converges, extract successful candidates:
+Beyond probability, plans are ranked by **expected cost** in exalt-equivalents (prices from
+`prices.json`). Many PoE2 currencies destroy progress on a miss (a bad Regal, an Exalt that rolls the
+wrong mod), so you retry from an earlier state. The model used is **restart-on-first-failure**:
 
-```java
-private static List<Crafting_Candidate> extractHighScoreCandidates(...) {
-    for (Crafting_Candidate candidate : allCandidates) {
-        // Filter 1: High score (close to goal)
-        if (candidate.score < 6000) continue;
-        
-        // Filter 2: Full item (6 modifiers)
-        if (candidate.getAllCurrentModifiers().size() < 6) continue;
-        
-        // Filter 3: Exact match (all 6 desired mods present)
-        long matchCount = countMatchingModifiers(candidate, desiredMods);
-        if (matchCount == 6) {
-            result.add(candidate);
-        }
-    }
-    return result;
-}
+```
+E = ( Σ_k  c_k · S_{k-1} ) / S_n
 ```
 
-**Result:** A list of crafting paths that successfully achieve all 6 desired modifiers.
+where `c_k` is step *k*'s orb price, `S_k` is the cumulative success probability through step *k*
+(`S_0 = 1` from white), and `S_n` is the plan's overall success. This charges each step for how often
+you reach it and divides by how often the whole plan lands — the standard closed form for "keep
+retrying until it works." Implemented in `packages/optimizer/src/cost.ts`.
 
 ---
 
-## Heuristic Scoring System
+## The Pareto Optimizer
 
-The heuristic function guides the search by estimating how "good" each candidate is.
+`optimizePareto(data, prices, base, targets, opts)` (`packages/optimizer/src/optimize.ts`) turns a set
+of target mods/tiers into ranked plans:
 
-### Scoring Components
+1. **Generate candidate sequences.** Enumerate sensible ways to reach the targets — the order to add
+   mods, which currency fills each slot (transmute/augment/regal/exalt, essences for essence-only
+   mods, alchemy as a 4-mod opener), and whether to spend an omen to constrain a side. Illegal shapes
+   (too many mods, wrong side count, off-pool mods, family clashes) are pruned up front by
+   `validate.ts`.
+2. **Evaluate each analytically.** Every candidate is scored with `evaluatePlan` (exact probability)
+   and `planExpectedCost` (expected cost).
+3. **Keep the Pareto frontier.** A plan is kept only if **no other plan is both cheaper *and* at least
+   as likely**. The result is the trade-off curve from *cheapest* to *surest*, not a single "best"
+   answer — the user chooses where on the curve they want to sit.
 
-#### 1. Exact Modifier Match
-```
-If (candidate has "Adds # to # Physical Damage" T1)
-   AND (desired list contains "Adds # to # Physical Damage" T1)
-→ +1000 points
-```
-
-#### 2. Tag Overlap
-```
-If (candidate has "Adds # Lightning Damage")
-   AND (desired has "Adds # Cold Damage")
-   AND (both share "elemental" tag)
-→ +200 points (similar modifier families - might be on right track)
-```
-
-#### 3. Penalty for Undesired Mods
-```
-If (candidate has "+# Mana" and it's not in desired list)
-→ -500 points (wasted affix slot)
-```
-
-### Example Score Calculation
-
-**Goal:** Bow with:
-1. +100 Phys Damage (T1)
-2. +50% Crit Chance (T1)
-3. +30% Attack Speed (T1)
-4. +80 Life (T1)
-5. +45% Fire Res (T1)
-6. +45% Cold Res (T1)
-
-**Candidate A:** Bow with +100 Phys (T1), +50% Crit (T1), +20% Attack Speed (T3)
-
-```
-Score = 1000 (Phys T1 exact)
-      + 1000 (Crit T1 exact)
-      + 500 (Attack Speed right mod, wrong tier)
-      = 2500 points
-```
-
-**Candidate B:** Bow with +100 Phys (T1), +50% Crit (T1), +30% Attack Speed (T1)
-
-```
-Score = 1000 + 1000 + 1000 = 3000 points
-```
-
-**Result:** Candidate B is scored higher and more likely to be kept during beam pruning.
+The frontier, plus how many plans were evaluated and the currency depth explored, is returned as a
+`ParetoResult`. The facade (`src/lib/engine.ts`) maps it to the UI shape and renders it in
+`FrontierView.tsx`.
 
 ---
 
-## Probability Calculation
+## From an Existing Item
 
-After finding successful paths, the algorithm calculates **exact probabilities** for each step.
+The engine also plans from an item you already hold (`optimizeFromItem` / the facade's
+`optimizeItem`). Two modes:
 
-### Probability Types
-
-#### 1. Exalted Orb Probability
-
-```java
-double probability = 1.0 / availableModifierPool.size();
-```
-
-**Example:**
-- Item has 2 prefixes, 3 suffixes (1 prefix slot open)
-- Available prefix pool: 40 modifiers
-- Desired: "+80 Life"
-- Probability = 1/40 = 2.5%
-
-#### 2. Essence Probability
-
-Essences guarantee a specific modifier but reroll others:
-
-```java
-double probability = calculateKeepProbability(item, essence, omen);
-```
-
-**Example:**
-- Using "Essence of Dread" (guarantees +50% Crit Chance)
-- Item has 2 good prefixes we want to keep
-- With "Dextral Omen" (removes 1 suffix, keeps prefixes)
-- Probability = 100% (guaranteed outcome with omen)
-
-#### 3. Annulment Probability
-
-```java
-double probability = 1.0 / totalModifiers;
-```
-
-**Example:**
-- Item has 6 modifiers, 1 is unwanted
-- Use Annulment Orb
-- Probability of removing unwanted = 1/6 = 16.67%
-
-### Cumulative Path Probability
-
-```java
-double totalProbability = 1.0;
-for (ModifierEvent event : candidate.modifierHistory) {
-    totalProbability *= event.probability;
-}
-```
-
-**Example Path:**
-
-```
-Step 1: Transmute → +100 Phys Damage
-   Probability: 1/80 = 1.25%
-
-Step 2: Augment → +30% Attack Speed
-   Probability: 1/40 = 2.5%
-
-Step 3: Regal → +80 Life
-   Probability: 1/40 = 2.5%
-
-Step 4: Exalt → +50% Crit Chance
-   Probability: 1/37 = 2.7%
-
-Step 5: Essence of Contempt → +45% Fire Res (with omen)
-   Probability: 100%
-
-Step 6: Essence of Hatred → +45% Cold Res (with omen)
-   Probability: 100%
-
-Total Probability = 0.0125 × 0.025 × 0.025 × 0.027 × 1.0 × 1.0
-                  = 0.0000002109
-                  = 0.00002109%
-                  = 1 in 4,743,834 attempts
-```
+- **Per-use odds** (`currencyActions`) — for an item in hand, the *exact single-orb* probability of
+  each applicable currency's outcome. It deliberately reports per-use odds, **not** a total budget:
+  currencies that change the item on a miss (chaos rerolls, annul removes a random mod) make the true
+  cost depend on your retry strategy.
+- **From-item planner** — multi-step plans to a target, starting from the item's current mods, using a
+  **reset-to-your-item** cost model: on a failure you restart from *your item* (keeping its good mods),
+  the CoE-style approximation `E = (Σ c_k·S_{k-1}) / S_n` with `S_0` = the starting item. It is not a
+  full chaos-spam Markov model; see [validation.md](validation.md).
 
 ---
 
-## Beam Search Strategy
+## Monte-Carlo Validation
 
-### Why Beam Search?
-
-**Traditional approaches:**
-- **Brute Force**: Enumerate all paths → Infeasible (trillions of paths)
-- **Greedy**: Take best at each step → Misses optimal solutions
-- **A***: Requires perfect heuristic → Hard to design for probabilistic space
-
-**Beam Search:**
-- **Balanced**: Explores multiple paths simultaneously
-- **Pruning**: Discards low-probability paths
-- **Parallelizable**: Can process candidates concurrently
-
-### Beam Width Selection
-
-```java
-int beamWidth = calculateDynamicBeamWidth(iterationCount, candidateCount);
-```
-
-**Strategy:**
-- Early iterations: Wide beam (10,000+ candidates)
-- Middle iterations: Medium beam (1,000-5,000 candidates)
-- Late iterations: Narrow beam (100-500 candidates)
-
-### Convergence Criteria
-
-```java
-while (!candidates.isEmpty()) {
-    // Stop if no new candidates generated
-    if (nextCandidates.isEmpty()) break;
-    
-    // Stop if all candidates achieved goal
-    if (allCandidatesComplete(candidates)) break;
-}
-```
+The analytic engine is checked against a seeded Monte-Carlo simulator (`simulate.ts`,
+`mulberry32` PRNG): run a plan tens of thousands of times, count successes and per-step rates, and
+confirm they match the exact numbers within tolerance. Used in tests only, never in the hot path.
+Mechanics with no Java-era counterpart (chaos, alchemy, existing-item) are validated this way and
+cross-checked against [craftofexile.com/?game=poe2](https://craftofexile.com/?game=poe2); divergences
+are logged in [validation.md](validation.md). The ported mechanics are additionally anchored to frozen
+golden fixtures via the differential tests.
 
 ---
 
-## Multithreading
+## Worked Example
 
-The algorithm uses parallel processing to accelerate candidate generation:
+Target: **Bow** with **T1 `#% increased Physical Damage`** (prefix) and **T2 `#% increased Attack
+Speed`** (suffix), item level 82.
 
-```java
-int threads = Runtime.getRuntime().availableProcessors();
-ExecutorService executor = Executors.newFixedThreadPool(threads);
+1. **Transmutation** on the white bow — chance it rolls the T1 phys prefix is `w(T1 phys) / Σ w(all
+   addable mods at ilvl 82)`.
+2. **Regal** to go rare and add a second mod, or **Augment**-then-**Regal**, etc. — each ordering is a
+   distinct candidate; the phys prefix already on the item removes its family from later pools.
+3. **Exalted** to add the attack-speed suffix (optionally with a **Dextral** omen to force the suffix
+   side, raising that step's odds at the cost of the omen).
 
-// Submit parallel tasks
-List<Future<List<Crafting_Candidate>>> futures = new ArrayList<>();
-for (Crafting_Candidate candidate : candidates) {
-    futures.add(executor.submit(() -> applyCurrencies(candidate)));
-}
-
-// Collect results
-for (Future<List<Crafting_Candidate>> future : futures) {
-    results.addAll(future.get());
-}
-```
-
-**Performance Gain:**
-- Single-threaded: ~30-60 seconds for complex crafts
-- 16-thread: ~3-8 seconds for complex crafts
-- **~8-10x speedup** on modern CPUs
-
----
-
-## Example Walkthrough
-
-### Goal
-Craft a bow with:
-1. Adds 50-100 Physical Damage (T1)
-2. +50% Critical Strike Chance (T1)
-3. +30% Attack Speed (T1)
-4. +80 Life (T1)
-5. +45% Fire Resistance (T1)
-6. +45% Cold Resistance (T1)
-
-### Step-by-Step Execution
-
-#### **Phase 1: Initialization**
-
-```
-Starting item: Normal Harbinger Bow (ilvl 75)
-
-Step 1: Transmute
-  → Generates 80 candidates (all possible 1-mod items)
-  → Best: Bow with "Adds 50-100 Physical Damage" (score: 1000)
-
-Step 2: Augment
-  → Keep candidate above, add 2nd modifier
-  → Generates 40 new candidates
-  → Best: Bow with [Phys Damage T1, +30% Attack Speed T1] (score: 2000)
-
-Step 3: Regal
-  → Upgrade to rare, add 3rd modifier
-  → Generates 38 new candidates (40 possible, minus 2 already present)
-  → Best: Bow with [Phys Damage T1, Attack Speed T1, +80 Life T1] (score: 3000)
-```
-
-#### **Phase 2: Beam Search**
-
-```
-Iteration 1: Score = 3000 (3/6 mods)
-  Apply ExaltedOrb to all candidates
-  → Keep top 1000 candidates based on score + probability
-  → Best: [Phys T1, Attack Speed T1, Life T1, +50% Crit T1] (score: 4000)
-
-Iteration 2: Score = 4000 (4/6 mods)
-  Apply Essence of Contempt with Dextral Omen
-  → Adds +45% Fire Res, keeps all prefixes
-  → New item: [Phys T1, Attack Speed T1, Life T1, Crit T1, Fire Res T1] (score: 5000)
-
-Iteration 3: Score = 5000 (5/6 mods)
-  Apply Essence of Hatred with Dextral Omen
-  → Adds +45% Cold Res
-  → Final item: [Phys T1, Attack Speed T1, Life T1, Crit T1, Fire Res T1, Cold Res T1]
-  → Score: 6000 (SUCCESS!)
-```
-
-#### **Phase 3: Probability Calculation**
-
-```
-Path Found:
-1. Transmute → Phys Damage T1 (1/80 = 1.25%)
-2. Augment → Attack Speed T1 (1/40 = 2.5%)
-3. Regal → Life T1 (1/38 = 2.63%)
-4. Exalt → Crit Chance T1 (1/35 = 2.86%)
-5. Essence of Contempt + Dextral Omen → Fire Res T1 (100%)
-6. Essence of Hatred + Dextral Omen → Cold Res T1 (100%)
-
-Total Probability: 0.0125 × 0.025 × 0.0263 × 0.0286 × 1.0 × 1.0
-                 = 0.0000002359
-                 = 0.00002359%
-                 = **1 in 4,239,159**
-```
-
-#### **Result Delivered to User**
-
-```json
-{
-  "probability": 0.00002359,
-  "expectedAttempts": 4239159,
-  "expectedCost": "~4.2M Transmutes + 4.2M Augments + 4.2M Regals + ...",
-  "path": [
-    { "step": 1, "currency": "Transmutation Orb", "outcome": "+50-100 Physical Damage" },
-    { "step": 2, "currency": "Augmentation Orb", "outcome": "+30% Attack Speed" },
-    { "step": 3, "currency": "Regal Orb", "outcome": "+80 Life" },
-    { "step": 4, "currency": "Exalted Orb", "outcome": "+50% Crit Chance" },
-    { "step": 5, "currency": "Essence of Contempt (Dextral Omen)", "outcome": "+45% Fire Res" },
-    { "step": 6, "currency": "Essence of Hatred (Dextral Omen)", "outcome": "+45% Cold Res" }
-  ]
-}
-```
-
----
-
-## Algorithm Complexity
-
-### Time Complexity
-- **Worst case**: O(d × m × n)
-  - d = depth (iterations, ~10-50)
-  - m = currencies per iteration (~10)
-  - n = modifiers per currency (~20)
-
-- **Practical**: ~5-30 seconds for complex crafts on modern hardware
-
-### Space Complexity
-- **Memory**: O(d × m)
-  - Stores candidates per iteration
-  - ~10-100 MB for typical crafts
-
----
-
-## Optimizations
-
-### 1. Early Termination
-```java
-if (candidate.score == 6000 && hasAllDesiredMods(candidate)) {
-    return immediately;  // Perfect match found so no need to do another loop
-}
-```
-
-### 2. Incremental Heuristic
-```java
-// Don't recalculate score from scratch each time
-newScore = oldScore + deltaScore(newModifier);
-```
-
-### 3. Modifier Pool Caching
-```java
-// Pre-compute available modifier pools by item state
-Map<ItemState, List<Modifier>> cachedPools = ...;
-```
-
----
-
-## Limitations & Future Work
-
-### Current Limitations
-1. **Deterministic**: Doesn't model variance in player execution
-2. **Single-objective**: Optimizes probability, not cost
-3. **No learning**: Doesn't adapt based on previous crafts
-
-### Potential Improvements
-1. **Multi-objective**: Balance probability vs. cost
-2. **Machine Learning**: Train neural network to predict better heuristics
-3. **Monte Carlo Tree Search**: Hybrid approach for better exploration
-4. **User feedback**: Learn from successful community crafts
-
----
-
-## Conclusion
-
-The POE2 HTC algorithm combines:
-- **Beam Search** for efficient state space exploration
-- **Heuristic Scoring** for intelligent candidate selection
-- **Exact Probability Calculation** for accurate outcome prediction
-- **Multithreading** for performance
-
-This approach finds near-optimal crafting sequences in seconds, making it practical for real-time use while achieving results that would take humans days of manual calculation.
-
-The algorithm has been battle-tested on thousands of crafting scenarios and consistently finds paths that match or exceed community-discovered strategies.
+Each candidate's overall probability is the product of its steps; its expected cost uses the
+restart-on-failure formula. The optimizer returns the frontier — perhaps a cheap low-odds plan
+(raw exalt slam) and a pricier high-odds plan (omen-constrained) — and the UI shows both so you can
+pick your risk/cost point.

@@ -17,54 +17,52 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ## 💻 Development Setup
 
+> The app is now **pure client-side TypeScript** — the Java/Maven backend has been retired. There is
+> no server to build or run. See [DEVELOPMENT.md](DEVELOPMENT.md) for the full architecture.
+
 ### Prerequisites
-- Java 21+
 - Node.js 20+
-- Maven 3.8+
+- npm 9+
 
 ### Installation
 ```bash
-# Install frontend dependencies
-npm install
-
-# Build Java backend
-mvn clean compile
+npm install --legacy-peer-deps
 ```
 
 ### Running Locally
 ```bash
-# Start backend (in one terminal)
-mvn exec:java -Dexec.mainClass="core.ServerMain"
-
-# Start frontend (in another terminal)
+# Web app with hot reload — http://localhost:5173
 npm run dev
+
+# ...or the full Electron desktop app (no backend is spawned)
+npm run electron:dev
 ```
 
 ## 📝 Code Style
 
-### Java
-- Follow standard Java conventions
-- Use descriptive variable names
-- Add comments for complex logic
-- Keep methods focused and small
-
-### TypeScript/React
-- Use functional components with hooks
-- Prefer TypeScript types over `any`
-- Use descriptive component and variable names
-- Keep components focused on single responsibility
+- **Strict TypeScript** — no `any` in `packages/engine` or `packages/optimizer`.
+- Use functional React components with hooks; keep them focused on a single responsibility.
+- Probabilities are `f64` in `[0,1]` internally; format `%` only at the UI edge. Prices in
+  exalt-equivalents.
+- **Data lives in JSON, never in source.** Fix wrong probabilities in `data/patches/<patch>/` (or
+  `weights_overrides.json`, which wins over base weights) — not in engine logic. Data edits are
+  surgical raw-text edits with a source comment.
+- Use descriptive names; comment non-obvious probability math.
 
 ## 🧪 Testing
 
-### Java Tests
+Everything runs under **Vitest**:
+
 ```bash
-mvn test
+npm test                 # watch mode
+npm run test:engine      # packages/engine
+npm run test:optimizer   # packages/optimizer
+npm run type-check       # strict type-check, no emit
 ```
 
-### Frontend Type Checking
-```bash
-npm run type-check
-```
+When you add or change a currency rule, add a unit test on a tiny synthetic pool (3–5 fake mods) with
+a **hand-computed** expected probability. Keep the differential fixture tests
+(`packages/engine/src/__fixtures__/*-java.json`) green — a divergence means investigate, don't average.
 
 ## 📋 Pull Request Process
 
@@ -102,8 +100,8 @@ When reporting bugs, please include:
 - **Steps to reproduce** the problem
 - **Expected behavior** vs actual behavior
 - **Screenshots** if applicable
-- **Environment details**: OS, Java version, Node version
-- **Logs** if available (check console output)
+- **Environment details**: OS, Node version, and whether you're on the web app or the desktop build
+- **Logs** if available (browser devtools / Electron console output)
 
 ## 💡 Suggesting Features
 
@@ -127,18 +125,17 @@ Feature suggestions are welcome! Please:
 
 ```
 POE2_HTC/
-├── src/                      # React frontend
-│   ├── components/          # UI components
-│   ├── hooks/               # Custom React hooks
-│   └── lib/                 # Utilities
-├── src/main/java/           # Java backend
-│   └── core/
-│       ├── Crafting/       # Core crafting algorithm
-│       ├── Currency/       # Currency implementations
-│       ├── Items/          # Item base types
-│       └── Item_modifiers/ # Modifier definitions
-├── electron/                # Electron main process
-└── .github/                # CI/CD workflows
+├── src/                      # React app (Vite)
+│   ├── features/engine/     # The Engine Lab (the only view)
+│   ├── lib/engine.ts        # Browser facade over the engine
+│   └── components/          # shadcn/ui kit
+├── packages/
+│   ├── engine/              # Pure-TS crafting engine (probability math)
+│   └── optimizer/           # Pareto cost/success optimizer + MC validation
+├── data/patches/            # Versioned game data (JSON) — app ships 0.5.0
+├── tools/refresh/           # `npm run update-data` (refresh from poe2db)
+├── electron/                # Electron main + preload (no backend spawn)
+└── .github/                 # CI/CD workflows
 ```
 
 ## 📜 Code of Conduct

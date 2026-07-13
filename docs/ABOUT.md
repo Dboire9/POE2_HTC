@@ -54,7 +54,10 @@ This project taught me:
 - **Domain modeling** - Translating game mechanics into code
 - **User experience** - Making complex systems accessible
 - **Open source collaboration** - Working with community contributors
-- **Full-stack development** - Connecting Java backend with React frontend
+- **Full-stack development** - It started as a Java REST backend behind a React frontend; I later
+  **rewrote the whole engine in pure TypeScript** and retired the backend, so the app now runs
+  entirely client-side. Migrating a working system without breaking it (differential tests against the
+  old engine, Monte-Carlo validation) was a lesson in itself.
 
 ---
 
@@ -77,7 +80,7 @@ Players often waste thousands of Exalted Orbs and hours of gameplay trying to cr
 
 This application:
 - **Calculates exact probabilities** for any crafting goal
-- **Finds optimal paths** using a modified Beam Search algorithm
+- **Finds optimal paths** by computing exact weight-pool probabilities and a cost/success Pareto frontier
 - **Provides step-by-step instructions** for in-game execution
 - **Saves time and currency** by eliminating guesswork
 - **Educates players** about crafting mechanics and strategies
@@ -86,8 +89,8 @@ This application:
 
 - **Comprehensive item database** covering all craftable items
 - **Smart modifier selection** with family conflict detection
-- **Real-time simulation** with results in 3-8 seconds
-- **Multiple path suggestions** ranked by probability
+- **Exact probability math** — results computed analytically and near-instantly (no simulation wait)
+- **Cost ↔ success trade-off** — a Pareto frontier of plans, ranked by both price and odds
 - **Desktop application** with auto-update support
 - **Open source** and community-driven
 
@@ -187,9 +190,9 @@ Log In, Exile!
 ## 📊 Project Stats
 
 - **First Commit**: December 2024 (Began September 2024)
-- **Lines of Code**: ~15,000+ (Java + TypeScript)
+- **Engine**: pure TypeScript (originally Java — the backend was later retired)
 - **Items Supported**: 50+ base types (with the hybrids)
 - **Modifiers Tracked**: 500+ unique modifiers
-- **Algorithm Complexity**: O(n * k^d) where n=beam width, k=branching factor, d=depth
-- **Average Simulation Time**: 3-8 seconds
+- **Method**: exact analytic weight-pool probability + a cost/success Pareto optimizer, Monte-Carlo validated
+- **Compute Time**: milliseconds, entirely client-side (no server)
 - **Contributors**: Open to all!

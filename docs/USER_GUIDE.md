@@ -31,9 +31,9 @@ npm run electron:dev
 ### First Launch
 
 When you first open the application:
-1. The backend server starts automatically on port 8080
-2. The frontend interface loads at `http://localhost:5173`
-3. An Electron window opens with the application
+1. The interface loads at `http://localhost:5173` (or inside the Electron window)
+2. The crafting engine and patch data load client-side — there is no backend server to wait on
+3. You're ready to craft immediately
 
 ---
 
@@ -437,25 +437,17 @@ Cost reduction: Often 5-10x more likely
 2. Close other applications
 3. Reduce number of modifiers temporarily to test
 
-### "Backend connection error"
+### "Nothing happens / results won't appear"
 
-**Causes:**
-1. Backend server didn't start
-2. Port 8080 already in use
-3. Firewall blocking connection
+The engine runs entirely in the app (there is no backend to connect to), so this is almost always a
+loading or input issue.
 
-**Solutions:**
-```bash
-# Check if backend is running
-curl http://localhost:8080/api/health
-
-# If not running, start manually:
-mvn exec:java -Dexec.mainClass="core.ServerMain"
-
-# Check for port conflicts:
-netstat -ano | findstr :8080  # Windows
-lsof -i :8080                # Linux/Mac
-```
+**Causes & solutions:**
+1. **Patch data still loading** — the first compute waits for the data files to fetch; give it a moment.
+2. **Impossible target** — the chosen mods can't coexist (family conflict, too many on one side, or a
+   tier gated above the item level). Adjust the selection.
+3. **Stale build** — if you're running from source, restart the dev server and hard-refresh
+   (`Ctrl/Cmd+Shift+R`) to clear cached assets.
 
 ### "Modifiers not loading"
 
@@ -555,8 +547,9 @@ A: You can screenshot the results or manually copy the steps. Export/share funct
 **Suffix**: Modifier that occupies a suffix slot (max 3)
 **Tier**: Quality level of a modifier (T1 = best, T5 = worst)
 **Family**: Group of related modifiers that conflict
-**Beam Search**: Algorithm used to find optimal crafting paths
-**Heuristic**: Scoring function that estimates path quality
+**Weight**: A modifier's roll weight; its odds are its weight over the addable pool's total
+**Pareto frontier**: The set of plans where none is both cheaper and likelier — the cost/odds trade-off curve
+**Expected cost**: Average currency spend to succeed, in exalt-equivalents (accounts for retries)
 **Omen**: Currency modifier that changes crafting behavior
 **Essence**: Currency that guarantees a specific modifier
 **Exalt**: Short for Exalted Orb

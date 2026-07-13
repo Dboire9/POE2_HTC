@@ -12,8 +12,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
-![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk&logoColor=white)
-![Maven](https://img.shields.io/badge/Maven-3.9-C71A36?logo=apachemaven&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-4-6E9F18?logo=vitest&logoColor=white)
 
 ![Downloads](https://img.shields.io/github/downloads/Dboire9/POE2_HTC/total)
 ![Stars](https://img.shields.io/github/stars/Dboire9/POE2_HTC?style=social)
@@ -23,9 +22,7 @@
 
 </div>
 
-A powerful application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using advanced algorithms and probability calculations.
-
-# Currently redoing the backend in C, no more updates on the site until finished. Stay tuned ! (See the C branch for updates)
+A powerful application that calculates optimal crafting paths for **Path of Exile 2** items. Find the most efficient way to craft your dream items using exact probability math and cost optimization — now running as a single pure-TypeScript engine, entirely in your browser or the desktop app (no server required).
 
 ## 🌐 Web Application
 
@@ -60,8 +57,9 @@ A powerful application that calculates optimal crafting paths for **Path of Exil
 ## ✨ Features
 
 - 🎯 **Optimal Crafting Paths** - Find the best sequence of currencies to craft your desired item
-- 📊 **Probability Calculations** - See exact success rates for each crafting step
-- ⚡ **Fast Computation** - Multithreaded beam search algorithm for quick results
+- 📊 **Exact Probability Math** - Analytic weight-pool calculations give precise success rates for each step
+- 💰 **Cost ↔ Success Trade-off** - A Pareto frontier of plans, from cheapest to surest
+- ⚡ **Instant, Offline** - The engine runs client-side; results are computed locally with no network round-trip
 - 🌐 **Web App** - Access instantly at [poe2htc.com](https://poe2htc.com)
 - 🖥️ **Desktop App** - Also available as an Electron desktop application
 
@@ -88,7 +86,7 @@ A powerful application that calculates optimal crafting paths for **Path of Exil
 
 #### Linux/macOS Users
 
-**Prerequisites**: Java 17+, Node.js 20+, Maven 3.8+
+**Prerequisites**: Node.js 20+ (that's it — no Java, no backend)
 
 ```bash
 # Clone and setup
@@ -109,8 +107,8 @@ Hi! I'm **Dorian**, a former student at **42 Paris**.
 I built this project while actively searching for an internship, both to strengthen my skills and to add a meaningful, technical project to my portfolio. As someone passionate about both gaming and software development, combining Path of Exile 2's complex crafting system with algorithm optimization was the perfect challenge.
 
 **Why this project?**
-- 🎓 Demonstrates full-stack development skills (Java, React, TypeScript, Electron)
-- 🧠 Showcases algorithm design and optimization (Beam Search, multithreading)
+- 🎓 Demonstrates end-to-end product skills (React, TypeScript, Electron) — and a full engine rewrite from a Java backend to a pure-TS client-side engine
+- 🧠 Showcases algorithm design (exact weight-pool probability, Pareto cost/success optimization, Monte-Carlo validation)
 - 🎮 Solves a real problem for the PoE2 community
 - 📈 Continuous learning through community feedback
 
@@ -120,14 +118,14 @@ I built this project while actively searching for an internship, both to strengt
 
 ## 📖 How Does It Work?
 
-This tool simulates Path of Exile 2 crafting to find the most efficient paths to your desired item:
+This tool models Path of Exile 2 crafting to find the most efficient paths to your desired item:
 
-1. **Select** your base item type and desired modifiers (prefixes/suffixes)
-2. **Simulate** using the Beam Search algorithm to explore millions of crafting sequences
-3. **Review** ranked paths with step-by-step instructions and success probabilities
-4. **Craft** in-game following the optimal currency sequence
+1. **Select** your base item type and desired modifiers (prefixes/suffixes) and tiers
+2. **Compute** — the engine solves each candidate plan with exact weight-pool probability math (no simulation, no sampling noise)
+3. **Review** a Pareto frontier of plans, from cheapest to highest-probability, with step-by-step instructions and per-step odds
+4. **Craft** in-game following the chosen currency sequence
 
-The simulation accounts for item rarity transitions, modifier weights, currency behaviors, family conflicts, and slot limitations to provide accurate probability calculations.
+The engine accounts for item rarity transitions, modifier weights, currency behaviors, omens, family conflicts, item-level gates, and slot limitations to produce accurate probability and expected-cost figures. Monte-Carlo simulation is used only to validate the analytic math.
 
 **📘 For detailed usage instructions with screenshots and examples, see the [User Guide](docs/USER_GUIDE.md).** 
 
@@ -142,26 +140,30 @@ git clone https://github.com/Dboire9/POE2_HTC.git
 cd POE2_HTC
 npm install --legacy-peer-deps
 
-# Run development environment (starts both backend and frontend)
+# Run the web app (Vite dev server)
+npm run dev
+
+# ...or the full Electron desktop app
 npm run electron:dev
 ```
 
-**Architecture:**
-- **Frontend**: React 19 + TypeScript + Vite + Electron
-- **Backend**: Java 17 + Maven, REST API on port 8080
-- **Algorithm**: Beam Search with heuristic scoring and multithreading
+**Architecture (pure client-side — no server):**
+- **App**: React 19 + TypeScript + Vite + Electron 33; the UI is the Engine Lab (`src/features/engine/`), driven by the browser facade `src/lib/engine.ts`
+- **Engine**: `packages/engine` — a pure-TS crafting engine (no I/O, no DOM) doing exact weight-pool probability math per currency
+- **Optimizer**: `packages/optimizer` — computes the cost ↔ success Pareto frontier, with Monte-Carlo self-checks
+- **Data**: `data/patches/<patch>/*.json` — versioned mod/base/price data (the app ships `0.5.0`)
 
 **📘 For detailed setup instructions, project structure, and contribution guidelines, see the [Development Guide](docs/DEVELOPMENT.md).**
 
-### Beam Search Algorithm
+### How the engine finds paths
 
-The crafting optimizer uses a **modified Beam Search algorithm** to find optimal crafting sequences. It explores millions of possible paths while pruning low-probability outcomes, achieving near-optimal results in seconds even for complex 6-modifier crafts.
+The optimizer evaluates candidate crafting sequences and returns a **Pareto frontier** — the set of plans where no other plan is both cheaper *and* likelier. Each plan's probability is computed **analytically** from the modifier weight pools (exact rational math over the affix pools at each step), not by sampling. A Monte-Carlo simulator cross-checks the analytic numbers to within tolerance.
 
-**Key features:**
-- Parallel state exploration with intelligent pruning
-- Heuristic-guided path selection
-- Exact probability calculations for each step
-- Multithreaded execution for sub-10-second results
+**Key properties:**
+- Exact, sampling-noise-free probability for each step and the plan as a whole
+- Expected-cost estimates in exalt-equivalents, so plans can be ranked by cost as well as odds
+- Full PoE2 semantics: rarity transitions, omens, family exclusion, item-level gates, currency tier floors
+- Runs locally in milliseconds — no backend, no network
 
 > 📖 **[Read the full algorithm explanation →](docs/ALGORITHM.md)**
 
@@ -193,6 +195,9 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for a complete
 ## 🗺️ Roadmap
 
 ### Completed
+- [x] Pure-TypeScript engine (retired the Java/Maven backend — the app is now fully client-side)
+- [x] Cost ↔ success Pareto optimizer with Monte-Carlo validation
+- [x] "I already have this item" flow (per-currency odds + from-item planner)
 - [x] Desktop application with Electron
 - [x] Auto-update system
 - [x] Multi-platform support (Windows, Linux)

@@ -160,3 +160,26 @@ describe('engine facade — from-item planner (Option 2)', () => {
     expect(() => optimizeItem(eng, magic, targets)).toThrow(/Rare/i);
   });
 });
+
+// The app fetches the 0.5.0 snapshot at runtime; here we build that same snapshot via the node loaders
+// and confirm the newly-shipped essence pool is reachable through the optimizer (not just present in data).
+describe('engine facade — essence targeting on the shipped 0.5.0 data', () => {
+  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
+
+  it('surfaces 0.5.0 essence mods and reaches one via a deterministic (P=1) essence step', () => {
+    const { prefixes, suffixes } = listMods(eng050.data, 'Wands');
+    const essence = [...prefixes, ...suffixes].find((m) => m.source === 'essence');
+    expect(essence, 'Wands has an essence mod in 0.5.0').toBeDefined();
+    // A rollable mod on the OPPOSITE side so both fit; the essence needs a Magic base to convert.
+    const rollable = (essence!.type === 'prefix' ? suffixes : prefixes).find((m) => m.source === 'normal')!;
+    const r = optimize(eng050, 'Wands', 82, [
+      { modId: rollable.id, tierDisplay: rollable.tiers.length },   // any tier
+      { modId: essence!.id, tierDisplay: essence!.tiers.length },   // lowest essence level → feasible at ilvl 82
+    ]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const essStep = r.frontier[0]!.steps.find((s) => s.currency === 'essence');
+    expect(essStep).toBeDefined();
+    expect(essStep!.prob).toBe(1);
+    expect(essStep!.label.toLowerCase()).toContain('essence');
+  });
+});

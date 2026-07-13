@@ -98,9 +98,16 @@ function auditPatch(patch: string, baseline: Baseline): void {
   });
 }
 
-// ── 0.5.0 — the data the app SHIPS (poe2db, CoE-cross-checked). Fully clean: strict empty baseline, so
-// any future regression fails immediately. Only normal pools populated so far (desecrated/essence TBD).
-auditPatch('0.5.0', { misslots: new Set(), mixedFamilies: new Set() });
+// ── 0.5.0 — the data the app SHIPS (poe2db, CoE-cross-checked). Normal + essence + desecrated pools
+// are populated (essence/desecrated built from poe2db by tools/refresh/apply_pools.mjs; perfect essences
+// deferred). Baseline is empty EXCEPT the two legitimate CompanionDamage cases: on Bows and Spears the
+// poe2db `CompanionDamage` family spans a desecrated PREFIX (Companions deal increased Damage) and a
+// desecrated SUFFIX (Companion attack speed) — two distinct mods sharing one exclusion family, exactly
+// as in the 0.5 Java data. Everything else must stay clean; any new occurrence fails.
+auditPatch('0.5.0', {
+  misslots: new Set(),
+  mixedFamilies: new Set(['CompanionDamage on Bows', 'CompanionDamage on Spears']),
+});
 
 // ── 0.5 — the Java-extracted golden reference (engine differential anchor). Known-ambiguous findings
 // from the Java data, allowed but ratcheted: any NEW occurrence fails. Remove one when it's resolved.

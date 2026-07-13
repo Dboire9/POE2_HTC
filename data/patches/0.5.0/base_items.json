@@ -50,12 +50,54 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Amulets/Desecrated_RemnantEffect",
+            "Amulets/Desecrated_IncreasedMinionDamageIfYouHitEnemy",
+            "Amulets/Desecrated_BodyArmourFromBodyArmour",
+            "Amulets/Desecrated_AllDefences",
+            "Amulets/Desecrated_IncreasedSpellDamageOnFullEnergyShield",
+            "Amulets/Desecrated_MaximumEnergyShieldFromBodyArmour",
+            "Amulets/Desecrated_InvocatedSpellHalfEnergyChance",
+            "Amulets/Desecrated_AttackDamage",
+            "Amulets/Desecrated_EvasionRatingFromBodyArmour",
+            "Amulets/Desecrated_GlobalDeflectionRating",
+            "Amulets/Desecrated_GloryChanceToNotConsume"
+          ],
+          "suffixes": [
+            "Amulets/Desecrated_FireAndChaosDamageResistance",
+            "Amulets/Desecrated_Strength",
+            "Amulets/Desecrated_SkillEffectDuration",
+            "Amulets/Desecrated_RemnantPickupRadius",
+            "Amulets/Desecrated_GlobalItemAttributeRequirements",
+            "Amulets/Desecrated_AuraEffect",
+            "Amulets/Desecrated_ColdAndChaosDamageResistance",
+            "Amulets/Desecrated_Dexterity",
+            "Amulets/Desecrated_ExposureEffect",
+            "Amulets/Desecrated_CooldownRecovery",
+            "Amulets/Desecrated_ManaGainedOnKillPercentage",
+            "Amulets/Desecrated_MinionCooldown",
+            "Amulets/Desecrated_DamageRemovedFromManaBeforeLife",
+            "Amulets/Desecrated_GlobalSkillGemQuality",
+            "Amulets/Desecrated_LightningAndChaosDamageResistance",
+            "Amulets/Desecrated_Strength_2",
+            "Amulets/Desecrated_IncreasedSpeed",
+            "Amulets/Desecrated_RecoverPercentMaxLifeOnKill",
+            "Amulets/Desecrated_HeraldReservationEfficiency",
+            "Amulets/Desecrated_IncreaseSocketedGemLevel"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Amulets/Essence_IncreasedLife",
+            "Amulets/Essence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Amulets/Essence_ChaosResistance",
+            "Amulets/Essence_FireResistance",
+            "Amulets/Essence_ColdResistance",
+            "Amulets/Essence_LightningResistance",
+            "Amulets/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -92,11 +134,31 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Body_Armours_dex/Desecrated_FireAndChaosDamageResistance",
+            "Body_Armours_dex/Desecrated_Strength",
+            "Body_Armours_dex/Desecrated_ReducedCurseEffect",
+            "Body_Armours_dex/Desecrated_SpiritReservationEfficiency",
+            "Body_Armours_dex/Desecrated_ColdAndChaosDamageResistance",
+            "Body_Armours_dex/Desecrated_Dexterity",
+            "Body_Armours_dex/Desecrated_PercentDamageGoesToMana",
+            "Body_Armours_dex/Desecrated_LightningAndChaosDamageResistance",
+            "Body_Armours_dex/Desecrated_Strength_2",
+            "Body_Armours_dex/Desecrated_ChanceToTakeCriticalStrike"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Body_Armours_dex/Essence_IncreasedLife",
+            "Body_Armours_dex/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Body_Armours_dex/Essence_ChaosResistance",
+            "Body_Armours_dex/Essence_Dexterity",
+            "Body_Armours_dex/Essence_FireResistance",
+            "Body_Armours_dex/Essence_ColdResistance",
+            "Body_Armours_dex/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -135,11 +197,32 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Body_Armours_dex_int/Desecrated_FireAndChaosDamageResistance",
+            "Body_Armours_dex_int/Desecrated_Strength",
+            "Body_Armours_dex_int/Desecrated_ReducedCurseEffect",
+            "Body_Armours_dex_int/Desecrated_SpiritReservationEfficiency",
+            "Body_Armours_dex_int/Desecrated_ColdAndChaosDamageResistance",
+            "Body_Armours_dex_int/Desecrated_Dexterity",
+            "Body_Armours_dex_int/Desecrated_PercentDamageGoesToMana",
+            "Body_Armours_dex_int/Desecrated_LightningAndChaosDamageResistance",
+            "Body_Armours_dex_int/Desecrated_Strength_2",
+            "Body_Armours_dex_int/Desecrated_ChanceToTakeCriticalStrike"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Body_Armours_dex_int/Essence_IncreasedLife",
+            "Body_Armours_dex_int/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Body_Armours_dex_int/Essence_ChaosResistance",
+            "Body_Armours_dex_int/Essence_Dexterity",
+            "Body_Armours_dex_int/Essence_Intelligence",
+            "Body_Armours_dex_int/Essence_FireResistance",
+            "Body_Armours_dex_int/Essence_ColdResistance",
+            "Body_Armours_dex_int/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -176,11 +259,31 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Body_Armours_int/Desecrated_FireAndChaosDamageResistance",
+            "Body_Armours_int/Desecrated_Strength",
+            "Body_Armours_int/Desecrated_ReducedCurseEffect",
+            "Body_Armours_int/Desecrated_SpiritReservationEfficiency",
+            "Body_Armours_int/Desecrated_ColdAndChaosDamageResistance",
+            "Body_Armours_int/Desecrated_Dexterity",
+            "Body_Armours_int/Desecrated_PercentDamageGoesToMana",
+            "Body_Armours_int/Desecrated_LightningAndChaosDamageResistance",
+            "Body_Armours_int/Desecrated_Strength_2",
+            "Body_Armours_int/Desecrated_ChanceToTakeCriticalStrike"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Body_Armours_int/Essence_IncreasedLife",
+            "Body_Armours_int/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Body_Armours_int/Essence_ChaosResistance",
+            "Body_Armours_int/Essence_Intelligence",
+            "Body_Armours_int/Essence_FireResistance",
+            "Body_Armours_int/Essence_ColdResistance",
+            "Body_Armours_int/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -217,11 +320,31 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Body_Armours_str/Desecrated_FireAndChaosDamageResistance",
+            "Body_Armours_str/Desecrated_Strength",
+            "Body_Armours_str/Desecrated_ReducedCurseEffect",
+            "Body_Armours_str/Desecrated_SpiritReservationEfficiency",
+            "Body_Armours_str/Desecrated_ColdAndChaosDamageResistance",
+            "Body_Armours_str/Desecrated_Dexterity",
+            "Body_Armours_str/Desecrated_PercentDamageGoesToMana",
+            "Body_Armours_str/Desecrated_LightningAndChaosDamageResistance",
+            "Body_Armours_str/Desecrated_Strength_2",
+            "Body_Armours_str/Desecrated_ChanceToTakeCriticalStrike"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Body_Armours_str/Essence_IncreasedLife",
+            "Body_Armours_str/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Body_Armours_str/Essence_ChaosResistance",
+            "Body_Armours_str/Essence_Strength",
+            "Body_Armours_str/Essence_FireResistance",
+            "Body_Armours_str/Essence_ColdResistance",
+            "Body_Armours_str/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -260,11 +383,32 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Body_Armours_str_dex/Desecrated_FireAndChaosDamageResistance",
+            "Body_Armours_str_dex/Desecrated_Strength",
+            "Body_Armours_str_dex/Desecrated_ReducedCurseEffect",
+            "Body_Armours_str_dex/Desecrated_SpiritReservationEfficiency",
+            "Body_Armours_str_dex/Desecrated_ColdAndChaosDamageResistance",
+            "Body_Armours_str_dex/Desecrated_Dexterity",
+            "Body_Armours_str_dex/Desecrated_PercentDamageGoesToMana",
+            "Body_Armours_str_dex/Desecrated_LightningAndChaosDamageResistance",
+            "Body_Armours_str_dex/Desecrated_Strength_2",
+            "Body_Armours_str_dex/Desecrated_ChanceToTakeCriticalStrike"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Body_Armours_str_dex/Essence_IncreasedLife",
+            "Body_Armours_str_dex/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Body_Armours_str_dex/Essence_ChaosResistance",
+            "Body_Armours_str_dex/Essence_Strength",
+            "Body_Armours_str_dex/Essence_Dexterity",
+            "Body_Armours_str_dex/Essence_FireResistance",
+            "Body_Armours_str_dex/Essence_ColdResistance",
+            "Body_Armours_str_dex/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -303,11 +447,32 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Body_Armours_str_int/Desecrated_FireAndChaosDamageResistance",
+            "Body_Armours_str_int/Desecrated_Strength",
+            "Body_Armours_str_int/Desecrated_ReducedCurseEffect",
+            "Body_Armours_str_int/Desecrated_SpiritReservationEfficiency",
+            "Body_Armours_str_int/Desecrated_ColdAndChaosDamageResistance",
+            "Body_Armours_str_int/Desecrated_Dexterity",
+            "Body_Armours_str_int/Desecrated_PercentDamageGoesToMana",
+            "Body_Armours_str_int/Desecrated_LightningAndChaosDamageResistance",
+            "Body_Armours_str_int/Desecrated_Strength_2",
+            "Body_Armours_str_int/Desecrated_ChanceToTakeCriticalStrike"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Body_Armours_str_int/Essence_IncreasedLife",
+            "Body_Armours_str_int/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Body_Armours_str_int/Essence_ChaosResistance",
+            "Body_Armours_str_int/Essence_Strength",
+            "Body_Armours_str_int/Essence_Intelligence",
+            "Body_Armours_str_int/Essence_FireResistance",
+            "Body_Armours_str_int/Essence_ColdResistance",
+            "Body_Armours_str_int/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -344,11 +509,38 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Boots_dex/Desecrated_FireAndChaosDamageResistance",
+            "Boots_dex/Desecrated_Strength",
+            "Boots_dex/Desecrated_ReducedSelfIgniteDuration",
+            "Boots_dex/Desecrated_SlowPotency",
+            "Boots_dex/Desecrated_DodgeRoll",
+            "Boots_dex/Desecrated_ColdAndChaosDamageResistance",
+            "Boots_dex/Desecrated_Dexterity",
+            "Boots_dex/Desecrated_ReducedAilmentDuration",
+            "Boots_dex/Desecrated_ManaCostEfficiency",
+            "Boots_dex/Desecrated_ManaRegeneration",
+            "Boots_dex/Desecrated_LightningAndChaosDamageResistance",
+            "Boots_dex/Desecrated_Strength_2",
+            "Boots_dex/Desecrated_ReducedAilmentDuration_2",
+            "Boots_dex/Desecrated_CorruptedBlood",
+            "Boots_dex/Desecrated_LifeRegenerationPlusPercentWhileMoving"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Boots_dex/Essence_IncreasedLife",
+            "Boots_dex/Essence_IncreasedMana",
+            "Boots_dex/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Boots_dex/Essence_ChaosResistance",
+            "Boots_dex/Essence_Dexterity",
+            "Boots_dex/Essence_FireResistance",
+            "Boots_dex/Essence_ColdResistance",
+            "Boots_dex/Essence_LightningResistance",
+            "Boots_dex/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -387,11 +579,39 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Boots_dex_int/Desecrated_FireAndChaosDamageResistance",
+            "Boots_dex_int/Desecrated_Strength",
+            "Boots_dex_int/Desecrated_ReducedSelfIgniteDuration",
+            "Boots_dex_int/Desecrated_SlowPotency",
+            "Boots_dex_int/Desecrated_DodgeRoll",
+            "Boots_dex_int/Desecrated_ColdAndChaosDamageResistance",
+            "Boots_dex_int/Desecrated_Dexterity",
+            "Boots_dex_int/Desecrated_ReducedAilmentDuration",
+            "Boots_dex_int/Desecrated_ManaCostEfficiency",
+            "Boots_dex_int/Desecrated_ManaRegeneration",
+            "Boots_dex_int/Desecrated_LightningAndChaosDamageResistance",
+            "Boots_dex_int/Desecrated_Strength_2",
+            "Boots_dex_int/Desecrated_ReducedAilmentDuration_2",
+            "Boots_dex_int/Desecrated_CorruptedBlood",
+            "Boots_dex_int/Desecrated_LifeRegenerationPlusPercentWhileMoving"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Boots_dex_int/Essence_IncreasedLife",
+            "Boots_dex_int/Essence_IncreasedMana",
+            "Boots_dex_int/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Boots_dex_int/Essence_ChaosResistance",
+            "Boots_dex_int/Essence_Dexterity",
+            "Boots_dex_int/Essence_Intelligence",
+            "Boots_dex_int/Essence_FireResistance",
+            "Boots_dex_int/Essence_ColdResistance",
+            "Boots_dex_int/Essence_LightningResistance",
+            "Boots_dex_int/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -428,11 +648,38 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Boots_int/Desecrated_FireAndChaosDamageResistance",
+            "Boots_int/Desecrated_Strength",
+            "Boots_int/Desecrated_ReducedSelfIgniteDuration",
+            "Boots_int/Desecrated_SlowPotency",
+            "Boots_int/Desecrated_DodgeRoll",
+            "Boots_int/Desecrated_ColdAndChaosDamageResistance",
+            "Boots_int/Desecrated_Dexterity",
+            "Boots_int/Desecrated_ReducedAilmentDuration",
+            "Boots_int/Desecrated_ManaCostEfficiency",
+            "Boots_int/Desecrated_ManaRegeneration",
+            "Boots_int/Desecrated_LightningAndChaosDamageResistance",
+            "Boots_int/Desecrated_Strength_2",
+            "Boots_int/Desecrated_ReducedAilmentDuration_2",
+            "Boots_int/Desecrated_CorruptedBlood",
+            "Boots_int/Desecrated_LifeRegenerationPlusPercentWhileMoving"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Boots_int/Essence_IncreasedLife",
+            "Boots_int/Essence_IncreasedMana",
+            "Boots_int/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Boots_int/Essence_ChaosResistance",
+            "Boots_int/Essence_Intelligence",
+            "Boots_int/Essence_FireResistance",
+            "Boots_int/Essence_ColdResistance",
+            "Boots_int/Essence_LightningResistance",
+            "Boots_int/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -469,11 +716,38 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Boots_str/Desecrated_FireAndChaosDamageResistance",
+            "Boots_str/Desecrated_Strength",
+            "Boots_str/Desecrated_ReducedSelfIgniteDuration",
+            "Boots_str/Desecrated_SlowPotency",
+            "Boots_str/Desecrated_DodgeRoll",
+            "Boots_str/Desecrated_ColdAndChaosDamageResistance",
+            "Boots_str/Desecrated_Dexterity",
+            "Boots_str/Desecrated_ReducedAilmentDuration",
+            "Boots_str/Desecrated_ManaCostEfficiency",
+            "Boots_str/Desecrated_ManaRegeneration",
+            "Boots_str/Desecrated_LightningAndChaosDamageResistance",
+            "Boots_str/Desecrated_Strength_2",
+            "Boots_str/Desecrated_ReducedAilmentDuration_2",
+            "Boots_str/Desecrated_CorruptedBlood",
+            "Boots_str/Desecrated_LifeRegenerationPlusPercentWhileMoving"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Boots_str/Essence_IncreasedLife",
+            "Boots_str/Essence_IncreasedMana",
+            "Boots_str/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Boots_str/Essence_ChaosResistance",
+            "Boots_str/Essence_Strength",
+            "Boots_str/Essence_FireResistance",
+            "Boots_str/Essence_ColdResistance",
+            "Boots_str/Essence_LightningResistance",
+            "Boots_str/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -512,11 +786,39 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Boots_str_dex/Desecrated_FireAndChaosDamageResistance",
+            "Boots_str_dex/Desecrated_Strength",
+            "Boots_str_dex/Desecrated_ReducedSelfIgniteDuration",
+            "Boots_str_dex/Desecrated_SlowPotency",
+            "Boots_str_dex/Desecrated_DodgeRoll",
+            "Boots_str_dex/Desecrated_ColdAndChaosDamageResistance",
+            "Boots_str_dex/Desecrated_Dexterity",
+            "Boots_str_dex/Desecrated_ReducedAilmentDuration",
+            "Boots_str_dex/Desecrated_ManaCostEfficiency",
+            "Boots_str_dex/Desecrated_ManaRegeneration",
+            "Boots_str_dex/Desecrated_LightningAndChaosDamageResistance",
+            "Boots_str_dex/Desecrated_Strength_2",
+            "Boots_str_dex/Desecrated_ReducedAilmentDuration_2",
+            "Boots_str_dex/Desecrated_CorruptedBlood",
+            "Boots_str_dex/Desecrated_LifeRegenerationPlusPercentWhileMoving"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Boots_str_dex/Essence_IncreasedLife",
+            "Boots_str_dex/Essence_IncreasedMana",
+            "Boots_str_dex/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Boots_str_dex/Essence_ChaosResistance",
+            "Boots_str_dex/Essence_Strength",
+            "Boots_str_dex/Essence_Dexterity",
+            "Boots_str_dex/Essence_FireResistance",
+            "Boots_str_dex/Essence_ColdResistance",
+            "Boots_str_dex/Essence_LightningResistance",
+            "Boots_str_dex/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -555,11 +857,39 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Boots_str_int/Desecrated_FireAndChaosDamageResistance",
+            "Boots_str_int/Desecrated_Strength",
+            "Boots_str_int/Desecrated_ReducedSelfIgniteDuration",
+            "Boots_str_int/Desecrated_SlowPotency",
+            "Boots_str_int/Desecrated_DodgeRoll",
+            "Boots_str_int/Desecrated_ColdAndChaosDamageResistance",
+            "Boots_str_int/Desecrated_Dexterity",
+            "Boots_str_int/Desecrated_ReducedAilmentDuration",
+            "Boots_str_int/Desecrated_ManaCostEfficiency",
+            "Boots_str_int/Desecrated_ManaRegeneration",
+            "Boots_str_int/Desecrated_LightningAndChaosDamageResistance",
+            "Boots_str_int/Desecrated_Strength_2",
+            "Boots_str_int/Desecrated_ReducedAilmentDuration_2",
+            "Boots_str_int/Desecrated_CorruptedBlood",
+            "Boots_str_int/Desecrated_LifeRegenerationPlusPercentWhileMoving"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Boots_str_int/Essence_IncreasedLife",
+            "Boots_str_int/Essence_IncreasedMana",
+            "Boots_str_int/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Boots_str_int/Essence_ChaosResistance",
+            "Boots_str_int/Essence_Strength",
+            "Boots_str_int/Essence_Intelligence",
+            "Boots_str_int/Essence_FireResistance",
+            "Boots_str_int/Essence_ColdResistance",
+            "Boots_str_int/Essence_LightningResistance",
+            "Boots_str_int/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -597,12 +927,41 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Bows/Desecrated_FireResistancePenetration",
+            "Bows/Desecrated_CompanionDamage",
+            "Bows/Desecrated_IncreasedAttackAreaOfEffect",
+            "Bows/Desecrated_ColdResistancePenetration",
+            "Bows/Desecrated_ChainFromTerrain",
+            "Bows/Desecrated_EquipmentModifierEffect",
+            "Bows/Desecrated_LightningResistancePenetration",
+            "Bows/Desecrated_ProjectileDamage"
+          ],
+          "suffixes": [
+            "Bows/Desecrated_SpiritReservationEfficiency",
+            "Bows/Desecrated_CompanionAttackSpeed",
+            "Bows/Desecrated_ChanceToPierce",
+            "Bows/Desecrated_ManaCostEfficiency",
+            "Bows/Desecrated_CriticalStrikeChanceIncrease",
+            "Bows/Desecrated_Immobilise",
+            "Bows/Desecrated_LifeCost",
+            "Bows/Desecrated_AdditionalProjectiles",
+            "Bows/Desecrated_CompanionDamage_2"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Bows/Essence_PhysicalDamage",
+            "Bows/Essence_FireDamage",
+            "Bows/Essence_ColdDamage",
+            "Bows/Essence_LightningDamage",
+            "Bows/Essence_IncreasedAccuracy",
+            "Bows/Essence_LightningDamage_2"
+          ],
+          "suffixes": [
+            "Bows/Essence_IncreasedAttackSpeed",
+            "Bows/Essence_CriticalStrikeChanceIncrease"
+          ]
         }
       }
     },
@@ -639,11 +998,31 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Bucklers/Desecrated_FireAndChaosDamageResistance",
+            "Bucklers/Desecrated_Strength",
+            "Bucklers/Desecrated_ReducedCurseEffect",
+            "Bucklers/Desecrated_MaximumResistances",
+            "Bucklers/Desecrated_ColdAndChaosDamageResistance",
+            "Bucklers/Desecrated_Dexterity",
+            "Bucklers/Desecrated_PercentDamageGoesToMana",
+            "Bucklers/Desecrated_GainManaOnBlock",
+            "Bucklers/Desecrated_LightningAndChaosDamageResistance",
+            "Bucklers/Desecrated_Strength_2",
+            "Bucklers/Desecrated_ChanceToTakeCriticalStrike",
+            "Bucklers/Desecrated_MaximumBlockChance"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Bucklers/Essence_IncreasedLife"
+          ],
+          "suffixes": [
+            "Bucklers/Essence_ChaosResistance",
+            "Bucklers/Essence_FireResistance",
+            "Bucklers/Essence_ColdResistance",
+            "Bucklers/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -682,12 +1061,38 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Crossbows/Desecrated_FireResistancePenetration",
+            "Crossbows/Desecrated_GrenadeCooldownUse",
+            "Crossbows/Desecrated_GrenadeDamage",
+            "Crossbows/Desecrated_ColdResistancePenetration",
+            "Crossbows/Desecrated_ProjectileDamage",
+            "Crossbows/Desecrated_LightningResistancePenetration",
+            "Crossbows/Desecrated_AdditionalBallistaTotem"
+          ],
+          "suffixes": [
+            "Crossbows/Desecrated_SpiritReservationEfficiency",
+            "Crossbows/Desecrated_GrenadeAdditionalDetonationChance",
+            "Crossbows/Desecrated_ManaCostEfficiency",
+            "Crossbows/Desecrated_CrossbowReloadSpeed",
+            "Crossbows/Desecrated_CrossbowReloadSpeed_2",
+            "Crossbows/Desecrated_LifeCost",
+            "Crossbows/Desecrated_Chain",
+            "Crossbows/Desecrated_CriticalStrikeMultiplier"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Crossbows/Essence_PhysicalDamage",
+            "Crossbows/Essence_FireDamage",
+            "Crossbows/Essence_ColdDamage",
+            "Crossbows/Essence_LightningDamage",
+            "Crossbows/Essence_IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Crossbows/Essence_IncreasedAttackSpeed",
+            "Crossbows/Essence_CriticalStrikeChanceIncrease"
+          ]
         }
       }
     },
@@ -726,12 +1131,42 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Foci/Desecrated_CurseEffectiveness",
+            "Foci/Desecrated_OfferingEffect",
+            "Foci/Desecrated_WeaponCasterDamagePrefix",
+            "Foci/Desecrated_SpellAreaOfEffect",
+            "Foci/Desecrated_AdditionalSpellTotem",
+            "Foci/Desecrated_SpellDamage"
+          ],
+          "suffixes": [
+            "Foci/Desecrated_FireAndChaosDamageResistance",
+            "Foci/Desecrated_Strength",
+            "Foci/Desecrated_IncreaseSocketedGemLevel",
+            "Foci/Desecrated_CurseDelay",
+            "Foci/Desecrated_ColdAndChaosDamageResistance",
+            "Foci/Desecrated_Dexterity",
+            "Foci/Desecrated_ManaCostEfficiency",
+            "Foci/Desecrated_ChanceToGainAnAdditionalInfusion",
+            "Foci/Desecrated_LightningAndChaosDamageResistance",
+            "Foci/Desecrated_Strength_2",
+            "Foci/Desecrated_SkillLifeCost",
+            "Foci/Desecrated_SpellsFire2AdditionalProjectileChance"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Foci/Essence_IncreasedLife",
+            "Foci/Essence_WeaponCasterDamagePrefix"
+          ],
+          "suffixes": [
+            "Foci/Essence_ChaosResistance",
+            "Foci/Essence_SpellCriticalStrikeChanceIncrease",
+            "Foci/Essence_FireResistance",
+            "Foci/Essence_ColdResistance",
+            "Foci/Essence_LightningResistance",
+            "Foci/Essence_IncreasedCastSpeed"
+          ]
         }
       }
     },
@@ -775,11 +1210,35 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Gloves_dex/Desecrated_FireAndChaosDamageResistance",
+            "Gloves_dex/Desecrated_Strength",
+            "Gloves_dex/Desecrated_DazeBuildup",
+            "Gloves_dex/Desecrated_ColdAndChaosDamageResistance",
+            "Gloves_dex/Desecrated_Dexterity",
+            "Gloves_dex/Desecrated_ManaCostEfficiency",
+            "Gloves_dex/Desecrated_LightningAndChaosDamageResistance",
+            "Gloves_dex/Desecrated_Strength_2",
+            "Gloves_dex/Desecrated_AilmentEffect",
+            "Gloves_dex/Desecrated_PoisonChanceIncrease",
+            "Gloves_dex/Desecrated_BleedChanceIncrease"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Gloves_dex/Essence_IncreasedLife",
+            "Gloves_dex/Essence_IncreasedMana",
+            "Gloves_dex/Essence_DefencesPercent",
+            "Gloves_dex/Essence_IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_dex/Essence_ChaosResistance",
+            "Gloves_dex/Essence_Dexterity",
+            "Gloves_dex/Essence_FireResistance",
+            "Gloves_dex/Essence_ColdResistance",
+            "Gloves_dex/Essence_LightningResistance",
+            "Gloves_dex/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -825,11 +1284,36 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Gloves_dex_int/Desecrated_FireAndChaosDamageResistance",
+            "Gloves_dex_int/Desecrated_Strength",
+            "Gloves_dex_int/Desecrated_DazeBuildup",
+            "Gloves_dex_int/Desecrated_ColdAndChaosDamageResistance",
+            "Gloves_dex_int/Desecrated_Dexterity",
+            "Gloves_dex_int/Desecrated_ManaCostEfficiency",
+            "Gloves_dex_int/Desecrated_LightningAndChaosDamageResistance",
+            "Gloves_dex_int/Desecrated_Strength_2",
+            "Gloves_dex_int/Desecrated_AilmentEffect",
+            "Gloves_dex_int/Desecrated_PoisonChanceIncrease",
+            "Gloves_dex_int/Desecrated_BleedChanceIncrease"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Gloves_dex_int/Essence_IncreasedLife",
+            "Gloves_dex_int/Essence_IncreasedMana",
+            "Gloves_dex_int/Essence_DefencesPercent",
+            "Gloves_dex_int/Essence_IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_dex_int/Essence_ChaosResistance",
+            "Gloves_dex_int/Essence_Dexterity",
+            "Gloves_dex_int/Essence_Intelligence",
+            "Gloves_dex_int/Essence_FireResistance",
+            "Gloves_dex_int/Essence_ColdResistance",
+            "Gloves_dex_int/Essence_LightningResistance",
+            "Gloves_dex_int/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -874,11 +1358,35 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Gloves_int/Desecrated_FireAndChaosDamageResistance",
+            "Gloves_int/Desecrated_Strength",
+            "Gloves_int/Desecrated_DazeBuildup",
+            "Gloves_int/Desecrated_ColdAndChaosDamageResistance",
+            "Gloves_int/Desecrated_Dexterity",
+            "Gloves_int/Desecrated_ManaCostEfficiency",
+            "Gloves_int/Desecrated_LightningAndChaosDamageResistance",
+            "Gloves_int/Desecrated_Strength_2",
+            "Gloves_int/Desecrated_AilmentEffect",
+            "Gloves_int/Desecrated_PoisonChanceIncrease",
+            "Gloves_int/Desecrated_BleedChanceIncrease"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Gloves_int/Essence_IncreasedLife",
+            "Gloves_int/Essence_IncreasedMana",
+            "Gloves_int/Essence_DefencesPercent",
+            "Gloves_int/Essence_IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_int/Essence_ChaosResistance",
+            "Gloves_int/Essence_Intelligence",
+            "Gloves_int/Essence_FireResistance",
+            "Gloves_int/Essence_ColdResistance",
+            "Gloves_int/Essence_LightningResistance",
+            "Gloves_int/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -923,11 +1431,35 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Gloves_str/Desecrated_FireAndChaosDamageResistance",
+            "Gloves_str/Desecrated_Strength",
+            "Gloves_str/Desecrated_DazeBuildup",
+            "Gloves_str/Desecrated_ColdAndChaosDamageResistance",
+            "Gloves_str/Desecrated_Dexterity",
+            "Gloves_str/Desecrated_ManaCostEfficiency",
+            "Gloves_str/Desecrated_LightningAndChaosDamageResistance",
+            "Gloves_str/Desecrated_Strength_2",
+            "Gloves_str/Desecrated_AilmentEffect",
+            "Gloves_str/Desecrated_PoisonChanceIncrease",
+            "Gloves_str/Desecrated_BleedChanceIncrease"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Gloves_str/Essence_IncreasedLife",
+            "Gloves_str/Essence_IncreasedMana",
+            "Gloves_str/Essence_DefencesPercent",
+            "Gloves_str/Essence_IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_str/Essence_ChaosResistance",
+            "Gloves_str/Essence_Strength",
+            "Gloves_str/Essence_FireResistance",
+            "Gloves_str/Essence_ColdResistance",
+            "Gloves_str/Essence_LightningResistance",
+            "Gloves_str/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -973,11 +1505,36 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Gloves_str_dex/Desecrated_FireAndChaosDamageResistance",
+            "Gloves_str_dex/Desecrated_Strength",
+            "Gloves_str_dex/Desecrated_DazeBuildup",
+            "Gloves_str_dex/Desecrated_ColdAndChaosDamageResistance",
+            "Gloves_str_dex/Desecrated_Dexterity",
+            "Gloves_str_dex/Desecrated_ManaCostEfficiency",
+            "Gloves_str_dex/Desecrated_LightningAndChaosDamageResistance",
+            "Gloves_str_dex/Desecrated_Strength_2",
+            "Gloves_str_dex/Desecrated_AilmentEffect",
+            "Gloves_str_dex/Desecrated_PoisonChanceIncrease",
+            "Gloves_str_dex/Desecrated_BleedChanceIncrease"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Gloves_str_dex/Essence_IncreasedLife",
+            "Gloves_str_dex/Essence_IncreasedMana",
+            "Gloves_str_dex/Essence_DefencesPercent",
+            "Gloves_str_dex/Essence_IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_str_dex/Essence_ChaosResistance",
+            "Gloves_str_dex/Essence_Strength",
+            "Gloves_str_dex/Essence_Dexterity",
+            "Gloves_str_dex/Essence_FireResistance",
+            "Gloves_str_dex/Essence_ColdResistance",
+            "Gloves_str_dex/Essence_LightningResistance",
+            "Gloves_str_dex/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -1024,11 +1581,36 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Gloves_str_int/Desecrated_FireAndChaosDamageResistance",
+            "Gloves_str_int/Desecrated_Strength",
+            "Gloves_str_int/Desecrated_DazeBuildup",
+            "Gloves_str_int/Desecrated_ColdAndChaosDamageResistance",
+            "Gloves_str_int/Desecrated_Dexterity",
+            "Gloves_str_int/Desecrated_ManaCostEfficiency",
+            "Gloves_str_int/Desecrated_LightningAndChaosDamageResistance",
+            "Gloves_str_int/Desecrated_Strength_2",
+            "Gloves_str_int/Desecrated_AilmentEffect",
+            "Gloves_str_int/Desecrated_PoisonChanceIncrease",
+            "Gloves_str_int/Desecrated_BleedChanceIncrease"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Gloves_str_int/Essence_IncreasedLife",
+            "Gloves_str_int/Essence_IncreasedMana",
+            "Gloves_str_int/Essence_DefencesPercent",
+            "Gloves_str_int/Essence_IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Gloves_str_int/Essence_ChaosResistance",
+            "Gloves_str_int/Essence_Strength",
+            "Gloves_str_int/Essence_Intelligence",
+            "Gloves_str_int/Essence_FireResistance",
+            "Gloves_str_int/Essence_ColdResistance",
+            "Gloves_str_int/Essence_LightningResistance",
+            "Gloves_str_int/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -1067,11 +1649,33 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Helmets_dex/Desecrated_FireAndChaosDamageResistance",
+            "Helmets_dex/Desecrated_Strength",
+            "Helmets_dex/Desecrated_SpiritReservationEfficiency",
+            "Helmets_dex/Desecrated_PresenceRadius",
+            "Helmets_dex/Desecrated_ColdAndChaosDamageResistance",
+            "Helmets_dex/Desecrated_Dexterity",
+            "Helmets_dex/Desecrated_ManaCostEfficiency",
+            "Helmets_dex/Desecrated_LightningAndChaosDamageResistance",
+            "Helmets_dex/Desecrated_Strength_2",
+            "Helmets_dex/Desecrated_LifeCostEfficiency"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Helmets_dex/Essence_IncreasedLife",
+            "Helmets_dex/Essence_IncreasedMana",
+            "Helmets_dex/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Helmets_dex/Essence_ChaosResistance",
+            "Helmets_dex/Essence_Dexterity",
+            "Helmets_dex/Essence_FireResistance",
+            "Helmets_dex/Essence_ColdResistance",
+            "Helmets_dex/Essence_LightningResistance",
+            "Helmets_dex/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -1111,11 +1715,34 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Helmets_dex_int/Desecrated_FireAndChaosDamageResistance",
+            "Helmets_dex_int/Desecrated_Strength",
+            "Helmets_dex_int/Desecrated_SpiritReservationEfficiency",
+            "Helmets_dex_int/Desecrated_PresenceRadius",
+            "Helmets_dex_int/Desecrated_ColdAndChaosDamageResistance",
+            "Helmets_dex_int/Desecrated_Dexterity",
+            "Helmets_dex_int/Desecrated_ManaCostEfficiency",
+            "Helmets_dex_int/Desecrated_LightningAndChaosDamageResistance",
+            "Helmets_dex_int/Desecrated_Strength_2",
+            "Helmets_dex_int/Desecrated_LifeCostEfficiency"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Helmets_dex_int/Essence_IncreasedLife",
+            "Helmets_dex_int/Essence_IncreasedMana",
+            "Helmets_dex_int/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Helmets_dex_int/Essence_ChaosResistance",
+            "Helmets_dex_int/Essence_Dexterity",
+            "Helmets_dex_int/Essence_Intelligence",
+            "Helmets_dex_int/Essence_FireResistance",
+            "Helmets_dex_int/Essence_ColdResistance",
+            "Helmets_dex_int/Essence_LightningResistance",
+            "Helmets_dex_int/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -1153,11 +1780,33 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Helmets_int/Desecrated_FireAndChaosDamageResistance",
+            "Helmets_int/Desecrated_Strength",
+            "Helmets_int/Desecrated_SpiritReservationEfficiency",
+            "Helmets_int/Desecrated_PresenceRadius",
+            "Helmets_int/Desecrated_ColdAndChaosDamageResistance",
+            "Helmets_int/Desecrated_Dexterity",
+            "Helmets_int/Desecrated_ManaCostEfficiency",
+            "Helmets_int/Desecrated_LightningAndChaosDamageResistance",
+            "Helmets_int/Desecrated_Strength_2",
+            "Helmets_int/Desecrated_LifeCostEfficiency"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Helmets_int/Essence_IncreasedLife",
+            "Helmets_int/Essence_IncreasedMana",
+            "Helmets_int/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Helmets_int/Essence_ChaosResistance",
+            "Helmets_int/Essence_Intelligence",
+            "Helmets_int/Essence_FireResistance",
+            "Helmets_int/Essence_ColdResistance",
+            "Helmets_int/Essence_LightningResistance",
+            "Helmets_int/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -1196,11 +1845,33 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Helmets_str/Desecrated_FireAndChaosDamageResistance",
+            "Helmets_str/Desecrated_Strength",
+            "Helmets_str/Desecrated_SpiritReservationEfficiency",
+            "Helmets_str/Desecrated_PresenceRadius",
+            "Helmets_str/Desecrated_ColdAndChaosDamageResistance",
+            "Helmets_str/Desecrated_Dexterity",
+            "Helmets_str/Desecrated_ManaCostEfficiency",
+            "Helmets_str/Desecrated_LightningAndChaosDamageResistance",
+            "Helmets_str/Desecrated_Strength_2",
+            "Helmets_str/Desecrated_LifeCostEfficiency"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Helmets_str/Essence_IncreasedLife",
+            "Helmets_str/Essence_IncreasedMana",
+            "Helmets_str/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Helmets_str/Essence_ChaosResistance",
+            "Helmets_str/Essence_Strength",
+            "Helmets_str/Essence_FireResistance",
+            "Helmets_str/Essence_ColdResistance",
+            "Helmets_str/Essence_LightningResistance",
+            "Helmets_str/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -1241,11 +1912,34 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Helmets_str_dex/Desecrated_FireAndChaosDamageResistance",
+            "Helmets_str_dex/Desecrated_Strength",
+            "Helmets_str_dex/Desecrated_SpiritReservationEfficiency",
+            "Helmets_str_dex/Desecrated_PresenceRadius",
+            "Helmets_str_dex/Desecrated_ColdAndChaosDamageResistance",
+            "Helmets_str_dex/Desecrated_Dexterity",
+            "Helmets_str_dex/Desecrated_ManaCostEfficiency",
+            "Helmets_str_dex/Desecrated_LightningAndChaosDamageResistance",
+            "Helmets_str_dex/Desecrated_Strength_2",
+            "Helmets_str_dex/Desecrated_LifeCostEfficiency"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Helmets_str_dex/Essence_IncreasedLife",
+            "Helmets_str_dex/Essence_IncreasedMana",
+            "Helmets_str_dex/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Helmets_str_dex/Essence_ChaosResistance",
+            "Helmets_str_dex/Essence_Strength",
+            "Helmets_str_dex/Essence_Dexterity",
+            "Helmets_str_dex/Essence_FireResistance",
+            "Helmets_str_dex/Essence_ColdResistance",
+            "Helmets_str_dex/Essence_LightningResistance",
+            "Helmets_str_dex/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -1285,11 +1979,34 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Helmets_str_int/Desecrated_FireAndChaosDamageResistance",
+            "Helmets_str_int/Desecrated_Strength",
+            "Helmets_str_int/Desecrated_SpiritReservationEfficiency",
+            "Helmets_str_int/Desecrated_PresenceRadius",
+            "Helmets_str_int/Desecrated_ColdAndChaosDamageResistance",
+            "Helmets_str_int/Desecrated_Dexterity",
+            "Helmets_str_int/Desecrated_ManaCostEfficiency",
+            "Helmets_str_int/Desecrated_LightningAndChaosDamageResistance",
+            "Helmets_str_int/Desecrated_Strength_2",
+            "Helmets_str_int/Desecrated_LifeCostEfficiency"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Helmets_str_int/Essence_IncreasedLife",
+            "Helmets_str_int/Essence_IncreasedMana",
+            "Helmets_str_int/Essence_DefencesPercent"
+          ],
+          "suffixes": [
+            "Helmets_str_int/Essence_ChaosResistance",
+            "Helmets_str_int/Essence_Strength",
+            "Helmets_str_int/Essence_Intelligence",
+            "Helmets_str_int/Essence_FireResistance",
+            "Helmets_str_int/Essence_ColdResistance",
+            "Helmets_str_int/Essence_LightningResistance",
+            "Helmets_str_int/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -1328,12 +2045,41 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "OneHand_Maces/Desecrated_FireResistancePenetration",
+            "OneHand_Maces/Desecrated_DamagevsArmourBrokenEnemies",
+            "OneHand_Maces/Desecrated_ColdResistancePenetration",
+            "OneHand_Maces/Desecrated_LocalPhysicalDamagePercent",
+            "OneHand_Maces/Desecrated_ExertedAttackDamage",
+            "OneHand_Maces/Desecrated_LightningResistancePenetration",
+            "OneHand_Maces/Desecrated_AdditionalTotems",
+            "OneHand_Maces/Desecrated_TotemDamage"
+          ],
+          "suffixes": [
+            "OneHand_Maces/Desecrated_SpiritReservationEfficiency",
+            "OneHand_Maces/Desecrated_ArmourPenetration",
+            "OneHand_Maces/Desecrated_FissureChance",
+            "OneHand_Maces/Desecrated_AftershockChance",
+            "OneHand_Maces/Desecrated_ManaCostEfficiency",
+            "OneHand_Maces/Desecrated_ManaCostEfficiency_2",
+            "OneHand_Maces/Desecrated_WarcryCooldownSpeed",
+            "OneHand_Maces/Desecrated_LifeCost",
+            "OneHand_Maces/Desecrated_SummonTotemCastSpeed"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "OneHand_Maces/Essence_PhysicalDamage",
+            "OneHand_Maces/Essence_FireDamage",
+            "OneHand_Maces/Essence_ColdDamage",
+            "OneHand_Maces/Essence_LightningDamage",
+            "OneHand_Maces/Essence_IncreasedAccuracy",
+            "OneHand_Maces/Essence_LightningDamage_2"
+          ],
+          "suffixes": [
+            "OneHand_Maces/Essence_IncreasedAttackSpeed",
+            "OneHand_Maces/Essence_CriticalStrikeChanceIncrease"
+          ]
         }
       }
     },
@@ -1373,12 +2119,35 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Quarterstaves/Desecrated_FireResistancePenetration",
+            "Quarterstaves/Desecrated_FireDamagePercentagePrefix",
+            "Quarterstaves/Desecrated_ColdResistancePenetration",
+            "Quarterstaves/Desecrated_ColdDamagePercentagePrefix",
+            "Quarterstaves/Desecrated_LightningResistancePenetration",
+            "Quarterstaves/Desecrated_LightningDamagePercentagePrefix"
+          ],
+          "suffixes": [
+            "Quarterstaves/Desecrated_SpiritReservationEfficiency",
+            "Quarterstaves/Desecrated_AdditionalComboChance",
+            "Quarterstaves/Desecrated_ManaCostEfficiency",
+            "Quarterstaves/Desecrated_RecoverResourceOnExpendingCombo",
+            "Quarterstaves/Desecrated_LifeCost",
+            "Quarterstaves/Desecrated_RecoverResourceOnExpendingCombo_2"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Quarterstaves/Essence_PhysicalDamage",
+            "Quarterstaves/Essence_FireDamage",
+            "Quarterstaves/Essence_ColdDamage",
+            "Quarterstaves/Essence_LightningDamage",
+            "Quarterstaves/Essence_IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "Quarterstaves/Essence_IncreasedAttackSpeed",
+            "Quarterstaves/Essence_CriticalStrikeChanceIncrease"
+          ]
         }
       }
     },
@@ -1411,11 +2180,23 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Quivers/Desecrated_ProjectileDamage",
+            "Quivers/Desecrated_ProjectileDamage_2",
+            "Quivers/Desecrated_ProjectileDamage_3"
+          ],
+          "suffixes": [
+            "Quivers/Desecrated_CriticalStrikeMultiplier",
+            "Quivers/Desecrated_ManaCostEfficiency",
+            "Quivers/Desecrated_CriticalStrikeChanceIncrease",
+            "Quivers/Desecrated_AdditionalProjectiles",
+            "Quivers/Desecrated_LifeCost"
+          ]
         },
         "essence": {
-          "prefixes": [],
+          "prefixes": [
+            "Quivers/Essence_IncreasedAccuracy"
+          ],
           "suffixes": []
         }
       }
@@ -1464,12 +2245,45 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Rings/Desecrated_RemnantEffect",
+            "Rings/Desecrated_IncreasedMinionDamageIfYouHitEnemy",
+            "Rings/Desecrated_ElementalAilmentEffect",
+            "Rings/Desecrated_IncreasedSpellDamageOnFullEnergyShield",
+            "Rings/Desecrated_ElementalAilmentEffect_2",
+            "Rings/Desecrated_AttackDamage",
+            "Rings/Desecrated_ElementalAilmentEffect_3"
+          ],
+          "suffixes": [
+            "Rings/Desecrated_FireAndChaosDamageResistance",
+            "Rings/Desecrated_Strength",
+            "Rings/Desecrated_SkillEffectDuration",
+            "Rings/Desecrated_RemnantPickupRadius",
+            "Rings/Desecrated_LifeLeech",
+            "Rings/Desecrated_ColdAndChaosDamageResistance",
+            "Rings/Desecrated_Dexterity",
+            "Rings/Desecrated_ExposureEffect",
+            "Rings/Desecrated_CooldownRecovery",
+            "Rings/Desecrated_ManaGainedOnKillPercentage",
+            "Rings/Desecrated_ManaLeechAmount",
+            "Rings/Desecrated_LightningAndChaosDamageResistance",
+            "Rings/Desecrated_Strength_2",
+            "Rings/Desecrated_IncreasedSpeed",
+            "Rings/Desecrated_RecoverPercentMaxLifeOnKill"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Rings/Essence_IncreasedLife",
+            "Rings/Essence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Rings/Essence_ChaosResistance",
+            "Rings/Essence_FireResistance",
+            "Rings/Essence_ColdResistance",
+            "Rings/Essence_LightningResistance",
+            "Rings/Essence_ItemFoundRarityIncrease"
+          ]
         }
       }
     },
@@ -1512,7 +2326,9 @@
           "suffixes": []
         },
         "essence": {
-          "prefixes": [],
+          "prefixes": [
+            "Sceptres/Essence_AllDamage"
+          ],
           "suffixes": []
         }
       }
@@ -1551,11 +2367,31 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Shields_str/Desecrated_FireAndChaosDamageResistance",
+            "Shields_str/Desecrated_Strength",
+            "Shields_str/Desecrated_ReducedCurseEffect",
+            "Shields_str/Desecrated_MaximumResistances",
+            "Shields_str/Desecrated_ColdAndChaosDamageResistance",
+            "Shields_str/Desecrated_Dexterity",
+            "Shields_str/Desecrated_PercentDamageGoesToMana",
+            "Shields_str/Desecrated_GainManaOnBlock",
+            "Shields_str/Desecrated_LightningAndChaosDamageResistance",
+            "Shields_str/Desecrated_Strength_2",
+            "Shields_str/Desecrated_ChanceToTakeCriticalStrike",
+            "Shields_str/Desecrated_MaximumBlockChance"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Shields_str/Essence_IncreasedLife"
+          ],
+          "suffixes": [
+            "Shields_str/Essence_ChaosResistance",
+            "Shields_str/Essence_FireResistance",
+            "Shields_str/Essence_ColdResistance",
+            "Shields_str/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -1595,11 +2431,31 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Shields_str_dex/Desecrated_FireAndChaosDamageResistance",
+            "Shields_str_dex/Desecrated_Strength",
+            "Shields_str_dex/Desecrated_ReducedCurseEffect",
+            "Shields_str_dex/Desecrated_MaximumResistances",
+            "Shields_str_dex/Desecrated_ColdAndChaosDamageResistance",
+            "Shields_str_dex/Desecrated_Dexterity",
+            "Shields_str_dex/Desecrated_PercentDamageGoesToMana",
+            "Shields_str_dex/Desecrated_GainManaOnBlock",
+            "Shields_str_dex/Desecrated_LightningAndChaosDamageResistance",
+            "Shields_str_dex/Desecrated_Strength_2",
+            "Shields_str_dex/Desecrated_ChanceToTakeCriticalStrike",
+            "Shields_str_dex/Desecrated_MaximumBlockChance"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Shields_str_dex/Essence_IncreasedLife"
+          ],
+          "suffixes": [
+            "Shields_str_dex/Essence_ChaosResistance",
+            "Shields_str_dex/Essence_FireResistance",
+            "Shields_str_dex/Essence_ColdResistance",
+            "Shields_str_dex/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -1639,11 +2495,31 @@
         },
         "desecrated": {
           "prefixes": [],
-          "suffixes": []
+          "suffixes": [
+            "Shields_str_int/Desecrated_FireAndChaosDamageResistance",
+            "Shields_str_int/Desecrated_Strength",
+            "Shields_str_int/Desecrated_ReducedCurseEffect",
+            "Shields_str_int/Desecrated_MaximumResistances",
+            "Shields_str_int/Desecrated_ColdAndChaosDamageResistance",
+            "Shields_str_int/Desecrated_Dexterity",
+            "Shields_str_int/Desecrated_PercentDamageGoesToMana",
+            "Shields_str_int/Desecrated_GainManaOnBlock",
+            "Shields_str_int/Desecrated_LightningAndChaosDamageResistance",
+            "Shields_str_int/Desecrated_Strength_2",
+            "Shields_str_int/Desecrated_ChanceToTakeCriticalStrike",
+            "Shields_str_int/Desecrated_MaximumBlockChance"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Shields_str_int/Essence_IncreasedLife"
+          ],
+          "suffixes": [
+            "Shields_str_int/Essence_ChaosResistance",
+            "Shields_str_int/Essence_FireResistance",
+            "Shields_str_int/Essence_ColdResistance",
+            "Shields_str_int/Essence_LightningResistance"
+          ]
         }
       }
     },
@@ -1684,12 +2560,41 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Spears/Desecrated_FireResistancePenetration",
+            "Spears/Desecrated_CompanionDamage",
+            "Spears/Desecrated_IncreasedAttackAreaOfEffect",
+            "Spears/Desecrated_ColdResistancePenetration",
+            "Spears/Desecrated_ChainFromTerrain",
+            "Spears/Desecrated_MeleeDamage",
+            "Spears/Desecrated_LightningResistancePenetration",
+            "Spears/Desecrated_ProjectileDamage"
+          ],
+          "suffixes": [
+            "Spears/Desecrated_SpiritReservationEfficiency",
+            "Spears/Desecrated_CompanionAttackSpeed",
+            "Spears/Desecrated_ChanceToPierce",
+            "Spears/Desecrated_ManaCostEfficiency",
+            "Spears/Desecrated_CriticalStrikeChanceIncrease",
+            "Spears/Desecrated_Immobilise",
+            "Spears/Desecrated_LifeCost",
+            "Spears/Desecrated_AdditionalProjectiles",
+            "Spears/Desecrated_CompanionDamage_2"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Spears/Essence_PhysicalDamage",
+            "Spears/Essence_FireDamage",
+            "Spears/Essence_ColdDamage",
+            "Spears/Essence_LightningDamage",
+            "Spears/Essence_IncreasedAccuracy",
+            "Spears/Essence_LightningDamage_2"
+          ],
+          "suffixes": [
+            "Spears/Essence_IncreasedAttackSpeed",
+            "Spears/Essence_CriticalStrikeChanceIncrease"
+          ]
         }
       }
     },
@@ -1735,12 +2640,33 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Staves/Desecrated_WeaponCasterDamagePrefix",
+            "Staves/Desecrated_BaseSpirit",
+            "Staves/Desecrated_ChaosDamage",
+            "Staves/Desecrated_WeaponCasterDamagePrefix_2",
+            "Staves/Desecrated_ElementalInfusion",
+            "Staves/Desecrated_WeaponCasterDamagePrefix_3",
+            "Staves/Desecrated_AilmentEffect"
+          ],
+          "suffixes": [
+            "Staves/Desecrated_SkillLifeCost",
+            "Staves/Desecrated_ArchonDuration",
+            "Staves/Desecrated_AdditionalBlock",
+            "Staves/Desecrated_ArchonDelayRecovery",
+            "Staves/Desecrated_MaximumPuppeteerStacks",
+            "Staves/Desecrated_CastSpeedOnLowLife",
+            "Staves/Desecrated_SpellsFire2AdditionalProjectileChance"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Staves/Essence_WeaponCasterDamagePrefix"
+          ],
+          "suffixes": [
+            "Staves/Essence_SpellCriticalStrikeChanceIncrease",
+            "Staves/Essence_IncreasedCastSpeed"
+          ]
         }
       }
     },
@@ -1779,12 +2705,40 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "TwoHand_Maces/Desecrated_FireResistancePenetration",
+            "TwoHand_Maces/Desecrated_DamagevsArmourBrokenEnemies",
+            "TwoHand_Maces/Desecrated_ColdResistancePenetration",
+            "TwoHand_Maces/Desecrated_LocalPhysicalDamagePercent",
+            "TwoHand_Maces/Desecrated_ExertedAttackDamage",
+            "TwoHand_Maces/Desecrated_LightningResistancePenetration",
+            "TwoHand_Maces/Desecrated_AdditionalTotems",
+            "TwoHand_Maces/Desecrated_TotemDamage"
+          ],
+          "suffixes": [
+            "TwoHand_Maces/Desecrated_SpiritReservationEfficiency",
+            "TwoHand_Maces/Desecrated_ArmourPenetration",
+            "TwoHand_Maces/Desecrated_FissureChance",
+            "TwoHand_Maces/Desecrated_AftershockChance",
+            "TwoHand_Maces/Desecrated_ManaCostEfficiency",
+            "TwoHand_Maces/Desecrated_ManaCostEfficiency_2",
+            "TwoHand_Maces/Desecrated_WarcryCooldownSpeed",
+            "TwoHand_Maces/Desecrated_LifeCost",
+            "TwoHand_Maces/Desecrated_SummonTotemCastSpeed"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "TwoHand_Maces/Essence_PhysicalDamage",
+            "TwoHand_Maces/Essence_FireDamage",
+            "TwoHand_Maces/Essence_ColdDamage",
+            "TwoHand_Maces/Essence_LightningDamage",
+            "TwoHand_Maces/Essence_IncreasedAccuracy"
+          ],
+          "suffixes": [
+            "TwoHand_Maces/Essence_IncreasedAttackSpeed",
+            "TwoHand_Maces/Essence_CriticalStrikeChanceIncrease"
+          ]
         }
       }
     },
@@ -1830,12 +2784,34 @@
           ]
         },
         "desecrated": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Wands/Desecrated_WeaponDamageTypePrefix",
+            "Wands/Desecrated_MinionDamage",
+            "Wands/Desecrated_WeaponCasterDamagePrefix",
+            "Wands/Desecrated_WeaponCasterDamagePrefix_2",
+            "Wands/Desecrated_MartialWeaponGainedDamage",
+            "Wands/Desecrated_BleedingDamage"
+          ],
+          "suffixes": [
+            "Wands/Desecrated_SpellAreaOfEffect",
+            "Wands/Desecrated_SkillLifeCost",
+            "Wands/Desecrated_HinderedEnemyTakeIncreasedDamage",
+            "Wands/Desecrated_IncreasedCastSpeed",
+            "Wands/Desecrated_IncreasedCastSpeed_2",
+            "Wands/Desecrated_HinderedEnemyTakeIncreasedDamage_2",
+            "Wands/Desecrated_ArmourBreak",
+            "Wands/Desecrated_ArmourBreak_2",
+            "Wands/Desecrated_HinderedEnemyTakeIncreasedDamage_3"
+          ]
         },
         "essence": {
-          "prefixes": [],
-          "suffixes": []
+          "prefixes": [
+            "Wands/Essence_WeaponCasterDamagePrefix"
+          ],
+          "suffixes": [
+            "Wands/Essence_SpellCriticalStrikeChanceIncrease",
+            "Wands/Essence_IncreasedCastSpeed"
+          ]
         }
       }
     }

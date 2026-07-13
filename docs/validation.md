@@ -317,9 +317,37 @@ copied into `0.5.0`; `src/lib/engine.ts` repointed. The Java differential fixtur
 patched data. Follow-ups: run the data-integrity guardrail on `0.5.0` and re-baseline; migrate the facade
 tests/fixtures off `0.5` when Java is finally retired.
 
+## Essence + desecrated pools added to 0.5.0 (2026-07-13)
+
+Built the essence and desecrated pools for the shipped `0.5.0` snapshot straight from the cached poe2db
+per-class pages (the parser already extracted them; only the pipeline dropped them). New step
+`tools/refresh/apply_pools.mjs` (wired into `run.sh` after `apply_weights.mjs`) merges them into
+`mods.json` + `base_items.json` and emits `essences.json`.
+
+- **Desecrated:** one mod per poe2db row (ilvl 65, weight 1), boss tags preserved
+  (amanamu 175 / ulaman 188 / kurgal 164). Same family may span distinct prefix+suffix mods, so rows are
+  NOT grouped. Lights up `desecrationProbability` (weight-based combined pool) and
+  `desecrationBossProbability` (count-uniform, 1/count).
+- **Essence:** rows grouped by (type, family, essence, stat-text) into a mod whose tiers are the
+  Lesser/Normal/Greater levels (weight 0, deterministic). Armour pages embed the table once per
+  attribute variant — filtered to the base's own attribute tag (mirrors `pickVariant`) to avoid the
+  6×-duplication that first showed up. **19 essences**, 317 essence mods; `essences.json` maps
+  essence → level → forced mod ids. **Perfect essences deferred** (poe2db carries none; engine still
+  anchored on 0.5).
+- **Counts:** `0.5.0` now normal 933 / desecrated 527 / essence 317 (vs Java 0.5: 635 / 373 / 264 +
+  79 perfect). The one mixed-family finding (`CompanionDamage on Bows`/`Spears` — a real desecrated
+  prefix+suffix sharing a family, identical to 0.5) is baselined in the guardrail.
+- **Validation:** data-integrity guardrail green on 0.5.0; new `shipped-pools.test.ts` exercises
+  essence-forced + plain/boss desecration on the real data; facade test reaches a 0.5.0 essence via a
+  P=1 essence step. Full suite 513 + 1 todo, type-check clean.
+
 ## Still deferred
-- **Resolve the baselined data findings** (16 mis-slots, 4 mixed families) — domain/CoE ruling on `type`
-  vs pool for shield block etc.
-- Essence/desecrated pools in the 0.5.0 (poe2db) refresh — normal pools only so far.
+- **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage on
+  0.5.0) — domain/CoE ruling on `type` vs pool for shield block etc.
+- **Perfect essences** in 0.5.0 — poe2db lists none per-base; the remove-and-add-on-rare mechanic stays
+  anchored on the 0.5 snapshot.
+- **CoE numeric cross-check of the new pools** — essence value ranges and desecrated weights vs
+  craftofexile.com (the normal pools are CoE-exact; essence/desecrated are poe2db-sourced but not yet
+  CoE-diffed).
 - **Broaden CoE cross-validation beyond wands** — other bases' families/weights, tier-target and omen
   numbers. Wands is clean; the rest of the pool is the remaining Phase-3 work.

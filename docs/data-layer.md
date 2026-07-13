@@ -11,12 +11,15 @@ pure-TypeScript engine (`packages/engine`) reads it directly — there is no dat
 ## Two patch datasets
 
 - **`data/patches/0.5.0/`** — the **dataset the app ships**. Structure (bases, mods, tiers, ilvls,
-  ranges, pools) from the RePoE-fork PoE2 dump; **spawn weights from poe2db community data**, joined
-  onto the structure by `(base, type, family, ilvl)`. Cross-checked *exact* against Craft of Exile for
-  Wands / Amulets / Rings / Body Armour / Quivers (see [validation.md](validation.md), "External
-  cross-check, round 2"). Game-file weights are useless (0/1 only); poe2db carries the
-  community-verified weights the project relies on. **Normal pools only so far** — essence/desecrated
-  weights aren't plain spawn weights and belong to engine mechanics, so those pools are deferred.
+  ranges, pools) from the RePoE-fork PoE2 dump; **normal spawn weights from poe2db community data**,
+  joined onto the structure by `(base, type, family, ilvl)`. Cross-checked *exact* against Craft of
+  Exile for Wands / Amulets / Rings / Body Armour / Quivers (see [validation.md](validation.md),
+  "External cross-check, round 2"). Game-file weights are useless (0/1 only); poe2db carries the
+  community-verified weights the project relies on. The **essence and desecrated pools** are also
+  populated — built directly from poe2db per-class pages by `apply_pools.mjs` (essence tiers are the
+  Lesser/Normal/Greater levels, deterministic so weight 0; desecrated = one mod per row, weight 1, with
+  boss tags preserved for the omen path). **Perfect essences are still deferred** (poe2db carries none;
+  the engine's perfect-essence mechanic stays anchored on the 0.5 snapshot).
 - **`data/patches/0.5/`** — the **Java-era snapshot**: a 1:1 extraction of the old hardcoded Java
   (~0.2/0.3-era values). It is **stale vs the live game** and is kept for exactly one reason: it's the
   engine's **differential anchor**. The frozen golden fixtures in
@@ -59,10 +62,10 @@ Each file is stamped `{"patch","generated","source"}`.
 npm run update-data           # tools/refresh/ : RePoE structure -> poe2db weights -> diff report
 ```
 
-The refresh pipeline is `refresh.mjs` (RePoE structure) → `apply_weights.mjs` (poe2db weights) →
-`diff.mjs` (writes `docs/refresh-0.5.0-diff.md`). RePoE dumps and poe2db pages are cached under
-`tools/refresh/cache/` (gitignored). `currencies.json` / `prices.json` / `weights_overrides.json` are
-edited by hand.
+The refresh pipeline is `refresh.mjs` (RePoE structure) → `apply_weights.mjs` (poe2db normal weights)
+→ `apply_pools.mjs` (poe2db essence + desecrated pools, and `essences.json`) → `diff.mjs` (writes
+`docs/refresh-0.5.0-diff.md`). RePoE dumps and poe2db pages are cached under `tools/refresh/cache/`
+(gitignored). `currencies.json` / `prices.json` / `weights_overrides.json` are edited by hand.
 
 > `tools/extractor/` (the original Java-source extractor that produced the `0.5` snapshot) and the old
 > Java round-trip gate are historical — they targeted the retired Java engine and are no longer part

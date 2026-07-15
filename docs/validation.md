@@ -365,11 +365,36 @@ Extended the essence work with the **perfect-essence** pool and the remove-and-a
   (perfect_essence 15 + omen 10). Validated by hand-computed optimizer tests (uniform ½, omen→1,
   no-junk rejection), facade tests, and `shipped-pools.test.ts`. **519 tests + 1 todo, type-check + build green.**
 
+## Cross-check of the new pools vs the independent Java extraction (2026-07-13)
+
+The CoE JS calculator can't be scraped, so the fully-automatable cross-check for the new
+essence/desecrated/perfect pools is **0.5.0 (poe2db, current) vs 0.5 (Java, hardcoded ~0.2-era)** — two
+independent extractions of the same mechanic that (verified) share the family namespace and stat text.
+`scripts/coe-newpools-check.mts` runs it. **Result: all invariants pass.**
+
+- **Essence coverage:** all **21** Java essences survive into 0.5.0; the 16 extras are exactly the new
+  perfect-only essences (the Alloys, Delirium, the Abyss, the Breach) — a plausible newer-patch addition,
+  not a loss.
+- **Forced-mod (family, text) agreement:** 18/21 shared essences match exactly. The 3 that differ are
+  confirmed **current-patch reworks**, not build bugs (families still line up, so exclusion is correct):
+  *Enhancement* is now one combined "Armour, Evasion and Energy Shield" (was 6 separate defence mods);
+  *the Infinite* uses the combined "+# to Str, Dex or Int" text across its 3 attribute families (Java
+  split the text); *Electricity* gained an "Adds 1 to # Lightning" variant (same LightningDamage family).
+- **Internal consistency (0.5.0):** every essence mod's tier ilvls ascend and per-level min values are
+  non-decreasing (Lesser ≤ Normal ≤ Greater); all desecrated mods carry weight > 0 with balanced boss
+  tags (amanamu 175 / ulaman 188 / kurgal 164); all perfect essences are single-tier, deterministic (w0).
+- **Human spot-check:** the script also writes `/tmp/coe-newpools-worksheet.md` — per-base essence /
+  perfect / desecrated **values** for a hand-check against CoE (e.g. Wands Spell Damage 35–44 / 55–64 /
+  75–89 for Lesser/Normal/Greater). That numeric CoE comparison is the remaining human step.
+
+*Cosmetic note:* some poe2db compound mods concatenate their two stat lines without a separator
+("…Spell DamageMinions deal…"); display-only, doesn't affect probabilities — a low-priority text cleanup.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.
-- **CoE numeric cross-check of the new pools** — essence/perfect value ranges and desecrated weights vs
-  craftofexile.com (the normal pools are CoE-exact; essence/desecrated are poe2db-sourced but not yet
-  CoE-diffed).
+- **Human CoE numeric spot-check of the new pools** — compare the worksheet values
+  (`scripts/coe-newpools-check.mts` → `/tmp/coe-newpools-worksheet.md`) against craftofexile.com. The
+  cross-source structural diff (above) is clean; only the by-hand value comparison remains.
 - **Broaden CoE cross-validation beyond wands** — other bases' families/weights, tier-target and omen
   numbers. Wands is clean; the rest of the pool is the remaining Phase-3 work.

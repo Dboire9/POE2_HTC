@@ -383,9 +383,12 @@ independent extractions of the same mechanic that (verified) share the family na
 - **Internal consistency (0.5.0):** every essence mod's tier ilvls ascend and per-level min values are
   non-decreasing (Lesser ≤ Normal ≤ Greater); all desecrated mods carry weight > 0 with balanced boss
   tags (amanamu 175 / ulaman 188 / kurgal 164); all perfect essences are single-tier, deterministic (w0).
-- **Human spot-check:** the script also writes `/tmp/coe-newpools-worksheet.md` — per-base essence /
-  perfect / desecrated **values** for a hand-check against CoE (e.g. Wands Spell Damage 35–44 / 55–64 /
-  75–89 for Lesser/Normal/Greater). That numeric CoE comparison is the remaining human step.
+- **Human spot-check (DONE 2026-07-13):** the script writes `/tmp/coe-newpools-worksheet.md` — per-base
+  essence / perfect / desecrated **values** for a hand-check against CoE. User confirmed the essence value
+  ranges match CoE across the sampled set (Amulets max Life 20–29/70–84/85–99, Fire Res 11–15/21–25/31–35,
+  max Mana 25–34/80–89/90–104; Wands Spell Damage 35–44/55–64/75–89, Cast Speed 13–16/17–20/25–28) — level
+  scaling and range parsing verified correct. (CoE and our data both derive from poe2db, so this confirms
+  the extraction, not an independent value source; the 0.5-vs-0.5.0 diff above is the independent check.)
 
 *Cosmetic note:* some poe2db compound mods concatenate their two stat lines without a separator
 ("…Spell DamageMinions deal…"); display-only, doesn't affect probabilities — a low-priority text cleanup.
@@ -393,8 +396,7 @@ independent extractions of the same mechanic that (verified) share the family na
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.
-- **Human CoE numeric spot-check of the new pools** — compare the worksheet values
-  (`scripts/coe-newpools-check.mts` → `/tmp/coe-newpools-worksheet.md`) against craftofexile.com. The
-  cross-source structural diff (above) is clean; only the by-hand value comparison remains.
+- ~~Human CoE numeric spot-check of the new pools~~ DONE 2026-07-13 — essence value ranges confirmed
+  against CoE (see above). Desecrated/perfect value spot-checks beyond the sampled set remain optional.
 - **Broaden CoE cross-validation beyond wands** — other bases' families/weights, tier-target and omen
   numbers. Wands is clean; the rest of the pool is the remaining Phase-3 work.

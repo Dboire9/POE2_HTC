@@ -18,18 +18,32 @@ const BOSS_OMEN: Record<string, DesecrationBossOmen> = {
 };
 
 describe('0.5.0 shipped essence pool', () => {
-  it('every base with essence entries resolves them to source=essence mods with ≥1 level tier', () => {
-    let seen = 0;
+  it('every essence-pool entry is a regular OR perfect essence mod with ≥1 tier', () => {
+    let regular = 0; let perfect = 0;
     for (const base of data.bases.values()) {
       for (const id of [...base.pools.essence.prefixes, ...base.pools.essence.suffixes]) {
         const m = data.mods.get(id);
         expect(m, id).toBeDefined();
-        expect(m!.source).toBe('essence');
+        expect(['essence', 'perfect_essence']).toContain(m!.source);
         expect(m!.tiers.length).toBeGreaterThan(0);
-        seen++;
+        if (m!.source === 'essence') regular++; else perfect++;
       }
     }
-    expect(seen).toBeGreaterThan(0); // the pool is actually populated (regression guard vs the empty state)
+    expect(regular).toBeGreaterThan(0); // regular essence pool populated (regression guard vs empty state)
+    expect(perfect).toBeGreaterThan(0); // perfect essence pool populated
+  });
+
+  it('perfect essences are single-tier deterministic mods that force-add onto a Rare (P=1)', () => {
+    // find a base with a perfect-essence entry
+    let mod;
+    outer: for (const base of data.bases.values())
+      for (const id of [...base.pools.essence.prefixes, ...base.pools.essence.suffixes]) {
+        const m = data.mods.get(id)!;
+        if (m.source === 'perfect_essence') { mod = m; break outer; }
+      }
+    expect(mod, 'a perfect-essence mod exists in 0.5.0').toBeDefined();
+    expect(mod!.tiers.length).toBe(1);
+    expect(mod!.tiers[0]!.weight).toBe(0); // deterministic — no roll weight
   });
 
   it('a regular essence deterministically forces its mod (P=1) onto a Magic item; 0 on white/rare', () => {

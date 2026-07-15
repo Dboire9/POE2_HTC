@@ -94,8 +94,11 @@ function parseEssenceSlug(slug) {
     : m[1] === 'Perfect_' ? 'PERFECT' : 'NORMAL';
   return { level, essence: m[2].replace(/_/g, ' ') };
 }
-const LEVEL_WORD = { LESSER: 'Lesser Essence of', NORMAL: 'Essence of', GREATER: 'Greater Essence of' };
+const LEVEL_WORD = { LESSER: 'Lesser Essence of', NORMAL: 'Essence of', GREATER: 'Greater Essence of', PERFECT: 'Perfect Essence of' };
 const hrefOf = (name) => (String(name).match(/href="([^"]+)"/) || [])[1] || null;
+// Essence base name from a slug, level prefix stripped: Perfect_Essence_of_the_Infinite -> "the Infinite".
+const essenceNameOf = (slug) =>
+  (slug || '').replace(/^(Lesser|Greater|Perfect)_/, '').replace(/^Essence_of_/, '').replace(/_/g, ' ') || null;
 
 // ---- load current 0.5.0 (normal-only) snapshot ------------------------------------------------
 const modsFile = JSON.parse(readFileSync(join(OUT, 'mods.json'), 'utf8'));
@@ -109,10 +112,10 @@ for (const base of basesFile.items) {
 }
 const modsById = new Map(modsFile.mods.map((m) => [m.id, m]));
 
-// essence name -> { LESSER:Set, NORMAL:Set, GREATER:Set } of forced mod ids (for essences.json)
+// essence name -> { LESSER:Set, NORMAL:Set, GREATER:Set, PERFECT:Set } of forced mod ids (for essences.json)
 const essenceMap = new Map();
 const addEssenceForce = (essence, level, modId) => {
-  if (!essenceMap.has(essence)) essenceMap.set(essence, { LESSER: new Set(), NORMAL: new Set(), GREATER: new Set() });
+  if (!essenceMap.has(essence)) essenceMap.set(essence, { LESSER: new Set(), NORMAL: new Set(), GREATER: new Set(), PERFECT: new Set() });
   essenceMap.get(essence)[level]?.add(modId);
 };
 
@@ -127,7 +130,7 @@ function getPools(page) {
   return pageCache.get(page);
 }
 
-let desecratedAdded = 0; let essenceAdded = 0;
+let desecratedAdded = 0; let essenceAdded = 0; let perfectAdded = 0;
 
 for (const base of basesFile.items) {
   const pools = getPools(pageName(base));
@@ -204,6 +207,36 @@ for (const base of basesFile.items) {
     for (const r of g.rows) addEssenceForce(r.essence, r.level, id);
     essenceAdded++;
   }
+
+  // -- PERFECT ESSENCE: 1-tier deterministic mods (the "Perfect Essence of X" corrupt/unique essences).
+  // They apply to a RARE (remove-one-random + add this guaranteed mod) — a different flow from regular
+  // essences — so they live in the essence pool tagged source 'perfect_essence' (the from-white picker
+  // filters them out; the from-item planner offers them). One mod per distinct (type, family, stat).
+  const perfectSeen = new Set();
+  for (const row of pools.perfect_essence || []) {
+    if (!keepForBase(row, attrTag)) continue;
+    if (row.type !== 'prefix' && row.type !== 'suffix') { warn(`perfect-essence bad type on ${base.id}: ${row.type}`); continue; }
+    const family = row.family || slug(row.text);
+    if (!family) { warn(`perfect-essence no family on ${base.id}: ${row.text}`); continue; }
+    // Dedup key is family+stat WITHOUT type: some perfect outcomes (e.g. "Mark of the Abyssal Lord",
+    // family EssenceAbyss) are listed by poe2db as BOTH a prefix and a suffix — the same single mod, so
+    // keep one (first-seen type wins) rather than a spurious prefix+suffix pair on every base.
+    const dedup = `${family}:${cleanText(row.text)}`;
+    if (perfectSeen.has(dedup)) continue; // same perfect outcome duplicated (attribute variants / both slots)
+    perfectSeen.add(dedup);
+    const essence = essenceNameOf(hrefOf(row.name)) || family;
+    const id = uniqueId(`PerfectEssence_${family}`);
+    const mod = {
+      id, group: `PerfectEssence_${family}`, field: `PerfectEssence_${family}`, source: 'perfect_essence', type: row.type,
+      categories: [], family, tags: [],
+      text: cleanText(row.text),
+      tiers: [{ name: `Perfect Essence of ${essence}`, ilvl: row.ilvl ?? 0, weight: 0, ranges: parseRanges(row.text), stats: [] }],
+    };
+    modsById.set(id, mod); modsFile.mods.push(mod);
+    base.pools.essence[row.type === 'prefix' ? 'prefixes' : 'suffixes'].push(id);
+    addEssenceForce(essence, 'PERFECT', id);
+    perfectAdded++;
+  }
 }
 
 function slug(text) {
@@ -215,16 +248,19 @@ function slug(text) {
 modsFile.mods.sort((a, b) => a.id.localeCompare(b.id));
 modsFile.count = modsFile.mods.length;
 modsFile.source = 'NORMAL structure from RePoE-fork PoE2 dump (client 4.5.4.3) + NORMAL weights from '
-  + 'poe2db (DropChance). ESSENCE + DESECRATED pools built from poe2db per-class pages by '
-  + 'apply_pools.mjs (essence tiers = Lesser/Normal/Greater levels, deterministic weight 0; desecrated '
-  + '= one mod per row, weight 1, boss tags preserved). Perfect essences deferred. '
+  + 'poe2db (DropChance). ESSENCE + DESECRATED + PERFECT_ESSENCE pools built from poe2db per-class pages '
+  + 'by apply_pools.mjs (essence tiers = Lesser/Normal/Greater levels; perfect_essence = 1-tier, both '
+  + 'deterministic weight 0; desecrated = one mod per row, weight 1, boss tags preserved). '
   + 'weights_overrides.json still wins at load time.';
 basesFile.items.sort((a, b) => a.id.localeCompare(b.id));
 
 const essences = [...essenceMap.entries()]
   .map(([name, lv]) => ({
     name,
-    tiers: { LESSER: [...lv.LESSER].sort(), NORMAL: [...lv.NORMAL].sort(), GREATER: [...lv.GREATER].sort() },
+    tiers: {
+      LESSER: [...lv.LESSER].sort(), NORMAL: [...lv.NORMAL].sort(),
+      GREATER: [...lv.GREATER].sort(), PERFECT: [...lv.PERFECT].sort(),
+    },
   }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -238,8 +274,8 @@ writeFileSync(join(OUT, 'essences.json'), JSON.stringify({
 
 const bySrc = {};
 for (const m of modsFile.mods) bySrc[m.source] = (bySrc[m.source] || 0) + 1;
-console.log('apply_pools.mjs — merged essence + desecrated into 0.5.0');
-console.log(`  desecrated mods added: ${desecratedAdded}   essence mods added: ${essenceAdded}`);
+console.log('apply_pools.mjs — merged essence + desecrated + perfect_essence into 0.5.0');
+console.log(`  desecrated: ${desecratedAdded}   essence: ${essenceAdded}   perfect_essence: ${perfectAdded}`);
 console.log(`  mods by source now:`, bySrc);
 console.log(`  essences (distinct): ${essences.length}   total mods: ${modsFile.count}`);
 if (warnings.length) {

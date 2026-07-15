@@ -60,6 +60,47 @@ describe('optimizeFromItem — transform an existing rare (hand-computed)', () =
   });
 });
 
+describe('optimizeFromItem — perfect essences (hand-computed)', () => {
+  // Base S: normal prefix NP1 + suffix NS1, and a PERFECT-ESSENCE prefix PE1 (in the essence pool).
+  const pmk = (id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source']): Mod =>
+    ({ id, group: id, field: id, source, type, categories: [], family, tags: [], text: id,
+       tiers: [{ name: 't1', ilvl: 1, weight: source === 'perfect_essence' ? 0 : 20, ranges: [], stats: [] }] });
+  const pbase: ItemBase = {
+    id: 'S', name: 'S', category: 'C',
+    pools: { normal: { prefixes: ['NP1'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: ['PE1'], suffixes: [] } },
+  };
+  const pdata: PatchData = {
+    patch: 't',
+    mods: new Map([
+      ['NP1', pmk('NP1', 'prefix', 'Fp1', 'normal')], ['NS1', pmk('NS1', 'suffix', 'Fs1', 'normal')],
+      ['PE1', pmk('PE1', 'prefix', 'Fpe', 'perfect_essence')],
+    ]),
+    bases: new Map([['S', pbase]]),
+  };
+  const pprices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 0.2, perfect_essence: 15 }, omens: {} };
+  const rare = (pre: string[], suf: string[]): ItemState =>
+    ({ base: pbase, level: 100, rarity: 'rare', prefixes: pre.map(placed), suffixes: suf.map(placed) });
+
+  it('adds a perfect-essence mod by sacrificing junk, using a Crystallisation omen to make the removal certain', () => {
+    // Start [NP1 | NS1]; target {NS1, PE1}: NP1 is junk (the only prefix), PE1 (perfect prefix) is missing.
+    const r = optimizeFromItem(pdata, pprices, rare(['NP1'], ['NS1']), [{ modId: 'NS1' }, { modId: 'PE1' }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const best = r.frontier[r.frontier.length - 1]!; // surest
+    // A raw Perfect Essence removes one of the 2 mods uniformly (½ it hits NP1). A Sinistral (prefix)
+    // Crystallisation constrains the removal to the prefix side — NP1 is the only prefix → removed for
+    // certain (P=1). With free omens here, that variant dominates and is the surest plan.
+    expect(best.probability).toBeCloseTo(1, 6);
+    const step = best.steps.find((s) => s.currency === 'perfect-essence')!;
+    expect(step).toMatchObject({ currency: 'perfect-essence', add: 'PE1', remove: 'NP1', omen: 'sinistral' });
+  });
+
+  it('rejects a perfect target with no junk mod to sacrifice', () => {
+    // [NP1 | NS1] already holds both wanted rolled mods, so there is no spare mod to feed the essence.
+    expect(() => optimizeFromItem(pdata, pprices, rare(['NP1'], ['NS1']),
+      [{ modId: 'NP1' }, { modId: 'NS1' }, { modId: 'PE1' }])).toThrow(/Perfect Essence/i);
+  });
+});
+
 describe('optimizeFromItem — real data (Wands)', () => {
   const real = loadPatch('data/patches/0.5');
   const wands = real.bases.get('Wands')!;

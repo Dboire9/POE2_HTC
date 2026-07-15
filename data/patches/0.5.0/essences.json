@@ -2,7 +2,7 @@
   "patch": "0.5.0",
   "generated": "2026-07-13",
   "source": "poe2db per-class essence rows, grouped by essence -> level -> forced mod ids (apply_pools.mjs)",
-  "count": 19,
+  "count": 37,
   "essences": [
     {
       "name": "Abrasion",
@@ -30,6 +30,33 @@
           "Quarterstaves/Essence_PhysicalDamage",
           "Spears/Essence_PhysicalDamage",
           "TwoHand_Maces/Essence_PhysicalDamage"
+        ],
+        "PERFECT": [
+          "Bows/PerfectEssence_MartialWeaponGainedDamage",
+          "Crossbows/PerfectEssence_MartialWeaponGainedDamage",
+          "OneHand_Maces/PerfectEssence_MartialWeaponGainedDamage",
+          "Quarterstaves/PerfectEssence_MartialWeaponGainedDamage",
+          "Spears/PerfectEssence_MartialWeaponGainedDamage",
+          "TwoHand_Maces/PerfectEssence_MartialWeaponGainedDamage"
+        ]
+      }
+    },
+    {
+      "name": "Adaptive Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Gloves_dex/PerfectEssence_IncreasedAttackSpeed",
+          "Gloves_dex_int/PerfectEssence_IncreasedAttackSpeed",
+          "Gloves_int/PerfectEssence_IncreasedAttackSpeed",
+          "Gloves_str/PerfectEssence_IncreasedAttackSpeed",
+          "Gloves_str_dex/PerfectEssence_IncreasedAttackSpeed",
+          "Gloves_str_int/PerfectEssence_IncreasedAttackSpeed",
+          "Sceptres/PerfectEssence_MinionGainPuppetMasterOnCommand",
+          "Staves/PerfectEssence_FireDamage",
+          "Wands/PerfectEssence_FireDamage"
         ]
       }
     },
@@ -50,6 +77,11 @@
           "Foci/Essence_IncreasedCastSpeed",
           "Staves/Essence_IncreasedCastSpeed",
           "Wands/Essence_IncreasedCastSpeed"
+        ],
+        "PERFECT": [
+          "Foci/PerfectEssence_ManaCostEfficiency",
+          "Staves/PerfectEssence_ManaCostEfficiency",
+          "Wands/PerfectEssence_ManaCostEfficiency"
         ]
       }
     },
@@ -86,6 +118,32 @@
           "Quivers/Essence_IncreasedAccuracy",
           "Spears/Essence_IncreasedAccuracy",
           "TwoHand_Maces/Essence_IncreasedAccuracy"
+        ],
+        "PERFECT": [
+          "Bows/PerfectEssence_IncreaseSocketedGemLevel",
+          "Crossbows/PerfectEssence_IncreaseSocketedGemLevel",
+          "OneHand_Maces/PerfectEssence_IncreaseSocketedGemLevel",
+          "Quarterstaves/PerfectEssence_IncreaseSocketedGemLevel",
+          "Spears/PerfectEssence_IncreaseSocketedGemLevel",
+          "TwoHand_Maces/PerfectEssence_IncreaseSocketedGemLevel"
+        ]
+      }
+    },
+    {
+      "name": "Celestial Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Bows/PerfectEssence_IncreasedAccuracy",
+          "Crossbows/PerfectEssence_IncreasedAccuracy",
+          "OneHand_Maces/PerfectEssence_IncreasedAccuracy",
+          "Quarterstaves/PerfectEssence_IncreasedAccuracy",
+          "Spears/PerfectEssence_IncreasedAccuracy",
+          "Staves/PerfectEssence_IncreasedMana",
+          "TwoHand_Maces/PerfectEssence_IncreasedAccuracy",
+          "Wands/PerfectEssence_IncreasedMana"
         ]
       }
     },
@@ -100,6 +158,59 @@
         ],
         "GREATER": [
           "Sceptres/Essence_AllDamage"
+        ],
+        "PERFECT": [
+          "Sceptres/PerfectEssence_AuraEffect"
+        ]
+      }
+    },
+    {
+      "name": "Cyclonic Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Body_Armours_dex/PerfectEssence_SlowPotency",
+          "Body_Armours_dex_int/PerfectEssence_SlowPotency",
+          "Body_Armours_int/PerfectEssence_SlowPotency",
+          "Body_Armours_str/PerfectEssence_SlowPotency",
+          "Body_Armours_str_dex/PerfectEssence_SlowPotency",
+          "Body_Armours_str_int/PerfectEssence_SlowPotency",
+          "Boots_dex/PerfectEssence_SkillEffectDuration",
+          "Boots_dex_int/PerfectEssence_SkillEffectDuration",
+          "Boots_int/PerfectEssence_SkillEffectDuration",
+          "Boots_str/PerfectEssence_SkillEffectDuration",
+          "Boots_str_dex/PerfectEssence_SkillEffectDuration",
+          "Boots_str_int/PerfectEssence_SkillEffectDuration",
+          "Gloves_dex/PerfectEssence_DamagingAilmentDuration",
+          "Gloves_dex_int/PerfectEssence_DamagingAilmentDuration",
+          "Gloves_int/PerfectEssence_DamagingAilmentDuration",
+          "Gloves_str/PerfectEssence_DamagingAilmentDuration",
+          "Gloves_str_dex/PerfectEssence_DamagingAilmentDuration",
+          "Gloves_str_int/PerfectEssence_DamagingAilmentDuration",
+          "Helmets_dex/PerfectEssence_ArchonDuration",
+          "Helmets_dex_int/PerfectEssence_ArchonDuration",
+          "Helmets_int/PerfectEssence_ArchonDuration",
+          "Helmets_str/PerfectEssence_ArchonDuration",
+          "Helmets_str_dex/PerfectEssence_ArchonDuration",
+          "Helmets_str_int/PerfectEssence_ArchonDuration"
+        ]
+      }
+    },
+    {
+      "name": "Delirium",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Body_Armours_dex/PerfectEssence_EssenceGrantedPassive",
+          "Body_Armours_dex_int/PerfectEssence_EssenceGrantedPassive",
+          "Body_Armours_int/PerfectEssence_EssenceGrantedPassive",
+          "Body_Armours_str/PerfectEssence_EssenceGrantedPassive",
+          "Body_Armours_str_dex/PerfectEssence_EssenceGrantedPassive",
+          "Body_Armours_str_int/PerfectEssence_EssenceGrantedPassive"
         ]
       }
     },
@@ -129,6 +240,14 @@
           "Quarterstaves/Essence_LightningDamage",
           "Spears/Essence_LightningDamage_2",
           "TwoHand_Maces/Essence_LightningDamage"
+        ],
+        "PERFECT": [
+          "Bows/PerfectEssence_MartialWeaponGainedDamage_4",
+          "Crossbows/PerfectEssence_MartialWeaponGainedDamage_4",
+          "OneHand_Maces/PerfectEssence_MartialWeaponGainedDamage_4",
+          "Quarterstaves/PerfectEssence_MartialWeaponGainedDamage_4",
+          "Spears/PerfectEssence_MartialWeaponGainedDamage_4",
+          "TwoHand_Maces/PerfectEssence_MartialWeaponGainedDamage_4"
         ]
       }
     },
@@ -212,6 +331,43 @@
           "Helmets_str/Essence_DefencesPercent",
           "Helmets_str_dex/Essence_DefencesPercent",
           "Helmets_str_int/Essence_DefencesPercent"
+        ],
+        "PERFECT": [
+          "Amulets/PerfectEssence_AllDefences"
+        ]
+      }
+    },
+    {
+      "name": "Expansive Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Body_Armours_dex/PerfectEssence_PresenceRadius",
+          "Body_Armours_dex_int/PerfectEssence_PresenceRadius",
+          "Body_Armours_int/PerfectEssence_PresenceRadius",
+          "Body_Armours_str/PerfectEssence_PresenceRadius",
+          "Body_Armours_str_dex/PerfectEssence_PresenceRadius",
+          "Body_Armours_str_int/PerfectEssence_PresenceRadius",
+          "Boots_dex/PerfectEssence_TemporaryMinionLimit",
+          "Boots_dex_int/PerfectEssence_TemporaryMinionLimit",
+          "Boots_int/PerfectEssence_TemporaryMinionLimit",
+          "Boots_str/PerfectEssence_TemporaryMinionLimit",
+          "Boots_str_dex/PerfectEssence_TemporaryMinionLimit",
+          "Boots_str_int/PerfectEssence_TemporaryMinionLimit",
+          "Gloves_dex/PerfectEssence_RemnantPickupRadius",
+          "Gloves_dex_int/PerfectEssence_RemnantPickupRadius",
+          "Gloves_int/PerfectEssence_RemnantPickupRadius",
+          "Gloves_str/PerfectEssence_RemnantPickupRadius",
+          "Gloves_str_dex/PerfectEssence_RemnantPickupRadius",
+          "Gloves_str_int/PerfectEssence_RemnantPickupRadius",
+          "Helmets_dex/PerfectEssence_ManaCostEfficiency",
+          "Helmets_dex_int/PerfectEssence_ManaCostEfficiency",
+          "Helmets_int/PerfectEssence_ManaCostEfficiency",
+          "Helmets_str/PerfectEssence_ManaCostEfficiency",
+          "Helmets_str_dex/PerfectEssence_ManaCostEfficiency",
+          "Helmets_str_int/PerfectEssence_ManaCostEfficiency"
         ]
       }
     },
@@ -241,6 +397,14 @@
           "Quarterstaves/Essence_FireDamage",
           "Spears/Essence_FireDamage",
           "TwoHand_Maces/Essence_FireDamage"
+        ],
+        "PERFECT": [
+          "Bows/PerfectEssence_MartialWeaponGainedDamage_2",
+          "Crossbows/PerfectEssence_MartialWeaponGainedDamage_2",
+          "OneHand_Maces/PerfectEssence_MartialWeaponGainedDamage_2",
+          "Quarterstaves/PerfectEssence_MartialWeaponGainedDamage_2",
+          "Spears/PerfectEssence_MartialWeaponGainedDamage_2",
+          "TwoHand_Maces/PerfectEssence_MartialWeaponGainedDamage_2"
         ]
       }
     },
@@ -345,6 +509,14 @@
           "Shields_str/Essence_LightningResistance",
           "Shields_str_dex/Essence_LightningResistance",
           "Shields_str_int/Essence_LightningResistance"
+        ],
+        "PERFECT": [
+          "Gloves_dex/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+          "Gloves_dex_int/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+          "Gloves_int/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+          "Gloves_str/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+          "Gloves_str_dex/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+          "Gloves_str_int/PerfectEssence_LightningDamageTakenRecoupedAsLife"
         ]
       }
     },
@@ -374,6 +546,77 @@
           "Quarterstaves/Essence_IncreasedAttackSpeed",
           "Spears/Essence_IncreasedAttackSpeed",
           "TwoHand_Maces/Essence_IncreasedAttackSpeed"
+        ],
+        "PERFECT": [
+          "Bows/PerfectEssence_Onslaught",
+          "Crossbows/PerfectEssence_Onslaught",
+          "OneHand_Maces/PerfectEssence_Onslaught",
+          "Quarterstaves/PerfectEssence_Onslaught",
+          "Spears/PerfectEssence_Onslaught",
+          "TwoHand_Maces/PerfectEssence_Onslaught"
+        ]
+      }
+    },
+    {
+      "name": "Horror",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Boots_dex/PerfectEssence_SoulCore",
+          "Boots_dex_int/PerfectEssence_SoulCore",
+          "Boots_int/PerfectEssence_SoulCore",
+          "Boots_str/PerfectEssence_SoulCore",
+          "Boots_str_dex/PerfectEssence_SoulCore",
+          "Boots_str_int/PerfectEssence_SoulCore",
+          "Gloves_dex/PerfectEssence_SoulCore",
+          "Gloves_dex_int/PerfectEssence_SoulCore",
+          "Gloves_int/PerfectEssence_SoulCore",
+          "Gloves_str/PerfectEssence_SoulCore",
+          "Gloves_str_dex/PerfectEssence_SoulCore",
+          "Gloves_str_int/PerfectEssence_SoulCore"
+        ]
+      }
+    },
+    {
+      "name": "Hysteria",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Amulets/PerfectEssence_DamageTakenGainedAsLife",
+          "Body_Armours_dex/PerfectEssence_Thorns",
+          "Body_Armours_dex_int/PerfectEssence_Thorns",
+          "Body_Armours_int/PerfectEssence_Thorns",
+          "Body_Armours_str/PerfectEssence_Thorns",
+          "Body_Armours_str_dex/PerfectEssence_Thorns",
+          "Body_Armours_str_int/PerfectEssence_Thorns",
+          "Boots_dex/PerfectEssence_MovementVelocity",
+          "Boots_dex_int/PerfectEssence_MovementVelocity",
+          "Boots_int/PerfectEssence_MovementVelocity",
+          "Boots_str/PerfectEssence_MovementVelocity",
+          "Boots_str_dex/PerfectEssence_MovementVelocity",
+          "Boots_str_int/PerfectEssence_MovementVelocity",
+          "Bucklers/PerfectEssence_IncreasedShieldBlockPercentage",
+          "Gloves_dex/PerfectEssence_CriticalStrikeMultiplier",
+          "Gloves_dex_int/PerfectEssence_CriticalStrikeMultiplier",
+          "Gloves_int/PerfectEssence_CriticalStrikeMultiplier",
+          "Gloves_str/PerfectEssence_CriticalStrikeMultiplier",
+          "Gloves_str_dex/PerfectEssence_CriticalStrikeMultiplier",
+          "Gloves_str_int/PerfectEssence_CriticalStrikeMultiplier",
+          "Helmets_dex/PerfectEssence_IncreaseSocketedGemLevel",
+          "Helmets_dex_int/PerfectEssence_IncreaseSocketedGemLevel",
+          "Helmets_int/PerfectEssence_IncreaseSocketedGemLevel",
+          "Helmets_str/PerfectEssence_IncreaseSocketedGemLevel",
+          "Helmets_str_dex/PerfectEssence_IncreaseSocketedGemLevel",
+          "Helmets_str_int/PerfectEssence_IncreaseSocketedGemLevel",
+          "Quivers/PerfectEssence_DamageWithWeaponTypeSkill",
+          "Rings/PerfectEssence_ManaRegeneration",
+          "Shields_str/PerfectEssence_IncreasedShieldBlockPercentage",
+          "Shields_str_dex/PerfectEssence_IncreasedShieldBlockPercentage",
+          "Shields_str_int/PerfectEssence_IncreasedShieldBlockPercentage"
         ]
       }
     },
@@ -403,6 +646,14 @@
           "Quarterstaves/Essence_ColdDamage",
           "Spears/Essence_ColdDamage",
           "TwoHand_Maces/Essence_ColdDamage"
+        ],
+        "PERFECT": [
+          "Bows/PerfectEssence_MartialWeaponGainedDamage_3",
+          "Crossbows/PerfectEssence_MartialWeaponGainedDamage_3",
+          "OneHand_Maces/PerfectEssence_MartialWeaponGainedDamage_3",
+          "Quarterstaves/PerfectEssence_MartialWeaponGainedDamage_3",
+          "Spears/PerfectEssence_MartialWeaponGainedDamage_3",
+          "TwoHand_Maces/PerfectEssence_MartialWeaponGainedDamage_3"
         ]
       }
     },
@@ -507,6 +758,39 @@
           "Shields_str/Essence_FireResistance",
           "Shields_str_dex/Essence_FireResistance",
           "Shields_str_int/Essence_FireResistance"
+        ],
+        "PERFECT": []
+      }
+    },
+    {
+      "name": "Mystic Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Boots_dex/PerfectEssence_BaseSpirit",
+          "Boots_dex_int/PerfectEssence_BaseSpirit",
+          "Boots_int/PerfectEssence_BaseSpirit",
+          "Boots_str/PerfectEssence_BaseSpirit",
+          "Boots_str_dex/PerfectEssence_BaseSpirit",
+          "Boots_str_int/PerfectEssence_BaseSpirit",
+          "Gloves_dex/PerfectEssence_IncreasedAttackAreaOfEffect",
+          "Gloves_dex_int/PerfectEssence_IncreasedAttackAreaOfEffect",
+          "Gloves_int/PerfectEssence_IncreasedAttackAreaOfEffect",
+          "Gloves_str/PerfectEssence_IncreasedAttackAreaOfEffect",
+          "Gloves_str_dex/PerfectEssence_IncreasedAttackAreaOfEffect",
+          "Gloves_str_int/PerfectEssence_IncreasedAttackAreaOfEffect",
+          "Helmets_dex/PerfectEssence_SpellAreaOfEffect",
+          "Helmets_dex_int/PerfectEssence_SpellAreaOfEffect",
+          "Helmets_int/PerfectEssence_SpellAreaOfEffect",
+          "Helmets_str/PerfectEssence_SpellAreaOfEffect",
+          "Helmets_str_dex/PerfectEssence_SpellAreaOfEffect",
+          "Helmets_str_int/PerfectEssence_SpellAreaOfEffect",
+          "Quivers/PerfectEssence_Chain",
+          "Sceptres/PerfectEssence_ElementalInfusion",
+          "Staves/PerfectEssence_ElementalInfusion",
+          "Wands/PerfectEssence_ElementalInfusion"
         ]
       }
     },
@@ -578,6 +862,63 @@
           "Helmets_str_dex/Essence_ItemFoundRarityIncrease",
           "Helmets_str_int/Essence_ItemFoundRarityIncrease",
           "Rings/Essence_ItemFoundRarityIncrease"
+        ],
+        "PERFECT": [
+          "Gloves_dex/PerfectEssence_EssenceGoldDropped",
+          "Gloves_dex_int/PerfectEssence_EssenceGoldDropped",
+          "Gloves_int/PerfectEssence_EssenceGoldDropped",
+          "Gloves_str/PerfectEssence_EssenceGoldDropped",
+          "Gloves_str_dex/PerfectEssence_EssenceGoldDropped",
+          "Gloves_str_int/PerfectEssence_EssenceGoldDropped"
+        ]
+      }
+    },
+    {
+      "name": "Prismatic Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Bows/PerfectEssence_AilmentEffect",
+          "Crossbows/PerfectEssence_AilmentEffect",
+          "Foci/PerfectEssence_ExposureEffect",
+          "Gloves_dex/PerfectEssence_ElementalPenetration",
+          "Gloves_dex_int/PerfectEssence_ElementalPenetration",
+          "Gloves_int/PerfectEssence_ElementalPenetration",
+          "Gloves_str/PerfectEssence_ElementalPenetration",
+          "Gloves_str_dex/PerfectEssence_ElementalPenetration",
+          "Gloves_str_int/PerfectEssence_ElementalPenetration",
+          "OneHand_Maces/PerfectEssence_AilmentEffect",
+          "Quarterstaves/PerfectEssence_AilmentEffect",
+          "Sceptres/PerfectEssence_MinionDamagingAilments",
+          "Spears/PerfectEssence_AilmentEffect",
+          "Staves/PerfectEssence_ExposureEffect",
+          "TwoHand_Maces/PerfectEssence_AilmentEffect",
+          "Wands/PerfectEssence_ExposureEffect"
+        ]
+      }
+    },
+    {
+      "name": "Protective Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Bows/PerfectEssence_BaseRunicWard",
+          "Bucklers/PerfectEssence_GainFlatLifeOnBlock",
+          "Crossbows/PerfectEssence_BaseRunicWard",
+          "OneHand_Maces/PerfectEssence_BaseRunicWard",
+          "Quarterstaves/PerfectEssence_BaseRunicWard",
+          "Sceptres/PerfectEssence_BaseRunicWard",
+          "Shields_str/PerfectEssence_GainFlatLifeOnBlock",
+          "Shields_str_dex/PerfectEssence_GainFlatLifeOnBlock",
+          "Shields_str_int/PerfectEssence_GainFlatLifeOnBlock",
+          "Spears/PerfectEssence_BaseRunicWard",
+          "Staves/PerfectEssence_BaseRunicWard",
+          "TwoHand_Maces/PerfectEssence_BaseRunicWard",
+          "Wands/PerfectEssence_BaseRunicWard"
         ]
       }
     },
@@ -682,6 +1023,26 @@
           "Shields_str/Essence_ChaosResistance",
           "Shields_str_dex/Essence_ChaosResistance",
           "Shields_str_int/Essence_ChaosResistance"
+        ],
+        "PERFECT": [
+          "Body_Armours_dex/PerfectEssence_PhysicalDamageTakenAsChaos",
+          "Body_Armours_dex_int/PerfectEssence_PhysicalDamageTakenAsChaos",
+          "Body_Armours_int/PerfectEssence_PhysicalDamageTakenAsChaos",
+          "Body_Armours_str/PerfectEssence_PhysicalDamageTakenAsChaos",
+          "Body_Armours_str_dex/PerfectEssence_PhysicalDamageTakenAsChaos",
+          "Body_Armours_str_int/PerfectEssence_PhysicalDamageTakenAsChaos"
+        ]
+      }
+    },
+    {
+      "name": "Runic Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Amulets/PerfectEssence_RunicWardPercent",
+          "Rings/PerfectEssence_BaseRunicWard"
         ]
       }
     },
@@ -720,6 +1081,14 @@
           "Staves/Essence_SpellCriticalStrikeChanceIncrease",
           "TwoHand_Maces/Essence_CriticalStrikeChanceIncrease",
           "Wands/Essence_SpellCriticalStrikeChanceIncrease"
+        ],
+        "PERFECT": [
+          "Body_Armours_dex/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+          "Body_Armours_dex_int/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+          "Body_Armours_int/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+          "Body_Armours_str/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+          "Body_Armours_str_dex/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+          "Body_Armours_str_int/PerfectEssence_ReducedCriticalStrikeDamageTaken"
         ]
       }
     },
@@ -740,6 +1109,82 @@
           "Foci/Essence_WeaponCasterDamagePrefix",
           "Staves/Essence_WeaponCasterDamagePrefix",
           "Wands/Essence_WeaponCasterDamagePrefix"
+        ],
+        "PERFECT": [
+          "Staves/PerfectEssence_IncreaseSocketedGemLevel",
+          "Wands/PerfectEssence_IncreaseSocketedGemLevel"
+        ]
+      }
+    },
+    {
+      "name": "Sovereign Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Amulets/PerfectEssence_EnchantmentHeistArmour",
+          "Body_Armours_dex/PerfectEssence_LocalRunicWardPercent",
+          "Body_Armours_dex_int/PerfectEssence_LocalRunicWardPercent",
+          "Body_Armours_int/PerfectEssence_LocalRunicWardPercent",
+          "Body_Armours_str/PerfectEssence_LocalRunicWardPercent",
+          "Body_Armours_str_dex/PerfectEssence_LocalRunicWardPercent",
+          "Body_Armours_str_int/PerfectEssence_LocalRunicWardPercent",
+          "Boots_dex/PerfectEssence_LocalRunicWardPercent",
+          "Boots_dex_int/PerfectEssence_LocalRunicWardPercent",
+          "Boots_int/PerfectEssence_LocalRunicWardPercent",
+          "Boots_str/PerfectEssence_LocalRunicWardPercent",
+          "Boots_str_dex/PerfectEssence_LocalRunicWardPercent",
+          "Boots_str_int/PerfectEssence_LocalRunicWardPercent",
+          "Bows/PerfectEssence_SoulCore",
+          "Bucklers/PerfectEssence_LocalRunicWardPercent",
+          "Crossbows/PerfectEssence_SoulCore",
+          "Foci/PerfectEssence_LocalRunicWardPercent",
+          "Gloves_dex/PerfectEssence_LocalRunicWardPercent",
+          "Gloves_dex_int/PerfectEssence_LocalRunicWardPercent",
+          "Gloves_int/PerfectEssence_LocalRunicWardPercent",
+          "Gloves_str/PerfectEssence_LocalRunicWardPercent",
+          "Gloves_str_dex/PerfectEssence_LocalRunicWardPercent",
+          "Gloves_str_int/PerfectEssence_LocalRunicWardPercent",
+          "Helmets_dex/PerfectEssence_LocalRunicWardPercent",
+          "Helmets_dex_int/PerfectEssence_LocalRunicWardPercent",
+          "Helmets_int/PerfectEssence_LocalRunicWardPercent",
+          "Helmets_str/PerfectEssence_LocalRunicWardPercent",
+          "Helmets_str_dex/PerfectEssence_LocalRunicWardPercent",
+          "Helmets_str_int/PerfectEssence_LocalRunicWardPercent",
+          "OneHand_Maces/PerfectEssence_SoulCore",
+          "Quarterstaves/PerfectEssence_SoulCore",
+          "Rings/PerfectEssence_EnchantmentHeistArmour",
+          "Sceptres/PerfectEssence_SoulCore",
+          "Shields_str/PerfectEssence_LocalRunicWardPercent",
+          "Shields_str_dex/PerfectEssence_LocalRunicWardPercent",
+          "Shields_str_int/PerfectEssence_LocalRunicWardPercent",
+          "Spears/PerfectEssence_SoulCore",
+          "Staves/PerfectEssence_SoulCore",
+          "TwoHand_Maces/PerfectEssence_SoulCore",
+          "Wands/PerfectEssence_SoulCore"
+        ]
+      }
+    },
+    {
+      "name": "Swift Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Bucklers/PerfectEssence_SummonTotemCastSpeed",
+          "Foci/PerfectEssence_SummonTotemCastSpeed",
+          "Gloves_dex/PerfectEssence_IncreasedCastSpeed",
+          "Gloves_dex_int/PerfectEssence_IncreasedCastSpeed",
+          "Gloves_int/PerfectEssence_IncreasedCastSpeed",
+          "Gloves_str/PerfectEssence_IncreasedCastSpeed",
+          "Gloves_str_dex/PerfectEssence_IncreasedCastSpeed",
+          "Gloves_str_int/PerfectEssence_IncreasedCastSpeed",
+          "Rings/PerfectEssence_IncreasedCastSpeed",
+          "Shields_str/PerfectEssence_SummonTotemCastSpeed",
+          "Shields_str_dex/PerfectEssence_SummonTotemCastSpeed",
+          "Shields_str_int/PerfectEssence_SummonTotemCastSpeed"
         ]
       }
     },
@@ -844,6 +1289,65 @@
           "Shields_str/Essence_ColdResistance",
           "Shields_str_dex/Essence_ColdResistance",
           "Shields_str_int/Essence_ColdResistance"
+        ],
+        "PERFECT": [
+          "Helmets_dex/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+          "Helmets_dex_int/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+          "Helmets_int/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+          "Helmets_str/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+          "Helmets_str_dex/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+          "Helmets_str_int/PerfectEssence_ColdDamageTakenRecoupedAsLife"
+        ]
+      }
+    },
+    {
+      "name": "the Abyss",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Amulets/PerfectEssence_EssenceAbyss",
+          "Body_Armours_dex/PerfectEssence_EssenceAbyss",
+          "Body_Armours_dex_int/PerfectEssence_EssenceAbyss",
+          "Body_Armours_int/PerfectEssence_EssenceAbyss",
+          "Body_Armours_str/PerfectEssence_EssenceAbyss",
+          "Body_Armours_str_dex/PerfectEssence_EssenceAbyss",
+          "Body_Armours_str_int/PerfectEssence_EssenceAbyss",
+          "Boots_dex/PerfectEssence_EssenceAbyss",
+          "Boots_dex_int/PerfectEssence_EssenceAbyss",
+          "Boots_int/PerfectEssence_EssenceAbyss",
+          "Boots_str/PerfectEssence_EssenceAbyss",
+          "Boots_str_dex/PerfectEssence_EssenceAbyss",
+          "Boots_str_int/PerfectEssence_EssenceAbyss",
+          "Bows/PerfectEssence_EssenceAbyss",
+          "Bucklers/PerfectEssence_EssenceAbyss",
+          "Crossbows/PerfectEssence_EssenceAbyss",
+          "Foci/PerfectEssence_EssenceAbyss",
+          "Gloves_dex/PerfectEssence_EssenceAbyss",
+          "Gloves_dex_int/PerfectEssence_EssenceAbyss",
+          "Gloves_int/PerfectEssence_EssenceAbyss",
+          "Gloves_str/PerfectEssence_EssenceAbyss",
+          "Gloves_str_dex/PerfectEssence_EssenceAbyss",
+          "Gloves_str_int/PerfectEssence_EssenceAbyss",
+          "Helmets_dex/PerfectEssence_EssenceAbyss",
+          "Helmets_dex_int/PerfectEssence_EssenceAbyss",
+          "Helmets_int/PerfectEssence_EssenceAbyss",
+          "Helmets_str/PerfectEssence_EssenceAbyss",
+          "Helmets_str_dex/PerfectEssence_EssenceAbyss",
+          "Helmets_str_int/PerfectEssence_EssenceAbyss",
+          "OneHand_Maces/PerfectEssence_EssenceAbyss",
+          "Quarterstaves/PerfectEssence_EssenceAbyss",
+          "Quivers/PerfectEssence_EssenceAbyss",
+          "Rings/PerfectEssence_EssenceAbyss",
+          "Sceptres/PerfectEssence_EssenceAbyss",
+          "Shields_str/PerfectEssence_EssenceAbyss",
+          "Shields_str_dex/PerfectEssence_EssenceAbyss",
+          "Shields_str_int/PerfectEssence_EssenceAbyss",
+          "Spears/PerfectEssence_EssenceAbyss",
+          "Staves/PerfectEssence_EssenceAbyss",
+          "TwoHand_Maces/PerfectEssence_EssenceAbyss",
+          "Wands/PerfectEssence_EssenceAbyss"
         ]
       }
     },
@@ -945,6 +1449,26 @@
           "Shields_str/Essence_IncreasedLife",
           "Shields_str_dex/Essence_IncreasedLife",
           "Shields_str_int/Essence_IncreasedLife"
+        ],
+        "PERFECT": [
+          "Body_Armours_dex/PerfectEssence_MaximumLifeIncreasePercent",
+          "Body_Armours_dex_int/PerfectEssence_MaximumLifeIncreasePercent",
+          "Body_Armours_int/PerfectEssence_MaximumLifeIncreasePercent",
+          "Body_Armours_str/PerfectEssence_MaximumLifeIncreasePercent",
+          "Body_Armours_str_dex/PerfectEssence_MaximumLifeIncreasePercent",
+          "Body_Armours_str_int/PerfectEssence_MaximumLifeIncreasePercent"
+        ]
+      }
+    },
+    {
+      "name": "the Breach",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Amulets/PerfectEssence_LocalMaximumQuality",
+          "Rings/PerfectEssence_LocalMaximumQuality"
         ]
       }
     },
@@ -1064,6 +1588,11 @@
           "Helmets_str_dex/Essence_Strength",
           "Helmets_str_int/Essence_Intelligence",
           "Helmets_str_int/Essence_Strength"
+        ],
+        "PERFECT": [
+          "Amulets/PerfectEssence_PercentageDexterity",
+          "Amulets/PerfectEssence_PercentageIntelligence",
+          "Amulets/PerfectEssence_PercentageStrength"
         ]
       }
     },
@@ -1135,6 +1664,57 @@
           "Helmets_str_dex/Essence_IncreasedMana",
           "Helmets_str_int/Essence_IncreasedMana",
           "Rings/Essence_IncreasedMana"
+        ],
+        "PERFECT": [
+          "Rings/PerfectEssence_MaximumManaIncreasePercent"
+        ]
+      }
+    },
+    {
+      "name": "The Runebinders Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Bows/PerfectEssence_CurseEffectiveness",
+          "Crossbows/PerfectEssence_AdditionalBallistaTotem",
+          "Sceptres/PerfectEssence_MaximumPuppeteerStacks",
+          "Staves/PerfectEssence_ChanceToGainNaturesArchon",
+          "Wands/PerfectEssence_ElementalSkillLimit"
+        ]
+      }
+    },
+    {
+      "name": "The Runefathers Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "OneHand_Maces/PerfectEssence_GloryChanceToNotConsume",
+          "Quarterstaves/PerfectEssence_BellHitLimit",
+          "Spears/PerfectEssence_MeleeWeaponAndUnarmedRange",
+          "TwoHand_Maces/PerfectEssence_GloryChanceToNotConsume"
+        ]
+      }
+    },
+    {
+      "name": "Transcendent Alloy",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Bows/PerfectEssence_Strength",
+          "Crossbows/PerfectEssence_Strength",
+          "Foci/PerfectEssence_IncreasedCastSpeed",
+          "OneHand_Maces/PerfectEssence_Strength",
+          "Quarterstaves/PerfectEssence_Strength",
+          "Spears/PerfectEssence_Strength",
+          "Staves/PerfectEssence_IncreasedCastSpeed",
+          "TwoHand_Maces/PerfectEssence_Strength",
+          "Wands/PerfectEssence_IncreasedCastSpeed"
         ]
       }
     }

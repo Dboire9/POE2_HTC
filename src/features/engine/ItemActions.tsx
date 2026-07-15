@@ -4,7 +4,7 @@ import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, currencyActions, optimizeItem,
+  loadEngine, listBases, listMods, listPerfectEssences, currencyActions, optimizeItem,
   type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type CurrencyAction,
   type TargetInput, type EngineResult,
 } from '../../lib/engine';
@@ -72,11 +72,17 @@ const ItemActions: React.FC = () => {
     const normal = (l: readonly EngineMod[]) => l.filter((x) => x.source === 'normal');
     return { prefixes: normal(m.prefixes), suffixes: normal(m.suffixes) };
   }, [engine, baseId]);
+  // Perfect essences: only offered as TARGETS in the from-item flow (a Perfect Essence adds its
+  // guaranteed mod on a Rare while removing one random mod). Not shown in the current-item builder.
+  const perfect = useMemo(
+    () => (engine && baseId ? listPerfectEssences(engine.data, baseId) : []),
+    [engine, baseId],
+  );
   const modById = useMemo(() => {
     const m = new Map<string, EngineMod>();
-    for (const x of [...pool.prefixes, ...pool.suffixes]) m.set(x.id, x);
+    for (const x of [...pool.prefixes, ...pool.suffixes, ...perfect]) m.set(x.id, x);
     return m;
-  }, [pool]);
+  }, [pool, perfect]);
 
   // Reset everything when the base changes.
   useEffect(() => {
@@ -349,8 +355,10 @@ const ItemActions: React.FC = () => {
                   onChange={(e) => { const m = modById.get(e.target.value); if (m) addTarget(m); }}
                 >
                   <option value="">— choose —</option>
-                  {addable.filter((m) => !targetIds.has(m.id)).map((m) => (
-                    <option key={m.id} value={m.id}>{m.type === 'prefix' ? 'P' : 'S'} · {m.text}</option>
+                  {[...addable, ...perfect].filter((m) => !targetIds.has(m.id)).map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.type === 'prefix' ? 'P' : 'S'} · {m.text}{m.source === 'perfect' ? ' · Perfect Essence' : ''}
+                    </option>
                   ))}
                 </select>
               </label>

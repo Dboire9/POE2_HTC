@@ -89,14 +89,23 @@
         "essence": {
           "prefixes": [
             "Amulets/Essence_IncreasedLife",
-            "Amulets/Essence_IncreasedMana"
+            "Amulets/Essence_IncreasedMana",
+            "Amulets/PerfectEssence_AllDefences",
+            "Amulets/PerfectEssence_EssenceAbyss",
+            "Amulets/PerfectEssence_LocalMaximumQuality",
+            "Amulets/PerfectEssence_RunicWardPercent",
+            "Amulets/PerfectEssence_EnchantmentHeistArmour"
           ],
           "suffixes": [
             "Amulets/Essence_ChaosResistance",
             "Amulets/Essence_FireResistance",
             "Amulets/Essence_ColdResistance",
             "Amulets/Essence_LightningResistance",
-            "Amulets/Essence_ItemFoundRarityIncrease"
+            "Amulets/Essence_ItemFoundRarityIncrease",
+            "Amulets/PerfectEssence_PercentageStrength",
+            "Amulets/PerfectEssence_PercentageDexterity",
+            "Amulets/PerfectEssence_PercentageIntelligence",
+            "Amulets/PerfectEssence_DamageTakenGainedAsLife"
           ]
         }
       }
@@ -150,14 +159,23 @@
         "essence": {
           "prefixes": [
             "Body_Armours_dex/Essence_IncreasedLife",
-            "Body_Armours_dex/Essence_DefencesPercent"
+            "Body_Armours_dex/Essence_DefencesPercent",
+            "Body_Armours_dex/PerfectEssence_MaximumLifeIncreasePercent",
+            "Body_Armours_dex/PerfectEssence_PhysicalDamageTakenAsChaos",
+            "Body_Armours_dex/PerfectEssence_Thorns",
+            "Body_Armours_dex/PerfectEssence_EssenceGrantedPassive",
+            "Body_Armours_dex/PerfectEssence_EssenceAbyss",
+            "Body_Armours_dex/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Body_Armours_dex/Essence_ChaosResistance",
             "Body_Armours_dex/Essence_Dexterity",
             "Body_Armours_dex/Essence_FireResistance",
             "Body_Armours_dex/Essence_ColdResistance",
-            "Body_Armours_dex/Essence_LightningResistance"
+            "Body_Armours_dex/Essence_LightningResistance",
+            "Body_Armours_dex/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+            "Body_Armours_dex/PerfectEssence_PresenceRadius",
+            "Body_Armours_dex/PerfectEssence_SlowPotency"
           ]
         }
       }
@@ -213,7 +231,13 @@
         "essence": {
           "prefixes": [
             "Body_Armours_dex_int/Essence_IncreasedLife",
-            "Body_Armours_dex_int/Essence_DefencesPercent"
+            "Body_Armours_dex_int/Essence_DefencesPercent",
+            "Body_Armours_dex_int/PerfectEssence_MaximumLifeIncreasePercent",
+            "Body_Armours_dex_int/PerfectEssence_PhysicalDamageTakenAsChaos",
+            "Body_Armours_dex_int/PerfectEssence_Thorns",
+            "Body_Armours_dex_int/PerfectEssence_EssenceGrantedPassive",
+            "Body_Armours_dex_int/PerfectEssence_EssenceAbyss",
+            "Body_Armours_dex_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Body_Armours_dex_int/Essence_ChaosResistance",
@@ -221,7 +245,10 @@
             "Body_Armours_dex_int/Essence_Intelligence",
             "Body_Armours_dex_int/Essence_FireResistance",
             "Body_Armours_dex_int/Essence_ColdResistance",
-            "Body_Armours_dex_int/Essence_LightningResistance"
+            "Body_Armours_dex_int/Essence_LightningResistance",
+            "Body_Armours_dex_int/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+            "Body_Armours_dex_int/PerfectEssence_PresenceRadius",
+            "Body_Armours_dex_int/PerfectEssence_SlowPotency"
           ]
         }
       }
@@ -275,14 +302,23 @@
         "essence": {
           "prefixes": [
             "Body_Armours_int/Essence_IncreasedLife",
-            "Body_Armours_int/Essence_DefencesPercent"
+            "Body_Armours_int/Essence_DefencesPercent",
+            "Body_Armours_int/PerfectEssence_MaximumLifeIncreasePercent",
+            "Body_Armours_int/PerfectEssence_PhysicalDamageTakenAsChaos",
+            "Body_Armours_int/PerfectEssence_Thorns",
+            "Body_Armours_int/PerfectEssence_EssenceGrantedPassive",
+            "Body_Armours_int/PerfectEssence_EssenceAbyss",
+            "Body_Armours_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Body_Armours_int/Essence_ChaosResistance",
             "Body_Armours_int/Essence_Intelligence",
             "Body_Armours_int/Essence_FireResistance",
             "Body_Armours_int/Essence_ColdResistance",
-            "Body_Armours_int/Essence_LightningResistance"
+            "Body_Armours_int/Essence_LightningResistance",
+            "Body_Armours_int/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+            "Body_Armours_int/PerfectEssence_PresenceRadius",
+            "Body_Armours_int/PerfectEssence_SlowPotency"
           ]
         }
       }
@@ -336,14 +372,23 @@
         "essence": {
           "prefixes": [
             "Body_Armours_str/Essence_IncreasedLife",
-            "Body_Armours_str/Essence_DefencesPercent"
+            "Body_Armours_str/Essence_DefencesPercent",
+            "Body_Armours_str/PerfectEssence_MaximumLifeIncreasePercent",
+            "Body_Armours_str/PerfectEssence_PhysicalDamageTakenAsChaos",
+            "Body_Armours_str/PerfectEssence_Thorns",
+            "Body_Armours_str/PerfectEssence_EssenceGrantedPassive",
+            "Body_Armours_str/PerfectEssence_EssenceAbyss",
+            "Body_Armours_str/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Body_Armours_str/Essence_ChaosResistance",
             "Body_Armours_str/Essence_Strength",
             "Body_Armours_str/Essence_FireResistance",
             "Body_Armours_str/Essence_ColdResistance",
-            "Body_Armours_str/Essence_LightningResistance"
+            "Body_Armours_str/Essence_LightningResistance",
+            "Body_Armours_str/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+            "Body_Armours_str/PerfectEssence_PresenceRadius",
+            "Body_Armours_str/PerfectEssence_SlowPotency"
           ]
         }
       }
@@ -399,7 +444,13 @@
         "essence": {
           "prefixes": [
             "Body_Armours_str_dex/Essence_IncreasedLife",
-            "Body_Armours_str_dex/Essence_DefencesPercent"
+            "Body_Armours_str_dex/Essence_DefencesPercent",
+            "Body_Armours_str_dex/PerfectEssence_MaximumLifeIncreasePercent",
+            "Body_Armours_str_dex/PerfectEssence_PhysicalDamageTakenAsChaos",
+            "Body_Armours_str_dex/PerfectEssence_Thorns",
+            "Body_Armours_str_dex/PerfectEssence_EssenceGrantedPassive",
+            "Body_Armours_str_dex/PerfectEssence_EssenceAbyss",
+            "Body_Armours_str_dex/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Body_Armours_str_dex/Essence_ChaosResistance",
@@ -407,7 +458,10 @@
             "Body_Armours_str_dex/Essence_Dexterity",
             "Body_Armours_str_dex/Essence_FireResistance",
             "Body_Armours_str_dex/Essence_ColdResistance",
-            "Body_Armours_str_dex/Essence_LightningResistance"
+            "Body_Armours_str_dex/Essence_LightningResistance",
+            "Body_Armours_str_dex/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+            "Body_Armours_str_dex/PerfectEssence_PresenceRadius",
+            "Body_Armours_str_dex/PerfectEssence_SlowPotency"
           ]
         }
       }
@@ -463,7 +517,13 @@
         "essence": {
           "prefixes": [
             "Body_Armours_str_int/Essence_IncreasedLife",
-            "Body_Armours_str_int/Essence_DefencesPercent"
+            "Body_Armours_str_int/Essence_DefencesPercent",
+            "Body_Armours_str_int/PerfectEssence_MaximumLifeIncreasePercent",
+            "Body_Armours_str_int/PerfectEssence_PhysicalDamageTakenAsChaos",
+            "Body_Armours_str_int/PerfectEssence_Thorns",
+            "Body_Armours_str_int/PerfectEssence_EssenceGrantedPassive",
+            "Body_Armours_str_int/PerfectEssence_EssenceAbyss",
+            "Body_Armours_str_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Body_Armours_str_int/Essence_ChaosResistance",
@@ -471,7 +531,10 @@
             "Body_Armours_str_int/Essence_Intelligence",
             "Body_Armours_str_int/Essence_FireResistance",
             "Body_Armours_str_int/Essence_ColdResistance",
-            "Body_Armours_str_int/Essence_LightningResistance"
+            "Body_Armours_str_int/Essence_LightningResistance",
+            "Body_Armours_str_int/PerfectEssence_ReducedCriticalStrikeDamageTaken",
+            "Body_Armours_str_int/PerfectEssence_PresenceRadius",
+            "Body_Armours_str_int/PerfectEssence_SlowPotency"
           ]
         }
       }
@@ -531,7 +594,10 @@
           "prefixes": [
             "Boots_dex/Essence_IncreasedLife",
             "Boots_dex/Essence_IncreasedMana",
-            "Boots_dex/Essence_DefencesPercent"
+            "Boots_dex/Essence_DefencesPercent",
+            "Boots_dex/PerfectEssence_MovementVelocity",
+            "Boots_dex/PerfectEssence_EssenceAbyss",
+            "Boots_dex/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Boots_dex/Essence_ChaosResistance",
@@ -539,7 +605,11 @@
             "Boots_dex/Essence_FireResistance",
             "Boots_dex/Essence_ColdResistance",
             "Boots_dex/Essence_LightningResistance",
-            "Boots_dex/Essence_ItemFoundRarityIncrease"
+            "Boots_dex/Essence_ItemFoundRarityIncrease",
+            "Boots_dex/PerfectEssence_SoulCore",
+            "Boots_dex/PerfectEssence_TemporaryMinionLimit",
+            "Boots_dex/PerfectEssence_SkillEffectDuration",
+            "Boots_dex/PerfectEssence_BaseSpirit"
           ]
         }
       }
@@ -601,7 +671,10 @@
           "prefixes": [
             "Boots_dex_int/Essence_IncreasedLife",
             "Boots_dex_int/Essence_IncreasedMana",
-            "Boots_dex_int/Essence_DefencesPercent"
+            "Boots_dex_int/Essence_DefencesPercent",
+            "Boots_dex_int/PerfectEssence_MovementVelocity",
+            "Boots_dex_int/PerfectEssence_EssenceAbyss",
+            "Boots_dex_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Boots_dex_int/Essence_ChaosResistance",
@@ -610,7 +683,11 @@
             "Boots_dex_int/Essence_FireResistance",
             "Boots_dex_int/Essence_ColdResistance",
             "Boots_dex_int/Essence_LightningResistance",
-            "Boots_dex_int/Essence_ItemFoundRarityIncrease"
+            "Boots_dex_int/Essence_ItemFoundRarityIncrease",
+            "Boots_dex_int/PerfectEssence_SoulCore",
+            "Boots_dex_int/PerfectEssence_TemporaryMinionLimit",
+            "Boots_dex_int/PerfectEssence_SkillEffectDuration",
+            "Boots_dex_int/PerfectEssence_BaseSpirit"
           ]
         }
       }
@@ -670,7 +747,10 @@
           "prefixes": [
             "Boots_int/Essence_IncreasedLife",
             "Boots_int/Essence_IncreasedMana",
-            "Boots_int/Essence_DefencesPercent"
+            "Boots_int/Essence_DefencesPercent",
+            "Boots_int/PerfectEssence_MovementVelocity",
+            "Boots_int/PerfectEssence_EssenceAbyss",
+            "Boots_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Boots_int/Essence_ChaosResistance",
@@ -678,7 +758,11 @@
             "Boots_int/Essence_FireResistance",
             "Boots_int/Essence_ColdResistance",
             "Boots_int/Essence_LightningResistance",
-            "Boots_int/Essence_ItemFoundRarityIncrease"
+            "Boots_int/Essence_ItemFoundRarityIncrease",
+            "Boots_int/PerfectEssence_SoulCore",
+            "Boots_int/PerfectEssence_TemporaryMinionLimit",
+            "Boots_int/PerfectEssence_SkillEffectDuration",
+            "Boots_int/PerfectEssence_BaseSpirit"
           ]
         }
       }
@@ -738,7 +822,10 @@
           "prefixes": [
             "Boots_str/Essence_IncreasedLife",
             "Boots_str/Essence_IncreasedMana",
-            "Boots_str/Essence_DefencesPercent"
+            "Boots_str/Essence_DefencesPercent",
+            "Boots_str/PerfectEssence_MovementVelocity",
+            "Boots_str/PerfectEssence_EssenceAbyss",
+            "Boots_str/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Boots_str/Essence_ChaosResistance",
@@ -746,7 +833,11 @@
             "Boots_str/Essence_FireResistance",
             "Boots_str/Essence_ColdResistance",
             "Boots_str/Essence_LightningResistance",
-            "Boots_str/Essence_ItemFoundRarityIncrease"
+            "Boots_str/Essence_ItemFoundRarityIncrease",
+            "Boots_str/PerfectEssence_SoulCore",
+            "Boots_str/PerfectEssence_TemporaryMinionLimit",
+            "Boots_str/PerfectEssence_SkillEffectDuration",
+            "Boots_str/PerfectEssence_BaseSpirit"
           ]
         }
       }
@@ -808,7 +899,10 @@
           "prefixes": [
             "Boots_str_dex/Essence_IncreasedLife",
             "Boots_str_dex/Essence_IncreasedMana",
-            "Boots_str_dex/Essence_DefencesPercent"
+            "Boots_str_dex/Essence_DefencesPercent",
+            "Boots_str_dex/PerfectEssence_MovementVelocity",
+            "Boots_str_dex/PerfectEssence_EssenceAbyss",
+            "Boots_str_dex/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Boots_str_dex/Essence_ChaosResistance",
@@ -817,7 +911,11 @@
             "Boots_str_dex/Essence_FireResistance",
             "Boots_str_dex/Essence_ColdResistance",
             "Boots_str_dex/Essence_LightningResistance",
-            "Boots_str_dex/Essence_ItemFoundRarityIncrease"
+            "Boots_str_dex/Essence_ItemFoundRarityIncrease",
+            "Boots_str_dex/PerfectEssence_SoulCore",
+            "Boots_str_dex/PerfectEssence_TemporaryMinionLimit",
+            "Boots_str_dex/PerfectEssence_SkillEffectDuration",
+            "Boots_str_dex/PerfectEssence_BaseSpirit"
           ]
         }
       }
@@ -879,7 +977,10 @@
           "prefixes": [
             "Boots_str_int/Essence_IncreasedLife",
             "Boots_str_int/Essence_IncreasedMana",
-            "Boots_str_int/Essence_DefencesPercent"
+            "Boots_str_int/Essence_DefencesPercent",
+            "Boots_str_int/PerfectEssence_MovementVelocity",
+            "Boots_str_int/PerfectEssence_EssenceAbyss",
+            "Boots_str_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Boots_str_int/Essence_ChaosResistance",
@@ -888,7 +989,11 @@
             "Boots_str_int/Essence_FireResistance",
             "Boots_str_int/Essence_ColdResistance",
             "Boots_str_int/Essence_LightningResistance",
-            "Boots_str_int/Essence_ItemFoundRarityIncrease"
+            "Boots_str_int/Essence_ItemFoundRarityIncrease",
+            "Boots_str_int/PerfectEssence_SoulCore",
+            "Boots_str_int/PerfectEssence_TemporaryMinionLimit",
+            "Boots_str_int/PerfectEssence_SkillEffectDuration",
+            "Boots_str_int/PerfectEssence_BaseSpirit"
           ]
         }
       }
@@ -956,11 +1061,24 @@
             "Bows/Essence_ColdDamage",
             "Bows/Essence_LightningDamage",
             "Bows/Essence_IncreasedAccuracy",
-            "Bows/Essence_LightningDamage_2"
+            "Bows/Essence_LightningDamage_2",
+            "Bows/PerfectEssence_MartialWeaponGainedDamage",
+            "Bows/PerfectEssence_MartialWeaponGainedDamage_2",
+            "Bows/PerfectEssence_MartialWeaponGainedDamage_3",
+            "Bows/PerfectEssence_MartialWeaponGainedDamage_4",
+            "Bows/PerfectEssence_EssenceAbyss",
+            "Bows/PerfectEssence_IncreasedAccuracy"
           ],
           "suffixes": [
             "Bows/Essence_IncreasedAttackSpeed",
-            "Bows/Essence_CriticalStrikeChanceIncrease"
+            "Bows/Essence_CriticalStrikeChanceIncrease",
+            "Bows/PerfectEssence_IncreaseSocketedGemLevel",
+            "Bows/PerfectEssence_Onslaught",
+            "Bows/PerfectEssence_BaseRunicWard",
+            "Bows/PerfectEssence_AilmentEffect",
+            "Bows/PerfectEssence_SoulCore",
+            "Bows/PerfectEssence_Strength",
+            "Bows/PerfectEssence_CurseEffectiveness"
           ]
         }
       }
@@ -1015,13 +1133,18 @@
         },
         "essence": {
           "prefixes": [
-            "Bucklers/Essence_IncreasedLife"
+            "Bucklers/Essence_IncreasedLife",
+            "Bucklers/PerfectEssence_IncreasedShieldBlockPercentage",
+            "Bucklers/PerfectEssence_EssenceAbyss",
+            "Bucklers/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Bucklers/Essence_ChaosResistance",
             "Bucklers/Essence_FireResistance",
             "Bucklers/Essence_ColdResistance",
-            "Bucklers/Essence_LightningResistance"
+            "Bucklers/Essence_LightningResistance",
+            "Bucklers/PerfectEssence_GainFlatLifeOnBlock",
+            "Bucklers/PerfectEssence_SummonTotemCastSpeed"
           ]
         }
       }
@@ -1087,11 +1210,24 @@
             "Crossbows/Essence_FireDamage",
             "Crossbows/Essence_ColdDamage",
             "Crossbows/Essence_LightningDamage",
-            "Crossbows/Essence_IncreasedAccuracy"
+            "Crossbows/Essence_IncreasedAccuracy",
+            "Crossbows/PerfectEssence_MartialWeaponGainedDamage",
+            "Crossbows/PerfectEssence_MartialWeaponGainedDamage_2",
+            "Crossbows/PerfectEssence_MartialWeaponGainedDamage_3",
+            "Crossbows/PerfectEssence_MartialWeaponGainedDamage_4",
+            "Crossbows/PerfectEssence_EssenceAbyss",
+            "Crossbows/PerfectEssence_IncreasedAccuracy"
           ],
           "suffixes": [
             "Crossbows/Essence_IncreasedAttackSpeed",
-            "Crossbows/Essence_CriticalStrikeChanceIncrease"
+            "Crossbows/Essence_CriticalStrikeChanceIncrease",
+            "Crossbows/PerfectEssence_IncreaseSocketedGemLevel",
+            "Crossbows/PerfectEssence_Onslaught",
+            "Crossbows/PerfectEssence_BaseRunicWard",
+            "Crossbows/PerfectEssence_AilmentEffect",
+            "Crossbows/PerfectEssence_SoulCore",
+            "Crossbows/PerfectEssence_Strength",
+            "Crossbows/PerfectEssence_AdditionalBallistaTotem"
           ]
         }
       }
@@ -1157,7 +1293,9 @@
         "essence": {
           "prefixes": [
             "Foci/Essence_IncreasedLife",
-            "Foci/Essence_WeaponCasterDamagePrefix"
+            "Foci/Essence_WeaponCasterDamagePrefix",
+            "Foci/PerfectEssence_EssenceAbyss",
+            "Foci/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Foci/Essence_ChaosResistance",
@@ -1165,7 +1303,11 @@
             "Foci/Essence_FireResistance",
             "Foci/Essence_ColdResistance",
             "Foci/Essence_LightningResistance",
-            "Foci/Essence_IncreasedCastSpeed"
+            "Foci/Essence_IncreasedCastSpeed",
+            "Foci/PerfectEssence_ManaCostEfficiency",
+            "Foci/PerfectEssence_SummonTotemCastSpeed",
+            "Foci/PerfectEssence_ExposureEffect",
+            "Foci/PerfectEssence_IncreasedCastSpeed"
           ]
         }
       }
@@ -1229,7 +1371,10 @@
             "Gloves_dex/Essence_IncreasedLife",
             "Gloves_dex/Essence_IncreasedMana",
             "Gloves_dex/Essence_DefencesPercent",
-            "Gloves_dex/Essence_IncreasedAccuracy"
+            "Gloves_dex/Essence_IncreasedAccuracy",
+            "Gloves_dex/PerfectEssence_EssenceAbyss",
+            "Gloves_dex/PerfectEssence_ElementalPenetration",
+            "Gloves_dex/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Gloves_dex/Essence_ChaosResistance",
@@ -1237,7 +1382,16 @@
             "Gloves_dex/Essence_FireResistance",
             "Gloves_dex/Essence_ColdResistance",
             "Gloves_dex/Essence_LightningResistance",
-            "Gloves_dex/Essence_ItemFoundRarityIncrease"
+            "Gloves_dex/Essence_ItemFoundRarityIncrease",
+            "Gloves_dex/PerfectEssence_CriticalStrikeMultiplier",
+            "Gloves_dex/PerfectEssence_SoulCore",
+            "Gloves_dex/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+            "Gloves_dex/PerfectEssence_EssenceGoldDropped",
+            "Gloves_dex/PerfectEssence_IncreasedAttackSpeed",
+            "Gloves_dex/PerfectEssence_RemnantPickupRadius",
+            "Gloves_dex/PerfectEssence_IncreasedCastSpeed",
+            "Gloves_dex/PerfectEssence_DamagingAilmentDuration",
+            "Gloves_dex/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
         }
       }
@@ -1303,7 +1457,10 @@
             "Gloves_dex_int/Essence_IncreasedLife",
             "Gloves_dex_int/Essence_IncreasedMana",
             "Gloves_dex_int/Essence_DefencesPercent",
-            "Gloves_dex_int/Essence_IncreasedAccuracy"
+            "Gloves_dex_int/Essence_IncreasedAccuracy",
+            "Gloves_dex_int/PerfectEssence_EssenceAbyss",
+            "Gloves_dex_int/PerfectEssence_ElementalPenetration",
+            "Gloves_dex_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Gloves_dex_int/Essence_ChaosResistance",
@@ -1312,7 +1469,16 @@
             "Gloves_dex_int/Essence_FireResistance",
             "Gloves_dex_int/Essence_ColdResistance",
             "Gloves_dex_int/Essence_LightningResistance",
-            "Gloves_dex_int/Essence_ItemFoundRarityIncrease"
+            "Gloves_dex_int/Essence_ItemFoundRarityIncrease",
+            "Gloves_dex_int/PerfectEssence_CriticalStrikeMultiplier",
+            "Gloves_dex_int/PerfectEssence_SoulCore",
+            "Gloves_dex_int/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+            "Gloves_dex_int/PerfectEssence_EssenceGoldDropped",
+            "Gloves_dex_int/PerfectEssence_IncreasedAttackSpeed",
+            "Gloves_dex_int/PerfectEssence_RemnantPickupRadius",
+            "Gloves_dex_int/PerfectEssence_IncreasedCastSpeed",
+            "Gloves_dex_int/PerfectEssence_DamagingAilmentDuration",
+            "Gloves_dex_int/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
         }
       }
@@ -1377,7 +1543,10 @@
             "Gloves_int/Essence_IncreasedLife",
             "Gloves_int/Essence_IncreasedMana",
             "Gloves_int/Essence_DefencesPercent",
-            "Gloves_int/Essence_IncreasedAccuracy"
+            "Gloves_int/Essence_IncreasedAccuracy",
+            "Gloves_int/PerfectEssence_EssenceAbyss",
+            "Gloves_int/PerfectEssence_ElementalPenetration",
+            "Gloves_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Gloves_int/Essence_ChaosResistance",
@@ -1385,7 +1554,16 @@
             "Gloves_int/Essence_FireResistance",
             "Gloves_int/Essence_ColdResistance",
             "Gloves_int/Essence_LightningResistance",
-            "Gloves_int/Essence_ItemFoundRarityIncrease"
+            "Gloves_int/Essence_ItemFoundRarityIncrease",
+            "Gloves_int/PerfectEssence_CriticalStrikeMultiplier",
+            "Gloves_int/PerfectEssence_SoulCore",
+            "Gloves_int/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+            "Gloves_int/PerfectEssence_EssenceGoldDropped",
+            "Gloves_int/PerfectEssence_IncreasedAttackSpeed",
+            "Gloves_int/PerfectEssence_RemnantPickupRadius",
+            "Gloves_int/PerfectEssence_IncreasedCastSpeed",
+            "Gloves_int/PerfectEssence_DamagingAilmentDuration",
+            "Gloves_int/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
         }
       }
@@ -1450,7 +1628,10 @@
             "Gloves_str/Essence_IncreasedLife",
             "Gloves_str/Essence_IncreasedMana",
             "Gloves_str/Essence_DefencesPercent",
-            "Gloves_str/Essence_IncreasedAccuracy"
+            "Gloves_str/Essence_IncreasedAccuracy",
+            "Gloves_str/PerfectEssence_EssenceAbyss",
+            "Gloves_str/PerfectEssence_ElementalPenetration",
+            "Gloves_str/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Gloves_str/Essence_ChaosResistance",
@@ -1458,7 +1639,16 @@
             "Gloves_str/Essence_FireResistance",
             "Gloves_str/Essence_ColdResistance",
             "Gloves_str/Essence_LightningResistance",
-            "Gloves_str/Essence_ItemFoundRarityIncrease"
+            "Gloves_str/Essence_ItemFoundRarityIncrease",
+            "Gloves_str/PerfectEssence_CriticalStrikeMultiplier",
+            "Gloves_str/PerfectEssence_SoulCore",
+            "Gloves_str/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+            "Gloves_str/PerfectEssence_EssenceGoldDropped",
+            "Gloves_str/PerfectEssence_IncreasedAttackSpeed",
+            "Gloves_str/PerfectEssence_RemnantPickupRadius",
+            "Gloves_str/PerfectEssence_IncreasedCastSpeed",
+            "Gloves_str/PerfectEssence_DamagingAilmentDuration",
+            "Gloves_str/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
         }
       }
@@ -1524,7 +1714,10 @@
             "Gloves_str_dex/Essence_IncreasedLife",
             "Gloves_str_dex/Essence_IncreasedMana",
             "Gloves_str_dex/Essence_DefencesPercent",
-            "Gloves_str_dex/Essence_IncreasedAccuracy"
+            "Gloves_str_dex/Essence_IncreasedAccuracy",
+            "Gloves_str_dex/PerfectEssence_EssenceAbyss",
+            "Gloves_str_dex/PerfectEssence_ElementalPenetration",
+            "Gloves_str_dex/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Gloves_str_dex/Essence_ChaosResistance",
@@ -1533,7 +1726,16 @@
             "Gloves_str_dex/Essence_FireResistance",
             "Gloves_str_dex/Essence_ColdResistance",
             "Gloves_str_dex/Essence_LightningResistance",
-            "Gloves_str_dex/Essence_ItemFoundRarityIncrease"
+            "Gloves_str_dex/Essence_ItemFoundRarityIncrease",
+            "Gloves_str_dex/PerfectEssence_CriticalStrikeMultiplier",
+            "Gloves_str_dex/PerfectEssence_SoulCore",
+            "Gloves_str_dex/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+            "Gloves_str_dex/PerfectEssence_EssenceGoldDropped",
+            "Gloves_str_dex/PerfectEssence_IncreasedAttackSpeed",
+            "Gloves_str_dex/PerfectEssence_RemnantPickupRadius",
+            "Gloves_str_dex/PerfectEssence_IncreasedCastSpeed",
+            "Gloves_str_dex/PerfectEssence_DamagingAilmentDuration",
+            "Gloves_str_dex/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
         }
       }
@@ -1600,7 +1802,10 @@
             "Gloves_str_int/Essence_IncreasedLife",
             "Gloves_str_int/Essence_IncreasedMana",
             "Gloves_str_int/Essence_DefencesPercent",
-            "Gloves_str_int/Essence_IncreasedAccuracy"
+            "Gloves_str_int/Essence_IncreasedAccuracy",
+            "Gloves_str_int/PerfectEssence_EssenceAbyss",
+            "Gloves_str_int/PerfectEssence_ElementalPenetration",
+            "Gloves_str_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Gloves_str_int/Essence_ChaosResistance",
@@ -1609,7 +1814,16 @@
             "Gloves_str_int/Essence_FireResistance",
             "Gloves_str_int/Essence_ColdResistance",
             "Gloves_str_int/Essence_LightningResistance",
-            "Gloves_str_int/Essence_ItemFoundRarityIncrease"
+            "Gloves_str_int/Essence_ItemFoundRarityIncrease",
+            "Gloves_str_int/PerfectEssence_CriticalStrikeMultiplier",
+            "Gloves_str_int/PerfectEssence_SoulCore",
+            "Gloves_str_int/PerfectEssence_LightningDamageTakenRecoupedAsLife",
+            "Gloves_str_int/PerfectEssence_EssenceGoldDropped",
+            "Gloves_str_int/PerfectEssence_IncreasedAttackSpeed",
+            "Gloves_str_int/PerfectEssence_RemnantPickupRadius",
+            "Gloves_str_int/PerfectEssence_IncreasedCastSpeed",
+            "Gloves_str_int/PerfectEssence_DamagingAilmentDuration",
+            "Gloves_str_int/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
         }
       }
@@ -1666,7 +1880,10 @@
           "prefixes": [
             "Helmets_dex/Essence_IncreasedLife",
             "Helmets_dex/Essence_IncreasedMana",
-            "Helmets_dex/Essence_DefencesPercent"
+            "Helmets_dex/Essence_DefencesPercent",
+            "Helmets_dex/PerfectEssence_EssenceAbyss",
+            "Helmets_dex/PerfectEssence_ManaCostEfficiency",
+            "Helmets_dex/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Helmets_dex/Essence_ChaosResistance",
@@ -1674,7 +1891,11 @@
             "Helmets_dex/Essence_FireResistance",
             "Helmets_dex/Essence_ColdResistance",
             "Helmets_dex/Essence_LightningResistance",
-            "Helmets_dex/Essence_ItemFoundRarityIncrease"
+            "Helmets_dex/Essence_ItemFoundRarityIncrease",
+            "Helmets_dex/PerfectEssence_IncreaseSocketedGemLevel",
+            "Helmets_dex/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+            "Helmets_dex/PerfectEssence_ArchonDuration",
+            "Helmets_dex/PerfectEssence_SpellAreaOfEffect"
           ]
         }
       }
@@ -1732,7 +1953,10 @@
           "prefixes": [
             "Helmets_dex_int/Essence_IncreasedLife",
             "Helmets_dex_int/Essence_IncreasedMana",
-            "Helmets_dex_int/Essence_DefencesPercent"
+            "Helmets_dex_int/Essence_DefencesPercent",
+            "Helmets_dex_int/PerfectEssence_EssenceAbyss",
+            "Helmets_dex_int/PerfectEssence_ManaCostEfficiency",
+            "Helmets_dex_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Helmets_dex_int/Essence_ChaosResistance",
@@ -1741,7 +1965,11 @@
             "Helmets_dex_int/Essence_FireResistance",
             "Helmets_dex_int/Essence_ColdResistance",
             "Helmets_dex_int/Essence_LightningResistance",
-            "Helmets_dex_int/Essence_ItemFoundRarityIncrease"
+            "Helmets_dex_int/Essence_ItemFoundRarityIncrease",
+            "Helmets_dex_int/PerfectEssence_IncreaseSocketedGemLevel",
+            "Helmets_dex_int/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+            "Helmets_dex_int/PerfectEssence_ArchonDuration",
+            "Helmets_dex_int/PerfectEssence_SpellAreaOfEffect"
           ]
         }
       }
@@ -1797,7 +2025,10 @@
           "prefixes": [
             "Helmets_int/Essence_IncreasedLife",
             "Helmets_int/Essence_IncreasedMana",
-            "Helmets_int/Essence_DefencesPercent"
+            "Helmets_int/Essence_DefencesPercent",
+            "Helmets_int/PerfectEssence_EssenceAbyss",
+            "Helmets_int/PerfectEssence_ManaCostEfficiency",
+            "Helmets_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Helmets_int/Essence_ChaosResistance",
@@ -1805,7 +2036,11 @@
             "Helmets_int/Essence_FireResistance",
             "Helmets_int/Essence_ColdResistance",
             "Helmets_int/Essence_LightningResistance",
-            "Helmets_int/Essence_ItemFoundRarityIncrease"
+            "Helmets_int/Essence_ItemFoundRarityIncrease",
+            "Helmets_int/PerfectEssence_IncreaseSocketedGemLevel",
+            "Helmets_int/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+            "Helmets_int/PerfectEssence_ArchonDuration",
+            "Helmets_int/PerfectEssence_SpellAreaOfEffect"
           ]
         }
       }
@@ -1862,7 +2097,10 @@
           "prefixes": [
             "Helmets_str/Essence_IncreasedLife",
             "Helmets_str/Essence_IncreasedMana",
-            "Helmets_str/Essence_DefencesPercent"
+            "Helmets_str/Essence_DefencesPercent",
+            "Helmets_str/PerfectEssence_EssenceAbyss",
+            "Helmets_str/PerfectEssence_ManaCostEfficiency",
+            "Helmets_str/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Helmets_str/Essence_ChaosResistance",
@@ -1870,7 +2108,11 @@
             "Helmets_str/Essence_FireResistance",
             "Helmets_str/Essence_ColdResistance",
             "Helmets_str/Essence_LightningResistance",
-            "Helmets_str/Essence_ItemFoundRarityIncrease"
+            "Helmets_str/Essence_ItemFoundRarityIncrease",
+            "Helmets_str/PerfectEssence_IncreaseSocketedGemLevel",
+            "Helmets_str/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+            "Helmets_str/PerfectEssence_ArchonDuration",
+            "Helmets_str/PerfectEssence_SpellAreaOfEffect"
           ]
         }
       }
@@ -1929,7 +2171,10 @@
           "prefixes": [
             "Helmets_str_dex/Essence_IncreasedLife",
             "Helmets_str_dex/Essence_IncreasedMana",
-            "Helmets_str_dex/Essence_DefencesPercent"
+            "Helmets_str_dex/Essence_DefencesPercent",
+            "Helmets_str_dex/PerfectEssence_EssenceAbyss",
+            "Helmets_str_dex/PerfectEssence_ManaCostEfficiency",
+            "Helmets_str_dex/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Helmets_str_dex/Essence_ChaosResistance",
@@ -1938,7 +2183,11 @@
             "Helmets_str_dex/Essence_FireResistance",
             "Helmets_str_dex/Essence_ColdResistance",
             "Helmets_str_dex/Essence_LightningResistance",
-            "Helmets_str_dex/Essence_ItemFoundRarityIncrease"
+            "Helmets_str_dex/Essence_ItemFoundRarityIncrease",
+            "Helmets_str_dex/PerfectEssence_IncreaseSocketedGemLevel",
+            "Helmets_str_dex/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+            "Helmets_str_dex/PerfectEssence_ArchonDuration",
+            "Helmets_str_dex/PerfectEssence_SpellAreaOfEffect"
           ]
         }
       }
@@ -1996,7 +2245,10 @@
           "prefixes": [
             "Helmets_str_int/Essence_IncreasedLife",
             "Helmets_str_int/Essence_IncreasedMana",
-            "Helmets_str_int/Essence_DefencesPercent"
+            "Helmets_str_int/Essence_DefencesPercent",
+            "Helmets_str_int/PerfectEssence_EssenceAbyss",
+            "Helmets_str_int/PerfectEssence_ManaCostEfficiency",
+            "Helmets_str_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Helmets_str_int/Essence_ChaosResistance",
@@ -2005,7 +2257,11 @@
             "Helmets_str_int/Essence_FireResistance",
             "Helmets_str_int/Essence_ColdResistance",
             "Helmets_str_int/Essence_LightningResistance",
-            "Helmets_str_int/Essence_ItemFoundRarityIncrease"
+            "Helmets_str_int/Essence_ItemFoundRarityIncrease",
+            "Helmets_str_int/PerfectEssence_IncreaseSocketedGemLevel",
+            "Helmets_str_int/PerfectEssence_ColdDamageTakenRecoupedAsLife",
+            "Helmets_str_int/PerfectEssence_ArchonDuration",
+            "Helmets_str_int/PerfectEssence_SpellAreaOfEffect"
           ]
         }
       }
@@ -2074,11 +2330,24 @@
             "OneHand_Maces/Essence_ColdDamage",
             "OneHand_Maces/Essence_LightningDamage",
             "OneHand_Maces/Essence_IncreasedAccuracy",
-            "OneHand_Maces/Essence_LightningDamage_2"
+            "OneHand_Maces/Essence_LightningDamage_2",
+            "OneHand_Maces/PerfectEssence_MartialWeaponGainedDamage",
+            "OneHand_Maces/PerfectEssence_MartialWeaponGainedDamage_2",
+            "OneHand_Maces/PerfectEssence_MartialWeaponGainedDamage_3",
+            "OneHand_Maces/PerfectEssence_MartialWeaponGainedDamage_4",
+            "OneHand_Maces/PerfectEssence_EssenceAbyss",
+            "OneHand_Maces/PerfectEssence_IncreasedAccuracy"
           ],
           "suffixes": [
             "OneHand_Maces/Essence_IncreasedAttackSpeed",
-            "OneHand_Maces/Essence_CriticalStrikeChanceIncrease"
+            "OneHand_Maces/Essence_CriticalStrikeChanceIncrease",
+            "OneHand_Maces/PerfectEssence_IncreaseSocketedGemLevel",
+            "OneHand_Maces/PerfectEssence_Onslaught",
+            "OneHand_Maces/PerfectEssence_BaseRunicWard",
+            "OneHand_Maces/PerfectEssence_AilmentEffect",
+            "OneHand_Maces/PerfectEssence_SoulCore",
+            "OneHand_Maces/PerfectEssence_Strength",
+            "OneHand_Maces/PerfectEssence_GloryChanceToNotConsume"
           ]
         }
       }
@@ -2142,11 +2411,24 @@
             "Quarterstaves/Essence_FireDamage",
             "Quarterstaves/Essence_ColdDamage",
             "Quarterstaves/Essence_LightningDamage",
-            "Quarterstaves/Essence_IncreasedAccuracy"
+            "Quarterstaves/Essence_IncreasedAccuracy",
+            "Quarterstaves/PerfectEssence_MartialWeaponGainedDamage",
+            "Quarterstaves/PerfectEssence_MartialWeaponGainedDamage_2",
+            "Quarterstaves/PerfectEssence_MartialWeaponGainedDamage_3",
+            "Quarterstaves/PerfectEssence_MartialWeaponGainedDamage_4",
+            "Quarterstaves/PerfectEssence_EssenceAbyss",
+            "Quarterstaves/PerfectEssence_IncreasedAccuracy"
           ],
           "suffixes": [
             "Quarterstaves/Essence_IncreasedAttackSpeed",
-            "Quarterstaves/Essence_CriticalStrikeChanceIncrease"
+            "Quarterstaves/Essence_CriticalStrikeChanceIncrease",
+            "Quarterstaves/PerfectEssence_IncreaseSocketedGemLevel",
+            "Quarterstaves/PerfectEssence_Onslaught",
+            "Quarterstaves/PerfectEssence_BaseRunicWard",
+            "Quarterstaves/PerfectEssence_AilmentEffect",
+            "Quarterstaves/PerfectEssence_SoulCore",
+            "Quarterstaves/PerfectEssence_Strength",
+            "Quarterstaves/PerfectEssence_BellHitLimit"
           ]
         }
       }
@@ -2195,9 +2477,13 @@
         },
         "essence": {
           "prefixes": [
-            "Quivers/Essence_IncreasedAccuracy"
+            "Quivers/Essence_IncreasedAccuracy",
+            "Quivers/PerfectEssence_DamageWithWeaponTypeSkill",
+            "Quivers/PerfectEssence_EssenceAbyss"
           ],
-          "suffixes": []
+          "suffixes": [
+            "Quivers/PerfectEssence_Chain"
+          ]
         }
       }
     },
@@ -2275,14 +2561,21 @@
         "essence": {
           "prefixes": [
             "Rings/Essence_IncreasedLife",
-            "Rings/Essence_IncreasedMana"
+            "Rings/Essence_IncreasedMana",
+            "Rings/PerfectEssence_MaximumManaIncreasePercent",
+            "Rings/PerfectEssence_EssenceAbyss",
+            "Rings/PerfectEssence_LocalMaximumQuality",
+            "Rings/PerfectEssence_BaseRunicWard",
+            "Rings/PerfectEssence_EnchantmentHeistArmour"
           ],
           "suffixes": [
             "Rings/Essence_ChaosResistance",
             "Rings/Essence_FireResistance",
             "Rings/Essence_ColdResistance",
             "Rings/Essence_LightningResistance",
-            "Rings/Essence_ItemFoundRarityIncrease"
+            "Rings/Essence_ItemFoundRarityIncrease",
+            "Rings/PerfectEssence_ManaRegeneration",
+            "Rings/PerfectEssence_IncreasedCastSpeed"
           ]
         }
       }
@@ -2327,9 +2620,18 @@
         },
         "essence": {
           "prefixes": [
-            "Sceptres/Essence_AllDamage"
+            "Sceptres/Essence_AllDamage",
+            "Sceptres/PerfectEssence_EssenceAbyss",
+            "Sceptres/PerfectEssence_MinionGainPuppetMasterOnCommand"
           ],
-          "suffixes": []
+          "suffixes": [
+            "Sceptres/PerfectEssence_AuraEffect",
+            "Sceptres/PerfectEssence_BaseRunicWard",
+            "Sceptres/PerfectEssence_MinionDamagingAilments",
+            "Sceptres/PerfectEssence_ElementalInfusion",
+            "Sceptres/PerfectEssence_SoulCore",
+            "Sceptres/PerfectEssence_MaximumPuppeteerStacks"
+          ]
         }
       }
     },
@@ -2384,13 +2686,18 @@
         },
         "essence": {
           "prefixes": [
-            "Shields_str/Essence_IncreasedLife"
+            "Shields_str/Essence_IncreasedLife",
+            "Shields_str/PerfectEssence_IncreasedShieldBlockPercentage",
+            "Shields_str/PerfectEssence_EssenceAbyss",
+            "Shields_str/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Shields_str/Essence_ChaosResistance",
             "Shields_str/Essence_FireResistance",
             "Shields_str/Essence_ColdResistance",
-            "Shields_str/Essence_LightningResistance"
+            "Shields_str/Essence_LightningResistance",
+            "Shields_str/PerfectEssence_GainFlatLifeOnBlock",
+            "Shields_str/PerfectEssence_SummonTotemCastSpeed"
           ]
         }
       }
@@ -2448,13 +2755,18 @@
         },
         "essence": {
           "prefixes": [
-            "Shields_str_dex/Essence_IncreasedLife"
+            "Shields_str_dex/Essence_IncreasedLife",
+            "Shields_str_dex/PerfectEssence_IncreasedShieldBlockPercentage",
+            "Shields_str_dex/PerfectEssence_EssenceAbyss",
+            "Shields_str_dex/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Shields_str_dex/Essence_ChaosResistance",
             "Shields_str_dex/Essence_FireResistance",
             "Shields_str_dex/Essence_ColdResistance",
-            "Shields_str_dex/Essence_LightningResistance"
+            "Shields_str_dex/Essence_LightningResistance",
+            "Shields_str_dex/PerfectEssence_GainFlatLifeOnBlock",
+            "Shields_str_dex/PerfectEssence_SummonTotemCastSpeed"
           ]
         }
       }
@@ -2512,13 +2824,18 @@
         },
         "essence": {
           "prefixes": [
-            "Shields_str_int/Essence_IncreasedLife"
+            "Shields_str_int/Essence_IncreasedLife",
+            "Shields_str_int/PerfectEssence_IncreasedShieldBlockPercentage",
+            "Shields_str_int/PerfectEssence_EssenceAbyss",
+            "Shields_str_int/PerfectEssence_LocalRunicWardPercent"
           ],
           "suffixes": [
             "Shields_str_int/Essence_ChaosResistance",
             "Shields_str_int/Essence_FireResistance",
             "Shields_str_int/Essence_ColdResistance",
-            "Shields_str_int/Essence_LightningResistance"
+            "Shields_str_int/Essence_LightningResistance",
+            "Shields_str_int/PerfectEssence_GainFlatLifeOnBlock",
+            "Shields_str_int/PerfectEssence_SummonTotemCastSpeed"
           ]
         }
       }
@@ -2589,11 +2906,24 @@
             "Spears/Essence_ColdDamage",
             "Spears/Essence_LightningDamage",
             "Spears/Essence_IncreasedAccuracy",
-            "Spears/Essence_LightningDamage_2"
+            "Spears/Essence_LightningDamage_2",
+            "Spears/PerfectEssence_MartialWeaponGainedDamage",
+            "Spears/PerfectEssence_MartialWeaponGainedDamage_2",
+            "Spears/PerfectEssence_MartialWeaponGainedDamage_3",
+            "Spears/PerfectEssence_MartialWeaponGainedDamage_4",
+            "Spears/PerfectEssence_EssenceAbyss",
+            "Spears/PerfectEssence_IncreasedAccuracy"
           ],
           "suffixes": [
             "Spears/Essence_IncreasedAttackSpeed",
-            "Spears/Essence_CriticalStrikeChanceIncrease"
+            "Spears/Essence_CriticalStrikeChanceIncrease",
+            "Spears/PerfectEssence_IncreaseSocketedGemLevel",
+            "Spears/PerfectEssence_Onslaught",
+            "Spears/PerfectEssence_BaseRunicWard",
+            "Spears/PerfectEssence_AilmentEffect",
+            "Spears/PerfectEssence_SoulCore",
+            "Spears/PerfectEssence_Strength",
+            "Spears/PerfectEssence_MeleeWeaponAndUnarmedRange"
           ]
         }
       }
@@ -2661,11 +2991,22 @@
         },
         "essence": {
           "prefixes": [
-            "Staves/Essence_WeaponCasterDamagePrefix"
+            "Staves/Essence_WeaponCasterDamagePrefix",
+            "Staves/PerfectEssence_EssenceAbyss",
+            "Staves/PerfectEssence_FireDamage",
+            "Staves/PerfectEssence_IncreasedMana"
           ],
           "suffixes": [
             "Staves/Essence_SpellCriticalStrikeChanceIncrease",
-            "Staves/Essence_IncreasedCastSpeed"
+            "Staves/Essence_IncreasedCastSpeed",
+            "Staves/PerfectEssence_IncreaseSocketedGemLevel",
+            "Staves/PerfectEssence_ManaCostEfficiency",
+            "Staves/PerfectEssence_BaseRunicWard",
+            "Staves/PerfectEssence_ExposureEffect",
+            "Staves/PerfectEssence_ElementalInfusion",
+            "Staves/PerfectEssence_SoulCore",
+            "Staves/PerfectEssence_IncreasedCastSpeed",
+            "Staves/PerfectEssence_ChanceToGainNaturesArchon"
           ]
         }
       }
@@ -2733,11 +3074,24 @@
             "TwoHand_Maces/Essence_FireDamage",
             "TwoHand_Maces/Essence_ColdDamage",
             "TwoHand_Maces/Essence_LightningDamage",
-            "TwoHand_Maces/Essence_IncreasedAccuracy"
+            "TwoHand_Maces/Essence_IncreasedAccuracy",
+            "TwoHand_Maces/PerfectEssence_MartialWeaponGainedDamage",
+            "TwoHand_Maces/PerfectEssence_MartialWeaponGainedDamage_2",
+            "TwoHand_Maces/PerfectEssence_MartialWeaponGainedDamage_3",
+            "TwoHand_Maces/PerfectEssence_MartialWeaponGainedDamage_4",
+            "TwoHand_Maces/PerfectEssence_EssenceAbyss",
+            "TwoHand_Maces/PerfectEssence_IncreasedAccuracy"
           ],
           "suffixes": [
             "TwoHand_Maces/Essence_IncreasedAttackSpeed",
-            "TwoHand_Maces/Essence_CriticalStrikeChanceIncrease"
+            "TwoHand_Maces/Essence_CriticalStrikeChanceIncrease",
+            "TwoHand_Maces/PerfectEssence_IncreaseSocketedGemLevel",
+            "TwoHand_Maces/PerfectEssence_Onslaught",
+            "TwoHand_Maces/PerfectEssence_BaseRunicWard",
+            "TwoHand_Maces/PerfectEssence_AilmentEffect",
+            "TwoHand_Maces/PerfectEssence_SoulCore",
+            "TwoHand_Maces/PerfectEssence_Strength",
+            "TwoHand_Maces/PerfectEssence_GloryChanceToNotConsume"
           ]
         }
       }
@@ -2806,11 +3160,22 @@
         },
         "essence": {
           "prefixes": [
-            "Wands/Essence_WeaponCasterDamagePrefix"
+            "Wands/Essence_WeaponCasterDamagePrefix",
+            "Wands/PerfectEssence_EssenceAbyss",
+            "Wands/PerfectEssence_FireDamage",
+            "Wands/PerfectEssence_IncreasedMana"
           ],
           "suffixes": [
             "Wands/Essence_SpellCriticalStrikeChanceIncrease",
-            "Wands/Essence_IncreasedCastSpeed"
+            "Wands/Essence_IncreasedCastSpeed",
+            "Wands/PerfectEssence_IncreaseSocketedGemLevel",
+            "Wands/PerfectEssence_ManaCostEfficiency",
+            "Wands/PerfectEssence_BaseRunicWard",
+            "Wands/PerfectEssence_ExposureEffect",
+            "Wands/PerfectEssence_ElementalInfusion",
+            "Wands/PerfectEssence_SoulCore",
+            "Wands/PerfectEssence_IncreasedCastSpeed",
+            "Wands/PerfectEssence_ElementalSkillLimit"
           ]
         }
       }

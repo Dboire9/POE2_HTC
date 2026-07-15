@@ -98,15 +98,23 @@ function auditPatch(patch: string, baseline: Baseline): void {
   });
 }
 
-// ── 0.5.0 — the data the app SHIPS (poe2db, CoE-cross-checked). Normal + essence + desecrated pools
-// are populated (essence/desecrated built from poe2db by tools/refresh/apply_pools.mjs; perfect essences
-// deferred). Baseline is empty EXCEPT the two legitimate CompanionDamage cases: on Bows and Spears the
-// poe2db `CompanionDamage` family spans a desecrated PREFIX (Companions deal increased Damage) and a
-// desecrated SUFFIX (Companion attack speed) — two distinct mods sharing one exclusion family, exactly
-// as in the 0.5 Java data. Everything else must stay clean; any new occurrence fails.
+// ── 0.5.0 — the data the app SHIPS (poe2db, CoE-cross-checked). Normal + essence + desecrated +
+// perfect_essence pools are populated (all built from poe2db by tools/refresh/apply_pools.mjs). The
+// mixedFamilies baseline holds the legitimate cross-type/cross-source family spans: `CompanionDamage`
+// (a desecrated prefix + a desecrated suffix, as in 0.5), plus families where a DESECRATED mod and a
+// PERFECT_ESSENCE mod share one stat family but sit on different sides (different mods, different
+// mechanics — family exclusion still holds, so this is faithful, not a bug). Everything else stays
+// clean; any new occurrence fails. (The "Mark of the Abyssal Lord" EssenceAbyss mod, which poe2db lists
+// as both a prefix and a suffix, is deduped to one mod in apply_pools.mjs rather than baselined.)
 auditPatch('0.5.0', {
   misslots: new Set(),
-  mixedFamilies: new Set(['CompanionDamage on Bows', 'CompanionDamage on Spears']),
+  mixedFamilies: new Set([
+    'CompanionDamage on Bows', 'CompanionDamage on Spears',
+    'AdditionalBallistaTotem on Crossbows', 'ElementalInfusion on Staves',
+    'ManaCostEfficiency on Helmets_dex', 'ManaCostEfficiency on Helmets_dex_int',
+    'ManaCostEfficiency on Helmets_int', 'ManaCostEfficiency on Helmets_str',
+    'ManaCostEfficiency on Helmets_str_dex', 'ManaCostEfficiency on Helmets_str_int',
+  ]),
 });
 
 // ── 0.5 — the Java-extracted golden reference (engine differential anchor). Known-ambiguous findings

@@ -312,14 +312,19 @@ function factorial(n: number): number {
  * 2^n subset enumeration stays tiny.
  */
 function withOmenVariants(data: PatchData, steps: PlanStep[]): PlanStep[][] {
-  const exaltIdx = steps.map((s, i) => (s.currency === 'exalt' ? i : -1)).filter((i) => i >= 0);
+  // Steps that can take an optional side-omen as a cost↔probability lever: an EXALT constrains the
+  // ADD to its mod's side (Sinistral/Dextral Exaltation → smaller pool, higher P); a PERFECT-ESSENCE
+  // constrains the random REMOVAL to the sacrificed mod's side (Sinistral/Dextral Crystallisation →
+  // likelier to hit the intended junk). Enumerate every subset of these to constrain.
+  const idx = steps.map((s, i) => (s.currency === 'exalt' || s.currency === 'perfect-essence' ? i : -1)).filter((i) => i >= 0);
   const variants: PlanStep[][] = [];
-  for (let mask = 0; mask < (1 << exaltIdx.length); mask++) {
+  for (let mask = 0; mask < (1 << idx.length); mask++) {
     variants.push(steps.map((s, i) => {
-      const bit = exaltIdx.indexOf(i);
-      return bit >= 0 && (mask & (1 << bit)) && s.currency === 'exalt'
-        ? { ...s, constrainTo: resolveMod(data, s.add).type }
-        : s;
+      const bit = idx.indexOf(i);
+      if (bit < 0 || !(mask & (1 << bit))) return s;
+      if (s.currency === 'exalt') return { ...s, constrainTo: resolveMod(data, s.add).type };
+      if (s.currency === 'perfect-essence') return { ...s, omen: resolveMod(data, s.remove).type === 'prefix' ? 'sinistral' : 'dextral' };
+      return s;
     }));
   }
   return variants;
@@ -458,17 +463,23 @@ function validateTarget(
 // slot must be freed first. v1 handles RARE items at base orb strength (no greater/perfect orb lever
 // yet); tier targets are honoured and per-exalt side omens are explored.
 
-/** Target validation for the from-item planner: 1–6 mods, ≤3/side, all rollable (normal-pool) mods. */
+/**
+ * Target validation for the from-item planner: 1–6 mods, ≤3/side. A target is either a rollable
+ * (normal-pool) mod or a perfect-essence mod (added by a Perfect Essence, which removes one random mod).
+ */
 function validateFromItemTarget(data: PatchData, base: ItemBase, targetIds: readonly string[]): void {
   if (targetIds.length === 0) throw new Error('no target mods');
   if (targetIds.length > 6) throw new Error(`target has ${targetIds.length} mods (max 6)`);
   let pre = 0;
   let suf = 0;
-  const pool = base.pools.normal;
+  const norm = base.pools.normal;
+  const ess = base.pools.essence;
   for (const id of targetIds) {
     const mod = resolveMod(data, id);
-    if (mod.source !== 'normal' || (!pool.prefixes.includes(id) && !pool.suffixes.includes(id))) {
-      throw new Error(`mod ${id} can’t be rolled onto ${base.id} (the from-item planner supports rollable mods only)`);
+    const rollable = mod.source === 'normal' && (norm.prefixes.includes(id) || norm.suffixes.includes(id));
+    const perfect = mod.source === 'perfect_essence' && (ess.prefixes.includes(id) || ess.suffixes.includes(id));
+    if (!rollable && !perfect) {
+      throw new Error(`mod ${id} can’t be put on ${base.id} (the from-item planner supports rollable mods and perfect essences)`);
     }
     if (mod.type === 'prefix') pre++;
     else suf++;
@@ -477,13 +488,21 @@ function validateFromItemTarget(data: PatchData, base: ItemBase, targetIds: read
   if (suf > 3) throw new Error(`target has ${suf} suffixes (max 3)`);
 }
 
+/** Every ordered selection of `k` distinct items from `arr` (⇒ [] if k > |arr|; [[]] if k === 0). */
+function orderedSelections<T>(arr: readonly T[], k: number): T[][] {
+  if (k === 0) return [[]];
+  if (k > arr.length) return [];
+  const out: T[][] = [];
+  for (const combo of combinations(arr, k)) for (const perm of permutations(combo)) out.push(perm);
+  return out;
+}
+
 /**
- * Build the transform op-sequences: for each count `c` of Chaos swaps (0…min(|junk|,|missing|)), pick
- * which junk and which missing mods pair up (and their bijection), Annul the leftover junk, Exalt the
- * leftover missing, and enumerate every ORDER of those ops. Illegal orders (e.g. exalt into a full
- * side) simply score 0 downstream and drop out — order determines slot/family availability.
+ * Base transform ops (Chaos/Annul/Exalt) for rollable junk↔missing, NOT yet order-permuted: for each
+ * count `c` of Chaos swaps (0…min), pick which junk/missing pair up (and their bijection), Annul the
+ * leftover junk, Exalt the leftover missing.
  */
-function transformSequences(
+function baseTransforms(
   junk: readonly string[], missing: readonly string[], tierOf: Map<string, number>,
 ): PlanStep[][] {
   const out: PlanStep[][] = [];
@@ -500,9 +519,34 @@ function transformSequences(
           }
           for (const j of restJunk) ops.push({ currency: 'annul', remove: j });
           for (const y of restMissing) ops.push({ currency: 'exalt', add: y, minTierIndex: tierOf.get(y) ?? 0 });
-          for (const order of permutations(ops)) out.push(order);
+          out.push(ops);
         }
       }
+    }
+  }
+  return out;
+}
+
+/**
+ * Build the transform op-sequences from junk + missing (split into rollable and perfect-essence mods),
+ * enumerating every ORDER. A PERFECT-ESSENCE target can only be added by a Perfect Essence, which
+ * removes one uniformly-random mod as it adds — so each perfect target is paired with a distinct junk to
+ * sacrifice (its step scores the odds that random removal actually hits that junk). The remaining junk +
+ * rollable-missing go through the ordinary Chaos/Annul/Exalt transforms. Illegal orders score 0 and drop.
+ */
+function transformSequences(
+  junk: readonly string[], missingRollable: readonly string[], missingPerfect: readonly string[],
+  tierOf: Map<string, number>,
+): PlanStep[][] {
+  const out: PlanStep[][] = [];
+  // Each perfect target consumes one junk (removed by its essence); enumerate which junk, in order.
+  for (const junkForPerfect of orderedSelections(junk, missingPerfect.length)) {
+    const perfectOps: PlanStep[] = missingPerfect.map((add, i) => ({
+      currency: 'perfect-essence', add, remove: junkForPerfect[i]!,
+    }));
+    const restJunk = junk.filter((j) => !junkForPerfect.includes(j));
+    for (const baseOps of baseTransforms(restJunk, missingRollable, tierOf)) {
+      for (const order of permutations([...perfectOps, ...baseOps])) out.push(order);
     }
   }
   return out;
@@ -525,8 +569,18 @@ export function optimizeFromItem(
   const targetSet = new Set(targetIds);
   const current = [...start.prefixes, ...start.suffixes].map((p) => p.modId);
   const currentSet = new Set(current);
-  const junk = current.filter((id) => !targetSet.has(id));      // on the item but unwanted → remove
+  const junk = current.filter((id) => !targetSet.has(id));       // on the item but unwanted → remove
   const missing = targetIds.filter((id) => !currentSet.has(id)); // wanted but not yet present → add
+  // A perfect essence adds its guaranteed mod while removing one random mod, so a perfect target can
+  // only be placed by sacrificing a junk mod. Needs at least as many junk mods as perfect targets.
+  const missingPerfect = missing.filter((id) => resolveMod(data, id).source === 'perfect_essence');
+  const missingRollable = missing.filter((id) => resolveMod(data, id).source !== 'perfect_essence');
+  if (missingPerfect.length > junk.length) {
+    throw new Error(
+      `need ${missingPerfect.length} Perfect Essence(s) but only ${junk.length} spare mod(s) to sacrifice — `
+      + 'a Perfect Essence removes one of your existing mods as it adds, so keep a removable (junk) mod per perfect target',
+    );
+  }
 
   if (junk.length === 0 && missing.length === 0) {
     const result = evaluatePlanFrom(data, start, []); // already the target — nothing to do
@@ -537,7 +591,7 @@ export function optimizeFromItem(
   }
 
   const plans: ParetoPlan[] = [];
-  for (const seq of transformSequences(junk, missing, tierOf)) {
+  for (const seq of transformSequences(junk, missingRollable, missingPerfect, tierOf)) {
     for (const steps of withOmenVariants(data, seq)) {
       const result = evaluatePlanFrom(data, start, steps);
       plans.push({ steps, result, cost: planExpectedCost(prices, result, steps), probability: result.total });

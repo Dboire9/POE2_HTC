@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 // Parse a saved poe2db item-class page (e.g. https://poe2db.tw/us/Wands) and extract its embedded
 // modifier data. poe2db embeds, per item class, a JS object with pool arrays ("normal",
-// "desecrated", ...) whose mod objects carry the COMMUNITY spawn weight in `DropChance` (the value
-// game files lack). Fields per mod object: Name, Level (tier), DropChance (weight), reqlvl,
-// ModFamilyList, ModGenerationTypeID (1=prefix,2=suffix), str (stat text w/ ranges), spawn_no.
+// "desecrated", "essence", "perfect_essence", ...) whose mod objects carry the COMMUNITY spawn weight
+// in `DropChance` (the value game files lack). Fields per mod object: Name, Level (tier), DropChance
+// (weight), reqlvl, ModFamilyList, ModGenerationTypeID (1=prefix,2=suffix), str (stat text w/ ranges),
+// spawn_no. Essence/perfect_essence mods carry weight 0 (essences force a mod, deterministically).
 //
 // This module only reads a local HTML file (no network). Export: parsePoe2dbHtml(html) -> pools.
 
 export function parsePoe2dbHtml(html) {
   const out = {};
-  for (const pool of ['normal', 'desecrated', 'essence']) {
+  for (const pool of ['normal', 'desecrated', 'essence', 'perfect_essence']) {
     const arr = extractJsonArray(html, `"${pool}":[`);
     if (arr) out[pool] = arr.map(normalizeMod).filter(Boolean);
   }

@@ -47,8 +47,9 @@ export interface EngineMod {
   readonly type: 'prefix' | 'suffix';
   /** Family-exclusion group — an item may hold at most one mod per family. */
   readonly family: string;
-  /** 'normal' = rollable with currency; 'essence' = obtainable only by an essence (its tiers = levels). */
-  readonly source: 'normal' | 'essence';
+  /** 'normal' = rollable with currency; 'essence' = obtainable only by a regular essence (tiers = levels);
+   * 'perfect' = a perfect-essence mod (added on a Rare by a Perfect Essence, which removes one random mod). */
+  readonly source: 'normal' | 'essence' | 'perfect';
   /** Tiers best-first (T1 … Tn); for essence mods these are the Greater→Lesser essence levels. */
   readonly tiers: readonly EngineTier[];
 }
@@ -176,6 +177,30 @@ export function listMods(data: PatchData, baseId: string): EngineBaseMods {
   };
 }
 
+/**
+ * The perfect-essence mods a base can carry (from its essence pool, source 'perfect_essence'). These are
+ * NOT from-white targets — a Perfect Essence adds its guaranteed mod on a Rare while removing one random
+ * mod — so they're offered only in the from-item flow. Single "tier" (the perfect level), best-first.
+ */
+export function listPerfectEssences(data: PatchData, baseId: string): EngineMod[] {
+  const base = data.bases.get(baseId);
+  if (!base) return [];
+  const build = (ids: readonly string[], type: 'prefix' | 'suffix'): EngineMod[] =>
+    ids.flatMap((id): EngineMod[] => {
+      const mod = data.mods.get(id);
+      if (!mod || mod.source !== 'perfect_essence' || mod.tiers.length === 0) return [];
+      const t = mod.tiers[0]!;
+      const r = t.ranges[0];
+      const range = r && r.length >= 2 ? ` · ${r[0]}–${r[1]}` : '';
+      return [{
+        id: mod.id, text: mod.text ?? mod.id, type, family: mod.family, source: 'perfect',
+        tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `${t.name} · ilvl ${t.ilvl}${range}` }],
+      }];
+    });
+  return [...build(base.pools.essence.prefixes, 'prefix'), ...build(base.pools.essence.suffixes, 'suffix')]
+    .sort((a, b) => a.text.localeCompare(b.text));
+}
+
 // ── The optimize call ────────────────────────────────────────────────────────
 
 /**
@@ -216,9 +241,12 @@ function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
       const sr = plan.result.steps[i]!;
       const orb = 'tier' in step ? step.tier : undefined;
       const essenceLevel = step.currency === 'essence' ? step.essenceLevel : undefined;
-      // A side-constrained exalt/chaos uses an Exaltation omen (Sinistral = prefix, Dextral = suffix).
+      // A side-constrained exalt/chaos uses an Exaltation omen (Sinistral = prefix, Dextral = suffix);
+      // a perfect-essence step can carry a Sinistral/Dextral Crystallisation omen (constrains the removal).
       const constrainTo = (step.currency === 'exalt' || step.currency === 'chaos') ? step.constrainTo : undefined;
-      const omen = constrainTo ? (constrainTo === 'prefix' ? ' + Sinistral' : ' + Dextral') : '';
+      const peOmen = step.currency === 'perfect-essence' ? step.omen : undefined;
+      const omen = constrainTo ? (constrainTo === 'prefix' ? ' + Sinistral' : ' + Dextral')
+        : peOmen ? (peOmen === 'sinistral' ? ' + Sinistral' : ' + Dextral') : '';
       const label = CURRENCY_LABEL[step.currency]
         + (orb ? ORB_SUFFIX[orb] : '')
         + (essenceLevel && essenceLevel !== 'normal' ? ` (${essenceLevel})` : '')
@@ -227,6 +255,7 @@ function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
       // removes one, everything else adds one.
       const target = step.currency === 'alchemy' ? step.adds.map(text).join(' + ')
         : step.currency === 'chaos' ? `−${text(step.remove)}  +${text(step.add)}`
+        : step.currency === 'perfect-essence' ? `+${text(step.add)}  −${text(step.remove)} (random)`
         : step.currency === 'annul' ? `removes ${text(step.remove)}`
         : text(sr.target);
       return { n: i + 1, currency: step.currency, orb, label, target, prob: sr.prob };

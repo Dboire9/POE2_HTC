@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { listBases, listMods, optimize, optimizeItem, currencyActions, type EngineMod, type ExistingItem } from './engine.ts';
+import { listBases, listMods, listPerfectEssences, optimize, optimizeItem, currencyActions, type EngineMod, type ExistingItem } from './engine.ts';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
 
@@ -181,5 +181,48 @@ describe('engine facade — essence targeting on the shipped 0.5.0 data', () => 
     expect(essStep).toBeDefined();
     expect(essStep!.prob).toBe(1);
     expect(essStep!.label.toLowerCase()).toContain('essence');
+  });
+});
+
+// Perfect essences: offered only in the from-item flow (a Perfect Essence adds its guaranteed mod on a
+// Rare while removing one random mod). Verify the facade lists them and the planner reaches one.
+describe('engine facade — perfect essences in the from-item planner (0.5.0)', () => {
+  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
+
+  it('listPerfectEssences surfaces perfect-essence mods (source "perfect", single tier)', () => {
+    const perfects = listPerfectEssences(eng050.data, 'Wands');
+    expect(perfects.length).toBeGreaterThan(0);
+    expect(perfects.every((m) => m.source === 'perfect' && m.tiers.length === 1)).toBe(true);
+    // they must NOT leak into the from-white picker (listMods stays normal + regular essence).
+    const white = listMods(eng050.data, 'Wands');
+    expect([...white.prefixes, ...white.suffixes].some((m) => m.source === 'perfect')).toBe(false);
+  });
+
+  it('reaches a perfect-essence target by sacrificing a junk mod (perfect-essence step)', () => {
+    const pe = listPerfectEssences(eng050.data, 'Wands')[0]!;
+    // a junk normal prefix on a different family so the add is legal before the removal
+    const junk = listMods(eng050.data, 'Wands').prefixes.find((m) => m.source === 'normal' && m.family !== pe.family)!;
+    const item: ExistingItem = {
+      baseId: 'Wands', level: 82, rarity: 'rare',
+      prefixes: [{ modId: junk.id, tierDisplay: 1 }], suffixes: [],
+    };
+    const r = optimizeItem(eng050, item, [{ modId: pe.id, tierDisplay: 1 }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const step = r.frontier[0]!.steps.find((s) => s.currency === 'perfect-essence');
+    expect(step, 'the plan uses a perfect essence').toBeDefined();
+    expect(step!.label.toLowerCase()).toContain('perfect essence');
+    expect(step!.target).toMatch(/random/); // "+<add>  −<removed> (random)"
+  });
+
+  it('rejects a perfect target when the Rare has no junk to sacrifice', () => {
+    const pe = listPerfectEssences(eng050.data, 'Wands')[0]!;
+    const keep = listMods(eng050.data, 'Wands').prefixes.find((m) => m.source === 'normal' && m.family !== pe.family)!;
+    const item: ExistingItem = {
+      baseId: 'Wands', level: 82, rarity: 'rare',
+      prefixes: [{ modId: keep.id, tierDisplay: 1 }], suffixes: [],
+    };
+    // target keeps the existing mod AND wants the perfect one → no spare mod to feed the essence.
+    expect(() => optimizeItem(eng050, item, [{ modId: keep.id, tierDisplay: 1 }, { modId: pe.id, tierDisplay: 1 }]))
+      .toThrow(/Perfect Essence/i);
   });
 });

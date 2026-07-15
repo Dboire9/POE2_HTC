@@ -341,12 +341,34 @@ per-class pages (the parser already extracted them; only the pipeline dropped th
   essence-forced + plain/boss desecration on the real data; facade test reaches a 0.5.0 essence via a
   P=1 essence step. Full suite 513 + 1 todo, type-check clean.
 
+## Perfect essences added to 0.5.0 + wired into the from-item planner (2026-07-13)
+
+Extended the essence work with the **perfect-essence** pool and the remove-and-add-on-rare flow.
+
+- **Data:** poe2db embeds a separate `"perfect_essence":[` array (missed the first pass — the parser
+  read only normal/desecrated/essence). Taught `poe2db.mjs` to read it and `apply_pools.mjs` to build
+  **363 single-tier `perfect_essence` mods** into the essence pool (deterministic, weight 0), incl. the
+  perfect-only essences (the Alloys, Delirium, Horror, Hysteria, "the Abyss", "the Breach"). `essences.json`
+  gained a PERFECT level (37 essences total). "Mark of the Abyssal Lord" (family EssenceAbyss), which
+  poe2db lists as both a prefix and a suffix, is deduped to one mod. Guardrail baseline gained 8 more
+  legit cross-source mixed families (a desecrated mod + a perfect-essence mod sharing a stat family on
+  different sides: AdditionalBallistaTotem, ElementalInfusion, ManaCostEfficiency×6).
+- **Planner:** `optimizeFromItem` now handles perfect-essence targets — a perfect mod can only be placed
+  by a Perfect Essence, which removes one uniformly-random mod as it adds, so each perfect target is
+  paired with a distinct **junk** to sacrifice (throws if there aren't enough junk mods). The
+  **Sinistral/Dextral Crystallisation** omen (constrains the removal to a side) is explored as a
+  cost↔probability lever alongside the exalt omens. Facade `listPerfectEssences` surfaces them (source
+  'perfect') for the from-item target picker only; `mapFrontier` renders "+add −removed (random)".
+- **Eyeballed (real 0.5.0):** rare wand [Mana | Intelligence] → keep Mana, add "Perfect Essence of the
+  Abyss": raw essence P=50%/30ex (removes 1 of 2 uniformly); with Dextral Crystallisation the removal is
+  confined to the lone suffix (Intelligence) → **P=100%/25ex**, which dominates. Cost checks out
+  (perfect_essence 15 + omen 10). Validated by hand-computed optimizer tests (uniform ½, omen→1,
+  no-junk rejection), facade tests, and `shipped-pools.test.ts`. **519 tests + 1 todo, type-check + build green.**
+
 ## Still deferred
-- **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage on
-  0.5.0) — domain/CoE ruling on `type` vs pool for shield block etc.
-- **Perfect essences** in 0.5.0 — poe2db lists none per-base; the remove-and-add-on-rare mechanic stays
-  anchored on the 0.5 snapshot.
-- **CoE numeric cross-check of the new pools** — essence value ranges and desecrated weights vs
+- **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
+  8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.
+- **CoE numeric cross-check of the new pools** — essence/perfect value ranges and desecrated weights vs
   craftofexile.com (the normal pools are CoE-exact; essence/desecrated are poe2db-sourced but not yet
   CoE-diffed).
 - **Broaden CoE cross-validation beyond wands** — other bases' families/weights, tier-target and omen

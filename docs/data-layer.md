@@ -15,11 +15,13 @@ pure-TypeScript engine (`packages/engine`) reads it directly — there is no dat
   joined onto the structure by `(base, type, family, ilvl)`. Cross-checked *exact* against Craft of
   Exile for Wands / Amulets / Rings / Body Armour / Quivers (see [validation.md](validation.md),
   "External cross-check, round 2"). Game-file weights are useless (0/1 only); poe2db carries the
-  community-verified weights the project relies on. The **essence and desecrated pools** are also
-  populated — built directly from poe2db per-class pages by `apply_pools.mjs` (essence tiers are the
-  Lesser/Normal/Greater levels, deterministic so weight 0; desecrated = one mod per row, weight 1, with
-  boss tags preserved for the omen path). **Perfect essences are still deferred** (poe2db carries none;
-  the engine's perfect-essence mechanic stays anchored on the 0.5 snapshot).
+  community-verified weights the project relies on. The **essence, desecrated, and perfect-essence
+  pools** are also populated — built directly from poe2db per-class pages by `apply_pools.mjs`:
+  regular-essence tiers are the Lesser/Normal/Greater levels and perfect essences are single-tier, both
+  deterministic so weight 0; desecrated = one mod per row, weight 1, with boss tags preserved for the
+  omen path. Perfect essences (source `perfect_essence`, e.g. the Alloys, Hysteria, "the Abyss") sit in
+  the essence pool but are offered only in the from-item flow — a Perfect Essence adds its guaranteed mod
+  on a Rare while removing one random mod.
 - **`data/patches/0.5/`** — the **Java-era snapshot**: a 1:1 extraction of the old hardcoded Java
   (~0.2/0.3-era values). It is **stale vs the live game** and is kept for exactly one reason: it's the
   engine's **differential anchor**. The frozen golden fixtures in
@@ -63,7 +65,7 @@ npm run update-data           # tools/refresh/ : RePoE structure -> poe2db weigh
 ```
 
 The refresh pipeline is `refresh.mjs` (RePoE structure) → `apply_weights.mjs` (poe2db normal weights)
-→ `apply_pools.mjs` (poe2db essence + desecrated pools, and `essences.json`) → `diff.mjs` (writes
+→ `apply_pools.mjs` (poe2db essence + desecrated + perfect-essence pools, and `essences.json`) → `diff.mjs` (writes
 `docs/refresh-0.5.0-diff.md`). RePoE dumps and poe2db pages are cached under `tools/refresh/cache/`
 (gitignored). `currencies.json` / `prices.json` / `weights_overrides.json` are edited by hand.
 

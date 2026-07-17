@@ -183,9 +183,13 @@ export function annulProbability(data: PatchData, item: ItemState, targetModId: 
   const onPrefix = item.prefixes.some((p) => p.modId === targetModId);
   const onSuffix = item.suffixes.some((p) => p.modId === targetModId);
   if (!onPrefix && !onSuffix) return 0;
+  // A fractured mod is locked — it can't be the one annulled, and it's excluded from the removal pool
+  // (so removing any OTHER mod is likelier). Only non-fractured mods are removal candidates.
+  const placed = [...item.prefixes, ...item.suffixes].find((p) => p.modId === targetModId);
+  if (placed?.fractured) return 0;
 
-  const pf = item.prefixes.length;
-  const sf = item.suffixes.length;
+  const pf = item.prefixes.filter((p) => !p.fractured).length;
+  const sf = item.suffixes.filter((p) => !p.fractured).length;
   switch (opts.omen ?? 'none') {
     case 'none': return pf + sf > 0 ? 1 / (pf + sf) : 0;
     case 'sinistral': return onPrefix && pf > 0 ? 1 / pf : 0;
@@ -299,9 +303,12 @@ export function perfectEssenceProbability(
   const onPrefix = item.prefixes.some((p) => p.modId === removedModId);
   const onSuffix = item.suffixes.some((p) => p.modId === removedModId);
   if (!onPrefix && !onSuffix) return 0;
+  // Fractured mods are locked: never the one removed, and out of the removal pool (see annulProbability).
+  const placed = [...item.prefixes, ...item.suffixes].find((p) => p.modId === removedModId);
+  if (placed?.fractured) return 0;
 
-  const pf = item.prefixes.length;
-  const sf = item.suffixes.length;
+  const pf = item.prefixes.filter((p) => !p.fractured).length;
+  const sf = item.suffixes.filter((p) => !p.fractured).length;
   switch (opts.omen ?? 'none') {
     case 'none': {
       if (essenceType === 'prefix' && sf === 0 && pf !== 0) return 1 / pf;

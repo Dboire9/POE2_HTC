@@ -56,6 +56,9 @@ export interface PatchData {
 export interface PlacedMod {
   readonly modId: string;
   readonly tierName: string;
+  /** A fractured ("carved") mod is locked on the item: it can never be removed and is excluded from
+   * the random-removal pool of annul / chaos / essence (so those removal odds improve). Default false. */
+  readonly fractured?: boolean;
 }
 
 /** Mutable item being crafted. Max 3 prefixes + 3 suffixes. */

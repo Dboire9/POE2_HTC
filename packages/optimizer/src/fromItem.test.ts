@@ -60,6 +60,27 @@ describe('optimizeFromItem — transform an existing rare (hand-computed)', () =
   });
 });
 
+describe('optimizeFromItem — fractured mods are locked (never removed)', () => {
+  it('keeps a fractured mod and never annuls/chaoses it away', () => {
+    // Rare [NP1 (fractured) | NS1]; target {NS1, NP2}. NP1 isn't in the target but is fractured, so it
+    // can't be junk — it stays, and the craft just adds the missing NP2.
+    const start: ItemState = {
+      base, level: 100, rarity: 'rare',
+      prefixes: [{ modId: 'NP1', tierName: 't1', fractured: true }],
+      suffixes: [{ modId: 'NS1', tierName: 't1' }],
+    };
+    const r = optimizeFromItem(data, prices, start, [{ modId: 'NS1' }, { modId: 'NP2' }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const removesNP1 = r.frontier.some((p) => p.steps.some((s) =>
+      (s.currency === 'annul' || s.currency === 'chaos') && 'remove' in s && s.remove === 'NP1'));
+    expect(removesNP1).toBe(false);
+    // NP1's family is on the item, so NP2 is the only addable prefix ⇒ a single exalt, P=1.
+    const best = r.frontier[r.frontier.length - 1]!;
+    expect(best.steps.some((s) => s.currency === 'exalt' && 'add' in s && s.add === 'NP2')).toBe(true);
+    expect(best.probability).toBeCloseTo(1, 6);
+  });
+});
+
 describe('optimizeFromItem — perfect essences (hand-computed)', () => {
   // Base S: normal prefix NP1 + suffix NS1, and a PERFECT-ESSENCE prefix PE1 (in the essence pool).
   const pmk = (id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source']): Mod =>

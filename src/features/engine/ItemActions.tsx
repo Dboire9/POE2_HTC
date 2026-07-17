@@ -9,6 +9,7 @@ import {
   type TargetInput, type EngineResult,
 } from '../../lib/engine';
 import FrontierView from './FrontierView';
+import BaseSelect from './BaseSelect';
 
 const selectCls =
   'h-9 rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring';
@@ -97,6 +98,17 @@ const ItemActions: React.FC = () => {
   }, [rarity]);
 
   const onItem = useMemo(() => new Set([...prefixes, ...suffixes].map((m) => m.modId)), [prefixes, suffixes]);
+  const fracturedIds = useMemo(
+    () => new Set([...prefixes, ...suffixes].filter((m) => m.fractured).map((m) => m.modId)),
+    [prefixes, suffixes],
+  );
+  // Toggle a current mod's fractured ("carved") lock: it can't be removed and is excluded from random removal.
+  const toggleFractured = (modId: string) => {
+    const flip = (l: ItemModInput[]) => l.map((x) => (x.modId === modId ? { ...x, fractured: !x.fractured } : x));
+    setPrefixes(flip);
+    setSuffixes(flip);
+    setPlan(null);
+  };
   const occupiedFamilies = useMemo(() => {
     const s = new Set<string>();
     for (const id of onItem) { const fam = modById.get(id)?.family; if (fam) s.add(fam); }
@@ -221,12 +233,7 @@ const ItemActions: React.FC = () => {
       {/* Your item */}
       <Card className="p-4 space-y-4">
         <div className="flex flex-wrap items-end gap-4">
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Base</span>
-            <select className={`${selectCls} min-w-56`} value={baseId} onChange={(e) => setBaseId(e.target.value)}>
-              {bases.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-          </label>
+          <BaseSelect bases={bases} value={baseId} onChange={setBaseId} />
           <label className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Item level</span>
             <input
@@ -259,15 +266,37 @@ const ItemActions: React.FC = () => {
         </div>
 
         {itemMods.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {itemMods.map((m) => (
-              <span key={m.id} className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-2 py-1 text-sm">
-                <Badge variant={m.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{m.type === 'prefix' ? 'P' : 'S'}</Badge>
-                {m.text}
-                <button onClick={() => dropItemMod(m.id)} className="text-muted-foreground hover:text-destructive" title="Remove from item">✕</button>
-              </span>
-            ))}
-          </div>
+          <>
+            <div className="flex flex-wrap gap-2">
+              {itemMods.map((m) => {
+                const isFractured = fracturedIds.has(m.id);
+                return (
+                  <span
+                    key={m.id}
+                    className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-sm ${isFractured ? 'border-amber-500/60 bg-amber-500/10' : 'border-border/60'}`}
+                  >
+                    <Badge variant={m.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{m.type === 'prefix' ? 'P' : 'S'}</Badge>
+                    {m.text}
+                    {isFractured && <span className="rounded bg-amber-500/20 px-1 text-[10px] text-amber-700 dark:text-amber-300">fractured</span>}
+                    <button
+                      onClick={() => toggleFractured(m.id)}
+                      className={`px-0.5 ${isFractured ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-500'}`}
+                      title={isFractured ? 'Fractured (locked) — click to unlock' : 'Mark fractured: locked on the item, can’t be removed'}
+                    >
+                      {isFractured ? '🔒' : '🔓'}
+                    </button>
+                    <button onClick={() => dropItemMod(m.id)} className="text-muted-foreground hover:text-destructive" title="Remove from item">✕</button>
+                  </span>
+                );
+              })}
+            </div>
+            {fracturedIds.size > 0 && (
+              <p className="text-[11px] text-muted-foreground">
+                🔒 Fractured mods are locked — the planner keeps them, never removes them, and they’re excluded
+                from what an Annulment / Chaos / Essence can randomly remove (so those odds go up).
+              </p>
+            )}
+          </>
         )}
       </Card>
 

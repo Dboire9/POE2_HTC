@@ -39,6 +39,8 @@ export interface EngineTier {
   readonly name: string;
   readonly ilvl: number;
   readonly label: string;
+  /** The roll range as "min–max" (e.g. "165–179"), or "" for a value-less mod. */
+  readonly range: string;
 }
 
 export interface EngineMod {
@@ -88,6 +90,25 @@ export interface EngineResult {
   readonly frontier: readonly EnginePlan[];
   readonly plansEvaluated: number;
   readonly currencyDepth: CurrencyDepth;
+}
+
+/** Beyond this many expected attempts, a "cheap" plan is really an impractical grind (tune to taste). */
+export const MAX_PRACTICAL_ATTEMPTS = 40;
+
+/**
+ * The "recommended / best value" plan on a cost↔probability frontier. The frontier runs cheapest
+ * (lowest expected cost, but often a sub-1% grind of thousands of attempts) → surest (highest per-attempt
+ * success, fewest clicks, but priciest). "Best value" = the **cheapest plan you'd actually want to
+ * execute** — the least expected cost among plans that succeed within a practical number of attempts
+ * (`MAX_PRACTICAL_ATTEMPTS`). Because the frontier ascends in both cost and probability, expected
+ * attempts descend along it, so the first plan clearing the bar is that cheapest-practical one. If even
+ * the surest plan can't clear the bar (a genuinely hard craft), recommend the surest. Returns -1 if empty.
+ */
+export function recommendedIndex(frontier: readonly EnginePlan[]): number {
+  const n = frontier.length;
+  if (n === 0) return -1;
+  const idx = frontier.findIndex((p) => p.expectedAttempts <= MAX_PRACTICAL_ATTEMPTS);
+  return idx >= 0 ? idx : n - 1;
 }
 
 // ── Data loading (memoized) ──────────────────────────────────────────────────
@@ -153,9 +174,10 @@ function toEngineMod(data: PatchData, modId: string, type: 'prefix' | 'suffix'):
     .map((t, engineIndex) => {
       const display = n - engineIndex; // engineIndex n-1 (best) → display 1
       const r = t.ranges[0];
-      const range = r && r.length >= 2 ? ` · ${r[0]}–${r[1]}` : '';
-      const label = isEssence ? essenceTierLabel(t.name, t.ilvl, range) : tierLabel(display, n, t.name, t.ilvl, range);
-      return { display, name: t.name, ilvl: t.ilvl, label };
+      const range = r && r.length >= 2 ? `${r[0]}–${r[1]}` : '';
+      const suffix = range ? ` · ${range}` : '';
+      const label = isEssence ? essenceTierLabel(t.name, t.ilvl, suffix) : tierLabel(display, n, t.name, t.ilvl, suffix);
+      return { display, name: t.name, ilvl: t.ilvl, label, range };
     })
     .sort((a, b) => a.display - b.display);
   return { id: mod.id, text: mod.text ?? mod.id, type, family: mod.family, source: isEssence ? 'essence' : 'normal', tiers };
@@ -191,10 +213,10 @@ export function listPerfectEssences(data: PatchData, baseId: string): EngineMod[
       if (!mod || mod.source !== 'perfect_essence' || mod.tiers.length === 0) return [];
       const t = mod.tiers[0]!;
       const r = t.ranges[0];
-      const range = r && r.length >= 2 ? ` · ${r[0]}–${r[1]}` : '';
+      const range = r && r.length >= 2 ? `${r[0]}–${r[1]}` : '';
       return [{
         id: mod.id, text: mod.text ?? mod.id, type, family: mod.family, source: 'perfect',
-        tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `${t.name} · ilvl ${t.ilvl}${range}` }],
+        tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `${t.name} · ilvl ${t.ilvl}${range ? ` · ${range}` : ''}`, range }],
       }];
     });
   return [...build(base.pools.essence.prefixes, 'prefix'), ...build(base.pools.essence.suffixes, 'suffix')]
@@ -276,6 +298,8 @@ export interface ItemModInput {
   readonly modId: string;
   /** 1-based from best (matches the picker); only affects which tier ilvl is recorded. */
   readonly tierDisplay: number;
+  /** Fractured ("carved"): locked on the item — never removed, and out of the random-removal pool. */
+  readonly fractured?: boolean;
 }
 
 /** An item the user already owns: a magic or rare base carrying these prefixes/suffixes. */
@@ -311,7 +335,8 @@ function buildItemState(data: PatchData, item: ExistingItem): ItemState {
       const mod = resolveMod(data, m.modId);
       const n = mod.tiers.length;
       const idx = Math.max(0, Math.min(n - 1, n - m.tierDisplay)); // display 1 = best = last engine index
-      return { modId: m.modId, tierName: (mod.tiers[idx] ?? mod.tiers[0])?.name ?? '' };
+      const tierName = (mod.tiers[idx] ?? mod.tiers[0])?.name ?? '';
+      return m.fractured ? { modId: m.modId, tierName, fractured: true } : { modId: m.modId, tierName };
     });
   return { base, level: item.level, rarity: item.rarity, prefixes: place(item.prefixes), suffixes: place(item.suffixes) };
 }

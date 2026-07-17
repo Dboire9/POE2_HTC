@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import type { EngineResult } from '../../lib/engine';
+import { recommendedIndex, type EngineResult } from '../../lib/engine';
 
 function fmtCost(x: number): string {
   if (!Number.isFinite(x)) return '∞';
@@ -46,11 +46,12 @@ const FrontierView: React.FC<{ result: EngineResult; title?: string; emptyHint?:
       </Card>
     ) : (
       <div className="space-y-3">
-        {result.frontier.map((plan, i) => {
+        {(() => { const rec = recommendedIndex(result.frontier); return result.frontier.map((plan, i) => {
           const isCheapest = i === 0;
           const isSurest = i === result.frontier.length - 1;
+          const isRecommended = i === rec;
           return (
-            <Card key={i} className="p-4 space-y-3">
+            <Card key={i} className={`p-4 space-y-3 ${isRecommended ? 'ring-2 ring-primary/60' : ''}`}>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
                 <div>
                   <div className="text-2xl font-bold tabular-nums">{fmtCost(plan.expected)}</div>
@@ -66,8 +67,9 @@ const FrontierView: React.FC<{ result: EngineResult; title?: string; emptyHint?:
                 </div>
                 <div className="flex-1" />
                 <div className="flex gap-1">
-                  {isCheapest && <Badge>cheapest</Badge>}
-                  {isSurest && !isCheapest && <Badge variant="secondary">surest</Badge>}
+                  {isRecommended && <Badge>best value</Badge>}
+                  {isCheapest && <Badge variant={isRecommended ? 'outline' : 'secondary'}>cheapest</Badge>}
+                  {isSurest && !isCheapest && <Badge variant={isRecommended ? 'outline' : 'secondary'}>surest</Badge>}
                 </div>
               </div>
 
@@ -91,7 +93,7 @@ const FrontierView: React.FC<{ result: EngineResult; title?: string; emptyHint?:
               )}
             </Card>
           );
-        })}
+        }); })()}
       </div>
     )}
   </div>

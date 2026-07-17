@@ -569,7 +569,10 @@ export function optimizeFromItem(
   const targetSet = new Set(targetIds);
   const current = [...start.prefixes, ...start.suffixes].map((p) => p.modId);
   const currentSet = new Set(current);
-  const junk = current.filter((id) => !targetSet.has(id));       // on the item but unwanted → remove
+  // Fractured ("carved") mods are locked — never removed, so never junk. They stay on the item (kept
+  // whether or not they're in the target) and keep occupying their slot + family for the engine's math.
+  const fractured = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
+  const junk = current.filter((id) => !targetSet.has(id) && !fractured.has(id)); // unwanted & removable → remove
   const missing = targetIds.filter((id) => !currentSet.has(id)); // wanted but not yet present → add
   // A perfect essence adds its guaranteed mod while removing one random mod, so a perfect target can
   // only be placed by sacrificing a junk mod. Needs at least as many junk mods as perfect targets.

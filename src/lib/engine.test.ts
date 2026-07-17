@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { listBases, listMods, listPerfectEssences, optimize, optimizeItem, currencyActions, type EngineMod, type ExistingItem } from './engine.ts';
+import { listBases, listMods, listPerfectEssences, optimize, optimizeItem, currencyActions, recommendedIndex, type EngineMod, type ExistingItem } from './engine.ts';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
 
@@ -224,5 +224,55 @@ describe('engine facade — perfect essences in the from-item planner (0.5.0)', 
     // target keeps the existing mod AND wants the perfect one → no spare mod to feed the essence.
     expect(() => optimizeItem(eng050, item, [{ modId: keep.id, tierDisplay: 1 }, { modId: pe.id, tierDisplay: 1 }]))
       .toThrow(/Perfect Essence/i);
+  });
+});
+
+describe('recommendedIndex — best-value (cheapest practical) pick', () => {
+  const plan = (expected: number, expectedAttempts: number) =>
+    ({ expected, probability: 1 / expectedAttempts, perAttempt: expected / expectedAttempts, expectedAttempts, steps: [] });
+
+  it('skips a cheap-but-grindy plan for the cheapest practical one', () => {
+    // cheapest = 2500 attempts (a grind), then a 7-attempt plan, then a 1.6-attempt plan.
+    const frontier = [plan(3, 2500), plan(9.5, 7), plan(31, 1.6)];
+    expect(recommendedIndex(frontier)).toBe(1); // the 7-attempt plan — cheapest that's practical
+  });
+  it('recommends the cheapest when it is already practical', () => {
+    expect(recommendedIndex([plan(5, 8), plan(20, 1.5)])).toBe(0);
+  });
+  it('falls back to the surest when no plan is practical', () => {
+    expect(recommendedIndex([plan(3, 5000), plan(9, 200)])).toBe(1);
+  });
+  it('empty frontier → -1', () => {
+    expect(recommendedIndex([])).toBe(-1);
+  });
+});
+
+describe('engine facade — fractured mods flow through to the odds', () => {
+  it('a fractured mod is excluded from Annulment removal (the other mod is removed for certain)', () => {
+    const item: ExistingItem = {
+      baseId: 'Wands', level: 82, rarity: 'rare',
+      prefixes: [{ modId: MANA, tierDisplay: 1, fractured: true }],
+      suffixes: [{ modId: 'Wands/INTELLIGENCE', tierDisplay: 1 }],
+    };
+    // Mana fractured ⇒ Intelligence is the only removable mod ⇒ annul hits it with P=1 (was 1/2).
+    const annulInt = currencyActions(eng, item, { removeModId: 'Wands/INTELLIGENCE' }).find((a) => a.currency === 'annul')!;
+    expect(annulInt.prob).toBeCloseTo(1, 12);
+    // Annulling the fractured mod itself is impossible.
+    const annulMana = currencyActions(eng, item, { removeModId: MANA }).find((a) => a.currency === 'annul')!;
+    expect(annulMana.prob).toBe(0);
+  });
+
+  it('from-scratch fractured routing: a plan keeps the carved mod and rolls the rest around it', () => {
+    // Mirror EngineLab: fracture Mana on the base, target = Mana + Intelligence. Starts from a Rare with
+    // Mana (locked) and exalts Intelligence; nothing removes Mana.
+    const item: ExistingItem = {
+      baseId: 'Wands', level: 82, rarity: 'rare',
+      prefixes: [{ modId: MANA, tierDisplay: 99, fractured: true }], suffixes: [],
+    };
+    const r = optimizeItem(eng, item, [{ modId: MANA, tierDisplay: 99 }, { modId: 'Wands/INTELLIGENCE', tierDisplay: 99 }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const removesMana = r.frontier.some((p) => p.steps.some((s) => /removes .*Mana|−.*Mana/.test(s.target)));
+    expect(removesMana).toBe(false);
+    expect(r.frontier.some((p) => p.steps.some((s) => s.currency === 'exalt'))).toBe(true);
   });
 });

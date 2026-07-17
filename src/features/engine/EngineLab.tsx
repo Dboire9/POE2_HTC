@@ -4,15 +4,31 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, optimize,
-  type EngineBase, type EngineMod, type EngineResult, type TargetInput,
+  loadEngine, listBases, listMods, optimize, optimizeItem,
+  type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
 } from '../../lib/engine';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
 import FrontierView from './FrontierView';
+import BaseSelect from './BaseSelect';
 
 const selectCls =
   'h-9 rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring';
+
+// Tier label for the picker dropdown: "T1 · 165–179" — a compact tier name plus the roll range. Normal
+// mods use "T1"…"Tn" ("Tn · any" for the any-tier worst); essence mods use the level (Lesser/Normal/
+// Greater). The full name/ilvl label is shown in the target list once added.
+function tierHead(mod: EngineMod, ti: EngineMod['tiers'][number]): string {
+  if (mod.source === 'essence') {
+    const m = ti.name.match(/^(Lesser|Greater) Essence of/);
+    return m ? m[1]! : 'Normal';
+  }
+  return ti.display === mod.tiers.length ? `T${ti.display} · any` : `T${ti.display}`;
+}
+function tierOption(mod: EngineMod, ti: EngineMod['tiers'][number]): string {
+  const head = tierHead(mod, ti);
+  return ti.range ? `${head} · ${ti.range}` : head;
+}
 
 const EngineLab: React.FC = () => {
   const [data, setData] = useState<PatchData | null>(null);
@@ -23,6 +39,11 @@ const EngineLab: React.FC = () => {
   const [level, setLevel] = useState<number>(82);
   const [targets, setTargets] = useState<TargetInput[]>([]);
   const [search, setSearch] = useState('');
+  // Per-mod tier chosen in the picker BEFORE adding (default T1 = display 1); the "+" commits mod+tier.
+  const [pickTier, setPickTier] = useState<Record<string, number>>({});
+  // Targets the user marks as already FRACTURED ("carved") on the base — the craft starts from a Rare
+  // holding these (locked, never removed) and rolls the rest around them (routes via the from-item planner).
+  const [fractured, setFractured] = useState<Set<string>>(new Set());
 
   const [result, setResult] = useState<EngineResult | null>(null);
   const [runErr, setRunErr] = useState<string | null>(null);
@@ -54,6 +75,8 @@ const EngineLab: React.FC = () => {
     setResult(null);
     setRunErr(null);
     setSearch('');
+    setPickTier({});
+    setFractured(new Set());
   }, [baseId]);
 
   const selectedIds = useMemo(() => new Set(targets.map((t) => t.modId)), [targets]);
@@ -80,17 +103,33 @@ const EngineLab: React.FC = () => {
     return { prefixes: pick(mods.prefixes), suffixes: pick(mods.suffixes) };
   }, [mods, search, selectedIds]);
 
-  const addTarget = (mod: EngineMod) => {
+  const addTarget = (mod: EngineMod, tierDisplay = 1) => {
     if (targets.some((t) => t.modId === mod.id)) return;
     if (mod.type === 'prefix' && prefixCount >= 3) return;
     if (mod.type === 'suffix' && suffixCount >= 3) return;
     if (occupiedFamilies.has(mod.family)) return; // one mod per family
     if (mod.source === 'essence' && essenceUsed) return; // one essence-only mod per craft
-    setTargets((t) => [...t, { modId: mod.id, tierDisplay: 1 }]);
+    setTargets((t) => [...t, { modId: mod.id, tierDisplay }]);
   };
-  const removeTarget = (modId: string) => setTargets((t) => t.filter((x) => x.modId !== modId));
+  const removeTarget = (modId: string) => {
+    setTargets((t) => t.filter((x) => x.modId !== modId));
+    setFractured((f) => { const n = new Set(f); n.delete(modId); return n; });
+  };
   const patchTarget = (modId: string, patch: Partial<TargetInput>) =>
     setTargets((t) => t.map((x) => (x.modId === modId ? { ...x, ...patch } : x)));
+  // Mark a target as already fractured on the base (locked) — or clear it.
+  const toggleFractured = (modId: string) =>
+    setFractured((f) => { const n = new Set(f); n.has(modId) ? n.delete(modId) : n.add(modId); return n; });
+
+  // Clear the whole craft (targets, tier picks, fractured marks, results) — keeps the base + item level.
+  const reset = () => {
+    setTargets([]);
+    setPickTier({});
+    setFractured(new Set());
+    setResult(null);
+    setRunErr(null);
+    setSearch('');
+  };
 
   const compute = () => {
     if (!engine || targets.length === 0) return;
@@ -99,7 +138,17 @@ const EngineLab: React.FC = () => {
     // Defer so the spinner paints before the (synchronous) search runs.
     setTimeout(() => {
       try {
-        setResult(optimize(engine, baseId, level, targets));
+        if (fractured.size > 0) {
+          // Start from a Rare that already holds the fractured (carved) targets, and roll the rest around
+          // them — this is exactly the from-item planner with those mods locked.
+          const carved = (type: 'prefix' | 'suffix') =>
+            targets.filter((t) => fractured.has(t.modId) && modById.get(t.modId)?.type === type)
+              .map((t) => ({ modId: t.modId, tierDisplay: t.tierDisplay, fractured: true }));
+          const item: ExistingItem = { baseId, level, rarity: 'rare', prefixes: carved('prefix'), suffixes: carved('suffix') };
+          setResult(optimizeItem(engine, item, targets));
+        } else {
+          setResult(optimize(engine, baseId, level, targets));
+        }
       } catch (e) {
         setResult(null);
         setRunErr(e instanceof Error ? e.message : String(e));
@@ -144,19 +193,34 @@ const EngineLab: React.FC = () => {
           const reason = famTaken
             ? `Family “${m.family}” is already on the item — one mod per family`
             : essenceBlocked ? 'Only one essence-only mod per craft'
-            : sideFull ? 'This side is full (max 3)' : m.id;
+            : sideFull ? 'This side is full (max 3)' : '';
+          const tier = pickTier[m.id] ?? 1;
           return (
-            <button
+            <div
               key={m.id}
-              onClick={() => addTarget(m)}
-              disabled={disabled}
-              className="flex w-full items-center gap-2 text-left px-2 py-1.5 text-sm hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-              title={reason}
+              className={`flex items-center gap-1.5 px-2 py-1 ${disabled ? 'opacity-40' : ''}`}
+              title={disabled ? reason : m.id}
             >
-              <span className="flex-1 min-w-0 truncate">{m.text}</span>
-              {isEssence && <span className="shrink-0 rounded bg-purple-500/15 px-1 text-[10px] text-purple-600 dark:text-purple-300">essence</span>}
-              {famTaken && <span className="shrink-0 text-[10px] text-muted-foreground">family in use</span>}
-            </button>
+              <span className="flex-1 min-w-0 truncate text-sm">{m.text}</span>
+              {isEssence && <span className="shrink-0 rounded bg-purple-500/15 px-1 text-[10px] text-purple-600 dark:text-purple-300">ess</span>}
+              <select
+                className={`${selectCls} h-7 py-0 pr-1 text-xs shrink-0`}
+                value={tier}
+                disabled={disabled}
+                onChange={(e) => setPickTier((p) => ({ ...p, [m.id]: Number(e.target.value) }))}
+                title={isEssence ? 'Essence level' : 'Target tier (or better)'}
+              >
+                {m.tiers.map((ti) => <option key={ti.display} value={ti.display}>{tierOption(m, ti)}</option>)}
+              </select>
+              <button
+                onClick={() => addTarget(m, tier)}
+                disabled={disabled}
+                className="shrink-0 grid h-7 w-7 place-items-center rounded-md border border-border text-lg leading-none hover:bg-accent disabled:cursor-not-allowed"
+                title={disabled ? reason : `Add “${m.text}” at ${tierOption(m, m.tiers.find((x) => x.display === tier) ?? m.tiers[0]!)}`}
+              >
+                +
+              </button>
+            </div>
           );
         })}
       </div>
@@ -177,14 +241,7 @@ const EngineLab: React.FC = () => {
       {/* Setup */}
       <Card className="p-4 space-y-4">
         <div className="flex flex-wrap items-end gap-4">
-          <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Base</span>
-            <select className={`${selectCls} min-w-56`} value={baseId} onChange={(e) => setBaseId(e.target.value)}>
-              {bases.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
-          </label>
+          <BaseSelect bases={bases} value={baseId} onChange={setBaseId} />
           <label className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Item level</span>
             <input
@@ -194,6 +251,9 @@ const EngineLab: React.FC = () => {
             />
           </label>
           <div className="flex-1" />
+          <Button variant="outline" onClick={reset} disabled={targets.length === 0 && !result} size="lg">
+            Reset
+          </Button>
           <Button onClick={compute} disabled={!canCompute} size="lg">
             {computing ? 'Computing…' : 'Compute frontier'}
           </Button>
@@ -222,8 +282,10 @@ const EngineLab: React.FC = () => {
             {targets.map((t) => {
               const mod = modById.get(t.modId);
               if (!mod) return null;
+              const isFractured = fractured.has(t.modId);
+              const canFracture = mod.source !== 'essence'; // a regular essence can't be a fractured start mod
               return (
-                <div key={t.modId} className="flex flex-wrap items-center gap-2 rounded-md border border-border/60 px-2 py-1.5">
+                <div key={t.modId} className={`flex flex-wrap items-center gap-2 rounded-md border px-2 py-1.5 ${isFractured ? 'border-amber-500/60 bg-amber-500/10' : 'border-border/60'}`}>
                   <Badge variant={mod.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">
                     {mod.type === 'prefix' ? 'P' : 'S'}
                   </Badge>
@@ -232,10 +294,12 @@ const EngineLab: React.FC = () => {
                     {mod.source === 'essence' && (
                       <span className="ml-1.5 rounded bg-purple-500/15 px-1 text-[10px] text-purple-600 dark:text-purple-300">essence-only</span>
                     )}
+                    {isFractured && <span className="ml-1.5 rounded bg-amber-500/20 px-1 text-[10px] text-amber-700 dark:text-amber-300">fractured</span>}
                   </span>
                   <select
                     className={selectCls}
                     value={t.tierDisplay}
+                    disabled={isFractured}
                     onChange={(e) => patchTarget(t.modId, { tierDisplay: Number(e.target.value) })}
                     title={mod.source === 'essence' ? 'Essence level (fixes value, ilvl gate, and price)' : 'Target tier (or better)'}
                   >
@@ -243,6 +307,15 @@ const EngineLab: React.FC = () => {
                       <option key={ti.display} value={ti.display}>{ti.label}</option>
                     ))}
                   </select>
+                  {canFracture && (
+                    <button
+                      onClick={() => toggleFractured(t.modId)}
+                      className={`px-0.5 ${isFractured ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-500'}`}
+                      title={isFractured ? 'Fractured (carved on the base) — click to unlock' : 'Mark as already fractured on the base (locked; the craft starts from a Rare holding it)'}
+                    >
+                      {isFractured ? '🔒' : '🔓'}
+                    </button>
+                  )}
                   <button
                     onClick={() => removeTarget(t.modId)}
                     className="text-muted-foreground hover:text-destructive px-1"
@@ -259,6 +332,13 @@ const EngineLab: React.FC = () => {
               Essence-only mods can only be applied by an essence (on a Magic item, turning it Rare).
               The level you pick fixes the value, its item-level gate, and the essence’s price — so the
               target must also include at least one rollable mod for the essence to land on.
+            </p>
+          )}
+          {fractured.size > 0 && (
+            <p className="text-[11px] text-muted-foreground">
+              🔒 Fractured mods are treated as already carved on the base — the plan starts from a Rare
+              holding them and rolls the rest around them (using the keep-your-item cost model). They’re
+              never rerolled and are excluded from what an Annulment / Chaos can hit.
             </p>
           )}
         </Card>

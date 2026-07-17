@@ -393,9 +393,65 @@ independent extractions of the same mechanic that (verified) share the family na
 *Cosmetic note:* some poe2db compound mods concatenate their two stat lines without a separator
 ("…Spell DamageMinions deal…"); display-only, doesn't affect probabilities — a low-priority text cleanup.
 
+## Budget-constrained alternatives + cost distribution (2026-07-17)
+
+**`planCostCdf` (cost.ts) — P(finish within budget), not just the mean.** Same restart-on-first-failure
+model as `planExpectedCost`, solved for its distribution instead of its expectation:
+
+    g(x) = S_n·1[C ≤ x] + Σ_k S_{k-1}(1−p_k)·g(x − A_k)
+
+Conditioning on the first attempt folds in *every* restart count implicitly — no geometric tail to
+iterate (at S_n ≈ 1e-4 an explicit convolution would need ~276k terms for the same answer).
+
+- **The quantum is chosen to divide the prices, not the budget** — the one decision that makes this
+  exact. A fixed grid (h = B/G) rounds each atom by up to h and the error COMPOUNDS once per restart:
+  a plan restarting B/c_min times drifts by (B/c_min)·h, which for a 200ex budget with 0.2ex chaos orbs
+  at G=4096 is a **~49ex drift on a 200ex budget** (bracket ≈ [0,1] — useless). Dividing the prices
+  instead puts every atom on a cell boundary: nothing to round, nothing to compound. Real sheets
+  (0.2/1/1.5/15) ⇒ a 0.1 quantum ⇒ ~2000 cells for 200ex.
+- **Bounds are honest, never hidden.** `exact: true` ⇒ `lower === upper`. Incommensurable prices fall
+  back to a uniform grid and return a real bracket. `exactQuantum` uses an ABSOLUTE 1e-6 tolerance
+  deliberately — a relative one grows with scale and by d=6 "accepts" π as 3141593/10⁶, claiming an
+  exactness it hasn't earned.
+- **Validated:** hand-computed closed forms (1-step ⇒ 1−2⁻ᵏ exactly; 2-step ⇒ g(3)=¼, g(4)=⅜, g(5)=7/16)
+  **plus 100k-run Monte Carlo** of the same wallet at 5 budgets (`costCdf.test.ts`). simulate.ts's own
+  harness checks per-step probabilities, not cost accumulation across restarts, so the MC is new — it
+  reuses that module's deterministic `mulberry32` so the check can't go flaky.
+
+**`alternatives.ts` — the (closeness ↔ P(in budget)) Pareto frontier.** Relax per slot (tier slide,
+same-family swap, or drop; ≤1 slot swapped-or-dropped; pinned and fractured slots frozen), rank
+lexicographically (dropped ↑, swapped ↑, value-retained ↓ — constant-free, so no arbitrary "one tier
+step = X% of a mod" exchange rate).
+
+- **Tag-similarity swaps rejected on evidence, not taste.** Tag-Jaccard over 0.5.0 scores
+  "#% increased Light Radius" at **1.00** against "+# to maximum Mana" — both carry exactly
+  `['resource','mana']`. The bad row would rank *first* (it's cheap). Same-family siblings are a
+  declared exclusion group, not an inferred similarity. Revisit only via `tiers[].stats`
+  (`base_maximum_mana` vs `mana_regeneration_rate_+%`), which covers 77% of tiers.
+- **Useless swaps need no special case.** All 5 `WeaponDamageTypePrefix` siblings share weight 2550, so
+  Fire→Cold lands the same P at worse closeness ⇒ dominated ⇒ off the frontier automatically. Whereas
+  `IncreaseSocketedGemLevel` runs 500 ("all Spell Skills") vs 2600 ("Fire Spell Skills") — a 5.2× swing
+  that surfaces on its own merits.
+- **Exploration is decoupled from output order** (regression-tested). The dominance rule only needs the
+  evaluated set sorted by closeness at the *end*. Letting visit order = closeness order starves the edit
+  classes: every tier relaxation is closer than any swap, and a 3-mod Wand target already has 4×11×8 =
+  352 tier combos, so a global best-first walk never reaches a swap. Observed: a 30ex budget reported
+  "20.8% is your best" while dropping one mod sat at ~99%. Now each edit class explores its own tier
+  lattice on its own node budget (half to your exact item's neighbourhood, half shared), anchored at its
+  loosest node. Same target now reads 0.1% (exact) → 98.4% (drop Spell Damage, T2/T3 rest).
+- **Caps are reported, never silent:** `nodesEvaluated`, `truncated` (node cap only — stopping on a
+  P≈1 find is a proof, not a truncation), `currencyDepth` (coarsest any node fell back to).
+- *Known limits:* the shipped sheet's 0.002 transmute forces a 0.002 quantum, so budgets past ~400ex
+  exceed `DEFAULT_COST_CELLS` and return a bracket (`exact: false`) rather than a point. `truncated` is
+  the norm for 3+ mod targets at 200 nodes — the frontier's ends are solid, its middle is sampled.
+  A missing price key costs 0 (`stepCost`), which under the CDF reads as *certainty* — a caller hazard
+  kept as-is because existing tests deliberately use sparse sheets to make omens free.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.
+- **UI for budget alternatives** — engine + tests are green; the facade (`src/lib/engine.ts`) and a
+  budget input / alternatives panel are a separate pass.
 - ~~Human CoE numeric spot-check of the new pools~~ DONE 2026-07-13 — essence value ranges confirmed
   against CoE (see above). Desecrated/perfect value spot-checks beyond the sampled set remain optional.
 - **Broaden CoE cross-validation beyond wands** — other bases' families/weights, tier-target and omen

@@ -4,12 +4,14 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, optimize, optimizeItem,
+  loadEngine, listBases, listMods, optimize, optimizeItem, alternatives, alternativesForItem,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
+  type EngineAlternatives, type AltTargetInput,
 } from '../../lib/engine';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
 import FrontierView from './FrontierView';
+import AlternativesView from './AlternativesView';
 import BaseSelect from './BaseSelect';
 
 const selectCls =
@@ -44,8 +46,14 @@ const EngineLab: React.FC = () => {
   // Targets the user marks as already FRACTURED ("carved") on the base — the craft starts from a Rare
   // holding these (locked, never removed) and rolls the rest around them (routes via the from-item planner).
   const [fractured, setFractured] = useState<Set<string>>(new Set());
+  // Targets pinned as non-negotiable: the budget search never relaxes, swaps or drops them.
+  const [pinned, setPinned] = useState<Set<string>>(new Set());
+  // Optional spend cap (exalt-equivalents). Empty ⇒ no alternatives panel; the frontier alone is shown.
+  const [budget, setBudget] = useState<string>('');
 
   const [result, setResult] = useState<EngineResult | null>(null);
+  const [alts, setAlts] = useState<EngineAlternatives | null>(null);
+  const [altBudget, setAltBudget] = useState<number>(0);
   const [runErr, setRunErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
   const [mode, setMode] = useState<'plan' | 'item'>('plan');
@@ -73,10 +81,12 @@ const EngineLab: React.FC = () => {
   useEffect(() => {
     setTargets([]);
     setResult(null);
+    setAlts(null);
     setRunErr(null);
     setSearch('');
     setPickTier({});
     setFractured(new Set());
+    setPinned(new Set());
   }, [baseId]);
 
   const selectedIds = useMemo(() => new Set(targets.map((t) => t.modId)), [targets]);
@@ -114,21 +124,35 @@ const EngineLab: React.FC = () => {
   const removeTarget = (modId: string) => {
     setTargets((t) => t.filter((x) => x.modId !== modId));
     setFractured((f) => { const n = new Set(f); n.delete(modId); return n; });
+    setPinned((p) => { const n = new Set(p); n.delete(modId); return n; });
   };
   const patchTarget = (modId: string, patch: Partial<TargetInput>) =>
     setTargets((t) => t.map((x) => (x.modId === modId ? { ...x, ...patch } : x)));
   // Mark a target as already fractured on the base (locked) — or clear it.
   const toggleFractured = (modId: string) =>
     setFractured((f) => { const n = new Set(f); n.has(modId) ? n.delete(modId) : n.add(modId); return n; });
+  // Pin a target as non-negotiable so the budget search never relaxes/swaps/drops it.
+  const togglePinned = (modId: string) =>
+    setPinned((p) => { const n = new Set(p); n.has(modId) ? n.delete(modId) : n.add(modId); return n; });
 
   // Clear the whole craft (targets, tier picks, fractured marks, results) — keeps the base + item level.
   const reset = () => {
     setTargets([]);
     setPickTier({});
     setFractured(new Set());
+    setPinned(new Set());
     setResult(null);
+    setAlts(null);
     setRunErr(null);
     setSearch('');
+  };
+
+  // A carved base IS a Rare holding those mods, so a fractured craft is the from-item planner with them locked.
+  const carvedItem = (): ExistingItem => {
+    const carved = (type: 'prefix' | 'suffix') =>
+      targets.filter((t) => fractured.has(t.modId) && modById.get(t.modId)?.type === type)
+        .map((t) => ({ modId: t.modId, tierDisplay: t.tierDisplay, fractured: true }));
+    return { baseId, level, rarity: 'rare', prefixes: carved('prefix'), suffixes: carved('suffix') };
   };
 
   const compute = () => {
@@ -138,19 +162,22 @@ const EngineLab: React.FC = () => {
     // Defer so the spinner paints before the (synchronous) search runs.
     setTimeout(() => {
       try {
-        if (fractured.size > 0) {
-          // Start from a Rare that already holds the fractured (carved) targets, and roll the rest around
-          // them — this is exactly the from-item planner with those mods locked.
-          const carved = (type: 'prefix' | 'suffix') =>
-            targets.filter((t) => fractured.has(t.modId) && modById.get(t.modId)?.type === type)
-              .map((t) => ({ modId: t.modId, tierDisplay: t.tierDisplay, fractured: true }));
-          const item: ExistingItem = { baseId, level, rarity: 'rare', prefixes: carved('prefix'), suffixes: carved('suffix') };
-          setResult(optimizeItem(engine, item, targets));
+        const fromItem = fractured.size > 0;
+        setResult(fromItem ? optimizeItem(engine, carvedItem(), targets) : optimize(engine, baseId, level, targets));
+        // A budget also asks the near-miss question: what's the closest thing this much money actually buys?
+        const b = Number(budget);
+        if (budget.trim() !== '' && Number.isFinite(b) && b > 0) {
+          const want: AltTargetInput[] = targets.map((t) => (pinned.has(t.modId) ? { ...t, pinned: true } : t));
+          setAlts(fromItem
+            ? alternativesForItem(engine, carvedItem(), want, b)
+            : alternatives(engine, baseId, level, want, b));
+          setAltBudget(b);
         } else {
-          setResult(optimize(engine, baseId, level, targets));
+          setAlts(null);
         }
       } catch (e) {
         setResult(null);
+        setAlts(null);
         setRunErr(e instanceof Error ? e.message : String(e));
       } finally {
         setComputing(false);
@@ -250,6 +277,17 @@ const EngineLab: React.FC = () => {
               className={`${selectCls} w-24`}
             />
           </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Budget <span className="font-normal normal-case opacity-70">(optional)</span>
+            </span>
+            <input
+              type="number" min={0} step="any" value={budget} placeholder="ex"
+              onChange={(e) => setBudget(e.target.value)}
+              className={`${selectCls} w-28`}
+              title="What you're willing to spend, in Exalted-Orb equivalents. Adds a panel showing the closest items this much money can actually finish."
+            />
+          </label>
           <div className="flex-1" />
           <Button variant="outline" onClick={reset} disabled={targets.length === 0 && !result} size="lg">
             Reset
@@ -284,6 +322,7 @@ const EngineLab: React.FC = () => {
               if (!mod) return null;
               const isFractured = fractured.has(t.modId);
               const canFracture = mod.source !== 'essence'; // a regular essence can't be a fractured start mod
+              const isPinned = pinned.has(t.modId) || isFractured; // a carved mod is pinned by definition
               return (
                 <div key={t.modId} className={`flex flex-wrap items-center gap-2 rounded-md border px-2 py-1.5 ${isFractured ? 'border-amber-500/60 bg-amber-500/10' : 'border-border/60'}`}>
                   <Badge variant={mod.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">
@@ -314,6 +353,21 @@ const EngineLab: React.FC = () => {
                       title={isFractured ? 'Fractured (carved on the base) — click to unlock' : 'Mark as already fractured on the base (locked; the craft starts from a Rare holding it)'}
                     >
                       {isFractured ? '🔒' : '🔓'}
+                    </button>
+                  )}
+                  {/* Pin only means something to the budget search, so don't offer it without a budget. */}
+                  {budget.trim() !== '' && (
+                    <button
+                      onClick={() => !isFractured && togglePinned(t.modId)}
+                      disabled={isFractured}
+                      className={`px-0.5 ${isPinned ? 'opacity-100' : 'opacity-40 hover:opacity-100'} ${isFractured ? 'cursor-not-allowed' : ''}`}
+                      title={isFractured
+                        ? 'A fractured mod is already locked, so it’s never relaxed'
+                        : isPinned
+                          ? 'Pinned — the budget search will never relax, swap or drop this. Click to unpin.'
+                          : 'Pin as non-negotiable: the budget search will never relax, swap or drop it'}
+                    >
+                      📌
                     </button>
                   )}
                   <button
@@ -353,6 +407,7 @@ const EngineLab: React.FC = () => {
       )}
 
       {result && !runErr && <FrontierView result={result} />}
+      {alts && !runErr && <AlternativesView alts={alts} budget={altBudget} />}
       </>)}
     </div>
   );

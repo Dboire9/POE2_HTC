@@ -450,8 +450,13 @@ step = X% of a mod" exchange rate).
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.
-- **UI for budget alternatives** — engine + tests are green; the facade (`src/lib/engine.ts`) and a
-  budget input / alternatives panel are a separate pass.
+- ~~UI for budget alternatives~~ DONE 2026-07-17 — optional Budget field in the Engine Lab, 📌 pins on
+  target rows, and an `AlternativesView` panel below the frontier. Rendering is covered by a component
+  test driven by **real engine output** (`AlternativesView.test.tsx`) rather than a hand-made fixture,
+  so the panel can't render a shape the engine never produces. Both flows wired (a fractured craft routes
+  its alternatives through the from-item planner). The panel shows the odds bracket verbatim when
+  `exact: false`, and badges "search capped" when `truncated` — the honesty the engine reports is
+  surfaced, not swallowed.
 - ~~Human CoE numeric spot-check of the new pools~~ DONE 2026-07-13 — essence value ranges confirmed
   against CoE (see above). Desecrated/perfect value spot-checks beyond the sampled set remain optional.
 - **Broaden CoE cross-validation beyond wands** — other bases' families/weights, tier-target and omen

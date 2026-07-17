@@ -14,6 +14,8 @@ import {
 import { indexPrices, type Prices } from '../../packages/optimizer/src/cost.ts';
 import { optimizePareto, optimizeFromItem } from '../../packages/optimizer/src/optimize.ts';
 import type { TierTarget, CurrencyDepth, ParetoResult } from '../../packages/optimizer/src/optimize.ts';
+import { alternativesFromWhite, alternativesFromItem } from '../../packages/optimizer/src/alternatives.ts';
+import type { Alternative, AlternativeTarget, AlternativesResult, SlotChange } from '../../packages/optimizer/src/alternatives.ts';
 
 // Fetched as URLs (Vite copies them to /assets) rather than imported as modules, so the big JSON is
 // lazily loaded and never inflates the main bundle or the TS type-checker.
@@ -413,4 +415,119 @@ export function optimizeItem(eng: Engine, item: ExistingItem, targets: readonly 
   const { data, prices } = eng;
   const res = optimizeFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets));
   return mapFrontier(data, res);
+}
+
+// ── Budget-constrained alternatives ──────────────────────────────────────────
+// "I have 200ex — what's the closest thing to my item I can actually get for it?" Every row is a
+// near-miss item plus the odds you FINISH it inside the budget (not an expected cost, which busts
+// about half the time). Row 0 is always exactly what you asked for.
+
+/** A desired mod for the alternatives search: pinned mods are never relaxed, swapped or dropped. */
+export interface AltTargetInput extends TargetInput {
+  readonly pinned?: boolean;
+}
+
+/** What became of one desired slot in an alternative (slot order matches your target). */
+export interface EngineSlot {
+  readonly kind: 'kept' | 'swapped' | 'dropped';
+  /** The mod you'd end up with (for a drop, the mod you'd lose). */
+  readonly text: string;
+  /** What you originally asked for — set only when this slot changed. */
+  readonly fromText?: string;
+  /** 1-based from best; absent for a dropped slot. */
+  readonly tierDisplay?: number;
+  /** Compact tier label, e.g. "T2 · 125–149" or "T8 · any". */
+  readonly tierLabel?: string;
+}
+
+export interface EngineAlternative {
+  readonly slots: readonly EngineSlot[];
+  /** True for the row that is exactly your target — no relaxation at all. */
+  readonly isTarget: boolean;
+  readonly dropped: number;
+  readonly swapped: number;
+  /** Mean fraction of the asked-for stat value still guaranteed, [0,1]. */
+  readonly valueRetained: number;
+  /** P(you finish inside the budget), conservative. Exact unless `exact` is false. */
+  readonly inBudget: number;
+  /** Upper bound — the true chance is in [inBudget, inBudgetMax]. */
+  readonly inBudgetMax: number;
+  /** False when the prices weren't commensurable, so the odds are a bracket, not a point. */
+  readonly exact: boolean;
+  /** The best way to spend the budget on THIS item. */
+  readonly plan: EnginePlan;
+}
+
+export interface EngineAlternatives {
+  /** Closest-first; the odds strictly rise down the list. */
+  readonly rows: readonly EngineAlternative[];
+  readonly nodesEvaluated: number;
+  /** The node cap stopped the search early — farther alternatives may be missing. */
+  readonly truncated: boolean;
+  readonly currencyDepth: CurrencyDepth;
+}
+
+function toAltTargets(data: PatchData, targets: readonly AltTargetInput[]): AlternativeTarget[] {
+  return targets.map((t) => {
+    const n = resolveMod(data, t.modId).tiers.length;
+    const minTierIndex = Math.max(0, Math.min(n - 1, n - t.tierDisplay));
+    return t.pinned ? { modId: t.modId, minTierIndex, pinned: true } : { modId: t.modId, minTierIndex };
+  });
+}
+
+/** Engine slot → UI slot: turns minTierIndex back into a 1-based display tier and a compact label. */
+function toEngineSlot(data: PatchData, slot: SlotChange): EngineSlot {
+  const text = (id: string): string => data.mods.get(id)?.text ?? id;
+  if (slot.kind === 'dropped') return { kind: 'dropped', text: text(slot.from), fromText: text(slot.from) };
+  const mod = resolveMod(data, slot.modId);
+  const n = mod.tiers.length;
+  const display = n - slot.minTierIndex;
+  const r = mod.tiers[slot.minTierIndex]?.ranges[0];
+  const range = r && r.length >= 2 ? `${r[0]}–${r[1]}` : '';
+  const tierLabel = `T${display}${display === n ? ' · any' : ''}${range ? ` · ${range}` : ''}`;
+  const kept = { kind: slot.kind, text: text(slot.modId), tierDisplay: display, tierLabel };
+  // Only a CHANGED slot carries "what you asked for"; a kept slot's own text already says it.
+  return slot.kind === 'swapped' ? { ...kept, fromText: text(slot.from) } : kept;
+}
+
+function mapAlternatives(data: PatchData, res: AlternativesResult): EngineAlternatives {
+  const rows = res.frontier.map((a: Alternative): EngineAlternative => {
+    const { dropped, swapped, valueRetained } = a.closeness;
+    return {
+      slots: a.slots.map((s) => toEngineSlot(data, s)),
+      isTarget: dropped === 0 && swapped === 0 && valueRetained >= 1 - 1e-9,
+      dropped, swapped, valueRetained,
+      inBudget: a.inBudget,
+      inBudgetMax: a.inBudgetMax,
+      exact: a.inBudgetMax - a.inBudget < 1e-9,
+      plan: mapFrontier(data, { frontier: [a.plan], plansEvaluated: 1, currencyDepth: res.currencyDepth }).frontier[0]!,
+    };
+  });
+  return { rows, nodesEvaluated: res.nodesEvaluated, truncated: res.truncated, currencyDepth: res.currencyDepth };
+}
+
+/**
+ * Near-miss alternatives to a from-white craft, ranked closest-first, each with the odds you finish it
+ * inside `budget` (exalt-equivalents). An alternative may slide a tier, swap one mod for a same-family
+ * sibling, or drop one mod — at most one slot swapped-or-dropped. Pinned targets are never touched.
+ */
+export function alternatives(
+  eng: Engine, baseId: string, level: number, targets: readonly AltTargetInput[], budget: number,
+): EngineAlternatives {
+  const { data, prices } = eng;
+  const base = data.bases.get(baseId);
+  if (!base) throw new Error(`Unknown base: ${baseId}`);
+  return mapAlternatives(data, alternativesFromWhite(data, prices, base, toAltTargets(data, targets), budget, { level }));
+}
+
+/**
+ * Near-miss alternatives for transforming an item you already hold — same relaxations, costed with the
+ * reset-to-your-item model. A fractured mod on the item is inherently pinned (it's locked there).
+ */
+export function alternativesForItem(
+  eng: Engine, item: ExistingItem, targets: readonly AltTargetInput[], budget: number,
+): EngineAlternatives {
+  const { data, prices } = eng;
+  const start = buildItemState(data, item);
+  return mapAlternatives(data, alternativesFromItem(data, prices, start, toAltTargets(data, targets), budget));
 }

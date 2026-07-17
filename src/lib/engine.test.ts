@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { listBases, listMods, listPerfectEssences, optimize, optimizeItem, currencyActions, recommendedIndex, type EngineMod, type ExistingItem } from './engine.ts';
+import {
+  listBases, listMods, listPerfectEssences, optimize, optimizeItem, currencyActions, recommendedIndex,
+  alternatives, alternativesForItem, type EngineMod, type ExistingItem,
+} from './engine.ts';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
 
@@ -274,5 +277,103 @@ describe('engine facade — fractured mods flow through to the odds', () => {
     const removesMana = r.frontier.some((p) => p.steps.some((s) => /removes .*Mana|−.*Mana/.test(s.target)));
     expect(removesMana).toBe(false);
     expect(r.frontier.some((p) => p.steps.some((s) => s.currency === 'exalt'))).toBe(true);
+  });
+});
+
+// Budget alternatives: "I have N ex — what's the closest thing I can actually finish?" Uses the 0.5.0
+// snapshot the app ships, so the mod ids match what the UI would hand the facade.
+describe('engine facade — budget alternatives (0.5.0)', () => {
+  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
+  const GEM = 'Wands/GlobalIncreaseSpellSkillGemLevelWeapon'; // suffix, 500 total weight
+  const MANA050 = 'Wands/IncreasedMana';
+  const SPELL = 'Wands/WeaponSpellDamage';
+  const hard = [
+    { modId: GEM, tierDisplay: 1 }, { modId: MANA050, tierDisplay: 1 }, { modId: SPELL, tierDisplay: 1 },
+  ];
+
+  it('row 0 is exactly the target you asked for, with its (dismal) odds', () => {
+    const r = alternatives(eng050, 'Wands', 82, hard, 30);
+    const row0 = r.rows[0]!;
+    expect(row0.isTarget).toBe(true);
+    expect(row0.dropped + row0.swapped).toBe(0);
+    expect(row0.valueRetained).toBeCloseTo(1, 9);
+    expect(row0.inBudget).toBeLessThan(0.05); // a T1/T1/T1 wand is not a 30ex craft
+    expect(row0.slots.every((s) => s.kind === 'kept' && s.tierDisplay === 1)).toBe(true);
+  });
+
+  it('finds a near-certain near-miss and reports the odds rising down the list', () => {
+    const r = alternatives(eng050, 'Wands', 82, hard, 30);
+    expect(r.rows.length).toBeGreaterThan(2);
+    for (let i = 1; i < r.rows.length; i++) {
+      expect(r.rows[i]!.inBudget).toBeGreaterThan(r.rows[i - 1]!.inBudget);
+    }
+    const best = r.rows[r.rows.length - 1]!;
+    expect(best.inBudget).toBeGreaterThan(0.9);
+    expect(best.plan.steps.length).toBeGreaterThan(0);
+  });
+
+  it('labels each slot for the UI: kept tiers, a swap’s origin, a dropped mod', () => {
+    const r = alternatives(eng050, 'Wands', 82, hard, 30);
+    for (const row of r.rows) {
+      for (const s of row.slots) {
+        expect(s.text.length).toBeGreaterThan(0);
+        if (s.kind === 'dropped') {
+          expect(s.tierDisplay).toBeUndefined();
+          expect(s.fromText).toBe(s.text); // the mod you give up
+        } else {
+          expect(s.tierDisplay).toBeGreaterThanOrEqual(1);
+          expect(s.tierLabel).toMatch(/^T\d/);
+          // only a CHANGED slot says what you originally wanted
+          if (s.kind === 'kept') expect(s.fromText).toBeUndefined();
+          else expect(s.fromText!.length).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  it('a commensurable price sheet gives exact odds, not a bracket', () => {
+    const r = alternatives(eng050, 'Wands', 82, hard, 30);
+    for (const row of r.rows) {
+      expect(row.exact).toBe(true);
+      expect(row.inBudgetMax).toBeCloseTo(row.inBudget, 12);
+    }
+  });
+
+  it('a pinned target is never relaxed, swapped or dropped', () => {
+    const r = alternatives(eng050, 'Wands', 82, [
+      { modId: GEM, tierDisplay: 1, pinned: true }, { modId: MANA050, tierDisplay: 1 }, { modId: SPELL, tierDisplay: 1 },
+    ], 30);
+    for (const row of r.rows) {
+      expect(row.slots[0]).toMatchObject({ kind: 'kept', tierDisplay: 1 });
+    }
+    // …and the rest still move, so the pin is a real constraint and not a dead search.
+    expect(r.rows.some((row) => row.slots.slice(1).some((s) => s.kind !== 'kept' || s.tierDisplay !== 1))).toBe(true);
+  });
+
+  it('a bigger budget never lowers the odds of the same item', () => {
+    const lean = alternatives(eng050, 'Wands', 82, hard, 30).rows[0]!;
+    const rich = alternatives(eng050, 'Wands', 82, hard, 3000).rows[0]!;
+    expect(rich.inBudget).toBeGreaterThanOrEqual(lean.inBudget);
+  });
+
+  it('from an item: a fractured mod is pinned even though the caller didn’t pin it', () => {
+    const item: ExistingItem = {
+      baseId: 'Wands', level: 82, rarity: 'rare',
+      prefixes: [{ modId: MANA050, tierDisplay: 1, fractured: true }], suffixes: [],
+    };
+    const r = alternativesForItem(eng050, item, [
+      { modId: MANA050, tierDisplay: 1 }, { modId: GEM, tierDisplay: 1 },
+    ], 30);
+    expect(r.rows.length).toBeGreaterThan(0);
+    for (const row of r.rows) {
+      expect(row.slots[0]).toMatchObject({ kind: 'kept', tierDisplay: 1 });
+    }
+  });
+
+  it('reports its search accounting so the UI can be honest about caps', () => {
+    const r = alternatives(eng050, 'Wands', 82, hard, 30);
+    expect(r.nodesEvaluated).toBeGreaterThan(0);
+    expect(typeof r.truncated).toBe('boolean');
+    expect(['full', 'base+strongest', 'strongest-only']).toContain(r.currencyDepth);
   });
 });

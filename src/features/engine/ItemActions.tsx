@@ -4,7 +4,7 @@ import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, listPerfectEssences, currencyActions, optimizeItem,
+  loadEngine, listBases, listMods, listPerfectEssences, listDesecrated, currencyActions, optimizeItem,
   type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type CurrencyAction,
   type TargetInput, type EngineResult,
 } from '../../lib/engine';
@@ -66,24 +66,36 @@ const ItemActions: React.FC = () => {
   }, []);
 
   const bases: EngineBase[] = useMemo(() => (engine ? listBases(engine.data) : []), [engine]);
-  // Only rollable (normal) mods can sit on / be added to an item in this view.
+  // The item builder offers rollable (normal) mods AND desecrated mods — a real item can carry a
+  // desecrated mod, and modelling it matters (it eats a slot + family, and it's the sole Omen-of-Light
+  // target). Desecrated mods are NOT in `addable` below: no modelled currency can ADD one to the item.
   const pool = useMemo(() => {
     if (!engine || !baseId) return { prefixes: [] as EngineMod[], suffixes: [] as EngineMod[] };
     const m = listMods(engine.data, baseId);
     const normal = (l: readonly EngineMod[]) => l.filter((x) => x.source === 'normal');
-    return { prefixes: normal(m.prefixes), suffixes: normal(m.suffixes) };
+    const des = listDesecrated(engine.data, baseId);
+    const desOf = (type: 'prefix' | 'suffix') => des.filter((x) => x.type === type);
+    return {
+      prefixes: [...normal(m.prefixes), ...desOf('prefix')],
+      suffixes: [...normal(m.suffixes), ...desOf('suffix')],
+    };
   }, [engine, baseId]);
-  // Perfect essences: only offered as TARGETS in the from-item flow (a Perfect Essence adds its
-  // guaranteed mod on a Rare while removing one random mod). Not shown in the current-item builder.
+  // Perfect essences + desecrated mods: offered as TARGETS in the from-item flow (a Perfect Essence
+  // adds its mod while removing one random mod; a Desecration adds a desecrated mod via its boss omen).
+  // Not shown in the current-item builder's add columns.
   const perfect = useMemo(
     () => (engine && baseId ? listPerfectEssences(engine.data, baseId) : []),
     [engine, baseId],
   );
+  const desecratedTargets = useMemo(
+    () => (engine && baseId ? listDesecrated(engine.data, baseId) : []),
+    [engine, baseId],
+  );
   const modById = useMemo(() => {
     const m = new Map<string, EngineMod>();
-    for (const x of [...pool.prefixes, ...pool.suffixes, ...perfect]) m.set(x.id, x);
+    for (const x of [...pool.prefixes, ...pool.suffixes, ...perfect, ...desecratedTargets]) m.set(x.id, x);
     return m;
-  }, [pool, perfect]);
+  }, [pool, perfect, desecratedTargets]);
 
   // Reset everything when the base changes.
   useEffect(() => {
@@ -136,7 +148,11 @@ const ItemActions: React.FC = () => {
     return { prefixes: pick(pool.prefixes), suffixes: pick(pool.suffixes) };
   }, [pool, search, onItem]);
 
-  const addable = useMemo(() => [...pool.prefixes, ...pool.suffixes].filter((m) => !onItem.has(m.id)), [pool, onItem]);
+  // "Mod to add" (quick-check) — currency can only add NORMAL mods, so desecrated ones are excluded here.
+  const addable = useMemo(
+    () => [...pool.prefixes, ...pool.suffixes].filter((m) => !onItem.has(m.id) && m.source === 'normal'),
+    [pool, onItem],
+  );
   const itemMods = useMemo(
     () => [...prefixes, ...suffixes].map((m) => modById.get(m.modId)).filter((m): m is EngineMod => !!m),
     [prefixes, suffixes, modById],
@@ -163,9 +179,11 @@ const ItemActions: React.FC = () => {
   }, [target, modById]);
   const targetPre = target.filter((t) => modById.get(t.modId)?.type === 'prefix').length;
   const targetSuf = target.filter((t) => modById.get(t.modId)?.type === 'suffix').length;
+  const targetDesecrated = target.some((t) => modById.get(t.modId)?.source === 'desecrated');
   const addTarget = (mod: EngineMod) => {
     if (targetIds.has(mod.id) || targetFamilies.has(mod.family)) return;
     if (mod.type === 'prefix' ? targetPre >= 3 : targetSuf >= 3) return;
+    if (mod.source === 'desecrated' && targetDesecrated) return; // an item holds at most one desecrated mod
     setTarget((t) => [...t, { modId: mod.id, tierDisplay: 1 }]);
     setPlan(null);
   };
@@ -214,9 +232,10 @@ const ItemActions: React.FC = () => {
               onClick={() => addItemMod(m)}
               disabled={disabled}
               className="flex w-full items-center gap-2 text-left px-2 py-1.5 text-sm hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-              title={occupiedFamilies.has(m.family) ? `“${m.family}” family already on the item` : count >= cap ? 'This side is full' : 'Add to your item'}
+              title={occupiedFamilies.has(m.family) ? `“${m.family}” family already on the item` : count >= cap ? 'This side is full' : m.source === 'desecrated' ? 'Add this desecrated mod to your item (occupies a slot; Omen of Light can target it)' : 'Add to your item'}
             >
               <span className="flex-1 min-w-0 truncate">{m.text}</span>
+              {m.source === 'desecrated' && <span className="shrink-0 rounded bg-rose-500/15 px-1 text-[10px] text-rose-600 dark:text-rose-300">desecrated</span>}
               {occupiedFamilies.has(m.family) && <span className="shrink-0 text-[10px] text-muted-foreground">family in use</span>}
             </button>
           );
@@ -277,6 +296,7 @@ const ItemActions: React.FC = () => {
                   >
                     <Badge variant={m.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{m.type === 'prefix' ? 'P' : 'S'}</Badge>
                     {m.text}
+                    {m.source === 'desecrated' && <span className="rounded bg-rose-500/20 px-1 text-[10px] text-rose-700 dark:text-rose-300">desecrated</span>}
                     {isFractured && <span className="rounded bg-amber-500/20 px-1 text-[10px] text-amber-700 dark:text-amber-300">fractured</span>}
                     <button
                       onClick={() => toggleFractured(m.id)}
@@ -294,6 +314,14 @@ const ItemActions: React.FC = () => {
               <p className="text-[11px] text-muted-foreground">
                 🔒 Fractured mods are locked — the planner keeps them, never removes them, and they’re excluded
                 from what an Annulment / Chaos / Essence can randomly remove (so those odds go up).
+              </p>
+            )}
+            {itemMods.some((m) => m.source === 'desecrated') && (
+              <p className="text-[11px] text-muted-foreground">
+                <span className="text-rose-600 dark:text-rose-300">desecrated</span> mods occupy a slot and a
+                family like any other mod — that alone shifts your other currency odds. Pick one as the mod to
+                sacrifice below and you’ll get an <strong>Annulment + Omen of Light</strong> option that removes
+                it for certain (a plain Annulment only hits it 1-in-N at random).
               </p>
             )}
           </>
@@ -336,7 +364,9 @@ const ItemActions: React.FC = () => {
             <div className="space-y-2">
               <h2 className="text-lg font-bold">Currency options</h2>
               {actions.map((a) => (
-                <Card key={a.currency} className="p-3 flex flex-wrap items-center gap-x-6 gap-y-1">
+                // Key by label, not currency: Annulment appears twice (plain + Omen of Light) when the
+                // sacrifice is a desecrated mod, and those must be distinct React keys.
+                <Card key={a.label} className="p-3 flex flex-wrap items-center gap-x-6 gap-y-1">
                   <div className="min-w-40">
                     <div className="font-semibold">{a.label}</div>
                     <div className="text-xs text-muted-foreground">{a.detail}</div>
@@ -384,11 +414,15 @@ const ItemActions: React.FC = () => {
                   onChange={(e) => { const m = modById.get(e.target.value); if (m) addTarget(m); }}
                 >
                   <option value="">— choose —</option>
-                  {[...addable, ...perfect].filter((m) => !targetIds.has(m.id)).map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.type === 'prefix' ? 'P' : 'S'} · {m.text}{m.source === 'perfect' ? ' · Perfect Essence' : ''}
-                    </option>
-                  ))}
+                  {[...addable, ...perfect, ...desecratedTargets]
+                    // one desecrated mod max — hide the rest once one is in the target
+                    .filter((m) => !targetIds.has(m.id) && !(m.source === 'desecrated' && targetDesecrated))
+                    .map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.type === 'prefix' ? 'P' : 'S'} · {m.text}
+                        {m.source === 'perfect' ? ' · Perfect Essence' : m.source === 'desecrated' ? ' · Desecrated' : ''}
+                      </option>
+                    ))}
                 </select>
               </label>
             </div>
@@ -403,6 +437,8 @@ const ItemActions: React.FC = () => {
                     <div key={t.modId} className="flex flex-wrap items-center gap-2 rounded-md border border-border/60 px-2 py-1.5">
                       <Badge variant={mod.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{mod.type === 'prefix' ? 'P' : 'S'}</Badge>
                       <span className="flex-1 min-w-40 text-sm">{mod.text}</span>
+                      {mod.source === 'desecrated' && <span className="text-[10px] rounded bg-rose-500/15 px-1 text-rose-600 dark:text-rose-300">desecrated</span>}
+                      {mod.source === 'perfect' && <span className="text-[10px] rounded bg-purple-500/15 px-1 text-purple-600 dark:text-purple-300">perfect essence</span>}
                       {have && <span className="text-[10px] rounded bg-emerald-500/15 px-1 text-emerald-600 dark:text-emerald-300">already have</span>}
                       <select className={selectCls} value={t.tierDisplay} onChange={(e) => patchTarget(t.modId, Number(e.target.value))} title="Target tier (or better)">
                         {mod.tiers.map((ti) => <option key={ti.display} value={ti.display}>{ti.label}</option>)}

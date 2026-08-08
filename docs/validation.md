@@ -447,6 +447,90 @@ step = X% of a mod" exchange rate).
   A missing price key costs 0 (`stepCost`), which under the CDF reads as *certainty* — a caller hazard
   kept as-is because existing tests deliberately use sparse sheets to make omens free.
 
+## Desecrated mods surfaced on the item + Omen of Light (2026-07-17)
+
+Desecrated mods were invisible to the UI though the engine fully models them. The facade never set
+`ItemState.desecrated` nor surfaced the desecrated pool, so two mechanics were unreachable:
+
+- **Slot occupancy** — a desecrated mod eats a prefix/suffix slot and claims a family exactly like any
+  other mod, which shifts every other currency's odds. This needed **no new code**: the engine's
+  family-exclusion + slot-count math already handles it the moment the mod is on the item.
+- **Omen of Light** — a targeted annul. `annulProbability(..., {omen:'light'})` already returns **1**
+  when `item.desecrated === true` and the target's `source === 'desecrated'`; it was just never wired.
+
+(This first pass modelled desecrated mods only as slot occupants + the Light lever. Targeting/crafting
+a specific desecrated mod was added next — see "Crafting desecrated mods" below.)
+
+Changes (facade + UI + one validator tweak; engine untouched):
+- `buildItemState` sets `desecrated: true` whenever a placed mod is desecrated (gates Omen of Light).
+- `listDesecrated(baseId)` surfaces the pool (source 'desecrated', single-tier), kept OUT of `listMods`
+  (from-white) and `listPerfectEssences` — you can only MODEL one on an item you already hold.
+- `currencyActions` offers **Annulment + Omen of Light** (P=1) beside the plain random annul (1/N) when
+  the sacrifice is a desecrated mod on a desecrated item — verified 100% @ 11.5ex vs 50% @ 1.5ex on a
+  2-mod Wand.
+- `validateFromItemTarget` accepts a desecrated mod as a target **only if it's already on the start
+  item** (the planner keeps it; it can't craft one). An absent desecrated target is rejected with a
+  clear message rather than silently scoring 0.
+- UI (`ItemActions`): desecrated mods are selectable in the item builder (rose "desecrated" badge),
+  excluded from the quick-check "mod to add" (no currency adds them), and a hint explains the Light
+  lever. Currency cards key by label (Annulment now appears twice).
+
+Tests: 5 facade (0.5.0) + 2 optimizer synthetic (keep-present, reject-absent). **591 tests + 1 todo,
+type-check + build green; differential fixtures untouched.**
+
+DEFERRED (Stage 2): teach `optimizeFromItem` to use Omen of Light to remove a desecrated JUNK mod for
+certain (a real cost↔certainty lever on the frontier) — engine-ready, just needs the optimizer to emit
+the annul-with-light variant. Today a desecrated junk mod is removed by a random annul in a plan.
+
+## Crafting desecrated mods (choose + target them) (2026-07-17)
+
+Desecrated mods are unique modifiers obtainable only by the Desecration mechanic, so they're now
+first-class *targets*: you can choose one and the planner crafts it, from an item OR from white.
+
+**Weight approximation — count-uniform via boss omen (decided; the honest option).** Every desecrated
+mod in 0.5.0 is a placeholder (weight 1, ilvl 65) carrying exactly ONE boss tag (kurgal/amanamu/ulaman,
+split 164/175/188). To target a specific desecrated mod you Desecrate with its boss omen
+(Blackblooded/Liege/Sovereign), and the engine's existing `desecrationBossProbability` scores it
+**count-uniform: P = 1/N** over that boss's slot pool (N = 1–8 per base, so genuinely craftable). No
+weight is read or invented — a guessed weight scale would poison every number downstream, and mixing
+real normal weights (100s) with placeholder desecrated 1s in the combined pool makes desecrated mods
+un-hittable anyway. `desecrationOmenForMod(mod)` is the tag→omen inverse the optimizer uses.
+
+**The "Ancient" omen (min mod level 40) is NOT wired — and that's honest, not lazy.** Per the user, an
+Ancient omen sets a minimum modifier level of 40 on the desecration, pruning *normal* tiers below ilvl
+40 from the roll. It does nothing to desecrated mods (all ilvl 65 ≥ 40), and our targeting route uses
+the boss omen — which already excludes normal mods entirely — so the Ancient floor changes *none* of
+the odds we compute for a desecrated target on this data. A live toggle that alters no number would be
+misleading; revisit when desecrated mods carry real per-mod ilvls / weights and the combined-pool roll
+is modelled.
+
+**Engine:** the `desecrate` plan step now enforces legality at the plan layer (RARE item, open slot,
+free family) — the boss-omen primitive is count-uniform and gates none of these (it mirrors Java's
+narrow model), so `stepProbability` guards them like the perfect-essence case. `desecrationOmenForMod`
+added + exported. No differential fixture touched (the primitives are unchanged; guards live in the
+plan layer, which the desecration differential doesn't exercise).
+
+**Optimizer — both flows:**
+- `optimizeFromItem`: a desecrated *missing* target becomes a `desecrate` step (its boss omen) into an
+  open slot — like an exalt but from the desecrated pool, removing nothing. Verified on a real Wand:
+  keep a prefix, add a desecrated suffix → `annul(junk) → desecrate+liege` at 16.7% = ½ · ⅓.
+- `optimizePareto` (from white): a desecrated target is added by a `desecrate` step AFTER the add-chain
+  reaches Rare (the regal). `buildParetoSteps` emits it; orderings that desecrate before Rare score 0
+  and drop. Alchemy opener disabled when a desecrated target is present. Honest limitation: with fewer
+  than 3 rollable mods the add-chain never reaches Rare, so the frontier is empty (the UI hints this).
+  `validateTargetShape` gained an `allowDesecrated` flag so the older add-chain-only planners
+  (`optimizePlan`/`optimizeCost`, whose `buildSteps` can't desecrate) still reject desecrated targets.
+
+**Facade + UI:** `listDesecrated` mods are now selectable targets in both EngineLab (Plan from scratch,
+rose "desec" badge + a hint that from-white needs ≥3 rollables) and ItemActions (Full plan target,
+"· Desecrated" option). `mapFrontier` renders the step as "Desecration + Omen of the Sovereign".
+
+**Validated:** engine 97 (plan/desecration) + optimizer synthetic (from-item ½·1 hand-computed, from-
+white regal-then-desecrate ordering, no-boss-omen reject, unreachable-Rare empty) + 3 facade (0.5.0:
+from-item craft, from-white craft, step label). **595 tests + 1 todo, type-check + build green;
+differential fixtures untouched.** No `weights_overrides.json` entry: the model reads no weights, so an
+override would falsely imply the placeholder 1s matter — this note is the record instead.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

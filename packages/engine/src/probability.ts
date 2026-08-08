@@ -1,4 +1,4 @@
-import type { AffixType, CurrencyTier, ItemBase, ItemState, PatchData, PlacedMod } from './types.ts';
+import type { AffixType, CurrencyTier, ItemBase, ItemState, Mod, PatchData, PlacedMod } from './types.ts';
 import { CURRENCY_FLOOR } from './types.ts';
 import { familyAvailable, itemFamilies, modTierWeight, poolTotalWeight, resolveMod } from './pool.ts';
 import { prefixCount, prefixesFull, suffixCount, suffixesFull, whiteItem } from './item.ts';
@@ -348,6 +348,20 @@ export type DesecrationBossOmen = 'blackblooded' | 'liege' | 'sovereign';
 const DES_BOSS_TAG: Record<DesecrationBossOmen, string> = {
   blackblooded: 'kurgal_mod', liege: 'amanamu_mod', sovereign: 'ulaman_mod',
 };
+
+/**
+ * The boss omen that targets a desecrated mod, from the mod's own boss tag — the inverse of
+ * `DES_BOSS_TAG`. Every desecrated mod carries exactly one boss tag (kurgal/amanamu/ulaman), so its
+ * omen is unambiguous. Returns undefined for a mod with no boss tag (not a desecrated mod). This is
+ * how the optimizer picks the omen that makes a specific desecrated mod craftable (P = 1/N over that
+ * boss's slot pool).
+ */
+export function desecrationOmenForMod(mod: Mod): DesecrationBossOmen | undefined {
+  for (const omen of ['blackblooded', 'liege', 'sovereign'] as const) {
+    if (mod.tags.includes(DES_BOSS_TAG[omen])) return omen;
+  }
+  return undefined;
+}
 
 /**
  * Boss-omen desecration probability — faithful port of

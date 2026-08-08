@@ -167,3 +167,67 @@ describe('optimizePareto — search stays bounded', () => {
     expect(r.plansEvaluated).toBeLessThanOrEqual(120_000);
   });
 });
+
+describe('optimizePareto — desecrated targets (from white)', () => {
+  // Synthetic base: normal prefixes NP1/NP2, normal suffix NS1, and a KURGAL desecrated suffix DS1
+  // (boss omen = Blackblooded, the only kurgal suffix → 1/1). Reaching Rare needs the 3 normal mods
+  // (transmute → augment → regal), then the item can be Desecrated.
+  const mk = (id: string, type: 'prefix' | 'suffix', family: string, source: 'normal' | 'desecrated', tags: string[] = []) =>
+    ({ id, group: id, field: id, source, type, categories: [], family, tags, text: id,
+       tiers: [{ name: 't1', ilvl: 1, weight: source === 'desecrated' ? 1 : 20, ranges: [[1, 1]], stats: [] }] });
+  const sbase = {
+    id: 'S', name: 'S', category: 'C',
+    pools: { normal: { prefixes: ['NP1', 'NP2'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: ['DS1'] }, essence: { prefixes: [], suffixes: [] } },
+  };
+  const sdata: PatchData = {
+    patch: 't',
+    mods: new Map([
+      ['NP1', mk('NP1', 'prefix', 'Fp1', 'normal')], ['NP2', mk('NP2', 'prefix', 'Fp2', 'normal')],
+      ['NS1', mk('NS1', 'suffix', 'Fs1', 'normal')], ['DS1', mk('DS1', 'suffix', 'Fds', 'desecrated', ['kurgal_mod'])],
+    ]),
+    bases: new Map([['S', sbase]]),
+  } as unknown as PatchData;
+  const sprices: Prices = { currency: { transmute: 0.002, augment: 0.01, regal: 0.15, exalt: 1, desecrate: 0.5 }, omens: {} };
+
+  it('builds the Rare with the normal add-chain, then Desecrates the desecrated mod (boss omen)', () => {
+    const r = optimizePareto(sdata, sprices, sbase as never, [
+      { modId: 'NP1' }, { modId: 'NP2' }, { modId: 'NS1' }, { modId: 'DS1' },
+    ]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const plan = r.frontier[r.frontier.length - 1]!; // surest
+    const des = plan.steps.find((s) => s.currency === 'desecrate');
+    expect(des).toMatchObject({ currency: 'desecrate', add: 'DS1', boss: 'blackblooded' });
+    // The desecration must come after the item is Rare — i.e. after the regal (the 3rd, rare-making add).
+    const regalAt = plan.steps.findIndex((s) => s.currency === 'regal');
+    const desAt = plan.steps.findIndex((s) => s.currency === 'desecrate');
+    expect(regalAt).toBeGreaterThanOrEqual(0);
+    expect(desAt).toBeGreaterThan(regalAt);
+  });
+
+  it('rejects two desecrated targets (an item holds at most one)', () => {
+    const twoDes = {
+      id: 'S', name: 'S', category: 'C',
+      pools: { normal: { prefixes: ['NP1', 'NP2'], suffixes: ['NS1'] }, desecrated: { prefixes: ['DP1'], suffixes: ['DS1'] }, essence: { prefixes: [], suffixes: [] } },
+    };
+    const d2: PatchData = {
+      patch: 't',
+      mods: new Map([
+        ['NP1', mk('NP1', 'prefix', 'Fp1', 'normal')], ['NP2', mk('NP2', 'prefix', 'Fp2', 'normal')],
+        ['NS1', mk('NS1', 'suffix', 'Fs1', 'normal')],
+        ['DP1', mk('DP1', 'prefix', 'Fdp', 'desecrated', ['kurgal_mod'])],
+        ['DS1', mk('DS1', 'suffix', 'Fds', 'desecrated', ['amanamu_mod'])],
+      ]),
+      bases: new Map([['S', twoDes]]),
+    } as unknown as PatchData;
+    expect(() => optimizePareto(d2, sprices, twoDes as never, [
+      { modId: 'NP1' }, { modId: 'DP1' }, { modId: 'DS1' },
+    ])).toThrow(/at most one desecrated mod/i);
+  });
+
+  it('returns no plan when the normal mods can’t reach Rare on their own (only 1 normal + desecrated)', () => {
+    // One normal prefix + the desecrated suffix: the add-chain never reaches Rare (no regal), so the
+    // desecration can never fire — an honest empty frontier rather than a bogus plan.
+    const r = optimizePareto(sdata, sprices, sbase as never, [{ modId: 'NP1' }, { modId: 'DS1' }]);
+    expect(r.frontier.length).toBe(0);
+  });
+});

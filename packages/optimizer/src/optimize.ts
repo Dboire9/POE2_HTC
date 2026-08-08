@@ -13,7 +13,7 @@ import { CURRENCY_FLOOR } from '../../engine/src/types.ts';
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlan, evaluatePlanFrom } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
-import { ALCHEMY_MOD_COUNT } from '../../engine/src/probability.ts';
+import { ALCHEMY_MOD_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CostBreakdown, Prices } from './cost.ts';
 import { planExpectedCost } from './cost.ts';
 
@@ -235,9 +235,9 @@ function essenceLevelOf(tierName: string | undefined): string {
   return 'normal';
 }
 
-/** Build steps for one ordering, essence set, target-tier map and orb-tier assignment. */
+/** Build steps for one ordering, essence set, desecrated set, target-tier map and orb-tier assignment. */
 function buildParetoSteps(
-  data: PatchData, order: readonly string[], essences: ReadonlySet<string>,
+  data: PatchData, order: readonly string[], essences: ReadonlySet<string>, desecrated: ReadonlySet<string>,
   tierOf: Map<string, number>, orbOf: Map<string, CurrencyTier>,
 ): PlanStep[] {
   const steps: PlanStep[] = [];
@@ -251,6 +251,12 @@ function buildParetoSteps(
       const essenceTier = Math.max(0, Math.min(mod.tiers.length - 1, minTierIndex));
       steps.push({ currency: 'essence', add: id, essenceTier, essenceLevel: essenceLevelOf(mod.tiers[essenceTier]?.name) });
       rarity = 'rare';
+    } else if (desecrated.has(id)) {
+      // Desecrated mod: a Desecration constrained to the mod's boss (the omen that targets it). It needs
+      // a RARE item, so any ordering that reaches it before the item is rare scores 0 at evaluation and
+      // drops — the surviving plans put the desecration after the add-chain's regal. Rarity is unchanged.
+      const omen = desecrationOmenForMod(resolveMod(data, id));
+      steps.push(omen ? { currency: 'desecrate', add: id, boss: omen } : { currency: 'desecrate', add: id });
     } else {
       const currency = nextAddCurrency(rarity, modCount);
       steps.push({ currency, add: id, minTierIndex, tier: orbOf.get(id) ?? 'base' });
@@ -364,11 +370,18 @@ export function optimizePareto(
 ): ParetoResult {
   const level = opts.level ?? 100;
   const modIds = targets.map((t) => t.modId);
-  // Essence-only mods can only arrive via an essence; everything else is rolled with currency.
+  // Essence-only mods arrive via an essence; desecrated mods via a Desecration (boss omen); everything
+  // else is rolled with the add-chain currency. Essence and desecrated mods carry no orb-strength axis.
   const essences = modIds.filter((id) => resolveMod(data, id).source === 'essence');
   const essSet = new Set(essences);
-  const rolled = modIds.filter((id) => !essSet.has(id));
-  validateTargetShape(data, base, modIds, essSet);
+  const desecrated = modIds.filter((id) => resolveMod(data, id).source === 'desecrated');
+  const desSet = new Set(desecrated);
+  const rolled = modIds.filter((id) => !essSet.has(id) && !desSet.has(id));
+  validateTargetShape(data, base, modIds, essSet, true);
+  // The Desecration mechanic places a single carved mod — an item can hold at most one desecrated mod.
+  if (desecrated.length > 1) {
+    throw new Error('an item can hold at most one desecrated mod');
+  }
   if (essences.length > 1) {
     throw new Error('at most one essence-only mod per craft (a regular essence needs a Magic item and turns it Rare)');
   }
@@ -393,15 +406,16 @@ export function optimizePareto(
 
   const assignments = orbAssignments(rolled, legal);
   const baseSequences: PlanStep[][] = [];
-  // (1) Add-chain / essence openers: every mod ordering × orb-strength assignment.
+  // (1) Add-chain / essence / desecration openers: every mod ordering × orb-strength assignment.
   for (const order of permutations(modIds)) {
     for (const orbOf of assignments) {
-      baseSequences.push(buildParetoSteps(data, order, essSet, tierOf, orbOf));
+      baseSequences.push(buildParetoSteps(data, order, essSet, desSet, tierOf, orbOf));
     }
   }
   // (2) Orb of Alchemy opener — a cheap, low-probability frontier point the add-chain can't produce
-  // (4 mods slammed at once, the rest exalted). Not combinable with an essence (which needs Magic→Rare).
-  if (essences.length === 0) {
+  // (4 mods slammed at once, the rest exalted). Not combinable with an essence (Magic→Rare) or a
+  // desecration (alchemy lands 4 normal mods; the desecrated ones would need a separate Desecration).
+  if (essences.length === 0 && desecrated.length === 0) {
     for (const seq of alchemyOpenerSequences(data, modIds, tierOf, legal)) baseSequences.push(seq);
   }
 
@@ -423,15 +437,23 @@ export function optimizePareto(
  */
 function validateTargetShape(
   data: PatchData, base: ItemBase, desiredModIds: readonly string[], essenceCandidates: ReadonlySet<string>,
+  allowDesecrated = false,
 ): void {
   if (desiredModIds.length === 0) throw new Error('no desired mods');
   if (desiredModIds.length > 6) throw new Error(`target has ${desiredModIds.length} mods (max 6)`);
   let prefixes = 0;
   let suffixes = 0;
   const pool = base.pools.normal;
+  const des = base.pools.desecrated;
   for (const id of desiredModIds) {
     const mod = resolveMod(data, id); // throws if unknown
-    if (!essenceCandidates.has(id) && (mod.source !== 'normal' || (!pool.prefixes.includes(id) && !pool.suffixes.includes(id)))) {
+    const inNormal = mod.source === 'normal' && (pool.prefixes.includes(id) || pool.suffixes.includes(id));
+    // A desecrated target is craftable from white too (make the rare, then Desecrate) — legal when it's
+    // in the base's desecrated pool and carries a boss omen. Gated behind `allowDesecrated` so the older
+    // add-chain-only planners (optimizePlan/optimizeCost, whose buildSteps can't desecrate) still reject it.
+    const inDesecrated = allowDesecrated && mod.source === 'desecrated'
+      && (des.prefixes.includes(id) || des.suffixes.includes(id)) && desecrationOmenForMod(mod) !== undefined;
+    if (!essenceCandidates.has(id) && !inNormal && !inDesecrated) {
       throw new Error(`mod ${id} is not in ${base.id}'s normal pool (mark it as an essence to force it)`);
     }
     if (mod.type === 'prefix') prefixes++;
@@ -464,28 +486,50 @@ function validateTarget(
 // yet); tier targets are honoured and per-exalt side omens are explored.
 
 /**
- * Target validation for the from-item planner: 1–6 mods, ≤3/side. A target is either a rollable
- * (normal-pool) mod or a perfect-essence mod (added by a Perfect Essence, which removes one random mod).
+ * Target validation for the from-item planner: 1–6 mods, ≤3/side. A target mod is one the planner can
+ * realise: a rollable (normal-pool) mod, a perfect-essence mod (added by a Perfect Essence, which removes
+ * one random mod), or a desecrated mod — either KEPT (already on the item) or CRAFTED by a Desecration
+ * with the boss omen matching its tag (so it must carry a boss tag).
  */
-function validateFromItemTarget(data: PatchData, base: ItemBase, targetIds: readonly string[]): void {
+function validateFromItemTarget(
+  data: PatchData, base: ItemBase, targetIds: readonly string[], present: ReadonlySet<string>,
+): void {
   if (targetIds.length === 0) throw new Error('no target mods');
   if (targetIds.length > 6) throw new Error(`target has ${targetIds.length} mods (max 6)`);
   let pre = 0;
   let suf = 0;
+  let desecratedCount = 0;
   const norm = base.pools.normal;
   const ess = base.pools.essence;
+  const des = base.pools.desecrated;
   for (const id of targetIds) {
     const mod = resolveMod(data, id);
     const rollable = mod.source === 'normal' && (norm.prefixes.includes(id) || norm.suffixes.includes(id));
     const perfect = mod.source === 'perfect_essence' && (ess.prefixes.includes(id) || ess.suffixes.includes(id));
-    if (!rollable && !perfect) {
-      throw new Error(`mod ${id} can’t be put on ${base.id} (the from-item planner supports rollable mods and perfect essences)`);
+    // A desecrated target is craftable (Desecration + its boss omen, P = 1/N over that boss's slot pool)
+    // when it's in the base's desecrated pool and carries a boss tag; it's also legal simply KEPT if
+    // already present. A desecrated mod with no boss tag can't be targeted (nothing selects it).
+    const inDes = des.prefixes.includes(id) || des.suffixes.includes(id);
+    const desecrated = mod.source === 'desecrated' && (present.has(id) || (inDes && desecrationOmenForMod(mod) !== undefined));
+    if (!rollable && !perfect && !desecrated) {
+      // An essence-only mod is the common trip-up: a regular essence needs a MAGIC item, but the from-item
+      // planner starts from a Rare (which is exactly what a fractured base is), so it can never apply one.
+      const why = mod.source === 'essence'
+        ? 'a regular essence needs a Magic item, so an essence-only mod can’t go on an item you already hold '
+          + '(a fractured base is a Rare) — craft it from a white base instead, or drop the fractured mod'
+        : mod.source === 'desecrated'
+        ? 'this desecrated mod has no boss omen that targets it'
+        : 'the from-item planner supports rollable mods, perfect essences, and desecrated mods';
+      throw new Error(`mod ${id} can’t be put on ${base.id} (${why})`);
     }
+    if (mod.source === 'desecrated') desecratedCount++;
     if (mod.type === 'prefix') pre++;
     else suf++;
   }
   if (pre > 3) throw new Error(`target has ${pre} prefixes (max 3)`);
   if (suf > 3) throw new Error(`target has ${suf} suffixes (max 3)`);
+  // The Desecration mechanic places a single carved mod — an item can hold at most one desecrated mod.
+  if (desecratedCount > 1) throw new Error('an item can hold at most one desecrated mod');
 }
 
 /** Every ordered selection of `k` distinct items from `arr` (⇒ [] if k > |arr|; [[]] if k === 0). */
@@ -528,17 +572,25 @@ function baseTransforms(
 }
 
 /**
- * Build the transform op-sequences from junk + missing (split into rollable and perfect-essence mods),
- * enumerating every ORDER. A PERFECT-ESSENCE target can only be added by a Perfect Essence, which
- * removes one uniformly-random mod as it adds — so each perfect target is paired with a distinct junk to
- * sacrifice (its step scores the odds that random removal actually hits that junk). The remaining junk +
- * rollable-missing go through the ordinary Chaos/Annul/Exalt transforms. Illegal orders score 0 and drop.
+ * Build the transform op-sequences from junk + missing (split into rollable, perfect-essence, and
+ * desecrated mods), enumerating every ORDER. A PERFECT-ESSENCE target can only be added by a Perfect
+ * Essence, which removes one uniformly-random mod as it adds — so each perfect target is paired with a
+ * distinct junk to sacrifice (its step scores the odds the random removal hits that junk). A DESECRATED
+ * target is added by a Desecration with the boss omen matching its tag (P = 1/N over that boss's slot
+ * pool); it needs an open slot but removes nothing, so it's a standalone add like an exalt. The remaining
+ * junk + rollable-missing go through the ordinary Chaos/Annul/Exalt transforms. Illegal orders (e.g. an
+ * add onto a full side) score 0 and drop.
  */
 function transformSequences(
-  junk: readonly string[], missingRollable: readonly string[], missingPerfect: readonly string[],
-  tierOf: Map<string, number>,
+  data: PatchData, junk: readonly string[], missingRollable: readonly string[], missingPerfect: readonly string[],
+  missingDesecrated: readonly string[], tierOf: Map<string, number>,
 ): PlanStep[][] {
   const out: PlanStep[][] = [];
+  // Each desecrated target is a Desecration constrained to its boss (the omen that makes it targetable).
+  const desecrateOps: PlanStep[] = missingDesecrated.map((add): PlanStep => {
+    const omen = desecrationOmenForMod(resolveMod(data, add));
+    return omen ? { currency: 'desecrate', add, boss: omen } : { currency: 'desecrate', add };
+  });
   // Each perfect target consumes one junk (removed by its essence); enumerate which junk, in order.
   for (const junkForPerfect of orderedSelections(junk, missingPerfect.length)) {
     const perfectOps: PlanStep[] = missingPerfect.map((add, i) => ({
@@ -546,7 +598,7 @@ function transformSequences(
     }));
     const restJunk = junk.filter((j) => !junkForPerfect.includes(j));
     for (const baseOps of baseTransforms(restJunk, missingRollable, tierOf)) {
-      for (const order of permutations([...perfectOps, ...baseOps])) out.push(order);
+      for (const order of permutations([...perfectOps, ...desecrateOps, ...baseOps])) out.push(order);
     }
   }
   return out;
@@ -564,20 +616,25 @@ export function optimizeFromItem(
     throw new Error('the from-item planner currently supports Rare items (use the currency check for Magic)');
   }
   const targetIds = targets.map((t) => t.modId);
-  validateFromItemTarget(data, start.base, targetIds);
-  const tierOf = new Map(targets.map((t) => [t.modId, t.minTierIndex ?? 0]));
-  const targetSet = new Set(targetIds);
   const current = [...start.prefixes, ...start.suffixes].map((p) => p.modId);
   const currentSet = new Set(current);
+  validateFromItemTarget(data, start.base, targetIds, currentSet);
+  const tierOf = new Map(targets.map((t) => [t.modId, t.minTierIndex ?? 0]));
+  const targetSet = new Set(targetIds);
   // Fractured ("carved") mods are locked — never removed, so never junk. They stay on the item (kept
   // whether or not they're in the target) and keep occupying their slot + family for the engine's math.
   const fractured = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
   const junk = current.filter((id) => !targetSet.has(id) && !fractured.has(id)); // unwanted & removable → remove
   const missing = targetIds.filter((id) => !currentSet.has(id)); // wanted but not yet present → add
   // A perfect essence adds its guaranteed mod while removing one random mod, so a perfect target can
-  // only be placed by sacrificing a junk mod. Needs at least as many junk mods as perfect targets.
+  // only be placed by sacrificing a junk mod. A desecrated target is added by a Desecration (boss omen)
+  // into an open slot — it removes nothing. Everything else is a rolled (normal) add.
   const missingPerfect = missing.filter((id) => resolveMod(data, id).source === 'perfect_essence');
-  const missingRollable = missing.filter((id) => resolveMod(data, id).source !== 'perfect_essence');
+  const missingDesecrated = missing.filter((id) => resolveMod(data, id).source === 'desecrated');
+  const missingRollable = missing.filter((id) => {
+    const s = resolveMod(data, id).source;
+    return s !== 'perfect_essence' && s !== 'desecrated';
+  });
   if (missingPerfect.length > junk.length) {
     throw new Error(
       `need ${missingPerfect.length} Perfect Essence(s) but only ${junk.length} spare mod(s) to sacrifice — `
@@ -594,7 +651,7 @@ export function optimizeFromItem(
   }
 
   const plans: ParetoPlan[] = [];
-  for (const seq of transformSequences(junk, missingRollable, missingPerfect, tierOf)) {
+  for (const seq of transformSequences(data, junk, missingRollable, missingPerfect, missingDesecrated, tierOf)) {
     for (const steps of withOmenVariants(data, seq)) {
       const result = evaluatePlanFrom(data, start, steps);
       plans.push({ steps, result, cost: planExpectedCost(prices, result, steps), probability: result.total });

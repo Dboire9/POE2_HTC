@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  listBases, listMods, listPerfectEssences, optimize, optimizeItem, currencyActions, recommendedIndex,
+  listBases, listMods, listPerfectEssences, listDesecrated, optimize, optimizeItem, currencyActions, recommendedIndex,
   alternatives, alternativesForItem, type EngineMod, type ExistingItem,
 } from './engine.ts';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
@@ -230,6 +230,97 @@ describe('engine facade — perfect essences in the from-item planner (0.5.0)', 
   });
 });
 
+// Desecrated mods: modelled on an item you already hold (they occupy a slot + family), removable for
+// certain by an Omen of Light annul, and keep-able in a plan — but never crafted onto the item here.
+describe('engine facade — desecrated mods on an item (0.5.0)', () => {
+  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
+  const des = listDesecrated(eng050.data, 'Wands');
+  const D = des[0]!; // a desecrated mod
+  const norm = listMods(eng050.data, 'Wands');
+  // a normal mod on the OPPOSITE side, different family, so the two sit together legally
+  const N = (D.type === 'prefix' ? norm.suffixes : norm.prefixes).find((m) => m.source === 'normal' && m.family !== D.family)!;
+  const item = (): ExistingItem => ({
+    baseId: 'Wands', level: 82, rarity: 'rare',
+    prefixes: D.type === 'prefix' ? [{ modId: D.id, tierDisplay: 1 }] : [{ modId: N.id, tierDisplay: 1 }],
+    suffixes: D.type === 'prefix' ? [{ modId: N.id, tierDisplay: 1 }] : [{ modId: D.id, tierDisplay: 1 }],
+  });
+
+  it('listDesecrated surfaces the desecrated pool (source "desecrated", single tier), kept out of from-white', () => {
+    expect(des.length).toBeGreaterThan(0);
+    expect(des.every((m) => m.source === 'desecrated' && m.tiers.length === 1)).toBe(true);
+    const white = listMods(eng050.data, 'Wands');
+    expect([...white.prefixes, ...white.suffixes].some((m) => m.source === 'desecrated')).toBe(false);
+    expect(listPerfectEssences(eng050.data, 'Wands').some((m) => m.source === 'desecrated')).toBe(false);
+  });
+
+  it('offers Annulment + Omen of Light (P=1) to remove a desecrated sacrifice, beside the random annul', () => {
+    const acts = currencyActions(eng050, item(), { removeModId: D.id });
+    const plain = acts.find((a) => a.currency === 'annul' && !/Light/.test(a.label))!;
+    const light = acts.find((a) => a.currency === 'annul' && /Light/.test(a.label))!;
+    expect(plain.prob).toBeCloseTo(1 / 2, 9);          // 2 mods on the item → random annul is 1/2
+    expect(light).toBeDefined();
+    expect(light.prob).toBeCloseTo(1, 9);              // Omen of Light → the desecrated mod for certain
+    expect(light.cost).toBeGreaterThan(plain.cost);    // the omen carries a surcharge
+    expect(light.detail).toMatch(/certain/i);
+  });
+
+  it('does NOT offer Omen of Light when the sacrifice is a normal mod', () => {
+    const acts = currencyActions(eng050, item(), { removeModId: N.id });
+    expect(acts.some((a) => /Light/.test(a.label))).toBe(false);
+  });
+
+  it('a plan KEEPS a desecrated mod already on the item (P=1, no steps)', () => {
+    const r = optimizeItem(eng050, item(), [
+      { modId: D.id, tierDisplay: 1 }, { modId: N.id, tierDisplay: 99 }, // keep both; N at any tier
+    ]);
+    const best = r.frontier[r.frontier.length - 1]!;
+    expect(best.probability).toBeCloseTo(1, 9);
+    expect(best.steps.length).toBe(0);
+  });
+
+  it('crafts a desecrated target onto an item via a Desecration + its boss omen', () => {
+    // A rare with one normal prefix; add a desecrated PREFIX by desecrating into the open prefix slot.
+    const dp = listDesecrated(eng050.data, 'Wands').find((m) => m.type === 'prefix')!;
+    const np = norm.prefixes.find((m) => m.source === 'normal' && m.family !== dp.family)!;
+    const start: ExistingItem = { baseId: 'Wands', level: 82, rarity: 'rare', prefixes: [{ modId: np.id, tierDisplay: 1 }], suffixes: [] };
+    const r = optimizeItem(eng050, start, [{ modId: np.id, tierDisplay: 1 }, { modId: dp.id, tierDisplay: 1 }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const desStep = r.frontier[r.frontier.length - 1]!.steps.find((s) => s.currency === 'desecrate');
+    expect(desStep, 'the plan uses a Desecration').toBeDefined();
+    expect(desStep!.label).toMatch(/Desecration \+ Omen of the (Blackblooded|Liege|Sovereign)/);
+    expect(desStep!.target).toBe(dp.text);
+  });
+
+  it('rejects two desecrated targets — an item holds at most one', () => {
+    const two = listDesecrated(eng050.data, 'Wands').filter((m) => m.type === 'suffix').slice(0, 2);
+    expect(two.length).toBe(2);
+    const np = norm.prefixes.find((m) => m.source === 'normal')!;
+    expect(() => optimize(eng050, 'Wands', 82, [
+      { modId: np.id, tierDisplay: np.tiers.length },
+      { modId: two[0]!.id, tierDisplay: 1 }, { modId: two[1]!.id, tierDisplay: 1 },
+    ])).toThrow(/at most one desecrated mod/i);
+  });
+
+  it('crafts a desecrated mod from white: build a Rare with 3 rollables, then Desecrate', () => {
+    const dp = listDesecrated(eng050.data, 'Wands').find((m) => m.type === 'suffix')!;
+    // 2 normal prefixes of DISTINCT families + 1 normal suffix reach Rare (transmute→augment→regal),
+    // then Desecrate the suffix. (Distinct families so the target isn't self-excluding.)
+    const seenFam = new Set<string>();
+    const np = norm.prefixes.filter((m) => m.source === 'normal' && !seenFam.has(m.family) && seenFam.add(m.family)).slice(0, 2);
+    const ns = norm.suffixes.find((m) => m.source === 'normal' && m.family !== dp.family)!;
+    const r = optimize(eng050, 'Wands', 82, [
+      { modId: np[0]!.id, tierDisplay: np[0]!.tiers.length }, { modId: np[1]!.id, tierDisplay: np[1]!.tiers.length },
+      { modId: ns.id, tierDisplay: ns.tiers.length }, { modId: dp.id, tierDisplay: 1 },
+    ]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const best = r.frontier[r.frontier.length - 1]!;
+    const desAt = best.steps.findIndex((s) => s.currency === 'desecrate');
+    const regalAt = best.steps.findIndex((s) => s.currency === 'regal');
+    expect(desAt).toBeGreaterThan(regalAt); // desecration only after the item is Rare
+    expect(regalAt).toBeGreaterThanOrEqual(0);
+  });
+});
+
 describe('recommendedIndex — best-value (cheapest practical) pick', () => {
   const plan = (expected: number, expectedAttempts: number) =>
     ({ expected, probability: 1 / expectedAttempts, perAttempt: expected / expectedAttempts, expectedAttempts, steps: [] });
@@ -277,6 +368,37 @@ describe('engine facade — fractured mods flow through to the odds', () => {
     const removesMana = r.frontier.some((p) => p.steps.some((s) => /removes .*Mana|−.*Mana/.test(s.target)));
     expect(removesMana).toBe(false);
     expect(r.frontier.some((p) => p.steps.some((s) => s.currency === 'exalt'))).toBe(true);
+  });
+
+  it('a fractured mod coexists with a DESECRATED target (both want a Rare — no conflict)', () => {
+    // Unlike essence, desecration acts on a Rare, which is exactly what a fractured base is. Fracture a
+    // normal prefix, target it + a desecrated suffix → the plan keeps the carved mod and Desecrates.
+    const desS = listDesecrated(eng.data, 'Wands').find((m) => m.type === 'suffix')!;
+    const carved: ExistingItem = {
+      baseId: 'Wands', level: 82, rarity: 'rare',
+      prefixes: [{ modId: MANA, tierDisplay: 1, fractured: true }], suffixes: [],
+    };
+    const r = optimizeItem(eng, carved, [{ modId: MANA, tierDisplay: 1 }, { modId: desS.id, tierDisplay: 1 }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const desStep = r.frontier[r.frontier.length - 1]!.steps.find((s) => s.currency === 'desecrate');
+    expect(desStep, 'the plan Desecrates the desecrated target').toBeDefined();
+    // …and nothing removes the fractured mod.
+    expect(r.frontier.some((p) => p.steps.some((s) => /removes .*Mana|−.*Mana/.test(s.target)))).toBe(false);
+  });
+
+  it('a fractured (from-item) craft with an essence-only target fails with a clear reason', () => {
+    // The reported bug: fracturing routes through the from-item planner (Rare start), but a regular
+    // essence needs a Magic item — so the essence mod can't be applied. The message must say so, not
+    // give a generic "can't be put on Wands".
+    const carved: ExistingItem = {
+      baseId: 'Wands', level: 82, rarity: 'rare',
+      prefixes: [{ modId: MANA, tierDisplay: 1, fractured: true }], suffixes: [],
+    };
+    expect(() => optimizeItem(eng, carved, [{ modId: MANA, tierDisplay: 1 }, { modId: ESS, tierDisplay: 1 }]))
+      .toThrow(/regular essence needs a Magic item/i);
+    // …and the same essence target IS craftable from white (the flow that has a Magic stage).
+    const white = optimize(eng, 'Wands', 82, [{ modId: MANA, tierDisplay: 99 }, { modId: ESS, tierDisplay: 1 }]);
+    expect(white.frontier.length).toBeGreaterThan(0);
   });
 });
 

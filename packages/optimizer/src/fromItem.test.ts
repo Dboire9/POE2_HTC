@@ -81,6 +81,88 @@ describe('optimizeFromItem — fractured mods are locked (never removed)', () =>
   });
 });
 
+describe('optimizeFromItem — desecrated mods (kept and crafted, hand-computed)', () => {
+  // Base with a normal prefix NP1, normal suffix NS1, and a desecrated suffix DS1 in the KURGAL pool
+  // (boss omen = Blackblooded) — the only kurgal desecrated suffix, so targeting it is 1/1.
+  const dmk = (id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source'], tags: string[] = []): Mod =>
+    ({ id, group: id, field: id, source, type, categories: [], family, tags,
+       text: id, tiers: [{ name: 't1', ilvl: 1, weight: source === 'desecrated' ? 1 : 20, ranges: [], stats: [] }] });
+  const dbase: ItemBase = {
+    id: 'S', name: 'S', category: 'C',
+    pools: { normal: { prefixes: ['NP1'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: ['DS1'] }, essence: { prefixes: [], suffixes: [] } },
+  };
+  const ddata: PatchData = {
+    patch: 't',
+    mods: new Map([
+      ['NP1', dmk('NP1', 'prefix', 'Fp1', 'normal')], ['NS1', dmk('NS1', 'suffix', 'Fs1', 'normal')],
+      ['DS1', dmk('DS1', 'suffix', 'Fds', 'desecrated', ['kurgal_mod'])],
+    ]),
+    bases: new Map([['S', dbase]]),
+  };
+  const dprices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 0.2, desecrate: 0.5 }, omens: {} };
+
+  it('keeps a desecrated mod that is already on the item (no step touches it)', () => {
+    // Item [NP1 | DS1]; target {NP1, DS1}: already exactly the target → a single empty plan.
+    const start: ItemState = {
+      base: dbase, level: 100, rarity: 'rare', desecrated: true,
+      prefixes: [{ modId: 'NP1', tierName: 't1' }], suffixes: [{ modId: 'DS1', tierName: 't1' }],
+    };
+    const r = optimizeFromItem(ddata, dprices, start, [{ modId: 'NP1' }, { modId: 'DS1' }]);
+    expect(r.frontier).toHaveLength(1);
+    expect(r.frontier[0]!.steps).toHaveLength(0);
+    expect(r.frontier[0]!.probability).toBe(1);
+  });
+
+  it('crafts an absent desecrated mod via Desecration + its boss omen (P = ½ · 1)', () => {
+    // Item [NP1 | NS1]; target {NP1, DS1}: NS1 (suffix) is junk, DS1 (desecrated suffix) is missing.
+    // Surest route: annul NS1 first (½ on the 2-mod item), then Desecration + Blackblooded → DS1 is the
+    // only kurgal suffix, so 1/1 = 1. Total ½. (Desecrate-first would leave a 1/3 annul that can hit DS1.)
+    const start: ItemState = { base: dbase, level: 100, rarity: 'rare', prefixes: [placed('NP1')], suffixes: [placed('NS1')] };
+    const r = optimizeFromItem(ddata, dprices, start, [{ modId: 'NP1' }, { modId: 'DS1' }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const surest = r.frontier[r.frontier.length - 1]!;
+    expect(surest.probability).toBeCloseTo(1 / 2, 6);
+    const des = surest.steps.find((s) => s.currency === 'desecrate');
+    expect(des, 'the plan uses a Desecration step').toBeDefined();
+    expect(des).toMatchObject({ currency: 'desecrate', add: 'DS1', boss: 'blackblooded' });
+  });
+
+  it('rejects a target with two desecrated mods (an item holds at most one)', () => {
+    // Base with two desecrated suffixes; asking for both is illegal.
+    const twoDes: PatchData = {
+      patch: 't',
+      mods: new Map([
+        ['NP1', dmk('NP1', 'prefix', 'Fp1', 'normal')],
+        ['DS1', dmk('DS1', 'suffix', 'Fd1', 'desecrated', ['kurgal_mod'])],
+        ['DS2', dmk('DS2', 'suffix', 'Fd2', 'desecrated', ['amanamu_mod'])],
+      ]),
+      bases: new Map([['S', {
+        id: 'S', name: 'S', category: 'C',
+        pools: { normal: { prefixes: ['NP1'], suffixes: [] }, desecrated: { prefixes: [], suffixes: ['DS1', 'DS2'] }, essence: { prefixes: [], suffixes: [] } },
+      }]]),
+    };
+    const base2 = twoDes.bases.get('S')!;
+    const start: ItemState = { base: base2, level: 100, rarity: 'rare', prefixes: [placed('NP1')], suffixes: [] };
+    expect(() => optimizeFromItem(twoDes, dprices, start, [{ modId: 'DS1' }, { modId: 'DS2' }]))
+      .toThrow(/at most one desecrated mod/i);
+  });
+
+  it('rejects a desecrated target with no boss omen to select it', () => {
+    // A desecrated mod with no boss tag can't be targeted (nothing picks it out of the pool).
+    const noBoss: PatchData = {
+      patch: 't',
+      mods: new Map([
+        ['NP1', dmk('NP1', 'prefix', 'Fp1', 'normal')], ['NS1', dmk('NS1', 'suffix', 'Fs1', 'normal')],
+        ['DS1', dmk('DS1', 'suffix', 'Fds', 'desecrated')], // no boss tag
+      ]),
+      bases: new Map([['S', dbase]]),
+    };
+    const start: ItemState = { base: dbase, level: 100, rarity: 'rare', prefixes: [placed('NP1')], suffixes: [placed('NS1')] };
+    expect(() => optimizeFromItem(noBoss, dprices, start, [{ modId: 'NP1' }, { modId: 'DS1' }]))
+      .toThrow(/no boss omen/i);
+  });
+});
+
 describe('optimizeFromItem — perfect essences (hand-computed)', () => {
   // Base S: normal prefix NP1 + suffix NS1, and a PERFECT-ESSENCE prefix PE1 (in the essence pool).
   const pmk = (id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source']): Mod =>

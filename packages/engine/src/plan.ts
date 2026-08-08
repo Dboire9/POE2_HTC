@@ -96,10 +96,18 @@ function stepProbability(data: PatchData, state: ItemState, step: PlanStep): num
       return alchemyProbability(data, state.base, step.adds, { level: state.level });
     case 'chaos': return chaosProbability(data, state, step.remove, step.add, addOpts(step));
     case 'annul': return annulProbability(data, state, step.remove, step.omen ? { omen: step.omen } : {});
-    case 'desecrate':
+    case 'desecrate': {
+      // A desecration acts on a RARE item and adds a mod to an OPEN slot of its side (family free). The
+      // boss-omen primitive is count-uniform and doesn't gate rarity/slot/family (it mirrors Java's
+      // narrow model), so the plan layer enforces legality here — mirroring the perfect-essence case.
+      if (state.rarity !== 'rare') return 0;
+      const mod = resolveMod(data, step.add);
+      const sideFull = mod.type === 'prefix' ? state.prefixes.length >= 3 : state.suffixes.length >= 3;
+      if (sideFull || !familyAvailable(data, state, mod)) return 0;
       return step.boss
         ? desecrationBossProbability(data, state, step.add, { omen: step.boss })
         : desecrationProbability(data, state, step.add, step.constrainTo ? { constrainTo: step.constrainTo } : {});
+    }
     case 'essence': return essenceForcedProbability(data, state, step.add, step.essenceTier);
     case 'perfect-essence': {
       // A perfect essence acts on a RARE item, can't re-add a mod whose family is already present,

@@ -52,8 +52,10 @@ export interface EngineMod {
   /** Family-exclusion group — an item may hold at most one mod per family. */
   readonly family: string;
   /** 'normal' = rollable with currency; 'essence' = obtainable only by a regular essence (tiers = levels);
-   * 'perfect' = a perfect-essence mod (added on a Rare by a Perfect Essence, which removes one random mod). */
-  readonly source: 'normal' | 'essence' | 'perfect';
+   * 'perfect' = a perfect-essence mod (added on a Rare by a Perfect Essence, which removes one random mod);
+   * 'desecrated' = a desecrated ("carved by the Abyss") mod — occupies a slot/family and is the sole
+   * target an Omen of Light annul can remove for certain. */
+  readonly source: 'normal' | 'essence' | 'perfect' | 'desecrated';
   /** Tiers best-first (T1 … Tn); for essence mods these are the Greater→Lesser essence levels. */
   readonly tiers: readonly EngineTier[];
 }
@@ -140,6 +142,10 @@ function prettyName(id: string): string {
 }
 
 const ORB_SUFFIX: Record<CurrencyTier, string> = { base: '', greater: ' (Greater)', perfect: ' (Perfect)' };
+/** Desecration boss omen → its in-game name (Blackblooded=Kurgal, Liege=Amanamu, Sovereign=Ulaman). */
+const BOSS_LABEL: Record<'blackblooded' | 'liege' | 'sovereign', string> = {
+  blackblooded: 'Blackblooded', liege: 'Liege', sovereign: 'Sovereign',
+};
 const CURRENCY_LABEL: Record<PlanStep['currency'], string> = {
   transmute: 'Transmutation', augment: 'Augmentation', regal: 'Regal', exalt: 'Exalted',
   alchemy: 'Alchemy', chaos: 'Chaos', annul: 'Annulment', desecrate: 'Desecration', essence: 'Essence', 'perfect-essence': 'Perfect Essence',
@@ -225,6 +231,31 @@ export function listPerfectEssences(data: PatchData, baseId: string): EngineMod[
     .sort((a, b) => a.text.localeCompare(b.text));
 }
 
+/**
+ * The desecrated mods a base can carry (its desecrated pool). These are NOT crafted-from-white here —
+ * a desecrated mod is added by the Desecration currency on a Rare — so they're offered only so you can
+ * MODEL an item that already carries one: it occupies a slot + family (shifting every other currency's
+ * odds) and is the only mod an Omen of Light annul removes for certain. Single "tier", best-first.
+ */
+export function listDesecrated(data: PatchData, baseId: string): EngineMod[] {
+  const base = data.bases.get(baseId);
+  if (!base) return [];
+  const build = (ids: readonly string[], type: 'prefix' | 'suffix'): EngineMod[] =>
+    ids.flatMap((id): EngineMod[] => {
+      const mod = data.mods.get(id);
+      if (!mod || mod.source !== 'desecrated' || mod.tiers.length === 0) return [];
+      const t = mod.tiers[0]!;
+      const r = t.ranges[0];
+      const range = r && r.length >= 2 ? `${r[0]}–${r[1]}` : '';
+      return [{
+        id: mod.id, text: mod.text ?? mod.id, type, family: mod.family, source: 'desecrated',
+        tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `desecrated · ilvl ${t.ilvl}${range ? ` · ${range}` : ''}`, range }],
+      }];
+    });
+  return [...build(base.pools.desecrated.prefixes, 'prefix'), ...build(base.pools.desecrated.suffixes, 'suffix')]
+    .sort((a, b) => a.text.localeCompare(b.text));
+}
+
 // ── The optimize call ────────────────────────────────────────────────────────
 
 /**
@@ -269,8 +300,11 @@ function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
       // a perfect-essence step can carry a Sinistral/Dextral Crystallisation omen (constrains the removal).
       const constrainTo = (step.currency === 'exalt' || step.currency === 'chaos') ? step.constrainTo : undefined;
       const peOmen = step.currency === 'perfect-essence' ? step.omen : undefined;
+      // A desecration is constrained to its boss (the omen that targets the desecrated mod).
+      const boss = step.currency === 'desecrate' ? step.boss : undefined;
       const omen = constrainTo ? (constrainTo === 'prefix' ? ' + Sinistral' : ' + Dextral')
-        : peOmen ? (peOmen === 'sinistral' ? ' + Sinistral' : ' + Dextral') : '';
+        : peOmen ? (peOmen === 'sinistral' ? ' + Sinistral' : ' + Dextral')
+        : boss ? ` + Omen of the ${BOSS_LABEL[boss]}` : '';
       const label = CURRENCY_LABEL[step.currency]
         + (orb ? ORB_SUFFIX[orb] : '')
         + (essenceLevel && essenceLevel !== 'normal' ? ` (${essenceLevel})` : '')
@@ -340,7 +374,12 @@ function buildItemState(data: PatchData, item: ExistingItem): ItemState {
       const tierName = (mod.tiers[idx] ?? mod.tiers[0])?.name ?? '';
       return m.fractured ? { modId: m.modId, tierName, fractured: true } : { modId: m.modId, tierName };
     });
-  return { base, level: item.level, rarity: item.rarity, prefixes: place(item.prefixes), suffixes: place(item.suffixes) };
+  const prefixes = place(item.prefixes);
+  const suffixes = place(item.suffixes);
+  // The desecrated flag gates the Omen of Light annul, so set it whenever a desecrated mod is on the item.
+  const desecrated = [...prefixes, ...suffixes].some((m) => data.mods.get(m.modId)?.source === 'desecrated');
+  const state = { base, level: item.level, rarity: item.rarity, prefixes, suffixes };
+  return desecrated ? { ...state, desecrated: true } : state;
 }
 
 /** Why an add of `mod` onto `state` is impossible (side full / family taken / off-pool). */
@@ -401,6 +440,13 @@ export function currencyActions(
     const onItem = state.prefixes.concat(state.suffixes).some((m) => m.modId === removeModId);
     push('annul', 'Orb of Annulment', `removes one random mod — odds it’s ${text(removeModId)}`, p, price('annul'),
       p > 0 ? undefined : (onItem ? undefined : `${text(removeModId)} isn’t on the item`));
+    // Omen of Light makes the Annulment remove the DESECRATED mod for certain (P=1) — the targeted-
+    // removal lever. Only meaningful when the sacrifice is itself a desecrated mod on a desecrated item.
+    if (onItem && data.mods.get(removeModId)?.source === 'desecrated' && state.desecrated) {
+      const lp = annulProbability(data, state, removeModId, { omen: 'light' });
+      push('annul', 'Orb of Annulment + Omen of Light', `removes the desecrated ${text(removeModId)} for certain`,
+        lp, price('annul') + (prices.omens['OmenofLight'] ?? 0));
+    }
   }
   return actions;
 }

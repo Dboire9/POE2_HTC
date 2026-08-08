@@ -390,8 +390,14 @@ independent extractions of the same mechanic that (verified) share the family na
   scaling and range parsing verified correct. (CoE and our data both derive from poe2db, so this confirms
   the extraction, not an independent value source; the 0.5-vs-0.5.0 diff above is the independent check.)
 
-*Cosmetic note:* some poe2db compound mods concatenate their two stat lines without a separator
-("…Spell DamageMinions deal…"); display-only, doesn't affect probabilities — a low-priority text cleanup.
+*Compound-mod text (FIXED 2026-08-08):* poe2db compound mods concatenated their two stat lines without
+a separator ("…Spell DamageMinions deal…"). Root cause: `stripHtml` in `tools/refresh/poe2db.mjs`
+stripped the `<br>` between stat lines to nothing (the RePoE path kept `\n`; this one didn't), and
+`apply_pools.mjs`'s `cleanText` then collapsed all whitespace. Fixed both to map `<br>`→`\n` and preserve
+newlines, then re-ran `apply_pools.mjs` against the cached poe2db pages: 32 desecrated/perfect_essence
+text fields regained the separator, IDs identical, 0 weight changes (the 6 CoE weight patches on normal
+mods survive — apply_pools keeps the normal pool verbatim). Re-parsing from source caught all 32 `<br>`
+boundaries, more than a display-side regex heuristic (~21) would have. Display-only; no probability impact.
 
 ## Budget-constrained alternatives + cost distribution (2026-07-17)
 

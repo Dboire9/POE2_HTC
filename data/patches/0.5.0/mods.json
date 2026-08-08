@@ -45369,7 +45369,7 @@
       "tags": [
         "amanamu_mod"
       ],
-      "text": "#% increased Attack SpeedCompanions have #% increased Attack Speed",
+      "text": "#% increased Attack Speed\nCompanions have #% increased Attack Speed",
       "tiers": [
         {
           "name": "of Amanamu",
@@ -45400,7 +45400,7 @@
       "tags": [
         "amanamu_mod"
       ],
-      "text": "Companions deal #% increased Damage#% increased Damage while your Companion is in your Presence",
+      "text": "Companions deal #% increased Damage\n#% increased Damage while your Companion is in your Presence",
       "tiers": [
         {
           "name": "Amanamu's",
@@ -45431,7 +45431,7 @@
       "tags": [
         "ulaman_mod"
       ],
-      "text": "#% increased Attack Speed#% increased Attack Speed while your Companion is in your Presence",
+      "text": "#% increased Attack Speed\n#% increased Attack Speed while your Companion is in your Presence",
       "tiers": [
         {
           "name": "of Ulaman",
@@ -48762,7 +48762,7 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
-      "text": "+# to Accuracy Rating#% increased Attack Speed",
+      "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
           "name": "Perfect Essence of Celestial Alloy",
@@ -48961,7 +48961,7 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
-      "text": "#% increased Physical Damage+# to all Attributes",
+      "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
           "name": "Perfect Essence of Transcendent Alloy",
@@ -52027,7 +52027,7 @@
       "tags": [
         "amanamu_mod"
       ],
-      "text": "#% increased Grenade Damage#% increased Grenade Duration",
+      "text": "#% increased Grenade Damage\n#% increased Grenade Duration",
       "tiers": [
         {
           "name": "Amanamu's",
@@ -55209,7 +55209,7 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
-      "text": "+# to Accuracy Rating#% increased Attack Speed",
+      "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
           "name": "Perfect Essence of Celestial Alloy",
@@ -55408,7 +55408,7 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
-      "text": "#% increased Physical Damage+# to all Attributes",
+      "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
           "name": "Perfect Essence of Transcendent Alloy",
@@ -56033,7 +56033,7 @@
       "tags": [
         "kurgal_mod"
       ],
-      "text": "#% chance when collecting an Elemental Infusion to gain anadditional Elemental Infusion of the same type",
+      "text": "#% chance when collecting an Elemental Infusion to gain an\nadditional Elemental Infusion of the same type",
       "tiers": [
         {
           "name": "of Kurgal",
@@ -58483,7 +58483,7 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
-      "text": "#% increased Cast SpeedGain #% of Elemental Damage as Extra Cold Damage",
+      "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
           "name": "Perfect Essence of Transcendent Alloy",
@@ -105102,7 +105102,7 @@
       "tags": [
         "kurgal_mod"
       ],
-      "text": "#% increased Physical Damage15% reduced Attack Speed",
+      "text": "#% increased Physical Damage\n15% reduced Attack Speed",
       "tiers": [
         {
           "name": "Kurgal's",
@@ -108420,7 +108420,7 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
-      "text": "+# to Accuracy Rating#% increased Attack Speed",
+      "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
           "name": "Perfect Essence of Celestial Alloy",
@@ -108619,7 +108619,7 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
-      "text": "#% increased Physical Damage+# to all Attributes",
+      "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
           "name": "Perfect Essence of Transcendent Alloy",
@@ -108806,7 +108806,7 @@
       "tags": [
         "kurgal_mod"
       ],
-      "text": "#% increased Cold Damage#% increased Freeze Buildup",
+      "text": "#% increased Cold Damage\n#% increased Freeze Buildup",
       "tiers": [
         {
           "name": "Kurgal's",
@@ -108864,7 +108864,7 @@
       "tags": [
         "amanamu_mod"
       ],
-      "text": "#% increased Fire Damage#% increased Ignite Magnitude",
+      "text": "#% increased Fire Damage\n#% increased Ignite Magnitude",
       "tiers": [
         {
           "name": "Amanamu's",
@@ -108949,7 +108949,7 @@
       "tags": [
         "ulaman_mod"
       ],
-      "text": "#% increased Lightning Damage#% increased Magnitude of Shock you inflict",
+      "text": "#% increased Lightning Damage\n#% increased Magnitude of Shock you inflict",
       "tiers": [
         {
           "name": "Ulaman's",
@@ -112493,7 +112493,7 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
-      "text": "+# to Accuracy Rating#% increased Attack Speed",
+      "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
           "name": "Perfect Essence of Celestial Alloy",
@@ -112692,7 +112692,7 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
-      "text": "#% increased Physical Damage+# to all Attributes",
+      "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
           "name": "Perfect Essence of Transcendent Alloy",
@@ -131696,7 +131696,7 @@
       "tags": [
         "amanamu_mod"
       ],
-      "text": "#% increased Attack SpeedCompanions have #% increased Attack Speed",
+      "text": "#% increased Attack Speed\nCompanions have #% increased Attack Speed",
       "tiers": [
         {
           "name": "of Amanamu",
@@ -131727,7 +131727,7 @@
       "tags": [
         "amanamu_mod"
       ],
-      "text": "Companions deal #% increased Damage#% increased Damage while your Companion is in your Presence",
+      "text": "Companions deal #% increased Damage\n#% increased Damage while your Companion is in your Presence",
       "tiers": [
         {
           "name": "Amanamu's",
@@ -131758,7 +131758,7 @@
       "tags": [
         "ulaman_mod"
       ],
-      "text": "#% increased Attack Speed#% increased Attack Speed while your Companion is in your Presence",
+      "text": "#% increased Attack Speed\n#% increased Attack Speed while your Companion is in your Presence",
       "tiers": [
         {
           "name": "of Ulaman",
@@ -135363,7 +135363,7 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
-      "text": "+# to Accuracy Rating#% increased Attack Speed",
+      "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
           "name": "Perfect Essence of Celestial Alloy",
@@ -135587,7 +135587,7 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
-      "text": "#% increased Physical Damage+# to all Attributes",
+      "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
           "name": "Perfect Essence of Transcendent Alloy",
@@ -138890,7 +138890,7 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
-      "text": "#% increased Cast SpeedGain #% of Elemental Damage as Extra Cold Damage",
+      "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
           "name": "Perfect Essence of Transcendent Alloy",
@@ -138919,7 +138919,7 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
-      "text": "+# to maximum Mana+1 to Level of all Spell Skills",
+      "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
           "name": "Perfect Essence of Celestial Alloy",
@@ -139993,7 +139993,7 @@
       "tags": [
         "kurgal_mod"
       ],
-      "text": "#% increased Physical Damage15% reduced Attack Speed",
+      "text": "#% increased Physical Damage\n15% reduced Attack Speed",
       "tiers": [
         {
           "name": "Kurgal's",
@@ -143302,7 +143302,7 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
-      "text": "+# to Accuracy Rating#% increased Attack Speed",
+      "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
           "name": "Perfect Essence of Celestial Alloy",
@@ -143501,7 +143501,7 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
-      "text": "#% increased Physical Damage+# to all Attributes",
+      "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
           "name": "Perfect Essence of Transcendent Alloy",
@@ -144479,7 +144479,7 @@
       "tags": [
         "amanamu_mod"
       ],
-      "text": "#% increased Spell DamageMinions deal #% increased Damage",
+      "text": "#% increased Spell Damage\nMinions deal #% increased Damage",
       "tiers": [
         {
           "name": "Amanamu's",
@@ -144510,7 +144510,7 @@
       "tags": [
         "amanamu_mod"
       ],
-      "text": "#% increased Cost Efficiency#% of Spell Mana Cost Converted to Life Cost",
+      "text": "#% increased Cost Efficiency\n#% of Spell Mana Cost Converted to Life Cost",
       "tiers": [
         {
           "name": "of Amanamu",
@@ -146834,7 +146834,7 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
-      "text": "#% increased Cast SpeedGain #% of Elemental Damage as Extra Cold Damage",
+      "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
           "name": "Perfect Essence of Transcendent Alloy",
@@ -146863,7 +146863,7 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
-      "text": "+# to maximum Mana+1 to Level of all Spell Skills",
+      "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
           "name": "Perfect Essence of Celestial Alloy",

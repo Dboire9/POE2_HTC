@@ -58,7 +58,12 @@ function normalizeMod(m) {
 
 function stripHtml(s) {
   if (s == null) return null;
-  return s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  return s
+    .replace(/<br\s*\/?>/gi, '\n') // a <br> separates the stat lines of a compound mod — keep it as a
+    .replace(/<[^>]+>/g, '')       // newline (matches the RePoE path) instead of concatenating the lines
+    .replace(/[^\S\n]+/g, ' ')     // collapse spaces/tabs but NOT newlines
+    .replace(/ *\n */g, '\n')      // trim spaces hugging a newline
+    .trim();
 }
 
 // Group a pool's flat tier list into mods: (type, family) -> tiers sorted by ilvl.

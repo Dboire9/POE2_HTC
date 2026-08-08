@@ -82,7 +82,8 @@ function cleanText(text) {
   if (text == null) return null;
   return text
     .replace(/\(([-+]?\d+(?:\.\d+)?)\s*[–—-]\s*([-+]?\d+(?:\.\d+)?)\)/g, '#')
-    .replace(/\s+/g, ' ')
+    .replace(/[^\S\n]+/g, ' ') // collapse spaces/tabs but preserve the \n that separates stat lines
+    .replace(/ *\n */g, '\n')
     .trim();
 }
 

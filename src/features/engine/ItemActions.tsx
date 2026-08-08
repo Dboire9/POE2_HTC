@@ -4,12 +4,18 @@ import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, listPerfectEssences, listDesecrated, currencyActions, optimizeItem,
+  loadEngine, listBases, listMods, listPerfectEssences, listDesecrated, currencyActions, optimizeItem, optimizeItemMarkov,
   type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type CurrencyAction,
-  type TargetInput, type EngineResult,
+  type TargetInput, type EngineResult, type EngineMarkovResult,
 } from '../../lib/engine';
 import FrontierView from './FrontierView';
+import PolicyGraph from './PolicyGraph';
 import BaseSelect from './BaseSelect';
+
+function fmtEx(x: number): string {
+  if (!Number.isFinite(x)) return '∞';
+  return `${x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2)} ex`;
+}
 
 const selectCls =
   'h-9 rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring';
@@ -92,6 +98,7 @@ const ItemActions: React.FC = () => {
   // Option 2 (full plan) target + result.
   const [target, setTarget] = useState<TargetInput[]>([]);
   const [plan, setPlan] = useState<EngineResult | null>(null);
+  const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   const [planErr, setPlanErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
 
@@ -238,8 +245,12 @@ const ItemActions: React.FC = () => {
     if (!engine || target.length === 0) return;
     setComputing(true); setPlanErr(null);
     setTimeout(() => {
-      try { setPlan(optimizeItem(engine, item, target)); }
-      catch (e) { setPlan(null); setPlanErr(e instanceof Error ? e.message : String(e)); }
+      try {
+        setPlan(optimizeItem(engine, item, target));
+        // The honest expected cost + optimal-policy graph (push-forward MDP). Falls back silently to the
+        // frontier alone when the target isn't MDP-modellable (perfect-essence / desecrate).
+        setMarkov(optimizeItemMarkov(engine, item, target));
+      } catch (e) { setPlan(null); setMarkov(null); setPlanErr(e instanceof Error ? e.message : String(e)); }
       finally { setComputing(false); }
     }, 0);
   };
@@ -481,10 +492,29 @@ const ItemActions: React.FC = () => {
               <p className="text-sm text-muted-foreground mt-1">{planErr}</p>
             </Card>
           )}
+          {plan && !planErr && markov?.applicable && markov.feasible && (
+            <Card className="p-4 space-y-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="text-sm font-bold">True expected cost</h3>
+                <span className="text-2xl font-bold tabular-nums text-primary">{fmtEx(markov.expectedCost)}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                The honest average spend to reach this target, playing the optimal policy that <strong>recovers
+                in place</strong> after a bad annul/chaos rather than restarting. The step routes below are the
+                simpler per-plan view — their “cheapest” assumes a free restart, so it reads lower than this.
+              </p>
+              <PolicyGraph result={markov} />
+              <p className="text-[11px] text-muted-foreground">
+                Each square is an item state, from your item (left) to the target (right). Solid arrows are
+                progress; dashed amber arrows are <strong>bricks</strong> — a bad roll that sends you back a
+                step, which the policy then digs out of.
+              </p>
+            </Card>
+          )}
           {plan && !planErr && (
             <FrontierView
               result={plan}
-              title="Cheapest → surest routes"
+              title="Step-by-step routes (per-plan view)"
               emptyHint={<p>No route reaches this target from your item — usually the target needs more mods than
                 fit, or a tier gated above the item level.</p>}
             />

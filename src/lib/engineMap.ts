@@ -7,9 +7,10 @@ import type { PatchData, ItemState, PlacedMod, CurrencyTier, Mod } from '../../p
 import type { PlanStep } from '../../packages/engine/src/plan.ts';
 import type { TierTarget, ParetoResult } from '../../packages/optimizer/src/optimize.ts';
 import type { Alternative, AlternativeTarget, AlternativesResult, SlotChange } from '../../packages/optimizer/src/alternatives.ts';
+import type { MarkovResult, McAction } from '../../packages/optimizer/src/markovFromItem.ts';
 import type {
   EngineMod, EngineTier, EngineResult, EnginePlan, EngineStep, EngineSlot, EngineAlternative,
-  EngineAlternatives, ExistingItem, TargetInput, AltTargetInput,
+  EngineAlternatives, EngineMarkovResult, EnginePolicyNode, ExistingItem, TargetInput, AltTargetInput,
 } from './engineTypes.ts';
 
 // ── Labels ────────────────────────────────────────────────────────────────────
@@ -166,6 +167,32 @@ function toEngineSlot(data: PatchData, slot: SlotChange): EngineSlot {
   const kept = { kind: slot.kind, text: text(slot.modId), tierDisplay: display, tierLabel: label };
   // Only a CHANGED slot carries "what you asked for"; a kept slot's own text already says it.
   return slot.kind === 'swapped' ? { ...kept, fromText: text(slot.from) } : kept;
+}
+
+const MC_ACTION_LABEL: Record<McAction, string> = {
+  exalt: 'Exalt', annul: 'Annul', 'annul-sinistral': 'Annul (Sinistral)', 'annul-dextral': 'Annul (Dextral)', chaos: 'Chaos',
+};
+
+/** Map the from-item MDP result into UI shapes: mod-text node labels, human action names, layout depth. */
+export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number): EngineMarkovResult {
+  const text = (id: string): string => data.mods.get(id)?.text ?? id;
+  const nodes: EnginePolicyNode[] = res.nodes.map((nd) => ({
+    key: nd.key,
+    present: nd.present.map(text),
+    junkPrefixes: nd.junkPrefixes,
+    junkSuffixes: nd.junkSuffixes,
+    isStart: nd.isStart,
+    isGoal: nd.isGoal,
+    // Steps-to-goal = missing targets + junk still to clear. Goal = 0; used for the left→right layout.
+    depth: (nTargets - nd.present.length) + nd.junkPrefixes + nd.junkSuffixes,
+    expectedCost: nd.expectedCost,
+    ...(nd.action ? { action: MC_ACTION_LABEL[nd.action] } : {}),
+  }));
+  const edges = res.edges.map((e) => ({ from: e.from, to: e.to, action: MC_ACTION_LABEL[e.action], prob: e.prob, regress: e.regress }));
+  return {
+    applicable: true, feasible: res.feasible, expectedCost: res.expectedCost, nodes, edges,
+    ...(res.reason ? { reason: res.reason } : {}),
+  };
 }
 
 export function mapAlternatives(data: PatchData, res: AlternativesResult): EngineAlternatives {

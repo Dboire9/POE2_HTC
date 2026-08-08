@@ -537,6 +537,46 @@ from-item craft, from-white craft, step label). **595 tests + 1 todo, type-check
 differential fixtures untouched.** No `weights_overrides.json` entry: the model reads no weights, so an
 override would falsely imply the placeholder 1s matter — this note is the record instead.
 
+## From-item MDP: the true expected cost + optimal-policy graph (2026-08-08)
+
+The linear from-item planner's cost model assumes **restart-to-your-item, free** on any miss — two
+fictions: (1) reproducing an expensive item isn't free, and (2) a real annul removes a UNIFORMLY-RANDOM
+mod, so a miss leaves you in a WORSE state you recover from in place, not a teleport back to the start.
+`markovFromItem` (packages/optimizer) models the actual process as a **Markov Decision Process** and
+solves it for the minimum expected cost + optimal policy.
+
+- **State abstraction** (tractability): track only `(target mods present, #junk prefixes, #junk suffixes)`
+  — ~2^|target|×slots ≈ a few hundred states — with every transition probability read from the pool
+  weights the engine already computes. `optimizeItemMarkov` reads NO weights the engine doesn't already.
+- **Push-forward, no restart** (user's call): the policy digs out of a bricked state. It discovers real
+  tactics — e.g. a Sinistral/Dextral annul to strip junk from ONE side without risking the target mods on
+  the other — that the fixed-sequence linear model can't express.
+- **Solver:** standard stochastic-shortest-path value iteration, **0-initialised** and climbing to the
+  fixed point. (An ∞-init + "skip any action with an ∞ outcome" scheme DEADLOCKS on the recovery cycles
+  — `{both targets + junk}` ↔ `{one target + junk}` each need the other finite first — so neither ever
+  bootstraps. Every target is gettable by the time VI runs, so the goal is reachable from every state and
+  VI converges.) Each action solves its own self-loop via `÷(1 − pStay)`.
+- **v1 scope:** rollable normal targets; exalt / annul / (sinistral|dextral) annul / chaos at base orb.
+  Documented approximations: junk families assumed distinct from target families (junk never blocks a
+  target's family in the denominator); a below-tier target roll is treated as generic junk. Perfect-
+  essence / desecrate / essence targets and orb-strength / add-side omens stay on the linear planner
+  (`optimizeItemMarkov` returns `applicable:false`; the UI falls back to the frontier).
+- **Validated:** hand-computed cases (already-target 0; empty→one exalt; a recovery E=2 pinning VI +
+  self-loop; infeasible/ungettable; non-rollable rejected) + a **100k-run Monte-Carlo** that plays the
+  policy and matches V (synthetic tight; real Wands within 3%). This is the honest fidelity check the old
+  cost MC couldn't be — that one validated the restart approximation against itself.
+- **Result:** on a real keep-Mana / swap-Int→Spell-Damage craft the MDP reads **~26ex** vs the linear
+  model's optimistic **~9.5ex** cheapest — the free-restart correction, quantified.
+- **UI:** the "I have an item → Full plan" flow now leads with the MDP's true expected cost + a
+  `PolicyGraph` (inline SVG): each square is an item state laid out left→right by distance to the target,
+  solid arrows are progress, dashed amber arrows are the **bricks** (a bad roll sending you back a step).
+  The linear frontier stays below as the per-plan view. Component tests render the graph from real MDP
+  output. **621 tests + 1 todo, type-check + build green; differential fixtures untouched.**
+
+DEFERRED (MDP v2): tier-aware states (model below-tier rolls + their family block exactly); orb-strength
+and add-side omens as actions; extend beyond rollable targets; a from-white MDP (its restart-to-white is
+already a defensible near-optimal strategy, so lower priority).
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

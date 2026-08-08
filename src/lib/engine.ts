@@ -16,14 +16,15 @@ import {
 import { indexPrices, type Prices } from '../../packages/optimizer/src/cost.ts';
 import { optimizePareto } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
+import { markovFromItem } from '../../packages/optimizer/src/markovFromItem.ts';
 import { alternativesFromWhite, alternativesFromItem } from '../../packages/optimizer/src/alternatives.ts';
 import type {
   EngineBase, EngineMod, EngineBaseMods, EnginePlan, EngineResult, TargetInput,
-  ExistingItem, CurrencyAction, AltTargetInput, EngineAlternatives,
+  ExistingItem, CurrencyAction, AltTargetInput, EngineAlternatives, EngineMarkovResult,
 } from './engineTypes.ts';
 import {
   prettyName, toEngineMod, toTierTargets, toAltTargets, buildItemState, addBlockedReason,
-  mapFrontier, mapAlternatives,
+  mapFrontier, mapAlternatives, mapMarkov,
 } from './engineMap.ts';
 
 // Fetched as URLs (Vite copies them to /assets) rather than imported as modules, so the big JSON is
@@ -39,6 +40,7 @@ import pricesUrl from '../../data/patches/0.5.0/prices.json?url';
 export type {
   EngineBase, EngineTier, EngineMod, EngineBaseMods, TargetInput, EngineStep, EnginePlan, EngineResult,
   ItemModInput, ExistingItem, CurrencyAction, AltTargetInput, EngineSlot, EngineAlternative, EngineAlternatives,
+  EngineMarkovResult, EnginePolicyNode, EnginePolicyEdge,
 } from './engineTypes.ts';
 
 /** Beyond this many expected attempts, a "cheap" plan is really an impractical grind (tune to taste). */
@@ -183,6 +185,24 @@ export function optimizeItem(eng: Engine, item: ExistingItem, targets: readonly 
   const { data, prices } = eng;
   const res = optimizeFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets));
   return mapFrontier(data, res);
+}
+
+/**
+ * The TRUE expected cost + optimal-policy graph for a from-item craft, from the MDP model (push-forward,
+ * no restart — see markovFromItem). `applicable` is false when a target isn't a rollable normal mod
+ * (perfect-essence / desecrate); the caller then falls back to `optimizeItem`'s frontier.
+ */
+export function optimizeItemMarkov(eng: Engine, item: ExistingItem, targets: readonly TargetInput[]): EngineMarkovResult {
+  const { data, prices } = eng;
+  const applicable = targets.every((t) => data.mods.get(t.modId)?.source === 'normal');
+  if (!applicable) {
+    return {
+      applicable: false, feasible: false, expectedCost: Infinity, nodes: [], edges: [],
+      reason: 'the true-cost model covers rollable mods only (this target uses an essence/desecrated mod)',
+    };
+  }
+  const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets));
+  return mapMarkov(data, res, targets.length);
 }
 
 // ── Existing-item currency actions (Option 1) ─────────────────────────────────

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-  listBases, listMods, listPerfectEssences, listDesecrated, optimize, optimizeItem, currencyActions, recommendedIndex,
-  alternatives, alternativesForItem, type EngineMod, type ExistingItem,
+  listBases, listMods, listPerfectEssences, listDesecrated, optimize, optimizeItem, optimizeItemMarkov,
+  currencyActions, recommendedIndex, alternatives, alternativesForItem, type EngineMod, type ExistingItem,
 } from './engine.ts';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
@@ -497,5 +497,37 @@ describe('engine facade — budget alternatives (0.5.0)', () => {
     expect(r.nodesEvaluated).toBeGreaterThan(0);
     expect(typeof r.truncated).toBe('boolean');
     expect(['full', 'base+strongest', 'strongest-only']).toContain(r.currencyDepth);
+  });
+});
+
+// The from-item MDP (true expected cost + policy graph). Uses the 0.5.0 snapshot the app ships.
+describe('engine facade — optimizeItemMarkov (0.5.0)', () => {
+  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
+  const MANA = 'Wands/IncreasedMana'; const INT = 'Wands/Intelligence'; const SPELL = 'Wands/WeaponSpellDamage';
+  const start: ExistingItem = {
+    baseId: 'Wands', level: 82, rarity: 'rare',
+    prefixes: [{ modId: MANA, tierDisplay: 99 }], suffixes: [{ modId: INT, tierDisplay: 99 }],
+  };
+
+  it('returns the true expected cost + a policy graph with start, goal, and a brick edge', () => {
+    const r = optimizeItemMarkov(eng050, start, [{ modId: MANA, tierDisplay: 99 }, { modId: SPELL, tierDisplay: 99 }]);
+    expect(r.applicable).toBe(true);
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeGreaterThan(0);
+    const startNode = r.nodes.find((nd) => nd.isStart)!;
+    expect(startNode.present).toContain('+# to maximum Mana');
+    expect(startNode.action).toBeTruthy(); // a human action label
+    expect(r.nodes.some((nd) => nd.isGoal && nd.expectedCost === 0)).toBe(true);
+    expect(r.edges.some((e) => e.regress)).toBe(true); // a back-arrow exists
+    // The MDP's honest cost exceeds the linear model's optimistic "cheapest" (free-restart) estimate.
+    const linear = optimizeItem(eng050, start, [{ modId: MANA, tierDisplay: 99 }, { modId: SPELL, tierDisplay: 99 }]);
+    expect(r.expectedCost).toBeGreaterThan(linear.frontier[0]!.expected);
+  });
+
+  it('is not applicable when a target needs an essence/desecrated mod (caller uses the frontier)', () => {
+    const pe = listPerfectEssences(eng050.data, 'Wands')[0]!;
+    const r = optimizeItemMarkov(eng050, start, [{ modId: MANA, tierDisplay: 99 }, { modId: pe.id, tierDisplay: 1 }]);
+    expect(r.applicable).toBe(false);
+    expect(r.reason).toMatch(/rollable mods only/i);
   });
 });

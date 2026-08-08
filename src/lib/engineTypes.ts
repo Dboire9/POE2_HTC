@@ -150,3 +150,43 @@ export interface EngineAlternatives {
   readonly truncated: boolean;
   readonly currencyDepth: CurrencyDepth;
 }
+
+// ── From-item MDP (true expected cost + optimal-policy graph) ──────────────────
+
+/** One state (square) in the optimal-policy graph for a from-item craft. */
+export interface EnginePolicyNode {
+  readonly key: string;
+  /** Target-mod texts present in this state. */
+  readonly present: readonly string[];
+  readonly junkPrefixes: number;
+  readonly junkSuffixes: number;
+  readonly isStart: boolean;
+  readonly isGoal: boolean;
+  /** Steps-to-goal ranking (0 = goal); used to lay the graph out left→right. */
+  readonly depth: number;
+  /** Minimum expected cost (exalt-equivalents) to reach the target from here. */
+  readonly expectedCost: number;
+  /** Human label of the optimal currency here (absent at the goal), e.g. "Annul (Sinistral)". */
+  readonly action?: string;
+}
+
+/** One policy transition (arrow). `regress` marks a brick — the outcome that sends you backward. */
+export interface EnginePolicyEdge {
+  readonly from: string;
+  readonly to: string;
+  readonly action: string;
+  readonly prob: number;
+  readonly regress: boolean;
+}
+
+export interface EngineMarkovResult {
+  /** False when the MDP doesn't model this target (e.g. a perfect-essence/desecrate mod) — use the frontier. */
+  readonly applicable: boolean;
+  /** False when a target can't roll at this item level (cost ∞). */
+  readonly feasible: boolean;
+  readonly reason?: string;
+  /** True expected cost under the optimal push-forward policy (no restart). */
+  readonly expectedCost: number;
+  readonly nodes: readonly EnginePolicyNode[];
+  readonly edges: readonly EnginePolicyEdge[];
+}

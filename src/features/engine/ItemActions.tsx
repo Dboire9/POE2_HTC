@@ -32,6 +32,46 @@ function oddsText(p: number): string {
 /** Rarity → per-side slot cap (magic = 1 prefix + 1 suffix, rare = 3 + 3). */
 const CAP: Record<'magic' | 'rare', number> = { magic: 1, rare: 3 };
 
+interface BuilderColumnProps {
+  readonly title: string;
+  readonly list: readonly EngineMod[];
+  readonly count: number;
+  readonly cap: number;
+  readonly occupiedFamilies: ReadonlySet<string>;
+  readonly onAdd: (mod: EngineMod) => void;
+}
+
+// Module-level, not defined inside ItemActions: a component created in render gets a new identity each
+// render and would remount this subtree every keystroke (dropping the search box's focus).
+const BuilderColumn: React.FC<BuilderColumnProps> = ({ title, list, count, cap, occupiedFamilies, onAdd }) => (
+  <div className="flex-1 min-w-0">
+    <div className="flex items-center justify-between mb-1">
+      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h4>
+      <span className="text-xs text-muted-foreground">{count}/{cap}</span>
+    </div>
+    <div className="max-h-56 overflow-y-auto rounded-md border border-border divide-y divide-border/50">
+      {list.length === 0 && <p className="px-2 py-3 text-xs text-muted-foreground">No matches</p>}
+      {list.map((m) => {
+        const famTaken = occupiedFamilies.has(m.family);
+        const disabled = count >= cap || famTaken;
+        return (
+          <button
+            key={m.id}
+            onClick={() => onAdd(m)}
+            disabled={disabled}
+            className="flex w-full items-center gap-2 text-left px-2 py-1.5 text-sm hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+            title={famTaken ? `“${m.family}” family already on the item` : count >= cap ? 'This side is full' : m.source === 'desecrated' ? 'Add this desecrated mod to your item (occupies a slot; Omen of Light can target it)' : 'Add to your item'}
+          >
+            <span className="flex-1 min-w-0 truncate">{m.text}</span>
+            {m.source === 'desecrated' && <span className="shrink-0 rounded bg-rose-500/15 px-1 text-[10px] text-rose-600 dark:text-rose-300">desecrated</span>}
+            {famTaken && <span className="shrink-0 text-[10px] text-muted-foreground">family in use</span>}
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
+
 const ItemActions: React.FC = () => {
   const [engine, setEngine] = useState<Awaited<ReturnType<typeof loadEngine>> | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -216,34 +256,6 @@ const ItemActions: React.FC = () => {
     return <div className="flex items-center gap-3 p-8 text-muted-foreground"><Spinner /> Loading patch data…</div>;
   }
 
-  const ModColumn: React.FC<{ title: string; list: readonly EngineMod[]; count: number }> = ({ title, list, count }) => (
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center justify-between mb-1">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h4>
-        <span className="text-xs text-muted-foreground">{count}/{cap}</span>
-      </div>
-      <div className="max-h-56 overflow-y-auto rounded-md border border-border divide-y divide-border/50">
-        {list.length === 0 && <p className="px-2 py-3 text-xs text-muted-foreground">No matches</p>}
-        {list.map((m) => {
-          const disabled = count >= cap || occupiedFamilies.has(m.family);
-          return (
-            <button
-              key={m.id}
-              onClick={() => addItemMod(m)}
-              disabled={disabled}
-              className="flex w-full items-center gap-2 text-left px-2 py-1.5 text-sm hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-              title={occupiedFamilies.has(m.family) ? `“${m.family}” family already on the item` : count >= cap ? 'This side is full' : m.source === 'desecrated' ? 'Add this desecrated mod to your item (occupies a slot; Omen of Light can target it)' : 'Add to your item'}
-            >
-              <span className="flex-1 min-w-0 truncate">{m.text}</span>
-              {m.source === 'desecrated' && <span className="shrink-0 rounded bg-rose-500/15 px-1 text-[10px] text-rose-600 dark:text-rose-300">desecrated</span>}
-              {occupiedFamilies.has(m.family) && <span className="shrink-0 text-[10px] text-muted-foreground">family in use</span>}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-
   const subTabCls = (active: boolean) =>
     `px-3 py-1.5 rounded ${active ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'}`;
 
@@ -279,8 +291,8 @@ const ItemActions: React.FC = () => {
             className={`${selectCls} w-full mb-2`}
           />
           <div className="flex gap-4">
-            <ModColumn title="Prefixes" list={filtered.prefixes} count={prefixes.length} />
-            <ModColumn title="Suffixes" list={filtered.suffixes} count={suffixes.length} />
+            <BuilderColumn title="Prefixes" list={filtered.prefixes} count={prefixes.length} cap={cap} occupiedFamilies={occupiedFamilies} onAdd={addItemMod} />
+            <BuilderColumn title="Suffixes" list={filtered.suffixes} count={suffixes.length} cap={cap} occupiedFamilies={occupiedFamilies} onAdd={addItemMod} />
           </div>
         </div>
 

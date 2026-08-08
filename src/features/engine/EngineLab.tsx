@@ -33,6 +33,79 @@ function tierOption(mod: EngineMod, ti: EngineMod['tiers'][number]): string {
   return ti.range ? `${head} · ${ti.range}` : head;
 }
 
+interface ModColumnProps {
+  readonly title: string;
+  readonly list: readonly EngineMod[];
+  readonly count: number;
+  readonly occupiedFamilies: ReadonlySet<string>;
+  readonly essenceUsed: boolean;
+  readonly hasFractured: boolean;
+  readonly desecratedUsed: boolean;
+  readonly pickTier: Record<string, number>;
+  readonly onPickTier: (modId: string, tier: number) => void;
+  readonly onAdd: (mod: EngineMod, tier: number) => void;
+}
+
+// Module-level (NOT defined inside EngineLab): a component created inside render gets a fresh identity
+// each render, so React would remount this whole subtree on every keystroke — dropping the search box's
+// focus and detaching the "+" buttons mid-interaction. Hoisting it fixes both.
+const ModColumn: React.FC<ModColumnProps> = ({
+  title, list, count, occupiedFamilies, essenceUsed, hasFractured, desecratedUsed, pickTier, onPickTier, onAdd,
+}) => (
+  <div className="flex-1 min-w-0">
+    <div className="flex items-center justify-between mb-1">
+      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h4>
+      <span className="text-xs text-muted-foreground">{count}/3</span>
+    </div>
+    <div className="max-h-64 overflow-y-auto rounded-md border border-border divide-y divide-border/50">
+      {list.length === 0 && <p className="px-2 py-3 text-xs text-muted-foreground">No matches</p>}
+      {list.map((m) => {
+        const sideFull = count >= 3;
+        const famTaken = occupiedFamilies.has(m.family);
+        const isEssence = m.source === 'essence';
+        const essenceBlocked = isEssence && (essenceUsed || hasFractured);
+        const desecratedBlocked = m.source === 'desecrated' && desecratedUsed;
+        const disabled = sideFull || famTaken || essenceBlocked || desecratedBlocked;
+        const reason = famTaken
+          ? `Family “${m.family}” is already on the item — one mod per family`
+          : essenceBlocked ? (essenceUsed ? 'Only one essence-only mod per craft'
+            : 'Can’t use an essence with a fractured mod — an essence needs a Magic start, a fracture forces a Rare')
+          : desecratedBlocked ? 'An item can hold at most one desecrated mod'
+          : sideFull ? 'This side is full (max 3)' : '';
+        const tier = pickTier[m.id] ?? 1;
+        return (
+          <div
+            key={m.id}
+            className={`flex items-center gap-1.5 px-2 py-1 ${disabled ? 'opacity-40' : ''}`}
+            title={disabled ? reason : m.id}
+          >
+            <span className="flex-1 min-w-0 truncate text-sm">{m.text}</span>
+            {isEssence && <span className="shrink-0 rounded bg-purple-500/15 px-1 text-[10px] text-purple-600 dark:text-purple-300">ess</span>}
+            {m.source === 'desecrated' && <span className="shrink-0 rounded bg-rose-500/15 px-1 text-[10px] text-rose-600 dark:text-rose-300">desec</span>}
+            <select
+              className={`${selectCls} h-7 py-0 pr-1 text-xs shrink-0`}
+              value={tier}
+              disabled={disabled}
+              onChange={(e) => onPickTier(m.id, Number(e.target.value))}
+              title={isEssence ? 'Essence level' : 'Target tier (or better)'}
+            >
+              {m.tiers.map((ti) => <option key={ti.display} value={ti.display}>{tierOption(m, ti)}</option>)}
+            </select>
+            <button
+              onClick={() => onAdd(m, tier)}
+              disabled={disabled}
+              className="shrink-0 grid h-7 w-7 place-items-center rounded-md border border-border text-lg leading-none hover:bg-accent disabled:cursor-not-allowed"
+              title={disabled ? reason : `Add “${m.text}” at ${tierOption(m, m.tiers.find((x) => x.display === tier) ?? m.tiers[0]!)}`}
+            >
+              +
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+);
+
 const EngineLab: React.FC = () => {
   const [data, setData] = useState<PatchData | null>(null);
   const [engine, setEngine] = useState<Awaited<ReturnType<typeof loadEngine>> | null>(null);
@@ -225,60 +298,7 @@ const EngineLab: React.FC = () => {
 
   const canCompute = targets.length > 0 && !computing && !essenceFractureConflict;
 
-  const ModColumn: React.FC<{ title: string; list: readonly EngineMod[]; count: number }> = ({ title, list, count }) => (
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center justify-between mb-1">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h4>
-        <span className="text-xs text-muted-foreground">{count}/3</span>
-      </div>
-      <div className="max-h-64 overflow-y-auto rounded-md border border-border divide-y divide-border/50">
-        {list.length === 0 && <p className="px-2 py-3 text-xs text-muted-foreground">No matches</p>}
-        {list.map((m) => {
-          const sideFull = count >= 3;
-          const famTaken = occupiedFamilies.has(m.family);
-          const isEssence = m.source === 'essence';
-          const essenceBlocked = isEssence && (essenceUsed || fractured.size > 0);
-          const desecratedBlocked = m.source === 'desecrated' && desecratedUsed;
-          const disabled = sideFull || famTaken || essenceBlocked || desecratedBlocked;
-          const reason = famTaken
-            ? `Family “${m.family}” is already on the item — one mod per family`
-            : essenceBlocked ? (essenceUsed ? 'Only one essence-only mod per craft'
-              : 'Can’t use an essence with a fractured mod — an essence needs a Magic start, a fracture forces a Rare')
-            : desecratedBlocked ? 'An item can hold at most one desecrated mod'
-            : sideFull ? 'This side is full (max 3)' : '';
-          const tier = pickTier[m.id] ?? 1;
-          return (
-            <div
-              key={m.id}
-              className={`flex items-center gap-1.5 px-2 py-1 ${disabled ? 'opacity-40' : ''}`}
-              title={disabled ? reason : m.id}
-            >
-              <span className="flex-1 min-w-0 truncate text-sm">{m.text}</span>
-              {isEssence && <span className="shrink-0 rounded bg-purple-500/15 px-1 text-[10px] text-purple-600 dark:text-purple-300">ess</span>}
-              {m.source === 'desecrated' && <span className="shrink-0 rounded bg-rose-500/15 px-1 text-[10px] text-rose-600 dark:text-rose-300">desec</span>}
-              <select
-                className={`${selectCls} h-7 py-0 pr-1 text-xs shrink-0`}
-                value={tier}
-                disabled={disabled}
-                onChange={(e) => setPickTier((p) => ({ ...p, [m.id]: Number(e.target.value) }))}
-                title={isEssence ? 'Essence level' : 'Target tier (or better)'}
-              >
-                {m.tiers.map((ti) => <option key={ti.display} value={ti.display}>{tierOption(m, ti)}</option>)}
-              </select>
-              <button
-                onClick={() => addTarget(m, tier)}
-                disabled={disabled}
-                className="shrink-0 grid h-7 w-7 place-items-center rounded-md border border-border text-lg leading-none hover:bg-accent disabled:cursor-not-allowed"
-                title={disabled ? reason : `Add “${m.text}” at ${tierOption(m, m.tiers.find((x) => x.display === tier) ?? m.tiers[0]!)}`}
-              >
-                +
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+  const onPickTier = (modId: string, t: number) => setPickTier((p) => ({ ...p, [modId]: t }));
 
   const tabCls = (active: boolean) =>
     `px-3 py-1.5 rounded ${active ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'}`;
@@ -332,8 +352,16 @@ const EngineLab: React.FC = () => {
             className={`${selectCls} w-full mb-2`}
           />
           <div className="flex gap-4">
-            <ModColumn title="Prefixes" list={filtered.prefixes} count={prefixCount} />
-            <ModColumn title="Suffixes" list={filtered.suffixes} count={suffixCount} />
+            <ModColumn
+              title="Prefixes" list={filtered.prefixes} count={prefixCount}
+              occupiedFamilies={occupiedFamilies} essenceUsed={essenceUsed} hasFractured={fractured.size > 0}
+              desecratedUsed={desecratedUsed} pickTier={pickTier} onPickTier={onPickTier} onAdd={addTarget}
+            />
+            <ModColumn
+              title="Suffixes" list={filtered.suffixes} count={suffixCount}
+              occupiedFamilies={occupiedFamilies} essenceUsed={essenceUsed} hasFractured={fractured.size > 0}
+              desecratedUsed={desecratedUsed} pickTier={pickTier} onPickTier={onPickTier} onAdd={addTarget}
+            />
           </div>
         </div>
       </Card>

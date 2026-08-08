@@ -1,4 +1,5 @@
 export { optimizePlan, optimizeAddChain, optimizeCost, optimizePareto, currencyAtPosition } from './optimize.ts';
+export { optimizeFromItem } from './fromItem.ts';
 export type {
   OptimizedPlan, OptimizeOptions, OptimizeCostOptions, CostedPlan, AddCurrency,
   TierTarget, ParetoPlan, ParetoResult, OptimizeParetoOptions, CurrencyDepth,

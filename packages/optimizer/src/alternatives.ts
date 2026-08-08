@@ -24,7 +24,8 @@ import { resolveMod } from '../../engine/src/pool.ts';
 import type { Prices } from './cost.ts';
 import { planCostCdf } from './cost.ts';
 import type { CurrencyDepth, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
-import { optimizeFromItem, optimizePareto } from './optimize.ts';
+import { optimizePareto } from './optimize.ts';
+import { optimizeFromItem } from './fromItem.ts';
 
 /** A desired mod at a desired tier. Pinned targets are non-negotiable — never relaxed/swapped/dropped. */
 export interface AlternativeTarget extends TierTarget {

@@ -12,7 +12,8 @@ import {
   annulProbability, augmentationProbability, chaosProbability, exaltProbability, regalProbability,
 } from '../../packages/engine/src/probability.ts';
 import { indexPrices, type Prices } from '../../packages/optimizer/src/cost.ts';
-import { optimizePareto, optimizeFromItem } from '../../packages/optimizer/src/optimize.ts';
+import { optimizePareto } from '../../packages/optimizer/src/optimize.ts';
+import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import type { TierTarget, CurrencyDepth, ParetoResult } from '../../packages/optimizer/src/optimize.ts';
 import { alternativesFromWhite, alternativesFromItem } from '../../packages/optimizer/src/alternatives.ts';
 import type { Alternative, AlternativeTarget, AlternativesResult, SlotChange } from '../../packages/optimizer/src/alternatives.ts';

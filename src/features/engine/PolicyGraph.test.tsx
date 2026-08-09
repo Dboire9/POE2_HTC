@@ -35,6 +35,22 @@ describe('PolicyGraph', () => {
     expect(getAllByText('start').length).toBeGreaterThan(0);
   });
 
+  it('shows an off-tier (blocked) state for a specific-tier target', () => {
+    // Spell Damage at a top-3 tier (tierDisplay 3): most exalts roll it below tier, blocking the family —
+    // the v2 "off-tier" states must appear as squares in the graph.
+    const tiered = optimizeItemMarkov(eng, {
+      baseId: 'Wands', level: 82, rarity: 'rare' as const,
+      prefixes: [{ modId: 'Wands/IncreasedMana', tierDisplay: 99 }], suffixes: [],
+    }, [
+      { modId: 'Wands/IncreasedMana', tierDisplay: 99 },
+      { modId: 'Wands/WeaponSpellDamage', tierDisplay: 3 },
+    ]);
+    expect(tiered.applicable && tiered.feasible).toBe(true);
+    expect(tiered.nodes.some((n) => n.blocked.length > 0)).toBe(true);
+    const { getAllByText } = render(<PolicyGraph result={tiered} />);
+    expect(getAllByText(/off-tier/).length).toBeGreaterThan(0);
+  });
+
   it('renders nothing when the MDP is not applicable', () => {
     const na: EngineMarkovResult = { applicable: false, feasible: false, expectedCost: Infinity, nodes: [], edges: [] };
     const { container } = render(<PolicyGraph result={na} />);

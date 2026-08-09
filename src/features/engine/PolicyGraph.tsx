@@ -19,11 +19,12 @@ function fmtCost(x: number): string {
   return `${x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2)} ex`;
 }
 
-/** Short state label: how many target mods are present + how much junk remains. */
+/** Short state label: target mods present + any off-tier blocks + how much junk remains. */
 function stateLabel(nd: EnginePolicyNode): string {
   const junk = nd.junkPrefixes + nd.junkSuffixes;
   const kept = nd.present.length;
   const parts = [`${kept} mod${kept === 1 ? '' : 's'}`];
+  if (nd.blocked.length > 0) parts.push(`${nd.blocked.length} off-tier`);
   if (junk > 0) parts.push(`+${junk} junk`);
   return parts.join(' · ');
 }
@@ -90,6 +91,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult }> = ({ result }) => {
 
         {placed.map(({ node, x, y }) => {
           const tip = `${node.present.length > 0 ? node.present.join(', ') : 'no target mods yet'}`
+            + `${node.blocked.length > 0 ? ` · off-tier: ${node.blocked.join(', ')}` : ''}`
             + `${node.junkPrefixes + node.junkSuffixes > 0 ? ` · ${node.junkPrefixes + node.junkSuffixes} junk` : ''}`
             + ` · E ${fmtCost(node.expectedCost)}${node.action ? ` · ${node.action}` : ''}`;
           const boxClass = node.isGoal ? 'fill-emerald-500/15 stroke-emerald-500'

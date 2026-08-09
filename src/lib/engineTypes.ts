@@ -156,8 +156,10 @@ export interface EngineAlternatives {
 /** One state (square) in the optimal-policy graph for a from-item craft. */
 export interface EnginePolicyNode {
   readonly key: string;
-  /** Target-mod texts present in this state. */
+  /** Target-mod texts present (at ≥ their wanted tier) in this state. */
   readonly present: readonly string[];
+  /** Target-mod texts whose family is occupied by a below-tier ("off-tier") roll — annul before re-adding. */
+  readonly blocked: readonly string[];
   readonly junkPrefixes: number;
   readonly junkSuffixes: number;
   readonly isStart: boolean;

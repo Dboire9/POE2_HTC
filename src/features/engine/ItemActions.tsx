@@ -499,15 +499,17 @@ const ItemActions: React.FC = () => {
                 <span className="text-2xl font-bold tabular-nums text-primary">{fmtEx(markov.expectedCost)}</span>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                The honest average spend to reach this target, playing the optimal policy that <strong>recovers
-                in place</strong> after a bad annul/chaos rather than restarting. The step routes below are the
-                simpler per-plan view — their “cheapest” assumes a free restart, so it reads lower than this.
+                The honest average spend to reach this target, playing the optimal policy — it weighs
+                Greater/Perfect Exalts and side omens, and <strong>recovers in place</strong> after a bad roll
+                rather than restarting. The step routes below are the simpler per-plan view — their “cheapest”
+                assumes a free restart, so it reads lower than this.
               </p>
               <PolicyGraph result={markov} />
               <p className="text-[11px] text-muted-foreground">
                 Each square is an item state, from your item (left) to the target (right). Solid arrows are
-                progress; dashed amber arrows are <strong>bricks</strong> — a bad roll that sends you back a
-                step, which the policy then digs out of.
+                progress; dashed amber arrows are <strong>bricks</strong> — a bad roll (a miss, or a target
+                rolled <strong>below its tier</strong> so its family is blocked) that sends you back a step,
+                which the policy then digs out of.
               </p>
             </Card>
           )}

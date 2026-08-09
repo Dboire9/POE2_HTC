@@ -573,9 +573,46 @@ solves it for the minimum expected cost + optimal policy.
   The linear frontier stays below as the per-plan view. Component tests render the graph from real MDP
   output. **621 tests + 1 todo, type-check + build green; differential fixtures untouched.**
 
-DEFERRED (MDP v2): tier-aware states (model below-tier rolls + their family block exactly); orb-strength
-and add-side omens as actions; extend beyond rollable targets; a from-white MDP (its restart-to-white is
-already a defensible near-optimal strategy, so lower priority).
+## From-item MDP v2: family-aware tiered states + orb-strength / side-exalt levers (2026-08-09)
+
+Two refinements over the v1 MDP, chosen together because they compose into the real endgame decision —
+"cheap base exalt that might roll below-tier and block the family, vs. an expensive Perfect Exalt that
+lands high-tier." The state key grew `present:jp:js` → **`present:blocked:jp:js`**.
+
+- **v2a — family-aware tiered states.** Each target is now `absent | present (at ≥ its tier) | BLOCKED`.
+  A **blocked** target is one whose family is occupied by an off-tier roll (the mod landed below its
+  wanted tier): the family is taken but the goal is unmet, so you must annul the off-tier mod before
+  re-adding. The add-distribution splits a family's weight into success (→ present), below-tier
+  (→ blocked), and foreign junk (→ jp/js); junk is now *provably* only ever non-target-family weight, so
+  it can never silently block a target — the blocked bits carry every family collision that matters. The
+  START item is classified the same way (a target already on the item but at too low a tier starts
+  BLOCKED, not satisfied). **Reduces exactly to v1 when every target is untiered** (no below-tier band).
+- **v2b — richer action set.** Exalted Orb at **base / Greater / Perfect** strength (ilvl floor 0 / 35 /
+  50 — a Perfect Exalt can't roll the low tiers, so it *skips the off-tier trap* v2a introduced), and
+  **side-constrained exalts** (Omen of Sinistral/Dextral Exaltation = add a prefix / suffix only, so the
+  policy can avoid rolling junk on a side it doesn't need). Strengths/side-omens are offered **only when
+  the price sheet lists them** — a missing price can't mint a free super-orb. `mcActionCosts(prices)` is
+  the single source of per-action pricing, shared by the solver and the MC validator.
+- **Validated:** the v1 cases still pass, plus new hand-computed ones — an off-tier recovery **E = 3**
+  (below-tier hit blocks the family → annul → retry, pinning the blocked-state + self-loop math); a
+  **Perfect Exalt chosen to skip the trap** when priced at 2.5 (and correctly *not* chosen at the real
+  20ex, falling back to base-exalt-and-recover, E = 3); a **Sinistral Exaltation** chosen to add a prefix
+  when the suffix pool is all junk (E = 4). A new **100k-run MC** on a *tiered* real-Wands target
+  (Spell Damage ≥ ilvl-60 tier) plays the full v2 action set and matches V within 3%.
+- **Real-data readout (Wands, ilvl 82):** untiered keep-Mana/swap-Int→Spell reads **25.9ex** (≈ the v1
+  ~26ex — reduces-to-v1, a hair cheaper now that the levers exist); demanding Spell at a **top-3 tier**
+  jumps to **137ex** with off-tier states on the graph, and the **single best tier** to **800ex** —
+  the honest cost of a specific-tier target that v1 structurally under-counted.
+- **UI:** `EnginePolicyNode` gained `blocked[]`; the `PolicyGraph` shows off-tier squares ("N off-tier")
+  and names them in the hover tooltip; brick edges now cover both a miss AND a below-tier roll. New
+  action labels (Exalt (Perfect), Exalt (Sinistral), …) surface in the graph so the user SEES the policy
+  buy a Perfect Exalt. A component test renders the off-tier states from real MDP output.
+- **626 tests + 1 todo, type-check + build green; differential fixtures untouched.**
+
+DEFERRED (MDP v3): tag-targeting omens (Homogenising Exaltation) and lowest-tier removal (Whittling) —
+both need tag / tier-ordering the state abstraction discards; extend beyond rollable targets
+(essence/desecrate as MDP actions); a from-white MDP (its restart-to-white is already a defensible
+near-optimal strategy, so lower priority).
 
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +

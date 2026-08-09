@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { ItemBase, ItemState, Mod, PatchData } from '../../engine/src/index.ts';
 import { loadPatch } from '../../engine/src/index.ts';
-import { markovFromItem } from './markovFromItem.ts';
+import { markovFromItem, mcActionCosts } from './markovFromItem.ts';
 import type { McAction } from './markovFromItem.ts';
 import type { Prices } from './cost.ts';
 import { loadPrices } from './loadPrices.ts';
@@ -55,6 +55,30 @@ describe('markovFromItem — hand-computed expected cost', () => {
     expect(r.expectedCost).toBeCloseTo(2, 6);
   });
 
+  it('recovers from an off-tier roll (a below-tier hit blocks the family) — E = 3', () => {
+    // Family FM has two tiers: 'lo' (index 0, worse) and 'hi' (index 1, better), each weight 1.
+    // Target: M at its BEST tier (minTierIndex 1) — so 'hi' succeeds, 'lo' is a below-tier "blocked" roll.
+    //   From empty: exalt → ½ 'hi' (done) / ½ 'lo' (family M blocked). At the blocked state the only
+    //   move is annul the off-tier 'lo' (certain → empty), then try again.
+    //   V(blocked) = 1 + V(empty);  V(empty) = 1 + ½·0 + ½·V(blocked)  ⇒  V(empty) = 3.
+    // The v1 present/absent model couldn't see the block — it treated 'lo' as re-rollable in place.
+    const tiered: PatchData = {
+      patch: 't',
+      mods: new Map([['M', {
+        id: 'M', group: 'M', field: 'M', source: 'normal', type: 'prefix', categories: [], family: 'FM', tags: [], text: 'M',
+        tiers: [{ name: 'lo', ilvl: 1, weight: 1, ranges: [], stats: [] }, { name: 'hi', ilvl: 1, weight: 1, ranges: [], stats: [] }],
+      } as Mod]]),
+      bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['M'], suffixes: [] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
+    };
+    const tp: Prices = { currency: { exalt: 1, annul: 1, chaos: 100 }, omens: {} };
+    const empty: ItemState = { base: tiered.bases.get('S')!, level: 100, rarity: 'rare', prefixes: [], suffixes: [] };
+    const r = markovFromItem(tiered, tp, empty, [{ modId: 'M', minTierIndex: 1 }]);
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeCloseTo(3, 6);
+    // The start's optimal move rolls the family; the graph shows a blocked (off-tier) state it recovers from.
+    expect(r.nodes.some((nd) => nd.blocked.includes('M'))).toBe(true);
+  });
+
   it('reports infeasible when a target can never roll at this item level', () => {
     // J1 has weight 0 → ungettable. Targeting it from an empty rare is impossible.
     const r = markovFromItem(data, prices, rare([]), [{ modId: 'J1' }]);
@@ -99,6 +123,53 @@ describe('markovFromItem — policy graph', () => {
   });
 });
 
+describe('markovFromItem — v2 levers (orb strength + side exalts)', () => {
+  it('spends a Perfect Exalt to skip the off-tier trap when it is priced right', () => {
+    // M: 'lo' (ilvl 1) and 'hi' (ilvl 60), weight 1 each; target = the 'hi' tier (minTierIndex 1).
+    // A base exalt rolls 'hi' only ½ the time (else 'lo' blocks the family → annul & retry: E = 3).
+    // A Perfect Exalt (ilvl floor 50) CAN'T roll 'lo' (ilvl 1 < 50) so it lands 'hi' every time. Priced
+    // at 2.5 (< 3) the policy skips the trap and buys certainty — the v2a/v2b interaction in one move.
+    const tiered: PatchData = {
+      patch: 't',
+      mods: new Map([['M', {
+        id: 'M', group: 'M', field: 'M', source: 'normal', type: 'prefix', categories: [], family: 'FM', tags: [], text: 'M',
+        tiers: [{ name: 'lo', ilvl: 1, weight: 1, ranges: [], stats: [] }, { name: 'hi', ilvl: 60, weight: 1, ranges: [], stats: [] }],
+      } as Mod]]),
+      bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['M'], suffixes: [] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
+    };
+    const empty: ItemState = { base: tiered.bases.get('S')!, level: 100, rarity: 'rare', prefixes: [], suffixes: [] };
+    const cheapPerfect: Prices = { currency: { exalt: 1, exalt_perfect: 2.5, annul: 1, chaos: 100 }, omens: {} };
+    const r = markovFromItem(tiered, cheapPerfect, empty, [{ modId: 'M', minTierIndex: 1 }]);
+    expect(r.expectedCost).toBeCloseTo(2.5, 6);
+    expect(r.nodes.find((nd) => nd.isStart)!.action).toBe('exalt-perfect');
+
+    // Sanity: at the real Perfect price (20 ≫ 3) the base-exalt-and-recover route wins instead (E = 3).
+    const realPerfect: Prices = { currency: { exalt: 1, exalt_perfect: 20, annul: 1, chaos: 100 }, omens: {} };
+    const r2 = markovFromItem(tiered, realPerfect, empty, [{ modId: 'M', minTierIndex: 1 }]);
+    expect(r2.expectedCost).toBeCloseTo(3, 6);
+    expect(r2.nodes.find((nd) => nd.isStart)!.action).toBe('exalt');
+  });
+
+  it('uses a Sinistral Exaltation to add a prefix when the suffix pool is all junk', () => {
+    // Prefix P (weight 1) is the target; suffix J (weight 100) is junk. A plain exalt rolls the junk
+    // suffix 100/101 of the time (then you must annul it). Omen of Sinistral Exaltation adds a PREFIX
+    // only → lands P in one move. Priced at 3 over the 1ex exalt, that certainty (E = 4) beats rolling.
+    const sideData: PatchData = {
+      patch: 't',
+      mods: new Map<string, Mod>([
+        ['P', { id: 'P', group: 'P', field: 'P', source: 'normal', type: 'prefix', categories: [], family: 'FP', tags: [], text: 'P', tiers: [{ name: 't', ilvl: 1, weight: 1, ranges: [], stats: [] }] }],
+        ['J', { id: 'J', group: 'J', field: 'J', source: 'normal', type: 'suffix', categories: [], family: 'FJ', tags: [], text: 'J', tiers: [{ name: 't', ilvl: 1, weight: 100, ranges: [], stats: [] }] }],
+      ]),
+      bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['P'], suffixes: ['J'] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
+    };
+    const empty: ItemState = { base: sideData.bases.get('S')!, level: 100, rarity: 'rare', prefixes: [], suffixes: [] };
+    const sidePrices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 100 }, omens: { OmenofSinistralExaltation: 3, OmenofDextralExaltation: 3 } };
+    const r = markovFromItem(sideData, sidePrices, empty, [{ modId: 'P' }]);
+    expect(r.expectedCost).toBeCloseTo(4, 6);
+    expect(r.nodes.find((nd) => nd.isStart)!.action).toBe('exalt-sinistral');
+  });
+});
+
 // ── Monte-Carlo cross-check ──────────────────────────────────────────────────
 // Value iteration claims V(start) is the optimal policy's expected cost. Verify by PLAYING the policy:
 // walk its Markov chain (sampling the solver's own transition edges under the chosen action) and average
@@ -137,8 +208,7 @@ function simulatePolicyMean(r: ReturnType<typeof markovFromItem>, cost: Record<M
 describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to verify)', () => {
   it('the synthetic recovery case: 100k policy runs match V (E = 2)', () => {
     const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }]);
-    const cost: Record<McAction, number> = { exalt: 1, annul: 1, 'annul-sinistral': 51, 'annul-dextral': 51, chaos: 100 };
-    const mc = simulatePolicyMean(r, cost, 100_000);
+    const mc = simulatePolicyMean(r, mcActionCosts(prices), 100_000);
     expect(mc).toBeCloseTo(r.expectedCost, 1); // ~2, tight
   });
 
@@ -154,14 +224,29 @@ describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to veri
     };
     const r = markovFromItem(real, rp, start, [{ modId: MANA }, { modId: SPELL }]);
     expect(r.feasible).toBe(true);
-    const c = (k: string) => rp.currency[k] ?? 0;
-    const o = (k: string) => rp.omens[k] ?? 0;
-    const cost: Record<McAction, number> = {
-      exalt: c('exalt'), annul: c('annul'), chaos: c('chaos'),
-      'annul-sinistral': c('annul') + o('OmenofSinistralAnnulment'), 'annul-dextral': c('annul') + o('OmenofDextralAnnulment'),
-    };
-    const mc = simulatePolicyMean(r, cost, 100_000);
+    const mc = simulatePolicyMean(r, mcActionCosts(rp), 100_000);
     // 100k runs on a ~26ex mean ⇒ SE small; 3% tolerance covers sampling noise.
+    expect(mc).toBeGreaterThan(r.expectedCost * 0.97);
+    expect(mc).toBeLessThan(r.expectedCost * 1.03);
+  });
+
+  it('a TIERED target on real Wands (Spell Damage ≥ ilvl-60 tier): policy mean matches V', () => {
+    // Exercises the v2 machinery on real data: a below-tier band (Spell Damage idx 5 needs the top-3
+    // tiers, weight 350 vs 4000 below → most exalts BLOCK the family) plus the full v2b action set
+    // (Greater/Perfect exalts and side-omens are all priced in 0.5.0). The MC plays whatever policy VI
+    // picks through the real random process; matching V is the end-to-end fidelity check.
+    const real = loadPatch('data/patches/0.5.0');
+    const rp = loadPrices('data/patches/0.5.0');
+    const w = real.bases.get('Wands')!;
+    const MANA = 'Wands/IncreasedMana'; const SPELL = 'Wands/WeaponSpellDamage';
+    const start: ItemState = {
+      base: w, level: 82, rarity: 'rare',
+      prefixes: [{ modId: MANA, tierName: real.mods.get(MANA)!.tiers[0]!.name }], suffixes: [],
+    };
+    const r = markovFromItem(real, rp, start, [{ modId: MANA }, { modId: SPELL, minTierIndex: 5 }]);
+    expect(r.feasible).toBe(true);
+    expect(r.nodes.some((nd) => nd.blocked.length > 0)).toBe(true); // the off-tier trap is on the graph
+    const mc = simulatePolicyMean(r, mcActionCosts(rp), 100_000);
     expect(mc).toBeGreaterThan(r.expectedCost * 0.97);
     expect(mc).toBeLessThan(r.expectedCost * 1.03);
   });

@@ -609,10 +609,11 @@ lands high-tier." The state key grew `present:jp:js` → **`present:blocked:jp:j
   buy a Perfect Exalt. A component test renders the off-tier states from real MDP output.
 - **626 tests + 1 todo, type-check + build green; differential fixtures untouched.**
 
-DEFERRED (MDP v3): tag-targeting omens (Homogenising Exaltation) and lowest-tier removal (Whittling) —
-both need tag / tier-ordering the state abstraction discards; extend beyond rollable targets
-(essence/desecrate as MDP actions); a from-white MDP (its restart-to-white is already a defensible
-near-optimal strategy, so lower priority).
+DEFERRED (MDP v3): lowest-tier removal (Omen of Whittling) — needs the mod-tier ordering the state
+abstraction discards; extend beyond rollable targets (essence/desecrate as MDP actions); a from-white
+MDP (its restart-to-white is already a defensible near-optimal strategy, so lower priority). (Omen of
+Homogenising Exaltation was a candidate but has been REMOVED from the game — see CHANGELOG — so it is
+not a v3 item.)
 
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +

@@ -27,9 +27,9 @@
 //
 // DOCUMENTED APPROXIMATIONS: two target mods sharing a family are validated out upstream (so free
 // targets always have distinct families); a fractured JUNK mod is treated as ordinary removable junk
-// (only target mods can be fractured-locked here). Tag-targeting omens (Homogenising Exaltation) and
-// lowest-tier removal (Whittling) need tag / tier-ordering the abstraction discards — out of scope.
-// Perfect-essence / desecrate / essence targets stay on the linear planner (the caller falls back).
+// (only target mods can be fractured-locked here). Lowest-tier removal (Omen of Whittling) needs the
+// mod-tier ORDERING the abstraction discards, so it's out of scope. Perfect-essence / desecrate /
+// essence targets stay on the linear planner (the caller falls back).
 
 import type { ItemState, Mod, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, poolTotalWeight, resolveMod } from '../../engine/src/pool.ts';

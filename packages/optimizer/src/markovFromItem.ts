@@ -5,25 +5,17 @@
 // states, transitions from the real pool weights, solved by value iteration for the minimum expected
 // cost + the optimal policy. "Push forward" — never restart; the policy digs out of a bricked state.
 //
-// STATE ABSTRACTION (what makes it tractable): we track, per target mod, one of {absent, present,
-// blocked}, plus how much foreign junk sits on each side:
-//   (which target mods are PRESENT at ≥ their tier, which are BLOCKED, #junk prefixes, #junk suffixes).
-// A target is BLOCKED when its family is occupied by a roll that ISN'T the target at its wanted tier —
-// the mod rolled below its required tier, so the family is taken but the goal isn't met and you must
-// annul the off-tier roll before re-adding. Junk (jp/js) is only ever weight in NON-target families, so
-// it can never block a target — the blocked bits carry all the family collisions that matter. That
-// collapses the space to 3^|target| × slots — a few thousand states — every transition probability from
-// the pool weights the engine already computes.
+// This file is the ORCHESTRATION: resolve the targets, enumerate the lattice, run value iteration, and
+// walk the optimal policy into a graph. The two halves it stands on live next door —
+//   • markovState.ts   — what a state IS (the present/blocked/junk abstraction) and how to key it
+//   • markovActions.ts — what you can DO from a state, what it costs, and where it lands you
 //
 // v2 SCOPE (was v1: rollable normal targets, base orbs, exalt/annul/side-annul/chaos):
-//   • v2a — family-aware tiered states: a below-tier roll BLOCKS the family (above); an item that already
+//   • v2a — family-aware tiered states: a below-tier roll BLOCKS the family; an item that already
 //     carries a target at too low a tier starts BLOCKED, not satisfied. (Untiered targets have no
 //     below-tier band, so this reduces exactly to the v1 present/absent model.)
-//   • v2b — richer action set: Exalted Orb at base / GREATER / PERFECT strength (ilvl floor 0 / 35 / 50,
-//     which shrinks the below-tier band — a Perfect Exalt can skip the off-tier trap), and side-
-//     constrained exalts (Omen of Sinistral/Dextral Exaltation = add a prefix / suffix only). Strengths
-//     and side-omens are offered only when the price sheet lists them, so a missing price can't mint a
-//     free super-orb.
+//   • v2b — richer action set: Exalted Orb at base/Greater/Perfect strength and side-constrained
+//     exalts. See markovActions.ts for the price-gating rule.
 //
 // DOCUMENTED APPROXIMATIONS: two target mods sharing a family are validated out upstream (so free
 // targets always have distinct families); a fractured JUNK mod is treated as ordinary removable junk
@@ -31,51 +23,21 @@
 // mod-tier ORDERING the abstraction discards, so it's out of scope. Perfect-essence / desecrate /
 // essence targets stay on the linear planner (the caller falls back).
 
-import type { ItemState, Mod, PatchData } from '../../engine/src/types.ts';
-import { modTierWeight, poolTotalWeight, resolveMod } from '../../engine/src/pool.ts';
+import type { ItemState, PatchData } from '../../engine/src/types.ts';
+import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
 import type { Prices } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
+import type { ActionDef, McAction } from './markovActions.ts';
+import { createActionSpace } from './markovActions.ts';
+import type { McTarget, StateKey } from './markovState.ts';
+import {
+  classifyStart, decodeState, encodeState, enumerateStates, has, popcount, sideIndexOf, sumOther,
+} from './markovState.ts';
 
-/** A target mod resolved for the MDP: its side, family, the mod (for per-floor weights), and lock state. */
-interface McTarget {
-  readonly modId: string;
-  readonly type: 'prefix' | 'suffix';
-  readonly family: string;
-  readonly mod: Mod;
-  /** Worst acceptable tier index (engine indexing: higher index = better/higher-ilvl). */
-  readonly minIndex: number;
-  readonly fractured: boolean;
-}
-
-export type ExaltStrength = 'base' | 'greater' | 'perfect';
-
-/** Every currency+omen the MDP can play. Exalts fan out over {side} × {strength}. */
-export type McAction =
-  | { readonly currency: 'exalt'; readonly strength: ExaltStrength; readonly side?: 'prefix' | 'suffix' }
-  | { readonly currency: 'annul'; readonly side?: 'prefix' | 'suffix' }
-  | { readonly currency: 'chaos' };
-
-/** Cost of a single McAction from a price sheet. */
-export function actionCostOf(prices: Prices, action: McAction): number {
-  const c = (k: string): number => prices.currency[k] ?? 0;
-  const o = (k: string): number => prices.omens[k] ?? 0;
-  if (action.currency === 'exalt') {
-    const base = action.strength === 'base' ? c('exalt') : action.strength === 'greater' ? c('exalt_greater') : c('exalt_perfect');
-    const side = action.side === 'prefix' ? o('OmenofSinistralExaltation') : action.side === 'suffix' ? o('OmenofDextralExaltation') : 0;
-    return base + side;
-  }
-  if (action.currency === 'annul') {
-    const base = c('annul');
-    const side = action.side === 'prefix' ? o('OmenofSinistralAnnulment') : action.side === 'suffix' ? o('OmenofDextralAnnulment') : 0;
-    return base + side;
-  }
-  return c('chaos');
-}
-
-/** ilvl floor each Exalted-Orb strength imposes (mirrors pool.ts: base 0 / greater 35 / perfect 50). */
-const STRENGTH_FLOOR: Record<ExaltStrength, number> = { base: 0, greater: 35, perfect: 50 };
-/** Map each exalt strength to its price key in the Prices record. */
-const strengthPriceKey = (s: ExaltStrength): string => s === 'base' ? 'exalt' : s === 'greater' ? 'exalt_greater' : 'exalt_perfect';
+// The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
+// it from here rather than reaching into markovActions.ts.
+export type { McAction, ExaltStrength } from './markovActions.ts';
+export { actionCostOf } from './markovActions.ts';
 
 export interface PolicyNode {
   readonly key: string;
@@ -123,22 +85,8 @@ export interface MarkovOptions {
   readonly maxIters?: number;
 }
 
-
-const bit = (i: number): number => 1 << i;
-const has = (mask: number, i: number): boolean => (mask & bit(i)) !== 0;
-const popcount = (m: number): number => { let c = 0; for (let x = m; x; x >>= 1) c += x & 1; return c; };
-
-/** Nominal type for state keys: a string encoding (present:blocked:jp:js). */
-type StateKey = string & { readonly __brand: 'StateKey' };
-const encodeState = (present: number, blocked: number, jp: number, js: number): StateKey =>
-  `${present}:${blocked}:${jp}:${js}` as StateKey;
-const decodeState = (k: StateKey): { present: number; blocked: number; jp: number; js: number } => {
-  const [present, blocked, jp, js] = k.split(':').map(Number) as [number, number, number, number];
-  return { present, blocked, jp, js };
-};
-
-/** Distribution over next states as a plain object keyed by state key. */
-type Dist = Map<StateKey, number>;
+/** Most target mods the lattice is enumerated for (3^n grows fast; 6 is the item's own slot cap). */
+const MAX_TARGETS = 6;
 
 export function markovFromItem(
   data: PatchData, prices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
@@ -148,7 +96,6 @@ export function markovFromItem(
   if (start.rarity !== 'rare') return fail('the MDP planner models Rare items');
 
   const level = start.level;
-  const norm = start.base.pools.normal;
   const fracturedIds = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
 
   // Resolve targets into the ordered list the bitmasks index. Only rollable normal mods are supported.
@@ -163,169 +110,24 @@ export function markovFromItem(
   }
   const n = list.length;
   if (n === 0) return fail('no target mods');
-  if (n > 6) return fail('target has more than 6 mods');
+  if (n > MAX_TARGETS) return fail(`target has more than ${MAX_TARGETS} mods`);
   const idxOf = new Map(list.map((t, i) => [t.modId, i]));
 
-  // Per-floor weights for a target: success = ≥ its wanted tier; any = the whole family; below = any−success.
-  const succWeight = (t: McTarget, floor: number): number => modTierWeight(t.mod, floor, level, t.minIndex);
-  const anyWeight = (t: McTarget, floor: number): number => modTierWeight(t.mod, floor, level, 0);
-
   // A target that can never roll (weight 0 even at base strength, the most permissive) is impossible.
-  const ungettable = list.find((t) => succWeight(t, 0) === 0);
+  const ungettable = list.find((t) => modTierWeight(t.mod, 0, level, t.minIndex) === 0);
   if (ungettable) return fail(`${ungettable.modId} can't roll at item level ${level}`);
 
-  const targetPrefixIdx = list.map((t, i) => (t.type === 'prefix' ? i : -1)).filter((i) => i >= 0);
-  const targetSuffixIdx = list.map((t, i) => (t.type === 'suffix' ? i : -1)).filter((i) => i >= 0);
-  const GOAL = bit(n) - 1; // all target mods present, none blocked, no junk
+  const side = sideIndexOf(list);
+  const { actionsOf } = createActionSpace({ data, prices, level, pool: start.base.pools.normal, list, side });
+
+  const GOAL = (1 << n) - 1; // all target mods present, none blocked, no junk
   const goalKey = encodeState(GOAL, 0, 0, 0);
 
-  // ── Exalt strengths available on the price sheet (base always; greater/perfect only if listed, so a
-  //    missing price can't create a free super-orb). Each pairs with an ilvl floor. ─────────────────
-  const strengths: ExaltStrength[] = (['base', 'greater', 'perfect'] as const)
-    .filter((s) => s === 'base' || prices.currency[strengthPriceKey(s)] !== undefined);
-  const sinistralExaltOk = prices.omens['OmenofSinistralExaltation'] !== undefined;
-  const dextralExaltOk = prices.omens['OmenofDextralExaltation'] !== undefined;
-
-  // ── State helpers ─────────────────────────────────────────────────────────
-  const countSide = (mask: number, sideIdx: readonly number[]): number => sideIdx.filter((i) => has(mask, i)).length;
-  const prefUsed = (present: number, blocked: number, jp: number): number =>
-    countSide(present, targetPrefixIdx) + countSide(blocked, targetPrefixIdx) + jp;
-  const sufUsed = (present: number, blocked: number, js: number): number =>
-    countSide(present, targetSuffixIdx) + countSide(blocked, targetSuffixIdx) + js;
-
-  /** Target families occupied (present OR blocked) — excluded from the add denominator (family exclusion). */
-  const occupied = (present: number, blocked: number): Set<string> => {
-    const s = new Set<string>();
-    for (let i = 0; i < n; i++) if (has(present, i) || has(blocked, i)) s.add(list[i]!.family);
-    return s;
-  };
-
-  /** The add-distribution from a state at ilvl `floor`, optionally constrained to one side (side omen).
-   *  A weighted add lands a target at tier (→ present), the target below tier (→ blocked), or foreign
-   *  junk (→ jp/js). Empty if no slot is open or nothing is addable; probabilities sum to 1. */
-  const addOutcomes = (present: number, blocked: number, jp: number, js: number, floor: number, side?: 'prefix' | 'suffix'): Dist => {
-    const prefixOpen = side !== 'suffix' && prefUsed(present, blocked, jp) < 3;
-    const suffixOpen = side !== 'prefix' && sufUsed(present, blocked, js) < 3;
-    const occ = occupied(present, blocked);
-    const prefTotal = prefixOpen ? poolTotalWeight(data, norm.prefixes, floor, level, occ) : 0;
-    const sufTotal = suffixOpen ? poolTotalWeight(data, norm.suffixes, floor, level, occ) : 0;
-    const grand = prefTotal + sufTotal;
-    const out: Dist = new Map();
-    if (grand <= 0) return out;
-    let anyPref = 0; // Σ whole-family weight of the free targets on the prefix side (the non-junk share)
-    let anySuf = 0;
-    for (let i = 0; i < n; i++) {
-      if (has(present, i) || has(blocked, i)) continue; // family already occupied
-      const t = list[i]!;
-      if (occ.has(t.family)) continue; // defensive (validated distinct upstream)
-      const open = t.type === 'prefix' ? prefixOpen : suffixOpen;
-      if (!open) continue;
-      const succ = succWeight(t, floor);
-      const any = anyWeight(t, floor);
-      if (succ > 0) addTo(out, encodeState(present | bit(i), blocked, jp, js), succ / grand);
-      const below = any - succ;
-      if (below > 0) addTo(out, encodeState(present, blocked | bit(i), jp, js), below / grand); // rolled below tier → family blocked
-      if (t.type === 'prefix') anyPref += any; else anySuf += any;
-    }
-    // Everything else the add can produce is foreign junk on its side (a non-target family).
-    const junkPref = Math.max(0, prefTotal - anyPref);
-    const junkSuf = Math.max(0, sufTotal - anySuf);
-    if (junkPref > 0) addTo(out, encodeState(present, blocked, jp + 1, js), junkPref / grand);
-    if (junkSuf > 0) addTo(out, encodeState(present, blocked, jp, js + 1), junkSuf / grand);
-    return out;
-  };
-
-  /** The removal distribution, optionally constrained to one side (omen annul). Removes a uniformly-
-   *  random removable mod: a non-fractured present target (→ absent), a blocked off-tier roll (→ frees
-   *  the family, target addable again), or a junk mod. */
-  const removeOutcomes = (present: number, blocked: number, jp: number, js: number, side?: 'prefix' | 'suffix'): Dist => {
-    const presentRem: number[] = [];
-    const blockedRem: number[] = [];
-    for (let i = 0; i < n; i++) {
-      const t = list[i]!;
-      if (side && t.type !== side) continue;
-      if (has(present, i) && !t.fractured) presentRem.push(i);
-      if (has(blocked, i)) blockedRem.push(i); // an off-tier occupier is a random roll — never locked
-    }
-    const jpRem = side === 'suffix' ? 0 : jp;
-    const jsRem = side === 'prefix' ? 0 : js;
-    const total = presentRem.length + blockedRem.length + jpRem + jsRem;
-    const out: Dist = new Map();
-    if (total <= 0) return out;
-    for (const i of presentRem) addTo(out, encodeState(present & ~bit(i), blocked, jp, js), 1 / total);
-    for (const i of blockedRem) addTo(out, encodeState(present, blocked & ~bit(i), jp, js), 1 / total);
-    if (jpRem > 0) addTo(out, encodeState(present, blocked, jp - 1, js), jpRem / total);
-    if (jsRem > 0) addTo(out, encodeState(present, blocked, jp, js - 1), jsRem / total);
-    return out;
-  };
-
-  /** Chaos = remove one uniformly-random mod, then add one weighted mod (base strength) on the freed item. */
-  const chaosOutcomes = (present: number, blocked: number, jp: number, js: number): Dist => {
-    const removals = removeOutcomes(present, blocked, jp, js);
-    const out: Dist = new Map();
-    for (const [midKey, pRem] of removals) {
-      const m = decodeState(midKey);
-      const adds = addOutcomes(m.present, m.blocked, m.jp, m.js, 0);
-      if (adds.size === 0) { addTo(out, midKey, pRem); continue; } // no add possible → just the removal
-      for (const [toKey, pAdd] of adds) addTo(out, toKey, pRem * pAdd);
-    }
-    return out;
-  };
-
-  // ── Enumerate states + actions ─────────────────────────────────────────────
-  interface ActionDef { action: McAction; cost: number; dist: Dist; }
-  const actionsOf = (present: number, blocked: number, jp: number, js: number): ActionDef[] => {
-    const acts: ActionDef[] = [];
-    const sides: (undefined | 'prefix' | 'suffix')[] = [undefined];
-    if (sinistralExaltOk) sides.push('prefix');
-    if (dextralExaltOk) sides.push('suffix');
-    for (const side of sides) {
-      for (const strength of strengths) {
-        const dist = addOutcomes(present, blocked, jp, js, STRENGTH_FLOOR[strength], side);
-        if (dist.size === 0) continue;
-        const action: McAction = { currency: 'exalt', strength, side };
-        acts.push({ action, cost: actionCostOf(prices, action), dist });
-      }
-    }
-    const rem = removeOutcomes(present, blocked, jp, js);
-    if (rem.size > 0) {
-      const action: McAction = { currency: 'annul' };
-      acts.push({ action, cost: actionCostOf(prices, action), dist: rem });
-    }
-    const remP = removeOutcomes(present, blocked, jp, js, 'prefix');
-    if (remP.size > 0) {
-      const action: McAction = { currency: 'annul', side: 'prefix' };
-      acts.push({ action, cost: actionCostOf(prices, action), dist: remP });
-    }
-    const remS = removeOutcomes(present, blocked, jp, js, 'suffix');
-    if (remS.size > 0) {
-      const action: McAction = { currency: 'annul', side: 'suffix' };
-      acts.push({ action, cost: actionCostOf(prices, action), dist: remS });
-    }
-    const ch = chaosOutcomes(present, blocked, jp, js);
-    if (ch.size > 0) {
-      const action: McAction = { currency: 'chaos' };
-      acts.push({ action, cost: actionCostOf(prices, action), dist: ch });
-    }
-    return acts;
-  };
-
-  const allStates: { key: StateKey }[] = [];
-  for (let present = 0; present < bit(n); present++) {
-    for (let blocked = 0; blocked < bit(n); blocked++) {
-      if ((present & blocked) !== 0) continue; // a target is present XOR blocked, never both
-      const tp = countSide(present, targetPrefixIdx) + countSide(blocked, targetPrefixIdx);
-      const ts = countSide(present, targetSuffixIdx) + countSide(blocked, targetSuffixIdx);
-      if (tp > 3 || ts > 3) continue;
-      for (let jp = 0; jp + tp <= 3; jp++) {
-        for (let js = 0; js + ts <= 3; js++) allStates.push({ key: encodeState(present, blocked, jp, js) });
-      }
-    }
-  }
+  const allStates = enumerateStates(n, side);
   const actionCache = new Map<StateKey, ActionDef[]>();
-  for (const s of allStates) {
-    const st = decodeState(s.key);
-    actionCache.set(s.key, s.key === goalKey ? [] : actionsOf(st.present, st.blocked, st.jp, st.js));
+  for (const key of allStates) {
+    const st = decodeState(key);
+    actionCache.set(key, key === goalKey ? [] : actionsOf(st.present, st.blocked, st.jp, st.js));
   }
 
   // ── Value iteration ─────────────────────────────────────────────────────────
@@ -337,7 +139,7 @@ export function markovFromItem(
   const tol = opts.tolerance ?? 1e-9;
   const maxIters = opts.maxIters ?? 100_000;
   const V = new Map<StateKey, number>();
-  for (const s of allStates) V.set(s.key, 0);
+  for (const key of allStates) V.set(key, 0);
   const actionValue = (k: StateKey, a: ActionDef): number => {
     const pStay = a.dist.get(k) ?? 0;
     if (pStay >= 1 - 1e-12) return Infinity; // an action that only loops back can't make progress
@@ -345,13 +147,13 @@ export function markovFromItem(
   };
   for (let iter = 0; iter < maxIters; iter++) {
     let delta = 0;
-    for (const s of allStates) {
-      if (s.key === goalKey) continue;
+    for (const key of allStates) {
+      if (key === goalKey) continue;
       let best = Infinity;
-      for (const a of actionCache.get(s.key)!) best = Math.min(best, actionValue(s.key, a));
+      for (const a of actionCache.get(key)!) best = Math.min(best, actionValue(key, a));
       if (!Number.isFinite(best)) continue;
-      const prev = V.get(s.key)!;
-      V.set(s.key, best);
+      const prev = V.get(key)!;
+      V.set(key, best);
       delta = Math.max(delta, Math.abs(best - prev));
     }
     if (delta <= tol) break;
@@ -375,14 +177,14 @@ export function markovFromItem(
 
   // Full policy over every non-goal state (the reachable graph below is a subset) — for the MC validator.
   const policy = new Map<StateKey, McAction>();
-  for (const s of allStates) {
-    if (s.key === goalKey) continue;
-    const a = bestAction(s.key);
-    if (a) policy.set(s.key, a.action);
+  for (const key of allStates) {
+    if (key === goalKey) continue;
+    const a = bestAction(key);
+    if (a) policy.set(key, a.action);
   }
 
   // Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) + junk.
-  const dist = (k: StateKey): number => {
+  const distanceToGoal = (k: StateKey): number => {
     const st = decodeState(k);
     return (n - popcount(st.present)) + popcount(st.blocked) + st.jp + st.js;
   };
@@ -397,59 +199,22 @@ export function markovFromItem(
     const st = decodeState(k);
     const isGoal = k === goalKey;
     const act = isGoal ? undefined : bestAction(k);
-    const node: PolicyNode = {
+    nodes.push({
       key: k,
       present: list.filter((_, i) => has(st.present, i)).map((t) => t.modId),
       blocked: list.filter((_, i) => has(st.blocked, i)).map((t) => t.modId),
       junkPrefixes: st.jp, junkSuffixes: st.js,
       isStart: k === startKey, isGoal, expectedCost: V.get(k) ?? Infinity,
       ...(act ? { action: act.action } : {}),
-    };
-    nodes.push(node);
+    });
     if (act) {
       for (const [to, p] of act.dist) {
         if (p <= 0) continue;
-        edges.push({ from: k, to, action: act.action, prob: p, regress: dist(to) > dist(k) });
+        edges.push({ from: k, to, action: act.action, prob: p, regress: distanceToGoal(to) > distanceToGoal(k) });
         if (!seen.has(to)) queue.push(to);
       }
     }
   }
 
   return { expectedCost: startCost, feasible: true, nodes, edges, policy };
-}
-
-// ── small helpers ────────────────────────────────────────────────────────────
-
-function addTo(d: Dist, k: StateKey, p: number): void { d.set(k, (d.get(k) ?? 0) + p); }
-
-function sumOther(dist: Dist, selfKey: StateKey, V: Map<StateKey, number>): number {
-  let s = 0;
-  for (const [to, p] of dist) if (to !== selfKey) s += p * (V.get(to) ?? Infinity);
-  return s;
-}
-
-/** Classify the START item's mods into (present, blocked, junk): a target at ≥ its wanted tier is
- *  present; the same target at too low a tier is blocked (its family is taken, goal unmet); a mod that
- *  matches no target is junk on its side. */
-function classifyStart(
-  item: ItemState, list: readonly McTarget[], idxOf: ReadonlyMap<string, number>,
-): { present: number; blocked: number; jp: number; js: number } {
-  let present = 0;
-  let blocked = 0;
-  let jp = 0;
-  let js = 0;
-  const place = (arr: ItemState['prefixes'], side: 'prefix' | 'suffix'): void => {
-    for (const p of arr) {
-      const i = idxOf.get(p.modId);
-      if (i === undefined) { if (side === 'prefix') jp++; else js++; continue; }
-      const t = list[i]!;
-      const tierIdx = t.mod.tiers.findIndex((tt) => tt.name === p.tierName);
-      // At or above the wanted tier (or an unrecognised tier — assume fine) ⇒ present; below ⇒ blocked.
-      if (tierIdx < 0 || tierIdx >= t.minIndex) present |= bit(i);
-      else blocked |= bit(i);
-    }
-  };
-  place(item.prefixes, 'prefix');
-  place(item.suffixes, 'suffix');
-  return { present, blocked, jp, js };
 }

@@ -1,6 +1,6 @@
 export { optimizePlan, optimizeAddChain, optimizeCost, optimizePareto, currencyAtPosition } from './optimize.ts';
 export { optimizeFromItem } from './fromItem.ts';
-export { markovFromItem, mcActionCosts } from './markovFromItem.ts';
+export { markovFromItem, actionCostOf } from './markovFromItem.ts';
 export type { MarkovResult, MarkovOptions, McAction, ExaltStrength, PolicyNode, PolicyEdge } from './markovFromItem.ts';
 export type {
   OptimizedPlan, OptimizeOptions, OptimizeCostOptions, CostedPlan, AddCurrency,

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { ItemBase, ItemState, Mod, PatchData } from '../../engine/src/index.ts';
 import { loadPatch } from '../../engine/src/index.ts';
-import { markovFromItem, mcActionCosts } from './markovFromItem.ts';
+import { markovFromItem, actionCostOf } from './markovFromItem.ts';
 import type { McAction } from './markovFromItem.ts';
 import type { Prices } from './cost.ts';
 import { loadPrices } from './loadPrices.ts';
@@ -105,7 +105,7 @@ describe('markovFromItem — policy graph', () => {
     const start = r.nodes.find((nd) => nd.isStart)!;
     expect(start.present).toEqual(['T1']);
     expect(start.junkPrefixes).toBe(1);
-    expect(start.action).toBe('annul'); // optimal first move: annul the junk (risking T1)
+    expect(start.action).toEqual({ currency: 'annul' }); // optimal first move: annul the junk (risking T1)
     expect(r.nodes.some((nd) => nd.isGoal)).toBe(true);
     // The bad-annul outcome (T1 removed) is a regress edge — the graph's back-arrow.
     const backEdge = r.edges.find((e) => e.from === start.key && e.regress);
@@ -141,13 +141,13 @@ describe('markovFromItem — v2 levers (orb strength + side exalts)', () => {
     const cheapPerfect: Prices = { currency: { exalt: 1, exalt_perfect: 2.5, annul: 1, chaos: 100 }, omens: {} };
     const r = markovFromItem(tiered, cheapPerfect, empty, [{ modId: 'M', minTierIndex: 1 }]);
     expect(r.expectedCost).toBeCloseTo(2.5, 6);
-    expect(r.nodes.find((nd) => nd.isStart)!.action).toBe('exalt-perfect');
+    expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'exalt', strength: 'perfect' });
 
     // Sanity: at the real Perfect price (20 ≫ 3) the base-exalt-and-recover route wins instead (E = 3).
     const realPerfect: Prices = { currency: { exalt: 1, exalt_perfect: 20, annul: 1, chaos: 100 }, omens: {} };
     const r2 = markovFromItem(tiered, realPerfect, empty, [{ modId: 'M', minTierIndex: 1 }]);
     expect(r2.expectedCost).toBeCloseTo(3, 6);
-    expect(r2.nodes.find((nd) => nd.isStart)!.action).toBe('exalt');
+    expect(r2.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'exalt', strength: 'base' });
   });
 
   it('uses a Sinistral Exaltation to add a prefix when the suffix pool is all junk', () => {
@@ -166,7 +166,7 @@ describe('markovFromItem — v2 levers (orb strength + side exalts)', () => {
     const sidePrices: Prices = { currency: { exalt: 1, annul: 1.5, chaos: 100 }, omens: { OmenofSinistralExaltation: 3, OmenofDextralExaltation: 3 } };
     const r = markovFromItem(sideData, sidePrices, empty, [{ modId: 'P' }]);
     expect(r.expectedCost).toBeCloseTo(4, 6);
-    expect(r.nodes.find((nd) => nd.isStart)!.action).toBe('exalt-sinistral');
+    expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'exalt', strength: 'base', side: 'prefix' });
   });
 });
 
@@ -176,7 +176,7 @@ describe('markovFromItem — v2 levers (orb strength + side exalts)', () => {
 // the total spend. mean → V by the law of large numbers. This is the scale check on the VI + self-loop
 // + policy-extraction math; the hand-computed cases above pin the transition-building itself.
 
-function simulatePolicyMean(r: ReturnType<typeof markovFromItem>, cost: Record<McAction, number>, runs: number, seed = 3): number {
+function simulatePolicyMean(r: ReturnType<typeof markovFromItem>, costFn: (action: McAction) => number, runs: number, seed = 3): number {
   const nodeByKey = new Map(r.nodes.map((nd) => [nd.key, nd]));
   const outByKey = new Map<string, { to: string; prob: number }[]>();
   for (const e of r.edges) {
@@ -193,7 +193,7 @@ function simulatePolicyMean(r: ReturnType<typeof markovFromItem>, cost: Record<M
     for (let guard = 0; guard < 100_000; guard++) {
       const nd = nodeByKey.get(cur)!;
       if (nd.isGoal) break;
-      spent += cost[nd.action!];
+      spent += costFn(nd.action!);
       const outs = outByKey.get(cur)!;
       let x = rng();
       let next = outs[outs.length - 1]!.to;
@@ -208,7 +208,7 @@ function simulatePolicyMean(r: ReturnType<typeof markovFromItem>, cost: Record<M
 describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to verify)', () => {
   it('the synthetic recovery case: 100k policy runs match V (E = 2)', () => {
     const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }]);
-    const mc = simulatePolicyMean(r, mcActionCosts(prices), 100_000);
+    const mc = simulatePolicyMean(r, (a) => actionCostOf(prices, a), 100_000);
     expect(mc).toBeCloseTo(r.expectedCost, 1); // ~2, tight
   });
 
@@ -224,7 +224,7 @@ describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to veri
     };
     const r = markovFromItem(real, rp, start, [{ modId: MANA }, { modId: SPELL }]);
     expect(r.feasible).toBe(true);
-    const mc = simulatePolicyMean(r, mcActionCosts(rp), 100_000);
+    const mc = simulatePolicyMean(r, (a) => actionCostOf(rp, a), 100_000);
     // 100k runs on a ~26ex mean ⇒ SE small; 3% tolerance covers sampling noise.
     expect(mc).toBeGreaterThan(r.expectedCost * 0.97);
     expect(mc).toBeLessThan(r.expectedCost * 1.03);
@@ -246,7 +246,7 @@ describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to veri
     const r = markovFromItem(real, rp, start, [{ modId: MANA }, { modId: SPELL, minTierIndex: 5 }]);
     expect(r.feasible).toBe(true);
     expect(r.nodes.some((nd) => nd.blocked.length > 0)).toBe(true); // the off-tier trap is on the graph
-    const mc = simulatePolicyMean(r, mcActionCosts(rp), 100_000);
+    const mc = simulatePolicyMean(r, (a) => actionCostOf(rp, a), 100_000);
     expect(mc).toBeGreaterThan(r.expectedCost * 0.97);
     expect(mc).toBeLessThan(r.expectedCost * 1.03);
   });

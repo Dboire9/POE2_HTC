@@ -169,12 +169,21 @@ function toEngineSlot(data: PatchData, slot: SlotChange): EngineSlot {
   return slot.kind === 'swapped' ? { ...kept, fromText: text(slot.from) } : kept;
 }
 
-const MC_ACTION_LABEL: Record<McAction, string> = {
-  exalt: 'Exalt', 'exalt-greater': 'Exalt (Greater)', 'exalt-perfect': 'Exalt (Perfect)',
-  'exalt-sinistral': 'Exalt (Sinistral)', 'exalt-sinistral-greater': 'Exalt (Sinistral, Greater)', 'exalt-sinistral-perfect': 'Exalt (Sinistral, Perfect)',
-  'exalt-dextral': 'Exalt (Dextral)', 'exalt-dextral-greater': 'Exalt (Dextral, Greater)', 'exalt-dextral-perfect': 'Exalt (Dextral, Perfect)',
-  annul: 'Annul', 'annul-sinistral': 'Annul (Sinistral)', 'annul-dextral': 'Annul (Dextral)', chaos: 'Chaos',
-};
+function actionLabel(action: McAction): string {
+  if (action.currency === 'exalt') {
+    const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
+    const strengthLabel = action.strength === 'base' ? null : action.strength === 'greater' ? 'Greater' : 'Perfect';
+    if (sideLabel && strengthLabel) return `Exalt (${sideLabel}, ${strengthLabel})`;
+    if (sideLabel) return `Exalt (${sideLabel})`;
+    if (strengthLabel) return `Exalt (${strengthLabel})`;
+    return 'Exalt';
+  }
+  if (action.currency === 'annul') {
+    const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
+    return sideLabel ? `Annul (${sideLabel})` : 'Annul';
+  }
+  return 'Chaos';
+}
 
 /** Map the from-item MDP result into UI shapes: mod-text node labels, human action names, layout depth. */
 export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number): EngineMarkovResult {
@@ -191,9 +200,9 @@ export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number):
     // clear. Goal = 0; used for the left→right layout.
     depth: (nTargets - nd.present.length) + nd.blocked.length + nd.junkPrefixes + nd.junkSuffixes,
     expectedCost: nd.expectedCost,
-    ...(nd.action ? { action: MC_ACTION_LABEL[nd.action] } : {}),
+    ...(nd.action ? { action: actionLabel(nd.action) } : {}),
   }));
-  const edges = res.edges.map((e) => ({ from: e.from, to: e.to, action: MC_ACTION_LABEL[e.action], prob: e.prob, regress: e.regress }));
+  const edges = res.edges.map((e) => ({ from: e.from, to: e.to, action: actionLabel(e.action), prob: e.prob, regress: e.regress }));
   return {
     applicable: true, feasible: res.feasible, expectedCost: res.expectedCost, nodes, edges,
     ...(res.reason ? { reason: res.reason } : {}),

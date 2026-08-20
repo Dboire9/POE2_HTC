@@ -51,16 +51,31 @@ export type ExaltStrength = 'base' | 'greater' | 'perfect';
 
 /** Every currency+omen the MDP can play. Exalts fan out over {side} × {strength}. */
 export type McAction =
-  | 'exalt' | 'exalt-greater' | 'exalt-perfect'
-  | 'exalt-sinistral' | 'exalt-sinistral-greater' | 'exalt-sinistral-perfect'
-  | 'exalt-dextral' | 'exalt-dextral-greater' | 'exalt-dextral-perfect'
-  | 'annul' | 'annul-sinistral' | 'annul-dextral'
-  | 'chaos';
+  | { readonly currency: 'exalt'; readonly strength: ExaltStrength; readonly side?: 'prefix' | 'suffix' }
+  | { readonly currency: 'annul'; readonly side?: 'prefix' | 'suffix' }
+  | { readonly currency: 'chaos' };
+
+/** Cost of a single McAction from a price sheet. */
+export function actionCostOf(prices: Prices, action: McAction): number {
+  const c = (k: string): number => prices.currency[k] ?? 0;
+  const o = (k: string): number => prices.omens[k] ?? 0;
+  if (action.currency === 'exalt') {
+    const base = action.strength === 'base' ? c('exalt') : action.strength === 'greater' ? c('exalt_greater') : c('exalt_perfect');
+    const side = action.side === 'prefix' ? o('OmenofSinistralExaltation') : action.side === 'suffix' ? o('OmenofDextralExaltation') : 0;
+    return base + side;
+  }
+  if (action.currency === 'annul') {
+    const base = c('annul');
+    const side = action.side === 'prefix' ? o('OmenofSinistralAnnulment') : action.side === 'suffix' ? o('OmenofDextralAnnulment') : 0;
+    return base + side;
+  }
+  return c('chaos');
+}
 
 /** ilvl floor each Exalted-Orb strength imposes (mirrors pool.ts: base 0 / greater 35 / perfect 50). */
 const STRENGTH_FLOOR: Record<ExaltStrength, number> = { base: 0, greater: 35, perfect: 50 };
-/** The `prices.currency` key for an exalt at a given strength. */
-const STRENGTH_PRICE_KEY: Record<ExaltStrength, string> = { base: 'exalt', greater: 'exalt_greater', perfect: 'exalt_perfect' };
+/** Map each exalt strength to its price key in the Prices record. */
+const strengthPriceKey = (s: ExaltStrength): string => s === 'base' ? 'exalt' : s === 'greater' ? 'exalt_greater' : 'exalt_perfect';
 
 export interface PolicyNode {
   readonly key: string;
@@ -108,33 +123,22 @@ export interface MarkovOptions {
   readonly maxIters?: number;
 }
 
-/**
- * Cost of every `McAction` from a price sheet: base exalt strength + optional strength surcharge +
- * optional side-omen surcharge; annuls carry their side omen; chaos is flat. Shared by the solver and
- * the Monte-Carlo validator so the two never disagree on pricing (only the transition math is what the
- * MC independently checks). Missing keys read 0 — but the solver only OFFERS an action whose price is
- * actually listed (see `markovFromItem`), so a 0 here never becomes a free move in the optimisation.
- */
-export function mcActionCosts(prices: Prices): Record<McAction, number> {
-  const c = (k: string): number => prices.currency[k] ?? 0;
-  const o = (k: string): number => prices.omens[k] ?? 0;
-  const sin = o('OmenofSinistralExaltation');
-  const dex = o('OmenofDextralExaltation');
-  return {
-    exalt: c('exalt'), 'exalt-greater': c('exalt_greater'), 'exalt-perfect': c('exalt_perfect'),
-    'exalt-sinistral': c('exalt') + sin, 'exalt-sinistral-greater': c('exalt_greater') + sin, 'exalt-sinistral-perfect': c('exalt_perfect') + sin,
-    'exalt-dextral': c('exalt') + dex, 'exalt-dextral-greater': c('exalt_greater') + dex, 'exalt-dextral-perfect': c('exalt_perfect') + dex,
-    annul: c('annul'), 'annul-sinistral': c('annul') + o('OmenofSinistralAnnulment'), 'annul-dextral': c('annul') + o('OmenofDextralAnnulment'),
-    chaos: c('chaos'),
-  };
-}
 
 const bit = (i: number): number => 1 << i;
 const has = (mask: number, i: number): boolean => (mask & bit(i)) !== 0;
 const popcount = (m: number): number => { let c = 0; for (let x = m; x; x >>= 1) c += x & 1; return c; };
 
+/** Nominal type for state keys: a string encoding (present:blocked:jp:js). */
+type StateKey = string & { readonly __brand: 'StateKey' };
+const encodeState = (present: number, blocked: number, jp: number, js: number): StateKey =>
+  `${present}:${blocked}:${jp}:${js}` as StateKey;
+const decodeState = (k: StateKey): { present: number; blocked: number; jp: number; js: number } => {
+  const [present, blocked, jp, js] = k.split(':').map(Number) as [number, number, number, number];
+  return { present, blocked, jp, js };
+};
+
 /** Distribution over next states as a plain object keyed by state key. */
-type Dist = Map<string, number>;
+type Dist = Map<StateKey, number>;
 
 export function markovFromItem(
   data: PatchData, prices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
@@ -173,18 +177,16 @@ export function markovFromItem(
   const targetPrefixIdx = list.map((t, i) => (t.type === 'prefix' ? i : -1)).filter((i) => i >= 0);
   const targetSuffixIdx = list.map((t, i) => (t.type === 'suffix' ? i : -1)).filter((i) => i >= 0);
   const GOAL = bit(n) - 1; // all target mods present, none blocked, no junk
-  const goalKey = `${GOAL}:0:0:0`;
+  const goalKey = encodeState(GOAL, 0, 0, 0);
 
   // ── Exalt strengths available on the price sheet (base always; greater/perfect only if listed, so a
   //    missing price can't create a free super-orb). Each pairs with an ilvl floor. ─────────────────
   const strengths: ExaltStrength[] = (['base', 'greater', 'perfect'] as const)
-    .filter((s) => s === 'base' || prices.currency[STRENGTH_PRICE_KEY[s]] !== undefined);
+    .filter((s) => s === 'base' || prices.currency[strengthPriceKey(s)] !== undefined);
   const sinistralExaltOk = prices.omens['OmenofSinistralExaltation'] !== undefined;
   const dextralExaltOk = prices.omens['OmenofDextralExaltation'] !== undefined;
-  const cost = mcActionCosts(prices);
 
   // ── State helpers ─────────────────────────────────────────────────────────
-  const key = (present: number, blocked: number, jp: number, js: number): string => `${present}:${blocked}:${jp}:${js}`;
   const countSide = (mask: number, sideIdx: readonly number[]): number => sideIdx.filter((i) => has(mask, i)).length;
   const prefUsed = (present: number, blocked: number, jp: number): number =>
     countSide(present, targetPrefixIdx) + countSide(blocked, targetPrefixIdx) + jp;
@@ -220,16 +222,16 @@ export function markovFromItem(
       if (!open) continue;
       const succ = succWeight(t, floor);
       const any = anyWeight(t, floor);
-      if (succ > 0) addTo(out, key(present | bit(i), blocked, jp, js), succ / grand);
+      if (succ > 0) addTo(out, encodeState(present | bit(i), blocked, jp, js), succ / grand);
       const below = any - succ;
-      if (below > 0) addTo(out, key(present, blocked | bit(i), jp, js), below / grand); // rolled below tier → family blocked
+      if (below > 0) addTo(out, encodeState(present, blocked | bit(i), jp, js), below / grand); // rolled below tier → family blocked
       if (t.type === 'prefix') anyPref += any; else anySuf += any;
     }
     // Everything else the add can produce is foreign junk on its side (a non-target family).
     const junkPref = Math.max(0, prefTotal - anyPref);
     const junkSuf = Math.max(0, sufTotal - anySuf);
-    if (junkPref > 0) addTo(out, key(present, blocked, jp + 1, js), junkPref / grand);
-    if (junkSuf > 0) addTo(out, key(present, blocked, jp, js + 1), junkSuf / grand);
+    if (junkPref > 0) addTo(out, encodeState(present, blocked, jp + 1, js), junkPref / grand);
+    if (junkSuf > 0) addTo(out, encodeState(present, blocked, jp, js + 1), junkSuf / grand);
     return out;
   };
 
@@ -250,10 +252,10 @@ export function markovFromItem(
     const total = presentRem.length + blockedRem.length + jpRem + jsRem;
     const out: Dist = new Map();
     if (total <= 0) return out;
-    for (const i of presentRem) addTo(out, key(present & ~bit(i), blocked, jp, js), 1 / total);
-    for (const i of blockedRem) addTo(out, key(present, blocked & ~bit(i), jp, js), 1 / total);
-    if (jpRem > 0) addTo(out, key(present, blocked, jp - 1, js), jpRem / total);
-    if (jsRem > 0) addTo(out, key(present, blocked, jp, js - 1), jsRem / total);
+    for (const i of presentRem) addTo(out, encodeState(present & ~bit(i), blocked, jp, js), 1 / total);
+    for (const i of blockedRem) addTo(out, encodeState(present, blocked & ~bit(i), jp, js), 1 / total);
+    if (jpRem > 0) addTo(out, encodeState(present, blocked, jp - 1, js), jpRem / total);
+    if (jsRem > 0) addTo(out, encodeState(present, blocked, jp, js - 1), jsRem / total);
     return out;
   };
 
@@ -262,7 +264,7 @@ export function markovFromItem(
     const removals = removeOutcomes(present, blocked, jp, js);
     const out: Dist = new Map();
     for (const [midKey, pRem] of removals) {
-      const m = parseKey(midKey);
+      const m = decodeState(midKey);
       const adds = addOutcomes(m.present, m.blocked, m.jp, m.js, 0);
       if (adds.size === 0) { addTo(out, midKey, pRem); continue; } // no add possible → just the removal
       for (const [toKey, pAdd] of adds) addTo(out, toKey, pRem * pAdd);
@@ -272,11 +274,6 @@ export function markovFromItem(
 
   // ── Enumerate states + actions ─────────────────────────────────────────────
   interface ActionDef { action: McAction; cost: number; dist: Dist; }
-  const exaltAction = (strength: ExaltStrength, side: 'prefix' | 'suffix' | undefined): McAction => {
-    const sideTag = side === 'prefix' ? '-sinistral' : side === 'suffix' ? '-dextral' : '';
-    const strTag = strength === 'base' ? '' : `-${strength}`;
-    return `exalt${sideTag}${strTag}` as McAction;
-  };
   const actionsOf = (present: number, blocked: number, jp: number, js: number): ActionDef[] => {
     const acts: ActionDef[] = [];
     const sides: (undefined | 'prefix' | 'suffix')[] = [undefined];
@@ -286,22 +283,34 @@ export function markovFromItem(
       for (const strength of strengths) {
         const dist = addOutcomes(present, blocked, jp, js, STRENGTH_FLOOR[strength], side);
         if (dist.size === 0) continue;
-        const action = exaltAction(strength, side);
-        acts.push({ action, cost: cost[action], dist });
+        const action: McAction = { currency: 'exalt', strength, side };
+        acts.push({ action, cost: actionCostOf(prices, action), dist });
       }
     }
     const rem = removeOutcomes(present, blocked, jp, js);
-    if (rem.size > 0) acts.push({ action: 'annul', cost: cost.annul, dist: rem });
+    if (rem.size > 0) {
+      const action: McAction = { currency: 'annul' };
+      acts.push({ action, cost: actionCostOf(prices, action), dist: rem });
+    }
     const remP = removeOutcomes(present, blocked, jp, js, 'prefix');
-    if (remP.size > 0) acts.push({ action: 'annul-sinistral', cost: cost['annul-sinistral'], dist: remP });
+    if (remP.size > 0) {
+      const action: McAction = { currency: 'annul', side: 'prefix' };
+      acts.push({ action, cost: actionCostOf(prices, action), dist: remP });
+    }
     const remS = removeOutcomes(present, blocked, jp, js, 'suffix');
-    if (remS.size > 0) acts.push({ action: 'annul-dextral', cost: cost['annul-dextral'], dist: remS });
+    if (remS.size > 0) {
+      const action: McAction = { currency: 'annul', side: 'suffix' };
+      acts.push({ action, cost: actionCostOf(prices, action), dist: remS });
+    }
     const ch = chaosOutcomes(present, blocked, jp, js);
-    if (ch.size > 0) acts.push({ action: 'chaos', cost: cost.chaos, dist: ch });
+    if (ch.size > 0) {
+      const action: McAction = { currency: 'chaos' };
+      acts.push({ action, cost: actionCostOf(prices, action), dist: ch });
+    }
     return acts;
   };
 
-  const allStates: { key: string }[] = [];
+  const allStates: { key: StateKey }[] = [];
   for (let present = 0; present < bit(n); present++) {
     for (let blocked = 0; blocked < bit(n); blocked++) {
       if ((present & blocked) !== 0) continue; // a target is present XOR blocked, never both
@@ -309,13 +318,13 @@ export function markovFromItem(
       const ts = countSide(present, targetSuffixIdx) + countSide(blocked, targetSuffixIdx);
       if (tp > 3 || ts > 3) continue;
       for (let jp = 0; jp + tp <= 3; jp++) {
-        for (let js = 0; js + ts <= 3; js++) allStates.push({ key: key(present, blocked, jp, js) });
+        for (let js = 0; js + ts <= 3; js++) allStates.push({ key: encodeState(present, blocked, jp, js) });
       }
     }
   }
-  const actionCache = new Map<string, ActionDef[]>();
+  const actionCache = new Map<StateKey, ActionDef[]>();
   for (const s of allStates) {
-    const st = parseKey(s.key);
+    const st = decodeState(s.key);
     actionCache.set(s.key, s.key === goalKey ? [] : actionsOf(st.present, st.blocked, st.jp, st.js));
   }
 
@@ -327,9 +336,9 @@ export function markovFromItem(
   // and VI converges to a finite V.) Each action solves its own self-loop via ÷(1 − pStay).
   const tol = opts.tolerance ?? 1e-9;
   const maxIters = opts.maxIters ?? 100_000;
-  const V = new Map<string, number>();
+  const V = new Map<StateKey, number>();
   for (const s of allStates) V.set(s.key, 0);
-  const actionValue = (k: string, a: ActionDef): number => {
+  const actionValue = (k: StateKey, a: ActionDef): number => {
     const pStay = a.dist.get(k) ?? 0;
     if (pStay >= 1 - 1e-12) return Infinity; // an action that only loops back can't make progress
     return (a.cost + sumOther(a.dist, k, V)) / (1 - pStay);
@@ -350,11 +359,11 @@ export function markovFromItem(
 
   // ── Extract policy + reachable graph from the start ─────────────────────────
   const s0 = classifyStart(start, list, idxOf);
-  const startKey = key(s0.present, s0.blocked, s0.jp, s0.js);
+  const startKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js);
   const startCost = V.get(startKey) ?? Infinity;
   if (!Number.isFinite(startCost)) return fail('no policy reaches the target');
 
-  const bestAction = (k: string): ActionDef | undefined => {
+  const bestAction = (k: StateKey): ActionDef | undefined => {
     let best: ActionDef | undefined;
     let bestVal = Infinity;
     for (const a of actionCache.get(k)!) {
@@ -365,7 +374,7 @@ export function markovFromItem(
   };
 
   // Full policy over every non-goal state (the reachable graph below is a subset) — for the MC validator.
-  const policy = new Map<string, McAction>();
+  const policy = new Map<StateKey, McAction>();
   for (const s of allStates) {
     if (s.key === goalKey) continue;
     const a = bestAction(s.key);
@@ -373,19 +382,19 @@ export function markovFromItem(
   }
 
   // Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) + junk.
-  const dist = (k: string): number => {
-    const st = parseKey(k);
+  const dist = (k: StateKey): number => {
+    const st = decodeState(k);
     return (n - popcount(st.present)) + popcount(st.blocked) + st.jp + st.js;
   };
   const nodes: PolicyNode[] = [];
   const edges: PolicyEdge[] = [];
-  const seen = new Set<string>();
-  const queue = [startKey];
+  const seen = new Set<StateKey>();
+  const queue: StateKey[] = [startKey];
   while (queue.length > 0) {
     const k = queue.shift()!;
     if (seen.has(k)) continue;
     seen.add(k);
-    const st = parseKey(k);
+    const st = decodeState(k);
     const isGoal = k === goalKey;
     const act = isGoal ? undefined : bestAction(k);
     const node: PolicyNode = {
@@ -411,17 +420,12 @@ export function markovFromItem(
 
 // ── small helpers ────────────────────────────────────────────────────────────
 
-function addTo(d: Dist, k: string, p: number): void { d.set(k, (d.get(k) ?? 0) + p); }
+function addTo(d: Dist, k: StateKey, p: number): void { d.set(k, (d.get(k) ?? 0) + p); }
 
-function sumOther(dist: Dist, selfKey: string, V: Map<string, number>): number {
+function sumOther(dist: Dist, selfKey: StateKey, V: Map<StateKey, number>): number {
   let s = 0;
   for (const [to, p] of dist) if (to !== selfKey) s += p * (V.get(to) ?? Infinity);
   return s;
-}
-
-function parseKey(k: string): { present: number; blocked: number; jp: number; js: number } {
-  const [present, blocked, jp, js] = k.split(':').map(Number) as [number, number, number, number];
-  return { present, blocked, jp, js };
 }
 
 /** Classify the START item's mods into (present, blocked, junk): a target at ≥ its wanted tier is

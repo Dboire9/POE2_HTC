@@ -177,7 +177,7 @@ export function optimizeFromItem(
 
   const plans: ParetoPlan[] = [];
   for (const seq of transformSequences(data, junk, missingRollable, missingPerfect, missingDesecrated, tierOf)) {
-    for (const steps of withOmenVariants(data, seq)) {
+    for (const steps of withOmenVariants(data, seq, start)) {
       const result = evaluatePlanFrom(data, start, steps);
       plans.push({ steps, result, cost: planExpectedCost(prices, result, steps), probability: result.total });
     }

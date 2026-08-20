@@ -161,6 +161,27 @@ describe('optimizeFromItem — desecrated mods (kept and crafted, hand-computed)
     expect(() => optimizeFromItem(noBoss, dprices, start, [{ modId: 'NP1' }, { modId: 'DS1' }]))
       .toThrow(/no boss omen/i);
   });
+
+  it('removes a desecrated junk mod via Omen of Light (guaranteed removal vs random annul)', () => {
+    // Item [NP1 | DS1] (desecrated: true); target {NP1, NS1}: DS1 (desecrated suffix) is junk, NS1 is missing.
+    // A plain Annul has 1/2 chance to hit DS1; Omen of Light guarantees it (P=1).
+    // The frontier should include both variants, and the Omen path will appear if priced competitively.
+    const start: ItemState = {
+      base: dbase, level: 100, rarity: 'rare', desecrated: true,
+      prefixes: [placed('NP1')], suffixes: [placed('DS1')],
+    };
+    const pricesWithLight: Prices = { ...dprices, omens: { OmenofLight: 0.3 } };
+    const r = optimizeFromItem(ddata, pricesWithLight, start, [{ modId: 'NP1' }, { modId: 'NS1' }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    // At least one plan should use Omen of Light to annul the desecrated junk mod.
+    const hasLight = r.frontier.some((p) => p.steps.some((s) =>
+      s.currency === 'annul' && 'remove' in s && s.remove === 'DS1' && 'omen' in s && s.omen === 'light'));
+    expect(hasLight).toBe(true);
+    // The Omen of Light variant should have P=1 for the removal step (vs 1/2 for random).
+    const lightPlan = r.frontier.find((p) => p.steps.some((s) =>
+      s.currency === 'annul' && 'remove' in s && s.remove === 'DS1' && 'omen' in s && s.omen === 'light'));
+    expect(lightPlan).toBeDefined();
+  });
 });
 
 describe('optimizeFromItem — perfect essences (hand-computed)', () => {

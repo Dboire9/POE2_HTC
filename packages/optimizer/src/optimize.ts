@@ -8,7 +8,7 @@
 // of them and score each exactly with the engine's evaluatePlan. No heuristic, no beam pruning: the
 // returned plan is the true probability-maximising ordering. The search is analytic and exact.
 
-import type { CurrencyTier, ItemBase, PatchData, Rarity } from '../../engine/src/types.ts';
+import type { CurrencyTier, ItemBase, ItemState, PatchData, Rarity } from '../../engine/src/types.ts';
 import { CURRENCY_FLOOR } from '../../engine/src/types.ts';
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlan } from '../../engine/src/plan.ts';
@@ -293,12 +293,22 @@ function alchemyOpenerSequences(
  * at the omen surcharge — a real cost↔probability lever. A from-white chain has ≤ K−2 exalts, so the
  * 2^n subset enumeration stays tiny. Exported for the from-item planner (fromItem.ts).
  */
-export function withOmenVariants(data: PatchData, steps: PlanStep[]): PlanStep[][] {
-  // Steps that can take an optional side-omen as a cost↔probability lever: an EXALT constrains the
-  // ADD to its mod's side (Sinistral/Dextral Exaltation → smaller pool, higher P); a PERFECT-ESSENCE
-  // constrains the random REMOVAL to the sacrificed mod's side (Sinistral/Dextral Crystallisation →
-  // likelier to hit the intended junk). Enumerate every subset of these to constrain.
-  const idx = steps.map((s, i) => (s.currency === 'exalt' || s.currency === 'perfect-essence' ? i : -1)).filter((i) => i >= 0);
+export function withOmenVariants(data: PatchData, steps: PlanStep[], start?: ItemState): PlanStep[][] {
+  // Steps that can take an optional side-omen or targeted-removal omen as a cost↔probability lever:
+  // - EXALT constrains the ADD to its mod's side (Sinistral/Dextral Exaltation → smaller pool, higher P)
+  // - PERFECT-ESSENCE constrains the random REMOVAL to the sacrificed mod's side (Sinistral/Dextral
+  //   Crystallisation → likelier to hit the intended junk)
+  // - ANNUL of a desecrated junk mod (on a desecrated item) can target it via Omen of Light (P=1 removal,
+  //   guaranteed instead of 1/N random) — enumerate all combos of this lever per eligible annul step.
+  const idx = steps.map((s, i) => {
+    if (s.currency === 'exalt' || s.currency === 'perfect-essence') return i;
+    // Annul of a desecrated junk mod on a desecrated item can use Omen of Light.
+    if (s.currency === 'annul' && start?.desecrated) {
+      const removed = resolveMod(data, s.remove);
+      if (removed.source === 'desecrated') return i;
+    }
+    return -1;
+  }).filter((i) => i >= 0);
   const variants: PlanStep[][] = [];
   for (let mask = 0; mask < (1 << idx.length); mask++) {
     variants.push(steps.map((s, i) => {
@@ -306,6 +316,7 @@ export function withOmenVariants(data: PatchData, steps: PlanStep[]): PlanStep[]
       if (bit < 0 || !(mask & (1 << bit))) return s;
       if (s.currency === 'exalt') return { ...s, constrainTo: resolveMod(data, s.add).type };
       if (s.currency === 'perfect-essence') return { ...s, omen: resolveMod(data, s.remove).type === 'prefix' ? 'sinistral' : 'dextral' };
+      if (s.currency === 'annul') return { ...s, omen: 'light' };
       return s;
     }));
   }

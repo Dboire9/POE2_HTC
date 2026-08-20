@@ -162,25 +162,40 @@ describe('optimizeFromItem — desecrated mods (kept and crafted, hand-computed)
       .toThrow(/no boss omen/i);
   });
 
-  it('removes a desecrated junk mod via Omen of Light (guaranteed removal vs random annul)', () => {
-    // Item [NP1 | DS1] (desecrated: true); target {NP1, NS1}: DS1 (desecrated suffix) is junk, NS1 is missing.
-    // A plain Annul has 1/2 chance to hit DS1; Omen of Light guarantees it (P=1).
-    // The frontier should include both variants, and the Omen path will appear if priced competitively.
+  it('removes a desecrated junk mod with certainty via Omen of Light (P=1 vs ½ random)', () => {
+    // Item [NP1 | DS1] (desecrated); target {NP1, NS1}: DS1 (desecrated suffix) is the only junk,
+    // NS1 the only missing mod. NP1's family is on the item, so it adds 0 weight to any add — the
+    // only addable mod is NS1 (P=1 once a suffix slot is free). That leaves four routes:
+    //   annul-first, random  → ½ (annul hits DS1 1-of-2) · 1 (exalt NS1)          = ½
+    //   annul-first, LIGHT   → 1  (Light removes the desecrated mod) · 1          = 1
+    //   exalt-first, random  → 1  (exalt NS1) · ⅓ (annul hits DS1 1-of-3)         = ⅓
+    //   chaos                → ½ (removal hits DS1 1-of-2) · 1 (add NS1)          = ½
+    // So Omen of Light is the ONLY route to certainty, and ½ is the best without it.
     const start: ItemState = {
       base: dbase, level: 100, rarity: 'rare', desecrated: true,
       prefixes: [placed('NP1')], suffixes: [placed('DS1')],
     };
     const pricesWithLight: Prices = { ...dprices, omens: { OmenofLight: 0.3 } };
     const r = optimizeFromItem(ddata, pricesWithLight, start, [{ modId: 'NP1' }, { modId: 'NS1' }]);
-    expect(r.frontier.length).toBeGreaterThan(0);
-    // At least one plan should use Omen of Light to annul the desecrated junk mod.
-    const hasLight = r.frontier.some((p) => p.steps.some((s) =>
-      s.currency === 'annul' && 'remove' in s && s.remove === 'DS1' && 'omen' in s && s.omen === 'light'));
-    expect(hasLight).toBe(true);
-    // The Omen of Light variant should have P=1 for the removal step (vs 1/2 for random).
-    const lightPlan = r.frontier.find((p) => p.steps.some((s) =>
-      s.currency === 'annul' && 'remove' in s && s.remove === 'DS1' && 'omen' in s && s.omen === 'light'));
-    expect(lightPlan).toBeDefined();
+
+    const usesLight = (p: (typeof r.frontier)[number]): boolean => p.steps.some((s) =>
+      s.currency === 'annul' && s.remove === 'DS1' && s.omen === 'light');
+
+    // The surest plan is the Omen of Light one, at P=1 exactly.
+    const surest = r.frontier[r.frontier.length - 1]!;
+    expect(surest.probability).toBeCloseTo(1, 6);
+    expect(usesLight(surest)).toBe(true);
+    expect(surest.steps.find((s) => s.currency === 'annul'))
+      .toMatchObject({ currency: 'annul', remove: 'DS1', omen: 'light' });
+
+    // Without the omen the ceiling is ½ — so the certainty is bought by Light, not by some other route.
+    const bestWithout = Math.max(...r.frontier.filter((p) => !usesLight(p)).map((p) => p.probability));
+    expect(bestWithout).toBeCloseTo(1 / 2, 6);
+
+    // Both sit on the frontier: Light costs the 0.3 surcharge, so it's strictly dearer than the
+    // ½-probability plan it beats on certainty (that trade-off is the whole point of the lever).
+    const cheaperRival = r.frontier.filter((p) => !usesLight(p)).at(-1)!;
+    expect(surest.cost.expected).toBeGreaterThan(cheaperRival.cost.expected);
   });
 });
 

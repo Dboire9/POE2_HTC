@@ -300,9 +300,12 @@ export function withOmenVariants(data: PatchData, steps: PlanStep[], start?: Ite
   //   Crystallisation → likelier to hit the intended junk)
   // - ANNUL of a desecrated junk mod (on a desecrated item) can target it via Omen of Light (P=1 removal,
   //   guaranteed instead of 1/N random) — enumerate all combos of this lever per eligible annul step.
+  // Checking the START item is enough for the Light lever: desecrated JUNK can only be there from the
+  // start, since no plan spends a Desecration to create a mod it means to remove. And the gate is only
+  // an enumeration filter — annulProbability re-checks legality against the evolving item, so an
+  // over-offered variant scores 0 and drops out of the frontier rather than lying.
   const idx = steps.map((s, i) => {
     if (s.currency === 'exalt' || s.currency === 'perfect-essence') return i;
-    // Annul of a desecrated junk mod on a desecrated item can use Omen of Light.
     if (s.currency === 'annul' && start?.desecrated) {
       const removed = resolveMod(data, s.remove);
       if (removed.source === 'desecrated') return i;

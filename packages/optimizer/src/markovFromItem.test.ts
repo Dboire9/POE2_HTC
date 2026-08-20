@@ -249,5 +249,8 @@ describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to veri
     const mc = simulatePolicyMean(r, (a) => actionCostOf(rp, a), 100_000);
     expect(mc).toBeGreaterThan(r.expectedCost * 0.97);
     expect(mc).toBeLessThan(r.expectedCost * 1.03);
-  });
+    // Explicit timeout: value iteration over the tiered lattice + 100k MC runs takes ~3.2s alone and
+    // ~4.2s under full-suite parallel load — too close to vitest's 5s default, which made this fail
+    // intermittently as a TIMEOUT (the RNG is seeded, so the numbers themselves are deterministic).
+  }, 20_000);
 });

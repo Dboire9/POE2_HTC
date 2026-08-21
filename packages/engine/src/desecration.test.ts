@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import type { ItemBase, ItemState, Mod, PatchData, PlacedMod } from './index.ts';
-import { desecrationBossProbability, desecrationProbability, loadPatch } from './index.ts';
+import {
+  desecrationBossAnySideProbability, desecrationBossProbability, desecrationProbability, loadPatch,
+} from './index.ts';
 
 const data: PatchData = loadPatch('data/patches/0.5');
 const rare = (baseId: string): ItemState =>
@@ -28,6 +30,48 @@ describe('desecration boss omen — hand-computed', () => {
 
   it('0 for an unknown mod id', () => {
     expect(desecrationBossProbability(data, amulet, 'NOPE', { omen: 'liege' })).toBe(0);
+  });
+});
+
+// --- D8: WITHOUT a Necromancy side omen the boss draw spans BOTH sides ---------------------------
+// The per-slot 1/N above is what a Desecration yields once a Sinistral/Dextral Necromancy omen has
+// locked it to one side. Unconstrained, every one of that boss's mods is a candidate regardless of
+// side, so the denominator is the whole boss pool. Amulets/amanamu = 4 prefixes + 6 suffixes, which
+// makes the two models plainly distinguishable (1/4 or 1/6 constrained vs 1/10 unconstrained).
+describe('desecration boss omen, unconstrained (D8) — hand-computed', () => {
+  const amulet = rare('Amulets');
+  const amanamuPrefix = 'Amulets/DESECRATED_GLOBAL_DEFENCES';                              // family AllDefences
+  const amanamuSuffix = 'Amulets/DESECRATED_INCREASED_MINION_DAMAGE_IF_YOU_HIT_ENEMY';
+  const otherAmanamuPrefix = 'Amulets/DESECRATED_REMNANT_EFFECT';                          // family RemnantEffect
+
+  it('draws 1-of-10 across both sides, where the side-locked draw would be 1/4 or 1/6', () => {
+    expect(desecrationBossAnySideProbability(data, amulet, amanamuPrefix, { omen: 'liege' })).toBeCloseTo(1 / 10, 12);
+    expect(desecrationBossAnySideProbability(data, amulet, amanamuSuffix, { omen: 'liege' })).toBeCloseTo(1 / 10, 12);
+    // …and the constrained figures it replaces, for contrast.
+    expect(desecrationBossProbability(data, amulet, amanamuPrefix, { omen: 'liege' })).toBeCloseTo(1 / 4, 12);
+    expect(desecrationBossProbability(data, amulet, amanamuSuffix, { omen: 'liege' })).toBeCloseTo(1 / 6, 12);
+  });
+
+  it('an occupied family shrinks the denominator (that candidate can no longer be drawn)', () => {
+    // Put one amanamu prefix on the item: its family is taken, so it drops out of the pool and the
+    // remaining 9 candidates each get 1/9 rather than 1/10.
+    const withOne: ItemState = {
+      ...amulet, prefixes: [{ modId: otherAmanamuPrefix, tierName: data.mods.get(otherAmanamuPrefix)!.tiers[0]!.name }],
+    };
+    expect(desecrationBossAnySideProbability(data, withOne, amanamuPrefix, { omen: 'liege' })).toBeCloseTo(1 / 9, 12);
+    // The mod already on the item can't be drawn again at all.
+    expect(desecrationBossAnySideProbability(data, withOne, otherAmanamuPrefix, { omen: 'liege' })).toBe(0);
+  });
+
+  it('0 when the mod lacks the boss tag, and 0 once its own side is full', () => {
+    expect(desecrationBossAnySideProbability(data, amulet, amanamuPrefix, { omen: 'blackblooded' })).toBe(0);
+    const p = (id: string): PlacedMod => ({ modId: id, tierName: data.mods.get(id)!.tiers[0]!.name });
+    const fullPrefixes: ItemState = {
+      ...amulet,
+      prefixes: [p('Amulets/DESECRATED_REMNANT_EFFECT'), p('Amulets/DESECRATED_BODY_ARMOUR_FROM_BODY_ARMOUR'),
+                 p('Amulets/DESECRATED_INCREASED_MINION_DAMAGE_IF_YOU_HIT_ENEMY')],
+    };
+    expect(desecrationBossAnySideProbability(data, fullPrefixes, amanamuPrefix, { omen: 'liege' })).toBe(0);
   });
 });
 

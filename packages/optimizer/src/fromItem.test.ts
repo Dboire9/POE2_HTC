@@ -162,6 +162,68 @@ describe('optimizeFromItem — desecrated mods (kept and crafted, hand-computed)
       .toThrow(/no boss omen/i);
   });
 
+  it('offers both the wide boss draw and the Necromancy-locked one, dearer but surer (D8)', () => {
+    // Base with the kurgal desecrated mod on BOTH sides (DS1 suffix + DP1 prefix), so the two models
+    // differ: unconstrained the Blackblooded draw is 1-of-2 across the sides, while a Sinistral
+    // Necromancy omen locks it to the prefix where DP1 is the only candidate ⇒ P=1.
+    const bothSides: PatchData = {
+      patch: 't',
+      mods: new Map([...ddata.mods, ['DP1', dmk('DP1', 'prefix', 'Fdp', 'desecrated', ['kurgal_mod'])]]),
+      bases: new Map([['S', {
+        ...dbase, pools: { ...dbase.pools, desecrated: { prefixes: ['DP1'], suffixes: ['DS1'] } },
+      }]]),
+    };
+    const b = bothSides.bases.get('S')!;
+    // Start [— | NS1] targeting {DP1}: NS1 is junk, DP1 the desecrated prefix to craft.
+    const start: ItemState = { base: b, level: 100, rarity: 'rare', prefixes: [], suffixes: [placed('NS1')] };
+    const prices: Prices = {
+      currency: { exalt: 1, annul: 1.5, chaos: 0.2, desecrate: 0.5 },
+      omens: { OmenoftheBlackblooded: 1, OmenofSinistralNecromancy: 2 },
+    };
+    // The plan is: annul NS1 (the item's only mod ⇒ P=1, cost 1.5), then Desecrate for DP1.
+    //   wide   — desecrate 0.5 + boss 1          = 3.0/attempt at P=½ ⇒ E = 3.0/0.5 = 6
+    //   locked — the same plus Necromancy 5      = 8.0/attempt at P=1 ⇒ E = 8
+    // so the wide draw is cheaper but a coin flip, the lock is certain but dearer: both non-dominated.
+    const dear: Prices = { ...prices, omens: { OmenoftheBlackblooded: 1, OmenofSinistralNecromancy: 5 } };
+    const r = optimizeFromItem(bothSides, dear, start, [{ modId: 'DP1' }]);
+    const pick = (side: 'prefix' | undefined) => r.frontier.find((p) =>
+      p.steps.some((s) => s.currency === 'desecrate' && s.constrainTo === side));
+    const wide = pick(undefined);
+    const locked = pick('prefix');
+    expect(wide, 'the unconstrained draw is on the frontier').toBeDefined();
+    expect(locked, 'the Necromancy-locked draw is on the frontier').toBeDefined();
+    expect(wide!.probability).toBeCloseTo(1 / 2, 9);
+    expect(wide!.cost.expected).toBeCloseTo(6, 9);
+    expect(locked!.probability).toBeCloseTo(1, 9);
+    expect(locked!.cost.expected).toBeCloseTo(8, 9);
+    // 8 = 1.5 annul + (0.5 desecrate + 1 boss + 5 Necromancy) — the boss omen is charged ON TOP of
+    // the side omen, which the old single-omen pricing could not express.
+    expect(locked!.cost.perAttempt).toBeCloseTo(8, 9);
+  });
+
+  it('takes the side-lock outright when the omen is cheap enough to dominate', () => {
+    // Same shapes, Necromancy at 2 instead of 5: locked E = 5 beats wide E = 6 AND is surer, so the
+    // wide draw is strictly dominated and the frontier collapses to the certain plan.
+    const bothSides: PatchData = {
+      patch: 't',
+      mods: new Map([...ddata.mods, ['DP1', dmk('DP1', 'prefix', 'Fdp', 'desecrated', ['kurgal_mod'])]]),
+      bases: new Map([['S', {
+        ...dbase, pools: { ...dbase.pools, desecrated: { prefixes: ['DP1'], suffixes: ['DS1'] } },
+      }]]),
+    };
+    const b = bothSides.bases.get('S')!;
+    const start: ItemState = { base: b, level: 100, rarity: 'rare', prefixes: [], suffixes: [placed('NS1')] };
+    const cheap: Prices = {
+      currency: { exalt: 1, annul: 1.5, chaos: 0.2, desecrate: 0.5 },
+      omens: { OmenoftheBlackblooded: 1, OmenofSinistralNecromancy: 2 },
+    };
+    const r = optimizeFromItem(bothSides, cheap, start, [{ modId: 'DP1' }]);
+    expect(r.frontier).toHaveLength(1);
+    expect(r.frontier[0]!.probability).toBeCloseTo(1, 9);
+    expect(r.frontier[0]!.cost.expected).toBeCloseTo(5, 9);
+    expect(r.frontier[0]!.steps.some((s) => s.currency === 'desecrate' && s.constrainTo === 'prefix')).toBe(true);
+  });
+
   it('removes a desecrated junk mod with certainty via Omen of Light (P=1 vs ½ random)', () => {
     // Item [NP1 | DS1] (desecrated); target {NP1, NS1}: DS1 (desecrated suffix) is the only junk,
     // NS1 the only missing mod. NP1's family is on the item, so it adds 0 weight to any add — the

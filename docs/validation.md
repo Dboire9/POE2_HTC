@@ -646,8 +646,8 @@ Sinistral/Dextral **Necromancy** omen narrows it to one side and thereby recover
 `1/N`. So the existing per-slot number is the *side-omen* case, not the unconstrained one. Candidates
 whose family is already on the item, or whose side is full, are dropped from the draw rather than
 wasting it — the same way `poolTotalWeight` excludes occupied families from a normal add.
-→ **Follow-up:** this implies the LINEAR planner is optimistic for desecration — it takes the
-constrained `1/N` without paying for a Necromancy omen. Flagged, not fixed.
+→ **RESOLVED 2026-08-21** (see "Both planners honour D8" below): the linear planner was taking the
+constrained `1/N` without paying for a Necromancy omen. It now dispatches on the omen like the MDP.
 
 **Omen of Light** is now an MDP action too: it removes the item's desecrated mod outright (P=1) instead
 of rolling the uniform 1/N. Without it the model would overstate the cost of every desecrate-based plan,
@@ -660,9 +660,8 @@ matching `plan.ts`. Sinistral/Dextral **Crystallisation** omens constrain which 
 *Side-slot legality:* the add only fits if the target's side has room; when that side is full the add
 depends on the removal landing there, guaranteed only under a matching omen — so in the ambiguous case
 the action simply isn't offered rather than inventing a rule.
-→ **Follow-up (pre-existing):** `plan.ts`'s `'perfect-essence'` branch checks rarity and family but NOT
-the target-side slot count, unlike its `'desecrate'` branch which does check `sideFull`. The MDP does
-not inherit the gap; `plan.ts` itself is untouched and worth a separate look.
+→ **RESOLVED 2026-08-21** (see below): `plan.ts`'s `'perfect-essence'` branch checked rarity and family
+but NOT the target-side slot count, unlike its `'desecrate'` branch. Now fixed.
 
 **Regular essences stay out, structurally.** `essenceForcedProbability` requires a **Magic** item and
 this planner starts from the Rare you already hold; there is no legal Rare→Magic transition, so there is
@@ -690,6 +689,50 @@ unwanted Intelligence.
 essences); `EnginePolicyNode` gained `desecratedJunk`; the graph labels "+1 desecrated" and the new
 actions ("Desecrate (Omen of the Liege, Dextral)", "Perfect Essence (Sinistral)", "Annul (Omen of
 Light)"). **640 tests + 1 todo, type-check + build green; differential fixtures untouched.**
+
+## Both planners honour D8, and a perfect-essence slot bug (2026-08-21)
+
+The two follow-ups left open by v3a, both wrong numbers users could see.
+
+**The linear planner now honours D8.** `plan.ts`'s `'desecrate'` branch called
+`desecrationBossProbability` whenever a boss omen was set — the per-slot `1/N`, i.e. the
+*side-constrained* odds — and ignored `constrainTo` entirely, while `cost.ts` charged only the boss
+omen. So a desecrate craft got side-locked odds for free. Now: with `constrainTo` it uses the per-slot
+figure (and 0 if the omen points at the wrong side); without it, the new
+`desecrationBossAnySideProbability` — count-uniform across BOTH sides of that boss's pool, filtered to
+candidates that are actually legal (family free, side not full). The filtering is required rather than
+a nicety: `markovActions.ts`'s `desecrateOutcomes` already filters this way, so an unfiltered
+denominator would put the two planners back into disagreement, which is what D8 existed to settle.
+
+`desecrationBossProbability` and its **frozen Java fixture are untouched** — under D8 that function
+*is* the side-constrained case, so the anchor keeps its meaning and every existing assertion passes
+unedited. The new path is a sibling, and is not differential-tested because Java models no
+unconstrained desecration to compare against.
+
+Two supporting changes: `cost.ts`'s `stepOmenId` became `stepOmenIds` (a list) because a Desecration
+can now invoke two omens at once — a boss omen *and* a Necromancy side omen — which single-omen
+pricing could not express; and `withOmenVariants` fans out boss-desecrate steps so the planner
+explores "pay for the side-lock vs take the wider draw" and `paretoFrontier` picks, exactly as every
+other omen lever works here.
+
+*Real-data impact* (Wands ilvl 82, keep Mana + craft the desecrated Spell-AoE suffix): the cheapest
+plan goes **16.50ex → 28.50ex**, against the MDP's 33.58ex for the same craft — the linear model stays
+optimistic by design (free restart) but no longer by an extra 73% from unpaid omens. Tests pin both
+regimes on a synthetic base whose boss pool spans both sides: with a dear omen the wide draw (P=½,
+E=6) and the lock (P=1, E=8) are both non-dominated; with a cheap one the lock strictly dominates and
+the frontier collapses to it. Engine-level cases pin 1/10 unconstrained vs 1/4 and 1/6 constrained on
+real Amulets data, plus an occupied family shrinking the denominator to 1/9.
+
+**Perfect essence could add to a full side.** `stepProbability`'s `'perfect-essence'` branch checked
+rarity and family but never whether the *added* mod's side had room. The essence removes before it
+adds, so the removal only makes room if it came off the add's own side — eating a suffix does nothing
+for a third prefix. It scored adding a 4th prefix to a 3-prefix item as a normal `1/(pf+sf)`. Now
+rejects when the add's side is still full once `step.remove` is gone; two tests pin that the guard
+rejects only the illegal case (sacrifice the suffix ⇒ 0) and not the legal twin (sacrifice a prefix ⇒
+1/4). While there, the `'desecrate'` branch's hardcoded `>= 3` literals became the canonical
+`prefixesFull`/`suffixesFull`.
+
+**647 tests + 1 todo, type-check + build green; differential fixtures untouched.**
 
 STILL DEFERRED (MDP v3b): **Omen of Whittling** — the remaining v3 item, and the only one needing a
 state-abstraction redesign rather than new actions. Junk carries no tier information at all (just a

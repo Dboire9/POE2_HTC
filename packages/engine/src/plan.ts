@@ -11,8 +11,8 @@ import { familyAvailable, resolveMod } from './pool.ts';
 import { MAX_AFFIXES_PER_SIDE, prefixesFull, suffixesFull, whiteItem, withAffix } from './item.ts';
 import type { AnnulOmen, CurrencyOptions, DesecrationBossOmen, EssenceOmen } from './probability.ts';
 import {
-  alchemyProbability, annulProbability, augmentationProbability, chaosProbability, desecrationBossProbability,
-  desecrationProbability, essenceForcedProbability, exaltProbability, perfectEssenceProbability, regalProbability,
+  alchemyProbability, annulProbability, augmentationProbability, chaosProbability, desecrationBossAnySideProbability,
+  desecrationBossProbability, desecrationProbability, essenceForcedProbability, exaltProbability, perfectEssenceProbability, regalProbability,
   transmuteProbability,
 } from './probability.ts';
 
@@ -104,9 +104,16 @@ function stepProbability(data: PatchData, state: ItemState, step: PlanStep): num
       const mod = resolveMod(data, step.add);
       const sideFull = mod.type === 'prefix' ? prefixesFull(state) : suffixesFull(state);
       if (sideFull || !familyAvailable(data, state, mod)) return 0;
-      return step.boss
-        ? desecrationBossProbability(data, state, step.add, { omen: step.boss })
-        : desecrationProbability(data, state, step.add, step.constrainTo ? { constrainTo: step.constrainTo } : {});
+      if (!step.boss) {
+        return desecrationProbability(data, state, step.add, step.constrainTo ? { constrainTo: step.constrainTo } : {});
+      }
+      // D8: a boss draw spans BOTH sides unless a Sinistral/Dextral Necromancy omen locks it to one.
+      // With the omen the draw is the per-slot 1/N (and it must be the added mod's own side, or the
+      // omen is pointing away from what we want); without it, the wider both-sides denominator.
+      if (step.constrainTo) {
+        return step.constrainTo === mod.type ? desecrationBossProbability(data, state, step.add, { omen: step.boss }) : 0;
+      }
+      return desecrationBossAnySideProbability(data, state, step.add, { omen: step.boss });
     }
     case 'essence': return essenceForcedProbability(data, state, step.add, step.essenceTier);
     case 'perfect-essence': {

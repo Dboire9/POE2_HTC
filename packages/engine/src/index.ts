@@ -12,7 +12,7 @@ export {
   addAffixProbability, addNormalAffixProbability,
   transmuteProbability, augmentationProbability, regalProbability, exaltProbability,
   annulProbability, perfectEssenceProbability, essenceForcedProbability,
-  desecrationBossProbability, desecrationProbability, desecrationOmenForMod, chaosProbability, alchemyProbability,
+  desecrationBossProbability, desecrationBossAnySideProbability, desecrationProbability, desecrationOmenForMod, chaosProbability, alchemyProbability,
   ALCHEMY_MOD_COUNT,
 } from './probability.ts';
 export type {

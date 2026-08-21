@@ -12,6 +12,6 @@ export type {
   Alternative, AlternativesOptions, AlternativesResult, AlternativeTarget, Closeness, SlotChange,
 } from './alternatives.ts';
 export { simulatePerStepRates, mulberry32 } from './simulate.ts';
-export { indexPrices, planCostCdf, planExpectedCost, stepCost, stepOmenId, DEFAULT_COST_CELLS } from './cost.ts';
+export { indexPrices, planCostCdf, planExpectedCost, stepCost, stepOmenIds, DEFAULT_COST_CELLS } from './cost.ts';
 export { loadPrices } from './loadPrices.ts';
 export type { Prices, CostBreakdown, CostCdfBounds, CostCdfOptions } from './cost.ts';

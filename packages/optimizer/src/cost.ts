@@ -48,40 +48,45 @@ function currencyKey(step: PlanStep): string {
   return step.currency;
 }
 
-/** The omen id a step invokes (for the omen surcharge), or undefined if it uses no omen. */
-export function stepOmenId(step: PlanStep): string | undefined {
+/**
+ * Every omen id a step invokes (for the omen surcharge); empty when it uses none. A step can invoke
+ * MORE than one: a Desecration may carry both a boss omen (which pool it draws from) and a
+ * Sinistral/Dextral Necromancy omen (which side it draws on) — two separate omens, two surcharges.
+ */
+export function stepOmenIds(step: PlanStep): string[] {
   switch (step.currency) {
     case 'exalt':
-      if (step.constrainTo === 'prefix') return 'OmenofSinistralExaltation';
-      if (step.constrainTo === 'suffix') return 'OmenofDextralExaltation';
-      return undefined;
+      if (step.constrainTo === 'prefix') return ['OmenofSinistralExaltation'];
+      if (step.constrainTo === 'suffix') return ['OmenofDextralExaltation'];
+      return [];
     case 'annul':
-      if (step.omen === 'sinistral') return 'OmenofSinistralAnnulment';
-      if (step.omen === 'dextral') return 'OmenofDextralAnnulment';
-      if (step.omen === 'light') return 'OmenofLight';
-      return undefined;
+      if (step.omen === 'sinistral') return ['OmenofSinistralAnnulment'];
+      if (step.omen === 'dextral') return ['OmenofDextralAnnulment'];
+      if (step.omen === 'light') return ['OmenofLight'];
+      return [];
     case 'perfect-essence':
-      if (step.omen === 'sinistral') return 'OmenofSinistralCrystallisation';
-      if (step.omen === 'dextral') return 'OmenofDextralCrystallisation';
-      return undefined;
-    case 'desecrate':
-      if (step.boss === 'blackblooded') return 'OmenoftheBlackblooded';
-      if (step.boss === 'liege') return 'OmenoftheLiege';
-      if (step.boss === 'sovereign') return 'OmenoftheSovereign';
-      if (step.constrainTo === 'prefix') return 'OmenofSinistralNecromancy';
-      if (step.constrainTo === 'suffix') return 'OmenofDextralNecromancy';
-      return undefined;
+      if (step.omen === 'sinistral') return ['OmenofSinistralCrystallisation'];
+      if (step.omen === 'dextral') return ['OmenofDextralCrystallisation'];
+      return [];
+    case 'desecrate': {
+      const ids: string[] = [];
+      if (step.boss === 'blackblooded') ids.push('OmenoftheBlackblooded');
+      else if (step.boss === 'liege') ids.push('OmenoftheLiege');
+      else if (step.boss === 'sovereign') ids.push('OmenoftheSovereign');
+      if (step.constrainTo === 'prefix') ids.push('OmenofSinistralNecromancy');
+      else if (step.constrainTo === 'suffix') ids.push('OmenofDextralNecromancy');
+      return ids;
+    }
     default:
-      return undefined;
+      return [];
   }
 }
 
 /** Cost of a single step: its currency price plus any omen surcharge. Unknown keys cost 0. */
 export function stepCost(prices: Prices, step: PlanStep): number {
   const base = prices.currency[currencyKey(step)] ?? 0;
-  const omenId = stepOmenId(step);
-  const omen = omenId ? (prices.omens[omenId] ?? 0) : 0;
-  return base + omen;
+  const omens = stepOmenIds(step).reduce((sum, id) => sum + (prices.omens[id] ?? 0), 0);
+  return base + omens;
 }
 
 /** One way an attempt can end: `cost` spent, with probability `prob`. The branches sum to 1. */

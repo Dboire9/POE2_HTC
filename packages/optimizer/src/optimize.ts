@@ -300,12 +300,16 @@ export function withOmenVariants(data: PatchData, steps: PlanStep[], start?: Ite
   //   Crystallisation → likelier to hit the intended junk)
   // - ANNUL of a desecrated junk mod (on a desecrated item) can target it via Omen of Light (P=1 removal,
   //   guaranteed instead of 1/N random) — enumerate all combos of this lever per eligible annul step.
+  // - DESECRATE with a boss omen draws across BOTH sides of that boss's pool (D8); a Sinistral/Dextral
+  //   NECROMANCY omen locks it to the added mod's side, shrinking the pool to the per-slot 1/N for a
+  //   second omen surcharge on top of the boss omen.
   // Checking the START item is enough for the Light lever: desecrated JUNK can only be there from the
   // start, since no plan spends a Desecration to create a mod it means to remove. And the gate is only
   // an enumeration filter — annulProbability re-checks legality against the evolving item, so an
   // over-offered variant scores 0 and drops out of the frontier rather than lying.
   const idx = steps.map((s, i) => {
     if (s.currency === 'exalt' || s.currency === 'perfect-essence') return i;
+    if (s.currency === 'desecrate' && s.boss) return i;
     if (s.currency === 'annul' && start?.desecrated) {
       const removed = resolveMod(data, s.remove);
       if (removed.source === 'desecrated') return i;
@@ -319,6 +323,7 @@ export function withOmenVariants(data: PatchData, steps: PlanStep[], start?: Ite
       if (bit < 0 || !(mask & (1 << bit))) return s;
       if (s.currency === 'exalt') return { ...s, constrainTo: resolveMod(data, s.add).type };
       if (s.currency === 'perfect-essence') return { ...s, omen: resolveMod(data, s.remove).type === 'prefix' ? 'sinistral' : 'dextral' };
+      if (s.currency === 'desecrate') return { ...s, constrainTo: resolveMod(data, s.add).type };
       if (s.currency === 'annul') return { ...s, omen: 'light' };
       return s;
     }));

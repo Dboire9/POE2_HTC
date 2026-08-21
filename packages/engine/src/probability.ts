@@ -364,15 +364,19 @@ export function desecrationOmenForMod(mod: Mod): DesecrationBossOmen | undefined
 }
 
 /**
- * Boss-omen desecration probability — faithful port of
+ * Boss-omen desecration probability, restricted to the added mod's own slot — a faithful port of
  * `DesProbability.ComputePercentageDesecrated_currency`. A boss omen forces the desecration to add a
- * uniformly-random mod from that boss's desecrated pool for the added mod's slot:
+ * uniformly-random mod from that boss's desecrated pool for that slot:
  *   P = 1 / (count of that boss's desecrated mods of the slot), 0 unless `desiredModId` carries the
  *   boss tag.
  * Java is COUNT-uniform here — it ignores mod weights (the 0.5 boss pools mix weights 1/3/1000, all
  * counted as one) — so this mirrors that exactly. When real weight-based desecration is adopted at
- * the poe2db refresh this becomes weight/Σweight; tracked for Phase 3. This is the ONLY desecration
- * path Java models; the plain combined-pool desecration is a separate engine addition.
+ * the poe2db refresh this becomes weight/Σweight; tracked for Phase 3.
+ *
+ * PER D8 (see docs/validation.md) this per-slot number is the **side-constrained** case: it is what a
+ * Desecration yields once a Sinistral/Dextral Necromancy omen has locked the draw to one side. The
+ * UNCONSTRAINED draw spans both sides — see `desecrationBossAnySideProbability`. Java models only this
+ * narrow path, so this function (and its differential fixture) stays exactly as ported.
  */
 export function desecrationBossProbability(
   data: PatchData, item: ItemState, desiredModId: string, opts: { omen: DesecrationBossOmen },
@@ -386,6 +390,38 @@ export function desecrationBossProbability(
   for (const id of pool) {
     const pm = data.mods.get(id);
     if (pm && pm.tags.includes(tag)) count++;
+  }
+  return count > 0 ? 1 / count : 0;
+}
+
+/**
+ * Boss-omen desecration with NO side omen: the draw spans BOTH sides of that boss's desecrated pool
+ * (D8), so the denominator is every candidate the desecration could actually land —
+ *   P = 1 / (count of that boss's desecrated mods, both sides, that are LEGAL on this item)
+ * where legal means the mod's family isn't already present and its side isn't full. Filtering rather
+ * than counting the whole pool is what keeps this a real distribution: an illegal candidate can't be
+ * the result, so including it would understate every legal one. This mirrors the MDP's own
+ * `desecrateOutcomes` exactly, so the two planners agree.
+ *
+ * Returns 0 if the desired mod doesn't carry the boss tag or isn't itself legal here. Count-uniform
+ * for the same reason as `desecrationBossProbability` — Java ignores weights on this path.
+ * Not differential-tested: Java has no unconstrained desecration to compare against.
+ */
+export function desecrationBossAnySideProbability(
+  data: PatchData, item: ItemState, desiredModId: string, opts: { omen: DesecrationBossOmen },
+): number {
+  const mod = data.mods.get(desiredModId);
+  if (!mod) return 0;
+  const tag = DES_BOSS_TAG[opts.omen];
+  if (!mod.tags.includes(tag)) return 0;
+  const sideOpen = { prefix: !prefixesFull(item), suffix: !suffixesFull(item) };
+  const legal = (m: Mod): boolean => m.tags.includes(tag) && sideOpen[m.type] && familyAvailable(data, item, m);
+  if (!legal(mod)) return 0;
+  const des = item.base.pools.desecrated;
+  let count = 0;
+  for (const id of [...des.prefixes, ...des.suffixes]) {
+    const pm = data.mods.get(id);
+    if (pm && legal(pm)) count++;
   }
   return count > 0 ? 1 / count : 0;
 }

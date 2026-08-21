@@ -734,6 +734,54 @@ rejects only the illegal case (sacrifice the suffix ⇒ 0) and not the legal twi
 
 **647 tests + 1 todo, type-check + build green; differential fixtures untouched.**
 
+## MDP solver performance: the lattice is now compiled to typed arrays (2026-08-21)
+
+Went looking for whether Whittling was tractable and found something worse: **the solver was already
+unusable on large targets in shipped code.** Real 0.5.0 Wands, value iteration to default tolerance:
+n=3 342ms, n=4 860ms, n=5 2.9s, **n=6 over 100 seconds**. A six-mod target was a minute-plus wait.
+
+**Cause: the representation, not the algorithm.** Every hot operation in the VI loop was a
+string-keyed `Map` lookup (`actionCache.get`, `dist.get`, `V.get`/`V.set`) against keys like
+`"63:0:0:0:0"`. At n=6 that is ~2,915 states × ~15 actions × ~8 outcomes × ~10,000 sweeps ≈ **3.5
+billion string hashes**, and ~15ns each accounts for the entire runtime. The loop was doing
+arithmetic through a hash table.
+
+**Fix:** compile the lattice once into integer indices and typed arrays — `V` as a `Float64Array`,
+each action as `{cost, selfProb, to: Int32Array, prob: Float64Array}` with the self-loop hoisted out
+and divided through as before. Entry order is preserved exactly as the `Map`s iterated, so the
+floating-point sums — and therefore every expected cost — are **bit-identical**. `markovState.ts` and
+`markovActions.ts` are untouched; the numeric form is an implementation detail of the solver.
+
+| n | states | before | after |
+|---|---|---|---|
+| 3 | 239 | 342 ms | **114 ms** |
+| 4 | 575 | 860 ms | **181 ms** |
+| 5 | 1,295 | 2.86 s | **430 ms** |
+| 6 | 2,915 | >100 s | **~13 s** |
+
+(The "51s" figure that circulated for n=6 was capped at 10k sweeps and had *not* converged — it read
+E=827.2976 against the true E=827.302627.)
+
+**Two hypotheses tested and rejected — recorded because both were plausible:**
+
+1. **Loosening the tolerance.** The 1e-9 tolerance is absolute, and E≈827 needs ~1e-12 relative, so
+   this looked like the obvious lever. Measured at n=6: `1e-5` → 50 s (0.0004% error), `1e-3` → 29 s
+   (0.1%), `1e-2` → 20 s (1%), `1e-1` → 11 s (**10%** error). It buys nothing until the answer is
+   visibly wrong. The contraction factor is genuinely near 1 — a property of the long recovery cycles
+   this model exists to capture.
+2. **Sweeping in distance-to-goal order.** This is Gauss-Seidel (V is written in place), so a
+   goal-outward order should propagate values faster than the bitmask order `enumerateStates` emits.
+   Implemented and measured: **no effect** — within the ~15% run-to-run noise. Reverted. The reason is
+   structural: the transition graph has strong cycles (brick → recover), so there is no topological
+   order to exploit and values must circulate regardless of where a sweep starts.
+
+**What this unblocks.** Whittling was previously projected as viable only at n≤2. With the solver
+7× faster and the cheaper *junk-only* banding (targets largely reuse the `present`/`blocked` bit they
+already carry; only junk needs a new tier band), the projection is now ~0.7 s at n=3, ~1 s at n=4 and
+~2 s at n=5 — so the endgame case that motivates the omen (five mods already good, spend it fixing the
+last one) becomes reachable. **n=6 remains impractical** at ~57 s projected; getting there would need
+a different algorithm (policy iteration), which is not attempted here.
+
 STILL DEFERRED (MDP v3b): **Omen of Whittling** — the remaining v3 item, and the only one needing a
 state-abstraction redesign rather than new actions. It is a **Chaos** omen: the orb changes the item's
 **lowest-tier** modifier instead of a uniformly-random one, where "tier" is the per-mod T-number

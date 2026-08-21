@@ -21,8 +21,13 @@ export interface Mod {
   readonly source: ModSource;
   readonly type: AffixType;
   readonly categories: readonly string[];
-  /** Family-exclusion group: an item may hold at most one mod per family. */
+  /** Primary family-exclusion group: an item may hold at most one mod per family. Also the key the
+   * poe2db weight join uses and the label the UI shows — keep it stable. */
   readonly family: string;
+  /** Present only when a mod spans MORE than one exclusion group (e.g. a desecrated "+Str +Int" sits
+   * in both Strength and Intelligence). `families[0]` === `family`. Read it via `familiesOf(mod)` in
+   * pool.ts rather than directly — that helper is what makes single- and multi-family mods uniform. */
+  readonly families?: readonly string[];
   readonly tags: readonly string[];
   readonly text: string | null;
   /** Ascending by ilvl: tiers[0] = lowest ilvl (worst), tiers[last] = highest ilvl (best). */

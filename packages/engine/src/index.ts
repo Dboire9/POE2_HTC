@@ -4,7 +4,7 @@ export type {
 } from './types.ts';
 export { CURRENCY_FLOOR } from './types.ts';
 
-export { resolveMod, modTierWeight, poolTotalWeight, itemFamilies, familyAvailable } from './pool.ts';
+export { resolveMod, modTierWeight, poolTotalWeight, itemFamilies, familyAvailable, familiesOf, excluded } from './pool.ts';
 export {
   MAX_AFFIXES_PER_SIDE, whiteItem, prefixCount, suffixCount, prefixesFull, suffixesFull, withAffix,
 } from './item.ts';

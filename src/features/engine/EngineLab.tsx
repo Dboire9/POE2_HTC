@@ -5,6 +5,7 @@ import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
   loadEngine, listBases, listMods, listDesecrated, optimize, optimizeItem, alternatives, alternativesForItem,
+  modFamilies,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
   type EngineAlternatives, type AltTargetInput,
 } from '../../lib/engine';
@@ -61,7 +62,7 @@ const ModColumn: React.FC<ModColumnProps> = ({
       {list.length === 0 && <p className="px-2 py-3 text-xs text-muted-foreground">No matches</p>}
       {list.map((m) => {
         const sideFull = count >= 3;
-        const famTaken = occupiedFamilies.has(m.family);
+        const famTaken = modFamilies(m).some((f) => occupiedFamilies.has(f));
         const isEssence = m.source === 'essence';
         const essenceBlocked = isEssence && (essenceUsed || hasFractured);
         const desecratedBlocked = m.source === 'desecrated' && desecratedUsed;
@@ -188,10 +189,7 @@ const EngineLab: React.FC = () => {
   // are locked out of the picker so an impossible (always-0%) target can't be built in the first place.
   const occupiedFamilies = useMemo(() => {
     const s = new Set<string>();
-    for (const t of targets) {
-      const fam = modById.get(t.modId)?.family;
-      if (fam) s.add(fam);
-    }
+    for (const t of targets) for (const fam of modFamilies(modById.get(t.modId))) s.add(fam);
     return s;
   }, [targets, modById]);
 
@@ -206,7 +204,7 @@ const EngineLab: React.FC = () => {
     if (targets.some((t) => t.modId === mod.id)) return;
     if (mod.type === 'prefix' && prefixCount >= 3) return;
     if (mod.type === 'suffix' && suffixCount >= 3) return;
-    if (occupiedFamilies.has(mod.family)) return; // one mod per family
+    if (modFamilies(mod).some((f) => occupiedFamilies.has(f))) return; // one mod per family (any of them)
     if (mod.source === 'essence' && essenceUsed) return; // one essence-only mod per craft
     if (mod.source === 'essence' && fractured.size > 0) return; // essence needs Magic; a fracture forces Rare
     if (mod.source === 'desecrated' && desecratedUsed) return; // an item holds at most one desecrated mod

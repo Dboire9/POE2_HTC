@@ -6,7 +6,7 @@
 // family exclusion in the denominator — see D6), so empirical → analytic by the law of large numbers.
 
 import type { ItemState, PatchData, PlanStep, Rarity } from '../../engine/src/index.ts';
-import { itemFamilies, modTierWeight, resolveMod, whiteItem, withAffix } from '../../engine/src/index.ts';
+import { excluded, itemFamilies, modTierWeight, resolveMod, whiteItem, withAffix } from '../../engine/src/index.ts';
 
 /** Deterministic PRNG so the self-check is reproducible (no flaky tests). */
 export function mulberry32(seed: number): () => number {
@@ -38,7 +38,7 @@ function reachableWeighted(data: PatchData, state: ItemState, limit: number): { 
   const out: { id: string; weight: number }[] = [];
   for (const id of ids) {
     const mod = resolveMod(data, id);
-    if (occupied.has(mod.family)) continue; // can't roll a family already on the item
+    if (excluded(mod, occupied)) continue; // can't roll a family already on the item (any of them)
     const w = modTierWeight(mod, 0, state.level, 0);
     if (w > 0) out.push({ id, weight: w });
   }

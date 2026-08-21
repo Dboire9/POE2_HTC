@@ -6,7 +6,7 @@
 // end-to-end check of the restart-on-first-failure COST formula.
 
 import type { ItemBase, ItemState, PatchData, PlanStep, Rarity } from '../../engine/src/index.ts';
-import { CURRENCY_FLOOR, itemFamilies, resolveMod, whiteItem, withAffix } from '../../engine/src/index.ts';
+import { CURRENCY_FLOOR, excluded, itemFamilies, resolveMod, whiteItem, withAffix } from '../../engine/src/index.ts';
 import { stepCost, type Prices } from './cost.ts';
 import { mulberry32 } from './simulate.ts';
 
@@ -35,7 +35,7 @@ export function reachablePairs(
     const ids = side === 'prefix' ? state.base.pools.normal.prefixes : state.base.pools.normal.suffixes;
     for (const id of ids) {
       const mod = resolveMod(data, id);
-      if (occupied.has(mod.family)) continue; // can't roll a family already on the item
+      if (excluded(mod, occupied)) continue; // can't roll a family already on the item (any of them)
       mod.tiers.forEach((t, i) => {
         if (t.ilvl >= opts.floor && t.ilvl <= opts.cap && t.weight > 0) pairs.push({ modId: id, tierIndex: i, weight: t.weight });
       });

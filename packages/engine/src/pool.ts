@@ -36,25 +36,47 @@ export function poolTotalWeight(
   let total = 0;
   for (const id of modIds) {
     const mod = resolveMod(data, id);
-    if (exclude?.has(mod.family)) continue;
+    if (exclude && excluded(mod, exclude)) continue;
     total += modTierWeight(mod, floor, cap);
   }
   return total;
 }
 
-/** Families currently present on the item (used for family-exclusion). An empty family means the mod
- * has no exclusion group, so it's never tracked — otherwise unrelated blank-family mods would collide. */
+/**
+ * EVERY exclusion group a mod belongs to. Usually one, but some mods legitimately span several — a
+ * desecrated "+Str +Int" rolls in both the Strength and Intelligence groups and must be blocked by,
+ * and block, mods in either. `families` carries the full list when there's more than one; `family`
+ * stays the primary (it keys the poe2db weight join and is what the UI labels).
+ *
+ * An empty family means "no exclusion group" and yields none, so unrelated blank-family mods can
+ * never collide.
+ */
+export function familiesOf(mod: Mod): readonly string[] {
+  if (mod.families && mod.families.length > 0) return mod.families;
+  return mod.family ? [mod.family] : [];
+}
+
+/**
+ * Does `mod` collide with a set of already-occupied families? True if ANY of its groups is taken.
+ * This is the single place exclusion is decided — call it rather than testing `.family` directly,
+ * or multi-family mods silently lose the groups beyond the first.
+ */
+export function excluded(mod: Mod, occupied: ReadonlySet<string>): boolean {
+  return familiesOf(mod).some((f) => occupied.has(f));
+}
+
+/** Families currently present on the item (used for family-exclusion). A mod with no family has no
+ * exclusion group and contributes none; a multi-family mod contributes all of its groups. */
 export function itemFamilies(data: PatchData, item: ItemState): Set<string> {
   const fams = new Set<string>();
   for (const p of [...item.prefixes, ...item.suffixes]) {
-    const fam = resolveMod(data, p.modId).family;
-    if (fam) fams.add(fam);
+    for (const f of familiesOf(resolveMod(data, p.modId))) fams.add(f);
   }
   return fams;
 }
 
-/** True if `mod` may still be added to `item` (its family isn't already present). A mod with no family
- * (empty) has no exclusion group and is always available. */
+/** True if `mod` may still be added to `item` (none of its families is already present). A mod with
+ * no family has no exclusion group and is always available. */
 export function familyAvailable(data: PatchData, item: ItemState, mod: Mod): boolean {
-  return mod.family === '' || !itemFamilies(data, item).has(mod.family);
+  return !excluded(mod, itemFamilies(data, item));
 }

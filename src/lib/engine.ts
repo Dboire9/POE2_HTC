@@ -37,6 +37,7 @@ import basesUrl from '../../data/patches/0.5.0/base_items.json?url';
 import pricesUrl from '../../data/patches/0.5.0/prices.json?url';
 
 // Re-export the UI-shaped types so components keep importing them from '../../lib/engine'.
+export { modFamilies } from './engineTypes.ts';
 export type {
   EngineBase, EngineTier, EngineMod, EngineBaseMods, TargetInput, EngineStep, EnginePlan, EngineResult,
   ItemModInput, ExistingItem, CurrencyAction, AltTargetInput, EngineSlot, EngineAlternative, EngineAlternatives,
@@ -123,7 +124,9 @@ export function listPerfectEssences(data: PatchData, baseId: string): EngineMod[
       const r = t.ranges[0];
       const range = r && r.length >= 2 ? `${r[0]}–${r[1]}` : '';
       return [{
-        id: mod.id, text: mod.text ?? mod.id, type, family: mod.family, source: 'perfect',
+        id: mod.id, text: mod.text ?? mod.id, type, family: mod.family,
+        ...(mod.families && mod.families.length > 1 ? { families: mod.families } : {}),
+        source: 'perfect',
         tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `${t.name} · ilvl ${t.ilvl}${range ? ` · ${range}` : ''}`, range }],
       }];
     });
@@ -148,7 +151,9 @@ export function listDesecrated(data: PatchData, baseId: string): EngineMod[] {
       const r = t.ranges[0];
       const range = r && r.length >= 2 ? `${r[0]}–${r[1]}` : '';
       return [{
-        id: mod.id, text: mod.text ?? mod.id, type, family: mod.family, source: 'desecrated',
+        id: mod.id, text: mod.text ?? mod.id, type, family: mod.family,
+        ...(mod.families && mod.families.length > 1 ? { families: mod.families } : {}),
+        source: 'desecrated',
         tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `desecrated · ilvl ${t.ilvl}${range ? ` · ${range}` : ''}`, range }],
       }];
     });

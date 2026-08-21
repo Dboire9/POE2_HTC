@@ -26,8 +26,11 @@ export interface EngineMod {
   readonly id: string;
   readonly text: string;
   readonly type: 'prefix' | 'suffix';
-  /** Family-exclusion group — an item may hold at most one mod per family. */
+  /** Primary family-exclusion group — an item may hold at most one mod per family. */
   readonly family: string;
+  /** All exclusion groups, when the mod spans more than one (a desecrated "+Str +Int" blocks both).
+   * Absent for the ordinary single-family case; use `modFamilies()` rather than reading it directly. */
+  readonly families?: readonly string[];
   /** 'normal' = rollable with currency; 'essence' = obtainable only by a regular essence (tiers = levels);
    * 'perfect' = a perfect-essence mod (added on a Rare by a Perfect Essence, which removes one random mod);
    * 'desecrated' = a desecrated ("carved by the Abyss") mod — occupies a slot/family and is the sole
@@ -35,6 +38,15 @@ export interface EngineMod {
   readonly source: 'normal' | 'essence' | 'perfect' | 'desecrated';
   /** Tiers best-first (T1 … Tn); for essence mods these are the Greater→Lesser essence levels. */
   readonly tiers: readonly EngineTier[];
+}
+
+/** Every exclusion group a UI mod belongs to — the single accessor the UI should use, so a
+ * multi-family mod (a desecrated "+Str +Int") blocks and is blocked by all of its groups, not just
+ * the primary one. Tolerates undefined so callers can pass a Map lookup straight in. */
+export function modFamilies(mod: { family: string; families?: readonly string[] } | undefined): readonly string[] {
+  if (!mod) return [];
+  if (mod.families && mod.families.length > 0) return mod.families;
+  return mod.family ? [mod.family] : [];
 }
 
 export interface EngineBaseMods {

@@ -8,7 +8,7 @@
 // or omen with no price is NOT offered, so a missing price can't mint a free super-orb.
 
 import type { ItemBase, PatchData } from '../../engine/src/types.ts';
-import { modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
+import { excluded, modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { Prices } from './cost.ts';
@@ -139,7 +139,7 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (has(s.present, i) || has(s.blocked, i)) continue; // family already occupied
       const t = list[i]!;
       if (!rollable(t)) continue; // an Exalt can't produce a desecrated / essence-only mod
-      if (occ.has(t.family)) continue; // defensive (validated distinct upstream)
+      if (excluded(t.mod, occ)) continue; // defensive (validated distinct upstream)
       const open = t.type === 'prefix' ? prefixOpen : suffixOpen;
       if (!open) continue;
       const succ = succWeight(t, floor);
@@ -245,7 +245,7 @@ export function createActionSpace(params: ActionSpaceParams): {
     for (const sd of sides) {
       for (const id of bossPool[boss][sd]) {
         const mod = data.mods.get(id)!;
-        if (occ.has(mod.family)) continue; // family exclusion shrinks the pool
+        if (excluded(mod, occ)) continue; // family exclusion shrinks the pool (all of a mod's families)
         candidates.push({ id, sd });
       }
     }

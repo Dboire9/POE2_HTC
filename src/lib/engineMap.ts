@@ -61,7 +61,11 @@ export function toEngineMod(data: PatchData, modId: string, type: 'prefix' | 'su
       return { display, name: t.name, ilvl: t.ilvl, label, range };
     })
     .sort((a, b) => a.display - b.display);
-  return { id: mod.id, text: mod.text ?? mod.id, type, family: mod.family, source: isEssence ? 'essence' : 'normal', tiers };
+  return {
+    id: mod.id, text: mod.text ?? mod.id, type, family: mod.family,
+    ...(mod.families && mod.families.length > 1 ? { families: mod.families } : {}),
+    source: isEssence ? 'essence' : 'normal', tiers,
+  };
 }
 
 // ── Target mapping ──────────────────────────────────────────────────────────

@@ -20,7 +20,7 @@
 // Skills) vs 2600 (Fire Spell Skills) — a 5.2× swing that surfaces. No special-casing needed either way.
 
 import type { ItemBase, ItemState, PatchData, Tier } from '../../engine/src/types.ts';
-import { resolveMod } from '../../engine/src/pool.ts';
+import { familiesOf, resolveMod } from '../../engine/src/pool.ts';
 import type { Prices } from './cost.ts';
 import { planCostCdf } from './cost.ts';
 import type { CurrencyDepth, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
@@ -170,6 +170,9 @@ function siblingsOf(data: PatchData, base: ItemBase, modId: string): string[] {
     const m = resolveMod(data, id);
     // Same TYPE too: swapping a prefix for a suffix moves the craft to the other side and reshapes the
     // ≤3-per-side split — that's a different item, not a near-miss.
+    // PRIMARY family only, deliberately: this is a similarity test, not an exclusion test. Matching on
+    // any shared family would make a multi-family mod (a desecrated "+Str +Int") a "near-miss" for every
+    // Strength AND every Intelligence mod, which is not what the user asked to approximate.
     return m.family === mod.family && m.type === mod.type;
   });
   out.sort(); // deterministic search order ⇒ reproducible frontiers
@@ -261,7 +264,7 @@ function searchAlternatives(
         // A sibling shares the swapped-out mod's family by construction, so this can only fire if the
         // DESIRED target already listed two mods of one family (an impossible item). Cheap, and it keeps
         // the invariant explicit if the swap rule ever widens beyond same-family.
-        const collides = root.some((o, j) => j !== i && o.kind !== 'dropped' && resolveMod(data, o.modId).family === fam);
+        const collides = root.some((o, j) => j !== i && o.kind !== 'dropped' && familiesOf(resolveMod(data, o.modId)).includes(fam));
         if (collides) continue;
         // Siblings can have fewer tiers ("+1 all Spell Skills" has 4, the elemental ones 5), so clamp.
         const tiers = resolveMod(data, sib).tiers.length;

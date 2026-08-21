@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import {
   loadEngine, listBases, listMods, listPerfectEssences, listDesecrated, currencyActions, optimizeItem, optimizeItemMarkov,
+  modFamilies,
   type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type CurrencyAction,
   type TargetInput, type EngineResult, type EngineMarkovResult,
 } from '../../lib/engine';
@@ -58,7 +59,7 @@ const BuilderColumn: React.FC<BuilderColumnProps> = ({ title, list, count, cap, 
     <div className="max-h-56 overflow-y-auto rounded-md border border-border divide-y divide-border/50">
       {list.length === 0 && <p className="px-2 py-3 text-xs text-muted-foreground">No matches</p>}
       {list.map((m) => {
-        const famTaken = occupiedFamilies.has(m.family);
+        const famTaken = modFamilies(m).some((f) => occupiedFamilies.has(f));
         const disabled = count >= cap || famTaken;
         return (
           <button
@@ -170,13 +171,13 @@ const ItemActions: React.FC = () => {
   };
   const occupiedFamilies = useMemo(() => {
     const s = new Set<string>();
-    for (const id of onItem) { const fam = modById.get(id)?.family; if (fam) s.add(fam); }
+    for (const id of onItem) for (const fam of modFamilies(modById.get(id))) s.add(fam);
     return s;
   }, [onItem, modById]);
 
   const cap = CAP[rarity];
   const addItemMod = (mod: EngineMod) => {
-    if (onItem.has(mod.id) || occupiedFamilies.has(mod.family)) return;
+    if (onItem.has(mod.id) || modFamilies(mod).some((f) => occupiedFamilies.has(f))) return;
     const cur = mod.type === 'prefix' ? prefixes : suffixes;
     if (cur.length >= cap) return;
     (mod.type === 'prefix' ? setPrefixes : setSuffixes)((l) => [...l, { modId: mod.id, tierDisplay: 1 }]);
@@ -221,14 +222,14 @@ const ItemActions: React.FC = () => {
   const targetIds = useMemo(() => new Set(target.map((t) => t.modId)), [target]);
   const targetFamilies = useMemo(() => {
     const s = new Set<string>();
-    for (const t of target) { const fam = modById.get(t.modId)?.family; if (fam) s.add(fam); }
+    for (const t of target) for (const fam of modFamilies(modById.get(t.modId))) s.add(fam);
     return s;
   }, [target, modById]);
   const targetPre = target.filter((t) => modById.get(t.modId)?.type === 'prefix').length;
   const targetSuf = target.filter((t) => modById.get(t.modId)?.type === 'suffix').length;
   const targetDesecrated = target.some((t) => modById.get(t.modId)?.source === 'desecrated');
   const addTarget = (mod: EngineMod) => {
-    if (targetIds.has(mod.id) || targetFamilies.has(mod.family)) return;
+    if (targetIds.has(mod.id) || modFamilies(mod).some((f) => targetFamilies.has(f))) return;
     if (mod.type === 'prefix' ? targetPre >= 3 : targetSuf >= 3) return;
     if (mod.source === 'desecrated' && targetDesecrated) return; // an item holds at most one desecrated mod
     setTarget((t) => [...t, { modId: mod.id, tierDisplay: 1 }]);

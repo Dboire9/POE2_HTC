@@ -10,6 +10,7 @@
 // collapses the space to 3^|target| × slots: a few thousand states, small enough to enumerate whole.
 
 import type { ItemState, Mod, PatchData } from '../../engine/src/types.ts';
+import { familiesOf } from '../../engine/src/pool.ts';
 
 /** Max prefixes (and suffixes) a Rare item can hold. */
 export const MAX_PER_SIDE = 3;
@@ -97,7 +98,9 @@ export const sufUsed = (s: McState, side: SideIndex): number =>
 /** Target families occupied (present OR blocked) — excluded from the add denominator (family exclusion). */
 export function occupiedFamilies(present: number, blocked: number, list: readonly McTarget[]): Set<string> {
   const s = new Set<string>();
-  for (let i = 0; i < list.length; i++) if (has(present, i) || has(blocked, i)) s.add(list[i]!.family);
+  for (let i = 0; i < list.length; i++) {
+    if (has(present, i) || has(blocked, i)) for (const f of familiesOf(list[i]!.mod)) s.add(f);
+  }
   return s;
 }
 

@@ -1,6 +1,6 @@
 import type { AffixType, CurrencyTier, ItemBase, ItemState, Mod, PatchData, PlacedMod } from './types.ts';
 import { CURRENCY_FLOOR } from './types.ts';
-import { familyAvailable, itemFamilies, modTierWeight, poolTotalWeight, resolveMod } from './pool.ts';
+import { familiesOf, familyAvailable, itemFamilies, modTierWeight, poolTotalWeight, resolveMod } from './pool.ts';
 import { prefixCount, prefixesFull, suffixCount, suffixesFull, whiteItem } from './item.ts';
 
 export interface AddAffixOptions {
@@ -246,7 +246,7 @@ export function alchemyProbability(
   const targets = new Set(targetModIds);
   if (targets.size === 0 || targets.size > ALCHEMY_MOD_COUNT) return 0;
   const build = (ids: readonly string[], side: AffixType) =>
-    ids.map((id) => { const m = resolveMod(data, id); return { id, family: m.family, side, w: modTierWeight(m, 0, level, 0) }; })
+    ids.map((id) => { const m = resolveMod(data, id); return { id, families: familiesOf(m), side, w: modTierWeight(m, 0, level, 0) }; })
       .filter((x) => x.w > 0);
   const pre = build(base.pools.normal.prefixes, 'prefix');
   const suf = build(base.pools.normal.suffixes, 'suffix');
@@ -259,17 +259,20 @@ export function alchemyProbability(
   const f = (draws: number, pf: number, sf: number): number => {
     if (need.size === 0) return 1;      // every target already landed
     if (draws < need.size) return 0;    // too few draws left to catch them all
-    const pool = [...(pf < limit ? pre : []), ...(sf < limit ? suf : [])].filter((x) => !occupied.has(x.family));
+    const pool = [...(pf < limit ? pre : []), ...(sf < limit ? suf : [])]
+      .filter((x) => !x.families.some((f) => occupied.has(f)));
     let total = 0;
     for (const x of pool) total += x.w;
     if (total === 0) return 0;
     let p = 0;
     for (const x of pool) {
-      occupied.add(x.family);
+      // A mod occupies ALL of its families for the rest of this branch, not just the primary one.
+      const added = x.families.filter((fam) => !occupied.has(fam));
+      for (const fam of added) occupied.add(fam);
       const wasNeeded = need.delete(x.id); // true iff x was a still-needed target
       p += (x.w / total) * f(draws - 1, x.side === 'prefix' ? pf + 1 : pf, x.side === 'suffix' ? sf + 1 : sf);
       if (wasNeeded) need.add(x.id);
-      occupied.delete(x.family);
+      for (const fam of added) occupied.delete(fam);
     }
     return p;
   };

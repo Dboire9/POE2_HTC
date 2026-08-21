@@ -609,8 +609,8 @@ lands high-tier." The state key grew `present:jp:js` → **`present:blocked:jp:j
   buy a Perfect Exalt. A component test renders the off-tier states from real MDP output.
 - **626 tests + 1 todo, type-check + build green; differential fixtures untouched.**
 
-DEFERRED (MDP v3): lowest-tier removal (Omen of Whittling) — needs the mod-tier ordering the state
-abstraction discards; extend beyond rollable targets (essence/desecrate as MDP actions); a from-white
+DEFERRED (MDP v3): Omen of Whittling (a Chaos omen that changes the lowest-TIER mod) — needs the
+mod-tier ordering the state abstraction discards; extend beyond rollable targets (essence/desecrate as MDP actions); a from-white
 MDP (its restart-to-white is already a defensible near-optimal strategy, so lower priority). (Omen of
 Homogenising Exaltation was a candidate but has been REMOVED from the game — see CHANGELOG — so it is
 not a v3 item.)
@@ -735,12 +735,13 @@ rejects only the illegal case (sacrifice the suffix ⇒ 0) and not the legal twi
 **647 tests + 1 todo, type-check + build green; differential fixtures untouched.**
 
 STILL DEFERRED (MDP v3b): **Omen of Whittling** — the remaining v3 item, and the only one needing a
-state-abstraction redesign rather than new actions. Junk carries no tier information at all (just a
-count) and present targets only know "≥ wanted tier", so "remove the lowest-tier mod" isn't answerable
-from the current state. A tractable version bands ilvl into coarse windows, but that multiplies the
-lattice and needs a **benchmarking spike first** (enumerate the banded lattice for n = 1..6 on real
-0.5.0 data and time a real value-iteration pass) to pin an honest target-count cap before any
-production code. Note `OmenofWhittling` is **not** in `data/patches/*/prices.json`, so under the
+state-abstraction redesign rather than new actions. It is a **Chaos** omen: the orb changes the item's
+**lowest-tier** modifier instead of a uniformly-random one, where "tier" is the per-mod T-number
+(T5 is lower than T1), **not** the mod's ilvl. Junk carries no tier information at all (just a count)
+and present targets only know "≥ wanted tier", so which mod is lowest isn't answerable from the
+current state. A tractable version bands the tier RANK into coarse windows, which multiplies the
+lattice and needs a **benchmarking spike first** (time a real value-iteration pass at n = 1..6 on real
+0.5.0 data) to pin an honest target-count cap before any production code. Note `OmenofWhittling` is **not** in `data/patches/*/prices.json`, so under the
 "only offer what's priced" rule it would ship dormant anyway. Also still deferred: a from-white MDP.
 
 ## Still deferred

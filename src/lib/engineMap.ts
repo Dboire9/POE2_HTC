@@ -179,8 +179,14 @@ function actionLabel(action: McAction): string {
     return 'Exalt';
   }
   if (action.currency === 'annul') {
+    if (action.light) return 'Annul (Omen of Light)';
     const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
     return sideLabel ? `Annul (${sideLabel})` : 'Annul';
+  }
+  if (action.currency === 'desecrate') {
+    const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
+    const boss = `Omen of the ${BOSS_LABEL[action.boss]}`;
+    return sideLabel ? `Desecrate (${boss}, ${sideLabel})` : `Desecrate (${boss})`;
   }
   return 'Chaos';
 }
@@ -194,11 +200,13 @@ export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number):
     blocked: nd.blocked.map(text),
     junkPrefixes: nd.junkPrefixes,
     junkSuffixes: nd.junkSuffixes,
+    ...(nd.desecratedJunk ? { desecratedJunk: nd.desecratedJunk } : {}),
     isStart: nd.isStart,
     isGoal: nd.isGoal,
     // Steps-to-goal = missing targets + off-tier blocks (each needs an annul then a re-add) + junk to
-    // clear. Goal = 0; used for the left→right layout.
-    depth: (nTargets - nd.present.length) + nd.blocked.length + nd.junkPrefixes + nd.junkSuffixes,
+    // clear, counting an unwanted desecrated mod as junk. Goal = 0; used for the left→right layout.
+    depth: (nTargets - nd.present.length) + nd.blocked.length + nd.junkPrefixes + nd.junkSuffixes
+      + (nd.desecratedJunk ? 1 : 0),
     expectedCost: nd.expectedCost,
     ...(nd.action ? { action: actionLabel(nd.action) } : {}),
   }));

@@ -162,6 +162,8 @@ export interface EnginePolicyNode {
   readonly blocked: readonly string[];
   readonly junkPrefixes: number;
   readonly junkSuffixes: number;
+  /** Side carrying an unwanted DESECRATED mod, if any — it blocks re-desecrating until it's removed. */
+  readonly desecratedJunk?: 'prefix' | 'suffix';
   readonly isStart: boolean;
   readonly isGoal: boolean;
   /** Steps-to-goal ranking (0 = goal); used to lay the graph out left→right. */

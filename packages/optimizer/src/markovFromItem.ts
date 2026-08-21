@@ -25,6 +25,7 @@
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
+import { desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { Prices } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
@@ -47,6 +48,8 @@ export interface PolicyNode {
   readonly blocked: readonly string[];
   readonly junkPrefixes: number;
   readonly junkSuffixes: number;
+  /** Which side carries an unwanted DESECRATED mod, if any — it blocks re-desecrating until removed. */
+  readonly desecratedJunk?: 'prefix' | 'suffix';
   readonly isStart: boolean;
   readonly isGoal: boolean;
   /** Minimum expected cost to reach the target from here. */
@@ -96,13 +99,22 @@ export function markovFromItem(
   if (start.rarity !== 'rare') return fail('the MDP planner models Rare items');
 
   const level = start.level;
+  const pools = start.base.pools;
   const fracturedIds = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
 
-  // Resolve targets into the ordered list the bitmasks index. Only rollable normal mods are supported.
+  // Resolve targets into the ordered list the bitmasks index: rollable normal mods, plus desecrated
+  // mods (added by a Desecration with the boss omen that selects them).
   const list: McTarget[] = [];
   for (const t of targets) {
     const mod = resolveMod(data, t.modId);
-    if (mod.source !== 'normal') return fail(`${t.modId} is not a rollable mod (the MDP handles normal mods)`);
+    if (mod.source !== 'normal' && mod.source !== 'desecrated') {
+      return fail(`${t.modId} is not a rollable or desecrated mod (the MDP handles those)`);
+    }
+    if (mod.source === 'desecrated') {
+      const inPool = pools.desecrated.prefixes.includes(mod.id) || pools.desecrated.suffixes.includes(mod.id);
+      if (!inPool) return fail(`${t.modId} isn't in ${start.base.id}'s desecrated pool`);
+      if (desecrationOmenForMod(mod) === undefined) return fail(`${t.modId} has no boss omen that targets it`);
+    }
     list.push({
       modId: mod.id, type: mod.type, family: mod.family, mod,
       minIndex: t.minTierIndex ?? 0, fractured: fracturedIds.has(mod.id),
@@ -111,23 +123,32 @@ export function markovFromItem(
   const n = list.length;
   if (n === 0) return fail('no target mods');
   if (n > MAX_TARGETS) return fail(`target has more than ${MAX_TARGETS} mods`);
+  // The Desecration mechanic places a single carved mod — an item can hold at most one desecrated mod.
+  if (list.filter((t) => t.mod.source === 'desecrated').length > 1) {
+    return fail('an item can hold at most one desecrated mod');
+  }
   const idxOf = new Map(list.map((t, i) => [t.modId, i]));
 
-  // A target that can never roll (weight 0 even at base strength, the most permissive) is impossible.
-  const ungettable = list.find((t) => modTierWeight(t.mod, 0, level, t.minIndex) === 0);
+  // A rollable target that can never roll (weight 0 even at base strength, the most permissive) is
+  // impossible. Desecrated targets don't roll from the normal pool, so the pool check above covers them.
+  const ungettable = list.find((t) => t.mod.source === 'normal' && modTierWeight(t.mod, 0, level, t.minIndex) === 0);
   if (ungettable) return fail(`${ungettable.modId} can't roll at item level ${level}`);
 
   const side = sideIndexOf(list);
-  const { actionsOf } = createActionSpace({ data, prices, level, pool: start.base.pools.normal, list, side });
+  const s0 = classifyStart(data, start, list, idxOf);
+  // Desecration is only modelled when it's actually in play — a desecrated target to craft, or a
+  // desecrated mod already on the item to clear. Otherwise a Desecration could only ever add junk, so
+  // leaving it out costs nothing and keeps the state space exactly as it was before v3.
+  const desecratable = list.some((t) => t.mod.source === 'desecrated') || s0.desJunk !== 'none';
+  const { actionsOf } = createActionSpace({ data, prices, level, pools, list, side, desecratable });
 
   const GOAL = (1 << n) - 1; // all target mods present, none blocked, no junk
   const goalKey = encodeState(GOAL, 0, 0, 0);
 
-  const allStates = enumerateStates(n, side);
+  const allStates = enumerateStates(n, side, desecratable);
   const actionCache = new Map<StateKey, ActionDef[]>();
   for (const key of allStates) {
-    const st = decodeState(key);
-    actionCache.set(key, key === goalKey ? [] : actionsOf(st.present, st.blocked, st.jp, st.js));
+    actionCache.set(key, key === goalKey ? [] : actionsOf(decodeState(key)));
   }
 
   // ── Value iteration ─────────────────────────────────────────────────────────
@@ -160,8 +181,7 @@ export function markovFromItem(
   }
 
   // ── Extract policy + reachable graph from the start ─────────────────────────
-  const s0 = classifyStart(start, list, idxOf);
-  const startKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js);
+  const startKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.desJunk);
   const startCost = V.get(startKey) ?? Infinity;
   if (!Number.isFinite(startCost)) return fail('no policy reaches the target');
 
@@ -183,10 +203,11 @@ export function markovFromItem(
     if (a) policy.set(key, a.action);
   }
 
-  // Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) + junk.
+  // Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) +
+  // junk, counting an unwanted desecrated mod as junk too (it likewise costs a removal to clear).
   const distanceToGoal = (k: StateKey): number => {
     const st = decodeState(k);
-    return (n - popcount(st.present)) + popcount(st.blocked) + st.jp + st.js;
+    return (n - popcount(st.present)) + popcount(st.blocked) + st.jp + st.js + (st.desJunk === 'none' ? 0 : 1);
   };
   const nodes: PolicyNode[] = [];
   const edges: PolicyEdge[] = [];
@@ -204,6 +225,7 @@ export function markovFromItem(
       present: list.filter((_, i) => has(st.present, i)).map((t) => t.modId),
       blocked: list.filter((_, i) => has(st.blocked, i)).map((t) => t.modId),
       junkPrefixes: st.jp, junkSuffixes: st.js,
+      ...(st.desJunk === 'none' ? {} : { desecratedJunk: st.desJunk }),
       isStart: k === startKey, isGoal, expectedCost: V.get(k) ?? Infinity,
       ...(act ? { action: act.action } : {}),
     });

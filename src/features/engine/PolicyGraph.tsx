@@ -26,6 +26,8 @@ function stateLabel(nd: EnginePolicyNode): string {
   const parts = [`${kept} mod${kept === 1 ? '' : 's'}`];
   if (nd.blocked.length > 0) parts.push(`${nd.blocked.length} off-tier`);
   if (junk > 0) parts.push(`+${junk} junk`);
+  // Called out separately from ordinary junk: it also blocks desecrating again until it's removed.
+  if (nd.desecratedJunk) parts.push('+1 desecrated');
   return parts.join(' · ');
 }
 
@@ -93,6 +95,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult }> = ({ result }) => {
           const tip = `${node.present.length > 0 ? node.present.join(', ') : 'no target mods yet'}`
             + `${node.blocked.length > 0 ? ` · off-tier: ${node.blocked.join(', ')}` : ''}`
             + `${node.junkPrefixes + node.junkSuffixes > 0 ? ` · ${node.junkPrefixes + node.junkSuffixes} junk` : ''}`
+            + `${node.desecratedJunk ? ` · unwanted desecrated ${node.desecratedJunk}` : ''}`
             + ` · E ${fmtCost(node.expectedCost)}${node.action ? ` · ${node.action}` : ''}`;
           const boxClass = node.isGoal ? 'fill-emerald-500/15 stroke-emerald-500'
             : node.isStart ? 'fill-background stroke-primary' : 'fill-background stroke-border';

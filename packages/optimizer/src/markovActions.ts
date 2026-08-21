@@ -7,12 +7,15 @@
 // off-tier trap), side-constrained exalts and annuls (Omen of Sinistral/Dextral), and Chaos. A strength
 // or omen with no price is NOT offered, so a missing price can't mint a free super-orb.
 
-import type { PatchData } from '../../engine/src/types.ts';
+import type { ItemBase, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
+import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
+import { desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { Prices } from './cost.ts';
-import type { Dist, McTarget, SideIndex } from './markovState.ts';
+import type { Dist, McState, McTarget, SideIndex } from './markovState.ts';
 import {
-  MAX_PER_SIDE, addTo, bit, decodeState, encodeState, has, occupiedFamilies, prefUsed, sufUsed,
+  MAX_PER_SIDE, addTo, bit, decodeState, encodeState, has, hasDesecrated, occupiedFamilies,
+  prefUsed, sufUsed,
 } from './markovState.ts';
 
 export type ExaltStrength = 'base' | 'greater' | 'perfect';
@@ -20,8 +23,18 @@ export type ExaltStrength = 'base' | 'greater' | 'perfect';
 /** Every currency+omen the MDP can play. Exalts fan out over {side} × {strength}. */
 export type McAction =
   | { readonly currency: 'exalt'; readonly strength: ExaltStrength; readonly side?: 'prefix' | 'suffix' }
-  | { readonly currency: 'annul'; readonly side?: 'prefix' | 'suffix' }
-  | { readonly currency: 'chaos' };
+  // `light` = Omen of Light: removes the item's desecrated mod outright (P=1) instead of rolling the
+  // uniform 1/N. Mutually exclusive with a side omen — Light already names its target exactly.
+  | { readonly currency: 'annul'; readonly side?: 'prefix' | 'suffix'; readonly light?: true }
+  | { readonly currency: 'chaos' }
+  // A Desecration draws from one boss's desecrated pool. Unconstrained it draws across both sides;
+  // a Sinistral/Dextral Necromancy omen (`side`) restricts it to one, shrinking the pool.
+  | { readonly currency: 'desecrate'; readonly boss: DesecrationBossOmen; readonly side?: 'prefix' | 'suffix' };
+
+/** Price-sheet key for each boss omen. */
+const BOSS_OMEN_KEY: Record<DesecrationBossOmen, string> = {
+  blackblooded: 'OmenoftheBlackblooded', liege: 'OmenoftheLiege', sovereign: 'OmenoftheSovereign',
+};
 
 /** An action bound to a state: what it is, what it costs, and where it lands. */
 export interface ActionDef {
@@ -41,8 +54,13 @@ export function actionCostOf(prices: Prices, action: McAction): number {
   }
   if (action.currency === 'annul') {
     const base = c('annul');
+    if (action.light) return base + o('OmenofLight');
     const side = action.side === 'prefix' ? o('OmenofSinistralAnnulment') : action.side === 'suffix' ? o('OmenofDextralAnnulment') : 0;
     return base + side;
+  }
+  if (action.currency === 'desecrate') {
+    const side = action.side === 'prefix' ? o('OmenofSinistralNecromancy') : action.side === 'suffix' ? o('OmenofDextralNecromancy') : 0;
+    return c('desecrate') + o(BOSS_OMEN_KEY[action.boss]) + side;
   }
   return c('chaos');
 }
@@ -58,10 +76,12 @@ export interface ActionSpaceParams {
   readonly prices: Prices;
   /** Item level — caps which tiers can roll. */
   readonly level: number;
-  /** The base's normal (rollable) pools. */
-  readonly pool: { readonly prefixes: readonly string[]; readonly suffixes: readonly string[] };
+  /** The base's pools: `normal` feeds exalts/chaos, `desecrated` feeds Desecrations. */
+  readonly pools: ItemBase['pools'];
   readonly list: readonly McTarget[];
   readonly side: SideIndex;
+  /** Whether desecration is in play at all (see markovFromItem: only when a desecrated mod is involved). */
+  readonly desecratable: boolean;
 }
 
 /**
@@ -69,93 +89,165 @@ export interface ActionSpaceParams {
  * given state together with its cost and outcome distribution — the only thing the solver needs.
  */
 export function createActionSpace(params: ActionSpaceParams): {
-  actionsOf: (present: number, blocked: number, jp: number, js: number) => ActionDef[];
+  actionsOf: (s: McState) => ActionDef[];
 } {
-  const { data, prices, level, pool, list, side } = params;
+  const { data, prices, level, pools, list, side, desecratable } = params;
   const n = list.length;
 
   // Per-floor weights for a target: success = ≥ its wanted tier; any = the whole family.
   const succWeight = (t: McTarget, floor: number): number => modTierWeight(t.mod, floor, level, t.minIndex);
   const anyWeight = (t: McTarget, floor: number): number => modTierWeight(t.mod, floor, level, 0);
+  // Only mods in the NORMAL pool can be exalted/chaosed on. A desecrated target carries its own tier
+  // weight, but it is absent from poolTotalWeight's denominator — counting it in the numerator would
+  // let an Exalt conjure a desecrated mod and break the distribution's sum.
+  const rollable = (t: McTarget): boolean => t.mod.source === 'normal';
 
   // Strengths/omens available on the price sheet (base always; the rest only if listed).
   const strengths: ExaltStrength[] = (['base', 'greater', 'perfect'] as const)
     .filter((s) => s === 'base' || prices.currency[strengthPriceKey(s)] !== undefined);
   const sinistralExaltOk = prices.omens['OmenofSinistralExaltation'] !== undefined;
   const dextralExaltOk = prices.omens['OmenofDextralExaltation'] !== undefined;
+  const lightOk = prices.omens['OmenofLight'] !== undefined;
+  const necromancyOk = (sd: 'prefix' | 'suffix'): boolean =>
+    prices.omens[sd === 'prefix' ? 'OmenofSinistralNecromancy' : 'OmenofDextralNecromancy'] !== undefined;
+
+  const prefixOpenIn = (s: McState): boolean => prefUsed(s, side) < MAX_PER_SIDE;
+  const suffixOpenIn = (s: McState): boolean => sufUsed(s, side) < MAX_PER_SIDE;
 
   /** The add-distribution from a state at ilvl `floor`, optionally constrained to one side (side omen).
    *  A weighted add lands a target at tier (→ present), the target below tier (→ blocked), or foreign
    *  junk (→ jp/js). Empty if no slot is open or nothing is addable; probabilities sum to 1. */
-  const addOutcomes = (
-    present: number, blocked: number, jp: number, js: number, floor: number, constrainTo?: 'prefix' | 'suffix',
-  ): Dist => {
-    const prefixOpen = constrainTo !== 'suffix' && prefUsed(present, blocked, jp, side) < MAX_PER_SIDE;
-    const suffixOpen = constrainTo !== 'prefix' && sufUsed(present, blocked, js, side) < MAX_PER_SIDE;
-    const occ = occupiedFamilies(present, blocked, list);
-    const prefTotal = prefixOpen ? poolTotalWeight(data, pool.prefixes, floor, level, occ) : 0;
-    const sufTotal = suffixOpen ? poolTotalWeight(data, pool.suffixes, floor, level, occ) : 0;
+  const addOutcomes = (s: McState, floor: number, constrainTo?: 'prefix' | 'suffix'): Dist => {
+    const prefixOpen = constrainTo !== 'suffix' && prefixOpenIn(s);
+    const suffixOpen = constrainTo !== 'prefix' && suffixOpenIn(s);
+    const occ = occupiedFamilies(s.present, s.blocked, list);
+    const prefTotal = prefixOpen ? poolTotalWeight(data, pools.normal.prefixes, floor, level, occ) : 0;
+    const sufTotal = suffixOpen ? poolTotalWeight(data, pools.normal.suffixes, floor, level, occ) : 0;
     const grand = prefTotal + sufTotal;
     const out: Dist = new Map();
     if (grand <= 0) return out;
     let anyPref = 0; // Σ whole-family weight of the free targets on the prefix side (the non-junk share)
     let anySuf = 0;
     for (let i = 0; i < n; i++) {
-      if (has(present, i) || has(blocked, i)) continue; // family already occupied
+      if (has(s.present, i) || has(s.blocked, i)) continue; // family already occupied
       const t = list[i]!;
+      if (!rollable(t)) continue; // an Exalt can't produce a desecrated / essence-only mod
       if (occ.has(t.family)) continue; // defensive (validated distinct upstream)
       const open = t.type === 'prefix' ? prefixOpen : suffixOpen;
       if (!open) continue;
       const succ = succWeight(t, floor);
       const any = anyWeight(t, floor);
-      if (succ > 0) addTo(out, encodeState(present | bit(i), blocked, jp, js), succ / grand);
+      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk), succ / grand);
       const below = any - succ;
-      if (below > 0) addTo(out, encodeState(present, blocked | bit(i), jp, js), below / grand); // below tier → family blocked
+      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.desJunk), below / grand);
       if (t.type === 'prefix') anyPref += any; else anySuf += any;
     }
     // Everything else the add can produce is foreign junk on its side (a non-target family).
     const junkPref = Math.max(0, prefTotal - anyPref);
     const junkSuf = Math.max(0, sufTotal - anySuf);
-    if (junkPref > 0) addTo(out, encodeState(present, blocked, jp + 1, js), junkPref / grand);
-    if (junkSuf > 0) addTo(out, encodeState(present, blocked, jp, js + 1), junkSuf / grand);
+    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.desJunk), junkPref / grand);
+    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, s.desJunk), junkSuf / grand);
     return out;
   };
 
   /** The removal distribution, optionally constrained to one side (omen annul). Removes a uniformly-
    *  random removable mod: a non-fractured present target (→ absent), a blocked off-tier roll (→ frees
-   *  the family, target addable again), or a junk mod. */
-  const removeOutcomes = (
-    present: number, blocked: number, jp: number, js: number, constrainTo?: 'prefix' | 'suffix',
-  ): Dist => {
+   *  the family, target addable again), junk, or the desecrated mod if the item carries one. */
+  const removeOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix'): Dist => {
     const presentRem: number[] = [];
     const blockedRem: number[] = [];
     for (let i = 0; i < n; i++) {
       const t = list[i]!;
       if (constrainTo && t.type !== constrainTo) continue;
-      if (has(present, i) && !t.fractured) presentRem.push(i);
-      if (has(blocked, i)) blockedRem.push(i); // an off-tier occupier is a random roll — never locked
+      if (has(s.present, i) && !t.fractured) presentRem.push(i);
+      if (has(s.blocked, i)) blockedRem.push(i); // an off-tier occupier is a random roll — never locked
     }
-    const jpRem = constrainTo === 'suffix' ? 0 : jp;
-    const jsRem = constrainTo === 'prefix' ? 0 : js;
-    const total = presentRem.length + blockedRem.length + jpRem + jsRem;
+    const jpRem = constrainTo === 'suffix' ? 0 : s.jp;
+    const jsRem = constrainTo === 'prefix' ? 0 : s.js;
+    const desRem = s.desJunk !== 'none' && constrainTo !== undefined && s.desJunk !== constrainTo ? 0
+      : s.desJunk !== 'none' ? 1 : 0;
+    const total = presentRem.length + blockedRem.length + jpRem + jsRem + desRem;
     const out: Dist = new Map();
     if (total <= 0) return out;
-    for (const i of presentRem) addTo(out, encodeState(present & ~bit(i), blocked, jp, js), 1 / total);
-    for (const i of blockedRem) addTo(out, encodeState(present, blocked & ~bit(i), jp, js), 1 / total);
-    if (jpRem > 0) addTo(out, encodeState(present, blocked, jp - 1, js), jpRem / total);
-    if (jsRem > 0) addTo(out, encodeState(present, blocked, jp, js - 1), jsRem / total);
+    for (const i of presentRem) addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, s.desJunk), 1 / total);
+    for (const i of blockedRem) addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, s.desJunk), 1 / total);
+    if (jpRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp - 1, s.js, s.desJunk), jpRem / total);
+    if (jsRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js - 1, s.desJunk), jsRem / total);
+    if (desRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'none'), desRem / total);
+    return out;
+  };
+
+  /** Omen of Light: removes the item's ONE desecrated mod outright (P=1). That mod is either unwanted
+   *  junk (the desJunk axis) or a desecrated TARGET sitting in the masks — worth removing only when
+   *  it's blocked off-tier, which the solver decides. Empty when there's nothing desecrated to remove. */
+  const lightOutcomes = (s: McState): Dist => {
+    const out: Dist = new Map();
+    if (s.desJunk !== 'none') {
+      addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'none'), 1);
+      return out;
+    }
+    for (let i = 0; i < n; i++) {
+      const t = list[i]!;
+      if (t.mod.source !== 'desecrated') continue;
+      if (has(s.present, i) && !t.fractured) { addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, 'none'), 1); return out; }
+      if (has(s.blocked, i)) { addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, 'none'), 1); return out; }
+    }
     return out;
   };
 
   /** Chaos = remove one uniformly-random mod, then add one weighted mod (base strength) on the freed item. */
-  const chaosOutcomes = (present: number, blocked: number, jp: number, js: number): Dist => {
-    const removals = removeOutcomes(present, blocked, jp, js);
+  const chaosOutcomes = (s: McState): Dist => {
+    const removals = removeOutcomes(s);
     const out: Dist = new Map();
     for (const [midKey, pRem] of removals) {
-      const m = decodeState(midKey);
-      const adds = addOutcomes(m.present, m.blocked, m.jp, m.js, 0);
+      const mid = decodeState(midKey);
+      const adds = addOutcomes(mid, 0);
       if (adds.size === 0) { addTo(out, midKey, pRem); continue; } // no add possible → just the removal
       for (const [toKey, pAdd] of adds) addTo(out, toKey, pRem * pAdd);
+    }
+    return out;
+  };
+
+  // ── Desecration ────────────────────────────────────────────────────────────────────────────────
+  // A boss omen draws COUNT-uniformly from that boss's desecrated pool (weights are ignored — see
+  // validation.md D3). Unconstrained the draw spans both sides; a Necromancy side omen narrows it to
+  // one, which is what recovers the engine's per-slot 1/N. Candidates whose family is already on the
+  // item, or whose side is full, are excluded from the draw rather than wasting it — the same way
+  // poolTotalWeight excludes occupied families from a normal add.
+  const bossPool: Record<DesecrationBossOmen, { readonly prefix: string[]; readonly suffix: string[] }> = {
+    blackblooded: { prefix: [], suffix: [] }, liege: { prefix: [], suffix: [] }, sovereign: { prefix: [], suffix: [] },
+  };
+  if (desecratable) {
+    for (const sd of ['prefix', 'suffix'] as const) {
+      for (const id of sd === 'prefix' ? pools.desecrated.prefixes : pools.desecrated.suffixes) {
+        const mod = data.mods.get(id);
+        if (!mod) continue;
+        const boss = desecrationOmenForMod(mod);
+        if (boss) bossPool[boss][sd].push(id);
+      }
+    }
+  }
+
+  const desecrateOutcomes = (s: McState, boss: DesecrationBossOmen, constrainTo?: 'prefix' | 'suffix'): Dist => {
+    const out: Dist = new Map();
+    if (!desecratable || hasDesecrated(s, list)) return out; // an item holds at most one desecrated mod
+    const occ = occupiedFamilies(s.present, s.blocked, list);
+    const sides = (constrainTo ? [constrainTo] : ['prefix', 'suffix'] as const).filter(
+      (sd) => (sd === 'prefix' ? prefixOpenIn(s) : suffixOpenIn(s)));
+    const candidates: { id: string; sd: 'prefix' | 'suffix' }[] = [];
+    for (const sd of sides) {
+      for (const id of bossPool[boss][sd]) {
+        const mod = data.mods.get(id)!;
+        if (occ.has(mod.family)) continue; // family exclusion shrinks the pool
+        candidates.push({ id, sd });
+      }
+    }
+    if (candidates.length === 0) return out;
+    const p = 1 / candidates.length;
+    for (const { id, sd } of candidates) {
+      const i = list.findIndex((t) => t.modId === id);
+      if (i >= 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk), p);
+      else addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, sd), p);
     }
     return out;
   };
@@ -165,22 +257,30 @@ export function createActionSpace(params: ActionSpaceParams): {
     acts.push({ action, cost: actionCostOf(prices, action), dist });
   };
 
-  const actionsOf = (present: number, blocked: number, jp: number, js: number): ActionDef[] => {
+  const actionsOf = (s: McState): ActionDef[] => {
     const acts: ActionDef[] = [];
-    const sides: (undefined | 'prefix' | 'suffix')[] = [undefined];
-    if (sinistralExaltOk) sides.push('prefix');
-    if (dextralExaltOk) sides.push('suffix');
-    for (const constrainTo of sides) {
+    const exaltSides: (undefined | 'prefix' | 'suffix')[] = [undefined];
+    if (sinistralExaltOk) exaltSides.push('prefix');
+    if (dextralExaltOk) exaltSides.push('suffix');
+    for (const constrainTo of exaltSides) {
       for (const strength of strengths) {
         push(acts, { currency: 'exalt', strength, side: constrainTo },
-          addOutcomes(present, blocked, jp, js, STRENGTH_FLOOR[strength], constrainTo));
+          addOutcomes(s, STRENGTH_FLOOR[strength], constrainTo));
       }
     }
     for (const constrainTo of [undefined, 'prefix', 'suffix'] as const) {
-      push(acts, { currency: 'annul', side: constrainTo },
-        removeOutcomes(present, blocked, jp, js, constrainTo));
+      push(acts, { currency: 'annul', side: constrainTo }, removeOutcomes(s, constrainTo));
     }
-    push(acts, { currency: 'chaos' }, chaosOutcomes(present, blocked, jp, js));
+    if (lightOk) push(acts, { currency: 'annul', light: true }, lightOutcomes(s));
+    push(acts, { currency: 'chaos' }, chaosOutcomes(s));
+    if (desecratable) {
+      for (const boss of ['blackblooded', 'liege', 'sovereign'] as const) {
+        push(acts, { currency: 'desecrate', boss }, desecrateOutcomes(s, boss));
+        for (const sd of ['prefix', 'suffix'] as const) {
+          if (necromancyOk(sd)) push(acts, { currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd));
+        }
+      }
+    }
     return acts;
   };
 

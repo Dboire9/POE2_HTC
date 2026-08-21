@@ -8,7 +8,7 @@
 
 import type { AffixType, CurrencyTier, ItemBase, ItemState, PatchData, PlacedMod, Rarity } from './types.ts';
 import { familyAvailable, resolveMod } from './pool.ts';
-import { whiteItem, withAffix } from './item.ts';
+import { MAX_AFFIXES_PER_SIDE, prefixesFull, suffixesFull, whiteItem, withAffix } from './item.ts';
 import type { AnnulOmen, CurrencyOptions, DesecrationBossOmen, EssenceOmen } from './probability.ts';
 import {
   alchemyProbability, annulProbability, augmentationProbability, chaosProbability, desecrationBossProbability,
@@ -102,7 +102,7 @@ function stepProbability(data: PatchData, state: ItemState, step: PlanStep): num
       // narrow model), so the plan layer enforces legality here — mirroring the perfect-essence case.
       if (state.rarity !== 'rare') return 0;
       const mod = resolveMod(data, step.add);
-      const sideFull = mod.type === 'prefix' ? state.prefixes.length >= 3 : state.suffixes.length >= 3;
+      const sideFull = mod.type === 'prefix' ? prefixesFull(state) : suffixesFull(state);
       if (sideFull || !familyAvailable(data, state, mod)) return 0;
       return step.boss
         ? desecrationBossProbability(data, state, step.add, { omen: step.boss })
@@ -117,6 +117,13 @@ function stepProbability(data: PatchData, state: ItemState, step: PlanStep): num
       const added = resolveMod(data, step.add);
       if (!familyAvailable(data, state, added)) return 0;
       if (state.prefixes.length + state.suffixes.length === 0) return 1;
+      // The essence removes BEFORE it adds, so the add needs a free slot on its own side once
+      // `step.remove` is gone — the removal only helps if it came off that same side. (Mirrors the
+      // `sideFull` guard on 'desecrate' above; without it a 3-prefix item could take a 4th prefix by
+      // sacrificing a suffix.)
+      const addSide = added.type === 'prefix' ? state.prefixes : state.suffixes;
+      const freesAddSide = addSide.some((p) => p.modId === step.remove);
+      if (addSide.length - (freesAddSide ? 1 : 0) >= MAX_AFFIXES_PER_SIDE) return 0;
       return perfectEssenceProbability(data, state, added.type, step.remove, step.omen ? { omen: step.omen } : {});
     }
   }

@@ -105,6 +105,32 @@ describe('evaluatePlan — hand-computed composition', () => {
     expect(evaluatePlan(withClone, base, steps).steps[3]!.prob).toBe(0);
   });
 
+  // A perfect essence removes BEFORE it adds, so on a full side the add only fits if the removal came
+  // off that same side. These pin both halves of that rule on a 3-prefix + 1-suffix Rare, adding the
+  // off-pool prefix GP. (Regression: the branch used to check only rarity + family, so sacrificing the
+  // SUFFIX was scored as if it made room for a 4th prefix.)
+  const fullPrefixes: PatchData = {
+    ...data,
+    mods: new Map([...data.mods, ['NP3', mod('NP3', 'prefix', 'Fp3', 10)], ['GP', mod('GP', 'prefix', 'Fgp', 10)]]),
+  };
+  const threeByOne: ItemState = {
+    base, level: 100, rarity: 'rare',
+    prefixes: [{ modId: 'NP1', tierName: 't1' }, { modId: 'NP2', tierName: 't1' }, { modId: 'NP3', tierName: 't1' }],
+    suffixes: [{ modId: 'NS1', tierName: 't1' }],
+  };
+
+  it('a perfect essence adding to a FULL side is illegal (0) when it sacrifices the other side', () => {
+    // Eating the lone suffix leaves the 3 prefixes intact — GP has nowhere to go.
+    const r = evaluatePlanFrom(fullPrefixes, threeByOne, [{ currency: 'perfect-essence', remove: 'NS1', add: 'GP' }]);
+    expect(r.steps[0]!.prob).toBe(0);
+  });
+
+  it('…but is legal when the sacrifice comes off the full side itself', () => {
+    // Eating NP1 drops prefixes to 2, so GP fits. pf=3, sf=1 → the uniform removal is 1/4.
+    const r = evaluatePlanFrom(fullPrefixes, threeByOne, [{ currency: 'perfect-essence', remove: 'NP1', add: 'GP' }]);
+    expect(r.steps[0]!.prob).toBeCloseTo(1 / 4, 12);
+  });
+
   it('an illegal step contributes 0 and collapses the total', () => {
     const steps: PlanStep[] = [
       { currency: 'transmute', add: 'NP1' },

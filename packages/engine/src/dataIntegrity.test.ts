@@ -38,6 +38,19 @@ function auditPatch(patch: string, baseline: Baseline): void {
       expect(orphans).toEqual([]);
     });
 
+    it('a families array, when present, is multi-entry and starts with the primary family', () => {
+      // `family` keys the poe2db weight join ("type:family:ilvl" in apply_weights.mjs) and is the UI
+      // label, so it must stay families[0]. A 1-entry array is redundant shape the emitters shouldn't
+      // produce — it would mean a single-family mod is carrying two ways to say the same thing.
+      const bad: string[] = [];
+      for (const m of data.mods.values()) {
+        if (!m.families) continue;
+        if (m.families.length < 2) bad.push(`${m.id}: 1-entry families array`);
+        else if (m.families[0] !== m.family) bad.push(`${m.id}: families[0]=${m.families[0]} != family=${m.family}`);
+      }
+      expect(bad).toEqual([]);
+    });
+
     it('no mod id appears twice in the same pool', () => {
       const dupes: string[] = [];
       for (const b of bases) for (const pool of POOLS) for (const side of SIDES) {

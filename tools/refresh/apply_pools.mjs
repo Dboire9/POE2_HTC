@@ -154,9 +154,14 @@ for (const base of basesFile.items) {
     if (!(row.weight > 0)) { warn(`desecrated non-positive weight on ${base.id}/${family}`); continue; }
     const bossTags = (row.tags || []).filter((t) => BOSS_TAGS.has(t));
     const id = uniqueId(`Desecrated_${family}`);
+    // A poe2db row can list SEVERAL exclusion groups (a "+Str +Int" desecrated mod is in both
+    // Strength and Intelligence). `family` stays the primary — it keys the weight join and the UI
+    // label — and `families` carries the full set so the engine excludes on all of them. Emitted
+    // only when there IS more than one, so single-family mods keep their existing shape.
+    const families = (row.families || []).filter(Boolean);
     const mod = {
       id, group: `Desecrated_${family}`, field: `Desecrated_${family}`, source: 'desecrated', type: row.type,
-      categories: [], family, tags: bossTags,
+      categories: [], family, ...(families.length > 1 ? { families } : {}), tags: bossTags,
       text: cleanText(row.text),
       tiers: [{ name: row.name || family, ilvl: row.ilvl ?? 0, weight: row.weight, ranges: parseRanges(row.text), stats: [] }],
     };
@@ -199,9 +204,16 @@ for (const base of basesFile.items) {
       name: `${LEVEL_WORD[r.level]} ${r.essence}`, ilvl: r.ilvl ?? 0, weight: 0,
       ranges: parseRanges(r.text), stats: [],
     }));
+    // Same multi-group rule as the desecrated path above; rows in one essence group share a family
+    // by construction, so take the widest list any of them carries.
+    const families = g.rows.reduce((best, r) => {
+      const f = (r.families || []).filter(Boolean);
+      return f.length > best.length ? f : best;
+    }, []);
     const mod = {
       id, group: `Essence_${g.family}`, field: `Essence_${g.family}`, source: 'essence', type: g.type,
-      categories: [], family: g.family, tags: [], text: cleanText(g.rows[0].text), tiers,
+      categories: [], family: g.family, ...(families.length > 1 ? { families } : {}),
+      tags: [], text: cleanText(g.rows[0].text), tiers,
     };
     modsById.set(id, mod); modsFile.mods.push(mod);
     base.pools.essence[g.type === 'prefix' ? 'prefixes' : 'suffixes'].push(id);

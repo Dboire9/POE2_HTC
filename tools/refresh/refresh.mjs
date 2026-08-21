@@ -137,6 +137,11 @@ function buildMod(baseId, type, group, modIds, baseTags) {
     type,
     categories: (rep.stats || []).map((s) => s.id),
     family: (rep.groups && rep.groups[0]) || group,
+    // A RePoE mod can list several groups; `family` is the primary and `families` the full exclusion
+    // set (see packages/engine/src/pool.ts familiesOf). No shipped NORMAL mod is multi-group today
+    // (RePoE's 58 are Unique/Map/Crafted), so this is hardening, not a live fix — but the truncation
+    // was the same bug the poe2db path had, and silently dropping groups is how it stayed hidden.
+    ...(rep.groups && rep.groups.length > 1 ? { families: rep.groups } : {}),
     tags: rep.implicit_tags || [],
     text: cleanText(rep.text),
     tiers,

@@ -805,6 +805,68 @@ mechanic assumptions above should be re-confirmed against the game first.
 Still genuinely deferred (not dropped): a from-white MDP; policy iteration, if n=6 ever needs to be
 practical.
 
+## D9 — multi-family mods: exclusion groups beyond the first were being dropped (2026-08-21)
+
+Auditing the long-parked "baselined data findings" dissolved most of them and uncovered a real bug
+underneath.
+
+**What the old findings actually were.** The shipped `0.5.0` has **zero** type/pool mis-slots — every
+remaining one is in `0.5`, which no user ever loads (`src/lib/engine.ts` imports `0.5.0` only) and
+which exists solely as the differential anchor. "Fixing" those would *break* the anchor, since the
+frozen `__fixtures__/*-java.json` were generated from that very data. **Closed as won't-fix, by
+design.** Of the 10 baselined `0.5.0` mixed families, 8 are legitimate (a desecrated mod and a
+perfect-essence mod sharing a stat family on opposite sides).
+
+**The bug.** poe2db gives some mods several exclusion groups:
+
+```
+Amanamu's (prefix) → ModFamilyList: ["CompanionDamage"]
+of Ulaman (suffix) → ModFamilyList: ["CompanionDamage", "IncreasedAttackSpeed"]
+```
+
+`tools/refresh/poe2db.mjs:47` kept `ModFamilyList[0]` and dropped the rest (line 48 already parsed the
+full list; nothing consumed it). Since `family` **is** the exclusion group, every dropped entry was a
+lost exclusion — **109 shipped desecrated mods**, 93 of them two-attribute rolls (`+Str +Int` and
+friends). The engine would happily place a pure Intelligence mod beside a Str/Int desecrated mod —
+illegal in game — and, worse for the numbers, kept counting Intelligence mods as still-available in
+every add denominator.
+
+**Measured impact** (real 0.5.0, ilvl 82): on **62 of 109** the denominator genuinely moved —
+**median 3.47%, max 8.76%** too large. So P(any specific target) was understated by that much whenever
+one of these mods sat on the item. Well outside a project that cross-checks *exact* against Craft of
+Exile, and the legality error is a wrong answer rather than a skewed one.
+
+**The fix, in three parts.**
+1. *Centralise first* (its own commit, behaviour-neutral). Exclusion was hand-rolled at a dozen sites,
+   each doing `occupied.has(mod.family)`. All of them now go through `familiesOf(mod)` / `excluded(mod,
+   occupied)` in `pool.ts`, plus `modFamilies()` for the UI. Every mod still had one family at that
+   point, so all 647 tests passed **unedited** — the oracle that the change moved code, not semantics.
+2. *Widen the model.* `Mod.families?` carries the full set; `family` stays the primary because it keys
+   the poe2db weight join (`apply_weights.mjs` joins on `"type:family:ilvl"`) and labels the mod in the
+   UI. Emitted only when there IS more than one, so the data diff is 109 mods rather than all 2140, and
+   the legacy single-`family` shape still loads untouched — `0.5` is byte-for-byte unchanged.
+3. *Emit it.* `apply_pools.mjs` writes `families` on both the desecrated and essence paths;
+   `refresh.mjs:139` had the identical `groups[0]` truncation and is hardened too, though **no shipped
+   normal mod is affected** — RePoE's 58 multi-group mods are all Unique/Map/Crafted. Regenerated from
+   the local poe2db cache, so offline and reproducible.
+
+**Deliberately NOT widened:** `alternatives.ts`'s `siblingsOf` still matches on the primary family
+only. That is a *similarity* test, not an exclusion test — matching any shared family would make a
+multi-family mod a "near-miss" swap for every mod in each of its groups, which isn't what the user
+asked to approximate.
+
+**Validation.** New `multiFamily.test.ts` (11 cases): a spanning mod occupies all its groups, is
+blocked by *either*, blocks both single-family mods, and shrinks the denominator to 0 in the synthetic
+case where the old behaviour left 20 — plus real-data assertions and a check that `0.5`'s legacy shape
+still resolves to exactly one group. **Verified by reverting the fix: 6 of the 11 fail without it.** A
+new data-integrity invariant pins `families[0] === family` and rejects redundant 1-entry arrays.
+**660 tests + 1 todo, type-check + build green; differential fixtures untouched.**
+
+→ **Still open:** the CoE cross-check has *not* been re-run against these bases. The affected mods are
+desecrated (which CoE's normal-pool worksheets don't cover), so the five cross-checked bases'
+normal-craft numbers should be unmoved — but that is reasoning, not measurement, and should be
+confirmed with the `scripts/coe-*` harness before the next release.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

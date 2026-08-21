@@ -1065,6 +1065,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -1654,6 +1658,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -1681,6 +1689,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -5345,6 +5357,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -5507,6 +5523,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -5534,6 +5554,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -8912,6 +8936,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -9074,6 +9102,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -9101,6 +9133,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -12207,6 +12243,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -12369,6 +12409,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -12396,6 +12440,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -15563,6 +15611,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -15725,6 +15777,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -15752,6 +15808,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -19173,6 +19233,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -19335,6 +19399,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -19362,6 +19430,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -22741,6 +22813,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -22903,6 +22979,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -22930,6 +23010,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -25802,6 +25886,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -25937,6 +26025,10 @@
       "type": "suffix",
       "categories": [],
       "family": "ManaCostEfficiency",
+      "families": [
+        "ManaCostEfficiency",
+        "DodgeRoll"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -26099,6 +26191,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -26126,6 +26222,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -29175,6 +29275,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -29310,6 +29414,10 @@
       "type": "suffix",
       "categories": [],
       "family": "ManaCostEfficiency",
+      "families": [
+        "ManaCostEfficiency",
+        "DodgeRoll"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -29472,6 +29580,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -29499,6 +29611,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -32357,6 +32473,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -32492,6 +32612,10 @@
       "type": "suffix",
       "categories": [],
       "family": "ManaCostEfficiency",
+      "families": [
+        "ManaCostEfficiency",
+        "DodgeRoll"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -32654,6 +32778,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -32681,6 +32809,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -35572,6 +35704,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -35707,6 +35843,10 @@
       "type": "suffix",
       "categories": [],
       "family": "ManaCostEfficiency",
+      "families": [
+        "ManaCostEfficiency",
+        "DodgeRoll"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -35869,6 +36009,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -35896,6 +36040,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -39002,6 +39150,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -39137,6 +39289,10 @@
       "type": "suffix",
       "categories": [],
       "family": "ManaCostEfficiency",
+      "families": [
+        "ManaCostEfficiency",
+        "DodgeRoll"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -39299,6 +39455,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -39326,6 +39486,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -42376,6 +42540,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -42511,6 +42679,10 @@
       "type": "suffix",
       "categories": [],
       "family": "ManaCostEfficiency",
+      "families": [
+        "ManaCostEfficiency",
+        "DodgeRoll"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -42673,6 +42845,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -42700,6 +42876,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -45366,6 +45546,10 @@
       "type": "suffix",
       "categories": [],
       "family": "CompanionAttackSpeed",
+      "families": [
+        "CompanionAttackSpeed",
+        "IncreasedAttackSpeed"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -45428,6 +45612,10 @@
       "type": "suffix",
       "categories": [],
       "family": "CompanionDamage",
+      "families": [
+        "CompanionDamage",
+        "IncreasedAttackSpeed"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -49279,6 +49467,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -49490,6 +49682,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -49517,6 +49713,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -52024,6 +52224,10 @@
       "type": "prefix",
       "categories": [],
       "family": "GrenadeDamage",
+      "families": [
+        "GrenadeDamage",
+        "GrenadeDuration"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -56138,6 +56342,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -56408,6 +56616,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -56435,6 +56647,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -59595,6 +59811,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -59730,6 +59950,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -59757,6 +59981,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -63980,6 +64208,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -64115,6 +64347,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -64142,6 +64378,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -68173,6 +68413,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -68308,6 +68552,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -68335,6 +68583,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -72528,6 +72780,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -72663,6 +72919,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -72690,6 +72950,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -76970,6 +77234,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -77105,6 +77373,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -77132,6 +77404,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -81485,6 +81761,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -81620,6 +81900,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -81647,6 +81931,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -85444,6 +85732,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -85633,6 +85925,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -85660,6 +85956,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -88768,6 +89068,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -88957,6 +89261,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -88984,6 +89292,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -92023,6 +92335,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -92212,6 +92528,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -92239,6 +92559,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -95182,6 +95506,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -95371,6 +95699,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -95398,6 +95730,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -98692,6 +99028,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -98881,6 +99221,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -98908,6 +99252,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -102017,6 +102365,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -102206,6 +102558,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -102233,6 +102589,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -108803,6 +109163,10 @@
       "type": "prefix",
       "categories": [],
       "family": "ColdDamagePercentagePrefix",
+      "families": [
+        "ColdDamagePercentagePrefix",
+        "FreezeDamageIncrease"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -108861,6 +109225,10 @@
       "type": "prefix",
       "categories": [],
       "family": "FireDamagePercentagePrefix",
+      "families": [
+        "FireDamagePercentagePrefix",
+        "IgniteEffect"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -108946,6 +109314,10 @@
       "type": "prefix",
       "categories": [],
       "family": "LightningDamagePercentagePrefix",
+      "families": [
+        "LightningDamagePercentagePrefix",
+        "ShockEffect"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -115681,6 +116053,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -116140,6 +116516,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -116167,6 +116547,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -122993,6 +123377,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -123204,6 +123592,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -123231,6 +123623,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -126180,6 +126576,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -126391,6 +126791,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -126418,6 +126822,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -129128,6 +129536,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
       "tags": [
         "kurgal_mod"
       ],
@@ -129339,6 +129751,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -129366,6 +129782,10 @@
       "type": "suffix",
       "categories": [],
       "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -131693,6 +132113,10 @@
       "type": "suffix",
       "categories": [],
       "family": "CompanionAttackSpeed",
+      "families": [
+        "CompanionAttackSpeed",
+        "IncreasedAttackSpeed"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -131755,6 +132179,10 @@
       "type": "suffix",
       "categories": [],
       "family": "CompanionDamage",
+      "families": [
+        "CompanionDamage",
+        "IncreasedAttackSpeed"
+      ],
       "tags": [
         "ulaman_mod"
       ],
@@ -144476,6 +144904,10 @@
       "type": "prefix",
       "categories": [],
       "family": "MinionDamage",
+      "families": [
+        "MinionDamage",
+        "WeaponCasterDamagePrefix"
+      ],
       "tags": [
         "amanamu_mod"
       ],
@@ -144507,6 +144939,10 @@
       "type": "suffix",
       "categories": [],
       "family": "SkillLifeCost",
+      "families": [
+        "SkillLifeCost",
+        "SkillCostEfficiency"
+      ],
       "tags": [
         "amanamu_mod"
       ],

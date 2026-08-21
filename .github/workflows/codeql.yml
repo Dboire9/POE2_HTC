@@ -2,9 +2,8 @@ name: CodeQL Security Analysis
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, revival ]
   pull_request:
-    branches: [ main ]
   schedule:
     - cron: '0 0 * * 1' # Weekly on Monday
 
@@ -17,39 +16,29 @@ jobs:
       contents: read
       security-events: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'java', 'javascript' ]
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
-    - name: Set up JDK 21
-      if: matrix.language == 'java'
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
+      # `javascript-typescript` covers both; this project is TypeScript throughout. The Java
+      # analysis that used to sit alongside it was removed — it looked for a pom.xml that was
+      # deleted when the Java backend was retired, so it failed on every run.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
 
-    - name: Build Java
-      if: matrix.language == 'java'
-      run: mvn clean compile -DskipTests --batch-mode --no-transfer-progress
+      - name: Build
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
 
-    - name: Build JavaScript
-      if: matrix.language == 'javascript'
-      run: |
-        npm install
-        npm run build
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:${{matrix.language}}"
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:javascript-typescript"

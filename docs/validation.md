@@ -782,15 +782,28 @@ already carry; only junk needs a new tier band), the projection is now ~0.7 s at
 last one) becomes reachable. **n=6 remains impractical** at ~57 s projected; getting there would need
 a different algorithm (policy iteration), which is not attempted here.
 
-STILL DEFERRED (MDP v3b): **Omen of Whittling** — the remaining v3 item, and the only one needing a
-state-abstraction redesign rather than new actions. It is a **Chaos** omen: the orb changes the item's
-**lowest-tier** modifier instead of a uniformly-random one, where "tier" is the per-mod T-number
-(T5 is lower than T1), **not** the mod's ilvl. Junk carries no tier information at all (just a count)
-and present targets only know "≥ wanted tier", so which mod is lowest isn't answerable from the
-current state. A tractable version bands the tier RANK into coarse windows, which multiplies the
-lattice and needs a **benchmarking spike first** (time a real value-iteration pass at n = 1..6 on real
-0.5.0 data) to pin an honest target-count cap before any production code. Note `OmenofWhittling` is **not** in `data/patches/*/prices.json`, so under the
-"only offer what's priced" rule it would ship dormant anyway. Also still deferred: a from-white MDP.
+NOT DOING (MDP v3b): **Omen of Whittling** — evaluated 2026-08-21 and **dropped by the user**, not
+merely deferred. Recorded here so it isn't re-proposed.
+
+It is a **Chaos** omen: the orb changes the item's **lowest-tier** modifier instead of a
+uniformly-random one, where "tier" is the per-mod T-number (T5 is lower than T1), **not** the mod's
+ilvl, and ties resolve uniformly with fractured mods excluded (all confirmed by the user). Junk
+carries no tier information at all (just a count) and present targets only know "≥ wanted tier", so
+which mod is lowest isn't answerable from the current state — this is the only v3 item that needs a
+state-abstraction change rather than new actions.
+
+Why it was dropped rather than built: the tractable version bands the tier rank into coarse windows,
+which costs a real approximation (within a band the omen can't tell two mods apart, so ties resolve
+uniformly when the truth is deterministic) on top of a state-space multiplier. Even after the 7×
+solver speedup above it projects to ~2 s at n=5 and ~57 s at n=6, so the full six-target craft stays
+out of reach. And `OmenofWhittling` is **not** in `data/patches/*/prices.json`, so under the "only
+offer what's priced" rule the whole feature would ship dormant regardless. The cost/benefit didn't
+land. If it is ever revisited, the junk-only banding sketch (targets reuse the `present`/`blocked`
+bit they already carry; only junk needs a new tier band) is the cheapest known design, and the
+mechanic assumptions above should be re-confirmed against the game first.
+
+Still genuinely deferred (not dropped): a from-white MDP; policy iteration, if n=6 ever needs to be
+practical.
 
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +

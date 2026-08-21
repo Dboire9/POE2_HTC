@@ -1,4 +1,6 @@
 import React from 'react';
+import PriceBasisNote from './PriceBasisNote';
+import type { EnginePriceBasis } from '../../lib/engine';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { recommendedIndex, type EngineResult } from '../../lib/engine';
@@ -24,8 +26,10 @@ const DEPTH_NOTE: Record<EngineResult['currencyDepth'], string> = {
 };
 
 /** The (expected cost ↔ success probability) frontier: one card per non-dominated plan, cheapest→surest. */
-const FrontierView: React.FC<{ result: EngineResult; title?: string; emptyHint?: React.ReactNode }> = ({
-  result, title = 'Cost ↔ probability frontier', emptyHint,
+const FrontierView: React.FC<{
+  result: EngineResult; title?: string; emptyHint?: React.ReactNode; priceBasis?: EnginePriceBasis;
+}> = ({
+  result, title = 'Cost ↔ probability frontier', emptyHint, priceBasis,
 }) => (
   <div className="space-y-3">
     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -35,6 +39,8 @@ const FrontierView: React.FC<{ result: EngineResult; title?: string; emptyHint?:
         <span>{result.plansEvaluated.toLocaleString()} plans evaluated</span>
       </div>
     </div>
+
+    {priceBasis && <PriceBasisNote basis={priceBasis} />}
 
     {result.frontier.length === 0 ? (
       <Card className="p-6 text-center text-sm text-muted-foreground space-y-1">

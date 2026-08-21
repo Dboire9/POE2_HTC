@@ -40,6 +40,19 @@ export interface EngineMod {
   readonly tiers: readonly EngineTier[];
 }
 
+/** Where the cost numbers come from, so the UI can say how firm they are. Every "expected cost" the
+ *  app shows is the probability math multiplied by this sheet — if the sheet is estimated, the costs
+ *  are estimates too, however exact the probabilities are. */
+export interface EnginePriceBasis {
+  /** True when the sheet is hand-authored guesswork rather than observed market data. */
+  readonly estimated: boolean;
+  /** ISO date the sheet was last touched, if known. */
+  readonly asOf?: string;
+  readonly patch?: string;
+  /** Exalt-equivalents, normally. */
+  readonly unit?: string;
+}
+
 /** Every exclusion group a UI mod belongs to — the single accessor the UI should use, so a
  * multi-family mod (a desecrated "+Str +Int") blocks and is blocked by all of its groups, not just
  * the primary one. Tolerates undefined so callers can pass a Map lookup straight in. */

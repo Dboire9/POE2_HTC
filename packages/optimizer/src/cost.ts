@@ -18,18 +18,50 @@
 
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
 
+/** Where a price sheet came from — carried so the UI can be honest about how firm the numbers are. */
+export interface PricesMeta {
+  readonly patch?: string;
+  /** ISO date the sheet was authored. */
+  readonly generated?: string;
+  readonly updated?: string;
+  /** Free text describing provenance (e.g. "SEED ESTIMATES — hand-authored"). */
+  readonly source?: string;
+  readonly unit?: string;
+  /** True when the sheet is hand-authored guesswork rather than observed market data. Every cost the
+   *  optimizer reports is only as good as this, so the UI must not present those costs as exact. */
+  readonly estimated?: boolean;
+}
+
 export interface Prices {
   /** Base currency price in exalt-equivalents, keyed by currency (transmute, exalt, perfect_essence, …). */
   readonly currency: Record<string, number>;
   /** Surcharge for using an omen, keyed by omen id (OmenofSinistralExaltation, …). */
   readonly omens: Record<string, number>;
+  /** Provenance, when the source file carried any. */
+  readonly meta?: PricesMeta;
 }
 
-interface PricesFile { patch: string; prices: Record<string, number>; omens?: Record<string, number>; }
+interface PricesFile {
+  patch?: string; prices: Record<string, number>; omens?: Record<string, number>;
+  generated?: string; updated?: string; source?: string; unit?: string; estimated?: boolean;
+}
 
 /** Build a Prices sheet from an already-parsed prices.json (no I/O — browser/worker safe). */
 export function indexPrices(file: PricesFile): Prices {
-  return { currency: file.prices, omens: file.omens ?? {} };
+  // Default to ESTIMATED. Absence of provenance is not evidence of accuracy, so a sheet must declare
+  // `estimated: false` to be treated as observed market data — silence never earns that claim.
+  // (An earlier version sniffed `source` for words like "seed"; that read a source-less sheet as firm,
+  // which is precisely the overclaim this guards against.)
+  const estimated = file.estimated ?? true;
+  const meta: PricesMeta = {
+    ...(file.patch !== undefined ? { patch: file.patch } : {}),
+    ...(file.generated !== undefined ? { generated: file.generated } : {}),
+    ...(file.updated !== undefined ? { updated: file.updated } : {}),
+    ...(file.source !== undefined ? { source: file.source } : {}),
+    ...(file.unit !== undefined ? { unit: file.unit } : {}),
+    estimated,
+  };
+  return { currency: file.prices, omens: file.omens ?? {}, meta };
 }
 
 /**

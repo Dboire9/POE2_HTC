@@ -5,12 +5,14 @@ import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import {
   loadEngine, listBases, listMods, listPerfectEssences, listDesecrated, currencyActions, optimizeItem, optimizeItemMarkov,
+  priceBasis,
   modFamilies,
   type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type CurrencyAction,
   type TargetInput, type EngineResult, type EngineMarkovResult,
 } from '../../lib/engine';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
+import PriceBasisNote from './PriceBasisNote';
 import BaseSelect from './BaseSelect';
 
 function fmtEx(x: number): string {
@@ -503,8 +505,11 @@ const ItemActions: React.FC = () => {
                 The honest average spend to reach this target, playing the optimal policy — it weighs
                 Greater/Perfect Exalts and side omens, and <strong>recovers in place</strong> after a bad roll
                 rather than restarting. The step routes below are the simpler per-plan view — their “cheapest”
-                assumes a free restart, so it reads lower than this.
+                assumes a free restart, so it reads lower than this. <strong>“True” describes the model,
+                not the money</strong> — it is honest about how crafting actually behaves; the price sheet
+                it is multiplied by is still an estimate.
               </p>
+              {engine && <PriceBasisNote basis={priceBasis(engine)} />}
               <PolicyGraph result={markov} />
               <p className="text-[11px] text-muted-foreground">
                 Each square is an item state, from your item (left) to the target (right). Solid arrows are
@@ -516,6 +521,7 @@ const ItemActions: React.FC = () => {
           )}
           {plan && !planErr && (
             <FrontierView
+              priceBasis={engine ? priceBasis(engine) : undefined}
               result={plan}
               title="Step-by-step routes (per-plan view)"
               emptyHint={<p>No route reaches this target from your item — usually the target needs more mods than

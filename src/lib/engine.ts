@@ -21,6 +21,7 @@ import { alternativesFromWhite, alternativesFromItem } from '../../packages/opti
 import type {
   EngineBase, EngineMod, EngineBaseMods, EnginePlan, EngineResult, TargetInput,
   ExistingItem, CurrencyAction, AltTargetInput, EngineAlternatives, EngineMarkovResult,
+  EnginePriceBasis,
 } from './engineTypes.ts';
 import {
   prettyName, toEngineMod, toTierTargets, toAltTargets, buildItemState, addBlockedReason,
@@ -41,7 +42,7 @@ export { modFamilies } from './engineTypes.ts';
 export type {
   EngineBase, EngineTier, EngineMod, EngineBaseMods, TargetInput, EngineStep, EnginePlan, EngineResult,
   ItemModInput, ExistingItem, CurrencyAction, AltTargetInput, EngineSlot, EngineAlternative, EngineAlternatives,
-  EngineMarkovResult, EnginePolicyNode, EnginePolicyEdge,
+  EngineMarkovResult, EnginePolicyNode, EnginePolicyEdge, EnginePriceBasis,
 } from './engineTypes.ts';
 
 /** Beyond this many expected attempts, a "cheap" plan is really an impractical grind (tune to taste). */
@@ -81,6 +82,18 @@ export function loadEngine(): Promise<Engine> {
     })();
   }
   return cache;
+}
+
+/** Where the loaded price sheet came from — see EnginePriceBasis. Kept tiny and UI-shaped so the
+ *  cost views can caveat their own numbers without reaching into the optimizer's Prices type. */
+export function priceBasis(eng: { prices: Prices }): EnginePriceBasis {
+  const m = eng.prices.meta;
+  return {
+    estimated: m?.estimated ?? true, // absent provenance ⇒ assume estimated; never overclaim
+    ...(m?.updated ?? m?.generated ? { asOf: m?.updated ?? m?.generated } : {}),
+    ...(m?.patch ? { patch: m.patch } : {}),
+    ...(m?.unit ? { unit: m.unit } : {}),
+  };
 }
 
 // ── Listing ───────────────────────────────────────────────────────────────────

@@ -5,6 +5,7 @@ import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
   loadEngine, listBases, listMods, listDesecrated, optimize, optimizeItem, alternatives, alternativesForItem,
+  priceBasis,
   modFamilies,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
   type EngineAlternatives, type AltTargetInput,
@@ -489,7 +490,7 @@ const EngineLab: React.FC = () => {
         </Card>
       )}
 
-      {result && !runErr && <FrontierView result={result} />}
+      {result && !runErr && <FrontierView result={result} priceBasis={engine ? priceBasis(engine) : undefined} />}
       {alts && !runErr && <AlternativesView alts={alts} budget={altBudget} />}
       </>)}
     </div>

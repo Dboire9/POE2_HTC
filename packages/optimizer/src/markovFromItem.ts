@@ -102,18 +102,27 @@ export function markovFromItem(
   const pools = start.base.pools;
   const fracturedIds = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
 
-  // Resolve targets into the ordered list the bitmasks index: rollable normal mods, plus desecrated
-  // mods (added by a Desecration with the boss omen that selects them).
+  // Resolve targets into the ordered list the bitmasks index: rollable normal mods, desecrated mods
+  // (added by a Desecration with the boss omen that selects them), and perfect-essence mods (forced on
+  // by a Perfect Essence, which eats one existing mod as it adds). A REGULAR essence needs a Magic item
+  // and this planner only models Rares, so essence-only mods stay on the from-white linear planner.
   const list: McTarget[] = [];
   for (const t of targets) {
     const mod = resolveMod(data, t.modId);
-    if (mod.source !== 'normal' && mod.source !== 'desecrated') {
-      return fail(`${t.modId} is not a rollable or desecrated mod (the MDP handles those)`);
+    if (mod.source === 'essence') {
+      return fail(`${t.modId} needs a regular essence, which only applies to a Magic item — craft it from white`);
+    }
+    if (mod.source !== 'normal' && mod.source !== 'desecrated' && mod.source !== 'perfect_essence') {
+      return fail(`${t.modId} is not a rollable, desecrated or perfect-essence mod (the MDP handles those)`);
     }
     if (mod.source === 'desecrated') {
       const inPool = pools.desecrated.prefixes.includes(mod.id) || pools.desecrated.suffixes.includes(mod.id);
       if (!inPool) return fail(`${t.modId} isn't in ${start.base.id}'s desecrated pool`);
       if (desecrationOmenForMod(mod) === undefined) return fail(`${t.modId} has no boss omen that targets it`);
+    }
+    if (mod.source === 'perfect_essence') {
+      const inPool = pools.essence.prefixes.includes(mod.id) || pools.essence.suffixes.includes(mod.id);
+      if (!inPool) return fail(`${t.modId} isn't in ${start.base.id}'s essence pool`);
     }
     list.push({
       modId: mod.id, type: mod.type, family: mod.family, mod,

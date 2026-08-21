@@ -87,7 +87,9 @@ describe('markovFromItem — hand-computed expected cost', () => {
     expect(r.reason).toMatch(/roll/i);
   });
 
-  it('declines a non-rollable target (MDP v1 is normal-mods only)', () => {
+  it('declines a REGULAR-essence target (those need a Magic item; this planner models Rares)', () => {
+    // v3 accepts desecrated and perfect-essence targets, but a regular essence is structurally out of
+    // reach: essenceForcedProbability requires a Magic item and an item you already hold is a Rare.
     const withEss: PatchData = {
       patch: 't',
       mods: new Map([...data.mods, ['E1', { ...mk('E1', 'prefix', 'FE', 0), source: 'essence' as const }]]),
@@ -95,7 +97,7 @@ describe('markovFromItem — hand-computed expected cost', () => {
     };
     const r = markovFromItem(withEss, prices, rare([]), [{ modId: 'E1' }]);
     expect(r.feasible).toBe(false);
-    expect(r.reason).toMatch(/rollable/i);
+    expect(r.reason).toMatch(/magic item/i);
   });
 });
 

@@ -155,3 +155,93 @@ describe('markovFromItem — Omen of Light clears desecrated junk (hand-computed
     expect(r.expectedCost).toBeGreaterThan(1.3);
   });
 });
+
+describe('markovFromItem — Perfect Essence as an MDP action (hand-computed)', () => {
+  // Base P: normal prefix NP1 + normal suffix NS1, and a PERFECT-ESSENCE prefix PE1 in the essence pool.
+  // PE1 has weight 0 — a perfect-essence mod never rolls from the normal pool, it is only ever forced on.
+  const pbase: ItemBase = {
+    id: 'P', name: 'P', category: 'C',
+    pools: {
+      normal: { prefixes: ['NP1'], suffixes: ['NS1'] },
+      desecrated: { prefixes: [], suffixes: [] },
+      essence: { prefixes: ['PE1'], suffixes: [] },
+    },
+  };
+  const pdata: PatchData = {
+    patch: 't',
+    mods: new Map([
+      ['NP1', mk('NP1', 'prefix', 'Fp1', 'normal')],
+      ['NS1', mk('NS1', 'suffix', 'Fs1', 'normal')],
+      ['PE1', { ...mk('PE1', 'prefix', 'Fpe', 'perfect_essence'), tiers: [{ name: 't1', ilvl: 1, weight: 0, ranges: [], stats: [] }] }],
+    ]),
+    bases: new Map([['P', pbase]]),
+  };
+  const prare = (pre: ItemState['prefixes'], suf: ItemState['suffixes']): ItemState =>
+    ({ base: pbase, level: 100, rarity: 'rare', prefixes: pre, suffixes: suf });
+
+  it('a Crystallisation omen makes the removal certain, so the essence alone costs E = 15', () => {
+    // Start [NP1 | NS1], target {NS1, PE1}. NP1 is the junk to feed the essence; NS1 must survive.
+    // Raw essence: the removal is uniform over the 2 mods.
+    //   ½ → eats NP1 ⇒ goal
+    //   ½ → eats NS1 ⇒ PE1 lands but the wanted suffix is gone, and NS1 must be re-added
+    // A Sinistral Crystallisation omen constrains the removal to prefixes, where NP1 is the only
+    // candidate ⇒ P=1. Priced free here, so it strictly dominates: E = the essence price alone.
+    const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, perfect_essence: 15 }, omens: { OmenofSinistralCrystallisation: 0 } };
+    const r = markovFromItem(pdata, prices, prare([placed('NP1')], [placed('NS1')]), [{ modId: 'NS1' }, { modId: 'PE1' }]);
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeCloseTo(15, 9);
+    expect(r.nodes.find((nd) => nd.isStart)!.action)
+      .toEqual({ currency: 'perfect-essence', target: 'PE1', side: 'prefix' });
+  });
+
+  it('without the Crystallisation omen priced, the raw ½ essence is the only route', () => {
+    // Same craft, omen unpriced ⇒ not offered (no free omens). The raw essence eats NS1 half the time,
+    // and recovering costs an exalt to put NS1 back: E = 15 + ½·(cost of re-adding NS1).
+    const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, perfect_essence: 15 }, omens: {} };
+    const r = markovFromItem(pdata, prices, prare([placed('NP1')], [placed('NS1')]), [{ modId: 'NS1' }, { modId: 'PE1' }]);
+    expect(r.feasible).toBe(true);
+    const s0 = r.nodes.find((nd) => nd.isStart)!;
+    expect(s0.action).toEqual({ currency: 'perfect-essence', target: 'PE1' });
+    // The uniform removal over the item's 2 mods, pinned exactly: two outcomes at ½ each, and only the
+    // one that ate the junk NP1 reaches the goal — the other keeps PE1 but has swallowed NS1.
+    const outs = r.edges.filter((e) => e.from === s0.key);
+    expect(outs).toHaveLength(2);
+    for (const e of outs) expect(e.prob).toBeCloseTo(0.5, 12);
+    expect(outs.filter((e) => r.nodes.find((nd) => nd.key === e.to)?.isGoal)).toHaveLength(1);
+    expect(r.expectedCost).toBeGreaterThan(15); // strictly dearer than the guaranteed-removal route
+  });
+
+  it('is declined when its side is full and the removal could land elsewhere', () => {
+    // Prefixes full (NP1 + two junk) and the essence wants a prefix. Unconstrained, the removal might
+    // eat the suffix and leave no room, so the action isn't offered; a Sinistral omen makes it legal.
+    const three: ItemState = prare(
+      [placed('NP1'), placed('J1'), placed('J2')], [placed('NS1')]);
+    const withJunk: PatchData = {
+      ...pdata,
+      mods: new Map([...pdata.mods,
+        ['J1', mk('J1', 'prefix', 'Fj1', 'normal')], ['J2', mk('J2', 'prefix', 'Fj2', 'normal')]]),
+    };
+    const noOmen: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, perfect_essence: 15 }, omens: {} };
+    const rNo = markovFromItem(withJunk, noOmen, three, [{ modId: 'NS1' }, { modId: 'PE1' }]);
+    const startNo = rNo.nodes.find((nd) => nd.isStart)!;
+    expect(startNo.action).not.toMatchObject({ currency: 'perfect-essence' });
+
+    const withOmen: Prices = { ...noOmen, omens: { OmenofSinistralCrystallisation: 0 } };
+    const rYes = markovFromItem(withJunk, withOmen, three, [{ modId: 'NS1' }, { modId: 'PE1' }]);
+    const hasEssence = rYes.nodes.some((nd) => nd.action?.currency === 'perfect-essence');
+    expect(hasEssence).toBe(true);
+  });
+
+  it('rejects a perfect-essence target that is not in the base essence pool', () => {
+    const offPool: PatchData = {
+      ...pdata,
+      bases: new Map([['P', { ...pbase, pools: { ...pbase.pools, essence: { prefixes: [], suffixes: [] } } }]]),
+    };
+    const b = offPool.bases.get('P')!;
+    const prices: Prices = { currency: { exalt: 1, annul: 1, perfect_essence: 15 }, omens: {} };
+    const r = markovFromItem(offPool, prices, { ...prare([placed('NP1')], [placed('NS1')]), base: b },
+      [{ modId: 'NS1' }, { modId: 'PE1' }]);
+    expect(r.feasible).toBe(false);
+    expect(r.reason).toMatch(/essence pool/i);
+  });
+});

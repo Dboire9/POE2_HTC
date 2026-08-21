@@ -188,6 +188,10 @@ function actionLabel(action: McAction): string {
     const boss = `Omen of the ${BOSS_LABEL[action.boss]}`;
     return sideLabel ? `Desecrate (${boss}, ${sideLabel})` : `Desecrate (${boss})`;
   }
+  if (action.currency === 'perfect-essence') {
+    const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
+    return sideLabel ? `Perfect Essence (${sideLabel})` : 'Perfect Essence';
+  }
   return 'Chaos';
 }
 

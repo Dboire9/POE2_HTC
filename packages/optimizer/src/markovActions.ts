@@ -29,7 +29,10 @@ export type McAction =
   | { readonly currency: 'chaos' }
   // A Desecration draws from one boss's desecrated pool. Unconstrained it draws across both sides;
   // a Sinistral/Dextral Necromancy omen (`side`) restricts it to one, shrinking the pool.
-  | { readonly currency: 'desecrate'; readonly boss: DesecrationBossOmen; readonly side?: 'prefix' | 'suffix' };
+  | { readonly currency: 'desecrate'; readonly boss: DesecrationBossOmen; readonly side?: 'prefix' | 'suffix' }
+  // A Perfect Essence forces one specific mod on while removing one at random. `side` is a
+  // Sinistral/Dextral Crystallisation omen constraining WHICH mod the essence eats.
+  | { readonly currency: 'perfect-essence'; readonly target: string; readonly side?: 'prefix' | 'suffix' };
 
 /** Price-sheet key for each boss omen. */
 const BOSS_OMEN_KEY: Record<DesecrationBossOmen, string> = {
@@ -61,6 +64,10 @@ export function actionCostOf(prices: Prices, action: McAction): number {
   if (action.currency === 'desecrate') {
     const side = action.side === 'prefix' ? o('OmenofSinistralNecromancy') : action.side === 'suffix' ? o('OmenofDextralNecromancy') : 0;
     return c('desecrate') + o(BOSS_OMEN_KEY[action.boss]) + side;
+  }
+  if (action.currency === 'perfect-essence') {
+    const side = action.side === 'prefix' ? o('OmenofSinistralCrystallisation') : action.side === 'suffix' ? o('OmenofDextralCrystallisation') : 0;
+    return c('perfect_essence') + side;
   }
   return c('chaos');
 }
@@ -252,6 +259,39 @@ export function createActionSpace(params: ActionSpaceParams): {
     return out;
   };
 
+  // ── Perfect Essence ────────────────────────────────────────────────────────────────────────────
+  // Forces its own mod on while eating one existing mod at random — so the removal half is exactly the
+  // uniform draw removeOutcomes already computes (perfectEssenceProbability's 1/(pf+sf), 1/pf and 1/sf
+  // branches are the same formulas), and the add half is deterministic. On an empty item there is
+  // nothing to eat, so it simply adds (P=1), matching plan.ts's empty-item branch.
+  //
+  // The add is only legal if the target's side has room. When that side isn't full the removal can only
+  // help, so every branch is legal; when it IS full the add depends on the removal landing on that same
+  // side, which is guaranteed only under a matching Crystallisation omen. Rather than invent what the
+  // game does in the ambiguous case, the action simply isn't offered there.
+  const perfectEssenceOutcomes = (s: McState, i: number, constrainTo?: 'prefix' | 'suffix'): Dist => {
+    const out: Dist = new Map();
+    const t = list[i]!;
+    if (has(s.present, i) || has(s.blocked, i)) return out; // its family is already occupied
+    const sideOpen = t.type === 'prefix' ? prefixOpenIn(s) : suffixOpenIn(s);
+    if (!sideOpen && constrainTo !== t.type) return out; // the add might not fit — don't guess
+    const removals = removeOutcomes(s, constrainTo);
+    if (removals.size === 0) {
+      // Nothing removable: only legal when the item is genuinely empty, which is the deterministic add.
+      const empty = s.present === 0 && s.blocked === 0 && s.jp === 0 && s.js === 0 && s.desJunk === 'none';
+      if (empty) addTo(out, encodeState(bit(i), 0, 0, 0, 'none'), 1);
+      return out;
+    }
+    for (const [midKey, p] of removals) {
+      const mid = decodeState(midKey);
+      addTo(out, encodeState(mid.present | bit(i), mid.blocked, mid.jp, mid.js, mid.desJunk), p);
+    }
+    return out;
+  };
+  const perfectTargets = list.map((t, i) => (t.mod.source === 'perfect_essence' ? i : -1)).filter((i) => i >= 0);
+  const crystallisationOk = (sd: 'prefix' | 'suffix'): boolean =>
+    prices.omens[sd === 'prefix' ? 'OmenofSinistralCrystallisation' : 'OmenofDextralCrystallisation'] !== undefined;
+
   const push = (acts: ActionDef[], action: McAction, dist: Dist): void => {
     if (dist.size === 0) return;
     acts.push({ action, cost: actionCostOf(prices, action), dist });
@@ -278,6 +318,15 @@ export function createActionSpace(params: ActionSpaceParams): {
         push(acts, { currency: 'desecrate', boss }, desecrateOutcomes(s, boss));
         for (const sd of ['prefix', 'suffix'] as const) {
           if (necromancyOk(sd)) push(acts, { currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd));
+        }
+      }
+    }
+    for (const i of perfectTargets) {
+      const target = list[i]!.modId;
+      push(acts, { currency: 'perfect-essence', target }, perfectEssenceOutcomes(s, i));
+      for (const sd of ['prefix', 'suffix'] as const) {
+        if (crystallisationOk(sd)) {
+          push(acts, { currency: 'perfect-essence', target, side: sd }, perfectEssenceOutcomes(s, i, sd));
         }
       }
     }

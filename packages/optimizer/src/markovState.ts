@@ -68,13 +68,6 @@ export type Dist = Map<StateKey, number>;
 
 export function addTo(d: Dist, k: StateKey, p: number): void { d.set(k, (d.get(k) ?? 0) + p); }
 
-/** Σ p·V over every outcome EXCEPT the self-loop back to `selfKey` (which the caller divides out). */
-export function sumOther(dist: Dist, selfKey: StateKey, V: ReadonlyMap<StateKey, number>): number {
-  let s = 0;
-  for (const [to, p] of dist) if (to !== selfKey) s += p * (V.get(to) ?? Infinity);
-  return s;
-}
-
 // ── Slot accounting ─────────────────────────────────────────────────────────────────────────────
 
 /** How many of `sideIdx`'s targets are set in `mask`. */

@@ -33,7 +33,7 @@ import type { ActionDef, McAction } from './markovActions.ts';
 import { createActionSpace } from './markovActions.ts';
 import type { McTarget, StateKey } from './markovState.ts';
 import {
-  classifyStart, decodeState, encodeState, enumerateStates, has, popcount, sideIndexOf, sumOther,
+  classifyStart, decodeState, encodeState, enumerateStates, has, popcount, sideIndexOf,
 } from './markovState.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
@@ -161,6 +161,45 @@ export function markovFromItem(
     actionCache.set(key, key === goalKey ? [] : actionsOf(decodeState(key)));
   }
 
+  // ── Compile the lattice to dense numeric arrays ─────────────────────────────
+  // Value iteration is arithmetic, but the natural representation (string StateKeys in Maps) makes it
+  // arithmetic *through a hash table*: at 6 targets the inner loop did ~3.5 BILLION string-keyed Map
+  // lookups and took ~51s. Compiling once to integer indices + typed arrays makes the loop pure
+  // indexed maths. Entry order is preserved exactly as the Maps iterated (insertion order), so the
+  // floating-point sums are bit-identical to the Map version — the speedup is free of behaviour.
+  const idxOfState = new Map<StateKey, number>();
+  for (let i = 0; i < allStates.length; i++) idxOfState.set(allStates[i]!, i);
+  const N = allStates.length;
+
+  /** One action, ready for the solver: its self-loop hoisted out and outcomes as parallel arrays. */
+  interface CompiledAction {
+    readonly def: ActionDef;
+    readonly cost: number;
+    /** P(this action leaves the state unchanged) — divided out rather than iterated. */
+    readonly selfProb: number;
+    /** Destination indices, self-loop EXCLUDED — its probability lives in `selfProb`. */
+    readonly to: Int32Array;
+    readonly prob: Float64Array;
+  }
+  const compiled: CompiledAction[][] = new Array(N);
+  for (let i = 0; i < N; i++) {
+    const key = allStates[i]!;
+    const defs = actionCache.get(key)!;
+    const out: CompiledAction[] = [];
+    for (const def of defs) {
+      const to: number[] = [];
+      const prob: number[] = [];
+      let selfProb = 0;
+      for (const [toKey, p] of def.dist) {
+        if (toKey === key) { selfProb += p; continue; }
+        to.push(idxOfState.get(toKey)!);
+        prob.push(p);
+      }
+      out.push({ def, cost: def.cost, selfProb, to: Int32Array.from(to), prob: Float64Array.from(prob) });
+    }
+    compiled[i] = out;
+  }
+
   // ── Value iteration ─────────────────────────────────────────────────────────
   // Standard stochastic-shortest-path VI: 0-initialise (a finite lower bound) and let values climb to
   // the fixed point. (An ∞-init + "skip any action with an ∞ outcome" scheme DEADLOCKS on the recovery
@@ -169,38 +208,44 @@ export function markovFromItem(
   // and VI converges to a finite V.) Each action solves its own self-loop via ÷(1 − pStay).
   const tol = opts.tolerance ?? 1e-9;
   const maxIters = opts.maxIters ?? 100_000;
-  const V = new Map<StateKey, number>();
-  for (const key of allStates) V.set(key, 0);
-  const actionValue = (k: StateKey, a: ActionDef): number => {
-    const pStay = a.dist.get(k) ?? 0;
-    if (pStay >= 1 - 1e-12) return Infinity; // an action that only loops back can't make progress
-    return (a.cost + sumOther(a.dist, k, V)) / (1 - pStay);
+  const V = new Float64Array(N); // 0-initialised, as above
+  const goalIdx = idxOfState.get(goalKey)!;
+  const valueOf = (a: CompiledAction): number => {
+    if (a.selfProb >= 1 - 1e-12) return Infinity; // an action that only loops back can't make progress
+    let s = 0;
+    for (let j = 0; j < a.to.length; j++) s += a.prob[j]! * V[a.to[j]!]!;
+    return (a.cost + s) / (1 - a.selfProb);
   };
   for (let iter = 0; iter < maxIters; iter++) {
     let delta = 0;
-    for (const key of allStates) {
-      if (key === goalKey) continue;
+    for (let i = 0; i < N; i++) {
+      if (i === goalIdx) continue;
+      const acts = compiled[i]!;
       let best = Infinity;
-      for (const a of actionCache.get(key)!) best = Math.min(best, actionValue(key, a));
+      for (let k = 0; k < acts.length; k++) {
+        const v = valueOf(acts[k]!);
+        if (v < best) best = v;
+      }
       if (!Number.isFinite(best)) continue;
-      const prev = V.get(key)!;
-      V.set(key, best);
-      delta = Math.max(delta, Math.abs(best - prev));
+      const prev = V[i]!;
+      V[i] = best;
+      const d = Math.abs(best - prev);
+      if (d > delta) delta = d;
     }
     if (delta <= tol) break;
   }
 
   // ── Extract policy + reachable graph from the start ─────────────────────────
   const startKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.desJunk);
-  const startCost = V.get(startKey) ?? Infinity;
+  const startCost = V[idxOfState.get(startKey)!] ?? Infinity;
   if (!Number.isFinite(startCost)) return fail('no policy reaches the target');
 
   const bestAction = (k: StateKey): ActionDef | undefined => {
     let best: ActionDef | undefined;
     let bestVal = Infinity;
-    for (const a of actionCache.get(k)!) {
-      const val = actionValue(k, a);
-      if (val < bestVal) { bestVal = val; best = a; }
+    for (const a of compiled[idxOfState.get(k)!]!) {
+      const val = valueOf(a);
+      if (val < bestVal) { bestVal = val; best = a.def; }
     }
     return best;
   };
@@ -236,7 +281,7 @@ export function markovFromItem(
       blocked: list.filter((_, i) => has(st.blocked, i)).map((t) => t.modId),
       junkPrefixes: st.jp, junkSuffixes: st.js,
       ...(st.desJunk === 'none' ? {} : { desecratedJunk: st.desJunk }),
-      isStart: k === startKey, isGoal, expectedCost: V.get(k) ?? Infinity,
+      isStart: k === startKey, isGoal, expectedCost: V[idxOfState.get(k)!] ?? Infinity,
       ...(act ? { action: act.action } : {}),
     });
     if (act) {

@@ -35,7 +35,7 @@ jobs:
 
       - name: Build
         run: |
-          npm install --legacy-peer-deps
+          npm ci
           npm run build
 
       - name: Perform CodeQL Analysis

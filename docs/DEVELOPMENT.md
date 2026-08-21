@@ -140,7 +140,12 @@ npm install --legacy-peer-deps
 ```
 
 **Why `--legacy-peer-deps`?** React 19 trips some libraries' peer-dependency ranges; the flag lets
-the install proceed. Everything works despite the warnings.
+the install proceed. Everything works despite the warnings. It's also recorded in `.npmrc`, so a
+plain `npm install` (or `npm ci`) behaves the same — the flag above is belt-and-braces.
+
+**`package-lock.json` is committed.** Prefer `npm ci`, which installs exactly that tree: it's what
+CI runs, so your machine and CI resolve identically, and a clean `npm audit` can't quietly drift on
+the next install.
 
 ### Running
 

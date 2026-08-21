@@ -19,10 +19,10 @@ jobs:
         with:
           node-version: '20'
 
-      # `npm ci` would be preferable, but package-lock.json is gitignored, so there is no
-      # lockfile to install from. Switch this to `npm ci` if the lockfile is ever committed.
+      # `npm ci` installs exactly the committed lockfile — so CI and a developer's machine get the
+      # same tree, and a clean `npm audit` stays clean. legacy-peer-deps comes from .npmrc.
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci
 
       - name: Type check
         run: npm run type-check

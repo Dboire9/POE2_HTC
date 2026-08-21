@@ -3,7 +3,9 @@
 # Dependencies
 /node_modules
 node_modules/
-package-lock.json
+# package-lock.json is COMMITTED: it is what makes installs reproducible and what lets CI use
+# `npm ci`. Without it every install re-resolves within the package.json ranges, so a clean
+# `npm audit` can silently drift on the next install.
 pnpm-lock.yaml
 yarn.lock
 /target/

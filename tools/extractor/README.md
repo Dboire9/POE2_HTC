@@ -1,6 +1,17 @@
-# Phase-0 data extractor
+# Phase-0 data extractor — HISTORICAL, NOT RUNNABLE
 
-One-off tool that converts the hardcoded Java mod/item data (`src/main/java/core/Item_modifiers/**`
+> **This tool cannot be run any more, and shouldn't be.** It reads `src/main/java/**`, which was
+> deleted when the Java engine was retired; the project has no JDK or Maven, and `run.sh` isn't even
+> tracked. It is kept purely as the **provenance record** for `data/patches/0.5` — the frozen snapshot
+> that anchors the engine's differential tests (`packages/engine/src/__fixtures__/*-java.json`).
+>
+> `0.5` is frozen by design and must never be regenerated: the golden fixtures were produced from it
+> by the old Java engine, so re-deriving the data would invalidate the anchor it exists to provide.
+> The shipped dataset is `0.5.0`, refreshed by `tools/refresh/` (`npm run update-data`).
+>
+> Everything below describes how the snapshot was originally produced, for the record.
+
+One-off tool that converted the hardcoded Java mod/item data (`src/main/java/core/Item_modifiers/**`
 and `core/Items/**`) into per-patch JSON, per `SPEC.md`. Output goes to `data/patches/0.5/`.
 
 ## Run

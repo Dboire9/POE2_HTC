@@ -612,7 +612,7 @@ lands high-tier." The state key grew `present:jp:js` → **`present:blocked:jp:j
 DEFERRED (MDP v3): Omen of Whittling (a Chaos omen that changes the lowest-TIER mod) — needs the
 mod-tier ordering the state abstraction discards; extend beyond rollable targets (essence/desecrate as MDP actions); a from-white
 MDP (its restart-to-white is already a defensible near-optimal strategy, so lower priority). (Omen of
-Homogenising Exaltation was a candidate but has been REMOVED from the game — see CHANGELOG — so it is
+Homogenising Exaltation was a candidate but has been REMOVED from the game — see docs/CHANGELOG.md — so it is
 not a v3 item.)
 
 ## MDP v3a — Desecration, Omen of Light and Perfect Essence as MDP actions (2026-08-21)

@@ -2,85 +2,36 @@ name: CI
 
 on:
   push:
-    branches: [ Production, main, test ]
+    branches: [ revival, main ]
   pull_request:
-    branches: [ Production, main, test ]
 
 jobs:
-  build-java-backend:
-    name: Build Java Backend
+  verify:
+    name: Type-check, test, build
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
-    
-    - name: Build Java Backend
-      run: mvn clean compile -B
-    
-    - name: Run Java Tests
-      run: mvn test -B
-    
-    - name: Package Java Backend
-      run: mvn package -B
 
-  build-frontend:
-    name: Build Frontend & Electron
-    runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-    
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
-    
-    - name: Install Dependencies
-      run: npm install --legacy-peer-deps
-    
-    - name: Build Java Backend
-      run: mvn clean package -B
-    
-    - name: Build Vite Frontend
-      run: npm run build
-    
-    - name: Build Electron Main Process
-      run: npm run build:electron
-    
-    - name: Type Check
-      run: npm run type-check
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  code-quality:
-    name: Code Quality Checks
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-    
-    - name: Install Dependencies
-      run: npm install --legacy-peer-deps
-    
-    - name: Check for issues
-      run: echo "Code quality checks passed"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # `npm ci` would be preferable, but package-lock.json is gitignored, so there is no
+      # lockfile to install from. Switch this to `npm ci` if the lockfile is ever committed.
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Test
+        run: npm test -- --run
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Electron main process
+        run: npm run build:electron

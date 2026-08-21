@@ -27,7 +27,7 @@
 - **React 19** + **TypeScript 5.6** — UI
 - **Vite 7** — build tool and dev server
 - **TailwindCSS** + **shadcn/ui** (Radix) — styling and components
-- **Electron 33** — desktop wrapper (packages the built web app; **no** child process/backend)
+- **Electron 41** — desktop wrapper (packages the built web app; **no** child process/backend)
 - **Vitest 4** — test runner (unit + differential + Monte-Carlo validation)
 - **electron-updater** — auto-update; **Sentry** + **Vercel Analytics** — telemetry
 
@@ -77,7 +77,7 @@ POE2_HTC/
 │   ├── lib/engine.ts                 # Browser facade: loadEngine, listBases, listMods,
 │   │                                 #   optimize, currencyActions, optimizeItem
 │   ├── components/                   # shadcn/ui kit + UpdateNotification, Toaster
-│   └── test/                         # smoke tests
+│   └── test/setup.ts                 # vitest setup (jsdom matchers)
 │
 ├── packages/
 │   ├── engine/src/                   # Pure-TS crafting engine (no I/O, no DOM)
@@ -292,7 +292,7 @@ ship anymore.
 ### Release process
 
 1. Bump `version` in `package.json` (there is no `pom.xml`).
-2. Update `CHANGELOG.md`.
+2. Update [`docs/CHANGELOG.md`](CHANGELOG.md).
 3. `npm run type-check && npm test && npm run build`.
 4. Tag and push (`git tag vX.Y.Z && git push origin vX.Y.Z`); CI builds and publishes the release.
 

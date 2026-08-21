@@ -862,10 +862,12 @@ still resolves to exactly one group. **Verified by reverting the fix: 6 of the 1
 new data-integrity invariant pins `families[0] === family` and rejects redundant 1-entry arrays.
 **660 tests + 1 todo, type-check + build green; differential fixtures untouched.**
 
-→ **Still open:** the CoE cross-check has *not* been re-run against these bases. The affected mods are
-desecrated (which CoE's normal-pool worksheets don't cover), so the five cross-checked bases'
-normal-craft numbers should be unmoved — but that is reasoning, not measurement, and should be
-confirmed with the `scripts/coe-*` harness before the next release.
+→ **CONFIRMED (same day):** the CoE cross-check was re-run after the change — `coe-verify.mts` reports
+**MATCH on prefixes and suffixes for Rings, Body_Armours_int and Quivers**, and
+`coe-newpools-check.mts` passes all structural checks (boss-tag counts 175/188/164, every desecrated
+mod positively weighted, every perfect-essence mod single-tier and deterministic). So the normal-pool
+numbers are unmoved, as predicted — the affected mods are desecrated and don't enter those pools. The
+prediction is now measured rather than reasoned.
 
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +

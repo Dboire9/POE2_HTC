@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- `dark` is static: src/index.css defines a single dark palette on :root and there is no theme
+     toggle, so Tailwind's dark: variants should always be active. Without this class they are all
+     inert and their light-mode fallbacks (text-rose-600, text-amber-700, …) render on the dark
+     background — which is low-contrast and was the bug this fixes. -->
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

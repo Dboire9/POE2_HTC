@@ -189,16 +189,17 @@ export function optimizeItem(eng: Engine, item: ExistingItem, targets: readonly 
 
 /**
  * The TRUE expected cost + optimal-policy graph for a from-item craft, from the MDP model (push-forward,
- * no restart — see markovFromItem). `applicable` is false when a target isn't a rollable normal mod
- * (perfect-essence / desecrate); the caller then falls back to `optimizeItem`'s frontier.
+ * no restart — see markovFromItem). `applicable` is false for a REGULAR-essence target: those need a
+ * Magic item and this model starts from the Rare you already hold, so the caller falls back to
+ * `optimizeItem`'s frontier. Rollable, desecrated and perfect-essence targets all go through the MDP.
  */
 export function optimizeItemMarkov(eng: Engine, item: ExistingItem, targets: readonly TargetInput[]): EngineMarkovResult {
   const { data, prices } = eng;
-  const applicable = targets.every((t) => data.mods.get(t.modId)?.source === 'normal');
+  const applicable = targets.every((t) => data.mods.get(t.modId)?.source !== 'essence');
   if (!applicable) {
     return {
       applicable: false, feasible: false, expectedCost: Infinity, nodes: [], edges: [],
-      reason: 'the true-cost model covers rollable mods only (this target uses an essence/desecrated mod)',
+      reason: 'a regular essence needs a Magic item, so this craft has no true-cost model — craft it from white',
     };
   }
   const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets));

@@ -524,10 +524,29 @@ describe('engine facade — optimizeItemMarkov (0.5.0)', () => {
     expect(r.expectedCost).toBeGreaterThan(linear.frontier[0]!.expected);
   });
 
-  it('is not applicable when a target needs an essence/desecrated mod (caller uses the frontier)', () => {
+  it('covers a perfect-essence target (v3a: the MDP models the essence itself)', () => {
     const pe = listPerfectEssences(eng050.data, 'Wands')[0]!;
     const r = optimizeItemMarkov(eng050, start, [{ modId: MANA, tierDisplay: 99 }, { modId: pe.id, tierDisplay: 1 }]);
+    expect(r.applicable).toBe(true);
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeGreaterThan(0);
+    // The policy has to actually use the essence somewhere — it's the only way to place that mod.
+    expect(r.nodes.some((nd) => nd.action?.startsWith('Perfect Essence'))).toBe(true);
+  });
+
+  it('covers a desecrated target, and its policy labels the boss omen', () => {
+    const des = listDesecrated(eng050.data, 'Wands')[0]!;
+    const r = optimizeItemMarkov(eng050, start, [{ modId: MANA, tierDisplay: 99 }, { modId: des.id, tierDisplay: 1 }]);
+    expect(r.applicable).toBe(true);
+    expect(r.feasible).toBe(true);
+    expect(r.nodes.some((nd) => nd.action?.startsWith('Desecrate (Omen of the '))).toBe(true);
+  });
+
+  it('is not applicable for a REGULAR-essence target (needs a Magic item; caller uses the frontier)', () => {
+    const wands = listMods(eng050.data, 'Wands');
+    const ess = [...wands.prefixes, ...wands.suffixes].find((m) => m.source === 'essence')!;
+    const r = optimizeItemMarkov(eng050, start, [{ modId: MANA, tierDisplay: 99 }, { modId: ess.id, tierDisplay: 1 }]);
     expect(r.applicable).toBe(false);
-    expect(r.reason).toMatch(/rollable mods only/i);
+    expect(r.reason).toMatch(/magic item/i);
   });
 });

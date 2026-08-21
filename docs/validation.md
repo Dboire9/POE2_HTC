@@ -615,6 +615,91 @@ MDP (its restart-to-white is already a defensible near-optimal strategy, so lowe
 Homogenising Exaltation was a candidate but has been REMOVED from the game — see CHANGELOG — so it is
 not a v3 item.)
 
+## MDP v3a — Desecration, Omen of Light and Perfect Essence as MDP actions (2026-08-21)
+
+Took the second of the three v3 items above: the MDP now covers **desecrated** and **perfect-essence**
+targets instead of handing them to the linear planner, so the honest push-forward cost model applies to
+them too. Whittling stays deferred (see below).
+
+**Preparatory split** (behaviour-neutral, its own commit): `markovFromItem.ts` (456 lines) became
+`markovState.ts` (what a state IS: the present/blocked/junk abstraction, `StateKey` encode/decode, slot
+accounting, lattice enumeration, `classifyStart`), `markovActions.ts` (what you can DO: `McAction`,
+`actionCostOf`, the distribution builders, price-gated assembly) and `markovFromItem.ts` (orchestration:
+resolve targets, value-iterate, walk the policy into a graph). `markovFromItem.ts` keeps the public
+surface and re-exports the action types, so every caller and test imports exactly as before — the same
+pattern used when `engine.ts` was split. All 13 MDP tests passed **unedited**, which was the oracle.
+
+**State:** one new axis, `desJunk` ∈ {none, prefix, suffix} — where the item's single unwanted
+desecrated mod sits. A desecrated *target* is already in the present/blocked masks, so the axis only
+records the miss. It's gated by `desecratable`, true only when a desecrated mod is genuinely in play, so
+a craft that never touches desecration enumerates exactly the state space it did before (verified on
+real Wands: **95 policy states either way**; 239 with desecration in play, solving in 82 ms).
+
+**D8 — how a Desecration splits across sides (new ruling; previously unmodelled).** The engine's
+`desecrationBossProbability` returns `1/N` counting only that boss's mods **on the added mod's own
+slot** (see D3). That's well-defined for the linear planner, which only ever asks "P that *this* mod
+lands", but an MDP needs a distribution summing to 1, which forces the question the port never answered.
+On Wands + Blackblooded the pool is 1 prefix / 2 suffixes, so a prefix target reads 1/1 = **100%**
+per-slot but 1/3 = **33%** if the draw spans both sides — the same craft, 3× apart. **Ruling (user):
+model both.** An unconstrained boss desecration draws across BOTH sides of that boss's pool; a
+Sinistral/Dextral **Necromancy** omen narrows it to one side and thereby recovers exactly the engine's
+`1/N`. So the existing per-slot number is the *side-omen* case, not the unconstrained one. Candidates
+whose family is already on the item, or whose side is full, are dropped from the draw rather than
+wasting it — the same way `poolTotalWeight` excludes occupied families from a normal add.
+→ **Follow-up:** this implies the LINEAR planner is optimistic for desecration — it takes the
+constrained `1/N` without paying for a Necromancy omen. Flagged, not fixed.
+
+**Omen of Light** is now an MDP action too: it removes the item's desecrated mod outright (P=1) instead
+of rolling the uniform 1/N. Without it the model would overstate the cost of every desecrate-based plan,
+since the real recovery from a bricked desecration wouldn't exist. Offered only when priced.
+
+**Perfect Essence** reuses machinery rather than adding math: its removal half is *exactly* the uniform
+draw `removeOutcomes` already computes (`perfectEssenceProbability`'s `1/(pf+sf)`, `1/pf`, `1/sf`
+branches are the same formulas), and its add half is deterministic. Empty item ⇒ no removal, P=1 add,
+matching `plan.ts`. Sinistral/Dextral **Crystallisation** omens constrain which mod gets eaten.
+*Side-slot legality:* the add only fits if the target's side has room; when that side is full the add
+depends on the removal landing there, guaranteed only under a matching omen — so in the ambiguous case
+the action simply isn't offered rather than inventing a rule.
+→ **Follow-up (pre-existing):** `plan.ts`'s `'perfect-essence'` branch checks rarity and family but NOT
+the target-side slot count, unlike its `'desecrate'` branch which does check `sideFull`. The MDP does
+not inherit the gap; `plan.ts` itself is untouched and worth a separate look.
+
+**Regular essences stay out, structurally.** `essenceForcedProbability` requires a **Magic** item and
+this planner starts from the Rare you already hold; there is no legal Rare→Magic transition, so there is
+no sequence in which a from-item MDP could use one. They keep falling back to the from-white linear
+planner, now with a reason that says *why* rather than the old generic "not rollable".
+
+**Bug found while building it:** `addOutcomes` counted a desecrated target's own tier weight in the
+numerator although it is absent from `poolTotalWeight`'s denominator — an Exalt could conjure a
+desecrated mod and the distribution wouldn't sum to 1. Adds are now restricted to normal-pool mods.
+A second one was caught by its own test: `distanceToGoal` ignored the new axis, so a desecrate miss
+didn't register as a regression (no brick arrow). Desecrated junk now counts toward distance, rides on
+`PolicyNode`, and the graph labels it separately from ordinary junk since it also blocks re-desecrating.
+
+**Validation** — 11 hand-computed cases in `markovEssenceDesecrate.test.ts` (analytic first; these are
+small enough to pin exactly, so no MC was needed): unconstrained draw **E = 3**, Necromancy omen
+**E = 1.5** and taken, the same omen priced dear **declined** at E = 3, Light **E = 1.3** and preferred
+over both random and side annuls, Light absent when unpriced, Crystallisation-certain essence
+**E = 15**, the raw essence's uniform ½ split pinned edge-by-edge with only the junk-eating branch
+reaching goal, the full-side essence declined without an omen and offered with one, plus four reject
+cases. Real data: Wands + desecrated Spell-AoE suffix ⇒ **33.58ex**, policy buys Liege + Dextral;
+Wands + Perfect Essence of the Abyss ⇒ **25.00ex**, policy buys Dextral Crystallisation to eat the
+unwanted Intelligence.
+
+**UI:** `optimizeItemMarkov` no longer refuses desecrated/perfect-essence targets (only regular
+essences); `EnginePolicyNode` gained `desecratedJunk`; the graph labels "+1 desecrated" and the new
+actions ("Desecrate (Omen of the Liege, Dextral)", "Perfect Essence (Sinistral)", "Annul (Omen of
+Light)"). **640 tests + 1 todo, type-check + build green; differential fixtures untouched.**
+
+STILL DEFERRED (MDP v3b): **Omen of Whittling** — the remaining v3 item, and the only one needing a
+state-abstraction redesign rather than new actions. Junk carries no tier information at all (just a
+count) and present targets only know "≥ wanted tier", so "remove the lowest-tier mod" isn't answerable
+from the current state. A tractable version bands ilvl into coarse windows, but that multiplies the
+lattice and needs a **benchmarking spike first** (enumerate the banded lattice for n = 1..6 on real
+0.5.0 data and time a real value-iteration pass) to pin an honest target-count cap before any
+production code. Note `OmenofWhittling` is **not** in `data/patches/*/prices.json`, so under the
+"only offer what's priced" rule it would ship dormant anyway. Also still deferred: a from-white MDP.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

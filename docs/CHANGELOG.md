@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- Updated Electron 33 → 41, clearing 33 advisories in the desktop runtime (context-isolation
+  bypass, several use-after-frees at CVSS 7.5–8.1, sandboxed-iframe escapes).
+- Updated electron-builder 25 → 26, clearing the critical node-tar path-traversal advisory it
+  pulled in transitively. `npm audit` is now clean (was 1 critical + 20 high).
+- Removed `build.win.sign`, which electron-builder 26 dropped from its Windows schema. No signing
+  behaviour change — no certificate was configured.
+- Verified on Linux/WSL: app launches under Electron 41, window renders, auto-updater initialises,
+  and `electron:build:linux` packages an AppImage and a deb.
+
 ## [0.9.4] - 2025-11-28
 
 ### Added

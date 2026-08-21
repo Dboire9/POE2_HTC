@@ -90,6 +90,12 @@ POE2_HTC/
 │   │   └── *.test.ts                 # unit + differential tests
 │   └── optimizer/src/                # Cost + search on top of the engine
 │       ├── optimize.ts               # optimizePareto, optimizePlan, sequence generation
+│       ├── fromItem.ts               # optimizeFromItem — transform an item you already hold
+│       ├── alternatives.ts           # budget-constrained near-miss targets
+│       ├── combinatorics.ts          # permutations / combinations helpers
+│       ├── markovFromItem.ts         # the from-item MDP: orchestration + value iteration
+│       ├── markovState.ts            #   …what a crafting state IS (present/blocked/junk)
+│       ├── markovActions.ts          #   …what you can DO from one, and where it lands
 │       ├── cost.ts                   # expected-cost model (restart-on-failure)
 │       ├── loadPrices.ts             # index prices.json
 │       ├── simulate.ts               # Monte-Carlo validator
@@ -192,16 +198,42 @@ engine.
 
 Layers cost and search on top of the engine.
 
-- **`optimizePareto(data, prices, base, targets, opts)`** — the main entry. Generates candidate
-  crafting sequences to reach the target mods/tiers and returns the **Pareto frontier**: the plans
-  where no other plan is both cheaper and likelier. `optimizeItem` (in the facade) does the same
-  starting from an item you already own.
+- **`optimizePareto(data, prices, base, targets, opts)`** — the main entry for crafting **from a
+  white base**. Generates candidate sequences to reach the target mods/tiers and returns the
+  **Pareto frontier**: the plans where no other plan is both cheaper and likelier.
+- **`fromItem.ts`** — `optimizeFromItem`, the same idea starting from an item you already hold
+  (reached as `optimizeItem` in the facade): every mod not in the target is junk to remove, every
+  target not present must be added.
+- **`alternatives.ts`** — "you can't afford the exact target; what's the closest thing you can?"
+  Trades closeness against P(finish within budget).
 - **`cost.ts`** — the expected-cost model. Currencies that can fail and force a restart use the
   restart-on-first-failure expectation `E = (Σ cₖ·S_{k-1}) / Sₙ`; prices come from `prices.json` in
-  exalt-equivalents.
+  exalt-equivalents. `combinatorics.ts` holds the ordering helpers the searches share.
 - **`simulate.ts`** — a seeded Monte-Carlo simulator (`mulberry32`) used **only to validate** the
   analytic numbers, never in the hot path.
 - **`validate.ts`** — rejects malformed targets (0 or >6 mods, >3 per side, off-pool mods, etc.).
+
+### The from-item MDP (`markovFromItem.ts` + `markovState.ts` + `markovActions.ts`)
+
+A **different model**, not another search variant, and worth understanding before touching it. The
+planners above use a restart cost model: on a miss they assume you go back to your starting item, for
+free. That's a fiction — a real annul removes a *uniformly-random* mod, so a miss leaves you in a
+**worse** state you have to dig out of in place, and reproducing an expensive item is never free.
+
+The MDP models that actual stochastic process: states are item configurations, transitions come from
+the real pool weights, and value iteration solves for the minimum **expected cost** together with an
+**optimal policy** — what to use in each state, including how to recover from a bricked one. It
+"pushes forward" and never restarts. The result also carries the reachable policy graph the UI draws.
+
+The three modules split by concern: `markovState.ts` owns what a state *is* (which targets are
+present, which are blocked by an off-tier roll, how much junk sits on each side) and how it's keyed;
+`markovActions.ts` owns what you can *do* from a state, what it costs, and the resulting distribution
+over next states; `markovFromItem.ts` is orchestration — resolve targets, enumerate the lattice, run
+value iteration, walk the policy into a graph. The facade reaches it via `optimizeItemMarkov`, which
+falls back to the linear frontier for targets the MDP doesn't model.
+
+See [validation.md](validation.md) for the scope, the documented approximations, and the validation
+history — this section deliberately doesn't duplicate them.
 
 ### Optimizer self-check
 

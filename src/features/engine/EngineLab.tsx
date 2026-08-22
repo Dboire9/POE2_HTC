@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, listDesecrated, recommendedIndex,
+  loadEngine, listBases, listMods, listDesecrated, recommendedIndex, bossOmenAllowed,
   priceBasis,
   modFamilies,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
@@ -214,6 +214,13 @@ const EngineLab: React.FC = () => {
   const essenceUsed = targets.some((t) => modById.get(t.modId)?.source === 'essence');
   const desecratedUsed = targets.some((t) => modById.get(t.modId)?.source === 'desecrated');
   const normalTargets = targets.filter((t) => modById.get(t.modId)?.source === 'normal').length;
+  // Via the facade's UI-shaped base list rather than the raw PatchData — same source the rest of
+  // this component uses, so it can't disagree with what the picker is showing.
+  const bossTargetable = bossOmenAllowed(bases.find((b) => b.id === baseId)?.category ?? '');
+  // From white the item is Normal, and a Desecration needs a Rare — reached only via
+  // transmute → augment → regal, i.e. three rollable mods first. Fewer than that and every ordering
+  // scores 0, which the generic "impossible on this base/level" message explains wrongly.
+  const desecrationNeedsRare = desecratedUsed && normalTargets < 3 && fractured.size === 0;
   // A regular essence needs a MAGIC start; a fractured mod makes the craft start from a RARE. They can't
   // coexist in one plan — flag it so the UI blocks the combination instead of erroring at compute time.
   const essenceFractureConflict = essenceUsed && fractured.size > 0;
@@ -620,8 +627,15 @@ const EngineLab: React.FC = () => {
           {desecratedUsed && (
             <p className="text-[11px] text-muted-foreground">
               <span className="text-rose-600 dark:text-rose-300">desecrated</span> mods are added by a
-              Desecration using the boss omen that targets them — odds are a count-uniform 1-in-N over
-              that boss’s pool (weights are unknown, so this is an approximation).
+              Desecration.{' '}
+              {bossTargetable ? (
+                <>The boss omen that targets this mod narrows it to a count-uniform 1-in-N over that
+                boss’s pool (weights are unknown, so this is an approximation).</>
+              ) : (
+                <>The boss omens are <strong>Weapon or Jewellery only</strong>, so on this base the
+                draw can’t be narrowed — it spans the base’s whole desecrated pool, which is far longer
+                odds than a targeted one.</>
+              )}
               {normalTargets < 3 && fractured.size === 0 && (
                 <> From scratch, a Desecration needs a Rare first, so include <strong>3 rollable mods</strong> (or
                 start from an item) — otherwise there’s no way to reach Rare and the plan will be empty.</>
@@ -643,7 +657,14 @@ const EngineLab: React.FC = () => {
         <FrontierView
           result={result}
           priceBasis={engine ? priceBasis(engine) : undefined}
-          emptyHint={excludedKeys.length > 0 ? (
+          // Ordered most specific first: a wrong-but-plausible reason is worse than none, and the
+          // generic tier-gate message was being shown for a craft that simply never reaches Rare.
+          emptyHint={desecrationNeedsRare ? (
+                <p>A Desecration needs a <strong>Rare</strong> item, and from scratch the item only
+                  becomes Rare after three rollable mods (Transmutation → Augmentation → Regal). This
+                  target has {normalTargets}, so no ordering ever gets to the Desecration. Add rollable
+                  mods until there are three, or start from an item you already hold.</p>
+              ) : excludedKeys.length > 0 ? (
                 <p>No plan avoids the {excludedKeys.length} currenc{excludedKeys.length === 1 ? 'y' : 'ies'} you
                   excluded. Untick some under “Currency I don’t have” to widen the search — or the target may be
                   out of reach anyway, which this can’t tell you without re-running it unrestricted.</p>

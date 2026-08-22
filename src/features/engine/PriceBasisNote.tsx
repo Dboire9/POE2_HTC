@@ -24,6 +24,13 @@ const PriceBasisNote: React.FC<{ basis: EnginePriceBasis; className?: string }> 
       </p>
     );
   }
+  // The caveat is a COMPLETE SENTENCE supplied by the price sheet, rendered as one. It used to be
+  // spliced into the middle of this one ("…the odds are exact, but {caveat}"), which only read
+  // correctly while the caveat happened to be a lowercase fragment — the moment the sheet described
+  // itself in a full sentence the line became "…but All prices are live market data, except …." with
+  // a capital mid-clause and a date stranded after the full stop.
+  const caveat = basis.caveat ?? 'These prices are hand-authored estimates, not live market data.';
+  const asOf = [basis.asOf, basis.patch ? `patch ${basis.patch}` : null].filter(Boolean).join(', ');
   return (
     <p
       className={`text-[11px] text-amber-300 ${className ?? ''}`}
@@ -33,10 +40,8 @@ const PriceBasisNote: React.FC<{ basis: EnginePriceBasis; className?: string }> 
         + 'differs the recommended plan may differ too.'
       }
     >
-      Costs are <strong>partly estimated</strong> — the odds are exact, but{' '}
-      {basis.caveat ?? 'the currency prices behind them are hand-authored, not live market data'}
-      {basis.asOf ? ` (${basis.asOf})` : ''}
-      {basis.patch ? `, patch ${basis.patch}` : ''}. Use them to compare plans, not to budget precisely.
+      {caveat}{asOf ? ` (${asOf})` : ''} The <strong>odds are exact</strong> — use costs to compare
+      plans, not to budget precisely.
     </p>
   );
 };

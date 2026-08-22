@@ -12,7 +12,7 @@ import { priceBasis } from '../../lib/engine';
 describe('PriceBasisNote', () => {
   it('calls estimated prices estimates, and names the date so staleness is visible', () => {
     render(<PriceBasisNote basis={{ estimated: true, asOf: '2026-07-05', patch: '0.5.0' }} />);
-    expect(screen.getByText(/partly estimated/i)).toBeInTheDocument();
+    expect(screen.getByText(/estimates/i)).toBeInTheDocument();
     expect(screen.getByText(/2026-07-05/)).toBeInTheDocument();
     // …and is explicit that the ODDS are not the estimated part, so the caveat isn't over-read.
     expect(screen.getByText(/odds are exact/i)).toBeInTheDocument();
@@ -20,7 +20,7 @@ describe('PriceBasisNote', () => {
 
   it('does not cry wolf when a sheet is real market data', () => {
     render(<PriceBasisNote basis={{ estimated: false, asOf: '2026-07-05', unit: 'exalt-equivalent' }} />);
-    expect(screen.queryByText(/partly estimated/i)).toBeNull();
+    expect(screen.queryByText(/estimates/i)).toBeNull();
     expect(screen.getByText(/prices as of 2026-07-05/i)).toBeInTheDocument();
   });
 
@@ -30,12 +30,27 @@ describe('PriceBasisNote', () => {
   it('names what is actually estimated rather than condemning the whole sheet', () => {
     render(<PriceBasisNote basis={{ estimated: true, caveat: 'Currency and omen prices are live; essence prices are guesses.' }} />);
     expect(screen.getByText(/essence prices are guesses/i)).toBeInTheDocument();
-    expect(screen.queryByText(/hand-authored, not live market data/i)).toBeNull();
+    expect(screen.queryByText(/hand-authored estimates/i)).toBeNull();
   });
 
   it('falls back to the blanket wording when a sheet says nothing more specific', () => {
     render(<PriceBasisNote basis={{ estimated: true }} />);
-    expect(screen.getByText(/hand-authored, not live market data/i)).toBeInTheDocument();
+    expect(screen.getByText(/hand-authored estimates, not live market data/i)).toBeInTheDocument();
+  });
+});
+
+describe('the rendered sentence reads as English', () => {
+  // REGRESSION. The caveat used to be spliced mid-sentence after "but", which only worked while it
+  // was a lowercase fragment; a sheet describing itself in a full sentence produced
+  // "…but All prices are live market data, except ….  (2026-08-22), patch 0.5.0."
+  it('never runs a capitalised caveat into the middle of a clause', () => {
+    const { container } = render(
+      <PriceBasisNote basis={{ estimated: true, caveat: 'All prices are live market data, except essences.', asOf: '2026-08-22', patch: '0.5.0' }} />,
+    );
+    const text = container.textContent ?? '';
+    expect(text).not.toMatch(/\bbut [A-Z]/);        // no capital letter mid-clause
+    expect(text).not.toMatch(/\)[,;]\s*patch/i);     // the patch belongs INSIDE the parenthetical
+    expect(text).toMatch(/except essences\. \(2026-08-22, patch 0\.5\.0\) The odds are exact/);
   });
 });
 

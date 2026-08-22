@@ -13,6 +13,9 @@ import type { PatchData } from '../../packages/engine/src/types.ts';
 import {
   annulProbability, augmentationProbability, chaosProbability, exaltProbability, regalProbability,
 } from '../../packages/engine/src/probability.ts';
+// Whether a Desecration on this base can be boss-targeted ("Weapon or Jewellery" only). Re-exported
+// because the UI has to DESCRIBE desecration differently on armour, not just cost it differently.
+export { bossOmenAllowed } from '../../packages/engine/src/probability.ts';
 import { indexPrices, type Prices } from '../../packages/optimizer/src/cost.ts';
 import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';

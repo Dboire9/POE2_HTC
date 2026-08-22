@@ -36,7 +36,9 @@ const FrontierView: React.FC<{
       <h2 className="text-lg font-bold">{title}</h2>
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Badge variant="outline">{DEPTH_NOTE[result.currencyDepth]}</Badge>
-        <span>{result.plansEvaluated.toLocaleString()} plans evaluated</span>
+        <span>
+          {result.plansEvaluated.toLocaleString()} plan{result.plansEvaluated === 1 ? '' : 's'} evaluated
+        </span>
       </div>
     </div>
 

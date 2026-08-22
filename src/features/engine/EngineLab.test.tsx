@@ -68,8 +68,11 @@ async function loaded() {
 }
 
 beforeEach(() => {
-  mocks.optimize.mockReturnValue(okFrontier);
-  mocks.optimizeItem.mockReturnValue(okFrontier);
+  // RESET, not just re-stub: `mockReturnValue` leaves the call history intact, so `optimize` and
+  // `optimizeItem` were accumulating calls across tests. The routing test below counts calls, and
+  // passed only while it was the only test that computed — any new test that computes broke it.
+  mocks.optimize.mockReset().mockReturnValue(okFrontier);
+  mocks.optimizeItem.mockReset().mockReturnValue(okFrontier);
   mocks.alternatives.mockReset();
   mocks.alternativesForItem.mockReset();
 });
@@ -151,6 +154,26 @@ describe('EngineLab — essence ↔ fracture are mutually exclusive', () => {
 // switching tabs UNMOUNTS a component — and while each tab kept its work in local `useState`, that
 // work was destroyed. For a 6-mod item that is roughly 15 searches and clicks, gone by accident. The
 // state now lives in the shared workspace store, so unmounting costs nothing.
+// A desecrated target from scratch legitimately can't be planned with fewer than three rollable mods:
+// a Desecration needs a Rare, and the item only gets there via transmute → augment → regal. The
+// generic empty-state blamed "a target tier gated above the item level" instead, which is a plausible
+// but WRONG explanation — worse than no explanation, because it sends you to change the tier.
+describe('EngineLab — the empty state gives the real reason', () => {
+  it('explains the Rare prerequisite for a lone desecrated target', async () => {
+    const user = userEvent.setup();
+    mocks.optimize.mockReturnValue({ ...okFrontier, frontier: [] });
+    await loaded();
+    await user.click(addButton('Desecrated Suffix'));
+    await user.click(screen.getByRole('button', { name: /Compute frontier/i }));
+
+    // A phrase unique to the empty state: "a Desecration needs a Rare" also appears in the picker's
+    // explainer above, so matching that would pass before the solve had even finished.
+    expect(await screen.findByText(/no ordering ever gets to the Desecration/i)).toBeInTheDocument();
+    // …and must NOT offer the misleading tier/ilvl advice for this case.
+    expect(screen.queryByText(/gated above the item level/i)).toBeNull();
+  });
+});
+
 describe('EngineLab — work survives a tab switch', () => {
   // It is ITEMACTIONS that gets unmounted — EngineLab stays mounted the whole time, rendering the
   // tabs — so the item you built is what used to die, not the Lab's target list. (Verified by

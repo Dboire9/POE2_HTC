@@ -26,7 +26,7 @@
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
-import { bossOmenAllowed } from '../../engine/src/probability.ts';
+import { bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
@@ -168,6 +168,12 @@ export function markovFromItem(
   // The Desecration mechanic places a single carved mod — an item can hold at most one desecrated mod.
   if (list.filter((t) => t.mod.source === 'desecrated').length > 1) {
     return fail('an item can hold at most one desecrated mod');
+  }
+  // …and at most one ESSENCE modifier, regular or perfect together (see `isEssenceMod`). Without this
+  // `actionsOf` built a perfect-essence action per perfect target and the policy would happily stack
+  // two, producing a route to an item the game cannot hold.
+  if (list.filter((t) => isEssenceMod(t.mod)).length > 1) {
+    return fail('an item can hold at most one essence modifier (regular or perfect) — pick one');
   }
   const idxOf = new Map(list.map((t, i) => [t.modId, i]));
 

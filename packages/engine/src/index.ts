@@ -13,7 +13,7 @@ export {
   transmuteProbability, augmentationProbability, regalProbability, exaltProbability,
   annulProbability, perfectEssenceProbability, essenceForcedProbability,
   desecrationBossProbability, desecrationBossAnySideProbability, desecrationProbability, desecrationOmenForMod, chaosProbability, alchemyProbability,
-  ALCHEMY_MOD_COUNT,
+  ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationBoneFor, isEssenceMod,
 } from './probability.ts';
 export type {
   AddAffixOptions, CurrencyOptions, TransmuteOptions, NormalAddCurrency,

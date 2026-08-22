@@ -262,10 +262,16 @@ const ItemActions: React.FC = () => {
   const targetPre = target.filter((t) => modById.get(t.modId)?.type === 'prefix').length;
   const targetSuf = target.filter((t) => modById.get(t.modId)?.type === 'suffix').length;
   const targetDesecrated = target.some((t) => modById.get(t.modId)?.source === 'desecrated');
+  // An item carries at most ONE essence modifier, and regular + perfect count TOGETHER (a Perfect
+  // Essence can't go on an item that already holds an essence mod). The UI spells the perfect source
+  // 'perfect'; the engine calls it 'perfect_essence' — see isEssenceMod for the canonical rule.
+  const isEssenceSource = (m: EngineMod | undefined): boolean => m?.source === 'essence' || m?.source === 'perfect';
+  const targetEssence = target.some((t) => isEssenceSource(modById.get(t.modId)));
   const addTarget = (mod: EngineMod) => {
     if (targetIds.has(mod.id) || modFamilies(mod).some((f) => targetFamilies.has(f))) return;
     if (mod.type === 'prefix' ? targetPre >= 3 : targetSuf >= 3) return;
     if (mod.source === 'desecrated' && targetDesecrated) return; // an item holds at most one desecrated mod
+    if (isEssenceSource(mod) && targetEssence) return; // …and at most one essence modifier
     setTarget((t) => [...t, { modId: mod.id, tierDisplay: 1 }]);
     setPlan(null);
   };
@@ -522,8 +528,11 @@ const ItemActions: React.FC = () => {
                 >
                   <option value="">— choose —</option>
                   {[...addable, ...perfect, ...desecratedTargets]
-                    // one desecrated mod max — hide the rest once one is in the target
-                    .filter((m) => !targetIds.has(m.id) && !(m.source === 'desecrated' && targetDesecrated))
+                    // One desecrated mod max, and one ESSENCE modifier max (regular and perfect count
+                    // together) — hide the rest once one of each is in the target.
+                    .filter((m) => !targetIds.has(m.id)
+                      && !(m.source === 'desecrated' && targetDesecrated)
+                      && !(isEssenceSource(m) && targetEssence))
                     .map((m) => (
                       <option key={m.id} value={m.id}>
                         {m.type === 'prefix' ? 'P' : 'S'} · {m.text}

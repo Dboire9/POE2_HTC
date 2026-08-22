@@ -123,6 +123,11 @@ function stepProbability(data: PatchData, state: ItemState, step: PlanStep): num
       if (state.rarity !== 'rare') return 0;
       const added = resolveMod(data, step.add);
       if (!familyAvailable(data, state, added)) return 0;
+      // Item-level gate, mirroring essenceForcedProbability's `tier.ilvl > item.level`. It was missing
+      // here: every perfect-essence mod is ilvl 72, so below that the planner costed a step the game
+      // refuses. A perfect essence has exactly one tier (its "perfect" level), so index 0 is it.
+      const perfTier = added.tiers[0];
+      if (perfTier === undefined || perfTier.ilvl > state.level) return 0;
       if (state.prefixes.length + state.suffixes.length === 0) return 1;
       // The essence removes BEFORE it adds, so the add needs a free slot on its own side once
       // `step.remove` is gone — the removal only helps if it came off that same side. (Mirrors the

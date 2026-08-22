@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, listDesecrated, recommendedIndex, bossOmenAllowed,
+  loadEngine, listBases, listMods, listDesecrated, listPerfectEssences, recommendedIndex, bossOmenAllowed,
   priceBasis,
   modFamilies,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
@@ -78,13 +78,18 @@ const ModColumn: React.FC<ModColumnProps> = ({
         const sideFull = count >= 3;
         const famTaken = modFamilies(m).some((f) => occupiedFamilies.has(f));
         const isEssence = m.source === 'essence';
-        const essenceBlocked = isEssence && (essenceUsed || hasFractured);
+        const isPerfect = m.source === 'perfect';
+        // One essence modifier per item, either kind. The FRACTURE clash is regular-essence-only: a
+        // regular essence needs a Magic start, which a fractured mod rules out — a Perfect Essence
+        // wants a Rare, so a fracture doesn't obstruct it.
+        const capBlocked = (isEssence || isPerfect) && essenceUsed;
+        const fractureBlocked = isEssence && hasFractured;
         const desecratedBlocked = m.source === 'desecrated' && desecratedUsed;
-        const disabled = sideFull || famTaken || essenceBlocked || desecratedBlocked;
+        const disabled = sideFull || famTaken || capBlocked || fractureBlocked || desecratedBlocked;
         const reason = famTaken
           ? `Family “${m.family}” is already on the item — one mod per family`
-          : essenceBlocked ? (essenceUsed ? 'Only one essence-only mod per craft'
-            : 'Can’t use an essence with a fractured mod — an essence needs a Magic start, a fracture forces a Rare')
+          : capBlocked ? 'An item can hold one essence modifier — regular or perfect, not both'
+          : fractureBlocked ? 'Can’t use a regular essence with a fractured mod — it needs a Magic start, a fracture forces a Rare'
           : desecratedBlocked ? 'An item can hold at most one desecrated mod'
           : sideFull ? 'This side is full (max 3)' : '';
         const tier = pickTier[m.id] ?? 1;
@@ -99,6 +104,7 @@ const ModColumn: React.FC<ModColumnProps> = ({
           >
             <span className="flex-1 min-w-0 truncate text-sm">{m.text}</span>
             {isEssence && <span className="shrink-0 rounded bg-purple-500/15 px-1 text-[10px] text-purple-600 dark:text-purple-300">ess</span>}
+            {isPerfect && <span className="shrink-0 rounded bg-fuchsia-500/15 px-1 text-[10px] text-fuchsia-600 dark:text-fuchsia-300">perf</span>}
             {m.source === 'desecrated' && <span className="shrink-0 rounded bg-rose-500/15 px-1 text-[10px] text-rose-600 dark:text-rose-300">desec</span>}
             {reasonId && <span id={reasonId} className="sr-only">{reason}</span>}
             <select
@@ -176,15 +182,17 @@ const EngineLab: React.FC = () => {
   }, []);
 
   const bases: EngineBase[] = useMemo(() => (data ? listBases(data) : []), [data]);
-  // The target pool = rollable + essence mods (listMods) PLUS desecrated mods, which are craftable via
-  // a Desecration (from white: build a Rare, then Desecrate; from an item: Desecrate onto an open slot).
+  // The target pool = rollable + regular-essence mods (listMods) PLUS desecrated mods (Desecration on
+  // a Rare) PLUS perfect-essence mods (a Perfect Essence on a Rare, which adds its mod while eating
+  // one at random). All three need the item Rare first, so all three depend on the add-chain reaching
+  // Regal — the planner reports it when a target can't get there.
   const mods = useMemo(() => {
     if (!(data && baseId)) return { prefixes: [] as EngineMod[], suffixes: [] as EngineMod[] };
     const m = listMods(data, baseId);
-    const des = listDesecrated(data, baseId);
+    const extra = [...listDesecrated(data, baseId), ...listPerfectEssences(data, baseId)];
     return {
-      prefixes: [...m.prefixes, ...des.filter((x) => x.type === 'prefix')],
-      suffixes: [...m.suffixes, ...des.filter((x) => x.type === 'suffix')],
+      prefixes: [...m.prefixes, ...extra.filter((x) => x.type === 'prefix')],
+      suffixes: [...m.suffixes, ...extra.filter((x) => x.type === 'suffix')],
     };
   }, [data, baseId]);
   const modById = useMemo(() => {
@@ -211,7 +219,16 @@ const EngineLab: React.FC = () => {
   const prefixCount = targets.filter((t) => modById.get(t.modId)?.type === 'prefix').length;
   const suffixCount = targets.filter((t) => modById.get(t.modId)?.type === 'suffix').length;
   // A regular essence needs a Magic item and turns it Rare, so at most one essence-only mod per craft.
-  const essenceUsed = targets.some((t) => modById.get(t.modId)?.source === 'essence');
+  // One ESSENCE modifier per item, regular and perfect counted TOGETHER — a Perfect Essence can't go
+  // on an item already holding an essence mod. (UI source names: 'essence' and 'perfect'; the engine
+  // calls the latter 'perfect_essence' — `isEssenceMod` is the canonical rule.)
+  const isEssenceSource = (m: EngineMod | undefined): boolean => m?.source === 'essence' || m?.source === 'perfect';
+  // `essenceUsed` is the ONE-PER-ITEM cap and counts both kinds. `regularEssenceUsed` is narrower and
+  // is what the fracture rules key off: a REGULAR essence needs a Magic start, which a fractured mod
+  // (forcing a Rare) makes impossible — but a Perfect Essence wants a Rare, so a fracture is no
+  // obstacle to it at all. Conflating the two would block a legal combination.
+  const essenceUsed = targets.some((t) => isEssenceSource(modById.get(t.modId)));
+  const regularEssenceUsed = targets.some((t) => modById.get(t.modId)?.source === 'essence');
   const desecratedUsed = targets.some((t) => modById.get(t.modId)?.source === 'desecrated');
   const normalTargets = targets.filter((t) => modById.get(t.modId)?.source === 'normal').length;
   // Via the facade's UI-shaped base list rather than the raw PatchData — same source the rest of
@@ -226,7 +243,7 @@ const EngineLab: React.FC = () => {
   const desecrationNeedsRare = desecratedUsed && normalTargets < 3 && fractured.size === 0;
   // A regular essence needs a MAGIC start; a fractured mod makes the craft start from a RARE. They can't
   // coexist in one plan — flag it so the UI blocks the combination instead of erroring at compute time.
-  const essenceFractureConflict = essenceUsed && fractured.size > 0;
+  const essenceFractureConflict = regularEssenceUsed && fractured.size > 0;
 
   // Family exclusion: an item holds at most one mod per family. Families already claimed by a target
   // are locked out of the picker so an impossible (always-0%) target can't be built in the first place.
@@ -248,8 +265,8 @@ const EngineLab: React.FC = () => {
     if (mod.type === 'prefix' && prefixCount >= 3) return;
     if (mod.type === 'suffix' && suffixCount >= 3) return;
     if (modFamilies(mod).some((f) => occupiedFamilies.has(f))) return; // one mod per family (any of them)
-    if (mod.source === 'essence' && essenceUsed) return; // one essence-only mod per craft
-    if (mod.source === 'essence' && fractured.size > 0) return; // essence needs Magic; a fracture forces Rare
+    if (isEssenceSource(mod) && essenceUsed) return; // one essence modifier per item (regular or perfect)
+    if (mod.source === 'essence' && fractured.size > 0) return; // a REGULAR essence needs Magic; a fracture forces Rare
     if (mod.source === 'desecrated' && desecratedUsed) return; // an item holds at most one desecrated mod
     setTargets((t) => [...t, { modId: mod.id, tierDisplay }]);
   };
@@ -264,7 +281,7 @@ const EngineLab: React.FC = () => {
   // while an essence is in the craft (essence needs Magic, a fracture forces a Rare start); unlocking is
   // always allowed so the user can resolve the conflict.
   const toggleFractured = (modId: string) => {
-    if (!fractured.has(modId) && essenceUsed) return;
+    if (!fractured.has(modId) && regularEssenceUsed) return;
     setFractured((f) => { const n = new Set(f); n.has(modId) ? n.delete(modId) : n.add(modId); return n; });
   };
   // Pin a target as non-negotiable so the budget search never relaxes/swaps/drops it.
@@ -544,7 +561,7 @@ const EngineLab: React.FC = () => {
                   {canFracture && (() => {
                     // Locking a new fracture is blocked while an essence is in the craft (incompatible
                     // starts); an already-locked one can still be unlocked to resolve the conflict.
-                    const lockBlocked = !isFractured && essenceUsed;
+                    const lockBlocked = !isFractured && regularEssenceUsed;
                     const why = lockBlocked
                       ? 'Can’t fracture with an essence in the craft — an essence needs a Magic start, a fracture forces a Rare'
                       : isFractured ? 'Fractured (carved on the base) — click to unlock'
@@ -613,7 +630,7 @@ const EngineLab: React.FC = () => {
               from white first, then fracture it — that last step doesn’t change this plan’s odds.
             </p>
           )}
-          {essenceUsed && (
+          {regularEssenceUsed && (
             <p className="text-[11px] text-muted-foreground">
               Essence-only mods can only be applied by an essence (on a Magic item, turning it Rare).
               The level you pick fixes the value, its item-level gate, and the essence’s price — so the

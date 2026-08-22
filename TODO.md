@@ -6,48 +6,37 @@ Last reviewed: 2026-08-22.
 
 ---
 
-## 1. The Lab cannot target a perfect-essence mod
-
-`toEngineMod` (`src/lib/engineMap.ts:50`) returns `null` for anything that is not `normal` or
-`essence`, so the 363 `perfect_essence` mods never reach the from-white picker. `validateTargetShape`
-would reject them too, and `buildParetoSteps` has no `perfect-essence` step to emit. In game you can
-craft a Rare from white and then apply a Perfect Essence, so this is a real gap.
-
-Everything downstream is already built: the from-item planner and the MDP both model `perfect-essence`
-(remove one random mod, add the guaranteed one), and the price sheet carries 363
-`essence:perfect:<modId>` keys. What is missing is only the from-white search.
-
-Row 1b of `docs/copy-audit.md`. No copy is wrong today — `engineMap.ts:47-49` documents the
-limitation honestly — so this is a feature, not a correction.
-
-**NOT to be confused with** "at most one essence-only mod per craft", which is a genuine game rule:
-regular-essence and perfect-essence mods are disjoint pools (317 vs 363 ids, zero overlap), so a
-Perfect Essence cannot supply a second regular-essence mod. An earlier version of this list claimed
-otherwise; see the correction note in `docs/copy-audit.md`.
-
-## 2. `AlternativesView` disappears silently on an empty result
+## 1. `AlternativesView` disappears silently on an empty result
 
 `src/features/engine/AlternativesView.tsx:117` is `if (alts.rows.length === 0) return null`. Set a
 budget too low and the panel is simply absent — no "nothing fits 5ex". Small fix.
 
-## 3. Mobile layout
+## 2. Mobile layout
 
 `EngineLab.tsx:491` is a bare `flex gap-4` for the prefix/suffix mod columns — it never stacks, so
 both are crushed on a phone. (The `hidden md:flex` header block is only the credit and Discord links;
 cosmetic, low priority.)
 
-## 4. Jargon pass
+## 3. Jargon pass
 
 "Pareto frontier", "plans evaluated", "search capped", and a budget in "ex" whose unit appears only in
 a `title` attribute. Decide what a player who has never read the source would call these.
 
-## 5. Startup cost
+## 4. Startup cost
 
 `mods.json` preload, code-splitting, unused UI kit components, memoising the mod lists.
 
 ---
 
 ## Recently closed
+
+- **One essence modifier per item, and Lab support for perfect essences** (2026-08-22). Nothing capped
+  the essence count: `fromItem.ts` built one `perfect-essence` op per perfect target, the MDP gave each
+  its own action, and `optimize.ts` counted only `source: 'essence'` — so all three would plan an item
+  carrying two essence modifiers, which the game forbids. `isEssenceMod` is now the single predicate
+  they all count with. The Lab also lists perfect essences and plans them from white by sacrificing a
+  placed mod and re-adding it with an Exalt. Fixed alongside: the perfect-essence path had **no
+  item-level gate** at all (every such mod is ilvl 72).
 
 - **Copy-audit rows 3, 4, 5, 6** (2026-08-22). The empty-frontier fallback no longer tells players the
   target is impossible; the two error headers name the planner; the from-item panel says which of its

@@ -12,7 +12,7 @@ import type { ItemBase, ItemState, PatchData } from '../../engine/src/types.ts';
 import type { PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlanFrom } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
-import { bossOmenAllowed, desecrationOmenForMod } from '../../engine/src/probability.ts';
+import { bossOmenAllowed, desecrationOmenForMod, isEssenceMod } from '../../engine/src/probability.ts';
 import type { Prices } from './cost.ts';
 import { allowsStep, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, orderedSelections, permutations } from './combinatorics.ts';
@@ -33,6 +33,7 @@ function validateFromItemTarget(
   let pre = 0;
   let suf = 0;
   let desecratedCount = 0;
+  let essenceCount = 0;
   const norm = base.pools.normal;
   const ess = base.pools.essence;
   const des = base.pools.desecrated;
@@ -57,6 +58,7 @@ function validateFromItemTarget(
       throw new Error(`mod ${id} can’t be put on ${base.id} (${why})`);
     }
     if (mod.source === 'desecrated') desecratedCount++;
+    if (isEssenceMod(mod)) essenceCount++;
     if (mod.type === 'prefix') pre++;
     else suf++;
   }
@@ -64,6 +66,10 @@ function validateFromItemTarget(
   if (suf > 3) throw new Error(`target has ${suf} suffixes (max 3)`);
   // The Desecration mechanic places a single carved mod — an item can hold at most one desecrated mod.
   if (desecratedCount > 1) throw new Error('an item can hold at most one desecrated mod');
+  // …and at most one ESSENCE modifier, counting regular and perfect together (see `isEssenceMod`).
+  // This planner used to build one `perfect-essence` step per perfect target, so a two-essence target
+  // produced a plan for an item the game cannot hold.
+  if (essenceCount > 1) throw new Error('an item can hold at most one essence modifier (regular or perfect) — pick one');
 }
 
 /**

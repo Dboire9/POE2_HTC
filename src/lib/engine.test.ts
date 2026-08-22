@@ -68,11 +68,12 @@ describe('engine facade — optimize', () => {
     expect(essStep!.label.toLowerCase()).toContain('essence');
   });
 
-  it('rejects two essence-only mods (a regular essence needs Magic and turns it Rare — one per craft)', () => {
+  // One ESSENCE MODIFIER per item, counting regular and perfect together — not one regular essence.
+  it('rejects two essence mods (an item carries one essence modifier, regular or perfect)', () => {
     const secondEssence = 'Wands/ESSENCE_SPELL_CRIT_CHANCE';
     expect(() => optimize(eng, 'Wands', 82, [
       { modId: ESS, tierDisplay: 1 }, { modId: secondEssence, tierDisplay: 1 },
-    ])).toThrow(/one essence-only/i);
+    ])).toThrow(/at most one essence modifier/i);
   });
 
   it('rejects an essence-only-only target (needs a rollable mod to make the Magic base)', () => {

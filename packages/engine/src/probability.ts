@@ -407,6 +407,24 @@ export function bossOmenAllowed(category: string): boolean {
   return desecrationBoneFor(category) !== 'rib';
 }
 
+/**
+ * Whether this mod is an ESSENCE modifier — regular or perfect.
+ *
+ * PoE2 rule: **an item carries at most one essence modifier at a time.** A Perfect Essence cannot be
+ * applied to an item that already holds a regular-essence mod, and vice versa, so the cap is on the
+ * COMBINED count, not one per kind. The two kinds are otherwise unrelated: they draw from disjoint
+ * pools (317 `essence` mods vs 363 `perfect_essence`, zero id overlap) and apply at opposite
+ * rarities — a regular essence needs a Magic item and turns it Rare, a Perfect Essence works on a
+ * Rare. It is only this one-per-item cap that they share.
+ *
+ * Exported as one predicate because three planners and two pickers all need the same rule, and
+ * re-deriving `source === ...` at each site is how the D8 desecration mispricing survived. Every
+ * caller counts with THIS, and phrases its own rejection message.
+ */
+export function isEssenceMod(mod: Mod): boolean {
+  return mod.source === 'essence' || mod.source === 'perfect_essence';
+}
+
 export function desecrationOmenForMod(mod: Mod): DesecrationBossOmen | undefined {
   for (const omen of ['blackblooded', 'liege', 'sovereign'] as const) {
     if (mod.tags.includes(DES_BOSS_TAG[omen])) return omen;

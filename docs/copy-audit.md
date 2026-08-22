@@ -49,7 +49,7 @@ turns it Rare, and there is no second Magic item to spend one on.
 
 **The genuine gap is a different one** — see row 1b.
 
-### 1b. The Lab cannot target a perfect-essence mod at all — `src/lib/engineMap.ts:50`
+### 1b. The Lab cannot target a perfect-essence mod at all — `src/lib/engineMap.ts:50` ✅ FIXED 2026-08-22
 `toEngineMod` returns `null` for any mod that is not `normal` or `essence`, so perfect-essence mods
 never reach the from-white picker; `validateTargetShape` (`optimize.ts`) would reject them anyway, and
 `buildParetoSteps` has no `perfect-essence` step to emit.
@@ -152,4 +152,4 @@ it goes.
 1. **Rows 3 and 4** — one-line copy fixes; row 3 is a straggler from a fix already applied to its sibling.
 2. **Row 5** — reword the two error headers to name the planner.
 3. **Row 6** — say which cost model, or move the note under the linear plan.
-4. **Row 1b** — Lab support for perfect essences. A feature, not a copy fix, and no copy is wrong today.
+4. ~~**Row 1b** — Lab support for perfect essences.~~ Done: the Lab lists them and the from-white search plans them by sacrificing a placed mod and re-adding it. The sweep that produced this row also turned up the missing one-essence-per-item cap, which was a live correctness bug in all three planners.

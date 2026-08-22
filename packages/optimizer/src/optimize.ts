@@ -13,7 +13,7 @@ import { CURRENCY_FLOOR } from '../../engine/src/types.ts';
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlan } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
-import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod } from '../../engine/src/probability.ts';
+import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
 import { allowsStep, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, factorial, permutations } from './combinatorics.ts';
@@ -245,18 +245,57 @@ function essenceLevelOf(tierName: string | undefined): string {
   return 'normal';
 }
 
-/** Build steps for one ordering, essence set, desecrated set, target-tier map and orb-tier assignment. */
+/**
+ * Build the step sequences for ONE ordering, essence/desecrated/perfect sets, target-tier map and orb
+ * assignment. Returns a LIST because a perfect-essence target branches: a Perfect Essence adds its mod
+ * while eating one already on the item, and which mod it eats is a real choice the search must make.
+ * Every other case yields exactly one sequence.
+ */
 function buildParetoSteps(
   data: PatchData, order: readonly string[], essences: ReadonlySet<string>, desecrated: ReadonlySet<string>,
+  perfects: ReadonlySet<string>,
   tierOf: Map<string, number>, orbOf: Map<string, CurrencyTier>,
   /** False on armour, where a Desecration can't be boss-targeted at all — see `bossOmenAllowed`. */
   bossOk: boolean,
-): PlanStep[] {
+): PlanStep[][] {
   const steps: PlanStep[] = [];
+  /** Targets placed so far — the candidate victims for a Perfect Essence. */
+  const placed: string[] = [];
   let rarity: Rarity = 'normal';
   let modCount = 0;
-  for (const id of order) {
+  const addStep = (id: string): PlanStep =>
+    ({ currency: nextAddCurrency(rarity, modCount), add: id, minTierIndex: tierOf.get(id) ?? 0, tier: orbOf.get(id) ?? 'base' });
+
+  for (let k = 0; k < order.length; k++) {
+    const id = order[k]!;
     const minTierIndex = tierOf.get(id) ?? 0;
+    if (perfects.has(id)) {
+      // A Perfect Essence works on a RARE item and is a SWAP: it forces its own mod on (deterministic)
+      // while removing one existing mod uniformly at random. From white every mod on the item is one we
+      // wanted, so the essence necessarily eats a target — and the plan re-adds it with an Exalt right
+      // after. Which mod to sacrifice is the branch: prefer the one that is cheapest to roll again, a
+      // judgement the frontier makes by scoring all of them.
+      //
+      // An ordering that reaches this before the item is Rare, or where the slots don't work out,
+      // scores 0 in evaluatePlan and drops out — the same "offer it and let evaluation prune" rule the
+      // desecrate branch relies on, rather than duplicating plan.ts's legality logic here.
+      if (placed.length === 0) return []; // nothing to eat: no legal sequence from this ordering
+      const rest = order.slice(k + 1);
+      return placed.map((victim) => {
+        const tail: PlanStep[] = [
+          { currency: 'perfect-essence', add: id, remove: victim },
+          // Re-add the sacrificed target. The item is Rare by now, so this is always an Exalt.
+          { currency: 'exalt', add: victim, minTierIndex: tierOf.get(victim) ?? 0, tier: orbOf.get(victim) ?? 'base' },
+        ];
+        // After swap + re-add the item holds exactly what it would have with a plain add of `id`, so
+        // the remainder of the ordering continues on unchanged state.
+        const after = buildParetoSteps(data, rest, essences, desecrated, perfects, tierOf, orbOf, bossOk);
+        // `rest` can contain no further perfect target (one essence modifier per item), so `after` has
+        // exactly one element — but map over it rather than assuming, so a future second branch can't
+        // silently drop sequences.
+        return after.map((tailSteps) => [...steps, ...tail, ...tailSteps]);
+      }).flat();
+    }
     if (essences.has(id)) {
       // Essence-only mod: guaranteed (P=1) by an essence at the chosen level (its tier index).
       const mod = resolveMod(data, id);
@@ -272,14 +311,15 @@ function buildParetoSteps(
       const omen = bossOk ? desecrationOmenForMod(resolveMod(data, id)) : undefined;
       steps.push(omen ? { currency: 'desecrate', add: id, boss: omen } : { currency: 'desecrate', add: id });
     } else {
-      const currency = nextAddCurrency(rarity, modCount);
-      steps.push({ currency, add: id, minTierIndex, tier: orbOf.get(id) ?? 'base' });
-      if (currency === 'transmute') rarity = 'magic';
-      else if (currency === 'regal') rarity = 'rare';
+      const step = addStep(id);
+      steps.push(step);
+      if (step.currency === 'transmute') rarity = 'magic';
+      else if (step.currency === 'regal') rarity = 'rare';
     }
+    placed.push(id);
     modCount++;
   }
-  return steps;
+  return [steps];
 }
 
 /**
@@ -415,14 +455,22 @@ export function optimizePareto(
   const essSet = new Set(essences);
   const desecrated = modIds.filter((id) => resolveMod(data, id).source === 'desecrated');
   const desSet = new Set(desecrated);
-  const rolled = modIds.filter((id) => !essSet.has(id) && !desSet.has(id));
+  // A Perfect Essence forces its mod onto a Rare while eating one already there — its own axis, with
+  // no orb-strength choice (a perfect essence has exactly one level).
+  const perfect = modIds.filter((id) => resolveMod(data, id).source === 'perfect_essence');
+  const perfSet = new Set(perfect);
+  const rolled = modIds.filter((id) => !essSet.has(id) && !desSet.has(id) && !perfSet.has(id));
+  // An item carries at most ONE essence modifier, regular or perfect — see `isEssenceMod`. Counting
+  // only `source: 'essence'` here enforced the rule on half the mods it covers.
+  if (modIds.filter((id) => isEssenceMod(resolveMod(data, id))).length > 1) {
+    throw new Error('an item can hold at most one essence modifier (regular or perfect) — pick one');
+  }
+  // Checked BEFORE the shape validation: "you picked two essences" is the useful message, and the
+  // shape check would otherwise reject a perfect-essence mod first for not being in the normal pool.
   validateTargetShape(data, base, modIds, essSet, true);
   // The Desecration mechanic places a single carved mod — an item can hold at most one desecrated mod.
   if (desecrated.length > 1) {
     throw new Error('an item can hold at most one desecrated mod');
-  }
-  if (essences.length > 1) {
-    throw new Error('at most one essence-only mod per craft (a regular essence needs a Magic item and turns it Rare)');
   }
   if (essences.length >= 1 && rolled.length < 1) {
     throw new Error('an essence-only mod needs a Magic item first — include at least one rollable mod in the target');
@@ -453,10 +501,14 @@ export function optimizePareto(
 
   const assignments = orbAssignments(rolled, legal);
   const baseSequences: PlanStep[][] = [];
-  // (1) Add-chain / essence / desecration openers: every mod ordering × orb-strength assignment.
+  // (1) Add-chain / essence / desecration / perfect-essence openers: every mod ordering × orb-strength
+  // assignment. A perfect-essence target yields several sequences per ordering (one per sacrificed
+  // mod), so this spreads rather than pushes.
   for (const order of permutations(modIds)) {
     for (const orbOf of assignments) {
-      baseSequences.push(buildParetoSteps(data, order, essSet, desSet, tierOf, orbOf, bossOmenAllowed(base.category)));
+      baseSequences.push(
+        ...buildParetoSteps(data, order, essSet, desSet, perfSet, tierOf, orbOf, bossOmenAllowed(base.category)),
+      );
     }
   }
   // (2) Orb of Alchemy opener — a cheap, low-probability frontier point the add-chain can't produce
@@ -502,6 +554,7 @@ function validateTargetShape(
   let suffixes = 0;
   const pool = base.pools.normal;
   const des = base.pools.desecrated;
+  const ess = base.pools.essence;
   for (const id of desiredModIds) {
     const mod = resolveMod(data, id); // throws if unknown
     const inNormal = mod.source === 'normal' && (pool.prefixes.includes(id) || pool.suffixes.includes(id));
@@ -510,7 +563,13 @@ function validateTargetShape(
     // add-chain-only planners (optimizePlan/optimizeCost, whose buildSteps can't desecrate) still reject it.
     const inDesecrated = allowDesecrated && mod.source === 'desecrated'
       && (des.prefixes.includes(id) || des.suffixes.includes(id)) && desecrationOmenForMod(mod) !== undefined;
-    if (!essenceCandidates.has(id) && !inNormal && !inDesecrated) {
+    // A perfect-essence target is craftable from white by the same shape: build the Rare, then apply
+    // the Perfect Essence, which adds this mod while eating one already on the item. Shares the
+    // `allowDesecrated` gate because both are "reachable only once the item is Rare", which is exactly
+    // what the older add-chain-only planners cannot express.
+    const inPerfect = allowDesecrated && mod.source === 'perfect_essence'
+      && (ess.prefixes.includes(id) || ess.suffixes.includes(id));
+    if (!essenceCandidates.has(id) && !inNormal && !inDesecrated && !inPerfect) {
       throw new Error(`mod ${id} is not in ${base.id}'s normal pool (mark it as an essence to force it)`);
     }
     if (mod.type === 'prefix') prefixes++;

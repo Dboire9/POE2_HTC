@@ -14,6 +14,7 @@ const PHASE_LABEL: Record<Progress['phase'], string> = {
   actions: 'Mapping out every move…',
   compile: 'Preparing the solver…',
   solve: 'Finding the cheapest route…',
+  plan: 'Weighing every crafting order…',
   alternatives: 'Checking what your budget buys…',
 };
 
@@ -25,29 +26,35 @@ const SolveProgress: React.FC<{ progress: Progress | null; onCancel: () => void 
     return () => clearInterval(h);
   }, []);
 
-  // Before the first report there is genuinely nothing to show a position for, so the bar stays at
-  // zero rather than inventing one.
+  // Until the first report arrives there is no position to show — so show motion instead of a zero.
+  // A bar sitting at 0% reads as hung, and some phases are genuinely silent (the from-item planner
+  // has no reporting yet), so this is the difference between "working" and "broken" to a user.
+  const determinate = progress !== null;
   const pct = Math.round((progress?.fraction ?? 0) * 100);
   return (
     <div className="flex items-center gap-3" role="status" aria-live="polite">
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2 mb-1">
           <span className="text-sm text-muted-foreground truncate">
-            {progress ? PHASE_LABEL[progress.phase] : 'Starting…'}
+            {progress ? PHASE_LABEL[progress.phase] : 'Working…'}
           </span>
           <span className="text-xs tabular-nums text-muted-foreground shrink-0">
-            {pct}% · {elapsed.toFixed(1)}s
+            {determinate ? `${pct}% · ` : ''}{elapsed.toFixed(1)}s
           </span>
         </div>
         <div
           className="h-1.5 rounded-full bg-muted overflow-hidden"
           role="progressbar"
-          aria-valuenow={pct}
+          {...(determinate ? { 'aria-valuenow': pct } : {})}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label="Computing plan"
         >
-          <div className="h-full bg-primary transition-[width] duration-150" style={{ width: `${pct}%` }} />
+          {determinate ? (
+            <div className="h-full bg-primary transition-[width] duration-150" style={{ width: `${pct}%` }} />
+          ) : (
+            <div className="h-full w-1/5 rounded-full bg-primary animate-indeterminate" />
+          )}
         </div>
       </div>
       <Button variant="outline" size="sm" onClick={onCancel}>Cancel</Button>

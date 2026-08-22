@@ -103,23 +103,36 @@ describe('progress reporting', () => {
     const seen: SolveProgress[] = [];
     runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, budget: 600 }, (p) => seen.push(p));
     expect(seen.length).toBeGreaterThan(1);
-    expect(seen.every((p) => p.phase === 'alternatives')).toBe(true);
+    expect(seen.some((p) => p.phase === 'alternatives')).toBe(true);
+    // Monotone ACROSS phases too — planning must hand over to the search without the bar going back.
     for (let i = 1; i < seen.length; i++) {
       expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
     }
-    // It owns the whole bar, so its first report must not start near the top…
     expect(seen[0]!.fraction).toBeLessThan(0.2);
     // …and it must finish AT the top. The node cap is a ceiling, not a forecast, so a search that
     // stops early (196 of 200 is typical) would otherwise strand the bar just short of done.
     expect(seen[seen.length - 1]!.fraction).toBe(1);
   });
 
-  // Without a budget there is no search to report on, and the frontier alone is milliseconds — so
-  // silence is correct here, not a regression.
-  it('stays silent on a lab compute with no budget, which is fast anyway', () => {
+  // REGRESSION. A from-scratch compute with no budget runs only the Pareto planner, which reported
+  // nothing at all — so the bar sat at 0% while the elapsed counter ticked, for however long planning
+  // took. Planning now reports, and with no search to follow it owns the whole bar.
+  it('reports through planning on a lab compute with no budget', () => {
     const seen: SolveProgress[] = [];
     runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets }, (p) => seen.push(p));
-    expect(seen).toEqual([]);
+    expect(seen.length).toBeGreaterThan(0);
+    expect(seen.every((p) => p.phase === 'plan')).toBe(true);
+    expect(seen[seen.length - 1]!.fraction).toBe(1);
+  });
+
+  // With a budget, planning is ~1% of the wall clock (64ms against 7.3s at 6 targets), so it must not
+  // eat the bar — otherwise the search that follows would have almost none of it left.
+  it('keeps planning to a thin slice when a budget search follows it', () => {
+    const seen: SolveProgress[] = [];
+    runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, budget: 600 }, (p) => seen.push(p));
+    const planned = seen.filter((p) => p.phase === 'plan');
+    expect(planned.length).toBeGreaterThan(0);
+    for (const p of planned) expect(p.fraction).toBeLessThanOrEqual(0.1);
   });
 
   it('leaves the budget search results unchanged when a progress callback is attached', () => {

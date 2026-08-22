@@ -178,7 +178,18 @@ export interface OptimizeParetoOptions {
   level?: number;
   /** Throttle the currency-tier search once the estimated plan count exceeds this. Default 100000. */
   maxPlans?: number;
+  /**
+   * Called as plan sequences are evaluated, so a UI can show progress. Unlike the budget search's node
+   * cap, `total` here is the real count — every ordering × orb assignment is known before evaluation
+   * starts — so the fraction is exact rather than an upper bound.
+   *
+   * A plain callback, so this file stays pure.
+   */
+  onProgress?: (done: number, total: number) => void;
 }
+
+/** Report roughly this many times across the run: frequent enough to animate, rare enough to be free. */
+const PROGRESS_REPORTS = 100;
 
 const ORB_TIERS: readonly CurrencyTier[] = ['base', 'greater', 'perfect'];
 
@@ -414,13 +425,19 @@ export function optimizePareto(
     for (const seq of alchemyOpenerSequences(data, modIds, tierOf, legal)) baseSequences.push(seq);
   }
 
+  // Evaluating the sequences is the bulk of the work and the count is already known, so this is where
+  // progress is reported from.
   const plans: ParetoPlan[] = [];
-  for (const baseSteps of baseSequences) {
-    for (const steps of withOmenVariants(data, baseSteps)) {
+  const report = opts.onProgress;
+  const stride = Math.max(1, Math.floor(baseSequences.length / PROGRESS_REPORTS));
+  for (let i = 0; i < baseSequences.length; i++) {
+    for (const steps of withOmenVariants(data, baseSequences[i]!)) {
       const result = evaluatePlan(data, base, steps, level);
       plans.push({ steps, result, cost: planExpectedCost(prices, result, steps), probability: result.total });
     }
+    if (report && i % stride === 0) report(i, baseSequences.length);
   }
+  report?.(baseSequences.length, baseSequences.length);
   return { frontier: paretoFrontier(plans), plansEvaluated: plans.length, currencyDepth };
 }
 

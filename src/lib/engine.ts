@@ -14,7 +14,7 @@ import {
   annulProbability, augmentationProbability, chaosProbability, exaltProbability, regalProbability,
 } from '../../packages/engine/src/probability.ts';
 import { indexPrices, type Prices } from '../../packages/optimizer/src/cost.ts';
-import { optimizePareto } from '../../packages/optimizer/src/optimize.ts';
+import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
 import {
@@ -188,11 +188,12 @@ export function listDesecrated(data: PatchData, baseId: string): EngineMod[] {
  */
 export function optimize(
   eng: Engine, baseId: string, level: number, targets: readonly TargetInput[],
+  opts: OptimizeParetoOptions = {},
 ): EngineResult {
   const { data, prices } = eng;
   const base = data.bases.get(baseId);
   if (!base) throw new Error(`Unknown base: ${baseId}`);
-  const res = optimizePareto(data, prices, base, toTierTargets(data, targets), { level });
+  const res = optimizePareto(data, prices, base, toTierTargets(data, targets), { ...opts, level });
   return mapFrontier(data, res);
 }
 

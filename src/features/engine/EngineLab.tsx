@@ -217,9 +217,12 @@ const EngineLab: React.FC = () => {
   // Via the facade's UI-shaped base list rather than the raw PatchData — same source the rest of
   // this component uses, so it can't disagree with what the picker is showing.
   const bossTargetable = bossOmenAllowed(bases.find((b) => b.id === baseId)?.category ?? '');
-  // From white the item is Normal, and a Desecration needs a Rare — reached only via
-  // transmute → augment → regal, i.e. three rollable mods first. Fewer than that and every ordering
-  // scores 0, which the generic "impossible on this base/level" message explains wrongly.
+  // From white the item is Normal, and a Desecration needs a RARE — reached via transmute → augment →
+  // regal, three adds the from-white planner can only spend on mods you asked for (every PlanStep it
+  // builds names a target mod; there is no filler concept). With fewer than three rollable targets
+  // every ordering scores 0, which the generic "impossible on this base/level" message explains
+  // wrongly. Note the CRAFT is not impossible — roll junk, annul it off (rarity survives), Desecrate —
+  // it is outside the search space, and the hint has to say which.
   const desecrationNeedsRare = desecratedUsed && normalTargets < 3 && fractured.size === 0;
   // A regular essence needs a MAGIC start; a fractured mod makes the craft start from a RARE. They can't
   // coexist in one plan — flag it so the UI blocks the combination instead of erroring at compute time.
@@ -661,9 +664,13 @@ const EngineLab: React.FC = () => {
           // generic tier-gate message was being shown for a craft that simply never reaches Rare.
           emptyHint={desecrationNeedsRare ? (
                 <p>A Desecration needs a <strong>Rare</strong> item, and from scratch the item only
-                  becomes Rare after three rollable mods (Transmutation → Augmentation → Regal). This
-                  target has {normalTargets}, so no ordering ever gets to the Desecration. Add rollable
-                  mods until there are three, or start from an item you already hold.</p>
+                  becomes Rare after three mods (Transmutation → Augmentation → Regal). This target
+                  has {normalTargets} rollable mod{normalTargets === 1 ? '' : 's'}, so the planner has
+                  nothing to spend those three on.{' '}
+                  <strong>In game you can still do this</strong>: roll three throwaway mods, annul them
+                  off (the item stays Rare), then Desecrate. The planner doesn’t search that yet — every
+                  step it builds adds a mod you asked for, so it can’t propose filler. Until it does,
+                  add rollable mods until there are three, or start from a Rare item you already hold.</p>
               ) : excludedKeys.length > 0 ? (
                 <p>No plan avoids the {excludedKeys.length} currenc{excludedKeys.length === 1 ? 'y' : 'ies'} you
                   excluded. Untick some under “Currency I don’t have” to widen the search — or the target may be

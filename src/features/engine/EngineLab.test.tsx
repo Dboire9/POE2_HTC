@@ -154,10 +154,14 @@ describe('EngineLab — essence ↔ fracture are mutually exclusive', () => {
 // switching tabs UNMOUNTS a component — and while each tab kept its work in local `useState`, that
 // work was destroyed. For a 6-mod item that is roughly 15 searches and clicks, gone by accident. The
 // state now lives in the shared workspace store, so unmounting costs nothing.
-// A desecrated target from scratch legitimately can't be planned with fewer than three rollable mods:
-// a Desecration needs a Rare, and the item only gets there via transmute → augment → regal. The
-// generic empty-state blamed "a target tier gated above the item level" instead, which is a plausible
-// but WRONG explanation — worse than no explanation, because it sends you to change the tier.
+// A desecrated target from scratch can't be planned with fewer than three rollable mods: a Desecration
+// needs a Rare, and the item only gets there via transmute → augment → regal, which the planner can
+// only spend on mods you asked for. The generic empty-state blamed "a target tier gated above the item
+// level" instead, which is a plausible but WRONG explanation — worse than no explanation, because it
+// sends you to change the tier.
+// The hint must ALSO not claim the craft is impossible in game: rolling throwaway mods, annulling them
+// off (rarity survives an annul) and then Desecrating is a legal route the planner simply doesn't
+// search. Saying otherwise would send a player away from a craft that works.
 describe('EngineLab — the empty state gives the real reason', () => {
   it('explains the Rare prerequisite for a lone desecrated target', async () => {
     const user = userEvent.setup();
@@ -168,9 +172,11 @@ describe('EngineLab — the empty state gives the real reason', () => {
 
     // A phrase unique to the empty state: "a Desecration needs a Rare" also appears in the picker's
     // explainer above, so matching that would pass before the solve had even finished.
-    expect(await screen.findByText(/no ordering ever gets to the Desecration/i)).toBeInTheDocument();
+    expect(await screen.findByText(/nothing to spend those three on/i)).toBeInTheDocument();
     // …and must NOT offer the misleading tier/ilvl advice for this case.
     expect(screen.queryByText(/gated above the item level/i)).toBeNull();
+    // …and must own this as a planner limit, not tell the player the craft can't be done.
+    expect(screen.getByText(/In game you can still do this/i)).toBeInTheDocument();
   });
 });
 

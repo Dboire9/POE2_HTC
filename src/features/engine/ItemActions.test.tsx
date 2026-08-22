@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CurrencyAction, EngineMod, EngineResult } from '../../lib/engine';
 
@@ -114,6 +114,7 @@ describe('ItemActions — full plan target', () => {
     await toPlanMode(user);
     await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
     await user.click(screen.getByRole('button', { name: /Compute plan/i }));
-    expect(mocks.optimizeItem).toHaveBeenCalledTimes(1);
+    // Asynchronous now — the solve runs in a Worker. See the note in EngineLab.test.tsx.
+    await waitFor(() => expect(mocks.optimizeItem).toHaveBeenCalledTimes(1));
   });
 });

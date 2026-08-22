@@ -33,6 +33,11 @@ class InProcessWorker implements Partial<Worker> {
       if (this.alive) this.onmessage?.({ data } as MessageEvent);
     };
     try {
+      // A deliberate tick of real delay. A Worker is never synchronous, and a test that asserts on a
+      // solve without awaiting it should therefore fail — not pass by luck because the hops happened
+      // to fit in one tick. Exactly that hid three missing `waitFor`s until a slower CI runner failed
+      // on them, so this makes the asynchrony non-negotiable and local runs representative.
+      await new Promise((r) => setTimeout(r, 5));
       const [{ runSolve }, { loadEngine }] = await Promise.all([
         import('../lib/solve'),
         import('../lib/engine'),

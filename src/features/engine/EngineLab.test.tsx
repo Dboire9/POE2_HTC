@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { EngineMod, EngineResult } from '../../lib/engine';
 
@@ -160,13 +160,16 @@ describe('EngineLab — reset and compute routing', () => {
     // Plain: add a normal mod and compute → optimize (from white).
     await user.click(addButton('Normal Prefix'));
     await user.click(screen.getByRole('button', { name: /Compute frontier/i }));
-    expect(mocks.optimize).toHaveBeenCalledTimes(1);
+    // `waitFor`, because computing crosses a Worker boundary and is genuinely asynchronous. It used to
+    // be a `setTimeout(…, 0)` that `user.click` happened to flush, so a bare assertion passed by luck —
+    // then failed on CI once the extra hops didn't fit in the same tick.
+    await waitFor(() => expect(mocks.optimize).toHaveBeenCalledTimes(1));
     expect(mocks.optimizeItem).not.toHaveBeenCalled();
 
     // Fracture it and recompute → optimizeItem (from the carved Rare).
     const targetRow = screen.getByText('Normal Prefix').closest('div') as HTMLElement;
     await user.click(within(targetRow).getByTitle(/Mark as already fractured/i));
     await user.click(screen.getByRole('button', { name: /Compute frontier/i }));
-    expect(mocks.optimizeItem).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(mocks.optimizeItem).toHaveBeenCalledTimes(1));
   });
 });

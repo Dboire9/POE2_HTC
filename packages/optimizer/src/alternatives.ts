@@ -85,6 +85,15 @@ export interface AlternativesOptions {
   maxPlansPerNode?: number;
   /** `maxCells` handed to each P(in budget) evaluation. */
   costCells?: number;
+  /**
+   * Called as nodes are evaluated, so a UI can show progress through a search that is genuinely slow:
+   * every node is a full Pareto run, and at 6 targets with a budget this takes ~7.3s.
+   *
+   * `total` is the node CAP, not a known total — the search can finish early. In practice the slow
+   * cases are exactly the ones that exhaust it (200/200/196 nodes at 4/5/6 targets), so the bar tracks
+   * real work precisely where it is needed. A plain callback, so this file stays pure.
+   */
+  onProgress?: (done: number, total: number) => void;
 }
 
 export const DEFAULT_MAX_NODES = 200;

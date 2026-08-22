@@ -28,7 +28,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:engine": "vitest run packages/engine",
-    "update-data": "bash tools/refresh/run.sh"
+    "update-data": "bash tools/refresh/run.sh",
+    "update-prices": "node tools/refresh/prices.mjs"
   },
   "dependencies": {
     "@sentry/electron": "^7.3.0",

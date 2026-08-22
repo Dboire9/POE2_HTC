@@ -370,7 +370,9 @@ const ItemActions: React.FC = () => {
             placeholder="Search modifiers to add to your item…"
             className={`${selectCls} w-full mb-2`}
           />
-          <div className="flex gap-4">
+          {/* Stacks on a phone. A bare `flex` kept both columns side by side at every width, so
+              on a narrow screen each got half of it and the mod text was crushed to nothing. */}
+          <div className="flex flex-col sm:flex-row gap-4">
             <BuilderColumn title="Prefixes" list={filtered.prefixes} count={prefixes.length} cap={cap} occupiedFamilies={occupiedFamilies} onAdd={addItemMod} />
             <BuilderColumn title="Suffixes" list={filtered.suffixes} count={suffixes.length} cap={cap} occupiedFamilies={occupiedFamilies} onAdd={addItemMod} />
           </div>

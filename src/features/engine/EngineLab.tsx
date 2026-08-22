@@ -505,7 +505,9 @@ const EngineLab: React.FC = () => {
             placeholder="Search modifiers to add as targets…"
             className={`${selectCls} w-full mb-2`}
           />
-          <div className="flex gap-4">
+          {/* Stacks on a phone. A bare `flex` kept both columns side by side at every width, so
+              on a narrow screen each got half of it and the mod text was crushed to nothing. */}
+          <div className="flex flex-col sm:flex-row gap-4">
             <ModColumn
               title="Prefixes" list={filtered.prefixes} count={prefixCount}
               occupiedFamilies={occupiedFamilies} essenceUsed={essenceUsed} hasFractured={fractured.size > 0}

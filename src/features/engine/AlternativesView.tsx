@@ -114,7 +114,25 @@ const Row: React.FC<{ alt: EngineAlternative; budget: number; best: boolean }> =
  * the whole point of the panel.
  */
 const AlternativesView: React.FC<{ alts: EngineAlternatives; budget: number }> = ({ alts, budget }) => {
-  if (alts.rows.length === 0) return null;
+  // An empty frontier is NOT "nothing fits the budget". Row 0 is the exact target and enters with
+  // `bestP = -Infinity`, so it survives however hopeless its odds — at a budget of 0.0001 ex you still
+  // get a row, reading 0%. Rows can only run out when every variant the search tried failed to produce
+  // a plan at all (`evaluate` returns no `alt`: the relaxation was illegal, or its Pareto frontier was
+  // empty). That points at the base and item level, not at what you can afford — so the panel must not
+  // blame the budget, and it must not vanish either, which read as a crash.
+  if (alts.rows.length === 0) {
+    return (
+      <Card className="p-6 text-center text-sm text-muted-foreground space-y-1">
+        <p className="font-medium text-foreground">No craftable alternative found.</p>
+        <p>
+          This isn’t about the {budget} ex — the closest item is always listed, however long the odds.
+          Nothing in this target’s neighbourhood could be planned at all, which usually means a target
+          tier gated above the item level, or a mod that can’t roll on this base. If neither applies, the
+          craft may still be reachable by a route the planner doesn’t explore.
+        </p>
+      </Card>
+    );
+  }
   // The frontier's odds strictly rise, so the last row is the surest thing you can afford.
   const bestIdx = alts.rows.length - 1;
   return (

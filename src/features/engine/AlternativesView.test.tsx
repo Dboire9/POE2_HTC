@@ -76,8 +76,44 @@ describe('AlternativesView', () => {
     expect(screen.getByText('20%–50%')).toBeInTheDocument();
   });
 
-  it('renders nothing when there are no alternatives', () => {
-    const { container } = render(<AlternativesView alts={{ ...alts, rows: [] }} budget={30} />);
-    expect(container).toBeEmptyDOMElement();
+  // (The old test here asserted `toBeEmptyDOMElement()` — it pinned the silent-disappearance bug as if
+  // it were intended behaviour. Replaced by the empty-frontier suite below.)
+});
+
+// The panel used to `return null` on an empty frontier, so it silently wasn't there — indistinguishable
+// from a crash. Two things are pinned: that it renders something, and that what it renders is TRUE.
+describe('AlternativesView — the empty frontier', () => {
+  const empty = { rows: [], nodesEvaluated: 12, truncated: false, currencyDepth: 'full' as const };
+
+  it('says something instead of vanishing', () => {
+    const { container } = render(<AlternativesView alts={empty} budget={5} />);
+    expect(container.textContent?.trim()).not.toBe('');
+    expect(screen.getByText(/No craftable alternative found/i)).toBeInTheDocument();
+  });
+
+  // The reason matters. Row 0 is the exact target and enters the frontier with bestP = -Infinity, so it
+  // survives at ANY odds — verified below at a budget of 0.0001 ex. An empty frontier therefore cannot
+  // mean "nothing fits the budget", and saying so would be exactly the plausible-but-wrong explanation
+  // this codebase keeps having to delete (docs/copy-audit.md).
+  it('does not blame the budget', () => {
+    const { container } = render(<AlternativesView alts={empty} budget={5} />);
+    const text = (container.textContent ?? '').replace(/\s+/g, ' ');
+    expect(text).toMatch(/isn’t about the 5 ex/i);
+    expect(text).not.toMatch(/nothing fits|too low|raise your budget|afford/i);
+  });
+
+  it('and does not claim the craft is impossible', () => {
+    const { container } = render(<AlternativesView alts={empty} budget={5} />);
+    const text = (container.textContent ?? '').replace(/\s+/g, ' ');
+    expect(text).not.toMatch(/is impossible/i);
+    expect(text).toMatch(/route the planner doesn’t explore/i);
+  });
+
+  // The claim the message above rests on, checked against the real engine rather than assumed.
+  it('a budget far too small still yields the exact-target row, never an empty frontier', () => {
+    const broke = alternatives(eng, 'Wands', 82, hard, 0.0001);
+    expect(broke.rows.length).toBeGreaterThan(0);
+    expect(broke.rows[0]!.isTarget).toBe(true);
+    expect(broke.rows[0]!.inBudget).toBe(0);
   });
 });

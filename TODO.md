@@ -6,15 +6,24 @@ Last reviewed: 2026-08-22.
 
 ---
 
-## 1. Perfect essence is blocked though the game allows it
+## 1. The Lab cannot target a perfect-essence mod
 
-`optimize.ts:425` throws "at most one essence-only mod per craft" and `EngineLab.tsx:251` blocks the
-picker — but `perfectEssenceProbability` (`probability.ts:299`) has no rarity gate, so a Perfect
-essence works on a Rare item and a second essence-only mod is reachable. `buildParetoSteps` never
-emits a `perfect-essence` step; the from-item planner already does.
+`toEngineMod` (`src/lib/engineMap.ts:50`) returns `null` for anything that is not `normal` or
+`essence`, so the 363 `perfect_essence` mods never reach the from-white picker. `validateTargetShape`
+would reject them too, and `buildParetoSteps` has no `perfect-essence` step to emit. In game you can
+craft a Rare from white and then apply a Perfect Essence, so this is a real gap.
 
-Row 1 of `docs/copy-audit.md`. Real feature, not a copy fix. Note the MDP's from-item path
-already emits `perfect-essence`; it is `buildParetoSteps` (from white) that never does.
+Everything downstream is already built: the from-item planner and the MDP both model `perfect-essence`
+(remove one random mod, add the guaranteed one), and the price sheet carries 363
+`essence:perfect:<modId>` keys. What is missing is only the from-white search.
+
+Row 1b of `docs/copy-audit.md`. No copy is wrong today — `engineMap.ts:47-49` documents the
+limitation honestly — so this is a feature, not a correction.
+
+**NOT to be confused with** "at most one essence-only mod per craft", which is a genuine game rule:
+regular-essence and perfect-essence mods are disjoint pools (317 vs 363 ids, zero overlap), so a
+Perfect Essence cannot supply a second regular-essence mod. An earlier version of this list claimed
+otherwise; see the correction note in `docs/copy-audit.md`.
 
 ## 2. `AlternativesView` disappears silently on an empty result
 

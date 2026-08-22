@@ -20,7 +20,12 @@ the code that actually enforces it.
 | **SCOPE** | true of one planner but shown where both are in play |
 | **OK** | accurate claim about the app's own behaviour |
 
-Verdict counts: 8 GAME RULE · 5 PLANNER LIMIT · 1 SCOPE · 5 OK.
+Verdict counts: 9 GAME RULE · 5 PLANNER LIMIT · 1 SCOPE · 5 OK.
+
+> **Correction, 2026-08-22.** Row 1 originally read PLANNER LIMIT on the strength of a Perfect
+> essence having no rarity gate. That was wrong — perfect-essence and regular-essence mods are
+> disjoint pools, so a Perfect Essence cannot supply a second regular-essence mod. Row 1 is now GAME
+> RULE and the real limitation is split out as row 1b.
 
 ---
 
@@ -30,16 +35,33 @@ Verdict counts: 8 GAME RULE · 5 PLANNER LIMIT · 1 SCOPE · 5 OK.
 Also thrown as an error at `packages/optimizer/src/optimize.ts:425`, and enforced as a picker block at
 `EngineLab.tsx:251`.
 
-**Verdict: PLANNER LIMIT.** The stated reason ("a regular essence needs a Magic item and turns it
-Rare") is true of *regular* essences only. `perfectEssenceProbability`
-(`packages/engine/src/probability.ts:299`) has **no rarity gate** — a Perfect essence adds its
-guaranteed mod while removing an existing one, and works on a Rare item. A second essence-only mod is
-therefore mechanically reachable. The from-white planner simply never emits a `perfect-essence` step:
-`buildParetoSteps` (`optimize.ts:249`) only ever emits `currency: 'essence'`. The from-*item* planner
-does use `perfect-essence`, so the app already knows the step exists.
+**Verdict: GAME RULE. Corrected 2026-08-22 — this row previously said PLANNER LIMIT and was wrong.**
 
-This is the most serious row in the audit — it is not just wrong prose, it is a **hard UI block** on a
-legal craft.
+The original claim was that `perfectEssenceProbability` (`packages/engine/src/probability.ts:299`) has
+no rarity gate, so a Perfect essence could supply a *second* essence-only mod on a Rare. The rarity
+observation is true and the conclusion does not follow: **regular-essence and perfect-essence mods are
+disjoint sets.** In `0.5.0` there are 317 `source: 'essence'` mods and 363 `source: 'perfect_essence'`
+mods, with **zero id overlap** (`Essence_IncreasedLife` vs `PerfectEssence_AllDefences`). A Perfect
+Essence grants from its own pool, so it cannot produce a second `source: 'essence'` mod at all.
+
+One regular essence per craft is therefore a real mechanic: a regular essence needs a Magic item and
+turns it Rare, and there is no second Magic item to spend one on.
+
+**The genuine gap is a different one** — see row 1b.
+
+### 1b. The Lab cannot target a perfect-essence mod at all — `src/lib/engineMap.ts:50`
+`toEngineMod` returns `null` for any mod that is not `normal` or `essence`, so perfect-essence mods
+never reach the from-white picker; `validateTargetShape` (`optimize.ts`) would reject them anyway, and
+`buildParetoSteps` has no `perfect-essence` step to emit.
+
+**Verdict: PLANNER LIMIT**, and an honestly-documented one — the comment at `engineMap.ts:47-49` says
+these "need the remove-and-add-on-rare flow this optimizer doesn't model yet". Nothing lies to the
+player here; the mods are simply absent from the Lab. The from-*item* planner and the MDP both model
+`perfect-essence` fully, and the price sheet already carries 363 `essence:perfect:<modId>` keys, so
+the missing piece is only the from-white search.
+
+Low severity as a *copy* issue (no false claim is made). Listed here because it is the real version of
+what row 1 got wrong.
 
 ### 2. "Can't use an essence with a fractured mod" — `EngineLab.tsx:87`, `:549`, and the warning at `:610`
 Same root cause. A fractured mod forces a Rare start; a *regular* essence needs Magic. A Perfect
@@ -115,8 +137,7 @@ it goes.
 
 ## Suggested order if these get fixed
 
-1. **Row 1** (perfect essence) — the only row that blocks a legal craft rather than describing one wrongly. Needs a planner change, not a copy change.
-2. **Rows 3 and 4** — one-line copy fixes; row 3 is a straggler from a fix already applied to its sibling.
-3. **Row 5** — reword the two error headers to name the planner.
-4. **Row 6** — say which cost model, or move the note under the linear plan.
-5. **Row 12's parenthetical** — falls out of row 1.
+1. **Rows 3 and 4** — one-line copy fixes; row 3 is a straggler from a fix already applied to its sibling.
+2. **Row 5** — reword the two error headers to name the planner.
+3. **Row 6** — say which cost model, or move the note under the linear plan.
+4. **Row 1b** — Lab support for perfect essences. A feature, not a copy fix, and no copy is wrong today.

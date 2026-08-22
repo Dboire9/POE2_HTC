@@ -13,6 +13,7 @@ import {
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
+import { useField, useOnChange } from '../../lib/workspace';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
 import PriceBasisNote from './PriceBasisNote';
@@ -90,21 +91,24 @@ const ItemActions: React.FC = () => {
   const [engine, setEngine] = useState<Awaited<ReturnType<typeof loadEngine>> | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
 
-  const [baseId, setBaseId] = useState('');
-  const [level, setLevel] = useState(82);
-  const [rarity, setRarity] = useState<'magic' | 'rare'>('rare');
-  const [prefixes, setPrefixes] = useState<ItemModInput[]>([]);
-  const [suffixes, setSuffixes] = useState<ItemModInput[]>([]);
+  // In the shared workspace store, not local state: this component is UNMOUNTED whenever the user
+  // switches to the plan tab (EngineLab renders it conditionally), which used to throw away the whole
+  // item they had built. `useField` keeps useState's signature, so nothing below changes.
+  const [baseId, setBaseId] = useField('item', 'baseId');
+  const [level, setLevel] = useField('item', 'level');
+  const [rarity, setRarity] = useField('item', 'rarity');
+  const [prefixes, setPrefixes] = useField('item', 'prefixes');
+  const [suffixes, setSuffixes] = useField('item', 'suffixes');
   const [search, setSearch] = useState('');
 
-  const [subMode, setSubMode] = useState<'check' | 'plan'>('check');
+  const [subMode, setSubMode] = useField('item', 'subMode');
 
   // Option 1 (quick check) selections.
   const [addModId, setAddModId] = useState<string | null>(null);
   const [removeModId, setRemoveModId] = useState<string | null>(null);
 
   // Option 2 (full plan) target + result.
-  const [target, setTarget] = useState<TargetInput[]>([]);
+  const [target, setTarget] = useField('item', 'target');
   const [plan, setPlan] = useState<EngineResult | null>(null);
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   const [planErr, setPlanErr] = useState<string | null>(null);
@@ -124,7 +128,9 @@ const ItemActions: React.FC = () => {
       .then((eng) => {
         setEngine(eng);
         const bases = listBases(eng.data);
-        setBaseId(bases.find((b) => b.id === 'Wands')?.id ?? bases[0]?.id ?? '');
+        // Only DEFAULT the base — never overwrite one restored from the workspace, or a reload would
+        // silently drag the user back to Wands.
+        setBaseId((b) => b || bases.find((x) => x.id === 'Wands')?.id || bases[0]?.id || '');
       })
       .catch((e) => setLoadErr(e instanceof Error ? e.message : String(e)));
   }, []);
@@ -161,11 +167,12 @@ const ItemActions: React.FC = () => {
     return m;
   }, [pool, perfect, desecratedTargets]);
 
-  // Reset everything when the base changes.
-  useEffect(() => {
+  // Reset everything when the base changes — but NOT on mount. This component is unmounted on every
+  // tab switch, so firing on mount would destroy the restored item each time you came back.
+  useOnChange(baseId, () => {
     setPrefixes([]); setSuffixes([]); setAddModId(null); setRemoveModId(null);
     setTarget([]); setPlan(null); setPlanErr(null); setSearch('');
-  }, [baseId]);
+  });
   // Dropping to magic can overflow the 1-per-side cap; trim to keep the item legal.
   useEffect(() => {
     setPrefixes((p) => p.slice(0, CAP[rarity]));
@@ -180,7 +187,7 @@ const ItemActions: React.FC = () => {
   );
   // Toggle a current mod's fractured ("carved") lock: it can't be removed and is excluded from random removal.
   const toggleFractured = (modId: string) => {
-    const flip = (l: ItemModInput[]) => l.map((x) => (x.modId === modId ? { ...x, fractured: !x.fractured } : x));
+    const flip = (l: readonly ItemModInput[]) => l.map((x) => (x.modId === modId ? { ...x, fractured: !x.fractured } : x));
     setPrefixes(flip);
     setSuffixes(flip);
     setPlan(null);

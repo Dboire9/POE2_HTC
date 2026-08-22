@@ -13,6 +13,10 @@ import {
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
+import {
+  decodeWorkspace, encodeWorkspace, getWorkspace, setWorkspace, useField, useMode, useOnChange,
+} from '../../lib/workspace';
+import { toast } from 'sonner';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
 import FrontierView from './FrontierView';
@@ -118,19 +122,22 @@ const EngineLab: React.FC = () => {
   const [engine, setEngine] = useState<Awaited<ReturnType<typeof loadEngine>> | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
 
-  const [baseId, setBaseId] = useState<string>('');
-  const [level, setLevel] = useState<number>(82);
-  const [targets, setTargets] = useState<TargetInput[]>([]);
+  // The user's WORK lives in the shared workspace store, not here: this component's sibling
+  // (ItemActions) is unmounted whenever you switch tabs, and local state died with it. `useField`
+  // keeps useState's exact signature so every call site below is untouched.
+  const [baseId, setBaseId] = useField('lab', 'baseId');
+  const [level, setLevel] = useField('lab', 'level');
+  const [targets, setTargets] = useField('lab', 'targets');
   const [search, setSearch] = useState('');
   // Per-mod tier chosen in the picker BEFORE adding (default T1 = display 1); the "+" commits mod+tier.
   const [pickTier, setPickTier] = useState<Record<string, number>>({});
   // Targets the user marks as already FRACTURED ("carved") on the base — the craft starts from a Rare
   // holding these (locked, never removed) and rolls the rest around them (routes via the from-item planner).
-  const [fractured, setFractured] = useState<Set<string>>(new Set());
+  const [fractured, setFractured] = useField('lab', 'fractured');
   // Targets pinned as non-negotiable: the budget search never relaxes, swaps or drops them.
-  const [pinned, setPinned] = useState<Set<string>>(new Set());
+  const [pinned, setPinned] = useField('lab', 'pinned');
   // Optional spend cap (exalt-equivalents). Empty ⇒ no alternatives panel; the frontier alone is shown.
-  const [budget, setBudget] = useState<string>('');
+  const [budget, setBudget] = useField('lab', 'budget');
 
   const [result, setResult] = useState<EngineResult | null>(null);
   const [alts, setAlts] = useState<EngineAlternatives | null>(null);
@@ -141,7 +148,7 @@ const EngineLab: React.FC = () => {
   const excludedKeys = toExcludedKeys(useExclusions());
   const cancelRef = useRef<(() => void) | null>(null);
   const runIdRef = useRef(0);
-  const [mode, setMode] = useState<'plan' | 'item'>('plan');
+  const [mode, setMode] = useMode();
 
   useEffect(() => {
     prewarm(); // spin up the solver worker alongside the data load, not on the first click
@@ -150,7 +157,9 @@ const EngineLab: React.FC = () => {
         setEngine(eng);
         setData(eng.data);
         const bases = listBases(eng.data);
-        setBaseId(bases.find((b) => b.id === 'Wands')?.id ?? bases[0]?.id ?? '');
+        // Only DEFAULT the base — never overwrite one restored from the workspace, or a reload would
+        // silently drag the user back to Wands.
+        setBaseId((b) => b || bases.find((x) => x.id === 'Wands')?.id || bases[0]?.id || '');
       })
       .catch((e) => setLoadErr(e instanceof Error ? e.message : String(e)));
   }, []);
@@ -173,8 +182,9 @@ const EngineLab: React.FC = () => {
     return m;
   }, [mods]);
 
-  // Reset the craft when the base changes.
-  useEffect(() => {
+  // Reset the craft when the base changes — but NOT on mount, or a restored workspace would be wiped
+  // the moment it loaded.
+  useOnChange(baseId, () => {
     setTargets([]);
     setResult(null);
     setAlts(null);
@@ -183,7 +193,8 @@ const EngineLab: React.FC = () => {
     setPickTier({});
     setFractured(new Set());
     setPinned(new Set());
-  }, [baseId]);
+  });
+
 
   const selectedIds = useMemo(() => new Set(targets.map((t) => t.modId)), [targets]);
   const prefixCount = targets.filter((t) => modById.get(t.modId)?.type === 'prefix').length;
@@ -240,6 +251,44 @@ const EngineLab: React.FC = () => {
     setPinned((p) => { const n = new Set(p); n.has(modId) ? n.delete(modId) : n.add(modId); return n; });
 
   // Clear the whole craft (targets, tier picks, fractured marks, results) — keeps the base + item level.
+  // Encode the whole workspace into a link. The state already lives in one store, so this is a
+  // serialisation, not a second source of truth.
+  const share = async () => {
+    const url = `${window.location.origin}${window.location.pathname}?s=${encodeWorkspace(getWorkspace())}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied', { description: 'It reproduces this base, targets, tiers and budget.' });
+    } catch {
+      // Clipboard is permission-gated and unavailable over plain http on some browsers — still give
+      // them the link rather than failing silently.
+      toast.message('Copy this link', { description: url });
+    }
+  };
+
+  // A shared link wins over whatever was saved locally — you clicked it expecting to see that item —
+  // but never silently: the previous workspace is snapshotted so the toast can put it back.
+  useEffect(() => {
+    if (!data) return; // ids can only be validated once the patch data is loaded
+    const payload = new URLSearchParams(window.location.search).get('s');
+    if (!payload) return;
+    // Drop `?s=` immediately, so a later reload doesn't re-apply a stale link over newer work.
+    window.history.replaceState(null, '', window.location.pathname);
+    const decoded = decodeWorkspace(payload, data);
+    if (!decoded) {
+      toast.error('That link could not be read', { description: 'It looks truncated or is from a newer version.' });
+      return;
+    }
+    const previous = getWorkspace();
+    setWorkspace(decoded.workspace);
+    const missing = decoded.dropped.length;
+    toast.success('Loaded from link', {
+      description: missing > 0
+        ? `${missing} mod${missing === 1 ? '' : 's'} in the link no longer exist and were left out.`
+        : undefined,
+      action: { label: 'Undo', onClick: () => setWorkspace(previous) },
+    });
+  }, [data]);
+
   const reset = () => {
     setTargets([]);
     setPickTier({});
@@ -363,6 +412,9 @@ const EngineLab: React.FC = () => {
             />
           </label>
           <div className="flex-1" />
+          <Button variant="outline" onClick={share} disabled={targets.length === 0 && mode === 'plan'} size="lg" title="Copy a link that reproduces this workspace">
+            Copy link
+          </Button>
           <Button variant="outline" onClick={reset} disabled={targets.length === 0 && !result} size="lg">
             Reset
           </Button>

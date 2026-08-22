@@ -3,8 +3,18 @@ import { afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
 // Cleanup after each test
-afterEach(() => {
+afterEach(async () => {
   cleanup();
+  // The workspace and currency prefs are MODULE-level stores shared by every component, so without
+  // this a test that builds an item leaks it into the next one — order-dependent failures that look
+  // like flakiness. Imported lazily so this file stays free of app imports at module scope.
+  const [{ setWorkspace, defaultWorkspace }, { setExclusions }] = await Promise.all([
+    import('../lib/workspace'),
+    import('../lib/currencyPrefs'),
+  ]);
+  setWorkspace(defaultWorkspace());
+  setExclusions({});
+  localStorage.clear();
 });
 
 /**

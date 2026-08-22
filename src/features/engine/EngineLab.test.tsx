@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { EngineMod, EngineResult } from '../../lib/engine';
 
@@ -43,6 +43,10 @@ vi.mock('../../lib/engine', async (importOriginal) => {
     listBases: () => [{ id: 'Wands', name: 'Wands', category: 'weapon' }],
     listMods: () => ({ prefixes: [NP, NP2, EP, EP2], suffixes: [NS] }),
     listDesecrated: () => [DS, DS2],
+    // Needed once ItemActions renders here (see the tab-switch regression below): it calls these on
+    // mount, and the stub `data` above has no real pools for the actual implementations to read.
+    listPerfectEssences: () => [],
+    currencyActions: () => [],
     optimize: mocks.optimize,
     optimizeItem: mocks.optimizeItem,
     alternatives: mocks.alternatives,
@@ -140,6 +144,45 @@ describe('EngineLab — essence ↔ fracture are mutually exclusive', () => {
     const targetRow = screen.getByText('Normal Prefix').closest('div') as HTMLElement;
     // The lock is disabled (can't fracture while an essence is in the craft).
     expect(within(targetRow).getByTitle(/Can’t fracture with an essence/i)).toBeDisabled();
+  });
+});
+
+// REGRESSION. `EngineLab` renders the item tab as `mode === 'item' ? <ItemActions/> : (…)`, so
+// switching tabs UNMOUNTS a component — and while each tab kept its work in local `useState`, that
+// work was destroyed. For a 6-mod item that is roughly 15 searches and clicks, gone by accident. The
+// state now lives in the shared workspace store, so unmounting costs nothing.
+describe('EngineLab — work survives a tab switch', () => {
+  // It is ITEMACTIONS that gets unmounted — EngineLab stays mounted the whole time, rendering the
+  // tabs — so the item you built is what used to die, not the Lab's target list. (Verified by
+  // mutation: putting the Lab's `targets` back on local useState does NOT fail this suite, because
+  // that state was never at risk.)
+  it('keeps the item you built when you leave the item tab and come back', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /I have an item/i }));
+    await screen.findByPlaceholderText(/Search modifiers to add to your item/i);
+
+    // Put a mod on the item, and confirm it landed.
+    await user.click(screen.getByRole('button', { name: /Normal Prefix/ }));
+    expect(await screen.findByTitle(/Remove from item/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Plan from scratch/i }));
+    expect(screen.queryByPlaceholderText(/Search modifiers to add to your item/i)).toBeNull(); // unmounted
+
+    await user.click(screen.getByRole('button', { name: /I have an item/i }));
+    expect(await screen.findByTitle(/Remove from item/i)).toBeInTheDocument();
+  });
+
+  it('remembers which tab you were on across a remount', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /I have an item/i }));
+    await screen.findByPlaceholderText(/Search modifiers to add to your item/i);
+
+    // A fresh mount reads the store, which is exactly what a page reload does.
+    cleanup();
+    render(<EngineLab />);
+    expect(await screen.findByPlaceholderText(/Search modifiers to add to your item/i)).toBeInTheDocument();
   });
 });
 

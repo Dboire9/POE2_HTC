@@ -16,7 +16,7 @@ import {
 import { indexPrices, type Prices } from '../../packages/optimizer/src/cost.ts';
 import { optimizePareto } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
-import { markovFromItem } from '../../packages/optimizer/src/markovFromItem.ts';
+import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
 import { alternativesFromWhite, alternativesFromItem } from '../../packages/optimizer/src/alternatives.ts';
 import type {
   EngineBase, EngineMod, EngineBaseMods, EnginePlan, EngineResult, TargetInput,
@@ -66,7 +66,7 @@ export function recommendedIndex(frontier: readonly EnginePlan[]): number {
 
 // ── Data loading (memoized) ──────────────────────────────────────────────────
 
-interface Engine { data: PatchData; prices: Prices; }
+export interface Engine { data: PatchData; prices: Prices; }
 let cache: Promise<Engine> | null = null;
 
 /** Load and index the patch snapshot once; subsequent calls reuse the same promise. */
@@ -212,7 +212,9 @@ export function optimizeItem(eng: Engine, item: ExistingItem, targets: readonly 
  * Magic item and this model starts from the Rare you already hold, so the caller falls back to
  * `optimizeItem`'s frontier. Rollable, desecrated and perfect-essence targets all go through the MDP.
  */
-export function optimizeItemMarkov(eng: Engine, item: ExistingItem, targets: readonly TargetInput[]): EngineMarkovResult {
+export function optimizeItemMarkov(
+  eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: MarkovOptions = {},
+): EngineMarkovResult {
   const { data, prices } = eng;
   const applicable = targets.every((t) => data.mods.get(t.modId)?.source !== 'essence');
   if (!applicable) {
@@ -221,7 +223,7 @@ export function optimizeItemMarkov(eng: Engine, item: ExistingItem, targets: rea
       reason: 'a regular essence needs a Magic item, so this craft has no true-cost model — craft it from white',
     };
   }
-  const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets));
+  const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);
   return mapMarkov(data, res, targets.length);
 }
 

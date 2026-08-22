@@ -34,8 +34,8 @@ npm install --legacy-peer-deps
 # Web app with hot reload — http://localhost:5173
 npm run dev
 
-# ...or the full Electron desktop app (no backend is spawned)
-npm run electron:dev
+# ...or build the static site
+npm run build
 ```
 
 ## 📝 Code Style
@@ -101,7 +101,7 @@ When reporting bugs, please include:
 - **Expected behavior** vs actual behavior
 - **Screenshots** if applicable
 - **Environment details**: OS, Node version, and whether you're on the web app or the desktop build
-- **Logs** if available (browser devtools / Electron console output)
+- **Logs** if available (browser devtools console)
 
 ## 💡 Suggesting Features
 
@@ -134,7 +134,6 @@ POE2_HTC/
 │   └── optimizer/           # Pareto cost/success optimizer + MC validation
 ├── data/patches/            # Versioned game data (JSON) — app ships 0.5.0
 ├── tools/refresh/           # `npm run update-data` (refresh from poe2db)
-├── electron/                # Electron main + preload (no backend spawn)
 └── .github/                 # CI/CD workflows
 ```
 

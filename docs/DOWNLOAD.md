@@ -36,8 +36,8 @@ is pure TypeScript, no Java/Maven):
 
 1. Clone the repository
 2. Run `npm install --legacy-peer-deps`
-3. Run `npm run electron:dev` for development mode
-4. ...or `npm run electron:build` to produce an installer for your platform
+3. Run `npm run dev` for development mode
+4. ...or `npm run build` to produce the static site in `dist/`
 
 ---
 

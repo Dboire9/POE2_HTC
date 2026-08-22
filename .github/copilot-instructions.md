@@ -1,6 +1,6 @@
 # POE2_HTC — guidance for AI assistants
 
-Path of Exile 2 crafting optimizer. React 19 + Vite + Tailwind front end, packaged with Electron;
+Path of Exile 2 crafting optimizer. React 19 + Vite + Tailwind front end, shipped as a static web app;
 the crafting engine is **pure TypeScript running client-side**. There is no server, no Java, no Maven —
 the original Java backend was retired.
 
@@ -12,7 +12,6 @@ the original Java backend was retired.
 - `packages/optimizer/` — cost model and search on top of it, including the from-item MDP
   (`markovFromItem.ts` + `markovState.ts` + `markovActions.ts`).
 - `data/patches/<patch>/*.json` — versioned game data. The app ships `0.5.0`.
-- `electron/` — main process + preload.
 
 ## Commands
 
@@ -21,7 +20,7 @@ npm test           # vitest, ~660 tests
 npm run type-check # tsc --noEmit
 npm run build      # vite build
 npm run dev        # dev server
-npm run electron:dev
+npm run build
 ```
 
 There is no lint script.

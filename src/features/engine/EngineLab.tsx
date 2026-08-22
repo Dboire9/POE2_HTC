@@ -1,19 +1,22 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, listDesecrated, optimize, optimizeItem, alternatives, alternativesForItem,
+  loadEngine, listBases, listMods, listDesecrated,
   priceBasis,
   modFamilies,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
   type EngineAlternatives, type AltTargetInput,
 } from '../../lib/engine';
+import { solve, isCancelled, prewarm } from '../../lib/engineClient';
+import type { SolveProgress as Progress } from '../../lib/solve';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
 import FrontierView from './FrontierView';
 import AlternativesView from './AlternativesView';
+import SolveProgress from './SolveProgress';
 import BaseSelect from './BaseSelect';
 
 const selectCls =
@@ -132,9 +135,13 @@ const EngineLab: React.FC = () => {
   const [altBudget, setAltBudget] = useState<number>(0);
   const [runErr, setRunErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
+  const [progress, setProgress] = useState<Progress | null>(null);
+  const cancelRef = useRef<(() => void) | null>(null);
+  const runIdRef = useRef(0);
   const [mode, setMode] = useState<'plan' | 'item'>('plan');
 
   useEffect(() => {
+    prewarm(); // spin up the solver worker alongside the data load, not on the first click
     loadEngine()
       .then((eng) => {
         setEngine(eng);
@@ -249,35 +256,53 @@ const EngineLab: React.FC = () => {
     return { baseId, level, rarity: 'rare', prefixes: carved('prefix'), suffixes: carved('suffix') };
   };
 
+  // Runs in the same Web Worker as the from-item planner. These calls are fast (a few ms), so this is
+  // about having ONE compute path rather than a fast one here and a slow one there — and about the main
+  // thread never running the optimizer at all.
   const compute = () => {
     if (!engine || targets.length === 0) return;
+    const runId = ++runIdRef.current; // see ItemActions.compute — guards against a superseded run
+    const current = () => runIdRef.current === runId;
+
     setComputing(true);
     setRunErr(null);
-    // Defer so the spinner paints before the (synchronous) search runs.
-    setTimeout(() => {
-      try {
-        const fromItem = fractured.size > 0;
-        setResult(fromItem ? optimizeItem(engine, carvedItem(), targets) : optimize(engine, baseId, level, targets));
-        // A budget also asks the near-miss question: what's the closest thing this much money actually buys?
-        const b = Number(budget);
-        if (budget.trim() !== '' && Number.isFinite(b) && b > 0) {
-          const want: AltTargetInput[] = targets.map((t) => (pinned.has(t.modId) ? { ...t, pinned: true } : t));
-          setAlts(fromItem
-            ? alternativesForItem(engine, carvedItem(), want, b)
-            : alternatives(engine, baseId, level, want, b));
-          setAltBudget(b);
-        } else {
-          setAlts(null);
-        }
-      } catch (e) {
+    setProgress(null);
+
+    const fromItem = fractured.size > 0;
+    const b = Number(budget);
+    const hasBudget = budget.trim() !== '' && Number.isFinite(b) && b > 0;
+    const want: AltTargetInput[] = targets.map((t) => (pinned.has(t.modId) ? { ...t, pinned: true } : t));
+
+    const handle = solve({
+      kind: 'lab',
+      from: fromItem ? { item: carvedItem() } : { baseId, level },
+      targets,
+      ...(hasBudget ? { budget: b, want } : {}),
+    }, (p) => { if (current()) setProgress(p); });
+    cancelRef.current = handle.cancel;
+
+    handle.promise
+      .then((res) => {
+        if (!current() || res.kind !== 'lab') return;
+        setResult(res.result);
+        setAlts(res.alts);
+        if (res.alts) setAltBudget(b);
+      })
+      .catch((e) => {
+        if (!current() || isCancelled(e)) return;
         setResult(null);
         setAlts(null);
         setRunErr(e instanceof Error ? e.message : String(e));
-      } finally {
+      })
+      .finally(() => {
+        if (!current()) return;
+        cancelRef.current = null;
         setComputing(false);
-      }
-    }, 0);
+        setProgress(null);
+      });
   };
+
+  const cancel = () => { cancelRef.current?.(); };
 
   if (loadErr) {
     return (
@@ -338,9 +363,11 @@ const EngineLab: React.FC = () => {
             Reset
           </Button>
           <Button onClick={compute} disabled={!canCompute} size="lg">
-            {computing ? 'Computing…' : 'Compute frontier'}
+            Compute frontier
           </Button>
         </div>
+
+        {computing && <SolveProgress progress={progress} onCancel={cancel} />}
 
         {/* Mod picker */}
         <div>

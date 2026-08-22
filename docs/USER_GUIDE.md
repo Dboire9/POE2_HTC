@@ -25,13 +25,13 @@
 git clone https://github.com/Dboire9/POE2_HTC.git
 cd POE2_HTC
 npm install --legacy-peer-deps
-npm run electron:dev
+npm run dev
 ```
 
 ### First Launch
 
 When you first open the application:
-1. The interface loads at `http://localhost:5173` (or inside the Electron window)
+1. The interface loads at `http://localhost:5173`
 2. The crafting engine and patch data load client-side — there is no backend server to wait on
 3. You're ready to craft immediately
 

@@ -17,15 +17,8 @@ yarn.lock
 # Build outputs
 /build
 /dist
-/dist-electron
 out/
 bin/
-release/
-
-# Electron
-*.asar
-*.dmg
-*.exe
 *.AppImage
 *.deb
 *.rpm
@@ -84,10 +77,6 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
-
-# Electron
-electron-builder.yml
-release/
 
 # OS
 .DS_Store

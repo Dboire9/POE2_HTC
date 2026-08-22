@@ -32,6 +32,3 @@ jobs:
 
       - name: Build frontend
         run: npm run build
-
-      - name: Build Electron main process
-        run: npm run build:electron

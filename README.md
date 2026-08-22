@@ -8,7 +8,6 @@
 ![License](https://img.shields.io/badge/License-AGPL--3.0-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey)
 
-![Electron](https://img.shields.io/badge/Electron-33-47848F?logo=electron&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
@@ -18,7 +17,6 @@
 ![Stars](https://img.shields.io/github/stars/Dboire9/POE2_HTC?style=social)
 ![Issues](https://img.shields.io/github/issues/Dboire9/POE2_HTC)
 ![Last Commit](https://img.shields.io/github/last-commit/Dboire9/POE2_HTC)
-![Auto-Update](https://img.shields.io/badge/Auto--Update-Enabled-success?logo=electronbuilder)
 
 </div>
 
@@ -61,7 +59,6 @@ A powerful application that calculates optimal crafting paths for **Path of Exil
 - 💰 **Cost ↔ Success Trade-off** - A Pareto frontier of plans, from cheapest to surest
 - ⚡ **Instant, Offline** - The engine runs client-side; results are computed locally with no network round-trip
 - 🌐 **Web App** - Access instantly at [poe2htc.com](https://poe2htc.com)
-- 🖥️ **Desktop App** - Also available as an Electron desktop application
 
 ## 🚀 Quick Start
 
@@ -94,8 +91,8 @@ git clone https://github.com/Dboire9/POE2_HTC.git
 cd POE2_HTC
 npm install --legacy-peer-deps
 
-# Run the Electron desktop app
-npm run electron:dev
+# Build the static site
+npm run build
 ```
 
 ---
@@ -107,7 +104,7 @@ Hi! I'm **Dorian**, a former student at **42 Paris**.
 I built this project while actively searching for an internship, both to strengthen my skills and to add a meaningful, technical project to my portfolio. As someone passionate about both gaming and software development, combining Path of Exile 2's complex crafting system with algorithm optimization was the perfect challenge.
 
 **Why this project?**
-- 🎓 Demonstrates end-to-end product skills (React, TypeScript, Electron) — and a full engine rewrite from a Java backend to a pure-TS client-side engine
+- 🎓 Demonstrates end-to-end product skills (React, TypeScript, Web Workers) — and a full engine rewrite from a Java backend to a pure-TS client-side engine
 - 🧠 Showcases algorithm design (exact weight-pool probability, Pareto cost/success optimization, Monte-Carlo validation)
 - 🎮 Solves a real problem for the PoE2 community
 - 📈 Continuous learning through community feedback
@@ -143,12 +140,12 @@ npm install --legacy-peer-deps
 # Run the web app (Vite dev server)
 npm run dev
 
-# ...or the full Electron desktop app
-npm run electron:dev
+# ...or build the static site
+npm run build
 ```
 
 **Architecture (pure client-side — no server):**
-- **App**: React 19 + TypeScript + Vite + Electron 33; the UI is the Engine Lab (`src/features/engine/`), driven by the browser facade `src/lib/engine.ts`
+- **App**: React 19 + TypeScript + Vite (web only); the UI is the Engine Lab (`src/features/engine/`), driven by the browser facade `src/lib/engine.ts`
 - **Engine**: `packages/engine` — a pure-TS crafting engine (no I/O, no DOM) doing exact weight-pool probability math per currency
 - **Optimizer**: `packages/optimizer` — computes the cost ↔ success Pareto frontier, with Monte-Carlo self-checks
 - **Data**: `data/patches/<patch>/*.json` — versioned mod/base/price data (the app ships `0.5.0`)
@@ -198,7 +195,7 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for a complete
 - [x] Pure-TypeScript engine (retired the Java/Maven backend — the app is now fully client-side)
 - [x] Cost ↔ success Pareto optimizer with Monte-Carlo validation
 - [x] "I already have this item" flow (per-currency odds + from-item planner)
-- [x] Desktop application with Electron
+- [x] Heavy solves moved off the main thread into a Web Worker
 - [x] Auto-update system
 - [x] Multi-platform support (Windows, Linux)
 

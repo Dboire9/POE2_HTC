@@ -2,7 +2,7 @@
 
 > **Architecture note:** POE2 HTC used to be a React frontend talking to a Java/Maven REST backend
 > over `localhost:8080`. That backend has been **retired** — the app is now a single
-> **pure-TypeScript engine that runs client-side** (in the browser and inside Electron). There is no
+> **pure-TypeScript engine that runs client-side** (in the browser). There is no
 > server to start, no Java, no Maven. This guide describes the current architecture.
 
 ## Table of Contents
@@ -27,9 +27,8 @@
 - **React 19** + **TypeScript 5.6** — UI
 - **Vite 7** — build tool and dev server
 - **TailwindCSS** + **shadcn/ui** (Radix) — styling and components
-- **Electron 41** — desktop wrapper (packages the built web app; **no** child process/backend)
 - **Vitest 4** — test runner (unit + differential + Monte-Carlo validation)
-- **electron-updater** — auto-update; **Sentry** + **Vercel Analytics** — telemetry
+- **Sentry** + **Vercel Analytics** — telemetry
 
 There is no backend runtime. The crafting logic is plain TypeScript compiled into the same bundle as
 the UI.
@@ -102,11 +101,6 @@ POE2_HTC/
 │       ├── validate.ts               # plan/target validation
 │       └── *.test.ts
 │
-├── electron/                         # Electron main + preload (window, auto-updater,
-│   │                                 #   external-link IPC — no backend spawn)
-│   ├── main.ts
-│   └── preload.js
-│
 ├── data/patches/                     # Versioned game data (JSON)
 │   ├── 0.5.0/                        # SHIPPED — poe2db, cross-checked vs Craft of Exile
 │   └── 0.5/                          # Java-era snapshot — kept ONLY as the differential anchor
@@ -152,10 +146,6 @@ the next install.
 ```bash
 # Web app with hot reload — http://localhost:5173
 npm run dev
-
-# Full Electron desktop app (builds the preload/main, then launches Electron
-# pointed at the Vite dev server). No backend is spawned.
-npm run electron:dev
 
 # Type-check the whole project without emitting
 npm run type-check
@@ -282,17 +272,10 @@ description. In short:
 # Web build → dist/
 npm run build
 
-# Electron main/preload → dist-electron/
-npm run build:electron
-
-# Desktop installers (electron-builder)
-npm run electron:build          # current platform
-npm run electron:build:win      # Windows (nsis + portable)
-npm run electron:build:linux    # Linux (AppImage + deb)
 ```
 
-Electron packaging bundles only `dist/` and `dist-electron/` — there is no JRE or `backend.jar` to
-ship anymore.
+`dist/` is the whole deliverable — a static site. There is no desktop packaging step, and no JRE or
+`backend.jar` to ship.
 
 ### Release process
 
@@ -363,9 +346,6 @@ npm run dev -- --port 3000
 Check the data first — `data/patches/<patch>/mods.json` and `weights_overrides.json` — and the
 family/ilvl gates, before suspecting the engine. Cross-check against
 [craftofexile.com/?game=poe2](https://craftofexile.com/?game=poe2) and the `scripts/coe-*` harness.
-
-**Electron app won't open external links**
-WSL users rely on a `cmd.exe /c start` fallback (already implemented); Linux needs `xdg-open`.
 
 **Tests fail with "module not found"**
 ```bash

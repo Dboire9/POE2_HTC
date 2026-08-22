@@ -82,12 +82,36 @@ export interface MarkovResult {
   readonly policy: ReadonlyMap<string, McAction>;
 }
 
+/**
+ * Where a solve currently is. `done`/`total` are raw counts, NOT a percentage: how to weight the
+ * phases against each other is a presentation decision (they are wildly unequal — see below) and
+ * belongs to the caller, not here.
+ */
+export interface MarkovProgress {
+  readonly phase: 'actions' | 'compile' | 'solve';
+  readonly done: number;
+  readonly total: number;
+}
+
 export interface MarkovOptions {
   /** Value-iteration convergence tolerance (max ΔV). Default 1e-9. */
   readonly tolerance?: number;
   /** Safety cap on iterations. Default 100000. */
   readonly maxIters?: number;
+  /**
+   * Called as the solve advances, so a UI can show progress and stay honest about a multi-second wait.
+   * A plain callback — not I/O, not DOM — so this file stays pure.
+   *
+   * Report it from the `actions` phase, not from value iteration: measured on a 3-target Wand craft,
+   * loosening `tolerance` from 1e-9 to 1e-1 moved the total only 3877ms → 3458ms, so VI is ~11% of the
+   * work and building the action distributions is the rest. A bar driven by VI sweeps would sit at
+   * zero for three seconds and then jump to done.
+   */
+  readonly onProgress?: (p: MarkovProgress) => void;
 }
+
+/** How often the O(states) loops report. Frequent enough to animate, rare enough to cost nothing. */
+const PROGRESS_STRIDE = 64;
 
 /** Most target mods the lattice is enumerated for (3^n grows fast; 6 is the item's own slot cap). */
 const MAX_TARGETS = 6;
@@ -156,10 +180,16 @@ export function markovFromItem(
   const goalKey = encodeState(GOAL, 0, 0, 0);
 
   const allStates = enumerateStates(n, side, desecratable);
+  // The dominant cost of the whole solve: one full action set, with its outcome distribution, per
+  // state. `allStates.length` is known before the loop, so progress here is genuinely linear.
+  const report = opts.onProgress;
   const actionCache = new Map<StateKey, ActionDef[]>();
-  for (const key of allStates) {
+  for (let i = 0; i < allStates.length; i++) {
+    const key = allStates[i]!;
     actionCache.set(key, key === goalKey ? [] : actionsOf(decodeState(key)));
+    if (report && i % PROGRESS_STRIDE === 0) report({ phase: 'actions', done: i, total: allStates.length });
   }
+  report?.({ phase: 'actions', done: allStates.length, total: allStates.length });
 
   // ── Compile the lattice to dense numeric arrays ─────────────────────────────
   // Value iteration is arithmetic, but the natural representation (string StateKeys in Maps) makes it
@@ -198,7 +228,9 @@ export function markovFromItem(
       out.push({ def, cost: def.cost, selfProb, to: Int32Array.from(to), prob: Float64Array.from(prob) });
     }
     compiled[i] = out;
+    if (report && i % PROGRESS_STRIDE === 0) report({ phase: 'compile', done: i, total: N });
   }
+  report?.({ phase: 'compile', done: N, total: N });
 
   // ── Value iteration ─────────────────────────────────────────────────────────
   // Standard stochastic-shortest-path VI: 0-initialise (a finite lower bound) and let values climb to
@@ -216,6 +248,7 @@ export function markovFromItem(
     for (let j = 0; j < a.to.length; j++) s += a.prob[j]! * V[a.to[j]!]!;
     return (a.cost + s) / (1 - a.selfProb);
   };
+  let decades = 0; // log-distance the first sweep had left to travel; see the progress note below
   for (let iter = 0; iter < maxIters; iter++) {
     let delta = 0;
     for (let i = 0; i < N; i++) {
@@ -233,7 +266,17 @@ export function markovFromItem(
       if (d > delta) delta = d;
     }
     if (delta <= tol) break;
+    // VI converges geometrically, so "sweeps remaining" is not knowable and counting them against
+    // `maxIters` (100k, but this converges in tens) would peg the bar at zero. What IS monotone is how
+    // far the residual has travelled toward `tol` on a log scale — so a unit here is one decade
+    // closed, and the total is the distance the first sweep found still to cover.
+    if (report) {
+      const remaining = Math.log10(Math.max(delta, tol) / tol);
+      if (iter === 0) decades = remaining;
+      if (decades > 0) report({ phase: 'solve', done: Math.round(decades - remaining), total: Math.round(decades) });
+    }
   }
+  report?.({ phase: 'solve', done: 1, total: 1 });
 
   // ── Extract policy + reachable graph from the start ─────────────────────────
   const startKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.desJunk);

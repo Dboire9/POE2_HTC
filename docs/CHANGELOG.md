@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Solves now run in a Web Worker.** Computing a plan used to block the main thread outright — a
+  3-target from-item craft takes ~3.9s, during which the page could not scroll, click or repaint.
+  The `setTimeout(…, 0)` that was meant to let a spinner paint first was a race against the frame
+  deadline and lost it about half the time, so the app often looked frozen with no explanation.
+- Added a **real progress bar and a Cancel button**. Progress is reported from the phase that
+  actually dominates: raising the solver's tolerance from 1e-9 to 1e-1 only moves the total from
+  3877ms to 3458ms, so value iteration is ~11% of the work and building the action lattice is the
+  rest. A bar driven by VI sweeps would have sat at zero and then jumped.
+- Cancellation terminates the worker and spawns a replacement, which is affordable because rebuilding
+  its patch data costs ~10ms (8ms `JSON.parse` + 2ms `indexPatch`).
+
+### Removed
+- **The Electron desktop build.** The app ships as a web page. Chromium blocks module Workers from
+  the `file://` origin a packaged Electron app loads from, so the desktop build and the Worker could
+  not coexist; the desktop wrapper was the part not worth keeping. Removes `electron/`, the
+  auto-updater, the electron-builder config, the `electron:*` scripts, and the `electron`,
+  `electron-builder`, `electron-updater`, `@sentry/electron`, `concurrently` and `wait-on`
+  dependencies. Sentry itself is unaffected — the frontend uses `@sentry/react`, and
+  `@sentry/electron` was declared but never imported.
+- The release workflow now publishes the static site instead of desktop installers.
+
+### Fixed
+- The worker build emitted a **second copy of every data asset** (3.1MB for `mods.json` alone) under
+  a different path. Giving the worker build the main build's asset naming makes both resolve to one
+  content-hashed file. Main bundle also dropped 378kB → 343kB, as the optimizer now tree-shakes out
+  of it and lives only in the worker chunk.
+
 ### Security
 - Updated Electron 33 → 41, clearing 33 advisories in the desktop runtime (context-isolation
   bypass, several use-after-frees at CVSS 7.5–8.1, sandboxed-iframe escapes).

@@ -1,18 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, listPerfectEssences, listDesecrated, currencyActions, optimizeItem, optimizeItemMarkov,
+  loadEngine, listBases, listMods, listPerfectEssences, listDesecrated, currencyActions,
   priceBasis,
   modFamilies,
   type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type CurrencyAction,
   type TargetInput, type EngineResult, type EngineMarkovResult,
 } from '../../lib/engine';
+import { solve, isCancelled, prewarm } from '../../lib/engineClient';
+import type { SolveProgress as Progress } from '../../lib/solve';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
 import PriceBasisNote from './PriceBasisNote';
+import SolveProgress from './SolveProgress';
 import BaseSelect from './BaseSelect';
 
 function fmtEx(x: number): string {
@@ -104,8 +107,16 @@ const ItemActions: React.FC = () => {
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   const [planErr, setPlanErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
+  const [progress, setProgress] = useState<Progress | null>(null);
+  // Held so the Cancel button can reach the running solve; refs, not state, because changing them must
+  // not re-render.
+  const cancelRef = useRef<(() => void) | null>(null);
+  const runIdRef = useRef(0);
 
   useEffect(() => {
+    // Start the solver worker now rather than on the first click, so pressing Compute doesn't also pay
+    // for spinning one up and fetching the snapshot into it.
+    prewarm();
     loadEngine()
       .then((eng) => {
         setEngine(eng);
@@ -244,19 +255,42 @@ const ItemActions: React.FC = () => {
   const patchTarget = (modId: string, tierDisplay: number) =>
     setTarget((t) => t.map((x) => (x.modId === modId ? { ...x, tierDisplay } : x)));
 
+  // Runs in a Web Worker: this is the multi-second solve (a 3-target craft takes ~3.9s), and running it
+  // here would lock the page for its whole duration. The old `setTimeout(…, 0)` tried to let a spinner
+  // paint first, but that is a race against the frame deadline and lost about half the time.
   const compute = () => {
     if (!engine || target.length === 0) return;
-    setComputing(true); setPlanErr(null);
-    setTimeout(() => {
-      try {
-        setPlan(optimizeItem(engine, item, target));
+    // Starting a solve supersedes any running one (engineClient cancels it). Stamp this run so the
+    // superseded one's callbacks can be ignored — otherwise its `finally` would clear `computing`
+    // while its replacement is still going, and the UI would look idle mid-solve.
+    const runId = ++runIdRef.current;
+    const current = () => runIdRef.current === runId;
+
+    setComputing(true); setPlanErr(null); setProgress(null);
+    const handle = solve({ kind: 'item', item, targets: target }, (p) => { if (current()) setProgress(p); });
+    cancelRef.current = handle.cancel;
+    handle.promise
+      .then((res) => {
+        if (!current() || res.kind !== 'item') return;
+        setPlan(res.plan);
         // The honest expected cost + optimal-policy graph (push-forward MDP). Falls back silently to the
         // frontier alone when the target isn't MDP-modellable (perfect-essence / desecrate).
-        setMarkov(optimizeItemMarkov(engine, item, target));
-      } catch (e) { setPlan(null); setMarkov(null); setPlanErr(e instanceof Error ? e.message : String(e)); }
-      finally { setComputing(false); }
-    }, 0);
+        setMarkov(res.markov);
+      })
+      .catch((e) => {
+        if (!current() || isCancelled(e)) return; // cancelling is what the user asked for, not an error
+        setPlan(null); setMarkov(null); setPlanErr(e instanceof Error ? e.message : String(e));
+      })
+      .finally(() => {
+        if (!current()) return;
+        cancelRef.current = null;
+        setComputing(false); setProgress(null);
+      });
   };
+
+  // Cancelling leaves this run current, so the rejection above still runs the `finally` that resets the
+  // button — no need to unwind state here.
+  const cancel = () => { cancelRef.current?.(); };
 
   if (loadErr) {
     return (
@@ -476,12 +510,16 @@ const ItemActions: React.FC = () => {
               </div>
             )}
 
-            <div className="flex items-center gap-3">
-              <Button onClick={compute} disabled={rarity !== 'rare' || target.length === 0 || computing} size="lg">
-                {computing ? 'Computing…' : 'Compute plan'}
-              </Button>
-              {rarity !== 'rare' && <span className="text-xs text-muted-foreground">The full planner needs a Rare item (use the quick check for Magic).</span>}
-            </div>
+            {computing ? (
+              <SolveProgress progress={progress} onCancel={cancel} />
+            ) : (
+              <div className="flex items-center gap-3">
+                <Button onClick={compute} disabled={rarity !== 'rare' || target.length === 0} size="lg">
+                  Compute plan
+                </Button>
+                {rarity !== 'rare' && <span className="text-xs text-muted-foreground">The full planner needs a Rare item (use the quick check for Magic).</span>}
+              </div>
+            )}
           </Card>
 
           <p className="text-[11px] text-muted-foreground px-1">

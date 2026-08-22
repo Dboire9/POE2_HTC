@@ -8,18 +8,12 @@
     "url": "https://github.com/Dboire9"
   },
   "license": "AGPL-3.0",
-  "main": "dist-electron/main.cjs",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build:electron": "tsc -p electron/tsconfig.json && mv dist-electron/main.js dist-electron/main.cjs && cp electron/preload.js dist-electron/preload.js",
-    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && npm run build:electron && NODE_ENV=development electron . --no-sandbox\"",
-    "electron:build": "npm run build && npm run build:electron && electron-builder",
-    "electron:build:win": "npm run build && npm run build:electron && electron-builder --win --publish never",
-    "electron:build:linux": "npm run build && npm run build:electron && electron-builder --linux --publish never",
     "type-check": "tsc --noEmit",
     "type-check:engine": "tsc -p packages/engine/tsconfig.json",
     "type-check:optimizer": "tsc -p packages/optimizer/tsconfig.json",
@@ -32,11 +26,9 @@
     "update-prices": "node tools/refresh/prices.mjs"
   },
   "dependencies": {
-    "@sentry/electron": "^7.3.0",
     "@sentry/react": "^10.26.0",
     "@testing-library/dom": "^10.4.1",
     "@vercel/analytics": "^1.5.0",
-    "electron-updater": "^6.6.2",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "sonner": "^2.0.7"
@@ -58,9 +50,6 @@
     "autoprefixer": "^10.4.22",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "concurrently": "^9.1.0",
-    "electron": "^41.7.1",
-    "electron-builder": "^26.15.3",
     "jsdom": "^27.2.0",
     "lucide-react": "^0.553.0",
     "postcss": "^8.5.6",
@@ -68,78 +57,6 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.6.0",
     "vite": "^7.2.0",
-    "vitest": "^4.0.13",
-    "wait-on": "^7.2.0"
-  },
-  "build": {
-    "appId": "com.dboire.poe2htc",
-    "productName": "POE2HTC",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "dist-electron/**/*",
-      "!src/**/*",
-      "!electron/**/*"
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/icon.ico",
-      "verifyUpdateCodeSignature": false
-    },
-    "linux": {
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "deb",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/icon.png",
-      "category": "Utility"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": "always",
-      "createStartMenuShortcut": true,
-      "perMachine": false,
-      "artifactName": "${productName}.Setup.${version}.${ext}"
-    },
-    "portable": {
-      "artifactName": "${productName}.${version}.${ext}"
-    },
-    "appImage": {
-      "artifactName": "${productName}-${version}.${ext}"
-    },
-    "deb": {
-      "artifactName": "${name}_${version}_${arch}.${ext}"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "Dboire9",
-      "repo": "POE2_HTC"
-    }
+    "vitest": "^4.0.13"
   }
 }

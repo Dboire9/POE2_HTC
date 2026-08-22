@@ -1,18 +1,14 @@
 import React from 'react';
 import { Toaster } from './components/ui/toaster';
-import { UpdateNotification } from './components/UpdateNotification';
 import EngineLab from './features/engine/EngineLab';
 
 // App version (shown in the header).
 const version = '0.9.7';
 
-// Open a link in the user's browser — via the Electron bridge when present, else a normal window.open.
+// Open a link in a new tab. This used to route through an Electron bridge when one was present; the
+// app ships as a web page only now, so there is just the one path.
 const openExternalLink = (url: string) => {
-  if (window.electronAPI?.openExternal) {
-    window.electronAPI.openExternal(url).catch((error) => console.error('openExternal error:', error));
-  } else {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
+  window.open(url, '_blank', 'noopener,noreferrer');
 };
 
 export default function App() {
@@ -84,7 +80,6 @@ export default function App() {
       </main>
 
       <Toaster />
-      <UpdateNotification />
     </div>
   );
 }

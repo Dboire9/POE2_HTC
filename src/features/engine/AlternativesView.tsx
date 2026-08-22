@@ -77,7 +77,8 @@ const Row: React.FC<{ alt: EngineAlternative; budget: number; best: boolean }> =
           {!alt.isTarget && changed === 0 && <Badge variant="secondary">lower tiers</Badge>}
           <button
             onClick={() => setOpen((o) => !o)}
-            className="rounded border border-border px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-accent"
+            className="rounded border border-border px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-expanded={open}
             title="Show the cheapest way to reach this item"
           >
             {open ? 'hide plan' : 'plan'}

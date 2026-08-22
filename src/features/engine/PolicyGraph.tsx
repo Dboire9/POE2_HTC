@@ -117,6 +117,37 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult }> = ({ result }) => {
           );
         })}
       </svg>
+      {/*
+        The SVG above is `role="img"` with a single label, which is honest but publishes nothing: the
+        policy it draws — the MDP's actual recommendation — would be unreadable without sight. This is
+        the same data as a list. It is `sr-only` rather than hidden so it reaches assistive tech; the
+        picture stays the visual presentation of it.
+      */}
+      <div className="sr-only">
+        <h4>Optimal policy, as text</h4>
+        <p>
+          {result.nodes.length} item state{result.nodes.length === 1 ? '' : 's'}, ordered from your item
+          to the target.
+        </p>
+        <ol>
+          {[...result.nodes]
+            .sort((a, b) => b.depth - a.depth || b.expectedCost - a.expectedCost)
+            .map((nd) => (
+              <li key={nd.key}>
+                {nd.isStart ? 'Your item: ' : nd.isGoal ? 'Target reached: ' : ''}
+                {stateLabel(nd)}
+                {`. Expected cost from here ${fmtCost(nd.expectedCost)}.`}
+                {nd.action ? ` Best action: ${nd.action}.` : ''}
+                {(() => {
+                  const bricks = result.edges.filter((e) => e.from === nd.key && e.regress);
+                  return bricks.length === 0 ? '' : ` Risk: ${bricks
+                    .map((e) => `${Math.round(e.prob * 100)}% chance of going backwards`)
+                    .join(', ')}.`;
+                })()}
+              </li>
+            ))}
+        </ol>
+      </div>
     </div>
   );
 };

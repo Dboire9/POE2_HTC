@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, listDesecrated,
+  loadEngine, listBases, listMods, listDesecrated, recommendedIndex,
   priceBasis,
   modFamilies,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
@@ -27,6 +27,10 @@ import BaseSelect from './BaseSelect';
 
 const selectCls =
   'h-9 rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring';
+
+// Bare <button>s don't get the Button component's ring (button.tsx), so they fall back to the browser
+// default — visible, but inconsistent with the rest of the app. This gives them the same one.
+const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm';
 
 // Tier label for the picker dropdown: "T1 · 165–179" — a compact tier name plus the roll range. Normal
 // mods use "T1"…"Tn" ("Tn · any" for the any-tier worst); essence mods use the level (Lesser/Normal/
@@ -84,6 +88,9 @@ const ModColumn: React.FC<ModColumnProps> = ({
           : desecratedBlocked ? 'An item can hold at most one desecrated mod'
           : sideFull ? 'This side is full (max 3)' : '';
         const tier = pickTier[m.id] ?? 1;
+        // A disabled button is not focusable, so a `title` explaining WHY is unreachable by keyboard,
+        // screen reader and touch alike. Render the reason as real text and point the controls at it.
+        const reasonId = disabled ? `why-${m.id}` : undefined;
         return (
           <div
             key={m.id}
@@ -93,22 +100,26 @@ const ModColumn: React.FC<ModColumnProps> = ({
             <span className="flex-1 min-w-0 truncate text-sm">{m.text}</span>
             {isEssence && <span className="shrink-0 rounded bg-purple-500/15 px-1 text-[10px] text-purple-600 dark:text-purple-300">ess</span>}
             {m.source === 'desecrated' && <span className="shrink-0 rounded bg-rose-500/15 px-1 text-[10px] text-rose-600 dark:text-rose-300">desec</span>}
+            {reasonId && <span id={reasonId} className="sr-only">{reason}</span>}
             <select
               className={`${selectCls} h-7 py-0 pr-1 text-xs shrink-0`}
               value={tier}
               disabled={disabled}
               onChange={(e) => onPickTier(m.id, Number(e.target.value))}
-              title={isEssence ? 'Essence level' : 'Target tier (or better)'}
+              // "T1 · 165–179" means nothing without knowing which mod it belongs to.
+              aria-label={`${isEssence ? 'Essence level' : 'Target tier'} for ${m.text}`}
+              {...(reasonId ? { 'aria-describedby': reasonId } : {})}
             >
               {m.tiers.map((ti) => <option key={ti.display} value={ti.display}>{tierOption(m, ti)}</option>)}
             </select>
             <button
               onClick={() => onAdd(m, tier)}
               disabled={disabled}
-              className="shrink-0 grid h-7 w-7 place-items-center rounded-md border border-border text-lg leading-none hover:bg-accent disabled:cursor-not-allowed"
-              title={disabled ? reason : `Add “${m.text}” at ${tierOption(m, m.tiers.find((x) => x.display === tier) ?? m.tiers[0]!)}`}
+              className="shrink-0 grid h-7 w-7 place-items-center rounded-md border border-border text-lg leading-none hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed"
+              aria-label={`Add ${m.text} at ${tierOption(m, m.tiers.find((x) => x.display === tier) ?? m.tiers[0]!)}`}
+              {...(reasonId ? { 'aria-describedby': reasonId } : {})}
             >
-              +
+              <span aria-hidden="true">+</span>
             </button>
           </div>
         );
@@ -289,6 +300,17 @@ const EngineLab: React.FC = () => {
     });
   }, [data]);
 
+  // What a screen reader should hear when a solve lands. Derived, not stored: it must never describe
+  // a result that is no longer on screen.
+  const outcome = !result ? '' : result.frontier.length === 0
+    ? 'No achievable plan — every route scored zero.'
+    : `${result.frontier.length} plan${result.frontier.length === 1 ? '' : 's'} found.`
+      + (() => {
+        const best = result.frontier[recommendedIndex(result.frontier)] ?? result.frontier[0];
+        return best ? ` Best value: ${(best.probability * 100).toFixed(1)}% per attempt.` : '';
+      })()
+      + (alts ? ` ${alts.rows.length} budget alternative${alts.rows.length === 1 ? '' : 's'} listed.` : '');
+
   const reset = () => {
     setTargets([]);
     setPickTier({});
@@ -383,8 +405,20 @@ const EngineLab: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-sm">
-        <button className={tabCls(mode === 'plan')} onClick={() => setMode('plan')}>Plan from scratch</button>
-        <button className={tabCls(mode === 'item')} onClick={() => setMode('item')}>I have an item</button>
+        <button
+          className={`${tabCls(mode === 'plan')} ${FOCUS_RING}`}
+          onClick={() => setMode('plan')}
+          aria-pressed={mode === 'plan'}
+        >
+          Plan from scratch
+        </button>
+        <button
+          className={`${tabCls(mode === 'item')} ${FOCUS_RING}`}
+          onClick={() => setMode('item')}
+          aria-pressed={mode === 'item'}
+        >
+          I have an item
+        </button>
       </div>
 
       {mode === 'item' ? <ItemActions /> : (<>
@@ -427,9 +461,18 @@ const EngineLab: React.FC = () => {
 
         {computing && <SolveProgress progress={progress} onCancel={cancel} />}
 
+        {/* The one place a finished solve is announced. `polite` so it waits for a pause rather than
+            interrupting, and it lives outside the conditional above so the region exists before the
+            text lands — a live region inserted together with its content is often not announced. */}
+        <p className="sr-only" role="status" aria-live="polite">
+          {computing ? '' : runErr ? `Could not compute: ${runErr}` : outcome}
+        </p>
+
         {/* Mod picker */}
         <div>
+          <label htmlFor="lab-mod-search" className="sr-only">Search modifiers to add as targets</label>
           <input
+            id="lab-mod-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search modifiers to add as targets…"
@@ -481,6 +524,7 @@ const EngineLab: React.FC = () => {
                     value={t.tierDisplay}
                     disabled={isFractured}
                     onChange={(e) => patchTarget(t.modId, { tierDisplay: Number(e.target.value) })}
+                    aria-label={`${mod.source === 'essence' ? 'Essence level' : 'Target tier'} for ${mod.text}`}
                     title={mod.source === 'essence' ? 'Essence level (fixes value, ilvl gate, and price)' : 'Target tier (or better)'}
                   >
                     {mod.tiers.map((ti) => (
@@ -491,41 +535,61 @@ const EngineLab: React.FC = () => {
                     // Locking a new fracture is blocked while an essence is in the craft (incompatible
                     // starts); an already-locked one can still be unlocked to resolve the conflict.
                     const lockBlocked = !isFractured && essenceUsed;
+                    const why = lockBlocked
+                      ? 'Can’t fracture with an essence in the craft — an essence needs a Magic start, a fracture forces a Rare'
+                      : isFractured ? 'Fractured (carved on the base) — click to unlock'
+                      : 'Mark as already fractured on the base (locked; the craft starts from a Rare holding it)';
+                    // A disabled control can't be focused, so its reason has to exist as text elsewhere.
+                    const whyId = lockBlocked ? `why-fracture-${t.modId}` : undefined;
                     return (
-                      <button
-                        onClick={() => toggleFractured(t.modId)}
-                        disabled={lockBlocked}
-                        className={`px-0.5 ${isFractured ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-500'} ${lockBlocked ? 'opacity-30 cursor-not-allowed' : ''}`}
-                        title={lockBlocked
-                          ? 'Can’t fracture with an essence in the craft — an essence needs a Magic start, a fracture forces a Rare'
-                          : isFractured ? 'Fractured (carved on the base) — click to unlock'
-                          : 'Mark as already fractured on the base (locked; the craft starts from a Rare holding it)'}
-                      >
-                        {isFractured ? '🔒' : '🔓'}
-                      </button>
+                      <>
+                        {whyId && <span id={whyId} className="sr-only">{why}</span>}
+                        <button
+                          onClick={() => toggleFractured(t.modId)}
+                          disabled={lockBlocked}
+                          aria-pressed={isFractured}
+                          aria-label={`Fractured on the base: ${mod.text}`}
+                          {...(whyId ? { 'aria-describedby': whyId } : {})}
+                          className={`px-0.5 ${FOCUS_RING} ${isFractured ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-500'} ${lockBlocked ? 'opacity-30 cursor-not-allowed' : ''}`}
+                          title={why}
+                        >
+                          <span aria-hidden="true">{isFractured ? '🔒' : '🔓'}</span>
+                        </button>
+                      </>
                     );
                   })()}
                   {/* Pin only means something to the budget search, so don't offer it without a budget. */}
                   {budget.trim() !== '' && (
-                    <button
-                      onClick={() => !isFractured && togglePinned(t.modId)}
-                      disabled={isFractured}
-                      className={`px-0.5 ${isPinned ? 'opacity-100' : 'opacity-40 hover:opacity-100'} ${isFractured ? 'cursor-not-allowed' : ''}`}
-                      title={isFractured
-                        ? 'A fractured mod is already locked, so it’s never relaxed'
-                        : isPinned
-                          ? 'Pinned — the budget search will never relax, swap or drop this. Click to unpin.'
-                          : 'Pin as non-negotiable: the budget search will never relax, swap or drop it'}
-                    >
-                      📌
-                    </button>
+                    <>
+                      {isFractured && (
+                        <span id={`why-pin-${t.modId}`} className="sr-only">
+                          A fractured mod is already locked, so it’s never relaxed
+                        </span>
+                      )}
+                      <button
+                        onClick={() => !isFractured && togglePinned(t.modId)}
+                        disabled={isFractured}
+                        aria-pressed={isPinned}
+                        aria-label={`Pin as non-negotiable: ${mod.text}`}
+                        {...(isFractured ? { 'aria-describedby': `why-pin-${t.modId}` } : {})}
+                        className={`px-0.5 ${FOCUS_RING} ${isPinned ? 'opacity-100' : 'opacity-40 hover:opacity-100'} ${isFractured ? 'cursor-not-allowed' : ''}`}
+                        title={isFractured
+                          ? 'A fractured mod is already locked, so it’s never relaxed'
+                          : isPinned
+                            ? 'Pinned — the budget search will never relax, swap or drop this. Click to unpin.'
+                            : 'Pin as non-negotiable: the budget search will never relax, swap or drop it'}
+                      >
+                        <span aria-hidden="true">📌</span>
+                      </button>
+                    </>
                   )}
                   <button
                     onClick={() => removeTarget(t.modId)}
-                    className="text-muted-foreground hover:text-destructive px-1"
+                    className={`text-muted-foreground hover:text-destructive px-1 ${FOCUS_RING}`}
+                    aria-label={`Remove ${mod.text} from the target`}
                     title="Remove"
                   >
-                    ✕
+                    <span aria-hidden="true">✕</span>
                   </button>
                 </div>
               );

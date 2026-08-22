@@ -29,6 +29,10 @@ function fmtEx(x: number): string {
 const selectCls =
   'h-9 rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring';
 
+// Bare <button>s miss the Button component's ring (button.tsx), falling back to the browser default —
+// visible, but inconsistent with the rest of the app.
+const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm';
+
 function fmtPct(p: number): string {
   const pct = p * 100;
   if (pct >= 1) return `${pct.toFixed(2)}%`;
@@ -69,17 +73,24 @@ const BuilderColumn: React.FC<BuilderColumnProps> = ({ title, list, count, cap, 
       {list.map((m) => {
         const famTaken = modFamilies(m).some((f) => occupiedFamilies.has(f));
         const disabled = count >= cap || famTaken;
+        const reason = famTaken ? `“${m.family}” family already on the item` : count >= cap ? 'This side is full' : '';
+        // Disabled buttons aren't focusable, so a title-only reason is unreachable. `family in use`
+        // was already shown visually for one case; this makes the rest reachable the same way.
+        const reasonId = disabled ? `item-why-${m.id}` : undefined;
         return (
           <button
             key={m.id}
             onClick={() => onAdd(m)}
             disabled={disabled}
-            className="flex w-full items-center gap-2 text-left px-2 py-1.5 text-sm hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-            title={famTaken ? `“${m.family}” family already on the item` : count >= cap ? 'This side is full' : m.source === 'desecrated' ? 'Add this desecrated mod to your item (occupies a slot; Omen of Light can target it)' : 'Add to your item'}
+            className={`flex w-full items-center gap-2 text-left px-2 py-1.5 text-sm hover:bg-accent ${FOCUS_RING} disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed`}
+            aria-label={`Add ${m.text} to your item`}
+            {...(reasonId ? { 'aria-describedby': reasonId } : {})}
+            title={reason || (m.source === 'desecrated' ? 'Add this desecrated mod to your item (occupies a slot; Omen of Light can target it)' : 'Add to your item')}
           >
             <span className="flex-1 min-w-0 truncate">{m.text}</span>
             {m.source === 'desecrated' && <span className="shrink-0 rounded bg-rose-500/15 px-1 text-[10px] text-rose-600 dark:text-rose-300">desecrated</span>}
             {famTaken && <span className="shrink-0 text-[10px] text-muted-foreground">family in use</span>}
+            {reasonId && <span id={reasonId} className="sr-only">{reason}</span>}
           </button>
         );
       })}
@@ -345,7 +356,9 @@ const ItemActions: React.FC = () => {
 
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Mods already on your item</p>
+          <label htmlFor="item-mod-search" className="sr-only">Search modifiers to add to your item</label>
           <input
+            id="item-mod-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search modifiers to add to your item…"
@@ -373,12 +386,21 @@ const ItemActions: React.FC = () => {
                     {isFractured && <span className="rounded bg-amber-500/20 px-1 text-[10px] text-amber-700 dark:text-amber-300">fractured</span>}
                     <button
                       onClick={() => toggleFractured(m.id)}
-                      className={`px-0.5 ${isFractured ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-500'}`}
+                      aria-pressed={isFractured}
+                      aria-label={`Fractured (locked on the item): ${m.text}`}
+                      className={`px-0.5 ${FOCUS_RING} ${isFractured ? 'text-amber-500' : 'text-muted-foreground hover:text-amber-500'}`}
                       title={isFractured ? 'Fractured (locked) — click to unlock' : 'Mark fractured: locked on the item, can’t be removed'}
                     >
-                      {isFractured ? '🔒' : '🔓'}
+                      <span aria-hidden="true">{isFractured ? '🔒' : '🔓'}</span>
                     </button>
-                    <button onClick={() => dropItemMod(m.id)} className="text-muted-foreground hover:text-destructive" title="Remove from item">✕</button>
+                    <button
+                      onClick={() => dropItemMod(m.id)}
+                      className={`text-muted-foreground hover:text-destructive ${FOCUS_RING}`}
+                      aria-label={`Remove ${m.text} from your item`}
+                      title="Remove from item"
+                    >
+                      <span aria-hidden="true">✕</span>
+                    </button>
                   </span>
                 );
               })}
@@ -403,8 +425,20 @@ const ItemActions: React.FC = () => {
 
       {/* Sub-mode toggle */}
       <div className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-sm">
-        <button className={subTabCls(subMode === 'check')} onClick={() => setSubMode('check')}>Quick currency check</button>
-        <button className={subTabCls(subMode === 'plan')} onClick={() => setSubMode('plan')}>Full plan to a target</button>
+        <button
+          className={`${subTabCls(subMode === 'check')} ${FOCUS_RING}`}
+          onClick={() => setSubMode('check')}
+          aria-pressed={subMode === 'check'}
+        >
+          Quick currency check
+        </button>
+        <button
+          className={`${subTabCls(subMode === 'plan')} ${FOCUS_RING}`}
+          onClick={() => setSubMode('plan')}
+          aria-pressed={subMode === 'plan'}
+        >
+          Full plan to a target
+        </button>
       </div>
 
       {subMode === 'check' ? (
@@ -513,10 +547,23 @@ const ItemActions: React.FC = () => {
                       {mod.source === 'desecrated' && <span className="text-[10px] rounded bg-rose-500/15 px-1 text-rose-600 dark:text-rose-300">desecrated</span>}
                       {mod.source === 'perfect' && <span className="text-[10px] rounded bg-purple-500/15 px-1 text-purple-600 dark:text-purple-300">perfect essence</span>}
                       {have && <span className="text-[10px] rounded bg-emerald-500/15 px-1 text-emerald-600 dark:text-emerald-300">already have</span>}
-                      <select className={selectCls} value={t.tierDisplay} onChange={(e) => patchTarget(t.modId, Number(e.target.value))} title="Target tier (or better)">
+                      <select
+                        className={selectCls}
+                        value={t.tierDisplay}
+                        onChange={(e) => patchTarget(t.modId, Number(e.target.value))}
+                        aria-label={`Target tier for ${mod.text}`}
+                        title="Target tier (or better)"
+                      >
                         {mod.tiers.map((ti) => <option key={ti.display} value={ti.display}>{ti.label}</option>)}
                       </select>
-                      <button onClick={() => { setTarget((x) => x.filter((y) => y.modId !== t.modId)); setPlan(null); }} className="text-muted-foreground hover:text-destructive px-1" title="Remove from target">✕</button>
+                      <button
+                        onClick={() => { setTarget((x) => x.filter((y) => y.modId !== t.modId)); setPlan(null); }}
+                        className={`text-muted-foreground hover:text-destructive px-1 ${FOCUS_RING}`}
+                        aria-label={`Remove ${mod.text} from the target`}
+                        title="Remove from target"
+                      >
+                        <span aria-hidden="true">✕</span>
+                      </button>
                     </div>
                   );
                 })}

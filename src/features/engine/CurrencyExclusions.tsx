@@ -38,14 +38,15 @@ const CurrencyExclusions: React.FC = () => {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left"
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
         aria-expanded={open}
       >
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Currency I don’t have
         </span>
         <span className="text-xs text-muted-foreground">
-          {excludedCount === 0 ? 'nothing excluded' : `${excludedCount} excluded`} {open ? '▾' : '▸'}
+          {excludedCount === 0 ? 'nothing excluded' : `${excludedCount} excluded`}{' '}
+          <span aria-hidden="true">{open ? '▾' : '▸'}</span>
         </span>
       </button>
 

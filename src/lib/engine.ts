@@ -93,6 +93,7 @@ export function priceBasis(eng: { prices: Prices }): EnginePriceBasis {
     ...(m?.updated ?? m?.generated ? { asOf: m?.updated ?? m?.generated } : {}),
     ...(m?.patch ? { patch: m.patch } : {}),
     ...(m?.unit ? { unit: m.unit } : {}),
+    ...(m?.caveat ? { caveat: m.caveat } : {}),
   };
 }
 

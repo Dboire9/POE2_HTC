@@ -138,9 +138,9 @@ The PoE2 essence mechanic, confirmed by the user and enforced in the engine:
   wrapper so the differential stays exact.
 
 ## Cost model (packages/optimizer/cost.ts)
-`optimizeCost` ranks plans by **expected cost** in Exalted-Orb equivalents (`data/patches/0.5/prices.json`,
-seed estimates), turning "guarantee with an essence (dear, P=1) vs roll it (cheap, retry)" into a real
-decision instead of a trivial win for essences.
+`optimizeCost` ranks plans by **expected cost** in Exalted-Orb equivalents
+(`data/patches/<patch>/prices.json`), turning "guarantee with an essence (dear, P=1) vs roll it (cheap,
+retry)" into a real decision instead of a trivial win for essences.
 
 Retry model: **restart-on-first-failure** — run the sequence, and the instant a step gives the wrong
 outcome, scrap the item and start over from white. Closed form for per-step probs `p_k` / costs `c_k`:
@@ -155,10 +155,54 @@ dear → roll), and the analytic per-step probs are Monte-Carlo–checked upstre
 
 **Assumptions / deferred:** (1) restart-from-scratch is the baseline; a smarter **annul-and-reroll**
 strategy (clear the junk mod, keep the good ones) costs less and is a future refinement — but annul is
-random (can hit good mods), so it's a real model, not a tweak. (2) Prices are **seed estimates**;
-refresh from poe2scout at Phase 4. (3) `essenceCandidates` are caller-supplied; a reverse index from
+random (can hit good mods), so it's a real model, not a tweak. (2) Prices are **mostly live** — see
+"Price sheet" below; desecration and essence levels remain hand-authored. (3) `essenceCandidates` are
+caller-supplied; a reverse index from
 `essences.json` (which mods a real essence can grant, at which tier/price) would let the optimizer infer
 them — not yet built.
+
+### Price sheet — poe.ninja refresh (2026-08-22)
+
+`npm run update-prices` (`tools/refresh/prices.mjs`) now pulls currency from poe.ninja's PoE2 economy
+API for the current league. **This was not cosmetic: the previous hand-authored sheet was inverted.**
+It priced a Chaos Orb at 0.2ex and an Exalt at 1.0 — an Exalt worth 5 Chaos — where the market says a
+Chaos is worth ~33 **Exalts**. Annulment 1.5 → 157.9; Perfect Exalted 20 → 770. Because the optimizer
+ranks plans BY cost, chaos- and annul-heavy routes had been recommended as *cheap* while being the
+dearest available.
+
+Measured effect on a 2-mod Wand from-item craft: MDP expected cost 25.91ex → 1489.33ex, and the policy
+**dropped the Dextral Annulment omen** (3313ex against a 157.9ex orb) while **keeping** Sinistral
+Exaltation (8.41ex on a 1ex Exalt). Flat seed prices could not make that distinction at all.
+
+**Omens are quoted, not fetched.** poe.ninja's API has no `type` serving them — `type=Omens` returns
+byte-identical output to `type=NonsenseXYZ` (empty core, no rates), i.e. an *invalid* type rather than
+an empty valid one, while Currency/Essences/Fragments/Runes/Abyss all work; the Omens web page is
+client-rendered, so it can't be scraped with a plain fetch. So `prices.json` carries hand-transcribed
+`omenQuotes` **in the unit the market quotes them in** (divine or chaos), re-converted to exalts on
+every refresh. Storing them pre-converted would silently desync from currency on the next run, and
+since an omen is an *additive* surcharge on the orb it modifies, a drifted omen:orb ratio changes which
+plans get recommended. Four independent cross-checks validate the transcription against the page's own
+exalt quotes: Blackblooded 42.6 vs 41, Sinistral Exaltation 8.4 vs 8.5, Liege 0.497 vs 0.5, Dextral
+Necromancy 1.21 vs 1.2.
+
+**Still hand-authored, deliberately** (the script's `KEEP` list, checked against the live spread of the
+items each key stands for on every run):
+
+- `desecrate` — the Abyss feed prices *bones* (jawbone/rib/collarbone/cranium × gnawed/preserved/
+  ancient/altered) from 0.36ex to 3368ex. The engine has one generic desecration step; which bone it
+  means is a game-knowledge call. The held 0.5 sits in the cheap-bone range, so it is not mis-scaled.
+- `essence*` — the engine has one price per essence **level**, but the market has no coherent level
+  ladder. Restricted to the six essence types quoted at all four levels, the medians run lesser 17.97,
+  normal 107.2, greater 0.807, perfect 1.705 — Essence of Abrasion alone goes 116 → 107 → 0.807 → 9.18.
+  Collapsing that to one number per level would invent precision. **The range check does flag
+  `essence_lesser` at 0.3 as below the live minimum of 0.998** — a real (if small) known-wrong value.
+
+Consequence for the budget CDF: real 4-significant-figure prices spanning 0.06–770ex admit no quantum
+coarser than 1e-5, so `planCostCdf` usually takes its bracket fallback rather than the exact path
+(6 of 16 rows still resolve exactly at a 30ex budget, where a plan's own costs happen to share one).
+The bracket is tight — worst measured 0.73pp, ~1% relative — far below the day-to-day drift in the
+prices themselves. Prices were **not** rounded to restore exactness: distorting data to flatter an
+optimisation would trade a real error for a hidden one.
 
 ## Monte-Carlo validation of the corrected mechanics (2026-07-05)
 

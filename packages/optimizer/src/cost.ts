@@ -24,12 +24,15 @@ export interface PricesMeta {
   /** ISO date the sheet was authored. */
   readonly generated?: string;
   readonly updated?: string;
-  /** Free text describing provenance (e.g. "SEED ESTIMATES — hand-authored"). */
+  /** Free text describing provenance (e.g. "Currency from poe.ninja's PoE2 economy API…"). */
   readonly source?: string;
   readonly unit?: string;
   /** True when the sheet is hand-authored guesswork rather than observed market data. Every cost the
    *  optimizer reports is only as good as this, so the UI must not present those costs as exact. */
   readonly estimated?: boolean;
+  /** What specifically is estimated, when a sheet is part-observed and part-guessed. Without this the
+   *  UI can only say "all guesses" — an overclaim in the opposite direction once most keys are live. */
+  readonly caveat?: string;
 }
 
 export interface Prices {
@@ -44,6 +47,7 @@ export interface Prices {
 interface PricesFile {
   patch?: string; prices: Record<string, number>; omens?: Record<string, number>;
   generated?: string; updated?: string; source?: string; unit?: string; estimated?: boolean;
+  caveat?: string;
 }
 
 /** Build a Prices sheet from an already-parsed prices.json (no I/O — browser/worker safe). */
@@ -59,6 +63,7 @@ export function indexPrices(file: PricesFile): Prices {
     ...(file.updated !== undefined ? { updated: file.updated } : {}),
     ...(file.source !== undefined ? { source: file.source } : {}),
     ...(file.unit !== undefined ? { unit: file.unit } : {}),
+    ...(file.caveat !== undefined ? { caveat: file.caveat } : {}),
     estimated,
   };
   return { currency: file.prices, omens: file.omens ?? {}, meta };

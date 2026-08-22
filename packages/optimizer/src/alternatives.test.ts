@@ -220,15 +220,18 @@ describe('alternativesFromWhite — real data (Wands, 0.5.0)', () => {
   it('never starves the swap/drop classes behind the tier lattice', () => {
     // REGRESSION. Every tier relaxation is lexicographically closer than any swap, and this 3-mod target
     // has 4×11×8 = 352 tier combos — so exploring globally best-first (visit order == output order) burns
-    // the whole node budget on tiers and never reaches a single swap or drop. A 30ex player was told
+    // the whole node budget on tiers and never reaches a single swap or drop. The player was told
     // "20.8% is your best" while dropping one mod sat at ~99%. Exploration is now per edit-class.
+    // (Budget is 600ex, not the 30ex this test first used: against the live poe.ninja sheet an Exalt is
+    // the unit and a Chaos ~33ex, so 30ex no longer funds a craft where "near-certain" is even on the
+    // table — the bug this guards would hide behind a hopeless budget rather than being caught.)
     const desired: AlternativeTarget[] = [
       { modId: 'Wands/GlobalIncreaseSpellSkillGemLevelWeapon', minTierIndex: 3 },
       { modId: 'Wands/IncreasedMana', minTierIndex: 10 },
       { modId: 'Wands/WeaponSpellDamage', minTierIndex: 7 },
     ];
-    const r = alternativesFromWhite(real, rprices, wands, desired, 30, { level: 82, maxNodes: 200 });
-    // The exact item is hopeless on 30ex — that's the honest row 0…
+    const r = alternativesFromWhite(real, rprices, wands, desired, 600, { level: 82, maxNodes: 200 });
+    // The exact item is hopeless even on 600ex — that's the honest row 0…
     expect(r.frontier[0]!.closeness).toEqual({ dropped: 0, swapped: 0, valueRetained: 1 });
     expect(r.frontier[0]!.inBudget).toBeLessThan(0.05);
     // …but the search must still find the near-certain option, which requires reaching an edit class.

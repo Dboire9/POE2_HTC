@@ -51,6 +51,8 @@ export interface EnginePriceBasis {
   readonly patch?: string;
   /** Exalt-equivalents, normally. */
   readonly unit?: string;
+  /** Which parts are estimated, when the sheet is part-observed and part-guessed. */
+  readonly caveat?: string;
 }
 
 /** Every exclusion group a UI mod belongs to — the single accessor the UI should use, so a

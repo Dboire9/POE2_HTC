@@ -412,6 +412,12 @@ describe('engine facade — budget alternatives (0.5.0)', () => {
   const hard = [
     { modId: GEM, tierDisplay: 1 }, { modId: MANA050, tierDisplay: 1 }, { modId: SPELL, tierDisplay: 1 },
   ];
+  // Budgets are in exalt-equivalents against the LIVE poe.ninja sheet, where a Chaos is ~33ex and an
+  // Exalt is the unit — so 30ex buys a handful of orbs, not the thousands the old seed sheet implied.
+  // Two named budgets because the claims below need opposite economies: one where this craft is
+  // hopeless, and one where relaxing it is near-certain.
+  const TIGHT = 30;
+  const AMPLE = 600;
 
   it('row 0 is exactly the target you asked for, with its (dismal) odds', () => {
     const r = alternatives(eng050, 'Wands', 82, hard, 30);
@@ -424,7 +430,7 @@ describe('engine facade — budget alternatives (0.5.0)', () => {
   });
 
   it('finds a near-certain near-miss and reports the odds rising down the list', () => {
-    const r = alternatives(eng050, 'Wands', 82, hard, 30);
+    const r = alternatives(eng050, 'Wands', 82, hard, AMPLE);
     expect(r.rows.length).toBeGreaterThan(2);
     for (let i = 1; i < r.rows.length; i++) {
       expect(r.rows[i]!.inBudget).toBeGreaterThan(r.rows[i - 1]!.inBudget);
@@ -453,12 +459,35 @@ describe('engine facade — budget alternatives (0.5.0)', () => {
     }
   });
 
-  it('a commensurable price sheet gives exact odds, not a bracket', () => {
-    const r = alternatives(eng050, 'Wands', 82, hard, 30);
-    for (const row of r.rows) {
-      expect(row.exact).toBe(true);
-      expect(row.inBudgetMax).toBeCloseTo(row.inBudget, 12);
+  // The budget CDF is exact when a cost quantum divides every price, and otherwise brackets the truth
+  // in [inBudget, inBudgetMax] (both paths unit-tested in costCdf.test.ts). Real market prices carry
+  // four significant figures spanning 0.06 → 770ex, so no quantum coarser than 1e-5 divides them and
+  // the exact path can't fit the cell budget — the shipped sheet takes the bracket, by design.
+  //
+  // What matters to a user is therefore not `exact` but whether the bracket is narrow enough to sit
+  // beneath the noise, and it is: measured worst case 0.73pp (~1% relative) at AMPLE, 0.03pp at
+  // TIGHT — against prices that move whole percent in a day. The bracket widens with the budget
+  // because the fallback grid is h = budget/maxCells, so if the UI ever offers far larger budgets,
+  // DEFAULT_COST_CELLS is the dial to turn, not this bound.
+  it('brackets budget odds far more tightly than the prices themselves are known', () => {
+    for (const budget of [TIGHT, AMPLE]) {
+      const r = alternatives(eng050, 'Wands', 82, hard, budget);
+      expect(r.rows.length).toBeGreaterThan(0);
+      for (const row of r.rows) {
+        expect(row.inBudgetMax).toBeGreaterThanOrEqual(row.inBudget); // it is a bracket, not a swap
+        expect(row.inBudgetMax - row.inBudget).toBeLessThan(0.01);
+      }
     }
+  });
+
+  // The exact path is not dead on a live sheet, just no longer universal: a plan whose own step costs
+  // happen to share a coarse quantum still resolves exactly (6 of 16 rows at TIGHT, when last run).
+  // Pinning "at least one" keeps that path exercised end-to-end without hard-coding today's count.
+  it('still resolves exactly where a plan’s costs do share a quantum', () => {
+    const r = alternatives(eng050, 'Wands', 82, hard, TIGHT);
+    const exact = r.rows.filter((row) => row.exact);
+    expect(exact.length).toBeGreaterThan(0);
+    for (const row of exact) expect(row.inBudgetMax).toBe(row.inBudget);
   });
 
   it('a pinned target is never relaxed, swapped or dropped', () => {

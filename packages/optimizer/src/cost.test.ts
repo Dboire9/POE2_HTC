@@ -34,12 +34,12 @@ describe('planExpectedCost — hand-computed restart model', () => {
 describe('stepCost — currency price plus omen surcharge', () => {
   const prices: Prices = { currency: { exalt: 1, annul: 1.5 }, omens: { OmenofSinistralExaltation: 3 } };
   it('adds the omen surcharge when a step uses an omen', () => {
-    expect(stepCost(prices, { currency: 'exalt', add: 'x' })).toBe(1);
-    expect(stepCost(prices, { currency: 'exalt', add: 'x', constrainTo: 'prefix' })).toBe(1 + 3);
-    expect(stepCost(prices, { currency: 'annul', remove: 'x' })).toBe(1.5);
+    expect(stepCost(prices, { currency: 'exalt' })).toBe(1);
+    expect(stepCost(prices, { currency: 'exalt', constrainTo: 'prefix' })).toBe(1 + 3);
+    expect(stepCost(prices, { currency: 'annul' })).toBe(1.5);
   });
   it('unknown currencies/omens cost 0 (never NaN)', () => {
-    expect(stepCost({ currency: {}, omens: {} }, { currency: 'exalt', add: 'x' })).toBe(0);
+    expect(stepCost({ currency: {}, omens: {} }, { currency: 'exalt' })).toBe(0);
   });
 });
 

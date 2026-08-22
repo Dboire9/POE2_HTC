@@ -146,6 +146,30 @@ export function stepOmenIds(step: PricedStep): string[] {
   }
 }
 
+/**
+ * Currencies and omens the player says they do not have, as price-sheet keys ('chaos_perfect',
+ * 'OmenofLight', …). A planner must never hand back a plan that uses one: it would be optimal advice
+ * the player cannot act on.
+ */
+export interface CurrencyPolicy {
+  readonly excluded: ReadonlySet<string>;
+}
+
+/**
+ * Whether a step is available under `policy`. No policy means everything is.
+ *
+ * Deliberately derived from the same `currencyKey` / `stepOmenIds` that price the step: "what does
+ * this cost" and "am I allowed this" are two questions about one descriptor, and answering them from
+ * two different mappings is exactly how the D8 desecration bug hid — one planner learned about a
+ * lever and the other did not. A step is out if its orb is excluded, or ANY omen it invokes is (a
+ * Desecration can invoke two, and being unable to afford either one blocks the step).
+ */
+export function allowsStep(policy: CurrencyPolicy | undefined, step: PricedStep): boolean {
+  if (!policy || policy.excluded.size === 0) return true;
+  if (policy.excluded.has(currencyKey(step))) return false;
+  return !stepOmenIds(step).some((id) => policy.excluded.has(id));
+}
+
 /** Cost of a single step: its currency price plus any omen surcharge. Unknown keys cost 0. */
 export function stepCost(prices: Prices, step: PricedStep): number {
   const base = prices.currency[currencyKey(step)] ?? 0;

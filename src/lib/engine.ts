@@ -203,9 +203,11 @@ export function optimize(
  * mods you started with. Mods on the item but not in the target are removed; missing target mods are
  * added. Throws on a Magic item or an illegal target shape; the caller surfaces the message.
  */
-export function optimizeItem(eng: Engine, item: ExistingItem, targets: readonly TargetInput[]): EngineResult {
+export function optimizeItem(
+  eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: OptimizeParetoOptions = {},
+): EngineResult {
   const { data, prices } = eng;
-  const res = optimizeFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets));
+  const res = optimizeFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);
   return mapFrontier(data, res);
 }
 

@@ -14,7 +14,7 @@ import { evaluatePlanFrom } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
 import { desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { Prices } from './cost.ts';
-import { planExpectedCost } from './cost.ts';
+import { allowsStep, planExpectedCost } from './cost.ts';
 import { combinations, orderedSelections, permutations } from './combinatorics.ts';
 import type { OptimizeParetoOptions, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
 import { paretoFrontier, withOmenVariants } from './optimize.ts';
@@ -135,8 +135,9 @@ function transformSequences(
  * or the target shape is illegal. When the item already IS the target, returns a single empty plan.
  */
 export function optimizeFromItem(
-  data: PatchData, prices: Prices, start: ItemState, targets: readonly TierTarget[], _opts: OptimizeParetoOptions = {},
+  data: PatchData, prices: Prices, start: ItemState, targets: readonly TierTarget[], opts: OptimizeParetoOptions = {},
 ): ParetoResult {
+  const policy = opts.policy;
   if (start.rarity !== 'rare') {
     throw new Error('the from-item planner currently supports Rare items (use the currency check for Magic)');
   }
@@ -177,7 +178,9 @@ export function optimizeFromItem(
 
   const plans: ParetoPlan[] = [];
   for (const seq of transformSequences(data, junk, missingRollable, missingPerfect, missingDesecrated, tierOf)) {
-    for (const steps of withOmenVariants(data, seq, start)) {
+    for (const steps of withOmenVariants(data, seq, start, policy)) {
+      // Same guarantee as the from-white planner: never hand back a plan the player can't execute.
+      if (policy && steps.some((s) => !allowsStep(policy, s))) continue;
       const result = evaluatePlanFrom(data, start, steps);
       plans.push({ steps, result, cost: planExpectedCost(prices, result, steps), probability: result.total });
     }

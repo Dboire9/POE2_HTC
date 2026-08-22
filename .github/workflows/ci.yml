@@ -27,6 +27,12 @@ jobs:
       - name: Type check
         run: npm run type-check
 
+      # The package configs are STRICTER than the root one (exactOptionalPropertyTypes,
+      # noUncheckedIndexedAccess) and the root config only includes `src`, so root-only checking let
+      # real errors sit in packages/ unnoticed. Check them explicitly.
+      - name: Type check engine + optimizer
+        run: npm run type-check:engine && npm run type-check:optimizer
+
       - name: Test
         run: npm test -- --run
 

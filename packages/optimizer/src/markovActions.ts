@@ -11,8 +11,8 @@ import type { ItemBase, PatchData } from '../../engine/src/types.ts';
 import { excluded, modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { desecrationOmenForMod } from '../../engine/src/probability.ts';
-import type { Prices, PricedStep } from './cost.ts';
-import { stepCost } from './cost.ts';
+import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
+import { allowsStep, stepCost } from './cost.ts';
 import type { Dist, McState, McTarget, SideIndex } from './markovState.ts';
 import {
   MAX_PER_SIDE, addTo, bit, decodeState, encodeState, has, hasDesecrated, occupiedFamilies,
@@ -81,6 +81,11 @@ export function actionCostOf(prices: Prices, action: McAction): number {
   return stepCost(prices, pricedStepOf(action));
 }
 
+/** Whether the player can play this action — the same permission the linear planner's steps get. */
+export function allowsAction(policy: CurrencyPolicy | undefined, action: McAction): boolean {
+  return allowsStep(policy, pricedStepOf(action));
+}
+
 /** ilvl floor each Exalted-Orb strength imposes (mirrors pool.ts: base 0 / greater 35 / perfect 50). */
 const STRENGTH_FLOOR: Record<ExaltStrength, number> = { base: 0, greater: 35, perfect: 50 };
 /** Map each exalt strength to its price key in the Prices record. */
@@ -98,6 +103,8 @@ export interface ActionSpaceParams {
   readonly side: SideIndex;
   /** Whether desecration is in play at all (see markovFromItem: only when a desecrated mod is involved). */
   readonly desecratable: boolean;
+  /** Currencies the player doesn't have; actions needing one are never offered. */
+  readonly policy?: CurrencyPolicy;
 }
 
 /**
@@ -107,7 +114,7 @@ export interface ActionSpaceParams {
 export function createActionSpace(params: ActionSpaceParams): {
   actionsOf: (s: McState) => ActionDef[];
 } {
-  const { data, prices, level, pools, list, side, desecratable } = params;
+  const { data, prices, level, pools, list, side, desecratable, policy } = params;
   const n = list.length;
 
   // Per-floor weights for a target: success = ≥ its wanted tier; any = the whole family.
@@ -118,14 +125,20 @@ export function createActionSpace(params: ActionSpaceParams): {
   // let an Exalt conjure a desecrated mod and break the distribution's sum.
   const rollable = (t: McTarget): boolean => t.mod.source === 'normal';
 
-  // Strengths/omens available on the price sheet (base always; the rest only if listed).
+  // Strengths/omens available on the price sheet (base always; the rest only if listed) AND not
+  // excluded by the player. Pruning here rather than only in `push` keeps the solver from building
+  // outcome distributions for actions that can never be offered — with omens excluded that is most of
+  // the branching factor.
+  const notExcluded = (key: string): boolean => !policy?.excluded.has(key);
   const strengths: ExaltStrength[] = (['base', 'greater', 'perfect'] as const)
-    .filter((s) => s === 'base' || prices.currency[strengthPriceKey(s)] !== undefined);
-  const sinistralExaltOk = prices.omens['OmenofSinistralExaltation'] !== undefined;
-  const dextralExaltOk = prices.omens['OmenofDextralExaltation'] !== undefined;
-  const lightOk = prices.omens['OmenofLight'] !== undefined;
+    .filter((s) => s === 'base' || prices.currency[strengthPriceKey(s)] !== undefined)
+    .filter((s) => notExcluded(strengthPriceKey(s)));
+  const omenOk = (id: string): boolean => prices.omens[id] !== undefined && notExcluded(id);
+  const sinistralExaltOk = omenOk('OmenofSinistralExaltation');
+  const dextralExaltOk = omenOk('OmenofDextralExaltation');
+  const lightOk = omenOk('OmenofLight');
   const necromancyOk = (sd: 'prefix' | 'suffix'): boolean =>
-    prices.omens[sd === 'prefix' ? 'OmenofSinistralNecromancy' : 'OmenofDextralNecromancy'] !== undefined;
+    omenOk(sd === 'prefix' ? 'OmenofSinistralNecromancy' : 'OmenofDextralNecromancy');
 
   const prefixOpenIn = (s: McState): boolean => prefUsed(s, side) < MAX_PER_SIDE;
   const suffixOpenIn = (s: McState): boolean => sufUsed(s, side) < MAX_PER_SIDE;
@@ -299,10 +312,14 @@ export function createActionSpace(params: ActionSpaceParams): {
   };
   const perfectTargets = list.map((t, i) => (t.mod.source === 'perfect_essence' ? i : -1)).filter((i) => i >= 0);
   const crystallisationOk = (sd: 'prefix' | 'suffix'): boolean =>
-    prices.omens[sd === 'prefix' ? 'OmenofSinistralCrystallisation' : 'OmenofDextralCrystallisation'] !== undefined;
+    omenOk(sd === 'prefix' ? 'OmenofSinistralCrystallisation' : 'OmenofDextralCrystallisation');
 
+  // The one place an action enters the space, so the one place exclusion has to hold. The `*Ok` gates
+  // below also consult the policy, but only to avoid building distributions that would be thrown away
+  // here — this is what makes the guarantee, not them.
   const push = (acts: ActionDef[], action: McAction, dist: Dist): void => {
     if (dist.size === 0) return;
+    if (!allowsAction(policy, action)) return;
     acts.push({ action, cost: actionCostOf(prices, action), dist });
   };
 
@@ -313,12 +330,12 @@ export function createActionSpace(params: ActionSpaceParams): {
     if (dextralExaltOk) exaltSides.push('suffix');
     for (const constrainTo of exaltSides) {
       for (const strength of strengths) {
-        push(acts, { currency: 'exalt', strength, side: constrainTo },
+        push(acts, { currency: 'exalt', strength, ...(constrainTo ? { side: constrainTo } : {}) },
           addOutcomes(s, STRENGTH_FLOOR[strength], constrainTo));
       }
     }
     for (const constrainTo of [undefined, 'prefix', 'suffix'] as const) {
-      push(acts, { currency: 'annul', side: constrainTo }, removeOutcomes(s, constrainTo));
+      push(acts, { currency: 'annul', ...(constrainTo ? { side: constrainTo } : {}) }, removeOutcomes(s, constrainTo));
     }
     if (lightOk) push(acts, { currency: 'annul', light: true }, lightOutcomes(s));
     push(acts, { currency: 'chaos' }, chaosOutcomes(s));

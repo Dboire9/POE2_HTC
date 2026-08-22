@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { PlanStep } from '../../engine/src/plan.ts';
-import { indexPrices, stepCost } from './cost.ts';
-import { actionCostOf, type McAction } from './markovActions.ts';
+import { allowsStep, indexPrices, stepCost } from './cost.ts';
+import { actionCostOf, allowsAction, type McAction } from './markovActions.ts';
 
 // The app runs TWO planners over the same game: the linear plan model (PlanStep, restart-on-first-
 // failure) and the from-item MDP (McAction, value iteration). They answer different questions and are
@@ -157,6 +157,45 @@ describe('cross-model cost consistency — the MDP and the linear planner price 
     const bare = indexPrices({ prices: { annul: 8 } }); // no omens block at all
     expect(actionCostOf(bare, { currency: 'annul', side: 'prefix' })).toBe(8);
     expect(actionCostOf(bare, { currency: 'annul', light: true })).toBe(8);
+  });
+});
+
+// Exclusion asks the SAME question of the same descriptor that pricing does ("which keys is this step
+// made of"), so it inherits the same failure mode: if the two planners disagreed about what an action
+// is made of, one would honour an exclusion and the other would quietly ignore it — and the player
+// would get a plan using a currency they said they don't have. Reusing PAIRS is the point.
+describe('exclusions agree across the two models, for the same reason costs do', () => {
+  const only = (...keys: string[]) => ({ excluded: new Set(keys) });
+
+  for (const { name, action, step } of PAIRS) {
+    it(`${name}: both models agree on what excluding its orb does`, () => {
+      // Excluding nothing allows everything.
+      expect(allowsStep(undefined, step)).toBe(true);
+      expect(allowsStep(only(), step)).toBe(true);
+      // Whatever the verdict under a given policy, it must be the SAME for the MDP's view of the action.
+      for (const key of ['chaos', 'annul', 'exalt', 'exalt_perfect', 'desecrate', 'perfect_essence',
+        'OmenofLight', 'OmenoftheLiege', 'OmenofSinistralExaltation', 'OmenofDextralNecromancy']) {
+        const policy = only(key);
+        expect(allowsAction(policy, action), `${name} / ${key}`)
+          .toBe(allowsStep(policy, step));
+      }
+    });
+  }
+
+  it('blocks a step when ANY omen it needs is excluded, not just its orb', () => {
+    // A Desecration with a side omen invokes TWO omens; lacking either one blocks the step.
+    const desecrate = PAIRS.find((p) => p.name.includes('Sinistral Necromancy'))!;
+    expect(allowsStep(only('OmenoftheLiege'), desecrate.step)).toBe(false);
+    expect(allowsStep(only('OmenofSinistralNecromancy'), desecrate.step)).toBe(false);
+    expect(allowsStep(only('desecrate'), desecrate.step)).toBe(false);
+    expect(allowsStep(only('OmenofLight'), desecrate.step)).toBe(true); // an omen it doesn't use
+  });
+
+  it('excluding an orb strength leaves the other strengths alone', () => {
+    const base = PAIRS.find((p) => p.name === 'plain Exalted Orb')!.step;
+    const perfect = PAIRS.find((p) => p.name.startsWith('Perfect Exalted Orb'))!.step;
+    expect(allowsStep(only('exalt_perfect'), perfect)).toBe(false);
+    expect(allowsStep(only('exalt_perfect'), base)).toBe(true);
   });
 });
 

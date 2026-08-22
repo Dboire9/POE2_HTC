@@ -14,8 +14,8 @@ import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlan } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
 import { ALCHEMY_MOD_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
-import type { CostBreakdown, Prices } from './cost.ts';
-import { planExpectedCost } from './cost.ts';
+import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
+import { allowsStep, planExpectedCost } from './cost.ts';
 import { combinations, factorial, permutations } from './combinatorics.ts';
 
 // The from-item planner (optimizeFromItem) lives in ./fromItem.ts and imports withOmenVariants +
@@ -186,6 +186,23 @@ export interface OptimizeParetoOptions {
    * A plain callback, so this file stays pure.
    */
   onProgress?: (done: number, total: number) => void;
+  /** Currencies the player doesn't have; no returned plan may use one. */
+  policy?: CurrencyPolicy;
+}
+
+/** The four add-chain currencies — which one a mod uses depends on its POSITION in the order. */
+const ADD_CURRENCIES: readonly AddCurrency[] = ['transmute', 'augment', 'regal', 'exalt'];
+
+/**
+ * Whether an orb strength is worth enumerating at all. A given strength maps to a different price key
+ * per add currency (`regal_greater` vs `exalt_greater`, decided by position), so a strength can only be
+ * dropped up front when EVERY add currency is excluded at it — which is exactly what the UI's global
+ * "I don't have Perfect orbs" row produces. Anything subtler is caught by the per-step filter below;
+ * this only avoids enumerating what could never survive it.
+ */
+function strengthUsable(policy: CurrencyPolicy | undefined, tier: CurrencyTier): boolean {
+  if (!policy || tier === 'base') return true;
+  return ADD_CURRENCIES.some((c) => !policy.excluded.has(`${c}_${tier}`));
 }
 
 /** Report roughly this many times across the run: frequent enough to animate, rare enough to be free. */
@@ -304,7 +321,9 @@ function alchemyOpenerSequences(
  * at the omen surcharge — a real cost↔probability lever. A from-white chain has ≤ K−2 exalts, so the
  * 2^n subset enumeration stays tiny. Exported for the from-item planner (fromItem.ts).
  */
-export function withOmenVariants(data: PatchData, steps: PlanStep[], start?: ItemState): PlanStep[][] {
+export function withOmenVariants(
+  data: PatchData, steps: PlanStep[], start?: ItemState, policy?: CurrencyPolicy,
+): PlanStep[][] {
   // Steps that can take an optional side-omen or targeted-removal omen as a cost↔probability lever:
   // - EXALT constrains the ADD to its mod's side (Sinistral/Dextral Exaltation → smaller pool, higher P)
   // - PERFECT-ESSENCE constrains the random REMOVAL to the sacrificed mod's side (Sinistral/Dextral
@@ -327,16 +346,24 @@ export function withOmenVariants(data: PatchData, steps: PlanStep[], start?: Ite
     }
     return -1;
   }).filter((i) => i >= 0);
+  /** Turn one eligible step into its omen-bearing form. */
+  const withOmen = (s: PlanStep): PlanStep => {
+    if (s.currency === 'exalt') return { ...s, constrainTo: resolveMod(data, s.add).type };
+    if (s.currency === 'perfect-essence') return { ...s, omen: resolveMod(data, s.remove).type === 'prefix' ? 'sinistral' : 'dextral' };
+    if (s.currency === 'desecrate') return { ...s, constrainTo: resolveMod(data, s.add).type };
+    if (s.currency === 'annul') return { ...s, omen: 'light' };
+    return s;
+  };
+  // Drop levers whose omen the player doesn't have BEFORE enumerating, not after. This loop is 2^k, so
+  // excluding omens collapses it to a single variant instead of generating a power set to discard —
+  // the difference between the search skipping them and merely hiding them.
+  const usable = policy ? idx.filter((i) => allowsStep(policy, withOmen(steps[i]!))) : idx;
+
   const variants: PlanStep[][] = [];
-  for (let mask = 0; mask < (1 << idx.length); mask++) {
+  for (let mask = 0; mask < (1 << usable.length); mask++) {
     variants.push(steps.map((s, i) => {
-      const bit = idx.indexOf(i);
-      if (bit < 0 || !(mask & (1 << bit))) return s;
-      if (s.currency === 'exalt') return { ...s, constrainTo: resolveMod(data, s.add).type };
-      if (s.currency === 'perfect-essence') return { ...s, omen: resolveMod(data, s.remove).type === 'prefix' ? 'sinistral' : 'dextral' };
-      if (s.currency === 'desecrate') return { ...s, constrainTo: resolveMod(data, s.add).type };
-      if (s.currency === 'annul') return { ...s, omen: 'light' };
-      return s;
+      const bit = usable.indexOf(i);
+      return bit < 0 || !(mask & (1 << bit)) ? s : withOmen(s);
     }));
   }
   return variants;
@@ -408,7 +435,15 @@ export function optimizePareto(
     kfact * omenFactor * rolled.reduce((p, id) => p * reduceOrbTiers(fullLegal.get(id)!, depth).length, 1);
   const currencyDepth: CurrencyDepth =
     estimate('full') <= maxPlans ? 'full' : estimate('base+strongest') <= maxPlans ? 'base+strongest' : 'strongest-only';
-  const legal = new Map(rolled.map((id) => [id, reduceOrbTiers(fullLegal.get(id)!, currencyDepth)]));
+  const policy = opts.policy;
+  // Keep at least one strength even if everything is excluded: the per-step filter below will reject
+  // the resulting plans anyway, and an empty tier list would silently produce no sequences at all,
+  // which reads as "impossible craft" rather than "you excluded the orbs that do it".
+  const prune = (tiers: CurrencyTier[]): CurrencyTier[] => {
+    const kept = tiers.filter((t) => strengthUsable(policy, t));
+    return kept.length > 0 ? kept : tiers.slice(0, 1);
+  };
+  const legal = new Map(rolled.map((id) => [id, prune(reduceOrbTiers(fullLegal.get(id)!, currencyDepth))]));
 
   const assignments = orbAssignments(rolled, legal);
   const baseSequences: PlanStep[][] = [];
@@ -431,7 +466,11 @@ export function optimizePareto(
   const report = opts.onProgress;
   const stride = Math.max(1, Math.floor(baseSequences.length / PROGRESS_REPORTS));
   for (let i = 0; i < baseSequences.length; i++) {
-    for (const steps of withOmenVariants(data, baseSequences[i]!)) {
+    for (const steps of withOmenVariants(data, baseSequences[i]!, undefined, policy)) {
+      // The guarantee: a plan using a currency the player doesn't have never reaches the frontier. The
+      // pruning above only saves work; this is what makes it true, including for the add-chain, whose
+      // currency depends on a mod's position and so can't be filtered before the steps exist.
+      if (policy && steps.some((s) => !allowsStep(policy, s))) continue;
       const result = evaluatePlan(data, base, steps, level);
       plans.push({ steps, result, cost: planExpectedCost(prices, result, steps), probability: result.total });
     }

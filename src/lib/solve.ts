@@ -16,6 +16,7 @@ import type {
   AltTargetInput, EngineAlternatives, EngineMarkovResult, EngineResult, ExistingItem, TargetInput,
 } from './engineTypes.ts';
 import type { MarkovProgress } from '../../packages/optimizer/src/markovFromItem.ts';
+import type { CurrencyPolicy } from '../../packages/optimizer/src/cost.ts';
 
 /**
  * The two computes the UI can ask for, each mirroring one existing Compute button:
@@ -25,8 +26,17 @@ import type { MarkovProgress } from '../../packages/optimizer/src/markovFromItem
  *  - `item` — the from-item planner: the same frontier for an item you hold, plus the MDP's true
  *             expected cost and policy graph.
  */
+interface ExcludingRequest {
+  /**
+   * Price-sheet keys for currencies and omens the player doesn't have ('chaos_perfect',
+   * 'OmenofLight', …). An array, not a Set, so the worker message is plainly structured-clone-safe;
+   * `runSolve` rebuilds the Set once per solve.
+   */
+  readonly excluded?: readonly string[];
+}
+
 export type SolveRequest =
-  | {
+  | ({
       readonly kind: 'lab';
       /** A white base to craft from, or the item the fractured mods carve out. */
       readonly from: { readonly baseId: string; readonly level: number } | { readonly item: ExistingItem };
@@ -35,12 +45,12 @@ export type SolveRequest =
       readonly budget?: number;
       /** Targets with pins applied, for the budget search. Defaults to `targets`. */
       readonly want?: readonly AltTargetInput[];
-    }
-  | {
+    } & ExcludingRequest)
+  | ({
       readonly kind: 'item';
       readonly item: ExistingItem;
       readonly targets: readonly TargetInput[];
-    };
+    } & ExcludingRequest);
 
 export type SolveResult =
   | { readonly kind: 'lab'; readonly result: EngineResult; readonly alts: EngineAlternatives | null }
@@ -103,12 +113,18 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const report = onProgress
     ? (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: toFraction(p) })
     : undefined;
+  // Built once per solve, then shared by every planner below — they must all run under the same rules,
+  // or the frontier and the MDP could recommend plans the other considers unbuildable.
+  const policy: CurrencyPolicy | undefined = req.excluded?.length
+    ? { excluded: new Set(req.excluded) }
+    : undefined;
+  const withPolicy = <T extends object>(o: T): T => (policy ? { ...o, policy } : o);
 
   if (req.kind === 'item') {
-    const plan = optimizeItem(eng, req.item, req.targets);
+    const plan = optimizeItem(eng, req.item, req.targets, withPolicy({}));
     // The honest expected cost + optimal-policy graph. Reports its own progress because it is the only
     // call here that takes long enough to need one (seconds, against milliseconds for the others).
-    const markov = optimizeItemMarkov(eng, req.item, req.targets, report ? { onProgress: report } : {});
+    const markov = optimizeItemMarkov(eng, req.item, req.targets, withPolicy(report ? { onProgress: report } : {}));
     return { kind: 'item', plan, markov };
   }
 
@@ -119,13 +135,13 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const emit = (phase: SolvePhase, span: Span) =>
     (done: number, total: number): void => onProgress?.({ phase, fraction: within(span, done, total) });
 
-  const planOpts = onProgress
+  const planOpts = withPolicy(onProgress
     ? { onProgress: emit('plan', hasBudget ? LAB_PLAN_THEN_SEARCH : LAB_PLAN_ALONE) }
-    : {};
+    : {});
   const result = 'item' in from
     // The from-item planner has no progress reporting of its own yet; a carved craft therefore shows
     // no movement until the budget search starts.
-    ? optimizeItem(eng, from.item, req.targets)
+    ? optimizeItem(eng, from.item, req.targets, withPolicy({}))
     : optimize(eng, from.baseId, from.level, req.targets, planOpts);
 
   if (!hasBudget) {
@@ -135,7 +151,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
 
   // The slow half of a lab compute when a budget is set — every node it visits is a full Pareto run.
   const want = req.want ?? req.targets;
-  const altOpts = onProgress ? { onProgress: emit('alternatives', LAB_SEARCH) } : {};
+  const altOpts = withPolicy(onProgress ? { onProgress: emit('alternatives', LAB_SEARCH) } : {});
   const alts = 'item' in from
     ? alternativesForItem(eng, from.item, want, budget, altOpts)
     : alternatives(eng, from.baseId, from.level, want, budget, altOpts);

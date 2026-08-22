@@ -21,7 +21,7 @@
 
 import type { ItemBase, ItemState, PatchData, Tier } from '../../engine/src/types.ts';
 import { familiesOf, resolveMod } from '../../engine/src/pool.ts';
-import type { Prices } from './cost.ts';
+import type { CurrencyPolicy, Prices } from './cost.ts';
 import { planCostCdf } from './cost.ts';
 import type { CurrencyDepth, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
 import { optimizePareto } from './optimize.ts';
@@ -94,6 +94,8 @@ export interface AlternativesOptions {
    * real work precisely where it is needed. A plain callback, so this file stays pure.
    */
   onProgress?: (done: number, total: number) => void;
+  /** Currencies the player doesn't have. Forwarded into every node's plan search. */
+  policy?: CurrencyPolicy;
 }
 
 export const DEFAULT_MAX_NODES = 200;
@@ -396,8 +398,10 @@ export function alternativesFromWhite(
 ): AlternativesResult {
   const level = opts.level ?? 100;
   const maxPlans = opts.maxPlansPerNode ?? DEFAULT_MAX_PLANS_PER_NODE;
+  const policy = opts.policy;
   return searchAlternatives(
-    data, base, prices, (targets) => optimizePareto(data, prices, base, targets, { level, maxPlans }),
+    data, base, prices,
+    (targets) => optimizePareto(data, prices, base, targets, { level, maxPlans, ...(policy ? { policy } : {}) }),
     desired, budget, opts,
   );
 }
@@ -414,8 +418,10 @@ export function alternativesFromItem(
   // neither dropped nor swapped, and its tier is already decided. Pin it whatever the caller passed.
   const fractured = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
   const pinned = desired.map((d) => (fractured.has(d.modId) ? { ...d, pinned: true } : d));
+  const policy = opts.policy;
   return searchAlternatives(
-    data, start.base, prices, (targets) => optimizeFromItem(data, prices, start, targets),
+    data, start.base, prices,
+    (targets) => optimizeFromItem(data, prices, start, targets, policy ? { policy } : {}),
     pinned, budget, opts,
   );
 }

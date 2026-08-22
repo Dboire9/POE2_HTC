@@ -148,8 +148,11 @@ describe('optimizePareto — Orb of Alchemy opener', () => {
     const r = optimizePareto(data, prices, wands, five);
     const opener = r.frontier.find((p) => p.steps[0]?.currency === 'alchemy');
     expect(opener).toBeDefined();
-    // 4 mods slammed by alchemy, the 5th exalted on top.
-    expect((opener!.steps[0] as { adds: string[] }).adds).toHaveLength(4);
+    // 4 mods slammed by alchemy, the 5th exalted on top. Narrowed rather than cast: `adds` only exists
+    // on the alchemy member of the PlanStep union, and a cast would survive that member changing shape.
+    const first = opener!.steps[0];
+    if (first?.currency !== 'alchemy') throw new Error('expected an alchemy opener');
+    expect(first.adds).toHaveLength(4);
     expect(opener!.steps.slice(1).every((s) => s.currency === 'exalt')).toBe(true);
   });
 });

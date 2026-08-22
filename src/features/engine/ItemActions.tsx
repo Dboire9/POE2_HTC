@@ -12,10 +12,12 @@ import {
 } from '../../lib/engine';
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
+import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
 import PriceBasisNote from './PriceBasisNote';
 import SolveProgress from './SolveProgress';
+import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
 
 function fmtEx(x: number): string {
@@ -108,6 +110,7 @@ const ItemActions: React.FC = () => {
   const [planErr, setPlanErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
+  const excludedKeys = toExcludedKeys(useExclusions());
   // Held so the Cancel button can reach the running solve; refs, not state, because changing them must
   // not re-render.
   const cancelRef = useRef<(() => void) | null>(null);
@@ -267,7 +270,10 @@ const ItemActions: React.FC = () => {
     const current = () => runIdRef.current === runId;
 
     setComputing(true); setPlanErr(null); setProgress(null);
-    const handle = solve({ kind: 'item', item, targets: target }, (p) => { if (current()) setProgress(p); });
+    const handle = solve(
+      { kind: 'item', item, targets: target, ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}) },
+      (p) => { if (current()) setProgress(p); },
+    );
     cancelRef.current = handle.cancel;
     handle.promise
       .then((res) => {
@@ -510,6 +516,8 @@ const ItemActions: React.FC = () => {
               </div>
             )}
 
+            <CurrencyExclusions />
+
             {computing ? (
               <SolveProgress progress={progress} onCancel={cancel} />
             ) : (
@@ -562,8 +570,13 @@ const ItemActions: React.FC = () => {
               priceBasis={engine ? priceBasis(engine) : undefined}
               result={plan}
               title="Step-by-step routes (per-plan view)"
-              emptyHint={<p>No route reaches this target from your item — usually the target needs more mods than
-                fit, or a tier gated above the item level.</p>}
+              emptyHint={excludedKeys.length > 0 ? (
+                <p>No route avoids the {excludedKeys.length} currenc{excludedKeys.length === 1 ? 'y' : 'ies'} you
+                  excluded. Untick some under “Currency I don’t have” to widen the search.</p>
+              ) : (
+                <p>No route reaches this target from your item — usually the target needs more mods than
+                  fit, or a tier gated above the item level.</p>
+              )}
             />
           )}
         </>

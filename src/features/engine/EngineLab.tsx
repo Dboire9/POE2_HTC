@@ -12,11 +12,13 @@ import {
 } from '../../lib/engine';
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
+import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
 import FrontierView from './FrontierView';
 import AlternativesView from './AlternativesView';
 import SolveProgress from './SolveProgress';
+import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
 
 const selectCls =
@@ -136,6 +138,7 @@ const EngineLab: React.FC = () => {
   const [runErr, setRunErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
+  const excludedKeys = toExcludedKeys(useExclusions());
   const cancelRef = useRef<(() => void) | null>(null);
   const runIdRef = useRef(0);
   const [mode, setMode] = useState<'plan' | 'item'>('plan');
@@ -278,6 +281,7 @@ const EngineLab: React.FC = () => {
       from: fromItem ? { item: carvedItem() } : { baseId, level },
       targets,
       ...(hasBudget ? { budget: b, want } : {}),
+      ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
     }, (p) => { if (current()) setProgress(p); });
     cancelRef.current = handle.cancel;
 
@@ -366,6 +370,8 @@ const EngineLab: React.FC = () => {
             Compute frontier
           </Button>
         </div>
+
+        <CurrencyExclusions />
 
         {computing && <SolveProgress progress={progress} onCancel={cancel} />}
 
@@ -517,7 +523,17 @@ const EngineLab: React.FC = () => {
         </Card>
       )}
 
-      {result && !runErr && <FrontierView result={result} priceBasis={engine ? priceBasis(engine) : undefined} />}
+      {result && !runErr && (
+        <FrontierView
+          result={result}
+          priceBasis={engine ? priceBasis(engine) : undefined}
+          emptyHint={excludedKeys.length > 0 ? (
+                <p>No plan avoids the {excludedKeys.length} currenc{excludedKeys.length === 1 ? 'y' : 'ies'} you
+                  excluded. Untick some under “Currency I don’t have” to widen the search — or the target may be
+                  out of reach anyway, which this can’t tell you without re-running it unrestricted.</p>
+              ) : undefined}
+        />
+      )}
       {alts && !runErr && <AlternativesView alts={alts} budget={altBudget} />}
       </>)}
     </div>

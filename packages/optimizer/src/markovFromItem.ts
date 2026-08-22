@@ -27,7 +27,7 @@
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
 import { desecrationOmenForMod } from '../../engine/src/probability.ts';
-import type { Prices } from './cost.ts';
+import type { CurrencyPolicy, Prices } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
 import { createActionSpace } from './markovActions.ts';
@@ -108,6 +108,8 @@ export interface MarkovOptions {
    * zero for three seconds and then jump to done.
    */
   readonly onProgress?: (p: MarkovProgress) => void;
+  /** Currencies the player doesn't have; the policy never plays one. */
+  readonly policy?: CurrencyPolicy;
 }
 
 /** How often the O(states) loops report. Frequent enough to animate, rare enough to cost nothing. */
@@ -174,7 +176,10 @@ export function markovFromItem(
   // desecrated mod already on the item to clear. Otherwise a Desecration could only ever add junk, so
   // leaving it out costs nothing and keeps the state space exactly as it was before v3.
   const desecratable = list.some((t) => t.mod.source === 'desecrated') || s0.desJunk !== 'none';
-  const { actionsOf } = createActionSpace({ data, prices, level, pools, list, side, desecratable });
+  const { actionsOf } = createActionSpace({
+    data, prices, level, pools, list, side, desecratable,
+    ...(opts.policy ? { policy: opts.policy } : {}),
+  });
 
   const GOAL = (1 << n) - 1; // all target mods present, none blocked, no junk
   const goalKey = encodeState(GOAL, 0, 0, 0);
@@ -278,9 +283,36 @@ export function markovFromItem(
   }
   report?.({ phase: 'solve', done: 1, total: 1 });
 
+  // ── Can the goal actually be reached? ───────────────────────────────────────
+  // Value iteration 0-initialises and climbs, which is a valid lower bound only while the goal is
+  // reachable from EVERY state — true before currency exclusions existed (see the note above VI), and
+  // no longer. Exclude enough currency and some states, possibly the start, have no route to the goal
+  // at all: their V never receives a finite backup and simply stays at 0, which reads as "expected
+  // cost 0", i.e. a free craft that is already finished. So establish reachability explicitly rather
+  // than inferring it from a value that has no way to say "never".
+  const canReach = new Uint8Array(N);
+  canReach[goalIdx] = 1;
+  for (let changed = true; changed;) {
+    changed = false;
+    for (let i = 0; i < N; i++) {
+      if (canReach[i] === 1) continue;
+      for (const a of compiled[i]!) {
+        let reaches = false;
+        for (let j = 0; j < a.to.length; j++) if (canReach[a.to[j]!] === 1) { reaches = true; break; }
+        if (reaches) { canReach[i] = 1; changed = true; break; }
+      }
+    }
+  }
+
   // ── Extract policy + reachable graph from the start ─────────────────────────
   const startKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.desJunk);
-  const startCost = V[idxOfState.get(startKey)!] ?? Infinity;
+  const startIdx = idxOfState.get(startKey)!;
+  if (canReach[startIdx] !== 1) {
+    return fail(opts.policy
+      ? 'no route reaches this target with the currencies you have — allow more and try again'
+      : 'no policy reaches the target');
+  }
+  const startCost = V[startIdx] ?? Infinity;
   if (!Number.isFinite(startCost)) return fail('no policy reaches the target');
 
   const bestAction = (k: StateKey): ActionDef | undefined => {

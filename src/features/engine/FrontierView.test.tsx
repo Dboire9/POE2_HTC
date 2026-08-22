@@ -38,13 +38,14 @@ describe('FrontierView — the empty state does not overclaim', () => {
   });
 
   // Regression from the same sweep: "1 plans evaluated".
-  // No leading \b — the badge text runs straight into the count ("…strength1 plan evaluated"), so a
-  // word boundary before the digit never matches. Anchor on the singular noun instead.
+  // textContent has NO separators between elements, so this phrase is flanked by word characters on
+  // both sides ("…orb strengthchecked 1 planNo achievable plan…"). Neither a leading nor a trailing
+  // \b can match; the plural is ruled out by the negative assertion instead.
   it('counts plans in grammatical English', () => {
     const { container } = render(<FrontierView result={empty} />);
-    expect(container.textContent).toMatch(/1 plan evaluated/);
-    expect(container.textContent).not.toMatch(/1 plans evaluated/);
+    expect(container.textContent).toMatch(/checked 1 plan/);
+    expect(container.textContent).not.toMatch(/checked 1 plans/);
     const many = render(<FrontierView result={{ ...empty, plansEvaluated: 2 }} />);
-    expect(many.container.textContent).toMatch(/2 plans evaluated/);
+    expect(many.container.textContent).toMatch(/checked 2 plans/);
   });
 });

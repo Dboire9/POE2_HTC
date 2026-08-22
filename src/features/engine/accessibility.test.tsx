@@ -126,7 +126,7 @@ describe('a finished solve is announced', () => {
     mocks.optimize.mockReturnValue(okFrontier);
     await lab();
     await addTarget(user, 'Normal Prefix');
-    await user.click(screen.getByRole('button', { name: /Compute frontier/i }));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
 
     const status = await screen.findByRole('status');
     expect(status.textContent).toMatch(/1 plan found/i);
@@ -138,7 +138,7 @@ describe('a finished solve is announced', () => {
     mocks.optimize.mockReturnValue({ ...okFrontier, frontier: [] });
     await lab();
     await addTarget(user, 'Normal Prefix');
-    await user.click(screen.getByRole('button', { name: /Compute frontier/i }));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
 
     expect((await screen.findByRole('status')).textContent).toMatch(/no achievable plan/i);
   });

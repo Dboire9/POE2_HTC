@@ -67,7 +67,7 @@ describe('AlternativesView', () => {
 
   it('flags a capped search instead of implying the list is exhaustive', () => {
     render(<AlternativesView alts={{ ...alts, truncated: true }} budget={30} />);
-    expect(screen.getByText('search capped')).toBeInTheDocument();
+    expect(screen.getByText('stopped early')).toBeInTheDocument();
   });
 
   it('shows a bracket, not a point, when the odds are not exact', () => {

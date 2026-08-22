@@ -6,14 +6,52 @@ Last reviewed: 2026-08-22.
 
 ---
 
-## 1. Jargon pass
+## 1. Armour desecration takes ~6-8 seconds to solve
 
-"Pareto frontier", "plans evaluated", "search capped", and a budget in "ex" whose unit appears only in
-a `title` attribute. Decide what a player who has never read the source would call these.
+Measured on `Body_Armours_dex_int`, one rollable + one desecrated target at ilvl 82:
 
-## 2. Startup cost
+| base | total | actions | value iteration | answer |
+|---|---|---|---|---|
+| Wands | 46 ms | 18 ms | 46 ms | 633 ex |
+| Body_Armours_dex_int | **6014 ms** | 12 ms | **6014 ms** | **8,219,067 ex** |
 
-`mods.json` preload, code-splitting, unused UI kit components, memoising the mod lists.
+All of it is value iteration; building the action space is fast on both. The cause is inherent rather
+than a coding bug: untargeted desecration has a minuscule chance of landing one specific mod, and VI's
+convergence rate is governed by that probability. Loosening `tolerance` does not help — 1e-9, 1e-4 and
+1e-2 all return the same value in the same time.
+
+Introduced 2026-08-22 by giving armour the untargeted draw (before that it returned `feasible: false`
+instantly, which was wrong). Correct but slow, and it forces a 60s timeout on two tests in
+`desecrationGate.test.ts`.
+
+Worth considering: the answer is 8.2 million exalts. A plan nobody would ever run may deserve an early
+exit — "this is hopeless, here is roughly how hopeless" — rather than six seconds of iteration to put
+a precise number on it.
+
+## 2. Startup: what measurement left on the table
+
+Done: `mods.json` warm-start, immutable cache headers, dead UI kit removed. What the bundle
+visualiser (`ANALYZE=1 npm run build`) showed, as a share of the 108.7 kB gzip bundle:
+
+| share | package |
+|---|---|
+| 51% | react-dom |
+| 21% | app source |
+| 8.8% | tailwind-merge |
+| 6.9% | sonner |
+| 6.9% | @sentry/* (all three packages combined) |
+
+(Per-module gzip sums overcount, since each is compressed alone — read these as shares, not bytes.)
+
+Two things worth a look, neither obviously worth it:
+
+- **tailwind-merge at 8.8%** is a lot for merging class strings. It is used only by the `cn()` helper.
+  If nothing actually relies on conflict resolution, `clsx` alone would do — but swapping it risks
+  quiet style breakage, so it needs a real audit of `cn()` call sites first.
+- **react-dom is half the bundle** and irreducible without changing framework. Not worth it.
+
+Sentry was the hypothesis going in and the measurement killed it: ~6.9% across all three packages,
+Session Replay not in the bundle at all. Lazy-loading it would buy almost nothing.
 
 ---
 

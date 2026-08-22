@@ -31,10 +31,11 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://poe2htc.com/" />
     
-    <!-- Cache Control -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+    <!-- Caching is set by real response headers in vercel.json, not here: browsers ignore
+         http-equiv Cache-Control for the document and never applied it to subresources at all. The
+         tags that used to sit here said "no-store", which is the opposite of what this site wants —
+         every asset filename is content-hashed, so they can be cached forever and only index.html
+         needs revalidating. A 3.1 MB mods.json re-downloaded on every visit was the cost. -->
     
     <!-- Security -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api.poe2htc.com https://*.vercel-analytics.com https://*.vercel-insights.com; script-src 'self' 'unsafe-inline' https://*.vercel-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.poe2htc.com https://*.vercel-analytics.com https://*.vercel-insights.com http://localhost:* ws://localhost:*;" />

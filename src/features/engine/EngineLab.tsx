@@ -463,7 +463,7 @@ const EngineLab: React.FC = () => {
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Budget <span className="font-normal normal-case opacity-70">(optional)</span>
+              Budget <span className="font-normal normal-case opacity-70">(exalts, optional)</span>
             </span>
             <input
               type="number" min={0} step="any" value={budget} placeholder="ex"
@@ -480,7 +480,7 @@ const EngineLab: React.FC = () => {
             Reset
           </Button>
           <Button onClick={compute} disabled={!canCompute} size="lg">
-            Compute frontier
+            Find plans
           </Button>
         </div>
 

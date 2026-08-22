@@ -142,10 +142,10 @@ const AlternativesView: React.FC<{ alts: EngineAlternatives; budget: number }> =
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           {alts.truncated && (
             <Badge variant="outline" title="The node cap stopped the search early — farther alternatives may exist. The ends of this list are solid; the middle is sampled.">
-              search capped
+              stopped early
             </Badge>
           )}
-          <span>{alts.nodesEvaluated.toLocaleString()} variants evaluated</span>
+          <span>checked {alts.nodesEvaluated.toLocaleString()} items</span>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">

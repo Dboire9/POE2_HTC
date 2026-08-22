@@ -130,6 +130,10 @@ describe('MDP', () => {
   // desecrate action carried one, so armour lost the ability to desecrate at all and the planner
   // reported `feasible: false` for a craft the game performs happily. That is 342 of 527 desecrated
   // mods — the majority — told they were impossible.
+  // SLOW ON PURPOSE, ~6-8s. Untargeted armour desecration has a minuscule per-attempt chance of
+  // landing one specific mod, and value iteration's convergence rate is governed by exactly that — the
+  // answer here is ~8.2 MILLION exalts. Loosening `tolerance` does not help (measured: same value, same
+  // time at 1e-9, 1e-4 and 1e-2), so this needs the timeout, not a cheaper fixture. See TODO.md.
   it('plans armour with the untargeted draw instead of declining it', () => {
     const r = markovFromItem(data, prices, start(ARMOUR), [
       { modId: ARMOUR.rollable[0]!, minTierIndex: 0 }, { modId: ARMOUR.des, minTierIndex: 0 },
@@ -137,17 +141,17 @@ describe('MDP', () => {
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeGreaterThan(0);
     expect(Number.isFinite(r.expectedCost)).toBe(true);
-  });
+  }, 60_000);
 
   // …and it must be the UNTARGETED draw, not a boss omen smuggled in by the new action.
-  it('never puts a boss omen in an armour policy', () => {
+  it('never puts a boss omen in an armour policy', () => {  // same ~6-8s solve as above
     const r = markovFromItem(data, prices, start(ARMOUR), [
       { modId: ARMOUR.rollable[0]!, minTierIndex: 0 }, { modId: ARMOUR.des, minTierIndex: 0 },
     ]);
     const desecrations = [...r.policy.values()].filter((a) => a.currency === 'desecrate');
     expect(desecrations.length).toBeGreaterThan(0);
     expect(desecrations.every((a) => a.boss === undefined)).toBe(true);
-  });
+  }, 60_000);
 
   // The control. A weapon must still be able to buy the narrower boss draw, or the assertion above
   // would pass simply because nothing anywhere targets a boss.

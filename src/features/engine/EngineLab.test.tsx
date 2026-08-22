@@ -168,7 +168,7 @@ describe('EngineLab — the empty state gives the real reason', () => {
     mocks.optimize.mockReturnValue({ ...okFrontier, frontier: [] });
     await loaded();
     await user.click(addButton('Desecrated Suffix'));
-    await user.click(screen.getByRole('button', { name: /Compute frontier/i }));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
 
     // A phrase unique to the empty state: "a Desecration needs a Rare" also appears in the picker's
     // explainer above, so matching that would pass before the solve had even finished.
@@ -231,7 +231,7 @@ describe('EngineLab — reset and compute routing', () => {
 
     // Plain: add a normal mod and compute → optimize (from white).
     await user.click(addButton('Normal Prefix'));
-    await user.click(screen.getByRole('button', { name: /Compute frontier/i }));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
     // `waitFor`, because computing crosses a Worker boundary and is genuinely asynchronous. It used to
     // be a `setTimeout(…, 0)` that `user.click` happened to flush, so a bare assertion passed by luck —
     // then failed on CI once the extra hops didn't fit in the same tick.
@@ -241,7 +241,7 @@ describe('EngineLab — reset and compute routing', () => {
     // Fracture it and recompute → optimizeItem (from the carved Rare).
     const targetRow = screen.getByText('Normal Prefix').closest('div') as HTMLElement;
     await user.click(within(targetRow).getByTitle(/Mark as already fractured/i));
-    await user.click(screen.getByRole('button', { name: /Compute frontier/i }));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
     await waitFor(() => expect(mocks.optimizeItem).toHaveBeenCalledTimes(1));
   });
 });

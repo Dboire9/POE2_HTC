@@ -19,17 +19,19 @@ function fmtPct(p: number): string {
   return `${pct.toPrecision(2)}%`;
 }
 
+// Said in the terms a player has: which ORBS were tried, and why not all of them. "orb search reduced
+// to base+strongest" described the algorithm's throttle rather than the consequence.
 const DEPTH_NOTE: Record<EngineResult['currencyDepth'], string> = {
-  full: 'searched every orb strength',
-  'base+strongest': 'orb search reduced to base + strongest (target too large for full)',
-  'strongest-only': 'orb search reduced to strongest only (target too large for full)',
+  full: 'tried every orb strength',
+  'base+strongest': 'only tried base + strongest orbs — too many combinations for all of them',
+  'strongest-only': 'only tried the strongest orbs — too many combinations for all of them',
 };
 
 /** The (expected cost ↔ success probability) frontier: one card per non-dominated plan, cheapest→surest. */
 const FrontierView: React.FC<{
   result: EngineResult; title?: string; emptyHint?: React.ReactNode; priceBasis?: EnginePriceBasis;
 }> = ({
-  result, title = 'Cost ↔ probability frontier', emptyHint, priceBasis,
+  result, title = 'Your options — cheapest to surest', emptyHint, priceBasis,
 }) => (
   <div className="space-y-3">
     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -37,7 +39,7 @@ const FrontierView: React.FC<{
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Badge variant="outline">{DEPTH_NOTE[result.currencyDepth]}</Badge>
         <span>
-          {result.plansEvaluated.toLocaleString()} plan{result.plansEvaluated === 1 ? '' : 's'} evaluated
+          checked {result.plansEvaluated.toLocaleString()} plan{result.plansEvaluated === 1 ? '' : 's'}
         </span>
       </div>
     </div>

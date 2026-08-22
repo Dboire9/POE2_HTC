@@ -95,4 +95,35 @@ describe('progress reporting', () => {
       expect(Number.isFinite(f)).toBe(true);
     }
   });
+
+  // A lab compute WITH a budget is slow — the budget search visits up to 200 nodes, each a full Pareto
+  // run (~7.3s at 6 targets) — but it used to report nothing at all, so the bar sat at 0% for the whole
+  // wait while only the elapsed counter moved. It now follows the node count.
+  it('reports progress through the budget search, which is the slow half of a lab compute', () => {
+    const seen: SolveProgress[] = [];
+    runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, budget: 600 }, (p) => seen.push(p));
+    expect(seen.length).toBeGreaterThan(1);
+    expect(seen.every((p) => p.phase === 'alternatives')).toBe(true);
+    for (let i = 1; i < seen.length; i++) {
+      expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
+    }
+    // It owns the whole bar, so its first report must not start near the top…
+    expect(seen[0]!.fraction).toBeLessThan(0.2);
+    // …and it must finish AT the top. The node cap is a ceiling, not a forecast, so a search that
+    // stops early (196 of 200 is typical) would otherwise strand the bar just short of done.
+    expect(seen[seen.length - 1]!.fraction).toBe(1);
+  });
+
+  // Without a budget there is no search to report on, and the frontier alone is milliseconds — so
+  // silence is correct here, not a regression.
+  it('stays silent on a lab compute with no budget, which is fast anyway', () => {
+    const seen: SolveProgress[] = [];
+    runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets }, (p) => seen.push(p));
+    expect(seen).toEqual([]);
+  });
+
+  it('leaves the budget search results unchanged when a progress callback is attached', () => {
+    const req = { kind: 'lab' as const, from: { baseId: 'Wands', level: 82 }, targets, budget: 600 };
+    expect(runSolve(eng, req, () => {})).toEqual(runSolve(eng, req));
+  });
 });

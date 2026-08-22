@@ -301,6 +301,9 @@ function searchAlternatives(
     seen.add(k);
     const { alt, depth: d } = evaluate(slots, closenessOf(data, desired, slots));
     nodes++;
+    // The one place `nodes` moves, so the one place progress needs reporting. Per-node is cheap: the
+    // cap is 200, and each node just cost a full Pareto run.
+    opts.onProgress?.(nodes, maxNodes);
     if (DEPTH_RANK[d] > DEPTH_RANK[depth]) depth = d;
     if (alt) {
       evaluated.push(alt);

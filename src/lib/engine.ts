@@ -17,7 +17,9 @@ import { indexPrices, type Prices } from '../../packages/optimizer/src/cost.ts';
 import { optimizePareto } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
-import { alternativesFromWhite, alternativesFromItem } from '../../packages/optimizer/src/alternatives.ts';
+import {
+  alternativesFromWhite, alternativesFromItem, type AlternativesOptions,
+} from '../../packages/optimizer/src/alternatives.ts';
 import type {
   EngineBase, EngineMod, EngineBaseMods, EnginePlan, EngineResult, TargetInput,
   ExistingItem, CurrencyAction, AltTargetInput, EngineAlternatives, EngineMarkovResult,
@@ -306,11 +308,12 @@ export function currencyActions(
  */
 export function alternatives(
   eng: Engine, baseId: string, level: number, targets: readonly AltTargetInput[], budget: number,
+  opts: AlternativesOptions = {},
 ): EngineAlternatives {
   const { data, prices } = eng;
   const base = data.bases.get(baseId);
   if (!base) throw new Error(`Unknown base: ${baseId}`);
-  return mapAlternatives(data, alternativesFromWhite(data, prices, base, toAltTargets(data, targets), budget, { level }));
+  return mapAlternatives(data, alternativesFromWhite(data, prices, base, toAltTargets(data, targets), budget, { ...opts, level }));
 }
 
 /**
@@ -319,8 +322,9 @@ export function alternatives(
  */
 export function alternativesForItem(
   eng: Engine, item: ExistingItem, targets: readonly AltTargetInput[], budget: number,
+  opts: AlternativesOptions = {},
 ): EngineAlternatives {
   const { data, prices } = eng;
   const start = buildItemState(data, item);
-  return mapAlternatives(data, alternativesFromItem(data, prices, start, toAltTargets(data, targets), budget));
+  return mapAlternatives(data, alternativesFromItem(data, prices, start, toAltTargets(data, targets), budget, opts));
 }

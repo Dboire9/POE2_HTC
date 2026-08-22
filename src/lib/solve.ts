@@ -52,8 +52,14 @@ export type SolveResult =
  * The solver deliberately reports only raw phase/done/total, because weighting the phases against each
  * other is a presentation call — and they are nowhere near equal in wall-clock terms.
  */
+/**
+ * Every phase that can report. Each belongs to exactly one request kind — `item` runs the MDP's three,
+ * `lab` runs the budget search — so their spans below can partition the bar without colliding.
+ */
+export type SolvePhase = MarkovProgress['phase'] | 'alternatives';
+
 export interface SolveProgress {
-  readonly phase: MarkovProgress['phase'];
+  readonly phase: SolvePhase;
   readonly fraction: number;
 }
 
@@ -63,14 +69,18 @@ export interface SolveProgress {
  * 3877ms → 3458ms. So building the action distributions is ~89% of the work and VI ~11%, and a bar
  * split evenly across the three phases would stall for three seconds and then sprint.
  */
-const PHASE_SPAN: Record<MarkovProgress['phase'], readonly [number, number]> = {
+const PHASE_SPAN: Record<SolvePhase, readonly [number, number]> = {
   actions: [0, 0.85],
   compile: [0.85, 0.92],
   solve: [0.92, 1],
+  // The `lab` request's only reporting phase, so it owns the whole bar. The Pareto run that precedes
+  // it is silent, but it is also the smaller half by a wide margin (at 6 targets: 64ms of planning
+  // against 7.3s of budget search), so starting at zero for a moment beats faking a position.
+  alternatives: [0, 1],
 };
 
-/** Map the solver's raw counts onto one monotone 0–1 fraction. */
-export function toFraction(p: MarkovProgress): number {
+/** Map a solver's raw counts onto one monotone 0–1 fraction. */
+export function toFraction(p: { phase: SolvePhase; done: number; total: number }): number {
   const [lo, hi] = PHASE_SPAN[p.phase];
   const within = p.total > 0 ? Math.min(1, Math.max(0, p.done / p.total)) : 1;
   return lo + (hi - lo) * within;
@@ -100,9 +110,17 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   if (budget === undefined || !Number.isFinite(budget) || budget <= 0) {
     return { kind: 'lab', result, alts: null };
   }
+  // This is the slow half of a lab compute — every node it visits is a full Pareto run — so it, not
+  // the frontier above, is what the progress bar follows.
   const want = req.want ?? req.targets;
+  const altOpts = onProgress
+    ? { onProgress: (done: number, total: number) => onProgress({ phase: 'alternatives' as const, fraction: toFraction({ phase: 'alternatives', done, total }) }) }
+    : {};
   const alts = 'item' in from
-    ? alternativesForItem(eng, from.item, want, budget)
-    : alternatives(eng, from.baseId, from.level, want, budget);
+    ? alternativesForItem(eng, from.item, want, budget, altOpts)
+    : alternatives(eng, from.baseId, from.level, want, budget, altOpts);
+  // The search can stop just short of its node cap (196 of 200 is typical), which would leave the bar
+  // sitting at 98% while the work is finished. Say so explicitly, as the MDP path does.
+  onProgress?.({ phase: 'alternatives', fraction: 1 });
   return { kind: 'lab', result, alts };
 }

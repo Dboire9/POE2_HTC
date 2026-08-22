@@ -14,6 +14,7 @@ const PHASE_LABEL: Record<Progress['phase'], string> = {
   actions: 'Mapping out every move…',
   compile: 'Preparing the solver…',
   solve: 'Finding the cheapest route…',
+  alternatives: 'Checking what your budget buys…',
 };
 
 const SolveProgress: React.FC<{ progress: Progress | null; onCancel: () => void }> = ({ progress, onCancel }) => {

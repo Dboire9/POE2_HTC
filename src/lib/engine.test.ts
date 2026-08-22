@@ -487,7 +487,9 @@ describe('engine facade — budget alternatives (0.5.0)', () => {
     const r = alternatives(eng050, 'Wands', 82, hard, TIGHT);
     const exact = r.rows.filter((row) => row.exact);
     expect(exact.length).toBeGreaterThan(0);
-    for (const row of exact) expect(row.inBudgetMax).toBe(row.inBudget);
+    // `exact` is a TOLERANCE (engineMap: max - min < 1e-9), not bit-equality. Asserting `toBe` here
+    // passed only by luck on the old price sheet; a row can legitimately differ in the last few ulps.
+    for (const row of exact) expect(row.inBudgetMax - row.inBudget).toBeLessThan(1e-9);
   });
 
   it('a pinned target is never relaxed, swapped or dropped', () => {

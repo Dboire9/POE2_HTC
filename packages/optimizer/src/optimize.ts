@@ -15,7 +15,7 @@ import { evaluatePlan } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
 import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
-import { allowsStep, planExpectedCost } from './cost.ts';
+import { allowsStep, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, factorial, permutations } from './combinatorics.ts';
 
 // The from-item planner (optimizeFromItem) lives in ./fromItem.ts and imports withOmenVariants +
@@ -403,9 +403,11 @@ export function paretoFrontier(plans: ParetoPlan[]): ParetoPlan[] {
  * and the target must also include a rollable mod (the Magic base the essence lands on).
  */
 export function optimizePareto(
-  data: PatchData, prices: Prices, base: ItemBase, targets: readonly TierTarget[], opts: OptimizeParetoOptions = {},
+  data: PatchData, rawPrices: Prices, base: ItemBase, targets: readonly TierTarget[], opts: OptimizeParetoOptions = {},
 ): ParetoResult {
   const level = opts.level ?? 100;
+  // A Desecration's bone depends on the gear, so resolve the sheet for this base up front.
+  const prices = pricesForBase(rawPrices, base);
   const modIds = targets.map((t) => t.modId);
   // Essence-only mods arrive via an essence; desecrated mods via a Desecration (boss omen); everything
   // else is rolled with the add-chain currency. Essence and desecrated mods carry no orb-strength axis.

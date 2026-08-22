@@ -28,6 +28,7 @@ import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
 import { bossOmenAllowed, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
+import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
 import { createActionSpace } from './markovActions.ts';
@@ -119,11 +120,12 @@ const PROGRESS_STRIDE = 64;
 const MAX_TARGETS = 6;
 
 export function markovFromItem(
-  data: PatchData, prices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
+  data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
 ): MarkovResult {
   const fail = (reason: string): MarkovResult =>
     ({ expectedCost: Infinity, feasible: false, reason, nodes: [], edges: [], policy: new Map() });
   if (start.rarity !== 'rare') return fail('the MDP planner models Rare items');
+  const prices = pricesForBase(rawPrices, start.base);
 
   const level = start.level;
   const pools = start.base.pools;

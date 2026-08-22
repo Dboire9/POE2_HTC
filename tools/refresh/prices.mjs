@@ -58,37 +58,25 @@ const CURRENCY = {
   divine: 'divine',
 };
 
-/**
- * Keys with NO clean live source, which therefore keep their hand-authored values and stay flagged as
- * estimates. Recorded here so the gap is explicit rather than silent:
- *   - desecrate: the feed carries four distinct "Orb of Sacrifice" variants (Yugul's 1.5ex, Kamasa's
- *     27ex, Yaomac's 34ex, Kopec's 148ex) and picking which one the engine's single `desecrate` step
- *     means is a game-knowledge call, not a mapping one.
- *   - essence/essence_lesser/essence_greater/perfect_essence: `type=Essences` returns 79 live lines,
- *     but prices span 0.07–340ex ACROSS essences while our model has one price per LEVEL. Collapsing
- *     that to a median would invent precision; wiring per-essence prices is a modelling change.
- */
-const KEEP = ['desecrate', 'essence', 'essence_lesser', 'essence_greater', 'perfect_essence'];
+// Nothing is hand-authored any more except the omen quotes below: desecration is priced by the bone a
+// base actually consumes, and essences individually rather than by level. (The old "Orb of Sacrifice"
+// lead was wrong — desecration consumes BONES, from the Abyss feed.)
 
 /**
- * A KEEP key has no 1:1 live line, but it does have a live PLAUSIBLE RANGE — the spread of the real
- * items it stands for. We check the hand-authored value against that range on every run.
- *
- * This guards the specific hazard of a PARTIAL refresh: if the fetched keys move to live prices while
- * these stay on an old scale, the untouched keys silently become orders of magnitude too cheap, and
- * since the optimizer ranks plans BY cost it would start recommending whatever it thinks is nearly
- * free. Checking beats assuming — the range moves with the economy, so this stays honest by itself.
+ * A Desecration consumes a BONE, and the item text says which: Gnawed/Preserved/Ancient Jawbone
+ * "Desecrates a Rare Weapon or Quiver", Rib "a Rare Armour", Collarbone "a Rare Amulet, Ring or Belt",
+ * Cranium "a Rare Jewel". Only PRESERVED matters here: Gnawed says "Maximum Item Level: 64" while
+ * every desecrated mod in the data is ilvl 65, and Ancient's "Minimum Modifier Level: 40" is a
+ * quality upgrade nothing models yet. The engine maps a base to its bone (`desecrationBoneFor`).
  */
-const SANITY = {
-  // Desecration consumes a bone at the Well of Souls. (The Abyss feed's "…-gaze" lines are the boss
-  // items — Amanamu, Ulaman, Kurgal — not bones, so they are excluded.)
-  desecrate: { type: 'Abyss', match: (id) => /jawbone|rib|collarbone|cranium/.test(id) },
-  // Essence LEVEL is encoded in the id prefix; unprefixed ids are the base level.
-  essence_lesser: { type: 'Essences', match: (id) => id.startsWith('lesser-') },
-  essence_greater: { type: 'Essences', match: (id) => id.startsWith('greater-') },
-  perfect_essence: { type: 'Essences', match: (id) => id.startsWith('perfect-') },
-  essence: { type: 'Essences', match: (id) => !/^(lesser|greater|perfect)-/.test(id) },
+const BONES = {
+  jawbone: 'preserved-jawbone',
+  rib: 'preserved-rib',
+  collarbone: 'preserved-collarbone',
 };
+
+/** Essence level → the prefix poe.ninja puts on the id. NORMAL has none. */
+const ESSENCE_PREFIX = { LESSER: 'lesser-', NORMAL: '', GREATER: 'greater-', PERFECT: 'perfect-' };
 
 /**
  * Omens are quoted, not fetched. poe.ninja's economy API has no `type` value that serves them —
@@ -113,6 +101,71 @@ function convertOmens(quotes, rates) {
     omens[id] = Number(((q.price * rate) / q.quantity).toPrecision(4));
   }
   return omens;
+}
+
+/** poe.ninja's id for an essence: "Essence of the Body" at Greater → greater-essence-of-the-body. */
+const essenceId = (name, level) =>
+  `${ESSENCE_PREFIX[level]}essence-of-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+
+const median = (xs) => {
+  const s = [...xs].sort((a, b) => a - b);
+  return s.length === 0 ? undefined : s[Math.floor(s.length / 2)];
+};
+
+/**
+ * One price per ESSENCE, keyed `essence:<level>:<modId>` — not one per level.
+ *
+ * The level ladder simply isn't one: Essence of Abrasion runs Lesser 116ex, Normal 107ex, Greater
+ * 0.81ex, Perfect 9.18ex. Averaging that into "what a Greater essence costs" would be a number no
+ * essence actually trades at. `essences.json` already maps essence → level → the mods it grants, and
+ * inverting it is unambiguous (1288 pairs, no collisions), so each craft can be charged for the
+ * essence it would really buy.
+ *
+ * Not every essence is listed — ~29 of 93 (level, essence) combinations have no trades at all, the
+ * four "Alloy" essences among them. Those FALL BACK, in order: the same essence's other levels (its
+ * identity matters more than its level), then that level's median across essences. Every fallback is
+ * reported so the sheet can say which prices are inferred rather than observed.
+ */
+function priceEssences(essencesFile, lines, exalt) {
+  const live = new Map(lines.map((l) => [l.id, l.primaryValue / exalt]));
+  const byEssence = new Map();   // name -> [price…] across its listed levels
+  const byLevel = new Map();     // level -> [price…] across essences
+  for (const e of essencesFile.essences) {
+    for (const level of Object.keys(ESSENCE_PREFIX)) {
+      const v = live.get(essenceId(e.name, level));
+      if (v === undefined) continue;
+      if (!byEssence.has(e.name)) byEssence.set(e.name, []);
+      byEssence.get(e.name).push(v);
+      if (!byLevel.has(level)) byLevel.set(level, []);
+      byLevel.get(level).push(v);
+    }
+  }
+
+  const prices = {};
+  const inferred = [];
+  for (const e of essencesFile.essences) {
+    for (const [level, mods] of Object.entries(e.tiers ?? {})) {
+      // A level with no mods grants nothing, so it yields no price key — counting it as "inferred"
+      // would inflate the caveat with entries that don't exist.
+      if (!mods || mods.length === 0) continue;
+      const exact = live.get(essenceId(e.name, level));
+      const value = exact
+        ?? median(byEssence.get(e.name) ?? [])
+        ?? median(byLevel.get(level) ?? []);
+      if (value === undefined) continue; // nothing to go on at all; leave the key absent
+      if (exact === undefined) inferred.push(`${level} ${e.name}`);
+      for (const modId of mods) prices[`essence:${level.toLowerCase()}:${modId}`] = Number(value.toPrecision(4));
+    }
+  }
+  // Per-LEVEL medians as well: `stepCost` falls back to these when a specific essence has no entry.
+  // Leaving the old hand-authored values would reintroduce an unsourced number, and dropping them
+  // would make an unknown essence cost 0 — which reads as free and would dominate every frontier.
+  const LEGACY_KEY = { LESSER: 'essence_lesser', NORMAL: 'essence', GREATER: 'essence_greater', PERFECT: 'perfect_essence' };
+  for (const [level, key] of Object.entries(LEGACY_KEY)) {
+    const m = median(byLevel.get(level) ?? []);
+    if (m !== undefined) prices[key] = Number(m.toPrecision(4));
+  }
+  return { prices, inferred };
 }
 
 async function getJson(url) {
@@ -157,18 +210,37 @@ async function main() {
   }
   if (missing.length) console.warn(`  WARNING not found in feed: ${missing.join(', ')}`);
 
-  console.log('\nhand-authored keys, checked against the live spread of what they stand for:');
-  const feeds = new Map();
-  for (const [key, { type, match }] of Object.entries(SANITY)) {
-    if (!feeds.has(type)) {
-      feeds.set(type, await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=${type}`));
-    }
-    const vals = feeds.get(type).lines.filter((l) => match(l.id)).map((l) => l.primaryValue / exalt).sort((a, b) => a - b);
-    const [lo, hi] = [vals[0], vals.at(-1)];
-    const held = prices[key];
-    const ok = held >= lo && held <= hi;
-    console.log(`  ${ok ? 'ok  ' : 'WARN'} ${key.padEnd(16)} ${String(held).padStart(7)}   live ${type} range ${lo.toPrecision(3)} – ${hi.toPrecision(4)} (n=${vals.length})`);
-    if (!ok) console.warn(`       ^ outside the live range — re-check this value before trusting any cost the app reports.`);
+  // ── Desecration: priced by the BONE the base consumes, not one flat number ──
+  const abyss = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Abyss`);
+  const abyssLines = new Map(abyss.lines.map((l) => [l.id, l.primaryValue / exalt]));
+  const bones = {};
+  console.log('\ndesecration bones (Preserved — Gnawed caps at item level 64, and every desecrated mod is ilvl 65):');
+  for (const [bone, id] of Object.entries(BONES)) {
+    const v = abyssLines.get(id);
+    if (v === undefined) { console.warn(`  WARNING no ${id} in the Abyss feed`); continue; }
+    bones[bone] = Number(v.toPrecision(4));
+    console.log(`  ${bone.padEnd(12)} ${String(bones[bone]).padStart(9)}   (${id})`);
+  }
+  // The grade choice only holds while every desecrated mod is ilvl 65; say so if that changes.
+  const modsFile = JSON.parse(readFileSync(join(ROOT, `data/patches/${PATCH}/mods.json`), 'utf8'));
+  const modList = Array.isArray(modsFile) ? modsFile : (modsFile.mods ?? Object.values(modsFile).find(Array.isArray));
+  const desIlvls = new Set(modList.filter((m) => m.source === 'desecrated').flatMap((m) => m.tiers.map((x) => x.ilvl)));
+  if (desIlvls.size !== 1) {
+    console.warn(`  WARNING desecrated mods span ilvls ${[...desIlvls].join(', ')} — the single Preserved grade may no longer cover them all.`);
+  }
+
+  // ── Essences: one price per ESSENCE, not per level ──
+  const essFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Essences`);
+  const essencesFile = JSON.parse(readFileSync(join(ROOT, `data/patches/${PATCH}/essences.json`), 'utf8'));
+  const { prices: essencePrices, inferred } = priceEssences(essencesFile, essFeed.lines, exalt);
+  for (const key of Object.keys(prices)) if (key.startsWith('essence')) delete prices[key];
+  Object.assign(prices, essencePrices);
+  // `desecrationBoneFor` treats an unmapped category as armour, so the flat fallback key mirrors the
+  // rib price rather than keeping the old 0.5 guess.
+  if (bones.rib !== undefined) prices.desecrate = bones.rib;
+  console.log(`\nessences: ${Object.keys(essencePrices).length} (level, mod) prices from ${essFeed.lines.length} live lines`);
+  if (inferred.length) {
+    console.log(`  ${inferred.length} not traded, inferred from the same essence's other levels: ${inferred.slice(0, 6).join(', ')}${inferred.length > 6 ? ', …' : ''}`);
   }
 
   // Omens re-derive from their stored market quotes at the same exchange rate as everything above.
@@ -188,6 +260,7 @@ async function main() {
   const out = {
     ...prev,
     prices,
+    bones,
     omens,
     // Provenance drives the UI's honesty label (see PriceBasisNote): `estimated` stays TRUE because
     // the desecration and essence entries are still hand-authored guesses, even though currency and
@@ -196,10 +269,13 @@ async function main() {
     generated: prev.generated,
     updated: new Date().toISOString().slice(0, 10),
     league,
-    source: `Currency from poe.ninja's PoE2 economy API and omens from its Omens page (${league}), `
-      + `in exalt-equivalents. Desecration and essence levels remain hand-authored — see tools/refresh/prices.mjs.`,
-    estimated: true,
-    caveat: 'Currency and omen prices are live market data; desecration and essence prices are still hand-authored estimates.',
+    source: `Live poe.ninja PoE2 economy (${league}), in exalt-equivalents: currency and desecration `
+      + `bones from the API, essences priced individually, omens hand-transcribed from the Omens page `
+      + `(no API serves them) — see tools/refresh/prices.mjs.`,
+    estimated: inferred.length > 0,
+    ...(inferred.length > 0
+      ? { caveat: `All prices are live market data, except ${inferred.length} essence variant${inferred.length === 1 ? '' : 's'} nobody is currently trading — those are inferred from the same essence's other levels.` }
+      : {}),
     unit: 'exalt-equivalent',
   };
 

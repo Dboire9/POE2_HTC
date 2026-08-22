@@ -22,7 +22,7 @@
 import type { ItemBase, ItemState, PatchData, Tier } from '../../engine/src/types.ts';
 import { familiesOf, resolveMod } from '../../engine/src/pool.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
-import { planCostCdf } from './cost.ts';
+import { planCostCdf, pricesForBase } from './cost.ts';
 import type { CurrencyDepth, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
 import { optimizePareto } from './optimize.ts';
 import { optimizeFromItem } from './fromItem.ts';
@@ -393,12 +393,13 @@ function searchAlternatives(
  * See the file header for what "close" means and what may be relaxed.
  */
 export function alternativesFromWhite(
-  data: PatchData, prices: Prices, base: ItemBase, desired: readonly AlternativeTarget[],
+  data: PatchData, rawPrices: Prices, base: ItemBase, desired: readonly AlternativeTarget[],
   budget: number, opts: AlternativesOptions = {},
 ): AlternativesResult {
   const level = opts.level ?? 100;
   const maxPlans = opts.maxPlansPerNode ?? DEFAULT_MAX_PLANS_PER_NODE;
   const policy = opts.policy;
+  const prices = pricesForBase(rawPrices, base); // the bone a Desecration consumes depends on the base
   return searchAlternatives(
     data, base, prices,
     (targets) => optimizePareto(data, prices, base, targets, { level, maxPlans, ...(policy ? { policy } : {}) }),
@@ -411,7 +412,7 @@ export function alternativesFromWhite(
  * node is costed with optimizeFromItem's reset-to-your-item model rather than from-white.
  */
 export function alternativesFromItem(
-  data: PatchData, prices: Prices, start: ItemState, desired: readonly AlternativeTarget[],
+  data: PatchData, rawPrices: Prices, start: ItemState, desired: readonly AlternativeTarget[],
   budget: number, opts: AlternativesOptions = {},
 ): AlternativesResult {
   // A fractured ("carved") mod is inherently pinned: it's physically locked on the item, so it can be
@@ -419,6 +420,7 @@ export function alternativesFromItem(
   const fractured = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
   const pinned = desired.map((d) => (fractured.has(d.modId) ? { ...d, pinned: true } : d));
   const policy = opts.policy;
+  const prices = pricesForBase(rawPrices, start.base);
   return searchAlternatives(
     data, start.base, prices,
     (targets) => optimizeFromItem(data, prices, start, targets, policy ? { policy } : {}),

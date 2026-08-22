@@ -42,10 +42,12 @@ describe('PriceBasisNote', () => {
 describe('priceBasis — reads the shipped sheet honestly', () => {
   it('flags the shipped 0.5.0 prices as estimated, from their own stated provenance', () => {
     const basis = priceBasis({ prices: loadPrices('data/patches/0.5.0') });
-    // Currency and omens are live poe.ninja data now, but desecration and essence levels are still
-    // hand-authored, so the sheet keeps `estimated: true` and explains itself via `caveat`.
+    // Everything is live poe.ninja data now — currency, desecration bones, per-essence prices and the
+    // hand-transcribed omen quotes. What remains inferred is the handful of essence variants nobody is
+    // currently trading, so the sheet stays `estimated` but names exactly that.
     expect(basis.estimated).toBe(true);
-    expect(basis.caveat).toMatch(/desecration and essence/i);
+    expect(basis.caveat).toMatch(/live market data/i);
+    expect(basis.caveat).toMatch(/essence/i);
     expect(basis.patch).toBe('0.5.0');
     expect(basis.asOf).toBeTruthy();
   });

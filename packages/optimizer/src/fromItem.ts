@@ -14,7 +14,7 @@ import { evaluatePlanFrom } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
 import { bossOmenAllowed, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { Prices } from './cost.ts';
-import { allowsStep, planExpectedCost } from './cost.ts';
+import { allowsStep, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, orderedSelections, permutations } from './combinatorics.ts';
 import type { OptimizeParetoOptions, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
 import { paretoFrontier, withOmenVariants } from './optimize.ts';
@@ -138,9 +138,10 @@ function transformSequences(
  * or the target shape is illegal. When the item already IS the target, returns a single empty plan.
  */
 export function optimizeFromItem(
-  data: PatchData, prices: Prices, start: ItemState, targets: readonly TierTarget[], opts: OptimizeParetoOptions = {},
+  data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: OptimizeParetoOptions = {},
 ): ParetoResult {
   const policy = opts.policy;
+  const prices = pricesForBase(rawPrices, start.base);
   if (start.rarity !== 'rare') {
     throw new Error('the from-item planner currently supports Rare items (use the currency check for Magic)');
   }

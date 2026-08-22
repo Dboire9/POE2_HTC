@@ -17,19 +17,25 @@
 // about half the time. Same recursion, solved over a cost grid instead of collapsed to a scalar.
 
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
-import type { AffixType, CurrencyTier } from '../../engine/src/types.ts';
+import type { AffixType, CurrencyTier, ItemBase } from '../../engine/src/types.ts';
 import type { AnnulOmen, DesecrationBossOmen, EssenceOmen } from '../../engine/src/probability.ts';
+import { desecrationBoneFor } from '../../engine/src/probability.ts';
 
 /**
- * The only fields of a step that PRICING reads — never `add`/`remove`/`adds`, which identify mods and
- * say nothing about what an action costs.
+ * The only fields of a step that PRICING reads.
  *
  * Naming that subset is what lets the MDP price its own actions through this one table instead of
  * keeping a second copy of it. The two planners describe an action differently (the MDP says
- * `strength`/`side`, a PlanStep says `tier`/`constrainTo`|`omen`) and an McAction carries no mod ids
- * at all, so it cannot be a PlanStep — but both collapse to the same handful of price keys, and
- * duplicating that collapse is exactly how the D8 desecration mispricing hid: one planner learned
- * about an omen surcharge and the other did not. `PlanStep` satisfies this structurally.
+ * `strength`/`side`, a PlanStep says `tier`/`constrainTo`|`omen`), but both collapse to the same
+ * price keys, and duplicating that collapse is exactly how the D8 desecration mispricing hid: one
+ * planner learned about an omen surcharge and the other did not. `PlanStep` satisfies this
+ * structurally.
+ *
+ * This used to say pricing never reads a mod id. That is no longer true, and pretending otherwise
+ * would be worse than the churn: an ESSENCE is priced individually, not by level. Essence of
+ * Abrasion runs Lesser 116ex, Normal 107ex, Greater 0.81ex, Perfect 9.18ex — there is no such thing
+ * as "what a Greater essence costs", so the mod being forced is genuinely part of the price. Only
+ * the essence currencies read `add`; everything else still ignores mod ids entirely.
  */
 export interface PricedStep {
   readonly currency: PlanStep['currency'];
@@ -43,6 +49,8 @@ export interface PricedStep {
   readonly omen?: AnnulOmen | EssenceOmen;
   /** Which boss pool a desecration draws from — each is its own omen. */
   readonly boss?: DesecrationBossOmen;
+  /** The mod an essence forces. Read ONLY for essence pricing — see the note above. */
+  readonly add?: string;
 }
 
 /** Where a price sheet came from — carried so the UI can be honest about how firm the numbers are. */
@@ -65,6 +73,8 @@ export interface PricesMeta {
 export interface Prices {
   /** Base currency price in exalt-equivalents, keyed by currency (transmute, exalt, perfect_essence, …). */
   readonly currency: Record<string, number>;
+  /** What a Desecration costs, by the bone it consumes — see `pricesForBase`. */
+  readonly bones?: Record<string, number>;
   /** Surcharge for using an omen, keyed by omen id (OmenofSinistralExaltation, …). */
   readonly omens: Record<string, number>;
   /** Provenance, when the source file carried any. */
@@ -73,6 +83,7 @@ export interface Prices {
 
 interface PricesFile {
   patch?: string; prices: Record<string, number>; omens?: Record<string, number>;
+  bones?: Record<string, number>;
   generated?: string; updated?: string; source?: string; unit?: string; estimated?: boolean;
   caveat?: string;
 }
@@ -93,7 +104,12 @@ export function indexPrices(file: PricesFile): Prices {
     ...(file.caveat !== undefined ? { caveat: file.caveat } : {}),
     estimated,
   };
-  return { currency: file.prices, omens: file.omens ?? {}, meta };
+  return {
+    currency: file.prices,
+    omens: file.omens ?? {},
+    ...(file.bones ? { bones: file.bones } : {}),
+    meta,
+  };
 }
 
 /**
@@ -101,11 +117,12 @@ export function indexPrices(file: PricesFile): Prices {
  * `tier: 'greater'` costs `exalt_greater`. Base tier (or no tier) uses the plain currency key.
  */
 function currencyKey(step: PricedStep): string {
-  if (step.currency === 'perfect-essence') return 'perfect_essence';
-  // A regular essence is priced by its level (Lesser/Normal/Greater); Normal uses the plain `essence`.
-  if (step.currency === 'essence') {
-    const lvl = step.essenceLevel;
-    return lvl === 'lesser' || lvl === 'greater' ? `essence_${lvl}` : 'essence';
+  // Essences are priced per ESSENCE, not per level — `essence:<level>:<modId>` — because the market
+  // prices each one separately and their levels don't form a ladder. The old per-level keys remain
+  // the fallback for a sheet that predates this (or an essence with no listing).
+  if (step.currency === 'perfect-essence' || step.currency === 'essence') {
+    const level = step.currency === 'perfect-essence' ? 'perfect' : (step.essenceLevel ?? 'normal');
+    return step.add ? `essence:${level}:${step.add}` : legacyEssenceKey(step);
   }
   const isAdd = step.currency === 'transmute' || step.currency === 'augment' || step.currency === 'regal' || step.currency === 'exalt';
   if (isAdd && step.tier && step.tier !== 'base') return `${step.currency}_${step.tier}`;
@@ -147,6 +164,24 @@ export function stepOmenIds(step: PricedStep): string[] {
 }
 
 /**
+ * The price sheet as it applies to ONE base.
+ *
+ * A Desecration consumes a bone, and which bone depends on the gear: "Desecrates a Rare Weapon or
+ * Quiver" (jawbone, 0.20ex) vs "a Rare Armour" (rib, 0.31ex) vs "a Rare Amulet, Ring or Belt"
+ * (collarbone, 7.69ex) — a 38x spread the old single `desecrate` key could not express.
+ *
+ * Resolved once per solve rather than per step, because the base is a property of the CRAFT while
+ * `PricedStep` describes one action. Threading a base through every step to answer a question that
+ * cannot vary within a plan would be noise; every planner entry point already holds the base.
+ *
+ * A sheet with no `bones` block is left untouched, so older data keeps working off the flat key.
+ */
+export function pricesForBase(prices: Prices, base: ItemBase): Prices {
+  const price = prices.bones?.[desecrationBoneFor(base.category)];
+  return price === undefined ? prices : { ...prices, currency: { ...prices.currency, desecrate: price } };
+}
+
+/**
  * Currencies and omens the player says they do not have, as price-sheet keys ('chaos_perfect',
  * 'OmenofLight', …). A planner must never hand back a plan that uses one: it would be optimal advice
  * the player cannot act on.
@@ -170,9 +205,20 @@ export function allowsStep(policy: CurrencyPolicy | undefined, step: PricedStep)
   return !stepOmenIds(step).some((id) => policy.excluded.has(id));
 }
 
+/** The pre-per-essence key: one price per LEVEL. Still used when a sheet has no per-essence entry. */
+function legacyEssenceKey(step: PricedStep): string {
+  if (step.currency === 'perfect-essence') return 'perfect_essence';
+  const lvl = step.essenceLevel;
+  return lvl === 'lesser' || lvl === 'greater' ? `essence_${lvl}` : 'essence';
+}
+
 /** Cost of a single step: its currency price plus any omen surcharge. Unknown keys cost 0. */
 export function stepCost(prices: Prices, step: PricedStep): number {
-  const base = prices.currency[currencyKey(step)] ?? 0;
+  const key = currencyKey(step);
+  // Fall back to the per-level price when this specific essence isn't in the sheet, rather than
+  // charging 0 — a free essence would look like a bargain and dominate every frontier.
+  const base = prices.currency[key]
+    ?? (key.startsWith('essence:') ? prices.currency[legacyEssenceKey(step)] ?? 0 : 0);
   const omens = stepOmenIds(step).reduce((sum, id) => sum + (prices.omens[id] ?? 0), 0);
   return base + omens;
 }

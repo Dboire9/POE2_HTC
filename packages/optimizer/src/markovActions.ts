@@ -69,7 +69,8 @@ function pricedStepOf(action: McAction): PricedStep {
       return { currency: 'desecrate', boss: action.boss, ...(action.side ? { constrainTo: action.side } : {}) };
     case 'perfect-essence': {
       const omen = asOmen(action.side);
-      return { currency: 'perfect-essence', ...(omen ? { omen } : {}) };
+      // `target` is the mod the essence forces, which is what prices it — see PricedStep.
+      return { currency: 'perfect-essence', add: action.target, ...(omen ? { omen } : {}) };
     }
     default:
       return { currency: 'chaos' };

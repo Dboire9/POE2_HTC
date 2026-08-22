@@ -47,9 +47,16 @@ const FrontierView: React.FC<{
     {result.frontier.length === 0 ? (
       <Card className="p-6 text-center text-sm text-muted-foreground space-y-1">
         <p className="font-medium text-foreground">No achievable plan — every path scored 0%.</p>
+        {/* The FALLBACK reason, used only when the caller has nothing more specific. It must not
+            assert that the target is impossible: an empty frontier means THIS SEARCH found nothing,
+            which also happens when the craft is legal but outside what the planner explores (the
+            desecration filler route, for one). Naming the likely cause and admitting it is a guess
+            beats a confident wrong diagnosis that sends the player off adjusting a tier. */}
         {emptyHint ?? (
-          <p>The target is impossible on this base/level — usually a target tier gated above the item
-            level, or a mod that can’t roll here. Try a lower target tier or a higher item level.</p>
+          <p>Nothing this search tried worked. The usual cause is a target tier gated above the item
+            level, or a mod that can’t roll on this base — try a lower target tier or a higher item
+            level. If neither applies, the craft may still be possible by a route the planner doesn’t
+            explore.</p>
         )}
       </Card>
     ) : (

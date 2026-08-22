@@ -584,14 +584,23 @@ const ItemActions: React.FC = () => {
             )}
           </Card>
 
+          {/* This panel shows TWO cost models and the note used to describe only one of them, labelled
+              just "Cost model:". Worse, the one it described is the optimistic fiction — fromItem.ts
+              says so in its own header — while "True expected cost" below it deliberately models the
+              opposite. Naming both is the honest version, and it explains why the two numbers differ. */}
           <p className="text-[11px] text-muted-foreground px-1">
-            Cost model: on a miss the plan resets to <em>your</em> item and retries — it never throws away the good
-            mods you started with. (It assumes you can reproduce that starting item.)
+            <strong>Two cost models below.</strong> The step plan assumes that on a miss you reset to <em>your</em>{' '}
+            item and retry, so it never throws away the mods you started with — optimistic, and it assumes you can
+            reproduce that item for free. <strong>True expected cost</strong> makes no such assumption: a miss leaves
+            you in a worse state and the policy digs out of it in place. Expect it to be the higher, and the realer,
+            of the two.
           </p>
 
           {planErr && (
             <Card className="p-4">
-              <p className="text-destructive font-medium text-sm">Cannot plan this craft</p>
+              {/* Says "plan", not "craft" — the failure is this planner's, and some of the messages
+                  underneath are its own restrictions rather than game rules. See docs/copy-audit.md. */}
+              <p className="text-destructive font-medium text-sm">The planner can’t plan this craft</p>
               <p className="text-sm text-muted-foreground mt-1">{planErr}</p>
             </Card>
           )}

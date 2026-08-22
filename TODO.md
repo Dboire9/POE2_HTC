@@ -30,29 +30,28 @@ otherwise; see the correction note in `docs/copy-audit.md`.
 `src/features/engine/AlternativesView.tsx:117` is `if (alts.rows.length === 0) return null`. Set a
 budget too low and the panel is simply absent — no "nothing fits 5ex". Small fix.
 
-## 3. Copy audit follow-ups
-
-`docs/copy-audit.md` rows 3, 4, 5, 6 and 12 — copy fixes that distinguish "the game forbids it" from
-"the planner doesn't search it". Row 4 (`FrontierView.tsx:51`) is the string that misled a user.
-
-## 4. Mobile layout
+## 3. Mobile layout
 
 `EngineLab.tsx:491` is a bare `flex gap-4` for the prefix/suffix mod columns — it never stacks, so
 both are crushed on a phone. (The `hidden md:flex` header block is only the credit and Discord links;
 cosmetic, low priority.)
 
-## 5. Jargon pass
+## 4. Jargon pass
 
 "Pareto frontier", "plans evaluated", "search capped", and a budget in "ex" whose unit appears only in
 a `title` attribute. Decide what a player who has never read the source would call these.
 
-## 6. Startup cost
+## 5. Startup cost
 
 `mods.json` preload, code-splitting, unused UI kit components, memoising the mod lists.
 
 ---
 
 ## Recently closed
+
+- **Copy-audit rows 3, 4, 5, 6** (2026-08-22). The empty-frontier fallback no longer tells players the
+  target is impossible; the two error headers name the planner; the from-item panel says which of its
+  two cost models is the optimistic one. `FrontierView.test.tsx` pins the empty state.
 
 - **Armour desecration in Item mode** (2026-08-22). The MDP gated every desecrate action behind a boss
   omen, so armour — 342 of 527 desecrated mods — reported `feasible: false` for a craft the game

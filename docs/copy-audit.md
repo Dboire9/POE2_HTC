@@ -1,6 +1,6 @@
 # Copy audit — absolute claims in user-facing text
 
-**Date:** 2026-08-22 · **Scope:** `src/**/*.tsx`, excluding `*.test.tsx` · **Status:** audit only, nothing fixed here.
+**Date:** 2026-08-22 · **Scope:** `src/**/*.tsx`, excluding `*.test.tsx` · **Status:** rows 3, 4, 5 and 6 FIXED 2026-08-22 (see each row); rows 1b and 12's parenthetical remain open.
 
 ## Why this exists
 
@@ -70,14 +70,14 @@ essence does not. `essenceFractureConflict` (`EngineLab.tsx:~215`) blocks the co
 **Verdict: PLANNER LIMIT.** The `:610` banner opens "⚠ This craft can't be planned", which is a claim
 about the craft, not about this planner.
 
-### 3. "otherwise there's no way to reach Rare and the plan will be empty" — `EngineLab.tsx:644`
+### 3. "otherwise there's no way to reach Rare and the plan will be empty" — `EngineLab.tsx:644` ✅ FIXED
 **Verdict: PLANNER LIMIT.** There is a way: roll three throwaway mods, annul them off, Desecrate.
 Annulment does not downgrade rarity. Every `PlanStep` `buildParetoSteps` emits names a target mod
 (`plan.ts:29-51` — `add`/`remove` are required `string`s), so the planner has no filler concept. The
 sibling text in the empty state (`EngineLab.tsx:666`) was fixed on 2026-08-22 and now says this
 correctly; **this line was missed** and still asserts the impossibility.
 
-### 4. "The target is impossible on this base/level" — `src/features/engine/FrontierView.tsx:51`
+### 4. "The target is impossible on this base/level" — `src/features/engine/FrontierView.tsx:51` ✅ FIXED
 The default `emptyHint`, shown whenever the frontier is empty and no caller supplied a better reason.
 
 **Verdict: PLANNER LIMIT.** An empty frontier means *this search found nothing*, which includes every
@@ -85,7 +85,7 @@ planner-limit case above. The copy converts that into a claim about the base and
 recommends a fix ("Try a lower target tier or a higher item level") that is wrong for those cases.
 This is the exact string that misled on 2026-08-22.
 
-### 5. "Cannot craft this target" / "Cannot plan this craft" — `EngineLab.tsx:654`, `ItemActions.tsx:594`
+### 5. "Cannot craft this target" / "Cannot plan this craft" — `EngineLab.tsx:654`, `ItemActions.tsx:594` ✅ FIXED
 Error headers rendered above a thrown message.
 
 **Verdict: PLANNER LIMIT (header only).** Some throws underneath are genuine game rules ("target has
@@ -97,7 +97,7 @@ impossibility over a message that may only describe a planner restriction. `Item
 
 ## SCOPE — true of one planner, shown where two are
 
-### 6. "on a miss the plan resets to your item and retries — it never throws away the good mods you started with" — `ItemActions.tsx:588`
+### 6. "on a miss the plan resets to your item and retries — it never throws away the good mods you started with" — `ItemActions.tsx:588` ✅ FIXED
 **Verdict: SCOPE.** Accurate for the linear from-item planner, whose own source calls this **"a
 fiction"**: *"fromItem.ts assumes 'restart to your item, free' on any miss — a fiction: a real annul
 removes a UNIFORMLY-RANDOM mod, so a miss leaves you in a WORSE state"*
@@ -135,7 +135,19 @@ it goes.
 
 ---
 
-## Suggested order if these get fixed
+## What was fixed, 2026-08-22
+
+- **Row 3** now says "this search comes back empty" and names the filler→annul route as something you
+  can still do by hand.
+- **Row 4** no longer asserts impossibility. It still names the likely cause (so it is not merely
+  vague) and adds that the craft may be possible by a route the planner doesn't explore. Pinned by
+  `src/features/engine/FrontierView.test.tsx`, mutation-checked against the old wording.
+- **Row 5** both headers now name the planner: "The planner can't build this target" / "…can't plan
+  this craft".
+- **Row 6** names BOTH cost models and says which is the optimistic one, so the two numbers in that
+  panel stop looking like a contradiction.
+
+## Still open
 
 1. **Rows 3 and 4** — one-line copy fixes; row 3 is a straggler from a fix already applied to its sibling.
 2. **Row 5** — reword the two error headers to name the planner.

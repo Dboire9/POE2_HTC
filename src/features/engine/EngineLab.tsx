@@ -641,7 +641,8 @@ const EngineLab: React.FC = () => {
               )}
               {normalTargets < 3 && fractured.size === 0 && (
                 <> From scratch, a Desecration needs a Rare first, so include <strong>3 rollable mods</strong> (or
-                start from an item) — otherwise there’s no way to reach Rare and the plan will be empty.</>
+                start from an item) — otherwise this search comes back empty. (In game you could instead
+                roll three throwaway mods and annul them off; the planner doesn’t look for that.)</>
               )}
             </p>
           )}
@@ -649,9 +650,12 @@ const EngineLab: React.FC = () => {
       )}
 
       {/* Results */}
+      {/* "Cannot craft this target" asserted about the GAME over a message that may only describe a
+          restriction of this planner (some throws are real rules like ">3 prefixes"; others are not).
+          Naming the planner is accurate either way, and the message underneath carries the specifics. */}
       {runErr && (
         <Card className="p-4">
-          <p className="text-destructive font-medium text-sm">Cannot craft this target</p>
+          <p className="text-destructive font-medium text-sm">The planner can’t build this target</p>
           <p className="text-sm text-muted-foreground mt-1">{runErr}</p>
         </Card>
       )}

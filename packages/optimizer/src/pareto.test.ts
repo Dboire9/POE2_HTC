@@ -179,7 +179,7 @@ describe('optimizePareto — desecrated targets (from white)', () => {
     ({ id, group: id, field: id, source, type, categories: [], family, tags, text: id,
        tiers: [{ name: 't1', ilvl: 1, weight: source === 'desecrated' ? 1 : 20, ranges: [[1, 1]], stats: [] }] });
   const sbase = {
-    id: 'S', name: 'S', category: 'C',
+    id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
     pools: { normal: { prefixes: ['NP1', 'NP2'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: ['DS1'] }, essence: { prefixes: [], suffixes: [] } },
   };
   const sdata: PatchData = {
@@ -209,7 +209,7 @@ describe('optimizePareto — desecrated targets (from white)', () => {
 
   it('rejects two desecrated targets (an item holds at most one)', () => {
     const twoDes = {
-      id: 'S', name: 'S', category: 'C',
+      id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
       pools: { normal: { prefixes: ['NP1', 'NP2'], suffixes: ['NS1'] }, desecrated: { prefixes: ['DP1'], suffixes: ['DS1'] }, essence: { prefixes: [], suffixes: [] } },
     };
     const d2: PatchData = {

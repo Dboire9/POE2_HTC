@@ -105,6 +105,9 @@ export interface ActionSpaceParams {
   readonly desecratable: boolean;
   /** Currencies the player doesn't have; actions needing one are never offered. */
   readonly policy?: CurrencyPolicy;
+  /** False on armour: boss omens are "Weapon or Jewellery" only, and every desecrate action here
+   *  carries one. See `bossOmenAllowed`. */
+  readonly bossTargetable: boolean;
 }
 
 /**
@@ -114,7 +117,7 @@ export interface ActionSpaceParams {
 export function createActionSpace(params: ActionSpaceParams): {
   actionsOf: (s: McState) => ActionDef[];
 } {
-  const { data, prices, level, pools, list, side, desecratable, policy } = params;
+  const { data, prices, level, pools, list, side, desecratable, policy, bossTargetable } = params;
   const n = list.length;
 
   // Per-floor weights for a target: success = ≥ its wanted tier; any = the whole family.
@@ -339,7 +342,11 @@ export function createActionSpace(params: ActionSpaceParams): {
     }
     if (lightOk) push(acts, { currency: 'annul', light: true }, lightOutcomes(s));
     push(acts, { currency: 'chaos' }, chaosOutcomes(s));
-    if (desecratable) {
+    // `desecratable` stays true on armour so the desecrated-JUNK state axis (and the Omen of Light
+    // lever that clears it) keeps working — what armour loses is the ability to ADD a targeted mod,
+    // because every desecrate action this planner models carries a boss omen and those are
+    // "Weapon or Jewellery" only.
+    if (desecratable && bossTargetable) {
       for (const boss of ['blackblooded', 'liege', 'sovereign'] as const) {
         push(acts, { currency: 'desecrate', boss }, desecrateOutcomes(s, boss));
         for (const sd of ['prefix', 'suffix'] as const) {

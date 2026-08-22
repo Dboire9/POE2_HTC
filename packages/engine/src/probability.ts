@@ -359,6 +359,54 @@ const DES_BOSS_TAG: Record<DesecrationBossOmen, string> = {
  * how the optimizer picks the omen that makes a specific desecrated mod craftable (P = 1/N over that
  * boss's slot pool).
  */
+/**
+ * Which bone a Desecration consumes, by base category. Straight from the item text:
+ *   Jawbone    — "Desecrates a Rare Weapon or Quiver"
+ *   Rib        — "Desecrates a Rare Armour"
+ *   Collarbone — "Desecrates a Rare Amulet, Ring or Belt"
+ *   Cranium    — "Desecrates a Rare Jewel"        (no Jewel bases exist in this app)
+ *
+ * A game MECHANIC rather than extracted data, so it lives here beside DES_BOSS_TAG and CURRENCY_FLOOR
+ * rather than in data/patches — those hold what the poe2db extraction produces, and this is neither
+ * extracted nor regenerated.
+ *
+ * An unknown category falls back to `rib`, which is the conservative answer for both things this
+ * drives: a mid-priced bone, and NO boss targeting (see below). Claiming a plan works when it can't is
+ * the worse failure.
+ */
+export type DesecrationBone = 'jawbone' | 'rib' | 'collarbone';
+
+const BONE_BY_CATEGORY: Record<string, DesecrationBone> = {
+  // "Weapon or Quiver"
+  Bows: 'jawbone', Crossbows: 'jawbone', OneHand_Maces: 'jawbone', Quarterstaves: 'jawbone',
+  Sceptres: 'jawbone', Spears: 'jawbone', Staves: 'jawbone', TwoHand_Maces: 'jawbone',
+  Wands: 'jawbone', Quivers: 'jawbone',
+  // "Armour" — shields, bucklers and foci included: all carry armour/evasion/energy-shield.
+  Body_Armours: 'rib', Boots: 'rib', Gloves: 'rib', Helmets: 'rib',
+  Shields: 'rib', Bucklers: 'rib', Foci: 'rib',
+  // "Amulet, Ring or Belt"
+  Amulets: 'collarbone', Rings: 'collarbone',
+};
+
+export function desecrationBoneFor(category: string): DesecrationBone {
+  return BONE_BY_CATEGORY[category] ?? 'rib';
+}
+
+/**
+ * Whether a Desecration on this base can be boss-targeted.
+ *
+ * The omens say "your next **Weapon or Jewellery** Desecration attempt will guarantee a random
+ * Ulaman/Amanamu/Kurgal modifier" — so on ARMOUR there is no way to force a boss's pool at all. That
+ * covers 342 of the app's 527 desecrated mods, every one of which the planner used to happily target
+ * with an omen the game would refuse. Desecration still works there; it just draws from the whole pool
+ * (`desecrationProbability`) instead of the boss's 1/N.
+ *
+ * Weapon-or-Jewellery is exactly "not armour", i.e. the jawbone and collarbone groups.
+ */
+export function bossOmenAllowed(category: string): boolean {
+  return desecrationBoneFor(category) !== 'rib';
+}
+
 export function desecrationOmenForMod(mod: Mod): DesecrationBossOmen | undefined {
   for (const omen of ['blackblooded', 'liege', 'sovereign'] as const) {
     if (mod.tags.includes(DES_BOSS_TAG[omen])) return omen;

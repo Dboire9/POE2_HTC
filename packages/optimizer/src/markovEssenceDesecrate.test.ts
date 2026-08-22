@@ -17,7 +17,7 @@ const mk = (
 });
 
 const base: ItemBase = {
-  id: 'S', name: 'S', category: 'C',
+  id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
   pools: {
     normal: { prefixes: ['NP1'], suffixes: [] },
     desecrated: { prefixes: ['DP1'], suffixes: ['DS1'] },
@@ -160,7 +160,7 @@ describe('markovFromItem — Perfect Essence as an MDP action (hand-computed)', 
   // Base P: normal prefix NP1 + normal suffix NS1, and a PERFECT-ESSENCE prefix PE1 in the essence pool.
   // PE1 has weight 0 — a perfect-essence mod never rolls from the normal pool, it is only ever forced on.
   const pbase: ItemBase = {
-    id: 'P', name: 'P', category: 'C',
+    id: 'P', name: 'P', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
     pools: {
       normal: { prefixes: ['NP1'], suffixes: ['NS1'] },
       desecrated: { prefixes: [], suffixes: [] },

@@ -13,7 +13,7 @@ import { CURRENCY_FLOOR } from '../../engine/src/types.ts';
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlan } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
-import { ALCHEMY_MOD_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
+import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
 import { allowsStep, planExpectedCost } from './cost.ts';
 import { combinations, factorial, permutations } from './combinatorics.ts';
@@ -249,6 +249,8 @@ function essenceLevelOf(tierName: string | undefined): string {
 function buildParetoSteps(
   data: PatchData, order: readonly string[], essences: ReadonlySet<string>, desecrated: ReadonlySet<string>,
   tierOf: Map<string, number>, orbOf: Map<string, CurrencyTier>,
+  /** False on armour, where a Desecration can't be boss-targeted at all — see `bossOmenAllowed`. */
+  bossOk: boolean,
 ): PlanStep[] {
   const steps: PlanStep[] = [];
   let rarity: Rarity = 'normal';
@@ -265,7 +267,9 @@ function buildParetoSteps(
       // Desecrated mod: a Desecration constrained to the mod's boss (the omen that targets it). It needs
       // a RARE item, so any ordering that reaches it before the item is rare scores 0 at evaluation and
       // drops — the surviving plans put the desecration after the add-chain's regal. Rarity is unchanged.
-      const omen = desecrationOmenForMod(resolveMod(data, id));
+      // Boss targeting is a "Weapon or Jewellery" omen — unavailable on armour, where the desecration
+      // instead draws from the whole pool. Offering it there would plan a step the game refuses.
+      const omen = bossOk ? desecrationOmenForMod(resolveMod(data, id)) : undefined;
       steps.push(omen ? { currency: 'desecrate', add: id, boss: omen } : { currency: 'desecrate', add: id });
     } else {
       const currency = nextAddCurrency(rarity, modCount);
@@ -450,7 +454,7 @@ export function optimizePareto(
   // (1) Add-chain / essence / desecration openers: every mod ordering × orb-strength assignment.
   for (const order of permutations(modIds)) {
     for (const orbOf of assignments) {
-      baseSequences.push(buildParetoSteps(data, order, essSet, desSet, tierOf, orbOf));
+      baseSequences.push(buildParetoSteps(data, order, essSet, desSet, tierOf, orbOf, bossOmenAllowed(base.category)));
     }
   }
   // (2) Orb of Alchemy opener — a cheap, low-probability frontier point the add-chain can't produce

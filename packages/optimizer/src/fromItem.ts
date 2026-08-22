@@ -12,7 +12,7 @@ import type { ItemBase, ItemState, PatchData } from '../../engine/src/types.ts';
 import type { PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlanFrom } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
-import { desecrationOmenForMod } from '../../engine/src/probability.ts';
+import { bossOmenAllowed, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { Prices } from './cost.ts';
 import { allowsStep, planExpectedCost } from './cost.ts';
 import { combinations, orderedSelections, permutations } from './combinatorics.ts';
@@ -109,11 +109,14 @@ function baseTransforms(
 function transformSequences(
   data: PatchData, junk: readonly string[], missingRollable: readonly string[], missingPerfect: readonly string[],
   missingDesecrated: readonly string[], tierOf: Map<string, number>,
+  /** False on armour, where a Desecration can't be boss-targeted at all — see `bossOmenAllowed`. */
+  bossOk: boolean,
 ): PlanStep[][] {
   const out: PlanStep[][] = [];
-  // Each desecrated target is a Desecration constrained to its boss (the omen that makes it targetable).
+  // Each desecrated target is a Desecration constrained to its boss — except on armour, where the
+  // boss omens don't apply and the draw spans the base's whole desecrated pool instead.
   const desecrateOps: PlanStep[] = missingDesecrated.map((add): PlanStep => {
-    const omen = desecrationOmenForMod(resolveMod(data, add));
+    const omen = bossOk ? desecrationOmenForMod(resolveMod(data, add)) : undefined;
     return omen ? { currency: 'desecrate', add, boss: omen } : { currency: 'desecrate', add };
   });
   // Each perfect target consumes one junk (removed by its essence); enumerate which junk, in order.
@@ -177,7 +180,10 @@ export function optimizeFromItem(
   }
 
   const plans: ParetoPlan[] = [];
-  for (const seq of transformSequences(data, junk, missingRollable, missingPerfect, missingDesecrated, tierOf)) {
+  for (const seq of transformSequences(
+    data, junk, missingRollable, missingPerfect, missingDesecrated, tierOf,
+    bossOmenAllowed(start.base.category),
+  )) {
     for (const steps of withOmenVariants(data, seq, start, policy)) {
       // Same guarantee as the from-white planner: never hand back a plan the player can't execute.
       if (policy && steps.some((s) => !allowsStep(policy, s))) continue;

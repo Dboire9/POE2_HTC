@@ -9,7 +9,7 @@ const mk = (id: string, type: 'prefix' | 'suffix', family: string, weight: numbe
   ({ id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: id,
      tiers: [{ name: 't1', ilvl: 1, weight, ranges: [], stats: [] }] });
 const base: ItemBase = {
-  id: 'S', name: 'S', category: 'C',
+  id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
   pools: { normal: { prefixes: ['NP1', 'NP2'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } },
 };
 const data: PatchData = {
@@ -88,7 +88,7 @@ describe('optimizeFromItem — desecrated mods (kept and crafted, hand-computed)
     ({ id, group: id, field: id, source, type, categories: [], family, tags,
        text: id, tiers: [{ name: 't1', ilvl: 1, weight: source === 'desecrated' ? 1 : 20, ranges: [], stats: [] }] });
   const dbase: ItemBase = {
-    id: 'S', name: 'S', category: 'C',
+    id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
     pools: { normal: { prefixes: ['NP1'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: ['DS1'] }, essence: { prefixes: [], suffixes: [] } },
   };
   const ddata: PatchData = {
@@ -137,7 +137,7 @@ describe('optimizeFromItem — desecrated mods (kept and crafted, hand-computed)
         ['DS2', dmk('DS2', 'suffix', 'Fd2', 'desecrated', ['amanamu_mod'])],
       ]),
       bases: new Map([['S', {
-        id: 'S', name: 'S', category: 'C',
+        id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
         pools: { normal: { prefixes: ['NP1'], suffixes: [] }, desecrated: { prefixes: [], suffixes: ['DS1', 'DS2'] }, essence: { prefixes: [], suffixes: [] } },
       }]]),
     };
@@ -267,7 +267,7 @@ describe('optimizeFromItem — perfect essences (hand-computed)', () => {
     ({ id, group: id, field: id, source, type, categories: [], family, tags: [], text: id,
        tiers: [{ name: 't1', ilvl: 1, weight: source === 'perfect_essence' ? 0 : 20, ranges: [], stats: [] }] });
   const pbase: ItemBase = {
-    id: 'S', name: 'S', category: 'C',
+    id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
     pools: { normal: { prefixes: ['NP1'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: ['PE1'], suffixes: [] } },
   };
   const pdata: PatchData = {

@@ -26,7 +26,7 @@
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
-import { desecrationOmenForMod } from '../../engine/src/probability.ts';
+import { bossOmenAllowed, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
@@ -146,6 +146,16 @@ export function markovFromItem(
       const inPool = pools.desecrated.prefixes.includes(mod.id) || pools.desecrated.suffixes.includes(mod.id);
       if (!inPool) return fail(`${t.modId} isn't in ${start.base.id}'s desecrated pool`);
       if (desecrationOmenForMod(mod) === undefined) return fail(`${t.modId} has no boss omen that targets it`);
+      // Every desecrate action this planner models is boss-targeted, and those omens are "Weapon or
+      // Jewellery" only — so on armour it cannot represent adding a desecrated mod at all. Say so
+      // rather than quietly planning a step the game refuses; the linear from-item planner still
+      // costs this craft, using the whole-pool draw that armour actually gets.
+      if (!bossOmenAllowed(start.base.category)) {
+        return fail(
+          `boss omens only apply to Weapon or Jewellery desecrations, so ${start.base.id} can't target `
+          + `${t.modId} — see the step routes below for the untargeted draw`,
+        );
+      }
     }
     if (mod.source === 'perfect_essence') {
       const inPool = pools.essence.prefixes.includes(mod.id) || pools.essence.suffixes.includes(mod.id);
@@ -178,6 +188,7 @@ export function markovFromItem(
   const desecratable = list.some((t) => t.mod.source === 'desecrated') || s0.desJunk !== 'none';
   const { actionsOf } = createActionSpace({
     data, prices, level, pools, list, side, desecratable,
+    bossTargetable: bossOmenAllowed(start.base.category),
     ...(opts.policy ? { policy: opts.policy } : {}),
   });
 

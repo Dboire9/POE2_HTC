@@ -11,7 +11,8 @@ import type { ItemBase, PatchData } from '../../engine/src/types.ts';
 import { excluded, modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { desecrationOmenForMod } from '../../engine/src/probability.ts';
-import type { Prices } from './cost.ts';
+import type { Prices, PricedStep } from './cost.ts';
+import { stepCost } from './cost.ts';
 import type { Dist, McState, McTarget, SideIndex } from './markovState.ts';
 import {
   MAX_PER_SIDE, addTo, bit, decodeState, encodeState, has, hasDesecrated, occupiedFamilies,
@@ -34,11 +35,6 @@ export type McAction =
   // Sinistral/Dextral Crystallisation omen constraining WHICH mod the essence eats.
   | { readonly currency: 'perfect-essence'; readonly target: string; readonly side?: 'prefix' | 'suffix' };
 
-/** Price-sheet key for each boss omen. */
-const BOSS_OMEN_KEY: Record<DesecrationBossOmen, string> = {
-  blackblooded: 'OmenoftheBlackblooded', liege: 'OmenoftheLiege', sovereign: 'OmenoftheSovereign',
-};
-
 /** An action bound to a state: what it is, what it costs, and where it lands. */
 export interface ActionDef {
   readonly action: McAction;
@@ -46,30 +42,43 @@ export interface ActionDef {
   readonly dist: Dist;
 }
 
-/** Cost of a single McAction from a price sheet. */
+/**
+ * The pricing view of an McAction — a rename, not a second price table.
+ *
+ * The MDP and the linear planner describe the same orb in different words (`strength` vs `tier`,
+ * `side` vs `constrainTo`/`omen`), and an McAction names no mods, so it can never BE a PlanStep. But
+ * both cost exactly the same thing, so translating here and deferring to `stepCost` leaves one table
+ * to keep correct. Keeping two is how the D8 desecration mispricing survived: the linear planner
+ * charged for a boss omen the MDP did not.
+ */
+function pricedStepOf(action: McAction): PricedStep {
+  // On exalt and desecrate a side constraint is a Sinistral/Dextral omen on `constrainTo`; on annul
+  // and perfect-essence the same idea is spelled `omen`. That split is PlanStep's, and it is load-
+  // bearing for probability, so it is mirrored rather than "tidied" here.
+  const asOmen = (side?: 'prefix' | 'suffix'): 'sinistral' | 'dextral' | undefined =>
+    side === 'prefix' ? 'sinistral' : side === 'suffix' ? 'dextral' : undefined;
+  switch (action.currency) {
+    case 'exalt':
+      return { currency: 'exalt', tier: action.strength, ...(action.side ? { constrainTo: action.side } : {}) };
+    case 'annul': {
+      // Light names its target outright, so it is never combined with a side omen (see McAction).
+      const omen = action.light ? 'light' : asOmen(action.side);
+      return { currency: 'annul', ...(omen ? { omen } : {}) };
+    }
+    case 'desecrate':
+      return { currency: 'desecrate', boss: action.boss, ...(action.side ? { constrainTo: action.side } : {}) };
+    case 'perfect-essence': {
+      const omen = asOmen(action.side);
+      return { currency: 'perfect-essence', ...(omen ? { omen } : {}) };
+    }
+    default:
+      return { currency: 'chaos' };
+  }
+}
+
+/** Cost of a single McAction from a price sheet — the same table the linear planner's steps use. */
 export function actionCostOf(prices: Prices, action: McAction): number {
-  const c = (k: string): number => prices.currency[k] ?? 0;
-  const o = (k: string): number => prices.omens[k] ?? 0;
-  if (action.currency === 'exalt') {
-    const base = action.strength === 'base' ? c('exalt') : action.strength === 'greater' ? c('exalt_greater') : c('exalt_perfect');
-    const side = action.side === 'prefix' ? o('OmenofSinistralExaltation') : action.side === 'suffix' ? o('OmenofDextralExaltation') : 0;
-    return base + side;
-  }
-  if (action.currency === 'annul') {
-    const base = c('annul');
-    if (action.light) return base + o('OmenofLight');
-    const side = action.side === 'prefix' ? o('OmenofSinistralAnnulment') : action.side === 'suffix' ? o('OmenofDextralAnnulment') : 0;
-    return base + side;
-  }
-  if (action.currency === 'desecrate') {
-    const side = action.side === 'prefix' ? o('OmenofSinistralNecromancy') : action.side === 'suffix' ? o('OmenofDextralNecromancy') : 0;
-    return c('desecrate') + o(BOSS_OMEN_KEY[action.boss]) + side;
-  }
-  if (action.currency === 'perfect-essence') {
-    const side = action.side === 'prefix' ? o('OmenofSinistralCrystallisation') : action.side === 'suffix' ? o('OmenofDextralCrystallisation') : 0;
-    return c('perfect_essence') + side;
-  }
-  return c('chaos');
+  return stepCost(prices, pricedStepOf(action));
 }
 
 /** ilvl floor each Exalted-Orb strength imposes (mirrors pool.ts: base 0 / greater 35 / perfect 50). */

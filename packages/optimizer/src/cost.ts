@@ -17,6 +17,33 @@
 // about half the time. Same recursion, solved over a cost grid instead of collapsed to a scalar.
 
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
+import type { AffixType, CurrencyTier } from '../../engine/src/types.ts';
+import type { AnnulOmen, DesecrationBossOmen, EssenceOmen } from '../../engine/src/probability.ts';
+
+/**
+ * The only fields of a step that PRICING reads — never `add`/`remove`/`adds`, which identify mods and
+ * say nothing about what an action costs.
+ *
+ * Naming that subset is what lets the MDP price its own actions through this one table instead of
+ * keeping a second copy of it. The two planners describe an action differently (the MDP says
+ * `strength`/`side`, a PlanStep says `tier`/`constrainTo`|`omen`) and an McAction carries no mod ids
+ * at all, so it cannot be a PlanStep — but both collapse to the same handful of price keys, and
+ * duplicating that collapse is exactly how the D8 desecration mispricing hid: one planner learned
+ * about an omen surcharge and the other did not. `PlanStep` satisfies this structurally.
+ */
+export interface PricedStep {
+  readonly currency: PlanStep['currency'];
+  /** Orb strength for the add-currencies (transmute/augment/regal/exalt). */
+  readonly tier?: CurrencyTier;
+  /** Regular-essence level (lesser/normal/greater) — selects `essence_*`. */
+  readonly essenceLevel?: string;
+  /** Side constraint that costs a Sinistral/Dextral omen on exalt and desecrate. */
+  readonly constrainTo?: AffixType;
+  /** Side (or Light) omen on annul and perfect-essence. */
+  readonly omen?: AnnulOmen | EssenceOmen;
+  /** Which boss pool a desecration draws from — each is its own omen. */
+  readonly boss?: DesecrationBossOmen;
+}
 
 /** Where a price sheet came from — carried so the UI can be honest about how firm the numbers are. */
 export interface PricesMeta {
@@ -73,7 +100,7 @@ export function indexPrices(file: PricesFile): Prices {
  * The `prices.currency` key a step maps to, including its orb strength — e.g. an exalt step with
  * `tier: 'greater'` costs `exalt_greater`. Base tier (or no tier) uses the plain currency key.
  */
-function currencyKey(step: PlanStep): string {
+function currencyKey(step: PricedStep): string {
   if (step.currency === 'perfect-essence') return 'perfect_essence';
   // A regular essence is priced by its level (Lesser/Normal/Greater); Normal uses the plain `essence`.
   if (step.currency === 'essence') {
@@ -81,7 +108,7 @@ function currencyKey(step: PlanStep): string {
     return lvl === 'lesser' || lvl === 'greater' ? `essence_${lvl}` : 'essence';
   }
   const isAdd = step.currency === 'transmute' || step.currency === 'augment' || step.currency === 'regal' || step.currency === 'exalt';
-  if (isAdd && 'tier' in step && step.tier && step.tier !== 'base') return `${step.currency}_${step.tier}`;
+  if (isAdd && step.tier && step.tier !== 'base') return `${step.currency}_${step.tier}`;
   return step.currency;
 }
 
@@ -90,7 +117,7 @@ function currencyKey(step: PlanStep): string {
  * MORE than one: a Desecration may carry both a boss omen (which pool it draws from) and a
  * Sinistral/Dextral Necromancy omen (which side it draws on) — two separate omens, two surcharges.
  */
-export function stepOmenIds(step: PlanStep): string[] {
+export function stepOmenIds(step: PricedStep): string[] {
   switch (step.currency) {
     case 'exalt':
       if (step.constrainTo === 'prefix') return ['OmenofSinistralExaltation'];
@@ -120,7 +147,7 @@ export function stepOmenIds(step: PlanStep): string[] {
 }
 
 /** Cost of a single step: its currency price plus any omen surcharge. Unknown keys cost 0. */
-export function stepCost(prices: Prices, step: PlanStep): number {
+export function stepCost(prices: Prices, step: PricedStep): number {
   const base = prices.currency[currencyKey(step)] ?? 0;
   const omens = stepOmenIds(step).reduce((sum, id) => sum + (prices.omens[id] ?? 0), 0);
   return base + omens;

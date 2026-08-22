@@ -189,8 +189,11 @@ function actionLabel(action: McAction): string {
   }
   if (action.currency === 'desecrate') {
     const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
-    const boss = `Omen of the ${BOSS_LABEL[action.boss]}`;
-    return sideLabel ? `Desecrate (${boss}, ${sideLabel})` : `Desecrate (${boss})`;
+    // No boss omen — the untargeted draw over the whole pool. That is the only desecration available
+    // on armour, so this is the common label, not an edge case: don't name an omen that isn't used.
+    const boss = action.boss ? `Omen of the ${BOSS_LABEL[action.boss]}` : null;
+    const parts = [boss, sideLabel].filter((x): x is string => x !== null);
+    return parts.length > 0 ? `Desecrate (${parts.join(', ')})` : 'Desecrate';
   }
   if (action.currency === 'perfect-essence') {
     const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;

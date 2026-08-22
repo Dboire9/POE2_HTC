@@ -57,7 +57,11 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeCloseTo(3, 9);
     const s0 = r.nodes.find((nd) => nd.isStart)!;
-    expect(s0.action).toEqual({ currency: 'desecrate', boss: 'blackblooded' });
+    // In THIS base the untargeted draw and the Blackblooded one are the same distribution: NP1's
+    // family is occupied (it's the fractured start mod) so the normal pool contributes nothing, and
+    // both desecrated mods are kurgal. Two identical actions at an identical cost — the planner takes
+    // the one that needs no omen. The arithmetic above is what this test is really pinning.
+    expect(s0.action).toEqual({ currency: 'desecrate' });
     // The half that misses is a real regression edge (the brick), not a silent no-op.
     expect(r.edges.some((e) => e.from === s0.key && e.regress && Math.abs(e.prob - 0.5) < 1e-9)).toBe(true);
   });
@@ -72,7 +76,8 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     const r = markovFromItem(data, prices, start, targets);
     expect(r.expectedCost).toBeCloseTo(1.5, 9);
     const s0 = r.nodes.find((nd) => nd.isStart)!;
-    expect(s0.action).toEqual({ currency: 'desecrate', boss: 'blackblooded', side: 'prefix' });
+    // Same tie as above on the boss half; what matters is that the SIDE omen is bought.
+    expect(s0.action).toEqual({ currency: 'desecrate', side: 'prefix' });
   });
 
   it('a dear side omen is declined in favour of the cheaper unconstrained draw', () => {
@@ -84,7 +89,8 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     };
     const r = markovFromItem(data, prices, start, targets);
     expect(r.expectedCost).toBeCloseTo(3, 9);
-    expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'desecrate', boss: 'blackblooded' });
+    // No `side` key: the omen was weighed and declined.
+    expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'desecrate' });
   });
 
   it('rejects a target holding two desecrated mods (an item carries at most one)', () => {
@@ -107,16 +113,28 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     expect(r.reason).toMatch(/at most one desecrated mod/i);
   });
 
-  it('rejects a desecrated target with no boss omen to select it', () => {
+  // This used to be a rejection ("no boss omen to select it"), from back when every desecrate action
+  // carried one. A boss tag decides only whether the draw can be NARROWED — the untargeted draw
+  // reaches everything in the pool — so an untagged desecrated mod is reachable, just at longer odds.
+  it('reaches a desecrated target with no boss omen, via the untargeted draw', () => {
     const noBoss: PatchData = {
       patch: 't',
       mods: new Map([...data.mods, ['DP1', mk('DP1', 'prefix', 'FdP', 'desecrated')]]), // no boss tag
       bases: new Map([['S', base]]),
     };
-    const prices: Prices = { currency: { exalt: 1, annul: 1, desecrate: 1 }, omens: {} };
+    // chaos: 99 like the fixtures above — `stepCost` treats a MISSING price as 0, so leaving it out
+    // hands the policy a free Chaos Orb and the hand-computed arithmetic below collapses (E = 2).
+    const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens: {} };
     const r = markovFromItem(noBoss, prices, start, targets);
-    expect(r.feasible).toBe(false);
-    expect(r.reason).toMatch(/no boss omen/i);
+    expect(r.feasible).toBe(true);
+    // Untagged DP1 is in no boss pool, so a Blackblooded draw could never produce it. Only the
+    // untargeted action can, which is what the policy must be playing.
+    const desecrations = [...r.policy.values()].filter((a) => a.currency === 'desecrate');
+    expect(desecrations.length).toBeGreaterThan(0);
+    expect(desecrations.every((a) => a.boss === undefined)).toBe(true);
+    // Same 1-of-2 shape as the tagged case (NP1's family is occupied, so only DP1 and DS1 are legal):
+    //   E = 1 + ½·0 + ½·(1 + E) ⇒ E = 3.
+    expect(r.expectedCost).toBeCloseTo(3, 9);
   });
 });
 

@@ -126,14 +126,45 @@ describe('MDP', () => {
     expect(r.feasible).toBe(true);
   });
 
-  // Every desecrate action the MDP models carries a boss omen, so on armour it cannot represent the
-  // craft at all. Saying so beats inventing a policy the game would refuse — the linear planner above
-  // still costs it with the untargeted draw.
-  it('declines armour rather than planning an omen the game refuses, and says why', () => {
+  // REGRESSION. Gating the boss omen correctly is only half the fix: for a while the MDP's ONLY
+  // desecrate action carried one, so armour lost the ability to desecrate at all and the planner
+  // reported `feasible: false` for a craft the game performs happily. That is 342 of 527 desecrated
+  // mods — the majority — told they were impossible.
+  it('plans armour with the untargeted draw instead of declining it', () => {
     const r = markovFromItem(data, prices, start(ARMOUR), [
       { modId: ARMOUR.rollable[0]!, minTierIndex: 0 }, { modId: ARMOUR.des, minTierIndex: 0 },
     ]);
-    expect(r.feasible).toBe(false);
-    expect(r.reason).toMatch(/Weapon or Jewellery/i);
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeGreaterThan(0);
+    expect(Number.isFinite(r.expectedCost)).toBe(true);
+  });
+
+  // …and it must be the UNTARGETED draw, not a boss omen smuggled in by the new action.
+  it('never puts a boss omen in an armour policy', () => {
+    const r = markovFromItem(data, prices, start(ARMOUR), [
+      { modId: ARMOUR.rollable[0]!, minTierIndex: 0 }, { modId: ARMOUR.des, minTierIndex: 0 },
+    ]);
+    const desecrations = [...r.policy.values()].filter((a) => a.currency === 'desecrate');
+    expect(desecrations.length).toBeGreaterThan(0);
+    expect(desecrations.every((a) => a.boss === undefined)).toBe(true);
+  });
+
+  // The control. A weapon must still be able to buy the narrower boss draw, or the assertion above
+  // would pass simply because nothing anywhere targets a boss.
+  it('still offers a boss-targeted desecration somewhere in a weapon policy', () => {
+    const r = markovFromItem(data, prices, start(WEAPON), [
+      { modId: WEAPON.rollable[0]!, minTierIndex: 0 }, { modId: WEAPON.des, minTierIndex: 0 },
+    ]);
+    expect([...r.policy.values()].some((a) => a.currency === 'desecrate' && a.boss !== undefined)).toBe(true);
+  });
+
+  // A player who owns no omens at all still has a bone. Before the untargeted action existed, excluding
+  // omens removed the last desecrate action on EVERY base, weapons included.
+  it('keeps a desecrated target reachable when every omen is excluded', () => {
+    const noOmens = { excluded: new Set(Object.keys(prices.omens)) };
+    const r = markovFromItem(data, prices, start(WEAPON), [
+      { modId: WEAPON.rollable[0]!, minTierIndex: 0 }, { modId: WEAPON.des, minTierIndex: 0 },
+    ], { policy: noOmens });
+    expect(r.feasible).toBe(true);
   });
 });

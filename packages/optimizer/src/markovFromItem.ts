@@ -26,7 +26,7 @@
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
-import { bossOmenAllowed, desecrationOmenForMod } from '../../engine/src/probability.ts';
+import { bossOmenAllowed } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
@@ -147,17 +147,11 @@ export function markovFromItem(
     if (mod.source === 'desecrated') {
       const inPool = pools.desecrated.prefixes.includes(mod.id) || pools.desecrated.suffixes.includes(mod.id);
       if (!inPool) return fail(`${t.modId} isn't in ${start.base.id}'s desecrated pool`);
-      if (desecrationOmenForMod(mod) === undefined) return fail(`${t.modId} has no boss omen that targets it`);
-      // Every desecrate action this planner models is boss-targeted, and those omens are "Weapon or
-      // Jewellery" only — so on armour it cannot represent adding a desecrated mod at all. Say so
-      // rather than quietly planning a step the game refuses; the linear from-item planner still
-      // costs this craft, using the whole-pool draw that armour actually gets.
-      if (!bossOmenAllowed(start.base.category)) {
-        return fail(
-          `boss omens only apply to Weapon or Jewellery desecrations, so ${start.base.id} can't target `
-          + `${t.modId} — see the step routes below for the untargeted draw`,
-        );
-      }
+      // Being in the pool is the whole requirement. A boss tag only decides whether the draw can be
+      // NARROWED (and those omens are Weapon-or-Jewellery only) — the untargeted draw reaches every
+      // mod in the pool regardless, so neither a missing tag nor an armour base makes the target
+      // unreachable. Rejecting on either used to report `feasible: false` for 342 of the 527
+      // desecrated mods, all of them craftable.
     }
     if (mod.source === 'perfect_essence') {
       const inPool = pools.essence.prefixes.includes(mod.id) || pools.essence.suffixes.includes(mod.id);

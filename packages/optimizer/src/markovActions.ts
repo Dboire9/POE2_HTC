@@ -28,9 +28,12 @@ export type McAction =
   // uniform 1/N. Mutually exclusive with a side omen — Light already names its target exactly.
   | { readonly currency: 'annul'; readonly side?: 'prefix' | 'suffix'; readonly light?: true }
   | { readonly currency: 'chaos' }
-  // A Desecration draws from one boss's desecrated pool. Unconstrained it draws across both sides;
-  // a Sinistral/Dextral Necromancy omen (`side`) restricts it to one, shrinking the pool.
-  | { readonly currency: 'desecrate'; readonly boss: DesecrationBossOmen; readonly side?: 'prefix' | 'suffix' }
+  // A Desecration. WITH a boss omen it draws from that boss's desecrated pool (count-uniform);
+  // unconstrained it draws across both sides, and a Sinistral/Dextral Necromancy omen (`side`)
+  // restricts it to one, shrinking the pool. WITHOUT a boss omen (`boss` absent) it draws by weight
+  // from the base's combined normal ∪ desecrated pool — longer odds, but no omen to buy, and the only
+  // desecration armour can perform at all (the boss omens are "Weapon or Jewellery" only).
+  | { readonly currency: 'desecrate'; readonly boss?: DesecrationBossOmen; readonly side?: 'prefix' | 'suffix' }
   // A Perfect Essence forces one specific mod on while removing one at random. `side` is a
   // Sinistral/Dextral Crystallisation omen constraining WHICH mod the essence eats.
   | { readonly currency: 'perfect-essence'; readonly target: string; readonly side?: 'prefix' | 'suffix' };
@@ -66,7 +69,13 @@ function pricedStepOf(action: McAction): PricedStep {
       return { currency: 'annul', ...(omen ? { omen } : {}) };
     }
     case 'desecrate':
-      return { currency: 'desecrate', boss: action.boss, ...(action.side ? { constrainTo: action.side } : {}) };
+      // No boss omen → no boss surcharge; `stepOmenIds` already prices `boss` being absent as zero
+      // omens, so the step costs the bone alone (which `pricesForBase` has already resolved).
+      return {
+        currency: 'desecrate',
+        ...(action.boss ? { boss: action.boss } : {}),
+        ...(action.side ? { constrainTo: action.side } : {}),
+      };
     case 'perfect-essence': {
       const omen = asOmen(action.side);
       // `target` is the mod the essence forces, which is what prices it — see PricedStep.
@@ -285,6 +294,70 @@ export function createActionSpace(params: ActionSpaceParams): {
     return out;
   };
 
+  /**
+   * The UNTARGETED desecration — no boss omen. The draw spans the base's combined normal ∪ desecrated
+   * pool BY WEIGHT, which is exactly the model `desecrationProbability` gives the linear planner
+   * (plan.ts's no-`boss` branch); keeping the two identical is the D8 lesson.
+   *
+   * This is the ONLY desecration an armour base can perform, since the boss omens are "Weapon or
+   * Jewellery" only. On a weapon it sits alongside them as the cheap, long-odds alternative — and it
+   * is what keeps a desecrated target reachable for a player who has excluded every omen. A
+   * Sinistral/Dextral Necromancy omen still narrows it to one side: that omen constrains the SLOT,
+   * not the boss, so no base gates it.
+   *
+   * Unlike a boss draw this can land a NORMAL mod, so the leftover weight splits two ways — foreign
+   * normal weight becomes jp/js junk, foreign desecrated weight becomes the desJunk axis. Target
+   * outcomes never touch desJunk: `hasDesecrated` already reads a desecrated target out of
+   * present/blocked, and setting it here too would record one desecrated mod as two.
+   */
+  const desecrateAnyOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix'): Dist => {
+    const out: Dist = new Map();
+    if (!desecratable || hasDesecrated(s, list)) return out; // an item holds at most one desecrated mod
+    const prefixOpen = constrainTo !== 'suffix' && prefixOpenIn(s);
+    const suffixOpen = constrainTo !== 'prefix' && suffixOpenIn(s);
+    const occ = occupiedFamilies(s.present, s.blocked, list);
+    // Preserved bones are unrestricted ("Minimum Modifier Level" is an Ancient-grade line), and every
+    // desecrated mod in the data is ilvl 65, so the strength floor is 0. See desecrationBoneFor.
+    const weigh = (ids: readonly string[], open: boolean): number =>
+      (open ? poolTotalWeight(data, ids, 0, level, occ) : 0);
+    const prefNormal = weigh(pools.normal.prefixes, prefixOpen);
+    const prefDes = weigh(pools.desecrated.prefixes, prefixOpen);
+    const sufNormal = weigh(pools.normal.suffixes, suffixOpen);
+    const sufDes = weigh(pools.desecrated.suffixes, suffixOpen);
+    const grand = prefNormal + prefDes + sufNormal + sufDes;
+    if (grand <= 0) return out;
+    // Whole-family weight claimed by TARGETS, split by side and by which pool it came out of, so the
+    // residue lands on the right junk axis.
+    const claimed = {
+      prefix: { normal: 0, desecrated: 0 },
+      suffix: { normal: 0, desecrated: 0 },
+    };
+    for (let i = 0; i < n; i++) {
+      if (has(s.present, i) || has(s.blocked, i)) continue; // family already occupied
+      const t = list[i]!;
+      const src = t.mod.source;
+      if (src !== 'normal' && src !== 'desecrated') continue; // essence-only mods are in neither pool
+      if (excluded(t.mod, occ)) continue;
+      if (!(t.type === 'prefix' ? prefixOpen : suffixOpen)) continue;
+      const succ = succWeight(t, 0);
+      const any = anyWeight(t, 0);
+      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk), succ / grand);
+      const below = any - succ;
+      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.desJunk), below / grand);
+      claimed[t.type][src] += any;
+    }
+    const residue = (total: number, taken: number): number => Math.max(0, total - taken);
+    const junkPref = residue(prefNormal, claimed.prefix.normal);
+    const junkSuf = residue(sufNormal, claimed.suffix.normal);
+    const desPref = residue(prefDes, claimed.prefix.desecrated);
+    const desSuf = residue(sufDes, claimed.suffix.desecrated);
+    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.desJunk), junkPref / grand);
+    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, s.desJunk), junkSuf / grand);
+    if (desPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'prefix'), desPref / grand);
+    if (desSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'suffix'), desSuf / grand);
+    return out;
+  };
+
   // ── Perfect Essence ────────────────────────────────────────────────────────────────────────────
   // Forces its own mod on while eating one existing mod at random — so the removal half is exactly the
   // uniform draw removeOutcomes already computes (perfectEssenceProbability's 1/(pf+sf), 1/pf and 1/sf
@@ -343,15 +416,27 @@ export function createActionSpace(params: ActionSpaceParams): {
     }
     if (lightOk) push(acts, { currency: 'annul', light: true }, lightOutcomes(s));
     push(acts, { currency: 'chaos' }, chaosOutcomes(s));
-    // `desecratable` stays true on armour so the desecrated-JUNK state axis (and the Omen of Light
-    // lever that clears it) keeps working — what armour loses is the ability to ADD a targeted mod,
-    // because every desecrate action this planner models carries a boss omen and those are
-    // "Weapon or Jewellery" only.
-    if (desecratable && bossTargetable) {
-      for (const boss of ['blackblooded', 'liege', 'sovereign'] as const) {
-        push(acts, { currency: 'desecrate', boss }, desecrateOutcomes(s, boss));
-        for (const sd of ['prefix', 'suffix'] as const) {
-          if (necromancyOk(sd)) push(acts, { currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd));
+    if (desecratable) {
+      // The untargeted draw is always available: it needs no omen, so nothing about the base or the
+      // player's omen stock can gate it. On armour it is the ONLY desecration (see
+      // desecrateAnyOutcomes); everywhere else it is the cheap alternative to a boss omen.
+      //
+      // It is pushed FIRST deliberately. `bestAction` breaks ties with a strict `<`, so the earliest
+      // action wins when two score identically — and two CAN, whenever the boss's pool happens to be
+      // the whole legal pool. Preferring the omen-free action there is the better answer: same odds,
+      // same cost, one fewer thing the player must own.
+      push(acts, { currency: 'desecrate' }, desecrateAnyOutcomes(s));
+      for (const sd of ['prefix', 'suffix'] as const) {
+        if (necromancyOk(sd)) push(acts, { currency: 'desecrate', side: sd }, desecrateAnyOutcomes(s, sd));
+      }
+      // Boss targeting is "Weapon or Jewellery" only — offering it on armour would plan a step the
+      // game refuses.
+      if (bossTargetable) {
+        for (const boss of ['blackblooded', 'liege', 'sovereign'] as const) {
+          push(acts, { currency: 'desecrate', boss }, desecrateOutcomes(s, boss));
+          for (const sd of ['prefix', 'suffix'] as const) {
+            if (necromancyOk(sd)) push(acts, { currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd));
+          }
         }
       }
     }

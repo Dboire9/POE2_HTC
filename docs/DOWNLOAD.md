@@ -1,47 +1,36 @@
-# 📦 Download POE2HTC
+# Running POE2HTC
 
-## Quick Download
+**There is nothing to download. POE2HTC is a web page — open it and it works.**
 
-**Go to [GitHub Releases](https://github.com/Dboire9/POE2_HTC/releases/latest) and download for your OS**
+👉 **[poe2htc.com](https://poe2htc.com/)**
 
-### 🐧 Linux
-Look for: `POE2HTC-X.X.X.AppImage`
+Nothing to install, nothing to update: the page always serves the current version, and your settings
+(the currencies you don't have, your search effort, the craft you were working on) are kept in your
+own browser.
 
-**How to use:**
-1. Download the file
-2. Right-click → Properties → Permissions → Check "Allow executing as program"
-3. Double-click to run
+## "I want to share a craft"
 
-### 🪟 Windows
-Look for: `POE2HTC-Setup-X.X.X.exe` or `POE2HTC-X.X.X-win.zip`
+Use **Copy link**. It encodes the whole workspace — base, mods, tiers, budget — into the URL, so
+whoever opens it sees exactly what you were looking at. It is also the fastest way to report a
+problem: the **🐛 Report a problem** button builds a message with that link already in it.
 
-**How to use:**
-1. Download the installer (.exe) or portable zip
-2. Run the installer, or extract the zip and run `POE2HTC.exe`
+## Was there a desktop version?
 
-### 🍎 macOS
-Look for: `POE2HTC-X.X.X.dmg`
+Yes, until 2026-08-22. It was an Electron build published to GitHub Releases, and it was retired when
+solving moved into a Web Worker: Chromium blocks module Workers on the `file://` origin a packaged
+Electron app loads from, so the desktop build could not run the solver at all. The web version is
+the whole product now — and it is the same code, so it is not a lesser one.
 
-**How to use:**
-1. Download the .dmg file
-2. Open it and drag POE2HTC to Applications
-3. Launch from Applications folder
+Older `.AppImage` / `.exe` files may still exist under GitHub Releases. **Don't use them**: they are
+frozen at 0.5-era data and predate every crafting-mechanic correction since.
 
----
+## Running it yourself
 
-## No Releases Yet?
+```bash
+git clone https://github.com/Dboire9/POE2_HTC
+cd POE2_HTC
+npm install
+npm run dev      # http://localhost:5173
+```
 
-If no releases are available yet, you can build from source (all you need is **Node.js 20+** — the app
-is pure TypeScript, no Java/Maven):
-
-1. Clone the repository
-2. Run `npm install --legacy-peer-deps`
-3. Run `npm run dev` for development mode
-4. ...or `npm run build` to produce the static site in `dist/`
-
----
-
-## Need Help?
-
-- [Report a bug](https://github.com/Dboire9/POE2_HTC/issues/new?template=bug_report.yml)
-- [View full documentation](README.md)
+`npm run build` produces a static site in `dist/` — any static host will serve it.

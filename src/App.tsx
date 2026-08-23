@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Toaster } from './components/ui/toaster';
 import EngineLab from './features/engine/EngineLab';
+import ReportProblem, { DISCORD_URL, PANEL_ID } from './features/engine/ReportProblem';
 
 // App version (shown in the header).
 const version = '0.9.7';
+
+/** Shared chip styling for the header actions — one place, so they can't drift apart. */
+const CHIP = 'flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-md border transition-all cursor-pointer '
+  + 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 // Open a link in a new tab. This used to route through an Electron bridge when one was present; the
 // app ships as a web page only now, so there is just the one path.
@@ -12,6 +17,7 @@ const openExternalLink = (url: string) => {
 };
 
 export default function App() {
+  const [reporting, setReporting] = useState(false);
   return (
     <div className="min-h-screen text-foreground bg-background">
       <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
@@ -25,57 +31,64 @@ export default function App() {
             </div>
           </div>
 
-          <div className="hidden md:flex flex-col items-end gap-2 text-xs text-muted-foreground">
+          {/* WRAPS, never disappears. This block used to be `hidden md:flex`, so on a phone there
+              was no Discord link and no way to report a bug — the exact loop the app depends on
+              while it is gathering feedback. The chips stay at every width; their words come back at
+              `sm`/`lg`.
+
+              Every control carries an explicit aria-label because of that: these buttons took their
+              accessible name from text like "💬 Join Discord", and hiding the words would collapse
+              the name to "💬". The emoji is aria-hidden and the name is stated. */}
+          <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2 text-xs text-muted-foreground">
             <button
               onClick={() => openExternalLink('https://github.com/Dboire9')}
-              className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer bg-transparent border-none"
+              className="hidden sm:flex items-center gap-2 hover:text-primary transition-colors cursor-pointer bg-transparent border-none"
+              aria-label="Created by Dboire — open the author's GitHub profile"
             >
-              <span className="text-xs uppercase tracking-wider opacity-70">Created by</span>
+              <span className="text-xs uppercase tracking-wider opacity-70 hidden lg:inline">Created by</span>
               <span className="font-medium text-sm">Dboire</span>
             </button>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => openExternalLink('https://discord.gg/RvxCWyFF3D')}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 hover:border-indigo-500/50 transition-all cursor-pointer"
-                title="Join our Discord community"
-              >
-                <span className="text-xs leading-none">💬 Join Discord</span>
-              </button>
-              <button
-                onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC/issues/new')}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 transition-all cursor-pointer"
-                title="Report a bug on GitHub"
-              >
-                <span className="text-xs leading-none">🐛 Report Bug</span>
-              </button>
-              <button
-                onClick={() => openExternalLink('https://buymeacoffee.com/dboire')}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 hover:border-yellow-500/50 transition-all cursor-pointer"
-                title="Support the project"
-              >
-                <span className="text-xs leading-none">☕ Support</span>
-              </button>
-              <button
-                onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC/releases/latest')}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 hover:border-purple-500/50 transition-all cursor-pointer"
-                title="Download desktop app for offline use"
-              >
-                <span className="text-xs leading-none">⬇️ Desktop App</span>
-              </button>
-              <button
-                onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC')}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/30 hover:border-primary/50 transition-all cursor-pointer"
-              >
-                <span className="text-xs font-mono font-semibold leading-none">v{version}</span>
-                <span className="opacity-30 leading-none">|</span>
-                <span className="text-xs leading-none">⭐ Star & Contribute</span>
-              </button>
-            </div>
+            <button
+              onClick={() => setReporting((r) => !r)}
+              className={`${CHIP} bg-red-500/10 hover:bg-red-500/20 border-red-500/30 hover:border-red-500/50`}
+              aria-label="Report a problem"
+              aria-expanded={reporting}
+              aria-controls={PANEL_ID}
+            >
+              <span aria-hidden="true">🐛</span>
+              <span className="hidden sm:inline">Report a problem</span>
+            </button>
+            <button
+              onClick={() => openExternalLink(DISCORD_URL)}
+              className={`${CHIP} bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/30 hover:border-indigo-500/50`}
+              aria-label="Join the Discord community"
+            >
+              <span aria-hidden="true">💬</span>
+              <span className="hidden sm:inline">Discord</span>
+            </button>
+            <button
+              onClick={() => openExternalLink('https://buymeacoffee.com/dboire')}
+              className={`${CHIP} bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/30 hover:border-yellow-500/50`}
+              aria-label="Support the project"
+            >
+              <span aria-hidden="true">☕</span>
+              <span className="hidden lg:inline">Support</span>
+            </button>
+            <button
+              onClick={() => openExternalLink('https://github.com/Dboire9/POE2_HTC')}
+              className={`${CHIP} bg-primary/10 hover:bg-primary/20 border-primary/30 hover:border-primary/50`}
+              aria-label={`Version ${version} — open the project on GitHub`}
+            >
+              <span className="font-mono font-semibold leading-none">v{version}</span>
+              <span className="opacity-30 leading-none hidden lg:inline">|</span>
+              <span className="hidden lg:inline">⭐ Star &amp; Contribute</span>
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="container py-3 sm:py-4 px-3 sm:px-4">
+      <main className="container py-3 sm:py-4 px-3 sm:px-4 space-y-3">
+        <ReportProblem version={version} open={reporting} onClose={() => setReporting(false)} />
         <EngineLab />
       </main>
 

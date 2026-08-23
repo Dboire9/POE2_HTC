@@ -29,3 +29,26 @@ describe('the mod columns stack on a phone', () => {
     expect(read('ItemActions.tsx')).toContain('flex-1 min-w-0');
   });
 });
+
+// The header's action block was `hidden md:flex`, so on a phone there was NO Discord link and no way
+// to report a bug — the exact loop the app depends on while it gathers feedback. Same jsdom caveat as
+// above: this asserts the class contract that produces the layout, not the layout.
+describe('the header actions survive a narrow screen', () => {
+  const app = readFileSync('src/App.tsx', 'utf8');
+
+  it('does not hide the whole action block below a breakpoint', () => {
+    expect(app).not.toMatch(/hidden md:flex flex-col items-end/);
+    expect(app).toContain('flex flex-wrap items-center justify-end');
+  });
+
+  // Hiding a button's TEXT at narrow widths leaves the emoji as its accessible name — a screen reader
+  // would announce "💬". Every action states its own name instead, and the emoji is decorative.
+  it('names every action explicitly rather than leaning on emoji text', () => {
+    for (const label of [
+      'Report a problem', 'Join the Discord community', 'Support the project',
+    ]) {
+      expect(app).toContain(`aria-label="${label}"`);
+    }
+    expect(app).toContain('aria-hidden="true"');
+  });
+});

@@ -15,7 +15,7 @@ import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { EFFORT_PRESETS, limitsFor, setEffort, useEffort } from '../../lib/searchEffort';
 import {
-  decodeWorkspace, encodeWorkspace, getWorkspace, setWorkspace, useField, useMode, useOnChange,
+  decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode, useOnChange,
 } from '../../lib/workspace';
 import { toast } from 'sonner';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
@@ -294,7 +294,7 @@ const EngineLab: React.FC = () => {
   // Encode the whole workspace into a link. The state already lives in one store, so this is a
   // serialisation, not a second source of truth.
   const share = async () => {
-    const url = `${window.location.origin}${window.location.pathname}?s=${encodeWorkspace(getWorkspace())}`;
+    const url = shareUrl();
     try {
       await navigator.clipboard.writeText(url);
       toast.success('Link copied', { description: 'It reproduces this base, targets, tiers and budget.' });
@@ -323,7 +323,9 @@ const EngineLab: React.FC = () => {
     const missing = decoded.dropped.length;
     toast.success('Loaded from link', {
       description: missing > 0
-        ? `${missing} mod${missing === 1 ? '' : 's'} in the link no longer exist and were left out.`
+        // "mods" was wrong: `dropped` can also hold a base id this build doesn't have. Counting a base
+        // as a mod sends the reader looking for a missing modifier that was never the problem.
+        ? `${missing} entr${missing === 1 ? 'y' : 'ies'} in the link aren’t part of this build and were left out.`
         : undefined,
       action: { label: 'Undo', onClick: () => setWorkspace(previous) },
     });

@@ -143,3 +143,28 @@ describe('a finished solve is announced', () => {
     expect((await screen.findByRole('status')).textContent).toMatch(/no achievable plan/i);
   });
 });
+
+// The header's actions are how a user reaches Discord or reports a bug. Resolving each BY ITS
+// ACCESSIBLE NAME is the assertion: if a name ever collapses to the bare emoji (which is what happens
+// when the text is hidden and no aria-label is set), these queries stop finding anything.
+describe('header actions are reachable by name', () => {
+  it('every action has a real name, not an emoji', async () => {
+    const App = (await import('../../App')).default;
+    render(<App />);
+    for (const name of [/Report a problem/i, /Join the Discord community/i, /Support the project/i]) {
+      expect(screen.getByRole('button', { name })).toBeInTheDocument();
+    }
+    // Nothing is named by an emoji alone.
+    for (const btn of screen.getAllByRole('button')) {
+      expect((btn.getAttribute('aria-label') ?? btn.textContent ?? '').replace(/[\p{Emoji}\s]/gu, '')).not.toBe('');
+    }
+  });
+
+  it('the report trigger is a disclosure, and says which panel it controls', async () => {
+    const App = (await import('../../App')).default;
+    render(<App />);
+    const trigger = screen.getByRole('button', { name: /Report a problem/i });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).toHaveAttribute('aria-controls');
+  });
+});

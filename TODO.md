@@ -35,6 +35,18 @@ Session Replay not in the bundle at all. Lazy-loading it would buy almost nothin
 
 ## Recently closed
 
+- **Feedback is reachable, and the desktop promise is gone** (2026-08-23). The header's action block
+  was `hidden md:flex`, so on a phone there was no Discord link and no way to report a bug — the exact
+  loop the launch depends on. It now wraps and compacts instead of disappearing, with an explicit
+  `aria-label` on every action (hiding the text would otherwise leave the emoji as the accessible
+  name). A new **Report a problem** panel builds a paste-anywhere report carrying the share link that
+  reproduces the user's exact craft; it offers Discord alongside GitHub, since most players have no
+  GitHub account. The "⬇️ Desktop App" button promised an Electron build removed on 2026-08-22 and is
+  gone; `docs/DOWNLOAD.md` now says there is nothing to download.
+  Found on the way: `decodeWorkspace` counted an EMPTY base id as a lost id, so a link shared from a
+  fresh workspace announced "2 mods in the link no longer exist" — no mods, nothing missing. The
+  message also called a dropped base a "mod".
+
 - **The evidence trail is current again** (2026-08-23). `docs/validation.md`'s last section was dated
   2026-08-21, so five mechanic changes existed only in commit messages — the boss-omen gate, armour's
   untargeted draw, the one-essence cap, perfect essences from white plus the missing ilvl-72 gate, and

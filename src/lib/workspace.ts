@@ -98,6 +98,18 @@ function fromBase64Url(s: string): string {
   return new TextDecoder().decode(bytes);
 }
 
+/**
+ * The shareable URL for a workspace — the link that reproduces someone's exact craft.
+ *
+ * Lives here, and is used by BOTH the Copy-link button and the problem report, because it is one
+ * mapping and two copies of one mapping is how the D8 pricing bug survived undetected. `origin +
+ * pathname` deliberately drops any existing query, so sharing a workspace you arrived at via `?s=`
+ * doesn't nest the old payload inside the new one.
+ */
+export function shareUrl(ws: Workspace = getWorkspace()): string {
+  return `${window.location.origin}${window.location.pathname}?s=${encodeWorkspace(ws)}`;
+}
+
 /** Encode a workspace into the opaque `?s=` payload. */
 export function encodeWorkspace(ws: Workspace): string {
   const lb = ws.lab.baseId;
@@ -127,8 +139,9 @@ export function encodeWorkspace(ws: Workspace): string {
 
 export interface DecodeResult {
   readonly workspace: Workspace;
-  /** Ids the link named that this build no longer knows — dropped, and reported so we don't silently
-   *  plan something different from what was shared. */
+  /** Ids the link named that this build no longer knows — MOD ids, and possibly a base id — dropped and
+   *  reported so we don't silently plan something different from what was shared. Empty ids are not
+   *  losses and never appear here; see `knownBase`. */
   readonly dropped: readonly string[];
 }
 
@@ -153,7 +166,11 @@ export function decodeWorkspace(payload: string, data: PatchData): DecodeResult 
   if (wire.v !== FORMAT || !wire.l || !wire.i) return null;
 
   const dropped: string[] = [];
-  const knownBase = (id: string): string => (data.bases.has(id) ? id : (dropped.push(id), ''));
+  // An EMPTY base id means "none chosen yet", not "an id this build lost". Reporting it as dropped made
+  // a link shared from a fresh workspace announce "2 mods in the link no longer exist" — two counts, no
+  // mods, nothing missing. `dropped` drives a user-facing message, so only real losses belong in it.
+  const knownBase = (id: string): string =>
+    (!id || data.bases.has(id) ? id : (dropped.push(id), ''));
   const keep = (base: string, short: string): string | null => {
     const full = restore(base, short);
     if (data.mods.has(full)) return full;

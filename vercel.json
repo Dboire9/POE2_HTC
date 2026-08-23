@@ -2,14 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "headers": [
     {
-      "//": "Everything under /static is content-hashed by Vite (index-<hash>.js, mods-<hash>.json), so a given URL's bytes can never change. Cache it permanently: a repeat visitor re-downloads none of the 3.1 MB data file.",
       "source": "/static/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     },
     {
-      "//": "index.html is NOT hashed -- it is how a new deploy is discovered, so it must be revalidated every time. must-revalidate with max-age=0 lets the browser keep a copy but forces a conditional request.",
       "source": "/",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }

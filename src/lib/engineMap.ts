@@ -155,7 +155,15 @@ export function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
       return { n: i + 1, currency: step.currency, orb, label, target, prob: sr.prob };
     }),
   }));
-  return { frontier, plansEvaluated: res.plansEvaluated, currencyDepth: res.currencyDepth };
+  // Does anything here depend on the ASSUMED desecrated spawn weight? Only an UNOMENED Desecration
+  // does: it draws by weight from the combined normal ∪ desecrated pool, and that weight is a
+  // judgement call (see the note in tools/refresh/apply_pools.mjs). A boss-omened Desecration is
+  // count-uniform and ignores weights entirely, so it stays exact. Computed here from the actual
+  // steps rather than "did the target mention a desecrated mod", so the caveat appears exactly when
+  // the numbers it qualifies are on screen.
+  const assumedOdds = res.frontier.some((plan) =>
+    plan.steps.some((step) => step.currency === 'desecrate' && step.boss === undefined));
+  return { frontier, plansEvaluated: res.plansEvaluated, currencyDepth: res.currencyDepth, assumedOdds };
 }
 
 /** Engine slot → UI slot: turns minTierIndex back into a 1-based display tier and a compact label. */
@@ -223,7 +231,10 @@ export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number):
   }));
   const edges = res.edges.map((e) => ({ from: e.from, to: e.to, action: actionLabel(e.action), prob: e.prob, regress: e.regress }));
   return {
-    applicable: true, feasible: res.feasible, expectedCost: res.expectedCost, converged: res.converged, nodes, edges,
+    applicable: true, feasible: res.feasible, expectedCost: res.expectedCost, converged: res.converged,
+    // Same rule as the frontier's: only an unomened Desecration leans on the assumed weight.
+    assumedOdds: [...res.policy.values()].some((a) => a.currency === 'desecrate' && a.boss === undefined),
+    nodes, edges,
     ...(res.reason ? { reason: res.reason } : {}),
   };
 }

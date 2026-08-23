@@ -98,6 +98,9 @@ export interface EngineResult {
   readonly frontier: readonly EnginePlan[];
   readonly plansEvaluated: number;
   readonly currencyDepth: CurrencyDepth;
+  /** True when a shown number depends on the ASSUMED desecrated spawn weight (an unomened
+   *  Desecration). The UI must say so — see PriceBasisNote's `exactOdds`. */
+  readonly assumedOdds: boolean;
 }
 
 /** A modifier currently sitting on an item the user already holds. */
@@ -221,6 +224,9 @@ export interface EngineMarkovResult {
   /** False when value iteration hit its sweep cap instead of converging — then `expectedCost` is a
    *  LOWER BOUND and the UI must render it as "≥ x". See MarkovResult.converged. */
   readonly converged: boolean;
+  /** True when a shown number depends on the ASSUMED desecrated spawn weight (an unomened
+   *  Desecration). The UI must say so — see PriceBasisNote's `exactOdds`. */
+  readonly assumedOdds: boolean;
   readonly nodes: readonly EnginePolicyNode[];
   readonly edges: readonly EnginePolicyEdge[];
 }

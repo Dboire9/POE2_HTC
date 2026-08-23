@@ -77,3 +77,36 @@ describe('priceBasis — reads the shipped sheet honestly', () => {
     expect(priceBasis({ prices: live }).estimated).toBe(false);
   });
 });
+
+// The desecrated spawn weight is ASSUMED (poe2db publishes none; we set 1000). An unomened Desecration
+// draws by weight from the combined normal ∪ desecrated pool, so those odds inherit the assumption —
+// a ~900x judgement call. The user's requirement is that the app say so rather than keep claiming the
+// odds are exact. A BOSS-omened Desecration is count-uniform and ignores weights, so it must NOT be
+// caught by this: warning on everything is the overclaim in the opposite direction.
+describe('PriceBasisNote — the assumed desecration weight', () => {
+  const basis = { estimated: true, caveat: 'Prices are live.', asOf: '2026-08-23' };
+
+  it('claims exact odds by default, because they normally are', () => {
+    render(<PriceBasisNote basis={basis} />);
+    expect(screen.getByText(/odds are exact/i)).toBeInTheDocument();
+    expect(screen.queryByText(/assumed/i)).toBeNull();
+  });
+
+  it('drops that claim and names the assumption when a plan desecrates without an omen', () => {
+    const { container } = render(<PriceBasisNote basis={basis} exactOdds={false} />);
+    const text = (container.textContent ?? '').replace(/\s+/g, ' ');
+    expect(text).toMatch(/Desecration without a boss omen/i);
+    expect(text).toMatch(/assumed/i);
+    // It must not simultaneously insist the odds are exact.
+    expect(text).not.toMatch(/odds are exact/i);
+    // …and it must not overcorrect into "everything here is a guess".
+    expect(text).toMatch(/every other probability here is exact/i);
+  });
+
+  it('says so even on a sheet with no price caveat, where the note is otherwise absent', () => {
+    const { container } = render(
+      <PriceBasisNote basis={{ estimated: false, unit: 'exalt-equivalent' }} exactOdds={false} />,
+    );
+    expect((container.textContent ?? '')).toMatch(/assumed/i);
+  });
+});

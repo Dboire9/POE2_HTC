@@ -130,10 +130,6 @@ describe('MDP', () => {
   // desecrate action carried one, so armour lost the ability to desecrate at all and the planner
   // reported `feasible: false` for a craft the game performs happily. That is 342 of 527 desecrated
   // mods — the majority — told they were impossible.
-  // SLOW ON PURPOSE, ~6-8s. Untargeted armour desecration has a minuscule per-attempt chance of
-  // landing one specific mod, and value iteration's convergence rate is governed by exactly that — the
-  // answer here is ~8.2 MILLION exalts. Loosening `tolerance` does not help (measured: same value, same
-  // time at 1e-9, 1e-4 and 1e-2), so this needs the timeout, not a cheaper fixture. See TODO.md.
   it('plans armour with the untargeted draw instead of declining it', () => {
     const r = markovFromItem(data, prices, start(ARMOUR), [
       { modId: ARMOUR.rollable[0]!, minTierIndex: 0 }, { modId: ARMOUR.des, minTierIndex: 0 },
@@ -141,17 +137,17 @@ describe('MDP', () => {
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeGreaterThan(0);
     expect(Number.isFinite(r.expectedCost)).toBe(true);
-  }, 60_000);
+  });
 
   // …and it must be the UNTARGETED draw, not a boss omen smuggled in by the new action.
-  it('never puts a boss omen in an armour policy', () => {  // same ~6-8s solve as above
+  it('never puts a boss omen in an armour policy', () => {
     const r = markovFromItem(data, prices, start(ARMOUR), [
       { modId: ARMOUR.rollable[0]!, minTierIndex: 0 }, { modId: ARMOUR.des, minTierIndex: 0 },
     ]);
     const desecrations = [...r.policy.values()].filter((a) => a.currency === 'desecrate');
     expect(desecrations.length).toBeGreaterThan(0);
     expect(desecrations.every((a) => a.boss === undefined)).toBe(true);
-  }, 60_000);
+  });
 
   // The control. A weapon must still be able to buy the narrower boss draw, or the assertion above
   // would pass simply because nothing anywhere targets a boss.
@@ -174,32 +170,39 @@ describe('MDP', () => {
 });
 
 // Value iteration 0-initialises and climbs, so an UNCONVERGED result is a strict lower bound on the
-// true expected cost, not an estimate. On an untargeted armour desecration the per-attempt chance of
-// landing one specific mod is about 1 in 121,510, and VI's convergence rate is governed by exactly
-// that — so it exhausts all 100k sweeps and returns a floor. `markovFromItem` used to report that
-// number with no indication, and the UI printed it as a plain figure: the most precise-looking wrong
-// number in the app. It now says so, and ItemActions renders "≥ x".
+// true expected cost, not an estimate. `markovFromItem` used to report that number with no indication
+// and the UI printed it as a plain figure — the most precise-looking wrong number in the app.
+//
+// Pinned with an absurdly small `maxIters` rather than a slow real craft: it is instant, deterministic,
+// and it survives the pool data changing underneath. (It was originally pinned on an armour
+// desecration, which stopped working as a fixture the moment desecrated weights went 1 → 1000 and the
+// solve started converging in 159ms instead of exhausting 100k sweeps.)
 describe('MDP — convergence is reported, not assumed', () => {
   const start = (p: typeof WEAPON): ItemState => ({
     base: p.base, level: 82, rarity: 'rare',
     prefixes: [{ modId: p.rollable[0]!, tierName: data.mods.get(p.rollable[0]!)!.tiers.at(-1)!.name }],
     suffixes: [],
   });
+  const targetsOf = (p: typeof WEAPON) =>
+    [{ modId: p.rollable[0]!, minTierIndex: 0 }, { modId: p.des, minTierIndex: 0 }];
 
-  it('flags the armour solve as not converged', () => {
-    const r = markovFromItem(data, prices, start(ARMOUR), [
-      { modId: ARMOUR.rollable[0]!, minTierIndex: 0 }, { modId: ARMOUR.des, minTierIndex: 0 },
-    ]);
+  it('flags a solve that ran out of sweeps', () => {
+    const r = markovFromItem(data, prices, start(ARMOUR), targetsOf(ARMOUR), { maxIters: 3 });
     expect(r.feasible).toBe(true);
     expect(r.converged).toBe(false);
-  }, 60_000);
+  });
 
-  // The control: an ordinary craft must still converge, or the flag would be useless noise.
-  it('converges on a weapon, where the boss omen keeps the odds sane', () => {
-    const r = markovFromItem(data, prices, start(WEAPON), [
-      { modId: WEAPON.rollable[0]!, minTierIndex: 0 }, { modId: WEAPON.des, minTierIndex: 0 },
-    ]);
-    expect(r.converged).toBe(true);
+  // The control: left to finish, the same craft converges — otherwise the flag would be constant noise.
+  it('converges when allowed to run', () => {
+    expect(markovFromItem(data, prices, start(ARMOUR), targetsOf(ARMOUR)).converged).toBe(true);
+    expect(markovFromItem(data, prices, start(WEAPON), targetsOf(WEAPON)).converged).toBe(true);
+  });
+
+  // An unconverged value is a LOWER bound: more sweeps can only raise it.
+  it('reports a floor, so more sweeps only raise the number', () => {
+    const few = markovFromItem(data, prices, start(ARMOUR), targetsOf(ARMOUR), { maxIters: 3 });
+    const done = markovFromItem(data, prices, start(ARMOUR), targetsOf(ARMOUR));
+    expect(few.expectedCost).toBeLessThanOrEqual(done.expectedCost + 1e-9);
   });
 
   // A rejected target never ran VI at all; reporting `converged: false` there would imply the number
@@ -210,5 +213,30 @@ describe('MDP — convergence is reported, not assumed', () => {
     ]);
     expect(r.feasible).toBe(false);
     expect(r.converged).toBe(true);
+  });
+});
+
+// The desecrated spawn weight is an ASSUMPTION (see shipped-pools.test.ts), and only the UNOMENED
+// draw inherits it — a boss-omened Desecration is count-uniform and ignores weights entirely. The UI
+// caveat keys off exactly this distinction (`assumedOdds` in engineMap.ts → PriceBasisNote's
+// `exactOdds`), so it has to hold at the source: warn on armour, stay silent on a weapon.
+describe('which desecrations lean on the assumed weight', () => {
+  const targets = (p: typeof WEAPON) =>
+    [...p.rollable.map((modId) => ({ modId, minTierIndex: 0 })), { modId: p.des, minTierIndex: 0 }];
+  const desecrations = (p: typeof WEAPON) =>
+    optimizePareto(data, prices, p.base, targets(p), { level: 82 })
+      .frontier.flatMap((plan) => plan.steps)
+      .filter((s) => s.currency === 'desecrate') as { boss?: string }[];
+
+  it('armour plans desecrate WITHOUT an omen, so their odds inherit the assumption', () => {
+    const steps = desecrations(ARMOUR);
+    expect(steps.length).toBeGreaterThan(0);
+    expect(steps.every((s) => s.boss === undefined)).toBe(true);
+  });
+
+  it('weapon plans buy the boss omen, whose count-uniform odds do not', () => {
+    const steps = desecrations(WEAPON);
+    expect(steps.length).toBeGreaterThan(0);
+    expect(steps.some((s) => s.boss !== undefined)).toBe(true);
   });
 });

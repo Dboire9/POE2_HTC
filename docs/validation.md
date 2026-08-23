@@ -80,8 +80,32 @@ by weight:
 On a uniform pool this reduces to the user's `1 / (normal + desecrated count)` shorthand, but it
 honours real weights where they differ. **Not differential-tested** (no Java counterpart);
 hand-computed unit tests only. Sinistral/Dextral Necromancy map to the `constrainTo` side
-restriction. **Action:** confirm the exact denominator shape against Craft of Exile at Phase 3
-(single-slot vs both-slots; whether normal mods truly enter the bone pool at the observed rate).
+restriction.
+
+**Denominator confirmed by the user, 2026-08-23**: normal mods DO enter the bone pool, so the combined
+normal ∪ desecrated shape stands.
+
+**But the WEIGHT is an assumption (2026-08-23).** poe2db publishes no spawn weight for desecrated rows
+— it reports `1` for every one of them — and `apply_pools.mjs` copied that through. Against normal
+weights of several thousand it made a bone produce a desecrated mod about **1 time in 121,510** on a
+Body Armour, which cannot be right for an item whose purpose is to add one. All 527 desecrated mods are
+now given **weight 1000** (`DESECRATED_ASSUMED_WEIGHT` in `tools/refresh/apply_pools.mjs`), putting a
+desecrated mod on roughly the footing of an ordinary normal mod:
+
+| base | weight 1 | weight 1000 |
+|---|---|---|
+| Body_Armours_dex_int | 1 in 121,510 | 1 in 132 |
+| Wands | 1 in 114,415 | 1 in 129 |
+| Amulets | 1 in 173,681 | 1 in 205 |
+
+This is a judgement call, ~900x in size, so **the app says so**: `EngineResult.assumedOdds` /
+`EngineMarkovResult.assumedOdds` are set when a plan contains an unomened Desecration, and
+`PriceBasisNote` then drops its "the odds are exact" claim and names the assumption. The boss-omen path
+is count-uniform (D3) and ignores weights, so it is untouched and keeps the exact claim.
+`shipped-pools.test.ts` asserts the constant so a refresh cannot silently restore the 1.
+
+**Action (still open):** confirm the true weight against Craft of Exile or in-game observation. 1000 is
+a placeholder chosen for plausibility, not a measurement.
 
 ### D5.1 — pool not capped by item level → ✅ RESOLVED (verified 2026-07-05)
 Java's `get_Base_Affixes_Total_Weight_By_Tier(pool, ilvl)` sums tiers with `tier.level >= ilvl` (the

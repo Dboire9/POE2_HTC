@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import type { ItemState, Mod } from './index.ts';
 import { loadPatch, essenceForcedProbability, desecrationProbability, desecrationBossProbability } from './index.ts';
 import type { DesecrationBossOmen } from './probability.ts';
@@ -94,5 +95,34 @@ describe('0.5.0 shipped desecrated pool', () => {
     // Under a DIFFERENT boss's omen the same mod is unreachable.
     const otherOmen = Object.values(BOSS_OMEN).find((o) => o !== BOSS_OMEN[bossTag]);
     expect(desecrationBossProbability(data, item('Wands', 'rare'), tagged!.id, { omen: otherOmen! })).toBe(0);
+  });
+});
+
+// The desecrated spawn weight is an ASSUMPTION, not observed data — poe2db publishes none and reports
+// 1 for every row. Taken literally against normal weights of several thousand, a bone would produce a
+// desecrated mod about 1 time in 121,510 on a Body Armour; at 1000 it is about 1 in 132. Nothing in the
+// app would fail loudly if a data refresh quietly restored the 1, so this asserts the constant. If it
+// ever changes deliberately, change it HERE and in tools/refresh/apply_pools.mjs together, and say so
+// in docs/validation.md D4 and the UI note.
+describe('the assumed desecrated weight', () => {
+  const DESECRATED_ASSUMED_WEIGHT = 1000;
+
+  it('is applied uniformly to every desecrated mod in the shipped snapshot', () => {
+    const weights = new Set<number>();
+    for (const mod of data.mods.values()) {
+      if (mod.source !== 'desecrated') continue;
+      for (const t of mod.tiers) weights.add(t.weight);
+    }
+    expect(weights.size).toBeGreaterThan(0);
+    expect([...weights]).toEqual([DESECRATED_ASSUMED_WEIGHT]);
+  });
+
+  const modsFileSource = (): string =>
+    (JSON.parse(readFileSync('data/patches/0.5.0/mods.json', 'utf8')) as { source: string }).source;
+
+  it('is declared as an assumption in the snapshot\u2019s own provenance', () => {
+    // A future reader must be able to find out that this number was chosen, not measured.
+    expect(modsFileSource()).toMatch(/DESECRATED WEIGHTS ARE AN ASSUMPTION/i);
+    expect(modsFileSource()).toMatch(/validation\.md D4/i);
   });
 });

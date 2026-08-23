@@ -11,7 +11,7 @@
 //   - ids are namespaced (Essence_/Desecrated_) so they never collide with a normal `${base}/${group}`.
 //
 // Pool semantics (see packages/engine/src/probability.ts):
-//   DESECRATED — each poe2db row is its OWN single-tier mod (ilvl 65, weight 1). Rows that share a
+//   DESECRATED — each poe2db row is its OWN single-tier mod (ilvl 65). Rows that share a
 //     family are DISTINCT mods (different boss/text) that merely share an exclusion group, so we do
 //     NOT group them. Boss tags (amanamu_mod/kurgal_mod/ulaman_mod) are preserved for the boss-omen
 //     path; the plain path draws weight-based from the combined normal∪desecrated pool.
@@ -33,6 +33,13 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const OUT = join(ROOT, 'data/patches/0.5.0');
 const PDB = join(ROOT, 'tools/refresh/cache/poe2db');
 const GENERATED = '2026-07-13';
+
+/**
+ * The spawn weight every DESECRATED mod is given. See the note at the desecrated loop below: this is
+ * an assumption, not data. Named and exported so the shipped snapshot can be asserted against it —
+ * a silent refresh back to poe2db's literal 1 would quietly restore 1-in-121,510 odds.
+ */
+export const DESECRATED_ASSUMED_WEIGHT = 1000;
 
 const ARMOUR_CATS = new Set(['Body_Armours', 'Boots', 'Gloves', 'Helmets', 'Shields']);
 const CATEGORY_CLASS = {
@@ -146,6 +153,14 @@ for (const base of basesFile.items) {
   };
 
   // -- DESECRATED: one mod per row ---------------------------------------------------------------
+  // Weight is ASSUMED, not observed. poe2db publishes no spawn weight for these rows — it reports 1
+  // for every one of them — and an unomened Desecration draws BY WEIGHT from the combined
+  // normal ∪ desecrated pool. Taking that 1 literally against normal weights of several thousand
+  // makes a bone produce a desecrated mod roughly 1 time in 121,510 on a Body Armour, which cannot be
+  // right for an item whose entire purpose is to add one. 1000 puts a desecrated mod on roughly the
+  // footing of an ordinary normal mod (1 in ~132 there). It is a judgement call, so the app tells
+  // users so — see PriceBasisNote's `exactOdds` and docs/validation.md D4. The boss-omen path is
+  // count-uniform and ignores weights entirely, so none of this touches it.
   for (const row of pools.desecrated || []) {
     if (!keepForBase(row, attrTag)) continue;
     if (row.type !== 'prefix' && row.type !== 'suffix') { warn(`desecrated bad type on ${base.id}: ${row.type}`); continue; }
@@ -163,7 +178,7 @@ for (const base of basesFile.items) {
       id, group: `Desecrated_${family}`, field: `Desecrated_${family}`, source: 'desecrated', type: row.type,
       categories: [], family, ...(families.length > 1 ? { families } : {}), tags: bossTags,
       text: cleanText(row.text),
-      tiers: [{ name: row.name || family, ilvl: row.ilvl ?? 0, weight: row.weight, ranges: parseRanges(row.text), stats: [] }],
+      tiers: [{ name: row.name || family, ilvl: row.ilvl ?? 0, weight: DESECRATED_ASSUMED_WEIGHT, ranges: parseRanges(row.text), stats: [] }],
     };
     modsById.set(id, mod); modsFile.mods.push(mod);
     base.pools.desecrated[row.type === 'prefix' ? 'prefixes' : 'suffixes'].push(id);
@@ -263,8 +278,9 @@ modsFile.count = modsFile.mods.length;
 modsFile.source = 'NORMAL structure from RePoE-fork PoE2 dump (client 4.5.4.3) + NORMAL weights from '
   + 'poe2db (DropChance). ESSENCE + DESECRATED + PERFECT_ESSENCE pools built from poe2db per-class pages '
   + 'by apply_pools.mjs (essence tiers = Lesser/Normal/Greater levels; perfect_essence = 1-tier, both '
-  + 'deterministic weight 0; desecrated = one mod per row, weight 1, boss tags preserved). '
-  + 'weights_overrides.json still wins at load time.';
+  + 'deterministic weight 0; desecrated = one mod per row, boss tags preserved). DESECRATED WEIGHTS ARE '
+  + 'AN ASSUMPTION: poe2db publishes none (it reports 1 for every row), so all of them are set to '
+  + `${DESECRATED_ASSUMED_WEIGHT} — see docs/validation.md D4. They are NOT observed data.`;
 basesFile.items.sort((a, b) => a.id.localeCompare(b.id));
 
 const essences = [...essenceMap.entries()]

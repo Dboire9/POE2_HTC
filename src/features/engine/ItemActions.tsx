@@ -641,7 +641,7 @@ const ItemActions: React.FC = () => {
                 not the money</strong> — it is honest about how crafting actually behaves; the price sheet
                 it is multiplied by is still an estimate.
               </p>
-              {engine && <PriceBasisNote basis={priceBasis(engine)} />}
+              {engine && <PriceBasisNote basis={priceBasis(engine)} exactOdds={!markov.assumedOdds} />}
               <PolicyGraph result={markov} />
               <p className="text-[11px] text-muted-foreground">
                 Each square is an item state, from your item (left) to the target (right). Solid arrows are

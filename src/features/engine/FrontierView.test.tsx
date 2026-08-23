@@ -4,7 +4,7 @@ import FrontierView from './FrontierView';
 import type { EngineResult } from '../../lib/engine';
 
 const empty: EngineResult = {
-  frontier: [], plansEvaluated: 1, currencyDepth: 'full',
+  frontier: [], plansEvaluated: 1, currencyDepth: 'full', assumedOdds: false,
 };
 
 // An empty frontier means THIS SEARCH found nothing. It does not mean the craft is impossible: a legal

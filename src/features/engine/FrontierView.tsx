@@ -44,7 +44,7 @@ const FrontierView: React.FC<{
       </div>
     </div>
 
-    {priceBasis && <PriceBasisNote basis={priceBasis} />}
+    {priceBasis && <PriceBasisNote basis={priceBasis} exactOdds={!result.assumedOdds} />}
 
     {result.frontier.length === 0 ? (
       <Card className="p-6 text-center text-sm text-muted-foreground space-y-1">

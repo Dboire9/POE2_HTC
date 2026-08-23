@@ -97,9 +97,19 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   mod; it is the only add available there, since Exalt and Chaos both score 0 on a Magic item and
   `baseTransforms` emits no `augment`. The MDP still models Rare only and says so in `reason`, which
   `ItemActions` now renders rather than dropping the panel in silence.
+- **The policy route says "most likely lands X", never "add X".** The MDP chooses the ORB, never the
+  outcome — an Exalt is a slam. `StepChanges` (`src/lib/policyPath.ts`) names the mod on the step's
+  highest-probability edge, which is the edge the route follows by construction; phrasing it as an
+  instruction would tell the player to do something the game gives them no way to do. The odds render
+  beside it, which is what makes the wording self-consistent.
 - **The from-item planner never varies orb strength** (`baseTransforms` sets no `tier`), so it reports
   `currencyDepth: 'base-only'`. It used to report `full`, rendered as "tried every orb strength" — a
   false claim that also hid why its costs sit so far above the MDP's, which does use Greater/Perfect
   Exalts.
+- **Once the MDP has answered, the step routes collapse.** Measured on a five-target craft they read
+  ~5,000,000x above the true cost, and orb strength (worth 1,116x) would still leave ~68,000x — the
+  remainder is the model, not a gap. `trueCostAnswered` in `ItemActions` is the single predicate for
+  both that collapse and the "No true expected cost" card; keep it single, or the panel can end up
+  hiding the routes AND explaining their absence at the same time.
 - Sentry + analytics are wired in frontend; keep functional.
 - Direct pushes to `main` are sanctioned despite branch protection; `remote: Bypassed rule violations` is expected output, not an error. `main` and `revival` are kept in sync.

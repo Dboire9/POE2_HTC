@@ -1,7 +1,7 @@
 import React from 'react';
 import type { EngineMarkovResult, EnginePolicyNode } from '../../lib/engine';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
-import { mainLine } from '../../lib/policyPath';
+import { mainLine, type StepChanges } from '../../lib/policyPath';
 
 // The from-item MDP's optimal policy, shown two ways.
 //
@@ -20,7 +20,15 @@ const COL_GAP = 84; // horizontal gap between depth columns (room for arrows)
 const ROW_GAP = 22;
 const PAD = 16;
 
-interface Placed { node: EnginePolicyNode; x: number; y: number; }
+/**
+ * One box in the full graph: a REPRESENTATIVE state plus how many states it stands for.
+ *
+ * The graph used to draw one box per state, and on a five-target craft that is 262 of them — with
+ * `2 mods · 1 off-tier / Annul / 14.9K div` repeating down a single column. Those really are distinct
+ * states (they differ in WHICH mods are present), but the label discards that, so the picture showed
+ * the same box over and over. Grouping by exactly what a box displays collapses 262 to 79.
+ */
+interface Group { node: EnginePolicyNode; count: number; x: number; y: number; }
 
 /** Short state label: target mods present + any off-tier blocks + how much junk remains. */
 function stateLabel(nd: EnginePolicyNode): string {
@@ -36,31 +44,106 @@ function stateLabel(nd: EnginePolicyNode): string {
 
 const pct = (p: number): string => (p >= 0.1 ? `${Math.round(p * 100)}%` : `${(p * 100).toPrecision(1)}%`);
 
+/**
+ * What a step does, in words.
+ *
+ * "MOST LIKELY lands X", never "add X". The policy picks the orb, not the outcome — an Exalt is a
+ * slam, and the mod named here is simply the one on the step's highest-probability edge, which is the
+ * edge the route follows by construction. An imperative would tell the player to do something the
+ * game gives them no way to do, which is the exact failure `CLAUDE.md`'s critical rule is about. The
+ * odds render right beside this, which is what keeps the phrasing honest.
+ */
+function describeStep(c: StepChanges): string {
+  const parts: string[] = [];
+  if (c.junkDelta < 0) parts.push(`clears ${-c.junkDelta === 1 ? 'a junk mod' : `${-c.junkDelta} junk mods`}`);
+  if (c.junkDelta > 0) parts.push(`adds ${c.junkDelta === 1 ? 'a junk mod' : `${c.junkDelta} junk mods`}`);
+  if (c.lost.length > 0) parts.push(`loses ${c.lost.join(', ')}`);
+  if (c.gained.length > 0) parts.push(`most likely lands ${c.gained.join(', ')}`);
+  if (c.blocked.length > 0) parts.push(`blocks ${c.blocked.join(', ')} below tier`);
+  return parts.join(' · ');
+}
+
+/**
+ * The grouping key: everything a box actually shows. Two states sharing it are indistinguishable on
+ * screen, so drawing both is pure noise.
+ *
+ * The START and GOAL are deliberately keyed to themselves. They carry their own outline and wording,
+ * and folding "your item" into a ×17 box would misreport where the player is standing.
+ */
+export function groupKeyOf(nd: EnginePolicyNode, fmtCost: (x: number) => string): string {
+  if (nd.isStart) return `start:${nd.key}`;
+  if (nd.isGoal) return `goal:${nd.key}`;
+  return `${nd.depth}|${stateLabel(nd)}|${nd.action ?? ''}|${fmtCost(nd.expectedCost)}`;
+}
+
+export interface NodeGroup { node: EnginePolicyNode; count: number; }
+
+/**
+ * Collapse the state list to what is actually distinguishable on screen, ordered furthest-first.
+ *
+ * Shared by the picture and the screen-reader list on purpose: two copies of this rule would let the
+ * two disagree about how many boxes exist. `groupOfKey` maps every original state key to its group so
+ * edges can be re-pointed at groups.
+ */
+export function groupNodes(
+  result: EngineMarkovResult, fmtCost: (x: number) => string,
+): { groups: NodeGroup[]; groupOfKey: Map<string, string> } {
+  const byGroup = new Map<string, NodeGroup>();
+  const groupOfKey = new Map<string, string>();
+  for (const nd of [...result.nodes].sort((a, b) => b.depth - a.depth || b.expectedCost - a.expectedCost)) {
+    const gk = groupKeyOf(nd, fmtCost);
+    groupOfKey.set(nd.key, gk);
+    const g = byGroup.get(gk);
+    if (g) g.count += 1;
+    else byGroup.set(gk, { node: nd, count: 1 });
+  }
+  return { groups: [...byGroup.values()], groupOfKey };
+}
+
 const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => string }> = ({ result, fmtCost }) => {
+  // Collapse first, lay out second — the columns are sized from what gets drawn, not from the state count.
+  const { groups, groupOfKey } = groupNodes(result, fmtCost);
+
   // Column = distance from the goal (higher depth ⇒ further ⇒ further left). Goal (depth 0) is rightmost.
-  const depths = [...new Set(result.nodes.map((n) => n.depth))].sort((a, b) => b - a);
+  const depths = [...new Set(groups.map((g) => g.node.depth))].sort((a, b) => b - a);
   const colOf = new Map(depths.map((d, i) => [d, i]));
-  const placed: Placed[] = [];
+  const placed: Group[] = [];
   const rowInCol = new Map<number, number>();
-  for (const node of [...result.nodes].sort((a, b) => b.depth - a.depth || b.expectedCost - a.expectedCost)) {
-    const col = colOf.get(node.depth)!;
+  for (const g of groups) {
+    const col = colOf.get(g.node.depth)!;
     const row = rowInCol.get(col) ?? 0;
     rowInCol.set(col, row + 1);
-    placed.push({ node, x: PAD + col * (W + COL_GAP), y: PAD + row * (H + ROW_GAP) });
+    placed.push({ ...g, x: PAD + col * (W + COL_GAP), y: PAD + row * (H + ROW_GAP) });
   }
-  const posOf = new Map(placed.map((p) => [p.node.key, p]));
+  const posOf = new Map(placed.map((p) => [groupKeyOf(p.node, fmtCost), p]));
   const width = PAD * 2 + depths.length * W + (depths.length - 1) * COL_GAP;
   const height = PAD * 2 + Math.max(...rowInCol.values()) * (H + ROW_GAP) - ROW_GAP;
 
+  // Edges aggregate to EXISTENCE, not to a probability: an arrow between two groups means some state
+  // in one can reach some state in the other under this action. Their member probabilities differ, so
+  // no summed or averaged number may be shown — and none is. Probability drives stroke opacity only,
+  // where the max is a display choice rather than a claim.
+  const merged = new Map<string, { from: string; to: string; prob: number }>();
+  for (const e of result.edges) {
+    if (e.prob <= 0.001) continue;
+    const from = groupOfKey.get(e.from);
+    const to = groupOfKey.get(e.to);
+    if (from === undefined || to === undefined || from === to) continue;
+    const k = `${from}->${to}`;
+    const prev = merged.get(k);
+    if (!prev || e.prob > prev.prob) merged.set(k, { from, to, prob: e.prob });
+  }
+
   // Anchor points: forward edges leave the right edge and enter the left edge; back-arrows (regress)
   // leave the top and re-enter the top so they arc above the row rather than cross the boxes.
-  const edges = result.edges
-    .filter((e) => posOf.has(e.from) && posOf.has(e.to) && e.from !== e.to && e.prob > 0.001)
+  const edges = [...merged.values()]
+    .filter((e) => posOf.has(e.from) && posOf.has(e.to))
     .map((e) => {
       const a = posOf.get(e.from)!;
       const b = posOf.get(e.to)!;
+      const regress = b.node.depth > a.node.depth;
       const opacity = Math.max(0.18, Math.min(1, e.prob));
-      if (e.regress) {
+      if (regress) {
         const x1 = a.x + W / 2; const y1 = a.y; const x2 = b.x + W / 2; const y2 = b.y;
         const lift = 26 + Math.abs(x2 - x1) * 0.12;
         return { key: `${e.from}->${e.to}`, regress: true, opacity,
@@ -94,12 +177,19 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
           />
         ))}
 
-        {placed.map(({ node, x, y }) => {
-          const tip = `${node.present.length > 0 ? node.present.join(', ') : 'no target mods yet'}`
-            + `${node.blocked.length > 0 ? ` · off-tier: ${node.blocked.join(', ')}` : ''}`
-            + `${node.junkPrefixes + node.junkSuffixes > 0 ? ` · ${node.junkPrefixes + node.junkSuffixes} junk` : ''}`
-            + `${node.desecratedJunk ? ` · unwanted desecrated ${node.desecratedJunk}` : ''}`
-            + ` · E ${fmtCost(node.expectedCost)}${node.action ? ` · ${node.action}` : ''}`;
+        {placed.map(({ node, count, x, y }) => {
+          // A grouped box stands for several states, so its tooltip names the count and what they
+          // share rather than pretending to describe one item. `present`/`blocked` belong to the
+          // representative and differ across the group, so they are only listed when it IS one state.
+          const tip = count > 1
+            ? `${count} states that look identical here — same remaining work, same best action `
+              + `(${node.action ?? '—'}), same cost to finish (${fmtCost(node.expectedCost)}). They differ `
+              + 'in WHICH mods are present.'
+            : `${node.present.length > 0 ? node.present.join(', ') : 'no target mods yet'}`
+              + `${node.blocked.length > 0 ? ` · off-tier: ${node.blocked.join(', ')}` : ''}`
+              + `${node.junkPrefixes + node.junkSuffixes > 0 ? ` · ${node.junkPrefixes + node.junkSuffixes} junk` : ''}`
+              + `${node.desecratedJunk ? ` · unwanted desecrated ${node.desecratedJunk}` : ''}`
+              + ` · E ${fmtCost(node.expectedCost)}${node.action ? ` · ${node.action}` : ''}`;
           const boxClass = node.isGoal ? 'fill-emerald-500/15 stroke-emerald-500'
             : node.isStart ? 'fill-background stroke-primary' : 'fill-background stroke-border';
           return (
@@ -111,6 +201,9 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
               ) : (
                 <>
                   <text x={x + 9} y={y + 18} className="fill-foreground text-[11px] font-medium">{stateLabel(node)}</text>
+                  {count > 1 && (
+                    <text x={x + W - 9} y={y + 18} textAnchor="end" className="fill-muted-foreground text-[10px] tabular-nums">×{count}</text>
+                  )}
                   <text x={x + 9} y={y + 34} className="fill-primary text-[11px] font-semibold">{node.action}</text>
                   <text x={x + W - 9} y={y + 34} textAnchor="end" className="fill-muted-foreground text-[10px] tabular-nums">{fmtCost(node.expectedCost)}</text>
                   {node.isStart && <text x={x + 9} y={y + 48} className="fill-primary text-[9px] uppercase tracking-wider">start</text>}
@@ -134,6 +227,9 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
     rates,
   );
   const fmtCost = (x: number): string => formatIn(unit, x);
+  // One grouping, used by BOTH the picture and the screen-reader list below — two copies of this rule
+  // would let the visual and the text disagree about how many boxes there are.
+  const grouped = groupNodes(result, fmtCost).groups;
   const { steps, goal } = mainLine(result);
   // A stall (no forward edge from some state) leaves nothing to draw as a line — show the full graph
   // rather than a route that stops mid-air.
@@ -166,7 +262,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
               <span className="w-5 shrink-0 text-right font-mono text-xs text-muted-foreground">{i + 1}.</span>
               <span className="font-semibold text-primary min-w-44">{s.action}</span>
               <span className="flex-1 min-w-40 text-muted-foreground text-xs">
-                {s.node.isStart ? 'your item' : stateLabel(s.node)} → {stateLabel(s.next)}
+                {describeStep(s.changes) || `${s.node.isStart ? 'your item' : stateLabel(s.node)} → ${stateLabel(s.next)}`}
               </span>
               <span className="tabular-nums text-xs">
                 <span className="text-emerald-600 dark:text-emerald-400">{pct(s.advance)} onward</span>
@@ -216,7 +312,9 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
             <ol>
               {steps.map((s) => (
                 <li key={s.node.key}>
-                  {`${s.action}. ${pct(s.advance)} chance this moves you onward`}
+                  {`${s.action}. `}
+                  {describeStep(s.changes) ? `${describeStep(s.changes)}. ` : ''}
+                  {`${pct(s.advance)} chance this moves you onward`}
                   {s.brick > 0 ? `, ${pct(s.brick)} chance of going backwards` : ''}
                   {`. Expected cost from here ${fmtCost(s.node.expectedCost)}.`}
                 </li>
@@ -226,19 +324,21 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
         )}
         <p>
           All {result.nodes.length} item state{result.nodes.length === 1 ? '' : 's'} the policy can
-          reach, ordered from your item to the target.
+          reach, ordered from your item to the target, grouped into {grouped.length} that differ on
+          screen.
         </p>
+        {/* Grouped exactly as the picture is, so this stops being a 262-item read-aloud of the same
+            sentence — and so the two presentations cannot drift apart. */}
         <ol>
-          {[...result.nodes]
-            .sort((a, b) => b.depth - a.depth || b.expectedCost - a.expectedCost)
-            .map((nd) => (
-              <li key={nd.key}>
-                {nd.isStart ? 'Your item: ' : nd.isGoal ? 'Target reached: ' : ''}
-                {stateLabel(nd)}
-                {`. Expected cost from here ${fmtCost(nd.expectedCost)}.`}
-                {nd.action ? ` Best action: ${nd.action}.` : ''}
-              </li>
-            ))}
+          {grouped.map(({ node: nd, count }) => (
+            <li key={nd.key}>
+              {nd.isStart ? 'Your item: ' : nd.isGoal ? 'Target reached: ' : ''}
+              {stateLabel(nd)}
+              {count > 1 ? ` (${count} states like this)` : ''}
+              {`. Expected cost from here ${fmtCost(nd.expectedCost)}.`}
+              {nd.action ? ` Best action: ${nd.action}.` : ''}
+            </li>
+          ))}
         </ol>
       </div>
     </div>

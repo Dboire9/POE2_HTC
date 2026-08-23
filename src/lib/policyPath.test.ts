@@ -89,3 +89,73 @@ describe('mainLine', () => {
     expect(goal?.key).toBe('g');
   });
 });
+
+// The route named the currency and the mod COUNT — "Exalt (Dextral, Greater): 1 mod → 2 mods" — and
+// left out the one thing a player needs, which mod. Both states are already in hand, so the step's
+// effect is a diff nobody was taking.
+describe('mainLine — what each step moves', () => {
+  const withMods = (
+    key: string, depth: number, present: string[], blocked: string[], junk: number,
+    extra: Partial<EnginePolicyNode> = {},
+  ): EnginePolicyNode => ({
+    key, present, blocked, junkPrefixes: junk, junkSuffixes: 0,
+    isStart: false, isGoal: false, depth, expectedCost: depth, action: 'Exalt', ...extra,
+  });
+
+  it('names the target a step lands', () => {
+    const r = result(
+      [
+        withMods('a', 1, [], [], 0, { isStart: true }),
+        withMods('g', 0, ['Spell Damage'], [], 0, { isGoal: true }),
+      ],
+      [edge('a', 'g', 1)],
+    );
+    expect(mainLine(r).steps[0]!.changes.gained).toEqual(['Spell Damage']);
+  });
+
+  it('reports junk cleared with no target gained — an Annul that does its job', () => {
+    const r = result(
+      [withMods('a', 2, [], [], 2, { isStart: true, action: 'Annul' }), withMods('g', 0, [], [], 1, { isGoal: true })],
+      [edge('a', 'g', 1)],
+    );
+    const c = mainLine(r).steps[0]!.changes;
+    expect(c.gained).toEqual([]);
+    expect(c.junkDelta).toBe(-1);
+  });
+
+  it('reports both halves of a Chaos — junk off, target on', () => {
+    const r = result(
+      [
+        withMods('a', 2, [], [], 1, { isStart: true, action: 'Chaos' }),
+        withMods('g', 0, ['Mana Regeneration Rate'], [], 0, { isGoal: true }),
+      ],
+      [edge('a', 'g', 1)],
+    );
+    const c = mainLine(r).steps[0]!.changes;
+    expect(c.gained).toEqual(['Mana Regeneration Rate']);
+    expect(c.junkDelta).toBe(-1);
+  });
+
+  it('reports a target lost, and one newly blocked below tier', () => {
+    // A step can progress overall while still costing something — depth counts blocks and junk too.
+    const r = result(
+      [
+        withMods('a', 4, ['Cold Damage'], [], 3, { isStart: true }),
+        withMods('g', 0, [], ['Spell Damage'], 0, { isGoal: true }),
+      ],
+      [edge('a', 'g', 1)],
+    );
+    const c = mainLine(r).steps[0]!.changes;
+    expect(c.lost).toEqual(['Cold Damage']);
+    expect(c.blocked).toEqual(['Spell Damage']);
+    expect(c.junkDelta).toBe(-3);
+  });
+
+  it('reports nothing moved when nothing moved', () => {
+    const r = result(
+      [withMods('a', 1, ['X'], [], 0, { isStart: true }), withMods('g', 0, ['X'], [], 0, { isGoal: true })],
+      [edge('a', 'g', 1)],
+    );
+    expect(mainLine(r).steps[0]!.changes).toEqual({ gained: [], lost: [], blocked: [], junkDelta: 0 });
+  });
+});

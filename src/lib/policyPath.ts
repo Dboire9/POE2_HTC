@@ -29,6 +29,40 @@ export interface MainLineStep {
    * a setback nor the step's intended outcome.
    */
   readonly brick: number;
+  /** What this step moves, as the difference between `node` and `next`. See `StepChanges`. */
+  readonly changes: StepChanges;
+}
+
+/**
+ * What a step actually does to the item, recovered by diffing the two states it joins.
+ *
+ * IMPORTANT for anything that renders this: these are the mods on the step's **likeliest outcome**,
+ * not mods the player selects. An Exalt is a slam — the policy chooses the orb, never the result. The
+ * mod named here is simply whatever sits on the highest-probability edge, which is the edge the main
+ * line follows by construction. Copy must therefore read "most likely lands X", never "add X"; the
+ * step's own `advance` percentage is what makes that phrasing honest.
+ */
+export interface StepChanges {
+  /** Target mods present after this step that weren't before. */
+  readonly gained: readonly string[];
+  /** Target mods lost — a Chaos or a Perfect Essence can take one back off. */
+  readonly lost: readonly string[];
+  /** Targets whose family this step fills with a below-tier roll, blocking them until annulled. */
+  readonly blocked: readonly string[];
+  /** Change in the junk count: negative clears junk, positive adds it. */
+  readonly junkDelta: number;
+}
+
+/** `a` minus `b`, on mod-text lists that are already de-duplicated by construction. */
+const without = (a: readonly string[], b: readonly string[]): string[] => a.filter((x) => !b.includes(x));
+
+function diff(node: EnginePolicyNode, next: EnginePolicyNode): StepChanges {
+  return {
+    gained: without(next.present, node.present),
+    lost: without(node.present, next.present),
+    blocked: without(next.blocked, node.blocked),
+    junkDelta: (next.junkPrefixes + next.junkSuffixes) - (node.junkPrefixes + node.junkSuffixes),
+  };
 }
 
 export interface MainLine {
@@ -78,7 +112,10 @@ export function mainLine(result: EngineMarkovResult): MainLine {
       if (!best || e.prob > best.edge.prob) best = { edge: e, to };
     }
     if (!best) return { steps: [] }; // stalled — let the caller fall back to the full graph
-    steps.push({ node, action: node.action ?? best.edge.action, next: best.to, advance: best.edge.prob, brick });
+    steps.push({
+      node, action: node.action ?? best.edge.action, next: best.to, advance: best.edge.prob, brick,
+      changes: diff(node, best.to),
+    });
     node = best.to;
   }
   return { steps, goal: node };

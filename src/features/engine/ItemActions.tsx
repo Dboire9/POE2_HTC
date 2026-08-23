@@ -126,6 +126,8 @@ const ItemActions: React.FC = () => {
   // How long the last solve took. The progress bar carries a live timer, but it unmounts on completion,
   // so the one moment you want the number — after it finishes — was the one moment it wasn't there.
   const [tookMs, setTookMs] = useState<number | null>(null);
+  // Collapsed by default whenever the true-cost model answered — see `trueCostAnswered`.
+  const [showRoutes, setShowRoutes] = useState(false);
   const excludedKeys = toExcludedKeys(useExclusions());
   const effort = useEffort();
   // Exalts-per-chaos / per-divine, so a huge cost reads as a quantity rather than a wall of digits.
@@ -254,6 +256,18 @@ const ItemActions: React.FC = () => {
   const blockedBy: string | null = target.length === 0
     ? 'Pick at least one target mod above.'
     : null;
+  /**
+   * Did the true-cost model actually answer? ONE predicate, because two things hang off it and they
+   * must never disagree: the "No true expected cost" card renders when this is false, and the step
+   * routes collapse behind a disclosure when it is true.
+   *
+   * When it answered, the step routes are a strictly worse model of the same craft — measured on the
+   * reported craft they read ~5,000,000x higher, and even handing them Perfect orbs (worth 1,116x)
+   * leaves them ~68,000x out, because a step plan is one fixed sequence in which every slam must hit a
+   * NAMED mod while the policy takes whatever lands. So they stop competing for attention. When it did
+   * NOT answer — a Magic item, an essence target — they are the only view there is, and stay open.
+   */
+  const trueCostAnswered = markov !== null && markov.applicable && markov.feasible;
 
   // ── Option 1: quick currency check ──────────────────────────────────────────
   const actions: CurrencyAction[] = useMemo(() => {
@@ -664,7 +678,7 @@ const ItemActions: React.FC = () => {
               which hardcodes `applicable: true` and reports `feasible: false`. Keying this card on
               `!applicable` alone caught the first and missed the second, so a Magic item — the case it
               was written for — still showed nothing at all. */}
-          {plan && !planErr && markov && !(markov.applicable && markov.feasible) && markov.reason && (
+          {plan && !planErr && markov && !trueCostAnswered && markov.reason && (
             <Card className="p-4">
               <p className="text-sm font-medium">No true expected cost for this craft</p>
               <p className="text-sm text-muted-foreground mt-1">{markov.reason}</p>
@@ -709,7 +723,39 @@ const ItemActions: React.FC = () => {
               </p>
             </Card>
           )}
-          {plan && !planErr && (
+          {plan && !planErr && trueCostAnswered && !showRoutes && (
+            <button
+              type="button"
+              onClick={() => setShowRoutes(true)}
+              aria-expanded={false}
+              className="w-full rounded-md border border-border bg-muted/20 px-3 py-2 text-left text-[11px] text-muted-foreground hover:bg-muted/40"
+            >
+              <span className="font-medium text-foreground">Step-by-step routes</span>
+              {plan.frontier.length > 0 && (
+                <span className="tabular-nums"> — from {formatCost(
+                  Math.min(...plan.frontier.map((f) => f.expected).filter(Number.isFinite)), rates,
+                )}</span>
+              )}
+              {/* Deliberately NOT a restatement of the two-cost-models paragraph above — that one
+                  explains the models; this one says why the number behind this button is safe to
+                  ignore. Saying it twice reads as the panel arguing with itself. */}
+              <span className="block mt-0.5">
+                Every slam here must hit one <em>named</em> mod, where the policy above takes whatever
+                lands — which is why this figure is so much larger. Kept for completeness.
+              </span>
+            </button>
+          )}
+          {plan && !planErr && trueCostAnswered && showRoutes && (
+            <button
+              type="button"
+              onClick={() => setShowRoutes(false)}
+              aria-expanded
+              className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+            >
+              Hide step-by-step routes
+            </button>
+          )}
+          {plan && !planErr && (!trueCostAnswered || showRoutes) && (
             <FrontierView
               priceBasis={engine ? priceBasis(engine) : undefined}
               result={plan}

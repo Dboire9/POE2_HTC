@@ -44,9 +44,17 @@ weigh them, which is part of why the two models' costs diverge so hard on a long
 2026-08-23 the badge tells the truth about this (`currencyDepth: 'base-only'`) instead of claiming
 "tried every orb strength".
 
+**Measured 2026-08-23: worth 1,116x** on the reported craft (success per attempt 1.53e-10% at base
+against 1.71e-7% at Perfect). But it does NOT make the step routes useful — even at Perfect they sit
+~68,000x above the MDP's figure, because a step plan is one fixed sequence naming every mod. So this
+is a correctness/honesty item, not a fix for "the step routes are unusable"; that was addressed by
+collapsing them once the MDP answers.
+
 Fixing it means an orb-strength axis over the adds, multiplying the search by roughly `3^k` on a
 search that already evaluates 295,680 plans (~3.2s) for a 5-target craft. It needs the same
-estimate-then-reduce throttle `optimizePareto` uses, not a naive product. Worth doing; not small.
+estimate-then-reduce throttle `optimizePareto` uses, not a naive product. Note `reduceOrbTiers` does
+not currently handle the `base-only` depth — it would fall through to `['base', strongest]`. Worth
+doing; not small.
 
 Related, smaller: above the Thorough preset the MDP's `maxIters` (100k sweeps, ~50s) binds before
 `maxMillis`, so Patient buys nothing on crafts like the one in docs/validation.md. Either expose the

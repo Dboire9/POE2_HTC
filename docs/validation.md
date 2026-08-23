@@ -1130,6 +1130,62 @@ per-attempt figure checks out too — 5 Exalts + 2 Annuls + 4 side omens = 357 e
 - Above Thorough the MDP's `maxIters` binds before `maxMillis`, so Patient buys nothing on crafts like
   this one. The preset hint is not wrong, but the cap is not currently a user-facing lever.
 
+## Decomposing the two-model gap, and what the route was hiding (2026-08-23)
+
+Follow-up to the sweep above, from the same craft (Rare Wand ilvl 82, Chaos Damage + Cast Speed junk,
+five T2 targets). Three things were reported about the new route view; all three are measured.
+
+### The step routes read in billions of divine — how much is fixable?
+
+Scoring the annuls-first route at each orb strength, everything else held constant:
+
+| orb strength | success / attempt | cost if restarts were free |
+|---|---|---|
+| base (all this planner uses) | 1.53e-10% | 428B div |
+| greater | 1.38e-8% | 4.77B div |
+| perfect | 1.71e-7% | 1.01B div |
+
+So the missing orb-strength search is worth **1,116x** — real, and TODO item 2. But the MDP puts this
+craft at **14.9K div**, so even a Perfect-orb step plan is still **~68,000x** out. That remainder is
+not a gap to close: a step plan is one fixed sequence in which every slam must hit a **named** mod,
+where the policy takes whatever lands and recovers in place. Implementing orb strength would make the
+step routes less wrong without making them useful here.
+
+Acted on accordingly: once the MDP has answered, the step routes collapse behind a disclosure that
+says why they read higher. They stay open when it has not (a Magic item, an essence target), where
+they are the only view there is. One predicate — `trueCostAnswered` in `ItemActions` — drives both
+that and the "No true expected cost" card, so the two cannot disagree.
+
+### The route named currencies but not mods
+
+`Exalt (Dextral, Greater): 1 mod → 2 mods` says how many you gain and not which. Both states were
+already in hand (`MainLineStep` carries `node` and `next`), so it was a diff nobody was taking. The
+same craft now reads:
+
+    1. Annul                      clears a junk mod
+    2. Chaos                      clears a junk mod · most likely lands Mana Regeneration Rate
+    3. Exalt (Dextral, Greater)   most likely lands Critical Spell Damage Bonus
+    4. Exalt (Dextral, Perfect)   most likely lands Critical Hit Chance for Spells
+    5. Exalt (Perfect)            most likely lands Spell Damage
+    6. Exalt (Perfect)            most likely lands Cold Damage
+
+**"Most likely lands", never "add".** The policy chooses the orb, never the outcome — an Exalt is a
+slam. The mod named is whatever sits on the step's highest-probability edge, which is the edge the
+route follows by construction. An imperative would tell the player to do something the game gives them
+no way to do; the odds render beside it, which is what keeps the phrasing honest.
+
+### The full graph repeated itself
+
+`2 mods · 1 off-tier / Annul / 14.9K div` appeared many times in one column. Those are distinct states
+— they differ in *which* mods are present — but the label discards that, so the picture showed the
+same box repeatedly. Grouping by exactly what a box displays collapses **262 nodes to 79 groups**,
+largest ×20, and the screen-reader list uses the same grouping so it stops being a 262-item dump.
+
+Two rules the grouping obeys: the start and goal are never merged (folding "your item" into a ×17 box
+would misreport where the player is standing), and **edges aggregate to existence, not to a
+probability** — member probabilities differ, so no summed or averaged number is shown; probability
+drives stroke opacity only.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

@@ -244,3 +244,52 @@ describe('ItemActions — when there is no true expected cost', () => {
     expect(screen.queryByText(/No true expected cost/i)).toBeNull();
   });
 });
+
+// Reported as: "I have always the most costly here that are in billions div, and the one true expected
+// cost is one i could very much do." Measured on that craft the step routes read ~5,000,000x above the
+// true cost, and handing them Perfect orbs (worth 1,116x) still leaves ~68,000x — the remainder is the
+// model, not a gap. So once the policy has answered, they stop competing with it for attention.
+describe('ItemActions — step routes defer to the true cost', () => {
+  async function computeWith(markov: unknown) {
+    mocks.optimizeItemMarkov.mockReturnValue(markov);
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    await user.click(screen.getByRole('button', { name: /Compute plan/i }));
+    return user;
+  }
+
+  it('collapses them when the policy answered', async () => {
+    await computeWith(okMarkov);
+    await waitFor(() => expect(screen.getByRole('button', { name: /Step-by-step routes/i })).toBeInTheDocument());
+    // The frontier's own heading is not rendered while collapsed.
+    expect(screen.queryByText(/success \/ attempt/i)).toBeNull();
+  });
+
+  it('opens them on demand, and closes again', async () => {
+    const user = await computeWith(okMarkov);
+    await waitFor(() => expect(screen.getByRole('button', { name: /Step-by-step routes/i })).toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: /Step-by-step routes/i }));
+    expect(screen.getByText(/success \/ attempt/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Hide step-by-step routes/i }));
+    expect(screen.queryByText(/success \/ attempt/i)).toBeNull();
+  });
+
+  it('says why they read so much higher, rather than just hiding them', async () => {
+    await computeWith(okMarkov);
+    await waitFor(() => expect(screen.getByRole('button', { name: /Step-by-step routes/i })).toBeInTheDocument());
+    const summary = screen.getByRole('button', { name: /Step-by-step routes/i }).textContent ?? '';
+    expect(summary).toMatch(/named/);
+    expect(summary).toMatch(/takes whatever lands/);
+    // …and it must not simply restate the paragraph above it.
+    expect(summary).not.toMatch(/free replacement item/);
+  });
+
+  it('leaves them open when the policy did NOT answer — they are the only view then', async () => {
+    // A Magic item or an essence target. Collapsing here would leave the panel with nothing in it.
+    await computeWith(declinedMarkov);
+    await waitFor(() => expect(screen.getByText(/success \/ attempt/i)).toBeInTheDocument());
+    expect(screen.queryByRole('button', { name: /Step-by-step routes/i })).toBeNull();
+  });
+});

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import PolicyGraph, { groupNodes } from './PolicyGraph';
+import PolicyGraph, { groupNodes, groupKeyOf, progressEdges, routeThrough } from './PolicyGraph';
 import { optimizeItemMarkov } from '../../lib/engine';
 import { loadPatch } from '../../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../../packages/optimizer/src/loadPrices.ts';
@@ -21,6 +21,7 @@ const result = optimizeItemMarkov(eng, start, [
 // The component picks its own unit from the node costs; these tests only need a stable stand-in that
 // collides the same way the real one does.
 const fmt = (x: number): string => x.toPrecision(3);
+
 
 const expand = async () => {
   await userEvent.setup().click(screen.getByRole('button', { name: /Show all \d+ states/i }));
@@ -224,3 +225,111 @@ describe('PolicyGraph — the route names the mods', () => {
 function result_(parts: Pick<EngineMarkovResult, 'nodes' | 'edges'>): EngineMarkovResult {
   return { applicable: true, feasible: true, expectedCost: 9, converged: true, assumedOdds: false, ...parts };
 }
+
+// Clicking a box asks "what runs through here?". Measured on the reported craft the answer is a median
+// of 16 groups out of 80 — so 80% of the picture dims, which is what makes it worth clicking. Bricks
+// are deliberately excluded from the closure: with them, almost every state reaches almost every other
+// and the highlight would light the whole graph, which is the wall it exists to cut through.
+describe('PolicyGraph — highlighting the route through a state', () => {
+  const fmt2 = (x: number): string => x.toPrecision(3);
+  const adjacency = () => {
+    const { groups, groupOfKey } = groupNodes(result, fmt2);
+    const depthOf = new Map(groups.map((g) => [groupKeyOf(g.node, fmt2), g.node.depth]));
+    return { ...progressEdges(result, groupOfKey, depthOf), groups, depthOf };
+  };
+
+  it('reaches both backwards and forwards from the clicked state', () => {
+    const { forward, backward, groups, depthOf } = adjacency();
+    // A state in the middle of the graph, so both closures have something to find.
+    const mid = groups.find((g) => !g.node.isStart && !g.node.isGoal
+      && (forward.get(groupKeyOf(g.node, fmt2))?.size ?? 0) > 0
+      && (backward.get(groupKeyOf(g.node, fmt2))?.size ?? 0) > 0)!;
+    const k = groupKeyOf(mid.node, fmt2);
+    const r = routeThrough(k, forward, backward);
+    expect(r.has(k)).toBe(true);
+    expect([...r].some((x) => (depthOf.get(x) ?? 0) > (depthOf.get(k) ?? 0))).toBe(true); // an ancestor
+    expect([...r].some((x) => (depthOf.get(x) ?? 0) < (depthOf.get(k) ?? 0))).toBe(true); // a descendant
+  });
+
+  it('excludes a branch that does not run through the clicked state', () => {
+    // The point of the whole feature, as a property rather than a measurement: two disjoint routes to
+    // the goal, and clicking into one must not light the other. (How MUCH of a real graph dims is a
+    // fact about the data — measured at ~80% on the reported craft and recorded in docs/validation.md
+    // — so it is not asserted here, where it would only be testing the fixture.)
+    const forked = result_({
+      nodes: [
+        { key: 's', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, isStart: true, isGoal: false, depth: 3, expectedCost: 9, action: 'Annul' },
+        { key: 'left', present: ['A'], blocked: [], junkPrefixes: 1, junkSuffixes: 0, isStart: false, isGoal: false, depth: 2, expectedCost: 8, action: 'Exalt' },
+        { key: 'right', present: ['B'], blocked: [], junkPrefixes: 0, junkSuffixes: 1, isStart: false, isGoal: false, depth: 2, expectedCost: 7, action: 'Chaos' },
+        { key: 'g', present: ['A', 'B'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+      ],
+      edges: [
+        { from: 's', to: 'left', action: 'Annul', prob: 0.5, regress: false },
+        { from: 's', to: 'right', action: 'Annul', prob: 0.5, regress: false },
+        { from: 'left', to: 'g', action: 'Exalt', prob: 0.3, regress: false },
+        { from: 'right', to: 'g', action: 'Chaos', prob: 0.3, regress: false },
+      ],
+    });
+    const { groups, groupOfKey } = groupNodes(forked, fmt2);
+    const depthOf = new Map(groups.map((g) => [groupKeyOf(g.node, fmt2), g.node.depth]));
+    const { forward, backward } = progressEdges(forked, groupOfKey, depthOf);
+    const keyOf = (k: string) => groupOfKey.get(k)!;
+    const r = routeThrough(keyOf('left'), forward, backward);
+    expect(r).toContain(keyOf('left'));
+    expect(r).toContain(keyOf('s'));   // how you get there
+    expect(r).toContain(keyOf('g'));   // where it goes
+    expect(r).not.toContain(keyOf('right')); // the branch that does not run through it
+  });
+
+  it('terminates on a graph whose bricks form a cycle', () => {
+    // a -> b forward, b -> a as a brick. Including bricks in the closure would loop; progress-only
+    // walks strictly-decreasing depth and cannot.
+    const cyc: EngineMarkovResult = result_({
+      nodes: [
+        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, isStart: true, isGoal: false, depth: 1, expectedCost: 2, action: 'Exalt' },
+        { key: 'b', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+      ],
+      edges: [
+        { from: 'a', to: 'b', action: 'Exalt', prob: 0.5, regress: false },
+        { from: 'b', to: 'a', action: 'Exalt', prob: 0.5, regress: true },
+      ],
+    });
+    const { groups, groupOfKey } = groupNodes(cyc, fmt2);
+    const depthOf = new Map(groups.map((g) => [groupKeyOf(g.node, fmt2), g.node.depth]));
+    const { forward, backward } = progressEdges(cyc, groupOfKey, depthOf);
+    expect(routeThrough(groupKeyOf(groups[0]!.node, fmt2), forward, backward).size).toBe(2);
+  });
+
+  it('says the boxes are clickable, and what happened when one is clicked', async () => {
+    render(<PolicyGraph result={result} />);
+    await expand();
+    expect(screen.getByText(/Click any state to highlight/i)).toBeInTheDocument();
+    const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
+    await userEvent.setup().click(boxes[0]!);
+    expect(screen.getByText(/Highlighting \d+ of \d+ states/i)).toBeInTheDocument();
+  });
+
+  it('dims what is not on the route, and clears again', async () => {
+    const { container } = render(<PolicyGraph result={result} />);
+    await expand();
+    const user = userEvent.setup();
+    const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
+    await user.click(boxes[0]!);
+    const dimmed = [...container.querySelectorAll('g[role="button"]')]
+      .filter((g) => g.getAttribute('opacity') === '0.12');
+    expect(dimmed.length).toBeGreaterThan(0);
+    await user.click(screen.getByRole('button', { name: /^Clear$/ }));
+    expect([...container.querySelectorAll('g[role="button"]')]
+      .every((g) => g.getAttribute('opacity') === '1')).toBe(true);
+  });
+
+  it('is operable from the keyboard, not click-only', async () => {
+    render(<PolicyGraph result={result} />);
+    await expand();
+    const box = screen.getAllByRole('button', { name: /Highlight the route through this state/i })[0]!;
+    box.focus();
+    await userEvent.setup().keyboard('{Enter}');
+    expect(box).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/Highlighting \d+ of \d+ states/i)).toBeInTheDocument();
+  });
+});

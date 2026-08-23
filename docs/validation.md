@@ -1186,6 +1186,28 @@ would misreport where the player is standing), and **edges aggregate to existenc
 probability** — member probabilities differ, so no summed or averaged number is shown; probability
 drives stroke opacity only.
 
+### Clicking a state highlights the route through it
+
+Requested after the grouping landed. Clicking a box lights everything that can reach it plus
+everything it can reach, and dims the rest.
+
+**Bricks are excluded from that closure, and the reason is measurable.** Regress edges make the graph
+strongly connected — with them in, almost every state reaches almost every other and the "highlight"
+lights the whole picture, which is the wall it exists to cut through. Restricted to progress edges
+(strictly decreasing distance-to-goal), route sizes over the 80 groups of the reported craft come out:
+
+| min | p25 | median | p75 | max |
+|---|---|---|---|---|
+| 6 | 11 | **16** | 26 | 80 |
+
+So a median click highlights ~20% and dims ~80%. The max of 80 is the start state, whose descendants
+are by definition the whole reachable graph.
+
+That distribution is a fact about this craft's data, not an invariant of the code, so it is recorded
+here rather than asserted in a test; the suite pins the property instead — a forked graph where
+clicking into one branch must not light the other. Progress-only also makes the walk terminate without
+a cycle guard, since depth strictly decreases; a test builds a brick cycle to pin that.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

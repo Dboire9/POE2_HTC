@@ -100,7 +100,58 @@ export function groupNodes(
   return { groups: [...byGroup.values()], groupOfKey };
 }
 
+/** Progress adjacency between GROUPS: an edge is kept only when it strictly reduces distance-to-goal. */
+export function progressEdges(
+  result: EngineMarkovResult, groupOfKey: Map<string, string>, depthOf: Map<string, number>,
+): { forward: Map<string, Set<string>>; backward: Map<string, Set<string>> } {
+  const forward = new Map<string, Set<string>>();
+  const backward = new Map<string, Set<string>>();
+  const link = (m: Map<string, Set<string>>, a: string, b: string): void => {
+    const set = m.get(a);
+    if (set) set.add(b);
+    else m.set(a, new Set([b]));
+  };
+  for (const e of result.edges) {
+    if (e.prob <= 0.001) continue;
+    const a = groupOfKey.get(e.from);
+    const b = groupOfKey.get(e.to);
+    if (a === undefined || b === undefined || a === b) continue;
+    // Progress only. Including bricks would make almost every node reach almost every other — a
+    // "highlight" that lights the whole graph is the wall it was meant to cut through. Measured on the
+    // reported craft, progress-only leaves a median route of 16 groups out of 80.
+    if ((depthOf.get(b) ?? 0) >= (depthOf.get(a) ?? 0)) continue;
+    link(forward, a, b);
+    link(backward, b, a);
+  }
+  return { forward, backward };
+}
+
+/**
+ * Every group on a route through `key`: the ones that can reach it, the ones it can reach, and itself.
+ *
+ * Terminates without a visited-guard subtlety because both closures walk strictly-decreasing depth, so
+ * neither can revisit — the `seen` set here is for work-saving, not for cycle safety.
+ */
+export function routeThrough(
+  key: string, forward: Map<string, Set<string>>, backward: Map<string, Set<string>>,
+): Set<string> {
+  const route = new Set<string>([key]);
+  for (const adj of [forward, backward]) {
+    const stack = [key];
+    while (stack.length > 0) {
+      for (const next of adj.get(stack.pop()!) ?? []) {
+        if (route.has(next)) continue;
+        route.add(next);
+        stack.push(next);
+      }
+    }
+  }
+  return route;
+}
+
 const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => string }> = ({ result, fmtCost }) => {
+  // Which box the player clicked, if any — the graph then dims everything not on a route through it.
+  const [selected, setSelected] = React.useState<string | null>(null);
   // Collapse first, lay out second — the columns are sized from what gets drawn, not from the state count.
   const { groups, groupOfKey } = groupNodes(result, fmtCost);
 
@@ -118,6 +169,15 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
   const posOf = new Map(placed.map((p) => [groupKeyOf(p.node, fmtCost), p]));
   const width = PAD * 2 + depths.length * W + (depths.length - 1) * COL_GAP;
   const height = PAD * 2 + Math.max(...rowInCol.values()) * (H + ROW_GAP) - ROW_GAP;
+
+  // Clicking a box asks "what runs through here?" — the answer is everything that can reach it plus
+  // everything it can reach, along progress edges. Null selection means everything is at full strength,
+  // which is the graph as it was.
+  const depthOf = new Map(placed.map((p) => [groupKeyOf(p.node, fmtCost), p.node.depth]));
+  const { forward, backward } = progressEdges(result, groupOfKey, depthOf);
+  const route = selected === null ? null : routeThrough(selected, forward, backward);
+  const onRoute = (k: string): boolean => route === null || route.has(k);
+  const DIM = 0.12;
 
   // Edges aggregate to EXISTENCE, not to a probability: an arrow between two groups means some state
   // in one can reach some state in the other under this action. Their member probabilities differ, so
@@ -142,7 +202,10 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
       const a = posOf.get(e.from)!;
       const b = posOf.get(e.to)!;
       const regress = b.node.depth > a.node.depth;
-      const opacity = Math.max(0.18, Math.min(1, e.prob));
+      // An edge stays lit only when BOTH ends are on the route; one end alone would draw a line into
+      // the dimmed field and read as a connection that isn't part of what was asked for.
+      const lit = onRoute(e.from) && onRoute(e.to);
+      const opacity = lit ? Math.max(0.18, Math.min(1, e.prob)) : DIM * 0.6;
       if (regress) {
         const x1 = a.x + W / 2; const y1 = a.y; const x2 = b.x + W / 2; const y2 = b.y;
         const lift = 26 + Math.abs(x2 - x1) * 0.12;
@@ -156,7 +219,24 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
     });
 
   return (
-    <div className="overflow-x-auto rounded-md border border-border bg-muted/20 p-2">
+    <div className="rounded-md border border-border bg-muted/20 p-2 space-y-2">
+      {/* The click target is a box drawn in SVG, which announces nothing about being interactive.
+          Saying so costs one line and is the difference between a feature and a secret. */}
+      <p className="px-1 text-[11px] text-muted-foreground" role="status">
+        {route === null
+          ? 'Click any state to highlight the route through it and dim the rest.'
+          : `Highlighting ${route.size} of ${placed.length} states — everything that reaches this one and everything it reaches.`}
+        {route !== null && (
+          <button
+            type="button"
+            onClick={() => setSelected(null)}
+            className="ml-2 underline underline-offset-2 hover:text-foreground"
+          >
+            Clear
+          </button>
+        )}
+      </p>
+      <div className="overflow-x-auto">
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="text-muted-foreground" role="img" aria-label="Optimal crafting policy graph">
         <defs>
           <marker id="pg-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
@@ -190,12 +270,34 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
               + `${node.junkPrefixes + node.junkSuffixes > 0 ? ` · ${node.junkPrefixes + node.junkSuffixes} junk` : ''}`
               + `${node.desecratedJunk ? ` · unwanted desecrated ${node.desecratedJunk}` : ''}`
               + ` · E ${fmtCost(node.expectedCost)}${node.action ? ` · ${node.action}` : ''}`;
+          const gk = groupKeyOf(node, fmtCost);
+          const isSelected = gk === selected;
           const boxClass = node.isGoal ? 'fill-emerald-500/15 stroke-emerald-500'
             : node.isStart ? 'fill-background stroke-primary' : 'fill-background stroke-border';
           return (
-            <g key={node.key}>
+            <g
+              key={node.key}
+              // Focusable and operable, because a click-only affordance drawn in SVG is invisible to
+              // the keyboard: an <svg> child gets no tab stop and no Enter/Space handling for free.
+              role="button"
+              tabIndex={0}
+              aria-pressed={isSelected}
+              aria-label={`${stateLabel(node)}${count > 1 ? `, ${count} states` : ''}, ${node.action ?? 'target'}`
+                + `. Highlight the route through this state.`}
+              className="cursor-pointer focus:outline-none"
+              opacity={onRoute(gk) ? 1 : DIM}
+              onClick={() => setSelected(isSelected ? null : gk)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(isSelected ? null : gk); }
+                if (e.key === 'Escape') setSelected(null);
+              }}
+            >
               <title>{tip}</title>
-              <rect x={x} y={y} width={W} height={H} rx={7} className={boxClass} strokeWidth={node.isStart || node.isGoal ? 2 : 1} />
+              <rect
+                x={x} y={y} width={W} height={H} rx={7}
+                className={isSelected ? 'fill-primary/10 stroke-primary' : boxClass}
+                strokeWidth={isSelected ? 3 : node.isStart || node.isGoal ? 2 : 1}
+              />
               {node.isGoal ? (
                 <text x={x + W / 2} y={y + H / 2 + 4} textAnchor="middle" className="fill-emerald-600 dark:fill-emerald-400 text-[12px] font-semibold">✓ target</text>
               ) : (
@@ -213,6 +315,7 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
           );
         })}
       </svg>
+      </div>
     </div>
   );
 };

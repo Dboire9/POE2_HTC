@@ -2,7 +2,7 @@
 
 Ordered by value. Update this file in the same commit that closes an item — see `.claude/skills/ship`.
 
-Last reviewed: 2026-08-22.
+Last reviewed: 2026-08-23.
 
 ---
 
@@ -34,6 +34,14 @@ Session Replay not in the bundle at all. Lazy-loading it would buy almost nothin
 ---
 
 ## Recently closed
+
+- **The evidence trail is current again** (2026-08-23). `docs/validation.md`'s last section was dated
+  2026-08-21, so five mechanic changes existed only in commit messages — the boss-omen gate, armour's
+  untargeted draw, the one-essence cap, perfect essences from white plus the missing ilvl-72 gate, and
+  VI convergence reporting. Each is now recorded WITH ITS EVIDENCE QUALITY, which varies: two rest on
+  user rulings, one (the desecrated weight) is an outright assumption and is flagged as the largest
+  unverified number in the app. `docs/copy-audit.md` had also drifted into contradicting itself in
+  three places — every row is now closed and marked.
 
 - **Search effort is the user's setting now** (2026-08-23). Three solver caps were hard-coded guesses
   about someone else's patience: VI's sweep cap, the budget search's node cap, the orb search's plan

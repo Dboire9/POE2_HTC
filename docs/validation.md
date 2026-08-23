@@ -937,6 +937,109 @@ mod positively weighted, every perfect-essence mod single-tier and deterministic
 numbers are unmoved, as predicted — the affected mods are desecrated and don't enter those pools. The
 prediction is now measured rather than reasoned.
 
+## Desecration, essences and convergence — five mechanic changes (2026-08-22 → 08-23)
+
+Recorded after the fact: these shipped over two days and existed only in commit messages, which is not
+where a claim about a game mechanic belongs. **Evidence quality is stated per item, because it varies
+sharply** — two rest on user domain rulings and one on an outright assumption.
+
+### 1. Boss omens are "Weapon or Jewellery" only ✅ VERIFIED (item text)
+
+The Omens of the Sovereign / Liege / Blackblooded read *"your next **Weapon or Jewellery** Desecration
+attempt will guarantee a random Ulaman/Amanamu/Kurgal modifier"*. Nothing gated on that, so both
+planners offered boss-targeted desecration on ARMOUR — and **342 of the 527 shipped desecrated mods sit
+on armour bases**, so roughly two thirds of desecrated crafts were planned around a step the game
+refuses. On a targeted draw the planner claimed **0.25** where the real untargeted draw was **9.2e-6**.
+
+`bossOmenAllowed` / `desecrationBoneFor` (`probability.ts`) gate it; "Weapon or Jewellery" is exactly
+"not armour", i.e. the jawbone and collarbone groups. An unmapped category falls back to `rib`
+(armour), deliberately: claiming a plan works when the game would refuse it is the worse failure.
+
+**Evidence:** the in-game item text, supplied verbatim by the user. Direct and unambiguous.
+
+### 2. Armour can desecrate — the MDP had only boss-omened actions ✅ FIXED, model per D4
+
+Gating the omen was right; stopping there was not. Every desecrate action the MDP modelled carried a
+boss omen, so on armour it had **no desecrate action at all** and reported `feasible: false` for a
+craft the game performs happily — for a day, for the majority of desecrated mods.
+
+`markovActions.ts` now offers the untargeted draw on **every** base (`desecrateAnyOutcomes`), weighted
+over the combined normal ∪ desecrated pool, mirroring `desecrationProbability` so the two planners
+agree — the D8 lesson. Boss variants layer on top only where legal. Two consequences beyond armour:
+a player who had excluded every omen previously lost desecration on weapons too, and a desecrated mod
+carrying no boss tag is now reachable rather than rejected (no such mod exists in 0.5.0; the rejection
+was wrong in principle).
+
+**Evidence:** hand-computed unit tests, plus mutation checks — restoring the old condition fails seven
+tests. The *model* it uses is D4, whose denominator the user confirmed and whose **weight is an
+assumption** (see D4).
+
+### 3. One essence modifier per item — regular and perfect counted TOGETHER ✅ VERIFIED (user ruling)
+
+> "You cannot apply a Perfect Essence after using a regular Essence on the same item. Each piece of
+> equipment can only carry one essence modifier at a time." — user, 2026-08-23
+
+Nothing enforced this. `fromItem.ts` built one `perfect-essence` op per perfect target, the MDP gave
+each its own action, and `optimize.ts` capped only `source: 'essence'` — half the mods the rule covers.
+All three would have planned an item the game cannot hold. `isEssenceMod` (`probability.ts`) is now the
+single predicate all of them count with.
+
+The two kinds draw from **disjoint pools** — 317 `essence` mods vs 363 `perfect_essence`, zero id
+overlap — so a Perfect Essence can never supply a second regular-essence mod. (An earlier audit claimed
+the opposite and was wrong; see the correction note in `docs/copy-audit.md`.)
+
+**Evidence:** user ruling for the cap; the disjointness is measured directly from the shipped data.
+
+### 4. Perfect essences from white, and the item-level gate that was missing ✅ FIXED
+
+The Lab could not target a perfect-essence mod at all (`toEngineMod` filtered them out). It now can:
+since every mod on a from-white item is one you asked for, the essence necessarily eats a target, so
+the plan re-adds it with an Exalt and the search chooses which to sacrifice. Needs ≥3 rollable targets
+to reach Rare; below that it reports a planner limit rather than an impossibility.
+
+Found while implementing: the `perfect-essence` branch in `plan.ts` checked rarity, family and slots
+but **never the item level**, though `essenceForcedProbability` gates regular essences on
+`tier.ilvl > item.level`. Every perfect-essence mod is ilvl 72, so below that the planner costed a step
+the game refuses. Gate added.
+
+**Evidence:** hand-computed tests on a synthetic pool (removal probability 1/(pf+sf) unconstrained,
+1/sf under a Crystallisation omen), plus a real-data smoke test. The 1/pf, 1/sf and 1/(pf+sf) formulas
+themselves are the differential-tested `perfectEssenceProbability` port, unchanged.
+
+### 5. Value iteration can fail to converge, and now says so ✅ FIXED
+
+VI bails at `maxIters`, and because it 0-initialises and climbs, the value it returns then is a strict
+**lower bound** — not an estimate. Nothing recorded that: `expectedCost` came back looking like an
+answer and the UI printed **8,219,067 ex**, precise to the exalt and not converged. Found by
+instrumenting the progress stream — 100,001 solve reports on an armour desecration, i.e. every sweep of
+the cap. It also explains why loosening `tolerance` changed nothing: it never reached any tolerance.
+
+`MarkovResult.converged` now carries through to the UI, which renders "≥ x". A rejected target reports
+`converged: true` — it never ran VI, and calling that a floor would imply a number that isn't there.
+
+The **desecrated weight change (D4) largely dissolved the trigger**: the same armour solve went from
+6014ms unconverged to **159ms converged**. The reporting stays, because the condition is general — any
+sufficiently long-odds craft reaches it — and `maxMillis` (the user's Search effort setting) can now
+induce it deliberately.
+
+### Not a mechanic, but it changes what users get: Search effort (2026-08-23)
+
+Three solver caps were hard-coded: VI's sweeps, the budget search's nodes, the orb search's plans. One
+user setting drives all three. Measured on 6 targets at tier display 3, Wands, ilvl 82:
+
+| preset | orb depth | plans evaluated |
+|---|---|---|
+| Quick | strongest-only | 5,760 |
+| **Standard** (= the old hard-coded default) | strongest-only | 5,760 |
+| Thorough | base+strongest | 184,320 |
+| Patient | full | 622,080 |
+
+Worth recording because of what it exposes: **on a craft that size the default only ever searched the
+strongest orbs**, and every result before this was that shallow. The budget search is ~70ms/node,
+linear (100 nodes 7.0s, 200 nodes 14.1s).
+
+---
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.
@@ -945,9 +1048,23 @@ prediction is now measured rather than reasoned.
   test driven by **real engine output** (`AlternativesView.test.tsx`) rather than a hand-made fixture,
   so the panel can't render a shape the engine never produces. Both flows wired (a fractured craft routes
   its alternatives through the from-item planner). The panel shows the odds bracket verbatim when
-  `exact: false`, and badges "search capped" when `truncated` — the honesty the engine reports is
+  `exact: false`, and badges "stopped early" when `truncated` (worded "search capped" until the 2026-08-22 jargon pass) — the honesty the engine reports is
   surfaced, not swallowed.
 - ~~Human CoE numeric spot-check of the new pools~~ DONE 2026-07-13 — essence value ranges confirmed
   against CoE (see above). Desecrated/perfect value spot-checks beyond the sampled set remain optional.
 - **Broaden CoE cross-validation beyond wands** — other bases' families/weights, tier-target and omen
   numbers. Wands is clean; the rest of the pool is the remaining Phase-3 work.
+- **Confirm the assumed desecrated spawn weight (D4).** 1000 was chosen for plausibility, not measured:
+  poe2db publishes none and reports 1 for every row. It moves every unomened desecration by ~900x
+  (Body Armour 1-in-121,510 → 1-in-132). The app discloses it (`assumedOdds` → `PriceBasisNote`), which
+  makes it honest, not correct. **The single largest unverified number in the app.**
+- **Cross-check the CHANGED mechanics against Craft of Exile.** `coe-verify` covers normal-pool weights
+  (Rings / Body_Armours_int / Quivers: all MATCH as of 2026-08-23) and `coe-newpools-check` covers pool
+  structure — neither touches what changed above. The unomened desecration denominator, the
+  one-essence-per-item cap and the from-white perfect-essence route are backed by user rulings plus
+  hand-computed tests, with no independent signal. `coe-newpools-check` writes
+  `/tmp/coe-newpools-worksheet.md` for exactly this hand-check.
+- **Nothing shipped since 2026-08-21 has been seen in a browser.** The Search effort selector, the
+  assumption note, the "≥ x" unconverged display, the stacked mobile columns, the warm-start fetch and
+  the cache headers are verified by jsdom and reading only. jsdom has no layout engine and no network,
+  so responsive behaviour and caching in particular are untested by anything here.

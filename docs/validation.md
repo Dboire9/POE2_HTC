@@ -1208,6 +1208,31 @@ here rather than asserted in a test; the suite pins the property instead — a f
 clicking into one branch must not light the other. Progress-only also makes the walk terminate without
 a cycle guard, since depth strictly decreases; a test builds a brick cycle to pin that.
 
+Clicking also opens a full description of the state, which is the part a 148x54 box cannot carry:
+which target mods are held, which are stuck below tier (and that they need annulling before the mod
+can be re-rolled), the junk broken down by side, and — outcome by outcome — what the recommended orb
+actually does from there, with each outcome's probability and whether it is a step backwards. The
+outcomes are the representative state's own edges, so they are exact for it; when the box stands for
+several states the panel says so rather than implying they all behave alike.
+
+### The free-restart total is gone from held-item cards
+
+Reported as "i do not like the Step-by-step routes, the costs are astronomical". They were: `78.9B div`
+on the collapsed button, and the same figure inside. Dividing a real per-run cost by a ~7e-13 chance
+is arithmetically correct and is not a budget — nobody runs a sequence 1e14 times, they abandon it.
+
+So on a held item the card now drops `expected` and `expectedAttempts` entirely and shows the two
+figures that survive contact with reality: **chance per attempt**, and **what one run costs** (356 ex
+on this craft). That pair also preserves the frontier's reason for having several rows — a plan
+reaching for Perfect orbs costs more per run and lands more often, which is the whole cost↔probability
+trade, expressed in numbers a player can act on. The badges shrink to `likeliest` for the same reason:
+with no total on the card, "cheapest" and "best value" would be claims about a number the reader
+cannot see. The collapsed button carries the route count instead of the cheapest total, so the figure
+is not met without deliberately opening the section.
+
+The from-white planner is untouched — a white base really can be replaced for free, so `expected` is
+a real number there and still leads.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

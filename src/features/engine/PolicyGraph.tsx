@@ -149,6 +149,95 @@ export function routeThrough(
   return route;
 }
 
+/**
+ * Everything known about one state, for the panel under the graph.
+ *
+ * A box has room for a label, an action and a cost; this is the rest — which target mods you actually
+ * hold, which are stuck below tier, how much junk is left, and what the recommended orb does when you
+ * play it. The outcomes come from the REPRESENTATIVE state's own edges, so they are exact for that
+ * state; when the box stands for several, the panel says so rather than implying they all behave
+ * identically.
+ */
+const StateDetail: React.FC<{
+  group: NodeGroup; result: EngineMarkovResult; fmtCost: (x: number) => string; onClose: () => void;
+}> = ({ group, result, fmtCost, onClose }) => {
+  const { node, count } = group;
+  const byKey = new Map(result.nodes.map((n) => [n.key, n]));
+  const outcomes = result.edges
+    .filter((e) => e.from === node.key && e.prob > 0.0005 && byKey.has(e.to))
+    .map((e) => ({ edge: e, to: byKey.get(e.to)! }))
+    .sort((a, b) => b.edge.prob - a.edge.prob);
+  const junk = node.junkPrefixes + node.junkSuffixes;
+
+  return (
+    <div className="rounded-md border border-primary/40 bg-background p-3 space-y-2 text-sm">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h4 className="font-semibold">
+          {node.isStart ? 'Your item' : node.isGoal ? 'Target reached' : stateLabel(node)}
+          {count > 1 && <span className="ml-2 text-xs font-normal text-muted-foreground">one of {count} states that look alike here</span>}
+        </h4>
+        <button type="button" onClick={onClose} className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground">
+          Close
+        </button>
+      </div>
+
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+        <dt className="text-muted-foreground">Target mods held</dt>
+        <dd>{node.present.length > 0 ? node.present.join(', ') : <span className="text-muted-foreground">none yet</span>}</dd>
+        {node.blocked.length > 0 && (
+          <>
+            <dt className="text-muted-foreground">Stuck below tier</dt>
+            {/* Worth spelling out: the family is occupied by a roll that is too low, so the mod cannot
+                be re-rolled onto the item until that roll is annulled off. */}
+            <dd>{node.blocked.join(', ')} <span className="text-muted-foreground">— annul before re-adding</span></dd>
+          </>
+        )}
+        <dt className="text-muted-foreground">Junk to clear</dt>
+        <dd>
+          {junk === 0 ? <span className="text-muted-foreground">none</span>
+            : `${junk} (${node.junkPrefixes} prefix, ${node.junkSuffixes} suffix)`}
+          {node.desecratedJunk && <span className="text-muted-foreground"> · plus an unwanted desecrated {node.desecratedJunk}, which blocks desecrating again</span>}
+        </dd>
+        <dt className="text-muted-foreground">Cost to finish</dt>
+        <dd className="tabular-nums">{fmtCost(node.expectedCost)}</dd>
+        {node.action && (
+          <>
+            <dt className="text-muted-foreground">Best move</dt>
+            <dd className="font-medium text-primary">{node.action}</dd>
+          </>
+        )}
+      </dl>
+
+      {outcomes.length > 0 && (
+        <div>
+          <p className="text-xs text-muted-foreground mb-1">
+            What <span className="font-medium text-foreground">{node.action}</span> does from here
+            {count > 1 && ' (for this one of the states above)'}:
+          </p>
+          <ul className="space-y-0.5">
+            {outcomes.map(({ edge, to }) => (
+              <li key={`${edge.from}->${edge.to}`} className="flex items-baseline gap-2 text-xs">
+                <span className={`tabular-nums w-12 shrink-0 text-right ${edge.regress ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                  {pct(edge.prob)}
+                </span>
+                <span className="flex-1">
+                  {describeStep({
+                    gained: to.present.filter((x) => !node.present.includes(x)),
+                    lost: node.present.filter((x) => !to.present.includes(x)),
+                    blocked: to.blocked.filter((x) => !node.blocked.includes(x)),
+                    junkDelta: (to.junkPrefixes + to.junkSuffixes) - junk,
+                  }) || (to.isGoal ? 'reaches the target' : 'no change')}
+                  {edge.regress && <span className="text-amber-600 dark:text-amber-400"> — a step backwards</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => string }> = ({ result, fmtCost }) => {
   // Which box the player clicked, if any — the graph then dims everything not on a route through it.
   const [selected, setSelected] = React.useState<string | null>(null);
@@ -176,6 +265,8 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
   const depthOf = new Map(placed.map((p) => [groupKeyOf(p.node, fmtCost), p.node.depth]));
   const { forward, backward } = progressEdges(result, groupOfKey, depthOf);
   const route = selected === null ? null : routeThrough(selected, forward, backward);
+  const selectedGroup = selected === null ? null
+    : placed.find((g) => groupKeyOf(g.node, fmtCost) === selected) ?? null;
   const onRoute = (k: string): boolean => route === null || route.has(k);
   const DIM = 0.12;
 
@@ -236,6 +327,16 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
           </button>
         )}
       </p>
+
+      {selectedGroup && (
+        <StateDetail
+          group={selectedGroup}
+          result={result}
+          fmtCost={fmtCost}
+          onClose={() => setSelected(null)}
+        />
+      )}
+
       <div className="overflow-x-auto">
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="text-muted-foreground" role="img" aria-label="Optimal crafting policy graph">
         <defs>

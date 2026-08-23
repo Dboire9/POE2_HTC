@@ -731,10 +731,11 @@ const ItemActions: React.FC = () => {
               className="w-full rounded-md border border-border bg-muted/20 px-3 py-2 text-left text-[11px] text-muted-foreground hover:bg-muted/40"
             >
               <span className="font-medium text-foreground">Step-by-step routes</span>
+              {/* NOT the cheapest expected cost. That figure is the free-restart total — billions of
+                  divine on a long-shot craft — and putting it on the button meant you met the number
+                  without ever opening the section. The route count is the honest summary. */}
               {plan.frontier.length > 0 && (
-                <span className="tabular-nums"> — from {formatCost(
-                  Math.min(...plan.frontier.map((f) => f.expected).filter(Number.isFinite)), rates,
-                )}</span>
+                <span className="tabular-nums"> ({plan.frontier.length})</span>
               )}
               {/* Deliberately NOT a restatement of the two-cost-models paragraph above — that one
                   explains the models; this one says why the number behind this button is safe to

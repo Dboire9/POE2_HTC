@@ -106,6 +106,13 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   `currencyDepth: 'base-only'`. It used to report `full`, rendered as "tried every orb strength" — a
   false claim that also hid why its costs sit so far above the MDP's, which does use Greater/Perfect
   Exalts.
+- **A held item's step-route card shows no expected-cost total.** `planExpectedCost` divides a real
+  per-run cost by the plan's success chance, and at ~7e-13 that is billions of divine — right, and not
+  a budget. `FrontierView`'s `freeRestart={false}` drops `expected` and `expectedAttempts` and shows
+  chance-per-attempt plus what one run costs, which still expresses the cost↔probability trade (more
+  orb strength = dearer run, likelier landing). Don't reinstate the total "for completeness": it was
+  the single most-complained-about number in the app. The from-white path keeps it — a white base
+  really is replaceable for free.
 - **Once the MDP has answered, the step routes collapse.** Measured on a five-target craft they read
   ~5,000,000x above the true cost, and orb strength (worth 1,116x) would still leave ~68,000x — the
   remainder is the model, not a gap. `trueCostAnswered` in `ItemActions` is the single predicate for

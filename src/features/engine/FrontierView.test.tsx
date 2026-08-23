@@ -66,31 +66,41 @@ const twoPlans: EngineResult = {
 const costOf = (card: HTMLElement) => card.textContent ?? '';
 
 describe('FrontierView — whether a restart is really free', () => {
+  const cards = () => screen.getAllByText(/chance per attempt/i).map((el) => el.closest('div.rounded-lg') as HTMLElement);
+
   it('leads with the cheapest when a restart IS free (a white base)', () => {
     render(<FrontierView result={twoPlans} freeRestart />);
-    const cards = screen.getAllByText(/success \/ attempt/i).map((el) => el.closest('div.rounded-lg')!);
-    expect(costOf(cards[0] as HTMLElement)).toContain('cheapest');
-    expect(costOf(cards[0] as HTMLElement)).not.toContain('on paper');
+    expect(costOf(cards()[0]!)).toContain('cheapest');
+    expect(costOf(cards()[0]!)).toContain('expected cost');
   });
 
   it('leads with the likeliest route when it is not', () => {
     render(<FrontierView result={twoPlans} freeRestart={false} />);
-    const cards = screen.getAllByText(/success \/ attempt/i).map((el) => el.closest('div.rounded-lg')!);
     // Surest first — the annuls-first route a player would actually run.
-    expect(costOf(cards[0] as HTMLElement)).toContain('surest');
-    expect(costOf(cards[cards.length - 1] as HTMLElement)).toContain('cheapest on paper');
+    expect(costOf(cards()[0]!)).toContain('likeliest');
   });
 
-  it('captions the cost figure with the assumption it rests on', () => {
+  // Dividing a real per-run cost by a ~1e-13 chance gives billions of divine. It is arithmetically
+  // right and it is not a budget — nobody runs a sequence 1e14 times, they abandon it. Reported as
+  // "i do not like the Step-by-step routes, the costs are astronomical".
+  it('shows no free-restart total at all on a held item', () => {
     render(<FrontierView result={twoPlans} freeRestart={false} />);
-    expect(screen.getAllByText(/cost if restarts were free/i).length).toBe(2);
-    expect(screen.queryByText(/^expected cost$/i)).toBeNull();
+    expect(screen.queryByText(/expected cost/i)).toBeNull();
+    expect(screen.queryByText(/cost if restarts were free/i)).toBeNull();
+    expect(screen.queryByText(/attempts$/i)).toBeNull();
+  });
+
+  it('keeps the two figures you can act on', () => {
+    render(<FrontierView result={twoPlans} freeRestart={false} />);
+    expect(screen.getAllByText(/chance per attempt/i).length).toBe(2);
+    expect(screen.getAllByText(/what one run costs/i).length).toBe(2);
   });
 
   it('keeps "best value" on the plan the search picked, not on whatever ends up first', () => {
     // The flags are decided on the search order and carried through the reversal. Recomputing them
-    // after reversing would silently move the ring to the wrong card.
-    const { container } = render(<FrontierView result={twoPlans} freeRestart={false} />);
+    // after reversing would silently move the ring to the wrong card. (Only meaningful while the cost
+    // is on screen — with it hidden, "best value" would be a claim about a number you cannot see.)
+    const { container } = render(<FrontierView result={twoPlans} freeRestart />);
     const ringed = container.querySelectorAll('.ring-2');
     expect(ringed.length).toBe(1);
     expect(ringed[0]!.textContent).toContain('best value');
@@ -110,11 +120,11 @@ describe('FrontierView — units are per quantity, not per view', () => {
     // chose divine, and then perAttempt — 357 ex, the number you actually hand over per try — rendered
     // as "0.98 div". Sharing a unit down a column is what makes rows comparable; sharing one ACROSS
     // columns that measure different things does the opposite.
-    render(<FrontierView result={twoPlans} freeRestart={false} priceBasis={basis} />);
-    const perAttempt = screen.getAllByText(/per attempt/)[0]!.textContent ?? '';
-    expect(perAttempt).toMatch(/357 ex per attempt/);
+    // Asserted in the free-restart mode, which is the one that still shows both quantities at once.
+    const { container } = render(<FrontierView result={twoPlans} freeRestart priceBasis={basis} />);
+    const text = container.textContent ?? '';
+    expect(text).toMatch(/357 ex per attempt/);
     // …while the astronomical column really does escalate, or the two would not be sharing a view.
-    expect(screen.getAllByText(/cost if restarts were free/i)[0]!.previousSibling?.textContent)
-      .toMatch(/div$/);
+    expect(screen.getAllByText(/^expected cost$/i)[0]!.previousSibling?.textContent).toMatch(/div$/);
   });
 });

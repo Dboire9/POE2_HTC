@@ -102,36 +102,55 @@ const FrontierView: React.FC<{
               <div className="text-2xl font-bold tabular-nums" title={exactExalts(plan.expected)}>
                 {formatIn(unitExpected, plan.expected)}
               </div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                {freeRestart ? 'expected cost' : 'cost if restarts were free'}
-              </div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">expected cost</div>
             </div>
           );
           const odds = (
             <div>
               <div className="text-2xl font-bold tabular-nums text-primary">{fmtPct(plan.probability)}</div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">success / attempt</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">chance per attempt</div>
+            </div>
+          );
+          // What one run through the sequence actually costs you. Real money either way, and with the
+          // free-restart total gone it is also the cost axis of the frontier: a plan that reaches for
+          // Perfect orbs costs more per run and lands more often, which is the whole trade.
+          const perRun = (
+            <div>
+              <div className="text-2xl font-bold tabular-nums" title={exactExalts(plan.perAttempt)}>
+                {formatIn(unitPerAttempt, plan.perAttempt)}
+              </div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">what one run costs</div>
             </div>
           );
           return (
-            <Card key={i} className={`p-4 space-y-3 ${isRecommended ? 'ring-2 ring-primary/60' : ''}`}>
+            <Card key={i} className={`p-4 space-y-3 ${isRecommended && freeRestart ? 'ring-2 ring-primary/60' : ''}`}>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
-                {freeRestart ? <>{cost}{odds}</> : <>{odds}{cost}</>}
-                <div className="text-xs text-muted-foreground">
-                  <div>≈ {Number.isFinite(plan.expectedAttempts) ? plan.expectedAttempts.toFixed(1) : '∞'} attempts</div>
-                  <div title={exactExalts(plan.perAttempt)}>{formatIn(unitPerAttempt, plan.perAttempt)} per attempt</div>
-                </div>
+                {/* Dividing a real per-run cost by a ~1e-13 chance produces a number in the billions of
+                    divine. It is arithmetically right and it is not a budget — nobody runs a sequence
+                    1e14 times, they abandon it. Showing it made every from-item card shout a figure
+                    that could only be ignored, so the total and the attempt count are dropped here and
+                    the two figures that survive are ones you can act on: how often one run lands, and
+                    what one run costs. */}
+                {freeRestart ? <>{cost}{odds}</> : <>{odds}{perRun}</>}
+                {freeRestart && (
+                  <div className="text-xs text-muted-foreground">
+                    <div>≈ {Number.isFinite(plan.expectedAttempts) ? plan.expectedAttempts.toFixed(1) : '∞'} attempts</div>
+                    <div title={exactExalts(plan.perAttempt)}>{formatIn(unitPerAttempt, plan.perAttempt)} per attempt</div>
+                  </div>
+                )}
                 <div className="flex-1" />
                 <div className="flex gap-1">
-                  {isRecommended && <Badge>best value</Badge>}
-                  {/* "cheapest" reads as advice. When a free restart is fiction it isn't advice, it is
-                      an artefact of the model, so the badge says which. */}
-                  {isCheapest && (
-                    <Badge variant={isRecommended ? 'outline' : 'secondary'}>
-                      {freeRestart ? 'cheapest' : 'cheapest on paper'}
-                    </Badge>
+                  {/* With no total on the card, "cheapest" and "best value" are claims about a number
+                      the reader cannot see. Only the ordering claim survives. */}
+                  {freeRestart ? (
+                    <>
+                      {isRecommended && <Badge>best value</Badge>}
+                      {isCheapest && <Badge variant={isRecommended ? 'outline' : 'secondary'}>cheapest</Badge>}
+                      {isSurest && !isCheapest && <Badge variant={isRecommended ? 'outline' : 'secondary'}>surest</Badge>}
+                    </>
+                  ) : (
+                    isSurest && <Badge>likeliest</Badge>
                   )}
-                  {isSurest && !isCheapest && <Badge variant={isRecommended ? 'outline' : 'secondary'}>surest</Badge>}
                 </div>
               </div>
 

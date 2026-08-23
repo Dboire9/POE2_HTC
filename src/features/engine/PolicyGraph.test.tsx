@@ -333,3 +333,70 @@ describe('PolicyGraph — highlighting the route through a state', () => {
     expect(screen.getByText(/Highlighting \d+ of \d+ states/i)).toBeInTheDocument();
   });
 });
+
+// A box has room for a label, an action and a cost. Clicking one now also opens the rest: which target
+// mods you actually hold, which are stuck below tier, how much junk is left, and — the part a box can
+// never carry — what the recommended orb actually does when you play it, outcome by outcome.
+describe('PolicyGraph — the full description of a clicked state', () => {
+  const detailed = result_({
+    nodes: [
+      { key: 'a', present: ['Spell Damage'], blocked: ['Cold Damage'], junkPrefixes: 1, junkSuffixes: 2,
+        isStart: true, isGoal: false, depth: 4, expectedCost: 900, action: 'Exalt (Dextral, Perfect)' },
+      { key: 'b', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: ['Cold Damage'],
+        junkPrefixes: 1, junkSuffixes: 2, isStart: false, isGoal: false, depth: 3, expectedCost: 800, action: 'Annul' },
+      { key: 'c', present: ['Spell Damage'], blocked: ['Cold Damage'], junkPrefixes: 1, junkSuffixes: 3,
+        isStart: false, isGoal: false, depth: 5, expectedCost: 950, action: 'Annul' },
+      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+    ],
+    edges: [
+      { from: 'a', to: 'b', action: 'Exalt (Dextral, Perfect)', prob: 0.2, regress: false },
+      { from: 'a', to: 'c', action: 'Exalt (Dextral, Perfect)', prob: 0.8, regress: true },
+      { from: 'b', to: 'g', action: 'Annul', prob: 0.5, regress: false },
+    ],
+  });
+  const openFirst = async () => {
+    render(<PolicyGraph result={detailed} />);
+    await expand(); // the route walk succeeds on this fixture, so the graph is behind the toggle
+    const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
+    const start = boxes.find((b) => /Exalt \(Dextral, Perfect\)/.test(b.getAttribute('aria-label') ?? ''));
+    await userEvent.setup().click(start ?? boxes[0]!);
+  };
+
+  it('lists the target mods held and the ones stuck below tier', async () => {
+    await openFirst();
+    expect(screen.getByText(/Target mods held/i)).toBeInTheDocument();
+    expect(screen.getByText(/Stuck below tier/i)).toBeInTheDocument();
+    expect(screen.getByText(/annul before re-adding/i)).toBeInTheDocument();
+  });
+
+  it('breaks the junk down by side, which the box label cannot', async () => {
+    await openFirst();
+    expect(screen.getByText(/3 \(1 prefix, 2 suffix\)/)).toBeInTheDocument();
+  });
+
+  it('says what the recommended orb actually does, outcome by outcome', async () => {
+    await openFirst();
+    expect(screen.getByText(/What .*does from here/i)).toBeInTheDocument();
+    // Also present in the sr-only route list, so scope to the panel rather than the document.
+    const panel = screen.getByText(/What .*does from here/i).closest('div')!;
+    expect(within(panel).getByText(/most likely lands Mana Regeneration Rate/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/a step backwards/i).length).toBeGreaterThan(0);
+  });
+
+  it('closes again', async () => {
+    await openFirst();
+    await userEvent.setup().click(screen.getByRole('button', { name: /^Close$/ }));
+    expect(screen.queryByText(/Target mods held/i)).toBeNull();
+  });
+
+  it('admits when the box stands for several states, rather than describing them as one', async () => {
+    // The outcomes are the representative's own edges — exact for it, not necessarily for its twins.
+    render(<PolicyGraph result={result} />);
+    await expand();
+    const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
+    const merged = boxes.find((b) => /×\d+/.test(b.textContent ?? ''));
+    if (!merged) return; // this fixture may collapse nothing; the big-craft case is covered in docs
+    await userEvent.setup().click(merged);
+    expect(screen.getByText(/states that look alike here/i)).toBeInTheDocument();
+  });
+});

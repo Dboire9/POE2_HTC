@@ -264,16 +264,16 @@ describe('ItemActions — step routes defer to the true cost', () => {
     await computeWith(okMarkov);
     await waitFor(() => expect(screen.getByRole('button', { name: /Step-by-step routes/i })).toBeInTheDocument());
     // The frontier's own heading is not rendered while collapsed.
-    expect(screen.queryByText(/success \/ attempt/i)).toBeNull();
+    expect(screen.queryByText(/chance per attempt/i)).toBeNull();
   });
 
   it('opens them on demand, and closes again', async () => {
     const user = await computeWith(okMarkov);
     await waitFor(() => expect(screen.getByRole('button', { name: /Step-by-step routes/i })).toBeInTheDocument());
     await user.click(screen.getByRole('button', { name: /Step-by-step routes/i }));
-    expect(screen.getByText(/success \/ attempt/i)).toBeInTheDocument();
+    expect(screen.getByText(/chance per attempt/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Hide step-by-step routes/i }));
-    expect(screen.queryByText(/success \/ attempt/i)).toBeNull();
+    expect(screen.queryByText(/chance per attempt/i)).toBeNull();
   });
 
   it('says why they read so much higher, rather than just hiding them', async () => {
@@ -289,7 +289,7 @@ describe('ItemActions — step routes defer to the true cost', () => {
   it('leaves them open when the policy did NOT answer — they are the only view then', async () => {
     // A Magic item or an essence target. Collapsing here would leave the panel with nothing in it.
     await computeWith(declinedMarkov);
-    await waitFor(() => expect(screen.getByText(/success \/ attempt/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/chance per attempt/i)).toBeInTheDocument());
     expect(screen.queryByRole('button', { name: /Step-by-step routes/i })).toBeNull();
   });
 });

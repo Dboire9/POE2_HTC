@@ -657,8 +657,14 @@ const ItemActions: React.FC = () => {
           )}
           {/* When the MDP doesn't model this craft the true-cost card simply wasn't rendered, so the
               panel lost half its content with no explanation — and its `reason`, which says exactly
-              why, was carried across the worker boundary and then never shown to anyone. */}
-          {plan && !planErr && markov && !markov.applicable && markov.reason && (
+              why, was carried across the worker boundary and then never shown to anyone.
+              The condition is the NEGATION of the true-cost card's below, deliberately: there are two
+              ways to have no figure. `applicable: false` is set by the facade before the model runs
+              (a regular-essence target), while the model's own refusals come back through `mapMarkov`,
+              which hardcodes `applicable: true` and reports `feasible: false`. Keying this card on
+              `!applicable` alone caught the first and missed the second, so a Magic item — the case it
+              was written for — still showed nothing at all. */}
+          {plan && !planErr && markov && !(markov.applicable && markov.feasible) && markov.reason && (
             <Card className="p-4">
               <p className="text-sm font-medium">No true expected cost for this craft</p>
               <p className="text-sm text-muted-foreground mt-1">{markov.reason}</p>

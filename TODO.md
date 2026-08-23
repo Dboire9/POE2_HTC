@@ -14,10 +14,27 @@ item is the Regal opener that converts it to Rare (added 2026-08-23). For a targ
 that is the right move anyway; for a 2-mod target an Augmentation (0.27ex) would be cheaper than a
 Regal, and the planner cannot express it. Pinned by a test that asserts the gap rather than hiding it.
 
-Related and larger: **the MDP does not model Magic at all** (`markovFromItem` returns
-`applicable: false`), so a Magic item gets step routes but no true expected cost. Its state space has
-no rarity in it, so representing the Magic→Rare transition means widening the state, not adding an
-action. The UI now says so instead of silently dropping the panel.
+Related and larger: **the MDP does not model Magic at all**, so a Magic item gets step routes but no
+true expected cost and no policy graph. The UI now says so instead of silently dropping the panel.
+
+Restoring it is smaller than it first looks. `enumerateStates` builds the FULL rare lattice, not the
+reachable subset, so value iteration already computes V for every post-Regal state. A Magic start is
+then one Bellman backup on top of an existing solve:
+
+    V(magic) = cost(regal) + Σ P(outcome) · V(rare_outcome)
+
+with the outcome distribution being P(regal lands each target) / blocks a family / lands junk. No new
+state axis, no change to VI.
+
+Two things stop it being a drop-in, and both are design rather than arithmetic:
+
+1. **The state key has no rarity**, so a Magic start encodes identically to the Rare state with the
+   same mods (`0:0:1:1:0`). It needs a synthetic start node, or a rarity bit in the key.
+2. **`stateLabel` would render both identically** — "0 mods · +2 junk" for the Magic item you hold and
+   for the Rare item you get after annulling. A graph whose first two boxes read the same but mean
+   different things is worse than no graph, so the label needs to carry rarity too.
+
+Worth doing, and it wants its own MC cross-check like the rest of the MDP work.
 
 ## 2. The from-item step planner never varies orb strength
 

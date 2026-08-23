@@ -30,7 +30,13 @@ const annulActions: CurrencyAction[] = [
   { currency: 'annul', label: 'Orb of Annulment + Omen of Light', detail: 'removes the desecrated mod for certain', prob: 1, cost: 11.5, feasible: true },
 ];
 
-const mocks = vi.hoisted(() => ({ currencyActions: vi.fn(), optimizeItem: vi.fn() }));
+// `optimizeItemMarkov` was NOT mocked, so the in-process solve shim ran the real one against the
+// `{} as never` data object above, it threw, and every from-item compute in this file ended in the
+// error branch with `markov` left null. Nothing asserted on markov, so nothing noticed — and that is
+// exactly why the missing true-cost explanation shipped.
+const mocks = vi.hoisted(() => ({
+  currencyActions: vi.fn(), optimizeItem: vi.fn(), optimizeItemMarkov: vi.fn(),
+}));
 
 vi.mock('../../lib/engine', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../lib/engine')>();
@@ -43,6 +49,7 @@ vi.mock('../../lib/engine', async (importOriginal) => {
     listPerfectEssences: () => [PE],
     currencyActions: mocks.currencyActions,
     optimizeItem: mocks.optimizeItem,
+    optimizeItemMarkov: mocks.optimizeItemMarkov,
   };
 });
 
@@ -55,9 +62,26 @@ async function loaded() {
 }
 const builderButton = (text: string | RegExp) => screen.getByRole('button', { name: text });
 
+const okMarkov = {
+  applicable: true, feasible: true, expectedCost: 5, converged: true, assumedOdds: false,
+  nodes: [], edges: [],
+};
+/**
+ * How the MDP declines a craft it cannot model. Two different shapes reach the UI and only one was
+ * handled: the facade sets `applicable: false` BEFORE running the model (a regular-essence target),
+ * while the model's own refusals — a Magic item, which it has no rarity axis to represent — come back
+ * through `mapMarkov`, which hardcodes `applicable: true` and reports `feasible: false`.
+ */
+const declinedMarkov = {
+  applicable: true, feasible: false, expectedCost: Infinity, converged: true, assumedOdds: false,
+  nodes: [], edges: [],
+  reason: 'the true-cost model only handles Rare items so far — a Magic item needs a Regal first.',
+};
+
 beforeEach(() => {
   mocks.currencyActions.mockReturnValue([]);
   mocks.optimizeItem.mockReturnValue(okFrontier);
+  mocks.optimizeItemMarkov.mockReturnValue(okMarkov);
 });
 
 describe('ItemActions — item builder', () => {
@@ -185,5 +209,38 @@ describe('ItemActions — search effort', () => {
   it('says what the current preset costs you', async () => {
     await toPlanMode(userEvent.setup());
     expect(screen.getByText(/Search effort:/i)).toBeInTheDocument();
+  });
+});
+
+// The true-cost card is simply not rendered when the model declines, so half the panel vanished with
+// no explanation — while the `reason` saying exactly why was computed, carried across the worker
+// boundary, and shown to nobody. Reported as "I don't have graph anymore".
+describe('ItemActions — when there is no true expected cost', () => {
+  async function computeWith(markov: unknown) {
+    mocks.optimizeItemMarkov.mockReturnValue(markov);
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    await user.click(screen.getByRole('button', { name: /Compute plan/i }));
+  }
+
+  it('explains itself when the model declines the craft (feasible: false)', async () => {
+    await computeWith(declinedMarkov);
+    await waitFor(() => expect(screen.getByText(/No true expected cost for this craft/i)).toBeInTheDocument());
+    expect(screen.getByText(/only handles Rare items/i)).toBeInTheDocument();
+  });
+
+  it('explains itself when the facade declines it first (applicable: false)', async () => {
+    // The other shape. Keying the card on `!applicable` alone caught this one and missed the case it
+    // was actually written for.
+    await computeWith({ ...declinedMarkov, applicable: false, reason: 'a regular essence needs a Magic item' });
+    await waitFor(() => expect(screen.getByText(/No true expected cost for this craft/i)).toBeInTheDocument());
+  });
+
+  it('says nothing extra when the model DID answer', async () => {
+    await computeWith(okMarkov);
+    await waitFor(() => expect(screen.getByText(/Last solve took/i)).toBeInTheDocument());
+    expect(screen.queryByText(/No true expected cost/i)).toBeNull();
   });
 });

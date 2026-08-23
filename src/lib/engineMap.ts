@@ -223,7 +223,7 @@ export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number):
   }));
   const edges = res.edges.map((e) => ({ from: e.from, to: e.to, action: actionLabel(e.action), prob: e.prob, regress: e.regress }));
   return {
-    applicable: true, feasible: res.feasible, expectedCost: res.expectedCost, nodes, edges,
+    applicable: true, feasible: res.feasible, expectedCost: res.expectedCost, converged: res.converged, nodes, edges,
     ...(res.reason ? { reason: res.reason } : {}),
   };
 }

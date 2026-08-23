@@ -218,6 +218,9 @@ export interface EngineMarkovResult {
   readonly reason?: string;
   /** True expected cost under the optimal push-forward policy (no restart). */
   readonly expectedCost: number;
+  /** False when value iteration hit its sweep cap instead of converging — then `expectedCost` is a
+   *  LOWER BOUND and the UI must render it as "≥ x". See MarkovResult.converged. */
+  readonly converged: boolean;
   readonly nodes: readonly EnginePolicyNode[];
   readonly edges: readonly EnginePolicyEdge[];
 }

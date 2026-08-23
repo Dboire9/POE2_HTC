@@ -52,7 +52,7 @@ describe('PolicyGraph', () => {
   });
 
   it('renders nothing when the MDP is not applicable', () => {
-    const na: EngineMarkovResult = { applicable: false, feasible: false, expectedCost: Infinity, nodes: [], edges: [] };
+    const na: EngineMarkovResult = { applicable: false, feasible: false, expectedCost: Infinity, converged: true, nodes: [], edges: [] };
     const { container } = render(<PolicyGraph result={na} />);
     expect(container).toBeEmptyDOMElement();
   });

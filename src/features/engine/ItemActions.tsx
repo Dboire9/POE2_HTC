@@ -619,8 +619,20 @@ const ItemActions: React.FC = () => {
             <Card className="p-4 space-y-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h3 className="text-sm font-bold">True expected cost</h3>
-                <span className="text-2xl font-bold tabular-nums text-primary">{fmtEx(markov.expectedCost)}</span>
+                {/* An unconverged solve is a LOWER BOUND, not an estimate: value iteration starts at 0
+                    and climbs, so bailing at the sweep cap leaves V below the true value. Rendering it
+                    as a bare number would be the most precise-looking wrong figure in the app. */}
+                <span className="text-2xl font-bold tabular-nums text-primary">
+                  {markov.converged ? fmtEx(markov.expectedCost) : `≥ ${fmtEx(markov.expectedCost)}`}
+                </span>
               </div>
+              {!markov.converged && (
+                <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+                  ⚠ The solver stopped before this number settled, so it is a <strong>floor</strong> — the real
+                  cost is at least this and may be far higher. That happens when every route is a very long
+                  shot, which is itself the answer: on this target, it isn’t close.
+                </p>
+              )}
               <p className="text-[11px] text-muted-foreground">
                 The honest average spend to reach this target, playing the optimal policy — it weighs
                 Greater/Perfect Exalts and side omens, and <strong>recovers in place</strong> after a bad roll

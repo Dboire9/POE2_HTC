@@ -6,27 +6,26 @@ Last reviewed: 2026-08-22.
 
 ---
 
-## 1. Armour desecration takes ~6-8 seconds to solve
+## 1. Armour desecration: 6-8s, and value iteration never converges
 
 Measured on `Body_Armours_dex_int`, one rollable + one desecrated target at ilvl 82:
 
-| base | total | actions | value iteration | answer |
+| base | total | actions | value iteration | converged? |
 |---|---|---|---|---|
-| Wands | 46 ms | 18 ms | 46 ms | 633 ex |
-| Body_Armours_dex_int | **6014 ms** | 12 ms | **6014 ms** | **8,219,067 ex** |
+| Wands | 46 ms | 18 ms | 46 ms | yes |
+| Body_Armours_dex_int | **6014 ms** | 12 ms | **6014 ms** | **no — 100,000 sweeps, the cap** |
 
-All of it is value iteration; building the action space is fast on both. The cause is inherent rather
-than a coding bug: untargeted desecration has a minuscule chance of landing one specific mod, and VI's
-convergence rate is governed by that probability. Loosening `tolerance` does not help — 1e-9, 1e-4 and
-1e-2 all return the same value in the same time.
+Inherent, not a coding bug. Confirmed with the user 2026-08-23: an unomened bone draws from the
+combined normal ∪ desecrated pool by weight, so landing one specific armour mod is **1 in 121,510**,
+and VI's convergence rate is governed by that probability.
 
-Introduced 2026-08-22 by giving armour the untargeted draw (before that it returned `feasible: false`
-instantly, which was wrong). Correct but slow, and it forces a 60s timeout on two tests in
-`desecrationGate.test.ts`.
+Handled for now by reporting it (`MarkovResult.converged`; the UI shows "≥ x" and says the number is a
+floor) rather than hiding it. Two open questions:
 
-Worth considering: the answer is 8.2 million exalts. A plan nobody would ever run may deserve an early
-exit — "this is hopeless, here is roughly how hopeless" — rather than six seconds of iteration to put
-a precise number on it.
+- **The progress bar sits at ~92% for five seconds.** The solve phase reports `0/11 → 1/11` across the
+  whole run — the decade-based measure has almost no resolution when convergence is this slow.
+- **Should a hopeless craft short-circuit?** The user declined an early exit once; worth revisiting now
+  that we know the number is a floor and not an answer.
 
 ## 2. Startup: what measurement left on the table
 
@@ -56,6 +55,12 @@ Session Replay not in the bundle at all. Lazy-loading it would buy almost nothin
 ---
 
 ## Recently closed
+
+- **The MDP silently returned unconverged numbers** (2026-08-23). Value iteration bails at
+  `maxIters` (100k) on long-odds crafts, and because VI 0-initialises and climbs, the value it returns
+  is a strict LOWER BOUND. Nothing said so — `expectedCost` came back looking like an estimate and the
+  UI printed it as a plain figure. `MarkovResult.converged` now carries it end to end, and the panel
+  renders "≥ x" with a note that the real cost may be far higher.
 
 - **The silent alternatives panel, and mobile mod columns** (2026-08-22). `AlternativesView` returned
   `null` on an empty frontier, so it just wasn't there — and an existing test asserted

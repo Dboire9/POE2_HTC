@@ -234,7 +234,7 @@ export function optimizeItemMarkov(
   const applicable = targets.every((t) => data.mods.get(t.modId)?.source !== 'essence');
   if (!applicable) {
     return {
-      applicable: false, feasible: false, expectedCost: Infinity, nodes: [], edges: [],
+      applicable: false, feasible: false, expectedCost: Infinity, converged: true, nodes: [], edges: [],
       reason: 'a regular essence needs a Magic item, so this craft has no true-cost model — craft it from white',
     };
   }

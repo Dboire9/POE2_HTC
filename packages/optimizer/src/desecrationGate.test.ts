@@ -172,3 +172,43 @@ describe('MDP', () => {
     expect(r.feasible).toBe(true);
   });
 });
+
+// Value iteration 0-initialises and climbs, so an UNCONVERGED result is a strict lower bound on the
+// true expected cost, not an estimate. On an untargeted armour desecration the per-attempt chance of
+// landing one specific mod is about 1 in 121,510, and VI's convergence rate is governed by exactly
+// that — so it exhausts all 100k sweeps and returns a floor. `markovFromItem` used to report that
+// number with no indication, and the UI printed it as a plain figure: the most precise-looking wrong
+// number in the app. It now says so, and ItemActions renders "≥ x".
+describe('MDP — convergence is reported, not assumed', () => {
+  const start = (p: typeof WEAPON): ItemState => ({
+    base: p.base, level: 82, rarity: 'rare',
+    prefixes: [{ modId: p.rollable[0]!, tierName: data.mods.get(p.rollable[0]!)!.tiers.at(-1)!.name }],
+    suffixes: [],
+  });
+
+  it('flags the armour solve as not converged', () => {
+    const r = markovFromItem(data, prices, start(ARMOUR), [
+      { modId: ARMOUR.rollable[0]!, minTierIndex: 0 }, { modId: ARMOUR.des, minTierIndex: 0 },
+    ]);
+    expect(r.feasible).toBe(true);
+    expect(r.converged).toBe(false);
+  }, 60_000);
+
+  // The control: an ordinary craft must still converge, or the flag would be useless noise.
+  it('converges on a weapon, where the boss omen keeps the odds sane', () => {
+    const r = markovFromItem(data, prices, start(WEAPON), [
+      { modId: WEAPON.rollable[0]!, minTierIndex: 0 }, { modId: WEAPON.des, minTierIndex: 0 },
+    ]);
+    expect(r.converged).toBe(true);
+  });
+
+  // A rejected target never ran VI at all; reporting `converged: false` there would imply the number
+  // was a floor when it is simply absent.
+  it('reports a rejection as converged rather than as a floor', () => {
+    const r = markovFromItem(data, prices, { ...start(WEAPON), rarity: 'magic' }, [
+      { modId: WEAPON.rollable[0]!, minTierIndex: 0 },
+    ]);
+    expect(r.feasible).toBe(false);
+    expect(r.converged).toBe(true);
+  });
+});

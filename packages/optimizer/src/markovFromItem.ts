@@ -75,6 +75,16 @@ export interface MarkovResult {
   /** False when a target mod can't be rolled at all (ungettable at this item level) — cost is ∞. */
   readonly feasible: boolean;
   readonly reason?: string;
+  /**
+   * Whether value iteration actually reached `tolerance`, or gave up at `maxIters`.
+   *
+   * This is NOT a detail. VI 0-initialises and climbs, so an unconverged `expectedCost` is a strict
+   * LOWER BOUND, not an estimate — the true cost is at least that and may be far more. It happens for
+   * real: an untargeted armour desecration lands one specific mod about 1 in 121,510 times, and VI's
+   * convergence rate is governed by exactly that probability, so it exhausts all 100k sweeps. Callers
+   * must present an unconverged number as "≥ x", never as "x".
+   */
+  readonly converged: boolean;
   /** Reachable states under the optimal policy (the graph's squares), start first. */
   readonly nodes: readonly PolicyNode[];
   /** Policy transitions (the graph's arrows). */
@@ -123,7 +133,7 @@ export function markovFromItem(
   data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
 ): MarkovResult {
   const fail = (reason: string): MarkovResult =>
-    ({ expectedCost: Infinity, feasible: false, reason, nodes: [], edges: [], policy: new Map() });
+    ({ expectedCost: Infinity, feasible: false, converged: true, reason, nodes: [], edges: [], policy: new Map() });
   if (start.rarity !== 'rare') return fail('the MDP planner models Rare items');
   const prices = pricesForBase(rawPrices, start.base);
 
@@ -267,6 +277,7 @@ export function markovFromItem(
     return (a.cost + s) / (1 - a.selfProb);
   };
   let decades = 0; // log-distance the first sweep had left to travel; see the progress note below
+  let converged = false;
   for (let iter = 0; iter < maxIters; iter++) {
     let delta = 0;
     for (let i = 0; i < N; i++) {
@@ -283,9 +294,10 @@ export function markovFromItem(
       const d = Math.abs(best - prev);
       if (d > delta) delta = d;
     }
-    if (delta <= tol) break;
+    if (delta <= tol) { converged = true; break; }
     // VI converges geometrically, so "sweeps remaining" is not knowable and counting them against
-    // `maxIters` (100k, but this converges in tens) would peg the bar at zero. What IS monotone is how
+    // `maxIters` (100k — usually reached in tens, but a long-odds action can exhaust the lot) would peg
+    // the bar at zero. What IS monotone is how
     // far the residual has travelled toward `tol` on a log scale — so a unit here is one decade
     // closed, and the total is the distance the first sweep found still to cover.
     if (report) {
@@ -381,5 +393,5 @@ export function markovFromItem(
     }
   }
 
-  return { expectedCost: startCost, feasible: true, nodes, edges, policy };
+  return { expectedCost: startCost, feasible: true, converged, nodes, edges, policy };
 }

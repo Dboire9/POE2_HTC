@@ -727,7 +727,7 @@ const EngineLab: React.FC = () => {
               ) : undefined}
         />
       )}
-      {alts && !runErr && <AlternativesView alts={alts} budget={altBudget} />}
+      {alts && !runErr && <AlternativesView alts={alts} budget={altBudget} rates={engine ? priceBasis(engine).rates : undefined} />}
       </>)}
     </div>
   );

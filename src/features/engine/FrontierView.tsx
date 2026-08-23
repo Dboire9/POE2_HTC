@@ -4,12 +4,7 @@ import type { EnginePriceBasis } from '../../lib/engine';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { recommendedIndex, type EngineResult } from '../../lib/engine';
-
-function fmtCost(x: number): string {
-  if (!Number.isFinite(x)) return '∞';
-  const s = x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2);
-  return `${s} ex`;
-}
+import { exactExalts, formatIn, pickUnit } from '../../lib/currency';
 
 function fmtPct(p: number): string {
   const pct = p * 100;
@@ -32,7 +27,14 @@ const FrontierView: React.FC<{
   result: EngineResult; title?: string; emptyHint?: React.ReactNode; priceBasis?: EnginePriceBasis;
 }> = ({
   result, title = 'Your options — cheapest to surest', emptyHint, priceBasis,
-}) => (
+}) => {
+  // ONE unit for the whole card set, chosen from the largest number it will show. Picking per-value
+  // would put "9,800 ex" next to "300 chaos" in a list whose entire purpose is comparing rows.
+  const unit = pickUnit(
+    Math.max(0, ...result.frontier.flatMap((p) => [p.expected, p.perAttempt].filter(Number.isFinite))),
+    priceBasis?.rates,
+  );
+  return (
   <div className="space-y-3">
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h2 className="text-lg font-bold">{title}</h2>
@@ -71,7 +73,9 @@ const FrontierView: React.FC<{
             <Card key={i} className={`p-4 space-y-3 ${isRecommended ? 'ring-2 ring-primary/60' : ''}`}>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
                 <div>
-                  <div className="text-2xl font-bold tabular-nums">{fmtCost(plan.expected)}</div>
+                  <div className="text-2xl font-bold tabular-nums" title={exactExalts(plan.expected)}>
+                    {formatIn(unit, plan.expected)}
+                  </div>
                   <div className="text-[11px] uppercase tracking-wider text-muted-foreground">expected cost</div>
                 </div>
                 <div>
@@ -80,7 +84,7 @@ const FrontierView: React.FC<{
                 </div>
                 <div className="text-xs text-muted-foreground">
                   <div>≈ {Number.isFinite(plan.expectedAttempts) ? plan.expectedAttempts.toFixed(1) : '∞'} attempts</div>
-                  <div>{fmtCost(plan.perAttempt)} per attempt</div>
+                  <div title={exactExalts(plan.perAttempt)}>{formatIn(unit, plan.perAttempt)} per attempt</div>
                 </div>
                 <div className="flex-1" />
                 <div className="flex gap-1">
@@ -114,6 +118,7 @@ const FrontierView: React.FC<{
       </div>
     )}
   </div>
-);
+  );
+};
 
 export default FrontierView;

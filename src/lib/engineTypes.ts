@@ -53,6 +53,9 @@ export interface EnginePriceBasis {
   readonly unit?: string;
   /** Which parts are estimated, when the sheet is part-observed and part-guessed. */
   readonly caveat?: string;
+  /** Exalts per Chaos / per Divine, so the UI can show a huge cost in a unit a player can picture
+   *  instead of a wall of digits. See `src/lib/currency.ts`. */
+  readonly rates?: { readonly chaos?: number; readonly divine?: number };
 }
 
 /** Every exclusion group a UI mod belongs to — the single accessor the UI should use, so a

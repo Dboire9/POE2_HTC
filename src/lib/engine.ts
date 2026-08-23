@@ -106,6 +106,15 @@ export function priceBasis(eng: { prices: Prices }): EnginePriceBasis {
     ...(m?.patch ? { patch: m.patch } : {}),
     ...(m?.unit ? { unit: m.unit } : {}),
     ...(m?.caveat ? { caveat: m.caveat } : {}),
+    // Read straight off the sheet rather than hardcoded: these move with the economy, and a stale
+    // conversion would misreport every large cost while looking authoritative.
+    // Optional-chained on purpose. `currency` is required by the type, but this accessor exists to
+    // report honestly on whatever sheet it was handed, and rates are only a display nicety — blanking
+    // the whole panel because one key is missing would be a wildly disproportionate failure.
+    rates: {
+      ...(eng.prices.currency?.chaos ? { chaos: eng.prices.currency.chaos } : {}),
+      ...(eng.prices.currency?.divine ? { divine: eng.prices.currency.divine } : {}),
+    },
   };
 }
 

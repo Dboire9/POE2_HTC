@@ -15,17 +15,13 @@ import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { useField, useOnChange } from '../../lib/workspace';
+import { exactExalts, formatCost, formatIn, pickUnit } from '../../lib/currency';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
 import PriceBasisNote from './PriceBasisNote';
 import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
-
-function fmtEx(x: number): string {
-  if (!Number.isFinite(x)) return '∞';
-  return `${x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2)} ex`;
-}
 
 const selectCls =
   'h-9 rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring';
@@ -128,6 +124,8 @@ const ItemActions: React.FC = () => {
   const [progress, setProgress] = useState<Progress | null>(null);
   const excludedKeys = toExcludedKeys(useExclusions());
   const effort = useEffort();
+  // Exalts-per-chaos / per-divine, so a huge cost reads as a quantity rather than a wall of digits.
+  const rates = engine ? priceBasis(engine).rates : undefined;
   // Held so the Cancel button can reach the running solve; refs, not state, because changing them must
   // not re-render.
   const cancelRef = useRef<(() => void) | null>(null);
@@ -498,7 +496,9 @@ const ItemActions: React.FC = () => {
                         <div className="text-xl font-bold tabular-nums text-primary">{fmtPct(a.prob)}</div>
                         <div className="text-[11px] text-muted-foreground">{oddsText(a.prob)}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground w-24 text-right">{a.cost.toFixed(2)} ex / orb</div>
+                      <div className="text-xs text-muted-foreground w-24 text-right" title={exactExalts(a.cost)}>
+                        {formatCost(a.cost, rates)} / orb
+                      </div>
                     </>
                   ) : (
                     <div className="text-sm text-muted-foreground italic">can’t apply — {a.reason}</div>
@@ -627,8 +627,10 @@ const ItemActions: React.FC = () => {
                 {/* An unconverged solve is a LOWER BOUND, not an estimate: value iteration starts at 0
                     and climbs, so bailing at the sweep cap leaves V below the true value. Rendering it
                     as a bare number would be the most precise-looking wrong figure in the app. */}
-                <span className="text-2xl font-bold tabular-nums text-primary">
-                  {markov.converged ? fmtEx(markov.expectedCost) : `≥ ${fmtEx(markov.expectedCost)}`}
+                <span className="text-2xl font-bold tabular-nums text-primary" title={exactExalts(markov.expectedCost)}>
+                  {markov.converged
+                    ? formatCost(markov.expectedCost, rates)
+                    : `≥ ${formatCost(markov.expectedCost, rates)}`}
                 </span>
               </div>
               {!markov.converged && (
@@ -647,7 +649,7 @@ const ItemActions: React.FC = () => {
                 it is multiplied by is still an estimate.
               </p>
               {engine && <PriceBasisNote basis={priceBasis(engine)} exactOdds={!markov.assumedOdds} />}
-              <PolicyGraph result={markov} />
+              <PolicyGraph result={markov} rates={rates} />
               <p className="text-[11px] text-muted-foreground">
                 Each square is an item state, from your item (left) to the target (right). Solid arrows are
                 progress; dashed amber arrows are <strong>bricks</strong> — a bad roll (a miss, or a target

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { EngineMarkovResult, EnginePolicyNode } from '../../lib/engine';
+import { formatIn, pickUnit, type Rates } from '../../lib/currency';
 
 // Visualises the from-item MDP's optimal policy as a graph: each square is an item state, laid out
 // left→right by how far it is from the target (start on the left, goal on the right). Forward arrows are
@@ -14,10 +15,6 @@ const PAD = 16;
 
 interface Placed { node: EnginePolicyNode; x: number; y: number; }
 
-function fmtCost(x: number): string {
-  if (!Number.isFinite(x)) return '∞';
-  return `${x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(1) : x.toFixed(2)} ex`;
-}
 
 /** Short state label: target mods present + any off-tier blocks + how much junk remains. */
 function stateLabel(nd: EnginePolicyNode): string {
@@ -31,8 +28,15 @@ function stateLabel(nd: EnginePolicyNode): string {
   return parts.join(' · ');
 }
 
-const PolicyGraph: React.FC<{ result: EngineMarkovResult }> = ({ result }) => {
+const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ result, rates }) => {
   if (!result.applicable || !result.feasible || result.nodes.length === 0) return null;
+  // One unit across the whole graph, from its largest node cost — the graph is read by comparing
+  // states, and mixed units would defeat that.
+  const unit = pickUnit(
+    Math.max(0, ...result.nodes.map((n) => n.expectedCost).filter(Number.isFinite)),
+    rates,
+  );
+  const fmtCost = (x: number): string => formatIn(unit, x);
 
   // Column = distance from the goal (higher depth ⇒ further ⇒ further left). Goal (depth 0) is rightmost.
   const depths = [...new Set(result.nodes.map((n) => n.depth))].sort((a, b) => b - a);

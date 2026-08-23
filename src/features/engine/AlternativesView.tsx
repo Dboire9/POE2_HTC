@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import type { EngineAlternative, EngineAlternatives, EngineSlot } from '../../lib/engine';
+import { exactExalts, formatIn, pickUnit, type CostUnit, type Rates } from '../../lib/currency';
 
 /** Odds of FINISHING inside the budget. Small values still matter here (row 0 is often ~0.1%). */
 function fmtPct(p: number): string {
@@ -46,7 +47,7 @@ const Slot: React.FC<{ slot: EngineSlot }> = ({ slot }) => {
   );
 };
 
-const Row: React.FC<{ alt: EngineAlternative; budget: number; best: boolean }> = ({ alt, budget, best }) => {
+const Row: React.FC<{ alt: EngineAlternative; budget: number; best: boolean; unit: CostUnit }> = ({ alt, budget, best, unit }) => {
   const [open, setOpen] = useState(false);
   const changed = alt.dropped + alt.swapped;
   return (
@@ -98,8 +99,9 @@ const Row: React.FC<{ alt: EngineAlternative; budget: number; best: boolean }> =
           ))}
           <li className="pt-1 text-[11px] text-muted-foreground">
             {alt.plan.probability > 0 && (
-              <>≈ {alt.plan.expectedAttempts.toFixed(1)} attempts · {alt.plan.expected.toFixed(1)} ex expected
-                · that’s a {fmtPct(alt.inBudget)} chance of getting there for ≤ {budget} ex.</>
+              <>≈ {alt.plan.expectedAttempts.toFixed(1)} attempts ·{' '}
+                <span title={exactExalts(alt.plan.expected)}>{formatIn(unit, alt.plan.expected)} expected</span>
+                · that’s a {fmtPct(alt.inBudget)} chance of getting there for ≤ {formatIn(unit, budget)}.</>
             )}
           </li>
         </ol>
@@ -113,7 +115,12 @@ const Row: React.FC<{ alt: EngineAlternative; budget: number; best: boolean }> =
  * actually FINISH it inside the budget. Row 0 is exactly what you asked for — usually hopeless, which is
  * the whole point of the panel.
  */
-const AlternativesView: React.FC<{ alts: EngineAlternatives; budget: number }> = ({ alts, budget }) => {
+const AlternativesView: React.FC<{ alts: EngineAlternatives; budget: number; rates?: Rates }> = ({ alts, budget, rates }) => {
+  // The budget joins the max: a row and the budget it is measured against must never disagree on units.
+  const unit = pickUnit(
+    Math.max(budget, ...alts.rows.map((a) => a.plan.expected).filter(Number.isFinite)),
+    rates,
+  );
   // An empty frontier is NOT "nothing fits the budget". Row 0 is the exact target and enters with
   // `bestP = -Infinity`, so it survives however hopeless its odds — at a budget of 0.0001 ex you still
   // get a row, reading 0%. Rows can only run out when every variant the search tried failed to produce
@@ -125,7 +132,7 @@ const AlternativesView: React.FC<{ alts: EngineAlternatives; budget: number }> =
       <Card className="p-6 text-center text-sm text-muted-foreground space-y-1">
         <p className="font-medium text-foreground">No craftable alternative found.</p>
         <p>
-          This isn’t about the {budget} ex — the closest item is always listed, however long the odds.
+          This isn’t about the {formatIn(unit, budget)} — the closest item is always listed, however long the odds.
           Nothing in this target’s neighbourhood could be planned at all, which usually means a target
           tier gated above the item level, or a mod that can’t roll on this base. If neither applies, the
           craft may still be reachable by a route the planner doesn’t explore.
@@ -138,7 +145,7 @@ const AlternativesView: React.FC<{ alts: EngineAlternatives; budget: number }> =
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-bold">Closest crafts for {budget} ex</h2>
+        <h2 className="text-lg font-bold">Closest crafts for {formatIn(unit, budget)}</h2>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           {alts.truncated && (
             <Badge variant="outline" title="The node cap stopped the search early — farther alternatives may exist. The ends of this list are solid; the middle is sampled.">
@@ -149,12 +156,12 @@ const AlternativesView: React.FC<{ alts: EngineAlternatives; budget: number }> =
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
-        Each row is a real item and your chance of <strong>finishing it</strong> for ≤ {budget} ex — not an
+        Each row is a real item and your chance of <strong>finishing it</strong> for ≤ {formatIn(unit, budget)} — not an
         average cost, which busts about half the time. Ranked closest to what you asked for first, so the
         odds rise as you read down.
       </p>
       <div className="space-y-2">
-        {alts.rows.map((a, i) => <Row key={i} alt={a} budget={budget} best={i === bestIdx} />)}
+        {alts.rows.map((a, i) => <Row key={i} alt={a} budget={budget} best={i === bestIdx} unit={unit} />)}
       </div>
     </div>
   );

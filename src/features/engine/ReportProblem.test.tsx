@@ -7,7 +7,7 @@ import { loadPatch } from '../../../packages/engine/src/loadPatch.ts';
 
 vi.mock('../../lib/engine', async (orig) => ({
   ...(await orig<typeof import('../../lib/engine')>()),
-  loadEngine: () => Promise.resolve({ data: {} as never, prices: {} as never }),
+  loadEngine: () => Promise.resolve({ data: {} as never, prices: { currency: {}, omens: {} } as never }),
   priceBasis: () => ({ estimated: true, patch: '0.5.0', asOf: '2026-08-22' }),
 }));
 

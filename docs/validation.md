@@ -1233,6 +1233,141 @@ is not met without deliberately opening the section.
 The from-white planner is untouched — a white base really can be replaced for free, so `expected` is
 a real number there and still leads.
 
+## The true-cost model reaches the Lab tab (2026-08-23)
+
+`markovFromItem` required a Rare start, so the app's PRIMARY mode — craft this from a white base — had
+no honest cost figure and no policy graph at all. The state was `(present, blocked, jp, js, desJunk)`
+with no rarity in it, which is why a Magic item was rejected outright and a white one never considered.
+
+### What changed
+
+The state gained a **rarity** axis (`normal | magic | rare`) with the per-side cap that goes with it —
+none, one, three — and `enumerateStates` takes the rungs a craft can occupy, defaulting to Rare alone
+so every from-item craft keeps exactly the state space and solve time it had. Three add-chain actions
+join the space, each with the Greater/Perfect strengths the sheet already prices: **Transmute**
+(Normal→Magic), **Augment** (within Magic), **Regal** (Magic→Rare). Everything that needs a Rare item —
+Exalt, Chaos, Desecration, Perfect Essence — is simply absent below Rare, which is the game's rule.
+
+### The restart action is a correctness requirement, not a refinement
+
+A white base costs nothing, so the real optimal strategy includes binning a bad roll. Without an action
+for it the policy is trapped: once Transmuted the item is Magic and there is no way back to Normal, so
+a junk roll has to be dug out with a **158.7ex Annulment** instead of discarding **0.18ex** and
+rerolling. Measured on a 2-target Wand craft:
+
+| | expected cost |
+|---|---|
+| no restart action | **3607 ex** |
+| restart at 0 ex | **43.2 ex** |
+
+An **83x overestimate** — the same class of error the app has already been caught making once, so the
+action ships with the feature rather than after it. It is offered only when the caller says starting
+over is possible: a white base yes, a specific Rare in your stash no, a carved (fractured) item no.
+`WHITE_BASE_COST` in `solve.ts` names the price as an explicit 0 rather than letting an absent sheet
+key silently become one.
+
+Cross-checked the way the rest of the MDP is: 100k Monte-Carlo runs of the policy through the real
+random process, matching value iteration within 3%.
+
+### Two things the rarity axis broke, both found by running it
+
+**`distanceToGoal` ignored rarity**, so a Magic item holding every target scored 0 — the goal's own
+distance — while not being the goal. The route walk may only step to a strictly smaller distance, so it
+had nowhere to go and stalled. A non-Rare state is now at least two moves out (the Regal, plus the
+Annulment clearing the mod the Regal is forced to add). `engineMap` had a **second copy** of that
+expression and silently disagreed the moment rarity entered it; the distance is now carried on the node
+and the copy is gone.
+
+**The route walked into dead ends.** A from-white policy scraps and restarts for most outcomes, so a
+state like "rare, one target, one junk" legitimately has no forward move at all — its best action goes
+backwards to the bare base. Following the likeliest forward edge walked straight in and stalled, and
+the route vanished on every from-scratch craft. The walk now only steps to states the craft can
+actually be finished from. On a 4-target Wand craft it produces exactly the chain a player runs:
+
+    1. Transmute            5%  lands Mana Regeneration Rate
+    2. Augment             11%  lands Spell Damage
+    3. Regal                4%  lands Critical Hit Chance for Spells
+    4. Exalt (Sinistral)    7%  lands Cold Damage
+
+## Seeding value iteration, and why a free restart broke it (2026-08-23)
+
+Reported: a 6-mod from-scratch craft whose policy graph was four boxes, **every one of them** reading
+"Start over with a new base" — including a state already holding `#% increased Armour`, where the
+detail panel explained the move *"loses #% increased Armour — a step backwards"*. No route, and the
+goal was not in the graph at all.
+
+**Not slowness — degeneracy.** Value iteration 0-initialises and climbs. `restart` costs about nothing
+and lands on the start, so every state is worth `restartCost + V(start)`; while V is still near zero
+that ties with every other action, and early sweeps pick restart everywhere. VI unpicks the tie only as
+the true values separate, which on a long-shot target outlasts any budget. Measured from a white base
+(Wands, real 0.5.0 data), the two models it sits between:
+
+| targets | restart | converged | E | time |
+|---|---|---|---|---|
+| 3 | off | yes | 3,540 ex | 50 ms |
+| 3 | 0 ex | yes | 103 ex | 263 ms |
+| 5 | off | yes | 37,160 ex | 2.3 s |
+| 5 | 0 ex | **no** | 435 ex | 5.7 s |
+| 6 | off | yes | 176,400 ex | 12.2 s |
+| 6 | 0 ex | **no** | 6,940 ex | 78.7 s |
+
+Both columns are needed and neither is enough: without restart the answer converges but reads ~40x too
+high (a white base is free, so binning a bad roll really is optimal); with restart it is right and will
+not settle.
+
+**Fix: solve it in two phases.** Phase A runs push-forward only and converges to `V0`. Phase B puts
+restart back and starts from `V0` instead of from 0. `V0` is the value of a *proper* policy — one that
+always reaches the goal — so `V0 >= V*`, and
+
+    T(V0) = min( T_pushForward(V0), restartCost + V0[start] ) <= T_pushForward(V0) = V0
+
+i.e. `V0` is excessive. Phase B therefore DESCENDS toward `V*` instead of climbing, and two things
+follow. Every iterate stays above `V*`, so a truncated phase B is an **upper** bound where a from-item
+solve's is a **lower** one. And — the reason this is the fix rather than an optimisation — the greedy
+policy is sensible from the very first sweep: restart wins at a state only where `restartCost +
+V[start]` genuinely beats digging out, so a state holding a target keeps it.
+
+Verified on the same 6-target from-white craft, `mainLine` reaching the goal at every budget:
+
+| budget | converged | bound | E | route |
+|---|---|---|---|---|
+| 15 s | no | upper | 118,031 ex | 7 steps, reaches target |
+| 45 s | no | upper | 42,868 ex | 6 steps, reaches target |
+| none | yes | exact | 16,326 ex | — |
+
+The bound tightens monotonically downward and never crosses under the converged value — pinned by a
+test at 1000 vs 2000 sweeps (92.5 -> 45.1 -> 43.2 ex on the 2-target fixture).
+
+**`bound: 'exact' | 'lower' | 'upper'` is a field, not an inference.** The two solve modes truncate in
+opposite directions, so reading the sign off `converged` prints the wrong inequality on one of the two
+screens. `formatBoundedCost` (src/lib/currency.ts) is the single renderer; three tests pin the
+direction on both screens and all three fail when the ternary is swapped.
+
+**The guard.** Without a converged phase A there is no proper-policy value to seed from, and an
+unconverged 0-init V bounds the restart problem in neither direction. The solve returns `feasible:
+false` with a reason naming the limit that actually bit — the clock ("raise Search effort") or the
+sweep cap ("the step routes still cover it") — rather than quoting a figure with no meaning.
+
+**What this costs on the reported craft.** Six T1 mods on a `Body_Armours_str` from white: phase A
+alone needs ~92s, of which 99.8% is value iteration (actions 172ms, compile 42ms). Standard and
+Thorough therefore decline it; **Patient** produces an 8-step route reaching the target, `bound:
+upper`, E ~ 1.78M ex. That is the honest answer for a target this far out, but the 92s is a solver
+problem, not a physics one — see TODO 2 for the measured cause (an absolute `tolerance` of 1e-9 against
+values of ~2e6) and the two cautions on fixing it.
+
+**Two defects found alongside, both fixed.** The lab branch gave the MDP a fixed 60% of the effort
+budget while its step planner is bounded by `maxPlans` and takes no clock at all — so at Thorough, 24
+of 60 seconds went to nobody. It now takes the remainder, as the item branch already did. And
+`PolicyGraph`'s hint line was a `role="status"` wrapping a standing instruction and the `Clear` button:
+boilerplate queued for announcement next to the Item tab's "Last solve took Xs" region, with a control
+read out as part of it. The live region is now only the sentence that changes, mounted from the start
+and empty until a state is picked.
+
+**Suite.** `searchEffort.test.ts` was driving `runSolve` on a 6-target lab craft to assert the STEP
+planner's orb depth, and so bought a from-white MDP at Thorough/Patient budgets: 209s and 134s for
+numbers the assertions never read. It now calls `optimize` directly, keeping one `runSolve` case for
+the wiring. Full suite: **48 files, 952 passed, 23.0s** (was 3 failed, 940 passed, 346s).
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

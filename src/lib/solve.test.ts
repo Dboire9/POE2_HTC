@@ -122,15 +122,20 @@ describe('progress reporting', () => {
     expect(seen[seen.length - 1]!.fraction).toBe(1);
   });
 
-  // REGRESSION. A from-scratch compute with no budget runs only the Pareto planner, which reported
-  // nothing at all — so the bar sat at 0% while the elapsed counter ticked, for however long planning
-  // took. Planning now reports, and with no search to follow it owns the whole bar.
-  it('reports through planning on a lab compute with no budget', () => {
+  // REGRESSION. A from-scratch compute with no budget reported nothing at all — the bar sat at 0%
+  // while the elapsed counter ticked. Both of its phases report now: the step planner, then the
+  // true-cost model, which is the slow one when there is no budget search to follow.
+  it('reports through both phases of a lab compute with no budget', () => {
     const seen: SolveProgress[] = [];
     runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets }, (p) => seen.push(p));
     expect(seen.length).toBeGreaterThan(0);
-    expect(seen.every((p) => p.phase === 'plan')).toBe(true);
+    expect(seen.some((p) => p.phase === 'plan')).toBe(true);
+    // The model's own phases — a bar that went quiet through them is what this test exists to stop.
+    expect(seen.some((p) => p.phase === 'actions' || p.phase === 'solve')).toBe(true);
     expect(seen[seen.length - 1]!.fraction).toBe(1);
+    for (let i = 1; i < seen.length; i++) {
+      expect(seen[i]!.fraction).toBeGreaterThanOrEqual(seen[i - 1]!.fraction);
+    }
   });
 
   // With a budget, planning is ~1% of the wall clock (64ms against 7.3s at 6 targets), so it must not

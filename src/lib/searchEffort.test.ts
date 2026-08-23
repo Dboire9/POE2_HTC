@@ -3,6 +3,7 @@ import {
   DEFAULT_EFFORT, EFFORT_PRESETS, EFFORT_STORAGE_KEY, getEffort, limitsFor, setEffort,
 } from './searchEffort.ts';
 import { runSolve } from './solve.ts';
+import { optimize } from './engine.ts';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
 
@@ -57,9 +58,17 @@ describe('the setting reaches the planners', () => {
   const targets = [...take(base.pools.normal.prefixes, 3), ...take(base.pools.normal.suffixes, 3)]
     .map((modId) => ({ modId, tierDisplay: 3 }));
 
-  const depthAt = (effort: string) => runSolve(eng, {
-    kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, effort: limitsFor(effort),
-  });
+  /**
+   * Against the STEP PLANNER, not `runSolve`.
+   *
+   * These assertions are about `maxPlans` and nothing else, and a lab `runSolve` also buys a from-white
+   * MDP whose own budget is the preset's wall clock — so asking for the deepest orb search here used to
+   * charge 209s and 134s for a true-cost model the assertions never read. `optimize` is the exact call
+   * `runSolve` makes for the frontier (see solve.ts's lab branch, `withPlanLimit`); the case below then
+   * pins that `runSolve` really does hand it these limits.
+   */
+  const depthAt = (effort: string) =>
+    optimize(eng, 'Wands', 82, targets, { maxPlans: limitsFor(effort).maxPlans });
 
   /**
    * Measured on this exact target (6 mods at tier display 3, Wands, ilvl 82):
@@ -78,25 +87,34 @@ describe('the setting reaches the planners', () => {
     const quick = depthAt('quick');
     const thorough = depthAt('thorough');
     const patient = depthAt('patient');
-    if (quick.kind !== 'lab' || thorough.kind !== 'lab' || patient.kind !== 'lab') {
-      throw new Error('expected lab solves');
-    }
-    expect(thorough.result.plansEvaluated).toBeGreaterThan(quick.result.plansEvaluated);
-    expect(patient.result.plansEvaluated).toBeGreaterThan(thorough.result.plansEvaluated);
+    expect(thorough.plansEvaluated).toBeGreaterThan(quick.plansEvaluated);
+    expect(patient.plansEvaluated).toBeGreaterThan(thorough.plansEvaluated);
     // The deepest preset must actually reach the exhaustive search, or "Patient" is a lie.
-    expect(patient.result.currencyDepth).toBe('full');
-    expect(quick.result.currencyDepth).not.toBe('full');
-  }, 120_000);
+    expect(patient.currencyDepth).toBe('full');
+    expect(quick.currencyDepth).not.toBe('full');
+  });
 
   // Standard must reproduce the old hard-coded behaviour exactly, so shipping this setting changes
-  // nobody's existing results — only what they can opt into.
-  it('Standard is identical to passing no effort at all', () => {
-    const bare = runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets });
+  // nobody's existing results — only what they can opt into. Both sides go through the planner
+  // directly for the same reason as above; the wiring itself is the next case.
+  it('Standard is identical to passing no limit at all', () => {
+    const bare = optimize(eng, 'Wands', 82, targets);
     const standard = depthAt('standard');
-    if (bare.kind !== 'lab' || standard.kind !== 'lab') throw new Error('expected lab solves');
-    expect(bare.result.plansEvaluated).toBe(standard.result.plansEvaluated);
-    expect(bare.result.currencyDepth).toBe(standard.result.currencyDepth);
+    expect(bare.plansEvaluated).toBe(standard.plansEvaluated);
+    expect(bare.currencyDepth).toBe(standard.currencyDepth);
   });
+
+  // …and the one case that goes the whole way through `runSolve`, because a setting that reaches the
+  // planner in a unit test and gets dropped by the caller is exactly the failure the suite is for.
+  // Quick, so the MDP it also runs is on the shortest clock the presets offer.
+  it('runSolve hands the preset limits to that planner', () => {
+    const res = runSolve(eng, {
+      kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, effort: limitsFor('quick'),
+    });
+    if (res.kind !== 'lab') throw new Error('expected a lab solve');
+    expect(res.result.plansEvaluated).toBe(depthAt('quick').plansEvaluated);
+    expect(res.result.currencyDepth).toBe(depthAt('quick').currencyDepth);
+  }, 60_000);
 });
 
 describe('the MDP time budget', () => {

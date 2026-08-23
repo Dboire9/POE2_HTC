@@ -80,3 +80,17 @@ export function exactExalts(exalts: number): string {
 export function formatCost(exalts: number, rates?: Rates): string {
   return formatIn(pickUnit(exalts, rates), exalts);
 }
+
+/**
+ * A cost the solver could only bracket, rendered with the inequality that says which way.
+ *
+ * The sign is not decoration, and it is not derivable from "did it converge": a push-forward solve
+ * 0-initialises and CLIMBS, so truncating it leaves a floor, while a from-white solve seeds from a
+ * proper policy's value and DESCENDS, so truncating it leaves a ceiling. Print the wrong one and a
+ * conservative bracket becomes a confident understatement of what a craft costs — so the direction
+ * comes from the solver (`EngineMarkovResult.bound`) and is never inferred here.
+ */
+export function formatBoundedCost(bound: 'exact' | 'lower' | 'upper', exalts: number, rates?: Rates): string {
+  const n = formatCost(exalts, rates);
+  return bound === 'exact' ? n : bound === 'lower' ? `≥ ${n}` : `≤ ${n}`;
+}

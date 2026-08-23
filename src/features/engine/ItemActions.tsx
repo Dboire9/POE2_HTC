@@ -16,7 +16,7 @@ import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField, useOnChange } from '../../lib/workspace';
-import { exactExalts, formatCost, formatIn, pickUnit } from '../../lib/currency';
+import { exactExalts, formatBoundedCost, formatCost, formatIn, pickUnit } from '../../lib/currency';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
 import PriceBasisNote from './PriceBasisNote';
@@ -688,16 +688,15 @@ const ItemActions: React.FC = () => {
             <Card className="p-4 space-y-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h3 className="text-sm font-bold">True expected cost</h3>
-                {/* An unconverged solve is a LOWER BOUND, not an estimate: value iteration starts at 0
-                    and climbs, so bailing at the sweep cap leaves V below the true value. Rendering it
-                    as a bare number would be the most precise-looking wrong figure in the app. */}
+                {/* An unconverged solve is a BOUND, not an estimate, and `bound` says which way it
+                    leans — from here it is always a floor, because a craft on the item in your stash
+                    never restarts, so value iteration starts at 0 and climbs. Rendering it as a bare
+                    number would be the most precise-looking wrong figure in the app. */}
                 <span className="text-2xl font-bold tabular-nums text-primary" title={exactExalts(markov.expectedCost)}>
-                  {markov.converged
-                    ? formatCost(markov.expectedCost, rates)
-                    : `≥ ${formatCost(markov.expectedCost, rates)}`}
+                  {formatBoundedCost(markov.bound, markov.expectedCost, rates)}
                 </span>
               </div>
-              {!markov.converged && (
+              {markov.bound === 'lower' && (
                 <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
                   ⚠ The solver stopped before this number settled, so it is a <strong>floor</strong> — the real
                   cost is at least this and may be far higher. That happens when every route is a very long

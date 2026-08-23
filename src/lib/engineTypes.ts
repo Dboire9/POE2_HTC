@@ -117,11 +117,17 @@ export interface ItemModInput {
   readonly fractured?: boolean;
 }
 
-/** An item the user already owns: a magic or rare base carrying these prefixes/suffixes. */
+/**
+ * An item to craft from: a base carrying these prefixes/suffixes.
+ *
+ * `normal` is a bare white base with no mods. The Item tab never offers it — you do not "already own"
+ * a white item in any interesting sense — but the Lab's from-scratch craft is exactly that, and it
+ * needs the same shape to reach the true-cost model.
+ */
 export interface ExistingItem {
   readonly baseId: string;
   readonly level: number;
-  readonly rarity: 'magic' | 'rare';
+  readonly rarity: 'normal' | 'magic' | 'rare';
   readonly prefixes: readonly ItemModInput[];
   readonly suffixes: readonly ItemModInput[];
 }
@@ -197,6 +203,9 @@ export interface EnginePolicyNode {
   readonly blocked: readonly string[];
   readonly junkPrefixes: number;
   readonly junkSuffixes: number;
+  /** The item's rarity in this state — a from-white craft climbs Normal → Magic → Rare, and a 2-mod
+   *  Magic item must not render as the 2-mod Rare item it is not. */
+  readonly rarity: 'normal' | 'magic' | 'rare';
   /** Side carrying an unwanted DESECRATED mod, if any — it blocks re-desecrating until it's removed. */
   readonly desecratedJunk?: 'prefix' | 'suffix';
   readonly isStart: boolean;
@@ -224,11 +233,15 @@ export interface EngineMarkovResult {
   /** False when a target can't roll at this item level (cost ∞). */
   readonly feasible: boolean;
   readonly reason?: string;
-  /** True expected cost under the optimal push-forward policy (no restart). */
+  /** True expected cost under the optimal policy. */
   readonly expectedCost: number;
   /** False when value iteration hit its sweep cap instead of converging — then `expectedCost` is a
-   *  LOWER BOUND and the UI must render it as "≥ x". See MarkovResult.converged. */
+   *  bound rather than an answer, and `bound` says which one. See MarkovResult.converged. */
   readonly converged: boolean;
+  /** Which side of the truth `expectedCost` falls on: render "x", "≥ x" or "≤ x" from THIS, never
+   *  from `converged` alone — a from-item solve truncates upward and a from-white solve downward, so
+   *  assuming either direction prints a confidently wrong figure. See MarkovResult.bound. */
+  readonly bound: 'exact' | 'lower' | 'upper';
   /** True when a shown number depends on the ASSUMED desecrated spawn weight (an unomened
    *  Desecration). The UI must say so — see PriceBasisNote's `exactOdds`. */
   readonly assumedOdds: boolean;

@@ -87,9 +87,12 @@ describe('markovFromItem — hand-computed expected cost', () => {
     expect(r.reason).toMatch(/roll/i);
   });
 
-  it('declines a REGULAR-essence target (those need a Magic item; this planner models Rares)', () => {
-    // v3 accepts desecrated and perfect-essence targets, but a regular essence is structurally out of
-    // reach: essenceForcedProbability requires a Magic item and an item you already hold is a Rare.
+  it('declines a REGULAR-essence target, and blames the missing action rather than the rarity', () => {
+    // v3 accepts desecrated and perfect-essence targets. A regular essence is out of reach because the
+    // action space has no Essence in it (TODO 1) — NOT because of the Magic item it needs, which the
+    // state gained a rarity axis to represent. Saying "needs a Magic item" here would name a limit
+    // this model no longer has, and send a from-white crafter looking for a rarity they already pass
+    // through.
     const withEss: PatchData = {
       patch: 't',
       mods: new Map([...data.mods, ['E1', { ...mk('E1', 'prefix', 'FE', 0), source: 'essence' as const }]]),
@@ -97,7 +100,24 @@ describe('markovFromItem — hand-computed expected cost', () => {
     };
     const r = markovFromItem(withEss, prices, rare([]), [{ modId: 'E1' }]);
     expect(r.feasible).toBe(false);
-    expect(r.reason).toMatch(/magic item/i);
+    expect(r.reason).toMatch(/no Essence action/i);
+    expect(r.reason).not.toMatch(/craft it from white/i);
+  });
+});
+
+// A craft on the item already in your stash cannot be restarted, so it is solved push-forward only:
+// 0-initialised VI that CLIMBS to the fixed point. Truncating it therefore leaves a floor — the
+// opposite direction from the from-white solve above, and the reason `bound` is carried rather than
+// inferred from `converged` at the point of display.
+describe('markovFromItem — a truncated push-forward solve is a LOWER bound', () => {
+  it('quotes under the hand-computed value, and says so', () => {
+    const full = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }]);
+    const cut = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }], { maxIters: 1 });
+    expect(full.bound).toBe('exact');
+    expect(full.expectedCost).toBeCloseTo(2, 6);
+    expect(cut.bound).toBe('lower');
+    expect(cut.converged).toBe(false);
+    expect(cut.expectedCost).toBeLessThan(full.expectedCost);
   });
 });
 
@@ -299,5 +319,120 @@ describe('markovFromItem — progress reporting', () => {
     expect(repeats).toEqual([]);
     // At most one message per distinct permille the UI could render.
     expect(solve.length).toBeLessThanOrEqual(1001);
+  });
+});
+
+// A craft from a WHITE BASE, which this model refused outright until the state gained a rarity axis.
+// The Lab tab — the app's primary mode — therefore had no true-cost model and no policy graph at all.
+describe('markovFromItem — from a white base', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const wand = real.bases.get('Wands')!;
+  const white: ItemState = { base: wand, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+  const targets = [{ modId: 'Wands/WeaponSpellDamage' }, { modId: 'Wands/ManaRegeneration' }];
+
+  it('climbs Normal → Magic → Rare instead of refusing the craft', () => {
+    const r = markovFromItem(real, rp, white, targets, { restartCost: 0 });
+    expect(r.feasible).toBe(true);
+    // The only move available on a white base is a Transmute; an Exalt, a Chaos, a Desecration and a
+    // Perfect Essence all need a Rare item and must not be offered here.
+    expect(r.nodes.find((nd) => nd.isStart)!.action!.currency).toBe('transmute');
+    const played = new Set([...r.policy.values()].map((a) => a.currency));
+    expect(played.has('transmute')).toBe(true);
+    expect(played.has('regal')).toBe(true);
+  });
+
+  /**
+   * The restart action is a CORRECTNESS requirement here, not a refinement.
+   *
+   * Without it the policy cannot bin a bad Transmute — the item is already Magic and there is no way
+   * back to Normal — so it has to dig out with a 158.7ex Annulment instead of throwing away 0.18ex and
+   * rerolling. Measured on this craft: 3607ex against 43ex, an 83x overestimate. Any from-white number
+   * produced without it would be wrong in the same direction the app has already been caught being
+   * wrong once, so this pins the gap rather than the figure.
+   */
+  it('is wildly cheaper when the craft may simply be started again', () => {
+    const stuck = markovFromItem(real, rp, white, targets);
+    const canRestart = markovFromItem(real, rp, white, targets, { restartCost: 0 });
+    expect(stuck.feasible).toBe(true);
+    expect(canRestart.expectedCost).toBeLessThan(stuck.expectedCost / 10);
+  });
+
+  it('charges for the new base when starting over is not free', () => {
+    const free = markovFromItem(real, rp, white, targets, { restartCost: 0 });
+    const dear = markovFromItem(real, rp, white, targets, { restartCost: 5 });
+    expect(dear.expectedCost).toBeGreaterThan(free.expectedCost);
+  });
+
+  /**
+   * The bug this whole two-phase solve exists to fix.
+   *
+   * 0-initialised VI ties every state with `restartCost + V(start)` while V is still near zero, so a
+   * truncated solve used to return "start over" as the optimal move EVERYWHERE — including from states
+   * already holding a target mod — and the graph it produced did not contain the goal at all. A 6-mod
+   * craft rendered four boxes, all of them saying "Start over with a new base". Seeding from the
+   * push-forward optimum makes the greedy policy sensible on the very first sweep, so the route reaches
+   * the target no matter where the sweeps stop.
+   *
+   * `maxIters` rather than `maxMillis` deliberately: a clock makes this machine-dependent, and the
+   * point is a guarantee, not a timing.
+   */
+  it('still routes to the target when the sweeps run out', () => {
+    const cut = markovFromItem(real, rp, white, targets, { restartCost: 0, maxIters: 1000 });
+    expect(cut.feasible).toBe(true);
+    expect(cut.converged).toBe(false);
+    expect(cut.nodes.some((nd) => nd.isGoal)).toBe(true);
+  });
+
+  /**
+   * …and the number it quotes leans the other way from a from-item solve, which is why `bound` exists
+   * as a field instead of being read off `converged`.
+   *
+   * Phase A's value is a PROPER policy's — one that always finishes — so phase B starts above the
+   * optimum and descends. Measured on this craft: 92.5 → 45.1 → 43.2ex as the sweep budget grows, and
+   * 43.2 is the converged answer. Every truncation is above it, never under, so the honest rendering
+   * is "≤ x".
+   */
+  it('quotes an UPPER bound when it stops early, tightening downward toward the true cost', () => {
+    const exact = markovFromItem(real, rp, white, targets, { restartCost: 0 });
+    const loose = markovFromItem(real, rp, white, targets, { restartCost: 0, maxIters: 1000 });
+    const tight = markovFromItem(real, rp, white, targets, { restartCost: 0, maxIters: 2000 });
+    expect(exact.bound).toBe('exact');
+    expect(loose.bound).toBe('upper');
+    expect(tight.bound).toBe('upper');
+    expect(loose.expectedCost).toBeGreaterThan(tight.expectedCost);
+    expect(tight.expectedCost).toBeGreaterThan(exact.expectedCost);
+  });
+
+  /**
+   * The guard on the seed itself. Without a CONVERGED phase A there is no proper-policy value to start
+   * from, and an unconverged 0-init V bounds the restart problem in neither direction — it is climbing
+   * toward the push-forward optimum, which is the far larger number. Quoting it would be a figure with
+   * no meaning attached, so the solve says what happened instead.
+   */
+  it('refuses to quote a cost when even the push-forward seed did not settle', () => {
+    const r = markovFromItem(real, rp, white, targets, { restartCost: 0, maxIters: 300 });
+    expect(r.feasible).toBe(false);
+    // No clock was set, so "raise Search effort" would be noise — the sweep cap is not the user's to
+    // raise. The message names the limit that actually bit.
+    expect(r.reason).toMatch(/sweeps/i);
+    expect(r.reason).not.toMatch(/search effort/i);
+  });
+
+  it('points at the effort setting when it was a CLOCK that ran out', () => {
+    // maxMillis: 1 guarantees the very first deadline check trips, whatever the machine.
+    const r = markovFromItem(real, rp, white, targets, { restartCost: 0, maxMillis: 1 });
+    expect(r.feasible).toBe(false);
+    expect(r.reason).toMatch(/search effort/i);
+  });
+
+  // The scale check, same as the from-item cases above: play the policy through the real random
+  // process and confirm the average spend matches what value iteration claimed.
+  it('matches a Monte-Carlo run of its own policy', () => {
+    const r = markovFromItem(real, rp, white, targets, { restartCost: 0 });
+    expect(r.converged).toBe(true);
+    const mc = simulatePolicyMean(r, (a) => actionCostOf(rp, a), 100_000);
+    expect(mc).toBeGreaterThan(r.expectedCost * 0.97);
+    expect(mc).toBeLessThan(r.expectedCost * 1.03);
   });
 });

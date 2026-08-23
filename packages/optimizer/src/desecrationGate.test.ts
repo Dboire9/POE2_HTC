@@ -207,10 +207,21 @@ describe('MDP — convergence is reported, not assumed', () => {
 
   // A rejected target never ran VI at all; reporting `converged: false` there would imply the number
   // was a floor when it is simply absent.
+  //
+  // This used to reject a MAGIC item, which the model now handles (it opens with a Regal), so the
+  // rejection has to come from somewhere still real: excluding every currency that could add the
+  // missing mod leaves the policy with no route at all.
   it('reports a rejection as converged rather than as a floor', () => {
-    const r = markovFromItem(data, prices, { ...start(WEAPON), rarity: 'magic' }, [
-      { modId: WEAPON.rollable[0]!, minTierIndex: 0 },
+    const everyAdd = new Set([
+      'exalt', 'exalt_greater', 'exalt_perfect', 'chaos', 'desecrate',
+      'transmute', 'transmute_greater', 'transmute_perfect',
+      'augment', 'augment_greater', 'augment_perfect',
+      'regal', 'regal_greater', 'regal_perfect',
     ]);
+    const r = markovFromItem(data, prices, start(WEAPON), [
+      { modId: WEAPON.rollable[0]!, minTierIndex: 0 },
+      { modId: WEAPON.rollable[1]!, minTierIndex: 0 },
+    ], { policy: { excluded: everyAdd } });
     expect(r.feasible).toBe(false);
     expect(r.converged).toBe(true);
   });

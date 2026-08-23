@@ -7,14 +7,14 @@ import type { EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode } from './e
 // a policy that loops (annul → exalt → annul → …) cannot hang the render.
 
 const node = (key: string, depth: number, extra: Partial<EnginePolicyNode> = {}): EnginePolicyNode => ({
-  key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0,
+  key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
   isStart: false, isGoal: false, depth, expectedCost: depth, action: 'Exalt', ...extra,
 });
 const edge = (from: string, to: string, prob: number, regress = false): EnginePolicyEdge =>
   ({ from, to, action: 'Exalt', prob, regress });
 
 const result = (nodes: EnginePolicyNode[], edges: EnginePolicyEdge[]): EngineMarkovResult => ({
-  applicable: true, feasible: true, expectedCost: 1, converged: true, assumedOdds: false, nodes, edges,
+  applicable: true, feasible: true, expectedCost: 1, converged: true, bound: 'exact', assumedOdds: false, nodes, edges,
 });
 
 describe('mainLine', () => {
@@ -98,7 +98,7 @@ describe('mainLine — what each step moves', () => {
     key: string, depth: number, present: string[], blocked: string[], junk: number,
     extra: Partial<EnginePolicyNode> = {},
   ): EnginePolicyNode => ({
-    key, present, blocked, junkPrefixes: junk, junkSuffixes: 0,
+    key, present, blocked, junkPrefixes: junk, junkSuffixes: 0, rarity: 'rare',
     isStart: false, isGoal: false, depth, expectedCost: depth, action: 'Exalt', ...extra,
   });
 
@@ -157,5 +157,48 @@ describe('mainLine — what each step moves', () => {
       [edge('a', 'g', 1)],
     );
     expect(mainLine(r).steps[0]!.changes).toEqual({ gained: [], lost: [], blocked: [], junkDelta: 0 });
+  });
+});
+
+// A from-white policy scraps the item and starts again for most outcomes, so a state like "rare, one
+// target, one junk" legitimately has NO forward move — its best action goes backwards to the bare base.
+// Following the likeliest forward edge walked straight into such a state and stalled, and the route
+// silently vanished on every from-scratch craft. The walk has to prefer an edge the craft can actually
+// be finished from, not merely the likeliest one.
+describe('mainLine — routes that can actually finish', () => {
+  const nd = (key: string, depth: number, extra: Partial<EnginePolicyNode> = {}): EnginePolicyNode => ({
+    key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
+    isStart: false, isGoal: false, depth, expectedCost: depth, action: 'Exalt', ...extra,
+  });
+
+  it('takes the less likely branch when the likely one dead-ends', () => {
+    // From `s`: 0.9 to `trap` (closer, but its only move is backwards) and 0.1 to `g` (the goal).
+    const r = result(
+      [nd('s', 3, { isStart: true }), nd('trap', 2), nd('g', 0, { isGoal: true }), nd('back', 4)],
+      [
+        edge('s', 'trap', 0.9), edge('s', 'g', 0.1),
+        edge('trap', 'back', 1, true), // "start over" — the only thing to do from here
+      ],
+    );
+    const { steps, goal } = mainLine(r);
+    expect(steps).toHaveLength(1);
+    expect(steps[0]!.next.key).toBe('g');
+    expect(goal?.key).toBe('g');
+  });
+
+  it('still prefers the likelier branch when both can finish', () => {
+    const r = result(
+      [nd('s', 3, { isStart: true }), nd('a', 2), nd('b', 2), nd('g', 0, { isGoal: true })],
+      [edge('s', 'a', 0.3), edge('s', 'b', 0.7), edge('a', 'g', 1), edge('b', 'g', 1)],
+    );
+    expect(mainLine(r).steps[0]!.next.key).toBe('b');
+  });
+
+  it('gives up when nothing can finish, rather than drawing a route into a dead end', () => {
+    const r = result(
+      [nd('s', 2, { isStart: true }), nd('trap', 1), nd('g', 0, { isGoal: true })],
+      [edge('s', 'trap', 1)], // trap never reaches the goal
+    );
+    expect(mainLine(r).steps).toEqual([]);
   });
 });

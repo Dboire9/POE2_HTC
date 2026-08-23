@@ -63,7 +63,7 @@ async function loaded() {
 const builderButton = (text: string | RegExp) => screen.getByRole('button', { name: text });
 
 const okMarkov = {
-  applicable: true, feasible: true, expectedCost: 5, converged: true, assumedOdds: false,
+  applicable: true, feasible: true, expectedCost: 5, converged: true, bound: 'exact', assumedOdds: false,
   nodes: [], edges: [],
 };
 /**
@@ -73,7 +73,7 @@ const okMarkov = {
  * through `mapMarkov`, which hardcodes `applicable: true` and reports `feasible: false`.
  */
 const declinedMarkov = {
-  applicable: true, feasible: false, expectedCost: Infinity, converged: true, assumedOdds: false,
+  applicable: true, feasible: false, expectedCost: Infinity, converged: true, bound: 'exact', assumedOdds: false,
   nodes: [], edges: [],
   reason: 'the true-cost model only handles Rare items so far — a Magic item needs a Regal first.',
 };
@@ -242,6 +242,17 @@ describe('ItemActions — when there is no true expected cost', () => {
     await computeWith(okMarkov);
     await waitFor(() => expect(screen.getByText(/Last solve took/i)).toBeInTheDocument());
     expect(screen.queryByText(/No true expected cost/i)).toBeNull();
+  });
+
+  /**
+   * A craft on the item in your stash never restarts, so it is solved push-forward only: value
+   * iteration starts at 0 and CLIMBS, and stopping early leaves a floor. The Lab's from-white solve
+   * leans the other way, so this side reads `bound` too rather than assuming its own direction.
+   */
+  it('renders an unfinished solve as a floor', async () => {
+    await computeWith({ ...okMarkov, converged: false, bound: 'lower' });
+    expect(await screen.findByText(/^≥\s/)).toBeInTheDocument();
+    expect(screen.getByText(/floor/i)).toBeInTheDocument();
   });
 });
 

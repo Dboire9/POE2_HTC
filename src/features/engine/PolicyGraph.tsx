@@ -34,7 +34,12 @@ interface Group { node: EnginePolicyNode; count: number; x: number; y: number; }
 function stateLabel(nd: EnginePolicyNode): string {
   const junk = nd.junkPrefixes + nd.junkSuffixes;
   const kept = nd.present.length;
-  const parts = [`${kept} mod${kept === 1 ? '' : 's'}`];
+  // Rarity leads on a from-white craft, where the item climbs Normal → Magic → Rare and the same mod
+  // count means completely different things on each rung — a 2-mod Magic item cannot take an Exalt at
+  // all. Omitted on a Rare, which is every from-item craft and would otherwise repeat "Rare" on every
+  // box for no information.
+  const parts = nd.rarity === 'rare' ? [] : [nd.rarity === 'normal' ? 'white base' : 'magic'];
+  parts.push(`${kept} mod${kept === 1 ? '' : 's'}`);
   if (nd.blocked.length > 0) parts.push(`${nd.blocked.length} off-tier`);
   if (junk > 0) parts.push(`+${junk} junk`);
   // Called out separately from ordinary junk: it also blocks desecrating again until it's removed.
@@ -312,21 +317,32 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
   return (
     <div className="rounded-md border border-border bg-muted/20 p-2 space-y-2">
       {/* The click target is a box drawn in SVG, which announces nothing about being interactive.
-          Saying so costs one line and is the difference between a feature and a secret. */}
-      <p className="px-1 text-[11px] text-muted-foreground" role="status">
-        {route === null
-          ? 'Click any state to highlight the route through it and dim the rest.'
-          : `Highlighting ${route.size} of ${placed.length} states — everything that reaches this one and everything it reaches.`}
+          Saying so costs one line and is the difference between a feature and a secret.
+
+          Three separate elements, and the split is the point. The live region is only the sentence
+          that CHANGES when you pick a state: it is mounted from the start (a region added at the same
+          moment as its text is missed by some readers) and empty until there is something to say. The
+          standing instruction is not in it — a live region holding boilerplate re-announces the same
+          line and competes with the "Last solve took Xs" status on the Item tab for the same queue.
+          And `Clear` is a control, so it sits outside the region rather than being read out as part
+          of it. */}
+      <div className="flex flex-wrap items-baseline gap-x-2 px-1 text-[11px] text-muted-foreground">
+        <p role="status">
+          {route === null
+            ? ''
+            : `Highlighting ${route.size} of ${placed.length} states — everything that reaches this one and everything it reaches.`}
+        </p>
+        {route === null && <p>Click any state to highlight the route through it and dim the rest.</p>}
         {route !== null && (
           <button
             type="button"
             onClick={() => setSelected(null)}
-            className="ml-2 underline underline-offset-2 hover:text-foreground"
+            className="underline underline-offset-2 hover:text-foreground"
           >
             Clear
           </button>
         )}
-      </p>
+      </div>
 
       {selectedGroup && (
         <StateDetail

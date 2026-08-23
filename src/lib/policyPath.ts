@@ -98,6 +98,26 @@ export function mainLine(result: EngineMarkovResult): MainLine {
     else out.set(e.from, [e]);
   }
 
+  // Which states can still reach the goal by going forwards only. Without this the walk follows the
+  // likeliest forward edge and can drop into a state whose own best move is to go BACKWARDS — which is
+  // not a corner case since a from-white policy scraps the item and starts again for most outcomes, so
+  // "rare, one target, one junk" legitimately has no forward move at all. Following probability alone
+  // walked straight into it and stalled, and the route silently disappeared.
+  const goalNode = result.nodes.find((n) => n.isGoal);
+  if (!goalNode) return { steps: [] };
+  const canFinish = new Set<string>([goalNode.key]);
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const e of result.edges) {
+      if (canFinish.has(e.from) || !canFinish.has(e.to)) continue;
+      const from = byKey.get(e.from);
+      const to = byKey.get(e.to);
+      if (!from || !to || to.depth >= from.depth) continue;
+      canFinish.add(e.from);
+      grew = true;
+    }
+  }
+
   const steps: MainLineStep[] = [];
   let node = start;
   while (!node.isGoal) {
@@ -109,6 +129,7 @@ export function mainLine(result: EngineMarkovResult): MainLine {
       if (!to) continue;
       if (to.depth > node.depth) brick += e.prob;
       if (to.depth >= node.depth) continue; // only a strictly closer state can advance the line
+      if (!canFinish.has(to.key)) continue; // …and only one the craft can actually be finished from
       if (!best || e.prob > best.edge.prob) best = { edge: e, to };
     }
     if (!best) return { steps: [] }; // stalled — let the caller fall back to the full graph

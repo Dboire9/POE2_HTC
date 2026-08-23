@@ -106,6 +106,38 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   `currencyDepth: 'base-only'`. It used to report `full`, rendered as "tried every orb strength" — a
   false claim that also hid why its costs sit so far above the MDP's, which does use Greater/Perfect
   Exalts.
+- **The MDP now models rarity, so a craft can start from a white base or a Magic item.** State is
+  `(present, blocked, jp, js, desJunk, rarity)`; `enumerateStates` takes the rungs a craft occupies and
+  DEFAULTS to Rare alone, which is what keeps every from-item solve exactly as fast as before. Transmute
+  / Augment / Regal are actions with the same Greater/Perfect strengths an Exalt has; Exalt, Chaos,
+  Desecrate and Perfect Essence are absent below Rare because the game says so.
+- **A from-white MDP MUST have the restart action or its numbers are nonsense.** A white base is free,
+  so the real strategy includes binning a bad roll — and without the action the policy is trapped (once
+  Transmuted there is no way back to Normal) and digs out with a 158.7ex Annulment instead of discarding
+  0.18ex. Measured: 3607ex against 43ex, an **83x overestimate**. `restartCost` is offered only where
+  starting over is real — a white base yes, a held Rare no, a carved item no — and `WHITE_BASE_COST`
+  in `solve.ts` names the 0 explicitly rather than letting an absent price key silently become one.
+- **A from-white solve is TWO value-iteration passes, and the order is load-bearing.** VI 0-initialises
+  and climbs, so with a near-free `restart` every state ties with `restartCost + V(start)` on the early
+  sweeps and a truncated solve returns "start over" as the optimal move EVERYWHERE — a graph that does
+  not contain the goal. Phase A therefore solves push-forward only (no restart) and must CONVERGE; phase
+  B seeds from that value and adds restart back. The seed is a proper policy's value, so `V0 >= V*` and
+  `T(V0) <= V0` — phase B descends, every iterate stays an upper bound, and the greedy policy is sensible
+  from the first sweep. If phase A does not converge there is no valid seed and the solve returns
+  `feasible: false` with a reason; it must never quote a number it cannot bound.
+- **Read `bound`, never infer the inequality from `converged`.** A from-item solve truncates UPWARD
+  (render "≥ x"); a from-white solve truncates DOWNWARD (render "≤ x"). `formatBoundedCost` in
+  `src/lib/currency.ts` is the only place that turns the field into a sign. Guessing the direction
+  prints the most precise-looking wrong figure in the app.
+- **`distanceToGoal` lives on the node now, not in engineMap.** There were two copies of that
+  expression and they disagreed the moment rarity entered it, which would have drawn the solver's
+  forward steps as steps backwards. And the route walk only steps to states the craft can be FINISHED
+  from: a from-white policy scraps and restarts for most outcomes, so plenty of states have no forward
+  move at all, and following the likeliest edge walked into one and stalled.
+- **An MDP failure must never delete the frontier.** Both tabs compute the step frontier first and the
+  model second; `markovOrReason` in `solve.ts` turns a throw into a `reason` the panel renders. This is
+  not a blanket catch — the message is carried through. It exists because an unmocked `optimizeItemMarkov`
+  in a test took the whole lab result down, and the same shape could happen in production.
 - **A held item's step-route card shows no expected-cost total.** `planExpectedCost` divides a real
   per-run cost by the plan's success chance, and at ~7e-13 that is billions of divine — right, and not
   a budget. `FrontierView`'s `freeRestart={false}` drops `expected` and `expectedAttempts` and shows

@@ -32,7 +32,7 @@ import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
 import { createActionSpace } from './markovActions.ts';
-import type { McTarget, StateKey } from './markovState.ts';
+import type { McTarget, StateKey, McRarity } from './markovState.ts';
 import {
   classifyStart, decodeState, encodeState, enumerateStates, has, popcount, sideIndexOf,
 } from './markovState.ts';
@@ -58,6 +58,17 @@ export interface PolicyNode {
   readonly expectedCost: number;
   /** The optimal currency to use here (undefined at the goal). */
   readonly action?: McAction;
+  /** The item's rarity here. Without it a 2-mod Magic item and a 2-mod Rare item render identically
+   *  while behaving completely differently — one of them cannot take an Exalt at all. */
+  readonly rarity: McRarity;
+  /**
+   * Moves still to make, by the same estimate `regress` is judged against.
+   *
+   * Carried rather than recomputed by the UI: engineMap had its own copy of this expression, and the
+   * moment rarity entered the formula the two disagreed — a state the solver called a step forward
+   * would have been drawn as a step back.
+   */
+  readonly depth: number;
 }
 
 export interface PolicyEdge {
@@ -78,13 +89,25 @@ export interface MarkovResult {
   /**
    * Whether value iteration actually reached `tolerance`, or gave up at `maxIters`.
    *
-   * This is NOT a detail. VI 0-initialises and climbs, so an unconverged `expectedCost` is a strict
-   * LOWER BOUND, not an estimate — the true cost is at least that and may be far more. It happens for
-   * real: an untargeted armour desecration lands one specific mod about 1 in 121,510 times, and VI's
-   * convergence rate is governed by exactly that probability, so it exhausts all 100k sweeps. Callers
-   * must present an unconverged number as "≥ x", never as "x".
+   * This is NOT a detail: an unconverged `expectedCost` is a bound, not an estimate. Which bound is
+   * `bound`'s job — read that, don't assume. It happens for real: an untargeted armour desecration
+   * lands one specific mod about 1 in 121,510 times, and VI's convergence rate is governed by exactly
+   * that probability, so it exhausts all 100k sweeps.
    */
   readonly converged: boolean;
+  /**
+   * Which side of the truth `expectedCost` falls on — the caller renders "x", "≥ x" or "≤ x" from it.
+   *
+   * Not derivable from `converged`, because the two solve modes truncate in OPPOSITE directions and
+   * getting that backwards prints the most precise-looking wrong figure in the app:
+   *   • `exact`  — VI reached `tolerance`.
+   *   • `lower`  — a push-forward solve (no `restartCost`) that ran out. VI 0-initialises and CLIMBS,
+   *                so the true cost is at least this and may be far more.
+   *   • `upper`  — a restart-enabled solve that ran out. It seeds from a proper policy's value and
+   *                DESCENDS, so the true cost is at most this. See the two-phase note at the solver.
+   * Meaningful only when `feasible`.
+   */
+  readonly bound: 'exact' | 'lower' | 'upper';
   /** Reachable states under the optimal policy (the graph's squares), start first. */
   readonly nodes: readonly PolicyNode[];
   /** Policy transitions (the graph's arrows). */
@@ -127,6 +150,16 @@ export interface MarkovOptions {
    * zero for three seconds and then jump to done.
    */
   readonly onProgress?: (p: MarkovProgress) => void;
+  /**
+   * What another base costs, when the craft can be abandoned and begun again.
+   *
+   * ABSENT means it cannot be — the from-item default, and the premise of the push-forward model: the
+   * specific Rare in your stash is not for sale. Pass it for a from-white craft, where it is not a
+   * refinement but a correctness requirement. Without the action the policy has to dig a bad Transmute
+   * out with a 158.7ex Annulment rather than bin 0.18ex and reroll, and the answer comes out far too
+   * high. Zero is a legitimate value: a white base is, to a rounding error, free.
+   */
+  readonly restartCost?: number;
   /** Currencies the player doesn't have; the policy never plays one. */
   readonly policy?: CurrencyPolicy;
 }
@@ -140,17 +173,10 @@ const MAX_TARGETS = 6;
 export function markovFromItem(
   data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
 ): MarkovResult {
-  const fail = (reason: string): MarkovResult =>
-    ({ expectedCost: Infinity, feasible: false, converged: true, reason, nodes: [], edges: [], policy: new Map() });
-  // A PLANNER limit, not a game rule — and the copy has to say which (see CLAUDE.md's critical rule).
-  // The step planner opens a Magic item with a Regal and plans it fine; this model's state space has
-  // no rarity in it, so it cannot represent the Magic→Rare transition yet.
-  if (start.rarity !== 'rare') {
-    return fail(
-      'the true-cost model only handles Rare items so far — a Magic item needs a Regal first, which '
-      + 'this model has no way to represent yet. The step-by-step routes below do cover it.',
-    );
-  }
+  const fail = (reason: string): MarkovResult => ({
+    expectedCost: Infinity, feasible: false, converged: true, bound: 'exact',
+    reason, nodes: [], edges: [], policy: new Map(),
+  });
   const prices = pricesForBase(rawPrices, start.base);
 
   const level = start.level;
@@ -159,13 +185,15 @@ export function markovFromItem(
 
   // Resolve targets into the ordered list the bitmasks index: rollable normal mods, desecrated mods
   // (added by a Desecration with the boss omen that selects them), and perfect-essence mods (forced on
-  // by a Perfect Essence, which eats one existing mod as it adds). A REGULAR essence needs a Magic item
-  // and this planner only models Rares, so essence-only mods stay on the from-white linear planner.
+  // by a Perfect Essence, which eats one existing mod as it adds). A REGULAR essence has no action in
+  // this model's vocabulary at all (TODO 1) — the Magic item it needs IS representable since the state
+  // gained a rarity axis, so what's missing is the action, not the shape — and those targets stay on
+  // the linear planner.
   const list: McTarget[] = [];
   for (const t of targets) {
     const mod = resolveMod(data, t.modId);
     if (mod.source === 'essence') {
-      return fail(`${t.modId} needs a regular essence, which only applies to a Magic item — craft it from white`);
+      return fail(`${t.modId} can only be added by a regular Essence, and this model has no Essence action yet`);
     }
     if (mod.source !== 'normal' && mod.source !== 'desecrated' && mod.source !== 'perfect_essence') {
       return fail(`${t.modId} is not a rollable, desecrated or perfect-essence mod (the MDP handles those)`);
@@ -214,16 +242,30 @@ export function markovFromItem(
   // desecrated mod already on the item to clear. Otherwise a Desecration could only ever add junk, so
   // leaving it out costs nothing and keeps the state space exactly as it was before v3.
   const desecratable = list.some((t) => t.mod.source === 'desecrated') || s0.desJunk !== 'none';
+  // Where "start over" lands: the item you began with, which for a from-white craft is the bare base.
+  // Built here rather than later because the action space closes over it.
+  const restartKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.desJunk, s0.rarity);
   const { actionsOf } = createActionSpace({
     data, prices, level, pools, list, side, desecratable,
     bossTargetable: bossOmenAllowed(start.base.category),
     ...(opts.policy ? { policy: opts.policy } : {}),
+    ...(opts.restartCost === undefined
+      ? {}
+      : { restart: { cost: opts.restartCost, dist: new Map([[restartKey, 1]]) } }),
   });
 
   const GOAL = (1 << n) - 1; // all target mods present, none blocked, no junk
-  const goalKey = encodeState(GOAL, 0, 0, 0);
+  // The finished item is Rare whenever it carries more than one mod per side, and every craft this
+  // model runs ends Rare in practice — a target that fits a Magic item needs no plan worth drawing.
+  const goalKey = encodeState(GOAL, 0, 0, 0, 'none', 'rare');
 
-  const allStates = enumerateStates(n, side, desecratable);
+  // Only enumerate the rarities the craft can actually occupy. A from-item craft is Rare throughout,
+  // so it keeps exactly the state space (and solve time) it had before rarity existed; a craft that
+  // starts lower has to carry the rungs it climbs through.
+  const rarities: McRarity[] = start.rarity === 'rare' ? ['rare']
+    : start.rarity === 'magic' ? ['magic', 'rare']
+    : ['normal', 'magic', 'rare'];
+  const allStates = enumerateStates(n, side, desecratable, rarities);
   // The dominant cost of the whole solve: one full action set, with its outcome distribution, per
   // state. `allStates.length` is known before the loop, so progress here is genuinely linear.
   const report = opts.onProgress;
@@ -254,6 +296,8 @@ export function markovFromItem(
     /** Destination indices, self-loop EXCLUDED — its probability lives in `selfProb`. */
     readonly to: Int32Array;
     readonly prob: Float64Array;
+    /** "Bin it and buy another base" — the one action phase A of the solve leaves out. */
+    readonly isRestart: boolean;
   }
   const compiled: CompiledAction[][] = new Array(N);
   for (let i = 0; i < N; i++) {
@@ -269,7 +313,10 @@ export function markovFromItem(
         to.push(idxOfState.get(toKey)!);
         prob.push(p);
       }
-      out.push({ def, cost: def.cost, selfProb, to: Int32Array.from(to), prob: Float64Array.from(prob) });
+      out.push({
+        def, cost: def.cost, selfProb, isRestart: def.action.currency === 'restart',
+        to: Int32Array.from(to), prob: Float64Array.from(prob),
+      });
     }
     compiled[i] = out;
     if (report && i % PROGRESS_STRIDE === 0) report({ phase: 'compile', done: i, total: N });
@@ -282,6 +329,26 @@ export function markovFromItem(
   // cycles here — e.g. {both targets + junk} ↔ {one target + junk} each need the other finite first —
   // so neither bootstraps. Every target is gettable by now, so the goal is reachable from every state
   // and VI converges to a finite V.) Each action solves its own self-loop via ÷(1 − pStay).
+  //
+  // …except when starting over is allowed, which breaks 0-init VI outright. `restart` costs about
+  // nothing and lands on the start, so every state is worth `restartCost + V(start)` — and while V is
+  // still near 0 that TIES with every other action, so early sweeps pick restart everywhere. VI
+  // unpicks the tie only as the true values separate, which on a long-shot target outlasts any
+  // budget. A truncated solve therefore returns a policy that bins the item in every state, including
+  // states already holding a target mod: not a slow answer but a wrong one, and exactly what a 6-mod
+  // from-white craft rendered — every box in the graph reading "Start over with a new base".
+  //
+  // So solve it in two phases. Phase A runs push-forward only (restart excluded), which 0-init VI
+  // handles fine, and converges to V0. Phase B puts restart back and starts from V0 instead of 0.
+  //
+  // V0 is the value of a PROPER policy — one that always reaches the goal — so V0 ≥ V*, and
+  //     T(V0) = min(T_pushForward(V0), restartCost + V0[start]) ≤ T_pushForward(V0) = V0,
+  // i.e. V0 is excessive. Phase B's sweeps therefore DESCEND toward V* instead of climbing, and two
+  // things follow. Every iterate stays above V*, so a truncated phase B reports "at most x" (see
+  // `bound`) rather than the "at least x" a 0-init solve gives. And — the reason this is the fix and
+  // not an optimisation — the greedy policy is sensible from the very first sweep: restart wins at a
+  // state only where `restartCost + V[start]` genuinely beats digging out, so a state holding a target
+  // keeps it, and the extracted route reaches the goal even when the solve stops early.
   const tol = opts.tolerance ?? 1e-9;
   const maxIters = opts.maxIters ?? 100_000;
   const V = new Float64Array(N); // 0-initialised, as above
@@ -292,66 +359,103 @@ export function markovFromItem(
     for (let j = 0; j < a.to.length; j++) s += a.prob[j]! * V[a.to[j]!]!;
     return (a.cost + s) / (1 - a.selfProb);
   };
-  let decades = 0; // log-distance the first sweep had left to travel; see the progress note below
-  let lastPermille = -1; // last value actually SENT — see the throttle note in the loop
-  let converged = false;
   // Checked every CHECK sweeps rather than every sweep: Date.now() in the hot loop is measurable, and
   // a sweep is short enough that the overshoot is irrelevant next to a multi-second budget.
   const deadline = opts.maxMillis === undefined ? Infinity : Date.now() + opts.maxMillis;
   const DEADLINE_CHECK = 32;
-  for (let iter = 0; iter < maxIters; iter++) {
-    if (deadline !== Infinity && iter % DEADLINE_CHECK === 0 && Date.now() > deadline) break;
-    let delta = 0;
-    for (let i = 0; i < N; i++) {
-      if (i === goalIdx) continue;
-      const acts = compiled[i]!;
-      let best = Infinity;
-      for (let k = 0; k < acts.length; k++) {
-        const v = valueOf(acts[k]!);
-        if (v < best) best = v;
+
+  /**
+   * Emit only when the number the UI would DISPLAY changes — and across the WHOLE solve, not per
+   * phase, so the handover at 500‰ and the closing 1000‰ don't each repeat a value already sent.
+   *
+   * The loop below runs up to `maxIters` (100k) sweeps, and every report crosses the worker boundary
+   * as a postMessage that wakes a React re-render. Reporting per sweep sent ~100,001 messages to
+   * describe at most 1001 distinct values, so ~99% of them repainted the bar with the number it
+   * already had. That flood is what turned a 24-second solve into a ten-minute wait in the browser;
+   * the maths was never slow. The other two phases above were already strided — this one was missed,
+   * which is why only long solves showed it.
+   */
+  let lastPermille = -1;
+  const emitSolve = (permille: number): void => {
+    if (!report || permille === lastPermille) return;
+    lastPermille = permille;
+    report({ phase: 'solve', done: permille, total: 1000 });
+  };
+
+  /**
+   * Sweep `V` in place to its fixed point; true if it reached `tol` rather than running out of
+   * sweeps or clock. `withRestart` false is phase A. `pLo`–`pHi` is this phase's slice of the
+   * 0–1000 progress bar, so two phases fill one bar instead of resetting it halfway.
+   */
+  const iterate = (withRestart: boolean, pLo: number, pHi: number): boolean => {
+    let decades = 0; // log-distance the first sweep had left to travel; see the progress note below
+    for (let iter = 0; iter < maxIters; iter++) {
+      if (deadline !== Infinity && iter % DEADLINE_CHECK === 0 && Date.now() > deadline) return false;
+      let delta = 0;
+      for (let i = 0; i < N; i++) {
+        if (i === goalIdx) continue;
+        const acts = compiled[i]!;
+        let best = Infinity;
+        for (let k = 0; k < acts.length; k++) {
+          const a = acts[k]!;
+          if (a.isRestart && !withRestart) continue;
+          const v = valueOf(a);
+          if (v < best) best = v;
+        }
+        if (!Number.isFinite(best)) continue;
+        const prev = V[i]!;
+        V[i] = best;
+        const d = Math.abs(best - prev);
+        if (d > delta) delta = d;
       }
-      if (!Number.isFinite(best)) continue;
-      const prev = V[i]!;
-      V[i] = best;
-      const d = Math.abs(best - prev);
-      if (d > delta) delta = d;
-    }
-    if (delta <= tol) { converged = true; break; }
-    // VI converges geometrically, so "sweeps remaining" is not knowable and counting them against
-    // `maxIters` (100k — usually reached in tens, but a long-odds action can exhaust the lot) would peg
-    // the bar at zero. What IS monotone is how
-    // far the residual has travelled toward `tol` on a log scale — so a unit here is one decade
-    // closed, and the total is the distance the first sweep found still to cover.
-    if (report) {
-      const remaining = Math.log10(Math.max(delta, tol) / tol);
-      if (iter === 0) decades = remaining;
-      // TWO monotone measures, and we report whichever is further along, in permille.
-      //
-      // The residual measure is the better signal when VI behaves — it tracks actual progress toward
-      // an answer. But its resolution collapses when convergence is slow: a stalled solve once
-      // reported 0/11 then 1/11 across 100,000 sweeps, so the bar sat at 92% for five seconds and
-      // read as a hang. Sweeps burned is crude (VI usually finishes in tens of a 100k budget, so it
-      // reads ~0 on a healthy solve) but it always advances. Taking the max means the bar moves on
-      // the residual when there IS residual progress, and falls back to "how much budget is gone"
-      // when there isn't — which is exactly the case where the user needs to see something move.
-      const byResidual = decades > 0 ? (decades - remaining) / decades : 0;
-      const byBudget = (iter + 1) / maxIters;
-      const permille = Math.round(Math.max(byResidual, byBudget) * 1000);
-      // Emit only when the number the UI would DISPLAY changes.
-      //
-      // This is the loop's outer bound — up to `maxIters` (100k) sweeps — and every report crosses the
-      // worker boundary as a postMessage that wakes a React re-render. Reporting per sweep sent
-      // ~100,001 messages to describe at most 1001 distinct values, so ~99% of them repainted the bar
-      // with the number it already had. That flood is what turned a 24-second solve into a ten-minute
-      // wait in the browser; the maths was never slow. The other two phases above were already
-      // strided — this one was missed, which is why only long solves showed it.
-      if (permille !== lastPermille) {
-        lastPermille = permille;
-        report({ phase: 'solve', done: permille, total: 1000 });
+      if (delta <= tol) return true;
+      // VI converges geometrically, so "sweeps remaining" is not knowable and counting them against
+      // `maxIters` (100k — usually reached in tens, but a long-odds action can exhaust the lot) would peg
+      // the bar at zero. What IS monotone is how
+      // far the residual has travelled toward `tol` on a log scale — so a unit here is one decade
+      // closed, and the total is the distance the first sweep found still to cover.
+      if (report) {
+        const remaining = Math.log10(Math.max(delta, tol) / tol);
+        if (iter === 0) decades = remaining;
+        // TWO monotone measures, and we report whichever is further along, in permille.
+        //
+        // The residual measure is the better signal when VI behaves — it tracks actual progress toward
+        // an answer. But its resolution collapses when convergence is slow: a stalled solve once
+        // reported 0/11 then 1/11 across 100,000 sweeps, so the bar sat at 92% for five seconds and
+        // read as a hang. Sweeps burned is crude (VI usually finishes in tens of a 100k budget, so it
+        // reads ~0 on a healthy solve) but it always advances. Taking the max means the bar moves on
+        // the residual when there IS residual progress, and falls back to "how much budget is gone"
+        // when there isn't — which is exactly the case where the user needs to see something move.
+        const byResidual = decades > 0 ? (decades - remaining) / decades : 0;
+        const byBudget = (iter + 1) / maxIters;
+        emitSolve(Math.round(pLo + Math.max(byResidual, byBudget) * (pHi - pLo)));
       }
     }
+    return false;
+  };
+
+  const canRestart = opts.restartCost !== undefined;
+  const seedConverged = iterate(false, 0, canRestart ? 500 : 1000);
+  let converged = seedConverged;
+  let bound: MarkovResult['bound'] = seedConverged ? 'exact' : 'lower';
+  if (canRestart) {
+    // No converged V0 means no proper-policy value to seed from, and an unconverged 0-init V bounds
+    // the restart problem in NEITHER direction: it is climbing toward the push-forward optimum, which
+    // is the far larger number (~40x, measured). Rather than print a figure with no meaning, say what
+    // happened and what to do about it. Not seen on real data — the push-forward solve settles in
+    // ~12s at the 6-target cap, this model's maximum — so this is the guard, not a path.
+    if (!seedConverged) {
+      // Which limit ran out decides whether "try harder" is advice or noise: a clock the caller set can
+      // be raised, the sweep cap cannot.
+      return fail(deadline === Infinity
+        ? 'this craft needs more value-iteration sweeps than the solver allows — the step routes still cover it'
+        : 'the solver ran out of time before it could put a number on this craft — raise Search effort and '
+          + 'try again (a six-mod target at T1 needs the longest setting)');
+    }
+    converged = iterate(true, 500, 1000);
+    bound = converged ? 'exact' : 'upper';
   }
-  report?.({ phase: 'solve', done: 1, total: 1 });
+  emitSolve(1000);
 
   // ── Can the goal actually be reached? ───────────────────────────────────────
   // Value iteration 0-initialises and climbs, which is a valid lower bound only while the goal is
@@ -375,7 +479,7 @@ export function markovFromItem(
   }
 
   // ── Extract policy + reachable graph from the start ─────────────────────────
-  const startKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.desJunk);
+  const startKey = restartKey;
   const startIdx = idxOfState.get(startKey)!;
   if (canReach[startIdx] !== 1) {
     return fail(opts.policy
@@ -407,7 +511,14 @@ export function markovFromItem(
   // junk, counting an unwanted desecrated mod as junk too (it likewise costs a removal to clear).
   const distanceToGoal = (k: StateKey): number => {
     const st = decodeState(k);
-    return (n - popcount(st.present)) + popcount(st.blocked) + st.jp + st.js + (st.desJunk === 'none' ? 0 : 1);
+    // A state below Rare is at least two moves out however good its mods are: the Regal that converts
+    // it, plus the Annulment that clears the mod that Regal is forced to add. Without this a Magic item
+    // already holding every target scores 0 — the goal's own distance — while not being the goal, so
+    // the route walk (which may only step to a STRICTLY smaller distance) has nowhere to go and stalls.
+    // This is a layout and ordering heuristic, like the rest of the expression, not an exact metric.
+    const toRare = st.rarity === 'rare' ? 0 : 2;
+    return (n - popcount(st.present)) + popcount(st.blocked) + st.jp + st.js
+      + (st.desJunk === 'none' ? 0 : 1) + toRare;
   };
   const nodes: PolicyNode[] = [];
   const edges: PolicyEdge[] = [];
@@ -424,9 +535,9 @@ export function markovFromItem(
       key: k,
       present: list.filter((_, i) => has(st.present, i)).map((t) => t.modId),
       blocked: list.filter((_, i) => has(st.blocked, i)).map((t) => t.modId),
-      junkPrefixes: st.jp, junkSuffixes: st.js,
+      junkPrefixes: st.jp, junkSuffixes: st.js, rarity: st.rarity,
       ...(st.desJunk === 'none' ? {} : { desecratedJunk: st.desJunk }),
-      isStart: k === startKey, isGoal, expectedCost: V[idxOfState.get(k)!] ?? Infinity,
+      isStart: k === startKey, isGoal, depth: distanceToGoal(k), expectedCost: V[idxOfState.get(k)!] ?? Infinity,
       ...(act ? { action: act.action } : {}),
     });
     if (act) {
@@ -438,5 +549,5 @@ export function markovFromItem(
     }
   }
 
-  return { expectedCost: startCost, feasible: true, converged, nodes, edges, policy };
+  return { expectedCost: startCost, feasible: true, converged, bound, nodes, edges, policy };
 }

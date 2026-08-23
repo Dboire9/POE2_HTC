@@ -243,8 +243,13 @@ export function optimizeItemMarkov(
   const applicable = targets.every((t) => data.mods.get(t.modId)?.source !== 'essence');
   if (!applicable) {
     return {
-      applicable: false, feasible: false, expectedCost: Infinity, converged: true, assumedOdds: false, nodes: [], edges: [],
-      reason: 'a regular essence needs a Magic item, so this craft has no true-cost model — craft it from white',
+      applicable: false, feasible: false, expectedCost: Infinity, converged: true, bound: 'exact',
+      assumedOdds: false, nodes: [], edges: [],
+      // Note this is NOT "craft it from white": the Lab's from-scratch craft reaches this too, and
+      // telling someone already crafting from white to craft from white is the kind of confident
+      // non-advice this project keeps having to take back out.
+      reason: 'this model has no Essence action yet, so a craft that needs one has no true expected '
+        + 'cost — the step-by-step routes below do cover essences',
     };
   }
   const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);

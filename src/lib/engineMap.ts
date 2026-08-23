@@ -206,6 +206,15 @@ function actionLabel(action: McAction): string {
     const parts = [boss, sideLabel].filter((x): x is string => x !== null);
     return parts.length > 0 ? `Desecrate (${parts.join(', ')})` : 'Desecrate';
   }
+  if (action.currency === 'transmute' || action.currency === 'augment' || action.currency === 'regal') {
+    const name = action.currency === 'transmute' ? 'Transmute'
+      : action.currency === 'augment' ? 'Augment' : 'Regal';
+    const strength = action.strength === 'base' ? null : action.strength === 'greater' ? 'Greater' : 'Perfect';
+    return strength ? `${name} (${strength})` : name;
+  }
+  // Not a currency: abandoning the craft and buying another base. Named for what the player does, not
+  // for what it costs — "Restart" beside a 0ex price would read as a bug rather than as a free reroll.
+  if (action.currency === 'restart') return 'Start over with a new base';
   if (action.currency === 'perfect-essence') {
     const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
     return sideLabel ? `Perfect Essence (${sideLabel})` : 'Perfect Essence';
@@ -222,19 +231,22 @@ export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number):
     blocked: nd.blocked.map(text),
     junkPrefixes: nd.junkPrefixes,
     junkSuffixes: nd.junkSuffixes,
+    rarity: nd.rarity,
     ...(nd.desecratedJunk ? { desecratedJunk: nd.desecratedJunk } : {}),
     isStart: nd.isStart,
     isGoal: nd.isGoal,
-    // Steps-to-goal = missing targets + off-tier blocks (each needs an annul then a re-add) + junk to
-    // clear, counting an unwanted desecrated mod as junk. Goal = 0; used for the left→right layout.
-    depth: (nTargets - nd.present.length) + nd.blocked.length + nd.junkPrefixes + nd.junkSuffixes
-      + (nd.desecratedJunk ? 1 : 0),
+    // Steps-to-goal, taken from the solver rather than recomputed here. This used to be a second copy
+    // of the same expression, and it silently went wrong the moment rarity joined the formula: a Magic
+    // item is at least a Regal and an Annulment away however good its mods are, and a UI that didn't
+    // know that would draw the solver's forward steps as steps backwards.
+    depth: nd.depth,
     expectedCost: nd.expectedCost,
     ...(nd.action ? { action: actionLabel(nd.action) } : {}),
   }));
   const edges = res.edges.map((e) => ({ from: e.from, to: e.to, action: actionLabel(e.action), prob: e.prob, regress: e.regress }));
   return {
-    applicable: true, feasible: res.feasible, expectedCost: res.expectedCost, converged: res.converged,
+    applicable: true, feasible: res.feasible, expectedCost: res.expectedCost,
+    converged: res.converged, bound: res.bound,
     // Same rule as the frontier's: only an unomened Desecration leans on the assumed weight.
     assumedOdds: [...res.policy.values()].some((a) => a.currency === 'desecrate' && a.boss === undefined),
     nodes, edges,

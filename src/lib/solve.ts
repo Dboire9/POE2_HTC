@@ -63,7 +63,12 @@ export type SolveRequest =
     } & ExcludingRequest);
 
 export type SolveResult =
-  | { readonly kind: 'lab'; readonly result: EngineResult; readonly alts: EngineAlternatives | null }
+  | {
+      readonly kind: 'lab'; readonly result: EngineResult; readonly alts: EngineAlternatives | null;
+      /** The true-cost model for a lab craft too. It only ever ran for the Item tab, so the app's
+       *  PRIMARY mode — craft this from a white base — had no honest cost and no policy at all. */
+      readonly markov: EngineMarkovResult;
+    }
   | { readonly kind: 'item'; readonly plan: EngineResult; readonly markov: EngineMarkovResult };
 
 /**
@@ -117,8 +122,20 @@ const MDP_SPAN: Record<MarkovProgress['phase'], Span> = {
  */
 const ITEM_PLAN: Span = [0, 0.2];
 const ITEM_MDP: Span = [0.2, 1];
-/** Share of the effort budget the step planner may spend before the MDP takes the rest. */
+/** Share of the effort budget the ITEM tab's step planner may spend before the MDP takes the rest.
+ *  The lab's step planner has no clock of its own — `maxPlans` bounds it — so it takes what it needs
+ *  and the model gets the remainder (`clockLeft`). */
 const ITEM_PLAN_SHARE = 0.4;
+
+/**
+ * What another white base costs, in exalt-equivalents.
+ *
+ * Zero, and deliberately so rather than by omission: a white base is bought from a vendor or picked up
+ * for nothing, and the sheet has no key for one (`stepCost` would silently make an absent key 0 anyway
+ * — see CLAUDE.md). Naming it here makes the assumption visible and gives it one place to change if a
+ * base ever costs enough to matter.
+ */
+const WHITE_BASE_COST = 0;
 
 /**
  * A lab compute's split depends on whether a budget was set, which is why these can't be a static
@@ -126,13 +143,39 @@ const ITEM_PLAN_SHARE = 0.4;
  * targets: ~64ms planning against ~7.3s searching); without one, planning IS the whole compute — and
  * planning alone can still be slow enough to watch, which is how the bar came to sit at 0%.
  */
-const LAB_PLAN_ALONE: Span = [0, 1];
-const LAB_PLAN_THEN_SEARCH: Span = [0, 0.1];
-const LAB_SEARCH: Span = [0.1, 1];
+// A lab compute now has up to three phases, not two: the step frontier, the true-cost model, and —
+// only when a budget is set — the near-miss search. The model is the slow one when there is no budget,
+// so it owns most of the bar there; with a budget the search still dominates by two orders of magnitude
+// (~64ms planning against ~7.3s searching at 6 targets).
+const LAB_PLAN_ALONE: Span = [0, 0.3];
+const LAB_MDP_ALONE: Span = [0.3, 1];
+const LAB_PLAN_THEN_SEARCH: Span = [0, 0.05];
+const LAB_MDP_THEN_SEARCH: Span = [0.05, 0.35];
+const LAB_SEARCH: Span = [0.35, 1];
 
 /** Map the MDP's raw counts onto one monotone 0–1 fraction. */
 export function toFraction(p: MarkovProgress): number {
   return within(MDP_SPAN[p.phase], p.done, p.total);
+}
+
+/**
+ * Run the true-cost model without letting its failure take down the rest of the solve.
+ *
+ * The MDP is an ADDITION to both tabs: the step frontier is what the user asked for and it has already
+ * been computed by the time this runs. A model that cannot represent some craft — an essence target, a
+ * shape it has no action for — must say so in its own card, not remove the answer sitting next to it.
+ * Not a blanket catch: the message is carried through to `reason`, which the panel renders.
+ */
+function markovOrReason(run: () => EngineMarkovResult): EngineMarkovResult {
+  try {
+    return run();
+  } catch (err) {
+    return {
+      applicable: false, feasible: false, expectedCost: Infinity, converged: true, bound: 'exact', assumedOdds: false,
+      nodes: [], edges: [],
+      reason: `the true-cost model couldn’t handle this craft: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
 }
 
 /** Perform one solve. Pure compute — no Worker, no DOM — so tests can call it directly. */
@@ -150,6 +193,21 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const eff = req.effort;
   const withPlanLimit = <T extends object>(o: T): T => (eff ? { ...o, maxPlans: eff.maxPlans } : o);
   const withNodeLimit = <T extends object>(o: T): T => (eff ? { ...o, maxNodes: eff.maxNodes } : o);
+  const started = Date.now();
+  /**
+   * What is LEFT of the wall clock, with a floor.
+   *
+   * The preset promises the user a total wait, so the model gets the remainder after the step search
+   * rather than a fixed share of the whole. A fixed share is worse in both directions: the step
+   * planner is capped by `maxPlans`, not by time, so on a craft where it finishes in three seconds a
+   * 40% reservation is budget nobody spends — measured at Thorough that was 24 of 60 seconds simply
+   * dropped, on exactly the craft that needed them.
+   *
+   * The floor matters too: a search that ate the whole budget would otherwise leave the model zero
+   * sweeps and a value of 0, which renders as "≥ 0" — technically true, useless to read.
+   */
+  const clockLeft = (): number | undefined =>
+    (eff ? Math.max(2_000, eff.maxMillis - (Date.now() - started)) : undefined);
 
   if (req.kind === 'item') {
     // Establish the bar's origin here rather than relying on the planner's first report: when the item
@@ -163,7 +221,6 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     // step planner prices one fixed sequence against a free-restart assumption a held item cannot
     // satisfy. So the step planner is capped at a minority share and the MDP inherits everything left,
     // including whatever the step planner didn't spend (measured: it wants ~3.2s).
-    const started = Date.now();
     const planShare = eff ? Math.max(1_000, Math.round(eff.maxMillis * ITEM_PLAN_SHARE)) : undefined;
     const planOnProgress = onProgress
       ? { onProgress: (done: number, total: number): void => onProgress({ phase: 'plan', fraction: within(ITEM_PLAN, done, total) }) }
@@ -175,11 +232,9 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
       ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(ITEM_MDP, toFraction(p) * 1000, 1000) }) }
       : {};
     const mdpOpts = withPolicy(mdpReport);
-    const markov = optimizeItemMarkov(eng, req.item, req.targets, eff
-      // A floor rather than the bare remainder: a step search that ate the whole budget would leave the
-      // MDP zero sweeps and a value of 0, which renders as "≥ 0" — technically true, useless to read.
-      ? { ...mdpOpts, maxMillis: Math.max(2_000, eff.maxMillis - (Date.now() - started)) }
-      : mdpOpts);
+    const remaining = clockLeft();
+    const markov = markovOrReason(() => optimizeItemMarkov(eng, req.item, req.targets,
+      remaining === undefined ? mdpOpts : { ...mdpOpts, maxMillis: remaining }));
     return { kind: 'item', plan, markov };
   }
 
@@ -199,9 +254,32 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     ? optimizeItem(eng, from.item, req.targets, withPlanLimit(withPolicy({})))
     : optimize(eng, from.baseId, from.level, req.targets, planOpts);
 
+  // The same push-forward model the Item tab uses. A white base is not an item you hold, so it gets the
+  // one thing a held item cannot have: permission to scrap and start again, priced at what another base
+  // costs. Without that the policy would be forced to dig a bad Transmute out with a 158.7ex Annulment
+  // rather than bin 0.18ex and reroll — measured at an 83x overestimate. A CARVED item (fractured mods)
+  // is a real item and gets no such permission.
+  const fromWhite = !('item' in from);
+  const mdpItem: ExistingItem = 'item' in from
+    ? from.item
+    : { baseId: from.baseId, level: from.level, rarity: 'normal', prefixes: [], suffixes: [] };
+  // Reported, not silent: this can run for seconds, and a bar that stops moving through a phase is the
+  // thing that made a 24-second solve feel like ten minutes in the first place.
+  const mdpSpan = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
+  const mdpClock = clockLeft();
+  const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, withPolicy({
+    ...(fromWhite ? { restartCost: WHITE_BASE_COST } : {}),
+    ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
+    ...(onProgress
+      ? { onProgress: (pr: MarkovProgress): void => onProgress({ phase: pr.phase, fraction: within(mdpSpan, toFraction(pr) * 1000, 1000) }) }
+      : {}),
+  })));
+
   if (!hasBudget) {
-    onProgress?.({ phase: 'plan', fraction: 1 });
-    return { kind: 'lab', result, alts: null };
+    // The MODEL finishes the bar now, not planning — planning is the first ~30% of it. Reporting
+    // `plan: 1` here would jump the label backwards after the model had already reported done.
+    onProgress?.({ phase: 'solve', fraction: 1 });
+    return { kind: 'lab', result, alts: null, markov };
   }
 
   // The slow half of a lab compute when a budget is set — every node it visits is a full Pareto run.
@@ -213,5 +291,5 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // The search can stop just short of its node cap (196 of 200 is typical), which would leave the bar
   // sitting at 98% while the work is finished. Say so explicitly, as the MDP path does.
   onProgress?.({ phase: 'alternatives', fraction: 1 });
-  return { kind: 'lab', result, alts };
+  return { kind: 'lab', result, alts, markov };
 }

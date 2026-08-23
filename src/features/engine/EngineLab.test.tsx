@@ -33,6 +33,9 @@ const mocks = vi.hoisted(() => ({
   optimizeItem: vi.fn(),
   alternatives: vi.fn(),
   alternativesForItem: vi.fn(),
+  // Unmocked, this ran the REAL model against the `{} as never` data below, threw, and (until the
+  // solve was made resilient) took the whole lab result down with it — the frontier included.
+  optimizeItemMarkov: vi.fn(),
 }));
 
 vi.mock('../../lib/engine', async (importOriginal) => {
@@ -51,6 +54,7 @@ vi.mock('../../lib/engine', async (importOriginal) => {
     optimizeItem: mocks.optimizeItem,
     alternatives: mocks.alternatives,
     alternativesForItem: mocks.alternativesForItem,
+    optimizeItemMarkov: mocks.optimizeItemMarkov,
   };
 });
 
@@ -67,6 +71,23 @@ async function loaded() {
   await screen.findByPlaceholderText(/Search modifiers to add as targets/i);
 }
 
+/** A true-cost answer for a lab craft: two steps from a white base to the target. */
+const labMarkov = {
+  applicable: true, feasible: true, expectedCost: 43.2, converged: true, bound: 'exact', assumedOdds: false,
+  nodes: [
+    { key: 'w', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
+      isStart: true, isGoal: false, depth: 4, expectedCost: 43.2, action: 'Transmute (Greater)' },
+    { key: 'm', present: ['Normal Prefix'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'magic' as const,
+      isStart: false, isGoal: false, depth: 3, expectedCost: 40, action: 'Regal' },
+    { key: 'g', present: ['Normal Prefix', 'Normal Suffix'], blocked: [], junkPrefixes: 0, junkSuffixes: 0,
+      rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+  ],
+  edges: [
+    { from: 'w', to: 'm', action: 'Transmute (Greater)', prob: 0.06, regress: false },
+    { from: 'm', to: 'g', action: 'Regal', prob: 0.04, regress: false },
+  ],
+};
+
 beforeEach(() => {
   // RESET, not just re-stub: `mockReturnValue` leaves the call history intact, so `optimize` and
   // `optimizeItem` were accumulating calls across tests. The routing test below counts calls, and
@@ -75,6 +96,7 @@ beforeEach(() => {
   mocks.optimizeItem.mockReset().mockReturnValue(okFrontier);
   mocks.alternatives.mockReset();
   mocks.alternativesForItem.mockReset();
+  mocks.optimizeItemMarkov.mockReset().mockReturnValue(labMarkov);
 });
 
 describe('EngineLab — loads and lists', () => {
@@ -243,5 +265,90 @@ describe('EngineLab — reset and compute routing', () => {
     await user.click(within(targetRow).getByTitle(/Mark as already fractured/i));
     await user.click(screen.getByRole('button', { name: /Find plans/i }));
     await waitFor(() => expect(mocks.optimizeItem).toHaveBeenCalledTimes(1));
+  });
+});
+
+// The Lab is the app's PRIMARY mode and had no true-cost model at all: `markovFromItem` required a
+// Rare start, and a white base is Normal with nothing on it.
+describe('EngineLab — the true cost of a craft from scratch', () => {
+  it('shows the true expected cost and the route, not just the step frontier', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/True expected cost/i)).toBeInTheDocument();
+    // The route names the add-chain, which is what a from-scratch craft actually is. (It appears in
+    // both the visible route and the screen-reader copy of it, hence getAllBy.)
+    expect((await screen.findAllByText(/Transmute \(Greater\)/)).length).toBeGreaterThan(0);
+  });
+
+  /**
+   * A from-white solve seeds from a policy that never restarts — a real, if expensive, way to finish —
+   * and works DOWN from it, so stopping early leaves a CEILING. The from-item solve on the other tab
+   * starts at zero and climbs, leaving a floor. Both arrive at this panel through the same props, so
+   * the sign has to come from `bound`; inferring it from `converged` prints the wrong inequality on
+   * one of the two screens, which is the most precise-looking wrong figure the app can show.
+   */
+  it('renders an unfinished from-white solve as a ceiling, not a floor', async () => {
+    mocks.optimizeItemMarkov.mockReturnValue({ ...labMarkov, converged: false, bound: 'upper' });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/^≤\s/)).toBeInTheDocument();
+    expect(screen.getByText(/ceiling/i)).toBeInTheDocument();
+    expect(screen.queryByText(/floor/i)).toBeNull();
+  });
+
+  it('renders an unfinished push-forward solve as a floor', async () => {
+    mocks.optimizeItemMarkov.mockReturnValue({ ...labMarkov, converged: false, bound: 'lower' });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/^≥\s/)).toBeInTheDocument();
+    expect(screen.getByText(/floor/i)).toBeInTheDocument();
+    expect(screen.queryByText(/ceiling/i)).toBeNull();
+  });
+
+  it('says a white base may simply be binned and rerolled', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/bin what you have and start again/i)).toBeInTheDocument();
+  });
+
+  // The frontier is what the user asked for and is already computed by the time the model runs. A
+  // model that cannot represent some craft must say so in its own card, not delete the answer beside
+  // it — which is exactly what happened while `optimizeItemMarkov` was unmocked here.
+  it('explains a missing true cost rather than dropping the panel in silence', async () => {
+    // The Lab reaches the same decline paths the Item tab does — an essence target, a shape the model
+    // has no action for. Rendering the card only on success loses half the panel with no reason given,
+    // which is the exact bug this repo already had to fix once on the other tab.
+    mocks.optimizeItemMarkov.mockReturnValue({
+      applicable: true, feasible: false, expectedCost: Infinity, converged: true, bound: 'exact', assumedOdds: false,
+      nodes: [], edges: [], reason: 'this model has no Essence action yet',
+    });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/No true expected cost for this craft/i)).toBeInTheDocument();
+    expect(screen.getByText(/no Essence action yet/i)).toBeInTheDocument();
+  });
+
+  it('still returns the frontier when the true-cost model blows up', async () => {
+    mocks.optimizeItemMarkov.mockImplementation(() => { throw new Error('no action for that'); });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/success \/ attempt|chance per attempt/i)).toBeInTheDocument();
+    // Exact match: the DECLINE card reads "No true expected cost for this craft", which a loose
+    // /true expected cost/i would match and quietly invert this assertion.
+    expect(screen.queryByText('True expected cost')).toBeNull();
+    // …and the throw is reported rather than swallowed.
+    expect(screen.getByText(/couldn’t handle this craft/i)).toBeInTheDocument();
   });
 });

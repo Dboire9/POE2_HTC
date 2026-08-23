@@ -15,6 +15,22 @@ import { familiesOf } from '../../engine/src/pool.ts';
 /** Max prefixes (and suffixes) a Rare item can hold. */
 export const MAX_PER_SIDE = 3;
 
+/**
+ * The item's rarity, which the state has to carry once a craft can START below Rare.
+ *
+ * It was absent while the MDP only ever modelled an item you already hold (always Rare). A from-white
+ * craft begins Normal and climbs — transmute to Magic, augment within Magic, regal to Rare — and those
+ * transitions are one-way, so without this axis a 2-mod Magic item and a 2-mod Rare item are the same
+ * state despite one of them being unable to take an Exalt at all.
+ */
+export type McRarity = 'normal' | 'magic' | 'rare';
+
+const RARITY_CODE: Record<McRarity, number> = { normal: 0, magic: 1, rare: 2 };
+const RARITY_BY_CODE: readonly McRarity[] = ['normal', 'magic', 'rare'];
+
+/** How many mods a side can hold at each rarity: Normal none, Magic one, Rare three. */
+export const perSideCap = (r: McRarity): number => (r === 'rare' ? MAX_PER_SIDE : r === 'magic' ? 1 : 0);
+
 /** A target mod resolved for the MDP: its side, family, the mod (for per-floor weights), and lock state. */
 export interface McTarget {
   readonly modId: string;
@@ -44,7 +60,7 @@ export type DesJunk = 'none' | 'prefix' | 'suffix';
 const DES_JUNK_CODE: Record<DesJunk, number> = { none: 0, prefix: 1, suffix: 2 };
 const DES_JUNK_BY_CODE: readonly DesJunk[] = ['none', 'prefix', 'suffix'];
 
-/** Nominal type for state keys: a string encoding (present:blocked:jp:js:desJunk). */
+/** Nominal type for state keys: a string encoding (present:blocked:jp:js:desJunk:rarity). */
 export type StateKey = string & { readonly __brand: 'StateKey' };
 
 export interface McState {
@@ -53,15 +69,23 @@ export interface McState {
   readonly jp: number;
   readonly js: number;
   readonly desJunk: DesJunk;
+  readonly rarity: McRarity;
 }
 
+// Rarity is the LAST field and defaults to 'rare', so every existing call site keeps its meaning —
+// the from-item craft this model was built for is Rare throughout.
 export const encodeState = (
   present: number, blocked: number, jp: number, js: number, desJunk: DesJunk = 'none',
-): StateKey => `${present}:${blocked}:${jp}:${js}:${DES_JUNK_CODE[desJunk]}` as StateKey;
+  rarity: McRarity = 'rare',
+): StateKey =>
+  `${present}:${blocked}:${jp}:${js}:${DES_JUNK_CODE[desJunk]}:${RARITY_CODE[rarity]}` as StateKey;
 
 export const decodeState = (k: StateKey): McState => {
-  const [present, blocked, jp, js, des] = k.split(':').map(Number) as [number, number, number, number, number];
-  return { present, blocked, jp, js, desJunk: DES_JUNK_BY_CODE[des]! };
+  const [present, blocked, jp, js, des, rar] = k.split(':').map(Number) as number[];
+  return {
+    present: present!, blocked: blocked!, jp: jp!, js: js!,
+    desJunk: DES_JUNK_BY_CODE[des!]!, rarity: RARITY_BY_CODE[rar!]!,
+  };
 };
 
 /** Distribution over next states, keyed by state key. Probabilities sum to 1 (or the map is empty). */
@@ -112,22 +136,33 @@ export function occupiedFamilies(present: number, blocked: number, list: readonl
  * single 'none' value, so a craft that never touches desecration keeps exactly the state space (and
  * the solve time) it had before desecration was modelled at all.
  */
-export function enumerateStates(n: number, side: SideIndex, desecratable = false): StateKey[] {
+export function enumerateStates(
+  n: number, side: SideIndex, desecratable = false,
+  /**
+   * Which rarities the craft can occupy. Defaults to Rare alone, which is every from-item craft and
+   * keeps that state space (and its solve time) exactly as it was. A from-white craft passes all
+   * three: it starts Normal with nothing on it and climbs.
+   */
+  rarities: readonly McRarity[] = ['rare'],
+): StateKey[] {
   const desJunkValues: DesJunk[] = desecratable ? ['none', 'prefix', 'suffix'] : ['none'];
   const out: StateKey[] = [];
-  for (let present = 0; present < bit(n); present++) {
-    for (let blocked = 0; blocked < bit(n); blocked++) {
-      if ((present & blocked) !== 0) continue;
-      const tp = countSide(present, side.prefix) + countSide(blocked, side.prefix);
-      const ts = countSide(present, side.suffix) + countSide(blocked, side.suffix);
-      if (tp > MAX_PER_SIDE || ts > MAX_PER_SIDE) continue;
-      for (const desJunk of desJunkValues) {
-        const dp = desJunk === 'prefix' ? 1 : 0;
-        const ds = desJunk === 'suffix' ? 1 : 0;
-        if (tp + dp > MAX_PER_SIDE || ts + ds > MAX_PER_SIDE) continue;
-        for (let jp = 0; jp + tp + dp <= MAX_PER_SIDE; jp++) {
-          for (let js = 0; js + ts + ds <= MAX_PER_SIDE; js++) {
-            out.push(encodeState(present, blocked, jp, js, desJunk));
+  for (const rarity of rarities) {
+    const cap = perSideCap(rarity);
+    for (let present = 0; present < bit(n); present++) {
+      for (let blocked = 0; blocked < bit(n); blocked++) {
+        if ((present & blocked) !== 0) continue;
+        const tp = countSide(present, side.prefix) + countSide(blocked, side.prefix);
+        const ts = countSide(present, side.suffix) + countSide(blocked, side.suffix);
+        if (tp > cap || ts > cap) continue;
+        for (const desJunk of desJunkValues) {
+          const dp = desJunk === 'prefix' ? 1 : 0;
+          const ds = desJunk === 'suffix' ? 1 : 0;
+          if (tp + dp > cap || ts + ds > cap) continue;
+          for (let jp = 0; jp + tp + dp <= cap; jp++) {
+            for (let js = 0; js + ts + ds <= cap; js++) {
+              out.push(encodeState(present, blocked, jp, js, desJunk, rarity));
+            }
           }
         }
       }
@@ -183,5 +218,5 @@ export function classifyStart(
   };
   place(item.prefixes, 'prefix');
   place(item.suffixes, 'suffix');
-  return { present, blocked, jp, js, desJunk };
+  return { present, blocked, jp, js, desJunk, rarity: item.rarity };
 }

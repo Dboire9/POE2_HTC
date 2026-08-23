@@ -8,7 +8,7 @@ import {
   priceBasis,
   modFamilies,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
-  type EngineAlternatives, type AltTargetInput,
+  type EngineAlternatives, type AltTargetInput, type EngineMarkovResult,
 } from '../../lib/engine';
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
@@ -23,8 +23,10 @@ import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
 import FrontierView from './FrontierView';
 import AlternativesView from './AlternativesView';
+import PolicyGraph from './PolicyGraph';
 import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
+import { exactExalts, formatBoundedCost, formatCost } from '../../lib/currency';
 import BaseSelect from './BaseSelect';
 
 const selectCls =
@@ -160,6 +162,7 @@ const EngineLab: React.FC = () => {
 
   const [result, setResult] = useState<EngineResult | null>(null);
   const [alts, setAlts] = useState<EngineAlternatives | null>(null);
+  const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   const [altBudget, setAltBudget] = useState<number>(0);
   const [runErr, setRunErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
@@ -394,6 +397,7 @@ const EngineLab: React.FC = () => {
         if (!current() || res.kind !== 'lab') return;
         setResult(res.result);
         setAlts(res.alts);
+        setMarkov(res.markov);
         if (res.alts) setAltBudget(b);
       })
       .catch((e) => {
@@ -685,6 +689,56 @@ const EngineLab: React.FC = () => {
         <Card className="p-4">
           <p className="text-destructive font-medium text-sm">The planner can’t build this target</p>
           <p className="text-sm text-muted-foreground mt-1">{runErr}</p>
+        </Card>
+      )}
+
+      {/* Same rule as ItemActions: there are two ways to have no true cost and the card must cover
+          both, or the panel loses half its content with no explanation. Keyed on the NEGATION of the
+          condition below so the two are exhaustive by construction. */}
+      {markov && !runErr && result && !(markov.applicable && markov.feasible) && markov.reason && (
+        <Card className="p-4">
+          <p className="text-sm font-medium">No true expected cost for this craft</p>
+          <p className="text-sm text-muted-foreground mt-1">{markov.reason}</p>
+        </Card>
+      )}
+
+      {/* The true expected cost + policy route, the same model the Item tab uses. From a white base the
+          policy may also simply start over, which is why its number is believable here (see
+          WHITE_BASE_COST in solve.ts). */}
+      {markov && !runErr && markov.applicable && markov.feasible && (
+        <Card className="p-4 space-y-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="text-sm font-bold">True expected cost</h3>
+            <span className="text-2xl font-bold tabular-nums text-primary" title={exactExalts(markov.expectedCost)}>
+              {formatBoundedCost(markov.bound, markov.expectedCost, engine ? priceBasis(engine).rates : undefined)}
+            </span>
+          </div>
+          {/* Which way an unfinished solve leans depends on how it was started, so the copy follows
+              `bound` rather than guessing. From a white base the solver seeds from a policy that never
+              restarts — a real, if expensive, way to finish — and works DOWN from it, so stopping early
+              leaves a ceiling. From an item it starts at zero and works up, leaving a floor. */}
+          {markov.bound === 'upper' && (
+            <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+              ⚠ The solver stopped before this number settled, so it is a <strong>ceiling</strong> — the
+              real cost is at most this, and usually well under it. The route below is already the right
+              shape; raise <strong>Search effort</strong> to tighten the price.
+            </p>
+          )}
+          {markov.bound === 'lower' && (
+            <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+              ⚠ The solver stopped before this number settled, so it is a <strong>floor</strong> — the
+              real cost is at least this and may be higher. Raise <strong>Search effort</strong> to let
+              it finish.
+            </p>
+          )}
+          <p className="text-[11px] text-muted-foreground">
+            The average spend to reach this target playing the optimal policy — it weighs orb strengths
+            and side omens, recovers in place after a bad roll, and, because a white base costs nothing,
+            may also decide the cheapest move is to <strong>bin what you have and start again</strong>.
+            The step routes below are the simpler per-plan view: one fixed sequence, every slam hitting
+            a named mod.
+          </p>
+          <PolicyGraph result={markov} rates={engine ? priceBasis(engine).rates : undefined} />
         </Card>
       )}
 

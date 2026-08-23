@@ -13,10 +13,10 @@ import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
 import { allowsStep, stepCost } from './cost.ts';
-import type { Dist, McState, McTarget, SideIndex } from './markovState.ts';
+import type { Dist, McRarity, McState, McTarget, SideIndex } from './markovState.ts';
 import {
   MAX_PER_SIDE, addTo, bit, decodeState, encodeState, has, hasDesecrated, occupiedFamilies,
-  prefUsed, sufUsed,
+  perSideCap, prefUsed, sufUsed,
 } from './markovState.ts';
 
 export type ExaltStrength = 'base' | 'greater' | 'perfect';
@@ -36,7 +36,15 @@ export type McAction =
   | { readonly currency: 'desecrate'; readonly boss?: DesecrationBossOmen; readonly side?: 'prefix' | 'suffix' }
   // A Perfect Essence forces one specific mod on while removing one at random. `side` is a
   // Sinistral/Dextral Crystallisation omen constraining WHICH mod the essence eats.
-  | { readonly currency: 'perfect-essence'; readonly target: string; readonly side?: 'prefix' | 'suffix' };
+  | { readonly currency: 'perfect-essence'; readonly target: string; readonly side?: 'prefix' | 'suffix' }
+  // The add-chain, for a craft that starts below Rare. Transmute takes a white base to Magic, Augment
+  // fills the Magic item's second slot, Regal converts to Rare — each adding one random mod as it goes,
+  // and each with the same Greater/Perfect strengths an Exalt has (all six variants are priced).
+  | { readonly currency: 'transmute' | 'augment' | 'regal'; readonly strength: ExaltStrength }
+  // Scrap what you have and buy another base. NOT a currency — it carries its own cost because the
+  // price is a property of the craft (which base), not of the currency sheet. Offered only when the
+  // caller says starting over is actually possible; a specific Rare in your stash cannot be rebought.
+  | { readonly currency: 'restart'; readonly cost: number };
 
 /** An action bound to a state: what it is, what it costs, and where it lands. */
 export interface ActionDef {
@@ -81,18 +89,32 @@ function pricedStepOf(action: McAction): PricedStep {
       // `target` is the mod the essence forces, which is what prices it — see PricedStep.
       return { currency: 'perfect-essence', add: action.target, ...(omen ? { omen } : {}) };
     }
+    case 'transmute':
+    case 'augment':
+    case 'regal':
+      // `tier` is what `currencyKey` turns into `regal_greater` and friends — the same mapping the
+      // linear planner's add steps use, so the two cannot drift.
+      return { currency: action.currency, tier: action.strength };
     default:
       return { currency: 'chaos' };
   }
 }
 
-/** Cost of a single McAction from a price sheet — the same table the linear planner's steps use. */
+/**
+ * Cost of a single McAction from a price sheet — the same table the linear planner's steps use.
+ *
+ * `restart` is the one action that is not a currency purchase: it is the price of another base, which
+ * belongs to the craft rather than to the sheet, so it travels on the action itself.
+ */
 export function actionCostOf(prices: Prices, action: McAction): number {
+  if (action.currency === 'restart') return action.cost;
   return stepCost(prices, pricedStepOf(action));
 }
 
 /** Whether the player can play this action — the same permission the linear planner's steps get. */
 export function allowsAction(policy: CurrencyPolicy | undefined, action: McAction): boolean {
+  // Nobody can "not own" the ability to start over, so there is nothing for a policy to exclude.
+  if (action.currency === 'restart') return true;
   return allowsStep(policy, pricedStepOf(action));
 }
 
@@ -100,6 +122,9 @@ export function allowsAction(policy: CurrencyPolicy | undefined, action: McActio
 const STRENGTH_FLOOR: Record<ExaltStrength, number> = { base: 0, greater: 35, perfect: 50 };
 /** Map each exalt strength to its price key in the Prices record. */
 const strengthPriceKey = (s: ExaltStrength): string => s === 'base' ? 'exalt' : s === 'greater' ? 'exalt_greater' : 'exalt_perfect';
+/** The price key for any add currency at a strength — `regal_greater`, `transmute_perfect`, … */
+const addPriceKey = (c: 'transmute' | 'augment' | 'regal' | 'exalt', s: ExaltStrength): string =>
+  s === 'base' ? c : `${c}_${s}`;
 
 /** Everything the distribution builders close over — resolved once per solve. */
 export interface ActionSpaceParams {
@@ -118,6 +143,16 @@ export interface ActionSpaceParams {
   /** False on armour: boss omens are "Weapon or Jewellery" only, and every desecrate action here
    *  carries one. See `bossOmenAllowed`. */
   readonly bossTargetable: boolean;
+  /**
+   * Whether the craft can be abandoned and begun again, and at what price.
+   *
+   * Absent for a held item: a specific Rare in your stash cannot be rebought, which is the whole
+   * premise of the push-forward model. Present for a from-white craft, where it is not a refinement
+   * but a requirement — a white base costs almost nothing, so without this action the policy is forced
+   * to dig a bad Transmute out with a 158.7ex Annulment instead of throwing away 0.18ex and rerolling,
+   * and every from-white number would come out far too high.
+   */
+  readonly restart?: { readonly cost: number; readonly dist: Dist };
 }
 
 /**
@@ -127,7 +162,7 @@ export interface ActionSpaceParams {
 export function createActionSpace(params: ActionSpaceParams): {
   actionsOf: (s: McState) => ActionDef[];
 } {
-  const { data, prices, level, pools, list, side, desecratable, policy, bossTargetable } = params;
+  const { data, prices, level, pools, list, side, desecratable, policy, bossTargetable, restart } = params;
   const n = list.length;
 
   // Per-floor weights for a target: success = ≥ its wanted tier; any = the whole family.
@@ -153,15 +188,22 @@ export function createActionSpace(params: ActionSpaceParams): {
   const necromancyOk = (sd: 'prefix' | 'suffix'): boolean =>
     omenOk(sd === 'prefix' ? 'OmenofSinistralNecromancy' : 'OmenofDextralNecromancy');
 
-  const prefixOpenIn = (s: McState): boolean => prefUsed(s, side) < MAX_PER_SIDE;
-  const suffixOpenIn = (s: McState): boolean => sufUsed(s, side) < MAX_PER_SIDE;
+  // Slot room depends on the RARITY, not on the Rare cap: a Magic item holds one per side. The `into`
+  // override is for a Regal, which converts to Rare as it adds and so places against the Rare cap.
+  const prefixOpenIn = (s: McState, into: McRarity = s.rarity): boolean => prefUsed(s, side) < perSideCap(into);
+  const suffixOpenIn = (s: McState, into: McRarity = s.rarity): boolean => sufUsed(s, side) < perSideCap(into);
 
   /** The add-distribution from a state at ilvl `floor`, optionally constrained to one side (side omen).
    *  A weighted add lands a target at tier (→ present), the target below tier (→ blocked), or foreign
    *  junk (→ jp/js). Empty if no slot is open or nothing is addable; probabilities sum to 1. */
-  const addOutcomes = (s: McState, floor: number, constrainTo?: 'prefix' | 'suffix'): Dist => {
-    const prefixOpen = constrainTo !== 'suffix' && prefixOpenIn(s);
-    const suffixOpen = constrainTo !== 'prefix' && suffixOpenIn(s);
+  const addOutcomes = (
+    s: McState, floor: number, constrainTo?: 'prefix' | 'suffix',
+    /** Rarity the item ends at. Same as it started for an Exalt/Augment; 'magic' for a Transmute,
+     *  'rare' for a Regal — those two convert as they add, which is also what opens the extra slots. */
+    into: McRarity = s.rarity,
+  ): Dist => {
+    const prefixOpen = constrainTo !== 'suffix' && prefixOpenIn(s, into);
+    const suffixOpen = constrainTo !== 'prefix' && suffixOpenIn(s, into);
     const occ = occupiedFamilies(s.present, s.blocked, list);
     const prefTotal = prefixOpen ? poolTotalWeight(data, pools.normal.prefixes, floor, level, occ) : 0;
     const sufTotal = suffixOpen ? poolTotalWeight(data, pools.normal.suffixes, floor, level, occ) : 0;
@@ -179,16 +221,16 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (!open) continue;
       const succ = succWeight(t, floor);
       const any = anyWeight(t, floor);
-      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk), succ / grand);
+      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk, into), succ / grand);
       const below = any - succ;
-      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.desJunk), below / grand);
+      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.desJunk, into), below / grand);
       if (t.type === 'prefix') anyPref += any; else anySuf += any;
     }
     // Everything else the add can produce is foreign junk on its side (a non-target family).
     const junkPref = Math.max(0, prefTotal - anyPref);
     const junkSuf = Math.max(0, sufTotal - anySuf);
-    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.desJunk), junkPref / grand);
-    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, s.desJunk), junkSuf / grand);
+    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.desJunk, into), junkPref / grand);
+    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, s.desJunk, into), junkSuf / grand);
     return out;
   };
 
@@ -211,11 +253,11 @@ export function createActionSpace(params: ActionSpaceParams): {
     const total = presentRem.length + blockedRem.length + jpRem + jsRem + desRem;
     const out: Dist = new Map();
     if (total <= 0) return out;
-    for (const i of presentRem) addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, s.desJunk), 1 / total);
-    for (const i of blockedRem) addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, s.desJunk), 1 / total);
-    if (jpRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp - 1, s.js, s.desJunk), jpRem / total);
-    if (jsRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js - 1, s.desJunk), jsRem / total);
-    if (desRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'none'), desRem / total);
+    for (const i of presentRem) addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, s.desJunk, s.rarity), 1 / total);
+    for (const i of blockedRem) addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, s.desJunk, s.rarity), 1 / total);
+    if (jpRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp - 1, s.js, s.desJunk, s.rarity), jpRem / total);
+    if (jsRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js - 1, s.desJunk, s.rarity), jsRem / total);
+    if (desRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'none', s.rarity), desRem / total);
     return out;
   };
 
@@ -225,14 +267,14 @@ export function createActionSpace(params: ActionSpaceParams): {
   const lightOutcomes = (s: McState): Dist => {
     const out: Dist = new Map();
     if (s.desJunk !== 'none') {
-      addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'none'), 1);
+      addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'none', s.rarity), 1);
       return out;
     }
     for (let i = 0; i < n; i++) {
       const t = list[i]!;
       if (t.mod.source !== 'desecrated') continue;
-      if (has(s.present, i) && !t.fractured) { addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, 'none'), 1); return out; }
-      if (has(s.blocked, i)) { addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, 'none'), 1); return out; }
+      if (has(s.present, i) && !t.fractured) { addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, 'none', s.rarity), 1); return out; }
+      if (has(s.blocked, i)) { addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, 'none', s.rarity), 1); return out; }
     }
     return out;
   };
@@ -288,8 +330,8 @@ export function createActionSpace(params: ActionSpaceParams): {
     const p = 1 / candidates.length;
     for (const { id, sd } of candidates) {
       const i = list.findIndex((t) => t.modId === id);
-      if (i >= 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk), p);
-      else addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, sd), p);
+      if (i >= 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk, s.rarity), p);
+      else addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, sd, s.rarity), p);
     }
     return out;
   };
@@ -341,9 +383,9 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (!(t.type === 'prefix' ? prefixOpen : suffixOpen)) continue;
       const succ = succWeight(t, 0);
       const any = anyWeight(t, 0);
-      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk), succ / grand);
+      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk, s.rarity), succ / grand);
       const below = any - succ;
-      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.desJunk), below / grand);
+      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.desJunk, s.rarity), below / grand);
       claimed[t.type][src] += any;
     }
     const residue = (total: number, taken: number): number => Math.max(0, total - taken);
@@ -351,10 +393,10 @@ export function createActionSpace(params: ActionSpaceParams): {
     const junkSuf = residue(sufNormal, claimed.suffix.normal);
     const desPref = residue(prefDes, claimed.prefix.desecrated);
     const desSuf = residue(sufDes, claimed.suffix.desecrated);
-    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.desJunk), junkPref / grand);
-    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, s.desJunk), junkSuf / grand);
-    if (desPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'prefix'), desPref / grand);
-    if (desSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'suffix'), desSuf / grand);
+    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.desJunk, s.rarity), junkPref / grand);
+    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, s.desJunk, s.rarity), junkSuf / grand);
+    if (desPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'prefix', s.rarity), desPref / grand);
+    if (desSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'suffix', s.rarity), desSuf / grand);
     return out;
   };
 
@@ -378,12 +420,12 @@ export function createActionSpace(params: ActionSpaceParams): {
     if (removals.size === 0) {
       // Nothing removable: only legal when the item is genuinely empty, which is the deterministic add.
       const empty = s.present === 0 && s.blocked === 0 && s.jp === 0 && s.js === 0 && s.desJunk === 'none';
-      if (empty) addTo(out, encodeState(bit(i), 0, 0, 0, 'none'), 1);
+      if (empty) addTo(out, encodeState(bit(i), 0, 0, 0, 'none', s.rarity), 1);
       return out;
     }
     for (const [midKey, p] of removals) {
       const mid = decodeState(midKey);
-      addTo(out, encodeState(mid.present | bit(i), mid.blocked, mid.jp, mid.js, mid.desJunk), p);
+      addTo(out, encodeState(mid.present | bit(i), mid.blocked, mid.jp, mid.js, mid.desJunk, s.rarity), p);
     }
     return out;
   };
@@ -400,8 +442,38 @@ export function createActionSpace(params: ActionSpaceParams): {
     acts.push({ action, cost: actionCostOf(prices, action), dist });
   };
 
+  /** Strengths this add currency can be bought at: base always, the rest only if priced and allowed. */
+  const strengthsFor = (c: 'transmute' | 'augment' | 'regal'): ExaltStrength[] =>
+    (['base', 'greater', 'perfect'] as const)
+      .filter((st) => st === 'base' || prices.currency[addPriceKey(c, st)] !== undefined)
+      .filter((st) => notExcluded(addPriceKey(c, st)));
+
   const actionsOf = (s: McState): ActionDef[] => {
     const acts: ActionDef[] = [];
+
+    // ── Below Rare: the add-chain, and nothing else that needs a Rare item ────────────────────────
+    // Transmute converts Normal→Magic, Regal converts Magic→Rare, and both add a mod as they do it —
+    // which is why `addOutcomes` takes the rarity it lands in, not the one it started from. An Exalt,
+    // a Chaos, a Desecration and a Perfect Essence all require a Rare item and are simply absent here;
+    // that is the game's rule, enforced in plan.ts for the other planner and here for this one.
+    if (s.rarity !== 'rare') {
+      const chain: ('transmute' | 'augment' | 'regal')[] = s.rarity === 'normal' ? ['transmute'] : ['augment', 'regal'];
+      for (const currency of chain) {
+        const into: McRarity = currency === 'regal' ? 'rare' : 'magic';
+        for (const strength of strengthsFor(currency)) {
+          push(acts, { currency, strength }, addOutcomes(s, STRENGTH_FLOOR[strength], undefined, into));
+        }
+      }
+      // An Annulment works on a Magic item too. It is nearly always the wrong move there — 158.7ex to
+      // undo a 0.18ex Transmute — but the policy should reach that conclusion from the prices rather
+      // than from the action being hidden.
+      for (const constrainTo of [undefined, 'prefix', 'suffix'] as const) {
+        push(acts, { currency: 'annul', ...(constrainTo ? { side: constrainTo } : {}) }, removeOutcomes(s, constrainTo));
+      }
+      if (restart) push(acts, { currency: 'restart', cost: restart.cost }, restart.dist);
+      return acts;
+    }
+
     const exaltSides: (undefined | 'prefix' | 'suffix')[] = [undefined];
     if (sinistralExaltOk) exaltSides.push('prefix');
     if (dextralExaltOk) exaltSides.push('suffix');
@@ -449,6 +521,7 @@ export function createActionSpace(params: ActionSpaceParams): {
         }
       }
     }
+    if (restart) push(acts, { currency: 'restart', cost: restart.cost }, restart.dist);
     return acts;
   };
 

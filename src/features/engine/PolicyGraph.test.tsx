@@ -108,7 +108,7 @@ describe('PolicyGraph — the full graph, on demand', () => {
 
 describe('PolicyGraph — degenerate input', () => {
   it('renders nothing when the MDP is not applicable', () => {
-    const na: EngineMarkovResult = { applicable: false, feasible: false, expectedCost: Infinity, converged: true, assumedOdds: false, nodes: [], edges: [] };
+    const na: EngineMarkovResult = { applicable: false, feasible: false, expectedCost: Infinity, converged: true, bound: 'exact', assumedOdds: false, nodes: [], edges: [] };
     const { container } = render(<PolicyGraph result={na} />);
     expect(container).toBeEmptyDOMElement();
   });
@@ -120,10 +120,10 @@ describe('PolicyGraph — degenerate input', () => {
     // policy", is the most confidently wrong thing this panel can show — and it is what the user was
     // handed. Raising the effort to Thorough produces a real 6-step route from the same 262 states.
     const deadEnd: EngineMarkovResult = {
-      applicable: true, feasible: true, expectedCost: 5.4e6, converged: false, assumedOdds: false,
+      applicable: true, feasible: true, expectedCost: 5.4e6, converged: false, bound: 'lower', assumedOdds: false,
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, isStart: true, isGoal: false, depth: 7, expectedCost: 5.4e6, action: 'Annul' },
-        { key: 'b', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, isStart: false, isGoal: false, depth: 6, expectedCost: 5.4e6, action: 'Chaos' },
+        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 7, expectedCost: 5.4e6, action: 'Annul' },
+        { key: 'b', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 6, expectedCost: 5.4e6, action: 'Chaos' },
       ],
       edges: [{ from: 'a', to: 'b', action: 'Annul', prob: 1, regress: false }],
     };
@@ -141,10 +141,10 @@ describe('PolicyGraph — degenerate input', () => {
     // worse than showing the picture, so the picture is what appears — and with no route there is
     // nothing to toggle back to.
     const stalled: EngineMarkovResult = {
-      applicable: true, feasible: true, expectedCost: 5, converged: true, assumedOdds: false,
+      applicable: true, feasible: true, expectedCost: 5, converged: true, bound: 'exact', assumedOdds: false,
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, isStart: true, isGoal: false, depth: 2, expectedCost: 5, action: 'Annul' },
-        { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 5, action: 'Annul' },
+        { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
       ],
       edges: [],
     };
@@ -212,8 +212,8 @@ describe('PolicyGraph — the route names the mods', () => {
   it('says when a step only clears junk', () => {
     const r = result_({
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, isStart: true, isGoal: false, depth: 2, expectedCost: 9, action: 'Annul' },
-        { key: 'g', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 9, action: 'Annul' },
+        { key: 'g', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
       ],
       edges: [{ from: 'a', to: 'g', action: 'Annul', prob: 0.5, regress: false }],
     });
@@ -223,7 +223,7 @@ describe('PolicyGraph — the route names the mods', () => {
 });
 
 function result_(parts: Pick<EngineMarkovResult, 'nodes' | 'edges'>): EngineMarkovResult {
-  return { applicable: true, feasible: true, expectedCost: 9, converged: true, assumedOdds: false, ...parts };
+  return { applicable: true, feasible: true, expectedCost: 9, converged: true, bound: 'exact', assumedOdds: false, ...parts };
 }
 
 // Clicking a box asks "what runs through here?". Measured on the reported craft the answer is a median
@@ -258,10 +258,10 @@ describe('PolicyGraph — highlighting the route through a state', () => {
     // — so it is not asserted here, where it would only be testing the fixture.)
     const forked = result_({
       nodes: [
-        { key: 's', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, isStart: true, isGoal: false, depth: 3, expectedCost: 9, action: 'Annul' },
-        { key: 'left', present: ['A'], blocked: [], junkPrefixes: 1, junkSuffixes: 0, isStart: false, isGoal: false, depth: 2, expectedCost: 8, action: 'Exalt' },
-        { key: 'right', present: ['B'], blocked: [], junkPrefixes: 0, junkSuffixes: 1, isStart: false, isGoal: false, depth: 2, expectedCost: 7, action: 'Chaos' },
-        { key: 'g', present: ['A', 'B'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        { key: 's', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 3, expectedCost: 9, action: 'Annul' },
+        { key: 'left', present: ['A'], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 8, action: 'Exalt' },
+        { key: 'right', present: ['B'], blocked: [], junkPrefixes: 0, junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 7, action: 'Chaos' },
+        { key: 'g', present: ['A', 'B'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
       ],
       edges: [
         { from: 's', to: 'left', action: 'Annul', prob: 0.5, regress: false },
@@ -286,8 +286,8 @@ describe('PolicyGraph — highlighting the route through a state', () => {
     // walks strictly-decreasing depth and cannot.
     const cyc: EngineMarkovResult = result_({
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, isStart: true, isGoal: false, depth: 1, expectedCost: 2, action: 'Exalt' },
-        { key: 'b', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 1, expectedCost: 2, action: 'Exalt' },
+        { key: 'b', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
       ],
       edges: [
         { from: 'a', to: 'b', action: 'Exalt', prob: 0.5, regress: false },
@@ -307,6 +307,29 @@ describe('PolicyGraph — highlighting the route through a state', () => {
     const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
     await userEvent.setup().click(boxes[0]!);
     expect(screen.getByText(/Highlighting \d+ of \d+ states/i)).toBeInTheDocument();
+  });
+
+  /**
+   * The live region carries the sentence that CHANGES, and nothing else.
+   *
+   * It used to wrap the whole line, which put a standing instruction ("Click any state to…") and the
+   * `Clear` button inside `role="status"` — boilerplate queued for re-announcement alongside the Item
+   * tab's "Last solve took Xs" region, with a control read out as part of it. Nothing pinned the
+   * structure, because every other assertion here queries by text, so this one queries by role.
+   */
+  it('announces only what changed, and keeps the instruction and the button out of it', async () => {
+    render(<PolicyGraph result={result} />);
+    await expand();
+    const status = screen.getByRole('status');
+    // Mounted from the start — a region that appears at the same moment as its text goes unread by
+    // some screen readers — and silent until there is something to report.
+    expect(status).toBeEmptyDOMElement();
+    expect(status).not.toHaveTextContent(/Click any state/i);
+
+    const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
+    await userEvent.setup().click(boxes[0]!);
+    expect(screen.getByRole('status')).toHaveTextContent(/Highlighting \d+ of \d+ states/i);
+    expect(within(screen.getByRole('status')).queryByRole('button')).toBeNull();
   });
 
   it('dims what is not on the route, and clears again', async () => {
@@ -341,12 +364,12 @@ describe('PolicyGraph — the full description of a clicked state', () => {
   const detailed = result_({
     nodes: [
       { key: 'a', present: ['Spell Damage'], blocked: ['Cold Damage'], junkPrefixes: 1, junkSuffixes: 2,
-        isStart: true, isGoal: false, depth: 4, expectedCost: 900, action: 'Exalt (Dextral, Perfect)' },
+        rarity: 'rare' as const, isStart: true, isGoal: false, depth: 4, expectedCost: 900, action: 'Exalt (Dextral, Perfect)' },
       { key: 'b', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: ['Cold Damage'],
-        junkPrefixes: 1, junkSuffixes: 2, isStart: false, isGoal: false, depth: 3, expectedCost: 800, action: 'Annul' },
+        junkPrefixes: 1, junkSuffixes: 2, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 3, expectedCost: 800, action: 'Annul' },
       { key: 'c', present: ['Spell Damage'], blocked: ['Cold Damage'], junkPrefixes: 1, junkSuffixes: 3,
-        isStart: false, isGoal: false, depth: 5, expectedCost: 950, action: 'Annul' },
-      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        rarity: 'rare' as const, isStart: false, isGoal: false, depth: 5, expectedCost: 950, action: 'Annul' },
+      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
     ],
     edges: [
       { from: 'a', to: 'b', action: 'Exalt (Dextral, Perfect)', prob: 0.2, regress: false },

@@ -6,7 +6,52 @@ Last reviewed: 2026-08-23.
 
 ---
 
-## 1. A Magic item can only be opened with a Regal — there is no Augment step
+## 1. Loose ends from putting rarity in the MDP
+
+Done 2026-08-23: the true-cost model handles Normal and Magic starts, so the Lab tab has a policy
+route and an honest cost. What that left open:
+
+- **The MDP has no Essence action**, so a craft whose target needs one still has no true cost (the
+  panel says so and falls back to the step routes). Essences are a deterministic add on a Magic item —
+  the same shape as the add-chain actions now in the space.
+- **The step planner still cannot express filler.** Interesting consequence: the MDP *can* — it rolls
+  whatever lands and desecrates — so a lone desecrated target from white is now feasible in one model
+  and not the other. Worth checking whether `FrontierView`'s desecration empty-hint should now point
+  at the policy instead of calling it unsearched. See docs/copy-audit.md row 4.
+- **Suite time.** Lab tests now run an MDP; keep an eye on it. (2026-08-23: `searchEffort.test.ts`
+  was buying a 6-target from-white MDP to assert the STEP planner's orb depth — 209s and 134s for
+  numbers it never read. It now calls `optimize` directly and keeps one `runSolve` case for the
+  wiring. Full suite back to 23s.)
+
+## 2. Value iteration is the whole cost of a from-white solve, and it is slow on a long-shot target
+
+Measured 2026-08-23 on the craft that prompted it — six T1 mods on a `Body_Armours_str`, from white:
+
+    actions      172ms
+    compile       42ms
+    solve     90,318ms      <- 99.8% of the run
+
+The seeded two-phase solve (see `markovFromItem.ts`) needs its push-forward phase to CONVERGE before
+the restart phase can start, so that 90s is a floor, not a budget: below it the model returns "raise
+Search effort" rather than a number. In practice a craft this size needs the **Patient** preset (300s),
+where it does produce an 8-step route and E ~ 1.8M ex. Standard and Thorough decline it.
+
+Where the time goes: convergence is geometric with a rate near 1, and `tolerance` is ABSOLUTE (1e-9)
+while the values here are ~2e6 — so it grinds through 15 decades of residual to settle digits neither
+the price sheet nor the player has. Loosening it to 1e-1 cut the solve to ~41s with the answer
+unchanged to five figures, which points at a RELATIVE tolerance as the right criterion for a quantity
+whose scale spans ten orders of magnitude between crafts.
+
+Two cautions, both load-bearing, which is why this is a backlog item and not a quick fix:
+
+- The hand-computed tests assert costs to 6-9 decimal places, so the criterion cannot simply be swapped.
+- The two-phase seed's validity rests on phase A reaching a FIXED POINT: `V0 >= T(V0)` is what makes the
+  restart phase descend and stay an upper bound. Stopping phase A early breaks that unless the seed is
+  inflated by `c >= cost_min / (cost_min - eps)` — sound (costs are strictly positive, and
+  `T(cV) <= c*T(V)` for `c >= 1`), but it needs `eps` below the cheapest action's price, which a
+  relative tolerance at this scale would not respect. Worth doing carefully; not worth doing quickly.
+
+## 3. A Magic item can only be opened with a Regal — there is no Augment step
 
 `baseTransforms` (`packages/optimizer/src/fromItem.ts`) emits chaos / annul / exalt and no `augment`,
 and both Chaos and Exalt score 0 on a Magic item. So the only way this planner adds a mod to a Magic
@@ -36,7 +81,7 @@ Two things stop it being a drop-in, and both are design rather than arithmetic:
 
 Worth doing, and it wants its own MC cross-check like the rest of the MDP work.
 
-## 2. The from-item step planner never varies orb strength
+## 4. The from-item step planner never varies orb strength
 
 `baseTransforms` (`packages/optimizer/src/fromItem.ts`) builds every add at base strength — no `tier`
 field — so the planner cannot buy the probability a Greater or Perfect Exalt offers. The MDP *does*
@@ -60,7 +105,7 @@ Related, smaller: above the Thorough preset the MDP's `maxIters` (100k sweeps, ~
 `maxMillis`, so Patient buys nothing on crafts like the one in docs/validation.md. Either expose the
 sweep cap on the effort ladder or stop implying more time helps.
 
-## 3. Startup: what measurement left on the table
+## 5. Startup: what measurement left on the table
 
 Done: `mods.json` warm-start, immutable cache headers, dead UI kit removed. What the bundle
 visualiser (`ANALYZE=1 npm run build`) showed, as a share of the 108.7 kB gzip bundle:

@@ -581,11 +581,17 @@ describe('engine facade — optimizeItemMarkov (0.5.0)', () => {
     expect(r.nodes.some((nd) => nd.action?.startsWith('Desecrate (Omen of the '))).toBe(true);
   });
 
-  it('is not applicable for a REGULAR-essence target (needs a Magic item; caller uses the frontier)', () => {
+  // The reason names the missing ACTION, not a missing rarity. It used to say "needs a Magic item —
+  // craft it from white", which the Lab's own from-scratch craft reaches: telling someone already
+  // crafting from white to craft from white is confident non-advice, and since the state gained a
+  // rarity axis the Magic item isn't the obstacle anyway. The obstacle is that no Essence action
+  // exists in the model yet (TODO 1).
+  it('is not applicable for a REGULAR-essence target (no Essence action; caller uses the frontier)', () => {
     const wands = listMods(eng050.data, 'Wands');
     const ess = [...wands.prefixes, ...wands.suffixes].find((m) => m.source === 'essence')!;
     const r = optimizeItemMarkov(eng050, start, [{ modId: MANA, tierDisplay: 99 }, { modId: ess.id, tierDisplay: 1 }]);
     expect(r.applicable).toBe(false);
-    expect(r.reason).toMatch(/magic item/i);
+    expect(r.reason).toMatch(/no Essence action/i);
+    expect(r.reason).not.toMatch(/from white/i);
   });
 });

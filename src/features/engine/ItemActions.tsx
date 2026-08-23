@@ -13,6 +13,7 @@ import {
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
+import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { useField, useOnChange } from '../../lib/workspace';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
@@ -126,6 +127,7 @@ const ItemActions: React.FC = () => {
   const [computing, setComputing] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
   const excludedKeys = toExcludedKeys(useExclusions());
+  const effort = useEffort();
   // Held so the Cancel button can reach the running solve; refs, not state, because changing them must
   // not re-render.
   const cancelRef = useRef<(() => void) | null>(null);
@@ -295,7 +297,10 @@ const ItemActions: React.FC = () => {
 
     setComputing(true); setPlanErr(null); setProgress(null);
     const handle = solve(
-      { kind: 'item', item, targets: target, ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}) },
+      {
+        kind: 'item', item, targets: target, effort: limitsFor(effort),
+        ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
+      },
       (p) => { if (current()) setProgress(p); },
     );
     cancelRef.current = handle.cancel;

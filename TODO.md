@@ -6,28 +6,7 @@ Last reviewed: 2026-08-22.
 
 ---
 
-## 1. Armour desecration: 6-8s, and value iteration never converges
-
-Measured on `Body_Armours_dex_int`, one rollable + one desecrated target at ilvl 82:
-
-| base | total | actions | value iteration | converged? |
-|---|---|---|---|---|
-| Wands | 46 ms | 18 ms | 46 ms | yes |
-| Body_Armours_dex_int | **6014 ms** | 12 ms | **6014 ms** | **no — 100,000 sweeps, the cap** |
-
-Inherent, not a coding bug. Confirmed with the user 2026-08-23: an unomened bone draws from the
-combined normal ∪ desecrated pool by weight, so landing one specific armour mod is **1 in 121,510**,
-and VI's convergence rate is governed by that probability.
-
-Handled for now by reporting it (`MarkovResult.converged`; the UI shows "≥ x" and says the number is a
-floor) rather than hiding it. Two open questions:
-
-- **The progress bar sits at ~92% for five seconds.** The solve phase reports `0/11 → 1/11` across the
-  whole run — the decade-based measure has almost no resolution when convergence is this slow.
-- **Should a hopeless craft short-circuit?** The user declined an early exit once; worth revisiting now
-  that we know the number is a floor and not an answer.
-
-## 2. Startup: what measurement left on the table
+## 1. Startup: what measurement left on the table
 
 Done: `mods.json` warm-start, immutable cache headers, dead UI kit removed. What the bundle
 visualiser (`ANALYZE=1 npm run build`) showed, as a share of the 108.7 kB gzip bundle:
@@ -55,6 +34,21 @@ Session Replay not in the bundle at all. Lazy-loading it would buy almost nothin
 ---
 
 ## Recently closed
+
+- **Search effort is the user's setting now** (2026-08-23). Three solver caps were hard-coded guesses
+  about someone else's patience: VI's sweep cap, the budget search's node cap, the orb search's plan
+  cap. One `Search effort` preset drives all three, and the caps already announce themselves, so the
+  loop closes: the app says where it gave up, the user decides whether to pay for more. Measured on a
+  6×T3 Wand craft — the old default only searched `strongest-only` (5,760 plans); Patient reaches the
+  full search (622,080), 108x more. `standard` reproduces the old behaviour exactly.
+  Also: the solve progress bar now reports the max of two monotone measures (residual closed, budget
+  burned), so it keeps moving when convergence stalls instead of freezing at 92%.
+
+- **The desecrated weight is an assumption, and the app says so** (2026-08-23). poe2db publishes none
+  (reports 1 for every row); all 527 now carry 1000. Body Armour goes 1-in-121,510 → 1-in-132. Only the
+  UNOMENED draw inherits the assumption — the boss-omen path is count-uniform — so `assumedOdds` keys
+  off the actual plan steps and `PriceBasisNote` drops its "odds are exact" claim only there. Armour
+  MDP solves went 6s/unconverged → 159ms/converged as a side effect.
 
 - **The MDP silently returned unconverged numbers** (2026-08-23). Value iteration bails at
   `maxIters` (100k) on long-odds crafts, and because VI 0-initialises and climbs, the value it returns

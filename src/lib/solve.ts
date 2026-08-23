@@ -33,6 +33,16 @@ interface ExcludingRequest {
    * `runSolve` rebuilds the Set once per solve.
    */
   readonly excluded?: readonly string[];
+  /**
+   * The player's "how hard should I look?" limits (src/lib/searchEffort.ts). Plain numbers so the
+   * worker message stays trivially structured-clone-safe, same reasoning as `excluded` above.
+   * Absent ⇒ each planner keeps its own built-in default, which is what tests rely on.
+   */
+  readonly effort?: {
+    readonly maxMillis: number;
+    readonly maxNodes: number;
+    readonly maxPlans: number;
+  };
 }
 
 export type SolveRequest =
@@ -119,12 +129,18 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     ? { excluded: new Set(req.excluded) }
     : undefined;
   const withPolicy = <T extends object>(o: T): T => (policy ? { ...o, policy } : o);
+  // Each limit goes to the planner that owns it: sweeps to the MDP, relaxed targets to the budget
+  // search, enumerated plans to the orb-strength search. Absent ⇒ the planner's own default stands.
+  const eff = req.effort;
+  const withMdpLimit = <T extends object>(o: T): T => (eff ? { ...o, maxMillis: eff.maxMillis } : o);
+  const withPlanLimit = <T extends object>(o: T): T => (eff ? { ...o, maxPlans: eff.maxPlans } : o);
+  const withNodeLimit = <T extends object>(o: T): T => (eff ? { ...o, maxNodes: eff.maxNodes } : o);
 
   if (req.kind === 'item') {
-    const plan = optimizeItem(eng, req.item, req.targets, withPolicy({}));
+    const plan = optimizeItem(eng, req.item, req.targets, withPlanLimit(withPolicy({})));
     // The honest expected cost + optimal-policy graph. Reports its own progress because it is the only
     // call here that takes long enough to need one (seconds, against milliseconds for the others).
-    const markov = optimizeItemMarkov(eng, req.item, req.targets, withPolicy(report ? { onProgress: report } : {}));
+    const markov = optimizeItemMarkov(eng, req.item, req.targets, withMdpLimit(withPolicy(report ? { onProgress: report } : {})));
     return { kind: 'item', plan, markov };
   }
 
@@ -135,13 +151,13 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const emit = (phase: SolvePhase, span: Span) =>
     (done: number, total: number): void => onProgress?.({ phase, fraction: within(span, done, total) });
 
-  const planOpts = withPolicy(onProgress
+  const planOpts = withPlanLimit(withPolicy(onProgress
     ? { onProgress: emit('plan', hasBudget ? LAB_PLAN_THEN_SEARCH : LAB_PLAN_ALONE) }
-    : {});
+    : {}));
   const result = 'item' in from
     // The from-item planner has no progress reporting of its own yet; a carved craft therefore shows
     // no movement until the budget search starts.
-    ? optimizeItem(eng, from.item, req.targets, withPolicy({}))
+    ? optimizeItem(eng, from.item, req.targets, withPlanLimit(withPolicy({})))
     : optimize(eng, from.baseId, from.level, req.targets, planOpts);
 
   if (!hasBudget) {
@@ -151,7 +167,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
 
   // The slow half of a lab compute when a budget is set — every node it visits is a full Pareto run.
   const want = req.want ?? req.targets;
-  const altOpts = withPolicy(onProgress ? { onProgress: emit('alternatives', LAB_SEARCH) } : {});
+  const altOpts = withNodeLimit(withPolicy(onProgress ? { onProgress: emit('alternatives', LAB_SEARCH) } : {}));
   const alts = 'item' in from
     ? alternativesForItem(eng, from.item, want, budget, altOpts)
     : alternatives(eng, from.baseId, from.level, want, budget, altOpts);

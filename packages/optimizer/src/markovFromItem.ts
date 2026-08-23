@@ -110,6 +110,14 @@ export interface MarkovOptions {
   /** Safety cap on iterations. Default 100000. */
   readonly maxIters?: number;
   /**
+   * Wall-clock ceiling in milliseconds, from the player's "how hard should I look?" setting.
+   *
+   * ABSENT means no limit, and that is deliberate: it keeps the test suite deterministic (a clock
+   * makes results machine-dependent), so only the app passes one. Hitting it stops the sweeps and
+   * yields `converged: false`, which callers must render as a lower bound — see that field.
+   */
+  readonly maxMillis?: number;
+  /**
    * Called as the solve advances, so a UI can show progress and stay honest about a multi-second wait.
    * A plain callback — not I/O, not DOM — so this file stays pure.
    *
@@ -278,7 +286,12 @@ export function markovFromItem(
   };
   let decades = 0; // log-distance the first sweep had left to travel; see the progress note below
   let converged = false;
+  // Checked every CHECK sweeps rather than every sweep: Date.now() in the hot loop is measurable, and
+  // a sweep is short enough that the overshoot is irrelevant next to a multi-second budget.
+  const deadline = opts.maxMillis === undefined ? Infinity : Date.now() + opts.maxMillis;
+  const DEADLINE_CHECK = 32;
   for (let iter = 0; iter < maxIters; iter++) {
+    if (deadline !== Infinity && iter % DEADLINE_CHECK === 0 && Date.now() > deadline) break;
     let delta = 0;
     for (let i = 0; i < N; i++) {
       if (i === goalIdx) continue;
@@ -303,7 +316,18 @@ export function markovFromItem(
     if (report) {
       const remaining = Math.log10(Math.max(delta, tol) / tol);
       if (iter === 0) decades = remaining;
-      if (decades > 0) report({ phase: 'solve', done: Math.round(decades - remaining), total: Math.round(decades) });
+      // TWO monotone measures, and we report whichever is further along, in permille.
+      //
+      // The residual measure is the better signal when VI behaves — it tracks actual progress toward
+      // an answer. But its resolution collapses when convergence is slow: a stalled solve once
+      // reported 0/11 then 1/11 across 100,000 sweeps, so the bar sat at 92% for five seconds and
+      // read as a hang. Sweeps burned is crude (VI usually finishes in tens of a 100k budget, so it
+      // reads ~0 on a healthy solve) but it always advances. Taking the max means the bar moves on
+      // the residual when there IS residual progress, and falls back to "how much budget is gone"
+      // when there isn't — which is exactly the case where the user needs to see something move.
+      const byResidual = decades > 0 ? (decades - remaining) / decades : 0;
+      const byBudget = (iter + 1) / maxIters;
+      report({ phase: 'solve', done: Math.round(Math.max(byResidual, byBudget) * 1000), total: 1000 });
     }
   }
   report?.({ phase: 'solve', done: 1, total: 1 });

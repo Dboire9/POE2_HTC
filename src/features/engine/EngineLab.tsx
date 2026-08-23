@@ -13,6 +13,7 @@ import {
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
+import { EFFORT_PRESETS, limitsFor, setEffort, useEffort } from '../../lib/searchEffort';
 import {
   decodeWorkspace, encodeWorkspace, getWorkspace, setWorkspace, useField, useMode, useOnChange,
 } from '../../lib/workspace';
@@ -163,6 +164,7 @@ const EngineLab: React.FC = () => {
   const [computing, setComputing] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
   const excludedKeys = toExcludedKeys(useExclusions());
+  const effort = useEffort();
   const cancelRef = useRef<(() => void) | null>(null);
   const runIdRef = useRef(0);
   const [mode, setMode] = useMode();
@@ -379,6 +381,7 @@ const EngineLab: React.FC = () => {
       from: fromItem ? { item: carvedItem() } : { baseId, level },
       targets,
       ...(hasBudget ? { budget: b, want } : {}),
+      effort: limitsFor(effort),
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
     }, (p) => { if (current()) setProgress(p); });
     cancelRef.current = handle.cancel;
@@ -472,6 +475,22 @@ const EngineLab: React.FC = () => {
               title="What you're willing to spend, in Exalted-Orb equivalents. Adds a panel showing the closest items this much money can actually finish."
             />
           </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Search effort
+            </span>
+            {/* The three solver caps were hard-coded guesses about someone else's patience. They stay
+                honest either way — the badges say when a cap bit — but now the user can pay for more. */}
+            <select
+              className={`${selectCls} w-40`}
+              value={effort}
+              onChange={(e) => setEffort(e.target.value)}
+              title={EFFORT_PRESETS.find((p) => p.id === effort)?.hint}
+              aria-label="How hard the solver should look before giving up"
+            >
+              {EFFORT_PRESETS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+            </select>
+          </label>
           <div className="flex-1" />
           <Button variant="outline" onClick={share} disabled={targets.length === 0 && mode === 'plan'} size="lg" title="Copy a link that reproduces this workspace">
             Copy link
@@ -483,6 +502,11 @@ const EngineLab: React.FC = () => {
             Find plans
           </Button>
         </div>
+
+        <p className="text-[11px] text-muted-foreground">
+          <strong>Search effort:</strong> {EFFORT_PRESETS.find((p) => p.id === effort)?.hint}{' '}
+          Raise it if a result says the search stopped early.
+        </p>
 
         <CurrencyExclusions />
 

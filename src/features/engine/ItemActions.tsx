@@ -251,9 +251,7 @@ const ItemActions: React.FC = () => {
    * offered no reason at all. A disabled control that doesn't say what it wants is indistinguishable
    * from a broken one.
    */
-  const blockedBy: string | null = rarity !== 'rare'
-    ? 'The full planner needs a Rare item — switch Rarity above, or use the quick check for Magic.'
-    : target.length === 0
+  const blockedBy: string | null = target.length === 0
     ? 'Pick at least one target mod above.'
     : null;
 
@@ -655,6 +653,15 @@ const ItemActions: React.FC = () => {
                   underneath are its own restrictions rather than game rules. See docs/copy-audit.md. */}
               <p className="text-destructive font-medium text-sm">The planner can’t plan this craft</p>
               <p className="text-sm text-muted-foreground mt-1">{planErr}</p>
+            </Card>
+          )}
+          {/* When the MDP doesn't model this craft the true-cost card simply wasn't rendered, so the
+              panel lost half its content with no explanation — and its `reason`, which says exactly
+              why, was carried across the worker boundary and then never shown to anyone. */}
+          {plan && !planErr && markov && !markov.applicable && markov.reason && (
+            <Card className="p-4">
+              <p className="text-sm font-medium">No true expected cost for this craft</p>
+              <p className="text-sm text-muted-foreground mt-1">{markov.reason}</p>
             </Card>
           )}
           {plan && !planErr && markov?.applicable && markov.feasible && (

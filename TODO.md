@@ -6,7 +6,20 @@ Last reviewed: 2026-08-23.
 
 ---
 
-## 1. The from-item step planner never varies orb strength
+## 1. A Magic item can only be opened with a Regal — there is no Augment step
+
+`baseTransforms` (`packages/optimizer/src/fromItem.ts`) emits chaos / annul / exalt and no `augment`,
+and both Chaos and Exalt score 0 on a Magic item. So the only way this planner adds a mod to a Magic
+item is the Regal opener that converts it to Rare (added 2026-08-23). For a target needing 3+ mods
+that is the right move anyway; for a 2-mod target an Augmentation (0.27ex) would be cheaper than a
+Regal, and the planner cannot express it. Pinned by a test that asserts the gap rather than hiding it.
+
+Related and larger: **the MDP does not model Magic at all** (`markovFromItem` returns
+`applicable: false`), so a Magic item gets step routes but no true expected cost. Its state space has
+no rarity in it, so representing the Magic→Rare transition means widening the state, not adding an
+action. The UI now says so instead of silently dropping the panel.
+
+## 2. The from-item step planner never varies orb strength
 
 `baseTransforms` (`packages/optimizer/src/fromItem.ts`) builds every add at base strength — no `tier`
 field — so the planner cannot buy the probability a Greater or Perfect Exalt offers. The MDP *does*
@@ -22,7 +35,7 @@ Related, smaller: above the Thorough preset the MDP's `maxIters` (100k sweeps, ~
 `maxMillis`, so Patient buys nothing on crafts like the one in docs/validation.md. Either expose the
 sweep cap on the effort ladder or stop implying more time helps.
 
-## 2. Startup: what measurement left on the table
+## 3. Startup: what measurement left on the table
 
 Done: `mods.json` warm-start, immutable cache headers, dead UI kit removed. What the bundle
 visualiser (`ANALYZE=1 npm run build`) showed, as a share of the 108.7 kB gzip bundle:

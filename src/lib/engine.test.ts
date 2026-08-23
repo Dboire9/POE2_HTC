@@ -159,9 +159,16 @@ describe('engine facade — from-item planner (Option 2)', () => {
     expect(removers.some((s) => /removes|−/.test(s.target))).toBe(true);
   });
 
-  it('a Magic item is rejected with a helpful message', () => {
+  // This asserted the opposite until 2026-08-23: a Magic item threw "the from-item planner currently
+  // supports Rare items". Rarity describes the item you HOLD, so that turned the commonest starting
+  // point in the game — a magic base part-way through a craft — into an error, and the message invited
+  // the player to misdescribe their item to get past it. A Regal opens it now.
+  it('plans a Magic item by opening with a Regal', () => {
     const magic: ExistingItem = { ...item, rarity: 'magic', suffixes: [{ modId: 'Wands/INTELLIGENCE', tierDisplay: 1 }] };
-    expect(() => optimizeItem(eng, magic, targets)).toThrow(/Rare/i);
+    const r = optimizeItem(eng, magic, targets);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    // Exalt and Chaos both score 0 on a Magic item, so every plan must convert to Rare first.
+    for (const p of r.frontier) expect(p.steps[0]!.currency).toBe('regal');
   });
 });
 

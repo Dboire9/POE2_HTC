@@ -142,7 +142,15 @@ export function markovFromItem(
 ): MarkovResult {
   const fail = (reason: string): MarkovResult =>
     ({ expectedCost: Infinity, feasible: false, converged: true, reason, nodes: [], edges: [], policy: new Map() });
-  if (start.rarity !== 'rare') return fail('the MDP planner models Rare items');
+  // A PLANNER limit, not a game rule — and the copy has to say which (see CLAUDE.md's critical rule).
+  // The step planner opens a Magic item with a Regal and plans it fine; this model's state space has
+  // no rarity in it, so it cannot represent the Magic→Rare transition yet.
+  if (start.rarity !== 'rare') {
+    return fail(
+      'the true-cost model only handles Rare items so far — a Magic item needs a Regal first, which '
+      + 'this model has no way to represent yet. The step-by-step routes below do cover it.',
+    );
+  }
   const prices = pricesForBase(rawPrices, start.base);
 
   const level = start.level;

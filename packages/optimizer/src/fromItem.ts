@@ -5,8 +5,11 @@
 // EXACTLY the target: every current mod not in the target is junk to remove, every target mod not present
 // must be added. Removal is a random Annulment (or the remove-half of a Chaos); adds are Exalts (into an
 // open slot), the add-half of a Chaos, a Desecration (a desecrated mod, via its boss omen), or a Perfect
-// Essence (which removes one random mod as it adds). v1 handles RARE items at base orb strength; tier
-// targets are honoured and per-exalt / per-perfect-essence side omens are explored.
+// Essence (which removes one random mod as it adds). A MAGIC start is handled by opening with a Regal
+// Orb, which converts to Rare while adding one mod — without that, the commonest starting point in the
+// game (a magic base you are part-way through) had no planner at all. Everything runs at base orb
+// strength (`currencyDepth: 'base-only'`); tier targets are honoured and per-exalt /
+// per-perfect-essence side omens are explored.
 
 import type { ItemBase, ItemState, PatchData } from '../../engine/src/types.ts';
 import type { PlanStep } from '../../engine/src/plan.ts';
@@ -148,8 +151,8 @@ export function optimizeFromItem(
 ): ParetoResult {
   const policy = opts.policy;
   const prices = pricesForBase(rawPrices, start.base);
-  if (start.rarity !== 'rare') {
-    throw new Error('the from-item planner currently supports Rare items (use the currency check for Magic)');
+  if (start.rarity === 'normal') {
+    throw new Error('a white base has no mods to transform — plan it from the Lab instead');
   }
   const targetIds = targets.map((t) => t.modId);
   const current = [...start.prefixes, ...start.suffixes].map((p) => p.modId);
@@ -186,10 +189,33 @@ export function optimizeFromItem(
     };
   }
 
-  const sequences = transformSequences(
-    data, junk, missingRollable, missingPerfect, missingDesecrated, tierOf,
-    bossOmenAllowed(start.base.category),
-  );
+  // A MAGIC item has to become Rare before it can be exalted, desecrated or perfect-essenced, and a
+  // Regal Orb is that transition — it converts to Rare *and* adds one mod, so it is an opener rather
+  // than a step in the middle. This planner names the mod every step adds, so a Regal names one too:
+  // one opener per rollable target it could land.
+  //
+  // The empty opener is offered as well, because a target that fits a Magic item (≤1 prefix and ≤1
+  // suffix) needs no Regal at all. Nothing here checks which of those applies: an exalt on a Magic
+  // item scores 0 in `evaluatePlanFrom` and the plan drops, which is the same "offer it and let
+  // evaluation prune" rule the desecrate branch relies on rather than duplicating plan.ts's legality.
+  const openers: { steps: PlanStep[]; adds?: string }[] = start.rarity === 'rare'
+    ? [{ steps: [] }]
+    : [
+        { steps: [] },
+        ...missingRollable.map((add) => ({
+          steps: [{ currency: 'regal' as const, add, minTierIndex: tierOf.get(add) ?? 0 }],
+          adds: add,
+        })),
+      ];
+
+  const bossOk = bossOmenAllowed(start.base.category);
+  const sequences: PlanStep[][] = [];
+  for (const opener of openers) {
+    const rest = opener.adds === undefined ? missingRollable : missingRollable.filter((id) => id !== opener.adds);
+    for (const seq of transformSequences(data, junk, rest, missingPerfect, missingDesecrated, tierOf, bossOk)) {
+      sequences.push(opener.steps.length > 0 ? [...opener.steps, ...seq] : seq);
+    }
+  }
 
   // This loop used to be unbounded and silent: it read nothing from `opts` but `policy`, so the
   // player's Search-effort setting reached it and did nothing, and the progress bar showed no movement

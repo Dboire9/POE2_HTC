@@ -90,6 +90,13 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   hands back a plan no player would run. `FrontierView`'s `freeRestart={false}` makes a from-item
   panel lead with the likeliest route instead. Do NOT "fix" this in `planExpectedCost` — the
   from-white planner depends on the assumption being true there.
+- **Rarity on the Item tab describes the item you HOLD, not the item you want.** The from-item planner
+  used to throw "supports Rare items (use the currency check for Magic)" on a Magic start — turning the
+  commonest starting point in the game into an error, and inviting the player to misdescribe their item
+  to get past it. A Magic item is now opened with a **Regal**, which converts to Rare while adding one
+  mod; it is the only add available there, since Exalt and Chaos both score 0 on a Magic item and
+  `baseTransforms` emits no `augment`. The MDP still models Rare only and says so in `reason`, which
+  `ItemActions` now renders rather than dropping the panel in silence.
 - **The from-item planner never varies orb strength** (`baseTransforms` sets no `tier`), so it reports
   `currencyDepth: 'base-only'`. It used to report `full`, rendered as "tried every orb strength" — a
   false claim that also hid why its costs sit so far above the MDP's, which does use Greater/Perfect

@@ -54,9 +54,12 @@ describe('optimizeFromItem — transform an existing rare (hand-computed)', () =
     expect(r.frontier[0]!.cost.expected).toBe(0);
   });
 
-  it('rejects a Magic starting item (v1 is Rare-only)', () => {
+  // This used to assert the opposite — that a Magic start was rejected outright. See the Regal-opener
+  // describe below for why that restriction was wrong to have.
+  it('accepts a Magic starting item', () => {
     const magic: ItemState = { base, level: 100, rarity: 'magic', prefixes: [placed('NP1')], suffixes: [] };
-    expect(() => optimizeFromItem(data, prices, magic, [{ modId: 'NP1' }, { modId: 'NP2' }])).toThrow(/Rare/i);
+    const r = optimizeFromItem(data, prices, magic, [{ modId: 'NP1' }, { modId: 'NP2' }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
   });
 });
 
@@ -368,5 +371,62 @@ describe('optimizeFromItem — limits and what it admits to', () => {
     expect(seen.length).toBeGreaterThan(0);
     // Ends at 100%: a bar that stops at 97% reads as a hang just like one that never moves.
     expect(seen[seen.length - 1]![0]).toBe(seen[seen.length - 1]![1]);
+  });
+});
+
+// A MAGIC item was rejected outright: "the from-item planner currently supports Rare items (use the
+// currency check for Magic)". But Rarity describes the item you HOLD, not the item you want — a magic
+// base part-way through a craft is the commonest starting point in the game, and it had no planner at
+// all. The advice was worse than the gap: it invited you to misdescribe your item to get past it.
+//
+// The engine could always score this (`regalProbability`, and plan.ts transitions magic→rare on a
+// regal step); only plan GENERATION was missing.
+describe('optimizeFromItem — a Magic item opens with a Regal', () => {
+  const magic = (pre: string[], suf: string[]): ItemState =>
+    ({ base, level: 100, rarity: 'magic', prefixes: pre.map(placed), suffixes: suf.map(placed) });
+
+  it('plans a Magic item instead of refusing it', () => {
+    // One junk prefix, one junk suffix — a Magic item is full at 1 per side, so the only way forward
+    // is a Regal, which converts to Rare and adds a mod.
+    const r = optimizeFromItem(data, prices, magic(['NP1'], ['NS1']), [{ modId: 'NP2' }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+  });
+
+  it('opens with the Regal, because nothing else can reach a Rare', () => {
+    const r = optimizeFromItem(data, prices, magic(['NP1'], ['NS1']), [{ modId: 'NP2' }]);
+    for (const p of r.frontier) expect(p.steps[0]!.currency).toBe('regal');
+  });
+
+  it('does not spend a Regal on a craft that only has to REMOVE something', () => {
+    // Junk prefix, target already present as the suffix: an Annulment finishes it, and an Annulment
+    // does not care about rarity. The no-opener sequence has to stay on offer or this craft would be
+    // charged a Regal it never needs.
+    const r = optimizeFromItem(data, prices, magic(['NP1'], ['NS1']), [{ modId: 'NS1' }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    expect(r.frontier.some((p) => p.steps.every((s) => s.currency !== 'regal'))).toBe(true);
+  });
+
+  it('reaches a Magic item’s open slot only by Regal — there is no augment step', () => {
+    // Worth pinning as a KNOWN GAP rather than leaving it to be discovered: `baseTransforms` emits
+    // chaos/annul/exalt and no `augment`, and both Chaos and Exalt score 0 on a Magic item. So the one
+    // way this planner can add a mod to a Magic item is the Regal that converts it to Rare. For a
+    // target needing 3+ mods that is also the right move; for a 2-mod target an Augment would be
+    // cheaper, and the planner cannot express it. See TODO.
+    const r = optimizeFromItem(data, prices, magic(['NP1'], []), [{ modId: 'NP1' }, { modId: 'NP2' }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    for (const p of r.frontier) expect(p.steps.some((s) => s.currency === 'regal')).toBe(true);
+  });
+
+  it('scores every returned plan above zero — none is an illegal Magic-item exalt', () => {
+    // The generator offers sequences it does not check for legality and relies on `evaluatePlanFrom`
+    // scoring the illegal ones 0 so they drop. If that ever stopped holding, the frontier would fill
+    // with plans that exalt a Magic item — which the game refuses.
+    const r = optimizeFromItem(data, prices, magic(['NP1'], ['NS1']), [{ modId: 'NP2' }]);
+    for (const p of r.frontier) expect(p.probability).toBeGreaterThan(0);
+  });
+
+  it('still refuses a white base, which is the Lab’s job', () => {
+    const white: ItemState = { base, level: 100, rarity: 'normal', prefixes: [], suffixes: [] };
+    expect(() => optimizeFromItem(data, prices, white, [{ modId: 'NP2' }])).toThrow(/white base/i);
   });
 });

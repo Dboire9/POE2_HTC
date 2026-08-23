@@ -20,26 +20,57 @@ const DEPTH_NOTE: Record<EngineResult['currencyDepth'], string> = {
   full: 'tried every orb strength',
   'base+strongest': 'only tried base + strongest orbs — too many combinations for all of them',
   'strongest-only': 'only tried the strongest orbs — too many combinations for all of them',
+  // The from-item planner never varies orb strength at all — every add it builds is a base-strength
+  // orb. It used to report `full`, i.e. "tried every orb strength", which was simply untrue and hid a
+  // real reason its numbers sit so far above the MDP's (which does reach for Greater/Perfect Exalts).
+  'base-only': 'base-strength orbs only — this planner doesn’t vary orb strength on an item you hold',
 };
 
-/** The (expected cost ↔ success probability) frontier: one card per non-dominated plan, cheapest→surest. */
+/** The (expected cost ↔ success probability) frontier: one card per non-dominated plan. */
 const FrontierView: React.FC<{
   result: EngineResult; title?: string; emptyHint?: React.ReactNode; priceBasis?: EnginePriceBasis;
+  /**
+   * Whether a miss really can be shrugged off. The cost model behind `expected` restarts to the
+   * STARTING item for free on every failure — sound for a white base (buy another), fiction for the
+   * Rare in your stash. Under that fiction the ranking inverts: an Annulment costs 158.7ex against an
+   * Exalt's 1ex, so burying the Annuls behind a 0.1% gate you rarely pass "saves" ~65x, and the
+   * cheapest plan becomes one no player would run. When false, the likeliest route leads instead and
+   * the cost figure is captioned with the assumption it rests on.
+   */
+  freeRestart?: boolean;
 }> = ({
-  result, title = 'Your options — cheapest to surest', emptyHint, priceBasis,
+  result, title, emptyHint, priceBasis, freeRestart = true,
 }) => {
-  // ONE unit for the whole card set, chosen from the largest number it will show. Picking per-value
-  // would put "9,800 ex" next to "300 chaos" in a list whose entire purpose is comparing rows.
-  const unit = pickUnit(
-    Math.max(0, ...result.frontier.flatMap((p) => [p.expected, p.perAttempt].filter(Number.isFinite))),
-    priceBasis?.rates,
-  );
+  // ONE unit per QUANTITY, not per view. Cards are read by comparing the same figure down the column,
+  // which is what a shared unit buys; sharing one across DIFFERENT quantities does the opposite, and
+  // on a long-shot craft (expected 1e14 ex, per-attempt 357 ex) it rendered 357 ex as "0.98 div".
+  const rates = priceBasis?.rates;
+  const unitExpected = pickUnit(Math.max(0, ...result.frontier.map((p) => p.expected).filter(Number.isFinite)), rates);
+  const unitPerAttempt = pickUnit(Math.max(0, ...result.frontier.map((p) => p.perAttempt).filter(Number.isFinite)), rates);
+
+  // Flags are decided on the SEARCH order (cheapest→surest) and carried, so reversing the display
+  // can't slide "best value" onto the wrong card.
+  const rec = recommendedIndex(result.frontier);
+  const cards = result.frontier.map((plan, i) => ({
+    plan,
+    isCheapest: i === 0,
+    isSurest: i === result.frontier.length - 1,
+    isRecommended: i === rec,
+  }));
+  const ordered = freeRestart ? cards : [...cards].reverse();
+  const heading = title ?? (freeRestart ? 'Your options — cheapest to surest' : 'Your options — likeliest first');
+
   return (
   <div className="space-y-3">
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <h2 className="text-lg font-bold">{title}</h2>
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <h2 className="text-lg font-bold">{heading}</h2>
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         <Badge variant="outline">{DEPTH_NOTE[result.currencyDepth]}</Badge>
+        {result.truncated && (
+          <Badge variant="outline" className="border-amber-500/60 text-amber-700 dark:text-amber-300">
+            stopped early — raise Search effort for more
+          </Badge>
+        )}
         <span>
           checked {result.plansEvaluated.toLocaleString()} plan{result.plansEvaluated === 1 ? '' : 's'}
         </span>
@@ -65,31 +96,41 @@ const FrontierView: React.FC<{
       </Card>
     ) : (
       <div className="space-y-3">
-        {(() => { const rec = recommendedIndex(result.frontier); return result.frontier.map((plan, i) => {
-          const isCheapest = i === 0;
-          const isSurest = i === result.frontier.length - 1;
-          const isRecommended = i === rec;
+        {ordered.map(({ plan, isCheapest, isSurest, isRecommended }, i) => {
+          const cost = (
+            <div>
+              <div className="text-2xl font-bold tabular-nums" title={exactExalts(plan.expected)}>
+                {formatIn(unitExpected, plan.expected)}
+              </div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                {freeRestart ? 'expected cost' : 'cost if restarts were free'}
+              </div>
+            </div>
+          );
+          const odds = (
+            <div>
+              <div className="text-2xl font-bold tabular-nums text-primary">{fmtPct(plan.probability)}</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">success / attempt</div>
+            </div>
+          );
           return (
             <Card key={i} className={`p-4 space-y-3 ${isRecommended ? 'ring-2 ring-primary/60' : ''}`}>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
-                <div>
-                  <div className="text-2xl font-bold tabular-nums" title={exactExalts(plan.expected)}>
-                    {formatIn(unit, plan.expected)}
-                  </div>
-                  <div className="text-[11px] uppercase tracking-wider text-muted-foreground">expected cost</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold tabular-nums text-primary">{fmtPct(plan.probability)}</div>
-                  <div className="text-[11px] uppercase tracking-wider text-muted-foreground">success / attempt</div>
-                </div>
+                {freeRestart ? <>{cost}{odds}</> : <>{odds}{cost}</>}
                 <div className="text-xs text-muted-foreground">
                   <div>≈ {Number.isFinite(plan.expectedAttempts) ? plan.expectedAttempts.toFixed(1) : '∞'} attempts</div>
-                  <div title={exactExalts(plan.perAttempt)}>{formatIn(unit, plan.perAttempt)} per attempt</div>
+                  <div title={exactExalts(plan.perAttempt)}>{formatIn(unitPerAttempt, plan.perAttempt)} per attempt</div>
                 </div>
                 <div className="flex-1" />
                 <div className="flex gap-1">
                   {isRecommended && <Badge>best value</Badge>}
-                  {isCheapest && <Badge variant={isRecommended ? 'outline' : 'secondary'}>cheapest</Badge>}
+                  {/* "cheapest" reads as advice. When a free restart is fiction it isn't advice, it is
+                      an artefact of the model, so the badge says which. */}
+                  {isCheapest && (
+                    <Badge variant={isRecommended ? 'outline' : 'secondary'}>
+                      {freeRestart ? 'cheapest' : 'cheapest on paper'}
+                    </Badge>
+                  )}
                   {isSurest && !isCheapest && <Badge variant={isRecommended ? 'outline' : 'secondary'}>surest</Badge>}
                 </div>
               </div>
@@ -114,7 +155,7 @@ const FrontierView: React.FC<{
               )}
             </Card>
           );
-        }); })()}
+        })}
       </div>
     )}
   </div>

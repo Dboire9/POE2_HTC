@@ -101,6 +101,8 @@ export interface EngineResult {
   readonly frontier: readonly EnginePlan[];
   readonly plansEvaluated: number;
   readonly currencyDepth: CurrencyDepth;
+  /** True when a search cap stopped the planner early — the UI must offer more Search effort. */
+  readonly truncated?: boolean;
   /** True when a shown number depends on the ASSUMED desecrated spawn weight (an unomened
    *  Desecration). The UI must say so — see PriceBasisNote's `exactOdds`. */
   readonly assumedOdds: boolean;

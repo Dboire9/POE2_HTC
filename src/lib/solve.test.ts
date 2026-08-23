@@ -79,14 +79,22 @@ describe('progress reporting', () => {
     expect(seen[seen.length - 1]!.fraction).toBe(1);
   });
 
-  // The whole point of weighting the phases: `actions` is ~89% of wall-clock time, so it must own the
-  // bulk of the bar. Split evenly, the bar would freeze for seconds and then sprint — which is the
-  // dishonesty the progress indicator exists to remove.
-  it('gives the action-building phase most of the bar, because it is most of the time', () => {
+  // The phases are weighted because they are nowhere near equal — but WHICH one dominates depends on
+  // the craft, and the old weights were fitted to one of them. A 3-target craft spends ~89% building
+  // actions (VI converges in tens of sweeps); a 5-target craft spends 0.2% there and ~99% in VI, which
+  // never converges. Under the old 0.85 weight that second craft filled 85% of the bar in 54ms and
+  // then crawled for 24 seconds. The assertion is on the ORDERING and the endpoints, plus the one
+  // property that matters — no single phase owns most of the bar — rather than on fitted constants.
+  it('weights the phases without letting any one of them own the bar', () => {
+    const actions = toFraction({ phase: 'actions', done: 100, total: 100 });
+    const compile = toFraction({ phase: 'compile', done: 100, total: 100 });
     expect(toFraction({ phase: 'actions', done: 0, total: 100 })).toBe(0);
-    expect(toFraction({ phase: 'actions', done: 100, total: 100 })).toBeCloseTo(0.85, 9);
-    expect(toFraction({ phase: 'compile', done: 100, total: 100 })).toBeCloseTo(0.92, 9);
+    expect(actions).toBeGreaterThan(0);
+    expect(compile).toBeGreaterThan(actions);
     expect(toFraction({ phase: 'solve', done: 1, total: 1 })).toBe(1);
+    // Neither end of the bar may be a cliff: whichever phase turns out to dominate, there is room left.
+    expect(actions).toBeLessThanOrEqual(0.5);
+    expect(compile).toBeLessThanOrEqual(0.6);
   });
 
   it('never divides by zero when a phase has nothing to do', () => {

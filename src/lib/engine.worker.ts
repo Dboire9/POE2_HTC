@@ -25,8 +25,13 @@ self.onmessage = async (e: MessageEvent<WorkerRequest>): Promise<void> => {
   const { id, req } = e.data;
   try {
     const eng = await loadEngine();
-    // Progress is posted synchronously from inside the solve. That is fine precisely because this is a
-    // worker: the message queue drains on the main thread, which is free.
+    // Progress is posted synchronously from inside the solve. The main thread is NOT free to drain it:
+    // every message wakes a React re-render of the progress bar, so the cost is per-message and lands
+    // on the thread the worker exists to protect. Value iteration once reported per sweep — ~100,001
+    // messages for a solve that renders at most 1001 distinct values — and a 24-second solve took ten
+    // minutes in the browser while measuring 24 seconds in node. Solvers must throttle to changes the
+    // UI can actually show; this adapter deliberately adds no buffering of its own, so that stays a
+    // property of the solver rather than something a thin adapter silently papers over.
     const result = runSolve(eng, req, (progress) => post({ id, type: 'progress', progress }));
     post({ id, type: 'done', result });
   } catch (err) {

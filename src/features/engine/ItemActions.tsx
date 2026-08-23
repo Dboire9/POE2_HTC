@@ -14,6 +14,7 @@ import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
+import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField, useOnChange } from '../../lib/workspace';
 import { exactExalts, formatCost, formatIn, pickUnit } from '../../lib/currency';
 import FrontierView from './FrontierView';
@@ -122,6 +123,9 @@ const ItemActions: React.FC = () => {
   const [planErr, setPlanErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
+  // How long the last solve took. The progress bar carries a live timer, but it unmounts on completion,
+  // so the one moment you want the number — after it finishes — was the one moment it wasn't there.
+  const [tookMs, setTookMs] = useState<number | null>(null);
   const excludedKeys = toExcludedKeys(useExclusions());
   const effort = useEffort();
   // Exalts-per-chaos / per-divine, so a huge cost reads as a quantity rather than a wall of digits.
@@ -293,7 +297,8 @@ const ItemActions: React.FC = () => {
     const runId = ++runIdRef.current;
     const current = () => runIdRef.current === runId;
 
-    setComputing(true); setPlanErr(null); setProgress(null);
+    setComputing(true); setPlanErr(null); setProgress(null); setTookMs(null);
+    const startedAt = Date.now();
     const handle = solve(
       {
         kind: 'item', item, targets: target, effort: limitsFor(effort),
@@ -317,7 +322,7 @@ const ItemActions: React.FC = () => {
       .finally(() => {
         if (!current()) return;
         cancelRef.current = null;
-        setComputing(false); setProgress(null);
+        setComputing(false); setProgress(null); setTookMs(Date.now() - startedAt);
       });
   };
 
@@ -591,12 +596,25 @@ const ItemActions: React.FC = () => {
             {computing ? (
               <SolveProgress progress={progress} onCancel={cancel} />
             ) : (
-              <div className="flex items-center gap-3">
-                <Button onClick={compute} disabled={rarity !== 'rare' || target.length === 0} size="lg">
-                  Compute plan
-                </Button>
+              <>
+                {/* This tab always OBEYED the effort setting (`limitsFor(effort)` below) but never
+                    rendered the control, so a from-item craft ran under whatever was last picked on
+                    the Lab tab with no way to see or change it. */}
+                <div className="flex flex-wrap items-end gap-3">
+                  <SearchEffort />
+                  <div className="flex-1" />
+                  <Button onClick={compute} disabled={rarity !== 'rare' || target.length === 0} size="lg">
+                    Compute plan
+                  </Button>
+                </div>
+                <SearchEffortHint />
+                {tookMs !== null && (
+                  <p className="text-[11px] text-muted-foreground" role="status">
+                    Last solve took <strong className="tabular-nums">{(tookMs / 1000).toFixed(1)}s</strong>.
+                  </p>
+                )}
                 {rarity !== 'rare' && <span className="text-xs text-muted-foreground">The full planner needs a Rare item (use the quick check for Magic).</span>}
-              </div>
+              </>
             )}
           </Card>
 
@@ -606,10 +624,12 @@ const ItemActions: React.FC = () => {
               opposite. Naming both is the honest version, and it explains why the two numbers differ. */}
           <p className="text-[11px] text-muted-foreground px-1">
             <strong>Two cost models below.</strong> The step plan assumes that on a miss you reset to <em>your</em>{' '}
-            item and retry, so it never throws away the mods you started with — optimistic, and it assumes you can
-            reproduce that item for free. <strong>True expected cost</strong> makes no such assumption: a miss leaves
-            you in a worse state and the policy digs out of it in place. Expect it to be the higher, and the realer,
-            of the two.
+            item and retry — so it never throws away the mods you started with, but it also assumes you can replace
+            that item for free, which for an item you already hold you cannot. <strong>True expected cost</strong>{' '}
+            makes no such assumption: a miss leaves you in a worse state and the policy digs out of it in place.
+            The two can differ by any amount and in <em>either</em> direction — a step plan is one fixed sequence
+            where every slam must hit one named mod, so on a long-shot target it reads far <em>above</em> the true
+            cost, while the policy adapts and takes whatever lands.
           </p>
 
           {planErr && (
@@ -643,10 +663,11 @@ const ItemActions: React.FC = () => {
               <p className="text-[11px] text-muted-foreground">
                 The honest average spend to reach this target, playing the optimal policy — it weighs
                 Greater/Perfect Exalts and side omens, and <strong>recovers in place</strong> after a bad roll
-                rather than restarting. The step routes below are the simpler per-plan view — their “cheapest”
-                assumes a free restart, so it reads lower than this. <strong>“True” describes the model,
-                not the money</strong> — it is honest about how crafting actually behaves; the price sheet
-                it is multiplied by is still an estimate.
+                rather than restarting. The step routes below are the simpler per-plan view: one fixed sequence,
+                priced as though a miss handed you a free replacement item. That makes their cost neither an
+                upper nor a lower bound on this one. <strong>“True” describes the model, not the money</strong>{' '}
+                — it is honest about how crafting actually behaves; the price sheet it is multiplied by is
+                still an estimate.
               </p>
               {engine && <PriceBasisNote basis={priceBasis(engine)} exactOdds={!markov.assumedOdds} />}
               <PolicyGraph result={markov} rates={rates} />
@@ -662,6 +683,10 @@ const ItemActions: React.FC = () => {
             <FrontierView
               priceBasis={engine ? priceBasis(engine) : undefined}
               result={plan}
+              // A held item cannot be replaced for free, so the restart-model ranking is fiction here:
+              // it buries 158.7ex Annuls behind a 0.1% gate to avoid paying for them and calls the
+              // result "cheapest". Lead with the likeliest route instead.
+              freeRestart={false}
               title="Step-by-step routes (per-plan view)"
               emptyHint={excludedKeys.length > 0 ? (
                 <p>No route avoids the {excludedKeys.length} currenc{excludedKeys.length === 1 ? 'y' : 'ies'} you

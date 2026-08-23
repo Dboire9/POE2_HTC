@@ -163,8 +163,15 @@ export interface ParetoPlan extends CostedPlan {
   readonly probability: number;
 }
 
-/** How deep the currency-tier (orb strength) search went — reported, never silently truncated. */
-export type CurrencyDepth = 'full' | 'base+strongest' | 'strongest-only';
+/**
+ * How deep the currency-tier (orb strength) search went — reported, never silently truncated.
+ *
+ * `base-only` is not a throttle: it is the from-item planner saying it never varies orb strength at
+ * all. That planner used to report `full`, which the UI renders as "tried every orb strength" — an
+ * outright false claim, and one that hid a real reason its costs sit so far above the MDP's, since
+ * the MDP does reach for Greater and Perfect Exalts.
+ */
+export type CurrencyDepth = 'full' | 'base+strongest' | 'strongest-only' | 'base-only';
 
 export interface ParetoResult {
   /** Non-dominated plans, cheapest-first (probability rises along the frontier). */
@@ -172,12 +179,20 @@ export interface ParetoResult {
   readonly plansEvaluated: number;
   /** The orb-strength search depth actually used (throttled down for very large targets). */
   readonly currencyDepth: CurrencyDepth;
+  /** True when a cap (plans or wall clock) stopped the search before it had seen everything. */
+  readonly truncated?: boolean;
 }
 
 export interface OptimizeParetoOptions {
   level?: number;
   /** Throttle the currency-tier search once the estimated plan count exceeds this. Default 100000. */
   maxPlans?: number;
+  /**
+   * Wall-clock ceiling. Absent by default and absent in tests, so results stay deterministic and
+   * machine-independent — only the app sets it, exactly as the MDP's `maxMillis` works. Hitting it
+   * sets `truncated`.
+   */
+  maxMillis?: number;
   /**
    * Called as plan sequences are evaluated, so a UI can show progress. Unlike the budget search's node
    * cap, `total` here is the real count — every ordering × orb assignment is known before evaluation
@@ -206,7 +221,7 @@ function strengthUsable(policy: CurrencyPolicy | undefined, tier: CurrencyTier):
 }
 
 /** Report roughly this many times across the run: frequent enough to animate, rare enough to be free. */
-const PROGRESS_REPORTS = 100;
+export const PROGRESS_REPORTS = 100;
 
 const ORB_TIERS: readonly CurrencyTier[] = ['base', 'greater', 'perfect'];
 

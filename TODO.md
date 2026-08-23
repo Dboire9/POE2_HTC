@@ -6,7 +6,23 @@ Last reviewed: 2026-08-23.
 
 ---
 
-## 1. Startup: what measurement left on the table
+## 1. The from-item step planner never varies orb strength
+
+`baseTransforms` (`packages/optimizer/src/fromItem.ts`) builds every add at base strength — no `tier`
+field — so the planner cannot buy the probability a Greater or Perfect Exalt offers. The MDP *does*
+weigh them, which is part of why the two models' costs diverge so hard on a long-shot craft. As of
+2026-08-23 the badge tells the truth about this (`currencyDepth: 'base-only'`) instead of claiming
+"tried every orb strength".
+
+Fixing it means an orb-strength axis over the adds, multiplying the search by roughly `3^k` on a
+search that already evaluates 295,680 plans (~3.2s) for a 5-target craft. It needs the same
+estimate-then-reduce throttle `optimizePareto` uses, not a naive product. Worth doing; not small.
+
+Related, smaller: above the Thorough preset the MDP's `maxIters` (100k sweeps, ~50s) binds before
+`maxMillis`, so Patient buys nothing on crafts like the one in docs/validation.md. Either expose the
+sweep cap on the effort ladder or stop implying more time helps.
+
+## 2. Startup: what measurement left on the table
 
 Done: `mods.json` warm-start, immutable cache headers, dead UI kit removed. What the bundle
 visualiser (`ANALYZE=1 npm run build`) showed, as a share of the 108.7 kB gzip bundle:

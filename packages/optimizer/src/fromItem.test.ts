@@ -325,3 +325,48 @@ describe('optimizeFromItem — real data (Wands)', () => {
     expect(best.steps.every((s) => s.currency !== 'annul' && s.currency !== 'chaos')).toBe(true);
   });
 });
+
+// This planner used to read nothing from `opts` but `policy`. The player's Search-effort setting was
+// passed in, obeyed by every other planner, and silently discarded here — so the one control offered
+// for "how long am I willing to wait" did not bind on the slowest half of a from-item compute. It also
+// reported `currencyDepth: 'full'`, which the UI renders as "tried every orb strength", while
+// `baseTransforms` sets no `tier` on any add and so only ever uses base-strength orbs.
+describe('optimizeFromItem — limits and what it admits to', () => {
+  const start = rareItem(['NP1'], []); // one junk prefix to clear, one target to add
+  const targets = [{ modId: 'NP2' }];
+
+  it('never claims to have tried every orb strength, because it tries exactly one', () => {
+    const r = optimizeFromItem(data, prices, start, targets);
+    expect(r.currencyDepth).toBe('base-only');
+    // …and the claim matches the plans: not one add carries an orb-strength tier.
+    for (const p of r.frontier) {
+      for (const s of p.steps) expect('tier' in s ? s.tier : undefined).toBeUndefined();
+    }
+  });
+
+  it('says so too when the item already matches the target', () => {
+    const r = optimizeFromItem(data, prices, rareItem(['NP2'], []), targets);
+    expect(r.currencyDepth).toBe('base-only');
+  });
+
+  it('runs to completion, and admits nothing was cut, when given no clock', () => {
+    const r = optimizeFromItem(data, prices, start, targets);
+    expect(r.truncated).toBeUndefined();
+    expect(r.plansEvaluated).toBeGreaterThan(0);
+  });
+
+  it('stops on the wall clock and says it stopped', () => {
+    // A zero budget is already spent, so this is deterministic rather than a race — see the `>=` note
+    // in the deadline check. A real preset never passes anything near zero.
+    const r = optimizeFromItem(data, prices, start, targets, { maxMillis: 0 });
+    expect(r.truncated).toBe(true);
+  });
+
+  it('reports progress, so the bar is not frozen for the planner’s whole run', () => {
+    const seen: [number, number][] = [];
+    optimizeFromItem(data, prices, start, targets, { onProgress: (d, t) => seen.push([d, t]) });
+    expect(seen.length).toBeGreaterThan(0);
+    // Ends at 100%: a bar that stops at 97% reads as a hang just like one that never moves.
+    expect(seen[seen.length - 1]![0]).toBe(seen[seen.length - 1]![1]);
+  });
+});

@@ -285,6 +285,7 @@ export function markovFromItem(
     return (a.cost + s) / (1 - a.selfProb);
   };
   let decades = 0; // log-distance the first sweep had left to travel; see the progress note below
+  let lastPermille = -1; // last value actually SENT — see the throttle note in the loop
   let converged = false;
   // Checked every CHECK sweeps rather than every sweep: Date.now() in the hot loop is measurable, and
   // a sweep is short enough that the overshoot is irrelevant next to a multi-second budget.
@@ -327,7 +328,19 @@ export function markovFromItem(
       // when there isn't — which is exactly the case where the user needs to see something move.
       const byResidual = decades > 0 ? (decades - remaining) / decades : 0;
       const byBudget = (iter + 1) / maxIters;
-      report({ phase: 'solve', done: Math.round(Math.max(byResidual, byBudget) * 1000), total: 1000 });
+      const permille = Math.round(Math.max(byResidual, byBudget) * 1000);
+      // Emit only when the number the UI would DISPLAY changes.
+      //
+      // This is the loop's outer bound — up to `maxIters` (100k) sweeps — and every report crosses the
+      // worker boundary as a postMessage that wakes a React re-render. Reporting per sweep sent
+      // ~100,001 messages to describe at most 1001 distinct values, so ~99% of them repainted the bar
+      // with the number it already had. That flood is what turned a 24-second solve into a ten-minute
+      // wait in the browser; the maths was never slow. The other two phases above were already
+      // strided — this one was missed, which is why only long solves showed it.
+      if (permille !== lastPermille) {
+        lastPermille = permille;
+        report({ phase: 'solve', done: permille, total: 1000 });
+      }
     }
   }
   report?.({ phase: 'solve', done: 1, total: 1 });

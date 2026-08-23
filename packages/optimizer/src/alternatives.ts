@@ -103,7 +103,11 @@ export const DEFAULT_MAX_NODES = 200;
 export const DEFAULT_MAX_PLANS_PER_NODE = 5_000;
 
 const FRONTIER_EPS = 1e-12;
-const DEPTH_RANK: Record<CurrencyDepth, number> = { full: 0, 'base+strongest': 1, 'strongest-only': 2 };
+// How INCOMPLETE each depth is; the aggregate below takes the worst across nodes so the badge never
+// claims more coverage than the least-searched node had. `base-only` ranks worst because it is not a
+// throttle at all — that planner never varies orb strength, so it is the least that can be said.
+// Understating coverage is the safe direction for a mixed run; overstating it is the bug being avoided.
+const DEPTH_RANK: Record<CurrencyDepth, number> = { full: 0, 'base+strongest': 1, 'strongest-only': 2, 'base-only': 3 };
 
 /** |midpoint| of a stat range: [min,max] → |(min+max)/2|. Absolute, so "reduced X" mods (whose best
  *  tier is the most negative) still compare in the right direction. */

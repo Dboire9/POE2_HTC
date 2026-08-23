@@ -163,7 +163,10 @@ export function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
   // the numbers it qualifies are on screen.
   const assumedOdds = res.frontier.some((plan) =>
     plan.steps.some((step) => step.currency === 'desecrate' && step.boss === undefined));
-  return { frontier, plansEvaluated: res.plansEvaluated, currencyDepth: res.currencyDepth, assumedOdds };
+  return {
+    frontier, plansEvaluated: res.plansEvaluated, currencyDepth: res.currencyDepth, assumedOdds,
+    ...(res.truncated ? { truncated: true } : {}),
+  };
 }
 
 /** Engine slot → UI slot: turns minTierIndex back into a 1-based display tier and a compact label. */

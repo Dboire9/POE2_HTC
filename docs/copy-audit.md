@@ -162,6 +162,35 @@ it goes.
   `PriceBasisNote` drops its "the odds are exact" claim on plans containing an unomened Desecration
   (`assumedOdds`). See `docs/validation.md` D4.
 
+## Sweep 2 — the from-item panel (2026-08-23)
+
+Prompted by a user report, not a sweep. Both claims below were **shipped and wrong**, and both were
+the same failure: an explanation asserted from how the code was *meant* to behave rather than from
+what it does.
+
+| # | Claim | Where | Verdict |
+|---|---|---|---|
+| 5 | "Expect it to be the higher, and the realer, of the two" (true cost vs the step plan) | `ItemActions.tsx` | **FALSE as stated** |
+| 6 | "tried every orb strength" on a from-item craft | `FrontierView.tsx` `DEPTH_NOTE.full` | **FALSE** |
+
+**Row 5.** The note told the reader the step plan is the optimistic one and the true cost will exceed
+it. On the reported craft the step plan read `267.5B div` against a true cost of `28.9K div` — higher
+by ~9,000,000x, the opposite of the promise. The step plan is one *fixed* sequence in which every slam
+must hit a named mod, so on a long-shot target its restart-model cost runs far above what an adaptive
+policy pays. Fixed by saying the two can differ in either direction, and why. The free-restart
+assumption is now also stated where it bites rather than only in the preamble.
+
+**Row 6.** `optimizeFromItem` returned `currencyDepth: 'full'`, which `DEPTH_NOTE` renders as "tried
+every orb strength". `baseTransforms` sets no `tier` on any add, so that planner only ever uses
+base-strength orbs — it had never tried a single Greater or Perfect Exalt. New `base-only` member says
+so. This one is worse than a cosmetic overclaim: it concealed a real reason the two models diverge,
+since the MDP *does* weigh Greater/Perfect Exalts.
+
+A third disclosure, not a false claim but a missing one: `PolicyGraph` drew an unconverged policy's
+state closure under the heading "optimal policy" even when that closure **does not contain the
+target** (measured: 14 states, depths 7→4, goal absent). It now says there is no route yet and to
+raise Search effort. See `docs/validation.md`.
+
 ## Still open
 
 Nothing. Kept as a record of what was found and what it cost, not as a worklist.
@@ -169,7 +198,9 @@ Nothing. Kept as a record of what was found and what it cost, not as a worklist.
 The two lessons worth carrying forward, both already in CLAUDE.md's critical rules:
 
 1. **A plausible-but-wrong explanation is worse than none** — row 4's "The target is impossible on this
-   base/level" sent a user to adjust a tier that was never the problem.
+   base/level" sent a user to adjust a tier that was never the problem. Row 5 is the same lesson in a
+   new place: a confident sentence about which of two numbers would be larger, contradicted on screen
+   by seven orders of magnitude, and never checked against a real craft.
 2. **The rule cuts both ways.** Row 1 called a real game rule a planner limit, on reasoning that was
    confidently argued and simply false. Verifying "this is impossible" and verifying "this is merely
    unimplemented" take the same care.

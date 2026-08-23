@@ -256,3 +256,48 @@ describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to veri
     // vitest.config.ts — the RNG is seeded, so any failure here is a real number, not a flake.
   });
 });
+
+// The craft that produced this test, reported from the live app: a Rare wand carrying Chaos Damage +
+// Cast Speed as junk, targeting five top-tier mods. It does not converge, so value iteration runs its
+// whole `maxIters` budget — and the solve phase used to `report(...)` on EVERY sweep. At the 100k
+// default that is ~100,001 messages describing at most 1001 distinct values, so ~99% of them repainted
+// the progress bar with the number it already had.
+//
+// In node that is invisible (the callback is a function call). In the browser every report crosses the
+// worker boundary as a postMessage and wakes a React re-render, which is what turned a ~24-second
+// solve into a ten-minute wait. The two earlier phases were already strided; this one was missed.
+//
+// Asserting on message COUNT alone would need a magic number; asserting no two CONSECUTIVE reports
+// carry the same value is exactly the invariant the throttle establishes, and per-sweep reporting
+// violates it immediately.
+describe('markovFromItem — progress reporting', () => {
+  it('never sends the same progress number twice in a row', () => {
+    const real = loadPatch('data/patches/0.5.0');
+    const rp = loadPrices('data/patches/0.5.0');
+    const w = real.bases.get('Wands')!;
+    const start: ItemState = {
+      base: w, level: 82, rarity: 'rare',
+      prefixes: [{ modId: 'Wands/ChaosDamageWeaponPrefix', tierName: real.mods.get('Wands/ChaosDamageWeaponPrefix')!.tiers[0]!.name }],
+      suffixes: [{ modId: 'Wands/IncreasedCastSpeed', tierName: real.mods.get('Wands/IncreasedCastSpeed')!.tiers[0]!.name }],
+    };
+    const targets = [
+      'Wands/SpellCriticalStrikeMultiplier', 'Wands/SpellCriticalStrikeChance', 'Wands/ManaRegeneration',
+      'Wands/WeaponSpellDamage', 'Wands/ColdDamageWeaponPrefix',
+    ].map((modId) => ({ modId, minTierIndex: 0 })); // top tier — the long shot that stalls VI
+
+    const solve: number[] = [];
+    // `maxIters` well above 1000 so the budget measure alone changes on ~1 sweep in 3: per-sweep
+    // reporting would emit ~3000 values with heavy repetition, the throttle emits at most 1001.
+    const r = markovFromItem(real, rp, start, targets, {
+      maxIters: 3_000,
+      onProgress: (p) => { if (p.phase === 'solve') solve.push(p.done); },
+    });
+
+    expect(r.converged).toBe(false); // the premise: this craft really does burn the whole budget
+    expect(solve.length).toBeGreaterThan(1); // …and really does report, so the assertion has teeth
+    const repeats = solve.filter((v, i) => i > 0 && v === solve[i - 1]);
+    expect(repeats).toEqual([]);
+    // At most one message per distinct permille the UI could render.
+    expect(solve.length).toBeLessThanOrEqual(1001);
+  });
+});

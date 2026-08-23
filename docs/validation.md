@@ -1040,6 +1040,96 @@ linear (100 nodes 7.0s, 200 nodes 14.1s).
 
 ---
 
+## The from-item panel, measured against a real user report (2026-08-23)
+
+A five-target craft was run in the live app and reported back: an unreadable policy graph, a
+`267.5B div` step cost, an Exalt placed before two Annuls, and a wait "like +15 minutes". Every claim
+below is reproduced in node against `data/patches/0.5.0`, not inferred.
+
+**Both screens reproduce exactly.** Rare Wand ilvl 82 holding Chaos Damage + Cast Speed as junk;
+targets Crit Spell Damage Bonus, Crit Hit Chance for Spells, Mana Regen, Spell Damage, Cold Damage.
+
+| target tier | MDP nodes | MDP E | shown as | step frontier |
+|---|---|---|---|---|
+| T1 | 14 | 1.052e7 ex | 28.9K div | 1 plan |
+| T2 | 262 | 5.420e6 ex | 14.9K div | 10 plans |
+
+Both match the user's screens (they quoted "14 item states" / "262 item states" and both div figures).
+
+### 1. The wait was a progress flood, not slow maths ✅ FIXED
+
+Totals in node were **26s (T1) and 28s (T2)**, and `maxMillis` can only shorten that. The difference
+in the browser: value iteration called `report(...)` **once per sweep**, and a non-converging craft
+runs `maxIters = 100_000`, so the worker fired ~100,001 `postMessage` calls, each waking a React
+re-render of the progress bar. `engine.worker.ts` licensed this in a comment — "that is fine precisely
+because this is a worker: the message queue drains on the main thread, which is free". True at 100
+messages; catastrophic at 100,000. The `actions` and `compile` phases were already strided; `solve`
+was missed.
+
+Fixed by emitting only when the number the UI would *display* changes (permille), which caps it at
+1001 by construction. **Measured: 100,001 → 992 reports.** Pinned by asserting no two consecutive
+reports carry the same value — reverting the throttle produces 2,001 duplicates out of 3,000 sweeps.
+
+### 2. An unconverged policy graph does not reach the target ✅ FIXED (disclosure)
+
+The graph is the closure of states reachable under whatever policy VI had arrived at when it stopped.
+Stop it early and that policy is provisional. Measured at the Standard effort (15s): **14 states
+spanning depths 7 down to 4, with the goal (depth 0) absent entirely.** The panel drew that as
+"Optimal policy" — a dead end presented as advice, and the direct cause of "I do not understand".
+
+The effort ladder resolves it, which is the loop the setting exists for:
+
+| effort | MDP nodes | goal reachable | route |
+|---|---|---|---|
+| Standard (15s) | 14 | **no** | — |
+| Thorough (60s) | 262 | yes | 6 steps |
+| Patient (300s) | 262 | yes | 6 steps |
+
+Patient is indistinguishable from Thorough here: VI hits `maxIters` (100k sweeps, ~50s) before the
+time budget, so above Thorough the sweep cap binds, not the clock. The panel now says "No route to
+show yet … raise Search effort" rather than drawing the dead end, and leads with the route when there
+is one — `Annul → Chaos → Exalt (Dextral, Greater) → Exalt (Dextral, Perfect) → Exalt (Perfect) →
+Exalt (Perfect)`, six steps in place of 262 squares.
+
+### 3. Exalt-before-Annul is the cost model, not an ordering bug ✅ FIXED (presentation)
+
+`transformSequences` enumerates every order and `annulProbability` returns `1/(pf+sf)`, so annulling
+to zero mods is legal and **was scored** — the user's route was searched and rejected. It lost on
+price: **an Annul is 158.7 ex and an Exalt is 1 ex**. Under `E = Σ c_k·S_{k-1} / S_n`, burying the
+Annuls behind a 0.1% gate you rarely pass costs ~65x less. The model is right; its premise is not,
+because it hands you a **free replacement of your item on every miss**.
+
+Confirmed on the T2 frontier: plan 0 (shown first) P=1.77e-5%, plan 9 P=1.36e-4% — the annuls-first
+route is **7.7x likelier** and 16.7x dearer under free-restart. It was on the frontier the whole time,
+last in a list the user had no reason to scroll. `FrontierView` now takes `freeRestart`, and a held
+item leads with the likeliest route, captions the cost "if restarts were free", and labels the other
+end "cheapest on paper".
+
+`267.5B div` itself is arithmetically correct: numerator ≈ 1.21 ex over `S_n ≈ 9.3e-15`. The
+per-attempt figure checks out too — 5 Exalts + 2 Annuls + 4 side omens = 357 ex.
+
+### 4. Three smaller things the same screen exposed ✅ FIXED
+
+- **"tried every orb strength" was false.** `optimizeFromItem` hardcoded `currencyDepth: 'full'`, but
+  `baseTransforms` never sets `tier` on an add — that planner only ever uses base-strength orbs. New
+  `base-only` depth says so. It is part of why its costs sit so far above the MDP's, which does weigh
+  Greater and Perfect Exalts.
+- **The effort control was unreachable in Item mode.** It sat in EngineLab's *else* branch while
+  `ItemActions` obeyed `limitsFor(effort)` — a setting binding on a tab that could not show it.
+- **`357 ex` rendered as `0.98 div`.** One unit per view took its max across *different quantities*;
+  units are now per column.
+- **The two-cost-models note promised the wrong ordering** ("expect [the true cost] to be the higher").
+  Here the step plan was ~9,000,000x higher. A step plan is one fixed sequence where every slam must
+  hit a named mod, so on a long shot it reads far *above* the adaptive policy. Copy now says the two
+  can differ in either direction, and why.
+
+### Still open from this sweep
+
+- The from-item planner does not search orb strengths at all (`base-only`). Fixing it multiplies the
+  search by `3^k`; the badge tells the truth in the meantime. See TODO.
+- Above Thorough the MDP's `maxIters` binds before `maxMillis`, so Patient buys nothing on crafts like
+  this one. The preset hint is not wrong, but the cap is not currently a user-facing lever.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

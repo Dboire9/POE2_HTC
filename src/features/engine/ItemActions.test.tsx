@@ -118,3 +118,38 @@ describe('ItemActions — full plan target', () => {
     await waitFor(() => expect(mocks.optimizeItem).toHaveBeenCalledTimes(1));
   });
 });
+
+// The Item tab called `useEffort()` and passed `limitsFor(effort)` into the solver, but rendered no
+// control — the picker lived inside EngineLab's *else* branch, i.e. the Lab tab. So a from-item craft
+// silently ran under whatever was last chosen on the other tab. A setting that binds here must be
+// reachable here.
+describe('ItemActions — search effort', () => {
+  async function toPlanMode(user: ReturnType<typeof userEvent.setup>) {
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+  }
+
+  it('renders the effort picker on this tab', async () => {
+    await toPlanMode(userEvent.setup());
+    const select = screen.getByLabelText(/How hard the solver should look/i);
+    expect(select).toBeInTheDocument();
+    // Every preset is offered, not just the current one.
+    expect(within(select).getAllByRole('option').length).toBeGreaterThan(1);
+  });
+
+  // "I think it was like +15 minutes (didn't see because the timer goes away when finished)" — the
+  // live timer lives on the progress bar, which unmounts the instant the solve lands, so the number was
+  // unobservable at exactly the moment it mattered.
+  it('reports how long the last solve took, after it has finished', async () => {
+    const user = userEvent.setup();
+    await toPlanMode(user);
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    await user.click(screen.getByRole('button', { name: /Compute plan/i }));
+    await waitFor(() => expect(screen.getByText(/Last solve took/i)).toBeInTheDocument());
+  });
+
+  it('says what the current preset costs you', async () => {
+    await toPlanMode(userEvent.setup());
+    expect(screen.getByText(/Search effort:/i)).toBeInTheDocument();
+  });
+});

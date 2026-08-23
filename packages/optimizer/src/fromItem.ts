@@ -17,7 +17,7 @@ import type { Prices } from './cost.ts';
 import { allowsStep, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, orderedSelections, permutations } from './combinatorics.ts';
 import type { OptimizeParetoOptions, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
-import { paretoFrontier, withOmenVariants } from './optimize.ts';
+import { PROGRESS_REPORTS, paretoFrontier, withOmenVariants } from './optimize.ts';
 
 /**
  * Target validation for the from-item planner: 1–6 mods, ≤3/side. A target mod is one the planner can
@@ -182,21 +182,58 @@ export function optimizeFromItem(
     const result = evaluatePlanFrom(data, start, []); // already the target — nothing to do
     return {
       frontier: [{ steps: [], result, cost: planExpectedCost(prices, result, []), probability: 1 }],
-      plansEvaluated: 1, currencyDepth: 'full',
+      plansEvaluated: 1, currencyDepth: 'base-only',
     };
   }
 
-  const plans: ParetoPlan[] = [];
-  for (const seq of transformSequences(
+  const sequences = transformSequences(
     data, junk, missingRollable, missingPerfect, missingDesecrated, tierOf,
     bossOmenAllowed(start.base.category),
-  )) {
-    for (const steps of withOmenVariants(data, seq, start, policy)) {
+  );
+
+  // This loop used to be unbounded and silent: it read nothing from `opts` but `policy`, so the
+  // player's Search-effort setting reached it and did nothing, and the progress bar showed no movement
+  // for its whole run. On the reported craft that is 14,640 sequences → 295,680 plans in ~3.2s, which
+  // is survivable; a bigger target is not obviously so, and "survivable on the case we measured" is not
+  // a bound.
+  //
+  // The lever is the WALL CLOCK, not `maxPlans`. `maxPlans` selects an orb-strength *depth* in the
+  // from-white planner, and this planner has no orb-strength axis to trade away (see `base-only`
+  // below) — repurposing it as a hard plan cap would silently truncate crafts that finish comfortably
+  // today. `maxMillis` stays absent unless the caller passes it, exactly as the MDP's does, so tests
+  // stay deterministic and only the app spends a clock.
+  const report = opts.onProgress;
+  const stride = Math.max(1, Math.floor(sequences.length / PROGRESS_REPORTS));
+  const deadline = opts.maxMillis === undefined ? Infinity : Date.now() + opts.maxMillis;
+  const DEADLINE_CHECK = 64; // Date.now() per sequence would be measurable; per 64 is not
+  let truncated = false;
+
+  const plans: ParetoPlan[] = [];
+  for (let i = 0; i < sequences.length; i++) {
+    // `>=` rather than `>`: it makes a zero budget mean "do nothing" deterministically, which is what
+    // makes this testable without a wall-clock race. The 1ms difference is otherwise immaterial, and
+    // the app floors the budget well above zero.
+    if (deadline !== Infinity && i % DEADLINE_CHECK === 0 && Date.now() >= deadline) {
+      truncated = true;
+      break;
+    }
+    for (const steps of withOmenVariants(data, sequences[i]!, start, policy)) {
       // Same guarantee as the from-white planner: never hand back a plan the player can't execute.
       if (policy && steps.some((s) => !allowsStep(policy, s))) continue;
       const result = evaluatePlanFrom(data, start, steps);
       plans.push({ steps, result, cost: planExpectedCost(prices, result, steps), probability: result.total });
     }
+    if (report && i % stride === 0) report(i, sequences.length);
   }
-  return { frontier: paretoFrontier(plans), plansEvaluated: plans.length, currencyDepth: 'full' };
+  report?.(sequences.length, sequences.length);
+
+  return {
+    frontier: paretoFrontier(plans),
+    plansEvaluated: plans.length,
+    // NOT 'full'. `baseTransforms` never sets `tier` on an add, so every plan here uses base-strength
+    // orbs; reporting 'full' rendered as "tried every orb strength", which was false and concealed a
+    // real gap against the MDP, which does weigh Greater and Perfect Exalts.
+    currencyDepth: 'base-only',
+    ...(truncated ? { truncated: true } : {}),
+  };
 }

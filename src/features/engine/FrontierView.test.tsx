@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import FrontierView from './FrontierView';
-import type { EngineResult } from '../../lib/engine';
+import type { EnginePriceBasis, EngineResult } from '../../lib/engine';
 
 const empty: EngineResult = {
   frontier: [], plansEvaluated: 1, currencyDepth: 'full', assumedOdds: false,
@@ -47,5 +47,74 @@ describe('FrontierView — the empty state does not overclaim', () => {
     expect(container.textContent).not.toMatch(/checked 1 plans/);
     const many = render(<FrontierView result={{ ...empty, plansEvaluated: 2 }} />);
     expect(many.container.textContent).toMatch(/checked 2 plans/);
+  });
+});
+
+// The reported craft, in miniature. `expected` is computed under restart-on-first-failure — a miss
+// hands you a free replacement of your starting item. From a white base that is roughly true. From the
+// Rare in your stash it is fiction, and the ranking it produces inverts: an Annulment costs 158.7ex
+// against an Exalt's 1ex, so burying the Annuls behind a 0.1% gate you rarely pass "saves" ~65x and
+// the cheapest plan is one no player would run. On the real craft the surest route — annul, annul,
+// then exalt, which is what a player reaches for — sat last on the list at 7.7x the success chance.
+const cheapButSilly = { probability: 1.77e-7, expected: 1.07e7, perAttempt: 340, expectedAttempts: 5.6e6, steps: [] };
+const dearButSensible = { probability: 1.36e-6, expected: 1.78e8, perAttempt: 357, expectedAttempts: 7.3e5, steps: [] };
+const twoPlans: EngineResult = {
+  frontier: [cheapButSilly, dearButSensible], // search order is always cheapest → surest
+  plansEvaluated: 295_680, currencyDepth: 'base-only', assumedOdds: false,
+};
+
+const costOf = (card: HTMLElement) => card.textContent ?? '';
+
+describe('FrontierView — whether a restart is really free', () => {
+  it('leads with the cheapest when a restart IS free (a white base)', () => {
+    render(<FrontierView result={twoPlans} freeRestart />);
+    const cards = screen.getAllByText(/success \/ attempt/i).map((el) => el.closest('div.rounded-lg')!);
+    expect(costOf(cards[0] as HTMLElement)).toContain('cheapest');
+    expect(costOf(cards[0] as HTMLElement)).not.toContain('on paper');
+  });
+
+  it('leads with the likeliest route when it is not', () => {
+    render(<FrontierView result={twoPlans} freeRestart={false} />);
+    const cards = screen.getAllByText(/success \/ attempt/i).map((el) => el.closest('div.rounded-lg')!);
+    // Surest first — the annuls-first route a player would actually run.
+    expect(costOf(cards[0] as HTMLElement)).toContain('surest');
+    expect(costOf(cards[cards.length - 1] as HTMLElement)).toContain('cheapest on paper');
+  });
+
+  it('captions the cost figure with the assumption it rests on', () => {
+    render(<FrontierView result={twoPlans} freeRestart={false} />);
+    expect(screen.getAllByText(/cost if restarts were free/i).length).toBe(2);
+    expect(screen.queryByText(/^expected cost$/i)).toBeNull();
+  });
+
+  it('keeps "best value" on the plan the search picked, not on whatever ends up first', () => {
+    // The flags are decided on the search order and carried through the reversal. Recomputing them
+    // after reversing would silently move the ring to the wrong card.
+    const { container } = render(<FrontierView result={twoPlans} freeRestart={false} />);
+    const ringed = container.querySelectorAll('.ring-2');
+    expect(ringed.length).toBe(1);
+    expect(ringed[0]!.textContent).toContain('best value');
+  });
+});
+
+// Real shipped rates, so the ladder actually engages — with no rates `pickUnit` can only choose
+// exalts and the assertion below would pass without testing anything.
+const basis: EnginePriceBasis = {
+  estimated: false, asOf: '2026-08-22', patch: '0.5.0', unit: 'exalt',
+  rates: { chaos: 33.39, divine: 364.2 },
+};
+
+describe('FrontierView — units are per quantity, not per view', () => {
+  it('does not push a 357ex per-attempt figure into divine because another number is astronomical', () => {
+    // One unit for the whole card set took the max across BOTH quantities: `expected` (1.78e8 ex)
+    // chose divine, and then perAttempt — 357 ex, the number you actually hand over per try — rendered
+    // as "0.98 div". Sharing a unit down a column is what makes rows comparable; sharing one ACROSS
+    // columns that measure different things does the opposite.
+    render(<FrontierView result={twoPlans} freeRestart={false} priceBasis={basis} />);
+    const perAttempt = screen.getAllByText(/per attempt/)[0]!.textContent ?? '';
+    expect(perAttempt).toMatch(/357 ex per attempt/);
+    // …while the astronomical column really does escalate, or the two would not be sharing a view.
+    expect(screen.getAllByText(/cost if restarts were free/i)[0]!.previousSibling?.textContent)
+      .toMatch(/div$/);
   });
 });

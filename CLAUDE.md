@@ -69,5 +69,30 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - `0.5` (Java-extracted) and `0.5.0` (poe2db) use DIFFERENT mod-id schemes (`MAXIMUM_MANA` vs `IncreasedMana`); the app + facade tests are id-agnostic (they list from the loaded data), but hardcoded ids in a test must match whichever patch that test loads.
 - Java-retirement doc debt was audited 2026-08-21 — `docs/{API_EXAMPLES,DEVELOPMENT,CONTRIBUTING,ABOUT,data-layer}.md` all lead with the "backend retired, pure client-side TS" note, and the remaining Java mentions (the frozen `__fixtures__` anchor, the `0.5` snapshot, past-tense history in ABOUT) are deliberate and accurate. Don't "fix" those. The audit predated the Electron removal; `DOWNLOAD.md` was rewritten separately on 2026-08-23 and now says there is nothing to download.
 - **`vercel.json` holds the cache headers, and JSON has no comments.** `/static/*` is content-hashed by Vite so it is cached `immutable` for a year; `/` is not hashed (it is how a new deploy is discovered) so it is `max-age=0, must-revalidate`. Getting those backwards either re-downloads 3.1 MB every visit or pins users to a stale build. Vercel's schema **rejects unknown properties** — a `"//"` key added to explain each rule failed the build outright ("headers[0] should NOT have additional property //"), so the headers never shipped. Explanations go here; `src/lib/deployConfig.test.ts` enforces the schema locally so the next mistake fails in the suite rather than in a deploy.
+- **The Search-effort control must be rendered on every tab that obeys it.** `ItemActions` passed
+  `limitsFor(effort)` to the solver while the picker lived inside EngineLab's lab-mode branch, so a
+  from-item craft ran under a setting its own tab could not show. It is `SearchEffort.tsx` now, with
+  two call sites.
+- **A progress report is not free — it is a `postMessage` plus a React re-render.** Value iteration
+  reported once per sweep, so a non-converging craft fired ~100,001 messages to describe at most 1001
+  distinct permille values; in the browser that turned a 24-second solve into a ten-minute wait while
+  node measured 24 seconds. Solvers must emit only when the number the UI would *display* changes
+  (`markovFromItem`'s `lastPermille`), or stride like `optimizePareto`'s `PROGRESS_REPORTS`. The
+  worker adapter deliberately adds no buffering, so this stays the solver's property.
+- **An unconverged MDP's policy GRAPH is not just imprecise — it may not reach the target at all.**
+  The graph is the state closure under whatever policy VI had when it stopped. At the Standard effort
+  a 5-target craft yielded 14 states spanning depths 7→4 with the goal (depth 0) absent. `converged`
+  covers the *number*; `PolicyGraph` separately checks `nodes.some(isGoal)` and refuses to draw a dead
+  end as "the optimal policy". Thorough reaches the goal on the same craft. See docs/validation.md.
+- **The restart cost model is fiction for a held item.** `planExpectedCost` restarts to the STARTING
+  item free on every miss — fair for a white base, false for the Rare in your stash. Since an Annul is
+  158.7 ex against an Exalt's 1 ex, it ranks "bury the Annuls behind a 0.1% gate" ~65x cheapest and
+  hands back a plan no player would run. `FrontierView`'s `freeRestart={false}` makes a from-item
+  panel lead with the likeliest route instead. Do NOT "fix" this in `planExpectedCost` — the
+  from-white planner depends on the assumption being true there.
+- **The from-item planner never varies orb strength** (`baseTransforms` sets no `tier`), so it reports
+  `currencyDepth: 'base-only'`. It used to report `full`, rendered as "tried every orb strength" — a
+  false claim that also hid why its costs sit so far above the MDP's, which does use Greater/Perfect
+  Exalts.
 - Sentry + analytics are wired in frontend; keep functional.
 - Direct pushes to `main` are sanctioned despite branch protection; `remote: Bypassed rule violations` is expected output, not an error. `main` and `revival` are kept in sync.

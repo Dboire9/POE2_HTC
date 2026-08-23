@@ -245,6 +245,17 @@ const ItemActions: React.FC = () => {
   );
 
   const item: ExistingItem = { baseId, level, rarity, prefixes, suffixes };
+  /**
+   * Why "Compute plan" is unavailable, or null when it isn't. Two conditions disabled the button and
+   * only one of them said anything — with a Rare item and no targets picked it simply greyed out and
+   * offered no reason at all. A disabled control that doesn't say what it wants is indistinguishable
+   * from a broken one.
+   */
+  const blockedBy: string | null = rarity !== 'rare'
+    ? 'The full planner needs a Rare item — switch Rarity above, or use the quick check for Magic.'
+    : target.length === 0
+    ? 'Pick at least one target mod above.'
+    : null;
 
   // ── Option 1: quick currency check ──────────────────────────────────────────
   const actions: CurrencyAction[] = useMemo(() => {
@@ -603,9 +614,16 @@ const ItemActions: React.FC = () => {
                 <div className="flex flex-wrap items-end gap-3">
                   <SearchEffort />
                   <div className="flex-1" />
-                  <Button onClick={compute} disabled={rarity !== 'rare' || target.length === 0} size="lg">
-                    Compute plan
-                  </Button>
+                  {/* The reason a disabled button is disabled belongs NEXT TO IT. This message used to
+                      share the button's row; moving it below the effort hint left the button greyed out
+                      with an unrelated paragraph between it and its explanation, which reads as a broken
+                      button rather than an unmet precondition. */}
+                  <div className="flex flex-col items-start sm:items-end gap-1">
+                    <Button onClick={compute} disabled={blockedBy !== null} size="lg">
+                      Compute plan
+                    </Button>
+                    {blockedBy && <span className="text-xs text-muted-foreground">{blockedBy}</span>}
+                  </div>
                 </div>
                 <SearchEffortHint />
                 {tookMs !== null && (
@@ -613,7 +631,6 @@ const ItemActions: React.FC = () => {
                     Last solve took <strong className="tabular-nums">{(tookMs / 1000).toFixed(1)}s</strong>.
                   </p>
                 )}
-                {rarity !== 'rare' && <span className="text-xs text-muted-foreground">The full planner needs a Rare item (use the quick check for Magic).</span>}
               </>
             )}
           </Card>

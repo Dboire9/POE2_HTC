@@ -123,6 +123,40 @@ describe('ItemActions — full plan target', () => {
 // control — the picker lived inside EngineLab's *else* branch, i.e. the Lab tab. So a from-item craft
 // silently ran under whatever was last chosen on the other tab. A setting that binds here must be
 // reachable here.
+// A disabled "Compute plan" must say what it is waiting for, and say it NEXT TO the button. Two
+// conditions disable it; one of them (no targets picked) said nothing at all, and the other had its
+// explanation pushed below the search-effort paragraph, where it reads as part of that paragraph
+// rather than as the reason the button is dead.
+describe('ItemActions — why Compute plan is unavailable', () => {
+  const computeButton = () => screen.getByRole('button', { name: /Compute plan/i });
+
+  async function toPlanMode(user: ReturnType<typeof userEvent.setup>) {
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+  }
+
+  it('names the missing precondition when no target is picked', async () => {
+    await toPlanMode(userEvent.setup());
+    expect(computeButton()).toBeDisabled();
+    expect(screen.getByText(/Pick at least one target mod/i)).toBeInTheDocument();
+  });
+
+  it('keeps the reason inside the button’s own block, not adrift below it', async () => {
+    await toPlanMode(userEvent.setup());
+    // The message must be reachable from the button without crossing unrelated copy — same parent.
+    const reason = screen.getByText(/Pick at least one target mod/i);
+    expect(computeButton().parentElement).toBe(reason.parentElement);
+  });
+
+  it('enables the button once a target is chosen', async () => {
+    const user = userEvent.setup();
+    await toPlanMode(user);
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    expect(computeButton()).toBeEnabled();
+    expect(screen.queryByText(/Pick at least one target mod/i)).toBeNull();
+  });
+});
+
 describe('ItemActions — search effort', () => {
   async function toPlanMode(user: ReturnType<typeof userEvent.setup>) {
     await loaded();

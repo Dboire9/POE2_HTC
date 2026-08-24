@@ -239,12 +239,17 @@ const StateDetail: React.FC<{
                   {pct(edge.prob)}
                 </span>
                 <span className="flex-1">
-                  {describeStep({
-                    gained: to.present.filter((x) => !node.present.includes(x)),
-                    lost: node.present.filter((x) => !to.present.includes(x)),
-                    blocked: to.blocked.filter((x) => !node.blocked.includes(x)),
-                    junkDelta: (to.junkPrefixes + to.junkSuffixes) - junk,
-                  }) || (to.isGoal ? 'reaches the target' : 'no change')}
+                  {/* Landing back on the START is "you threw the item away", not a mod diff. Read as
+                      changes it comes out as "clears a junk mod · loses <every target you held>",
+                      which leads on the least important thing that happened. Described by identity
+                      instead — the same treatment the goal already gets on the next line. */}
+                  {to.isStart ? 'back to the base you started from, nothing on it'
+                    : describeStep({
+                      gained: to.present.filter((x) => !node.present.includes(x)),
+                      lost: node.present.filter((x) => !to.present.includes(x)),
+                      blocked: to.blocked.filter((x) => !node.blocked.includes(x)),
+                      junkDelta: (to.junkPrefixes + to.junkSuffixes) - junk,
+                    }) || (to.isGoal ? 'reaches the target' : 'no change')}
                   {edge.regress && <span className="text-amber-600 dark:text-amber-400"> — a step backwards</span>}
                 </span>
               </li>

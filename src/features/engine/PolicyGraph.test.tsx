@@ -423,3 +423,50 @@ describe('PolicyGraph — the full description of a clicked state', () => {
     expect(screen.getByText(/states that look alike here/i)).toBeInTheDocument();
   });
 });
+
+// "Start over with a new base" is the policy's most common move on a from-white craft — 98% of states
+// take it when the base is free — so how its OUTCOME reads is not an edge case.
+describe('PolicyGraph — starting over is described as what it is', () => {
+  const withRestart = result_({
+    nodes: [
+      { key: 'w', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
+        isStart: true, isGoal: false, depth: 4, expectedCost: 100, action: 'Transmute' },
+      { key: 'm', present: ['Spell Damage'], blocked: [], junkPrefixes: 0, junkSuffixes: 0,
+        rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 90, action: 'Exalt' },
+      { key: 'r', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: [], junkPrefixes: 0,
+        junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 3,
+        expectedCost: 100, action: 'Start over with a new base' },
+      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const,
+        isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+    ],
+    edges: [
+      { from: 'w', to: 'm', action: 'Transmute', prob: 0.7, regress: false },
+      { from: 'w', to: 'r', action: 'Transmute', prob: 0.3, regress: true },
+      { from: 'm', to: 'g', action: 'Exalt', prob: 1, regress: false },
+      { from: 'r', to: 'w', action: 'Start over with a new base', prob: 1, regress: true },
+    ],
+  });
+  const openRestarter = async (): Promise<HTMLElement> => {
+    render(<PolicyGraph result={withRestart} />);
+    await expand();
+    const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
+    await userEvent.setup().click(boxes.find((b) => /Start over/.test(b.textContent ?? ''))!);
+    return screen.getByText(/What .*does from here/i).closest('div')!;
+  };
+
+  /**
+   * Read as a mod diff, binning the item comes out "clears a junk mod · loses Spell Damage, Mana
+   * Regeneration Rate" — it leads on the junk decrement, which is the least important thing that
+   * happened, and calls losing the whole item "loses" two mods. Reported from the live app on a craft
+   * where it was the advice on 300-odd of 447 boxes.
+   */
+  it('does not describe binning the item as a junk clear', async () => {
+    const panel = await openRestarter();
+    expect(within(panel).queryByText(/clears a junk mod/i)).toBeNull();
+  });
+
+  it('says you are back at the base you started from', async () => {
+    const panel = await openRestarter();
+    expect(within(panel).getByText(/back to the base you started from/i)).toBeInTheDocument();
+  });
+});

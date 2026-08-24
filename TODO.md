@@ -2,7 +2,7 @@
 
 Ordered by value. Update this file in the same commit that closes an item — see `.claude/skills/ship`.
 
-Last reviewed: 2026-08-23.
+Last reviewed: 2026-08-24.
 
 ---
 
@@ -69,8 +69,9 @@ route and an honest cost. What that left open:
 Partly addressed 2026-08-24: the stopping rule is scale-aware now (a thousandth of the craft's cheapest
 action, not a flat 1e-9), worth a measured **1.77x** — interleaved, three reps, non-overlapping. Error
 1.0e-3 relative and one-directional, so the number overstates a craft's cost and never flatters it.
-See docs/validation.md for that and for two things tried and rejected on measurement (goal-first sweep
-ordering; a seed repair that repaired nothing).
+See docs/validation.md for that and for three things tried and rejected on measurement (goal-first
+sweep ordering, now re-tested against sweep COUNTS and closed for good; dropping the free restart's
+zero-cost self-loop; a seed repair that repaired nothing).
 
 **What remains.** Solve is still ~99% of a from-white run, and the desecration flag axis widened the
 lattice ~5x where a bone is in play, so the picture is:
@@ -82,10 +83,23 @@ lattice ~5x where a bone is in play, so the picture is:
 | 6 | caps out at 120 s, returns an upper bound |
 
 A 5-target craft is now borderline at the Thorough preset (60 s) rather than plainly beyond it, and a
-6-target one still needs Patient. The next lever is **prioritised sweeping** — a worklist that skips
-states whose successors have not moved, instead of sweeping all N every pass. That is a real speedup
-and real complexity, and it should be measured the same way: interleaved medians, because single runs
-of these solves have a ~40% spread and have already produced two opposite conclusions from noise.
+6-target one still needs Patient.
+
+**Where the time actually goes, measured 2026-08-24 in sweeps rather than seconds** (deterministic, so
+it survives the ~40% wall-clock spread that has already produced two opposite conclusions from noise):
+phase B costs **20x phase A**. From-white Wand at 4 targets, 1,225 sweeps to seed against 24,838 to
+solve; at 3 targets, 783 against 4,417. Phase A is the same problem minus one action, so the restart
+action is where the whole cost sits — and it is not the zero-cost self-loop at the start state, which
+was tested and changes the sweep count by exactly nothing (see docs/validation.md).
+
+The likely reason, and the shape of the fix: with a free base, **98% of states choose restart** and so
+share one value, V(start) — measured on a converged 3-target solve (1,015 of 1,041 policy states), and
+stable at every sweep budget, so it is the true optimum and not a truncation artifact. Value iteration
+is grinding a lattice whose answer is very nearly a single scalar, circulating it one edge per sweep.
+**Policy iteration** solves each policy's linear system outright and should need a handful of rounds
+where this needs 24,838 sweeps. That is the next lever — bigger than prioritised sweeping (a worklist
+skipping states whose successors have not moved), which is the fallback if policy iteration is too
+much surgery. Measure either one in sweeps first, seconds second.
 
 Cheaper things to try first, both unmeasured:
 

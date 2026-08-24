@@ -843,6 +843,36 @@ E=827.2976 against the true E=827.302627.)
    structural: the transition graph has strong cycles (brick → recover), so there is no topological
    order to exploit and values must circulate regardless of where a sweep starts.
 
+   **Re-tested 2026-08-24 against a deterministic metric**, because "within the noise" is an invitation
+   to try it a third time. Wall time cannot resolve a 10% effect under ~40% spread, but SWEEPS TO
+   CONVERGENCE is exact — it depends only on the order, not the machine. From-white Wand, `restartCost: 0`:
+
+   | targets | phase | enumeration | goal-first | goal-LAST |
+   |---|---|---|---|---|
+   | 2 | A / B | 170 / 3,156 | 169 / **2,923** | 162 / 3,142 |
+   | 3 | A / B | 783 / 4,417 | 782 / **3,925** | 716 / 4,349 |
+   | 4 | A / B | 1,225 / 24,838 | 1,225 / **21,605** | 1,147 / 24,298 |
+
+   So goal-first is real but small: **7–13% fewer phase-B sweeps**, growing with target count. It does
+   not survive the trip to wall time. Phase A is the clean control — the two orders need the SAME sweep
+   count there (1,225 both, at n=4), so any time difference is pure memory-access cost, and at n=3 the
+   permuted order measured **15% slower per sweep** (0.345 vs 0.299 ms) for visiting `compiled[]` and
+   `V[]` out of allocation order. Net at n=3: ~10% slower. Net at n=4, where the cache penalty happens
+   to vanish: ~11% faster. An effect whose SIGN depends on the craft is not a speedup.
+
+   The reverse-order control is what actually kills the theory. If values really propagated backward
+   from the goal, goal-LAST would be catastrophic — instead it is within 2% of enumeration order, and
+   *better* than either in phase A. Values here circulate around cycles; they do not flow down a DAG.
+
+   Also measured and rejected the same day: **the free restart is a zero-cost self-loop at the start
+   state** (`restart.dist` is `{startKey: 1}`, cost 0), which is exactly the condition that breaks SSP
+   contraction — a tempting explanation for phase B needing 20x phase A's sweeps. Excluding that one
+   action changes the sweep count by **zero** (4,417 and 24,838, identical). It never fires: it ties
+   `V(start)` rather than beating it, and `bestAction` breaks ties with a strict `<`.
+
+   What remains true is the n=6 conclusion below: closing this gap needs a different algorithm
+   (policy iteration), not a better sweep order.
+
 **What this unblocks.** Whittling was previously projected as viable only at n≤2. With the solver
 7× faster and the cheaper *junk-only* banding (targets largely reuse the `present`/`blocked` bit they
 already carry; only junk needs a new tier band), the projection is now ~0.7 s at n=3, ~1 s at n=4 and

@@ -21,7 +21,7 @@ import {
 import { toast } from 'sonner';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
-import FrontierView from './FrontierView';
+import FrontierView, { fmtPct } from './FrontierView';
 import AlternativesView from './AlternativesView';
 import PolicyGraph from './PolicyGraph';
 import SolveProgress from './SolveProgress';
@@ -342,7 +342,7 @@ const EngineLab: React.FC = () => {
     : `${result.frontier.length} plan${result.frontier.length === 1 ? '' : 's'} found.`
       + (() => {
         const best = result.frontier[recommendedIndex(result.frontier)] ?? result.frontier[0];
-        return best ? ` Best value: ${(best.probability * 100).toFixed(1)}% per attempt.` : '';
+        return best ? ` Best value: ${fmtPct(best.probability)} per attempt.` : '';
       })()
       + (alts ? ` ${alts.rows.length} budget alternative${alts.rows.length === 1 ? '' : 's'} listed.` : '');
 

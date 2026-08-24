@@ -6,7 +6,14 @@ import { Badge } from '../../components/ui/badge';
 import { recommendedIndex, type EngineResult } from '../../lib/engine';
 import { exactExalts, formatIn, pickUnit } from '../../lib/currency';
 
-function fmtPct(p: number): string {
+/**
+ * A success chance, at whatever scale it happens to be.
+ *
+ * Exported because the Lab's screen-reader announcement had its own `toFixed(1)` and read
+ * "Best value: 0.0% per attempt" for the 0.0000063% this panel was showing three lines below —
+ * a plan the app had just called achievable, announced as impossible.
+ */
+export function fmtPct(p: number): string {
   const pct = p * 100;
   if (pct >= 1) return `${pct.toFixed(2)}%`;
   if (pct >= 0.01) return `${pct.toFixed(3)}%`;

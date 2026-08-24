@@ -311,6 +311,28 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
     expect(screen.queryByText(/ceiling/i)).toBeNull();
   });
 
+  /**
+   * The announcement quotes the same odds the panel shows, at the same scale.
+   *
+   * It had its own `toFixed(1)` and read "Best value: 0.0% per attempt" for a plan whose card, three
+   * lines below, said 0.0000063% — a craft the app had just called achievable, announced to a screen
+   * reader as impossible. `fmtPct` is FrontierView's, so the two cannot drift apart again.
+   */
+  it('announces a long-shot chance at its real scale, not rounded to zero', async () => {
+    mocks.optimize.mockReturnValue({
+      ...okFrontier,
+      frontier: [{ probability: 6.3e-8, expected: 2, perAttempt: 1, expectedAttempts: 1.6e7, steps: [] }],
+    });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    const said = await screen.findByText(/Best value:/);
+    // The exact string FrontierView puts on the card for this probability — same scale, same digits.
+    expect(said).toHaveTextContent('Best value: 0.0000063% per attempt');
+    expect(said).not.toHaveTextContent(/Best value: 0\.0% /);
+  });
+
   it('says a white base may simply be binned and rerolled', async () => {
     const user = userEvent.setup();
     await loaded();

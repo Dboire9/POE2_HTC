@@ -1368,6 +1368,30 @@ planner's orb depth, and so bought a from-white MDP at Thorough/Patient budgets:
 numbers the assertions never read. It now calls `optimize` directly, keeping one `runSolve` case for
 the wiring. Full suite: **48 files, 952 passed, 23.0s** (was 3 failed, 940 passed, 346s).
 
+## The Lab's desecration hint contradicted the model (2026-08-24)
+
+Found while checking a real 6-mod Body Armour craft whose route read *"Desecrate — most likely lands
++# to Armour"*, twice, on a base whose desecrated pool holds **zero prefixes**. That looks like a bug
+and is not one: the ruling above (D4, user-confirmed 2026-08-23) is that normal mods DO enter the bone
+pool, so an unomened Desecration draws over `normal ∪ desecrated`.
+
+The hint next to the target picker said otherwise — *"it spans the base's whole desecrated pool"* —
+which reads as though a bone always produces a carved mod. Measured at ilvl 82:
+
+| base | carved weight | normal weight | P(any carved) | P(the one you asked for) |
+|---|---|---|---|---|
+| Body_Armours_str | 10,000 | 124,500 | 7.4% (1 in 13.4) | 1 in 135 |
+| Wands | 15,000 | 114,400 | 11.6% (1 in 8.6) | 1 in 129 |
+| Amulets | 31,000 | 173,650 | 15.1% (1 in 6.6) | 1 in 205 |
+
+So on a Body Armour, **93% of bones add an ordinary mod**. The copy now says that, with the figures.
+
+The deeper problem was that nothing pinned the ruling anywhere in the suite, which is how the copy
+drifted away from it. `desecrationGate.test.ts` now asserts on the MDP's own action space that an
+unomened bone (a) can add a NORMAL target — measured at 19% of its mass on `Body_Armours_dex_int` —
+and (b) leaves carved outcomes a minority; plus that a side-constrained bone on a side with no carved
+mods offers carved outcomes with probability zero, which is the ruling's most surprising consequence.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

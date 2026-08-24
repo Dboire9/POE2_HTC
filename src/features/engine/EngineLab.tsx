@@ -668,8 +668,11 @@ const EngineLab: React.FC = () => {
                 boss’s pool (weights are unknown, so this is an approximation).</>
               ) : (
                 <>The boss omens are <strong>Weapon or Jewellery only</strong>, so on this base the
-                draw can’t be narrowed — it spans the base’s whole desecrated pool, which is far longer
-                odds than a targeted one.</>
+                draw can’t be narrowed. And it is not a draw over carved mods alone —{' '}
+                <strong>ordinary mods enter the same pool</strong>, so most bones add a normal mod
+                rather than a carved one (on a Body Armour, a carved mod lands about 1 time in 13, and
+                the specific one you asked for about 1 in 135). That is the long-shot step in any plan
+                that uses one.</>
               )}
               {normalTargets < 3 && fractured.size === 0 && (
                 <> From scratch, a Desecration needs a Rare first, so include <strong>3 rollable mods</strong> (or

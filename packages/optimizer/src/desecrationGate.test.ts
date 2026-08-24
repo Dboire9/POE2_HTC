@@ -6,6 +6,10 @@ import { loadPrices } from './loadPrices.ts';
 import { optimizePareto } from './optimize.ts';
 import { optimizeFromItem } from './fromItem.ts';
 import { markovFromItem } from './markovFromItem.ts';
+import { pricesForBase } from './cost.ts';
+import { createActionSpace } from './markovActions.ts';
+import { decodeState, encodeState, sideIndexOf } from './markovState.ts';
+import type { McTarget } from './markovState.ts';
 
 // The boss omens read "your next WEAPON OR JEWELLERY Desecration attempt will guarantee a random
 // Ulaman/Amanamu/Kurgal modifier". Nothing gated on that, so the planners offered boss-targeted
@@ -231,6 +235,80 @@ describe('MDP — convergence is reported, not assumed', () => {
 // draw inherits it — a boss-omened Desecration is count-uniform and ignores weights entirely. The UI
 // caveat keys off exactly this distinction (`assumedOdds` in engineMap.ts → PriceBasisNote's
 // `exactOdds`), so it has to hold at the source: warn on armour, stay silent on a weapon.
+/**
+ * What an UNOMENED Desecration actually draws from, pinned at the source.
+ *
+ * The ruling (docs/validation.md, confirmed by the user 2026-08-23): normal mods DO enter the bone
+ * pool, so the draw is over `normal ∪ desecrated`, not over the carved mods alone. That is the whole
+ * reason `assumedOdds` exists — the carved rows carry an assumed weight against real normal weights.
+ *
+ * Nothing asserted it, and the Lab's own hint drifted to "it spans the base's whole desecrated pool",
+ * which reads as though a bone always produces a carved mod. It does not: on a Body Armour a carved
+ * mod lands about 1 time in 13, and the rest of the time you get an ordinary one. A route step saying
+ * "Desecrate — most likely lands +# to maximum Life" then looks like a bug when it is the mechanic.
+ */
+describe('an unomened Desecration draws from the whole pool, normal mods included', () => {
+  const spaceFor = (p: typeof ARMOUR) => {
+    const ids = [...p.rollable, p.des];
+    const list: McTarget[] = ids.map((id) => {
+      const mod = data.mods.get(id)!;
+      return { modId: mod.id, type: mod.type, family: mod.family, mod, minIndex: 0, fractured: false };
+    });
+    return {
+      list,
+      ...createActionSpace({
+        data, prices: pricesForBase(prices, p.base), level: 82, pools: p.base.pools, list,
+        side: sideIndexOf(list), desecratable: true, bossTargetable: bossOmenAllowed(p.base.category),
+      }),
+    };
+  };
+
+  it('can add a NORMAL target mod, and usually does', () => {
+    const { list, actionsOf } = spaceFor(ARMOUR);
+    const empty = decodeState(encodeState(0, 0, 0, 0, 'none', 'rare'));
+    const desIdx = list.findIndex((t) => t.mod.source === 'desecrated');
+    expect(desIdx).toBeGreaterThanOrEqual(0);
+
+    // The plain bone — no Sinistral/Dextral, no boss omen. Armour has no boss omen available at all.
+    const bone = actionsOf(empty).find((a) => a.action.currency === 'desecrate' && !('side' in a.action));
+    expect(bone).toBeDefined();
+
+    let carved = 0; // any outcome that put a desecrated mod on the item
+    let normalTarget = 0; // an outcome that landed one of the ROLLABLE targets instead
+    for (const [key, prob] of bone!.dist) {
+      const st = decodeState(key);
+      if (st.desJunk !== 'none' || ((st.present >> desIdx) & 1) === 1) carved += prob;
+      else if (st.present !== 0) normalTarget += prob;
+    }
+
+    // The fact the copy denied: a bone lands an ordinary mod you asked for.
+    expect(normalTarget).toBeGreaterThan(0);
+    // …and carved is the MINORITY outcome, which is what makes it the long-shot step in a plan.
+    expect(carved).toBeLessThan(0.5);
+    expect(carved).toBeGreaterThan(0); // still reachable, or the craft would be impossible
+  });
+
+  // A side-constrained bone on a side with no carved mods is a legal action that can only ever add a
+  // normal one — 10 of this base's carved mods are suffixes and none is a prefix. Worth pinning
+  // because it is the most surprising consequence of the ruling.
+  it('on a side with no carved mods, offers only normal outcomes', () => {
+    const { list, actionsOf } = spaceFor(ARMOUR);
+    const barren = (['prefix', 'suffix'] as const)
+      .find((sd) => ARMOUR.base.pools.desecrated[`${sd}es` as 'prefixes' | 'suffixes'].length === 0);
+    expect(barren).toBeDefined();
+    const desIdx = list.findIndex((t) => t.mod.source === 'desecrated');
+    const empty = decodeState(encodeState(0, 0, 0, 0, 'none', 'rare'));
+    const bone = actionsOf(empty)
+      .find((a) => a.action.currency === 'desecrate' && 'side' in a.action && a.action.side === barren);
+    if (!bone) return; // priced out of the space is fine; a WRONG distribution is not
+    for (const [key] of bone.dist) {
+      const st = decodeState(key);
+      expect(st.desJunk).toBe('none');
+      expect((st.present >> desIdx) & 1).toBe(0);
+    }
+  });
+});
+
 describe('which desecrations lean on the assumed weight', () => {
   const targets = (p: typeof WEAPON) =>
     [...p.rollable.map((modId) => ({ modId, minTierIndex: 0 })), { modId: p.des, minTierIndex: 0 }];

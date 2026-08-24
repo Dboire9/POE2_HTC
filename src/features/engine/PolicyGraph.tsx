@@ -290,6 +290,22 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
   const route = selected === null ? null : routeThrough(selected, forward, backward);
   const selectedGroup = selected === null ? null
     : placed.find((g) => groupKeyOf(g.node, fmtCost) === selected) ?? null;
+  // A state whose best move is "start over" has NO progress edge — binning the item is by definition
+  // not progress — so the closure above leaves it drawn as a dead end, connected to nothing, while the
+  // panel right beside it describes exactly that move. Reported from the live app, where on a craft
+  // with a free base "start over" is the advice on most of the graph.
+  //
+  // So the selected state's own outcomes join the route, and ONLY those: their closures deliberately
+  // stay out, because the base you start over from reaches the whole graph, and a highlight that lights
+  // everything is the wall this view exists to cut through. Same edges and same threshold the panel
+  // lists, read off the same representative state, so the arrows and the panel cannot disagree.
+  if (route !== null && selectedGroup !== null) {
+    for (const e of result.edges) {
+      if (e.from !== selectedGroup.node.key || e.prob <= 0.0005) continue;
+      const g = groupOfKey.get(e.to);
+      if (g !== undefined) route.add(g);
+    }
+  }
   const onRoute = (k: string): boolean => route === null || route.has(k);
   const DIM = 0.12;
 

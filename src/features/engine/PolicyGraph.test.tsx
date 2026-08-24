@@ -470,3 +470,54 @@ describe('PolicyGraph — starting over is described as what it is', () => {
     expect(within(panel).getByText(/back to the base you started from/i)).toBeInTheDocument();
   });
 });
+
+// Reported from the live app: a state whose best move was "Start over with a new base" was drawn
+// connected to NOTHING, and the header read "Highlighting 1 of 447 states".
+//
+// The mechanism is that `result.edges` only carries each state's BEST action, and `progressEdges`
+// keeps only edges that move closer to the goal. Starting over does neither for anyone: it is not
+// progress, so it is dropped, and no other state lists this one as an outcome because their best
+// move is also to start over. The state ends up isolated in the progress graph while the panel
+// beside it is describing the very move whose arrow was dropped.
+describe('PolicyGraph — a state that only knows how to start over is still drawn connected', () => {
+  const orphaned = result_({
+    nodes: [
+      // Depth 8, further from the goal than the loaded item below — a white base needs the Regal that
+      // makes it Rare on top of every mod. So restarting is a REGRESS and never a progress edge.
+      { key: 'w', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
+        isStart: true, isGoal: false, depth: 8, expectedCost: 100, action: 'Transmute' },
+      { key: 'm', present: ['Spell Damage'], blocked: [], junkPrefixes: 0, junkSuffixes: 0,
+        rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 90, action: 'Exalt' },
+      // Nothing lists this one as an outcome, exactly as in the reported craft.
+      { key: 'r', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: ['Cold Damage'],
+        junkPrefixes: 0, junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false,
+        depth: 4, expectedCost: 100, action: 'Start over with a new base' },
+      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const,
+        isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+    ],
+    edges: [
+      { from: 'w', to: 'm', action: 'Transmute', prob: 1, regress: false },
+      { from: 'm', to: 'g', action: 'Exalt', prob: 1, regress: false },
+      { from: 'r', to: 'w', action: 'Start over with a new base', prob: 1, regress: true },
+    ],
+  });
+  const selectOrphan = async () => {
+    render(<PolicyGraph result={orphaned} />);
+    await expand();
+    const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
+    await userEvent.setup().click(boxes.find((b) => /Start over/.test(b.textContent ?? ''))!);
+  };
+
+  it('counts where it lands among the highlighted states, not just itself', async () => {
+    await selectOrphan();
+    // Itself and the base it goes back to. Before this, the progress-only closure left it at 1.
+    expect(screen.getByText(/Highlighting 2 of 4 states/i)).toBeInTheDocument();
+  });
+
+  it('leaves the state it lands on lit rather than dimmed out of the picture', async () => {
+    await selectOrphan();
+    const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
+    const startBox = boxes.find((b) => /Transmute/.test(b.getAttribute('aria-label') ?? ''))!;
+    expect(startBox.getAttribute('opacity')).toBe('1');
+  });
+});

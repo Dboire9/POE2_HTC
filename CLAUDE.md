@@ -58,6 +58,16 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   not a special case. `realizedDist` applies the same weights to the GRAPH's edges: publishing the
   per-draw odds there would put a 50% on an arrow that is really 12.5%, and the Monte-Carlo validator
   — which samples those edges — would then "confirm" a cost the solver never computed.
+- **A bone competes for ORDINARY mods too, and usually wins.** Desecration used to be modelled only
+  when a carved mod was targeted; with the offer of three that is wrong. A Preserved rib is 0.31ex
+  against an Exalt's 1.00ex, so on a held Rare (no restart to mask it) bones cut a 3-mod Wand craft
+  4,073.8ex → 1,215.5ex and a Body Armour 2,967.6ex → 693.9ex. They also make the solve FASTER, because
+  the craft is genuinely easier: a 5-target from-white Wand went 76.1s → 14.0s. `desecratable`
+  (`markovFromItem.ts`) now also opens when `bonePrice < DESECRATION_OFFER_COUNT * exaltPrice` — a
+  NECESSARY condition, since the offer multiplies a hit by at most `m` and a bone's per-draw p is below
+  an Exalt's anyway, so a dearer bone provably cannot win. That keeps the desJunk axis (3x the lattice)
+  off amulets and rings, where the collarbone is 7.69ex. An ABSENT bone price reads as "no bone", never
+  as a free one.
 - **The desecrated spawn weight is an ASSUMPTION, not data.** poe2db publishes none (it reports 1 for every row); all 527 are set to `DESECRATED_ASSUMED_WEIGHT = 1000` in `tools/refresh/apply_pools.mjs`. It matters ~900x: at the literal 1 a bone produced a desecrated mod about 1 in 121,510 on a Body Armour, against ~1 in 132 at 1000. Only the UNOMENED draw uses weights, so only it inherits the assumption — the boss-omen path is count-uniform and stays exact. The UI must say which: `assumedOdds` (engineMap) → `PriceBasisNote`'s `exactOdds`. See docs/validation.md D4.
 - **Fractured mods are locked**: never annulled, never chaosed, out of every removal pool.
 

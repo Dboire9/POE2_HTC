@@ -411,7 +411,9 @@ describe('markovFromItem — from a white base', () => {
    * no meaning attached, so the solve says what happened instead.
    */
   it('refuses to quote a cost when even the push-forward seed did not settle', () => {
-    const r = markovFromItem(real, rp, white, targets, { restartCost: 0, maxIters: 300 });
+    // Well inside the band, not at its edge: the sweep count phase A needs moves whenever the action
+    // space does — letting a bone compete for ordinary mods cut it below the 300 this used to pass.
+    const r = markovFromItem(real, rp, white, targets, { restartCost: 0, maxIters: 50 });
     expect(r.feasible).toBe(false);
     // No clock was set, so "raise Search effort" would be noise — the sweep cap is not the user's to
     // raise. The message names the limit that actually bit.

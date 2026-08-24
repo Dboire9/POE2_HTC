@@ -1442,6 +1442,46 @@ omen is now correctly declined. Both tests were written to pin *that an omen is 
 particular price wins, so the omen was re-priced (0.5 -> 0.2, and 2 -> 0.4 in the linear planner's
 domination case) to keep them testing what they were written for.
 
+## A bone is the cheapest way to add an ordinary mod (2026-08-24)
+
+Follows directly from the offer of three. Desecration was modelled only when a carved mod was in play
+(`desecratable`), on the reasoning that otherwise "a Desecration could only ever add junk". With three
+offers and a keep-one choice that is wrong, and the prices make it badly wrong: a Preserved rib is
+0.31ex against an Exalt's 1.00ex, so a bone lands a named normal mod on a Body Armour for ~1.2ex where
+an Exalt needs ~9.6ex.
+
+Measured on a **held Rare** (no `restartCost`, so nothing masks the comparison), 3 normal targets:
+
+| base | bones excluded | bones available | |
+|---|---|---|---|
+| Wands | 4,073.8 ex | **1,215.5 ex** | −70% |
+| Body_Armours_str | 2,967.6 ex | **693.9 ex** | −77% |
+| Amulets | 54,834 ex | 54,834 ex | 0% — gate closed |
+
+And from a white base they make the solve **faster**, because the craft is genuinely easier:
+
+| targets | bones excluded | bones available |
+|---|---|---|
+| 4 | 5,824 ms, E = 173.8 ex | 2,327 ms, E = **26.3 ex** |
+| 5 | 76,119 ms, E = 435.0 ex | 13,975 ms, E = **44.6 ex** |
+| 6 | 120 s capped, E ≤ 82,210 ex | 120 s capped, E ≤ **645.5 ex** |
+
+The 6×T1 Body Armour craft that prompted the seeded solve also improves — phase A 314 s → 145 s,
+E 2.07M → 1.25M ex — though at 145 s it still needs the Patient preset.
+
+**The gate is a necessary condition, not a heuristic.** `bonePrice < DESECRATION_OFFER_COUNT ×
+exaltPrice`. The offer raises the chance of a hit by at most `m`, since `1−(1−p)^m ≤ m·p`; and a bone's
+per-draw `p` is strictly below an Exalt's, because its denominator also carries the carved pool. So a
+bone at `m` Exalts or more cannot win, and skipping it costs nothing — which is what keeps the desJunk
+axis, and the 3× lattice it brings, off amulets and rings. An absent bone price reads as "no bone",
+never as a free one (`stepCost` turns a missing key into 0, and a 0 here would switch desecration on
+for every base in a sheet that simply doesn't price bones).
+
+**A measurement mistake worth recording.** The first control deleted `prices.currency.desecrate` and
+showed a 0% difference everywhere — `pricesForBase` re-derives the bone price from the sheet's `bones`
+section, so both columns had bones on and the comparison was against itself. The real control is
+`policy: { excluded: new Set(['desecrate']) }`, the same mechanism the app's own currency toggles use.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

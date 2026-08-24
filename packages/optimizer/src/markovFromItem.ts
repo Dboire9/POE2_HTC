@@ -26,7 +26,7 @@
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
-import { bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
+import { DESECRATION_OFFER_COUNT, bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
@@ -238,10 +238,31 @@ export function markovFromItem(
 
   const side = sideIndexOf(list);
   const s0 = classifyStart(data, start, list, idxOf);
-  // Desecration is only modelled when it's actually in play — a desecrated target to craft, or a
-  // desecrated mod already on the item to clear. Otherwise a Desecration could only ever add junk, so
-  // leaving it out costs nothing and keeps the state space exactly as it was before v3.
-  const desecratable = list.some((t) => t.mod.source === 'desecrated') || s0.desJunk !== 'none';
+  /*
+   * Is Desecration in play at all?
+   *
+   * A carved target to craft, or a carved mod on the item to clear — and, since a bone OFFERS three
+   * modifiers and you keep one, the case that used to be dismissed: a bone can simply be the cheapest
+   * way to add an ORDINARY mod. That is not marginal. A Preserved rib is 0.31ex against an Exalt's
+   * 1.00ex, so on a Body Armour a bone lands a named normal mod for ~1.2ex where an Exalt needs
+   * ~9.6ex. (On amulets and rings the collarbone is 7.69ex and the Exalt wins.)
+   *
+   * The price test is a NECESSARY condition, not a heuristic. The offer raises the chance of a hit by
+   * at most a factor of `DESECRATION_OFFER_COUNT`, since 1−(1−p)^m ≤ m·p; and a bone's per-draw p is
+   * strictly below an Exalt's, because its denominator carries the carved pool as well. So a bone
+   * priced at m Exalts or more cannot win, and leaving it out costs nothing — which keeps the desJunk
+   * axis, and the 3x states it brings, off every craft that could never have used it.
+   *
+   * An ABSENT price reads as "no bone", not as a free one: `stepCost` turns a missing key into 0, and
+   * a 0 here would switch desecration on for every base in a sheet that simply doesn't price bones.
+   */
+  const bonePrice = prices.currency.desecrate;
+  const exaltPrice = prices.currency.exalt;
+  const boneCanOutbidAnExalt = bonePrice !== undefined && exaltPrice !== undefined
+    && bonePrice < DESECRATION_OFFER_COUNT * exaltPrice;
+  const desecratable = list.some((t) => t.mod.source === 'desecrated')
+    || s0.desJunk !== 'none'
+    || boneCanOutbidAnExalt;
   // Where "start over" lands: the item you began with, which for a from-white craft is the bare base.
   // Built here rather than later because the action space closes over it.
   const restartKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.desJunk, s0.rarity);

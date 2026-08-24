@@ -236,6 +236,70 @@ describe('MDP — convergence is reported, not assumed', () => {
 // caveat keys off exactly this distinction (`assumedOdds` in engineMap.ts → PriceBasisNote's
 // `exactOdds`), so it has to hold at the source: warn on armour, stay silent on a weapon.
 /**
+ * A bone is worth playing even when you want NO carved mod — it is the cheapest way to add an
+ * ordinary one on most bases.
+ *
+ * It offers three modifiers and you keep one, and a Preserved rib is 0.31ex against an Exalt's 1.00ex.
+ * Measured on a held Rare (no restart, so the bone competes on merit): Wands 4,073.8ex -> 1,215.5ex,
+ * Body Armour 2,967.6ex -> 693.9ex. The model used to switch desecration off entirely unless a carved
+ * mod was targeted, so none of that was reachable.
+ *
+ * The gate that replaced it is a NECESSARY condition, not a heuristic: the offer raises the chance of
+ * a hit by at most `DESECRATION_OFFER_COUNT` (1−(1−p)^m ≤ m·p), and a bone's per-draw p is strictly
+ * below an Exalt's because its denominator also carries the carved pool. So a bone priced at m Exalts
+ * or more cannot win, and skipping it costs nothing — which is what keeps the desJunk axis, and the 3x
+ * states it brings, off a craft that could never have used it. On amulets and rings the collarbone is
+ * 7.69ex and the gate closes.
+ */
+describe('a bone competes for ordinary mods too, where its price allows', () => {
+  const heldRare = (baseId: string) => {
+    const base = data.bases.get(baseId)!;
+    const out: string[] = [];
+    const fams = new Set<string>();
+    for (const id of [...base.pools.normal.prefixes, ...base.pools.normal.suffixes]) {
+      const m = data.mods.get(id);
+      if (!m || m.source !== 'normal' || fams.has(m.family)) continue;
+      const np = out.filter((x) => data.mods.get(x)!.type === 'prefix').length;
+      if (m.type === 'prefix' ? np >= 2 : out.length - np >= 2) continue;
+      fams.add(m.family);
+      out.push(id);
+      if (out.length === 3) break;
+    }
+    // A Rare you already hold: no `restartCost`, so nothing masks the comparison.
+    const start: ItemState = { base, level: 82, rarity: 'rare', prefixes: [], suffixes: [] };
+    return { start, targets: out.map((modId) => ({ modId, minTierIndex: 0 })) };
+  };
+  const solve = (baseId: string, excludeBones: boolean) => {
+    const { start, targets } = heldRare(baseId);
+    return markovFromItem(data, prices, start, targets,
+      excludeBones ? { policy: { excluded: new Set(['desecrate']) } } : {});
+  };
+
+  it('plays a Desecration for a craft with no carved target at all, and it is much cheaper', () => {
+    const targets = heldRare('Wands').targets;
+    expect(targets.every((t) => data.mods.get(t.modId)!.source === 'normal')).toBe(true);
+    const withBones = solve('Wands', false);
+    const without = solve('Wands', true);
+    expect(withBones.converged && without.converged).toBe(true);
+    expect([...withBones.policy.values()].some((a) => a.currency === 'desecrate')).toBe(true);
+    // Not a rounding difference — the bone route is a different order of effort.
+    expect(withBones.expectedCost).toBeLessThan(without.expectedCost / 2);
+  });
+
+  it('leaves it out where the bone costs too much to ever win, keeping the state space untouched', () => {
+    // Amulets take a collarbone at 7.69ex against a 1.00ex Exalt — over the m-Exalt ceiling, so no
+    // offer can make it pay. The craft must come out byte-identical to one with bones excluded.
+    const withBones = solve('Amulets', false);
+    const without = solve('Amulets', true);
+    expect(withBones.expectedCost).toBeCloseTo(without.expectedCost, 9);
+    expect([...withBones.policy.values()].some((a) => a.currency === 'desecrate')).toBe(false);
+    // The desJunk axis is what the gate is really protecting: it triples the lattice.
+    expect(withBones.nodes.some((nd) => nd.desecratedJunk !== undefined)).toBe(false);
+    expect(withBones.nodes.length).toBe(without.nodes.length);
+  });
+});
+
+/**
  * What an UNOMENED Desecration actually draws from, pinned at the source.
  *
  * The ruling (docs/validation.md, confirmed by the user 2026-08-23): normal mods DO enter the bone

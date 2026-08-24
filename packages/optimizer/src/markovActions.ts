@@ -256,39 +256,26 @@ export function createActionSpace(params: ActionSpaceParams): {
    * random removable mod: a non-fractured present target (→ absent), a blocked off-tier roll (→ frees
    * the family, target addable again), junk, or the desecrated mod if the item carries one.
    *
-   * `sparesCarvedWhenAble` is the **Chaos Orb** rule (user ruling, 2026-08-24, refined the same day):
-   * a Chaos rerolls an ORDINARY affix whenever the item has one, so the carved mod stays out of its
-   * pool — but only while something else is there to take. On an item whose only modifier is carved
-   * there is no ordinary affix to reroll, and the Chaos takes the carved one. It is a PREFERENCE, not
-   * an immunity; modelling it as an immunity declared a legal move impossible.
+   * NOTHING is spared here, and that includes the desecrated mod. A Chaos Orb takes it at the same
+   * uniform odds as any other affix, and so does an Annulment — which is what leaves the Omen of Light
+   * something to be for: it makes that removal CERTAIN, not possible.
    *
-   * An Annulment is not restricted at all — it takes a carved mod randomly like any other (confirmed
-   * separately). The Omen of Light therefore makes that removal CERTAIN, not possible, which is why it
-   * is worth 0 ex on any craft not already worth ~100x its 3,095 ex price.
+   * There was a `sparesCarvedWhenAble` flag here for a few hours on 2026-08-24, built on a ruling that
+   * a Chaos cannot touch a desecrated mod. That ruling was RETRACTED by the user in the same
+   * conversation and the retraction was missed, so it shipped. See docs/validation.md.
    */
-  const removeOutcomes = (
-    s: McState, constrainTo?: 'prefix' | 'suffix', sparesCarvedWhenAble = false,
-  ): Dist => {
-    const isCarved = (i: number): boolean => list[i]!.mod.source === 'desecrated';
-    const present: number[] = [];
-    const blocked: number[] = [];
+  const removeOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix'): Dist => {
+    const presentRem: number[] = [];
+    const blockedRem: number[] = [];
     for (let i = 0; i < n; i++) {
       const t = list[i]!;
       if (constrainTo && t.type !== constrainTo) continue;
-      if (has(s.present, i) && !t.fractured) present.push(i);
-      if (has(s.blocked, i)) blocked.push(i); // an off-tier occupier is a random roll — never locked
+      if (has(s.present, i) && !t.fractured) presentRem.push(i);
+      if (has(s.blocked, i)) blockedRem.push(i); // an off-tier occupier is a random roll — never locked
     }
     const jpRem = constrainTo === 'suffix' ? 0 : s.jp;
     const jsRem = constrainTo === 'prefix' ? 0 : s.js;
-    const desJunkRem = s.desJunk !== 'none' && (constrainTo === undefined || s.desJunk === constrainTo) ? 1 : 0;
-    // An item holds at most one carved mod, so at most one of these three sources supplies it; the
-    // only question is whether anything ORDINARY is also present for a Chaos to prefer.
-    const ordinary = present.filter((i) => !isCarved(i)).length
-      + blocked.filter((i) => !isCarved(i)).length + jpRem + jsRem;
-    const skipCarved = sparesCarvedWhenAble && ordinary > 0;
-    const presentRem = skipCarved ? present.filter((i) => !isCarved(i)) : present;
-    const blockedRem = skipCarved ? blocked.filter((i) => !isCarved(i)) : blocked;
-    const desRem = skipCarved ? 0 : desJunkRem;
+    const desRem = s.desJunk !== 'none' && (constrainTo === undefined || s.desJunk === constrainTo) ? 1 : 0;
     const total = presentRem.length + blockedRem.length + jpRem + jsRem + desRem;
     const out: Dist = new Map();
     if (total <= 0) return out;
@@ -320,9 +307,7 @@ export function createActionSpace(params: ActionSpaceParams): {
 
   /** Chaos = remove one uniformly-random mod, then add one weighted mod (base strength) on the freed item. */
   const chaosOutcomes = (s: McState): Dist => {
-    // Prefers an ordinary affix, reaching the carved mod only on an item that holds nothing else —
-    // see `removeOutcomes`.
-    const removals = removeOutcomes(s, undefined, true);
+    const removals = removeOutcomes(s);
     const out: Dist = new Map();
     for (const [midKey, pRem] of removals) {
       const mid = decodeState(midKey);

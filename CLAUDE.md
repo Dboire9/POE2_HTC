@@ -68,21 +68,12 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   an Exalt's anyway, so a dearer bone provably cannot win. That keeps the desJunk axis (3x the lattice)
   off amulets and rings, where the collarbone is 7.69ex. An ABSENT bone price reads as "no bone", never
   as a free one.
-- **A Chaos Orb rerolls an ORDINARY affix whenever the item has one** (user ruling, 2026-08-24) — so
-  the carved mod is out of its pool while anything else is on the item, and only an item whose sole
-  modifier is carved has the Chaos take that. A **preference, not an immunity**: `removeOutcomes`'
-  `sparesCarvedWhenAble`, set only by `chaosOutcomes`. This was wrong in BOTH directions before it
-  landed — first a Chaos could take the carved mod freely (making it the cheapest way to clear carved
-  junk at 33.39ex, a move the game refuses), then the fix over-corrected into an immunity (declaring a
-  legal move impossible). The consequence that is easy to miss: a Chaos can no longer DESTROY a carved
-  target you have landed while any ordinary affix remains, which made a 5-ordinary+1-carved Body Armour
-  craft ~35% cheaper. **An Annulment is NOT restricted** (confirmed separately): it takes a carved mod
-  randomly like any other, so the Omen of Light makes that removal certain rather than possible — which
-  is why the omen is worth 0 ex on any craft not already worth ~100x its 3,095 ex price.
-  **Known approximation**: the ruling extends to ordinary mods a bone placed, and the state carries no
-  provenance for those, so they stay Chaos-removable here. Bracketed rather than asserted — Chaos fully
-  usable vs fully barred is **+0.0% on three of four crafts and +5.3% on the worst**, because a 0.31ex
-  bone has left the 33.39ex Chaos nearly unused. Provenance would cost ~100x the lattice for that.
+- **No currency has special treatment for the desecrated mod.** A Chaos Orb and an Annulment both take
+  it at the same uniform odds as any other affix, and removing it leaves the item clean. That is what
+  the Omen of Light is FOR — it makes the removal certain, not possible. A restriction was built here
+  twice on 2026-08-24 (first an immunity, then a preference) from a ruling the user retracted in the
+  same conversation; the retraction was missed both times. If you are about to add one, check
+  docs/validation.md first.
 - **The desecrated spawn weight is an ASSUMPTION, not data.** poe2db publishes none (it reports 1 for every row); all 527 are set to `DESECRATED_ASSUMED_WEIGHT = 1000` in `tools/refresh/apply_pools.mjs`. It matters ~900x: at the literal 1 a bone produced a desecrated mod about 1 in 121,510 on a Body Armour, against ~1 in 132 at 1000. Only the UNOMENED draw uses weights, so only it inherits the assumption — the boss-omen path is count-uniform and stays exact. The UI must say which: `assumedOdds` (engineMap) → `PriceBasisNote`'s `exactOdds`. See docs/validation.md D4.
 - **Fractured mods are locked**: never annulled, never chaosed, out of every removal pool.
 

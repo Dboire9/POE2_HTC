@@ -236,24 +236,17 @@ describe('MDP — convergence is reported, not assumed', () => {
 // caveat keys off exactly this distinction (`assumedOdds` in engineMap.ts → PriceBasisNote's
 // `exactOdds`), so it has to hold at the source: warn on armour, stay silent on a weapon.
 /**
- * A Chaos Orb rerolls an ORDINARY affix whenever the item has one (user ruling, 2026-08-24).
+ * A Chaos Orb takes the desecrated mod at the same odds as anything else.
  *
- * A preference, not an immunity, and this file has now had it wrong in both directions. First the
- * model let a Chaos take the carved mod freely, making it the cheapest way to clear carved junk at
- * 33.39ex — a move the game refuses, recommended as the best one. The fix over-corrected into an
- * immunity, which declared the mirror-image error: on an item whose ONLY modifier is carved there is
- * no ordinary affix to reroll, so the Chaos takes the carved one, and calling that impossible is the
- * same class of mistake. Both branches are asserted here for that reason.
+ * This was ruled the other way on 2026-08-24 ("we cannot use a Chaos Orb on desecrated modifiers, even
+ * if they are normal modifiers gotten through desecration"), the ruling was RETRACTED in the same
+ * conversation, and the retraction was missed — so a restriction shipped that the game does not have.
+ * It went out twice, first as an outright immunity and then as a preference, and both were wrong.
  *
- * The rule also cuts a way that is easy to miss: a Chaos can no longer destroy a carved TARGET you
- * have landed while any ordinary affix remains, which made a 5-ordinary + 1-carved Body Armour craft
- * ~35% CHEAPER, not dearer.
- *
- * An Annulment is not restricted at all — it takes a carved mod randomly like any other (confirmed
- * separately), which is what the Omen of Light exists to make certain rather than possible.
+ * Asserted rather than merely deleted, because the restriction was plausible enough to be built twice.
  */
-describe('a Chaos Orb prefers an ordinary affix over a carved one', () => {
-  const wandTargets = () => {
+describe('a Chaos Orb has no special treatment for the desecrated mod', () => {
+  it('can remove it, and the item is clean afterwards', () => {
     const base = data.bases.get('Wands')!;
     const out: string[] = [];
     const fams = new Set<string>();
@@ -266,52 +259,25 @@ describe('a Chaos Orb prefers an ordinary affix over a carved one', () => {
       out.push(id);
       if (out.length === 3) break;
     }
-    return { base, targets: out.map((modId) => ({ modId, minTierIndex: 0 })) };
-  };
-
-  /**
-   * Probed against the ACTION SPACE, not the policy graph. The graph carries only the action chosen at
-   * each state, and a Chaos is rarely the best move now that a 0.31ex bone offers three mods — so the
-   * spared branch never appears there and the assertion would pass vacuously.
-   */
-  const chaosFrom = (jp: number, js: number, desJunk: 'none' | 'prefix' | 'suffix') => {
-    const { base, targets } = wandTargets();
-    const list: McTarget[] = targets.map((t) => {
-      const mod = data.mods.get(t.modId)!;
-      return { modId: mod.id, type: mod.type, family: mod.family, mod, minIndex: 0, fractured: false };
-    });
-    const { actionsOf } = createActionSpace({
-      data, prices: pricesForBase(prices, base), level: 82, pools: base.pools, list,
-      side: sideIndexOf(list), desecratable: true, bossTargetable: bossOmenAllowed(base.category),
-    });
-    const st = decodeState(encodeState(0, 0, jp, js, desJunk, 'rare'));
-    return { chaos: actionsOf(st).find((x) => x.action.currency === 'chaos'), st };
-  };
-
-  it('leaves the carved mod alone whenever the item holds an ordinary affix', () => {
-    // Carved junk on the suffix side, plus one ordinary junk prefix for the Chaos to prefer.
-    const { chaos } = chaosFrom(1, 0, 'suffix');
-    expect(chaos).toBeDefined();
-    for (const [key] of chaos!.dist) {
-      expect(decodeState(key).desJunk).toBe('suffix'); // never cleared: something else was there
-    }
-  });
-
-  it('does take the carved mod when it is the only thing on the item', () => {
-    const { base, targets } = wandTargets();
     const carved = base.pools.desecrated.suffixes[0]!;
-    const lone: ItemState = {
+    // A held Rare carrying an unwanted desecrated suffix, plus an ordinary junk prefix — so there IS
+    // something else for a Chaos to take, which is exactly the case the retracted rule got wrong.
+    const junkPrefix = base.pools.normal.prefixes.find((id) => {
+      const m = data.mods.get(id);
+      return m && m.source === 'normal' && !fams.has(m.family);
+    })!;
+    const stuck: ItemState = {
       base, level: 82, rarity: 'rare', desecrated: true,
-      prefixes: [], suffixes: [{ modId: carved, tierName: data.mods.get(carved)!.tiers[0]!.name }],
+      prefixes: [{ modId: junkPrefix, tierName: data.mods.get(junkPrefix)!.tiers[0]!.name }],
+      suffixes: [{ modId: carved, tierName: data.mods.get(carved)!.tiers[0]!.name }],
     };
-    const r = markovFromItem(data, prices, lone, targets);
+    const r = markovFromItem(data, prices, stuck, out.map((modId) => ({ modId, minTierIndex: 0 })));
     expect(r.feasible).toBe(true);
-    expect(r.nodes.find((nd) => nd.isStart)!.desecratedJunk).toBe('suffix');
-    // Nothing ordinary to prefer, so the reroll lands on the carved mod — with certainty, since it is
-    // the item's only modifier.
-    const { chaos } = chaosFrom(0, 0, 'suffix');
-    expect(chaos).toBeDefined();
-    for (const [key] of chaos!.dist) expect(decodeState(key).desJunk).toBe('none');
+    const byKey = new Map(r.nodes.map((nd) => [nd.key, nd]));
+    const clearsIt = r.edges.some((e) => e.action.currency === 'chaos'
+      && byKey.get(e.from)?.desecratedJunk === 'suffix'
+      && byKey.get(e.to)?.desecratedJunk === undefined);
+    expect(clearsIt).toBe(true);
   });
 });
 

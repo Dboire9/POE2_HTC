@@ -1519,6 +1519,110 @@ clean-up-junk one, and the model already draws that line without being told wher
 has no omen endpoint). Every "worth 0 ex" above is a comparison against that number, so a materially
 different real price would move the line.
 
+## A Chaos restriction that never existed — built twice, retracted once (2026-08-24)
+
+Worth keeping as a process note more than a mechanics one.
+
+Reported: *"we cannot use a Chaos Orb on desecrated modifiers, even if they are normal modifiers gotten
+through desecration."* Built as an outright immunity. Then refined to a preference (take an ordinary
+affix if the item has one, the carved mod only if it does not) after reasoning that an immunity would
+declare a legal move impossible. Both shipped — `af9843fc`, `73fbcaf9`.
+
+**Neither was real.** The ruling had been retracted in the same conversation and the retraction was not
+picked up. A Chaos Orb takes the desecrated mod at the same uniform odds as anything else, and the item
+is clean afterwards. So does an Annulment. Reverted; `removeOutcomes` spares nothing.
+
+Three things this cost, all of them recorded here as fact at the time:
+
+- Two rounds of hand-recomputed tests and prices, for a rule that does not exist.
+- A claim that barring the removal made a 5-ordinary+1-carved Body Armour craft ~35% CHEAPER (by
+  protecting a landed carved target from a Chaos). That effect is gone with the rule.
+- A bracketed "known approximation" about mod provenance, sized at +0.0%/+5.3%, that only mattered
+  because of the restriction.
+
+The lesson is not "ask more questions" — the rule was stated plainly and then withdrawn plainly. It is
+that a ruling which arrives in conversation needs the same treatment as one that arrives in data: the
+LAST word wins, and a correction is easy to miss when it comes as an aside in a message about something
+else. Rulings now get written into docs/validation.md with the date they were confirmed AND re-read
+against later messages before being built on.
+
+## A bone is the cheapest way to add an ordinary mod (2026-08-24)
+
+Follows directly from the offer of three. Desecration was modelled only when a carved mod was in play
+(`desecratable`), on the reasoning that otherwise "a Desecration could only ever add junk". With three
+offers and a keep-one choice that is wrong, and the prices make it badly wrong: a Preserved rib is
+0.31ex against an Exalt's 1.00ex, so a bone lands a named normal mod on a Body Armour for ~1.2ex where
+an Exalt needs ~9.6ex.
+
+Measured on a **held Rare** (no `restartCost`, so nothing masks the comparison), 3 normal targets:
+
+| base | bones excluded | bones available | |
+|---|---|---|---|
+| Wands | 4,073.8 ex | **1,215.5 ex** | −70% |
+| Body_Armours_str | 2,967.6 ex | **693.9 ex** | −77% |
+| Amulets | 54,834 ex | 54,834 ex | 0% — gate closed |
+
+And from a white base they make the solve **faster**, because the craft is genuinely easier:
+
+| targets | bones excluded | bones available |
+|---|---|---|
+| 4 | 5,824 ms, E = 173.8 ex | 2,327 ms, E = **26.3 ex** |
+| 5 | 76,119 ms, E = 435.0 ex | 13,975 ms, E = **44.6 ex** |
+| 6 | 120 s capped, E ≤ 82,210 ex | 120 s capped, E ≤ **645.5 ex** |
+
+The 6×T1 Body Armour craft that prompted the seeded solve also improves — phase A 314 s → 145 s,
+E 2.07M → 1.25M ex — though at 145 s it still needs the Patient preset.
+
+**The gate is a necessary condition, not a heuristic.** `bonePrice < DESECRATION_OFFER_COUNT ×
+exaltPrice`. The offer raises the chance of a hit by at most `m`, since `1−(1−p)^m ≤ m·p`; and a bone's
+per-draw `p` is strictly below an Exalt's, because its denominator also carries the carved pool. So a
+bone at `m` Exalts or more cannot win, and skipping it costs nothing — which is what keeps the desJunk
+axis, and the 3× lattice it brings, off amulets and rings. An absent bone price reads as "no bone",
+never as a free one (`stepCost` turns a missing key into 0, and a 0 here would switch desecration on
+for every base in a sheet that simply doesn't price bones).
+
+**A measurement mistake worth recording.** The first control deleted `prices.currency.desecrate` and
+showed a 0% difference everywhere — `pricesForBase` re-derives the bone price from the sheet's `bones`
+section, so both columns had bones on and the comparison was against itself. The real control is
+`policy: { excluded: new Set(['desecrate']) }`, the same mechanism the app's own currency toggles use.
+
+## Where the Omen of Light actually earns its price (2026-08-24)
+
+Raised as a suggestion — the Omen of Light removes a carved mod specifically, so it should help when a
+bone adds carved junk. It was already modelled (`lightOutcomes`, P=1) and is pushed OUTSIDE the
+`desecratable` block, so it does not depend on a carved mod being targeted — which matters now that
+letting bones compete for ordinary mods made "carved junk on a craft that wanted none" reachable.
+
+What the measurement adds is **when it is worth buying**, and the answer is: rarely.
+
+    3,095 ex  Omen of Light            (8.5 divine)  - certain
+    3,350 ex  Omen of Dextral Annulment (9.2 divine) - certain if the side holds only it
+    4,370 ex  Omen of Sinistral Annulment (12 divine)
+      158.7 ex  plain Annulment                       - random target
+
+So it is the cheapest CERTAIN removal of a carved mod, and 19.5x a random Annulment. Measured on a
+`Body_Armours_str` held Rare, target 5 ordinary + 1 carved, with the WRONG carved suffix stuck on it:
+
+| targets already landed | best move | E with omen | E without | omen worth |
+|---|---|---|---|---|
+| 0 | Chaos | 31,327 ex | 31,327 ex | 0 ex |
+| 2 | Annul | 31,610 ex | 31,610 ex | 0 ex |
+| 4 | Annul | 31,636 ex | 31,636 ex | 0 ex |
+| 5 | Annul | 31,410 ex | 31,410 ex | 0 ex |
+
+Zero throughout: a random Annulment at 158.7 ex, even eating a landed mod now and then, beats a 3,095 ex
+certainty on a craft costing ~31,000 ex. Same result on the newly-reachable no-carved-target case — the
+policy clears carved junk with a **Chaos Orb** (33.39 ex) and the omen is worth 0 ex there too.
+
+It is chosen on the reported 6-mod craft, at `5 mods · +1 desecrated` where E ≈ 9,185 chaos
+(~307,000 ex): there the omen is ~1% of the craft and a random annul risks five landed mods. That is
+the shape of the rule — the Omen of Light is a **protect a nearly-finished expensive item** tool, not a
+clean-up-junk one, and the model already draws that line without being told where it is.
+
+**Load-bearing caveat.** The 8.5-divine quote is hand-transcribed (2026-08-22, `omenQuotes`; poe.ninja
+has no omen endpoint). Every "worth 0 ex" above is a comparison against that number, so a materially
+different real price would move the line.
+
 ## What a Chaos Orb does to a carved modifier (2026-08-24)
 
 Landed on the third attempt, and both wrong answers are worth keeping because they are mirror images.

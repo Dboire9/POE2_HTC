@@ -4,6 +4,16 @@ import { markovFromItem, actionCostOf } from './markovFromItem.ts';
 import type { Prices } from './cost.ts';
 import { mulberry32 } from './simulate.ts';
 
+/**
+ * The tolerance these hand-computed cases need.
+ *
+ * The DEFAULT stopping rule is scale-aware — a thousandth of the craft's cheapest action — because a
+ * flat 1e-9 makes a multi-million-exalt solve grind fifteen decades of residual for digits nobody has.
+ * These tests are pinning the model's ARITHMETIC to nine decimals, not the stopping rule, so they ask
+ * for the precision they assert. A test that the default is scale-aware lives in markovFromItem.test.ts.
+ */
+const EXACT = { tolerance: 1e-12 } as const;
+
 // Synthetic base built so every desecration outcome is hand-countable:
 //   normal    prefixes [NP1]        suffixes []          ← empty suffix pool ⇒ no ordinary junk
 //   desecrated prefixes [DP1]       suffixes [DS1]       ← both tagged kurgal (Blackblooded)
@@ -58,7 +68,7 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     // Under a single draw this was E = 3. The offer is worth 2.3x here, and turns the brick from a
     // coin-flip into a 1-in-8.
     const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens: {} };
-    const r = markovFromItem(data, prices, start, targets);
+    const r = markovFromItem(data, prices, start, targets, EXACT);
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
     const s0 = r.nodes.find((nd) => nd.isStart)!;
@@ -87,7 +97,7 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
       currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
       omens: { OmenofSinistralNecromancy: 0.2 },
     };
-    const r = markovFromItem(data, prices, start, targets);
+    const r = markovFromItem(data, prices, start, targets, EXACT);
     expect(r.expectedCost).toBeCloseTo(1.2, 9);
     const s0 = r.nodes.find((nd) => nd.isStart)!;
     // Same tie as above on the boss half; what matters is that the SIDE omen is bought.
@@ -101,7 +111,7 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
       currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
       omens: { OmenofSinistralNecromancy: 4 },
     };
-    const r = markovFromItem(data, prices, start, targets);
+    const r = markovFromItem(data, prices, start, targets, EXACT);
     expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
     // No `side` key: the omen was weighed and declined.
     expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'desecrate' });
@@ -118,7 +128,7 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
    */
   it('100k runs of the published graph land on the hand-computed 9/7', () => {
     const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens: {} };
-    const r = markovFromItem(data, prices, start, targets);
+    const r = markovFromItem(data, prices, start, targets, EXACT);
     const byKey = new Map(r.nodes.map((nd) => [nd.key, nd]));
     const outs = new Map<string, { to: string; prob: number }[]>();
     for (const e of r.edges) outs.set(e.from, [...(outs.get(e.from) ?? []), { to: e.to, prob: e.prob }]);
@@ -169,7 +179,7 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
    */
   it('blocks a second bone until the flagged mod is removed', () => {
     const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens: {} };
-    const r = markovFromItem(data, prices, start, targets);
+    const r = markovFromItem(data, prices, start, targets, EXACT);
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
 
@@ -221,7 +231,7 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     // chaos: 99 like the fixtures above — `stepCost` treats a MISSING price as 0, so leaving it out
     // hands the policy a free Chaos Orb and the hand-computed arithmetic below collapses (E = 2).
     const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens: {} };
-    const r = markovFromItem(noBoss, prices, start, targets);
+    const r = markovFromItem(noBoss, prices, start, targets, EXACT);
     expect(r.feasible).toBe(true);
     // Untagged DP1 is in no boss pool, so a Blackblooded draw could never produce it. Only the
     // untargeted action can, which is what the policy must be playing.

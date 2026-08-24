@@ -104,6 +104,18 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 ## Gotchas
 
 - **Two desecrations, not one.** With a boss omen the draw is count-uniform over that boss's pool (`desecrationBossProbability` / `desecrationBossAnySideProbability`); *without* one it is weighted over the base's combined **normal ∪ desecrated** pool (`desecrationProbability`, and `desecrateAnyOutcomes` in the MDP). Armour only ever gets the second. Both planners must offer both, or a base loses the ability to desecrate entirely — that bug reported `feasible: false` for 342 of 527 desecrated mods for a day (fixed 2026-08-22).
+- **The VI stopping rule is scale-aware, so a test that asserts many decimals must ask for precision.**
+  `tolerance` defaults to a thousandth of the craft's cheapest action, not a flat 1e-9 — these values
+  span ten orders of magnitude between crafts. Worth a measured 1.77x, at a relative error of ~1e-3 that
+  is ONE-DIRECTIONAL: the sequence stops above its limit, so a number overstates a craft's cost and
+  never flatters it. The hand-computed tests pass `EXACT = { tolerance: 1e-12 }`; they pin the model's
+  arithmetic, not the stopping rule. Note the residual is NOT the error — a descending sequence stopping
+  at Δ < tol still sits `tol/(1−r)` above its limit, and r is near 1 here.
+- **Measure these solves interleaved, and take medians.** Single runs have a **~40% spread**: unchanged
+  code has been timed at 103.8s and 145.6s for identical work. Two opposite conclusions about sweep
+  ordering were drawn from single runs before the method was fixed — see docs/validation.md, which also
+  records the ordering itself as a measured NEGATIVE result (most transitions are bricks, so information
+  does not flow purely backward from the goal, and goal-first ordering buys nothing).
 - **Value iteration can fail to converge, and the result says so.** `MarkovResult.converged` is false when VI hit `maxIters` (100k sweeps). Because VI 0-initialises and climbs, an unconverged `expectedCost` is a strict **lower bound** — render it as "≥ x", never as a point value. This is not hypothetical: an unomened armour desecration lands one specific mod about 1 in 121,510 times, and VI's convergence rate is governed by exactly that probability, so it exhausts the cap and takes ~6s.
 - **A missing price is 0, not "unavailable".** `stepCost` does `prices.currency[key] ?? 0`, so an omitted key mints a free orb. Exalt strengths and the Necromancy/Light/side omens are separately gated on *having* a price in `markovActions.ts`; the boss omens are not. In synthetic test fixtures, price every currency the policy might reach or the hand-computed arithmetic silently changes.
 - The shipped `0.5.0` data is cross-checked exact vs Craft of Exile (Wands/Amulets/Rings/Body Armour/Quivers); re-validate with the `scripts/coe-*` harness when 1.0 lands. `data/patches/<patch>/` versioning is what makes a re-refresh safe.

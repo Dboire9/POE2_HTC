@@ -64,33 +64,36 @@ route and an honest cost. What that left open:
   numbers it never read. It now calls `optimize` directly and keeps one `runSolve` case for the
   wiring. Full suite back to 23s.)
 
-## 3. Value iteration is the whole cost of a from-white solve, and it is slow on a long-shot target
+## 3. Value iteration is still the whole cost of a from-white solve
 
-Measured 2026-08-23 on the craft that prompted it — six T1 mods on a `Body_Armours_str`, from white:
+Partly addressed 2026-08-24: the stopping rule is scale-aware now (a thousandth of the craft's cheapest
+action, not a flat 1e-9), worth a measured **1.77x** — interleaved, three reps, non-overlapping. Error
+1.0e-3 relative and one-directional, so the number overstates a craft's cost and never flatters it.
+See docs/validation.md for that and for two things tried and rejected on measurement (goal-first sweep
+ordering; a seed repair that repaired nothing).
 
-    actions      172ms
-    compile       42ms
-    solve     90,318ms      <- 99.8% of the run
+**What remains.** Solve is still ~99% of a from-white run, and the desecration flag axis widened the
+lattice ~5x where a bone is in play, so the picture is:
 
-The seeded two-phase solve (see `markovFromItem.ts`) needs its push-forward phase to CONVERGE before
-the restart phase can start, so that 90s is a floor, not a budget: below it the model returns "raise
-Search effort" rather than a number. In practice a craft this size needs the **Patient** preset (300s),
-where it does produce an 8-step route and E ~ 1.8M ex. Standard and Thorough decline it.
+| targets, from white | solve |
+|---|---|
+| 4 | ~9 s |
+| 5 | ~67 s |
+| 6 | caps out at 120 s, returns an upper bound |
 
-Where the time goes: convergence is geometric with a rate near 1, and `tolerance` is ABSOLUTE (1e-9)
-while the values here are ~2e6 — so it grinds through 15 decades of residual to settle digits neither
-the price sheet nor the player has. Loosening it to 1e-1 cut the solve to ~41s with the answer
-unchanged to five figures, which points at a RELATIVE tolerance as the right criterion for a quantity
-whose scale spans ten orders of magnitude between crafts.
+A 5-target craft is now borderline at the Thorough preset (60 s) rather than plainly beyond it, and a
+6-target one still needs Patient. The next lever is **prioritised sweeping** — a worklist that skips
+states whose successors have not moved, instead of sweeping all N every pass. That is a real speedup
+and real complexity, and it should be measured the same way: interleaved medians, because single runs
+of these solves have a ~40% spread and have already produced two opposite conclusions from noise.
 
-Two cautions, both load-bearing, which is why this is a backlog item and not a quick fix:
+Cheaper things to try first, both unmeasured:
 
-- The hand-computed tests assert costs to 6-9 decimal places, so the criterion cannot simply be swapped.
-- The two-phase seed's validity rests on phase A reaching a FIXED POINT: `V0 >= T(V0)` is what makes the
-  restart phase descend and stay an upper bound. Stopping phase A early breaks that unless the seed is
-  inflated by `c >= cost_min / (cost_min - eps)` — sound (costs are strictly positive, and
-  `T(cV) <= c*T(V)` for `c >= 1`), but it needs `eps` below the cheapest action's price, which a
-  relative tolerance at this scale would not respect. Worth doing carefully; not worth doing quickly.
+- The `1000` divisor is a knee found on two crafts, not a law. Worth re-checking on a from-ITEM craft,
+  where there is no phase B and the error lands differently.
+- `maxIters` is 100,000 and irrelevant on crafts that converge in tens — but a craft that hits it burns
+  the whole budget before the deadline check can stop it. A cheaper cap, or checking the clock more
+  often than every 32 sweeps, may matter more than it looks.
 
 ## 4. A Magic item can only be opened with a Regal — there is no Augment step
 

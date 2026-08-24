@@ -7,6 +7,16 @@ import type { Prices } from './cost.ts';
 import { loadPrices } from './loadPrices.ts';
 import { mulberry32 } from './simulate.ts';
 
+/**
+ * The tolerance these hand-computed cases need.
+ *
+ * The DEFAULT stopping rule is scale-aware — a thousandth of the craft's cheapest action — because a
+ * flat 1e-9 makes a multi-million-exalt solve grind fifteen decades of residual for digits nobody has.
+ * These tests are pinning the model's ARITHMETIC to nine decimals, not the stopping rule, so they ask
+ * for the precision they assert. A test that the default is scale-aware lives in markovFromItem.test.ts.
+ */
+const EXACT = { tolerance: 1e-12 } as const;
+
 // Synthetic prefix-only pool so junk suffixes never appear (js stays 0), making states hand-enumerable.
 // T1 is the gettable target (weight 100); J1 is a weight-0 prefix — ungettable by an exalt, so it only
 // ever exists as junk carried on the START item. Suffix pool empty.
@@ -34,13 +44,13 @@ const rare = (pre: string[], suf: string[] = []): ItemState =>
 
 describe('markovFromItem — hand-computed expected cost', () => {
   it('an item already at the target costs 0', () => {
-    const r = markovFromItem(data, prices, rare(['T1']), [{ modId: 'T1' }]);
+    const r = markovFromItem(data, prices, rare(['T1']), [{ modId: 'T1' }], EXACT);
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBe(0);
   });
 
   it('an empty rare needs exactly one exalt (the target is the only gettable mod)', () => {
-    const r = markovFromItem(data, prices, rare([]), [{ modId: 'T1' }]);
+    const r = markovFromItem(data, prices, rare([]), [{ modId: 'T1' }], EXACT);
     expect(r.expectedCost).toBeCloseTo(1, 9); // one exalt, always lands T1 (only prefix with weight)
   });
 
@@ -50,7 +60,7 @@ describe('markovFromItem — hand-computed expected cost', () => {
     //   V(T1|J1)= 1 + ½·0 + ½·V(J1) = 1 + ½·2 = 2
     // The MDP RECOVERS from the bad annul (never restarts); the answer happens to match the linear
     // model here (symmetric), but this pins the value-iteration + self-loop math.
-    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }]);
+    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }], EXACT);
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeCloseTo(2, 6);
   });
@@ -72,7 +82,7 @@ describe('markovFromItem — hand-computed expected cost', () => {
     };
     const tp: Prices = { currency: { exalt: 1, annul: 1, chaos: 100 }, omens: {} };
     const empty: ItemState = { base: tiered.bases.get('S')!, level: 100, rarity: 'rare', prefixes: [], suffixes: [] };
-    const r = markovFromItem(tiered, tp, empty, [{ modId: 'M', minTierIndex: 1 }]);
+    const r = markovFromItem(tiered, tp, empty, [{ modId: 'M', minTierIndex: 1 }], EXACT);
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeCloseTo(3, 6);
     // The start's optimal move rolls the family; the graph shows a blocked (off-tier) state it recovers from.
@@ -111,7 +121,7 @@ describe('markovFromItem — hand-computed expected cost', () => {
 // inferred from `converged` at the point of display.
 describe('markovFromItem — a truncated push-forward solve is a LOWER bound', () => {
   it('quotes under the hand-computed value, and says so', () => {
-    const full = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }]);
+    const full = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }], EXACT);
     const cut = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }], { maxIters: 1 });
     expect(full.bound).toBe('exact');
     expect(full.expectedCost).toBeCloseTo(2, 6);
@@ -123,7 +133,7 @@ describe('markovFromItem — a truncated push-forward solve is a LOWER bound', (
 
 describe('markovFromItem — policy graph', () => {
   it('exposes the start, the goal, and a brick (regress) back-edge on the bad annul', () => {
-    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }]);
+    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }], EXACT);
     const start = r.nodes.find((nd) => nd.isStart)!;
     expect(start.present).toEqual(['T1']);
     expect(start.junkPrefixes).toBe(1);
@@ -138,7 +148,7 @@ describe('markovFromItem — policy graph', () => {
   });
 
   it('every node carries its expected cost, decreasing toward the goal', () => {
-    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }]);
+    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }], EXACT);
     const goal = r.nodes.find((nd) => nd.isGoal)!;
     expect(goal.expectedCost).toBe(0);
     for (const nd of r.nodes) expect(nd.expectedCost).toBeGreaterThanOrEqual(0);
@@ -161,13 +171,13 @@ describe('markovFromItem — v2 levers (orb strength + side exalts)', () => {
     };
     const empty: ItemState = { base: tiered.bases.get('S')!, level: 100, rarity: 'rare', prefixes: [], suffixes: [] };
     const cheapPerfect: Prices = { currency: { exalt: 1, exalt_perfect: 2.5, annul: 1, chaos: 100 }, omens: {} };
-    const r = markovFromItem(tiered, cheapPerfect, empty, [{ modId: 'M', minTierIndex: 1 }]);
+    const r = markovFromItem(tiered, cheapPerfect, empty, [{ modId: 'M', minTierIndex: 1 }], EXACT);
     expect(r.expectedCost).toBeCloseTo(2.5, 6);
     expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'exalt', strength: 'perfect' });
 
     // Sanity: at the real Perfect price (20 ≫ 3) the base-exalt-and-recover route wins instead (E = 3).
     const realPerfect: Prices = { currency: { exalt: 1, exalt_perfect: 20, annul: 1, chaos: 100 }, omens: {} };
-    const r2 = markovFromItem(tiered, realPerfect, empty, [{ modId: 'M', minTierIndex: 1 }]);
+    const r2 = markovFromItem(tiered, realPerfect, empty, [{ modId: 'M', minTierIndex: 1 }], EXACT);
     expect(r2.expectedCost).toBeCloseTo(3, 6);
     expect(r2.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'exalt', strength: 'base' });
   });
@@ -229,7 +239,7 @@ function simulatePolicyMean(r: ReturnType<typeof markovFromItem>, costFn: (actio
 
 describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to verify)', () => {
   it('the synthetic recovery case: 100k policy runs match V (E = 2)', () => {
-    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }]);
+    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }], EXACT);
     const mc = simulatePolicyMean(r, (a) => actionCostOf(prices, a), 100_000);
     expect(mc).toBeCloseTo(r.expectedCost, 1); // ~2, tight
   });
@@ -308,8 +318,14 @@ describe('markovFromItem — progress reporting', () => {
     const solve: number[] = [];
     // `maxIters` well above 1000 so the budget measure alone changes on ~1 sweep in 3: per-sweep
     // reporting would emit ~3000 values with heavy repetition, the throttle emits at most 1001.
+    //
+    // The tight `tolerance` is what makes the premise below hold. It used to hold by itself — this
+    // craft could not settle at the old flat 1e-9 — but the default is scale-aware now and the craft
+    // converges under it, which would leave the throttle untested rather than failing loudly. Asking
+    // for the old criterion keeps the test measuring what it was written for.
     const r = markovFromItem(real, rp, start, targets, {
       maxIters: 3_000,
+      tolerance: 1e-9,
       onProgress: (p) => { if (p.phase === 'solve') solve.push(p.done); },
     });
 
@@ -319,6 +335,70 @@ describe('markovFromItem — progress reporting', () => {
     expect(repeats).toEqual([]);
     // At most one message per distinct permille the UI could render.
     expect(solve.length).toBeLessThanOrEqual(1001);
+  });
+});
+
+/**
+ * The stopping rule scales with the craft, and the seed stays on the safe side of the fixed point.
+ *
+ * A flat 1e-9 made a multi-million-exalt solve grind fifteen decades of residual to settle digits
+ * neither the price sheet nor the player has: measured on a 5-target from-white Wand, 10.2 s against
+ * 5.0 s at 1e-3, for answers differing by 0.0005%. The default is now a thousandth of the craft's
+ * cheapest action.
+ *
+ * That has a cost the tests have to hold down. Phase B is an upper bound ONLY because phase A reached
+ * a fixed point, and stopping phase A early breaks that by up to `tolerance` — so the seed is scaled by
+ * `cheapest / (cheapest − tol)` first, which keeps it excessive exactly rather than approximately.
+ */
+describe('markovFromItem — the stopping rule scales with the craft', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const wand = real.bases.get('Wands')!;
+  const white: ItemState = { base: wand, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+  const targets = [{ modId: 'Wands/WeaponSpellDamage' }, { modId: 'Wands/ManaRegeneration' }];
+
+  it('agrees with an exhaustive tolerance, and errs on the dear side when it differs', () => {
+    const scaleAware = markovFromItem(real, rp, white, targets, { restartCost: 0 });
+    const exhaustive = markovFromItem(real, rp, white, targets, { restartCost: 0, ...EXACT });
+    expect(scaleAware.converged && exhaustive.converged).toBe(true);
+    // BRACKETED, not just bounded. Measured at 1.0e-3 to 1.4e-3 on 4- and 5-target from-white crafts:
+    // small enough that `formatCost` cannot render it and the price sheet cannot support it, but large
+    // enough to prove the default really is a scale-aware loosening. Put the flat 1e-9 back and the gap
+    // collapses through the floor — which an upper bound alone would not have caught, since 1e-9 also
+    // stops (imperceptibly) above the limit and so passes any one-sided check.
+    const rel = Math.abs(scaleAware.expectedCost / exhaustive.expectedCost - 1);
+    expect(rel).toBeLessThan(5e-3);
+    expect(rel).toBeGreaterThan(1e-5);
+    // …and DIRECTIONAL, which is the half that matters. Phase B descends, so stopping early leaves the
+    // value above its limit: the number overstates a craft's cost and never flatters it. A symmetric
+    // closeness check would pass just as happily on an answer that was too cheap.
+    //
+    // STRICTLY greater, which also pins that the default is looser than exhaustive — revert it to a
+    // flat 1e-9 and the two solves become the same solve, so the inequality collapses and this fails.
+    expect(scaleAware.expectedCost).toBeGreaterThan(exhaustive.expectedCost);
+  });
+
+  /**
+   * The guarantee the repair exists for: a truncated phase B must report a cost the truth is UNDER.
+   *
+   * Without the seed repair the sequence can start a hair below the fixed point and the "≤ x" the UI
+   * prints becomes false — by a rounding error, but false. Checked at several sweep budgets, each of
+   * which truncates phase B at a different point.
+   */
+  it('never quotes an upper bound below the converged cost', () => {
+    const exact = markovFromItem(real, rp, white, targets, { restartCost: 0, ...EXACT });
+    expect(exact.converged).toBe(true);
+    let sawATruncatedRun = false;
+    for (const maxIters of [400, 700, 1_000, 2_000]) {
+      const cut = markovFromItem(real, rp, white, targets, { restartCost: 0, maxIters });
+      if (!cut.feasible) continue; // too few sweeps even to seed — a different assertion's business
+      if (!cut.converged) {
+        sawATruncatedRun = true;
+        expect(cut.bound).toBe('upper');
+      }
+      expect(cut.expectedCost).toBeGreaterThanOrEqual(exact.expectedCost);
+    }
+    expect(sawATruncatedRun).toBe(true); // or the loop proved nothing
   });
 });
 

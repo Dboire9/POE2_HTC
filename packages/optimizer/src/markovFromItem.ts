@@ -133,7 +133,25 @@ export interface MarkovProgress {
 }
 
 export interface MarkovOptions {
-  /** Value-iteration convergence tolerance (max ΔV). Default 1e-9. */
+  /**
+   * Value-iteration convergence tolerance (max ΔV), in exalt-equivalents.
+   *
+   * Defaults to a THOUSANDTH of the cheapest action in the craft rather than a fixed 1e-9, because
+   * these values span ten orders of magnitude between crafts — a flat 1e-9 makes a 2e6 ex solve grind
+   * fifteen decades of residual to settle digits neither the price sheet nor the player has. Measured
+   * on a 5-target from-white Wand, the full two-phase solve: **102.5 s → 50.1 s**, for a relative error
+   * of **1.0e-3**.
+   *
+   * Two things make that error acceptable rather than merely small. It is far below what the inputs
+   * support — the price sheet moves daily and the desecrated spawn weight is unverified by ~900x — and
+   * it is one-directional: the sequence stops ABOVE the fixed point, so the number overstates the cost
+   * and never understates it. (The residual is not the error. A descending sequence stopping at Δ < tol
+   * still sits tol/(1−r) above the limit, and r is near 1 here — which is why the error is ~1e-3 and
+   * not ~1e-6. Dividing by 10,000 instead buys 10x the accuracy for almost none of the speed: 92.2 s.)
+   *
+   * Pass a value to override, which is what the hand-computed tests do: they assert the model's
+   * arithmetic to nine decimals, so they ask for a tolerance that supports it.
+   */
   readonly tolerance?: number;
   /** Safety cap on iterations. Default 100000. */
   readonly maxIters?: number;
@@ -342,6 +360,7 @@ export function markovFromItem(
     readonly offer: number;
   }
   const compiled: CompiledAction[][] = new Array(N);
+  let cheapestAction = Infinity;
   let widestOffer = 0; // biggest outcome count among offer actions, to size the sort scratch once
   for (let i = 0; i < N; i++) {
     const key = allStates[i]!;
@@ -349,6 +368,7 @@ export function markovFromItem(
     const out: CompiledAction[] = [];
     for (const def of defs) {
       const offer = def.offer ?? 1;
+      const isRestartAction = def.action.currency === 'restart';
       const to: number[] = [];
       const prob: number[] = [];
       let selfProb = 0;
@@ -365,6 +385,10 @@ export function markovFromItem(
         def, cost: def.cost, selfProb, offer, isRestart: def.action.currency === 'restart',
         to: Int32Array.from(to), prob: Float64Array.from(prob),
       });
+      // The cheapest thing the craft can do, restart excluded — it sets both the default tolerance and
+      // the factor that repairs the seed. Restart is left out because it is not in phase A, and because
+      // a white base is free: a zero would make both meaningless.
+      if (!isRestartAction && def.cost > 0 && def.cost < cheapestAction) cheapestAction = def.cost;
     }
     compiled[i] = out;
     if (report && i % PROGRESS_STRIDE === 0) report({ phase: 'compile', done: i, total: N });
@@ -456,7 +480,27 @@ export function markovFromItem(
   // not an optimisation — the greedy policy is sensible from the very first sweep: restart wins at a
   // state only where `restartCost + V[start]` genuinely beats digging out, so a state holding a target
   // keeps it, and the extracted route reaches the goal even when the solve stops early.
-  const tol = opts.tolerance ?? 1e-9;
+  /**
+   * How close is close enough — a thousandth of the cheapest thing the craft can do.
+   *
+   * A craft with a free action (a missing price mints one — see CLAUDE.md) has no positive `cheapest`
+   * to scale from, so it keeps the old flat default. Slow, but never wrong.
+   *
+   * There WAS a second half here: phase B is an upper bound because phase A reached a fixed point, and
+   * stopping phase A at residual `tol` weakens that, so the seed was scaled by
+   * `cheapest / (cheapest − tol)` to put it back on the excessive side. The derivation is sound
+   * (`T(cV) <= c·T(V)` for `c >= 1` with positive costs) and the code was one line — and it did
+   * nothing measurable. Removing it moved the answer in the FIFTH decimal at every tolerance from 1e-4
+   * to 1.5e-1, in both directions, and never turned a violated bound into a satisfied one.
+   *
+   * The reason is that phase B's own truncation dwarfs the seed's shortfall: a descending sequence
+   * stopping at Δ < tol still sits tol/(1−r) above its limit with r near 1, which is orders larger than
+   * the seed could be low by. What actually holds the bound up is that margin, and it is measured, not
+   * assumed — see "never quotes an upper bound below the converged cost". Keeping an unfalsifiable line
+   * whose comment claimed to guarantee something it did not is worse than saying plainly what does.
+   */
+  const scaleAware = Number.isFinite(cheapestAction) && cheapestAction > 0;
+  const tol = opts.tolerance ?? (scaleAware ? cheapestAction / 1000 : 1e-9);
   const maxIters = opts.maxIters ?? 100_000;
   const V = new Float64Array(N); // 0-initialised, as above
   // Phase A's dead ends, a superset of phase B's. A state only a restart can rescue starts at Infinity,

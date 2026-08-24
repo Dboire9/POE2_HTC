@@ -1759,6 +1759,61 @@ the standard almost-sure (Prob1) fixpoint, computed before value iteration with 
 Infinity, and computed PER PHASE since phase A runs without restart and has different dead ends. That
 craft now converges in 171 ms.
 
+## Value iteration: a stopping rule on the scale of the numbers (2026-08-24)
+
+`tolerance` was **absolute at 1e-9** while these values run to ~2e6 exalts, so a solve ground fifteen
+decades of residual to settle digits neither the price sheet nor the player has. It now defaults to a
+**thousandth of the cheapest action the craft can play**. Measured interleaved, three reps, on a
+4-target from-white Wand — the two sets of runs do not overlap:
+
+    flat 1e-9      median 17,477 ms   [15311, 17527, 17477]
+    scale-aware    median  9,898 ms   [ 9898, 10144,  9253]     1.77x
+
+The cost is a relative error of **1.0e-3 to 1.4e-3**, and two things make that acceptable rather than
+merely small. It is far below what the inputs support — the price sheet moves daily, the desecrated
+spawn weight is unverified by ~900x — and it is **one-directional**: the sequence stops ABOVE its limit,
+so the number overstates a craft's cost and never flatters it. The test asserts the direction, not just
+the magnitude; a symmetric closeness check would pass just as happily on an answer that was too cheap.
+
+The hand-computed tests keep their precision by asking for it (`EXACT = { tolerance: 1e-12 }`). They
+pin the model's arithmetic, not the stopping rule.
+
+**The residual is not the error.** A descending sequence stopping at Δ < tol still sits `tol/(1−r)`
+above its limit, and `r` is near 1 here — which is why the error is ~1e-3 and not ~1e-6. Dividing by
+10,000 instead buys 10x the accuracy for almost none of the speed (92.2 s against 50.1 s at n=5), so
+1,000 is the knee.
+
+### Two things tried and NOT kept
+
+**Sweeping toward the goal — a negative result.** `enumerateStates` counts `present` from 0 to 2^n − 1,
+so `present === GOAL` sorts last and every sweep appeared to run away from the answer. Reordering the
+lattice nearest-goal-first looked like free money. It is not: measured interleaved, five reps, on a
+5-target push-forward solve —
+
+    none  median 9,533 ms      near  median 8,471 ms      far  median 8,484 ms
+
+*near* and *far* are indistinguishable from each other, and both sit inside the run-to-run spread. The
+premise was wrong: in this model most transitions are BRICKS (85–99% on a from-white craft), so `V[near]`
+depends mostly on `V[far]` and information does not flow purely backward from the goal. Reverted. Worth
+recording so the next person does not spend the afternoon on it.
+
+**A seed repair that repaired nothing.** Phase B is an upper bound because phase A reached a fixed
+point, and stopping phase A at residual `tol` weakens that — so the seed was scaled by
+`cheapest / (cheapest − tol)` to put it back on the excessive side. The derivation is sound
+(`T(cV) <= c·T(V)` for `c >= 1` with positive costs) and the code was one line. It did nothing
+measurable: removing it moved the answer in the FIFTH decimal at every tolerance from 1e-4 to 1.5e-1,
+in both directions, and never turned a violated bound into a satisfied one. Phase B's own truncation
+margin — `tol/(1−r)`, orders larger — is what actually holds the bound up, and that is measured rather
+than assumed. Removed. A mutation test that cannot kill a line is telling you something about the line.
+
+### Measurement discipline
+
+Three conclusions were drawn and discarded in this work before the method was fixed. Single runs of
+these solves have a **~40% spread**: the unchanged code measured 103.8 s and then 145.6 s for identical
+work. The sweep-order change was called a large win, then a large regression, on that basis — both from
+noise. Every number above is a median of interleaved repetitions, and anything that cannot be separated
+that way is reported as indistinguishable rather than as a result.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

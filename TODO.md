@@ -88,9 +88,31 @@ From white `Body_Armours_str`, six targets, `restartCost: 0`:
 
 **The binding constraint on the hard craft is the sweep cap, not the clock.** That kills the obvious
 fix: a higher effort preset was drafted and dropped, because more wall clock buys that craft nothing —
-it stops at 100,000 sweeps whatever the clock says. Raising `maxIters` instead is not obviously viable
-either: 100,000 sweeps already cost ~1,000 s and had not converged, so the setting that would finish it
-implies a wait measured in tens of minutes with no guarantee attached.
+it stops at 100,000 sweeps whatever the clock says.
+
+**And raising `maxIters` is not the fix either — measured, not assumed.** Tracing phase B's residual
+every 2,000 sweeps on that craft gives the decay rate directly, so the remaining distance is arithmetic
+rather than guesswork:
+
+| sweeps | residual | per-sweep decay |
+|---|---|---|
+| 0 | 7.94e+2 | — |
+| 40,000 | 8.84e-1 | 9.60e-6 |
+| 70,000 | 6.69e-1 | 8.94e-6 |
+| 98,000 | 5.31e-1 | 8.14e-6 |
+| target | 7.39e-5 (`tol`) | |
+
+Extrapolating that rate to `tol` needs **~1.0-1.1 MILLION more sweeps** — about **2.6-2.8 hours** at the
+measured 9.14 ms/sweep, on a machine faster than a browser. And it is a FLOOR, not an estimate: the
+decay rate is itself still degrading (9.60e-6 → 8.14e-6 between 40k and 98k), so the true figure is
+worse. An eleven-fold cap raise for a multi-hour wait is not a setting anyone would choose.
+
+**The ceiling is also better than it looks**, which is the useful half of this. A geometric tail bounds
+the descent still to come at `delta/(1-r)` = 65,247 ex, so the true cost is in **[140,769, 206,016] ex**
+— the quoted number is at most 32% high, not the order of magnitude a truncated solve can be at low
+sweep counts. Worth noting that this bound costs NOTHING to compute: it comes from two residuals the
+solver already has, and would turn "≤ x" into a real range without the third VI phase that was
+considered and dropped earlier.
 
 What the effort presets DO still cover is everything short of that: a 6-target craft with no tier floor
 lands at 61 s, inside Thorough. The unconverged case is the tier-maxed end of the range, where the

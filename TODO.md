@@ -73,17 +73,29 @@ See docs/validation.md for that and for three things tried and rejected on measu
 sweep ordering, now re-tested against sweep COUNTS and closed for good; dropping the free restart's
 zero-cost self-loop; a seed repair that repaired nothing).
 
-**What remains.** Solve is still ~99% of a from-white run, and the desecration flag axis widened the
-lattice ~5x where a bone is in play, so the picture is:
+**What remains, re-measured 2026-08-24 on the path the LAB ACTUALLY RUNS.** Every earlier figure in
+this section was taken with `markovFromItem(..., { restartCost: 0 })` or, worse, with
+`optimizeItemMarkov` and no `restartCost` at all — which silently solves a *different and far easier*
+problem, because without a restart action there is no phase B, and phase B is ~20x phase A. Anything
+timed that way is the seed, not the solve. **Always pass `restartCost` when timing a from-white craft.**
 
-| targets, from white | solve |
-|---|---|
-| 4 | ~9 s |
-| 5 | ~67 s |
-| 6 | caps out at 120 s, returns an upper bound |
+From white `Body_Armours_str`, six targets, `restartCost: 0`:
 
-A 5-target craft is now borderline at the Thorough preset (60 s) rather than plainly beyond it, and a
-6-target one still needs Patient.
+| craft | phase A | phase B | wall | result |
+|---|---|---|---|---|
+| 6 targets, no tier floor | — | — | **61 s** | converged, exact |
+| 6 targets, all T1 | 16,415 | **exhausted at maxIters=100,000** | **1,035 s** | `bound: 'upper'`, E=206,016 ex |
+
+**The binding constraint on the hard craft is the sweep cap, not the clock.** That kills the obvious
+fix: a higher effort preset was drafted and dropped, because more wall clock buys that craft nothing —
+it stops at 100,000 sweeps whatever the clock says. Raising `maxIters` instead is not obviously viable
+either: 100,000 sweeps already cost ~1,000 s and had not converged, so the setting that would finish it
+implies a wait measured in tens of minutes with no guarantee attached.
+
+What the effort presets DO still cover is everything short of that: a 6-target craft with no tier floor
+lands at 61 s, inside Thorough. The unconverged case is the tier-maxed end of the range, where the
+honest ceiling may simply be the right answer — E=206,016 ex says "astronomically expensive" perfectly
+well, and no player needs its third digit. Worth deciding deliberately rather than by default.
 
 **Where the time actually goes, measured 2026-08-24 in sweeps rather than seconds** (deterministic, so
 it survives the ~40% wall-clock spread that has already produced two opposite conclusions from noise):
@@ -97,7 +109,8 @@ share one value, V(start) — measured on a converged 3-target solve (1,015 of 1
 stable at every sweep budget, so it is the true optimum and not a truncation artifact. Value iteration
 is grinding a lattice whose answer is very nearly a single scalar, circulating it one edge per sweep.
 **Policy iteration** solves each policy's linear system outright and should need a handful of rounds
-where this needs 24,838 sweeps. That is the next lever — bigger than prioritised sweeping (a worklist
+where this needs 24,838 sweeps — and it is now the ONLY lever left for the tier-maxed craft, since that
+one is sweep-capped and no setting the user can reach will change it. That is the next lever — bigger than prioritised sweeping (a worklist
 skipping states whose successors have not moved), which is the fallback if policy iteration is too
 much surgery. Measure either one in sweeps first, seconds second.
 

@@ -6,7 +6,46 @@ Last reviewed: 2026-08-23.
 
 ---
 
-## 1. Loose ends from putting rarity in the MDP
+## 1. Pin down the desecrated spawn weight — it now prices EVERY craft on armour and weapons
+
+`DESECRATED_ASSUMED_WEIGHT = 1000` (`tools/refresh/apply_pools.mjs`) was already flagged as the single
+largest unverified number in the app. On 2026-08-24 its blast radius grew by an order of magnitude:
+letting a bone compete for ordinary mods made Desecration the primary add on most bases, so the
+assumption no longer moves only carved crafts — it sets the price of ordinary ones. Measured on crafts
+with **no carved target at all**:
+
+| assumed weight | Wands x3, held Rare | Body_Armours_str x3 |
+|---|---|---|
+| 1 | 995 ex | 636 ex |
+| 100 | 1,016 ex | 642 ex |
+| **1000 (shipped)** | **1,215 ex** | **694 ex** |
+| 5,000 | 2,208 ex | 841 ex |
+| 20,000 | 4,074 ex | 888 ex |
+
+A 4x swing on Wands, off a number nobody has measured.
+
+**The same change made it cheap to check.** Bones are now played on ordinary crafts, and a bone offers
+three modifiers — so the only observation needed is how many OFFERS contained a carved ("carved by the
+Abyss") mod. The candidates are not close:
+
+| assumed weight | P(offer holds a carved mod), Body Armour | Wands |
+|---|---|---|
+| 1 | 0.02% | 0.04% |
+| 100 | 2.37% | 3.83% |
+| **1000** | **20.69%** | **30.90%** |
+| 5,000 | 63.68% | 77.96% |
+| 20,000 | 94.35% | 97.90% |
+
+Twenty bones separates them. `scripts/desecrate-weight.mts` prints that table and inverts an
+observation to a maximum-likelihood weight with a rough interval:
+
+    npx tsx scripts/desecrate-weight.mts                        # what to expect
+    npx tsx scripts/desecrate-weight.mts Body_Armours_str 20 4  # 20 bones, 4 offers held one
+
+If the shipped 1000 falls outside the interval, change the constant, re-run `npm run update-data`, and
+update docs/validation.md D4. **Needs a human in the game** — there is no data source for it.
+
+## 2. Loose ends from putting rarity in the MDP
 
 Done 2026-08-23: the true-cost model handles Normal and Magic starts, so the Lab tab has a policy
 route and an honest cost. What that left open:
@@ -23,7 +62,7 @@ route and an honest cost. What that left open:
   numbers it never read. It now calls `optimize` directly and keeps one `runSolve` case for the
   wiring. Full suite back to 23s.)
 
-## 2. Value iteration is the whole cost of a from-white solve, and it is slow on a long-shot target
+## 3. Value iteration is the whole cost of a from-white solve, and it is slow on a long-shot target
 
 Measured 2026-08-23 on the craft that prompted it — six T1 mods on a `Body_Armours_str`, from white:
 
@@ -51,7 +90,7 @@ Two cautions, both load-bearing, which is why this is a backlog item and not a q
   `T(cV) <= c*T(V)` for `c >= 1`), but it needs `eps` below the cheapest action's price, which a
   relative tolerance at this scale would not respect. Worth doing carefully; not worth doing quickly.
 
-## 3. A Magic item can only be opened with a Regal — there is no Augment step
+## 4. A Magic item can only be opened with a Regal — there is no Augment step
 
 `baseTransforms` (`packages/optimizer/src/fromItem.ts`) emits chaos / annul / exalt and no `augment`,
 and both Chaos and Exalt score 0 on a Magic item. So the only way this planner adds a mod to a Magic
@@ -81,7 +120,7 @@ Two things stop it being a drop-in, and both are design rather than arithmetic:
 
 Worth doing, and it wants its own MC cross-check like the rest of the MDP work.
 
-## 4. The from-item step planner never varies orb strength
+## 5. The from-item step planner never varies orb strength
 
 `baseTransforms` (`packages/optimizer/src/fromItem.ts`) builds every add at base strength — no `tier`
 field — so the planner cannot buy the probability a Greater or Perfect Exalt offers. The MDP *does*
@@ -105,7 +144,7 @@ Related, smaller: above the Thorough preset the MDP's `maxIters` (100k sweeps, ~
 `maxMillis`, so Patient buys nothing on crafts like the one in docs/validation.md. Either expose the
 sweep cap on the effort ladder or stop implying more time helps.
 
-## 5. Startup: what measurement left on the table
+## 6. Startup: what measurement left on the table
 
 Done: `mods.json` warm-start, immutable cache headers, dead UI kit removed. What the bundle
 visualiser (`ANALYZE=1 npm run build`) showed, as a share of the 108.7 kB gzip bundle:

@@ -1581,6 +1581,13 @@ instead, and assert both branches, each mutation-checked.
   against CoE (see above). Desecrated/perfect value spot-checks beyond the sampled set remain optional.
 - **Broaden CoE cross-validation beyond wands** — other bases' families/weights, tier-target and omen
   numbers. Wands is clean; the rest of the pool is the remaining Phase-3 work.
+- **Confirm the assumed desecrated spawn weight (D4) — now TODO 1, not a background item.** Since a
+  bone became the cheapest way to add an ORDINARY mod (2026-08-24), the assumption prices every craft
+  on armour and weapons, not only carved ones: on crafts with no carved target at all it swings a
+  Wands craft 995 ex → 4,074 ex across the plausible range. The same change made it observable —
+  `scripts/desecrate-weight.mts` turns "how many of N bone offers held a carved mod" into a
+  maximum-likelihood weight, and the candidates predict 0.02% / 20.69% / 94.35% on a Body Armour, so
+  twenty bones separates them. Needs a human in the game; there is no data source. Original note:
 - **Confirm the assumed desecrated spawn weight (D4).** 1000 was chosen for plausibility, not measured:
   poe2db publishes none and reports 1 for every row. It moves every unomened desecration by ~900x
   (Body Armour 1-in-121,510 → 1-in-132). The app discloses it (`assumedOdds` → `PriceBasisNote`), which

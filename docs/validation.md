@@ -1482,6 +1482,43 @@ showed a 0% difference everywhere — `pricesForBase` re-derives the bone price 
 section, so both columns had bones on and the comparison was against itself. The real control is
 `policy: { excluded: new Set(['desecrate']) }`, the same mechanism the app's own currency toggles use.
 
+## Where the Omen of Light actually earns its price (2026-08-24)
+
+Raised as a suggestion — the Omen of Light removes a carved mod specifically, so it should help when a
+bone adds carved junk. It was already modelled (`lightOutcomes`, P=1) and is pushed OUTSIDE the
+`desecratable` block, so it does not depend on a carved mod being targeted — which matters now that
+letting bones compete for ordinary mods made "carved junk on a craft that wanted none" reachable.
+
+What the measurement adds is **when it is worth buying**, and the answer is: rarely.
+
+    3,095 ex  Omen of Light            (8.5 divine)  - certain
+    3,350 ex  Omen of Dextral Annulment (9.2 divine) - certain if the side holds only it
+    4,370 ex  Omen of Sinistral Annulment (12 divine)
+      158.7 ex  plain Annulment                       - random target
+
+So it is the cheapest CERTAIN removal of a carved mod, and 19.5x a random Annulment. Measured on a
+`Body_Armours_str` held Rare, target 5 ordinary + 1 carved, with the WRONG carved suffix stuck on it:
+
+| targets already landed | best move | E with omen | E without | omen worth |
+|---|---|---|---|---|
+| 0 | Chaos | 31,327 ex | 31,327 ex | 0 ex |
+| 2 | Annul | 31,610 ex | 31,610 ex | 0 ex |
+| 4 | Annul | 31,636 ex | 31,636 ex | 0 ex |
+| 5 | Annul | 31,410 ex | 31,410 ex | 0 ex |
+
+Zero throughout: a random Annulment at 158.7 ex, even eating a landed mod now and then, beats a 3,095 ex
+certainty on a craft costing ~31,000 ex. Same result on the newly-reachable no-carved-target case — the
+policy clears carved junk with a **Chaos Orb** (33.39 ex) and the omen is worth 0 ex there too.
+
+It is chosen on the reported 6-mod craft, at `5 mods · +1 desecrated` where E ≈ 9,185 chaos
+(~307,000 ex): there the omen is ~1% of the craft and a random annul risks five landed mods. That is
+the shape of the rule — the Omen of Light is a **protect a nearly-finished expensive item** tool, not a
+clean-up-junk one, and the model already draws that line without being told where it is.
+
+**Load-bearing caveat.** The 8.5-divine quote is hand-transcribed (2026-08-22, `omenQuotes`; poe.ninja
+has no omen endpoint). Every "worth 0 ex" above is a comparison against that number, so a materially
+different real price would move the line.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

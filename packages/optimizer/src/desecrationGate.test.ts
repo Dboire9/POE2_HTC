@@ -286,6 +286,35 @@ describe('a bone competes for ordinary mods too, where its price allows', () => 
     expect(withBones.expectedCost).toBeLessThan(without.expectedCost / 2);
   });
 
+  /**
+   * The recovery from a bone that burned the carved slot on a craft that wanted no carved mod —
+   * a state combination that could not arise until bones were let in for ordinary mods.
+   *
+   * The Omen of Light is pushed OUTSIDE the `desecratable` block precisely so it does not depend on a
+   * carved mod being targeted; `lightOutcomes` returns an empty distribution when there is nothing
+   * carved to remove, and `push` drops empty ones, so nothing is wasted when it cannot apply. This
+   * asserts availability, NOT that the policy takes it: at 3,095ex (8.5 divine) against a 158.7ex
+   * random Annulment it is declined on any ordinary craft, and excluding it entirely moves a 5-of-6
+   * Body Armour craft by 0ex. It earns its price only where the item is worth ~100x the omen.
+   */
+  it('still offers the Omen of Light to clear carved junk, with no carved mod targeted', () => {
+    const { start, targets } = heldRare('Wands');
+    expect(targets.every((t) => data.mods.get(t.modId)!.source === 'normal')).toBe(true);
+    const carved = start.base.pools.desecrated.suffixes[0]!;
+    const stuck: ItemState = {
+      ...start, desecrated: true,
+      suffixes: [{ modId: carved, tierName: data.mods.get(carved)!.tiers[0]!.name }],
+    };
+    const r = markovFromItem(data, prices, stuck, targets);
+    expect(r.feasible).toBe(true);
+    // The carved mod is junk here — it occupies the desJunk axis, not a target mask.
+    expect(r.nodes.find((nd) => nd.isStart)!.desecratedJunk).toBe('suffix');
+    // Available: excluding it is a strictly smaller action space, so the cost can only rise or hold.
+    const without = markovFromItem(data, prices, stuck, targets,
+      { policy: { excluded: new Set(['OmenofLight']) } });
+    expect(without.expectedCost).toBeGreaterThanOrEqual(r.expectedCost - 1e-9);
+  });
+
   it('leaves it out where the bone costs too much to ever win, keeping the state space untouched', () => {
     // Amulets take a collarbone at 7.69ex against a 1.00ex Exalt — over the m-Exalt ceiling, so no
     // offer can make it pay. The craft must come out byte-identical to one with bones excluded.

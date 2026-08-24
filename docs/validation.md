@@ -873,6 +873,17 @@ E=827.2976 against the true E=827.302627.)
    What remains true is the n=6 conclusion below: closing this gap needs a different algorithm
    (policy iteration), not a better sweep order.
 
+3. **A free lower bound extrapolated from the residual's own decay** (2026-08-24). VI's residual
+   shrinks geometrically, so two samples should give a rate and the remaining descent a closed form —
+   a range instead of a bare ceiling, for no extra sweeps. Rejected: the decay rate is not constant,
+   it creeps toward 1 as the solve grinds (per-sweep 9.60e-6 → 8.14e-6 between 40k and 98k sweeps on a
+   6xT1 body armour), so a geometric fit systematically UNDERSTATES what is left to fall. Measured on
+   a 4-target Wand truncated at 5,000 sweeps: the projected range was [695.87, 1193.70] against a true
+   425.43 — it missed low, which in a lower bound is the direction that misinforms. Extrapolating the
+   max residual `delta` instead of V(start) is worse still: it is a max over the whole lattice, so it
+   claims a descent the displayed figure never makes (3-target Wand at 3,000 sweeps, ceiling 2% high,
+   projection 17% low). A real lower bound needs a real climbing solve; there is no free version.
+
 **What this unblocks.** Whittling was previously projected as viable only at n≤2. With the solver
 7× faster and the cheaper *junk-only* banding (targets largely reuse the `present`/`blocked` bit they
 already carry; only junk needs a new tier band), the projection is now ~0.7 s at n=3, ~1 s at n=4 and

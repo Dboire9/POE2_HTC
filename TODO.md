@@ -107,12 +107,30 @@ measured 9.14 ms/sweep, on a machine faster than a browser. And it is a FLOOR, n
 decay rate is itself still degrading (9.60e-6 → 8.14e-6 between 40k and 98k), so the true figure is
 worse. An eleven-fold cap raise for a multi-hour wait is not a setting anyone would choose.
 
-**The ceiling is also better than it looks**, which is the useful half of this. A geometric tail bounds
-the descent still to come at `delta/(1-r)` = 65,247 ex, so the true cost is in **[140,769, 206,016] ex**
-— the quoted number is at most 32% high, not the order of magnitude a truncated solve can be at low
-sweep counts. Worth noting that this bound costs NOTHING to compute: it comes from two residuals the
-solver already has, and would turn "≤ x" into a real range without the third VI phase that was
-considered and dropped earlier.
+**A free lower bound from the same residuals was then tried, and it does not work.** RETRACTED: an
+earlier version of this note claimed the geometric tail put the true cost in [140,769, 206,016] ex,
+"at most 32% high". That figure came from the method below and should not be relied on.
+
+The idea was that value iteration's residual shrinks geometrically, so two samples give a decay rate
+and the descent still to come sums to a closed form — turning "≤ x" into a range for nothing, without
+the third VI phase dropped earlier. Two attempts, both rejected on measurement:
+
+1. **Extrapolating `delta`, the max residual.** Wrong quantity: it is the max over the WHOLE lattice,
+   so V(start) can be settled while a far corner still moves. On a 3-target Wand cut at 3,000 sweeps
+   the ceiling was 2% high and the projection was 17% LOW — worse than the number it was improving.
+2. **Extrapolating V(start)'s own fall**, sampled 2,000 sweeps apart. Better, and dramatic where the
+   ceiling is bad (4-target Wand at 6,000 sweeps: ceiling 893 against a true 425, projection 395). But
+   it is not sound: at 5,000 sweeps the range came out **[695.87, 1193.70] against a truth of 425.43**
+   — it missed, and in the direction that tells a player a craft costs at least 696 when it costs 425.
+
+The reason is structural and shows in the trace above: the decay rate is **not constant**, it creeps
+toward 1 as the solve grinds (9.60e-6 → 8.14e-6 between 40k and 98k sweeps). Any geometric fit
+therefore UNDERSTATES the remaining descent, and fitting it early — while the decay is still fast —
+understates it worst. No amount of guarding fixes a fit whose error is one-directional against the
+claim being made.
+
+So a genuine lower bound still requires computing one: 0-init VI with restart, climbing from below,
+which is the third phase that was costed and dropped. The ceiling stays a ceiling.
 
 What the effort presets DO still cover is everything short of that: a 6-target craft with no tier floor
 lands at 61 s, inside Thorough. The unconverged case is the tier-maxed end of the range, where the

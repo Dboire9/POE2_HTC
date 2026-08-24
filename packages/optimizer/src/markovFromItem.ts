@@ -293,28 +293,37 @@ export function markovFromItem(
     readonly cost: number;
     /** P(this action leaves the state unchanged) — divided out rather than iterated. */
     readonly selfProb: number;
-    /** Destination indices, self-loop EXCLUDED — its probability lives in `selfProb`. */
+    /** Destination indices, self-loop EXCLUDED — its probability lives in `selfProb`.
+     *  For an OFFER action nothing is hoisted: see `offer`. */
     readonly to: Int32Array;
     readonly prob: Float64Array;
     /** "Bin it and buy another base" — the one action phase A of the solve leaves out. */
     readonly isRestart: boolean;
+    /** Draws shown to the player, of which they keep the best; 1 for an ordinary action. See `valueOf`. */
+    readonly offer: number;
   }
   const compiled: CompiledAction[][] = new Array(N);
+  let widestOffer = 0; // biggest outcome count among offer actions, to size the sort scratch once
   for (let i = 0; i < N; i++) {
     const key = allStates[i]!;
     const defs = actionCache.get(key)!;
     const out: CompiledAction[] = [];
     for (const def of defs) {
+      const offer = def.offer ?? 1;
       const to: number[] = [];
       const prob: number[] = [];
       let selfProb = 0;
       for (const [toKey, p] of def.dist) {
-        if (toKey === key) { selfProb += p; continue; }
+        // The self-loop is hoisted out and divided away — but only for a single-draw action, where
+        // "the state did not change" is a fixed probability. Under an offer it is whichever share of
+        // the offers the player would keep, which moves with V, so there is nothing constant to hoist.
+        if (toKey === key && offer === 1) { selfProb += p; continue; }
         to.push(idxOfState.get(toKey)!);
         prob.push(p);
       }
+      if (to.length > widestOffer && offer > 1) widestOffer = to.length;
       out.push({
-        def, cost: def.cost, selfProb, isRestart: def.action.currency === 'restart',
+        def, cost: def.cost, selfProb, offer, isRestart: def.action.currency === 'restart',
         to: Int32Array.from(to), prob: Float64Array.from(prob),
       });
     }
@@ -353,7 +362,47 @@ export function markovFromItem(
   const maxIters = opts.maxIters ?? 100_000;
   const V = new Float64Array(N); // 0-initialised, as above
   const goalIdx = idxOfState.get(goalKey)!;
+  // Reused by every offer evaluation; sized once so the hot loop allocates nothing.
+  const order = new Int32Array(widestOffer);
+  /**
+   * What the player keeps when an action shows several draws and they must take one.
+   *
+   * A Desecration offers three modifiers and you choose — so its value is not `Σ p·V` over one draw
+   * but `E[min over the offer]`, which depends on V and cannot be folded into the distribution ahead
+   * of time. Sort the outcomes by V ascending and let `T_k` be the tail sum from k. The player keeps
+   * outcome k exactly when every draw landed in `{k…K}` but not all in `{k+1…K}`, so
+   *
+   *     P(keep k) = T_k^m − T_(k+1)^m       (m = offers shown)
+   *
+   * With m = 1 this collapses to `T_k − T_(k+1) = p_k`, i.e. the ordinary expectation — the identity
+   * is one formula, not a special case bolted on. O(K log K) with K ≈ 10 outcomes, and only a
+   * Desecration pays it.
+   */
+  const offerValue = (a: CompiledAction): number => {
+    const K = a.to.length;
+    for (let j = 0; j < K; j++) order[j] = j;
+    for (let j = 1; j < K; j++) { // insertion sort by V ascending; K is tiny
+      const cur = order[j]!;
+      const cv = V[a.to[cur]!]!;
+      let q = j - 1;
+      while (q >= 0 && V[a.to[order[q]!]!]! > cv) { order[q + 1] = order[q]!; q--; }
+      order[q + 1] = cur;
+    }
+    let tail = 0;
+    for (let j = 0; j < K; j++) tail += a.prob[j]!;
+    let tailPow = tail ** a.offer;
+    let acc = 0;
+    for (let j = 0; j < K; j++) {
+      const idx = order[j]!;
+      tail -= a.prob[idx]!;
+      const nextPow = tail <= 0 ? 0 : tail ** a.offer;
+      acc += V[a.to[idx]!]! * (tailPow - nextPow);
+      tailPow = nextPow;
+    }
+    return a.cost + acc;
+  };
   const valueOf = (a: CompiledAction): number => {
+    if (a.offer > 1) return offerValue(a);
     if (a.selfProb >= 1 - 1e-12) return Infinity; // an action that only loops back can't make progress
     let s = 0;
     for (let j = 0; j < a.to.length; j++) s += a.prob[j]! * V[a.to[j]!]!;
@@ -489,14 +538,44 @@ export function markovFromItem(
   const startCost = V[startIdx] ?? Infinity;
   if (!Number.isFinite(startCost)) return fail('no policy reaches the target');
 
-  const bestAction = (k: StateKey): ActionDef | undefined => {
-    let best: ActionDef | undefined;
+  const bestAction = (k: StateKey): CompiledAction | undefined => {
+    let best: CompiledAction | undefined;
     let bestVal = Infinity;
     for (const a of compiled[idxOfState.get(k)!]!) {
       const val = valueOf(a);
-      if (val < bestVal) { bestVal = val; best = a.def; }
+      if (val < bestVal) { bestVal = val; best = a; }
     }
     return best;
+  };
+
+  /**
+   * What actually happens when this action is played — the odds the graph draws and the validator
+   * samples.
+   *
+   * For an ordinary action that is just its distribution. For an OFFER it is emphatically not: the
+   * per-draw distribution says a Desecration bricks half the time, while the player seeing three
+   * offers only bricks when all three are bad. Publishing the per-draw number would put a 50% on an
+   * arrow that is really 12.5%, and `simulatePolicyMean` — which samples these very edges — would then
+   * "confirm" a cost the solver never computed. Same tail-sum weights as `offerValue`, against the
+   * settled V.
+   */
+  const realizedDist = (a: CompiledAction): ReadonlyMap<StateKey, number> => {
+    if (a.offer <= 1) return a.def.dist;
+    const K = a.to.length;
+    const idx = Array.from({ length: K }, (_, j) => j)
+      .sort((x, y) => V[a.to[x]!]! - V[a.to[y]!]!);
+    let tail = 0;
+    for (let j = 0; j < K; j++) tail += a.prob[j]!;
+    let tailPow = tail ** a.offer;
+    const out = new Map<StateKey, number>();
+    for (const j of idx) {
+      tail -= a.prob[j]!;
+      const nextPow = tail <= 0 ? 0 : tail ** a.offer;
+      const key = allStates[a.to[j]!]!;
+      out.set(key, (out.get(key) ?? 0) + (tailPow - nextPow));
+      tailPow = nextPow;
+    }
+    return out;
   };
 
   // Full policy over every non-goal state (the reachable graph below is a subset) — for the MC validator.
@@ -504,7 +583,7 @@ export function markovFromItem(
   for (const key of allStates) {
     if (key === goalKey) continue;
     const a = bestAction(key);
-    if (a) policy.set(key, a.action);
+    if (a) policy.set(key, a.def.action);
   }
 
   // Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) +
@@ -538,12 +617,12 @@ export function markovFromItem(
       junkPrefixes: st.jp, junkSuffixes: st.js, rarity: st.rarity,
       ...(st.desJunk === 'none' ? {} : { desecratedJunk: st.desJunk }),
       isStart: k === startKey, isGoal, depth: distanceToGoal(k), expectedCost: V[idxOfState.get(k)!] ?? Infinity,
-      ...(act ? { action: act.action } : {}),
+      ...(act ? { action: act.def.action } : {}),
     });
     if (act) {
-      for (const [to, p] of act.dist) {
+      for (const [to, p] of realizedDist(act)) {
         if (p <= 0) continue;
-        edges.push({ from: k, to, action: act.action, prob: p, regress: distanceToGoal(to) > distanceToGoal(k) });
+        edges.push({ from: k, to, action: act.def.action, prob: p, regress: distanceToGoal(to) > distanceToGoal(k) });
         if (!seen.has(to)) queue.push(to);
       }
     }

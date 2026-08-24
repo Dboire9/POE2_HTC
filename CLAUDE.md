@@ -41,6 +41,23 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - **A Desecration needs a Rare item**, and the bone depends on the base: jawbone = weapons + quivers, rib = armour, collarbone = amulets/rings/belts. Only the **Preserved** grade applies while every desecrated mod is ilvl 65 (`prices.mjs` warns if that stops being true).
 - **Annulment does not downgrade rarity.** A Rare stays Rare as you annul mods off it — which is why "roll filler, annul it, then Desecrate" is a legal route even though no planner here searches it.
 - **An item carries at most ONE essence modifier — regular and perfect counted TOGETHER.** `isEssenceMod` (`probability.ts`) is the single predicate; every planner and picker counts with it. A regular essence needs a Magic item and turns it Rare; a **Perfect Essence works on a Rare and is a SWAP** — it forces its mod on while removing one existing mod uniformly at random (`1/(pf+sf)`, or `1/pf`,`1/sf` under a Sinistral/Dextral Crystallisation omen), and is gated at ilvl 72. The two grant from **disjoint pools**: 317 `source: 'essence'` mods vs 363 `perfect_essence`, zero id overlap, both inside `base.pools.essence`. So a Perfect Essence can never supply a second regular-essence mod, and can never be added on top of one either.
+- **A Desecration OFFERS three modifiers and you keep one** (`DESECRATION_OFFER_COUNT`,
+  `packages/engine/src/probability.ts`), and you cannot decline — all three bad means you still take
+  one. Confirmed by the user 2026-08-24. This is applied where a bone is SPENT (`plan.ts`'s desecrate
+  step; `offer` on the MDP's desecrate actions), never inside the three probability primitives:
+  `desecrationBossProbability` / `desecrationBossAnySideProbability` are faithful ports of Java's
+  `DesProbability` pinned by a differential fixture, and that fixture is the oracle for the per-draw
+  number. Worth ~3x — a specific carved mod on a Body Armour goes 0.74% → 2.21% — and it drops the
+  chance of being *forced* to burn the carved slot from 6.7% to 0.03%, because that now needs all
+  three offers to be unwanted carved mods.
+- **An offer cannot be folded into a probability distribution ahead of time.** Which of the three a
+  player keeps is whichever leads to the cheapest state, so a Desecration's value is
+  `E[min over the offer]`, which depends on V. `markovFromItem`'s `valueOf` evaluates it inside value
+  iteration with the tail-sum identity `P(keep k) = T_k^m − T_(k+1)^m` over outcomes sorted by V
+  ascending (`T_k` = tail sum, `m` = offers). At `m = 1` that collapses to `p_k`, so it is one formula,
+  not a special case. `realizedDist` applies the same weights to the GRAPH's edges: publishing the
+  per-draw odds there would put a 50% on an arrow that is really 12.5%, and the Monte-Carlo validator
+  — which samples those edges — would then "confirm" a cost the solver never computed.
 - **The desecrated spawn weight is an ASSUMPTION, not data.** poe2db publishes none (it reports 1 for every row); all 527 are set to `DESECRATED_ASSUMED_WEIGHT = 1000` in `tools/refresh/apply_pools.mjs`. It matters ~900x: at the literal 1 a bone produced a desecrated mod about 1 in 121,510 on a Body Armour, against ~1 in 132 at 1000. Only the UNOMENED draw uses weights, so only it inherits the assumption — the boss-omen path is count-uniform and stays exact. The UI must say which: `assumedOdds` (engineMap) → `PriceBasisNote`'s `exactOdds`. See docs/validation.md D4.
 - **Fractured mods are locked**: never annulled, never chaosed, out of every removal pool.
 

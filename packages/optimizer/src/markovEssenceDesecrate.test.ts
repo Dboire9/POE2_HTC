@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import type { ItemBase, ItemState, Mod, PatchData } from '../../engine/src/index.ts';
-import { markovFromItem } from './markovFromItem.ts';
+import { markovFromItem, actionCostOf } from './markovFromItem.ts';
 import type { Prices } from './cost.ts';
+import { mulberry32 } from './simulate.ts';
 
 // Synthetic base built so every desecration outcome is hand-countable:
 //   normal    prefixes [NP1]        suffixes []          ← empty suffix pool ⇒ no ordinary junk
@@ -46,51 +47,106 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
   const start = rare([placed('NP1', true)], []);
   const targets = [{ modId: 'NP1' }, { modId: 'DP1' }];
 
-  it('an unconstrained boss desecration draws across BOTH sides (E = 3)', () => {
-    // Blackblooded has one kurgal mod per side and both sides are legal, so the draw is 1-of-2:
-    //   ½ → DP1, the target      ⇒ goal
-    //   ½ → DS1, desecrated junk ⇒ blocks re-desecrating until it's annulled (P=1: nothing else is
-    //                              removable, since NP1 is fractured), costing 1 to get back to start.
-    //   E = 1 + ½·0 + ½·(1 + E)  ⇒  E = 3
+  it('an unconstrained boss desecration draws across BOTH sides (E = 9/7)', () => {
+    // Blackblooded has one kurgal mod per side and both sides are legal, so EACH DRAW is 1-of-2 —
+    // but a bone offers three and you keep one (DESECRATION_OFFER_COUNT), so:
+    //   1 − (½)³ = ⅞ → DP1 is somewhere in the offer  ⇒ goal
+    //       (½)³ = ⅛ → all three are DS1, so you are forced to take desecrated junk ⇒ it blocks
+    //                  re-desecrating until annulled (P=1: nothing else is removable, since NP1 is
+    //                  fractured), costing 1 to get back to start.
+    //   E = 1 + ⅞·0 + ⅛·(1 + E)  ⇒  E = 9/7
+    // Under a single draw this was E = 3. The offer is worth 2.3x here, and turns the brick from a
+    // coin-flip into a 1-in-8.
     const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens: {} };
     const r = markovFromItem(data, prices, start, targets);
     expect(r.feasible).toBe(true);
-    expect(r.expectedCost).toBeCloseTo(3, 9);
+    expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
     const s0 = r.nodes.find((nd) => nd.isStart)!;
     // In THIS base the untargeted draw and the Blackblooded one are the same distribution: NP1's
     // family is occupied (it's the fractured start mod) so the normal pool contributes nothing, and
     // both desecrated mods are kurgal. Two identical actions at an identical cost — the planner takes
     // the one that needs no omen. The arithmetic above is what this test is really pinning.
     expect(s0.action).toEqual({ currency: 'desecrate' });
-    // The half that misses is a real regression edge (the brick), not a silent no-op.
-    expect(r.edges.some((e) => e.from === s0.key && e.regress && Math.abs(e.prob - 0.5) < 1e-9)).toBe(true);
+    // The brick is a real regression edge, not a silent no-op — and the graph must publish the odds
+    // the PLAYER faces (⅛, all three offers bad), never the per-draw ½. `simulatePolicyMean` samples
+    // these very edges, so a per-draw number here would have the validator confirm a cost the solver
+    // never computed.
+    expect(r.edges.some((e) => e.from === s0.key && e.regress && Math.abs(e.prob - 1 / 8) < 1e-9)).toBe(true);
+    expect(r.edges.some((e) => e.from === s0.key && Math.abs(e.prob - 0.5) < 1e-9)).toBe(false);
   });
 
-  it('a Sinistral Necromancy omen narrows the draw to one side (P=1, E = 1.5) and the policy buys it', () => {
-    // Constrained to prefixes, DP1 is the only kurgal candidate ⇒ P=1 for 1 + 0.5. That 1.5 beats the
-    // unconstrained route's 3, so VI must prefer paying for the omen.
+  it('a Sinistral Necromancy omen narrows the draw to one side (P=1, E = 1.2) and the policy buys it', () => {
+    // Constrained to prefixes, DP1 is the only kurgal candidate, so every offer is DP1 ⇒ P=1 for
+    // 1 + 0.2. That 1.2 beats the unconstrained route's 9/7 ≈ 1.286, so VI must prefer paying.
+    //
+    // The omen was priced 0.5 while a bone was a single draw, because the unconstrained route then
+    // cost 3 and 0.5 was comfortably inside it. The offer of three closed most of that gap on its
+    // own — at 0.5 the omen is now DECLINED — so the price is lowered to keep this test testing what
+    // it was written for: that a side omen is bought when it dominates, not that it always is.
     const prices: Prices = {
       currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
-      omens: { OmenofSinistralNecromancy: 0.5 },
+      omens: { OmenofSinistralNecromancy: 0.2 },
     };
     const r = markovFromItem(data, prices, start, targets);
-    expect(r.expectedCost).toBeCloseTo(1.5, 9);
+    expect(r.expectedCost).toBeCloseTo(1.2, 9);
     const s0 = r.nodes.find((nd) => nd.isStart)!;
     // Same tie as above on the boss half; what matters is that the SIDE omen is bought.
     expect(s0.action).toEqual({ currency: 'desecrate', side: 'prefix' });
   });
 
   it('a dear side omen is declined in favour of the cheaper unconstrained draw', () => {
-    // Same shapes, but the omen now costs 4: constrained E = 5 vs unconstrained E = 3, so the policy
-    // takes the 50/50 and eats the recovery. Pins that the omen is weighed, not always taken.
+    // Same shapes, but the omen now costs 4: constrained E = 5 vs unconstrained E = 9/7, so the policy
+    // takes the offer and eats the recovery. Pins that the omen is weighed, not always taken.
     const prices: Prices = {
       currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
       omens: { OmenofSinistralNecromancy: 4 },
     };
     const r = markovFromItem(data, prices, start, targets);
-    expect(r.expectedCost).toBeCloseTo(3, 9);
+    expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
     // No `side` key: the omen was weighed and declined.
     expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'desecrate' });
+  });
+
+  /**
+   * The offer math, played out rather than derived.
+   *
+   * Value iteration and the published edge odds are two separate computations of the same mechanic
+   * (`offerValue` and `realizedDist`), so they can drift apart silently — and if they do, every
+   * percentage in the policy graph would describe a process the cost figure was never computed from.
+   * Walking the graph with dice is the only check that binds them: it samples the EDGES and must land
+   * on the hand-computed 9/7 the solver reports.
+   */
+  it('100k runs of the published graph land on the hand-computed 9/7', () => {
+    const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens: {} };
+    const r = markovFromItem(data, prices, start, targets);
+    const byKey = new Map(r.nodes.map((nd) => [nd.key, nd]));
+    const outs = new Map<string, { to: string; prob: number }[]>();
+    for (const e of r.edges) outs.set(e.from, [...(outs.get(e.from) ?? []), { to: e.to, prob: e.prob }]);
+    // Every non-goal state's published odds must be a distribution, or the walk below is meaningless.
+    for (const [, list] of outs) {
+      expect(list.reduce((acc, o) => acc + o.prob, 0)).toBeCloseTo(1, 9);
+    }
+    const rng = mulberry32(7);
+    const startKey = r.nodes.find((nd) => nd.isStart)!.key;
+    let total = 0;
+    const RUNS = 100_000;
+    for (let run = 0; run < RUNS; run++) {
+      let cur = startKey;
+      for (let guard = 0; guard < 10_000; guard++) {
+        const nd = byKey.get(cur)!;
+        if (nd.isGoal) break;
+        total += actionCostOf(prices, nd.action!);
+        const list = outs.get(cur)!;
+        let x = rng();
+        let next = list[list.length - 1]!.to;
+        for (const o of list) { x -= o.prob; if (x < 0) { next = o.to; break; } }
+        cur = next;
+      }
+    }
+    const mc = total / RUNS;
+    expect(mc).toBeGreaterThan((9 / 7) * 0.97);
+    expect(mc).toBeLessThan((9 / 7) * 1.03);
+    expect(mc).toBeCloseTo(r.expectedCost, 1);
   });
 
   it('rejects a target holding two desecrated mods (an item carries at most one)', () => {
@@ -132,9 +188,9 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     const desecrations = [...r.policy.values()].filter((a) => a.currency === 'desecrate');
     expect(desecrations.length).toBeGreaterThan(0);
     expect(desecrations.every((a) => a.boss === undefined)).toBe(true);
-    // Same 1-of-2 shape as the tagged case (NP1's family is occupied, so only DP1 and DS1 are legal):
-    //   E = 1 + ½·0 + ½·(1 + E) ⇒ E = 3.
-    expect(r.expectedCost).toBeCloseTo(3, 9);
+    // Same 1-of-2-per-draw shape as the tagged case (NP1's family is occupied, so only DP1 and DS1
+    // are legal), offered three at a time:  E = 1 + ⅞·0 + ⅛·(1 + E) ⇒ E = 9/7.
+    expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
   });
 });
 

@@ -10,7 +10,7 @@
 import type { ItemBase, PatchData } from '../../engine/src/types.ts';
 import { excluded, modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
-import { desecrationOmenForMod } from '../../engine/src/probability.ts';
+import { DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
 import { allowsStep, stepCost } from './cost.ts';
 import type { Dist, McRarity, McState, McTarget, SideIndex } from './markovState.ts';
@@ -50,7 +50,24 @@ export type McAction =
 export interface ActionDef {
   readonly action: McAction;
   readonly cost: number;
+  /**
+   * Outcome distribution of ONE draw.
+   *
+   * For an ordinary action that is the outcome distribution, full stop. When `offer` is set it is
+   * still the per-draw distribution — the action shows `offer` draws and the player keeps the best,
+   * so the solver combines these entries rather than sampling one. See `offer`.
+   */
   readonly dist: Dist;
+  /**
+   * How many independent draws from `dist` the player is shown, of which they keep ONE (they cannot
+   * decline). Absent means the ordinary single-outcome action.
+   *
+   * Only a Desecration has this, and it cannot be folded into `dist` ahead of time: which draw a
+   * player keeps is whichever leads to the cheapest state from here, so the value of the action is
+   * `E[min over the offer]`, which depends on V and has to be evaluated inside value iteration. See
+   * the tail-sum identity in markovFromItem's `valueOf`.
+   */
+  readonly offer?: number;
 }
 
 /**
@@ -436,10 +453,10 @@ export function createActionSpace(params: ActionSpaceParams): {
   // The one place an action enters the space, so the one place exclusion has to hold. The `*Ok` gates
   // below also consult the policy, but only to avoid building distributions that would be thrown away
   // here — this is what makes the guarantee, not them.
-  const push = (acts: ActionDef[], action: McAction, dist: Dist): void => {
+  const push = (acts: ActionDef[], action: McAction, dist: Dist, offer?: number): void => {
     if (dist.size === 0) return;
     if (!allowsAction(policy, action)) return;
-    acts.push({ action, cost: actionCostOf(prices, action), dist });
+    acts.push({ action, cost: actionCostOf(prices, action), dist, ...(offer === undefined ? {} : { offer }) });
   };
 
   /** Strengths this add currency can be bought at: base always, the rest only if priced and allowed. */
@@ -497,17 +514,17 @@ export function createActionSpace(params: ActionSpaceParams): {
       // action wins when two score identically — and two CAN, whenever the boss's pool happens to be
       // the whole legal pool. Preferring the omen-free action there is the better answer: same odds,
       // same cost, one fewer thing the player must own.
-      push(acts, { currency: 'desecrate' }, desecrateAnyOutcomes(s));
+      push(acts, { currency: 'desecrate' }, desecrateAnyOutcomes(s), DESECRATION_OFFER_COUNT);
       for (const sd of ['prefix', 'suffix'] as const) {
-        if (necromancyOk(sd)) push(acts, { currency: 'desecrate', side: sd }, desecrateAnyOutcomes(s, sd));
+        if (necromancyOk(sd)) push(acts, { currency: 'desecrate', side: sd }, desecrateAnyOutcomes(s, sd), DESECRATION_OFFER_COUNT);
       }
       // Boss targeting is "Weapon or Jewellery" only — offering it on armour would plan a step the
       // game refuses.
       if (bossTargetable) {
         for (const boss of ['blackblooded', 'liege', 'sovereign'] as const) {
-          push(acts, { currency: 'desecrate', boss }, desecrateOutcomes(s, boss));
+          push(acts, { currency: 'desecrate', boss }, desecrateOutcomes(s, boss), DESECRATION_OFFER_COUNT);
           for (const sd of ['prefix', 'suffix'] as const) {
-            if (necromancyOk(sd)) push(acts, { currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd));
+            if (necromancyOk(sd)) push(acts, { currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd), DESECRATION_OFFER_COUNT);
           }
         }
       }

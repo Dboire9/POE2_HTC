@@ -1392,6 +1392,56 @@ unomened bone (a) can add a NORMAL target — measured at 19% of its mass on `Bo
 and (b) leaves carved outcomes a minority; plus that a side-constrained bone on a side with no carved
 mods offers carved outcomes with probability zero, which is the ruling's most surprising consequence.
 
+## A Desecration offers three mods, not one (2026-08-24)
+
+User ruling, 2026-08-24: a bone puts **three** modifiers in front of you and you keep one; you cannot
+decline, so three bad offers still cost you a mod. The app modelled a single random draw — nothing in
+the engine knew about a choice at all. Measured at ilvl 82:
+
+| | 1 draw (modelled before) | 3 offered, keep one |
+|---|---|---|
+| a specific carved mod, Body Armour | 0.74% | 2.21% (**x2.98**) |
+| a specific normal mod, Body Armour | 9.67% | 26.3% (x2.72) |
+| **forced to burn the carved slot** | **6.69%** | **0.03%** |
+
+The second row is the bigger consequence: you only take a carved mod you didn't want when *all three*
+offers are carved, a 220x drop. So the `desJunk` / Omen-of-Light recovery branch is near-dead on a
+from-white craft — and the planner's habit of spending bones on ordinary mods before securing the
+carved one, which looked like a bug, was it pricing a 6.7% burn risk that is really 0.03%.
+
+**Where it is applied.** At the point a bone is SPENT — `plan.ts`'s desecrate step for the linear
+planner, an `offer` field on the MDP's desecrate actions — and never inside the three probability
+primitives. `desecrationBossProbability` and `desecrationBossAnySideProbability` are faithful ports of
+Java's `DesProbability` pinned by a differential fixture; that fixture is the oracle for the per-draw
+number and stayed green through the whole change, which is how we know the seam is in the right place.
+
+**The solver could not just take a new distribution.** Which of the three a player keeps is whichever
+leads to the cheapest state, so a bone's value is `E[min over the offer]` — a function of V, not a
+fixed distribution. Sorting outcomes by V ascending and writing `T_k` for the tail sum from k:
+
+    P(keep outcome k) = T_k^m - T_(k+1)^m        (m = offers shown)
+
+which at m = 1 collapses to `T_k - T_(k+1) = p_k`, so the ordinary case is the same formula rather than
+a branch around it. K is about 10 outcomes and only a Desecration pays the sort.
+
+**The graph had to move with it.** Edges are built from the action's distribution, which is per-DRAW.
+Left alone they would have drawn a 50% brick that the player really faces at 12.5% — and
+`simulatePolicyMean` samples those very edges, so the validator would have confirmed a cost the solver
+never computed. `realizedDist` applies the same tail weights to the published edges. Mutation-checked:
+reverting it makes the 100k-run walk cost 3.006 against the solver's 9/7.
+
+**Hand-computed anchor**, on the synthetic both-sides fixture where each draw is 1-of-2:
+
+    E = 1 + (7/8)*0 + (1/8)*(1 + E)  =>  E = 9/7      (was E = 3 under a single draw)
+
+with 100k Monte-Carlo runs of the published graph inside 3% of it.
+
+**Two tests changed price rather than expectation.** A Sinistral Necromancy omen at 0.5 used to beat
+the unconstrained route (1.5 vs 3); the offer closes that gap on its own (9/7 = 1.286), so at 0.5 the
+omen is now correctly declined. Both tests were written to pin *that an omen is weighed*, not that a
+particular price wins, so the omen was re-priced (0.5 -> 0.2, and 2 -> 0.4 in the linear planner's
+domination case) to keep them testing what they were written for.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

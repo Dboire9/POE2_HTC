@@ -433,6 +433,34 @@ export function desecrationOmenForMod(mod: Mod): DesecrationBossOmen | undefined
 }
 
 /**
+ * How many modifiers one Desecration puts in front of the player to choose between.
+ *
+ * A bone does not apply a random mod — it OFFERS this many and you take one (you cannot decline; if
+ * every offer is bad you still take one). Confirmed by the user, 2026-08-24.
+ *
+ * This lives OUTSIDE the three probability primitives on purpose. Those answer "what does one draw
+ * produce" — `desecrationBossProbability` and `desecrationBossAnySideProbability` are faithful ports
+ * of Java's `DesProbability` and are pinned by a differential fixture, which is the oracle for the
+ * per-draw number and must stay untouched. The offer is a property of SPENDING a bone, so it is
+ * applied by the callers that spend one (`plan.ts`'s desecrate step, and the MDP's desecrate actions).
+ */
+export const DESECRATION_OFFER_COUNT = 3;
+
+/**
+ * P(the mod you want is somewhere in the offer), from the probability that ONE draw produces it.
+ *
+ * Treats the offered mods as independent draws. They are drawn from a pool of hundreds whose weights
+ * total ~130,000, and no single mod carries a meaningful share of that, so whether the game draws with
+ * or without replacement moves this by far less than the assumed desecrated spawn weight already does
+ * (see D4). Worth ~3x on a real base: a specific carved mod on a Body Armour goes 0.74% -> 2.21%.
+ */
+export function desecrationOffered(pSingleDraw: number): number {
+  if (pSingleDraw <= 0) return 0;
+  if (pSingleDraw >= 1) return 1;
+  return 1 - (1 - pSingleDraw) ** DESECRATION_OFFER_COUNT;
+}
+
+/**
  * Boss-omen desecration probability, restricted to the added mod's own slot — a faithful port of
  * `DesProbability.ComputePercentageDesecrated_currency`. A boss omen forces the desecration to add a
  * uniformly-random mod from that boss's desecrated pool for that slot:

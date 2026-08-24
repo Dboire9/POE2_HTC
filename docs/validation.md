@@ -1519,6 +1519,49 @@ clean-up-junk one, and the model already draws that line without being told wher
 has no omen endpoint). Every "worth 0 ex" above is a comparison against that number, so a materially
 different real price would move the line.
 
+## A Chaos Orb cannot touch a carved modifier (2026-08-24)
+
+User ruling. The model let it, which made a Chaos the cheapest way to clear carved junk at 33.39ex —
+a move the game refuses, recommended as the best one, and reported as such in this document an hour
+earlier. `removeOutcomes` gained a `sparesCarved` flag that `chaosOutcomes` sets; carved junk on the
+desJunk axis and a carved TARGET in the masks are both spared. An Annulment is left unrestricted.
+
+**It cuts both ways, and the second cut is deeper.** Barring the removal makes carved junk dearer to
+clear, but it also means a Chaos can no longer DESTROY a carved target you have already landed:
+
+| craft | before | after |
+|---|---|---|
+| Wands held Rare + carved junk, 3 ordinary targets | 1,315.8 ex | 1,374.6 ex (+4.5%) |
+| Body_Armours_str, same shape | 808.3 ex | 852.8 ex (+5.5%) |
+| Body_Armours_str, 5 ordinary + 1 carved, wrong carved stuck on | ~31,400 ex | ~20,300 ex (**−35%**) |
+
+**The Omen of Light conclusion survives.** Re-measured with Chaos correctly barred, excluding the omen
+still moves those crafts by 0 ex at every level of progress — the policy now clears carved junk with a
+plain Annulment (158.7 ex) rather than a Chaos, and that still beats a 3,095 ex certainty.
+
+**Known approximation, with its size measured.** The ruling extends to ORDINARY mods that a bone
+placed — provenance, not pool — and the state abstraction carries no provenance for those
+(`jp`/`js` are counts, `present` is a bitmask). Modelling it means splitting every junk counter and
+tagging every present target, ~100x the lattice on a solve already at 145 s. Instead the size of the
+error is bounded directly: the truth lies between "Chaos fully usable" (today) and "Chaos unusable",
+so that gap is the worst it can cost.
+
+| craft | Chaos usable | Chaos barred | bracket |
+|---|---|---|---|
+| Wands x3, held Rare | 732 ex | 732 ex | +0.0% — Chaos best in 0/485 states |
+| Body_Armours_str x3, held Rare | 193 ex | 203 ex | +5.3% — Chaos best in 5/485 states |
+| Wands x4, from white | 26 ex | 26 ex | +0.0% — 0/1232 |
+| Body_Armours_str x5, from white | 14 ex | 14 ex | +0.0% — 0/2816 |
+
+Chaos is nearly unused now that a 0.31 ex bone offers three mods against its 33.39 ex, so the
+approximation is worth at most a few percent, and its direction is known: it can only make a craft
+look cheaper than it is.
+
+**OPEN — does the same bar apply to an Annulment?** Not asked, and it decides a lot. If a plain
+Annulment cannot hit a carved mod either, then the Omen of Light is the ONLY way to clear carved junk
+and every "worth 0 ex" above inverts. The omen's existence is consistent with both readings: it makes
+the removal certain (current model) or it makes the removal possible at all.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

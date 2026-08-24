@@ -236,6 +236,75 @@ describe('MDP — convergence is reported, not assumed', () => {
 // caveat keys off exactly this distinction (`assumedOdds` in engineMap.ts → PriceBasisNote's
 // `exactOdds`), so it has to hold at the source: warn on armour, stay silent on a weapon.
 /**
+ * A Chaos Orb cannot touch a modifier the Abyss carved (user ruling, 2026-08-24).
+ *
+ * It used to be able to, and that made a Chaos the model's cheapest way to clear carved junk at
+ * 33.39ex — a move the game refuses, recommended as the best one. The rule cuts both ways and the
+ * second half is the larger effect: once a carved TARGET has landed, a Chaos can no longer destroy it,
+ * which made a 5-ordinary + 1-carved Body Armour craft ~35% CHEAPER, not dearer.
+ *
+ * An Annulment is deliberately NOT restricted here — that is what the Omen of Light exists to make
+ * certain rather than 1-in-N. See docs/validation.md for the open question on that.
+ */
+describe('a Chaos Orb cannot remove a carved modifier', () => {
+  const wandTargets = () => {
+    const base = data.bases.get('Wands')!;
+    const out: string[] = [];
+    const fams = new Set<string>();
+    for (const id of [...base.pools.normal.prefixes, ...base.pools.normal.suffixes]) {
+      const m = data.mods.get(id);
+      if (!m || m.source !== 'normal' || fams.has(m.family)) continue;
+      const np = out.filter((x) => data.mods.get(x)!.type === 'prefix').length;
+      if (m.type === 'prefix' ? np >= 2 : out.length - np >= 2) continue;
+      fams.add(m.family);
+      out.push(id);
+      if (out.length === 3) break;
+    }
+    return { base, targets: out.map((modId) => ({ modId, minTierIndex: 0 })) };
+  };
+
+  it('never lands on a state with the carved junk gone, however the dice fall', () => {
+    const { base, targets } = wandTargets();
+    const carved = base.pools.desecrated.suffixes[0]!;
+    const stuck: ItemState = {
+      base, level: 82, rarity: 'rare', desecrated: true,
+      prefixes: [], suffixes: [{ modId: carved, tierName: data.mods.get(carved)!.tiers[0]!.name }],
+    };
+    const r = markovFromItem(data, prices, stuck, targets);
+    expect(r.feasible).toBe(true);
+    const start = r.nodes.find((nd) => nd.isStart)!;
+    expect(start.desecratedJunk).toBe('suffix');
+    const byKey = new Map(r.nodes.map((nd) => [nd.key, nd]));
+    // Every Chaos edge anywhere in the policy must leave the carved mod exactly where it was.
+    const chaosEdges = r.edges.filter((e) => e.action.currency === 'chaos');
+    for (const e of chaosEdges) {
+      const from = byKey.get(e.from);
+      const to = byKey.get(e.to);
+      if (!from || !to) continue;
+      expect(to.desecratedJunk).toBe(from.desecratedJunk);
+    }
+    // An Annulment, by contrast, still reaches it — otherwise this test would pass on a model that
+    // had simply lost the ability to clear carved junk at all.
+    const annulClears = r.edges.some((e) => e.action.currency === 'annul'
+      && byKey.get(e.from)?.desecratedJunk === 'suffix' && byKey.get(e.to)?.desecratedJunk === undefined);
+    expect(annulClears).toBe(true);
+  });
+
+  it('is not offered at all when the carved mod is the only thing on the item', () => {
+    const { base, targets } = wandTargets();
+    const carved = base.pools.desecrated.suffixes[0]!;
+    const lone: ItemState = {
+      base, level: 82, rarity: 'rare', desecrated: true,
+      prefixes: [], suffixes: [{ modId: carved, tierName: data.mods.get(carved)!.tiers[0]!.name }],
+    };
+    const r = markovFromItem(data, prices, lone, targets);
+    const startKey = r.nodes.find((nd) => nd.isStart)!.key;
+    // Nothing legal to remove ⇒ no action, rather than a guess at what the game does with the add half.
+    expect(r.edges.some((e) => e.from === startKey && e.action.currency === 'chaos')).toBe(false);
+  });
+});
+
+/**
  * A bone is worth playing even when you want NO carved mod — it is the cheapest way to add an
  * ordinary one on most bases.
  *

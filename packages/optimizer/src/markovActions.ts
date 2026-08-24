@@ -251,21 +251,32 @@ export function createActionSpace(params: ActionSpaceParams): {
     return out;
   };
 
-  /** The removal distribution, optionally constrained to one side (omen annul). Removes a uniformly-
-   *  random removable mod: a non-fractured present target (→ absent), a blocked off-tier roll (→ frees
-   *  the family, target addable again), junk, or the desecrated mod if the item carries one. */
-  const removeOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix'): Dist => {
+  /**
+   * The removal distribution, optionally constrained to one side (omen annul). Removes a uniformly-
+   * random removable mod: a non-fractured present target (→ absent), a blocked off-tier roll (→ frees
+   * the family, target addable again), junk, or the desecrated mod if the item carries one.
+   *
+   * `sparesCarved` takes the carved mod out of the pool entirely — a **Chaos Orb cannot touch a
+   * modifier the Abyss carved** (user ruling, 2026-08-24), while an Annulment can (which is the whole
+   * reason the Omen of Light exists, to make that removal certain rather than 1-in-N). Without this a
+   * Chaos was the model's cheapest way to clear carved junk at 33.39ex, and it is not a legal move at
+   * all — the sort of "cheapest route" that sends a player to do something the game refuses.
+   */
+  const removeOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix', sparesCarved = false): Dist => {
     const presentRem: number[] = [];
     const blockedRem: number[] = [];
     for (let i = 0; i < n; i++) {
       const t = list[i]!;
       if (constrainTo && t.type !== constrainTo) continue;
+      // A carved TARGET is just as untouchable as carved junk — it is on the item the same way.
+      if (sparesCarved && t.mod.source === 'desecrated') continue;
       if (has(s.present, i) && !t.fractured) presentRem.push(i);
       if (has(s.blocked, i)) blockedRem.push(i); // an off-tier occupier is a random roll — never locked
     }
     const jpRem = constrainTo === 'suffix' ? 0 : s.jp;
     const jsRem = constrainTo === 'prefix' ? 0 : s.js;
-    const desRem = s.desJunk !== 'none' && constrainTo !== undefined && s.desJunk !== constrainTo ? 0
+    const desRem = sparesCarved ? 0
+      : s.desJunk !== 'none' && constrainTo !== undefined && s.desJunk !== constrainTo ? 0
       : s.desJunk !== 'none' ? 1 : 0;
     const total = presentRem.length + blockedRem.length + jpRem + jsRem + desRem;
     const out: Dist = new Map();
@@ -298,7 +309,9 @@ export function createActionSpace(params: ActionSpaceParams): {
 
   /** Chaos = remove one uniformly-random mod, then add one weighted mod (base strength) on the freed item. */
   const chaosOutcomes = (s: McState): Dist => {
-    const removals = removeOutcomes(s);
+    // Spares the carved mod: see `removeOutcomes`. With nothing else on the item to take, the orb has
+    // no legal removal and the action simply isn't offered — better than inventing what the game does.
+    const removals = removeOutcomes(s, undefined, true);
     const out: Dist = new Map();
     for (const [midKey, pRem] of removals) {
       const mid = decodeState(midKey);

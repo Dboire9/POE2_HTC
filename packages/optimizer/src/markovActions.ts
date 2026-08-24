@@ -13,10 +13,11 @@ import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
 import { allowsStep, stepCost } from './cost.ts';
-import type { Dist, McRarity, McState, McTarget, SideIndex } from './markovState.ts';
+import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex } from './markovState.ts';
 import {
-  MAX_PER_SIDE, addTo, bit, decodeState, encodeState, has, hasDesecrated, occupiedFamilies,
-  perSideCap, prefUsed, sufUsed,
+  FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, MAX_PER_SIDE, addTo, bit, decodeState, encodeState,
+  flagJunkSide, flagTarget, flaggedTarget, has, hasDesecrated, occupiedFamilies, perSideCap, prefUsed,
+  sufUsed,
 } from './markovState.ts';
 
 export type ExaltStrength = 'base' | 'greater' | 'perfect';
@@ -238,16 +239,16 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (!open) continue;
       const succ = succWeight(t, floor);
       const any = anyWeight(t, floor);
-      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk, into), succ / grand);
+      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.flagged, into), succ / grand);
       const below = any - succ;
-      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.desJunk, into), below / grand);
+      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.flagged, into), below / grand);
       if (t.type === 'prefix') anyPref += any; else anySuf += any;
     }
     // Everything else the add can produce is foreign junk on its side (a non-target family).
     const junkPref = Math.max(0, prefTotal - anyPref);
     const junkSuf = Math.max(0, sufTotal - anySuf);
-    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.desJunk, into), junkPref / grand);
-    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, s.desJunk, into), junkSuf / grand);
+    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.flagged, into), junkPref / grand);
+    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, s.flagged, into), junkSuf / grand);
     return out;
   };
 
@@ -275,33 +276,70 @@ export function createActionSpace(params: ActionSpaceParams): {
     }
     const jpRem = constrainTo === 'suffix' ? 0 : s.jp;
     const jsRem = constrainTo === 'prefix' ? 0 : s.js;
-    const desRem = s.desJunk !== 'none' && (constrainTo === undefined || s.desJunk === constrainTo) ? 1 : 0;
-    const total = presentRem.length + blockedRem.length + jpRem + jsRem + desRem;
+    const total = presentRem.length + blockedRem.length + jpRem + jsRem;
     const out: Dist = new Map();
     if (total <= 0) return out;
-    for (const i of presentRem) addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, s.desJunk, s.rarity), 1 / total);
-    for (const i of blockedRem) addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, s.desJunk, s.rarity), 1 / total);
-    if (jpRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp - 1, s.js, s.desJunk, s.rarity), jpRem / total);
-    if (jsRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js - 1, s.desJunk, s.rarity), jsRem / total);
-    if (desRem > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'none', s.rarity), desRem / total);
+    // Removing the flagged mod frees the item to be desecrated again, so every branch has to say
+    // whether it took that one.
+    const flaggedIdx = flaggedTarget(s.flagged);
+    const after = (i: number): FlagCode => (flaggedIdx === i ? FLAG_NONE : s.flagged);
+    for (const i of presentRem) {
+      addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, after(i), s.rarity), 1 / total);
+    }
+    for (const i of blockedRem) {
+      addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, after(i), s.rarity), 1 / total);
+    }
+    /**
+     * Junk removal splits when the flagged mod is one of that side's junk.
+     *
+     * Junk mods are interchangeable except in this one respect, so with `jp = 2` and one of them
+     * flagged, a random removal takes the flagged one half the time. Collapsing that to "the flag
+     * survives" would make the item harder to free than it is; collapsing it the other way would make
+     * clearing the flag free.
+     */
+    const junk = (count: number, side: 'prefix' | 'suffix'): void => {
+      if (count <= 0) return;
+      const jp = side === 'prefix' ? s.jp - 1 : s.jp;
+      const js = side === 'suffix' ? s.js - 1 : s.js;
+      const share = count / total;
+      if (s.flagged === flagJunkSide(side)) {
+        addTo(out, encodeState(s.present, s.blocked, jp, js, FLAG_NONE, s.rarity), share / count);
+        if (count > 1) {
+          addTo(out, encodeState(s.present, s.blocked, jp, js, s.flagged, s.rarity), share * (count - 1) / count);
+        }
+        return;
+      }
+      addTo(out, encodeState(s.present, s.blocked, jp, js, s.flagged, s.rarity), share);
+    };
+    junk(jpRem, 'prefix');
+    junk(jsRem, 'suffix');
     return out;
   };
 
-  /** Omen of Light: removes the item's ONE desecrated mod outright (P=1). That mod is either unwanted
-   *  junk (the desJunk axis) or a desecrated TARGET sitting in the masks — worth removing only when
-   *  it's blocked off-tier, which the solver decides. Empty when there's nothing desecrated to remove. */
+  /**
+   * Omen of Light: removes the item's flagged mod outright (P=1), wherever it sits and whatever pool it
+   * came from — an ORDINARY mod a bone placed counts, confirmed 2026-08-24. Empty when nothing is
+   * flagged, and `push` drops empty distributions, so the action simply isn't offered there.
+   *
+   * Removing a flagged TARGET is a real move, not a mistake: it is how you free the item to desecrate
+   * again when the bone landed the wrong thing, and the solver decides whether that is worth it.
+   */
   const lightOutcomes = (s: McState): Dist => {
     const out: Dist = new Map();
-    if (s.desJunk !== 'none') {
-      addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'none', s.rarity), 1);
+    if (s.flagged === FLAG_NONE) return out;
+    if (s.flagged === FLAG_JUNK_PREFIX) {
+      addTo(out, encodeState(s.present, s.blocked, s.jp - 1, s.js, FLAG_NONE, s.rarity), 1);
       return out;
     }
-    for (let i = 0; i < n; i++) {
-      const t = list[i]!;
-      if (t.mod.source !== 'desecrated') continue;
-      if (has(s.present, i) && !t.fractured) { addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, 'none', s.rarity), 1); return out; }
-      if (has(s.blocked, i)) { addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, 'none', s.rarity), 1); return out; }
+    if (s.flagged === FLAG_JUNK_SUFFIX) {
+      addTo(out, encodeState(s.present, s.blocked, s.jp, s.js - 1, FLAG_NONE, s.rarity), 1);
+      return out;
     }
+    const i = flaggedTarget(s.flagged);
+    if (i < 0 || i >= n) return out;
+    if (list[i]!.fractured) return out; // a fractured mod cannot be removed, by anything
+    if (has(s.present, i)) addTo(out, encodeState(s.present & ~bit(i), s.blocked, s.jp, s.js, FLAG_NONE, s.rarity), 1);
+    else if (has(s.blocked, i)) addTo(out, encodeState(s.present, s.blocked & ~bit(i), s.jp, s.js, FLAG_NONE, s.rarity), 1);
     return out;
   };
 
@@ -340,7 +378,7 @@ export function createActionSpace(params: ActionSpaceParams): {
 
   const desecrateOutcomes = (s: McState, boss: DesecrationBossOmen, constrainTo?: 'prefix' | 'suffix'): Dist => {
     const out: Dist = new Map();
-    if (!desecratable || hasDesecrated(s, list)) return out; // an item holds at most one desecrated mod
+    if (!desecratable || hasDesecrated(s)) return out; // an item holds at most one desecrated mod
     const occ = occupiedFamilies(s.present, s.blocked, list);
     const sides = (constrainTo ? [constrainTo] : ['prefix', 'suffix'] as const).filter(
       (sd) => (sd === 'prefix' ? prefixOpenIn(s) : suffixOpenIn(s)));
@@ -356,8 +394,11 @@ export function createActionSpace(params: ActionSpaceParams): {
     const p = 1 / candidates.length;
     for (const { id, sd } of candidates) {
       const i = list.findIndex((t) => t.modId === id);
-      if (i >= 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk, s.rarity), p);
-      else addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, sd, s.rarity), p);
+      // Whatever the bone applies becomes the item's flagged mod — a target it wanted just as much as
+      // junk it didn't. Landing a target you asked for still locks the item out of desecrating again.
+      if (i >= 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, flagTarget(i), s.rarity), p);
+      else if (sd === 'prefix') addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, FLAG_JUNK_PREFIX, s.rarity), p);
+      else addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, FLAG_JUNK_SUFFIX, s.rarity), p);
     }
     return out;
   };
@@ -374,13 +415,15 @@ export function createActionSpace(params: ActionSpaceParams): {
    * not the boss, so no base gates it.
    *
    * Unlike a boss draw this can land a NORMAL mod, so the leftover weight splits two ways — foreign
-   * normal weight becomes jp/js junk, foreign desecrated weight becomes the desJunk axis. Target
-   * outcomes never touch desJunk: `hasDesecrated` already reads a desecrated target out of
-   * present/blocked, and setting it here too would record one desecrated mod as two.
+   * normal weight and foreign desecrated weight BOTH become ordinary junk on their side, differing
+   * only in that the bone's mod carries the flag. Which pool a mod came from stops mattering the
+   * moment it is on the item: it occupies the same slot, blocks the same family, and is removed by the
+   * same currencies. The two used to be tracked apart — junk on jp/js, desecrated on its own axis with
+   * its own slot — which double-counted the desecrated mod as an extra affix the item did not have.
    */
   const desecrateAnyOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix'): Dist => {
     const out: Dist = new Map();
-    if (!desecratable || hasDesecrated(s, list)) return out; // an item holds at most one desecrated mod
+    if (!desecratable || hasDesecrated(s)) return out; // an item holds at most one desecrated mod
     const prefixOpen = constrainTo !== 'suffix' && prefixOpenIn(s);
     const suffixOpen = constrainTo !== 'prefix' && suffixOpenIn(s);
     const occ = occupiedFamilies(s.present, s.blocked, list);
@@ -394,12 +437,9 @@ export function createActionSpace(params: ActionSpaceParams): {
     const sufDes = weigh(pools.desecrated.suffixes, suffixOpen);
     const grand = prefNormal + prefDes + sufNormal + sufDes;
     if (grand <= 0) return out;
-    // Whole-family weight claimed by TARGETS, split by side and by which pool it came out of, so the
-    // residue lands on the right junk axis.
-    const claimed = {
-      prefix: { normal: 0, desecrated: 0 },
-      suffix: { normal: 0, desecrated: 0 },
-    };
+    // Whole-family weight claimed by TARGETS, by side — the residue on each side is junk, whichever
+    // pool it came out of.
+    const claimed = { prefix: 0, suffix: 0 };
     for (let i = 0; i < n; i++) {
       if (has(s.present, i) || has(s.blocked, i)) continue; // family already occupied
       const t = list[i]!;
@@ -409,20 +449,15 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (!(t.type === 'prefix' ? prefixOpen : suffixOpen)) continue;
       const succ = succWeight(t, 0);
       const any = anyWeight(t, 0);
-      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.desJunk, s.rarity), succ / grand);
+      if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, flagTarget(i), s.rarity), succ / grand);
       const below = any - succ;
-      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, s.desJunk, s.rarity), below / grand);
-      claimed[t.type][src] += any;
+      if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, flagTarget(i), s.rarity), below / grand);
+      claimed[t.type] += any;
     }
-    const residue = (total: number, taken: number): number => Math.max(0, total - taken);
-    const junkPref = residue(prefNormal, claimed.prefix.normal);
-    const junkSuf = residue(sufNormal, claimed.suffix.normal);
-    const desPref = residue(prefDes, claimed.prefix.desecrated);
-    const desSuf = residue(sufDes, claimed.suffix.desecrated);
-    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, s.desJunk, s.rarity), junkPref / grand);
-    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, s.desJunk, s.rarity), junkSuf / grand);
-    if (desPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'prefix', s.rarity), desPref / grand);
-    if (desSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js, 'suffix', s.rarity), desSuf / grand);
+    const junkPref = Math.max(0, prefNormal + prefDes - claimed.prefix);
+    const junkSuf = Math.max(0, sufNormal + sufDes - claimed.suffix);
+    if (junkPref > 0) addTo(out, encodeState(s.present, s.blocked, s.jp + 1, s.js, FLAG_JUNK_PREFIX, s.rarity), junkPref / grand);
+    if (junkSuf > 0) addTo(out, encodeState(s.present, s.blocked, s.jp, s.js + 1, FLAG_JUNK_SUFFIX, s.rarity), junkSuf / grand);
     return out;
   };
 
@@ -445,13 +480,15 @@ export function createActionSpace(params: ActionSpaceParams): {
     const removals = removeOutcomes(s, constrainTo);
     if (removals.size === 0) {
       // Nothing removable: only legal when the item is genuinely empty, which is the deterministic add.
-      const empty = s.present === 0 && s.blocked === 0 && s.jp === 0 && s.js === 0 && s.desJunk === 'none';
-      if (empty) addTo(out, encodeState(bit(i), 0, 0, 0, 'none', s.rarity), 1);
+      const empty = s.present === 0 && s.blocked === 0 && s.jp === 0 && s.js === 0 && s.flagged === FLAG_NONE;
+      if (empty) addTo(out, encodeState(bit(i), 0, 0, 0, FLAG_NONE, s.rarity), 1);
       return out;
     }
+    // The essence's own mod is never flagged; the removal half may well have cleared a flag, which
+    // `removeOutcomes` has already recorded in each mid-state.
     for (const [midKey, p] of removals) {
       const mid = decodeState(midKey);
-      addTo(out, encodeState(mid.present | bit(i), mid.blocked, mid.jp, mid.js, mid.desJunk, s.rarity), p);
+      addTo(out, encodeState(mid.present | bit(i), mid.blocked, mid.jp, mid.js, mid.flagged, s.rarity), p);
     }
     return out;
   };

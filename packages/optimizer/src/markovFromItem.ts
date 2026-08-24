@@ -32,9 +32,10 @@ import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
 import { createActionSpace } from './markovActions.ts';
-import type { McTarget, StateKey, McRarity } from './markovState.ts';
+import type { McState, McTarget, StateKey, McRarity } from './markovState.ts';
 import {
-  classifyStart, decodeState, encodeState, enumerateStates, has, popcount, sideIndexOf,
+  FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, classifyStart, decodeState, encodeState,
+  enumerateStates, flagTarget, flaggedTarget, has, popcount, sideIndexOf,
 } from './markovState.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
@@ -50,8 +51,12 @@ export interface PolicyNode {
   readonly blocked: readonly string[];
   readonly junkPrefixes: number;
   readonly junkSuffixes: number;
-  /** Which side carries an unwanted DESECRATED mod, if any — it blocks re-desecrating until removed. */
+  /** Set when the mod a Desecration placed is JUNK, naming the side it sits on. It blocks
+   *  re-desecrating until it is removed. */
   readonly desecratedJunk?: 'prefix' | 'suffix';
+  /** Set when the mod a Desecration placed is one of the TARGETS — the mod id. Blocks re-desecrating
+   *  just the same, which is why keeping it can cost more than it looks. */
+  readonly desecratedTarget?: string;
   readonly isStart: boolean;
   readonly isGoal: boolean;
   /** Minimum expected cost to reach the target from here. */
@@ -219,7 +224,7 @@ export function markovFromItem(
   const n = list.length;
   if (n === 0) return fail('no target mods');
   if (n > MAX_TARGETS) return fail(`target has more than ${MAX_TARGETS} mods`);
-  // The Desecration mechanic places a single carved mod — an item can hold at most one desecrated mod.
+  // The Desecration mechanic places a single mod — an item can hold at most one desecrated mod.
   if (list.filter((t) => t.mod.source === 'desecrated').length > 1) {
     return fail('an item can hold at most one desecrated mod');
   }
@@ -241,7 +246,7 @@ export function markovFromItem(
   /*
    * Is Desecration in play at all?
    *
-   * A carved target to craft, or a carved mod on the item to clear — and, since a bone OFFERS three
+   * A desecrated target to craft, or a flagged mod on the item to clear — and, since a bone OFFERS three
    * modifiers and you keep one, the case that used to be dismissed: a bone can simply be the cheapest
    * way to add an ORDINARY mod. That is not marginal. A Preserved rib is 0.31ex against an Exalt's
    * 1.00ex, so on a Body Armour a bone lands a named normal mod for ~1.2ex where an Exalt needs
@@ -249,7 +254,7 @@ export function markovFromItem(
    *
    * The price test is a NECESSARY condition, not a heuristic. The offer raises the chance of a hit by
    * at most a factor of `DESECRATION_OFFER_COUNT`, since 1−(1−p)^m ≤ m·p; and a bone's per-draw p is
-   * strictly below an Exalt's, because its denominator carries the carved pool as well. So a bone
+   * strictly below an Exalt's, because its denominator carries the desecrated pool as well. So a bone
    * priced at m Exalts or more cannot win, and leaving it out costs nothing — which keeps the desJunk
    * axis, and the 3x states it brings, off every craft that could never have used it.
    *
@@ -260,12 +265,17 @@ export function markovFromItem(
   const exaltPrice = prices.currency.exalt;
   const boneCanOutbidAnExalt = bonePrice !== undefined && exaltPrice !== undefined
     && bonePrice < DESECRATION_OFFER_COUNT * exaltPrice;
-  const desecratable = list.some((t) => t.mod.source === 'desecrated')
-    || s0.desJunk !== 'none'
-    || boneCanOutbidAnExalt;
+  // …and none of it matters if the player has excluded the currency: with no Desecration in the action
+  // space nothing can ever set the flag, so enumerating the axis is pure cost. Worth checking here
+  // rather than leaving to `allowsAction`, which prunes ACTIONS and cannot shrink the lattice.
+  const bonesAllowed = opts.policy === undefined || !opts.policy.excluded.has('desecrate');
+  const desecratable = bonesAllowed
+    && (list.some((t) => t.mod.source === 'desecrated')
+      || s0.flagged !== FLAG_NONE
+      || boneCanOutbidAnExalt);
   // Where "start over" lands: the item you began with, which for a from-white craft is the bare base.
   // Built here rather than later because the action space closes over it.
-  const restartKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.desJunk, s0.rarity);
+  const restartKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.flagged, s0.rarity);
   const { actionsOf } = createActionSpace({
     data, prices, level, pools, list, side, desecratable,
     bossTargetable: bossOmenAllowed(start.base.category),
@@ -278,7 +288,15 @@ export function markovFromItem(
   const GOAL = (1 << n) - 1; // all target mods present, none blocked, no junk
   // The finished item is Rare whenever it carries more than one mod per side, and every craft this
   // model runs ends Rare in practice — a target that fits a Magic item needs no plan worth drawing.
-  const goalKey = encodeState(GOAL, 0, 0, 0, 'none', 'rare');
+  //
+  // One key per value the FLAG can take at the goal, because a finished item is finished whether or
+  // not a Desecration placed one of its mods. Keying the goal to `FLAG_NONE` alone made every craft
+  // that ended on a bone unable to reach it, and value iteration then had no terminal to work back
+  // from — it ground through its whole sweep budget on a problem with no fixed point. (Junk flags
+  // cannot occur here: the goal has no junk to mark.)
+  const goalKeys = new Set<StateKey>([encodeState(GOAL, 0, 0, 0, FLAG_NONE, 'rare')]);
+  for (let i = 0; i < n; i++) goalKeys.add(encodeState(GOAL, 0, 0, 0, flagTarget(i), 'rare'));
+  const goalKey = encodeState(GOAL, 0, 0, 0, FLAG_NONE, 'rare'); // the canonical one, for display
 
   // Only enumerate the rarities the craft can actually occupy. A from-item craft is Rare throughout,
   // so it keeps exactly the state space (and solve time) it had before rarity existed; a craft that
@@ -293,7 +311,7 @@ export function markovFromItem(
   const actionCache = new Map<StateKey, ActionDef[]>();
   for (let i = 0; i < allStates.length; i++) {
     const key = allStates[i]!;
-    actionCache.set(key, key === goalKey ? [] : actionsOf(decodeState(key)));
+    actionCache.set(key, goalKeys.has(key) ? [] : actionsOf(decodeState(key)));
     if (report && i % PROGRESS_STRIDE === 0) report({ phase: 'actions', done: i, total: allStates.length });
   }
   report?.({ phase: 'actions', done: allStates.length, total: allStates.length });
@@ -353,6 +371,65 @@ export function markovFromItem(
   }
   report?.({ phase: 'compile', done: N, total: N });
 
+  // ── Can the goal actually be reached? ───────────────────────────────────────
+  // Computed BEFORE value iteration, because VI cannot discover it and is actively harmed by it. A
+  // state with no route to the goal has no finite value, but nothing stops VI backing one up: each
+  // sweep adds another action's cost, so its V climbs without bound. That never settles, `delta` never
+  // falls under `tolerance`, and the solve reports `converged: false` however long it runs — measured
+  // on a 2-target armour craft as E growing 11.4M → 113.6M ex when the sweep cap rose 10x. The start's
+  // own value had stabilised the whole time; the flag was being poisoned by states the answer does not
+  // depend on. Dead states are pinned at Infinity instead, which is both true and useful: an action
+  // with any chance of landing in one is then correctly worth Infinity.
+  //
+  // "Reaches" means ALMOST SURELY, not "with some chance". The weaker reading is only adequate while
+  // every action can be retried — a one-in-a-million shot you may take again forever still has a
+  // finite expected cost. This is the standard Prob1 fixpoint: shrink the candidate set S until every
+  // state in it can reach the goal without any action escaping S.
+  //
+  // Computed TWICE, because the two solve phases have different action sets and so different dead
+  // ends. Phase A runs push-forward only; a state only a restart can rescue is Infinity to phase A,
+  // and it must know that or it grinds its budget converging on a value with no finite limit.
+  const isGoalIdx = new Uint8Array(N); // a flag rather than a Set: this is read in the innermost loop
+  for (const k of goalKeys) {
+    const gi = idxOfState.get(k);
+    if (gi !== undefined) isGoalIdx[gi] = 1;
+  }
+  const prob1 = (withRestart: boolean): Uint8Array => {
+    const inS = new Uint8Array(N).fill(1);
+    const reachable = new Uint8Array(N);
+    for (let round = 0; round < N; round++) {
+      reachable.fill(0);
+      for (let i = 0; i < N; i++) if (isGoalIdx[i] === 1 && inS[i] === 1) reachable[i] = 1;
+      for (let changed = true; changed;) {
+        changed = false;
+        for (let i = 0; i < N; i++) {
+          if (reachable[i] === 1 || inS[i] !== 1) continue;
+          for (const act of compiled[i]!) {
+            if (act.isRestart && !withRestart) continue;
+            let escapes = false;
+            let touches = false;
+            for (let j = 0; j < act.to.length; j++) {
+              const to = act.to[j]!;
+              if (inS[to] !== 1) { escapes = true; break; }
+              if (reachable[to] === 1) touches = true;
+            }
+            // Every outcome stays inside S, and at least one of them already reaches the goal.
+            if (!escapes && touches) { reachable[i] = 1; changed = true; break; }
+          }
+        }
+      }
+      let shrank = false;
+      for (let i = 0; i < N; i++) {
+        if (inS[i] === 1 && reachable[i] !== 1) { inS[i] = 0; shrank = true; }
+      }
+      if (!shrank) break;
+    }
+    return inS;
+  };
+  const canRestart = opts.restartCost !== undefined;
+  const canReachPushForward = prob1(false);
+  const canReach = canRestart ? prob1(true) : canReachPushForward;
+
   // ── Value iteration ─────────────────────────────────────────────────────────
   // Standard stochastic-shortest-path VI: 0-initialise (a finite lower bound) and let values climb to
   // the fixed point. (An ∞-init + "skip any action with an ∞ outcome" scheme DEADLOCKS on the recovery
@@ -382,7 +459,9 @@ export function markovFromItem(
   const tol = opts.tolerance ?? 1e-9;
   const maxIters = opts.maxIters ?? 100_000;
   const V = new Float64Array(N); // 0-initialised, as above
-  const goalIdx = idxOfState.get(goalKey)!;
+  // Phase A's dead ends, a superset of phase B's. A state only a restart can rescue starts at Infinity,
+  // which is still a valid seed for phase B — the seed only has to be an UPPER bound.
+  for (let i = 0; i < N; i++) if (canReachPushForward[i] !== 1) V[i] = Infinity;
   // Reused by every offer evaluation; sized once so the hot loop allocates nothing.
   const order = new Int32Array(widestOffer);
   /**
@@ -463,7 +542,9 @@ export function markovFromItem(
       if (deadline !== Infinity && iter % DEADLINE_CHECK === 0 && Date.now() > deadline) return false;
       let delta = 0;
       for (let i = 0; i < N; i++) {
-        if (i === goalIdx) continue;
+        if (isGoalIdx[i] === 1) continue;
+        // Skip what this phase can never finish from: pinned at Infinity, which is its true value here.
+        if ((withRestart ? canReach[i] : canReachPushForward[i]) !== 1) continue;
         const acts = compiled[i]!;
         let best = Infinity;
         for (let k = 0; k < acts.length; k++) {
@@ -504,7 +585,6 @@ export function markovFromItem(
     return false;
   };
 
-  const canRestart = opts.restartCost !== undefined;
   const seedConverged = iterate(false, 0, canRestart ? 500 : 1000);
   let converged = seedConverged;
   let bound: MarkovResult['bound'] = seedConverged ? 'exact' : 'lower';
@@ -526,27 +606,6 @@ export function markovFromItem(
     bound = converged ? 'exact' : 'upper';
   }
   emitSolve(1000);
-
-  // ── Can the goal actually be reached? ───────────────────────────────────────
-  // Value iteration 0-initialises and climbs, which is a valid lower bound only while the goal is
-  // reachable from EVERY state — true before currency exclusions existed (see the note above VI), and
-  // no longer. Exclude enough currency and some states, possibly the start, have no route to the goal
-  // at all: their V never receives a finite backup and simply stays at 0, which reads as "expected
-  // cost 0", i.e. a free craft that is already finished. So establish reachability explicitly rather
-  // than inferring it from a value that has no way to say "never".
-  const canReach = new Uint8Array(N);
-  canReach[goalIdx] = 1;
-  for (let changed = true; changed;) {
-    changed = false;
-    for (let i = 0; i < N; i++) {
-      if (canReach[i] === 1) continue;
-      for (const a of compiled[i]!) {
-        let reaches = false;
-        for (let j = 0; j < a.to.length; j++) if (canReach[a.to[j]!] === 1) { reaches = true; break; }
-        if (reaches) { canReach[i] = 1; changed = true; break; }
-      }
-    }
-  }
 
   // ── Extract policy + reachable graph from the start ─────────────────────────
   const startKey = restartKey;
@@ -602,7 +661,7 @@ export function markovFromItem(
   // Full policy over every non-goal state (the reachable graph below is a subset) — for the MC validator.
   const policy = new Map<StateKey, McAction>();
   for (const key of allStates) {
-    if (key === goalKey) continue;
+    if (goalKeys.has(key)) continue;
     const a = bestAction(key);
     if (a) policy.set(key, a.def.action);
   }
@@ -617,9 +676,35 @@ export function markovFromItem(
     // the route walk (which may only step to a STRICTLY smaller distance) has nowhere to go and stalls.
     // This is a layout and ordering heuristic, like the rest of the expression, not an exact metric.
     const toRare = st.rarity === 'rare' ? 0 : 2;
-    return (n - popcount(st.present)) + popcount(st.blocked) + st.jp + st.js
-      + (st.desJunk === 'none' ? 0 : 1) + toRare;
+    // No term for the flag: a flagged JUNK mod is already counted in jp/js (marking it does not add an
+    // affix), and a flagged TARGET is a mod you wanted and have. The old axis needed one because it
+    // described a mod held outside those counters.
+    return (n - popcount(st.present)) + popcount(st.blocked) + st.jp + st.js + toRare;
   };
+  /**
+   * How the UI should describe the mod a Desecration placed here, if any.
+   *
+   * Two fields rather than one, because the two cases read differently to a player: junk only needs
+   * its side (junk mods are interchangeable), while a flagged TARGET needs naming — it is a mod they
+   * asked for, and the fact that it also locks the item out of desecrating again is the whole reason
+   * the state is distinct.
+   */
+  const flagFields = (st: McState): { desecratedJunk?: 'prefix' | 'suffix'; desecratedTarget?: string } => {
+    if (st.flagged === FLAG_JUNK_PREFIX) return { desecratedJunk: 'prefix' };
+    if (st.flagged === FLAG_JUNK_SUFFIX) return { desecratedJunk: 'suffix' };
+    const i = flaggedTarget(st.flagged);
+    return i >= 0 ? { desecratedTarget: list[i]!.modId } : {};
+  };
+  /**
+   * Fold every goal state onto one key for display.
+   *
+   * The lattice has a goal per value of the flag axis — a finished item is finished whether or not a
+   * Desecration placed one of its mods — and they all have V = 0, so they are the same answer. Drawn
+   * as they come they would put several identical "✓ target" boxes in the graph and imply the player
+   * has a choice of endings.
+   */
+  const canonical = (k: StateKey): StateKey => (goalKeys.has(k) ? goalKey : k);
+
   const nodes: PolicyNode[] = [];
   const edges: PolicyEdge[] = [];
   const seen = new Set<StateKey>();
@@ -629,20 +714,21 @@ export function markovFromItem(
     if (seen.has(k)) continue;
     seen.add(k);
     const st = decodeState(k);
-    const isGoal = k === goalKey;
+    const isGoal = goalKeys.has(k);
     const act = isGoal ? undefined : bestAction(k);
     nodes.push({
       key: k,
       present: list.filter((_, i) => has(st.present, i)).map((t) => t.modId),
       blocked: list.filter((_, i) => has(st.blocked, i)).map((t) => t.modId),
       junkPrefixes: st.jp, junkSuffixes: st.js, rarity: st.rarity,
-      ...(st.desJunk === 'none' ? {} : { desecratedJunk: st.desJunk }),
+      ...flagFields(st),
       isStart: k === startKey, isGoal, depth: distanceToGoal(k), expectedCost: V[idxOfState.get(k)!] ?? Infinity,
       ...(act ? { action: act.def.action } : {}),
     });
     if (act) {
-      for (const [to, p] of realizedDist(act)) {
+      for (const [rawTo, p] of realizedDist(act)) {
         if (p <= 0) continue;
+        const to = canonical(rawTo);
         edges.push({ from: k, to, action: act.def.action, prob: p, regress: distanceToGoal(to) > distanceToGoal(k) });
         if (!seen.has(to)) queue.push(to);
       }

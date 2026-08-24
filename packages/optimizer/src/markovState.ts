@@ -51,40 +51,63 @@ export const popcount = (m: number): number => { let c = 0; for (let x = m; x; x
 // ── State keys ──────────────────────────────────────────────────────────────────────────────────
 
 /**
- * Where the item's one desecrated JUNK mod sits, if it has one. An item may carry at most one
- * desecrated mod at a time; when that mod is a target it's already recorded in the present/blocked
- * masks, so this axis only has to remember the case where the desecration landed something unwanted.
+ * WHICH mod on the item a Desecration placed, if any.
+ *
+ * The flag belongs to the MOD, not to the pool it came from: a bone marks whatever it applied, and an
+ * ordinary mod it placed is flagged exactly as a desecrated-pool one is. That single fact is the whole
+ * mechanic — an item may carry one flagged mod, a bone needs an item with none, and removing or
+ * rerolling the flagged mod frees the item to be desecrated again.
+ *
+ * This axis replaced a narrower `desJunk: 'none' | 'prefix' | 'suffix'`, which could only describe an
+ * unwanted DESECRATED-POOL mod and read a flagged target out of the present/blocked masks by checking
+ * `mod.source`. That could not represent the common case at all — a bone that placed an ordinary mod —
+ * and the source check was wrong besides, since the pool a mod came from stops mattering the moment it
+ * is on the item.
+ *
+ * Junk needs only its side, because junk mods are interchangeable; a target needs its index, because
+ * removing target *i* leads somewhere different from removing target *j*. Codes 0/1/2 are unchanged
+ * from the old axis so the key format keeps its shape.
  */
-export type DesJunk = 'none' | 'prefix' | 'suffix';
+export type FlagCode = number;
 
-const DES_JUNK_CODE: Record<DesJunk, number> = { none: 0, prefix: 1, suffix: 2 };
-const DES_JUNK_BY_CODE: readonly DesJunk[] = ['none', 'prefix', 'suffix'];
+export const FLAG_NONE: FlagCode = 0;
+export const FLAG_JUNK_PREFIX: FlagCode = 1;
+export const FLAG_JUNK_SUFFIX: FlagCode = 2;
+/** A flagged TARGET is `FLAG_TARGET + its index`, so the axis is 3 + n wide at its very widest. */
+export const FLAG_TARGET: FlagCode = 3;
 
-/** Nominal type for state keys: a string encoding (present:blocked:jp:js:desJunk:rarity). */
+export const flagTarget = (i: number): FlagCode => FLAG_TARGET + i;
+/** The flagged target's index, or -1 when the flag is absent or sits on junk. */
+export const flaggedTarget = (f: FlagCode): number => (f >= FLAG_TARGET ? f - FLAG_TARGET : -1);
+export const flagJunkSide = (side: 'prefix' | 'suffix'): FlagCode =>
+  (side === 'prefix' ? FLAG_JUNK_PREFIX : FLAG_JUNK_SUFFIX);
+
+/** Nominal type for state keys: a string encoding (present:blocked:jp:js:flagged:rarity). */
 export type StateKey = string & { readonly __brand: 'StateKey' };
 
 export interface McState {
   readonly present: number;
   readonly blocked: number;
+  /** Junk prefixes, INCLUDING a flagged one — the flag marks a junk mod, it does not add a slot. */
   readonly jp: number;
   readonly js: number;
-  readonly desJunk: DesJunk;
+  readonly flagged: FlagCode;
   readonly rarity: McRarity;
 }
 
 // Rarity is the LAST field and defaults to 'rare', so every existing call site keeps its meaning —
 // the from-item craft this model was built for is Rare throughout.
 export const encodeState = (
-  present: number, blocked: number, jp: number, js: number, desJunk: DesJunk = 'none',
+  present: number, blocked: number, jp: number, js: number, flagged: FlagCode = FLAG_NONE,
   rarity: McRarity = 'rare',
 ): StateKey =>
-  `${present}:${blocked}:${jp}:${js}:${DES_JUNK_CODE[desJunk]}:${RARITY_CODE[rarity]}` as StateKey;
+  `${present}:${blocked}:${jp}:${js}:${flagged}:${RARITY_CODE[rarity]}` as StateKey;
 
 export const decodeState = (k: StateKey): McState => {
-  const [present, blocked, jp, js, des, rar] = k.split(':').map(Number) as number[];
+  const [present, blocked, jp, js, flagged, rar] = k.split(':').map(Number) as number[];
   return {
     present: present!, blocked: blocked!, jp: jp!, js: js!,
-    desJunk: DES_JUNK_BY_CODE[des!]!, rarity: RARITY_BY_CODE[rar!]!,
+    flagged: flagged!, rarity: RARITY_BY_CODE[rar!]!,
   };
 };
 
@@ -112,12 +135,18 @@ export function sideIndexOf(list: readonly McTarget[]): SideIndex {
   };
 }
 
-/** Prefix slots in use: targets present or blocked on that side, its junk, and any desecrated junk. */
+/**
+ * Prefix slots in use: targets present or blocked on that side, plus its junk.
+ *
+ * No separate term for the flagged mod any more. It used to need one, because `desJunk` described a
+ * desecrated-pool mod held OUTSIDE the jp/js counters; now the flag simply marks one of the mods
+ * already counted here, so counting it again would have the item hold a phantom extra affix.
+ */
 export const prefUsed = (s: McState, side: SideIndex): number =>
-  countSide(s.present, side.prefix) + countSide(s.blocked, side.prefix) + s.jp + (s.desJunk === 'prefix' ? 1 : 0);
+  countSide(s.present, side.prefix) + countSide(s.blocked, side.prefix) + s.jp;
 
 export const sufUsed = (s: McState, side: SideIndex): number =>
-  countSide(s.present, side.suffix) + countSide(s.blocked, side.suffix) + s.js + (s.desJunk === 'suffix' ? 1 : 0);
+  countSide(s.present, side.suffix) + countSide(s.blocked, side.suffix) + s.js;
 
 /** Target families occupied (present OR blocked) — excluded from the add denominator (family exclusion). */
 export function occupiedFamilies(present: number, blocked: number, list: readonly McTarget[]): Set<string> {
@@ -130,11 +159,15 @@ export function occupiedFamilies(present: number, blocked: number, list: readonl
 
 /**
  * Every legal state of the lattice. A target is present XOR blocked (never both), and neither side can
- * hold more than MAX_PER_SIDE mods counting targets, junk, and any desecrated junk together.
+ * hold more than MAX_PER_SIDE mods counting targets and junk together.
  *
- * `desecratable` gates the desJunk axis: when no desecration is in play the axis collapses to the
- * single 'none' value, so a craft that never touches desecration keeps exactly the state space (and
- * the solve time) it had before desecration was modelled at all.
+ * `desecratable` gates the flag axis: when no desecration is in play it collapses to FLAG_NONE alone,
+ * so a craft that never touches desecration keeps exactly the state space (and the solve time) it had
+ * before desecration was modelled at all.
+ *
+ * The flag is only ever emitted where it could actually sit — junk sides that hold junk, targets that
+ * are on the item. That pruning is what keeps the axis near 3x rather than the 3 + n its width
+ * suggests: most states have only a handful of mods for a bone to have marked.
  */
 export function enumerateStates(
   n: number, side: SideIndex, desecratable = false,
@@ -145,7 +178,6 @@ export function enumerateStates(
    */
   rarities: readonly McRarity[] = ['rare'],
 ): StateKey[] {
-  const desJunkValues: DesJunk[] = desecratable ? ['none', 'prefix', 'suffix'] : ['none'];
   const out: StateKey[] = [];
   for (const rarity of rarities) {
     const cap = perSideCap(rarity);
@@ -155,14 +187,17 @@ export function enumerateStates(
         const tp = countSide(present, side.prefix) + countSide(blocked, side.prefix);
         const ts = countSide(present, side.suffix) + countSide(blocked, side.suffix);
         if (tp > cap || ts > cap) continue;
-        for (const desJunk of desJunkValues) {
-          const dp = desJunk === 'prefix' ? 1 : 0;
-          const ds = desJunk === 'suffix' ? 1 : 0;
-          if (tp + dp > cap || ts + ds > cap) continue;
-          for (let jp = 0; jp + tp + dp <= cap; jp++) {
-            for (let js = 0; js + ts + ds <= cap; js++) {
-              out.push(encodeState(present, blocked, jp, js, desJunk, rarity));
+        // Every target on the item is somewhere a bone could have left its mark.
+        const onItem = present | blocked;
+        for (let jp = 0; jp + tp <= cap; jp++) {
+          for (let js = 0; js + ts <= cap; js++) {
+            const flags: FlagCode[] = [FLAG_NONE];
+            if (desecratable) {
+              if (jp > 0) flags.push(FLAG_JUNK_PREFIX);
+              if (js > 0) flags.push(FLAG_JUNK_SUFFIX);
+              for (let i = 0; i < n; i++) if (has(onItem, i)) flags.push(flagTarget(i));
             }
+            for (const flagged of flags) out.push(encodeState(present, blocked, jp, js, flagged, rarity));
           }
         }
       }
@@ -172,23 +207,27 @@ export function enumerateStates(
 }
 
 /**
- * Does this state already carry a desecrated mod? An item holds at most one, so this is the gate on
- * desecrating again. It's true either because the desecration landed junk, or because a DESECRATED
- * TARGET is on the item (present or blocked) — those are tracked in the masks, not the desJunk axis.
+ * Does this state already carry a desecration-placed mod? An item holds at most one, so this is the
+ * gate on desecrating again.
+ *
+ * One field read now. It used to also scan the masks for a target whose POOL was desecrated, which was
+ * wrong twice over: it missed a bone that placed an ordinary mod (the common case, and the one that
+ * actually blocks you), and it flagged a desecrated-pool target that a bone had not placed.
  */
-export function hasDesecrated(s: McState, list: readonly McTarget[]): boolean {
-  if (s.desJunk !== 'none') return true;
-  for (let i = 0; i < list.length; i++) {
-    if (list[i]!.mod.source === 'desecrated' && (has(s.present, i) || has(s.blocked, i))) return true;
-  }
-  return false;
+export function hasDesecrated(s: McState): boolean {
+  return s.flagged !== FLAG_NONE;
 }
 
 /**
- * Classify the START item's mods into (present, blocked, junk): a target at ≥ its wanted tier is
- * present; the same target at too low a tier is blocked (its family is taken, goal unmet); a mod that
- * matches no target is junk on its side — and an unwanted DESECRATED mod is junk that also occupies
- * the item's single desecrated slot, so it lands on the desJunk axis instead of the jp/js counters.
+ * Classify the START item's mods into (present, blocked, junk) plus which of them a Desecration
+ * placed: a target at ≥ its wanted tier is present; the same target at too low a tier is blocked (its
+ * family is taken, goal unmet); a mod that matches no target is junk on its side.
+ *
+ * The flag comes from `PlacedMod.desecrated`, which the caller sets — a bone-placed ORDINARY mod is
+ * indistinguishable from an exalted one by inspection, so the app has to be told. A desecrated-POOL
+ * mod is taken as flagged whether or not it was marked, since a Desecration is the only way one gets
+ * onto an item. An item may carry at most one; a second is treated as ordinary rather than rejected,
+ * because refusing to plan is a worse answer than planning the achievable part.
  */
 export function classifyStart(
   data: PatchData, item: ItemState, list: readonly McTarget[], idxOf: ReadonlyMap<string, number>,
@@ -197,16 +236,15 @@ export function classifyStart(
   let blocked = 0;
   let jp = 0;
   let js = 0;
-  let desJunk: DesJunk = 'none';
+  let flagged: FlagCode = FLAG_NONE;
   const place = (arr: ItemState['prefixes'], side: 'prefix' | 'suffix'): void => {
     for (const p of arr) {
+      const fromDesecration = p.desecrated === true || data.mods.get(p.modId)?.source === 'desecrated';
       const i = idxOf.get(p.modId);
       if (i === undefined) {
-        // Not a target. A desecrated one claims the desecrated slot; anything else is ordinary junk.
-        const isDes = data.mods.get(p.modId)?.source === 'desecrated';
-        if (isDes && desJunk === 'none') desJunk = side;
-        else if (side === 'prefix') jp++;
+        if (side === 'prefix') jp++;
         else js++;
+        if (fromDesecration && flagged === FLAG_NONE) flagged = flagJunkSide(side);
         continue;
       }
       const t = list[i]!;
@@ -214,9 +252,10 @@ export function classifyStart(
       // At or above the wanted tier (or an unrecognised tier — assume fine) ⇒ present; below ⇒ blocked.
       if (tierIdx < 0 || tierIdx >= t.minIndex) present |= bit(i);
       else blocked |= bit(i);
+      if (fromDesecration && flagged === FLAG_NONE) flagged = flagTarget(i);
     }
   };
   place(item.prefixes, 'prefix');
   place(item.suffixes, 'suffix');
-  return { present, blocked, jp, js, desJunk, rarity: item.rarity };
+  return { present, blocked, jp, js, flagged, rarity: item.rarity };
 }

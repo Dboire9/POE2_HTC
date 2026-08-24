@@ -33,7 +33,7 @@ export interface EngineMod {
   readonly families?: readonly string[];
   /** 'normal' = rollable with currency; 'essence' = obtainable only by a regular essence (tiers = levels);
    * 'perfect' = a perfect-essence mod (added on a Rare by a Perfect Essence, which removes one random mod);
-   * 'desecrated' = a desecrated ("carved by the Abyss") mod — occupies a slot/family and is the sole
+   * 'desecrated' = a mod from the base's desecrated pool — occupies a slot/family and is the sole
    * target an Omen of Light annul can remove for certain. */
   readonly source: 'normal' | 'essence' | 'perfect' | 'desecrated';
   /** Tiers best-first (T1 … Tn); for essence mods these are the Greater→Lesser essence levels. */
@@ -113,8 +113,18 @@ export interface ItemModInput {
   readonly modId: string;
   /** 1-based from best (matches the picker); only affects which tier ilvl is recorded. */
   readonly tierDisplay: number;
-  /** Fractured ("carved"): locked on the item — never removed, and out of the random-removal pool. */
+  /** Fractured: locked on the item — never removed, and out of the random-removal pool. */
   readonly fractured?: boolean;
+  /**
+   * This mod was placed by a Desecration.
+   *
+   * An item carries at most one, and while it does the Well of Souls will not touch the item again —
+   * so removing it is what frees the item to be desecrated. The flag belongs to the MOD, not to the
+   * pool it came from, so a bone that placed an ORDINARY mod marks it the same way; that mod is then
+   * indistinguishable from an exalted one, which is why the player has to tell us. A desecrated-pool
+   * mod is treated as flagged regardless.
+   */
+  readonly desecrated?: boolean;
 }
 
 /**
@@ -206,8 +216,12 @@ export interface EnginePolicyNode {
   /** The item's rarity in this state — a from-white craft climbs Normal → Magic → Rare, and a 2-mod
    *  Magic item must not render as the 2-mod Rare item it is not. */
   readonly rarity: 'normal' | 'magic' | 'rare';
-  /** Side carrying an unwanted DESECRATED mod, if any — it blocks re-desecrating until it's removed. */
+  /** Set when the mod a Desecration placed is JUNK, naming the side it sits on. It blocks
+   *  re-desecrating until it's removed. */
   readonly desecratedJunk?: 'prefix' | 'suffix';
+  /** Set when the mod a Desecration placed is one of your TARGETS — its text. Blocks re-desecrating
+   *  just the same, which is why keeping it can cost more than it looks. */
+  readonly desecratedTarget?: string;
   readonly isStart: boolean;
   readonly isGoal: boolean;
   /** Steps-to-goal ranking (0 = goal); used to lay the graph out left→right. */

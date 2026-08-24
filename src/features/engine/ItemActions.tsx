@@ -202,11 +202,31 @@ const ItemActions: React.FC = () => {
     () => new Set([...prefixes, ...suffixes].filter((m) => m.fractured).map((m) => m.modId)),
     [prefixes, suffixes],
   );
-  // Toggle a current mod's fractured ("carved") lock: it can't be removed and is excluded from random removal.
+  // Toggle a current mod's fractured lock: it can't be removed and is excluded from random removal.
   const toggleFractured = (modId: string) => {
     const flip = (l: readonly ItemModInput[]) => l.map((x) => (x.modId === modId ? { ...x, fractured: !x.fractured } : x));
     setPrefixes(flip);
     setSuffixes(flip);
+    setPlan(null);
+  };
+  const desecratedIds = useMemo(
+    () => new Set([...prefixes, ...suffixes].filter((m) => m.desecrated).map((m) => m.modId)),
+    [prefixes, suffixes],
+  );
+  /**
+   * Mark which mod a Desecration placed. **At most one**, so marking a second clears the first.
+   *
+   * The app cannot work this out for itself. A bone flags whatever it applied — an ordinary mod just
+   * as much as one from the desecrated pool — and a flagged ordinary mod is indistinguishable from an
+   * exalted one by inspection. But it is what stops the item being desecrated again, so a plan that
+   * assumes it away offers a move the game refuses.
+   */
+  const toggleDesecrated = (modId: string) => {
+    const on = !desecratedIds.has(modId);
+    const set = (l: readonly ItemModInput[]) => l.map((x) => (
+      x.modId === modId ? { ...x, desecrated: on } : { ...x, desecrated: false }));
+    setPrefixes(set);
+    setSuffixes(set);
     setPlan(null);
   };
   const occupiedFamilies = useMemo(() => {
@@ -414,6 +434,10 @@ const ItemActions: React.FC = () => {
             <div className="flex flex-wrap gap-2">
               {itemMods.map((m) => {
                 const isFractured = fracturedIds.has(m.id);
+                // A desecrated-POOL mod could only have arrived by Desecration, so it is always
+                // flagged and there is nothing to toggle; an ordinary one has to be told to us.
+                const alwaysDesecrated = m.source === 'desecrated';
+                const isDesecrated = alwaysDesecrated || desecratedIds.has(m.id);
                 return (
                   <span
                     key={m.id}
@@ -421,7 +445,7 @@ const ItemActions: React.FC = () => {
                   >
                     <Badge variant={m.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{m.type === 'prefix' ? 'P' : 'S'}</Badge>
                     {m.text}
-                    {m.source === 'desecrated' && <span className="rounded bg-rose-500/20 px-1 text-[10px] text-rose-700 dark:text-rose-300">desecrated</span>}
+                    {isDesecrated && <span className="rounded bg-rose-500/20 px-1 text-[10px] text-rose-700 dark:text-rose-300">desecrated</span>}
                     {isFractured && <span className="rounded bg-amber-500/20 px-1 text-[10px] text-amber-700 dark:text-amber-300">fractured</span>}
                     <button
                       onClick={() => toggleFractured(m.id)}
@@ -432,6 +456,19 @@ const ItemActions: React.FC = () => {
                     >
                       <span aria-hidden="true">{isFractured ? '🔒' : '🔓'}</span>
                     </button>
+                    {!alwaysDesecrated && (
+                      <button
+                        onClick={() => toggleDesecrated(m.id)}
+                        aria-pressed={isDesecrated}
+                        aria-label={`Placed by a Desecration: ${m.text}`}
+                        className={`px-0.5 ${FOCUS_RING} ${isDesecrated ? 'text-rose-500' : 'text-muted-foreground hover:text-rose-500'}`}
+                        title={isDesecrated
+                          ? 'Placed by a Desecration — click to unmark'
+                          : 'Mark as placed by a Desecration: blocks desecrating this item again until it’s removed'}
+                      >
+                        <span aria-hidden="true">💀</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => dropItemMod(m.id)}
                       className={`text-muted-foreground hover:text-destructive ${FOCUS_RING}`}
@@ -444,6 +481,13 @@ const ItemActions: React.FC = () => {
                 );
               })}
             </div>
+            {(desecratedIds.size > 0 || itemMods.some((m) => m.source === 'desecrated')) && (
+              <p className="text-[11px] text-muted-foreground">
+                💀 A Desecration flags the mod it placed, whether that mod came from the desecrated pool
+                or is an ordinary one. While the flag is on the item the Well of Souls won’t touch it
+                again — so removing that mod is what lets you desecrate a second time.
+              </p>
+            )}
             {fracturedIds.size > 0 && (
               <p className="text-[11px] text-muted-foreground">
                 🔒 Fractured mods are locked — the planner keeps them, never removes them, and they’re excluded

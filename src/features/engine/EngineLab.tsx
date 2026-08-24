@@ -669,10 +669,10 @@ const EngineLab: React.FC = () => {
                 1-in-N over that boss’s pool (weights are unknown, so this is an approximation).</>
               ) : (
                 <>The boss omens are <strong>Weapon or Jewellery only</strong>, so on this base the
-                draw can’t be narrowed — and it isn’t over carved mods alone, since{' '}
-                <strong>ordinary mods sit in the same pool</strong>. On a Body Armour the carved mod
+                draw can’t be narrowed — and it isn’t over desecrated mods alone, since{' '}
+                <strong>ordinary mods sit in the same pool</strong>. On a Body Armour the desecrated mod
                 you asked for turns up in the offer about <strong>1 time in 45</strong>; you are only
-                stuck with a carved mod you didn’t want when all three are carved, about 1 in 3,300.</>
+                stuck with a desecrated mod you didn’t want when all three are, about 1 in 3,300.</>
               )}
               {normalTargets < 3 && fractured.size === 0 && (
                 <> From scratch, a Desecration needs a Rare first, so include <strong>3 rollable mods</strong> (or

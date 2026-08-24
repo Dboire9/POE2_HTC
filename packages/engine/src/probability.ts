@@ -452,7 +452,7 @@ export const DESECRATION_OFFER_COUNT = 3;
  * Treats the offered mods as independent draws. They are drawn from a pool of hundreds whose weights
  * total ~130,000, and no single mod carries a meaningful share of that, so whether the game draws with
  * or without replacement moves this by far less than the assumed desecrated spawn weight already does
- * (see D4). Worth ~3x on a real base: a specific carved mod on a Body Armour goes 0.74% -> 2.21%.
+ * (see D4). Worth ~3x on a real base: a specific desecrated mod on a Body Armour goes 0.74% -> 2.21%.
  */
 export function desecrationOffered(pSingleDraw: number): number {
   if (pSingleDraw <= 0) return 0;

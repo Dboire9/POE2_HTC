@@ -1671,6 +1671,94 @@ action chosen at each state — and since a Chaos is rarely optimal any more, th
 branch never appeared and the assertion passed vacuously. The tests probe `createActionSpace` directly
 instead, and assert both branches, each mutation-checked.
 
+## The desecration flag follows the MOD, not the pool (2026-08-24)
+
+The resolution of four attempts in one day, each built one step too literally on a ruling. The fact
+that settles all of them:
+
+> a desecration adds a mod to the item, and **that mod is flagged as desecrated because a desecration
+> applied it** — whatever pool it came from. Removing or changing that mod clears the flag, and the item
+> can be desecrated again.
+
+Three rules I had been modelling separately are one rule: *at most one desecrated mod* = at most one
+FLAGGED mod; *once per item, cleared by removing the desecrated modifier* = remove the flagged mod;
+*a Chaos cannot touch a desecrated mod* = retracted, and the Chaos has no special treatment at all.
+
+**What the abstraction gained, and what it lost.** `desJunk: 'none' | 'prefix' | 'suffix'` described an
+unwanted DESECRATED-POOL mod held on its own axis with its own slot. It became
+`flagged: none | junk-on-a-side | target-i`. Two things fall out:
+
+- The pool a mod came from stops being recorded at all, correctly — once a mod is on the item it fills
+  the same slot, blocks the same family, and every currency removes it the same way. Only the flag
+  survives, and only until the mod does.
+- The old axis DOUBLE-COUNTED: it held a desecrated mod outside `jp`/`js` while also charging it a slot,
+  so an item could hold a phantom extra affix. `prefUsed`/`sufUsed` lost their extra term.
+
+An earlier attempt at the same ruling added a standalone `boned` bit instead (branch
+`desecration-one-per-item`). That made a desecrated target on an unreplaceable item a permanent
+one-shot — E = Infinity — which the user rejected, and it broke the two-phase seed besides, since a
+permanent dead end means no restart-free proper policy exists. The flag model has no permanent dead
+ends (an Annulment always clears it), so the seed works and that branch is abandoned.
+
+**The model now reaches the real strategy unaided.** A bone marks whatever it applies, so the one
+Desecration is a resource to place well rather than an opener to spam. Asked for three ordinary mods on
+a held Wand, the policy now **opens with an Exalt and holds the bone back** — which is how the mechanic
+is played ("desecration is at the end, for the mods with the low weights"). The previous version, which
+let a bone be spent freely, opened with one and used it on every target. That behaviour is pinned by a
+test, because it is the strongest evidence the flag sits in the right place.
+
+### Every desecration figure re-measured
+
+Held Rare, three ordinary targets, no restart (so nothing masks the comparison):
+
+| base | bones excluded | bones available | |
+|---|---|---|---|
+| Wands | 4,073.8 ex | **2,181.3 ex** | −46% |
+| Body_Armours_str | 2,967.6 ex | **1,358.5 ex** | −54% |
+| Amulets | 54,834 ex | 54,834 ex | 0% — price gate closed |
+
+This **corrects the −70% / −54% pair** published under `974700c4`, which assumed a bone could be spent
+over and over.
+
+D4 sensitivity, on crafts with **no desecrated target at all** — also corrected, and smaller than the
+4x reported in TODO 1:
+
+| assumed weight | Wands x3 | Body_Armours_str x3 |
+|---|---|---|
+| 1 | 1,953 ex | 1,315 ex |
+| **1000 (shipped)** | **2,181 ex** | **1,359 ex** |
+| 20,000 | 4,074 ex | 1,478 ex |
+
+2.1x across the plausible range on Wands, 1.1x on Body Armour. Still worth pinning down, still TODO 1,
+but it is no longer setting the price of every craft to the degree claimed.
+
+The **Omen of Light** conclusion survives its third re-measurement: worth 0 ex at every level of
+progress on a Body Armour craft targeting 5 ordinary + 1 desecrated. A 158.7 ex random Annulment still
+beats a 3,095 ex certainty.
+
+### What it costs
+
+The flag axis is about **5x the solve time** when desecration is in play — a 4-target from-white Wand
+craft goes 1.9 s to 10.2 s, a 5-target one 15.9 s to 77.7 s. Both still converge; the 6-target craft
+caps out and returns a looser upper bound than it did. Accepted rather than approximated away: a looser
+honest bound beats a tighter wrong one, and TODO 3 (value iteration is 99.8% of a from-white solve, on
+an ABSOLUTE tolerance against values of ~2e6) is the standing fix and is now worth more.
+
+A free win found alongside: `desecratable` did not consult the currency policy, so excluding
+Desecration still enumerated the whole flag axis for nothing. Checking it there took the bones-excluded
+4-target craft from 12.2 s to 1.9 s.
+
+### And a real bug it exposed
+
+Reachability meant *"can reach the goal with SOME chance"*, which is only adequate while every action
+can be retried. States with no route at all were being backed up regardless: each sweep added another
+orb's cost, so their V climbed forever, `delta` never fell under `tolerance`, and `converged` came back
+false however long the solve ran — measured on a 2-target armour craft as E growing **11.4M → 113.6M ex
+when the sweep cap rose 10x**, while the start's own value had been stable throughout. Replaced with
+the standard almost-sure (Prob1) fixpoint, computed before value iteration with dead states pinned at
+Infinity, and computed PER PHASE since phase A runs without restart and has different dead ends. That
+craft now converges in 171 ms.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

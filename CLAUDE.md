@@ -58,22 +58,30 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   not a special case. `realizedDist` applies the same weights to the GRAPH's edges: publishing the
   per-draw odds there would put a 50% on an arrow that is really 12.5%, and the Monte-Carlo validator
   — which samples those edges — would then "confirm" a cost the solver never computed.
-- **A bone competes for ORDINARY mods too, and usually wins.** Desecration used to be modelled only
-  when a carved mod was targeted; with the offer of three that is wrong. A Preserved rib is 0.31ex
-  against an Exalt's 1.00ex, so on a held Rare (no restart to mask it) bones cut a 3-mod Wand craft
-  4,073.8ex → 1,215.5ex and a Body Armour 2,967.6ex → 693.9ex. They also make the solve FASTER, because
-  the craft is genuinely easier: a 5-target from-white Wand went 76.1s → 14.0s. `desecratable`
-  (`markovFromItem.ts`) now also opens when `bonePrice < DESECRATION_OFFER_COUNT * exaltPrice` — a
-  NECESSARY condition, since the offer multiplies a hit by at most `m` and a bone's per-draw p is below
-  an Exalt's anyway, so a dearer bone provably cannot win. That keeps the desJunk axis (3x the lattice)
-  off amulets and rings, where the collarbone is 7.69ex. An ABSENT bone price reads as "no bone", never
-  as a free one.
-- **No currency has special treatment for the desecrated mod.** A Chaos Orb and an Annulment both take
-  it at the same uniform odds as any other affix, and removing it leaves the item clean. That is what
-  the Omen of Light is FOR — it makes the removal certain, not possible. A restriction was built here
-  twice on 2026-08-24 (first an immunity, then a preference) from a ruling the user retracted in the
-  same conversation; the retraction was missed both times. If you are about to add one, check
-  docs/validation.md first.
+- **A Desecration FLAGS the mod it placed, and the flag follows the MOD, not the pool.** A bone marks
+  whatever it applied — an ordinary mod exactly as much as a desecrated-pool one. An item carries at
+  most one flagged mod; while it does, the Well of Souls will not touch the item; removing or rerolling
+  that mod frees it. `McState.flagged` (`markovState.ts`) is the single axis: `none`, junk-on-a-side, or
+  target-*i*. It replaced `desJunk`, which could only describe a desecrated-POOL mod and also charged it
+  a slot OUTSIDE `jp`/`js` — a phantom extra affix. Once a mod is on the item its pool decides nothing,
+  so the state no longer records it.
+- **A bone is one resource, not a repeatable orb, and the model plays it that way.** Asked for three
+  ordinary mods on a held Wand the policy opens with an **Exalt** and holds the bone back, which is how
+  the mechanic is actually played. Measured worth on a held Rare: Wands 4,073.8ex → 2,181.3ex (−46%),
+  Body Armour 2,967.6ex → 1,358.5ex (−54%), amulets/rings unchanged (the collarbone is 7.69ex and the
+  price gate closes). `desecratable` in `markovFromItem.ts` opens on
+  `bonePrice < DESECRATION_OFFER_COUNT * exaltPrice` — a NECESSARY condition — and also checks the
+  currency policy, since with Desecration excluded the flag axis is pure cost (worth 6x on one craft).
+  The axis costs ~5x the solve time when desecration IS in play; see TODO 3.
+- **Reachability means ALMOST SURELY, not "with some chance"** (`prob1` in `markovFromItem.ts`), and is
+  computed BEFORE value iteration, per phase, with dead states pinned at Infinity. The weak reading let
+  states with no route to the goal be backed up forever — E grew 11.4M → 113.6M ex as the sweep cap rose
+  10x, and `converged` was being poisoned by states the answer never depended on.
+- **The goal is indifferent to axes it does not care about.** `goalKeys` is a SET: a finished item is
+  finished whether or not a Desecration placed one of its mods. Keying it to one flag value made every
+  craft that ended on a bone unable to reach the goal, leaving value iteration no terminal to work back
+  from. They are folded to one node for display (`canonical`), or the graph draws several identical
+  "✓ target" boxes.
 - **The desecrated spawn weight is an ASSUMPTION, not data.** poe2db publishes none (it reports 1 for every row); all 527 are set to `DESECRATED_ASSUMED_WEIGHT = 1000` in `tools/refresh/apply_pools.mjs`. It matters ~900x: at the literal 1 a bone produced a desecrated mod about 1 in 121,510 on a Body Armour, against ~1 in 132 at 1000. Only the UNOMENED draw uses weights, so only it inherits the assumption — the boss-omen path is count-uniform and stays exact. The UI must say which: `assumedOdds` (engineMap) → `PriceBasisNote`'s `exactOdds`. See docs/validation.md D4.
 - **Fractured mods are locked**: never annulled, never chaosed, out of every removal pool.
 

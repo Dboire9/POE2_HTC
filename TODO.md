@@ -16,13 +16,15 @@ with **no carved target at all**:
 
 | assumed weight | Wands x3, held Rare | Body_Armours_str x3 |
 |---|---|---|
-| 1 | 995 ex | 636 ex |
-| 100 | 1,016 ex | 642 ex |
-| **1000 (shipped)** | **1,215 ex** | **694 ex** |
-| 5,000 | 2,208 ex | 841 ex |
-| 20,000 | 4,074 ex | 888 ex |
+| 1 | 1,953 ex | 1,315 ex |
+| 100 | 1,978 ex | 1,320 ex |
+| **1000 (shipped)** | **2,181 ex** | **1,359 ex** |
+| 5,000 | 2,934 ex | 1,426 ex |
+| 20,000 | 4,074 ex | 1,478 ex |
 
-A 4x swing on Wands, off a number nobody has measured.
+A 2.1x swing on Wands, 1.1x on Body Armour, off a number nobody has measured. (Re-measured 2026-08-24
+under the desecration FLAG model — an earlier table here read 4x, from a version that let a bone be
+spent over and over.)
 
 **The same change made it cheap to check.** Bones are now played on ordinary crafts, and a bone offers
 three modifiers — so the only observation needed is how many OFFERS contained a carved ("carved by the

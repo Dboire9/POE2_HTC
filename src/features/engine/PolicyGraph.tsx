@@ -42,8 +42,11 @@ function stateLabel(nd: EnginePolicyNode): string {
   parts.push(`${kept} mod${kept === 1 ? '' : 's'}`);
   if (nd.blocked.length > 0) parts.push(`${nd.blocked.length} off-tier`);
   if (junk > 0) parts.push(`+${junk} junk`);
-  // Called out separately from ordinary junk: it also blocks desecrating again until it's removed.
-  if (nd.desecratedJunk) parts.push('+1 desecrated');
+  // The mod a Desecration placed, called out wherever it landed: it blocks desecrating again until it
+  // is removed, which is what makes this state different from an otherwise identical one. A flagged
+  // JUNK mod is already inside the junk count above — the note says it is marked, not that it is extra.
+  if (nd.desecratedJunk) parts.push('1 junk desecrated');
+  else if (nd.desecratedTarget) parts.push('desecrated');
   return parts.join(' · ');
 }
 
@@ -201,8 +204,18 @@ const StateDetail: React.FC<{
         <dd>
           {junk === 0 ? <span className="text-muted-foreground">none</span>
             : `${junk} (${node.junkPrefixes} prefix, ${node.junkSuffixes} suffix)`}
-          {node.desecratedJunk && <span className="text-muted-foreground"> · plus an unwanted desecrated {node.desecratedJunk}, which blocks desecrating again</span>}
+          {node.desecratedJunk && <span className="text-muted-foreground"> · one of them was placed by a Desecration, which blocks desecrating again until it goes</span>}
         </dd>
+        {node.desecratedTarget !== undefined && (
+          <>
+            <dt className="text-muted-foreground">Placed by a Desecration</dt>
+            <dd>
+              {node.desecratedTarget}
+              <span className="text-muted-foreground"> · a mod you wanted, but while it is here the item
+                can’t be desecrated again</span>
+            </dd>
+          </>
+        )}
         <dt className="text-muted-foreground">Cost to finish</dt>
         <dd className="tabular-nums">{fmtCost(node.expectedCost)}</dd>
         {node.action && (
@@ -385,7 +398,8 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
             : `${node.present.length > 0 ? node.present.join(', ') : 'no target mods yet'}`
               + `${node.blocked.length > 0 ? ` · off-tier: ${node.blocked.join(', ')}` : ''}`
               + `${node.junkPrefixes + node.junkSuffixes > 0 ? ` · ${node.junkPrefixes + node.junkSuffixes} junk` : ''}`
-              + `${node.desecratedJunk ? ` · unwanted desecrated ${node.desecratedJunk}` : ''}`
+              + `${node.desecratedJunk ? ` · a junk ${node.desecratedJunk} was placed by a Desecration` : ''}`
+              + `${node.desecratedTarget ? ` · ${node.desecratedTarget} was placed by a Desecration` : ''}`
               + ` · E ${fmtCost(node.expectedCost)}${node.action ? ` · ${node.action}` : ''}`;
           const gk = groupKeyOf(node, fmtCost);
           const isSelected = gk === selected;

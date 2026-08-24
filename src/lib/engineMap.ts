@@ -99,12 +99,20 @@ export function buildItemState(data: PatchData, item: ExistingItem): ItemState {
       const n = mod.tiers.length;
       const idx = Math.max(0, Math.min(n - 1, n - m.tierDisplay)); // display 1 = best = last engine index
       const tierName = (mod.tiers[idx] ?? mod.tiers[0])?.name ?? '';
-      return m.fractured ? { modId: m.modId, tierName, fractured: true } : { modId: m.modId, tierName };
+      // A mod from the desecrated POOL can only have arrived by Desecration, so it carries the flag
+      // whether or not the player ticked it. An ORDINARY mod a bone placed looks like any other, which
+      // is what the tick is for.
+      const desecrated = m.desecrated === true || mod.source === 'desecrated';
+      return {
+        modId: m.modId, tierName,
+        ...(m.fractured ? { fractured: true } : {}),
+        ...(desecrated ? { desecrated: true } : {}),
+      };
     });
   const prefixes = place(item.prefixes);
   const suffixes = place(item.suffixes);
-  // The desecrated flag gates the Omen of Light annul, so set it whenever a desecrated mod is on the item.
-  const desecrated = [...prefixes, ...suffixes].some((m) => data.mods.get(m.modId)?.source === 'desecrated');
+  // Gates the Omen of Light annul: it needs something flagged to remove.
+  const desecrated = [...prefixes, ...suffixes].some((m) => m.desecrated === true);
   const state = { base, level: item.level, rarity: item.rarity, prefixes, suffixes };
   return desecrated ? { ...state, desecrated: true } : state;
 }
@@ -233,6 +241,7 @@ export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number):
     junkSuffixes: nd.junkSuffixes,
     rarity: nd.rarity,
     ...(nd.desecratedJunk ? { desecratedJunk: nd.desecratedJunk } : {}),
+    ...(nd.desecratedTarget ? { desecratedTarget: text(nd.desecratedTarget) } : {}),
     isStart: nd.isStart,
     isGoal: nd.isGoal,
     // Steps-to-goal, taken from the solver rather than recomputed here. This used to be a second copy

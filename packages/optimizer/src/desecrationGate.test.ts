@@ -8,7 +8,7 @@ import { optimizeFromItem } from './fromItem.ts';
 import { markovFromItem } from './markovFromItem.ts';
 import { pricesForBase } from './cost.ts';
 import { createActionSpace } from './markovActions.ts';
-import { decodeState, encodeState, sideIndexOf } from './markovState.ts';
+import { FLAG_NONE, decodeState, encodeState, flaggedTarget, popcount, sideIndexOf } from './markovState.ts';
 import type { McTarget } from './markovState.ts';
 
 // The boss omens read "your next WEAPON OR JEWELLERY Desecration attempt will guarantee a random
@@ -328,8 +328,26 @@ describe('a bone competes for ordinary mods too, where its price allows', () => 
     const without = solve('Wands', true);
     expect(withBones.converged && without.converged).toBe(true);
     expect([...withBones.policy.values()].some((a) => a.currency === 'desecrate')).toBe(true);
-    // Not a rounding difference — the bone route is a different order of effort.
-    expect(withBones.expectedCost).toBeLessThan(without.expectedCost / 2);
+    // Measured 4,073.8ex → 2,181.3ex on this craft (−46%); Body Armour −54%. Asserted loosely, since
+    // the exact figure moves with the price sheet, but the gap is an order of effort, not rounding.
+    expect(withBones.expectedCost).toBeLessThan(without.expectedCost * 0.7);
+  });
+
+  /**
+   * …and it does NOT open with one, which is the behaviour that first exposed the whole flag model.
+   *
+   * A bone marks whatever it applies, and the item takes no second bone until that mod is gone — so
+   * the one Desecration is a resource to place well, not an opener to spam. The policy holds it back
+   * and opens with an Exalt. That is exactly how the mechanic is played in practice ("desecration is
+   * at the end, for the mods with the low weights"), and the model reaching it unaided is the strongest
+   * evidence the flag is in the right place: the earlier version, which let a bone be spent freely,
+   * opened with one and used it on every target.
+   */
+  it('saves the bone rather than opening with it', () => {
+    const withBones = solve('Wands', false);
+    const opener = withBones.nodes.find((nd) => nd.isStart)!.action;
+    expect(opener).toBeDefined();
+    expect(opener!.currency).not.toBe('desecrate');
   });
 
   /**
@@ -402,48 +420,64 @@ describe('an unomened Desecration draws from the whole pool, normal mods include
     };
   };
 
-  it('can add a NORMAL target mod, and usually does', () => {
+  it('can add a NORMAL target mod, and flags whatever it added', () => {
     const { list, actionsOf } = spaceFor(ARMOUR);
-    const empty = decodeState(encodeState(0, 0, 0, 0, 'none', 'rare'));
-    const desIdx = list.findIndex((t) => t.mod.source === 'desecrated');
-    expect(desIdx).toBeGreaterThanOrEqual(0);
+    const empty = decodeState(encodeState(0, 0, 0, 0, FLAG_NONE, 'rare'));
 
     // The plain bone — no Sinistral/Dextral, no boss omen. Armour has no boss omen available at all.
     const bone = actionsOf(empty).find((a) => a.action.currency === 'desecrate' && !('side' in a.action));
     expect(bone).toBeDefined();
 
-    let carved = 0; // any outcome that put a desecrated mod on the item
-    let normalTarget = 0; // an outcome that landed one of the ROLLABLE targets instead
+    let landsANormalTarget = 0;
     for (const [key, prob] of bone!.dist) {
       const st = decodeState(key);
-      if (st.desJunk !== 'none' || ((st.present >> desIdx) & 1) === 1) carved += prob;
-      else if (st.present !== 0) normalTarget += prob;
+      // EVERY outcome leaves the item flagged. That is the invariant the whole mechanic rests on: a
+      // bone marks whatever it applied, so the item cannot be desecrated again until that mod goes.
+      expect(st.flagged).not.toBe(FLAG_NONE);
+      const i = flaggedTarget(st.flagged);
+      if (i >= 0 && list[i]!.mod.source === 'normal') landsANormalTarget += prob;
     }
-
-    // The fact the copy denied: a bone lands an ordinary mod you asked for.
-    expect(normalTarget).toBeGreaterThan(0);
-    // …and carved is the MINORITY outcome, which is what makes it the long-shot step in a plan.
-    expect(carved).toBeLessThan(0.5);
-    expect(carved).toBeGreaterThan(0); // still reachable, or the craft would be impossible
+    // The fact the app's copy once denied: a bone lands an ordinary mod you asked for.
+    expect(landsANormalTarget).toBeGreaterThan(0);
   });
 
-  // A side-constrained bone on a side with no carved mods is a legal action that can only ever add a
-  // normal one — 10 of this base's carved mods are suffixes and none is a prefix. Worth pinning
-  // because it is the most surprising consequence of the ruling.
-  it('on a side with no carved mods, offers only normal outcomes', () => {
+  /**
+   * What the state deliberately no longer records.
+   *
+   * It used to track "an unwanted DESECRATED-POOL mod" apart from ordinary junk, on its own axis with
+   * its own slot. Under the flag model that distinction is gone, and it should be: once a mod is on the
+   * item, the pool it came from decides nothing. It fills the same slot, blocks the same family, and
+   * every currency removes it the same way. Only the FLAG survives, and only until the mod does.
+   *
+   * Asserted because the old shape double-counted a carved mod as an extra affix the item did not have.
+   */
+  it('does not distinguish a carved-pool junk mod from an ordinary one once it is on the item', () => {
+    const { actionsOf } = spaceFor(ARMOUR);
+    const empty = decodeState(encodeState(0, 0, 0, 0, FLAG_NONE, 'rare'));
+    const bone = actionsOf(empty).find((a) => a.action.currency === 'desecrate' && !('side' in a.action))!;
+    for (const [key] of bone.dist) {
+      const st = decodeState(key);
+      // A bone adds exactly one mod, so the item holds exactly one thing more than it did.
+      const mods = popcount(st.present) + popcount(st.blocked) + st.jp + st.js;
+      expect(mods).toBe(1);
+    }
+  });
+
+  // A side-constrained bone on a side with no carved mods can only ever place an ordinary one — 10 of
+  // this base's carved mods are suffixes and none is a prefix. Observable through which TARGET it can
+  // flag, since the state no longer records the pool a junk mod came from (see above).
+  it('on a side with no carved mods, can never land a carved target', () => {
     const { list, actionsOf } = spaceFor(ARMOUR);
     const barren = (['prefix', 'suffix'] as const)
       .find((sd) => ARMOUR.base.pools.desecrated[`${sd}es` as 'prefixes' | 'suffixes'].length === 0);
     expect(barren).toBeDefined();
-    const desIdx = list.findIndex((t) => t.mod.source === 'desecrated');
-    const empty = decodeState(encodeState(0, 0, 0, 0, 'none', 'rare'));
+    const empty = decodeState(encodeState(0, 0, 0, 0, FLAG_NONE, 'rare'));
     const bone = actionsOf(empty)
       .find((a) => a.action.currency === 'desecrate' && 'side' in a.action && a.action.side === barren);
     if (!bone) return; // priced out of the space is fine; a WRONG distribution is not
     for (const [key] of bone.dist) {
-      const st = decodeState(key);
-      expect(st.desJunk).toBe('none');
-      expect((st.present >> desIdx) & 1).toBe(0);
+      const i = flaggedTarget(decodeState(key).flagged);
+      if (i >= 0) expect(list[i]!.mod.source).not.toBe('desecrated');
     }
   });
 });

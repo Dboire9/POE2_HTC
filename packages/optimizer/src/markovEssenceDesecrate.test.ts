@@ -149,6 +149,46 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     expect(mc).toBeCloseTo(r.expectedCost, 1);
   });
 
+  /**
+   * The flag, hand-computed end to end.
+   *
+   * Start [NP1 (fractured) | —], target {NP1, DP1}. NP1 is present and locked, so the only lever is a
+   * bone, and a bone leaves the item flagged whatever it lands. That is what this pins:
+   *
+   *   bone (cost 1) → ⅞ DP1 is in the offer  ⇒ goal
+   *                   ⅛ all three are DS1    ⇒ flagged junk suffix
+   *   from there, the ONLY way back to a bone is to remove the flagged mod: an Annulment at cost 1,
+   *   certain because DS1 is the item's only removable mod (NP1 is fractured).
+   *
+   *   E = 1 + ⅞·0 + ⅛·(1 + E)  ⇒  E = 9/7
+   *
+   * The arithmetic is the same as before the flag existed, and that is the point: on this fixture the
+   * old `desJunk` axis and the new flag agree, because the thing the bone landed happened to be from
+   * the desecrated pool. What the flag adds is the case the old axis could not see at all — a bone
+   * that lands an ORDINARY mod and blocks the item just as firmly.
+   */
+  it('blocks a second bone until the flagged mod is removed', () => {
+    const prices: Prices = { currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens: {} };
+    const r = markovFromItem(data, prices, start, targets);
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
+
+    const byKey = new Map(r.nodes.map((nd) => [nd.key, nd]));
+    // Every state the policy visits that carries a flagged mod must be clearing it, not desecrating.
+    const flaggedStates = r.nodes.filter((nd) => nd.desecratedJunk !== undefined || nd.desecratedTarget !== undefined);
+    expect(flaggedStates.length).toBeGreaterThan(0);
+    for (const nd of flaggedStates) {
+      if (nd.isGoal) continue; // finished is finished, flag or no flag
+      expect(nd.action?.currency).not.toBe('desecrate');
+    }
+    // …and the state a bone leaves you in when it misses is exactly one Annulment from being free.
+    const missed = flaggedStates.find((nd) => !nd.isGoal)!;
+    const outs = r.edges.filter((e) => e.from === missed.key);
+    expect(outs).toHaveLength(1);
+    expect(outs[0]!.prob).toBeCloseTo(1, 12);
+    expect(byKey.get(outs[0]!.to)!.desecratedJunk).toBeUndefined();
+  });
+
   it('rejects a target holding two desecrated mods (an item carries at most one)', () => {
     const twoDes: PatchData = {
       patch: 't',

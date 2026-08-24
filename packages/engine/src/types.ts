@@ -61,9 +61,20 @@ export interface PatchData {
 export interface PlacedMod {
   readonly modId: string;
   readonly tierName: string;
-  /** A fractured ("carved") mod is locked on the item: it can never be removed and is excluded from
-   * the random-removal pool of annul / chaos / essence (so those removal odds improve). Default false. */
+  /** A fractured mod is locked on the item: it can never be removed and is excluded from the random-
+   * removal pool of annul / chaos / essence (so those removal odds improve). Default false. */
   readonly fractured?: boolean;
+  /**
+   * This mod was placed by a Desecration.
+   *
+   * An item may carry one such mod, and while it does the Well of Souls will not touch the item again
+   * — so removing or rerolling it is what frees the item to be desecrated. The flag belongs to the MOD,
+   * not to the pool it came from: a bone that placed an ORDINARY mod marks it exactly the same way,
+   * and that mod is then indistinguishable from an exalted one by inspection, which is why this has to
+   * be told to the app rather than inferred. A desecrated-pool mod is treated as flagged regardless,
+   * since a Desecration is the only way one reaches an item. Default false.
+   */
+  readonly desecrated?: boolean;
 }
 
 /** Mutable item being crafted. Max 3 prefixes + 3 suffixes. */

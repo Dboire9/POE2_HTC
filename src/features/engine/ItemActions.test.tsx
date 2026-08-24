@@ -215,6 +215,45 @@ describe('ItemActions — search effort', () => {
 // The true-cost card is simply not rendered when the model declines, so half the panel vanished with
 // no explanation — while the `reason` saying exactly why was computed, carried across the worker
 // boundary, and shown to nobody. Reported as "I don't have graph anymore".
+/**
+ * Marking which mod a Desecration placed.
+ *
+ * The app cannot infer it: a bone flags whatever it applied, an ordinary mod as much as a carved one,
+ * and a flagged ordinary mod looks exactly like an exalted one. It is also what stops the item being
+ * desecrated again, so getting it wrong offers a move the game refuses.
+ */
+describe('ItemActions — the Desecration marker', () => {
+  it('marks a mod, and only ever one at a time', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    await user.click(builderButton(/Normal Suffix/));
+    const marks = screen.getAllByRole('button', { name: /Placed by a Desecration/i });
+    expect(marks).toHaveLength(2);
+    await user.click(marks[0]!);
+    await waitFor(() => expect(
+      screen.getAllByRole('button', { name: /Placed by a Desecration/i })
+        .filter((b) => b.getAttribute('aria-pressed') === 'true'),
+    ).toHaveLength(1));
+    // An item carries at most one, so marking the second must release the first rather than add to it.
+    await user.click(screen.getAllByRole('button', { name: /Placed by a Desecration/i })[1]!);
+    await waitFor(() => expect(
+      screen.getAllByRole('button', { name: /Placed by a Desecration/i })
+        .filter((b) => b.getAttribute('aria-pressed') === 'true'),
+    ).toHaveLength(1));
+    expect(screen.getAllByRole('button', { name: /Placed by a Desecration/i })[1]!)
+      .toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('explains what the flag costs you once something is marked', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    await user.click(screen.getAllByRole('button', { name: /Placed by a Desecration/i })[0]!);
+    expect(await screen.findByText(/won.t touch it\s+again/i)).toBeInTheDocument();
+  });
+});
+
 describe('ItemActions — when there is no true expected cost', () => {
   async function computeWith(markov: unknown) {
     mocks.optimizeItemMarkov.mockReturnValue(markov);

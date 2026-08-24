@@ -53,6 +53,9 @@ export type SolveRequest =
       readonly targets: readonly TargetInput[];
       /** Set to also answer "what does this much money actually buy?". */
       readonly budget?: number;
+      /** What another white base costs the player, in exalt-equivalents. Absent ⇒ WHITE_BASE_COST.
+       *  Only reaches the model on a from-WHITE craft: a held or carved item cannot be restarted. */
+      readonly baseCost?: number;
       /** Targets with pins applied, for the budget search. Defaults to `targets`. */
       readonly want?: readonly AltTargetInput[];
     } & ExcludingRequest)
@@ -128,12 +131,17 @@ const ITEM_MDP: Span = [0.2, 1];
 const ITEM_PLAN_SHARE = 0.4;
 
 /**
- * What another white base costs, in exalt-equivalents.
+ * What another white base costs when the player has not said — NOT what the app believes one costs.
  *
- * Zero, and deliberately so rather than by omission: a white base is bought from a vendor or picked up
- * for nothing, and the sheet has no key for one (`stepCost` would silently make an absent key 0 anyway
- * — see CLAUDE.md). Naming it here makes the assumption visible and gives it one place to change if a
- * base ever costs enough to matter.
+ * Zero, and deliberately so rather than by omission: the sheet has no key for a base (`stepCost` would
+ * silently make an absent key 0 anyway — see CLAUDE.md), and any other default would be a number
+ * nobody has measured, which is the failure `DESECRATED_ASSUMED_WEIGHT` already represents.
+ *
+ * It is not a harmless default. This is the MDP's `restartCost`, and at 0 the policy bins almost
+ * anything rather than repair it — measured at 1,015 of 1,041 states choosing to start over, stable at
+ * every sweep budget, so the true optimum rather than an artifact. That is correct arithmetic on a
+ * premise only the player can supply, which is why `LabRequest.baseCost` exists and this is merely
+ * where the answer falls back to.
  */
 const WHITE_BASE_COST = 0;
 
@@ -268,7 +276,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const mdpSpan = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
   const mdpClock = clockLeft();
   const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, withPolicy({
-    ...(fromWhite ? { restartCost: WHITE_BASE_COST } : {}),
+    ...(fromWhite ? { restartCost: req.baseCost ?? WHITE_BASE_COST } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
       ? { onProgress: (pr: MarkovProgress): void => onProgress({ phase: pr.phase, fraction: within(mdpSpan, toFraction(pr) * 1000, 1000) }) }

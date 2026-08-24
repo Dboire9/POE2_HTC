@@ -13,7 +13,7 @@ import {
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
-import { limitsFor, useEffort } from '../../lib/searchEffort';
+import { isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import {
   decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode, useOnChange,
@@ -159,6 +159,7 @@ const EngineLab: React.FC = () => {
   const [pinned, setPinned] = useField('lab', 'pinned');
   // Optional spend cap (exalt-equivalents). Empty ⇒ no alternatives panel; the frontier alone is shown.
   const [budget, setBudget] = useField('lab', 'budget');
+  const [baseCost, setBaseCost] = useField('lab', 'baseCost');
 
   const [result, setResult] = useState<EngineResult | null>(null);
   const [alts, setAlts] = useState<EngineAlternatives | null>(null);
@@ -169,6 +170,16 @@ const EngineLab: React.FC = () => {
   const [progress, setProgress] = useState<Progress | null>(null);
   const excludedKeys = toExcludedKeys(useExclusions());
   const effort = useEffort();
+  // "Raise Search effort" is the app's standing answer to a solve that stopped early, and it is good
+  // advice at every preset but the top one — where it points at a control with nothing above it. The
+  // honest thing there is to say the solver has given everything it has.
+  const topped = isTopEffort(effort);
+  const tightenAdvice = topped
+    ? <>the solver is already at <strong>Maximum</strong>, so this is as tight as it gets</>
+    : <>raise <strong>Search effort</strong></>;
+  const finishAdvice = topped
+    ? <>The solver is already at <strong>Maximum</strong> — this craft is beyond what it can settle.</>
+    : <>Raise <strong>Search effort</strong> to let it finish.</>;
   const cancelRef = useRef<(() => void) | null>(null);
   const runIdRef = useRef(0);
   const [mode, setMode] = useMode();
@@ -381,12 +392,18 @@ const EngineLab: React.FC = () => {
     const b = Number(budget);
     const hasBudget = budget.trim() !== '' && Number.isFinite(b) && b > 0;
     const want: AltTargetInput[] = targets.map((t) => (pinned.has(t.modId) ? { ...t, pinned: true } : t));
+    // A blank field means "no opinion", which is NOT the same as zero — it defers to the app's default.
+    // 0 typed explicitly is a real answer (bases are free) and must reach the solver as one, so the
+    // test is on the string being non-empty, not on the number being truthy.
+    const bc = Number(baseCost);
+    const hasBaseCost = baseCost.trim() !== '' && Number.isFinite(bc) && bc >= 0;
 
     const handle = solve({
       kind: 'lab',
       from: fromItem ? { item: carvedItem() } : { baseId, level },
       targets,
       ...(hasBudget ? { budget: b, want } : {}),
+      ...(hasBaseCost ? { baseCost: bc } : {}),
       effort: limitsFor(effort),
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
     }, (p) => { if (current()) setProgress(p); });
@@ -482,6 +499,21 @@ const EngineLab: React.FC = () => {
               title="What you're willing to spend, in Exalted-Orb equivalents. Adds a panel showing the closest items this much money can actually finish."
             />
           </label>
+          {/* Only a from-WHITE craft can start over, so this is the one place the number means
+              anything — a carved base is an item you hold and the planner may not bin it. */}
+          {fractured.size === 0 && (
+            <label className="flex flex-col gap-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Base cost <span className="font-normal normal-case opacity-70">(exalts, optional)</span>
+              </span>
+              <input
+                type="number" min={0} step="any" value={baseCost} placeholder="0"
+                onChange={(e) => setBaseCost(e.target.value)}
+                className={`${selectCls} w-28`}
+                title="What another white base costs you. At 0 the planner will bin a nearly-finished item rather than pay to fix it — right if bases are free, wrong if they aren't."
+              />
+            </label>
+          )}
           <SearchEffort />
           <div className="flex-1" />
           <Button variant="outline" onClick={share} disabled={targets.length === 0 && mode === 'plan'} size="lg" title="Copy a link that reproduces this workspace">
@@ -724,20 +756,20 @@ const EngineLab: React.FC = () => {
             <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
               ⚠ The solver stopped before this number settled, so it is a <strong>ceiling</strong> — the
               real cost is at most this, and usually well under it. The route below is already the right
-              shape; raise <strong>Search effort</strong> to tighten the price.
+              shape; {tightenAdvice} to tighten the price.
             </p>
           )}
           {markov.bound === 'lower' && (
             <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
               ⚠ The solver stopped before this number settled, so it is a <strong>floor</strong> — the
-              real cost is at least this and may be higher. Raise <strong>Search effort</strong> to let
-              it finish.
+              real cost is at least this and may be higher. {finishAdvice}
             </p>
           )}
           <p className="text-[11px] text-muted-foreground">
             The average spend to reach this target playing the optimal policy — it weighs orb strengths
-            and side omens, recovers in place after a bad roll, and, because a white base costs nothing,
-            may also decide the cheapest move is to <strong>bin what you have and start again</strong>.
+            and side omens, recovers in place after a bad roll, and, when another base costs less than
+            the repair, may also decide the cheapest move is to
+            {' '}<strong>bin what you have and start again</strong>.
             The step routes below are the simpler per-plan view: one fixed sequence, every slam hitting
             a named mod.
           </p>

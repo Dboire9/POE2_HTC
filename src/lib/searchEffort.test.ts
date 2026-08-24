@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
-  DEFAULT_EFFORT, EFFORT_PRESETS, EFFORT_STORAGE_KEY, getEffort, limitsFor, setEffort,
+  DEFAULT_EFFORT, EFFORT_PRESETS, EFFORT_STORAGE_KEY, getEffort, isTopEffort, limitsFor, setEffort,
 } from './searchEffort.ts';
 import { runSolve } from './solve.ts';
 import { optimize } from './engine.ts';
@@ -24,6 +24,18 @@ describe('the effort presets', () => {
       expect(hi.maxNodes).toBeGreaterThan(lo.maxNodes);
       expect(hi.maxPlans).toBeGreaterThan(lo.maxPlans);
     }
+  });
+
+  /**
+   * The top preset is derived, not named — otherwise adding a tier above it silently leaves the
+   * "you are already at the maximum" message pointing at the old top, which then tells the user to
+   * stop trying while a higher setting sits right there in the dropdown.
+   */
+  it('knows which preset is the top one, and only that one', () => {
+    const ids = EFFORT_PRESETS.map((p) => p.id);
+    expect(ids.filter(isTopEffort)).toEqual([ids[ids.length - 1]]);
+    expect(isTopEffort(DEFAULT_EFFORT)).toBe(false);
+    expect(isTopEffort('nonsense')).toBe(false);
   });
 
   // A preset renamed in a later version must not wedge the app on limits that no longer exist.

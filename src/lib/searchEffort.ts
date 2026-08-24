@@ -79,12 +79,23 @@ export const EFFORT_PRESETS: readonly EffortPreset[] = [
   {
     id: 'patient',
     label: 'Patient',
-    hint: 'Several minutes. Only worth it if a badge says the search stopped early.',
+    hint: 'Several minutes. Worth it when a badge says the search stopped early.',
     limits: { maxMillis: 300_000, maxNodes: 2_000, maxPlans: 2_000_000 },
   },
 ];
 
 export const DEFAULT_EFFORT = 'standard';
+
+/**
+ * Is this already the hardest the solver will look?
+ *
+ * The app's standing answer to a result that stopped early is "raise Search effort" — true at every
+ * preset but the last, where it sends the reader to a control with nothing above it. Derived from the
+ * list rather than named, so adding a tier above cannot leave this pointing at the old top.
+ */
+export function isTopEffort(id: string): boolean {
+  return id === EFFORT_PRESETS[EFFORT_PRESETS.length - 1]!.id;
+}
 
 export function limitsFor(id: string): EffortLimits {
   return (EFFORT_PRESETS.find((p) => p.id === id) ?? EFFORT_PRESETS.find((p) => p.id === DEFAULT_EFFORT)!).limits;

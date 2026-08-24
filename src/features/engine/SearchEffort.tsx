@@ -1,5 +1,5 @@
 import React from 'react';
-import { EFFORT_PRESETS, setEffort, useEffort } from '../../lib/searchEffort';
+import { EFFORT_PRESETS, isTopEffort, setEffort, useEffort } from '../../lib/searchEffort';
 
 // "How hard should I look?" — the one control for the solver's three caps.
 //
@@ -47,7 +47,9 @@ export const SearchEffortHint: React.FC = () => {
   return (
     <p className="text-[11px] text-muted-foreground">
       <strong>Search effort:</strong> {EFFORT_PRESETS.find((p) => p.id === effort)?.hint}{' '}
-      Raise it if a result says the search stopped early.
+      {isTopEffort(effort)
+        ? 'This is the highest setting — a result that still stops early has nothing left to raise.'
+        : 'Raise it if a result says the search stopped early.'}
     </p>
   );
 };

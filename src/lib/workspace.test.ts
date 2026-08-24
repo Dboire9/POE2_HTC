@@ -20,6 +20,7 @@ const filled = (): Workspace => ({
     fractured: new Set([P[0]!]),
     pinned: new Set([S[0]!]),
     budget: '600',
+    baseCost: '2.5',
   },
   item: {
     baseId: 'Wands', level: 81, rarity: 'rare',
@@ -97,6 +98,25 @@ describe('URL codec — a link from another build must degrade, not crash', () =
     ['empty', ''],
   ])('returns null for a payload that is %s', (_label, payload) => {
     expect(decodeWorkspace(payload, data)).toBeNull();
+  });
+
+  /**
+   * A link shared BEFORE a field existed must still open.
+   *
+   * `baseCost` was added to the wire after FORMAT 1 shipped, without bumping the version — bumping it
+   * would have made every link anyone had already sent decode to null, which is a far worse trade for
+   * one optional field. So the missing key has to read as "use the default" rather than as corruption.
+   */
+  it('opens a link written before the base price existed', () => {
+    const b64 = encodeWorkspace(filled()).replace(/-/g, '+').replace(/_/g, '/');
+    const wire = JSON.parse(atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4)));
+    expect(wire.l.bc).toBe('2.5'); // or the deletion below proves nothing
+    delete wire.l.bc;
+    const old = btoa(JSON.stringify(wire)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const out = decodeWorkspace(old, data);
+    expect(out).not.toBeNull();
+    expect(out!.workspace.lab.baseCost).toBe('');
+    expect(out!.workspace.lab.budget).toBe('600'); // the rest of the link is untouched
   });
 
   // A future format must be refused outright: silently reading v2 with v1's rules would produce a

@@ -54,6 +54,44 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
     expect(got.alts).toBeNull();
   });
 
+  /**
+   * The base price is the MDP's `restartCost`, and it is the number that decides whether "bin it and
+   * roll another" beats repairing the item in hand. At 0 it beats nearly everything — measured at
+   * 1,015 of 1,041 policy states choosing to start over — so a player for whom bases are NOT free was
+   * getting advice built on someone else's economy. Two assertions, because the cost alone could move
+   * for any number of reasons: the price has to reach the model AND change what it does.
+   */
+  it('charges the base price the player set, and stops binning items when it bites', () => {
+    const solveAt = (baseCost?: number) => {
+      const got = runSolve(eng, {
+        kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets,
+        ...(baseCost === undefined ? {} : { baseCost }),
+      });
+      if (got.kind !== 'lab') throw new Error('wrong kind');
+      if (!got.markov.applicable || !got.markov.feasible) throw new Error('no model');
+      return got.markov;
+    };
+    const free = solveAt(0);
+    const dear = solveAt(50);
+    expect(dear.expectedCost).toBeGreaterThan(free.expectedCost);
+    const binning = (m: typeof free) =>
+      m.nodes.filter((n) => n.action?.startsWith('Start over')).length;
+    expect(binning(dear)).toBeLessThan(binning(free));
+    // Omitted ⇒ WHITE_BASE_COST, which is 0 — so the default must agree with an explicit 0 rather
+    // than quietly being some other number.
+    expect(solveAt(undefined).expectedCost).toBeCloseTo(free.expectedCost, 6);
+  }, 60_000);
+
+  // A held item cannot be thrown away and re-bought, so the price must not reach that model at all.
+  it('ignores a base price on a craft that starts from an item you hold', () => {
+    const at = (baseCost: number) => {
+      const got = runSolve(eng, { kind: 'lab', from: { item }, targets, baseCost });
+      if (got.kind !== 'lab') throw new Error('wrong kind');
+      return got.markov;
+    };
+    expect(at(50)).toEqual(at(0));
+  });
+
   it('item returns both the frontier and the MDP, matching the direct calls', () => {
     const got = runSolve(eng, { kind: 'item', item, targets });
     if (got.kind !== 'item') throw new Error('wrong kind');

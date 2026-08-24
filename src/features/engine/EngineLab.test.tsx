@@ -60,6 +60,8 @@ vi.mock('../../lib/engine', async (importOriginal) => {
 
 // eslint-disable-next-line import/first
 import EngineLab from './EngineLab';
+// eslint-disable-next-line import/first
+import { DEFAULT_EFFORT, EFFORT_PRESETS, setEffort } from '../../lib/searchEffort';
 
 /** The picker row for a mod's text (the row div holding its "+"), from within the mod-picker card. */
 const pickerRow = (text: string): HTMLElement => screen.getByText(text).closest('div') as HTMLElement;
@@ -97,6 +99,10 @@ beforeEach(() => {
   mocks.alternatives.mockReset();
   mocks.alternativesForItem.mockReset();
   mocks.optimizeItemMarkov.mockReset().mockReturnValue(labMarkov);
+  // The effort preset lives in a module-level store backed by localStorage, so a test that changes it
+  // leaks into every test after it — and the one that does change it turns off the "raise Search
+  // effort" advice the tests above assert on.
+  setEffort(DEFAULT_EFFORT);
 });
 
 describe('EngineLab — loads and lists', () => {
@@ -309,6 +315,28 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
     expect(await screen.findByText(/^≥\s/)).toBeInTheDocument();
     expect(screen.getByText(/floor/i)).toBeInTheDocument();
     expect(screen.queryByText(/ceiling/i)).toBeNull();
+  });
+
+  /**
+   * "Raise Search effort" is the right advice at four of the five presets and a dead end at the fifth.
+   *
+   * Reported from the live app: a six-mod craft came back as a ceiling while the user was ALREADY on
+   * the highest setting the app offered, and was told to raise it. Telling someone to turn a dial that
+   * is against its stop reads as the app not knowing its own state.
+   */
+  it('stops telling you to raise the effort once you are at the top of it', async () => {
+    setEffort(EFFORT_PRESETS[EFFORT_PRESETS.length - 1]!.id);
+    mocks.optimizeItemMarkov.mockReturnValue({ ...labMarkov, converged: false, bound: 'upper' });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    // `ceiling` is inside a <strong>; the advice is its sibling text, so assert on the paragraph.
+    const warning = (await screen.findByText(/ceiling/i)).closest('p')!;
+    expect(warning.textContent).not.toMatch(/raise/i);
+    expect(warning.textContent).toMatch(/as tight as it gets/i);
+    // …and the standing hint under the control stops saying it too, or the advice just moves.
+    expect(screen.queryByText(/Raise it if a result says/i)).toBeNull();
   });
 
   /**

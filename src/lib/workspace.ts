@@ -28,6 +28,16 @@ export interface LabState {
   readonly pinned: ReadonlySet<string>;
   /** Kept as the raw input string: "" means no budget, and re-parsing a number would lose "0.". */
   readonly budget: string;
+  /**
+   * What another white base costs the player, as a raw input string ("" = use the app's default).
+   *
+   * This is the MDP's `restartCost`, and it is the single number that decides whether "bin it and roll
+   * another" beats fixing the item in front of you. At 0 it beats almost everything — measured at
+   * 1,015 of 1,041 policy states choosing to start over — which is right if bases are free and wrong
+   * if they are not. Only the player knows which, so it is theirs to set rather than the app's to
+   * assume. See WHITE_BASE_COST in solve.ts for the fallback.
+   */
+  readonly baseCost: string;
 }
 
 export interface ItemTabState {
@@ -49,7 +59,7 @@ export interface Workspace {
 export function defaultWorkspace(): Workspace {
   return {
     mode: 'plan',
-    lab: { baseId: '', level: 82, targets: [], fractured: new Set(), pinned: new Set(), budget: '' },
+    lab: { baseId: '', level: 82, targets: [], fractured: new Set(), pinned: new Set(), budget: '', baseCost: '' },
     item: { baseId: '', level: 82, rarity: 'rare', prefixes: [], suffixes: [], subMode: 'check', target: [] },
   };
 }
@@ -71,6 +81,10 @@ interface Wire {
   readonly l: {
     readonly b: string; readonly lv: number; readonly t: readonly WireTarget[];
     readonly f: readonly string[]; readonly p: readonly string[]; readonly bg: string;
+    /** Added after FORMAT 1 shipped, so links written before it simply lack the key — the decoder
+     *  reads it as "" and the craft plans on the default. Bumping FORMAT would REJECT those links
+     *  instead, which is a far worse trade for one optional field. */
+    readonly bc?: string;
   };
   readonly i: {
     readonly b: string; readonly lv: number; readonly r: 'm' | 'r';
@@ -126,7 +140,7 @@ export function encodeWorkspace(ws: Workspace): string {
       b: lb, lv: ws.lab.level, t: t(lb, ws.lab.targets),
       f: [...ws.lab.fractured].map((id) => strip(lb, id)),
       p: [...ws.lab.pinned].map((id) => strip(lb, id)),
-      bg: ws.lab.budget,
+      bg: ws.lab.budget, bc: ws.lab.baseCost,
     },
     i: {
       b: ib, lv: ws.item.level, r: ws.item.rarity === 'magic' ? 'm' : 'r',
@@ -206,6 +220,7 @@ export function decodeWorkspace(payload: string, data: PatchData): DecodeResult 
       lab: {
         baseId: lb, level: wire.l.lv ?? d.lab.level, targets: targets(lb, wire.l.t),
         fractured: ids(lb, wire.l.f), pinned: ids(lb, wire.l.p), budget: wire.l.bg ?? '',
+        baseCost: wire.l.bc ?? '',
       },
       item: {
         baseId: ib, level: wire.i.lv ?? d.item.level, rarity: wire.i.r === 'm' ? 'magic' : 'rare',

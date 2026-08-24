@@ -1519,48 +1519,53 @@ clean-up-junk one, and the model already draws that line without being told wher
 has no omen endpoint). Every "worth 0 ex" above is a comparison against that number, so a materially
 different real price would move the line.
 
-## A Chaos Orb cannot touch a carved modifier (2026-08-24)
+## What a Chaos Orb does to a carved modifier (2026-08-24)
 
-User ruling. The model let it, which made a Chaos the cheapest way to clear carved junk at 33.39ex —
-a move the game refuses, recommended as the best one, and reported as such in this document an hour
-earlier. `removeOutcomes` gained a `sparesCarved` flag that `chaosOutcomes` sets; carved junk on the
-desJunk axis and a carved TARGET in the masks are both spared. An Annulment is left unrestricted.
+Landed on the third attempt, and both wrong answers are worth keeping because they are mirror images.
 
-**It cuts both ways, and the second cut is deeper.** Barring the removal makes carved junk dearer to
-clear, but it also means a Chaos can no longer DESTROY a carved target you have already landed:
+1. **Originally**: a Chaos could take the carved mod freely. That made it the model's cheapest way to
+   clear carved junk at 33.39 ex — a move the game refuses, recommended as the best one, and reported
+   as fact in this document.
+2. **First fix**: barred entirely. That declared the opposite error — on an item whose ONLY modifier is
+   carved there is no ordinary affix to reroll, so the Chaos does take the carved one, and calling that
+   impossible is the same class of mistake in the other direction.
+3. **The rule** (user, after checking): a Chaos rerolls an ORDINARY affix whenever the item has one. So
+   the carved mod is out of the pool while anything else is there, and in the pool when nothing is. A
+   **preference, not an immunity** — `removeOutcomes`' `sparesCarvedWhenAble`, set only by
+   `chaosOutcomes`.
 
-| craft | before | after |
-|---|---|---|
-| Wands held Rare + carved junk, 3 ordinary targets | 1,315.8 ex | 1,374.6 ex (+4.5%) |
-| Body_Armours_str, same shape | 808.3 ex | 852.8 ex (+5.5%) |
-| Body_Armours_str, 5 ordinary + 1 carved, wrong carved stuck on | ~31,400 ex | ~20,300 ex (**−35%**) |
+**The consequence that is easy to miss** is not about clearing junk at all: a Chaos can no longer
+DESTROY a carved target already landed, as long as any ordinary affix remains. On a Body Armour
+targeting 5 ordinary + 1 carved with the wrong carved suffix stuck on, that is a **~35% cheaper craft**
+(≈31,400 ex → ≈20,300 ex), which dwarfs the cost of losing Chaos as a junk-clearer.
 
-**The Omen of Light conclusion survives.** Re-measured with Chaos correctly barred, excluding the omen
-still moves those crafts by 0 ex at every level of progress — the policy now clears carved junk with a
-plain Annulment (158.7 ex) rather than a Chaos, and that still beats a 3,095 ex certainty.
+**An Annulment is not restricted** — user-confirmed the same day. It takes a carved mod randomly like
+any other, so the Omen of Light makes that removal *certain* rather than *possible*. Had it gone the
+other way, carved junk would be a near-brick and the omen the price of ever desecrating again. Every
+"worth 0 ex" in the section above therefore stands: a 158.7 ex random Annulment beats a 3,095 ex
+certainty on any craft not already worth ~100x the omen, at every level of progress from 0 to 5 of 6
+targets landed.
 
-**Known approximation, with its size measured.** The ruling extends to ORDINARY mods that a bone
-placed — provenance, not pool — and the state abstraction carries no provenance for those
-(`jp`/`js` are counts, `present` is a bitmask). Modelling it means splitting every junk counter and
-tagging every present target, ~100x the lattice on a solve already at 145 s. Instead the size of the
-error is bounded directly: the truth lies between "Chaos fully usable" (today) and "Chaos unusable",
-so that gap is the worst it can cost.
+**Known approximation, size measured rather than asserted.** The ruling extends to ORDINARY mods a bone
+placed — provenance, not pool — and the state abstraction carries none for those (`jp`/`js` are counts,
+`present` is a bitmask). Modelling it means splitting every junk counter and tagging every present
+target, ~100x the lattice on a solve already at 145 s. Instead the error is bracketed: the truth lies
+between "Chaos fully usable" (today) and "Chaos unusable", so that gap is the worst it can cost.
 
 | craft | Chaos usable | Chaos barred | bracket |
 |---|---|---|---|
 | Wands x3, held Rare | 732 ex | 732 ex | +0.0% — Chaos best in 0/485 states |
-| Body_Armours_str x3, held Rare | 193 ex | 203 ex | +5.3% — Chaos best in 5/485 states |
+| Body_Armours_str x3, held Rare | 193 ex | 203 ex | +5.3% — Chaos best in 7/485 states |
 | Wands x4, from white | 26 ex | 26 ex | +0.0% — 0/1232 |
 | Body_Armours_str x5, from white | 14 ex | 14 ex | +0.0% — 0/2816 |
 
-Chaos is nearly unused now that a 0.31 ex bone offers three mods against its 33.39 ex, so the
-approximation is worth at most a few percent, and its direction is known: it can only make a craft
-look cheaper than it is.
+A 0.31 ex bone offering three mods has left the 33.39 ex Chaos nearly unused, so the approximation is
+worth at most a few percent, in a known direction: it can only make a craft look cheaper than it is.
 
-**OPEN — does the same bar apply to an Annulment?** Not asked, and it decides a lot. If a plain
-Annulment cannot hit a carved mod either, then the Omen of Light is the ONLY way to clear carved junk
-and every "worth 0 ex" above inverts. The omen's existence is consistent with both readings: it makes
-the removal certain (current model) or it makes the removal possible at all.
+**Testing note.** The first attempt at pinning this probed the POLICY GRAPH, which carries only the
+action chosen at each state — and since a Chaos is rarely optimal any more, the "carved mod spared"
+branch never appeared and the assertion passed vacuously. The tests probe `createActionSpace` directly
+instead, and assert both branches, each mutation-checked.
 
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +

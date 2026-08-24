@@ -437,6 +437,7 @@ describe('engine facade — budget alternatives (0.5.0)', () => {
     expect(row0.slots.every((s) => s.kind === 'kept' && s.tierDisplay === 1)).toBe(true);
   });
 
+  // Declared timeout: the budgeted alternatives search, ~6s locally and slower on CI.
   it('finds a near-certain near-miss and reports the odds rising down the list', () => {
     const r = alternatives(eng050, 'Wands', 82, hard, AMPLE);
     expect(r.rows.length).toBeGreaterThan(2);
@@ -446,7 +447,7 @@ describe('engine facade — budget alternatives (0.5.0)', () => {
     const best = r.rows[r.rows.length - 1]!;
     expect(best.inBudget).toBeGreaterThan(0.9);
     expect(best.plan.steps.length).toBeGreaterThan(0);
-  });
+  }, 60_000);
 
   it('labels each slot for the UI: kept tiers, a swap’s origin, a dropped mod', () => {
     const r = alternatives(eng050, 'Wands', 82, hard, 30);

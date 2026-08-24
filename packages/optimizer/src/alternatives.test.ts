@@ -216,7 +216,7 @@ describe('alternativesFromWhite — real data (Wands, 0.5.0)', () => {
   const real = loadPatch('data/patches/0.5.0');
   const wands = real.bases.get('Wands')!;
   const rprices = loadPrices('data/patches/0.5.0');
-
+  // Declared timeout: walks the whole relaxation lattice on real data, ~6s locally and slower on CI.
   it('never starves the swap/drop classes behind the tier lattice', () => {
     // REGRESSION. Every tier relaxation is lexicographically closer than any swap, and this 3-mod target
     // has 4×11×8 = 352 tier combos — so exploring globally best-first (visit order == output order) burns
@@ -238,7 +238,7 @@ describe('alternativesFromWhite — real data (Wands, 0.5.0)', () => {
     const best = r.frontier[r.frontier.length - 1]!;
     expect(best.inBudget).toBeGreaterThan(0.9);
     expect(best.closeness.dropped + best.closeness.swapped).toBeGreaterThan(0);
-  });
+  }, 60_000);
 
   it('surfaces the generic→elemental gem-level swap the weights actually justify', () => {
     // "+1 to Level of all Spell Skills" carries 500 total weight; every elemental sibling in the same

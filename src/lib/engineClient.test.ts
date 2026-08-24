@@ -43,6 +43,8 @@ describe('engineClient — the progress messages actually reach the caller', () 
     expect(seen[seen.length - 1]!.fraction).toBe(1);
   });
 
+  // Declared timeout: a budgeted lab solve runs the frontier, the MDP and the near-miss search — ~9s
+  // locally, and CI is slower than the 30s default allows.
   it('forwards progress for a lab solve with a budget', async () => {
     const seen: SolveProgress[] = [];
     const { promise } = solve(
@@ -52,7 +54,7 @@ describe('engineClient — the progress messages actually reach the caller', () 
     await promise;
     expect(seen.length).toBeGreaterThan(0);
     expect(seen[seen.length - 1]!.fraction).toBe(1);
-  });
+  }, 60_000);
 
   it('resolves with the result the worker computed', async () => {
     const { promise } = solve({ kind: 'item', item, targets });

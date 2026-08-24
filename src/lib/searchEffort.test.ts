@@ -83,6 +83,11 @@ describe('the setting reaches the planners', () => {
    * the measured ordering rather than on specific labels, so a data change that shifts where each
    * threshold bites doesn't produce a false failure — but a setting that stopped mattering would.
    */
+
+  // Slow on purpose, and declared so. The Patient preset means 2,000,000 plans; the assertion is about
+  // what that buys, so the craft cannot be shrunk without shrinking the question. Measured at ~19s
+  // locally, and CI runs slower — the default 30s ceiling is not enough headroom for a test that is
+  // legitimately this expensive.
   it('a bigger plan cap really does buy a deeper orb search', () => {
     const quick = depthAt('quick');
     const thorough = depthAt('thorough');
@@ -92,7 +97,7 @@ describe('the setting reaches the planners', () => {
     // The deepest preset must actually reach the exhaustive search, or "Patient" is a lie.
     expect(patient.currencyDepth).toBe('full');
     expect(quick.currencyDepth).not.toBe('full');
-  });
+  }, 120_000);
 
   // Standard must reproduce the old hard-coded behaviour exactly, so shipping this setting changes
   // nobody's existing results — only what they can opt into. Both sides go through the planner

@@ -326,6 +326,12 @@ describe('markovFromItem — progress reporting', () => {
     const r = markovFromItem(real, rp, start, targets, {
       maxIters: 3_000,
       tolerance: 1e-9,
+      // Desecration excluded, which has nothing to do with the throttle and everything to do with the
+      // clock: a Wand bone is 0.20ex against a 1.00ex Exalt, so the price gate opens the flag axis and
+      // multiplies this lattice ~5x. That took the test from ~3s to 14s locally and past CI's 30s
+      // ceiling. What it needs is a solve that reports a lot without settling, and the smaller lattice
+      // still gives exactly that.
+      policy: { excluded: new Set(['desecrate']) },
       onProgress: (p) => { if (p.phase === 'solve') solve.push(p.done); },
     });
 

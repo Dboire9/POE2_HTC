@@ -38,11 +38,13 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
     expect(got.result).toEqual(optimizeItem(eng, item, targets));
   });
 
+  // Declared timeout: the near-miss search runs a full Pareto solve per relaxed target, ~8s locally.
+  // CI is slower than the 30s default allows for a test that is legitimately this expensive.
   it('lab with a budget also answers the near-miss question', () => {
     const got = runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, budget: 600 });
     if (got.kind !== 'lab') throw new Error('wrong kind');
     expect(got.alts).toEqual(alternatives(eng, 'Wands', 82, targets, 600));
-  });
+  }, 60_000);
 
   // The UI passes '' when the budget box is empty and NaN can reach here from a half-typed number;
   // neither should be treated as "budget zero", which would claim nothing at all is affordable.

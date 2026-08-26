@@ -10,6 +10,12 @@ jobs:
     name: Type-check, test, build
     runs-on: ubuntu-latest
 
+    # Declared rather than inherited. With no `permissions:` block a workflow gets the repository
+    # default, which is often read-write — so a job that only ever reads the tree would be handed a
+    # token that can push to it. This one type-checks, tests and builds; reading is all it needs.
+    permissions:
+      contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

@@ -22,6 +22,9 @@ bin/
 *.AppImage
 *.deb
 *.rpm
+# The packaged desktop binary. Four copies of it (~87 MB each) reached git history before this rule
+# existed and are still the bulk of the clone; nothing should add a fifth.
+/release/
 
 # Maven
 target/
@@ -58,11 +61,22 @@ yarn-debug.log*
 yarn-error.log*
 *.log
 
-# Test scripts and debug files
-*.sh
-!start.sh
+# Ad-hoc test and debug scripts.
+#
+# NOT a blanket `*.sh`. That rule was here, and it silently excluded `tools/refresh/run.sh` — which
+# `package.json`'s `update-data` invokes — so the data pipeline was broken on every fresh clone while
+# working perfectly for anyone who already had the file. Nothing failed locally, which is exactly why
+# it survived. Match the throwaways by name instead of by extension.
+test-*.sh
+debug-*.sh
 test-*.html
 debug_*.html
+
+# Phase-0 gate against the hardcoded Java engine, which no longer exists in this repo (`src/main/java`
+# is gone and there is no pom.xml). It cannot run, so it is not shipped. `tools/extractor` IS tracked
+# because its DataExtractor.java and README are, and a tracked tool missing its runner is worse than
+# either alternative.
+/tools/roundtrip/
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*

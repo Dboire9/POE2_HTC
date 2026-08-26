@@ -45,7 +45,13 @@ jobs:
 
       - name: Attach to the release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        # Pinned to a COMMIT, not the `v2` tag. A tag is mutable: whoever controls the action can
+        # repoint it at new code, which then runs inside this job — and this job holds
+        # `contents: write` on your repository. First-party actions/* and github/* by tag is normal
+        # practice; a third-party action with write access is the one that earns a SHA.
+        # 3bb1273 is the v2 tag as of 2026-08-24 (release 2.6.2). To update: re-resolve the tag,
+        # read the diff, then move this deliberately.
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           files: POE2HTC-web-*.zip
           draft: false

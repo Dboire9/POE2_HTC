@@ -8,7 +8,7 @@ import type { EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode } from './e
 
 const node = (key: string, depth: number, extra: Partial<EnginePolicyNode> = {}): EnginePolicyNode => ({
   key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
-  isStart: false, isGoal: false, depth, expectedCost: depth, action: 'Exalt', ...extra,
+  isStart: false, isGoal: false, depth, expectedCost: depth, visitRate: 1, action: 'Exalt', ...extra,
 });
 const edge = (from: string, to: string, prob: number, regress = false): EnginePolicyEdge =>
   ({ from, to, action: 'Exalt', prob, regress });
@@ -99,7 +99,7 @@ describe('mainLine — what each step moves', () => {
     extra: Partial<EnginePolicyNode> = {},
   ): EnginePolicyNode => ({
     key, present, blocked, junkPrefixes: junk, junkSuffixes: 0, rarity: 'rare',
-    isStart: false, isGoal: false, depth, expectedCost: depth, action: 'Exalt', ...extra,
+    isStart: false, isGoal: false, depth, expectedCost: depth, visitRate: 1, action: 'Exalt', ...extra,
   });
 
   it('names the target a step lands', () => {
@@ -168,7 +168,7 @@ describe('mainLine — what each step moves', () => {
 describe('mainLine — routes that can actually finish', () => {
   const nd = (key: string, depth: number, extra: Partial<EnginePolicyNode> = {}): EnginePolicyNode => ({
     key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
-    isStart: false, isGoal: false, depth, expectedCost: depth, action: 'Exalt', ...extra,
+    isStart: false, isGoal: false, depth, expectedCost: depth, visitRate: 1, action: 'Exalt', ...extra,
   });
 
   it('takes the less likely branch when the likely one dead-ends', () => {

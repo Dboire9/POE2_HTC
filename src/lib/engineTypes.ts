@@ -226,6 +226,14 @@ export interface EnginePolicyNode {
   readonly isGoal: boolean;
   /** Steps-to-goal ranking (0 = goal); used to lay the graph out left→right. */
   readonly depth: number;
+  /**
+   * Expected times ONE attempt passes through this state, straight from the solver. Drives what the
+   * graph draws: the policy closure is combinatorial (every subset of landed targets is a state) but
+   * a player walks one path, so most of it is entered with probability ~0. Measured on a 5-target
+   * craft: 12 of 86 states carry 90% of the visits, and the tail sits at 5e-5 — once in 20,000
+   * attempts. Expected VISITS, so a state met twice in one attempt exceeds 1; see the solver's note.
+   */
+  readonly visitRate: number;
   /** Minimum expected cost (exalt-equivalents) to reach the target from here. */
   readonly expectedCost: number;
   /** Human label of the optimal currency here (absent at the goal), e.g. "Annul (Sinistral)". */

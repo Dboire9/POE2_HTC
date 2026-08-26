@@ -249,6 +249,7 @@ export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number):
     // item is at least a Regal and an Annulment away however good its mods are, and a UI that didn't
     // know that would draw the solver's forward steps as steps backwards.
     depth: nd.depth,
+    visitRate: nd.visitRate,
     expectedCost: nd.expectedCost,
     ...(nd.action ? { action: actionLabel(nd.action) } : {}),
   }));

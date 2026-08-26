@@ -78,9 +78,9 @@ const labMarkov = {
   applicable: true, feasible: true, expectedCost: 43.2, converged: true, bound: 'exact', assumedOdds: false,
   nodes: [
     { key: 'w', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
-      isStart: true, isGoal: false, depth: 4, expectedCost: 43.2, action: 'Transmute (Greater)' },
+      isStart: true, isGoal: false, depth: 4, expectedCost: 43.2, visitRate: 1, action: 'Transmute (Greater)' },
     { key: 'm', present: ['Normal Prefix'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'magic' as const,
-      isStart: false, isGoal: false, depth: 3, expectedCost: 40, action: 'Regal' },
+      isStart: false, isGoal: false, depth: 3, expectedCost: 40, visitRate: 1, action: 'Regal' },
     { key: 'g', present: ['Normal Prefix', 'Normal Suffix'], blocked: [], junkPrefixes: 0, junkSuffixes: 0,
       rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
   ],
@@ -334,7 +334,11 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
     // `ceiling` is inside a <strong>; the advice is its sibling text, so assert on the paragraph.
     const warning = (await screen.findByText(/ceiling/i)).closest('p')!;
     expect(warning.textContent).not.toMatch(/raise/i);
-    expect(warning.textContent).toMatch(/as tight as it gets/i);
+    expect(warning.textContent).toMatch(/as tight as the solver gets/i);
+    // It must NAME the top preset, not a word. This said "Maximum", which matched no rung on the
+    // ladder — it was Patient, and is now Exhaustive — so the app sent people looking for a setting
+    // that did not exist. Derived from the list, so renaming or adding a rung cannot re-break it.
+    expect(warning.textContent).toContain(EFFORT_PRESETS[EFFORT_PRESETS.length - 1]!.label);
     // …and the standing hint under the control stops saying it too, or the advice just moves.
     expect(screen.queryByText(/Raise it if a result says/i)).toBeNull();
   });

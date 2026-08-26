@@ -193,3 +193,32 @@ describe('progress reporting', () => {
     expect(runSolve(eng, req, () => {})).toEqual(runSolve(eng, req));
   });
 });
+
+/**
+ * The Search-effort setting has to REACH the solver, and this is the only test that can tell.
+ *
+ * `maxIters` was a hardcoded 100,000 the ladder could not touch, so on a craft that exhausts its
+ * sweeps the clock never bound and "Patient — several minutes" bought exactly nothing. Asserting the
+ * preset table alone cannot catch that: a preset can carry a perfectly good number that no one passes
+ * on. Deleting the one line in `runSolve` that threads it left every other test green.
+ *
+ * So this test is behavioural. One sweep cannot converge anything; a full budget converges this
+ * craft. If the wiring goes, the two runs stop differing and the test fails.
+ */
+describe('Search effort reaches value iteration, not just the preset table', () => {
+  const generous = { maxMillis: 60_000, maxNodes: 200, maxPlans: 100_000 };
+  const run = (maxSweeps: number) =>
+    runSolve(eng, { kind: 'item', item, targets, effort: { ...generous, maxSweeps } });
+
+  it('a one-sweep budget cannot converge', () => {
+    const got = run(1);
+    if (got.kind !== 'item') throw new Error('wrong kind');
+    expect(got.markov?.converged).toBe(false);
+  });
+
+  it('a full budget does', () => {
+    const got = run(100_000);
+    if (got.kind !== 'item') throw new Error('wrong kind');
+    expect(got.markov?.converged).toBe(true);
+  });
+});

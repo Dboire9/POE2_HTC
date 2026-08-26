@@ -59,7 +59,7 @@ route and an honest cost. What that left open:
   numbers it never read. It now calls `optimize` directly and keeps one `runSolve` case for the
   wiring. Full suite back to 23s.)
 
-## 3. Value iteration is still the whole cost of a from-white solve
+## 3. ~~Value iteration is still the whole cost of a from-white solve~~ — LARGELY CLOSED 2026-08-26
 
 Partly addressed 2026-08-24: the stopping rule is scale-aware now (a thousandth of the craft's cheapest
 action, not a flat 1e-9), worth a measured **1.77x** — interleaved, three reps, non-overlapping. Error
@@ -67,6 +67,29 @@ action, not a flat 1e-9), worth a measured **1.77x** — interleaved, three reps
 See docs/validation.md for that and for three things tried and rejected on measurement (goal-first
 sweep ordering, now re-tested against sweep COUNTS and closed for good; dropping the free restart's
 zero-cost self-loop; a seed repair that repaired nothing).
+
+**CLOSED 2026-08-26 by policy iteration, which this section correctly named as the only lever left.**
+PI keeps the argmin VI throws away each sweep and alternates evaluate/improve, ending on a CERTIFICATE
+— the policy stopped changing, so it is optimal — rather than a residual tolerance. Shipped as the
+`Exhaustive` preset. Measured against VI at a 240s budget:
+
+| craft | VI | PI |
+|---|---|---|
+| 2p+1s T1 | ceiling ≤14,588.62 | **exact 10,661.00** — VI was 37% high |
+| 3p+1s T1 | ceiling ≤117,120.20 | **exact 93,204.10** — VI was 26% high |
+| 3p+2s T1 | ceiling ≤466,194.87 | ceiling ≤391,689.89 — 16% tighter |
+
+Where both converge they agree to **1e-6** (the licence for the swap) and PI runs **2-3.5x faster**.
+End to end through `runSolve` on a 3-target T1 from white: Patient 138s, Exhaustive 73s, both 10,658.21.
+
+Two things this did NOT close. The very hardest crafts still do not settle inside a preset's clock, so
+the ceiling copy stays. And PI being faster everywhere makes it arguably the right DEFAULT — it is not,
+only because `standard` is documented to reproduce the pre-setting behaviour exactly, and that promise
+was judged worth more than the speedup. Revisit if that promise ever stops mattering.
+
+Also closed here, from TODO 5: **`maxIters` is on the ladder** as `EffortLimits.maxSweeps`. It was a
+hardcoded 100,000 the setting could not reach, so raising effort on a sweep-bound craft did nothing at
+all — which is what a user reported, in exactly those words.
 
 **What remains, re-measured 2026-08-24 on the path the LAB ACTUALLY RUNS.** Every earlier figure in
 this section was taken with `markovFromItem(..., { restartCost: 0 })` or, worse, with

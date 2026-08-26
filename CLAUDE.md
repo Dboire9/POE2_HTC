@@ -187,6 +187,24 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   `T(V0) <= V0` — phase B descends, every iterate stays an upper bound, and the greedy policy is sensible
   from the first sweep. If phase A does not converge there is no valid seed and the solve returns
   `feasible: false` with a reason; it must never quote a number it cannot bound.
+- **The top effort preset runs POLICY iteration, and it ends on a proof rather than a tolerance.**
+  Value iteration stops when the residual falls under `tolerance`; on a long-odds craft it never does,
+  so the app prints a ceiling. Policy iteration keeps the argmin VI computes and discards every sweep,
+  then alternates evaluate (sweep V with the policy FIXED — no inner max) and improve (recompute the
+  argmin). **When the policy stops changing it is optimal**, exactly, and `bound` becomes `'exact'`.
+  Measured against VI at a 240s budget: `2p+1s T1` exact at 10,661 where VI could only bound ≤14,588
+  (37% high); `3p+1s T1` exact at 93,204 against ≤117,120 (26% high); on the craft neither settles,
+  PI's ceiling is 16% tighter. Where both converge they agree to **1e-6**, which is the licence for
+  the swap — and PI is 2-3.5x faster there too, so it is arguably the better default everywhere. It is
+  NOT the default only because `standard` is documented to reproduce the pre-setting behaviour exactly.
+  **Phase B only**: PI on a stochastic shortest path is safe only from a PROPER policy, and phase B is
+  seeded from phase A's converged value, which is one. Phase A 0-initialises and keeps plain VI.
+- **`maxIters` is on the effort ladder as `maxSweeps`, and must reach BOTH solve paths.** It was a
+  hardcoded 100,000 the ladder could not touch, which made the top preset a lie — on a craft that
+  exhausts its sweeps the clock never binds, so "several minutes" bought nothing (measured: a 6-target
+  T1 craft ran 1,035s and stopped on sweeps). `withSweepLimit` in `solve.ts` is a helper, not a spread
+  at each call site, because the first version wired only the lab path and every test stayed green;
+  only the behavioural test in `solve.test.ts` (one sweep must NOT converge) catches that.
 - **Read `bound`, never infer the inequality from `converged`.** A from-item solve truncates UPWARD
   (render "≥ x"); a from-white solve truncates DOWNWARD (render "≤ x"). `formatBoundedCost` in
   `src/lib/currency.ts` is the only place that turns the field into a sign. Guessing the direction

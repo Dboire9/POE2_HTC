@@ -42,6 +42,10 @@ interface ExcludingRequest {
     readonly maxMillis: number;
     readonly maxNodes: number;
     readonly maxPlans: number;
+    /** Value-iteration sweeps. Absent ⇒ the solver's own default, which is what tests rely on. */
+    readonly maxSweeps?: number;
+    /** Phase-B solver. 'policy' ends on a proof of optimality rather than a residual tolerance. */
+    readonly solver?: 'value' | 'policy';
   };
 }
 
@@ -201,6 +205,20 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const eff = req.effort;
   const withPlanLimit = <T extends object>(o: T): T => (eff ? { ...o, maxPlans: eff.maxPlans } : o);
   const withNodeLimit = <T extends object>(o: T): T => (eff ? { ...o, maxNodes: eff.maxNodes } : o);
+  /**
+   * The MDP's sweep cap — and it must reach BOTH the lab and item paths, which is why it is a helper
+   * rather than a spread at each call site.
+   *
+   * On a craft that exhausts its sweeps the wall clock never binds, so without this the whole effort
+   * ladder is inert for exactly the crafts the reader raised it for: measured, a six-target T1 craft
+   * ran 1,035s and stopped on the sweep cap, not the clock. Wiring only one of the two paths is a
+   * live failure mode — the first version of this did that, and only a behavioural test caught it.
+   */
+  const withSweepLimit = <T extends object>(o: T): T => ({
+    ...o,
+    ...(eff?.maxSweeps === undefined ? {} : { maxIters: eff.maxSweeps }),
+    ...(eff?.solver === undefined ? {} : { solver: eff.solver }),
+  });
   const started = Date.now();
   /**
    * What is LEFT of the wall clock, with a floor.
@@ -239,7 +257,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     const mdpReport = onProgress
       ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(ITEM_MDP, toFraction(p) * 1000, 1000) }) }
       : {};
-    const mdpOpts = withPolicy(mdpReport);
+    const mdpOpts = withSweepLimit(withPolicy(mdpReport));
     const remaining = clockLeft();
     const markov = markovOrReason(() => optimizeItemMarkov(eng, req.item, req.targets,
       remaining === undefined ? mdpOpts : { ...mdpOpts, maxMillis: remaining }));
@@ -275,13 +293,13 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // thing that made a 24-second solve feel like ten minutes in the first place.
   const mdpSpan = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
   const mdpClock = clockLeft();
-  const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, withPolicy({
+  const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, withSweepLimit(withPolicy({
     ...(fromWhite ? { restartCost: req.baseCost ?? WHITE_BASE_COST } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
       ? { onProgress: (pr: MarkovProgress): void => onProgress({ phase: pr.phase, fraction: within(mdpSpan, toFraction(pr) * 1000, 1000) }) }
       : {}),
-  })));
+  }))));
 
   if (!hasBudget) {
     // The MODEL finishes the bar now, not planning — planning is the first ~30% of it. Reporting

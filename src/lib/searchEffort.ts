@@ -32,6 +32,38 @@ export interface EffortLimits {
    * which is exactly when the frontier badge says so.
    */
   readonly maxPlans: number;
+  /**
+   * Value-iteration sweeps the MDP may run.
+   *
+   * This was a hardcoded 100,000 and NOT on the ladder, which made the top preset a lie: on a craft
+   * that exhausts its sweeps the clock never binds, so "Patient — several minutes" offered time the
+   * solver had no way to spend, and the panel then told the reader they were already at maximum. The
+   * effect was measured: a six-target T1 craft ran 1,035s and stopped on the sweep cap, not the clock.
+   *
+   * Raising it is not free and not a cure — the same craft needs ~1.1 MILLION more sweeps (~2.8
+   * hours) to actually converge, and that is a floor because the decay rate itself degrades. So the
+   * ladder buys real headroom for the crafts near the edge, and `sweepBound` below is what stops the
+   * UI promising the ones beyond it something a longer wait cannot deliver.
+   */
+  readonly maxSweeps: number;
+  /**
+   * Which solver runs the MDP's second phase.
+   *
+   * `'value'` is Gauss-Seidel value iteration — the shipped path, and it stops on a residual
+   * TOLERANCE, so on a long-odds craft it runs out and the app prints a ceiling. `'policy'` is policy
+   * iteration, which ends on a CERTIFICATE instead: when the policy stops changing, no action
+   * anywhere improves on it, so it is optimal and the cost is exact.
+   *
+   * Measured on crafts VI could not finish in 240s — 2p+1s T1 came back exact at 10,661 against VI's
+   * ceiling of 14,588 (37% high); 3p+1s T1 exact at 93,204 against 117,120 (26% high). Where both
+   * converge they agree to 1e-6, which is what licenses the swap at all.
+   *
+   * Only the top preset uses it, deliberately. PI measured 2-3.5x FASTER than VI on ordinary crafts
+   * too, so it is arguably the better default everywhere — but `standard` is documented to reproduce
+   * exactly what the app did before this setting existed, and that promise is worth more than the
+   * speedup. See TODO 3.
+   */
+  readonly solver?: 'value' | 'policy';
 }
 
 export interface EffortPreset {
@@ -62,25 +94,34 @@ export const EFFORT_PRESETS: readonly EffortPreset[] = [
     id: 'quick',
     label: 'Quick',
     hint: 'A few seconds. More likely to report that it stopped early.',
-    limits: { maxMillis: 2_000, maxNodes: 100, maxPlans: 25_000 },
+    limits: { maxMillis: 2_000, maxNodes: 100, maxPlans: 25_000, maxSweeps: 25_000 },
   },
   {
     id: 'standard',
     label: 'Standard',
     hint: 'The default — around 15s on a big budgeted craft.',
-    limits: { maxMillis: 15_000, maxNodes: 200, maxPlans: 100_000 },
+    limits: { maxMillis: 15_000, maxNodes: 200, maxPlans: 100_000, maxSweeps: 100_000 },
   },
   {
     id: 'thorough',
     label: 'Thorough',
     hint: 'Roughly a minute on a big budgeted craft. Finds more alternatives.',
-    limits: { maxMillis: 60_000, maxNodes: 600, maxPlans: 400_000 },
+    limits: { maxMillis: 60_000, maxNodes: 600, maxPlans: 400_000, maxSweeps: 400_000 },
   },
   {
     id: 'patient',
     label: 'Patient',
     hint: 'Several minutes. Worth it when a badge says the search stopped early.',
-    limits: { maxMillis: 300_000, maxNodes: 2_000, maxPlans: 2_000_000 },
+    limits: { maxMillis: 300_000, maxNodes: 2_000, maxPlans: 2_000_000, maxSweeps: 2_000_000 },
+  },
+  {
+    id: 'exhaustive',
+    label: 'Exhaustive',
+    hint: 'Runs until the answer is provably the best one, not until a timer. Minutes on a hard craft.',
+    limits: {
+      maxMillis: 900_000, maxNodes: 4_000, maxPlans: 2_000_000, maxSweeps: 20_000_000,
+      solver: 'policy',
+    },
   },
 ];
 

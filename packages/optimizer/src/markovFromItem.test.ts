@@ -524,3 +524,77 @@ describe('markovFromItem — from a white base', () => {
     expect(mc).toBeLessThan(r.expectedCost * 1.03);
   });
 });
+
+/**
+ * POLICY ITERATION — the phase-B solver, and the evidence it is allowed to be one.
+ *
+ * Value iteration grinds a sweep at a time and stops on a residual TOLERANCE; on a long-odds craft it
+ * simply runs out, and the app has to print a ceiling. Measured before this existed: a six-target T1
+ * craft exhausted 100,000 sweeps at 1,035s, and closing the gap needed ~1.1 MILLION more (~2.8 hours),
+ * a figure that is a floor because the decay rate itself degrades.
+ *
+ * Policy iteration keeps the argmin VI throws away each sweep, and ends on a CERTIFICATE — the policy
+ * stopped changing, so no action anywhere improves on it, so it is optimal. Measured on crafts VI
+ * could not finish in 240s: 2p+1s T1 came back exact at 10,661 against VI's ceiling of 14,588 (37%
+ * high), and 3p+1s T1 exact at 93,204 against 117,120 (26% high).
+ *
+ * Two claims are load-bearing and both are tested here. That PI agrees with VI wherever VI actually
+ * converges — otherwise it is merely a confident wrong answer. And that its POLICY survives the same
+ * Monte-Carlo cross-check every other solver result gets: the certificate proves the policy optimal
+ * for the model, not that the graph published for it describes the same craft.
+ */
+describe('markovFromItem — policy iteration', () => {
+  const bothWays = (t: ReturnType<typeof rare>, targets: Parameters<typeof markovFromItem>[3]) => ({
+    vi: markovFromItem(data, prices, t, targets, { ...EXACT, restartCost: 0 }),
+    pi: markovFromItem(data, prices, t, targets, { ...EXACT, restartCost: 0, solver: 'policy' }),
+  });
+
+  it('agrees with value iteration wherever value iteration converges', () => {
+    const { vi, pi } = bothWays(rare(['T1', 'J1']), [{ modId: 'T1' }]);
+    expect(vi.converged).toBe(true);
+    expect(pi.converged).toBe(true);
+    expect(pi.expectedCost).toBeCloseTo(vi.expectedCost, 6);
+  });
+
+  it('reports an EXACT bound, because it ends on a proof rather than a tolerance', () => {
+    const { pi } = bothWays(rare(['T1', 'J1']), [{ modId: 'T1' }]);
+    expect(pi.bound).toBe('exact');
+  });
+
+  it('produces a policy whose Monte-Carlo mean matches the cost it claims', () => {
+    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }],
+      { ...EXACT, solver: 'policy' });
+    const mc = simulatePolicyMean(r, (a) => actionCostOf(prices, a), 100_000);
+    expect(mc).toBeCloseTo(r.expectedCost, 1);
+  });
+
+  /**
+   * The tests above use the synthetic two-mod craft, which PI settles in a SINGLE round — so they
+   * cannot see the certificate logic at all. Both a premature `return true` and an improvement step
+   * that never reports a change survived them. This craft is a from-WHITE solve on real data, where
+   * phase B does the work that motivated policy iteration in the first place (measured at ~20x phase
+   * A), and it takes several rounds. Stopping early leaves V under-evaluated and the cost wrong.
+   */
+  it('needs SEVERAL rounds, and still lands on value iteration\'s answer', () => {
+    const real = loadPatch('data/patches/0.5.0');
+    const rp = loadPrices('data/patches/0.5.0');
+    const w = real.bases.get('Wands')!;
+    const white: ItemState = { base: w, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+    const targets = [
+      { modId: 'Wands/IncreasedMana' }, { modId: 'Wands/WeaponSpellDamage' }, { modId: 'Wands/Intelligence' },
+    ];
+    const vi = markovFromItem(real, rp, white, targets, { restartCost: 0 });
+    const pi = markovFromItem(real, rp, white, targets, { restartCost: 0, solver: 'policy' });
+    expect(vi.converged).toBe(true); // else there is no truth to compare against
+    expect(pi.converged).toBe(true);
+    // Tight: these are the same fixed point reached two ways, not two estimates of it.
+    expect(pi.expectedCost).toBeGreaterThan(vi.expectedCost * 0.999);
+    expect(pi.expectedCost).toBeLessThan(vi.expectedCost * 1.001);
+  });
+
+  it('still reaches the goal, so the graph it hands back is drawable', () => {
+    const { pi } = bothWays(rare(['T1', 'J1']), [{ modId: 'T1' }]);
+    expect(pi.nodes.some((n) => n.isGoal)).toBe(true);
+    expect(pi.nodes.some((n) => n.isStart)).toBe(true);
+  });
+});

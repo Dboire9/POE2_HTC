@@ -67,6 +67,25 @@ export interface PolicyNode {
    *  while behaving completely differently — one of them cannot take an Exalt at all. */
   readonly rarity: McRarity;
   /**
+   * Expected number of times ONE attempt passes through this state — an attempt being the run from
+   * the starting item until it either reaches the goal or is scrapped and restarted.
+   *
+   * This exists because the policy graph is COMBINATORIAL: every subset of "which targets have landed"
+   * is a state, so a 5-target craft draws 217 boxes across 12 columns and 42 rows — measured, and
+   * unreadable at any zoom. But a player walks ONE path, and most of that closure is entered with
+   * probability ~0. This is the number that separates the two, so the UI can draw what will actually
+   * be met and say how much it is holding back.
+   *
+   * Expected VISITS, not a probability: a craft can pass through the same state twice in one attempt
+   * (roll a mod, brick it, roll it again), so this exceeds 1 for states in a tight loop. That makes it
+   * the honest ranking — a state you meet twice per attempt matters more than one you meet once — and
+   * it is why the field is not called a probability.
+   *
+   * Restart edges are cut rather than followed: a restart ENDS the attempt by definition, and
+   * following it back to the start would make every state's count diverge.
+   */
+  readonly visitRate: number;
+  /**
    * Moves still to make, by the same estimate `regress` is judged against.
    *
    * Carried rather than recomputed by the UI: engineMap had its own copy of this expression, and the
@@ -155,6 +174,11 @@ export interface MarkovOptions {
   readonly tolerance?: number;
   /** Safety cap on iterations. Default 100000. */
   readonly maxIters?: number;
+  /** Cap on policy-improvement rounds when `solver: 'policy'`. A runaway guard, not a budget. */
+  readonly maxRounds?: number;
+  /** Which solver runs phase B. 'value' is the shipped Gauss-Seidel VI; 'policy' is policy iteration,
+   *  which ends on a proof that the policy is optimal rather than on a residual tolerance. */
+  readonly solver?: 'value' | 'policy';
   /**
    * Wall-clock ceiling in milliseconds, from the player's "how hard should I look?" setting.
    *
@@ -502,6 +526,8 @@ export function markovFromItem(
   const scaleAware = Number.isFinite(cheapestAction) && cheapestAction > 0;
   const tol = opts.tolerance ?? (scaleAware ? cheapestAction / 1000 : 1e-9);
   const maxIters = opts.maxIters ?? 100_000;
+  /** Policy-improvement rounds. PI converges in a handful; this is a runaway guard, not a budget. */
+  const maxRounds = opts.maxRounds ?? 200;
   const V = new Float64Array(N); // 0-initialised, as above
   // Phase A's dead ends, a superset of phase B's. A state only a restart can rescue starts at Infinity,
   // which is still a valid seed for phase B — the seed only has to be an UPPER bound.
@@ -629,6 +655,66 @@ export function markovFromItem(
     return false;
   };
 
+  /**
+   * POLICY ITERATION for phase B — the phase that costs 20x phase A and the one that fails to converge.
+   *
+   * Value iteration computes the argmin over actions on every sweep and then THROWS IT AWAY, keeping
+   * only the value. Policy iteration keeps it, and alternates two cheaper things:
+   *
+   *   improve   — recompute the greedy action per state. If nothing changed, the policy is OPTIMAL,
+   *               and that is a certificate rather than a tolerance: the loop ends knowing, not hoping.
+   *   evaluate  — sweep V with the policy FIXED. No inner max, so a sweep is a fraction of a VI sweep,
+   *               and it converges far faster because the policy is not churning underneath it.
+   *
+   * Phase B ONLY, and deliberately. PI on a stochastic shortest path is only safe from a PROPER policy
+   * (one that reaches the goal almost surely) — an improper one has infinite value and evaluation
+   * diverges. Phase B is seeded from phase A's converged value, which IS a proper policy's value, so
+   * V0 >= V*, the greedy policy stays proper, and every iterate descends. Phase A itself 0-initialises
+   * and climbs, so it has no such guarantee and keeps plain VI, which it converges on anyway.
+   */
+  const iteratePolicy = (pLo: number, pHi: number): boolean => {
+    const pol = new Int32Array(N).fill(-1);
+    let evaluated = 0;
+
+    for (let round = 0; round < maxRounds; round++) {
+      // ── improve ──────────────────────────────────────────────────────────────
+      let changed = 0;
+      for (let i = 0; i < N; i++) {
+        if (isGoalIdx[i] === 1 || canReach[i] !== 1) continue;
+        const acts = compiled[i]!;
+        let best = Infinity, bestK = -1;
+        for (let k = 0; k < acts.length; k++) {
+          const v = valueOf(acts[k]!);
+          if (v < best) { best = v; bestK = k; }
+        }
+        if (bestK !== pol[i]) { pol[i] = bestK; changed++; }
+      }
+      // The certificate. Not "the numbers stopped moving" — the POLICY stopped moving, which for a
+      // finite MDP means no action anywhere improves on it, i.e. this is the optimal policy exactly.
+      if (round > 0 && changed === 0) return true;
+
+      // ── evaluate ─────────────────────────────────────────────────────────────
+      for (let k = 0; k < maxIters; k++) {
+        if (deadline !== Infinity && evaluated % DEADLINE_CHECK === 0 && Date.now() > deadline) return false;
+        evaluated++;
+        let delta = 0;
+        for (let i = 0; i < N; i++) {
+          if (isGoalIdx[i] === 1 || canReach[i] !== 1) continue;
+          const kk = pol[i]!;
+          if (kk < 0) continue;
+          const next = valueOf(compiled[i]![kk]!);
+          if (!Number.isFinite(next)) continue;
+          const d = Math.abs(next - V[i]!);
+          V[i] = next;
+          if (d > delta) delta = d;
+        }
+        if (delta <= tol) break;
+      }
+      if (report) emitSolve(Math.round(pLo + Math.min(0.98, round / 12) * (pHi - pLo)));
+    }
+    return false;
+  };
+
   const seedConverged = iterate(false, 0, canRestart ? 500 : 1000);
   let converged = seedConverged;
   let bound: MarkovResult['bound'] = seedConverged ? 'exact' : 'lower';
@@ -646,7 +732,7 @@ export function markovFromItem(
         : 'the solver ran out of time before it could put a number on this craft — raise Search effort and '
           + 'try again (a six-mod target at T1 needs the longest setting)');
     }
-    converged = iterate(true, 500, 1000);
+    converged = opts.solver === 'policy' ? iteratePolicy(500, 1000) : iterate(true, 500, 1000);
     bound = converged ? 'exact' : 'upper';
   }
   emitSolve(1000);
@@ -749,7 +835,11 @@ export function markovFromItem(
    */
   const canonical = (k: StateKey): StateKey => (goalKeys.has(k) ? goalKey : k);
 
-  const nodes: PolicyNode[] = [];
+  // Two phases on purpose: the BFS below discovers the states and their edges, and `visitRate` is a
+  // property of the finished GRAPH — it cannot be known for a node until every path into it exists.
+  // Typing the accumulator without the field is what makes that ordering explicit rather than a
+  // half-built object the compiler waves through.
+  const nodes: Omit<PolicyNode, 'visitRate'>[] = [];
   const edges: PolicyEdge[] = [];
   const seen = new Set<StateKey>();
   const queue: StateKey[] = [startKey];
@@ -779,5 +869,38 @@ export function markovFromItem(
     }
   }
 
-  return { expectedCost: startCost, feasible: true, converged, bound, nodes, edges, policy };
+  /**
+   * Solve `e(s) = [s is start] + Σ_t e(t)·P(t→s)` over the non-restart edges — the expected visits
+   * documented on `PolicyNode.visitRate`.
+   *
+   * Power iteration rather than a linear solve: the graph is small (hundreds of nodes), the chain is
+   * transient so the series converges geometrically, and the alternative is a dense N×N inverse for a
+   * number that only decides what gets drawn. The cap is a runaway guard; it settles in tens.
+   */
+  const incoming = new Map<string, { from: string; p: number }[]>();
+  for (const e of edges) {
+    // A restart ends the attempt. Following it would feed probability back into the start and every
+    // count would diverge — the loop is the whole reason the cut is needed, not a special case.
+    if (e.action.currency === 'restart' || e.to === startKey) continue;
+    const list_ = incoming.get(e.to);
+    if (list_) list_.push({ from: e.from, p: e.prob });
+    else incoming.set(e.to, [{ from: e.from, p: e.prob }]);
+  }
+  let visits = new Map<string, number>(nodes.map((nd) => [nd.key, nd.key === startKey ? 1 : 0]));
+  for (let round = 0; round < 1000; round++) {
+    const next = new Map<string, number>();
+    let delta = 0;
+    for (const nd of nodes) {
+      let acc = nd.key === startKey ? 1 : 0;
+      for (const { from, p } of incoming.get(nd.key) ?? []) acc += (visits.get(from) ?? 0) * p;
+      next.set(nd.key, acc);
+      const d = Math.abs(acc - (visits.get(nd.key) ?? 0));
+      if (d > delta) delta = d;
+    }
+    visits = next;
+    if (delta <= 1e-12) break;
+  }
+  const withVisits = nodes.map((nd) => ({ ...nd, visitRate: visits.get(nd.key) ?? 0 }));
+
+  return { expectedCost: startCost, feasible: true, converged, bound, nodes: withVisits, edges, policy };
 }

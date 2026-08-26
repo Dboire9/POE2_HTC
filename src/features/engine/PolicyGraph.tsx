@@ -2,6 +2,7 @@ import React from 'react';
 import type { EngineMarkovResult, EnginePolicyNode } from '../../lib/engine';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
 import { mainLine, type StepChanges } from '../../lib/policyPath';
+import { cn } from '../../lib/utils';
 
 // The from-item MDP's optimal policy, shown two ways.
 //
@@ -106,6 +107,68 @@ export function groupNodes(
     else byGroup.set(gk, { node: nd, count: 1 });
   }
   return { groups: [...byGroup.values()], groupOfKey };
+}
+
+/**
+ * Coverage levels the reader can step through, as a share of expected visits. Not a toggle: the
+ * question "is this everything?" deserves a scale, and the widest rung really is everything.
+ */
+export const COVERAGE_STEPS = [0.9, 0.99, 1] as const;
+export type Coverage = (typeof COVERAGE_STEPS)[number];
+
+export interface Pruned {
+  readonly result: EngineMarkovResult;
+  /** States drawn, and states the solver actually produced — the UI must state both. */
+  readonly shown: number;
+  readonly total: number;
+  /** Share of expected visits the drawn states carry, for the caption. */
+  readonly covered: number;
+}
+
+/**
+ * Draw the states a player will actually meet, not every state the solver can reach.
+ *
+ * The policy closure is COMBINATORIAL — every subset of "which targets have landed" is a state — so
+ * it grows as 2^n and the busiest column is the widest binomial. Measured on a 5-target craft before
+ * this existed: 217 states, 12 columns, 42 rows in one column, a 2732x3202px canvas. No layout beats
+ * that; smaller boxes and zoom just make the same picture illegible in a different way. The only
+ * thing that works is drawing less.
+ *
+ * `visitRate` is what makes "less" principled rather than arbitrary: on that same craft 12 states
+ * carry 90% of the visits and the tail sits at 5e-5 — states you enter once in twenty thousand
+ * attempts, drawn at the same size and weight as the ones you enter every time.
+ *
+ * Three things are ALWAYS kept regardless of their rate:
+ *  - the start, or the picture has no "you are here";
+ *  - the goal, since `PolicyGraph` separately refuses to draw a graph that cannot reach it, and a
+ *    pruned view must not manufacture that failure;
+ *  - everything the reader has selected, so clicking a rare state does not erase it.
+ */
+export function pruneToCoverage(
+  result: EngineMarkovResult, coverage: Coverage, keepKeys: ReadonlySet<string> = new Set(),
+): Pruned {
+  const total = result.nodes.length;
+  const mass = result.nodes.reduce((acc, n) => acc + n.visitRate, 0);
+  if (coverage >= 1 || mass <= 0) return { result, shown: total, total, covered: 1 };
+
+  const keep = new Set<string>(keepKeys);
+  for (const n of result.nodes) if (n.isStart || n.isGoal) keep.add(n.key);
+
+  let acc = 0;
+  for (const n of [...result.nodes].sort((a, b) => b.visitRate - a.visitRate)) {
+    if (acc >= coverage * mass) break;
+    keep.add(n.key);
+    acc += n.visitRate;
+  }
+  // Covered is recomputed over what is KEPT, not accumulated above: the always-keep states contribute
+  // their own mass too, so the loop's running total understates what the reader is actually seeing.
+  const nodes = result.nodes.filter((n) => keep.has(n.key));
+  const covered = nodes.reduce((a, n) => a + n.visitRate, 0) / mass;
+  return {
+    // An edge to a state that is no longer drawn must go too, or the arrow points at nothing.
+    result: { ...result, nodes, edges: result.edges.filter((e) => keep.has(e.from) && keep.has(e.to)) },
+    shown: nodes.length, total, covered,
+  };
 }
 
 /** Progress adjacency between GROUPS: an edge is kept only when it strictly reduces distance-to-goal. */
@@ -261,9 +324,23 @@ const StateDetail: React.FC<{
   );
 };
 
-const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => string }> = ({ result, fmtCost }) => {
+const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => string }> = ({ result: full, fmtCost }) => {
   // Which box the player clicked, if any — the graph then dims everything not on a route through it.
   const [selected, setSelected] = React.useState<string | null>(null);
+  // How much of the graph to draw, as a share of expected visits. Prune FIRST: grouping and layout are
+  // both sized from what survives, so widening re-lays-out rather than re-scaling a fixed canvas.
+  const [coverage, setCoverage] = React.useState<Coverage>(COVERAGE_STEPS[0]);
+  // Pin the selected group's states in even if their own rate falls below the cut — narrowing the view
+  // must not delete the thing the reader just clicked out from under them. Grouped against the FULL
+  // result, because the group being selected is defined over every state, not the surviving ones.
+  const pinned = React.useMemo(() => {
+    const out = new Set<string>();
+    if (selected === null) return out;
+    for (const [key, gk] of groupNodes(full, fmtCost).groupOfKey) if (gk === selected) out.add(key);
+    return out;
+  }, [full, fmtCost, selected]);
+  const pruned = pruneToCoverage(full, coverage, pinned);
+  const result = pruned.result;
   // Collapse first, lay out second — the columns are sized from what gets drawn, not from the state count.
   const { groups, groupOfKey } = groupNodes(result, fmtCost);
 
@@ -367,6 +444,15 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
             : `Highlighting ${route.size} of ${placed.length} states — everything that reaches this one and everything it reaches.`}
         </p>
         {route === null && <p>Click any state to highlight the route through it and dim the rest.</p>}
+        {/* Hiding must be SAID, not done quietly — the app's standing rule is that it announces where
+            it stopped. The count names both numbers and the share of visits kept, so "12 of 86" reads
+            as a deliberate cut rather than a graph that lost most of itself. */}
+        {pruned.shown < pruned.total && (
+          <p>
+            Showing <strong className="font-medium text-foreground">{pruned.shown}</strong> of {pruned.total} states
+            {' '}— {(pruned.covered * 100).toFixed(pruned.covered > 0.999 ? 2 : 1)}% of what a craft actually runs into.
+          </p>
+        )}
         {route !== null && (
           <button
             type="button"
@@ -377,6 +463,28 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
           </button>
         )}
       </div>
+
+      {pruned.total > pruned.shown || coverage !== COVERAGE_STEPS[0] ? (
+        <div className="flex flex-wrap items-center gap-2 px-1 text-[11px]">
+          <span className="text-muted-foreground">Detail</span>
+          {COVERAGE_STEPS.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={coverage === c}
+              onClick={() => setCoverage(c)}
+              className={cn(
+                'rounded border px-2 py-0.5 transition-colors',
+                coverage === c
+                  ? 'border-primary/60 bg-primary/20 text-foreground'
+                  : 'border-border text-muted-foreground hover:text-foreground',
+              )}
+            >
+              {c >= 1 ? `Every state (${pruned.total})` : `${c * 100}% of outcomes`}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {selectedGroup && (
         <StateDetail

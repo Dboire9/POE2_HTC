@@ -22,7 +22,12 @@ describe('the effort presets', () => {
       const hi = EFFORT_PRESETS[i]!.limits;
       expect(hi.maxMillis).toBeGreaterThan(lo.maxMillis);
       expect(hi.maxNodes).toBeGreaterThan(lo.maxNodes);
-      expect(hi.maxPlans).toBeGreaterThan(lo.maxPlans);
+      expect(hi.maxSweeps).toBeGreaterThan(lo.maxSweeps);
+      // `maxPlans` SATURATES and so is the one dial that may repeat: a 6-target craft needs ~34,560
+      // plans for the full orb search, so every rung from Standard up already covers it and a higher
+      // number buys literally nothing. Demanding a strict rise here would only be satisfiable by
+      // padding the figure to please the test, which is worse than the test being precise about it.
+      expect(hi.maxPlans).toBeGreaterThanOrEqual(lo.maxPlans);
     }
   });
 
@@ -152,5 +157,55 @@ describe('the MDP time budget', () => {
     if (res.kind !== 'item') throw new Error('expected an item solve');
     // No clock involved ⇒ it ran to convergence, so the number is an answer rather than a floor.
     expect(res.markov.converged).toBe(true);
+  });
+});
+
+/**
+ * `maxIters` was a hardcoded 100,000 that the effort ladder could not reach, which made the top
+ * preset a lie: on a craft that exhausts its sweeps the CLOCK never binds, so "Patient — several
+ * minutes" offered time the solver had no way to spend. Measured: a six-target T1 craft ran 1,035s
+ * and stopped on the sweep cap. The ladder has to move this or raising it changes nothing.
+ */
+describe('the sweep cap is on the ladder, not hardcoded', () => {
+  it('gives every preset a sweep cap', () => {
+    for (const p of EFFORT_PRESETS) expect(p.limits.maxSweeps).toBeGreaterThan(0);
+  });
+
+  it('rises with effort, so raising the setting actually buys sweeps', () => {
+    const sweeps = EFFORT_PRESETS.map((p) => p.limits.maxSweeps);
+    for (let i = 1; i < sweeps.length; i++) expect(sweeps[i]!).toBeGreaterThan(sweeps[i - 1]!);
+  });
+
+  // Standard is documented as reproducing exactly what the app did before the setting existed, and
+  // 100_000 is the constant it did it with. If that drifts, upgrading silently changes old results.
+  it('keeps Standard on the solver default it is documented to reproduce', () => {
+    expect(limitsFor('standard').maxSweeps).toBe(100_000);
+  });
+});
+
+/**
+ * The top preset exists because the ladder used to run out before the solver could answer. Value
+ * iteration stops on a residual tolerance, so a long-odds craft simply ran out of sweeps and the app
+ * printed a ceiling — and no amount of extra clock changed that, because the clock was never what
+ * bound. Exhaustive switches the solver instead of raising a number: policy iteration ends when the
+ * policy stops changing, which is a proof rather than a tolerance.
+ */
+describe('Exhaustive — the rung that ends on a proof', () => {
+  const top = EFFORT_PRESETS[EFFORT_PRESETS.length - 1]!;
+
+  it('is the top of the ladder, so isTopEffort points at it', () => {
+    expect(isTopEffort(top.id)).toBe(true);
+    expect(isTopEffort('patient')).toBe(false); // it used to be, and the check is derived not named
+  });
+
+  it('is the only rung that switches solver', () => {
+    expect(top.limits.solver).toBe('policy');
+    for (const p of EFFORT_PRESETS.slice(0, -1)) expect(p.limits.solver).toBeUndefined();
+  });
+
+  // Policy iteration still runs sweeps to evaluate each policy, so a stingy cap would stop it short
+  // of the proof it exists to deliver and hand back a ceiling anyway — the exact failure being fixed.
+  it('carries the headroom its own evaluation needs', () => {
+    expect(top.limits.maxSweeps).toBeGreaterThan(limitsFor('patient').maxSweeps);
   });
 });

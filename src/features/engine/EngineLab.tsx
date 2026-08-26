@@ -13,7 +13,7 @@ import {
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
-import { isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
+import { EFFORT_PRESETS, isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import {
   decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode, useOnChange,
@@ -174,11 +174,15 @@ const EngineLab: React.FC = () => {
   // advice at every preset but the top one — where it points at a control with nothing above it. The
   // honest thing there is to say the solver has given everything it has.
   const topped = isTopEffort(effort);
+  // Name the actual top preset rather than hardcoding a word. This said "Maximum", which matched no
+  // preset on the ladder at all — it was Patient, and is now Exhaustive — so the app was telling
+  // people to look for a setting that did not exist.
+  const topLabel = EFFORT_PRESETS[EFFORT_PRESETS.length - 1]!.label;
   const tightenAdvice = topped
-    ? <>the solver is already at <strong>Maximum</strong>, so this is as tight as it gets</>
-    : <>raise <strong>Search effort</strong></>;
+    ? <>at <strong>{topLabel}</strong> this is as tight as the solver gets</>
+    : <>raise <strong>Search effort</strong> to tighten the price</>;
   const finishAdvice = topped
-    ? <>The solver is already at <strong>Maximum</strong> — this craft is beyond what it can settle.</>
+    ? <>This is <strong>{topLabel}</strong> already — the craft is beyond what the solver can settle.</>
     : <>Raise <strong>Search effort</strong> to let it finish.</>;
   const cancelRef = useRef<(() => void) | null>(null);
   const runIdRef = useRef(0);
@@ -756,7 +760,7 @@ const EngineLab: React.FC = () => {
             <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
               ⚠ The solver stopped before this number settled, so it is a <strong>ceiling</strong> — the
               real cost is at most this, and usually well under it. The route below is already the right
-              shape; {tightenAdvice} to tighten the price.
+              shape — {tightenAdvice}.
             </p>
           )}
           {markov.bound === 'lower' && (

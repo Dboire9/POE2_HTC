@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import PolicyGraph, { groupNodes, groupKeyOf, progressEdges, routeThrough } from './PolicyGraph';
+import PolicyGraph, { groupNodes, groupKeyOf, progressEdges, routeThrough, pruneToCoverage, COVERAGE_STEPS } from './PolicyGraph';
 import { optimizeItemMarkov } from '../../lib/engine';
 import { loadPatch } from '../../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../../packages/optimizer/src/loadPrices.ts';
-import type { EngineMarkovResult } from '../../lib/engine';
+import type { EngineMarkovResult, EnginePolicyNode } from '../../lib/engine';
 
 // Rendered from REAL MDP output (keep Mana, swap Int→Spell Damage on a Wand), not a fixture.
 const eng = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
@@ -25,6 +25,20 @@ const fmt = (x: number): string => x.toPrecision(3);
 
 const expand = async () => {
   await userEvent.setup().click(screen.getByRole('button', { name: /Show all \d+ states/i }));
+};
+
+/**
+ * Widen the expanded graph from its default coverage to every state.
+ *
+ * The expanded view now prunes by `visitRate` — it opens on the states a craft actually runs into,
+ * because the full closure is combinatorial and unreadable (217 states / 42 rows in one column,
+ * measured). Tests below that are about RENDERING FIDELITY — one rect per group, arrows drawn, the
+ * off-tier label — want every state on screen, so they say so rather than depending on where the
+ * default cut happens to fall on a fixture.
+ */
+const showEveryState = async () => {
+  const btn = screen.queryByRole('button', { name: /Every state/i });
+  if (btn) await userEvent.setup().click(btn);
 };
 
 // The default view is the ROUTE, not the state space. A five-target craft reaches 262 states, most
@@ -63,6 +77,7 @@ describe('PolicyGraph — the full graph, on demand', () => {
   it('renders a node square per policy state and edges (incl. brick back-arrows)', async () => {
     const { container } = render(<PolicyGraph result={result} />);
     await expand();
+    await showEveryState();
     const svg = container.querySelector('svg')!;
     expect(svg).toBeTruthy();
     // One <rect> per DISPLAY GROUP now, not per state — see the grouping describe below.
@@ -101,6 +116,10 @@ describe('PolicyGraph — the full graph, on demand', () => {
     expect(tiered.nodes.some((n) => n.blocked.length > 0)).toBe(true);
     render(<PolicyGraph result={tiered} />);
     await expand();
+    // Off-tier states are genuinely RARE — a craft rolls below tier and then annuls out of it — so the
+    // default coverage cut can legitimately leave them out. The claim here is that the graph can show
+    // them, not that it always does, so ask for every state.
+    await showEveryState();
     const svg = screen.getByRole('img', { name: /policy graph/i });
     expect(within(svg).getAllByText(/off-tier/).length).toBeGreaterThan(0);
   });
@@ -122,8 +141,8 @@ describe('PolicyGraph — degenerate input', () => {
     const deadEnd: EngineMarkovResult = {
       applicable: true, feasible: true, expectedCost: 5.4e6, converged: false, bound: 'lower', assumedOdds: false,
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 7, expectedCost: 5.4e6, action: 'Annul' },
-        { key: 'b', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 6, expectedCost: 5.4e6, action: 'Chaos' },
+        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 7, expectedCost: 5.4e6, visitRate: 1, action: 'Annul' },
+        { key: 'b', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 6, expectedCost: 5.4e6, visitRate: 1, action: 'Chaos' },
       ],
       edges: [{ from: 'a', to: 'b', action: 'Annul', prob: 1, regress: false }],
     };
@@ -143,8 +162,8 @@ describe('PolicyGraph — degenerate input', () => {
     const stalled: EngineMarkovResult = {
       applicable: true, feasible: true, expectedCost: 5, converged: true, bound: 'exact', assumedOdds: false,
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 5, action: 'Annul' },
-        { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 5, visitRate: 1, action: 'Annul' },
+        { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
       ],
       edges: [],
     };
@@ -212,8 +231,8 @@ describe('PolicyGraph — the route names the mods', () => {
   it('says when a step only clears junk', () => {
     const r = result_({
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 9, action: 'Annul' },
-        { key: 'g', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 9, visitRate: 1, action: 'Annul' },
+        { key: 'g', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
       ],
       edges: [{ from: 'a', to: 'g', action: 'Annul', prob: 0.5, regress: false }],
     });
@@ -258,10 +277,10 @@ describe('PolicyGraph — highlighting the route through a state', () => {
     // — so it is not asserted here, where it would only be testing the fixture.)
     const forked = result_({
       nodes: [
-        { key: 's', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 3, expectedCost: 9, action: 'Annul' },
-        { key: 'left', present: ['A'], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 8, action: 'Exalt' },
-        { key: 'right', present: ['B'], blocked: [], junkPrefixes: 0, junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 7, action: 'Chaos' },
-        { key: 'g', present: ['A', 'B'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        { key: 's', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 3, expectedCost: 9, visitRate: 1, action: 'Annul' },
+        { key: 'left', present: ['A'], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 8, visitRate: 1, action: 'Exalt' },
+        { key: 'right', present: ['B'], blocked: [], junkPrefixes: 0, junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 7, visitRate: 1, action: 'Chaos' },
+        { key: 'g', present: ['A', 'B'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
       ],
       edges: [
         { from: 's', to: 'left', action: 'Annul', prob: 0.5, regress: false },
@@ -286,8 +305,8 @@ describe('PolicyGraph — highlighting the route through a state', () => {
     // walks strictly-decreasing depth and cannot.
     const cyc: EngineMarkovResult = result_({
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 1, expectedCost: 2, action: 'Exalt' },
-        { key: 'b', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 1, expectedCost: 2, visitRate: 1, action: 'Exalt' },
+        { key: 'b', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
       ],
       edges: [
         { from: 'a', to: 'b', action: 'Exalt', prob: 0.5, regress: false },
@@ -364,12 +383,12 @@ describe('PolicyGraph — the full description of a clicked state', () => {
   const detailed = result_({
     nodes: [
       { key: 'a', present: ['Spell Damage'], blocked: ['Cold Damage'], junkPrefixes: 1, junkSuffixes: 2,
-        rarity: 'rare' as const, isStart: true, isGoal: false, depth: 4, expectedCost: 900, action: 'Exalt (Dextral, Perfect)' },
+        rarity: 'rare' as const, isStart: true, isGoal: false, depth: 4, expectedCost: 900, visitRate: 1, action: 'Exalt (Dextral, Perfect)' },
       { key: 'b', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: ['Cold Damage'],
-        junkPrefixes: 1, junkSuffixes: 2, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 3, expectedCost: 800, action: 'Annul' },
+        junkPrefixes: 1, junkSuffixes: 2, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 3, expectedCost: 800, visitRate: 1, action: 'Annul' },
       { key: 'c', present: ['Spell Damage'], blocked: ['Cold Damage'], junkPrefixes: 1, junkSuffixes: 3,
-        rarity: 'rare' as const, isStart: false, isGoal: false, depth: 5, expectedCost: 950, action: 'Annul' },
-      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        rarity: 'rare' as const, isStart: false, isGoal: false, depth: 5, expectedCost: 950, visitRate: 1, action: 'Annul' },
+      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
     ],
     edges: [
       { from: 'a', to: 'b', action: 'Exalt (Dextral, Perfect)', prob: 0.2, regress: false },
@@ -430,14 +449,14 @@ describe('PolicyGraph — starting over is described as what it is', () => {
   const withRestart = result_({
     nodes: [
       { key: 'w', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
-        isStart: true, isGoal: false, depth: 4, expectedCost: 100, action: 'Transmute' },
+        isStart: true, isGoal: false, depth: 4, expectedCost: 100, visitRate: 1, action: 'Transmute' },
       { key: 'm', present: ['Spell Damage'], blocked: [], junkPrefixes: 0, junkSuffixes: 0,
-        rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 90, action: 'Exalt' },
+        rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 90, visitRate: 1, action: 'Exalt' },
       { key: 'r', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: [], junkPrefixes: 0,
         junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 3,
-        expectedCost: 100, action: 'Start over with a new base' },
+        expectedCost: 100, visitRate: 1, action: 'Start over with a new base' },
       { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const,
-        isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
     ],
     edges: [
       { from: 'w', to: 'm', action: 'Transmute', prob: 0.7, regress: false },
@@ -485,15 +504,15 @@ describe('PolicyGraph — a state that only knows how to start over is still dra
       // Depth 8, further from the goal than the loaded item below — a white base needs the Regal that
       // makes it Rare on top of every mod. So restarting is a REGRESS and never a progress edge.
       { key: 'w', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
-        isStart: true, isGoal: false, depth: 8, expectedCost: 100, action: 'Transmute' },
+        isStart: true, isGoal: false, depth: 8, expectedCost: 100, visitRate: 1, action: 'Transmute' },
       { key: 'm', present: ['Spell Damage'], blocked: [], junkPrefixes: 0, junkSuffixes: 0,
-        rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 90, action: 'Exalt' },
+        rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 90, visitRate: 1, action: 'Exalt' },
       // Nothing lists this one as an outcome, exactly as in the reported craft.
       { key: 'r', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: ['Cold Damage'],
         junkPrefixes: 0, junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false,
-        depth: 4, expectedCost: 100, action: 'Start over with a new base' },
+        depth: 4, expectedCost: 100, visitRate: 1, action: 'Start over with a new base' },
       { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const,
-        isStart: false, isGoal: true, depth: 0, expectedCost: 0 },
+        isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
     ],
     edges: [
       { from: 'w', to: 'm', action: 'Transmute', prob: 1, regress: false },
@@ -519,5 +538,101 @@ describe('PolicyGraph — a state that only knows how to start over is still dra
     const boxes = screen.getAllByRole('button', { name: /Highlight the route through this state/i });
     const startBox = boxes.find((b) => /Transmute/.test(b.getAttribute('aria-label') ?? ''))!;
     expect(startBox.getAttribute('opacity')).toBe('1');
+  });
+});
+
+/**
+ * The graph's state space is COMBINATORIAL: every subset of "which targets have landed" is a state,
+ * so it grows as 2^n. Measured before this existed, a 5-target craft drew 217 boxes across 12 columns
+ * with 42 rows in the busiest one — a 2732x3202px canvas. No layout beats 2^n; the only fix is
+ * drawing less, and `visitRate` is what makes "less" principled rather than arbitrary: on that craft
+ * 12 states carry 90% of the visits while the tail sits at 5e-5 — once in twenty thousand attempts.
+ */
+describe('pruneToCoverage — draw what a craft runs into, say what it left out', () => {
+  const node = (key: string, visitRate: number, extra: Partial<EnginePolicyNode> = {}): EnginePolicyNode => ({
+    key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
+    isStart: false, isGoal: false, depth: 1, expectedCost: 1, visitRate, action: 'Exalt', ...extra,
+  });
+  // One hot state, a start, a goal, and twenty you meet once in a thousand attempts.
+  const many = (): EngineMarkovResult => ({
+    applicable: true, feasible: true, expectedCost: 10, converged: true, bound: 'exact', assumedOdds: false,
+    nodes: [
+      node('start', 1, { isStart: true, depth: 3 }),
+      node('hot', 0.9, { depth: 2 }),
+      ...Array.from({ length: 20 }, (_, i) => node(`cold${i}`, 0.001, { depth: 2 })),
+      node('goal', 0.5, { isGoal: true, depth: 0 }),
+    ],
+    edges: [
+      { from: 'start', to: 'hot', action: 'Exalt', prob: 0.9, regress: false },
+      { from: 'hot', to: 'goal', action: 'Exalt', prob: 1, regress: false },
+      ...Array.from({ length: 20 }, (_, i) => (
+        { from: 'start', to: `cold${i}`, action: 'Exalt', prob: 0.005, regress: false })),
+    ],
+  });
+
+  it('drops the long tail and keeps the states a craft actually meets', () => {
+    const p = pruneToCoverage(many(), 0.9);
+    expect(p.total).toBe(23);
+    expect(p.shown).toBeLessThan(10);
+    expect(p.result.nodes.map((n) => n.key)).toContain('hot');
+  });
+
+  // PolicyGraph separately refuses to draw a graph with no goal in it — that check exists because an
+  // unconverged policy really can fail to reach one. A pruned view must not manufacture that failure.
+  it('never drops the start or the goal, however rare', () => {
+    const p = pruneToCoverage(many(), 0.9);
+    expect(p.result.nodes.some((n) => n.isStart)).toBe(true);
+    expect(p.result.nodes.some((n) => n.isGoal)).toBe(true);
+  });
+
+  it('keeps a pinned state the cut would otherwise remove', () => {
+    const p = pruneToCoverage(many(), 0.9, new Set(['cold7']));
+    expect(p.result.nodes.map((n) => n.key)).toContain('cold7');
+  });
+
+  it('leaves no edge pointing at a state it removed', () => {
+    const p = pruneToCoverage(many(), 0.9);
+    const keys = new Set(p.result.nodes.map((n) => n.key));
+    for (const e of p.result.edges) {
+      expect(keys.has(e.from)).toBe(true);
+      expect(keys.has(e.to)).toBe(true);
+    }
+  });
+
+  it('hands back everything untouched at full coverage', () => {
+    const full = many();
+    const p = pruneToCoverage(full, 1);
+    expect(p.shown).toBe(p.total);
+    expect(p.result.nodes).toHaveLength(full.nodes.length);
+    expect(p.result.edges).toHaveLength(full.edges.length);
+  });
+
+  // The caption is what makes the cut honest rather than a graph that quietly lost most of itself, so
+  // the number has to be the share actually on screen — including the always-kept start and goal,
+  // which the accumulating loop does not count.
+  it('reports the coverage of what it KEPT, not what it accumulated', () => {
+    // The goal must be RARE for this to discriminate. With a common goal the selection loop picks it
+    // up anyway and the two quantities coincide — which is exactly how a first version of this test
+    // passed against the bug it was written to catch. A hard craft really does reach its goal
+    // seldom, so this is the realistic shape as well as the demanding one.
+    const rareGoal: EngineMarkovResult = {
+      applicable: true, feasible: true, expectedCost: 10, converged: true, bound: 'exact', assumedOdds: false,
+      nodes: [
+        node('start', 1, { isStart: true, depth: 2 }),
+        node('hot', 9, { depth: 1 }),
+        node('goal', 0.0001, { isGoal: true, depth: 0 }),
+      ],
+      edges: [{ from: 'hot', to: 'goal', action: 'Exalt', prob: 1, regress: false }],
+    };
+    const p = pruneToCoverage(rareGoal, 0.9);
+    const mass = rareGoal.nodes.reduce((a, n) => a + n.visitRate, 0);
+    const shown = p.result.nodes.reduce((a, n) => a + n.visitRate, 0);
+    expect(p.result.nodes.some((n) => n.isGoal)).toBe(true); // kept despite being under the cut
+    expect(p.covered).toBeCloseTo(shown / mass, 10);
+  });
+
+  it('opens on the narrowest rung, and the widest really is everything', () => {
+    expect(COVERAGE_STEPS[0]).toBeLessThan(1);
+    expect(COVERAGE_STEPS[COVERAGE_STEPS.length - 1]).toBe(1);
   });
 });

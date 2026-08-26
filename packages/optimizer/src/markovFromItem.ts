@@ -67,22 +67,22 @@ export interface PolicyNode {
    *  while behaving completely differently — one of them cannot take an Exalt at all. */
   readonly rarity: McRarity;
   /**
-   * Expected number of times ONE attempt passes through this state — an attempt being the run from
-   * the starting item until it either reaches the goal or is scrapped and restarted.
+   * How much this state matters to a run that SUCCEEDS — expected visits per successful attempt.
    *
-   * This exists because the policy graph is COMBINATORIAL: every subset of "which targets have landed"
-   * is a state, so a 5-target craft draws 217 boxes across 12 columns and 42 rows — measured, and
-   * unreadable at any zoom. But a player walks ONE path, and most of that closure is entered with
-   * probability ~0. This is the number that separates the two, so the UI can draw what will actually
-   * be met and say how much it is holding back.
+   * This is what decides which states the graph draws, and the obvious metric is the wrong one. Plain
+   * visit frequency ranks the FAILURES first: on a craft with a free base ~98% of states choose
+   * "start over", so they are entered constantly while every one of them shows the same action and
+   * the same cost (they all share V(start)). A real 6-target T2 craft drew ten boxes at 90% coverage
+   * and nine read "Start over with a new base · 2,132 div" — statistically faithful and useless. The
+   * spine a player needs sat below 99%.
    *
-   * Expected VISITS, not a probability: a craft can pass through the same state twice in one attempt
-   * (roll a mod, brick it, roll it again), so this exceeds 1 for states in a tight loop. That makes it
-   * the honest ranking — a state you meet twice per attempt matters more than one you meet once — and
-   * it is why the field is not called a probability.
+   * So it is weighted by the probability of reaching the goal from here. A state whose best move is
+   * to restart has no route onward and drops out; what is left is the path the craft actually takes.
+   * Restart edges are still DRAWN from the states that survive — they are the back-arrows, and how
+   * often a step throws you back is precisely what the reader needs to see.
    *
-   * Restart edges are cut rather than followed: a restart ENDS the attempt by definition, and
-   * following it back to the start would make every state's count diverge.
+   * Expected VISITS, not a probability: one attempt can pass through the same state twice, so this
+   * can exceed 1. Ranking, not odds.
    */
   readonly visitRate: number;
   /**
@@ -870,37 +870,82 @@ export function markovFromItem(
   }
 
   /**
-   * Solve `e(s) = [s is start] + Σ_t e(t)·P(t→s)` over the non-restart edges — the expected visits
-   * documented on `PolicyNode.visitRate`.
+   * Rank every state by how much it matters to a run that SUCCEEDS.
    *
-   * Power iteration rather than a linear solve: the graph is small (hundreds of nodes), the chain is
-   * transient so the series converges geometrically, and the alternative is a dense N×N inverse for a
-   * number that only decides what gets drawn. The cap is a runaway guard; it settles in tens.
+   * Two passes, and the second is the whole point.
+   *
+   *   forward(s) — expected visits per attempt: `f(s) = [s is start] + Σ_t f(t)·P(t→s)`.
+   *   toGoal(s)  — P(reach the goal from s without restarting): `g(s) = Σ_t P(s→t)·g(t)`, `g(goal)=1`.
+   *
+   * The product is expected visits to `s` on a successful attempt, and `forward` ALONE was measured
+   * to be actively misleading. On a craft with a free base ~98% of states choose "start over", so
+   * they are entered constantly and rank at the top — while every one of them shows the same action
+   * and the same cost, because they all share V(start). A real 6-target T2 craft drew ten boxes at
+   * 90% coverage and nine of them said "Start over with a new base · 2,132 div". The part a player
+   * needs — Chaos, Annul, Perfect Exalt, Desecrate, where the cost finally falls 2,131 → 751 — sat
+   * below 99%, past 89 boxes of noise.
+   *
+   * `toGoal` fixes it by construction: a state whose best move is to restart has no non-restart edge
+   * out, so its `g` is 0 and it leaves the ranking entirely. What survives is the spine of the craft.
+   * The restart edges are still DRAWN from the states that are kept — they are the back-arrows, and
+   * how often a step throws you back is exactly what the reader has to see.
+   *
+   * Power iteration for both: the graph is small, both chains are transient so the series converge
+   * geometrically, and the alternative is a dense N×N inverse for a number that only decides what
+   * gets drawn. The 1000 cap is a runaway guard; both settle in tens.
    */
   const incoming = new Map<string, { from: string; p: number }[]>();
+  const outgoing = new Map<string, { to: string; p: number }[]>();
   for (const e of edges) {
-    // A restart ends the attempt. Following it would feed probability back into the start and every
-    // count would diverge — the loop is the whole reason the cut is needed, not a special case.
+    // A restart ENDS the attempt. Followed, it feeds probability back into the start and both passes
+    // diverge — the loop is the reason for the cut, not a special case.
     if (e.action.currency === 'restart' || e.to === startKey) continue;
-    const list_ = incoming.get(e.to);
-    if (list_) list_.push({ from: e.from, p: e.prob });
+    const inList = incoming.get(e.to);
+    if (inList) inList.push({ from: e.from, p: e.prob });
     else incoming.set(e.to, [{ from: e.from, p: e.prob }]);
+    const outList = outgoing.get(e.from);
+    if (outList) outList.push({ to: e.to, p: e.prob });
+    else outgoing.set(e.from, [{ to: e.to, p: e.prob }]);
   }
-  let visits = new Map<string, number>(nodes.map((nd) => [nd.key, nd.key === startKey ? 1 : 0]));
-  for (let round = 0; round < 1000; round++) {
+
+  const settle = (step: (prev: Map<string, number>) => Map<string, number>, init: Map<string, number>) => {
+    let cur = init;
+    for (let round = 0; round < 1000; round++) {
+      const next = step(cur);
+      let delta = 0;
+      for (const [k, v] of next) {
+        const d = Math.abs(v - (cur.get(k) ?? 0));
+        if (d > delta) delta = d;
+      }
+      cur = next;
+      if (delta <= 1e-12) break;
+    }
+    return cur;
+  };
+
+  const forward = settle((prev) => {
     const next = new Map<string, number>();
-    let delta = 0;
     for (const nd of nodes) {
       let acc = nd.key === startKey ? 1 : 0;
-      for (const { from, p } of incoming.get(nd.key) ?? []) acc += (visits.get(from) ?? 0) * p;
+      for (const { from, p } of incoming.get(nd.key) ?? []) acc += (prev.get(from) ?? 0) * p;
       next.set(nd.key, acc);
-      const d = Math.abs(acc - (visits.get(nd.key) ?? 0));
-      if (d > delta) delta = d;
     }
-    visits = next;
-    if (delta <= 1e-12) break;
-  }
-  const withVisits = nodes.map((nd) => ({ ...nd, visitRate: visits.get(nd.key) ?? 0 }));
+    return next;
+  }, new Map(nodes.map((nd) => [nd.key, nd.key === startKey ? 1 : 0])));
+
+  const toGoal = settle((prev) => {
+    const next = new Map<string, number>();
+    for (const nd of nodes) {
+      if (nd.isGoal) { next.set(nd.key, 1); continue; }
+      let acc = 0;
+      for (const { to, p } of outgoing.get(nd.key) ?? []) acc += p * (prev.get(to) ?? 0);
+      next.set(nd.key, acc);
+    }
+    return next;
+  }, new Map(nodes.map((nd) => [nd.key, nd.isGoal ? 1 : 0])));
+
+  const withVisits = nodes.map((nd) => (
+    { ...nd, visitRate: (forward.get(nd.key) ?? 0) * (toGoal.get(nd.key) ?? 0) }));
 
   return { expectedCost: startCost, feasible: true, converged, bound, nodes: withVisits, edges, policy };
 }

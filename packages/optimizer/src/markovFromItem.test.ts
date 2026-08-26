@@ -598,3 +598,59 @@ describe('markovFromItem — policy iteration', () => {
     expect(pi.nodes.some((n) => n.isStart)).toBe(true);
   });
 });
+
+/**
+ * `visitRate` decides which states the graph draws, and the obvious metric is the wrong one.
+ *
+ * Plain visit frequency ranks the FAILURES first. With a free base ~98% of states choose "start
+ * over", so they are entered constantly — and every one of them shows the same action and the same
+ * cost, because they all share V(start). Reported from the live app on a 6-target T2 craft: ten boxes
+ * at 90% coverage, nine reading "Start over with a new base · 2,132 div". Statistically faithful,
+ * and useless. Weighting by P(reach the goal from here) drops them, because a state whose best move
+ * is to restart has no route onward at all.
+ */
+describe('markovFromItem — visitRate ranks the craft, not the failures', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const white = (): ItemState =>
+    ({ base: real.bases.get('Wands')!, level: 82, rarity: 'normal', prefixes: [], suffixes: [] });
+  const solved = () => markovFromItem(real, rp, white(), [
+    { modId: 'Wands/IncreasedMana' }, { modId: 'Wands/WeaponSpellDamage' }, { modId: 'Wands/Intelligence' },
+  ], { restartCost: 0 });
+
+  const top = (r: ReturnType<typeof markovFromItem>, frac: number) => {
+    const sorted = [...r.nodes].sort((a, b) => b.visitRate - a.visitRate);
+    const mass = sorted.reduce((s, n) => s + n.visitRate, 0);
+    const out: typeof sorted = [];
+    let acc = 0;
+    for (const n of sorted) { if (acc >= frac * mass) break; out.push(n); acc += n.visitRate; }
+    return out;
+  };
+
+  it('gives a state whose only move is to start over no weight at all', () => {
+    const r = solved();
+    const restarts = r.nodes.filter((n) => n.action?.currency === 'restart');
+    expect(restarts.length).toBeGreaterThan(0);            // else this craft proves nothing
+    for (const n of restarts) expect(n.visitRate).toBe(0); // no route onward ⇒ no weight
+  });
+
+  // The failure this was reported for: a default view made entirely of identical restart boxes.
+  it('fills the default view with the craft, not with "start over"', () => {
+    const shown = top(solved(), 0.9);
+    expect(shown.length).toBeGreaterThan(3);
+    expect(shown.every((n) => n.action?.currency !== 'restart')).toBe(true);
+  });
+
+  // Being a spine and not a puddle: the default view has to span the craft end to end, or it is
+  // showing a fragment of the middle and calling it the route.
+  it('spans the craft, start to goal', () => {
+    const shown = top(solved(), 0.9);
+    expect(shown.some((n) => n.isStart)).toBe(true);
+    expect(shown.some((n) => n.isGoal)).toBe(true);
+  });
+
+  it('stays far smaller than the closure it is drawn from', () => {
+    const r = solved();
+    expect(top(r, 0.9).length).toBeLessThan(r.nodes.length / 3);
+  });
+});

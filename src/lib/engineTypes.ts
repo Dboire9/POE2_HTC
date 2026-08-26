@@ -227,11 +227,22 @@ export interface EnginePolicyNode {
   /** Steps-to-goal ranking (0 = goal); used to lay the graph out left→right. */
   readonly depth: number;
   /**
-   * Expected times ONE attempt passes through this state, straight from the solver. Drives what the
-   * graph draws: the policy closure is combinatorial (every subset of landed targets is a state) but
-   * a player walks one path, so most of it is entered with probability ~0. Measured on a 5-target
-   * craft: 12 of 86 states carry 90% of the visits, and the tail sits at 5e-5 — once in 20,000
-   * attempts. Expected VISITS, so a state met twice in one attempt exceeds 1; see the solver's note.
+   * How much this state matters to a run that SUCCEEDS — expected visits per successful attempt.
+   *
+   * This is what decides which states the graph draws, and the obvious metric is the wrong one. Plain
+   * visit frequency ranks the FAILURES first: on a craft with a free base ~98% of states choose
+   * "start over", so they are entered constantly while every one of them shows the same action and
+   * the same cost (they all share V(start)). A real 6-target T2 craft drew ten boxes at 90% coverage
+   * and nine read "Start over with a new base · 2,132 div" — statistically faithful and useless. The
+   * spine a player needs sat below 99%.
+   *
+   * So it is weighted by the probability of reaching the goal from here. A state whose best move is
+   * to restart has no route onward and drops out; what is left is the path the craft actually takes.
+   * Restart edges are still DRAWN from the states that survive — they are the back-arrows, and how
+   * often a step throws you back is precisely what the reader needs to see.
+   *
+   * Expected VISITS, not a probability: one attempt can pass through the same state twice, so this
+   * can exceed 1. Ranking, not odds.
    */
   readonly visitRate: number;
   /** Minimum expected cost (exalt-equivalents) to reach the target from here. */

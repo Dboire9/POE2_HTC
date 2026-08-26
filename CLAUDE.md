@@ -187,6 +187,15 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   `T(V0) <= V0` — phase B descends, every iterate stays an upper bound, and the greedy policy is sensible
   from the first sweep. If phase A does not converge there is no valid seed and the solve returns
   `feasible: false` with a reason; it must never quote a number it cannot bound.
+- **`visitRate` ranks a state by SUCCESS, not by frequency — plain visit counts rank the failures.**
+  With a free base ~98% of states choose "start over", so they are entered constantly while all
+  showing the same action and the same cost (they share V(start)). Ranked by raw frequency, a real
+  6-target T2 craft filled its default view with ten boxes, nine reading "Start over with a new base ·
+  2,132 div" — faithful and useless; the spine sat below 99% behind 89 boxes. So `markovFromItem`
+  multiplies expected visits by P(reach the goal from here): a restart-only state has no route onward,
+  scores 0, and leaves. Restart edges are still DRAWN from surviving states — they are the back-arrows,
+  and how often a step throws you back is the thing a player most needs. Don't "simplify" this back to
+  one pass.
 - **The top effort preset runs POLICY iteration, and it ends on a proof rather than a tolerance.**
   Value iteration stops when the residual falls under `tolerance`; on a long-odds craft it never does,
   so the app prints a ceiling. Policy iteration keeps the argmin VI computes and discards every sweep,

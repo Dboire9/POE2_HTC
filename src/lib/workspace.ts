@@ -93,6 +93,17 @@ interface Wire {
   };
 }
 
+/**
+ * Item level from a link, held to the same 1-100 the input control enforces.
+ *
+ * A link is not a form: nothing stops it carrying `1e308`, `-5`, or `"abc"`, and `?? default` only
+ * catches null and undefined. Those reach the engine's tier gating, which has no reason to expect
+ * them. Out-of-range and non-numeric both fall back to the default rather than being clamped to an
+ * edge, because a link claiming level 1e308 is corrupt, not a request for level 100.
+ */
+const clampLevel = (lv: unknown, fallback: number): number =>
+  (typeof lv === 'number' && Number.isInteger(lv) && lv >= 1 && lv <= 100 ? lv : fallback);
+
 const strip = (baseId: string, modId: string): string =>
   modId.startsWith(`${baseId}/`) ? modId.slice(baseId.length + 1) : modId;
 const restore = (baseId: string, short: string): string =>
@@ -169,6 +180,23 @@ export interface DecodeResult {
  * Returns null when the payload isn't a workspace at all (truncated, tampered, or a newer format).
  */
 export function decodeWorkspace(payload: string, data: PatchData): DecodeResult | null {
+  try {
+    return decodeOrThrow(payload, data);
+  } catch {
+    // The contract above is "null for anything that isn't a workspace", and only the JSON parse used
+    // to be guarded. But a payload can be valid base64 holding valid JSON and STILL be the wrong
+    // shape — `t` a string instead of an array, a null where a mod id belongs, `{}` where an
+    // [id, tier] pair belongs — and each of those threw from inside the mapping helpers below.
+    //
+    // That throw landed in EngineLab's link-loading `useEffect`, where React responds by unmounting
+    // the tree: one malformed shared link white-screened the app, on a URL anybody can paste. The
+    // call site has always handled null properly (it toasts "That link could not be read"), so
+    // honouring the contract is the whole fix. Fuzzed in workspace.test.ts.
+    return null;
+  }
+}
+
+function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
   let wire: Wire;
   try {
     const parsed: unknown = JSON.parse(fromBase64Url(payload));
@@ -218,12 +246,12 @@ export function decodeWorkspace(payload: string, data: PatchData): DecodeResult 
     workspace: {
       mode: wire.m === 'i' ? 'item' : 'plan',
       lab: {
-        baseId: lb, level: wire.l.lv ?? d.lab.level, targets: targets(lb, wire.l.t),
+        baseId: lb, level: clampLevel(wire.l.lv, d.lab.level), targets: targets(lb, wire.l.t),
         fractured: ids(lb, wire.l.f), pinned: ids(lb, wire.l.p), budget: wire.l.bg ?? '',
         baseCost: wire.l.bc ?? '',
       },
       item: {
-        baseId: ib, level: wire.i.lv ?? d.item.level, rarity: wire.i.r === 'm' ? 'magic' : 'rare',
+        baseId: ib, level: clampLevel(wire.i.lv, d.item.level), rarity: wire.i.r === 'm' ? 'magic' : 'rare',
         prefixes: itemMods(ib, wire.i.px), suffixes: itemMods(ib, wire.i.sx),
         subMode: wire.i.sm === 'p' ? 'plan' : 'check', target: targets(ib, wire.i.t),
       },

@@ -119,6 +119,40 @@ describe('URL codec — a link from another build must degrade, not crash', () =
     expect(out!.workspace.lab.budget).toBe('600'); // the rest of the link is untouched
   });
 
+  /**
+   * A shared link is UNTRUSTED INPUT — a public URL anyone can hand you or mistype.
+   *
+   * Only the JSON parse used to be guarded, so a payload that was valid base64 holding valid JSON of
+   * the WRONG SHAPE threw from inside the mapping helpers. That throw landed in EngineLab's loading
+   * `useEffect`, where React unmounts the tree: one malformed link white-screened the whole app.
+   *
+   * Every case below crashed before the fix. `decodeWorkspace` promises null for anything that is not
+   * a workspace, and the call site already renders that as "That link could not be read".
+   */
+  it.each([
+    ['a targets list that is not a list', { v: 1, m: 'p', l: { b: 'Wands', lv: 'abc', t: 'notarray' }, i: {} }],
+    ['a null where a mod id belongs', { v: 1, m: 'p', l: { b: 'Wands', t: [[null, null]] }, i: { b: 'Wands', px: [[1, 2, 3]] } }],
+    ['objects where [id, tier] pairs belong', { v: 1, m: 'p', l: { b: {}, lv: {}, t: [{}] }, i: { b: [], sx: [{}] } }],
+    ['a wire with null sections', { v: 1, m: 'p', l: null, i: null }],
+    ['JSON that is not an object at all', []],
+  ])('returns null rather than throwing on %s', (_label, wire) => {
+    const payload = btoa(JSON.stringify(wire)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    expect(() => decodeWorkspace(payload, data)).not.toThrow();
+    expect(decodeWorkspace(payload, data)).toBeNull();
+  });
+
+  /**
+   * A link is not a form, so nothing stops it carrying a level the input control would refuse. `??`
+   * only catches null and undefined, so 1e308 sailed through to the engine's tier gating.
+   */
+  it('refuses an item level a link has no business carrying', () => {
+    const wire = { v: 1, m: 'p', l: { b: 'Wands', lv: 1e308, t: [] }, i: { b: 'Wands' } };
+    const payload = btoa(JSON.stringify(wire)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const out = decodeWorkspace(payload, data);
+    expect(out).not.toBeNull();
+    expect(out!.workspace.lab.level).toBe(defaultWorkspace().lab.level);
+  });
+
   // A future format must be refused outright: silently reading v2 with v1's rules would produce a
   // workspace that looks plausible and isn't.
   it('refuses a version it does not understand', () => {

@@ -18,10 +18,11 @@ import type { EnginePriceBasis } from '../../lib/engine';
 /**
  * `exactOdds` defaults TRUE because it normally is: the probabilities are analytic weight-pool maths,
  * differential-tested and cross-checked against Craft of Exile. Pass `false` only where a shown number
- * leans on the ASSUMED desecrated spawn weight — an unomened Desecration, which draws by weight from
- * the combined normal ∪ desecrated pool. poe2db publishes no weight for those mods (it reports 1 for
- * every row), so 1000 is a judgement call, and a ~900x one: taken literally the 1 makes a bone produce
- * a desecrated mod about 1 time in 121,510 on a Body Armour, against ~1 in 132 at 1000.
+ * leans on the desecrated spawn weight — an unomened Desecration, which draws by weight from the
+ * combined normal ∪ desecrated pool. poe2db publishes no weight for those mods (it reports 1 for every
+ * row, which taken literally makes a bone produce a desecrated mod about 1 time in 121,510 on a Body
+ * Armour). The shipped 4000 is measured in game rather than guessed — 40 offers on one base, 2026-08-24
+ * — but ONE base cannot rule out a per-category weight, so the caveat stays.
  *
  * The flag is computed from the actual plan steps (`assumedOdds` in engineMap.ts), not from "the target
  * mentions a desecrated mod" — a BOSS-omened Desecration is count-uniform and ignores weights, so it

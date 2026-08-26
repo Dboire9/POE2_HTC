@@ -98,14 +98,18 @@ describe('0.5.0 shipped desecrated pool', () => {
   });
 });
 
-// The desecrated spawn weight is an ASSUMPTION, not observed data — poe2db publishes none and reports
-// 1 for every row. Taken literally against normal weights of several thousand, a bone would produce a
-// desecrated mod about 1 time in 121,510 on a Body Armour; at 1000 it is about 1 in 132. Nothing in the
-// app would fail loudly if a data refresh quietly restored the 1, so this asserts the constant. If it
-// ever changes deliberately, change it HERE and in tools/refresh/apply_pools.mjs together, and say so
-// in docs/validation.md D4 and the UI note.
-describe('the assumed desecrated weight', () => {
-  const DESECRATED_ASSUMED_WEIGHT = 1000;
+// The desecrated spawn weight cannot be read off poe2db — it publishes none and reports a literal 1 for
+// every row, which taken at face value would make a bone produce a desecrated mod about 1 time in
+// 121,510 on a Body Armour. As of 2026-08-24 the shipped value is MEASURED rather than assumed: 40
+// Well of Souls offers on empty Rare Helmets_dex_int, 22 of which held a carved mod, inverted by
+// scripts/desecrate-weight.mts to a maximum likelihood of 3,981 (range 2,512-5,012) and rounded to
+// 4,000. The previous 1,000 predicted 21.8% against 55% observed.
+//
+// Nothing in the app would fail loudly if a refresh quietly restored poe2db's 1, so this asserts the
+// constant. If it changes again, change it HERE and in tools/refresh/apply_pools.mjs together, and say
+// so in docs/validation.md D4 and the UI note.
+describe('the measured desecrated weight', () => {
+  const DESECRATED_ASSUMED_WEIGHT = 4000;
 
   it('is applied uniformly to every desecrated mod in the shipped snapshot', () => {
     const weights = new Set<number>();

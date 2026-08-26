@@ -10,10 +10,10 @@ Staged data: `data/patches/0.5.0/` (RePoE-fork, client 4.5.4.3). Baseline: `data
 ## Totals
 
 - Baseline: 1351 mods (all sources), 41 bases.
-- Refresh (normal-only): 933 mods, 41 bases, 6167 tiers.
-- Matched mod families (normal pool, by base): 833.
+- Refresh (normal-only): 2140 mods, 41 bases, 7982 tiers.
+- Matched mod families (normal pool, by base): 838.
   - with a tier-**count** change: 86
-  - with an **ilvl** change on a matched tier: 116
+  - with an **ilvl** change on a matched tier: 113
   - with a stat-**range** change on a matched tier: 1114
 
 ## Per base (normal pool)
@@ -34,9 +34,9 @@ Staged data: `data/patches/0.5.0/` (RePoE-fork, client 4.5.4.3). Baseline: `data
 | Boots_str_dex | 6/15 | 6/15 | 18 | 1 | 3 | 0 | 30 | 2 |
 | Boots_str_int | 6/15 | 6/15 | 18 | 1 | 3 | 1 | 31 | 2 |
 | Bows | 8/13 | 8/13 | 21 | 0 | 0 | 12 | 24 | 2 |
-| Bucklers | 6/13 | 6/13 | 16 | 3 | 3 | 0 | 18 | 0 |
-| Crossbows | 8/14 | 8/14 | 22 | 0 | 0 | 11 | 23 | 1 |
-| Foci | 11/13 | 10/12 | 18 | 0 | 1 | 4 | 8 | 3 |
+| Bucklers | 6/13 | 6/13 | 17 | 2 | 2 | 0 | 18 | 0 |
+| Crossbows | 8/14 | 8/14 | 22 | 0 | 0 | 10 | 23 | 1 |
+| Foci | 10/13 | 10/12 | 18 | 0 | 1 | 4 | 8 | 3 |
 | Gloves_dex | 10/16 | 10/16 | 26 | 0 | 0 | 2 | 19 | 3 |
 | Gloves_dex_int | 10/18 | 10/18 | 27 | 1 | 1 | 3 | 31 | 4 |
 | Gloves_int | 10/17 | 10/17 | 27 | 0 | 0 | 3 | 14 | 4 |
@@ -49,18 +49,18 @@ Staged data: `data/patches/0.5.0/` (RePoE-fork, client 4.5.4.3). Baseline: `data
 | Helmets_str | 8/13 | 8/13 | 20 | 1 | 1 | 0 | 23 | 2 |
 | Helmets_str_dex | 8/14 | 8/15 | 22 | 1 | 0 | 0 | 40 | 2 |
 | Helmets_str_int | 8/14 | 8/14 | 22 | 0 | 0 | 1 | 41 | 3 |
-| OneHand_Maces | 8/14 | 8/14 | 22 | 0 | 0 | 11 | 22 | 3 |
+| OneHand_Maces | 8/14 | 8/14 | 22 | 0 | 0 | 10 | 22 | 3 |
 | Quarterstaves | 8/15 | 8/15 | 23 | 0 | 0 | 10 | 23 | 3 |
 | Quivers | 7/8 | 7/9 | 14 | 2 | 1 | 3 | 0 | 1 |
 | Rings | 13/18 | 13/18 | 30 | 1 | 0 | 6 | 36 | 7 |
-| Sceptres | 8/13 | 8/14 | 21 | 1 | 0 | 4 | 19 | 1 |
-| Shields_str | 6/14 | 6/14 | 17 | 3 | 3 | 0 | 18 | 0 |
-| Shields_str_dex | 6/15 | 6/16 | 17 | 5 | 4 | 0 | 30 | 0 |
-| Shields_str_int | 6/16 | 6/16 | 18 | 4 | 4 | 3 | 33 | 2 |
-| Spears | 8/16 | 8/16 | 23 | 0 | 0 | 11 | 22 | 3 |
+| Sceptres | 8/13 | 8/14 | 21 | 1 | 0 | 3 | 19 | 1 |
+| Shields_str | 6/14 | 6/14 | 18 | 2 | 2 | 0 | 18 | 0 |
+| Shields_str_dex | 6/15 | 6/16 | 18 | 4 | 3 | 0 | 30 | 0 |
+| Shields_str_int | 6/16 | 6/16 | 19 | 3 | 3 | 3 | 33 | 2 |
+| Spears | 8/16 | 8/16 | 23 | 0 | 0 | 10 | 22 | 3 |
 | Staves | 11/18 | 11/18 | 19 | 1 | 0 | 3 | 63 | 1 |
-| TwoHand_Maces | 8/14 | 8/14 | 22 | 0 | 0 | 11 | 23 | 3 |
-| Wands | 11/18 | 11/18 | 18 | 2 | 0 | 3 | 8 | 1 |
+| TwoHand_Maces | 8/14 | 8/14 | 22 | 0 | 0 | 10 | 23 | 3 |
+| Wands | 11/18 | 11/18 | 19 | 1 | 0 | 5 | 8 | 1 |
 
 ## Families added / removed per base (0.5 vs baseline)
 
@@ -104,8 +104,8 @@ Staged data: `data/patches/0.5.0/` (RePoE-fork, client 4.5.4.3). Baseline: `data
   - added: `suffix:ReducedAilmentDuration`
   - removed: `suffix:ReducedShockDuration`, `suffix:ReducedChillDuration`, `suffix:ReducedFreezeDuration`
 - **Bucklers**
-  - added: `prefix:IncreasedShieldBlockPercentage`, `suffix:MaximumLightningResistance`, `suffix:MaximumChaosResistance`
-  - removed: `suffix:IncreasedShieldBlockPercentage`, `suffix:MaximumLightningResist`, `suffix:MaximumChaosResist`
+  - added: `suffix:MaximumLightningResistance`, `suffix:MaximumChaosResistance`
+  - removed: `suffix:MaximumLightningResist`, `suffix:MaximumChaosResist`
 - **Foci**
   - removed: `suffix:EnergyShieldDelay`
 - **Gloves_dex_int**
@@ -128,18 +128,18 @@ Staged data: `data/patches/0.5.0/` (RePoE-fork, client 4.5.4.3). Baseline: `data
 - **Sceptres**
   - added: `suffix:LightRadiusAndManaRegeneration`
 - **Shields_str**
-  - added: `prefix:IncreasedShieldBlockPercentage`, `suffix:MaximumLightningResistance`, `suffix:MaximumChaosResistance`
-  - removed: `suffix:IncreasedShieldBlockPercentage`, `suffix:MaximumLightningResist`, `suffix:MaximumChaosResist`
+  - added: `suffix:MaximumLightningResistance`, `suffix:MaximumChaosResistance`
+  - removed: `suffix:MaximumLightningResist`, `suffix:MaximumChaosResist`
 - **Shields_str_dex**
-  - added: `prefix:IncreasedShieldBlockPercentage`, `suffix:ReducedExtraDamageFromCrits`, `suffix:MaximumLightningResistance`, `suffix:MaximumChaosResistance`, `suffix:EvasionAppliesToDeflection`
-  - removed: `suffix:IncreasedShieldBlockPercentage`, `suffix:ReducedPhysicalDamageTaken`, `suffix:MaximumLightningResist`, `suffix:MaximumChaosResist`
+  - added: `suffix:ReducedExtraDamageFromCrits`, `suffix:MaximumLightningResistance`, `suffix:MaximumChaosResistance`, `suffix:EvasionAppliesToDeflection`
+  - removed: `suffix:ReducedPhysicalDamageTaken`, `suffix:MaximumLightningResist`, `suffix:MaximumChaosResist`
 - **Shields_str_int**
-  - added: `prefix:IncreasedShieldBlockPercentage`, `suffix:AllResistances`, `suffix:MaximumLightningResistance`, `suffix:MaximumChaosResistance`
-  - removed: `suffix:IncreasedShieldBlockPercentage`, `suffix:ReducedPhysicalDamageTaken`, `suffix:MaximumLightningResist`, `suffix:MaximumChaosResist`
+  - added: `suffix:AllResistances`, `suffix:MaximumLightningResistance`, `suffix:MaximumChaosResistance`
+  - removed: `suffix:ReducedPhysicalDamageTaken`, `suffix:MaximumLightningResist`, `suffix:MaximumChaosResist`
 - **Staves**
   - added: `suffix:LightRadiusAndManaRegeneration`
 - **Wands**
-  - added: `prefix:WeaponDamageTypePrefix`, `suffix:LightRadiusAndManaRegeneration`
+  - added: `suffix:LightRadiusAndManaRegeneration`
 
 ## Worked example — Wands `+# to maximum Mana` (IncreasedMana prefix)
 

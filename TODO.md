@@ -6,46 +6,34 @@ Last reviewed: 2026-08-24.
 
 ---
 
-## 1. Pin down the desecrated spawn weight — it now prices EVERY craft on armour and weapons
+## 1. ~~Pin down the desecrated spawn weight~~ — DONE 2026-08-24
 
-`DESECRATED_ASSUMED_WEIGHT = 1000` (`tools/refresh/apply_pools.mjs`) was already flagged as the single
-largest unverified number in the app. On 2026-08-24 its blast radius grew by an order of magnitude:
-letting a bone compete for ordinary mods made Desecration the primary add on most bases, so the
-assumption no longer moves only carved crafts — it sets the price of ordinary ones. Measured on crafts
-with **no carved target at all**:
+**Measured in game.** 40 Well of Souls offers on an empty Rare `Helmets_dex_int`, of which **22 held at
+least one carved mod** (55.0%). `scripts/desecrate-weight.mts` inverts that to a maximum likelihood of
+**3,981**, plausible range **2,512–5,012**. `DESECRATED_ASSUMED_WEIGHT` moved **1000 → 4000** (rounded:
+forty samples do not support four significant figures), data rebuilt, docs/validation.md D4 rewritten.
 
-| assumed weight | Wands x3, held Rare | Body_Armours_str x3 |
-|---|---|---|
-| 1 | 1,953 ex | 1,315 ex |
-| 100 | 1,978 ex | 1,320 ex |
-| **1000 (shipped)** | **2,181 ex** | **1,359 ex** |
-| 5,000 | 2,934 ex | 1,426 ex |
-| 20,000 | 4,074 ex | 1,478 ex |
+The old 1000 predicted 21.8% against 55% observed — it was not merely imprecise, it was outside the
+interval. What it changed, held Rare with three ordinary targets:
 
-A 2.1x swing on Wands, 1.1x on Body Armour, off a number nobody has measured. (Re-measured 2026-08-24
-under the desecration FLAG model — an earlier table here read 4x, from a version that let a bone be
-spent over and over.)
+| base | at 1,000 | at 4,000 | bone excluded |
+|---|---|---|---|
+| Wands | 2,181 ex | **2,776 ex** | 4,074 ex |
+| Body_Armours_str | 1,359 ex | **1,416 ex** | 2,968 ex |
 
-**The same change made it cheap to check.** Bones are now played on ordinary crafts, and a bone offers
-three modifiers — so the only observation needed is how many OFFERS contained a carved ("carved by the
-Abyss") mod. The candidates are not close:
+A heavier carved pool makes a bone *worse* at fishing for ordinary mods, so those crafts got dearer —
+a bone is still clearly worth playing, just 32% less of a bargain on Wands than the app used to claim.
 
-| assumed weight | P(offer holds a carved mod), Body Armour | Wands |
-|---|---|---|
-| 1 | 0.02% | 0.04% |
-| 100 | 2.37% | 3.83% |
-| **1000** | **20.69%** | **30.90%** |
-| 5,000 | 63.68% | 77.96% |
-| 20,000 | 94.35% | 97.90% |
+**Two things this did NOT settle**, both recorded rather than left implicit:
 
-Twenty bones separates them. `scripts/desecrate-weight.mts` prints that table and inverts an
-observation to a maximum-likelihood weight with a rough interval:
-
-    npx tsx scripts/desecrate-weight.mts                        # what to expect
-    npx tsx scripts/desecrate-weight.mts Body_Armours_str 20 4  # 20 bones, 4 offers held one
-
-If the shipped 1000 falls outside the interval, change the constant, re-run `npm run update-data`, and
-update docs/validation.md D4. **Needs a human in the game** — there is no data source for it.
+- **One base is not every base.** The measurement fixes a single global constant from `Helmets_dex_int`
+  alone, so a per-category weight would be invisible to it. `PriceBasisNote` therefore keeps its
+  caveat, and `assumedOdds` still flags an unomened Desecration. A second forty-offer sample on a
+  weapon would test it — same command, different base.
+- **The three-draw model, by contrast, IS corroborated.** The observer reported several offers holding
+  two carved mods and none holding three; at the fitted weight the model predicts 5.0 two-carved offers
+  in 40 and a 60% chance of seeing no three-carved offer at all. That is independent of the headline
+  rate the fit used, so it checks the shape rather than restating the input.
 
 ## 2. Loose ends from putting rarity in the MDP
 

@@ -35,11 +35,26 @@ const PDB = join(ROOT, 'tools/refresh/cache/poe2db');
 const GENERATED = '2026-07-13';
 
 /**
- * The spawn weight every DESECRATED mod is given. See the note at the desecrated loop below: this is
- * an assumption, not data. Named and exported so the shipped snapshot can be asserted against it —
- * a silent refresh back to poe2db's literal 1 would quietly restore 1-in-121,510 odds.
+ * The spawn weight every DESECRATED mod is given. poe2db publishes none (it reports a literal 1 for
+ * every row), so this cannot be read off the data — but as of 2026-08-24 it is MEASURED IN GAME rather
+ * than assumed. Named and exported so the shipped snapshot can be asserted against it: a silent
+ * refresh back to poe2db's 1 would quietly restore 1-in-121,510 odds.
+ *
+ * The observation: 40 Well of Souls offers on EMPTY Rare `Helmets_dex_int`, of which **22 held at
+ * least one "carved by the Abyss" mod** (55.0%). `scripts/desecrate-weight.mts` inverts that through
+ * the same pool maths the engine uses — maximum likelihood **3,981**, plausible range **2,512-5,012**.
+ * The previous 1,000 predicted 21.8% against 55% observed and is far outside the interval.
+ *
+ * Rounded to 4,000: forty samples do not support four significant figures, and every value in the
+ * interval is a defensible read of the same evidence. Sitting near the middle of it is honest about
+ * that; quoting 3,981 would not be.
+ *
+ * A bone offers THREE modifiers and the observer reported several offers holding two carved mods and
+ * none holding three — which is the independent check that the three-draw model is right and only its
+ * weight was wrong. At this weight the model predicts 5.0 two-carved offers in 40 and a 60% chance of
+ * seeing no three-carved offer at all. See docs/validation.md D4.
  */
-export const DESECRATED_ASSUMED_WEIGHT = 1000;
+export const DESECRATED_ASSUMED_WEIGHT = 4000;
 
 const ARMOUR_CATS = new Set(['Body_Armours', 'Boots', 'Gloves', 'Helmets', 'Shields']);
 const CATEGORY_CLASS = {

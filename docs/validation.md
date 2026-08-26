@@ -85,12 +85,45 @@ restriction.
 **Denominator confirmed by the user, 2026-08-23**: normal mods DO enter the bone pool, so the combined
 normal ∪ desecrated shape stands.
 
-**But the WEIGHT is an assumption (2026-08-23).** poe2db publishes no spawn weight for desecrated rows
-— it reports `1` for every one of them — and `apply_pools.mjs` copied that through. Against normal
+**The WEIGHT is not in the data (2026-08-23).** poe2db publishes no spawn weight for desecrated rows —
+it reports `1` for every one of them — and `apply_pools.mjs` copied that through. Against normal
 weights of several thousand it made a bone produce a desecrated mod about **1 time in 121,510** on a
-Body Armour, which cannot be right for an item whose purpose is to add one. All 527 desecrated mods are
-now given **weight 1000** (`DESECRATED_ASSUMED_WEIGHT` in `tools/refresh/apply_pools.mjs`), putting a
-desecrated mod on roughly the footing of an ordinary normal mod:
+Body Armour, which cannot be right for an item whose purpose is to add one. It was replaced with an
+assumed 1000, chosen for plausibility, and flagged as the single largest unverified number in the app.
+
+**MEASURED IN GAME 2026-08-24 — the assumption is retired.** The observation, from the user: **40 Well
+of Souls offers on empty Rare `Helmets_dex_int`, of which 22 held at least one "carved by the Abyss"
+mod** (55.0%). `scripts/desecrate-weight.mts` inverts that through the engine's own pool maths:
+
+| | |
+|---|---|
+| maximum likelihood | **3,981** (predicts 58.4%) |
+| plausible range | **2,512 – 5,012** |
+| previous assumption | 1,000 — predicts **21.8%**, far outside the interval |
+| **shipped** | **4,000** (predicts 58.6%) |
+
+Rounded to 4,000 because forty samples do not support four significant figures; every value in the
+interval reads the same evidence, and sitting near its middle is honest about that.
+
+**The three-draw model was checked independently.** A bone offers three modifiers, and the observer
+reported several offers holding *two* carved mods and none holding three. At the fitted weight the
+model predicts 5.0 two-carved offers in 40 and a **60% chance of seeing no three-carved offer at all**
+— so the count distribution corroborates the shape, not just the headline rate. That matters, because
+the inversion assumes three independent draws.
+
+**What it changed.** A heavier carved pool makes a bone *worse* at fishing for ordinary mods, so crafts
+that want normal mods got dearer. Held Rare, 3 normal targets, no restart:
+
+| base | at 1,000 | at 4,000 | bone excluded |
+|---|---|---|---|
+| Wands | 2,181.3 ex | **2,776.2 ex** | 4,073.8 ex |
+| Body_Armours_str | 1,358.5 ex | **1,415.6 ex** | 2,967.6 ex |
+| Helmets_dex_int | 2,819.8 ex | **2,986.0 ex** | 6,191.2 ex |
+
+A bone is still worth playing everywhere — the gap to "bone excluded" stays large — but on Wands it is
+27% less of a bargain than the app used to claim.
+
+The older comparison, for reference:
 
 | base | weight 1 | weight 1000 |
 |---|---|---|
@@ -98,14 +131,15 @@ desecrated mod on roughly the footing of an ordinary normal mod:
 | Wands | 1 in 114,415 | 1 in 129 |
 | Amulets | 1 in 173,681 | 1 in 205 |
 
-This is a judgement call, ~900x in size, so **the app says so**: `EngineResult.assumedOdds` /
+The weights are still not published anywhere, so the app keeps saying so: `EngineResult.assumedOdds` /
 `EngineMarkovResult.assumedOdds` are set when a plan contains an unomened Desecration, and
 `PriceBasisNote` then drops its "the odds are exact" claim and names the assumption. The boss-omen path
 is count-uniform (D3) and ignores weights, so it is untouched and keeps the exact claim.
 `shipped-pools.test.ts` asserts the constant so a refresh cannot silently restore the 1.
 
-**Action (still open):** confirm the true weight against Craft of Exile or in-game observation. 1000 is
-a placeholder chosen for plausibility, not a measurement.
+**Action: CLOSED 2026-08-24** by the in-game sample above. Worth re-running `desecrate-weight.mts` on a
+second base if anyone gathers another forty offers — one base cannot rule out a per-category weight,
+which is the assumption this measurement replaces one level up.
 
 ### D5.1 — pool not capped by item level → ✅ RESOLVED (verified 2026-07-05)
 Java's `get_Base_Affixes_Total_Weight_By_Tier(pool, ilvl)` sums tiers with `tier.level >= ilvl` (the

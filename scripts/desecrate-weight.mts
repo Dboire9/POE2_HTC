@@ -1,7 +1,7 @@
 // D4 — pin down DESECRATED_ASSUMED_WEIGHT from what a bone actually offers in game.
 //
 // poe2db publishes no spawn weight for carved rows (it reports 1 for every one), so all 527 are set to
-// an assumed 1000 in tools/refresh/apply_pools.mjs. That was already "the single largest unverified
+// an assumed weight in tools/refresh/apply_pools.mjs. That was already "the single largest unverified
 // number in the app"; since bones became the cheapest way to add an ORDINARY mod it also sets the
 // price of every craft on armour and weapons — measured at a 4x swing across the plausible range.
 //
@@ -16,8 +16,21 @@ import { modTierWeight } from '../packages/engine/src/pool.ts';
 import { DESECRATION_OFFER_COUNT } from '../packages/engine/src/probability.ts';
 
 const LEVEL = 82;
-const CANDIDATES = [1, 10, 100, 500, 1000, 2000, 5000, 20000];
+const CANDIDATES = [1, 10, 100, 500, 1000, 2000, 4000, 5000, 20000];
 const d = loadPatch('data/patches/0.5.0');
+
+/**
+ * The weight the SHIPPED data actually carries, read rather than restated.
+ *
+ * This used to be a literal 1000 in four places, which quietly became wrong the moment the constant
+ * moved — the script would have gone on reporting the old number as "shipped" and comparing the
+ * interval against it. Reading it from the snapshot means the script cannot disagree with the data
+ * it is judging.
+ */
+const SHIPPED = (() => {
+  for (const m of d.mods.values()) if (m.source === 'desecrated' && m.tiers[0]) return m.tiers[0].weight;
+  throw new Error('no desecrated mods in the snapshot — has the pool build run?');
+})();
 
 /** P(a bone's offer holds at least one carved mod), on an empty Rare, at an assumed carved weight. */
 function pCarvedInOffer(baseId: string, assumed: number): number {
@@ -46,7 +59,7 @@ if (!baseArg) {
     console.log(String(w).padStart(8)
       + BASES.map((b) => `${(pCarvedInOffer(b, w) * 100).toFixed(2)}%`.padStart(20)).join(''));
   }
-  console.log('\nThe shipped assumption is 1000. Bone an empty Rare ~20 times, count how many OFFERS');
+  console.log(`\nThe shipped weight is ${SHIPPED}. Bone an empty Rare ~20 times, count how many OFFERS`);
   console.log('contained a carved mod, then re-run as e.g.:');
   console.log('   npx tsx scripts/desecrate-weight.mts Body_Armours_str 20 3');
   process.exit(0);
@@ -77,9 +90,9 @@ const observed = ((hits / bones) * 100).toFixed(1);
 console.log(`${baseArg}: ${hits} of ${bones} offers held a carved mod (${observed}%)\n`);
 console.log(`  best fit          carved weight ~ ${best.w}   (predicts ${(best.p * 100).toFixed(2)}%)`);
 console.log(`  plausible range   ${plausible[0]!.w} – ${plausible[plausible.length - 1]!.w}`);
-console.log(`  shipped           1000            (predicts ${(pCarvedInOffer(baseArg, 1000) * 100).toFixed(2)}%)`);
-const shippedIn = plausible.some((g) => g.w <= 1000) && plausible.some((g) => g.w >= 1000);
-console.log(`\n  ${shippedIn ? 'The shipped 1000 is inside that range — the assumption survives this sample.'
-  : 'The shipped 1000 is OUTSIDE that range. Update DESECRATED_ASSUMED_WEIGHT in tools/refresh/apply_pools.mjs,'
+console.log(`  shipped           ${String(SHIPPED).padEnd(16)}(predicts ${(pCarvedInOffer(baseArg, SHIPPED) * 100).toFixed(2)}%)`);
+const shippedIn = plausible.some((g) => g.w <= SHIPPED) && plausible.some((g) => g.w >= SHIPPED);
+console.log(`\n  ${shippedIn ? `The shipped ${SHIPPED} is inside that range — it survives this sample.`
+  : `The shipped ${SHIPPED} is OUTSIDE that range. Update DESECRATED_ASSUMED_WEIGHT in tools/refresh/apply_pools.mjs,`
     + '\n  re-run `npm run update-data`, and re-check docs/validation.md D4.'}`);
 if (bones < 20) console.log(`\n  ${bones} bones is a thin sample; 20+ separates the candidates cleanly.`);

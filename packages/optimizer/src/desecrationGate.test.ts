@@ -286,9 +286,10 @@ describe('a Chaos Orb has no special treatment for the desecrated mod', () => {
  * ordinary one on most bases.
  *
  * It offers three modifiers and you keep one, and a Preserved rib is 0.31ex against an Exalt's 1.00ex.
- * Measured on a held Rare (no restart, so the bone competes on merit): Wands 4,073.8ex -> 1,215.5ex,
- * Body Armour 2,967.6ex -> 693.9ex. The model used to switch desecration off entirely unless a carved
- * mod was targeted, so none of that was reachable.
+ * Measured on a held Rare (no restart, so the bone competes on merit), at the carved spawn weight
+ * measured in game on 2026-08-24: Wands 4,073.8ex -> 2,776.2ex, Body Armour 2,967.6ex -> 1,415.6ex.
+ * The model used to switch desecration off entirely unless a carved mod was targeted, so none of that
+ * was reachable.
  *
  * The gate that replaced it is a NECESSARY condition, not a heuristic: the offer raises the chance of
  * a hit by at most `DESECRATION_OFFER_COUNT` (1−(1−p)^m ≤ m·p), and a bone's per-draw p is strictly
@@ -328,9 +329,15 @@ describe('a bone competes for ordinary mods too, where its price allows', () => 
     const without = solve('Wands', true);
     expect(withBones.converged && without.converged).toBe(true);
     expect([...withBones.policy.values()].some((a) => a.currency === 'desecrate')).toBe(true);
-    // Measured 4,073.8ex → 2,181.3ex on this craft (−46%); Body Armour −54%. Asserted loosely, since
-    // the exact figure moves with the price sheet, but the gap is an order of effort, not rounding.
-    expect(withBones.expectedCost).toBeLessThan(without.expectedCost * 0.7);
+    // Measured 4,073.8ex → 2,776.2ex on this craft (−32%); Body Armour −52%.
+    //
+    // The threshold was 0.7 while the carved spawn weight was an assumed 1,000, where this craft
+    // measured −46%. Measuring that weight in game moved it to 4,000, and a heavier carved pool makes
+    // a bone WORSE at fishing for ordinary mods — so the real margin is now 0.681 and 0.7 passes by
+    // 2.7%, which is a price-sheet refresh away from a red suite. Loosened to 0.85: the claim under
+    // test is "a bone is worth playing for ordinary mods", and a third off the price says that just
+    // as well as a half did, without pinning a figure that legitimately moves.
+    expect(withBones.expectedCost).toBeLessThan(without.expectedCost * 0.85);
   });
 
   /**

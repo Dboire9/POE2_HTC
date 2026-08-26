@@ -162,6 +162,76 @@ describe('URL codec — a link from another build must degrade, not crash', () =
   });
 });
 
+/**
+ * The mirror of the malformed-shape table above, and the reason that table was not enough.
+ *
+ * Those cases THROW inside the decoder, so the try/catch converts them into a clean null. These do
+ * not. `bg`, `bc` and a target's tier decode without complaint and escape into app state carrying the
+ * WRONG TYPE, where they throw later: `budget.trim()` runs in EngineLab on every Compute, which is
+ * the one thing a shared link exists for. A link carrying `bg: 5` therefore killed the app for
+ * whoever opened it, and no try/catch anywhere could have caught it.
+ *
+ * `clampLevel` fixed `lv` and missed `bg`/`bc` sitting two lines below it. The `WireIn` type is what
+ * stops the next field repeating that — these tests pin the behaviour, the type pins the habit.
+ */
+describe('URL codec — a link that decodes cleanly must not smuggle a wrong TYPE into app state', () => {
+  const link = (wire: unknown): string =>
+    btoa(JSON.stringify(wire)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const lab = (over: Record<string, unknown>): string =>
+    link({
+      v: 1, m: 'p',
+      l: { b: 'Wands', lv: 79, t: [], f: [], p: [], bg: '', bc: '', ...over },
+      i: { b: 'Wands' },
+    });
+
+  it.each([[5], [{}], [[]], [true], [1e308]])('holds budget to a string when the link carries %j', (bg) => {
+    const out = decodeWorkspace(lab({ bg }), data);
+    expect(out).not.toBeNull();
+    expect(out!.workspace.lab.budget).toBe('');
+    expect(() => out!.workspace.lab.budget.trim()).not.toThrow(); // what EngineLab does on Compute
+  });
+
+  it.each([[7], [{}], [[]], [true]])('holds baseCost to a string when the link carries %j', (bc) => {
+    const out = decodeWorkspace(lab({ bc }), data);
+    expect(out).not.toBeNull();
+    expect(out!.workspace.lab.baseCost).toBe('');
+    expect(() => out!.workspace.lab.baseCost.trim()).not.toThrow();
+  });
+
+  // The quieter failure of the two: a tier reaches `n - tierDisplay` in engineMap, and NaN passes
+  // straight through the Math.min/Math.max that clamp the range — so a non-number plans a garbage
+  // tier index instead of crashing. `null` is in here for a different reason: it arithmetics as 0,
+  // which silently selects the WORST tier rather than the best one the player would have added.
+  it.each([['abc'], [{}], [null], [true]])('falls back to the best tier when a target carries %j', (tier) => {
+    const out = decodeWorkspace(lab({ t: [[P[0]!, tier]] }), data);
+    expect(out).not.toBeNull();
+    const t = out!.workspace.lab.targets[0]!;
+    expect(t.tierDisplay).toBe(1);
+    expect(Number.isNaN(5 - t.tierDisplay)).toBe(false); // engineMap's expression, verbatim
+  });
+
+  it('leaves a legitimate tier alone', () => {
+    const out = decodeWorkspace(lab({ t: [[P[0]!, 4]] }), data);
+    expect(out!.workspace.lab.targets[0]!.tierDisplay).toBe(4);
+  });
+
+  // A non-string base is corrupt, not a base this build LOST, so it must not land in `dropped` —
+  // that list renders as "... no longer exists", which with an object in it reads
+  // "[object Object] no longer exists": a claim about the data that is simply untrue.
+  it.each([[5], [{}], [[]]])('blanks a non-string base without claiming it once existed', (b) => {
+    const out = decodeWorkspace(lab({ b }), data);
+    expect(out).not.toBeNull();
+    expect(out!.workspace.lab.baseId).toBe('');
+    expect(out!.dropped).toEqual([]);
+  });
+
+  it('still reports a base that really did exist and is now gone', () => {
+    const out = decodeWorkspace(lab({ b: 'NoSuchBase' }), data);
+    expect(out!.workspace.lab.baseId).toBe('');
+    expect(out!.dropped).toEqual(['NoSuchBase']);
+  });
+});
+
 describe('store', () => {
   beforeEach(() => {
     localStorage.clear();

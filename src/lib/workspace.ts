@@ -94,6 +94,39 @@ interface Wire {
 }
 
 /**
+ * The DECODER's view of the same wire, with every leaf that reaches app state UNVALIDATED typed as
+ * `unknown` — because that is what it is. `parsed as WireIn` is a cast over a stranger's JSON, and a
+ * cast is not a check: it switches TypeScript off at the one boundary where the input is untrusted.
+ * `Wire` above stays strict, since the encoder really does produce those types.
+ *
+ * The point is enforcement, not documentation. `budget: wire.l.bg ?? ''` does not COMPILE against
+ * this type; it has to go through `clampText`. *Remembering* to validate is exactly what failed when
+ * `lv` was fixed and `bg`/`bc` — two lines below it — were not.
+ *
+ * Leaves left strict are the ones already safe by construction: `v` is rejected unless it equals
+ * FORMAT; `m`/`r`/`sm` are read through a `=== 'x'` ternary; and a non-string mod id throws inside
+ * `restore`, which `decodeWorkspace`'s try/catch turns into a clean null. Widening those would add
+ * noise, not safety.
+ */
+type WireTargetIn = readonly [string, unknown];
+type WireItemModIn = readonly [string, unknown, 1?];
+
+interface WireIn {
+  readonly v: number;
+  readonly m: 'p' | 'i';
+  readonly l: {
+    readonly b: unknown; readonly lv: unknown; readonly t: readonly WireTargetIn[];
+    readonly f: readonly string[]; readonly p: readonly string[]; readonly bg: unknown;
+    readonly bc?: unknown;
+  };
+  readonly i: {
+    readonly b: unknown; readonly lv: unknown; readonly r: 'm' | 'r';
+    readonly px: readonly WireItemModIn[]; readonly sx: readonly WireItemModIn[];
+    readonly sm: 'c' | 'p'; readonly t: readonly WireTargetIn[];
+  };
+}
+
+/**
  * Item level from a link, held to the same 1-100 the input control enforces.
  *
  * A link is not a form: nothing stops it carrying `1e308`, `-5`, or `"abc"`, and `?? default` only
@@ -103,6 +136,27 @@ interface Wire {
  */
 const clampLevel = (lv: unknown, fallback: number): number =>
   (typeof lv === 'number' && Number.isInteger(lv) && lv >= 1 && lv <= 100 ? lv : fallback);
+
+/**
+ * A free-text numeric field from a link — `budget` and `baseCost` — held to the string its input
+ * control produces.
+ *
+ * These fail differently from a bad SHAPE, which is why `decodeWorkspace`'s try/catch cannot cover
+ * them: they decode cleanly, escape into app state as a number or an object, and throw LATER, at
+ * `budget.trim()` in EngineLab — on Compute, which is the one thing a shared link exists for. A
+ * non-string falls back to '' rather than String(v), on clampLevel's ruling that a link carrying the
+ * wrong type is corrupt, not a request. '' is already the "no opinion" value both fields are built
+ * around, so the craft simply plans on the default.
+ */
+const clampText = (v: unknown): string => (typeof v === 'string' ? v : '');
+
+/**
+ * A display tier from a link. `engineMap` already clamps the RANGE; what it cannot survive is a
+ * non-number — `n - tierDisplay` is NaN for "abc" or {}, and NaN passes straight through the
+ * Math.min/Math.max that clamp it, so the craft plans against a garbage tier index instead of
+ * failing. 1 is the tier `addTarget` defaults to, i.e. "best", the same as adding the mod by hand.
+ */
+const clampTier = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 1);
 
 const strip = (baseId: string, modId: string): string =>
   modId.startsWith(`${baseId}/`) ? modId.slice(baseId.length + 1) : modId;
@@ -197,11 +251,11 @@ export function decodeWorkspace(payload: string, data: PatchData): DecodeResult 
 }
 
 function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
-  let wire: Wire;
+  let wire: WireIn;
   try {
     const parsed: unknown = JSON.parse(fromBase64Url(payload));
     if (!parsed || typeof parsed !== 'object') return null;
-    wire = parsed as Wire;
+    wire = parsed as WireIn;
   } catch {
     return null;
   }
@@ -211,24 +265,29 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
   // An EMPTY base id means "none chosen yet", not "an id this build lost". Reporting it as dropped made
   // a link shared from a fresh workspace announce "2 mods in the link no longer exist" — two counts, no
   // mods, nothing missing. `dropped` drives a user-facing message, so only real losses belong in it.
-  const knownBase = (id: string): string =>
-    (!id || data.bases.has(id) ? id : (dropped.push(id), ''));
+  const knownBase = (id: unknown): string => {
+    if (typeof id !== 'string' || !id) return '';
+    if (data.bases.has(id)) return id;
+    dropped.push(id);
+    return '';
+  };
   const keep = (base: string, short: string): string | null => {
     const full = restore(base, short);
     if (data.mods.has(full)) return full;
     dropped.push(full);
     return null;
   };
-  const targets = (base: string, list: readonly WireTarget[] | undefined): TargetInput[] =>
+  const targets = (base: string, list: readonly WireTargetIn[] | undefined): TargetInput[] =>
     (list ?? []).flatMap(([id, tier]) => {
       const full = base ? keep(base, id) : null;
-      return full ? [{ modId: full, tierDisplay: tier }] : [];
+      return full ? [{ modId: full, tierDisplay: clampTier(tier) }] : [];
     });
-  const itemMods = (base: string, list: readonly WireItemMod[] | undefined): ItemModInput[] =>
+  const itemMods = (base: string, list: readonly WireItemModIn[] | undefined): ItemModInput[] =>
     (list ?? []).flatMap(([id, tier, frac]) => {
       const full = base ? keep(base, id) : null;
       if (!full) return [];
-      return [frac ? { modId: full, tierDisplay: tier, fractured: true } : { modId: full, tierDisplay: tier }];
+      const t = clampTier(tier);
+      return [frac ? { modId: full, tierDisplay: t, fractured: true } : { modId: full, tierDisplay: t }];
     });
   const ids = (base: string, list: readonly string[] | undefined): Set<string> => {
     const out = new Set<string>();
@@ -239,16 +298,16 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
     return out;
   };
 
-  const lb = knownBase(wire.l.b ?? '');
-  const ib = knownBase(wire.i.b ?? '');
+  const lb = knownBase(wire.l.b);
+  const ib = knownBase(wire.i.b);
   const d = defaultWorkspace();
   return {
     workspace: {
       mode: wire.m === 'i' ? 'item' : 'plan',
       lab: {
         baseId: lb, level: clampLevel(wire.l.lv, d.lab.level), targets: targets(lb, wire.l.t),
-        fractured: ids(lb, wire.l.f), pinned: ids(lb, wire.l.p), budget: wire.l.bg ?? '',
-        baseCost: wire.l.bc ?? '',
+        fractured: ids(lb, wire.l.f), pinned: ids(lb, wire.l.p), budget: clampText(wire.l.bg),
+        baseCost: clampText(wire.l.bc),
       },
       item: {
         baseId: ib, level: clampLevel(wire.i.lv, d.item.level), rarity: wire.i.r === 'm' ? 'magic' : 'rare',

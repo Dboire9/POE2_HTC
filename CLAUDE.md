@@ -122,6 +122,15 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - `0.5` (Java-extracted) and `0.5.0` (poe2db) use DIFFERENT mod-id schemes (`MAXIMUM_MANA` vs `IncreasedMana`); the app + facade tests are id-agnostic (they list from the loaded data), but hardcoded ids in a test must match whichever patch that test loads.
 - Java-retirement doc debt was audited 2026-08-21 — `docs/{API_EXAMPLES,DEVELOPMENT,CONTRIBUTING,ABOUT,data-layer}.md` all lead with the "backend retired, pure client-side TS" note, and the remaining Java mentions (the frozen `__fixtures__` anchor, the `0.5` snapshot, past-tense history in ABOUT) are deliberate and accurate. Don't "fix" those. The audit predated the Electron removal; `DOWNLOAD.md` was rewritten separately on 2026-08-23 and now says there is nothing to download.
 - **`vercel.json` holds the cache headers, and JSON has no comments.** `/static/*` is content-hashed by Vite so it is cached `immutable` for a year; `/` is not hashed (it is how a new deploy is discovered) so it is `max-age=0, must-revalidate`. Getting those backwards either re-downloads 3.1 MB every visit or pins users to a stale build. Vercel's schema **rejects unknown properties** — a `"//"` key added to explain each rule failed the build outright ("headers[0] should NOT have additional property //"), so the headers never shipped. Explanations go here; `src/lib/deployConfig.test.ts` enforces the schema locally so the next mistake fails in the suite rather than in a deploy.
+- **A share link is untrusted input, and `parsed as Wire` is a cast, not a check.** `?s=` is the app's
+  only attack surface — a public URL any stranger can craft. Two failure modes, and they need
+  different defences. A bad SHAPE throws inside the decoder, so `decodeWorkspace`'s try/catch converts
+  it to the documented `null` (before that guard existed, one malformed link white-screened the app).
+  A wrong TYPE does not throw there at all: it decodes cleanly and escapes into app state, where
+  `budget.trim()` throws on Compute. `clampLevel` fixed `lv` and missed `bg`/`bc` two lines below it,
+  which is why the decoder now reads `WireIn` — the same shape with the escaping leaves typed
+  `unknown`, so the compiler refuses to pass one through unvalidated. `Wire` stays strict; it is the
+  encoder's contract. Add a field to the wire and it needs a `clamp*`, or it will not build.
 - **The Search-effort control must be rendered on every tab that obeys it.** `ItemActions` passed
   `limitsFor(effort)` to the solver while the picker lived inside EngineLab's lab-mode branch, so a
   from-item craft ran under a setting its own tab could not show. It is `SearchEffort.tsx` now, with

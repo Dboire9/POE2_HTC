@@ -19,14 +19,18 @@
     <meta property="og:url" content="https://poe2htc.com/" />
     <meta property="og:title" content="POE2HTC - Path of Exile 2 Crafting Calculator" />
     <meta property="og:description" content="Free Path of Exile 2 crafting calculator. Find optimal crafting paths and calculate success probabilities." />
-    <meta property="og:image" content="https://poe2htc.com/icon.png" />
+    <meta property="og:image" content="https://poe2htc.com/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="POE2 HTC — a hammer and anvil over the site name" />
+    <meta property="og:site_name" content="POE2 HTC" />
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://poe2htc.com/" />
     <meta name="twitter:title" content="POE2HTC - Path of Exile 2 Crafting Calculator" />
     <meta name="twitter:description" content="Free Path of Exile 2 crafting calculator. Find optimal crafting paths and calculate success probabilities." />
-    <meta name="twitter:image" content="https://poe2htc.com/icon.png" />
+    <meta name="twitter:image" content="https://poe2htc.com/og.jpg" />
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://poe2htc.com/" />
@@ -36,13 +40,16 @@
          tags that used to sit here said "no-store", which is the opposite of what this site wants —
          every asset filename is content-hashed, so they can be cached forever and only index.html
          needs revalidating. A 3.1 MB mods.json re-downloaded on every visit was the cost. -->
-    
-    <!-- Security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api.poe2htc.com https://*.vercel-analytics.com https://*.vercel-insights.com; script-src 'self' 'unsafe-inline' https://*.vercel-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.poe2htc.com https://*.vercel-analytics.com https://*.vercel-insights.com http://localhost:* ws://localhost:*;" />
+
+    <!-- The Content-Security-Policy is a REAL RESPONSE HEADER, set in vercel.json — not a meta tag.
+         A meta CSP silently ignores `frame-ancestors`, so the one that used to live here never
+         stopped anyone iframing the site; and being part of the document it applied in dev too, so
+         the ws://localhost allowances Vite's HMR needs were shipping to production and could not be
+         removed without breaking `npm run dev`. src/lib/deployConfig.test.ts pins the header. -->
     
     <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
     <link rel="icon" type="image/x-icon" href="/icon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/icon.png" />
     <link rel="apple-touch-icon" href="/icon.png" />
   </head>
   <body>

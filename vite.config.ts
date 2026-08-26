@@ -43,6 +43,33 @@ function preloadPatchData(): Plugin {
   }
 }
 
+/**
+ * Say out loud when a production build ships with no error reporting.
+ *
+ * `VITE_SENTRY_DSN` is read at BUILD time — Vite inlines `import.meta.env.*` as a literal, so with
+ * the variable unset the guard in src/lib/sentry.ts is provably true and Rollup deletes the whole
+ * init. The build succeeds, the site works, and not one error ever reaches anybody. That is a bad
+ * thing to discover from a user report, and nothing in the pipeline mentioned it.
+ *
+ * A WARNING rather than a hard failure: reporting being off does not break the app, and failing the
+ * build would take the site down over telemetry config — a worse outcome than the one being fixed.
+ */
+function warnIfUnmonitored(): Plugin {
+  return {
+    name: "warn-if-unmonitored",
+    apply: "build",
+    configResolved(config) {
+      if (config.env.VITE_SENTRY_DSN || config.mode !== "production") return
+      config.logger.warn(
+        "\n  \x1b[33m⚠  No VITE_SENTRY_DSN — this build reports no errors to anyone.\x1b[0m\n" +
+        "     Sentry's init is dead-code-eliminated without it, by design.\n" +
+        "     To turn it on: Vercel → Settings → Environment Variables → VITE_SENTRY_DSN,\n" +
+        "     then redeploy. It is read at build time, so a redeploy is required.\n"
+      )
+    },
+  }
+}
+
 // Bundle analysis is OPT-IN (`ANALYZE=1 npm run build`) so an ordinary build stays byte-identical —
 // the visualiser only writes a report, but keeping it out of the default pipeline means CI and
 // deploys can never be affected by it. Opens nothing; writes dist/stats.html.
@@ -52,6 +79,7 @@ export default defineConfig({
   plugins: [
     react(),
     preloadPatchData(),
+    warnIfUnmonitored(),
     ...(analyze ? [visualizer({ filename: "dist/stats.html", gzipSize: true, brotliSize: false })] : []),
   ],
   base: "./",

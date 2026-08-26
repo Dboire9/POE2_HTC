@@ -212,5 +212,20 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   remainder is the model, not a gap. `trueCostAnswered` in `ItemActions` is the single predicate for
   both that collapse and the "No true expected cost" card; keep it single, or the panel can end up
   hiding the routes AND explaining their absence at the same time.
-- Sentry + analytics are wired in frontend; keep functional.
+- **Sentry is OFF unless `VITE_SENTRY_DSN` is set at BUILD time, and it loads lazily when it is.**
+  Vite inlines `import.meta.env.*` as a literal, so with the variable unset the init in
+  `src/lib/sentry.ts` is provably dead and Rollup deletes it — the build succeeds, the site works, and
+  no error reaches anybody. That shipped undetected; `warnIfUnmonitored` in `vite.config.ts` now says
+  so in the build log. The SDK is a DYNAMIC import because a static one takes the entry chunk from
+  111 kB gzip to 202 kB (+82%), which would undo the startup work `preloadPatchData` exists to do —
+  errors thrown before the chunk lands are queued and flushed. `ErrorBoundary` is ours, not
+  `Sentry.ErrorBoundary`, precisely because that component forced the SDK into the entry bundle.
+  Vercel Analytics is unconditional and same-origin (`/_vercel/insights`), so it needs no CSP entry.
+- **The CSP is a real response header in `vercel.json`, never a `<meta>` tag.** A meta CSP silently
+  ignores `frame-ancestors`, and being part of the document it applies in dev too — which is why the
+  old one had to allow `ws://localhost:*` for Vite HMR and shipped those allowances to production.
+  `src/lib/deployConfig.test.ts` pins the header and fails if a meta tag reappears to shadow it.
+  `'unsafe-inline'` stays in `script-src` deliberately: `preloadPatchData` injects an inline script
+  whose content changes with every data refresh, so a hash would need regenerating each time. The app
+  has no XSS sink for it to matter — no `innerHTML`, no `eval`, no `dangerouslySetInnerHTML`.
 - Direct pushes to `main` are sanctioned despite branch protection; `remote: Bypassed rule violations` is expected output, not an error. `main` and `revival` are kept in sync.

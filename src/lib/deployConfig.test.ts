@@ -40,6 +40,62 @@ describe('vercel.json', () => {
     expect(valueOf('/')).toMatch(/max-age=0/);
     expect(valueOf('/')).toMatch(/must-revalidate/);
   });
+
+  /**
+   * The CSP has to be a REAL RESPONSE HEADER, and these tests exist because it used to be a
+   * `<meta http-equiv>` in index.html, where three things were wrong with it at once:
+   *
+   *   1. `frame-ancestors` is IGNORED in a meta CSP. The site was iframeable the whole time.
+   *   2. A meta tag is part of the document, so it applied in dev too — which is why it had to allow
+   *      `http://localhost:*` and `ws://localhost:*` for Vite's HMR, and those shipped to production.
+   *   3. It still allowed `https://api.poe2htc.com`, a backend retired in the Java migration.
+   *
+   * Nothing would have failed if any of that regressed, which is what makes it worth pinning.
+   */
+  describe('security headers', () => {
+    const all = (config.headers ?? []).find((r) => r.source === '/(.*)')?.headers ?? [];
+    const header = (key: string) => all.find((h) => h.key === key)?.value ?? '';
+    const csp = header('Content-Security-Policy');
+
+    it('serves a CSP on every route', () => {
+      expect(csp).toMatch(/default-src 'self'/);
+    });
+
+    // The one directive a meta tag could never deliver, and the reason the move was worth making.
+    it('refuses to be framed', () => {
+      expect(csp).toMatch(/frame-ancestors 'none'/);
+    });
+
+    // The solve worker is same-origin (`new Worker(new URL('engine.worker-….js', import.meta.url))`),
+    // never a blob. If this tightened to nothing, every craft in the app would stop computing.
+    it('still allows the solve worker', () => {
+      expect(csp).toMatch(/worker-src 'self'/);
+    });
+
+    // Sentry is off until VITE_SENTRY_DSN is set at BUILD time (see src/lib/sentry.ts). When it is
+    // turned on, the browser posts events to <org>.ingest.sentry.io — a CSP that forgot this would
+    // silently swallow every error report, which is the exact failure error tracking exists to
+    // prevent. `connect-src` stays otherwise closed: nothing else in the app calls out.
+    it('leaves room for Sentry to report, and nothing else', () => {
+      expect(csp).toMatch(/connect-src 'self' https:\/\/\*\.sentry\.io/);
+    });
+
+    it('carries no dev-only or retired-backend allowances', () => {
+      expect(csp).not.toMatch(/localhost/);
+      expect(csp).not.toMatch(/api\.poe2htc\.com/);   // that backend was retired with the Java engine
+    });
+
+    it('sets the two cheap headers that have no downside here', () => {
+      expect(header('X-Content-Type-Options')).toBe('nosniff');
+      expect(header('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
+    });
+
+    // A meta CSP would take precedence over the header for the directives it does support, quietly
+    // reinstating the weaker policy. There must be exactly one CSP and it must be the header.
+    it('is not shadowed by a meta tag in index.html', () => {
+      expect(readFileSync('index.html', 'utf8')).not.toMatch(/http-equiv=["']Content-Security-Policy/i);
+    });
+  });
 });
 
 describe('no throwaway probes in the suite', () => {

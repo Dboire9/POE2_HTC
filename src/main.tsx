@@ -2,11 +2,12 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import App from "./App"
 import "./index.css"
-import { initSentry, SentryErrorBoundary } from "./lib/sentry"
+import { initSentry, ErrorBoundary } from "./lib/sentry"
+import { ErrorFallback } from "./ErrorFallback"
 import { PREFS_PREFIX } from "./lib/currencyPrefs"
 import { Analytics } from '@vercel/analytics/react';
 
-// Initialize Sentry error tracking
+// Off unless VITE_SENTRY_DSN was set at BUILD time; loads in its own chunk when it is.
 initSentry();
 
 // Force cache clear - version 2.1
@@ -26,29 +27,9 @@ if (currentVersion !== CACHE_VERSION) {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <SentryErrorBoundary fallback={<ErrorFallback />}>
+    <ErrorBoundary fallback={<ErrorFallback />}>
       <App />
       <Analytics />
-    </SentryErrorBoundary>
+    </ErrorBoundary>
   </React.StrictMode>,
 )
-
-// Fallback UI for error boundary
-function ErrorFallback() {
-  return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Something went wrong</h1>
-      <p>The application encountered an error. Please try refreshing the page.</p>
-      <button 
-        onClick={() => window.location.reload()}
-        style={{ 
-          marginTop: '1rem', 
-          padding: '0.5rem 1rem',
-          cursor: 'pointer'
-        }}
-      >
-        Refresh Page
-      </button>
-    </div>
-  );
-}

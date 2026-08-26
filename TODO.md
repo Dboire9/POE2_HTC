@@ -233,8 +233,25 @@ Two things worth a look, neither obviously worth it:
   quiet style breakage, so it needs a real audit of `cn()` call sites first.
 - **react-dom is half the bundle** and irreducible without changing framework. Not worth it.
 
-Sentry was the hypothesis going in and the measurement killed it: ~6.9% across all three packages,
-Session Replay not in the bundle at all. Lazy-loading it would buy almost nothing.
+**CORRECTED 2026-08-26 — the Sentry row above was measured on a build with Sentry compiled OUT.**
+The original note read: "Sentry was the hypothesis going in and the measurement killed it: ~6.9%
+across all three packages, Session Replay not in the bundle at all. Lazy-loading it would buy almost
+nothing." Every part of that was an artifact. With no `VITE_SENTRY_DSN` at build time, Vite inlines
+`undefined`, the guard in `sentry.ts` is provably true and Rollup deletes the entire `init` — so the
+visualiser was measuring the leftovers of `Sentry.ErrorBoundary`, not Sentry.
+
+Re-measured with a DSN set, the real figures are the opposite of that conclusion:
+
+| build | entry chunk (gzip) |
+|---|---|
+| no DSN (what was measured) | 116 kB |
+| DSN set, static import | **202 kB** — +74% |
+| DSN set, dynamic import (now) | **111 kB**, Sentry in its own 158 kB chunk |
+
+So lazy-loading bought ~90 kB gzip off the critical path, and Session Replay *was* in the bundle once
+the DSN existed. Done 2026-08-26. **The lesson generalises: measure a bundle in the configuration it
+actually ships in.** A feature gated on a build-time env var is invisible to the visualiser unless
+that var is set.
 
 ---
 

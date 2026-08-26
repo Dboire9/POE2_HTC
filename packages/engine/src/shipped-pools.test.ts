@@ -101,15 +101,19 @@ describe('0.5.0 shipped desecrated pool', () => {
 // The desecrated spawn weight cannot be read off poe2db — it publishes none and reports a literal 1 for
 // every row, which taken at face value would make a bone produce a desecrated mod about 1 time in
 // 121,510 on a Body Armour. As of 2026-08-24 the shipped value is MEASURED rather than assumed: 40
-// Well of Souls offers on empty Rare Helmets_dex_int, 22 of which held a carved mod, inverted by
-// scripts/desecrate-weight.mts to a maximum likelihood of 3,981 (range 2,512-5,012) and rounded to
-// 4,000. The previous 1,000 predicted 21.8% against 55% observed.
+// bones on an empty Rare Helmets_dex_int showed 120 modifiers, 22 of them carved, which
+// scripts/desecrate-weight.mts inverts to a maximum likelihood of 2,512 (range 1,995-3,981), rounded
+// to 2,500. The previous 1,000 predicted 7.6% per draw against 18.3% observed.
 //
-// Nothing in the app would fail loudly if a refresh quietly restored poe2db's 1, so this asserts the
-// constant. If it changes again, change it HERE and in tools/refresh/apply_pools.mjs together, and say
-// so in docs/validation.md D4 and the UI note.
+// This assertion earned its keep immediately: the sample was first misread as "22 of 40 OFFERS held a
+// carved mod", shipped at 4,000, and corrected a commit later — and this is the test that has to move
+// deliberately for that to happen, rather than the number drifting quietly.
+//
+// Nothing in the app would fail loudly if a refresh quietly restored poe2db's 1 either, so this asserts
+// the constant. If it changes again, change it HERE and in tools/refresh/apply_pools.mjs together, and
+// say so in docs/validation.md D4 and the UI note.
 describe('the measured desecrated weight', () => {
-  const DESECRATED_ASSUMED_WEIGHT = 4000;
+  const DESECRATED_ASSUMED_WEIGHT = 2500;
 
   it('is applied uniformly to every desecrated mod in the shipped snapshot', () => {
     const weights = new Set<number>();

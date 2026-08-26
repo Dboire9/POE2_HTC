@@ -91,37 +91,46 @@ weights of several thousand it made a bone produce a desecrated mod about **1 ti
 Body Armour, which cannot be right for an item whose purpose is to add one. It was replaced with an
 assumed 1000, chosen for plausibility, and flagged as the single largest unverified number in the app.
 
-**MEASURED IN GAME 2026-08-24 — the assumption is retired.** The observation, from the user: **40 Well
-of Souls offers on empty Rare `Helmets_dex_int`, of which 22 held at least one "carved by the Abyss"
-mod** (55.0%). `scripts/desecrate-weight.mts` inverts that through the engine's own pool maths:
+**MEASURED IN GAME 2026-08-24 — the assumption is retired.** The observation, from the user: **40 bones
+on empty Rare `Helmets_dex_int`. A bone offers three modifiers, so 120 were shown, of which 22 were
+"carved by the Abyss"** — 18.3% per draw. `scripts/desecrate-weight.mts` inverts that through the
+engine's own pool maths:
 
 | | |
 |---|---|
-| maximum likelihood | **3,981** (predicts 58.4%) |
-| plausible range | **2,512 – 5,012** |
-| previous assumption | 1,000 — predicts **21.8%**, far outside the interval |
-| **shipped** | **4,000** (predicts 58.6%) |
+| maximum likelihood | **2,512** (predicts 17.65% per draw) |
+| plausible range | **1,995 – 3,981** |
+| previous assumption | 1,000 — predicts **7.6%**, outside the interval |
+| **shipped** | **2,500** (predicts 17.58% per draw) |
 
-Rounded to 4,000 because forty samples do not support four significant figures; every value in the
-interval reads the same evidence, and sitting near its middle is honest about that.
+Rounded to 2,500: a 120-draw sample does not support four significant figures, and every value in the
+interval reads the same evidence.
 
-**The three-draw model was checked independently.** A bone offers three modifiers, and the observer
-reported several offers holding *two* carved mods and none holding three. At the fitted weight the
-model predicts 5.0 two-carved offers in 40 and a **60% chance of seeing no three-carved offer at all**
-— so the count distribution corroborates the shape, not just the headline rate. That matters, because
-the inversion assumes three independent draws.
+**Count MODIFIERS, not offers — this sample was misread once.** It was first recorded as "22 of 40
+offers held a carved mod", fitted at 3,981, and shipped at 4,000 before the reporter corrected it: the
+22 was the total carved *modifiers* across all 120 shown. The offer reading overstates the weight by
+~50%, because "at least one of three" is a much higher bar than "one draw". Modifiers are also the
+better statistic — 3N Bernoulli trials instead of N for the same bones spent — which is why this
+interval is *narrower* than the offer-based one despite fitting a lower number. The script now takes
+modifier counts and says so in its usage.
+
+**The three-draw model was checked independently.** The observer reported several offers holding *two*
+carved mods and none holding three. At the fitted weight the model predicts 3.3 two-carved offers in 40
+and a **78% chance of seeing no three-carved offer at all** — so the count distribution corroborates
+the shape, not just the headline rate. That matters, because the inversion assumes three independent
+draws, and it held under both readings of the sample.
 
 **What it changed.** A heavier carved pool makes a bone *worse* at fishing for ordinary mods, so crafts
 that want normal mods got dearer. Held Rare, 3 normal targets, no restart:
 
-| base | at 1,000 | at 4,000 | bone excluded |
+| base | at 1,000 | at 2,500 | bone excluded |
 |---|---|---|---|
-| Wands | 2,181.3 ex | **2,776.2 ex** | 4,073.8 ex |
-| Body_Armours_str | 1,358.5 ex | **1,415.6 ex** | 2,967.6 ex |
-| Helmets_dex_int | 2,819.8 ex | **2,986.0 ex** | 6,191.2 ex |
+| Wands | 2,181.3 ex | **2,493.7 ex** | 4,073.8 ex |
+| Body_Armours_str | 1,358.5 ex | **1,396.4 ex** | 2,967.6 ex |
+| Amulets | 52,738.7 ex | 52,738.7 ex | 52,738.7 ex (price gate closed) |
 
-A bone is still worth playing everywhere — the gap to "bone excluded" stays large — but on Wands it is
-27% less of a bargain than the app used to claim.
+A bone is still clearly worth playing where the gate opens — 39% off on Wands, 53% on Body Armour —
+just less of a bargain than the app used to claim.
 
 The older comparison, for reference:
 

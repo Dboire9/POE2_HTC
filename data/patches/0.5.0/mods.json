@@ -1,7 +1,7 @@
 {
   "patch": "0.5.0",
   "generated": "2026-07-04",
-  "source": "NORMAL structure from RePoE-fork PoE2 dump (client 4.5.4.3) + NORMAL weights from poe2db (DropChance). ESSENCE + DESECRATED + PERFECT_ESSENCE pools built from poe2db per-class pages by apply_pools.mjs (essence tiers = Lesser/Normal/Greater levels; perfect_essence = 1-tier, both deterministic weight 0; desecrated = one mod per row, boss tags preserved). DESECRATED WEIGHTS ARE AN ASSUMPTION: poe2db publishes none (it reports 1 for every row), so all of them are set to 4000 — see docs/validation.md D4. They are NOT observed data.",
+  "source": "NORMAL structure from RePoE-fork PoE2 dump (client 4.5.4.3) + NORMAL weights from poe2db (DropChance). ESSENCE + DESECRATED + PERFECT_ESSENCE pools built from poe2db per-class pages by apply_pools.mjs (essence tiers = Lesser/Normal/Greater levels; perfect_essence = 1-tier, both deterministic weight 0; desecrated = one mod per row, boss tags preserved). DESECRATED WEIGHTS ARE AN ASSUMPTION: poe2db publishes none (it reports 1 for every row), so all of them are set to 2500 — see docs/validation.md D4. They are NOT observed data.",
   "count": 2140,
   "mods": [
     {
@@ -884,7 +884,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -911,7 +911,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -938,7 +938,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -965,7 +965,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               35,
@@ -992,7 +992,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -1019,7 +1019,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -1046,7 +1046,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -1077,7 +1077,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -1104,7 +1104,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               35,
@@ -1131,7 +1131,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -1158,7 +1158,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -1185,7 +1185,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -1212,7 +1212,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -1239,7 +1239,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               3,
@@ -1266,7 +1266,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -1293,7 +1293,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -1320,7 +1320,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -1347,7 +1347,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               3,
@@ -1374,7 +1374,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -1401,7 +1401,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -1423,7 +1423,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -1450,7 +1450,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -1477,7 +1477,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               2,
@@ -1504,7 +1504,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               35,
@@ -1531,7 +1531,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -1558,7 +1558,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               2,
@@ -1585,7 +1585,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -1612,7 +1612,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -1639,7 +1639,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -1670,7 +1670,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -1701,7 +1701,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -5311,7 +5311,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -5338,7 +5338,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -5369,7 +5369,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -5396,7 +5396,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -5423,7 +5423,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -5450,7 +5450,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -5477,7 +5477,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -5504,7 +5504,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -5535,7 +5535,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -5566,7 +5566,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -8890,7 +8890,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -8917,7 +8917,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -8948,7 +8948,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -8975,7 +8975,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -9002,7 +9002,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -9029,7 +9029,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -9056,7 +9056,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -9083,7 +9083,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -9114,7 +9114,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -9145,7 +9145,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -12197,7 +12197,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -12224,7 +12224,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -12255,7 +12255,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -12282,7 +12282,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -12309,7 +12309,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -12336,7 +12336,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -12363,7 +12363,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -12390,7 +12390,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -12421,7 +12421,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -12452,7 +12452,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -15565,7 +15565,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -15592,7 +15592,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -15623,7 +15623,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -15650,7 +15650,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -15677,7 +15677,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -15704,7 +15704,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -15731,7 +15731,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -15758,7 +15758,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -15789,7 +15789,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -15820,7 +15820,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -19187,7 +19187,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -19214,7 +19214,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -19245,7 +19245,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -19272,7 +19272,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -19299,7 +19299,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -19326,7 +19326,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -19353,7 +19353,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -19380,7 +19380,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -19411,7 +19411,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -19442,7 +19442,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -22767,7 +22767,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -22794,7 +22794,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -22825,7 +22825,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -22852,7 +22852,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -22879,7 +22879,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -22906,7 +22906,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -22933,7 +22933,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -22960,7 +22960,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -22991,7 +22991,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -23022,7 +23022,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -25845,7 +25845,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -25872,7 +25872,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -25898,7 +25898,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -25925,7 +25925,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               0.1,
@@ -25952,7 +25952,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -25979,7 +25979,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -26006,7 +26006,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -26037,7 +26037,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -26064,7 +26064,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -26091,7 +26091,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -26118,7 +26118,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -26145,7 +26145,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -26172,7 +26172,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -26203,7 +26203,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -26234,7 +26234,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -29234,7 +29234,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -29261,7 +29261,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -29287,7 +29287,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -29314,7 +29314,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               0.1,
@@ -29341,7 +29341,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -29368,7 +29368,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -29395,7 +29395,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -29426,7 +29426,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -29453,7 +29453,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -29480,7 +29480,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -29507,7 +29507,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -29534,7 +29534,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -29561,7 +29561,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -29592,7 +29592,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -29623,7 +29623,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -32432,7 +32432,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -32459,7 +32459,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -32485,7 +32485,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -32512,7 +32512,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               0.1,
@@ -32539,7 +32539,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -32566,7 +32566,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -32593,7 +32593,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -32624,7 +32624,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -32651,7 +32651,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -32678,7 +32678,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -32705,7 +32705,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -32732,7 +32732,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -32759,7 +32759,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -32790,7 +32790,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -32821,7 +32821,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -35663,7 +35663,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -35690,7 +35690,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -35716,7 +35716,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -35743,7 +35743,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               0.1,
@@ -35770,7 +35770,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -35797,7 +35797,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -35824,7 +35824,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -35855,7 +35855,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -35882,7 +35882,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -35909,7 +35909,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -35936,7 +35936,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -35963,7 +35963,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -35990,7 +35990,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -36021,7 +36021,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -36052,7 +36052,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -39109,7 +39109,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -39136,7 +39136,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -39162,7 +39162,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -39189,7 +39189,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               0.1,
@@ -39216,7 +39216,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -39243,7 +39243,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -39270,7 +39270,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -39301,7 +39301,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -39328,7 +39328,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -39355,7 +39355,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -39382,7 +39382,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -39409,7 +39409,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -39436,7 +39436,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -39467,7 +39467,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -39498,7 +39498,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -42499,7 +42499,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -42526,7 +42526,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -42552,7 +42552,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -42579,7 +42579,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               0.1,
@@ -42606,7 +42606,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -42633,7 +42633,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -42660,7 +42660,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -42691,7 +42691,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -42718,7 +42718,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -42745,7 +42745,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -42772,7 +42772,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -42799,7 +42799,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -42826,7 +42826,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -42857,7 +42857,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -42888,7 +42888,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -45446,7 +45446,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -45473,7 +45473,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -45500,7 +45500,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -45527,7 +45527,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -45558,7 +45558,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -45589,7 +45589,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -45624,7 +45624,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -45655,7 +45655,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -45682,7 +45682,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               30,
@@ -45709,7 +45709,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -45736,7 +45736,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -45763,7 +45763,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -45790,7 +45790,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -45817,7 +45817,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -45844,7 +45844,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -45871,7 +45871,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               60,
@@ -45898,7 +45898,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               5,
@@ -49421,7 +49421,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -49448,7 +49448,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -49479,7 +49479,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -49506,7 +49506,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -49533,7 +49533,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -49560,7 +49560,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -49587,7 +49587,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               1,
@@ -49614,7 +49614,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -49636,7 +49636,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -49663,7 +49663,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -49694,7 +49694,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -49725,7 +49725,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -52004,7 +52004,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -52026,7 +52026,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -52048,7 +52048,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -52075,7 +52075,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               27,
@@ -52102,7 +52102,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -52129,7 +52129,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -52156,7 +52156,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -52183,7 +52183,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -52210,7 +52210,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -52236,7 +52236,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               101,
@@ -52267,7 +52267,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -52294,7 +52294,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -52321,7 +52321,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -52348,7 +52348,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               85,
@@ -52375,7 +52375,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               5,
@@ -56220,7 +56220,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -56242,7 +56242,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -56269,7 +56269,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -56296,7 +56296,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -56323,7 +56323,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -56354,7 +56354,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -56381,7 +56381,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -56408,7 +56408,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               1,
@@ -56435,7 +56435,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -56462,7 +56462,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -56489,7 +56489,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -56516,7 +56516,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -56543,7 +56543,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -56570,7 +56570,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               61,
@@ -56597,7 +56597,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -56628,7 +56628,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -56659,7 +56659,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -56686,7 +56686,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               61,
@@ -59711,7 +59711,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -59738,7 +59738,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -59765,7 +59765,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -59792,7 +59792,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -59823,7 +59823,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -59850,7 +59850,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -59877,7 +59877,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -59904,7 +59904,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -59931,7 +59931,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -59962,7 +59962,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -59993,7 +59993,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -64108,7 +64108,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -64135,7 +64135,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -64162,7 +64162,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -64189,7 +64189,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -64220,7 +64220,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -64247,7 +64247,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -64274,7 +64274,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -64301,7 +64301,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -64328,7 +64328,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -64359,7 +64359,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -64390,7 +64390,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -68313,7 +68313,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -68340,7 +68340,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -68367,7 +68367,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -68394,7 +68394,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -68425,7 +68425,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -68452,7 +68452,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -68479,7 +68479,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -68506,7 +68506,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -68533,7 +68533,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -68564,7 +68564,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -68595,7 +68595,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -72680,7 +72680,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -72707,7 +72707,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -72734,7 +72734,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -72761,7 +72761,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -72792,7 +72792,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -72819,7 +72819,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -72846,7 +72846,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -72873,7 +72873,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -72900,7 +72900,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -72931,7 +72931,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -72962,7 +72962,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -77134,7 +77134,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -77161,7 +77161,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -77188,7 +77188,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -77215,7 +77215,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -77246,7 +77246,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -77273,7 +77273,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -77300,7 +77300,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -77327,7 +77327,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -77354,7 +77354,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -77385,7 +77385,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -77416,7 +77416,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -81661,7 +81661,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -81688,7 +81688,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -81715,7 +81715,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -81742,7 +81742,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -81773,7 +81773,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -81800,7 +81800,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -81827,7 +81827,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -81854,7 +81854,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -81881,7 +81881,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -81912,7 +81912,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -81943,7 +81943,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -85713,7 +85713,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -85744,7 +85744,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -85771,7 +85771,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -85798,7 +85798,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -85825,7 +85825,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -85852,7 +85852,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -85879,7 +85879,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -85906,7 +85906,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -85937,7 +85937,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -85968,7 +85968,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -89049,7 +89049,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -89080,7 +89080,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -89107,7 +89107,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -89134,7 +89134,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -89161,7 +89161,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -89188,7 +89188,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -89215,7 +89215,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -89242,7 +89242,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -89273,7 +89273,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -89304,7 +89304,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -92316,7 +92316,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -92347,7 +92347,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -92374,7 +92374,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -92401,7 +92401,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -92428,7 +92428,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -92455,7 +92455,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -92482,7 +92482,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -92509,7 +92509,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -92540,7 +92540,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -92571,7 +92571,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -95487,7 +95487,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -95518,7 +95518,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -95545,7 +95545,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -95572,7 +95572,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -95599,7 +95599,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -95626,7 +95626,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -95653,7 +95653,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -95680,7 +95680,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -95711,7 +95711,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -95742,7 +95742,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -99009,7 +99009,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -99040,7 +99040,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -99067,7 +99067,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -99094,7 +99094,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -99121,7 +99121,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -99148,7 +99148,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -99175,7 +99175,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -99202,7 +99202,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -99233,7 +99233,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -99264,7 +99264,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -102346,7 +102346,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -102377,7 +102377,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -102404,7 +102404,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -102431,7 +102431,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -102458,7 +102458,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -102485,7 +102485,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -102512,7 +102512,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -102539,7 +102539,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -102570,7 +102570,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -102601,7 +102601,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -105202,7 +105202,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -105224,7 +105224,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -105251,7 +105251,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               2,
@@ -105278,7 +105278,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -105305,7 +105305,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               41,
@@ -105332,7 +105332,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               41,
@@ -105359,7 +105359,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -105386,7 +105386,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -105413,7 +105413,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -105440,7 +105440,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -105467,7 +105467,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               110,
@@ -105494,7 +105494,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -105521,7 +105521,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -105548,7 +105548,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               5,
@@ -105575,7 +105575,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -105602,7 +105602,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               41,
@@ -105629,7 +105629,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -109144,7 +109144,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -109175,7 +109175,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               86,
@@ -109206,7 +109206,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -109237,7 +109237,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               86,
@@ -109268,7 +109268,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -109295,7 +109295,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -109326,7 +109326,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               86,
@@ -109357,7 +109357,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -109384,7 +109384,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -109411,7 +109411,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -109438,7 +109438,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -109465,7 +109465,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               5,
@@ -113729,7 +113729,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -113756,7 +113756,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               18,
@@ -113783,7 +113783,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               18,
@@ -113810,7 +113810,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -113837,7 +113837,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -113864,7 +113864,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -113891,7 +113891,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -113918,7 +113918,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -115980,7 +115980,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -116007,7 +116007,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -116034,7 +116034,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -116065,7 +116065,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -116092,7 +116092,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -116119,7 +116119,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -116146,7 +116146,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -116173,7 +116173,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -116200,7 +116200,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -116227,7 +116227,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -116254,7 +116254,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               3,
@@ -116281,7 +116281,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -116308,7 +116308,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -116335,7 +116335,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -116362,7 +116362,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               2,
@@ -116389,7 +116389,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -116416,7 +116416,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               2,
@@ -116443,7 +116443,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -116470,7 +116470,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -116497,7 +116497,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -116528,7 +116528,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -116559,7 +116559,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -123331,7 +123331,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -123358,7 +123358,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -123389,7 +123389,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -123416,7 +123416,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -123443,7 +123443,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -123470,7 +123470,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -123497,7 +123497,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               1,
@@ -123524,7 +123524,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -123546,7 +123546,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -123573,7 +123573,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -123604,7 +123604,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -123635,7 +123635,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -126530,7 +126530,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -126557,7 +126557,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -126588,7 +126588,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -126615,7 +126615,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -126642,7 +126642,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -126669,7 +126669,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -126696,7 +126696,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               1,
@@ -126723,7 +126723,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -126745,7 +126745,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -126772,7 +126772,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -126803,7 +126803,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -126834,7 +126834,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -129490,7 +129490,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               17,
@@ -129517,7 +129517,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -129548,7 +129548,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -129575,7 +129575,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -129602,7 +129602,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               6,
@@ -129629,7 +129629,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               13,
@@ -129656,7 +129656,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               1,
@@ -129683,7 +129683,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -129705,7 +129705,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -129732,7 +129732,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -129763,7 +129763,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -129794,7 +129794,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               9,
@@ -132013,7 +132013,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               10,
@@ -132040,7 +132040,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -132067,7 +132067,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -132094,7 +132094,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -132125,7 +132125,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -132156,7 +132156,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -132191,7 +132191,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -132222,7 +132222,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -132249,7 +132249,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -132276,7 +132276,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -132303,7 +132303,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               12,
@@ -132330,7 +132330,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -132357,7 +132357,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -132384,7 +132384,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -132411,7 +132411,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               60,
@@ -132438,7 +132438,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               60,
@@ -132465,7 +132465,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               5,
@@ -136755,7 +136755,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               20,
@@ -136782,7 +136782,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -136809,7 +136809,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -136836,7 +136836,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -136863,7 +136863,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               35,
@@ -136890,7 +136890,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               30,
@@ -136917,7 +136917,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               40,
@@ -136944,7 +136944,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               1,
@@ -136971,7 +136971,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               3,
@@ -136998,7 +136998,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -137025,7 +137025,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -137052,7 +137052,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               148,
@@ -137079,7 +137079,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -137106,7 +137106,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -140161,7 +140161,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [],
           "stats": []
         }
@@ -140183,7 +140183,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               16,
@@ -140210,7 +140210,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -140237,7 +140237,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -140264,7 +140264,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               86,
@@ -140291,7 +140291,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               86,
@@ -140318,7 +140318,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -140345,7 +140345,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -140372,7 +140372,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -140399,7 +140399,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               15,
@@ -140426,7 +140426,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               110,
@@ -140453,7 +140453,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -140480,7 +140480,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -140507,7 +140507,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               5,
@@ -140534,7 +140534,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -140561,7 +140561,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               86,
@@ -140588,7 +140588,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               25,
@@ -144669,7 +144669,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               31,
@@ -144696,7 +144696,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               11,
@@ -144723,7 +144723,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               27,
@@ -144750,7 +144750,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -144777,7 +144777,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -144804,7 +144804,7 @@
         {
           "name": "of Ulaman",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               4,
@@ -144831,7 +144831,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               26,
@@ -144858,7 +144858,7 @@
         {
           "name": "of Kurgal",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               3,
@@ -144885,7 +144885,7 @@
         {
           "name": "Ulaman's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               21,
@@ -144916,7 +144916,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               55,
@@ -144951,7 +144951,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               5,
@@ -144982,7 +144982,7 @@
         {
           "name": "of Amanamu",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               8,
@@ -145009,7 +145009,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               74,
@@ -145036,7 +145036,7 @@
         {
           "name": "Kurgal's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               75,
@@ -145063,7 +145063,7 @@
         {
           "name": "Amanamu's",
           "ilvl": 65,
-          "weight": 4000,
+          "weight": 2500,
           "ranges": [
             [
               74,

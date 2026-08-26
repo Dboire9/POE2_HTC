@@ -40,21 +40,25 @@ const GENERATED = '2026-07-13';
  * than assumed. Named and exported so the shipped snapshot can be asserted against it: a silent
  * refresh back to poe2db's 1 would quietly restore 1-in-121,510 odds.
  *
- * The observation: 40 Well of Souls offers on EMPTY Rare `Helmets_dex_int`, of which **22 held at
- * least one "carved by the Abyss" mod** (55.0%). `scripts/desecrate-weight.mts` inverts that through
- * the same pool maths the engine uses — maximum likelihood **3,981**, plausible range **2,512-5,012**.
- * The previous 1,000 predicted 21.8% against 55% observed and is far outside the interval.
+ * The observation: 40 bones on EMPTY Rare `Helmets_dex_int`. A bone offers three modifiers, so that is
+ * **120 modifiers shown, of which 22 were "carved by the Abyss"** — 18.3% per draw.
+ * `scripts/desecrate-weight.mts` inverts it through the same pool maths the engine uses: maximum
+ * likelihood **2,512**, plausible range **1,995-3,981**. The old 1,000 predicted 7.6% per draw and
+ * sits outside that interval.
  *
- * Rounded to 4,000: forty samples do not support four significant figures, and every value in the
- * interval is a defensible read of the same evidence. Sitting near the middle of it is honest about
- * that; quoting 3,981 would not be.
+ * Rounded to 2,500 — a 120-draw sample does not support four significant figures, and every value in
+ * the interval reads the same evidence.
  *
- * A bone offers THREE modifiers and the observer reported several offers holding two carved mods and
- * none holding three — which is the independent check that the three-draw model is right and only its
- * weight was wrong. At this weight the model predicts 5.0 two-carved offers in 40 and a 60% chance of
- * seeing no three-carved offer at all. See docs/validation.md D4.
+ * COUNT MODIFIERS, NOT OFFERS. This sample was first recorded as "22 of 40 offers held a carved mod"
+ * and fitted at 3,981, 50% too high, before the reporter corrected it. Modifiers are also the better
+ * statistic — 3N Bernoulli draws instead of N for the same bones spent, which is why the interval here
+ * is tighter than the offer-based one was despite fitting a lower number.
+ *
+ * The three-draw model itself is corroborated independently: the observer saw several offers holding
+ * two carved mods and none holding three, and at this weight the model predicts 3.3 two-carved offers
+ * in 40 and a 78% chance of seeing no three-carved offer at all. See docs/validation.md D4.
  */
-export const DESECRATED_ASSUMED_WEIGHT = 4000;
+export const DESECRATED_ASSUMED_WEIGHT = 2500;
 
 const ARMOUR_CATS = new Set(['Body_Armours', 'Boots', 'Gloves', 'Helmets', 'Shields']);
 const CATEGORY_CLASS = {

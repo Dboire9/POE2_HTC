@@ -67,8 +67,8 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   so the state no longer records it.
 - **A bone is one resource, not a repeatable orb, and the model plays it that way.** Asked for three
   ordinary mods on a held Wand the policy opens with an **Exalt** and holds the bone back, which is how
-  the mechanic is actually played. Measured worth on a held Rare: Wands 4,073.8ex → 2,776.2ex (−32%),
-  Body Armour 2,967.6ex → 1,415.6ex (−52%), amulets/rings unchanged (the collarbone is 7.69ex and the
+  the mechanic is actually played. Measured worth on a held Rare: Wands 4,073.8ex → 2,493.7ex (−39%),
+  Body Armour 2,967.6ex → 1,396.4ex (−53%), amulets/rings unchanged (the collarbone is 7.69ex and the
   price gate closes). `desecratable` in `markovFromItem.ts` opens on
   `bonePrice < DESECRATION_OFFER_COUNT * exaltPrice` — a NECESSARY condition — and also checks the
   currency policy, since with Desecration excluded the flag axis is pure cost (worth 6x on one craft).
@@ -82,7 +82,7 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   craft that ended on a bone unable to reach the goal, leaving value iteration no terminal to work back
   from. They are folded to one node for display (`canonical`), or the graph draws several identical
   "✓ target" boxes.
-- **The desecrated spawn weight is MEASURED, not published.** poe2db reports a literal 1 for every row, so it cannot be read off the data. As of 2026-08-24 all 527 are set to `DESECRATED_ASSUMED_WEIGHT = 4000` in `tools/refresh/apply_pools.mjs`, from an in-game sample: 40 Well of Souls offers on an empty Rare `Helmets_dex_int`, 22 holding a carved mod, inverted by `scripts/desecrate-weight.mts` (ML 3,981; range 2,512–5,012). It matters enormously — at poe2db's literal 1 a bone produced a desecrated mod about 1 in 121,510 on a Body Armour. Only the UNOMENED draw uses weights, so only it depends on this — the boss-omen path is count-uniform and stays exact. The UI must still say which, since one base is not every base: `assumedOdds` (engineMap) → `PriceBasisNote`'s `exactOdds`. See docs/validation.md D4.
+- **The desecrated spawn weight is MEASURED, not published.** poe2db reports a literal 1 for every row, so it cannot be read off the data. As of 2026-08-24 all 527 are set to `DESECRATED_ASSUMED_WEIGHT = 2500` in `tools/refresh/apply_pools.mjs`, from an in-game sample: 40 bones on an empty Rare `Helmets_dex_int` showing 120 modifiers, **22 of them carved**, inverted by `scripts/desecrate-weight.mts` (ML 2,512; range 1,995–3,981). Count MODIFIERS, not offers — reading that 22 as "offers holding one" overstates the weight by ~50% and did, once. It matters enormously — at poe2db's literal 1 a bone produced a desecrated mod about 1 in 121,510 on a Body Armour. Only the UNOMENED draw uses weights, so only it depends on this — the boss-omen path is count-uniform and stays exact. The UI must still say which, since one base is not every base: `assumedOdds` (engineMap) → `PriceBasisNote`'s `exactOdds`. See docs/validation.md D4.
 - **Fractured mods are locked**: never annulled, never chaosed, out of every removal pool.
 
 ## Prices

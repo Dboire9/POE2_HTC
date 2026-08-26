@@ -8,32 +8,39 @@ Last reviewed: 2026-08-24.
 
 ## 1. ~~Pin down the desecrated spawn weight~~ — DONE 2026-08-24
 
-**Measured in game.** 40 Well of Souls offers on an empty Rare `Helmets_dex_int`, of which **22 held at
-least one carved mod** (55.0%). `scripts/desecrate-weight.mts` inverts that to a maximum likelihood of
-**3,981**, plausible range **2,512–5,012**. `DESECRATED_ASSUMED_WEIGHT` moved **1000 → 4000** (rounded:
-forty samples do not support four significant figures), data rebuilt, docs/validation.md D4 rewritten.
+**Measured in game.** 40 bones on an empty Rare `Helmets_dex_int`. A bone offers three modifiers, so
+120 were shown, **22 of them carved** — 18.3% per draw. `scripts/desecrate-weight.mts` inverts that to
+a maximum likelihood of **2,512**, plausible range **1,995–3,981**. `DESECRATED_ASSUMED_WEIGHT` moved
+**1000 → 2500**, data rebuilt, docs/validation.md D4 rewritten.
 
-The old 1000 predicted 21.8% against 55% observed — it was not merely imprecise, it was outside the
+The old 1000 predicted 7.6% per draw against 18.3% observed — not merely imprecise, outside the
 interval. What it changed, held Rare with three ordinary targets:
 
-| base | at 1,000 | at 4,000 | bone excluded |
+| base | at 1,000 | at 2,500 | bone excluded |
 |---|---|---|---|
-| Wands | 2,181 ex | **2,776 ex** | 4,074 ex |
-| Body_Armours_str | 1,359 ex | **1,416 ex** | 2,968 ex |
+| Wands | 2,181 ex | **2,494 ex** | 4,074 ex |
+| Body_Armours_str | 1,359 ex | **1,396 ex** | 2,968 ex |
 
 A heavier carved pool makes a bone *worse* at fishing for ordinary mods, so those crafts got dearer —
-a bone is still clearly worth playing, just 32% less of a bargain on Wands than the app used to claim.
+a bone is still clearly worth playing (39% off on Wands, 53% on Body Armour), just less of a bargain
+than the app used to claim.
 
-**Two things this did NOT settle**, both recorded rather than left implicit:
+**Count MODIFIERS, not offers.** The sample was first recorded as "22 of 40 offers held a carved mod",
+fitted at 3,981 and shipped at 4,000 before the reporter corrected it. The offer reading overstates the
+weight by ~50% — "at least one of three" is a far higher bar than "one draw" — and modifiers are the
+better statistic anyway, 3N Bernoulli trials against N for the same bones. The script now takes
+modifier counts, says so in its usage, and carries the warning.
 
-- **One base is not every base.** The measurement fixes a single global constant from `Helmets_dex_int`
-  alone, so a per-category weight would be invisible to it. `PriceBasisNote` therefore keeps its
-  caveat, and `assumedOdds` still flags an unomened Desecration. A second forty-offer sample on a
-  weapon would test it — same command, different base.
-- **The three-draw model, by contrast, IS corroborated.** The observer reported several offers holding
-  two carved mods and none holding three; at the fitted weight the model predicts 5.0 two-carved offers
-  in 40 and a 60% chance of seeing no three-carved offer at all. That is independent of the headline
-  rate the fit used, so it checks the shape rather than restating the input.
+**What this did NOT settle:** one base is not every base. The measurement fixes a single GLOBAL
+constant from `Helmets_dex_int` alone, so a per-category weight would be invisible to it.
+`PriceBasisNote` keeps its caveat and `assumedOdds` still flags an unomened Desecration. A second
+sample on a weapon would test it — same command, different base.
+
+**The three-draw model, by contrast, IS corroborated.** The observer saw several offers holding two
+carved mods and none holding three; at the fitted weight the model predicts 3.3 two-carved offers in 40
+and a 78% chance of seeing no three-carved offer at all. That is independent of the headline rate the
+fit consumed, so it checks the shape rather than restating the input — and it held under both readings
+of the sample, which is why the misread was a wrong number rather than a wrong model.
 
 ## 2. Loose ends from putting rarity in the MDP
 

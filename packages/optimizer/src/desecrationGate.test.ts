@@ -287,7 +287,7 @@ describe('a Chaos Orb has no special treatment for the desecrated mod', () => {
  *
  * It offers three modifiers and you keep one, and a Preserved rib is 0.31ex against an Exalt's 1.00ex.
  * Measured on a held Rare (no restart, so the bone competes on merit), at the carved spawn weight
- * measured in game on 2026-08-24: Wands 4,073.8ex -> 2,776.2ex, Body Armour 2,967.6ex -> 1,415.6ex.
+ * measured in game on 2026-08-24: Wands 4,073.8ex -> 2,493.7ex, Body Armour 2,967.6ex -> 1,396.4ex.
  * The model used to switch desecration off entirely unless a carved mod was targeted, so none of that
  * was reachable.
  *
@@ -329,14 +329,14 @@ describe('a bone competes for ordinary mods too, where its price allows', () => 
     const without = solve('Wands', true);
     expect(withBones.converged && without.converged).toBe(true);
     expect([...withBones.policy.values()].some((a) => a.currency === 'desecrate')).toBe(true);
-    // Measured 4,073.8ex → 2,776.2ex on this craft (−32%); Body Armour −52%.
+    // Measured 4,073.8ex → 2,493.7ex on this craft (−39%); Body Armour −53%.
     //
     // The threshold was 0.7 while the carved spawn weight was an assumed 1,000, where this craft
-    // measured −46%. Measuring that weight in game moved it to 4,000, and a heavier carved pool makes
-    // a bone WORSE at fishing for ordinary mods — so the real margin is now 0.681 and 0.7 passes by
-    // 2.7%, which is a price-sheet refresh away from a red suite. Loosened to 0.85: the claim under
-    // test is "a bone is worth playing for ordinary mods", and a third off the price says that just
-    // as well as a half did, without pinning a figure that legitimately moves.
+    // measured −46%. Measuring that weight in game moved it to 2,500, and a heavier carved pool makes
+    // a bone WORSE at fishing for ordinary mods, so the margin narrowed to 0.612. Kept at 0.85 rather
+    // than restored to 0.7: the claim under test is "a bone is worth playing for ordinary mods", and
+    // the exact ratio moves with both the price sheet and any future weight sample, neither of which
+    // this test is about.
     expect(withBones.expectedCost).toBeLessThan(without.expectedCost * 0.85);
   });
 

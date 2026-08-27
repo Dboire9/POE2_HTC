@@ -795,7 +795,8 @@ describe('markovFromItem — closed-form evaluation agrees with iterating it', (
 });
 
 /**
- * SKIPPING PHASE A — the seed was 92-98% of a solve once evaluation went closed form.
+ * SKIPPING PHASE A — measured, opt-in, and NOT the default. Phase A is 92-98% of a solve once
+ * evaluation went closed form, so replacing it looked obvious. It is not, on the crafts that matter.
  *
  * Phase A computes the OPTIMAL push-forward value function, but all it owes phase B is a `V0` with
  * `T(V0) <= V0` so the descent starts above the answer. That property is far weaker than optimality:
@@ -809,15 +810,22 @@ describe('markovFromItem — closed-form evaluation agrees with iterating it', (
  * form is only fast because restart states ABSORB. That version burned 5,000,000 sweeps and the whole
  * deadline on a 3-target T1 craft.
  *
- * Interleaved medians, 3 reps, against the same solver with `noHeuristicSeed`:
- *   3 tgt T1  2.0s -> 0.6s (3.2x)    4 tgt T2  4.5s -> 4.1s    5 tgt T2  34.4s -> 28.0s
- * with the answers agreeing exactly or to 1.4e-8.
+ * Interleaved medians, 3 reps, against the two-phase path:
+ *   3 tgt T1 (250 states)    2.0s -> 0.6s   3.22x     5 tgt T2 (1,166)  34.4s -> 28.0s  1.23x
+ *   4 tgt T2 (312 states)    4.5s -> 4.1s   1.09x     6 tgt T2 (3,963)   264s -> 445s   1.7x SLOWER
+ *
+ * So it is OPT-IN, not the default. Skipping phase A makes policy iteration start from a worse policy
+ * and need more rounds; small crafts converge in <=20 and win, the big one does not and loses badly.
+ * Saving 1.4s on a two-second craft does not pay for three minutes on a four-minute one. A first,
+ * single-run comparison suggested the big craft was fine — it was not, and only interleaved reps on a
+ * machine with a ~40% spread showed it. What is missing is a principled way to tell which side of the
+ * crossover a craft is on; until there is one the default stays two-phase. See TODO 3.
  *
  * The seed does not have to be good — improvement fixes that — only PROPER, and it is not trusted to
  * be even that: `evaluateClosedForm` returns false when `q(start) = 1`, and the two-phase path then
  * runs untouched. These tests pin the agreement and the fallback, not the timings.
  */
-describe('markovFromItem — the heuristic seed replaces phase A without changing the answer', () => {
+describe('markovFromItem — the heuristic seed, opt-in, gives the same answer as phase A', () => {
   const real = loadPatch('data/patches/0.5.0');
   const rp = loadPrices('data/patches/0.5.0');
   const white = (): ItemState =>
@@ -831,8 +839,8 @@ describe('markovFromItem — the heuristic seed replaces phase A without changin
   ];
 
   it.each(crafts)('%s: seeded and two-phase reach the same cost', (_label, targets) => {
-    const seeded = markovFromItem(real, rp, white(), targets, base);
-    const twoPhase = markovFromItem(real, rp, white(), targets, { ...base, noHeuristicSeed: true });
+    const seeded = markovFromItem(real, rp, white(), targets, { ...base, heuristicSeed: true });
+    const twoPhase = markovFromItem(real, rp, white(), targets, base);
     expect(seeded.bound).toBe('exact');
     expect(twoPhase.bound).toBe('exact');
     const rel = Math.abs(seeded.expectedCost - twoPhase.expectedCost) / twoPhase.expectedCost;
@@ -840,21 +848,21 @@ describe('markovFromItem — the heuristic seed replaces phase A without changin
   });
 
   it('also matches value iteration, which shares no code with either path', () => {
-    const seeded = markovFromItem(real, rp, white(), crafts[0]![1], base);
+    const seeded = markovFromItem(real, rp, white(), crafts[0]![1], { ...base, heuristicSeed: true });
     const vi = markovFromItem(real, rp, white(), crafts[0]![1], { restartCost: 0, maxIters: 2_000_000 });
     expect(vi.bound).toBe('exact');
     expect(Math.abs(seeded.expectedCost - vi.expectedCost) / vi.expectedCost).toBeLessThan(1e-3);
   });
 
   it('produces a policy whose Monte-Carlo mean matches the cost it claims', () => {
-    const seeded = markovFromItem(real, rp, white(), crafts[0]![1], base);
+    const seeded = markovFromItem(real, rp, white(), crafts[0]![1], { ...base, heuristicSeed: true });
     const mc = simulatePolicyMean(seeded, (a) => actionCostOf(rp, a), 100_000);
     expect(mc).toBeGreaterThan(seeded.expectedCost * 0.9);
     expect(mc).toBeLessThan(seeded.expectedCost * 1.1);
   });
 
   it('still hands back a drawable graph', () => {
-    const seeded = markovFromItem(real, rp, white(), crafts[0]![1], base);
+    const seeded = markovFromItem(real, rp, white(), crafts[0]![1], { ...base, heuristicSeed: true });
     expect(seeded.nodes.some((n) => n.isStart)).toBe(true);
     expect(seeded.nodes.some((n) => n.isGoal)).toBe(true);
   });
@@ -883,15 +891,15 @@ describe('markovFromItem — the heuristic seed replaces phase A without changin
     const targets = [tiered('Wands/IncreasedMana'), tiered('Wands/WeaponSpellDamage'), tiered('Wands/Intelligence')];
     const tight = { restartCost: 0, maxIters: 500, solver: 'policy' as const };
 
-    const seeded = markovFromItem(real, rp, white(), targets, tight);
-    const twoPhase = markovFromItem(real, rp, white(), targets, { ...tight, noHeuristicSeed: true });
+    const seeded = markovFromItem(real, rp, white(), targets, { ...tight, heuristicSeed: true });
+    const twoPhase = markovFromItem(real, rp, white(), targets, tight);
 
     expect(seeded.feasible).toBe(true);
     expect(seeded.bound).toBe('exact');
     expect(twoPhase.feasible).toBe(false);   // phase A needs ~8,000 sweeps before it converges at all
 
     // And the cheap answer is the same answer: 40x the budget changes nothing.
-    const generous = markovFromItem(real, rp, white(), targets, { ...tight, maxIters: 20_000 });
+    const generous = markovFromItem(real, rp, white(), targets, { ...tight, heuristicSeed: true, maxIters: 20_000 });
     expect(Math.abs(seeded.expectedCost - generous.expectedCost) / generous.expectedCost).toBeLessThan(1e-3);
   });
 

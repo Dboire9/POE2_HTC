@@ -188,14 +188,25 @@ export interface MarkovOptions {
    */
   readonly iterativeEval?: boolean;
   /**
-   * Skip the heuristic seed and always run the two-phase path (phase A, then policy iteration).
+   * Guess a starting policy instead of computing phase A's optimal push-forward value.
    *
-   * For measurement only, and it exists because the alternative is comparing runs taken minutes apart
-   * on a machine with a documented ~40% wall-clock spread — which is how two opposite conclusions
-   * about sweep ordering were once drawn from noise. A control that can be interleaved is the only
-   * way to say whether the seed actually helps a given craft.
+   * OFF by default, because measurement says it is a bad trade on exactly the crafts that hurt.
+   * Interleaved medians against the two-phase path:
+   *
+   *   3 tgt T1  (250 states)     2.0s -> 0.6s    3.22x FASTER
+   *   4 tgt T2  (312 states)     4.5s -> 4.1s    1.09x
+   *   5 tgt T2  (1,166 states)  34.4s -> 28.0s   1.23x
+   *   6 tgt T2  (3,963 states)   264s -> 445s    1.7x SLOWER, both reps
+   *
+   * Skipping phase A means policy iteration starts from a worse policy and needs more rounds — small
+   * crafts converge in ≤20, and the big one needs enough that the expensive seed loses. Phase A is
+   * dear but it buys a very good starting point. Saving 1.4s on a two-second craft is not worth
+   * costing three minutes on a four-minute one, so the default stays two-phase.
+   *
+   * Kept, with its tests, because the machinery is sound and the crossover is real — what it lacks is
+   * a principled way to know which side of it a craft falls on. See TODO 3.
    */
-  readonly noHeuristicSeed?: boolean;
+  readonly heuristicSeed?: boolean;
   /**
    * Wall-clock ceiling in milliseconds, from the player's "how hard should I look?" setting.
    *
@@ -979,7 +990,7 @@ export function markovFromItem(
    *
    * Only for the policy solver. Value iteration has no use for a policy.
    */
-  const fastSeeded = canRestart && opts.solver === 'policy' && !opts.iterativeEval && !opts.noHeuristicSeed
+  const fastSeeded = canRestart && opts.solver === 'policy' && !opts.iterativeEval && opts.heuristicSeed === true
     // The cap is a budget for the GUESS, not for the answer: cheap enough that a bad seed costs a
     // fraction of a second, generous enough that a good one settles inside it.
     ? iteratePolicy(0, 1000, heuristicPolicy(), 20_000)

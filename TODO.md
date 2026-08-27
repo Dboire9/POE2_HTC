@@ -69,9 +69,26 @@ sweep ordering, now re-tested against sweep COUNTS and closed for good; dropping
 zero-cost self-loop; a seed repair that repaired nothing).
 
 **AND AGAIN, later on 2026-08-27 — with evaluation fixed, the SEED became the whole cost.** Phase B
-fell to 1-2%; phase A (plain VI, computing the optimal push-forward value) was 92-98%. It only owes
-phase B a proper policy's value, so `heuristicPolicy` guesses one and `evaluateClosedForm` costs it.
-Interleaved medians, 3 reps: 3 tgt T1 2.0s → 0.6s (3.2x), 4 tgt T2 4.5s → 4.1s, 5 tgt T2 34.4s → 28.0s.
+fell to 1-2%; phase A (plain VI, computing the optimal push-forward value) is 92-98%.
+
+`heuristicPolicy` + `evaluateClosedForm` replace it with a guessed proper policy — built, tested, and
+left **opt-in (`heuristicSeed`) rather than default**, because it loses on the crafts that hurt:
+
+| craft | states | two-phase | seeded | |
+|---|---|---|---|---|
+| 3 tgt T1 | 250 | 2.0s | **0.6s** | 3.22x faster |
+| 4 tgt T2 | 312 | 4.5s | 4.1s | 1.09x |
+| 5 tgt T2 | 1,166 | 34.4s | 28.0s | 1.23x |
+| 6 tgt T2 | 3,963 | **264s** | 445s | **1.7x SLOWER**, both reps |
+
+Skipping phase A starts policy iteration from a worse policy: small crafts converge in ≤20 rounds and
+win, the big one needs enough extra rounds to lose badly. **A single before/after run said the big
+craft was unaffected — it was not.** Only interleaved reps on a machine with a documented ~40% spread
+showed it, which is the third time that spread has produced a wrong conclusion in this file.
+
+**To make it shippable, the open problem is a principled switch**, not more tuning: something that
+predicts which side of the crossover a craft falls on. State count is the obvious candidate (1,166
+wins, 3,963 loses) but two points either side of a threshold is not a rule.
 
 **The next lever, measured and NOT built: SCC decomposition of policy evaluation.** Under a fixed
 policy the chain is 239 components over 312 states, 236 of them singletons, largest 69 — so

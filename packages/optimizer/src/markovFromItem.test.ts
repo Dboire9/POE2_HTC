@@ -719,3 +719,77 @@ describe('markovFromItem — an exact bound is never claimed for an unsettled so
     expect(rel).toBeLessThan(1e-3);
   });
 });
+
+/**
+ * CLOSED-FORM policy evaluation — and the evidence that licenses it.
+ *
+ * Iterating a fixed policy's value is where policy iteration spent essentially all its time, for a
+ * structural reason: with a free base ~98% of states restart, so `V(s) = restartCost + V(start)`
+ * almost everywhere and the chain contracts at r ≈ 1. Varying only the tolerance moved one craft
+ * 74.4s → 0.8s and its answer 4,753 → 35,417 — a 93x speed span with accuracy tracking it exactly, so
+ * there was no cheap win to take.
+ *
+ * Solving the renewal instead removes the loop rather than tolerating it:
+ *   V(start) = c(start)/(1 − q(start)),  V(s) = c(s) + q(s)·V(start)
+ * over the restart-ABSORBING chain. Measured end to end: 3-target T1 60.1s → 2.3s, 4-target T2
+ * 74.4s → 4.8s, and a 6-target T2 craft that previously ran ~1,000s to a CEILING now returns
+ * `bound: 'exact'` at 292s.
+ *
+ * Speed is worthless without agreement, so that is what these tests are. `iterativeEval` keeps the
+ * old path runnable precisely so the comparison stays honest and repeatable.
+ */
+describe('markovFromItem — closed-form evaluation agrees with iterating it', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const white = (): ItemState =>
+    ({ base: real.bases.get('Wands')!, level: 82, rarity: 'normal', prefixes: [], suffixes: [] });
+  const targets = [
+    { modId: 'Wands/IncreasedMana' }, { modId: 'Wands/WeaponSpellDamage' }, { modId: 'Wands/Intelligence' },
+  ];
+  const opts = { restartCost: 0, maxIters: 2_000_000, solver: 'policy' as const };
+
+  const closed = markovFromItem(real, rp, white(), targets, opts);
+  const iterated = markovFromItem(real, rp, white(), targets, { ...opts, iterativeEval: true });
+  const vi = markovFromItem(real, rp, white(), targets, { restartCost: 0, maxIters: 2_000_000 });
+
+  it('all three solvers converge on this craft', () => {
+    for (const r of [closed, iterated, vi]) expect(r.bound).toBe('exact');
+  });
+
+  // The licence. Both are policy iteration; they differ only in how a fixed policy is costed, so a
+  // disagreement beyond `tolerance` means the closed form is solving a different problem.
+  it('matches iterated evaluation to the tolerance', () => {
+    const rel = Math.abs(closed.expectedCost - iterated.expectedCost) / iterated.expectedCost;
+    expect(rel).toBeLessThan(1e-3);
+  });
+
+  it('matches value iteration too, which shares no code with either', () => {
+    const rel = Math.abs(closed.expectedCost - vi.expectedCost) / vi.expectedCost;
+    expect(rel).toBeLessThan(1e-3);
+  });
+
+  // Independent of all the arithmetic above: play the policy 100k times and see what it costs.
+  it('produces a policy whose Monte-Carlo mean matches the cost it claims', () => {
+    const mc = simulatePolicyMean(closed, (a) => actionCostOf(rp, a), 100_000);
+    expect(mc).toBeGreaterThan(closed.expectedCost * 0.9);
+    expect(mc).toBeLessThan(closed.expectedCost * 1.1);
+  });
+
+  it('still hands back a drawable graph', () => {
+    expect(closed.nodes.some((n) => n.isStart)).toBe(true);
+    expect(closed.nodes.some((n) => n.isGoal)).toBe(true);
+  });
+
+  // A Desecration shows three draws and the player keeps one, so its realized distribution depends on
+  // V — which would make c and q non-linear. The ordering is frozen for one evaluation and re-sorted
+  // by the next improvement round. If that freeze were wrong, the desecration crafts would drift.
+  it('handles offer actions, whose distribution depends on the values being solved', () => {
+    const withDesecrate = markovFromItem(real, rp, white(),
+      [{ modId: 'Wands/IncreasedMana' }, { modId: 'Wands/WeaponSpellDamage' }], opts);
+    const iter = markovFromItem(real, rp, white(),
+      [{ modId: 'Wands/IncreasedMana' }, { modId: 'Wands/WeaponSpellDamage' }], { ...opts, iterativeEval: true });
+    expect(withDesecrate.bound).toBe('exact');
+    const rel = Math.abs(withDesecrate.expectedCost - iter.expectedCost) / iter.expectedCost;
+    expect(rel).toBeLessThan(1e-3);
+  });
+});

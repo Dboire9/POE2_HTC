@@ -208,6 +208,19 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   NOT the default only because `standard` is documented to reproduce the pre-setting behaviour exactly.
   **Phase B only**: PI on a stochastic shortest path is safe only from a PROPER policy, and phase B is
   seeded from phase A's converged value, which is one. Phase A 0-initialises and keeps plain VI.
+- **A fixed policy is costed in CLOSED FORM, not iterated to.** Iterating it was the whole cost of a
+  solve, structurally: with a free base ~98% of states restart, so `V(s) = restartCost + V(start)`
+  almost everywhere and the chain contracts at r ≈ 1, where a residual under `tol` still leaves an
+  error of `tol/(1−r)` and `1/(1−r)` is the expected attempt count. Loosening `tolerance` is NOT the
+  escape — measured, it moved one craft 74.4s → 0.8s and its answer 4,753 → 35,417. Instead
+  `evaluateClosedForm` solves the renewal on the restart-ABSORBING chain: `c(s)` = cost until
+  goal-or-restart, `q(s)` = P(restart first), then `V(start) = c/(1−q)` and `V(s) = c(s) + q(s)·V(start)`.
+  Restart states are TERMINAL there, and they are 98% of the lattice, so the chain that actually
+  propagates is the thin spine. Measured: 3-target T1 60.1s → **2.3s**, 4-target T2 74.4s → **4.8s**,
+  and a 6-target T2 craft that ran ~1,000s to a ceiling now returns `bound: 'exact'` in **292s**.
+  Offer actions (a Desecration's three draws) reorder by V, so their ordering is FROZEN per evaluation
+  and re-sorted by the next improvement round — otherwise c and q are not linear. `iterativeEval: true`
+  keeps the old path runnable, and the differential test against it is what licenses the fast one.
 - **`maxIters` is on the effort ladder as `maxSweeps`, and must reach BOTH solve paths.** It was a
   hardcoded 100,000 the ladder could not touch, which made the top preset a lie — on a craft that
   exhausts its sweeps the clock never binds, so "several minutes" bought nothing (measured: a 6-target

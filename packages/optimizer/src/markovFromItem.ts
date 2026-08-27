@@ -180,6 +180,14 @@ export interface MarkovOptions {
    *  which ends on a proof that the policy is optimal rather than on a residual tolerance. */
   readonly solver?: 'value' | 'policy';
   /**
+   * Cost each policy by ITERATING its value rather than solving it in closed form.
+   *
+   * Only for measurement and differential testing — the closed form is exact and vastly faster (see
+   * `evaluateClosedForm`). Kept because "the two agree" is the evidence that licenses the fast path,
+   * and that comparison has to stay runnable.
+   */
+  readonly iterativeEval?: boolean;
+  /**
    * Wall-clock ceiling in milliseconds, from the player's "how hard should I look?" setting.
    *
    * ABSENT means no limit, and that is deliberate: it keeps the test suite deterministic (a clock
@@ -656,6 +664,128 @@ export function markovFromItem(
   };
 
   /**
+   * Cost a FIXED policy exactly, in closed form, instead of iterating a chain that barely contracts.
+   *
+   * Iterative evaluation is where policy iteration spends essentially all its time, and it is slow for
+   * a structural reason: with a free base ~98% of states choose restart, so `V(s) = restartCost +
+   * V(start)` almost everywhere and the chain's contraction rate sits at r ≈ 1. A residual under `tol`
+   * still leaves an error of `tol/(1−r)`, and `1/(1−r)` is the expected number of attempts — thousands.
+   * Measured: varying only the evaluation tolerance moved one craft 74.4s → 0.8s and its answer
+   * 4,753 → 35,417, a 93x speed span with accuracy tracking it exactly. So there is no cheap win to be
+   * had by loosening a number.
+   *
+   * The way out is to stop iterating the loop at all. Under a fixed policy an attempt either reaches
+   * the goal or hits a state where the policy restarts — and restarting begins an identical attempt.
+   * That is a renewal process, so on the restart-ABSORBING chain (restart is a terminal payment, not
+   * an edge back to the start) define
+   *
+   *     c(s) = expected cost from s until goal-or-restart      c(goal)=0, c(restart)=restartCost
+   *     q(s) = P(restart before goal, from s)                  q(goal)=0, q(restart)=1
+   *
+   * and then, exactly:
+   *
+   *     V(start) = c(start) / (1 − q(start))        ← renewal-reward, one division
+   *     V(s)     = c(s) + q(s)·V(start)             ← one pass
+   *
+   * The near-1 contraction is gone because the cycle causing it is gone. Better still, restart states
+   * are TERMINAL here — and they are 98% of the lattice — so the chain c and q actually propagate
+   * through is the thin spine of states the craft passes through, not the whole space.
+   *
+   * OFFER ACTIONS are the wrinkle. `offerValue` sorts a Desecration's three draws by current V, so its
+   * realized distribution moves as V moves, which would make c and q non-linear. The ordering is
+   * therefore FROZEN for the duration of one evaluation — treated as part of the policy, exactly as
+   * the improvement step already treats the choice of action. Improvement re-orders next round.
+   *
+   * Returns false when the policy never reaches the goal (`q(start) = 1`), which is a real state of
+   * affairs — an improper policy has infinite value — and the caller must not read V after it.
+   */
+  const evaluateClosedForm = (pol: Int32Array): boolean => {
+    // Frozen realized weights per state, against V as it stands right now.
+    const wTo: Int32Array[] = new Array(N);
+    const wPr: Float64Array[] = new Array(N);
+    const selfW = new Float64Array(N);
+    const isTerm = new Uint8Array(N);   // goal or "policy restarts here" — the chain stops
+    const cOf = new Float64Array(N);
+    const qOf = new Float64Array(N);
+
+    for (let i = 0; i < N; i++) {
+      if (isGoalIdx[i] === 1 || canReach[i] !== 1) { isTerm[i] = 1; continue; }
+      const k = pol[i]!;
+      if (k < 0) { isTerm[i] = 1; continue; }
+      const a = compiled[i]![k]!;
+      if (a.isRestart) { isTerm[i] = 1; cOf[i] = a.cost; qOf[i] = 1; continue; }
+      if (a.offer <= 1) {
+        wTo[i] = a.to; wPr[i] = a.prob; selfW[i] = a.selfProb;
+      } else {
+        // Same tail-sum identity as `offerValue`: P(keep k) = T_k^m − T_(k+1)^m over outcomes sorted
+        // by V ascending. Nothing is hoisted for an offer, so a self-outcome shows up in the weights
+        // and is split out below.
+        const K = a.to.length;
+        const order2 = Array.from({ length: K }, (_, j) => j).sort((x, y) => V[a.to[x]!]! - V[a.to[y]!]!);
+        const w = new Float64Array(K);
+        let tail = 0;
+        for (let j = 0; j < K; j++) tail += a.prob[j]!;
+        let tailPow = tail ** a.offer;
+        let self = 0;
+        for (const j of order2) {
+          tail -= a.prob[j]!;
+          const nextPow = tail <= 0 ? 0 : tail ** a.offer;
+          w[j] = tailPow - nextPow;
+          if (a.to[j] === i) self += w[j]!;
+          tailPow = nextPow;
+        }
+        wTo[i] = a.to; wPr[i] = w; selfW[i] = self;
+      }
+    }
+
+    // Gauss-Seidel on the absorbing chain. Well-conditioned by construction — no path returns to the
+    // start — so this settles in a handful of sweeps where the looping version needed thousands.
+    for (let sweep = 0; sweep < maxIters; sweep++) {
+      if (deadline !== Infinity && sweep % DEADLINE_CHECK === 0 && Date.now() > deadline) return false;
+      let delta = 0;
+      for (let i = 0; i < N; i++) {
+        if (isTerm[i] === 1) continue;
+        const k = pol[i]!;
+        const a = compiled[i]![k]!;
+        const to = wTo[i]!; const pr = wPr[i]!;
+        const denom = 1 - selfW[i]!;
+        if (denom <= 1e-12) { cOf[i] = Infinity; qOf[i] = 1; continue; } // only loops back: no progress
+        let cAcc = a.cost; let qAcc = 0;
+        for (let j = 0; j < to.length; j++) {
+          const t = to[j]!;
+          // Self-weight is divided out below, never summed here. For an ordinary action `to` already
+          // EXCLUDES the self-loop (it lives in `selfProb`), so this only bites for an OFFER, whose
+          // weights hoist nothing. No offer on the shipped data produces a self-outcome — a
+          // Desecration always places a mod, so the state always moves — which means this line is
+          // required by the formula but not exercised by any craft. Mutation-testing does not catch
+          // its removal; that is a statement about the data, not a reason to drop it.
+          if (t === i) continue;
+          cAcc += pr[j]! * cOf[t]!;
+          qAcc += pr[j]! * qOf[t]!;
+        }
+        const cNew = cAcc / denom;
+        const qNew = qAcc / denom;
+        const d = Math.max(Math.abs(cNew - cOf[i]!), Math.abs(qNew - qOf[i]!));
+        cOf[i] = cNew; qOf[i] = qNew;
+        if (d > delta) delta = d;
+      }
+      if (delta <= tol) break;
+    }
+
+    const si = idxOfState.get(restartKey)!;
+    const qs = qOf[si]!;
+    if (!(qs < 1)) return false;             // never reaches the goal ⇒ infinite value
+    const lambda = cOf[si]! / (1 - qs);
+    if (!Number.isFinite(lambda)) return false;
+    for (let i = 0; i < N; i++) {
+      if (isGoalIdx[i] === 1) { V[i] = 0; continue; }
+      if (canReach[i] !== 1) continue;       // stays pinned at Infinity
+      V[i] = cOf[i]! + qOf[i]! * lambda;
+    }
+    return true;
+  };
+
+  /**
    * POLICY ITERATION for phase B — the phase that costs 20x phase A and the one that fails to converge.
    *
    * Value iteration computes the argmin over actions on every sweep and then THROWS IT AWAY, keeping
@@ -705,6 +835,13 @@ export function markovFromItem(
       if (round > 0 && changed === 0 && settled) return true;
 
       // ── evaluate ─────────────────────────────────────────────────────────────
+      // Closed form by default; the iterative path stays reachable so the two can be diffed. See
+      // `evaluateClosedForm` for why iterating this particular chain is the whole cost of the solve.
+      if (!opts.iterativeEval) {
+        settled = evaluateClosedForm(pol);
+        if (!settled) return false;
+        continue;
+      }
       settled = false;
       for (let k = 0; k < maxIters; k++) {
         if (deadline !== Infinity && evaluated % DEADLINE_CHECK === 0 && Date.now() > deadline) return false;

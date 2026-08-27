@@ -68,6 +68,23 @@ See docs/validation.md for that and for three things tried and rejected on measu
 sweep ordering, now re-tested against sweep COUNTS and closed for good; dropping the free restart's
 zero-cost self-loop; a seed repair that repaired nothing).
 
+**CLOSED FURTHER 2026-08-27 — the remaining cost was policy EVALUATION, and it is now closed form.**
+Measured first: on hard crafts 99.6-99.8% of the time is the `solve` phase (the standing "VI is ~11%
+of the work" note holds only for easy ones), and it is not the state count — 312 states took 83s, a
+quarter-second per state. Varying only `tolerance` spanned 74.4s → 0.8s with the answer moving
+4,753 → 35,417, so evaluation precision WAS the cost and could not simply be relaxed.
+
+`evaluateClosedForm` solves the renewal instead of iterating it — `V(start) = c/(1−q)` over the
+restart-absorbing chain, where restart states are terminal and are 98% of the lattice:
+
+| craft | before | after |
+|---|---|---|
+| 3 targets T1 | 60.1s | **2.3s** |
+| 4 targets T2 | 74.4s | **4.8s** |
+| 6 targets T2 (5,300 states) | ~1,000s → ceiling | **292s, `bound: 'exact'`** |
+
+Agreement with both iterated PI and VI within tolerance, plus the 100k-run MC cross-check.
+
 **CLOSED 2026-08-26 by policy iteration, which this section correctly named as the only lever left.**
 PI keeps the argmin VI throws away each sweep and alternates evaluate/improve, ending on a CERTIFICATE
 — the policy stopped changing, so it is optimal — rather than a residual tolerance. Shipped as the

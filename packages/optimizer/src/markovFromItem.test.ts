@@ -654,3 +654,68 @@ describe('markovFromItem — visitRate ranks the craft, not the failures', () =>
     expect(top(r, 0.9).length).toBeLessThan(r.nodes.length / 3);
   });
 });
+
+/**
+ * `bound: 'exact'` is a PROMISE, and policy iteration was breaking it.
+ *
+ * PI ends on a certificate: the policy stopped changing, so no action improves on it, so it is
+ * optimal. That reasoning is only valid if the values the improvement step compared were themselves
+ * settled — and the inner evaluation loop is capped by `maxIters`, which it was exhausting silently.
+ * Improvement then compared under-evaluated values, saw no change, and called an unfinished solve
+ * optimal. Measured on a 3-target T1 from-white craft (true cost 10,658.21): at `maxIters: 20_000`
+ * it returned `bound: 'exact'` with 10,836.88 — 1.68% high, rendered by the UI as a plain figure
+ * with no caveat, which is the one thing `bound` exists to prevent.
+ *
+ * Truncating evaluation is fine in itself — that is modified policy iteration and it still converges,
+ * over more rounds. So the fix gates the PROOF on a settled evaluation, not the loop.
+ *
+ * The craft that exhibited the 1.68% error takes ~60s and has no place in a suite that runs in 30.
+ * The one below is fast, and pins the CONTRACT instead — anything claiming `exact` agrees with a
+ * fully-converged solve — across budgets varying 300x. That turns out to be enough: reverting the
+ * fix fails this table, and separately reproduces the original 10,836.88-labelled-exact on the slow
+ * craft. Mutation-checked both ways.
+ */
+describe('markovFromItem — an exact bound is never claimed for an unsettled solve', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const white = (): ItemState =>
+    ({ base: real.bases.get('Wands')!, level: 82, rarity: 'normal', prefixes: [], suffixes: [] });
+  const targets = [
+    { modId: 'Wands/IncreasedMana' }, { modId: 'Wands/WeaponSpellDamage' }, { modId: 'Wands/Intelligence' },
+  ];
+  const solve = (maxIters: number) =>
+    markovFromItem(real, rp, white(), targets, { restartCost: 0, maxIters, solver: 'policy' });
+
+  const reference = markovFromItem(real, rp, white(), targets,
+    { restartCost: 0, maxIters: 2_000_000, solver: 'policy' });
+
+  it('has a converged reference to judge against', () => {
+    expect(reference.bound).toBe('exact');
+    expect(reference.feasible).toBe(true);
+  });
+
+  it.each([400, 1_500, 6_000, 20_000, 120_000])(
+    'at maxIters %i, either matches the reference or does not claim exact', (maxIters) => {
+      const r = solve(maxIters);
+      if (!r.feasible) return;            // phase A refused, which is its own honest answer
+      if (r.bound !== 'exact') {
+        expect(r.bound).toBe('upper');    // PI descends from a proper policy, so a ceiling
+        return;
+      }
+      // Claiming exact means claiming the fixed point. The allowance is the documented tolerance
+      // error (~1e-3 relative, one-directional), NOT the 1.68% the truncation bug produced.
+      expect(Math.abs(r.expectedCost - reference.expectedCost) / reference.expectedCost).toBeLessThan(1e-3);
+    });
+
+  // Both solvers stop within `tolerance` of the same fixed point, from different directions and by
+  // different paths, so they agree to the tolerance and NOT to the last digit — measured here at
+  // 3.9e-6 relative, against a tolerance of 7.4e-5 absolute on a ~23 ex craft. Asserting more than
+  // that would be pinning noise: an earlier version of this test demanded 5e-7 and failed on two
+  // answers that were both correct.
+  it('agrees with value iteration, to the tolerance both of them stop at', () => {
+    const vi = markovFromItem(real, rp, white(), targets, { restartCost: 0, maxIters: 2_000_000 });
+    expect(vi.bound).toBe('exact');
+    const rel = Math.abs(reference.expectedCost - vi.expectedCost) / vi.expectedCost;
+    expect(rel).toBeLessThan(1e-3);
+  });
+});

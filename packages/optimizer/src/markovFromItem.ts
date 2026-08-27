@@ -675,6 +675,17 @@ export function markovFromItem(
   const iteratePolicy = (pLo: number, pHi: number): boolean => {
     const pol = new Int32Array(N).fill(-1);
     let evaluated = 0;
+    /**
+     * Did the LAST evaluation reach `tol`, or run out of sweeps?
+     *
+     * Truncating evaluation is legitimate — that is modified policy iteration, and it still converges,
+     * just over more rounds. What is NOT legitimate is ending on the certificate after a truncated
+     * one: improvement would be comparing under-evaluated values, so "no action changed" says nothing
+     * about optimality. Measured on a 3-target T1 craft whose true cost is 10,661.00 — at maxIters
+     * 20,000 this returned `bound: 'exact'` and 10,836.88, 1.6% high and rendered as a plain figure.
+     * So the flag gates the PROOF, not the loop.
+     */
+    let settled = false;
 
     for (let round = 0; round < maxRounds; round++) {
       // ── improve ──────────────────────────────────────────────────────────────
@@ -691,9 +702,10 @@ export function markovFromItem(
       }
       // The certificate. Not "the numbers stopped moving" — the POLICY stopped moving, which for a
       // finite MDP means no action anywhere improves on it, i.e. this is the optimal policy exactly.
-      if (round > 0 && changed === 0) return true;
+      if (round > 0 && changed === 0 && settled) return true;
 
       // ── evaluate ─────────────────────────────────────────────────────────────
+      settled = false;
       for (let k = 0; k < maxIters; k++) {
         if (deadline !== Infinity && evaluated % DEADLINE_CHECK === 0 && Date.now() > deadline) return false;
         evaluated++;
@@ -708,7 +720,7 @@ export function markovFromItem(
           V[i] = next;
           if (d > delta) delta = d;
         }
-        if (delta <= tol) break;
+        if (delta <= tol) { settled = true; break; }
       }
       if (report) emitSolve(Math.round(pLo + Math.min(0.98, round / 12) * (pHi - pLo)));
     }

@@ -177,6 +177,22 @@ export function enumerateStates(
    * three: it starts Normal with nothing on it and climbs.
    */
   rarities: readonly McRarity[] = ['rare'],
+  /**
+   * Sets of targets that share a family, as bitmasks — at most one of each set can ever be on the item.
+   *
+   * Empty for every craft that predates slot alternatives, because two targets sharing a family were
+   * rejected outright. A slot whose alternatives are siblings (`#% increased Fire / Cold / Lightning
+   * Damage` are one family, `WeaponDamageTypePrefix`) makes them the ordinary case, and without this
+   * the lattice carries a state for every combination the item could never hold: 3^3 = 27 arrangements
+   * of a three-way sibling slot where only 7 are real. Those states are unreachable and would be
+   * pruned later by `prob1` — but not before `actionsOf`, the dominant cost of the whole solve, had
+   * been paid on every one of them.
+   *
+   * Sound only because family exclusion is enforced in the ACTION space too (`excluded` in pool.ts),
+   * so nothing can transition into what is removed here. `markovFromItem` asserts that closure when it
+   * compiles outcomes to indices.
+   */
+  conflicts: readonly number[] = [],
 ): StateKey[] {
   const out: StateKey[] = [];
   for (const rarity of rarities) {
@@ -184,6 +200,14 @@ export function enumerateStates(
     for (let present = 0; present < bit(n); present++) {
       for (let blocked = 0; blocked < bit(n); blocked++) {
         if ((present & blocked) !== 0) continue;
+        // Two mods of one family cannot sit on an item together, whether either is at its tier
+        // (`present`) or below it (`blocked`) — a below-tier roll occupies the family just as firmly.
+        if (conflicts.length > 0) {
+          const held = present | blocked;
+          let clash = false;
+          for (const m of conflicts) if (popcount(held & m) > 1) { clash = true; break; }
+          if (clash) continue;
+        }
         const tp = countSide(present, side.prefix) + countSide(blocked, side.prefix);
         const ts = countSide(present, side.suffix) + countSide(blocked, side.suffix);
         if (tp > cap || ts > cap) continue;
@@ -204,6 +228,36 @@ export function enumerateStates(
     }
   }
   return out;
+}
+
+/**
+ * The MDP's ACCEPTING CONDITION: every slot filled, and nothing else on the item.
+ *
+ * This replaced a precomputed set of literal goal keys built from `present === (1<<n)-1`. That form
+ * could only express a CONJUNCTION — every named mod, all at once — which is exactly the assumption
+ * slot alternatives break: with `slot 3 = {Cold, Lightning, Chaos}` the finished item never holds all
+ * three, and under the old goal it held none of them either, because the state demanding all three at
+ * once has four prefixes and `enumerateStates` (rightly) never emits it. The solve then reported the
+ * goal unreachable.
+ *
+ * `blocked`, `jp` and `js` must all be zero, unchanged from before: the finished item is exactly what
+ * was asked for, with no off-tier roll to annul and no junk riding along. Two members of one slot both
+ * being present is fine and accepted — you wanted either, you got both — though on a target that fills
+ * all six slots the side cap makes it unreachable anyway.
+ *
+ * With every slot a singleton this is precisely the old goal set, which `markovFromItem` asserts.
+ */
+export function isAccepting(s: McState, slotMasks: readonly number[]): boolean {
+  if (s.blocked !== 0 || s.jp !== 0 || s.js !== 0 || s.rarity !== 'rare') return false;
+  for (const m of slotMasks) if ((s.present & m) === 0) return false;
+  return true;
+}
+
+/** How many slots this state has filled — the goal-progress count `distanceToGoal` works down from. */
+export function slotsFilled(present: number, slotMasks: readonly number[]): number {
+  let c = 0;
+  for (const m of slotMasks) if ((present & m) !== 0) c++;
+  return c;
 }
 
 /**

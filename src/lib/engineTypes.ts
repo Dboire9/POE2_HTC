@@ -78,6 +78,14 @@ export interface TargetInput {
   readonly modId: string;
   /** 1-based from best; `tierCount` = worst = "any tier". */
   readonly tierDisplay: number;
+  /**
+   * Which SLOT of the finished item this mod fills. Targets sharing a slot are ALTERNATIVES — any one
+   * of them satisfies it — so a target may name more candidates than the six mods an item holds.
+   *
+   * Absent means a slot of its own, which is what every target meant before slots existed. Tiers stay
+   * per candidate: `T1 Extra Cold or T3 Extra Lightning` is a legal slot.
+   */
+  readonly slot?: number;
 }
 
 export interface EngineStep {

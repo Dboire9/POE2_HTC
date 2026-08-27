@@ -25,17 +25,18 @@
 // targets stay on the linear planner (the caller falls back).
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
-import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
+import { familiesOf, modTierWeight, resolveMod } from '../../engine/src/pool.ts';
 import { DESECRATION_OFFER_COUNT, bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
+import { slotIndexGroups } from './slots.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
 import { createActionSpace } from './markovActions.ts';
 import type { McState, McTarget, StateKey, McRarity } from './markovState.ts';
 import {
-  FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, classifyStart, decodeState, encodeState,
-  enumerateStates, flagTarget, flaggedTarget, has, popcount, sideIndexOf,
+  FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, MAX_PER_SIDE, bit, classifyStart, decodeState,
+  encodeState, enumerateStates, flaggedTarget, has, isAccepting, popcount, sideIndexOf, slotsFilled,
 } from './markovState.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
@@ -242,8 +243,19 @@ export interface MarkovOptions {
 /** How often the O(states) loops report. Frequent enough to animate, rare enough to cost nothing. */
 const PROGRESS_STRIDE = 64;
 
-/** Most target mods the lattice is enumerated for (3^n grows fast; 6 is the item's own slot cap). */
-const MAX_TARGETS = 6;
+/**
+ * Most CANDIDATE mods the lattice is enumerated for.
+ *
+ * Six used to be both the cap and the reason for it — "6 is the item's own slot cap". Slot
+ * alternatives separate those two things: an item still holds six mods, but you may name more than six
+ * candidates to fill them. The item's own limit is now enforced where it belongs, as at most
+ * MAX_PER_SIDE *slots* per side; this number is only ever about what the state space can afford.
+ *
+ * The lattice runs ~2,916 states at 6 candidates and ~20,952 at 9 (3p/3s and 5p/4s, before the
+ * desecration flag axis multiplies it), against measured solve times of 264s at 3,963 states. Past
+ * nine it stops being a wait anybody sits through.
+ */
+const MAX_CANDIDATES = 9;
 
 export function markovFromItem(
   data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
@@ -293,10 +305,105 @@ export function markovFromItem(
   }
   const n = list.length;
   if (n === 0) return fail('no target mods');
-  if (n > MAX_TARGETS) return fail(`target has more than ${MAX_TARGETS} mods`);
-  // The Desecration mechanic places a single mod — an item can hold at most one desecrated mod.
-  if (list.filter((t) => t.mod.source === 'desecrated').length > 1) {
-    return fail('an item can hold at most one desecrated mod');
+  if (n > MAX_CANDIDATES) return fail(`target names more than ${MAX_CANDIDATES} candidate mods`);
+
+  /*
+   * Group the candidates into SLOTS — the number of slots, not the number of candidates, is what the
+   * item has to hold. `slotIndexGroups` is shared with the linear planners so the two can never
+   * disagree about which candidates are alternatives; see slots.ts for why they then do opposite
+   * things with the answer.
+   */
+  const slotMasks = slotIndexGroups(targets).map((g) => g.reduce((m, i) => m | bit(i), 0));
+  const desecratedBit = (i: number): boolean => list[i]!.mod.source === 'desecrated';
+  const slotSides: ('prefix' | 'suffix')[] = [];
+  for (const mask of slotMasks) {
+    const members = list.filter((_, i) => has(mask, i));
+    const type = members[0]!.type;
+    // A slot spanning both sides would make the 3-per-side accounting meaningless — the same slot
+    // would consume a prefix on one route and a suffix on another.
+    if (members.some((m) => m.type !== type)) {
+      return fail(`alternatives for one slot must be all prefixes or all suffixes (${members.map((m) => m.modId).join(', ')})`);
+    }
+    slotSides.push(type);
+  }
+  for (const sideName of ['prefix', 'suffix'] as const) {
+    const used = slotSides.filter((t) => t === sideName).length;
+    if (used > MAX_PER_SIDE) return fail(`target needs ${used} ${sideName}es, and an item holds ${MAX_PER_SIDE}`);
+  }
+  /*
+   * Two SLOTS may not want the same family, because only one of them could ever be filled — the goal
+   * would be unreachable and the solve would say so in a way that names neither mod. Two members of
+   * ONE slot sharing a family is the ordinary case and must stay legal: that is exactly the
+   * mutually-exclusive group (`#% increased Fire / Cold / Lightning Damage` are one family), where the
+   * alternatives are really a union of weights on a single roll.
+   *
+   * This check is new. The header's "validated out upstream" was true of the app but not of the
+   * package, so a direct caller got `no policy reaches the target` and no clue which pair caused it.
+   */
+  const famSlot = new Map<string, number>();
+  const famBits = new Map<string, number>();
+  for (let k = 0; k < slotMasks.length; k++) {
+    for (let i = 0; i < n; i++) {
+      if (!has(slotMasks[k]!, i)) continue;
+      for (const fam of familiesOf(list[i]!.mod)) {
+        const owner = famSlot.get(fam);
+        if (owner !== undefined && owner !== k) {
+          return fail(`two different slots both want family "${fam}" — an item holds one mod per family`);
+        }
+        famSlot.set(fam, k);
+        famBits.set(fam, (famBits.get(fam) ?? 0) | bit(i));
+      }
+    }
+  }
+  /*
+   * Which targets are mutually exclusive, for the lattice to skip.
+   *
+   * After the check above, any family held by two targets is held by two members of ONE slot — the
+   * sibling case, where the alternatives are a union of weights on a single roll rather than two
+   * independent chances. Only one of them can ever be on the item, so the states where several are
+   * do not exist and enumerating them buys nothing but `actionsOf` calls.
+   *
+   * Every family with a single target filters out here, which is why this is empty for every craft
+   * that predates slots and their state space is untouched.
+   */
+  const conflicts = [...famBits.values()].filter((m) => popcount(m) > 1);
+  /*
+   * The one-carved-mod rule is deliberately NOT added to `conflicts`.
+   *
+   * It looks like the same shape and it is not. `conflicts` excludes states by `present | blocked`,
+   * which is right for a family: `blocked` means that family is occupied by SOMETHING, so a sibling
+   * cannot also be on the item. But a blocked carved target means its family is held by a different
+   * mod — the carved one is not on the item at all — so pruning on `blocked` removes states a
+   * Desecration can genuinely reach. It did, and the lattice-closure assertion in the compile step
+   * caught it: `desecrate from 0:1:0:0:0:2 leads to 2:1:0:0:4:2, which is not in the lattice`.
+   *
+   * Nothing is needed in its place. The ACTION space already enforces the rule at its source: a bone
+   * requires an item carrying no bone-placed mod (`hasDesecrated`), and a desecrated-pool mod can only
+   * arrive by bone — so no reachable state holds two, and `never finishes on an item holding two
+   * carved mods` in markovEssenceDesecrate.test.ts is what checks that rather than assuming it.
+   */
+  /*
+   * At most one desecrated mod on the FINISHED ITEM — which is not the same as at most one in the
+   * candidate list, once slots exist.
+   *
+   * "Carved Cast Speed, or failing that a normal one" in two different slots is a perfectly ordinary
+   * ask: whichever way it resolves, only one carved mod ends up on the item. Rejecting the list
+   * outright refused a craft the game allows. What is genuinely impossible is a target where the rule
+   * cannot be satisfied at all — two slots offering NOTHING BUT carved mods, so every way of filling
+   * them lands two.
+   *
+   * Enforcement of the rest is structural rather than another check: the desecrated candidates go into
+   * `conflicts` below, so the lattice never carries a state holding two. The action space already
+   * agreed — a bone needs an item with no bone-placed mod (`hasDesecrated`) — so nothing can transition
+   * into what is pruned, and the closure assertion in the compile step is what proves it.
+   */
+  const forcedCarved = slotMasks.filter((m) => {
+    let any = false;
+    for (let i = 0; i < n; i++) if (has(m, i)) { if (!desecratedBit(i)) return false; any = true; }
+    return any;
+  }).length;
+  if (forcedCarved > 1) {
+    return fail('an item holds at most one desecrated mod, and this target needs two');
   }
   // …and at most one ESSENCE modifier, regular or perfect together (see `isEssenceMod`). Without this
   // `actionsOf` built a perfect-essence action per perfect target and the policy would happily stack
@@ -355,26 +462,38 @@ export function markovFromItem(
       : { restart: { cost: opts.restartCost, dist: new Map([[restartKey, 1]]) } }),
   });
 
-  const GOAL = (1 << n) - 1; // all target mods present, none blocked, no junk
-  // The finished item is Rare whenever it carries more than one mod per side, and every craft this
-  // model runs ends Rare in practice — a target that fits a Magic item needs no plan worth drawing.
-  //
-  // One key per value the FLAG can take at the goal, because a finished item is finished whether or
-  // not a Desecration placed one of its mods. Keying the goal to `FLAG_NONE` alone made every craft
-  // that ended on a bone unable to reach it, and value iteration then had no terminal to work back
-  // from — it ground through its whole sweep budget on a problem with no fixed point. (Junk flags
-  // cannot occur here: the goal has no junk to mark.)
-  const goalKeys = new Set<StateKey>([encodeState(GOAL, 0, 0, 0, FLAG_NONE, 'rare')]);
-  for (let i = 0; i < n; i++) goalKeys.add(encodeState(GOAL, 0, 0, 0, flagTarget(i), 'rare'));
-  const goalKey = encodeState(GOAL, 0, 0, 0, FLAG_NONE, 'rare'); // the canonical one, for display
-
   // Only enumerate the rarities the craft can actually occupy. A from-item craft is Rare throughout,
   // so it keeps exactly the state space (and solve time) it had before rarity existed; a craft that
   // starts lower has to carry the rungs it climbs through.
   const rarities: McRarity[] = start.rarity === 'rare' ? ['rare']
     : start.rarity === 'magic' ? ['magic', 'rare']
     : ['normal', 'magic', 'rare'];
-  const allStates = enumerateStates(n, side, desecratable, rarities);
+  const allStates = enumerateStates(n, side, desecratable, rarities, conflicts);
+
+  /*
+   * The goal states — found by TESTING the lattice, not by naming keys.
+   *
+   * This used to construct `present === (1<<n)-1` directly and add one key per value of the flag axis
+   * (a finished item is finished whether or not a Desecration placed one of its mods; keying only
+   * FLAG_NONE once left bone-ending crafts with no terminal to work back from, and VI ground through
+   * its whole budget on a problem with no fixed point).
+   *
+   * Naming keys cannot express slot alternatives. With `slot 3 = {Cold, Lightning, Chaos}` the state
+   * holding all three has four prefixes, so `enumerateStates` never emits it — the old goal named a
+   * state that does not exist while missing every state that actually finishes the craft, and the
+   * solve reported the target unreachable. Filtering the lattice instead has both properties for free:
+   * it can only ever name states that exist, and it accepts any one member per slot.
+   *
+   * `isAccepting` still demands zero junk, zero blocked and Rare, so this is the same standard of
+   * "finished" as before — with every slot a singleton it reproduces the old set exactly, which the
+   * test suite asserts against a from-white craft.
+   */
+  const goalKeys = new Set<StateKey>();
+  for (const k of allStates) if (isAccepting(decodeState(k), slotMasks)) goalKeys.add(k);
+  if (goalKeys.size === 0) return fail('no legal item satisfies every slot of this target');
+  // The canonical goal for display: `allStates` is enumerated present-ascending with FLAG_NONE first,
+  // so this is the *barest* finished item — the one that fills each slot once and carries nothing more.
+  const goalKey = [...goalKeys].find((k) => decodeState(k).flagged === FLAG_NONE) ?? [...goalKeys][0]!;
   // The dominant cost of the whole solve: one full action set, with its outcome distribution, per
   // state. `allStates.length` is known before the loop, so progress here is genuinely linear.
   const report = opts.onProgress;
@@ -429,7 +548,17 @@ export function markovFromItem(
         // "the state did not change" is a fixed probability. Under an offer it is whichever share of
         // the offers the player would keep, which moves with V, so there is nothing constant to hoist.
         if (toKey === key && offer === 1) { selfProb += p; continue; }
-        to.push(idxOfState.get(toKey)!);
+        const toIdx = idxOfState.get(toKey);
+        // The lattice must be CLOSED under the action space. It always was, but the assertion was a
+        // `!` — and `Int32Array.from([undefined])` is 0, so an action escaping the lattice would have
+        // silently rewired itself to state 0 and quietly changed the answer. That became worth
+        // guarding once `enumerateStates` started PRUNING states (mutually-exclusive families): the
+        // pruning is only sound because no action can reach what it removes, and this is what makes
+        // that claim fail loudly instead of invisibly.
+        if (toIdx === undefined) {
+          return fail(`internal: ${def.action.currency} from ${key} leads to ${toKey}, which is not in the lattice`);
+        }
+        to.push(toIdx);
         prob.push(p);
       }
       if (to.length > widestOffer && offer > 1) widestOffer = to.length;
@@ -1105,7 +1234,12 @@ export function markovFromItem(
     // No term for the flag: a flagged JUNK mod is already counted in jp/js (marking it does not add an
     // affix), and a flagged TARGET is a mod you wanted and have. The old axis needed one because it
     // described a mod held outside those counters.
-    return (n - popcount(st.present)) + popcount(st.blocked) + st.jp + st.js + toRare;
+    // Unfilled SLOTS, not missing candidates: with `slot 3 = {Cold, Lightning}` an item holding Cold
+    // is one step from done, and counting the Lightning it will never need as "missing" would put the
+    // goal permanently out of reach of a walk that may only step to a strictly smaller distance.
+    // Every slot a singleton makes this `n - popcount(present)` again, exactly as before.
+    return (slotMasks.length - slotsFilled(st.present, slotMasks))
+      + popcount(st.blocked) + st.jp + st.js + toRare;
   };
   /**
    * How the UI should describe the mod a Desecration placed here, if any.

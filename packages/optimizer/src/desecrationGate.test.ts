@@ -509,3 +509,38 @@ describe('which desecrations lean on the assumed weight', () => {
     expect(steps.some((s) => s.boss !== undefined)).toBe(true);
   });
 });
+
+/**
+ * CARVED ALTERNATIVES reach the linear planners by EXPANSION, and one expansion is not an item.
+ *
+ * "Carved X, or failing that a normal one" may be said of two different slots: only one carved mod
+ * ever lands, whichever way each resolves. But the expansion that takes the carved member of BOTH
+ * slots is an item the game forbids, and `optimizePareto` rightly throws on it — which, run inside the
+ * merge, would take the whole search down and lose the routes that are perfectly fine.
+ *
+ * So the impossible combinations are dropped before they are run. Without that this describe block
+ * fails with the planner's own "an item can hold at most one desecrated mod", rather than the search
+ * simply working.
+ */
+describe('from-white planner — two slots that each offer a carved mod', () => {
+  it('plans the combinations that are items, and skips the one that is not', () => {
+    const p = WEAPON;
+    // Slot 0: the carved mod OR a rollable one. Slot 1: a second carved mod OR another rollable one.
+    // Only the (carved, carved) expansion is illegal.
+    const otherDes = p.base.pools.desecrated.suffixes.find((id) => id !== p.des)
+      ?? p.base.pools.desecrated.prefixes.find((id) => id !== p.des)!;
+    const targets = [
+      { modId: p.des, minTierIndex: 0, slot: 0 },
+      { modId: p.rollable[0]!, minTierIndex: 0, slot: 0 },
+      { modId: otherDes, minTierIndex: 0, slot: 1 },
+      { modId: p.rollable[1]!, minTierIndex: 0, slot: 1 },
+    ];
+    const r = optimizePareto(data, prices, p.base, targets, { level: 82 });
+    expect(r.frontier.length).toBeGreaterThan(0);
+    // …and no route it produces carries two carved mods.
+    for (const plan of r.frontier) {
+      const carved = plan.steps.filter((s) => s.currency === 'desecrate');
+      expect(carved.length).toBeLessThanOrEqual(1);
+    }
+  });
+});

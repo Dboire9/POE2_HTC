@@ -199,7 +199,16 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     expect(byKey.get(outs[0]!.to)!.desecratedJunk).toBeUndefined();
   });
 
-  it('rejects a target holding two desecrated mods (an item carries at most one)', () => {
+  /**
+   * Two desecrated mods in two SLOTS OF THEIR OWN is still impossible: every way of filling the target
+   * lands both, and an item carries one.
+   *
+   * The rule used to be "at most one desecrated mod in the target", which is a different and stricter
+   * claim — it also refused "carved Cast Speed, or failing that a normal one" in two slots, where only
+   * one carved mod ever ends up on the item. The test below (`allows carved ALTERNATIVES`) covers that
+   * side; this one pins the case that really is unsatisfiable.
+   */
+  it('rejects a target needing two desecrated mods at once', () => {
     const twoDes: PatchData = {
       patch: 't',
       mods: new Map([
@@ -216,7 +225,7 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
     const r = markovFromItem(twoDes, prices, { ...rare([placed('NP1', true)], []), base: b2 },
       [{ modId: 'DP1' }, { modId: 'DS2' }]);
     expect(r.feasible).toBe(false);
-    expect(r.reason).toMatch(/at most one desecrated mod/i);
+    expect(r.reason).toMatch(/at most one desecrated mod, and this target needs two/i);
   });
 
   // This used to be a rejection ("no boss omen to select it"), from back when every desecrate action
@@ -367,5 +376,66 @@ describe('markovFromItem — Perfect Essence as an MDP action (hand-computed)', 
       [{ modId: 'NS1' }, { modId: 'PE1' }]);
     expect(r.feasible).toBe(false);
     expect(r.reason).toMatch(/essence pool/i);
+  });
+});
+
+/**
+ * CARVED ALTERNATIVES — two slots may each offer a desecrated mod, so long as one of them can be
+ * filled another way.
+ *
+ * The old rule counted carved mods in the TARGET and refused at two, which also refused "carved Cast
+ * Speed, or failing that a normal one" in two slots — an ask where only one carved mod ever lands.
+ * The limit is on the finished item, and it is now enforced structurally: the carved candidates go
+ * into the lattice's conflict masks, so no state holds two. The action space already agreed (a bone
+ * needs an item carrying no bone-placed mod), which is what makes the pruning sound.
+ */
+describe('markovFromItem — desecrated alternatives', () => {
+  // A carved prefix (DP1) and a carved suffix (DS2), plus a ROLLABLE suffix so one of the two slots can
+  // be filled without a bone — which is exactly the case the old rule refused outright.
+  const twoCarved = (): PatchData => ({
+    patch: 't',
+    mods: new Map([
+      ...data.mods,
+      ['DS2', mk('DS2', 'suffix', 'FdS2', 'desecrated', ['amanamu_mod'])],
+      ['NS1', mk('NS1', 'suffix', 'Fs1', 'normal')],
+    ]),
+    bases: new Map([['S', {
+      ...base,
+      pools: {
+        normal: { prefixes: ['NP1'], suffixes: ['NS1'] },
+        desecrated: { prefixes: ['DP1'], suffixes: ['DS1', 'DS2'] },
+        essence: { prefixes: [], suffixes: [] },
+      },
+    }]]),
+  });
+  const prices: Prices = { currency: { exalt: 1, annul: 1, desecrate: 1 }, omens: {} };
+
+  it('accepts two slots that each OFFER a carved mod, when one has a normal alternative', () => {
+    const d = twoCarved();
+    const b2 = d.bases.get('S')!;
+    const r = markovFromItem(d, prices, { ...rare([placed('NP1', true)], []), base: b2 }, [
+      { modId: 'DP1', slot: 0 },
+      { modId: 'DS2', slot: 1 }, { modId: 'NS1', slot: 1 },
+    ]);
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeLessThan(Infinity);
+  });
+
+  /**
+   * …and the finished item never carries two of them. This is the property the relaxation rests on:
+   * loosening the target check would be wrong if the lattice could then reach an item the game
+   * forbids, so the goal states are inspected directly rather than trusted.
+   */
+  it('never finishes on an item holding two carved mods', () => {
+    const d = twoCarved();
+    const b2 = d.bases.get('S')!;
+    const r = markovFromItem(d, prices, { ...rare([placed('NP1', true)], []), base: b2 }, [
+      { modId: 'DP1', slot: 0 },
+      { modId: 'DS2', slot: 1 }, { modId: 'NS1', slot: 1 },
+    ]);
+    expect(r.feasible).toBe(true);
+    for (const nd of r.nodes) {
+      expect(nd.present.filter((id) => id === 'DP1' || id === 'DS2').length).toBeLessThanOrEqual(1);
+    }
   });
 });

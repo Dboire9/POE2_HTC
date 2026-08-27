@@ -289,3 +289,84 @@ describe('useField — a useState-shaped view of the store', () => {
     expect(result.current[0]).toBe('magic');
   });
 });
+
+/**
+ * SLOT ALTERNATIVES on the wire.
+ *
+ * A slot changes what a craft MEANS: "any one of Cold, Lightning, Chaos" against "Cold and Lightning
+ * and Chaos, all three" — the second being an item that cannot exist. An older build silently dropping
+ * the grouping would therefore plan something the link never said, which is the exact failure the `v`
+ * field exists to prevent. So a link carrying alternatives is written as version 2 and refused by
+ * builds that predate them, while everything else keeps writing version 1.
+ */
+describe('slot alternatives round-trip, without stranding old links', () => {
+  const ver = (payload: string): number =>
+    JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))).v;
+
+  const withSlots = (): Workspace => {
+    const w = defaultWorkspace();
+    return {
+      ...w,
+      lab: {
+        ...w.lab, baseId: 'Wands',
+        targets: [
+          { modId: P[0]!, tierDisplay: 1, slot: 0 },
+          { modId: P[1]!, tierDisplay: 3, slot: 0 },
+          { modId: S[0]!, tierDisplay: 2 },
+        ],
+      },
+    };
+  };
+
+  it('carries the grouping and the per-candidate tiers through a link', () => {
+    const back = decodeWorkspace(encodeWorkspace(withSlots()), data)!;
+    expect(back.workspace.lab.targets).toEqual([
+      { modId: P[0]!, tierDisplay: 1, slot: 0 },
+      { modId: P[1]!, tierDisplay: 3, slot: 0 },
+      { modId: S[0]!, tierDisplay: 2 },
+    ]);
+  });
+
+  it('writes version 2 only when a craft actually uses alternatives', () => {
+    expect(ver(encodeWorkspace(withSlots()))).toBe(2);
+    expect(ver(encodeWorkspace(filled()))).toBe(1);
+    expect(ver(encodeWorkspace(defaultWorkspace()))).toBe(1);
+  });
+
+  /**
+   * A slot of ONE is not a choice, and an id gets left on one whenever a two-candidate slot loses a
+   * candidate. Writing it would push the link to version 2 — locking it out of every older build — in
+   * exchange for a disjunction with a single option. The encoder derives which slots are real rather
+   * than trusting the list it was handed, so the same craft always produces the same bytes.
+   */
+  it('drops a slot id that no longer groups anything, and stays on version 1', () => {
+    const w = withSlots();
+    const orphaned: Workspace = {
+      ...w,
+      lab: { ...w.lab, targets: w.lab.targets.filter((t) => t.modId !== P[1]!) },
+    };
+    const payload = encodeWorkspace(orphaned);
+    expect(ver(payload)).toBe(1);
+    expect(decodeWorkspace(payload, data)!.workspace.lab.targets)
+      .toEqual([{ modId: P[0]!, tierDisplay: 1 }, { modId: S[0]!, tierDisplay: 2 }]);
+  });
+
+  // Version 1 links were written before slots existed and must keep opening, untouched.
+  it('still opens every link written before slots existed', () => {
+    const back = decodeWorkspace(encodeWorkspace(filled()), data)!;
+    for (const t of back.workspace.lab.targets) expect(t.slot).toBeUndefined();
+  });
+
+  // A slot id is an opaque grouping key. Rubbish in it must degrade the target to "no slot" rather
+  // than reach app state — the same rule every other leaf on this wire follows.
+  it('reads a nonsense slot id as no slot at all', () => {
+    const bad = btoa(JSON.stringify({
+      v: 2, m: 'p',
+      l: { b: 'Wands', lv: 80, t: [[P[0]!.replace('Wands/', ''), 1, 'boom']], f: [], p: [], bg: '' },
+      i: { b: '', lv: 80, r: 'r', px: [], sx: [], sm: 'c', t: [] },
+    })).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const back = decodeWorkspace(bad, data);
+    expect(back).not.toBeNull();
+    expect(back!.workspace.lab.targets[0]!.slot).toBeUndefined();
+  });
+});

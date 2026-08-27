@@ -60,9 +60,11 @@ describe('controls are named by what they do, not by their icon', () => {
     await addTarget(user, 'Normal Prefix');
 
     expect(screen.getByRole('button', { name: /Fractured on the base: Normal Prefix/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Pin as non-negotiable: Normal Prefix/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Remove Normal Prefix from the target/i })).toBeInTheDocument();
     // The emoji must not be the name — that is exactly what it used to announce as.
     expect(screen.queryByRole('button', { name: '🔓' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '📌' })).toBeNull();
     expect(screen.queryByRole('button', { name: '✕' })).toBeNull();
   });
 
@@ -100,6 +102,31 @@ describe('toggles report their state', () => {
     expect(lock()).toHaveAttribute('aria-pressed', 'false');
     await user.click(lock());
     expect(lock()).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  /**
+   * The pin used to be rendered only while the budget box held text, on the reasoning that it means
+   * nothing to the frontier. That made it unreachable in the order people actually build a craft —
+   * pick the mods, decide what is non-negotiable, THEN price it — and worse, it stranded pins already
+   * set: clearing the budget kept them in state while removing every way to see or undo them.
+   *
+   * No budget is typed anywhere in this test. That is the point of it.
+   */
+  it('the pin is a plain toggle, reachable before any budget exists', async () => {
+    const user = userEvent.setup();
+    await lab();
+    await addTarget(user, 'Normal Prefix');
+    const pin = () => screen.getByRole('button', { name: /Pin as non-negotiable: Normal Prefix/i });
+    expect(pin()).toHaveAttribute('aria-pressed', 'false');
+    await user.click(pin());
+    expect(pin()).toHaveAttribute('aria-pressed', 'true');
+    // Dormant, not absent — the title has to admit a pin does nothing until a budget is set.
+    expect(pin().getAttribute('title')).toMatch(/when you set a budget/i);
+    // …and the trade-off is stated in visible text, not only in a tooltip touch users never see.
+    expect(screen.getByText(/Pin everything and there’s nothing left for it to search/i))
+      .toBeInTheDocument();
+    await user.click(pin());
+    expect(pin()).toHaveAttribute('aria-pressed', 'false');
   });
 });
 

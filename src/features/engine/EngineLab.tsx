@@ -19,6 +19,7 @@ import {
   decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode, useOnChange,
 } from '../../lib/workspace';
 import { toast } from 'sonner';
+import { nextSlotId, slotCounts, slotsOf, whyNotAdd } from '../../lib/targetSlots';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
 import FrontierView, { fmtPct } from './FrontierView';
@@ -55,11 +56,15 @@ function tierOption(mod: EngineMod, ti: EngineMod['tiers'][number]): string {
 interface ModColumnProps {
   readonly title: string;
   readonly list: readonly EngineMod[];
+  /** SLOTS used on this side, not mods — a slot with three alternatives still fills one. */
   readonly count: number;
-  readonly occupiedFamilies: ReadonlySet<string>;
-  readonly essenceUsed: boolean;
-  readonly hasFractured: boolean;
-  readonly desecratedUsed: boolean;
+  /**
+   * Why this mod can't be added, or null. The column used to work the rules out itself from four
+   * separate flags; it now asks, because the answer depends on something it has no business knowing —
+   * whether the next pick starts a new slot or joins an existing one, where the side cap and the
+   * family rule both change. See `whyNotAdd`.
+   */
+  readonly blockFor: (mod: EngineMod) => string | null;
   readonly pickTier: Record<string, number>;
   readonly onPickTier: (modId: string, tier: number) => void;
   readonly onAdd: (mod: EngineMod, tier: number) => void;
@@ -69,7 +74,7 @@ interface ModColumnProps {
 // each render, so React would remount this whole subtree on every keystroke — dropping the search box's
 // focus and detaching the "+" buttons mid-interaction. Hoisting it fixes both.
 const ModColumn: React.FC<ModColumnProps> = ({
-  title, list, count, occupiedFamilies, essenceUsed, hasFractured, desecratedUsed, pickTier, onPickTier, onAdd,
+  title, list, count, blockFor, pickTier, onPickTier, onAdd,
 }) => (
   <div className="flex-1 min-w-0">
     <div className="flex items-center justify-between mb-1">
@@ -79,23 +84,10 @@ const ModColumn: React.FC<ModColumnProps> = ({
     <div className="max-h-64 overflow-y-auto rounded-md border border-border divide-y divide-border/50">
       {list.length === 0 && <p className="px-2 py-3 text-xs text-muted-foreground">No matches</p>}
       {list.map((m) => {
-        const sideFull = count >= 3;
-        const famTaken = modFamilies(m).some((f) => occupiedFamilies.has(f));
         const isEssence = m.source === 'essence';
         const isPerfect = m.source === 'perfect';
-        // One essence modifier per item, either kind. The FRACTURE clash is regular-essence-only: a
-        // regular essence needs a Magic start, which a fractured mod rules out — a Perfect Essence
-        // wants a Rare, so a fracture doesn't obstruct it.
-        const capBlocked = (isEssence || isPerfect) && essenceUsed;
-        const fractureBlocked = isEssence && hasFractured;
-        const desecratedBlocked = m.source === 'desecrated' && desecratedUsed;
-        const disabled = sideFull || famTaken || capBlocked || fractureBlocked || desecratedBlocked;
-        const reason = famTaken
-          ? `Family “${m.family}” is already on the item — one mod per family`
-          : capBlocked ? 'An item can hold one essence modifier — regular or perfect, not both'
-          : fractureBlocked ? 'Can’t use a regular essence with a fractured mod — it needs a Magic start, a fracture forces a Rare'
-          : desecratedBlocked ? 'An item can hold at most one desecrated mod'
-          : sideFull ? 'This side is full (max 3)' : '';
+        const reason = blockFor(m) ?? '';
+        const disabled = reason !== '';
         const tier = pickTier[m.id] ?? 1;
         // A disabled button is not focusable, so a `title` explaining WHY is unreachable by keyboard,
         // screen reader and touch alike. Render the reason as real text and point the controls at it.
@@ -159,6 +151,10 @@ const EngineLab: React.FC = () => {
   const [pinned, setPinned] = useField('lab', 'pinned');
   // Optional spend cap (exalt-equivalents). Empty ⇒ no alternatives panel; the frontier alone is shown.
   const [budget, setBudget] = useField('lab', 'budget');
+  // What a pin will actually do, which depends on whether there is a budget for it to constrain.
+  const pinEffect = budget.trim() !== ''
+    ? 'the budget search will never relax, swap or drop it'
+    : 'saved for when you set a budget; that search will never relax, swap or drop it';
   const [baseCost, setBaseCost] = useField('lab', 'baseCost');
 
   const [result, setResult] = useState<EngineResult | null>(null);
@@ -237,18 +233,14 @@ const EngineLab: React.FC = () => {
 
 
   const selectedIds = useMemo(() => new Set(targets.map((t) => t.modId)), [targets]);
-  const prefixCount = targets.filter((t) => modById.get(t.modId)?.type === 'prefix').length;
-  const suffixCount = targets.filter((t) => modById.get(t.modId)?.type === 'suffix').length;
   // A regular essence needs a Magic item and turns it Rare, so at most one essence-only mod per craft.
   // One ESSENCE modifier per item, regular and perfect counted TOGETHER — a Perfect Essence can't go
   // on an item already holding an essence mod. (UI source names: 'essence' and 'perfect'; the engine
   // calls the latter 'perfect_essence' — `isEssenceMod` is the canonical rule.)
-  const isEssenceSource = (m: EngineMod | undefined): boolean => m?.source === 'essence' || m?.source === 'perfect';
-  // `essenceUsed` is the ONE-PER-ITEM cap and counts both kinds. `regularEssenceUsed` is narrower and
-  // is what the fracture rules key off: a REGULAR essence needs a Magic start, which a fractured mod
-  // (forcing a Rare) makes impossible — but a Perfect Essence wants a Rare, so a fracture is no
-  // obstacle to it at all. Conflating the two would block a legal combination.
-  const essenceUsed = targets.some((t) => isEssenceSource(modById.get(t.modId)));
+  // The one-essence-per-item CAP now lives in `whyNotAdd`, shared with the other tab. What stays here
+  // is the narrower question the fracture rules key off: a REGULAR essence needs a Magic start, which
+  // a fractured mod (forcing a Rare) makes impossible — while a Perfect Essence wants a Rare, so a
+  // fracture is no obstacle to it at all. Conflating the two would block a legal combination.
   const regularEssenceUsed = targets.some((t) => modById.get(t.modId)?.source === 'essence');
   const desecratedUsed = targets.some((t) => modById.get(t.modId)?.source === 'desecrated');
   const normalTargets = targets.filter((t) => modById.get(t.modId)?.source === 'normal').length;
@@ -266,13 +258,21 @@ const EngineLab: React.FC = () => {
   // coexist in one plan — flag it so the UI blocks the combination instead of erroring at compute time.
   const essenceFractureConflict = regularEssenceUsed && fractured.size > 0;
 
-  // Family exclusion: an item holds at most one mod per family. Families already claimed by a target
-  // are locked out of the picker so an impossible (always-0%) target can't be built in the first place.
-  const occupiedFamilies = useMemo(() => {
-    const s = new Set<string>();
-    for (const t of targets) for (const fam of modFamilies(modById.get(t.modId))) s.add(fam);
-    return s;
-  }, [targets, modById]);
+  // The finished item's positions. A slot holding three alternatives still fills ONE of them, which is
+  // why the 3-per-side limit counts these and not `targets`.
+  const slots = useMemo(() => slotsOf(targets, modById), [targets, modById]);
+  const counts = useMemo(() => slotCounts(targets, modById), [targets, modById]);
+  // Which slot the next pick joins, or null to start a new one. The picker's rules change with it —
+  // joining a slot exempts the side cap and the slot's own families — so it has to be state the guard
+  // can see, not a mode the button remembers privately.
+  const [addingTo, setAddingTo] = useState<number | null>(null);
+  const blockFor = React.useCallback(
+    (mod: EngineMod): string | null => whyNotAdd(mod, targets, modById, {
+      ...(addingTo === null ? {} : { intoSlot: addingTo }),
+      hasFractured: fractured.size > 0,
+    }),
+    [targets, modById, addingTo, fractured],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -281,18 +281,38 @@ const EngineLab: React.FC = () => {
     return { prefixes: pick(mods.prefixes), suffixes: pick(mods.suffixes) };
   }, [mods, search, selectedIds]);
 
+  // One guard, shared with the picker's disabled state and with the other tab — so a mod can never be
+  // rejected here for a reason the picker did not show, which is how a dead "+" used to happen.
   const addTarget = (mod: EngineMod, tierDisplay = 1) => {
-    if (targets.some((t) => t.modId === mod.id)) return;
-    if (mod.type === 'prefix' && prefixCount >= 3) return;
-    if (mod.type === 'suffix' && suffixCount >= 3) return;
-    if (modFamilies(mod).some((f) => occupiedFamilies.has(f))) return; // one mod per family (any of them)
-    if (isEssenceSource(mod) && essenceUsed) return; // one essence modifier per item (regular or perfect)
-    if (mod.source === 'essence' && fractured.size > 0) return; // a REGULAR essence needs Magic; a fracture forces Rare
-    if (mod.source === 'desecrated' && desecratedUsed) return; // an item holds at most one desecrated mod
-    setTargets((t) => [...t, { modId: mod.id, tierDisplay }]);
+    if (blockFor(mod) !== null) return;
+    const slot = addingTo;
+    setTargets((t) => [...t, slot === null ? { modId: mod.id, tierDisplay } : { modId: mod.id, tierDisplay, slot }]);
+    setAddingTo(null); // one pick per invitation; grouping three means asking three times, visibly
+  };
+  /**
+   * Give a lone target a slot id so the next pick can join it, and open the picker on that slot.
+   *
+   * A target with no `slot` is its own slot already — the id is only needed so a second candidate has
+   * something to point at. Stamping it here rather than at add time keeps every craft that never uses
+   * alternatives free of slot ids entirely, which is what lets a share link stay on the old format.
+   */
+  const startAlternative = (index: number) => {
+    const existing = targets[index]?.slot;
+    if (existing !== undefined) { setAddingTo(existing); return; }
+    const id = nextSlotId(targets);
+    setTargets((t) => t.map((x, i) => (i === index ? { ...x, slot: id } : x)));
+    setAddingTo(id);
   };
   const removeTarget = (modId: string) => {
-    setTargets((t) => t.filter((x) => x.modId !== modId));
+    setTargets((t) => {
+      const next = t.filter((x) => x.modId !== modId);
+      // A slot down to its last candidate is no longer a choice, so drop the id and let it render as
+      // an ordinary row. Leaving it would show a one-item "any one of" box, which reads as a bug.
+      const alone = new Map<number, number>();
+      for (const x of next) if (x.slot !== undefined) alone.set(x.slot, (alone.get(x.slot) ?? 0) + 1);
+      return next.map((x) => (x.slot !== undefined && alone.get(x.slot) === 1
+        ? { modId: x.modId, tierDisplay: x.tierDisplay } : x));
+    });
     setFractured((f) => { const n = new Set(f); n.delete(modId); return n; });
     setPinned((p) => { const n = new Set(p); n.delete(modId); return n; });
   };
@@ -558,14 +578,12 @@ const EngineLab: React.FC = () => {
               on a narrow screen each got half of it and the mod text was crushed to nothing. */}
           <div className="flex flex-col sm:flex-row gap-4">
             <ModColumn
-              title="Prefixes" list={filtered.prefixes} count={prefixCount}
-              occupiedFamilies={occupiedFamilies} essenceUsed={essenceUsed} hasFractured={fractured.size > 0}
-              desecratedUsed={desecratedUsed} pickTier={pickTier} onPickTier={onPickTier} onAdd={addTarget}
+              title="Prefixes" list={filtered.prefixes} count={counts.prefix}
+              blockFor={blockFor} pickTier={pickTier} onPickTier={onPickTier} onAdd={addTarget}
             />
             <ModColumn
-              title="Suffixes" list={filtered.suffixes} count={suffixCount}
-              occupiedFamilies={occupiedFamilies} essenceUsed={essenceUsed} hasFractured={fractured.size > 0}
-              desecratedUsed={desecratedUsed} pickTier={pickTier} onPickTier={onPickTier} onAdd={addTarget}
+              title="Suffixes" list={filtered.suffixes} count={counts.suffix}
+              blockFor={blockFor} pickTier={pickTier} onPickTier={onPickTier} onAdd={addTarget}
             />
           </div>
         </div>
@@ -574,9 +592,30 @@ const EngineLab: React.FC = () => {
       {/* Selected targets */}
       {targets.length > 0 && (
         <Card className="p-4 space-y-2">
-          <h3 className="text-sm font-bold">Target item ({targets.length} mod{targets.length !== 1 ? 's' : ''})</h3>
+          {/* A craft with no alternatives keeps the words it always had. "Slots" is the precise term
+              but it is only worth teaching to someone who has just made a slot mean something. */}
+          <h3 className="text-sm font-bold">
+            {targets.length === slots.length
+              ? `Target item (${targets.length} mod${targets.length !== 1 ? 's' : ''})`
+              : `Target item (${slots.length} slot${slots.length !== 1 ? 's' : ''}, ${targets.length} mods)`}
+          </h3>
+          {addingTo !== null && (
+            <p className="flex flex-wrap items-center gap-2 rounded-md border border-sky-500/50 bg-sky-500/10 px-2 py-1.5 text-[11px] text-sky-700 dark:text-sky-300">
+              <span>Pick a mod above to add as an <strong>alternative</strong> — the slot is filled by whichever one lands.</span>
+              <button
+                onClick={() => setAddingTo(null)}
+                className={`underline ${FOCUS_RING}`}
+              >Cancel</button>
+            </p>
+          )}
           <div className="space-y-2">
-            {targets.map((t) => {
+            {/* Rendered by SLOT, not by target: a slot with alternatives is one position on the item
+                and has to read as one, or a three-way choice looks like three mods you must all get. */}
+            {slots.map((slot) => {
+              const key = slot.id === undefined ? `solo-${targets[slot.members[0]!]!.modId}` : `slot-${slot.id}`;
+              const isGroup = slot.members.length > 1;
+              const rows = slot.members.map((memberIndex) => {
+              const t = targets[memberIndex]!;
               const mod = modById.get(t.modId);
               if (!mod) return null;
               const isFractured = fractured.has(t.modId);
@@ -636,31 +675,31 @@ const EngineLab: React.FC = () => {
                       </>
                     );
                   })()}
-                  {/* Pin only means something to the budget search, so don't offer it without a budget. */}
-                  {budget.trim() !== '' && (
-                    <>
-                      {isFractured && (
-                        <span id={`why-pin-${t.modId}`} className="sr-only">
-                          A fractured mod is already locked, so it’s never relaxed
-                        </span>
-                      )}
-                      <button
-                        onClick={() => !isFractured && togglePinned(t.modId)}
-                        disabled={isFractured}
-                        aria-pressed={isPinned}
-                        aria-label={`Pin as non-negotiable: ${mod.text}`}
-                        {...(isFractured ? { 'aria-describedby': `why-pin-${t.modId}` } : {})}
-                        className={`px-0.5 ${FOCUS_RING} ${isPinned ? 'opacity-100' : 'opacity-40 hover:opacity-100'} ${isFractured ? 'cursor-not-allowed' : ''}`}
-                        title={isFractured
-                          ? 'A fractured mod is already locked, so it’s never relaxed'
-                          : isPinned
-                            ? 'Pinned — the budget search will never relax, swap or drop this. Click to unpin.'
-                            : 'Pin as non-negotiable: the budget search will never relax, swap or drop it'}
-                      >
-                        <span aria-hidden="true">📌</span>
-                      </button>
-                    </>
+                  {/* A pin only BITES in the budget search, but it stays togglable without a budget so the
+                      craft can be set up in either order. Hiding it meant typing a budget, pinning, then
+                      clearing the budget silently stranded the pins: still stored, no longer visible or
+                      reachable. The title carries the state instead — the control is honest about being
+                      dormant rather than absent. */}
+                  {isFractured && (
+                    <span id={`why-pin-${t.modId}`} className="sr-only">
+                      A fractured mod is already locked, so it’s never relaxed
+                    </span>
                   )}
+                  <button
+                    onClick={() => !isFractured && togglePinned(t.modId)}
+                    disabled={isFractured}
+                    aria-pressed={isPinned}
+                    aria-label={`Pin as non-negotiable: ${mod.text}`}
+                    {...(isFractured ? { 'aria-describedby': `why-pin-${t.modId}` } : {})}
+                    className={`px-0.5 ${FOCUS_RING} ${isPinned ? 'opacity-100' : 'opacity-40 hover:opacity-100'} ${isFractured ? 'cursor-not-allowed' : ''}`}
+                    title={isFractured
+                      ? 'A fractured mod is already locked, so it’s never relaxed'
+                      : isPinned
+                        ? `Pinned — ${pinEffect}. Click to unpin.`
+                        : `Pin as non-negotiable: ${pinEffect}`}
+                  >
+                    <span aria-hidden="true">📌</span>
+                  </button>
                   <button
                     onClick={() => removeTarget(t.modId)}
                     className={`text-muted-foreground hover:text-destructive px-1 ${FOCUS_RING}`}
@@ -671,8 +710,49 @@ const EngineLab: React.FC = () => {
                   </button>
                 </div>
               );
+              });
+              /* An "or" invitation belongs on every slot — the affordance IS the discovery, and a
+                 control that only appeared on slots already grouped could never be found. */
+              const orButton = (
+                <button
+                  onClick={() => startAlternative(slot.members[0]!)}
+                  className={`shrink-0 rounded border border-dashed border-border px-1.5 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-foreground/50 ${FOCUS_RING}`}
+                  title={`Add an alternative: this slot is filled by whichever of its mods lands, so you don’t have to pick one`}
+                >
+                  <span aria-hidden="true">⊕ </span>or…
+                </button>
+              );
+              if (!isGroup) {
+                return (
+                  <div key={key} className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">{rows}</div>
+                    {orButton}
+                  </div>
+                );
+              }
+              return (
+                <div key={key} className="rounded-md border border-sky-500/40 bg-sky-500/5 p-1.5 space-y-1.5">
+                  <div className="flex items-center justify-between gap-2 px-0.5">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300">
+                      Any one of
+                    </span>
+                    {orButton}
+                  </div>
+                  {rows}
+                </div>
+              );
             })}
           </div>
+          {slots.some((sl) => sl.members.length > 1) && (
+            /* Answered honestly rather than left to be discovered: an alternative eases ONE slot, so a
+               target with six of them gains far less than a small one. Measured on Wands from white —
+               a three-way slot took a 4-slot craft 62% cheaper and a 6-slot craft 23% cheaper. */
+            <p className="text-[11px] text-muted-foreground">
+              ⊕ An alternative slot is filled by whichever of its mods lands, so it never costs you a
+              choice. It eases <strong>one</strong> slot, though — expect a bigger saving on a short
+              target than on a full six-mod one.
+            </p>
+          )}
           {essenceFractureConflict && (
             <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
               ⚠ This craft can’t be planned: a regular <strong>essence</strong> needs a <strong>Magic</strong> item,
@@ -688,6 +768,16 @@ const EngineLab: React.FC = () => {
               target must also include at least one rollable mod for the essence to land on.
             </p>
           )}
+          {/* The pin's only other explanation is a tooltip — which touch never shows, and a screen reader
+              only reaches on focus. So this line is always visible: the problem is discovery, not recall.
+              It states the TRADE-OFF rather than just the mechanic, because the obvious-looking default
+              (pin everything) is the one setting that breaks the panel: all three relaxation moves skip a
+              pinned slot, so a fully pinned target collapses the frontier to the exact item alone. */}
+          <p className="text-[11px] text-muted-foreground">
+            📌 Pins a mod as <strong>non-negotiable</strong>. Given a budget, the search relaxes, swaps or
+            drops <strong>unpinned</strong> mods to find something you can actually afford — so pin only
+            what you’d never trade away. Pin everything and there’s nothing left for it to search.
+          </p>
           {fractured.size > 0 && (
             <p className="text-[11px] text-muted-foreground">
               🔒 Fractured mods are treated as already carved on the base — the plan starts from a Rare

@@ -24,7 +24,8 @@ import { familiesOf, resolveMod } from '../../engine/src/pool.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import { planCostCdf, pricesForBase } from './cost.ts';
 import type { CurrencyDepth, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
-import { optimizePareto } from './optimize.ts';
+import { DEPTH_RANK, optimizePareto } from './optimize.ts';
+import { expandSlots, itemLegalCombinations } from './slots.ts';
 import { optimizeFromItem } from './fromItem.ts';
 
 /** A desired mod at a desired tier. Pinned targets are non-negotiable — never relaxed/swapped/dropped. */
@@ -107,7 +108,7 @@ const FRONTIER_EPS = 1e-12;
 // claims more coverage than the least-searched node had. `base-only` ranks worst because it is not a
 // throttle at all — that planner never varies orb strength, so it is the least that can be said.
 // Understating coverage is the safe direction for a mixed run; overstating it is the bug being avoided.
-const DEPTH_RANK: Record<CurrencyDepth, number> = { full: 0, 'base+strongest': 1, 'strongest-only': 2, 'base-only': 3 };
+
 
 /** |midpoint| of a stat range: [min,max] → |(min+max)/2|. Absolute, so "reduced X" mods (whose best
  *  tier is the most negative) still compare in the right direction. */
@@ -370,26 +371,63 @@ function searchAlternatives(
     for (const seed of edits) explore(seed, each);
   }
 
-  // Output order is NOT visit order: the frontier rule only needs the evaluated set sorted by closeness
-  // at the END. Equal-closeness ties are settled by odds so the sweep keeps the best of them, then by
-  // key so the frontier is reproducible.
-  evaluated.sort((a, b) =>
+  return { frontier: frontierOf(evaluated), nodesEvaluated: nodes, truncated, currencyDepth: depth };
+}
+
+/**
+ * The frontier rule: a row earns its place only by beating every CLOSER row's odds.
+ *
+ * Output order is NOT visit order — the rule only needs the evaluated set sorted by closeness at the
+ * END. Equal-closeness ties are settled by odds so the sweep keeps the best of them, then by key so the
+ * frontier is reproducible. `bestP` starts at −∞ so the exact target always takes row 0, however
+ * hopeless its odds.
+ *
+ * Extracted so the slot-expansion merge applies the same rule to the union rather than a second copy
+ * of it — two sweeps that drifted apart would give one answer for a craft with alternatives and a
+ * different one for the same craft without.
+ */
+function frontierOf(evaluated: readonly Alternative[]): Alternative[] {
+  const sorted = [...evaluated].sort((a, b) =>
     compareCloseness(a.closeness, b.closeness)
     || b.inBudget - a.inBudget
     || keyOf(a.slots).localeCompare(keyOf(b.slots)));
-
-  // A row earns its place only by beating every CLOSER row's odds — that antichain is the frontier.
-  // (bestP starts at −∞ so the exact target always takes row 0, however hopeless its P.)
   const frontier: Alternative[] = [];
   let bestP = -Infinity;
-  for (const a of evaluated) {
+  for (const a of sorted) {
     if (a.inBudget > bestP + FRONTIER_EPS) {
       frontier.push(a);
       bestP = a.inBudget;
     }
   }
+  return frontier;
+}
 
-  return { frontier, nodesEvaluated: nodes, truncated, currencyDepth: depth };
+/**
+ * Run the search once per slot combination and merge, on a DIVIDED node budget.
+ *
+ * Dividing rather than multiplying is the point: every node here costs a full Pareto run, which is what
+ * `maxNodes` exists to bound, and a three-way slot silently tripling the wall clock of a search already
+ * measured at ~7.3s would be a bad trade made on the user's behalf. Each combination still gets enough
+ * nodes to report its loosest and least-relaxed forms, which is what the frontier is built from.
+ */
+function mergeAlternativeRuns(
+  combos: readonly (readonly AlternativeTarget[])[],
+  run: (desired: readonly AlternativeTarget[], maxNodes: number) => AlternativesResult,
+  maxNodes: number,
+): AlternativesResult {
+  const each = Math.max(4, Math.floor(maxNodes / combos.length));
+  const all: Alternative[] = [];
+  let nodesEvaluated = 0;
+  let truncated = false;
+  let depth: CurrencyDepth = 'full';
+  for (const combo of combos) {
+    const r = run(combo, each);
+    all.push(...r.frontier);
+    nodesEvaluated += r.nodesEvaluated;
+    if (r.truncated) truncated = true;
+    if (DEPTH_RANK[r.currencyDepth] > DEPTH_RANK[depth]) depth = r.currencyDepth;
+  }
+  return { frontier: frontierOf(all), nodesEvaluated, truncated, currencyDepth: depth };
 }
 
 /**
@@ -404,11 +442,18 @@ export function alternativesFromWhite(
   const maxPlans = opts.maxPlansPerNode ?? DEFAULT_MAX_PLANS_PER_NODE;
   const policy = opts.policy;
   const prices = pricesForBase(rawPrices, base); // the bone a Desecration consumes depends on the base
-  return searchAlternatives(
+  // A slot with alternatives becomes one concrete craft per member. The relaxation lattice below reads
+  // `desired` positionally — one entry is one slot to relax — so handing it a group would let it drop
+  // or swap the alternatives against each other, which is not a near-miss but nonsense.
+  const combos = itemLegalCombinations(expandSlots(desired),
+    (id) => resolveMod(data, id).source === 'desecrated');
+  const run = (d: readonly AlternativeTarget[], maxNodes: number): AlternativesResult => searchAlternatives(
     data, base, prices,
     (targets) => optimizePareto(data, prices, base, targets, { level, maxPlans, ...(policy ? { policy } : {}) }),
-    desired, budget, opts,
+    d, budget, { ...opts, maxNodes },
   );
+  if (combos.length > 1) return mergeAlternativeRuns(combos, run, opts.maxNodes ?? DEFAULT_MAX_NODES);
+  return run(desired, opts.maxNodes ?? DEFAULT_MAX_NODES);
 }
 
 /**
@@ -425,9 +470,13 @@ export function alternativesFromItem(
   const pinned = desired.map((d) => (fractured.has(d.modId) ? { ...d, pinned: true } : d));
   const policy = opts.policy;
   const prices = pricesForBase(rawPrices, start.base);
-  return searchAlternatives(
+  const combos = itemLegalCombinations(expandSlots(pinned),
+    (id) => resolveMod(data, id).source === 'desecrated');
+  const run = (d: readonly AlternativeTarget[], maxNodes: number): AlternativesResult => searchAlternatives(
     data, start.base, prices,
     (targets) => optimizeFromItem(data, prices, start, targets, policy ? { policy } : {}),
-    pinned, budget, opts,
+    d, budget, { ...opts, maxNodes },
   );
+  if (combos.length > 1) return mergeAlternativeRuns(combos, run, opts.maxNodes ?? DEFAULT_MAX_NODES);
+  return run(pinned, opts.maxNodes ?? DEFAULT_MAX_NODES);
 }

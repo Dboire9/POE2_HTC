@@ -70,21 +70,26 @@ export function toEngineMod(data: PatchData, modId: string, type: 'prefix' | 'su
 
 // ── Target mapping ──────────────────────────────────────────────────────────
 
-/** UI tier display (1 = best) → engine TierTarget minTierIndex (worst acceptable tier; display n ⇒ any). */
+/** UI tier display (1 = best) → engine minTierIndex (worst acceptable tier; display n ⇒ any tier). */
+const minTierIndexOf = (data: PatchData, t: TargetInput): number => {
+  // For an essence mod the tiers are its levels, so this picks the exact Lesser/Normal/Greater level.
+  const n = resolveMod(data, t.modId).tiers.length;
+  return Math.max(0, Math.min(n - 1, n - t.tierDisplay));
+};
+
+/** `slot` crosses UNCHANGED: it is an opaque grouping id on both sides, and inventing a new numbering
+ *  here would only give two layers a chance to disagree about which candidates are alternatives. */
+const slotOf = (t: TargetInput): { slot?: number } => (t.slot === undefined ? {} : { slot: t.slot });
+
 export function toTierTargets(data: PatchData, targets: readonly TargetInput[]): TierTarget[] {
-  return targets.map((t) => {
-    const n = resolveMod(data, t.modId).tiers.length;
-    // For an essence mod the tiers are its levels, so this picks the exact Lesser/Normal/Greater level.
-    return { modId: t.modId, minTierIndex: Math.max(0, Math.min(n - 1, n - t.tierDisplay)) };
-  });
+  return targets.map((t) => ({ modId: t.modId, minTierIndex: minTierIndexOf(data, t), ...slotOf(t) }));
 }
 
 export function toAltTargets(data: PatchData, targets: readonly AltTargetInput[]): AlternativeTarget[] {
-  return targets.map((t) => {
-    const n = resolveMod(data, t.modId).tiers.length;
-    const minTierIndex = Math.max(0, Math.min(n - 1, n - t.tierDisplay));
-    return t.pinned ? { modId: t.modId, minTierIndex, pinned: true } : { modId: t.modId, minTierIndex };
-  });
+  return targets.map((t) => ({
+    modId: t.modId, minTierIndex: minTierIndexOf(data, t), ...slotOf(t),
+    ...(t.pinned ? { pinned: true as const } : {}),
+  }));
 }
 
 // ── Item building ─────────────────────────────────────────────────────────────
@@ -231,7 +236,7 @@ function actionLabel(action: McAction): string {
 }
 
 /** Map the from-item MDP result into UI shapes: mod-text node labels, human action names, layout depth. */
-export function mapMarkov(data: PatchData, res: MarkovResult, nTargets: number): EngineMarkovResult {
+export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResult {
   const text = (id: string): string => data.mods.get(id)?.text ?? id;
   const nodes: EnginePolicyNode[] = res.nodes.map((nd) => ({
     key: nd.key,

@@ -16,6 +16,7 @@ import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField, useOnChange } from '../../lib/workspace';
+import { nextSlotId, slotsOf, whyNotAdd } from '../../lib/targetSlots';
 import { exactExalts, formatBoundedCost, formatCost, formatIn, pickUnit } from '../../lib/currency';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
@@ -300,26 +301,41 @@ const ItemActions: React.FC = () => {
   }, [engine, baseId, level, rarity, prefixes, suffixes, addModId, removeModId]);
 
   // ── Option 2: full plan target ──────────────────────────────────────────────
-  const targetIds = useMemo(() => new Set(target.map((t) => t.modId)), [target]);
-  const targetFamilies = useMemo(() => {
-    const s = new Set<string>();
-    for (const t of target) for (const fam of modFamilies(modById.get(t.modId))) s.add(fam);
-    return s;
-  }, [target, modById]);
-  const targetPre = target.filter((t) => modById.get(t.modId)?.type === 'prefix').length;
-  const targetSuf = target.filter((t) => modById.get(t.modId)?.type === 'suffix').length;
-  const targetDesecrated = target.some((t) => modById.get(t.modId)?.source === 'desecrated');
-  // An item carries at most ONE essence modifier, and regular + perfect count TOGETHER (a Perfect
-  // Essence can't go on an item that already holds an essence mod). The UI spells the perfect source
-  // 'perfect'; the engine calls it 'perfect_essence' — see isEssenceMod for the canonical rule.
-  const isEssenceSource = (m: EngineMod | undefined): boolean => m?.source === 'essence' || m?.source === 'perfect';
-  const targetEssence = target.some((t) => isEssenceSource(modById.get(t.modId)));
+  const targetSlots = useMemo(() => slotsOf(target, modById), [target, modById]);
+  // Which slot the next pick joins, or null for a new one. See EngineLab for the same state: the
+  // picker's rules change with it, so it cannot be a mode a button remembers privately.
+  const [addingTo, setAddingTo] = useState<number | null>(null);
+  // The family / one-essence / one-desecrated bookkeeping this tab used to keep for itself now lives
+  // in `whyNotAdd`, which both tabs share — so the two can no longer disagree about what is legal or
+  // about how to say why.
+  // The same guard EngineLab uses. This tab had its own copy, worded differently and — in the picker
+  // below — not enforced at all: a fourth prefix was a dead choice that silently did nothing.
+  const blockFor = (mod: EngineMod): string | null =>
+    whyNotAdd(mod, target, modById, addingTo === null ? {} : { intoSlot: addingTo });
   const addTarget = (mod: EngineMod) => {
-    if (targetIds.has(mod.id) || modFamilies(mod).some((f) => targetFamilies.has(f))) return;
-    if (mod.type === 'prefix' ? targetPre >= 3 : targetSuf >= 3) return;
-    if (mod.source === 'desecrated' && targetDesecrated) return; // an item holds at most one desecrated mod
-    if (isEssenceSource(mod) && targetEssence) return; // …and at most one essence modifier
-    setTarget((t) => [...t, { modId: mod.id, tierDisplay: 1 }]);
+    if (blockFor(mod) !== null) return;
+    const slot = addingTo;
+    setTarget((t) => [...t, slot === null ? { modId: mod.id, tierDisplay: 1 } : { modId: mod.id, tierDisplay: 1, slot }]);
+    setAddingTo(null);
+    setPlan(null);
+  };
+  /** Stamp a slot id on a lone target so a second candidate has something to join. */
+  const startAlternative = (index: number) => {
+    const existing = target[index]?.slot;
+    if (existing !== undefined) { setAddingTo(existing); return; }
+    const id = nextSlotId(target);
+    setTarget((t) => t.map((x, i) => (i === index ? { ...x, slot: id } : x)));
+    setAddingTo(id);
+  };
+  const removeTargetMod = (modId: string) => {
+    setTarget((t) => {
+      const next = t.filter((x) => x.modId !== modId);
+      // A slot down to one candidate is no longer a choice — drop the id so it reads as a plain row.
+      const alone = new Map<number, number>();
+      for (const x of next) if (x.slot !== undefined) alone.set(x.slot, (alone.get(x.slot) ?? 0) + 1);
+      return next.map((x) => (x.slot !== undefined && alone.get(x.slot) === 1
+        ? { modId: x.modId, tierDisplay: x.tierDisplay } : x));
+    });
     setPlan(null);
   };
   const copyItemToTarget = () => {
@@ -606,25 +622,41 @@ const ItemActions: React.FC = () => {
                   onChange={(e) => { const m = modById.get(e.target.value); if (m) addTarget(m); }}
                 >
                   <option value="">— choose —</option>
-                  {[...addable, ...perfect, ...desecratedTargets]
-                    // One desecrated mod max, and one ESSENCE modifier max (regular and perfect count
-                    // together) — hide the rest once one of each is in the target.
-                    .filter((m) => !targetIds.has(m.id)
-                      && !(m.source === 'desecrated' && targetDesecrated)
-                      && !(isEssenceSource(m) && targetEssence))
-                    .map((m) => (
-                      <option key={m.id} value={m.id}>
+                  {/* Every mod that cannot be added is DISABLED with its reason, rather than filtered
+                      away or — as before — left selectable and silently ignored. This list used to
+                      hide the one-desecrated and one-essence cases and enforce nothing else, so
+                      picking a fourth prefix, or a mod whose family was taken, was a dead choice with
+                      no explanation anywhere. A <select> gives no room for a described-by node, so the
+                      reason rides in the option's own text: it is the only place a screen reader,
+                      a keyboard and a touch user all reach it. */}
+                  {[...addable, ...perfect, ...desecratedTargets].map((m) => {
+                    const why = blockFor(m);
+                    return (
+                      <option key={m.id} value={m.id} disabled={why !== null}>
                         {m.type === 'prefix' ? 'P' : 'S'} · {m.text}
                         {m.source === 'perfect' ? ' · Perfect Essence' : m.source === 'desecrated' ? ' · Desecrated' : ''}
+                        {why ? ` — ${why}` : ''}
                       </option>
-                    ))}
+                    );
+                  })}
                 </select>
               </label>
             </div>
+            {addingTo !== null && (
+              <p className="flex flex-wrap items-center gap-2 rounded-md border border-sky-500/50 bg-sky-500/10 px-2 py-1.5 text-[11px] text-sky-700 dark:text-sky-300">
+                <span>Choose a mod above to add as an <strong>alternative</strong> — the slot is filled by whichever one lands.</span>
+                <button onClick={() => setAddingTo(null)} className={`underline ${FOCUS_RING}`}>Cancel</button>
+              </p>
+            )}
 
             {target.length > 0 && (
               <div className="space-y-2">
-                {target.map((t) => {
+                {/* By SLOT, not by target: a slot with alternatives is one position on the item and has
+                    to read as one, or a three-way choice looks like three mods you must all get. */}
+                {targetSlots.map((slot) => {
+                  const key = slot.id === undefined ? `solo-${target[slot.members[0]!]!.modId}` : `slot-${slot.id}`;
+                  const rows = slot.members.map((memberIndex) => {
+                  const t = target[memberIndex]!;
                   const mod = modById.get(t.modId);
                   if (!mod) return null;
                   const have = onItem.has(t.modId);
@@ -645,7 +677,7 @@ const ItemActions: React.FC = () => {
                         {mod.tiers.map((ti) => <option key={ti.display} value={ti.display}>{ti.label}</option>)}
                       </select>
                       <button
-                        onClick={() => { setTarget((x) => x.filter((y) => y.modId !== t.modId)); setPlan(null); }}
+                        onClick={() => removeTargetMod(t.modId)}
                         className={`text-muted-foreground hover:text-destructive px-1 ${FOCUS_RING}`}
                         aria-label={`Remove ${mod.text} from the target`}
                         title="Remove from target"
@@ -654,8 +686,44 @@ const ItemActions: React.FC = () => {
                       </button>
                     </div>
                   );
+                  });
+                  const orButton = (
+                    <button
+                      onClick={() => startAlternative(slot.members[0]!)}
+                      className={`shrink-0 rounded border border-dashed border-border px-1.5 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-foreground/50 ${FOCUS_RING}`}
+                      title="Add an alternative: this slot is filled by whichever of its mods lands, so you don’t have to pick one"
+                    >
+                      <span aria-hidden="true">⊕ </span>or…
+                    </button>
+                  );
+                  if (slot.members.length === 1) {
+                    return (
+                      <div key={key} className="flex items-center gap-2">
+                        <div className="flex-1 min-w-0">{rows}</div>
+                        {orButton}
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={key} className="rounded-md border border-sky-500/40 bg-sky-500/5 p-1.5 space-y-1.5">
+                      <div className="flex items-center justify-between gap-2 px-0.5">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300">
+                          Any one of
+                        </span>
+                        {orButton}
+                      </div>
+                      {rows}
+                    </div>
+                  );
                 })}
               </div>
+            )}
+            {targetSlots.some((sl) => sl.members.length > 1) && (
+              <p className="text-[11px] text-muted-foreground">
+                ⊕ An alternative slot is filled by whichever of its mods lands, so it never costs you a
+                choice. It eases <strong>one</strong> slot, though — expect a bigger saving on a short
+                target than on a full six-mod one.
+              </p>
             )}
 
             <CurrencyExclusions />

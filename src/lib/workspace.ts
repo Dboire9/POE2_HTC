@@ -70,9 +70,26 @@ export function defaultWorkspace(): Workspace {
 // information. `v` is a format version, so a future change is REJECTED rather than mis-parsed into a
 // workspace that looks plausible and isn't.
 
-const FORMAT = 1;
+/**
+ * The format a workspace is WRITTEN as. Not a constant, because two are current at once.
+ *
+ * `FORMAT_SLOTS` is emitted only when a target actually uses slot alternatives, and `FORMAT_BASE`
+ * otherwise. That is deliberate, and it is the opposite of what this file did for `baseCost`: an
+ * optional key that an old build ignores is harmless, but a SLOT changes what the craft means. An old
+ * reader dropping it would silently plan "Cold and Lightning and Chaos, all three" — an impossible
+ * item — where the link said "any one of them". Refusing the link is the far better failure, and `v`
+ * exists precisely so it can be refused.
+ *
+ * The cost of that choice is bounded to the crafts that opt in: every link ever shared, and every new
+ * link without alternatives, still reads as version 1 in every build that ever existed.
+ */
+const FORMAT_BASE = 1;
+const FORMAT_SLOTS = 2;
+const READABLE: readonly number[] = [FORMAT_BASE, FORMAT_SLOTS];
 
-type WireTarget = readonly [string, number];
+/** `[modId, tierDisplay, slot?]`. The third element is present only on a target that has alternatives,
+ *  which is what keeps a slot-free workspace byte-identical to what version 1 always wrote. */
+type WireTarget = readonly [string, number, number?];
 type WireItemMod = readonly [string, number, 1?];
 
 interface Wire {
@@ -108,7 +125,7 @@ interface Wire {
  * `restore`, which `decodeWorkspace`'s try/catch turns into a clean null. Widening those would add
  * noise, not safety.
  */
-type WireTargetIn = readonly [string, unknown];
+type WireTargetIn = readonly [string, unknown, unknown?];
 type WireItemModIn = readonly [string, unknown, 1?];
 
 interface WireIn {
@@ -158,6 +175,11 @@ const clampText = (v: unknown): string => (typeof v === 'string' ? v : '');
  */
 const clampTier = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 1);
 
+/** A slot id is an opaque grouping key — only equality matters — so any non-integer is simply "no
+ *  slot", which degrades a shared alternative into an ordinary target rather than into a crash. */
+const clampSlot = (v: unknown): number | undefined =>
+  (typeof v === 'number' && Number.isInteger(v) && v >= 0 && v < 64 ? v : undefined);
+
 const strip = (baseId: string, modId: string): string =>
   modId.startsWith(`${baseId}/`) ? modId.slice(baseId.length + 1) : modId;
 const restore = (baseId: string, short: string): string =>
@@ -193,16 +215,35 @@ export function shareUrl(ws: Workspace = getWorkspace()): string {
 export function encodeWorkspace(ws: Workspace): string {
   const lb = ws.lab.baseId;
   const ib = ws.item.baseId;
-  const t = (base: string, list: readonly TargetInput[]): WireTarget[] =>
-    list.map((x) => [strip(base, x.modId), x.tierDisplay]);
+  /*
+   * A slot id is written only where it MEANS something — where two or more targets share it.
+   *
+   * A slot of one is not a choice, and an id can be left behind on one: remove the second candidate
+   * from a pair and the survivor still carries the id. Writing it anyway would push the link to
+   * version 2 and lock it out of every older build, in exchange for a disjunction with one option.
+   * Deriving the answer from the list rather than trusting whoever built it keeps the encoding
+   * canonical — the same craft always produces the same bytes, however it was arrived at.
+   */
+  const realSlots = (list: readonly TargetInput[]): Set<number> => {
+    const seen = new Map<number, number>();
+    for (const x of list) if (x.slot !== undefined) seen.set(x.slot, (seen.get(x.slot) ?? 0) + 1);
+    return new Set([...seen].filter(([, n]) => n > 1).map(([id]) => id));
+  };
+  const labSlots = realSlots(ws.lab.targets);
+  const itemSlots = realSlots(ws.item.target);
+  const t = (base: string, list: readonly TargetInput[], real: ReadonlySet<number>): WireTarget[] =>
+    list.map((x) => (x.slot === undefined || !real.has(x.slot)
+      ? [strip(base, x.modId), x.tierDisplay]
+      : [strip(base, x.modId), x.tierDisplay, x.slot]));
+  const usesSlots = labSlots.size > 0 || itemSlots.size > 0;
   const im = (list: readonly ItemModInput[]): WireItemMod[] =>
     list.map((x) => (x.fractured ? [strip(ib, x.modId), x.tierDisplay, 1] : [strip(ib, x.modId), x.tierDisplay]));
 
   const wire: Wire = {
-    v: FORMAT,
+    v: usesSlots ? FORMAT_SLOTS : FORMAT_BASE,
     m: ws.mode === 'item' ? 'i' : 'p',
     l: {
-      b: lb, lv: ws.lab.level, t: t(lb, ws.lab.targets),
+      b: lb, lv: ws.lab.level, t: t(lb, ws.lab.targets, labSlots),
       f: [...ws.lab.fractured].map((id) => strip(lb, id)),
       p: [...ws.lab.pinned].map((id) => strip(lb, id)),
       bg: ws.lab.budget, bc: ws.lab.baseCost,
@@ -210,7 +251,7 @@ export function encodeWorkspace(ws: Workspace): string {
     i: {
       b: ib, lv: ws.item.level, r: ws.item.rarity === 'magic' ? 'm' : 'r',
       px: im(ws.item.prefixes), sx: im(ws.item.suffixes),
-      sm: ws.item.subMode === 'plan' ? 'p' : 'c', t: t(ib, ws.item.target),
+      sm: ws.item.subMode === 'plan' ? 'p' : 'c', t: t(ib, ws.item.target, itemSlots),
     },
   };
   return toBase64Url(JSON.stringify(wire));
@@ -259,7 +300,7 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
   } catch {
     return null;
   }
-  if (wire.v !== FORMAT || !wire.l || !wire.i) return null;
+  if (!READABLE.includes(wire.v) || !wire.l || !wire.i) return null;
 
   const dropped: string[] = [];
   // An EMPTY base id means "none chosen yet", not "an id this build lost". Reporting it as dropped made
@@ -278,9 +319,13 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
     return null;
   };
   const targets = (base: string, list: readonly WireTargetIn[] | undefined): TargetInput[] =>
-    (list ?? []).flatMap(([id, tier]) => {
+    (list ?? []).flatMap(([id, tier, slot]) => {
       const full = base ? keep(base, id) : null;
-      return full ? [{ modId: full, tierDisplay: clampTier(tier) }] : [];
+      if (!full) return [];
+      const s = clampSlot(slot);
+      return [s === undefined
+        ? { modId: full, tierDisplay: clampTier(tier) }
+        : { modId: full, tierDisplay: clampTier(tier), slot: s }];
     });
   const itemMods = (base: string, list: readonly WireItemModIn[] | undefined): ItemModInput[] =>
     (list ?? []).flatMap(([id, tier, frac]) => {

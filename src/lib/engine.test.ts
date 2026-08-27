@@ -596,3 +596,50 @@ describe('engine facade — optimizeItemMarkov (0.5.0)', () => {
     expect(r.reason).not.toMatch(/from white/i);
   });
 });
+
+/**
+ * SLOT ALTERNATIVES through the FACADE — the whole chain, unmocked.
+ *
+ * The UI tests drive a mocked facade and the optimizer tests bypass the app types, so a `slot` could be
+ * dropped between `TargetInput` and `TierTarget` and every other test in the suite would still pass.
+ * `toTierTargets` is a one-line map; this is what proves the line is there.
+ */
+describe('engine facade — a slot with alternatives reaches the solver (0.5.0)', () => {
+  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
+  const CAST = 'Wands/IncreasedCastSpeed';
+  // Three DIFFERENT families, all prefixes — the cross-family case, which no same-family mechanism
+  // could have covered and which the sibling-swap search still cannot see.
+  const XCOLD = 'Wands/DamageGainedAsCold';
+  const XFIRE = 'Wands/DamageGainedAsFire';
+  const XLIGHT = 'Wands/DamageGainedAsLightning';
+  const white: ExistingItem = { baseId: 'Wands', level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+
+  it('costs less than the same craft with that slot pinned to one mod', () => {
+    const fixed = optimizeItemMarkov(eng050, white, [
+      { modId: CAST, tierDisplay: 99 }, { modId: XCOLD, tierDisplay: 99 },
+    ]);
+    const either = optimizeItemMarkov(eng050, white, [
+      { modId: CAST, tierDisplay: 99 },
+      { modId: XCOLD, tierDisplay: 99, slot: 0 },
+      { modId: XFIRE, tierDisplay: 99, slot: 0 },
+      { modId: XLIGHT, tierDisplay: 99, slot: 0 },
+    ]);
+    expect(fixed.feasible).toBe(true);
+    expect(either.feasible).toBe(true);
+    expect(either.expectedCost).toBeLessThan(fixed.expectedCost);
+  });
+
+  // A finished item holds ONE member of the slot — never all three, which is an item that cannot
+  // exist. This is the shape the old conjunctive goal got wrong.
+  it('finishes on one member of the slot, not on all of them', () => {
+    const r = optimizeItemMarkov(eng050, white, [
+      { modId: CAST, tierDisplay: 99 },
+      { modId: XCOLD, tierDisplay: 99, slot: 0 },
+      { modId: XFIRE, tierDisplay: 99, slot: 0 },
+    ]);
+    const goal = r.nodes.find((nd) => nd.isGoal)!;
+    expect(goal).toBeDefined();
+    const extras = goal.present.filter((t) => /Extra (Cold|Fire) Damage/.test(t));
+    expect(extras).toHaveLength(1);
+  });
+});

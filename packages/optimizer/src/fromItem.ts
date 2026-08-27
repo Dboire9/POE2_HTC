@@ -19,8 +19,9 @@ import { bossOmenAllowed, desecrationOmenForMod, isEssenceMod } from '../../engi
 import type { Prices } from './cost.ts';
 import { allowsStep, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, orderedSelections, permutations } from './combinatorics.ts';
+import { expandSlots, itemLegalCombinations } from './slots.ts';
 import type { OptimizeParetoOptions, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
-import { PROGRESS_REPORTS, paretoFrontier, withOmenVariants } from './optimize.ts';
+import { PROGRESS_REPORTS, mergeParetoRuns, paretoFrontier, withOmenVariants } from './optimize.ts';
 
 /**
  * Target validation for the from-item planner: 1–6 mods, ≤3/side. A target mod is one the planner can
@@ -148,6 +149,21 @@ function transformSequences(
  */
 export function optimizeFromItem(
   data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: OptimizeParetoOptions = {},
+): ParetoResult {
+  // One concrete craft per slot combination, frontiers merged — see optimizePareto for why a route
+  // must commit to a member. From an item this also does something the from-white case cannot: a
+  // combination naming the alternative you ALREADY hold is scored against that item and is usually
+  // close to free, so the merged frontier surfaces "keep what you have" without being told to.
+  const combos = itemLegalCombinations(expandSlots(targets),
+    (id) => resolveMod(data, id).source === 'desecrated');
+  const one = (t: readonly TierTarget[], onProgress?: (d: number, n: number) => void): ParetoResult =>
+    fromItemForOneCraft(data, rawPrices, start, t, { ...opts, ...(onProgress ? { onProgress } : {}) });
+  if (combos.length > 1) return mergeParetoRuns(combos, one, opts.onProgress);
+  return one(combos[0] ?? targets);
+}
+
+function fromItemForOneCraft(
+  data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: OptimizeParetoOptions,
 ): ParetoResult {
   const policy = opts.policy;
   const prices = pricesForBase(rawPrices, start.base);

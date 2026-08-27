@@ -17,6 +17,7 @@ import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod, isEssenceMod
 import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
 import { allowsStep, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, factorial, permutations } from './combinatorics.ts';
+import { expandSlots, itemLegalCombinations } from './slots.ts';
 
 // The from-item planner (optimizeFromItem) lives in ./fromItem.ts and imports withOmenVariants +
 // paretoFrontier from here — so those two are exported below. This file owns the from-white optimizers.
@@ -156,6 +157,21 @@ function buildSteps(data: PatchData, order: readonly string[], essences: Readonl
 export interface TierTarget {
   readonly modId: string;
   readonly minTierIndex?: number;
+  /**
+   * Which SLOT of the finished item this mod satisfies. Targets sharing a slot are alternatives — any
+   * one of them fills it ("I'll take Extra Cold or Extra Lightning, I don't care which"), so the
+   * candidate list can be longer than the six mods an item holds.
+   *
+   * Absent means "a slot of its own", which is what every caller meant before slots existed: with no
+   * `slot` anywhere, each target is its own slot and every planner behaves exactly as it always has.
+   * That is why this is one optional field on the existing type rather than a new nested shape — there
+   * is no second code path to keep in step, and no signature to change.
+   *
+   * Members of a slot must sit on the same side; a slot spanning prefix and suffix would make the
+   * 3-per-side accounting ambiguous. Two members MAY share a family (that is the mutually-exclusive
+   * case, and the common one), but two different slots may not.
+   */
+  readonly slot?: number;
 }
 
 export interface ParetoPlan extends CostedPlan {
@@ -172,6 +188,11 @@ export interface ParetoPlan extends CostedPlan {
  * the MDP does reach for Greater and Perfect Exalts.
  */
 export type CurrencyDepth = 'full' | 'base+strongest' | 'strongest-only' | 'base-only';
+
+/** Ranked worst-last, so merging searches can report the SHALLOWEST depth any of them settled for. */
+export const DEPTH_RANK: Record<CurrencyDepth, number> = {
+  full: 0, 'base+strongest': 1, 'strongest-only': 2, 'base-only': 3,
+};
 
 export interface ParetoResult {
   /** Non-dominated plans, cheapest-first (probability rises along the frontier). */
@@ -459,6 +480,67 @@ export function paretoFrontier(plans: ParetoPlan[]): ParetoPlan[] {
  */
 export function optimizePareto(
   data: PatchData, rawPrices: Prices, base: ItemBase, targets: readonly TierTarget[], opts: OptimizeParetoOptions = {},
+): ParetoResult {
+  /*
+   * A slot with alternatives becomes one concrete craft per member, and the frontiers merge.
+   *
+   * A plan here is a FIXED SEQUENCE — every step names the mod it is aimed at — so it has to commit to
+   * one member, and a route that pretended otherwise would be unrunnable. Expanding also keeps the
+   * factorial in check: this search permutes its target list, so nine candidates in one list is
+   * 9! = 362,880 orderings where three expansions of six are 3 x 720.
+   *
+   * The MDP does NOT do this, and must not: see slots.ts. There, "either will do" is the answer.
+   */
+  const combos = itemLegalCombinations(expandSlots(targets),
+    (id) => resolveMod(data, id).source === 'desecrated');
+  const one = (t: readonly TierTarget[], onProgress?: (d: number, n: number) => void): ParetoResult =>
+    paretoForOneCraft(data, rawPrices, base, t, { ...opts, ...(onProgress ? { onProgress } : {}) });
+  if (combos.length > 1) return mergeParetoRuns(combos, one, opts.onProgress);
+  return one(combos[0] ?? targets);
+}
+
+/** Progress subdivisions given to each expansion, so one bar spans the whole merged search. */
+const COMBO_TICKS = 100;
+
+/**
+ * Run one expansion per slot combination and merge the frontiers into one.
+ *
+ * Shared by the from-white and from-item planners, which differ only in `run` — the merge itself is
+ * the same question either way: of every route that satisfies the slots, which are worth listing?
+ */
+export function mergeParetoRuns(
+  combos: readonly (readonly TierTarget[])[],
+  run: (targets: readonly TierTarget[], onProgress?: (done: number, total: number) => void) => ParetoResult,
+  report?: (done: number, total: number) => void,
+): ParetoResult {
+  const all: ParetoPlan[] = [];
+  let plansEvaluated = 0;
+  let currencyDepth: CurrencyDepth = 'full';
+  let truncated = false;
+  const ticks = combos.length * COMBO_TICKS;
+  for (let c = 0; c < combos.length; c++) {
+    const sub = report
+      ? (done: number, total: number) =>
+        report(c * COMBO_TICKS + Math.round((COMBO_TICKS * done) / Math.max(1, total)), ticks)
+      : undefined;
+    const r = run(combos[c]!, sub);
+    all.push(...r.frontier);
+    plansEvaluated += r.plansEvaluated;
+    // The merged result must report the SHALLOWEST orb search any expansion settled for — claiming
+    // 'full' because one cheap expansion managed it would overstate every other route on the frontier.
+    if (DEPTH_RANK[r.currencyDepth] > DEPTH_RANK[currencyDepth]) currencyDepth = r.currencyDepth;
+    if (r.truncated) truncated = true;
+  }
+  report?.(ticks, ticks);
+  // Re-run the dominance filter across the union: a route chasing one member routinely dominates a
+  // whole expansion's frontier, and leaving those in would list plans nobody should ever run.
+  return {
+    frontier: paretoFrontier(all), plansEvaluated, currencyDepth, ...(truncated ? { truncated: true } : {}),
+  };
+}
+
+function paretoForOneCraft(
+  data: PatchData, rawPrices: Prices, base: ItemBase, targets: readonly TierTarget[], opts: OptimizeParetoOptions,
 ): ParetoResult {
   const level = opts.level ?? 100;
   // A Desecration's bone depends on the gear, so resolve the sheet for this base up front.

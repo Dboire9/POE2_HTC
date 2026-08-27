@@ -128,9 +128,25 @@ describe('ItemActions — full plan target', () => {
     // The dropdown labels the special sources.
     expect(within(dropdown).getByRole('option', { name: /Carved Cast Speed · Desecrated/ })).toBeInTheDocument();
     expect(within(dropdown).getByRole('option', { name: /Abyssal Mark · Perfect Essence/ })).toBeInTheDocument();
-    // Pick a desecrated target → the other desecrated option is gone (one max).
+    /*
+     * Pick a desecrated target and the other is refused — but it stays LISTED, disabled, with the
+     * reason in its own text.
+     *
+     * It used to be filtered out of the dropdown entirely, which told the user nothing: a mod they had
+     * just seen simply vanished. And filtering was only ever applied to the one-desecrated and
+     * one-essence rules, so the rules it did not cover — a full side, an occupied family — left the
+     * option selectable and did nothing at all when picked. A `<select>` has nowhere to hang an
+     * `aria-describedby`, so the option's text is the one place a keyboard, a screen reader and a
+     * touch user all reach the reason.
+     */
     await user.selectOptions(dropdown, 'ds');
-    expect(within(dropdown).queryByRole('option', { name: /Carved Armour Break/ })).not.toBeInTheDocument();
+    const other = within(dropdown).getByRole('option', { name: /Carved Armour Break/ });
+    expect(other).toBeDisabled();
+    // The limit is on the finished ITEM, so the reason names what is actually unsatisfiable: two slots
+    // that can ONLY be filled by a carved mod. Offering either one as an alternative to something
+    // normal is fine, and the message says so rather than just refusing.
+    expect(other.textContent).toMatch(/an item holds one/i);
+    expect(other.textContent).toMatch(/non-desecrated alternative/i);
   });
 
   it('computes through optimizeItem for a Rare item', async () => {
@@ -341,5 +357,56 @@ describe('ItemActions — step routes defer to the true cost', () => {
     await computeWith(declinedMarkov);
     await waitFor(() => expect(screen.getByText(/chance per attempt/i)).toBeInTheDocument());
     expect(screen.queryByRole('button', { name: /Step-by-step routes/i })).toBeNull();
+  });
+});
+
+/**
+ * SLOT ALTERNATIVES on the "I have an item" tab.
+ *
+ * This tab had its own copy of the target rules, worded differently and — in the dropdown — enforcing
+ * only two of them. Both tabs now share `whyNotAdd`, so a mod refused here is refused there, for the
+ * same stated reason.
+ */
+describe('ItemActions — a slot with alternatives', () => {
+  async function toPlanMode(user: ReturnType<typeof userEvent.setup>) {
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+  }
+  const dropdown = () => screen.getByRole('combobox', { name: /Add a target mod/i });
+
+  it('offers "or" on a target, so the tab has the feature at all', async () => {
+    const user = userEvent.setup();
+    await toPlanMode(user);
+    expect(screen.queryByRole('button', { name: /or…/i })).toBeNull();
+    await user.selectOptions(dropdown(), 'np');
+    expect(screen.getByRole('button', { name: /or…/i })).toBeInTheDocument();
+  });
+
+  it('groups the next pick into the slot, and says so while it waits', async () => {
+    const user = userEvent.setup();
+    await toPlanMode(user);
+    await user.selectOptions(dropdown(), 'np');
+    await user.click(screen.getByRole('button', { name: /or…/i }));
+    expect(screen.getByText(/Choose a mod above to add as an/i)).toBeInTheDocument();
+
+    // A suffix cannot be an alternative to a prefix — the slot would be a prefix on one route and a
+    // suffix on another, which makes the 3-per-side count meaningless.
+    expect(within(dropdown()).getByRole('option', { name: /Normal Suffix/ })).toBeDisabled();
+
+    await user.selectOptions(dropdown(), 'pe'); // a prefix, different family
+    expect(screen.getByText(/Any one of/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Choose a mod above to add as an/i)).toBeNull();
+  });
+
+  it('ungroups when a slot drops back to one candidate', async () => {
+    const user = userEvent.setup();
+    await toPlanMode(user);
+    await user.selectOptions(dropdown(), 'np');
+    await user.click(screen.getByRole('button', { name: /or…/i }));
+    await user.selectOptions(dropdown(), 'pe');
+    expect(screen.getByText(/Any one of/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Remove Abyssal Mark from the target/i }));
+    expect(screen.queryByText(/Any one of/i)).toBeNull();
   });
 });

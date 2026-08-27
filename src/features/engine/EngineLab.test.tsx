@@ -406,3 +406,101 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
     expect(screen.getByText(/couldn’t handle this craft/i)).toBeInTheDocument();
   });
 });
+
+/**
+ * SLOT ALTERNATIVES in the lab — "this slot can be X or Y, I don't care which".
+ *
+ * The fixture is built for it: NP and NP2 share family FamA, so before slots they were mutually
+ * exclusive targets and the picker locked the second out. As ALTERNATIVES they are the ordinary case —
+ * only one ever lands on the item, which is exactly what makes them interchangeable.
+ */
+describe('EngineLab — a slot with alternatives', () => {
+  const orButton = (): HTMLElement => screen.getAllByRole('button', { name: /or…/i })[0]!;
+
+  it('offers "or" on an ordinary target, so the feature can be found at all', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    expect(screen.queryByRole('button', { name: /or…/i })).toBeNull(); // nothing to group yet
+    await user.click(addButton('Normal Prefix'));
+    expect(orButton()).toBeInTheDocument();
+  });
+
+  /**
+   * The family lock is the whole point of the exemption. NP2 shares FamA with NP, so the picker
+   * disables it as an ordinary target — and must UN-disable it the moment you say "or", because
+   * siblings are the commonest alternative there is.
+   */
+  it('unlocks a same-family sibling once you ask for an alternative', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    expect(addButton('Sibling Prefix')).toBeDisabled();
+
+    await user.click(orButton());
+    expect(screen.getByText(/Pick a mod above to add as an/i)).toBeInTheDocument();
+    expect(addButton('Sibling Prefix')).not.toBeDisabled();
+
+    await user.click(addButton('Sibling Prefix'));
+    expect(screen.getByText(/Any one of/i)).toBeInTheDocument();
+    // One position on the item, two mods that can fill it — and the heading has to say both.
+    expect(screen.getByText(/Target item \(1 slot, 2 mods\)/i)).toBeInTheDocument();
+  });
+
+  // Vocabulary only changes for someone who has just made a slot mean something; everyone else keeps
+  // the words they had.
+  it('keeps the old wording when nothing is grouped', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    expect(screen.getByText(/Target item \(1 mod\)/i)).toBeInTheDocument();
+  });
+
+  it('takes one pick per invitation, then returns to adding ordinary targets', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(orButton());
+    await user.click(addButton('Sibling Prefix'));
+    expect(screen.queryByText(/Pick a mod above to add as an/i)).toBeNull();
+  });
+
+  it('can be cancelled without adding anything', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(orButton());
+    await user.click(screen.getByRole('button', { name: /^Cancel$/i }));
+    expect(screen.queryByText(/Pick a mod above to add as an/i)).toBeNull();
+    expect(addButton('Sibling Prefix')).toBeDisabled(); // the family lock is back
+  });
+
+  /**
+   * Removing a slot's second-to-last candidate leaves a position with one way to fill it — which is
+   * an ordinary target, not a choice. Leaving the slot id on it would render a one-item "any one of"
+   * box, which reads as a bug rather than as a setting.
+   */
+  it('ungroups a slot when it drops back to a single candidate', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(orButton());
+    await user.click(addButton('Sibling Prefix'));
+    expect(screen.getByText(/Any one of/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Remove Sibling Prefix from the target/i }));
+    expect(screen.queryByText(/Any one of/i)).toBeNull();
+    expect(screen.getByText(/Target item \(1 mod\)/i)).toBeInTheDocument();
+  });
+
+  // The saving depends on how many slots the target has, and that is worth saying before someone
+  // concludes from a full six-mod craft that alternatives do very little.
+  it('says an alternative eases one slot, once one exists', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    expect(screen.queryByText(/eases/i)).toBeNull();
+    await user.click(orButton());
+    await user.click(addButton('Sibling Prefix'));
+    expect(screen.getByText(/It eases/i)).toBeInTheDocument();
+  });
+});

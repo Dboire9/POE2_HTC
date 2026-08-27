@@ -157,6 +157,38 @@ describe('alternativesFromWhite — pinned targets are frozen', () => {
   });
 });
 
+/**
+ * Pinning every slot is not a stricter search — it is no search. All three relaxation moves (tier
+ * slide, sibling swap, drop) skip a pinned slot, so the lattice collapses to its root and the frontier
+ * to the one row the feature exists to get you past.
+ *
+ * This is the test that answers "should the pin be on by default?". Measured on this fixture: unpinned
+ * the frontier reaches certainty, all-pinned it reports 5.9% and nothing else. A default that does that
+ * would read to a user as the panel being broken.
+ */
+describe('alternativesFromWhite — pinning everything is not a search', () => {
+  it('collapses the frontier to the exact target alone', () => {
+    const targets = (pin: boolean): AlternativeTarget[] => [
+      pin ? { modId: 'PAsymRare', minTierIndex: 2, pinned: true } : { modId: 'PAsymRare', minTierIndex: 2 },
+      pin ? { modId: 'SFill', pinned: true } : { modId: 'SFill' },
+    ];
+    const allPinned = alternativesFromWhite(data, prices, base, targets(true), 20);
+    const free = alternativesFromWhite(data, prices, base, targets(false), 20);
+
+    expect(allPinned.frontier).toHaveLength(1);
+    expect(allPinned.frontier[0]!.slots).toEqual([
+      { kind: 'kept', modId: 'PAsymRare', minTierIndex: 2 },
+      { kind: 'kept', modId: 'SFill', minTierIndex: 0 },
+    ]);
+
+    // The row that survives is row 0 either way — what pinning destroys is everything reachable.
+    expect(free.frontier.length).toBeGreaterThan(1);
+    expect(free.frontier[0]!.inBudget).toBeCloseTo(allPinned.frontier[0]!.inBudget, 9);
+    const bestFree = Math.max(...free.frontier.map((r) => r.inBudget));
+    expect(bestFree).toBeGreaterThan(allPinned.frontier[0]!.inBudget * 10);
+  });
+});
+
 describe('alternativesFromItem — fractured mods are inherently pinned', () => {
   it('never relaxes, swaps or drops a carved mod, even unpinned by the caller', () => {
     // A fractured mod is physically locked on the item: its tier is already decided and it cannot be
@@ -254,5 +286,83 @@ describe('alternativesFromWhite — real data (Wands, 0.5.0)', () => {
       expect(real.mods.get(s.modId)!.family).toBe('IncreaseSocketedGemLevel');
     }
     expect(swaps.length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * SLOT ALTERNATIVES reach the budget search by EXPANSION — one concrete craft per member, frontiers
+ * merged — and not by being handed to the relaxation lattice.
+ *
+ * That lattice reads `desired` positionally: one entry is one slot it may relax. Handing it a group
+ * would let it drop or swap the alternatives against each other, so a target saying "PAsymRare or
+ * PAsymCommon, either is fine" would come back offering to swap PAsymRare for PAsymCommon as a
+ * near-miss — a relaxation of something the user had already said they did not care about — while
+ * separately demanding both be on the item at once.
+ */
+describe('alternativesFromWhite — a slot with alternatives', () => {
+  const group: AlternativeTarget[] = [
+    { modId: 'PAsymRare', minTierIndex: 2, slot: 0 },
+    { modId: 'PAsymCommon', minTierIndex: 2, slot: 0 },
+    { modId: 'SFill', slot: 1 },
+  ];
+
+  it('never asks for two members of one slot at the same time', () => {
+    const r = alternativesFromWhite(data, prices, base, group, 20);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    for (const alt of r.frontier) {
+      const held = alt.slots.filter((s) => s.kind !== 'dropped').map((s) => s.modId);
+      expect(held).not.toEqual(expect.arrayContaining(['PAsymRare', 'PAsymCommon']));
+      // …and every row is a real two-slot item, not a lattice artefact.
+      expect(alt.slots).toHaveLength(2);
+    }
+  });
+
+  /**
+   * The point of a slot: the frontier gets to use whichever member is easier. PAsymCommon is 50x the
+   * weight of PAsymRare, so a target that will accept either must reach odds the rare one alone
+   * cannot — otherwise the expansion is running but its results are being thrown away.
+   */
+  it('reaches odds the harder member alone cannot', () => {
+    const rareOnly = alternativesFromWhite(data, prices, base,
+      [{ modId: 'PAsymRare', minTierIndex: 2 }, { modId: 'SFill' }], 20);
+    const either = alternativesFromWhite(data, prices, base, group, 20);
+    const best = (r: { frontier: readonly { inBudget: number }[] }) =>
+      Math.max(...r.frontier.map((a) => a.inBudget));
+    expect(best(either)).toBeGreaterThan(best(rareOnly));
+  });
+
+});
+
+/**
+ * The node cap is what bounds this search's wall clock — every node is a full Pareto run, and the
+ * default of 200 was chosen against a ~7.3s measurement. A slot must therefore DIVIDE that budget
+ * across its expansions rather than hand the whole of it to each: a three-way slot that quietly
+ * tripled the wait would be a trade made on the user's behalf, in the one place the user is already
+ * saying they are short of something.
+ *
+ * Needs a lattice big enough for the cap to bind — the synthetic pool above runs dry at 10 nodes, so
+ * both behaviours look identical there. Real Wands does not.
+ */
+describe('alternativesFromWhite — a slot does not multiply the wall clock', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const wands = real.bases.get('Wands')!;
+  const rprices = loadPrices('data/patches/0.5.0');
+  const GEM = 'Wands/GlobalIncreaseSpellSkillGemLevelWeapon';
+  const CHAOSGEM = 'Wands/GlobalIncreaseChaosSpellSkillGemLevelWeapon';
+  const MANA = 'Wands/IncreasedMana';
+  const SPELL = 'Wands/WeaponSpellDamage';
+
+  it('spends no more nodes on a two-way slot than on one mod', () => {
+    const one = alternativesFromWhite(real, rprices, wands, [
+      { modId: GEM, minTierIndex: 3 }, { modId: MANA, minTierIndex: 10 }, { modId: SPELL, minTierIndex: 7 },
+    ], 600, { level: 82, maxNodes: 60 });
+    const two = alternativesFromWhite(real, rprices, wands, [
+      { modId: GEM, minTierIndex: 3, slot: 0 }, { modId: CHAOSGEM, minTierIndex: 3, slot: 0 },
+      { modId: MANA, minTierIndex: 10, slot: 1 }, { modId: SPELL, minTierIndex: 7, slot: 2 },
+    ], 600, { level: 82, maxNodes: 60 });
+
+    // The cap has to actually bite, or this test proves nothing about dividing it.
+    expect(one.nodesEvaluated).toBeGreaterThan(30);
+    expect(two.nodesEvaluated).toBeLessThanOrEqual(one.nodesEvaluated * 1.2);
   });
 });

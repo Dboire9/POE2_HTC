@@ -6,6 +6,8 @@ import type { McAction } from './markovFromItem.ts';
 import type { Prices } from './cost.ts';
 import { loadPrices } from './loadPrices.ts';
 import { mulberry32 } from './simulate.ts';
+import { bit, decodeState, enumerateStates, popcount, sideIndexOf } from './markovState.ts';
+import type { McTarget, StateKey } from './markovState.ts';
 
 /**
  * The tolerance these hand-computed cases need.
@@ -914,5 +916,198 @@ describe('markovFromItem — the heuristic seed, opt-in, gives the same answer a
     const r = markovFromItem(real, rp, held, [{ modId: 'Wands/IncreasedMana' }], { maxIters: 2_000_000 });
     expect(r.feasible).toBe(true);
     expect(r.bound).toBe('exact');
+  });
+});
+
+/**
+ * SLOT ALTERNATIVES — "this slot can be Extra Cold or Extra Lightning, I don't care which".
+ *
+ * Candidates sharing a `slot` are alternatives: any one of them fills it, so a target may name more
+ * candidates than the six mods an item holds. The old goal was a conjunction — `present === (1<<n)-1`,
+ * built as literal keys — which cannot express that: the state holding all three alternatives has four
+ * prefixes, so `enumerateStates` never emits it, and the solve called the target unreachable.
+ */
+describe('markovFromItem — slot alternatives', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const wand = real.bases.get('Wands')!;
+  const white: ItemState = { base: wand, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+  // `solver: 'policy'` is the Exhaustive preset's setting, and the only one that ends on a certificate
+  // rather than a residual — so `bound: 'exact'` below means the answer is settled, not just close.
+  // It is also what keeps these crafts to seconds: the two-phase VI default spends minutes on the same
+  // targets and would put this describe block on its own in the suite's budget.
+  const solve = (targets: readonly { modId: string; slot?: number; minTierIndex?: number }[]) =>
+    markovFromItem(real, rp, white, targets, { restartCost: 0, solver: 'policy' });
+
+  const SPELL = 'Wands/WeaponSpellDamage';
+  const CAST = 'Wands/IncreasedCastSpeed';
+  const CRIT = 'Wands/SpellCriticalStrikeChance';
+  // Cross-family alternatives: ColdDamage / FireDamage / LightningDamage are three DIFFERENT families,
+  // so `siblingsOf` relates none of them and they can sit on an item together. This is the shape the
+  // feature exists for, and the one a same-family mechanism could never have covered.
+  const XCOLD = 'Wands/DamageGainedAsCold';
+  const XFIRE = 'Wands/DamageGainedAsFire';
+  const XLIGHT = 'Wands/DamageGainedAsLightning';
+  // Same-family alternatives: all WeaponDamageTypePrefix, hence mutually exclusive on the item — the
+  // group is really a union of weights on one roll.
+  const IFIRE = 'Wands/FireDamageWeaponPrefix';
+  const ICOLD = 'Wands/ColdDamageWeaponPrefix';
+
+  /**
+   * The backbone. Every craft that existed before slots must be untouched by them, and the way to
+   * prove it is to say the same thing both ways: no `slot` at all (what every caller passes today)
+   * against one slot per target (what the grouping code turns that into). Same number, same bound.
+   */
+  it('one slot per target is exactly what no slots at all already meant', () => {
+    const bare = solve([{ modId: SPELL }, { modId: CAST }, { modId: CRIT }]);
+    const spelt = solve([{ modId: SPELL, slot: 0 }, { modId: CAST, slot: 1 }, { modId: CRIT, slot: 2 }]);
+    expect(bare.feasible).toBe(true);
+    expect(spelt.expectedCost).toBe(bare.expectedCost);
+    expect(spelt.bound).toBe(bare.bound);
+    expect(spelt.nodes.length).toBe(bare.nodes.length);
+  });
+
+  /**
+   * The property the whole feature is for, and the one a wrong implementation still passes the rest of
+   * the suite without: an alternative must be worth something. Solving each member separately and
+   * taking the cheapest throws away exactly what a group buys — the ability to keep whichever one
+   * actually lands — so the grouped answer has to come in strictly under it, not merely equal it.
+   *
+   * Measured on 0.5.0: 100.76 ex for any single member, 40.23 ex for the three as one slot.
+   */
+  it('costs strictly less than the best of its members solved alone', () => {
+    const fixed = [{ modId: SPELL, slot: 0 }, { modId: CAST, slot: 1 }];
+    const alone = [XCOLD, XFIRE, XLIGHT].map((id) => solve([...fixed, { modId: id, slot: 2 }]));
+    for (const r of alone) expect(r.feasible).toBe(true);
+    const best = Math.min(...alone.map((r) => r.expectedCost));
+
+    const grouped = solve([...fixed, { modId: XCOLD, slot: 2 }, { modId: XFIRE, slot: 2 }, { modId: XLIGHT, slot: 2 }]);
+    expect(grouped.feasible).toBe(true);
+    expect(grouped.bound).toBe('exact');
+    expect(grouped.expectedCost).toBeLessThan(best);
+    // Not a rounding win: three ways to fill one slot is worth roughly a third of the tries.
+    expect(grouped.expectedCost).toBeLessThan(best * 0.6);
+  });
+
+  // More candidates on a side than the side can hold is the entire point — four prefix CANDIDATES in
+  // two prefix SLOTS is a legal target, because at most three mods are ever on the item at once and
+  // `enumerateStates` already refuses to build a state where more are.
+  it('accepts more candidates on a side than the item can hold', () => {
+    const r = solve([
+      { modId: SPELL, slot: 0 },
+      { modId: XCOLD, slot: 1 }, { modId: XFIRE, slot: 1 }, { modId: XLIGHT, slot: 1 },
+      { modId: CAST, slot: 2 },
+    ]);
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeLessThan(Infinity);
+  });
+
+  // Same-family members are the mutually-exclusive case: only one can ever be on the item, so the
+  // group is a weight union rather than two independent chances. It must still be legal and still win.
+  it('allows a slot whose alternatives share a family', () => {
+    const one = solve([{ modId: IFIRE, slot: 0 }, { modId: CAST, slot: 1 }]);
+    const both = solve([{ modId: IFIRE, slot: 0 }, { modId: ICOLD, slot: 0 }, { modId: CAST, slot: 1 }]);
+    expect(both.feasible).toBe(true);
+    expect(both.expectedCost).toBeLessThan(one.expectedCost);
+  });
+
+  // …but two DIFFERENT slots wanting one family can never both be filled. That used to surface as
+  // "no policy reaches the target", which names neither mod and reads like a solver failure.
+  it('refuses two different slots that want the same family, and says which', () => {
+    const r = solve([{ modId: IFIRE, slot: 0 }, { modId: ICOLD, slot: 1 }, { modId: CAST, slot: 2 }]);
+    expect(r.feasible).toBe(false);
+    expect(r.reason).toMatch(/WeaponDamageTypePrefix/);
+    expect(r.reason).toMatch(/one mod per family/i);
+  });
+
+  /**
+   * `distanceToGoal` drives the graph's layout depth and the route walk, which may only step to a
+   * STRICTLY smaller distance. It counted missing CANDIDATES — fine when every candidate is its own
+   * slot, wrong the moment one slot has three, because a finished item deliberately never holds the two
+   * alternatives it did not need. Left uncounted, the goal itself scores 2 rather than 0: the craft is
+   * over and the graph still says there is work to do.
+   *
+   * Caught nothing until this test existed — every other assertion here reads costs, and the heuristic
+   * does not move them.
+   */
+  it('scores a finished item as nought moves from done, however many alternatives went unused', () => {
+    const r = solve([
+      { modId: SPELL, slot: 0 }, { modId: CAST, slot: 1 },
+      { modId: XCOLD, slot: 2 }, { modId: XFIRE, slot: 2 }, { modId: XLIGHT, slot: 2 },
+    ]);
+    const goal = r.nodes.find((nd) => nd.isGoal)!;
+    expect(goal).toBeDefined();
+    expect(goal.depth).toBe(0);
+    // …and the finished item really is holding only one of the three, so this is not vacuous.
+    expect(goal.present.filter((id) => [XCOLD, XFIRE, XLIGHT].includes(id))).toHaveLength(1);
+  });
+
+  // A slot that is a prefix on one route and a suffix on another makes the 3-per-side count meaningless.
+  it('refuses a slot whose alternatives sit on different sides', () => {
+    const r = solve([{ modId: SPELL, slot: 0 }, { modId: CAST, slot: 0 }]);
+    expect(r.feasible).toBe(false);
+    expect(r.reason).toMatch(/all prefixes or all suffixes/i);
+  });
+
+  // The item's own limit is on SLOTS. Four prefix slots is impossible however few candidates each holds.
+  it('still refuses more slots on a side than the item has', () => {
+    const r = solve([
+      { modId: SPELL, slot: 0 }, { modId: XCOLD, slot: 1 }, { modId: XFIRE, slot: 2 },
+      { modId: 'Wands/IncreasedMana', slot: 3 },
+    ]);
+    expect(r.feasible).toBe(false);
+    expect(r.reason).toMatch(/4 prefixes/);
+  });
+});
+
+/**
+ * MUTUALLY-EXCLUSIVE ALTERNATIVES — the lattice does not carry items the game cannot hold.
+ *
+ * When a slot's alternatives are siblings (`#% increased Fire / Cold / Lightning Damage` are all one
+ * family) only one of them can ever be on the item. Before slots existed this could not arise: two
+ * targets sharing a family were rejected outright. Now it is the ordinary case, and without pruning
+ * the lattice carries a state for every arrangement the item could never reach — 3^3 = 27 for a
+ * three-way sibling slot where only 7 are real.
+ *
+ * They would be pruned later, by `prob1`, as unreachable. But not before `actionsOf` — described in
+ * markovFromItem.ts as the dominant cost of the whole solve — had been paid on every one of them.
+ */
+describe('enumerateStates — a family cannot be held twice', () => {
+  const data = loadPatch('data/patches/0.5.0');
+  const mk = (type: 'prefix' | 'suffix'): McTarget =>
+    ({ modId: 'x', type, family: 'f', mod: data.mods.get('Wands/IncreasedMana')!, minIndex: 0, fractured: false });
+  // Three prefixes, of which the last two are siblings, plus one suffix.
+  const side = sideIndexOf([mk('prefix'), mk('prefix'), mk('prefix'), mk('suffix')]);
+  const siblings = bit(1) | bit(2);
+  const all = enumerateStates(4, side, false, ['rare'], []);
+  const pruned = enumerateStates(4, side, false, ['rare'], [siblings]);
+
+  it('drops exactly the states holding two of one family, and nothing else', () => {
+    const impossible = (k: StateKey): boolean => {
+      const st = decodeState(k);
+      return popcount((st.present | st.blocked) & siblings) > 1;
+    };
+    // The unpruned lattice really does carry them — otherwise this test proves nothing.
+    expect(all.some(impossible)).toBe(true);
+    expect(pruned.some(impossible)).toBe(false);
+    // …and every state that was possible survives, so this is a filter and not a different lattice.
+    expect(pruned).toEqual(all.filter((k) => !impossible(k)));
+  });
+
+  // BLOCKED counts too: a roll below its tier occupies the family exactly as firmly as one at it,
+  // which is the whole reason `blocked` exists as an axis distinct from absent.
+  it('counts a below-tier roll as occupying the family', () => {
+    const bothBlocked = pruned.filter((k) => popcount(decodeState(k).blocked & siblings) > 1);
+    expect(bothBlocked).toEqual([]);
+    const oneEach = pruned.filter((k) => {
+      const st = decodeState(k);
+      return (st.present & siblings) !== 0 && (st.blocked & siblings) !== 0;
+    });
+    expect(oneEach).toEqual([]);
+  });
+
+  it('leaves a lattice with no conflicts exactly as it was', () => {
+    expect(enumerateStates(4, side, false, ['rare'], [])).toEqual(all);
+    expect(enumerateStates(4, side, false, ['rare'], [bit(0)])).toEqual(all); // a lone target conflicts with nothing
   });
 });

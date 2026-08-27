@@ -253,7 +253,7 @@ export function optimizeItemMarkov(
     };
   }
   const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);
-  return mapMarkov(data, res, targets.length);
+  return mapMarkov(data, res);
 }
 
 // ── Existing-item currency actions (Option 1) ─────────────────────────────────

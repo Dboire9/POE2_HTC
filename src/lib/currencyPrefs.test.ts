@@ -31,11 +31,45 @@ describe('toExcludedKeys — group settings become price-sheet keys', () => {
     expect(toExcludedKeys({ desecrate: { only: [] } })).toEqual(['desecrate']);
   });
 
-  it('the global strength row spans every tiered family at once', () => {
-    const keys = toExcludedKeys({ strengths: { only: ['perfect'] } }).sort();
-    expect(keys).toEqual([
-      'augment_perfect', 'chaos_perfect', 'exalt_perfect', 'regal_perfect', 'transmute_perfect',
+  it('the global strength row spans every family that has one, essences included', () => {
+    expect(toExcludedKeys({ strengths: { only: ['perfect'] } }).sort()).toEqual([
+      'augment_perfect', 'chaos_perfect', 'exalt_perfect', 'perfect_essence', 'regal_perfect',
+      'transmute_perfect',
     ]);
+    expect(toExcludedKeys({ strengths: { only: ['greater'] } }).sort()).toEqual([
+      'augment_greater', 'chaos_greater', 'essence_greater', 'exalt_greater', 'regal_greater',
+      'transmute_greater',
+    ]);
+  });
+
+  /**
+   * The bug this row shipped with: its keys were a hand-written list of five orb families, so Essences
+   * — which carry `greater`/`perfect` members exactly like the orbs — were never in it, and a row
+   * labelled "any type" quietly meant five of the six. A user could tick Perfect at the top, be told
+   * every Perfect was excluded, and still get a Perfect Essence in their plan.
+   *
+   * So the assertion is not "the list is right" (a literal list can be re-broken with the code) but
+   * "the shortcut and the rows agree": whatever you can reach by ticking Greater family-by-family
+   * must be exactly what ticking Greater once reaches. Re-hardcode the list and this goes red.
+   */
+  it('reaches exactly what ticking the same member row-by-row would', () => {
+    for (const memberId of ['greater', 'perfect'] as const) {
+      const viaShortcut = toExcludedKeys({ strengths: { only: [memberId] } }).sort();
+      const viaRows = [...new Set(
+        CURRENCY_GROUPS.flatMap((g) => g.members.filter((m) => m.id === memberId).flatMap((m) => m.keys)),
+      )].sort();
+      expect(viaRows.length, `no family declares a '${memberId}' member`).toBeGreaterThan(1);
+      expect(viaShortcut).toEqual(viaRows);
+    }
+  });
+
+  // Omens have no strengths — "Omen of Greater Exaltation" is its own currency, not a Greater version
+  // of one — and the label promises orbs and essences. Sweeping omens in would silently exclude a
+  // ~4300ex currency the user never mentioned.
+  it('leaves omens alone, including the one with Greater in its name', () => {
+    const keys = toExcludedKeys({ strengths: { only: ['greater'] } });
+    expect(keys).not.toContain('OmenofGreaterExaltation');
+    expect(keys.some((k) => k.startsWith('Omen'))).toBe(false);
   });
 
   it('unions overlapping rows without duplicating', () => {

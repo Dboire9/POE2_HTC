@@ -28,6 +28,8 @@ export interface CurrencyGroup {
   /** Price keys for a group with no members. Stated rather than inferred from `id`: they happen to
    *  match today, and a silent rename would then stop excluding anything. */
   readonly keys?: readonly string[];
+  /** One line under the label, for a row whose effect the label cannot carry on its own. */
+  readonly hint?: string;
 }
 
 const strengths = (base: string): GroupMember[] => [
@@ -36,13 +38,13 @@ const strengths = (base: string): GroupMember[] => [
   { id: 'perfect', label: 'Perfect', keys: [`${base}_perfect`] },
 ];
 
-/** The five families with orb strengths, used by the global strength row below. */
-const TIERED = ['transmute', 'augment', 'regal', 'chaos', 'exalt'] as const;
-
 /**
- * Every excludable group, in the order the UI shows them. Only the five tiered families get a strength
- * sub-list; Alchemy, Annulment and Desecration have exactly one version each, so an expandable drawer
- * there would open onto nothing.
+ * Every excludable group, in the order the UI shows them. A group gets a sub-list when the currency has
+ * versions to tell apart — the five tiered orb families and Essences do; Alchemy, Annulment and
+ * Desecration have exactly one version each, so an expandable drawer there would open onto nothing.
+ *
+ * Member ids are the shortcut's vocabulary: any member called `greater` or `perfect` is picked up by
+ * STRENGTH_GROUP below, so name them to match when adding a family.
  */
 export const CURRENCY_GROUPS: readonly CurrencyGroup[] = [
   { id: 'chaos', label: 'Chaos Orbs', members: strengths('chaos') },
@@ -65,13 +67,28 @@ export const CURRENCY_GROUPS: readonly CurrencyGroup[] = [
   { id: 'desecrate', label: 'Desecration (bones)', members: [], keys: ['desecrate'] },
 ];
 
-/** Cross-cutting shortcut: "I own no Perfect orbs" otherwise means ticking Perfect under five families. */
+/**
+ * Cross-cutting shortcut: "I own no Perfect orbs" otherwise means ticking Perfect under every family
+ * that has one.
+ *
+ * Its keys are DERIVED from the groups above rather than listed a second time. Listing them was how
+ * Essences escaped the shortcut for months — they carry `greater`/`perfect` members like the orbs do,
+ * but the hardcoded family list never mentioned them, so a row labelled "any type" quietly meant "five
+ * of the six". Deriving makes that class of drift impossible: a family gains the shortcut by existing.
+ *
+ * Note it deliberately does NOT reach Omens, which have no strengths — "Omen of Greater Exaltation" is
+ * a distinct currency, not a Greater version of one, and the label says orbs and essences for that reason.
+ */
+const everyKeyFor = (memberId: string): string[] =>
+  CURRENCY_GROUPS.flatMap((g) => g.members.filter((m) => m.id === memberId)).flatMap((m) => m.keys);
+
 export const STRENGTH_GROUP: CurrencyGroup = {
   id: 'strengths',
-  label: 'Upgraded orbs (any type)',
+  label: 'Greater and Perfect orbs and essences',
+  hint: 'Shortcut: ticking Greater here is the same as ticking Greater under every orb and essence below. Omens are separate.',
   members: [
-    { id: 'greater', label: 'Greater', keys: TIERED.map((c) => `${c}_greater`) },
-    { id: 'perfect', label: 'Perfect', keys: TIERED.map((c) => `${c}_perfect`) },
+    { id: 'greater', label: 'Greater', keys: everyKeyFor('greater') },
+    { id: 'perfect', label: 'Perfect', keys: everyKeyFor('perfect') },
   ],
 };
 

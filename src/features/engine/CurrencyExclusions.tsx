@@ -68,6 +68,10 @@ const CurrencyExclusions: React.FC = () => {
                     <span className="text-[11px] text-amber-300">— {describeGroup(g, entry.only)}</span>
                   )}
                 </label>
+                {/* A row whose label cannot carry its own effect says it in a line underneath, always
+                    visible — the strength shortcut spans currencies the reader can also see listed
+                    separately below, and "what is this?" is the wrong thing to make them guess. */}
+                {g.hint && <p className="ml-6 text-[11px] text-muted-foreground">{g.hint}</p>}
                 {/* Narrowing only appears once the group is marked, and only where there is something
                     to narrow: Alchemy, Annulment and Desecration have exactly one version each. */}
                 {on && g.members.length > 0 && (

@@ -68,6 +68,17 @@ See docs/validation.md for that and for three things tried and rejected on measu
 sweep ordering, now re-tested against sweep COUNTS and closed for good; dropping the free restart's
 zero-cost self-loop; a seed repair that repaired nothing).
 
+**AND AGAIN, later on 2026-08-27 — with evaluation fixed, the SEED became the whole cost.** Phase B
+fell to 1-2%; phase A (plain VI, computing the optimal push-forward value) was 92-98%. It only owes
+phase B a proper policy's value, so `heuristicPolicy` guesses one and `evaluateClosedForm` costs it.
+Interleaved medians, 3 reps: 3 tgt T1 2.0s → 0.6s (3.2x), 4 tgt T2 4.5s → 4.1s, 5 tgt T2 34.4s → 28.0s.
+
+**The next lever, measured and NOT built: SCC decomposition of policy evaluation.** Under a fixed
+policy the chain is 239 components over 312 states, 236 of them singletons, largest 69 — so
+per-component direct solves would make evaluation exact in one ordered pass instead of Gauss-Seidel.
+Largest SCC runs ~30% of states (92/250, 69/312, 363/1,166), a 0.3-48M-op dense solve. Left unbuilt
+because evaluation is no longer the bottleneck; this is the right tool if it becomes one again.
+
 **CLOSED FURTHER 2026-08-27 — the remaining cost was policy EVALUATION, and it is now closed form.**
 Measured first: on hard crafts 99.6-99.8% of the time is the `solve` phase (the standing "VI is ~11%
 of the work" note holds only for easy ones), and it is not the state count — 312 states took 83s, a

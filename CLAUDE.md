@@ -208,6 +208,19 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   NOT the default only because `standard` is documented to reproduce the pre-setting behaviour exactly.
   **Phase B only**: PI on a stochastic shortest path is safe only from a PROPER policy, and phase B is
   seeded from phase A's converged value, which is one. Phase A 0-initialises and keeps plain VI.
+- **Phase A is SKIPPED when a heuristic seed works, because it became 92-98% of a solve.** Once
+  evaluation went closed form the bottleneck inverted completely — measured, phase B fell to 1-2% and
+  the SEED became the cost (6-target T2: 379.6s of 389s). Phase A computes the OPTIMAL push-forward
+  value, but all phase B needs is a `V0` with `T(V0) <= V0`, and for ANY proper policy
+  `T(V^pi) <= T_pi(V^pi) = V^pi`. So `heuristicPolicy` guesses one without solving: level states by a
+  backward BFS from the goal, take the action likeliest to move down a level, and **restart from
+  anywhere further out than the base you would restart to**. That last rule matters — playing forward
+  wherever any progress exists yields a policy that almost never restarts, and the closed form is only
+  fast because restart states ABSORB. Interleaved medians: 3 tgt T1 2.0s → **0.6s**, 5 tgt T2 34.4s →
+  **28.0s**, answers agreeing to 1.4e-8 or exactly. The seed is never trusted: `evaluateClosedForm`
+  rejects an improper one, its sweeps are capped (and the cap NEVER exceeds the caller's `maxIters`),
+  and the two-phase path runs untouched on failure — which is also why `V` must be reset before that
+  fallback, since phase A climbs from zero and would otherwise start above the answer.
 - **A fixed policy is costed in CLOSED FORM, not iterated to.** Iterating it was the whole cost of a
   solve, structurally: with a free base ~98% of states restart, so `V(s) = restartCost + V(start)`
   almost everywhere and the chain contracts at r ≈ 1, where a residual under `tol` still leaves an

@@ -188,6 +188,15 @@ export interface MarkovOptions {
    */
   readonly iterativeEval?: boolean;
   /**
+   * Skip the heuristic seed and always run the two-phase path (phase A, then policy iteration).
+   *
+   * For measurement only, and it exists because the alternative is comparing runs taken minutes apart
+   * on a machine with a documented ~40% wall-clock spread — which is how two opposite conclusions
+   * about sweep ordering were once drawn from noise. A control that can be interleaved is the only
+   * way to say whether the seed actually helps a given craft.
+   */
+  readonly noHeuristicSeed?: boolean;
+  /**
    * Wall-clock ceiling in milliseconds, from the player's "how hard should I look?" setting.
    *
    * ABSENT means no limit, and that is deliberate: it keeps the test suite deterministic (a clock
@@ -699,7 +708,7 @@ export function markovFromItem(
    * Returns false when the policy never reaches the goal (`q(start) = 1`), which is a real state of
    * affairs — an improper policy has infinite value — and the caller must not read V after it.
    */
-  const evaluateClosedForm = (pol: Int32Array): boolean => {
+  const evaluateClosedForm = (pol: Int32Array, evalCap?: number): boolean => {
     // Frozen realized weights per state, against V as it stands right now.
     const wTo: Int32Array[] = new Array(N);
     const wPr: Float64Array[] = new Array(N);
@@ -740,7 +749,14 @@ export function markovFromItem(
 
     // Gauss-Seidel on the absorbing chain. Well-conditioned by construction — no path returns to the
     // start — so this settles in a handful of sweeps where the looping version needed thousands.
-    for (let sweep = 0; sweep < maxIters; sweep++) {
+    // A seeded attempt must be able to FAIL CHEAPLY: if its chain does not settle quickly the policy
+    // was a bad guess, and the two-phase fallback still needs budget left to run. Measured the hard
+    // way — an unbounded first attempt burned 5,000,000 sweeps and the entire deadline, so the
+    // fallback had nothing left and the craft came back infeasible.
+    // NEVER above `maxIters`: that is the caller's budget for the whole solve, and a seed attempt
+    // that quietly spent 100x it would be answering a question nobody asked.
+    const cap = Math.min(evalCap ?? maxIters, maxIters);
+    for (let sweep = 0; sweep < cap; sweep++) {
       if (deadline !== Infinity && sweep % DEADLINE_CHECK === 0 && Date.now() > deadline) return false;
       let delta = 0;
       for (let i = 0; i < N; i++) {
@@ -802,8 +818,89 @@ export function markovFromItem(
    * V0 >= V*, the greedy policy stays proper, and every iterate descends. Phase A itself 0-initialises
    * and climbs, so it has no such guarantee and keeps plain VI, which it converges on anyway.
    */
-  const iteratePolicy = (pLo: number, pHi: number): boolean => {
+  /**
+   * A seed policy from a HEURISTIC, so phase A can be skipped entirely.
+   *
+   * Phase A exists only to hand phase B a `V0` with `T(V0) <= V0`, so phase B descends and every
+   * iterate stays an upper bound. It satisfies that by computing the OPTIMAL push-forward value —
+   * which is far more than the property needs, and measured at 92-98% of a whole solve now that
+   * evaluation is closed form (6-target T2: 379.6s of 389s).
+   *
+   * The property is much weaker than optimality. For ANY proper policy pi,
+   *
+   *     T(V^pi) <= T_pi(V^pi) = V^pi
+   *
+   * so any proper policy's exact value is a valid seed — and `evaluateClosedForm` produces exactly
+   * that, at 2% of a solve. All that is missing is a proper policy to hand it, and with restart in
+   * play properness is a very weak condition: a policy is proper as soon as its per-attempt success
+   * probability is above zero.
+   *
+   * So: level every state by a backward BFS from the goal, then take the action most likely to move
+   * DOWN a level, cost breaking ties. Restart wherever nothing makes progress. The result does not
+   * need to be good — policy improvement fixes it — only proper, and the caller checks even that.
+   */
+  const heuristicPolicy = (): Int32Array => {
+    // Distance to the goal in ACTION steps, backwards. Not `distanceToGoal` (defined below, over mod
+    // counts) — this one has to be an index-space quantity available before the solve runs.
+    const level = new Int32Array(N).fill(-1);
+    const queue: number[] = [];
+    for (let i = 0; i < N; i++) if (isGoalIdx[i] === 1) { level[i] = 0; queue.push(i); }
+    // Predecessors over the action graph, restart excluded: a restart reaches the start from
+    // everywhere, which would flatten every level to 1 and make the heuristic say nothing.
+    const preds: number[][] = Array.from({ length: N }, () => []);
+    for (let i = 0; i < N; i++) {
+      for (const a of compiled[i] ?? []) {
+        if (a.isRestart) continue;
+        for (let j = 0; j < a.to.length; j++) preds[a.to[j]!]!.push(i);
+      }
+    }
+    for (let head = 0; head < queue.length; head++) {
+      const t = queue[head]!;
+      for (const from of preds[t]!) if (level[from] === -1) { level[from] = level[t]! + 1; queue.push(from); }
+    }
+
+    const startLevel = level[idxOfState.get(restartKey)!] ?? -1;
     const pol = new Int32Array(N).fill(-1);
+    for (let i = 0; i < N; i++) {
+      if (isGoalIdx[i] === 1 || canReach[i] !== 1) continue;
+      const acts = compiled[i]!;
+      let bestK = -1, bestP = -1, bestCost = Infinity, restartK = -1;
+      for (let k = 0; k < acts.length; k++) {
+        const a = acts[k]!;
+        if (a.isRestart) { restartK = k; continue; }
+        const mine = level[i]!;
+        let progress = 0;
+        for (let j = 0; j < a.to.length; j++) {
+          const lt = level[a.to[j]!]!;
+          if (lt !== -1 && (mine === -1 || lt < mine)) progress += a.prob[j]!;
+        }
+        if (progress > bestP || (progress === bestP && a.cost < bestCost)) {
+          bestP = progress; bestCost = a.cost; bestK = k;
+        }
+      }
+      /**
+       * Continue only from states no FURTHER from the goal than the base you would restart to;
+       * otherwise bin it.
+       *
+       * This rule is what makes the seed cheap to evaluate, and the first version got it backwards.
+       * Playing forward wherever any progress was possible produced a policy that almost never
+       * restarts — and `evaluateClosedForm` is only fast because restart states are ABSORBING. A
+       * policy that plays forward everywhere has the full forward dynamics as its chain, which is
+       * precisely the near-1 contraction phase A struggles with: it burned 5,000,000 sweeps and the
+       * whole deadline on a 3-target T1 craft.
+       *
+       * Bounding continuation by the start's own level caps the chain depth, so evaluation stays
+       * shallow. It also happens to be what the optimal policy does — restart in ~98% of states —
+       * which is why it is a good starting guess as well as a cheap one.
+       */
+      const worthContinuing = bestP > 0 && level[i] !== -1 && startLevel !== -1 && level[i]! <= startLevel;
+      pol[i] = worthContinuing ? bestK : (restartK >= 0 ? restartK : bestK);
+    }
+    return pol;
+  };
+
+  const iteratePolicy = (pLo: number, pHi: number, seedPol?: Int32Array, evalCap?: number): boolean => {
+    const pol = seedPol ?? new Int32Array(N).fill(-1);
     let evaluated = 0;
     /**
      * Did the LAST evaluation reach `tol`, or run out of sweeps?
@@ -816,6 +913,14 @@ export function markovFromItem(
      * So the flag gates the PROOF, not the loop.
      */
     let settled = false;
+
+    // A seeded run starts from a policy nobody has costed yet, so V still holds whatever the caller
+    // left there. Evaluate FIRST: improvement compares action values against V, and comparing against
+    // a stale V would pick a policy for a problem that is not this one.
+    if (seedPol) {
+      settled = evaluateClosedForm(pol, evalCap);
+      if (!settled) return false;
+    }
 
     for (let round = 0; round < maxRounds; round++) {
       // ── improve ──────────────────────────────────────────────────────────────
@@ -838,7 +943,7 @@ export function markovFromItem(
       // Closed form by default; the iterative path stays reachable so the two can be diffed. See
       // `evaluateClosedForm` for why iterating this particular chain is the whole cost of the solve.
       if (!opts.iterativeEval) {
-        settled = evaluateClosedForm(pol);
+        settled = evaluateClosedForm(pol, evalCap);
         if (!settled) return false;
         continue;
       }
@@ -864,9 +969,39 @@ export function markovFromItem(
     return false;
   };
 
+  /**
+   * The fast path: skip phase A entirely.
+   *
+   * Phase A is 92-98% of a solve now that evaluation is closed form, and all it owes phase B is a
+   * proper policy's value. `heuristicPolicy` produces a candidate without solving anything, and
+   * `evaluateClosedForm` both costs it and rejects it if it turns out improper — in which case this
+   * returns false and the ordinary two-phase path below runs untouched.
+   *
+   * Only for the policy solver. Value iteration has no use for a policy.
+   */
+  const fastSeeded = canRestart && opts.solver === 'policy' && !opts.iterativeEval && !opts.noHeuristicSeed
+    // The cap is a budget for the GUESS, not for the answer: cheap enough that a bad seed costs a
+    // fraction of a second, generous enough that a good one settles inside it.
+    ? iteratePolicy(0, 1000, heuristicPolicy(), 20_000)
+    : false;
+
+  let converged: boolean;
+  let bound: MarkovResult['bound'];
+  if (fastSeeded) {
+    converged = true;
+    bound = 'exact';
+    emitSolve(1000);
+  } else {
+  // Phase A CLIMBS from zero, so it is only a lower bound while it runs and only becomes a valid seed
+  // on convergence. The fast path above has already written its own values into V, so reset before
+  // falling back — otherwise phase A starts from an upper bound, climbs past it, and the phase-B
+  // descent it is supposed to enable begins from the wrong side.
+  V.fill(0);
+  for (let i = 0; i < N; i++) if (canReachPushForward[i] !== 1) V[i] = Infinity;
+
   const seedConverged = iterate(false, 0, canRestart ? 500 : 1000);
-  let converged = seedConverged;
-  let bound: MarkovResult['bound'] = seedConverged ? 'exact' : 'lower';
+  converged = seedConverged;
+  bound = seedConverged ? 'exact' : 'lower';
   if (canRestart) {
     // No converged V0 means no proper-policy value to seed from, and an unconverged 0-init V bounds
     // the restart problem in NEITHER direction: it is climbing toward the push-forward optimum, which
@@ -885,6 +1020,7 @@ export function markovFromItem(
     bound = converged ? 'exact' : 'upper';
   }
   emitSolve(1000);
+  }
 
   // ── Extract policy + reachable graph from the start ─────────────────────────
   const startKey = restartKey;

@@ -793,3 +793,118 @@ describe('markovFromItem — closed-form evaluation agrees with iterating it', (
     expect(rel).toBeLessThan(1e-3);
   });
 });
+
+/**
+ * SKIPPING PHASE A — the seed was 92-98% of a solve once evaluation went closed form.
+ *
+ * Phase A computes the OPTIMAL push-forward value function, but all it owes phase B is a `V0` with
+ * `T(V0) <= V0` so the descent starts above the answer. That property is far weaker than optimality:
+ * for ANY proper policy pi, `T(V^pi) <= T_pi(V^pi) = V^pi`. So any proper policy's exact value will
+ * do — and `evaluateClosedForm` already produces exactly that, at 2% of a solve.
+ *
+ * `heuristicPolicy` guesses one without solving anything: level states by a backward BFS from the
+ * goal, take the action most likely to move down a level, and RESTART from anywhere further out than
+ * the base you would restart to. That last rule is load-bearing and was wrong first time — playing
+ * forward wherever any progress existed produced a policy that almost never restarts, and the closed
+ * form is only fast because restart states ABSORB. That version burned 5,000,000 sweeps and the whole
+ * deadline on a 3-target T1 craft.
+ *
+ * Interleaved medians, 3 reps, against the same solver with `noHeuristicSeed`:
+ *   3 tgt T1  2.0s -> 0.6s (3.2x)    4 tgt T2  4.5s -> 4.1s    5 tgt T2  34.4s -> 28.0s
+ * with the answers agreeing exactly or to 1.4e-8.
+ *
+ * The seed does not have to be good — improvement fixes that — only PROPER, and it is not trusted to
+ * be even that: `evaluateClosedForm` returns false when `q(start) = 1`, and the two-phase path then
+ * runs untouched. These tests pin the agreement and the fallback, not the timings.
+ */
+describe('markovFromItem — the heuristic seed replaces phase A without changing the answer', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const white = (): ItemState =>
+    ({ base: real.bases.get('Wands')!, level: 82, rarity: 'normal', prefixes: [], suffixes: [] });
+  const base = { restartCost: 0, maxIters: 2_000_000, solver: 'policy' as const };
+
+  const crafts: [string, { modId: string; minTierIndex?: number }[]][] = [
+    ['3 targets, any tier', [
+      { modId: 'Wands/IncreasedMana' }, { modId: 'Wands/WeaponSpellDamage' }, { modId: 'Wands/Intelligence' }]],
+    ['2 targets', [{ modId: 'Wands/IncreasedMana' }, { modId: 'Wands/WeaponSpellDamage' }]],
+  ];
+
+  it.each(crafts)('%s: seeded and two-phase reach the same cost', (_label, targets) => {
+    const seeded = markovFromItem(real, rp, white(), targets, base);
+    const twoPhase = markovFromItem(real, rp, white(), targets, { ...base, noHeuristicSeed: true });
+    expect(seeded.bound).toBe('exact');
+    expect(twoPhase.bound).toBe('exact');
+    const rel = Math.abs(seeded.expectedCost - twoPhase.expectedCost) / twoPhase.expectedCost;
+    expect(rel).toBeLessThan(1e-3);
+  });
+
+  it('also matches value iteration, which shares no code with either path', () => {
+    const seeded = markovFromItem(real, rp, white(), crafts[0]![1], base);
+    const vi = markovFromItem(real, rp, white(), crafts[0]![1], { restartCost: 0, maxIters: 2_000_000 });
+    expect(vi.bound).toBe('exact');
+    expect(Math.abs(seeded.expectedCost - vi.expectedCost) / vi.expectedCost).toBeLessThan(1e-3);
+  });
+
+  it('produces a policy whose Monte-Carlo mean matches the cost it claims', () => {
+    const seeded = markovFromItem(real, rp, white(), crafts[0]![1], base);
+    const mc = simulatePolicyMean(seeded, (a) => actionCostOf(rp, a), 100_000);
+    expect(mc).toBeGreaterThan(seeded.expectedCost * 0.9);
+    expect(mc).toBeLessThan(seeded.expectedCost * 1.1);
+  });
+
+  it('still hands back a drawable graph', () => {
+    const seeded = markovFromItem(real, rp, white(), crafts[0]![1], base);
+    expect(seeded.nodes.some((n) => n.isStart)).toBe(true);
+    expect(seeded.nodes.some((n) => n.isGoal)).toBe(true);
+  });
+
+  /**
+   * The test that actually protects the feature, and it took two tries to get one that does.
+   *
+   * The agreement tests above pass whether or not the seed works — policy iteration converges to the
+   * right answer either way, so a broken seed shows up as SLOW, not wrong, and three deliberate
+   * breakages sailed straight through them.
+   *
+   * This one is a budget, in SWEEPS rather than seconds — deterministic, so it cannot drift with the
+   * ~40% wall-clock spread this machine has. A 3-target T1 craft from white needs ~8,000 sweeps before
+   * phase A converges at all; seeded, it is exact at 500.
+   *
+   * WHAT IT DOES NOT COVER, stated because the gap is easy to mistake for coverage. It catches a seed
+   * that is never evaluated before the first improvement (which discards the seed entirely). It does
+   * NOT catch a worse restart rule, because the evaluation CAP makes a bad seed fail cheaply and fall
+   * back — the rule is now a performance choice, not a correctness one. Measured separately, medians
+   * of 3: dropping it costs 0.7s -> 1.4s on this craft and 50.1s -> 58.4s on a 5-target T2. Worth
+   * keeping, and not something a correctness suite can defend.
+   */
+  it('solves on a sweep budget the two-phase path cannot meet', () => {
+    const tiered = (modId: string) =>
+      ({ modId, minTierIndex: real.mods.get(modId)!.tiers.length - 1 });
+    const targets = [tiered('Wands/IncreasedMana'), tiered('Wands/WeaponSpellDamage'), tiered('Wands/Intelligence')];
+    const tight = { restartCost: 0, maxIters: 500, solver: 'policy' as const };
+
+    const seeded = markovFromItem(real, rp, white(), targets, tight);
+    const twoPhase = markovFromItem(real, rp, white(), targets, { ...tight, noHeuristicSeed: true });
+
+    expect(seeded.feasible).toBe(true);
+    expect(seeded.bound).toBe('exact');
+    expect(twoPhase.feasible).toBe(false);   // phase A needs ~8,000 sweeps before it converges at all
+
+    // And the cheap answer is the same answer: 40x the budget changes nothing.
+    const generous = markovFromItem(real, rp, white(), targets, { ...tight, maxIters: 20_000 });
+    expect(Math.abs(seeded.expectedCost - generous.expectedCost) / generous.expectedCost).toBeLessThan(1e-3);
+  });
+
+  // A held item cannot be rebought, so there is no restart action and no phase B — the seed must not
+  // engage at all there, or a from-item craft would be solved by machinery built for a different one.
+  it('leaves a from-item craft, which has no restart, entirely alone', () => {
+    const held: ItemState = {
+      base: real.bases.get('Wands')!, level: 82, rarity: 'rare',
+      prefixes: [{ modId: 'Wands/IncreasedMana', tierName: real.mods.get('Wands/IncreasedMana')!.tiers[0]!.name }],
+      suffixes: [],
+    };
+    const r = markovFromItem(real, rp, held, [{ modId: 'Wands/IncreasedMana' }], { maxIters: 2_000_000 });
+    expect(r.feasible).toBe(true);
+    expect(r.bound).toBe('exact');
+  });
+});

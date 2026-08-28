@@ -119,6 +119,21 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   boss-pool counts, no family shared with another position) and silently does not apply when the data
   says so. **Asking different tiers of two cross-family alternatives switches it off** — that is the
   one cause a player controls, and `MIXED_TIER_NOTE` says so on the group row.
+- **The solver never sees two spellings of one move, and that fold is where 23-31% of its work went.**
+  `pusher` in `markovActions.ts` keeps only the cheapest action per outcome distribution, because with
+  the distribution fixed a value `(cost + Σ p·V)/(1 − pStay)` is monotone in cost. Four causes, all
+  measured on real 0.5.0 data: a side omen where the other side is already full (`addOutcomes` uses
+  `constrainTo` ONLY to close the other side, so the two are the same computation at 20-27x the price);
+  a Greater/Perfect strength whose floor excludes nothing; a boss whose pool is the whole legal pool; an
+  Omen of Light where the flagged mod is the only thing an Annulment could take. Interleaved over six
+  crafts and 60 runs: **1.18-1.51x**, with every craft returning exactly ONE `(cost, bound)` fold on and
+  off. It reproduces the same POLICY, not merely the same cost — a cheaper duplicate already won the
+  argmin, and equal costs keep the first, which is the order `bestAction`'s strict `<` resolved in.
+  **`isRestart` must stay in the signature**: an Annulment emptying a one-mod item lands on the start
+  state with P=1 just as a restart does, and phase A skips restarts — folding them leaves phase A with
+  no action there at all. `offer` must stay too, though no craft can exercise it: only a Desecration has
+  `offer > 1` and only a Desecration flags what it placed, so the collision cannot arise. The test is on
+  that invariant, not on the unreachable guard.
 - **Merging DEFEATS three checks if its key is wrong, and the checks run afterwards.** "All prefixes or
   all suffixes", "one mod per family across slots" and "at most one essence modifier" all count
   POSITIONS, so anything the merge swallowed reports as one and sails through. That is why `mergeKey`

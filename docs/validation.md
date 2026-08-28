@@ -1976,6 +1976,87 @@ alternatives switches it off, and that is the one cause the player controls — 
 on the group row, worded as a planner fact ("slower to compute, same answer") rather than a game rule,
 and promising no number, since matching the tiers is necessary for the fold and not sufficient.
 
+## The solver was evaluating the same move at two prices (2026-08-28)
+
+Both of the reductions above attack the STATE COUNT. Nothing had ever attacked the other axis — the work
+done per state — and that is where the next win was, sitting in plain sight.
+
+A Rare state on a Wand compiles about 27 actions, and 23-31% of them turn out to be **exact duplicates
+of a cheaper sibling**: same outcome distribution, bit for bit, at a higher price. Measured on real 0.5.0
+crafts before anything was built (24.3% on a 4-target Wand from white, 22.7% on a 3-target Body Armour,
+31.1% on a held Rare Wand), from four independent causes:
+
+- **A side omen that constrains nothing.** `addOutcomes` uses `constrainTo` only to close the other side,
+  so a Sinistral Exaltation is the same computation as a plain one wherever the suffix side is already
+  full — at 20-27x the price. The *opposite* variant was already dropped by the empty-`dist` guard, which
+  is why the survivor is the duplicate. Biggest single cause: 2,556 of 8,767 duplicates on the Wand craft.
+- **A strength that buys nothing.** Greater/Perfect raise the minimum tier a roll can produce; where the
+  remaining addable mods all sit above the floor anyway, only the price moves. 768 more.
+- **A boss whose pool is the whole legal pool** — the case the desecrate block had noted for months and
+  only tie-broken.
+- **An Omen of Light where the flagged mod is the only thing an Annulment could take.**
+
+The fix is one fold at `push`, the choke point through which every action already enters the space: keep
+the cheapest spelling of each outcome distribution. Exact, because with the distribution held fixed an
+action's value `(cost + Σ p·V)/(1 − pStay)` is monotone in cost — a strictly cheaper duplicate already
+had strictly lower value and already won the argmin, and on equal cost the first survives, which is the
+order `bestAction`'s strict `<` already resolved in. So this does not merely cost the same; it reproduces
+the same POLICY, including which action the graph names.
+
+**Interleaved, six crafts, 60 runs, medians:**
+
+| craft | before | after | |
+|---|---|---|---|
+| 3 targets, Body Armour, from white | 0.13s | **0.11s** | 1.18x |
+| 3 targets, held Rare Wand | 0.39s | **0.33s** | 1.20x |
+| 5 targets, Wand, from white | 9.41s | **7.08s** | 1.33x |
+| 4 targets T2, Wand, from white | 2.65s | **1.92s** | 1.38x |
+| 4 targets incl. a carved one, held Rare | 2.22s | **1.57s** | 1.41x |
+| 4 targets, Wand, from white | 2.00s | **1.33s** | 1.51x |
+
+Every craft returned **exactly one** `(expectedCost, bound)` across all 60 runs with the fold on and off
+— e.g. `1899.257096509057 exact` on all twelve runs of the 5-target craft. That, not the timings, is the
+result: the answer cannot move, and the 1,182-test suite passed unchanged.
+
+`isRestart` is in the signature and has to be. An Annulment that empties a one-mod item lands on the
+start state with P=1 exactly as a restart does, and phase A runs push-forward only — folding those two
+would leave phase A with no action at all there, an Infinity where a real value belongs, and a different
+seed for phase B. That one is mutation-tested; so are the fold itself, keeping the cheaper spelling, and
+replacing in place rather than appending.
+
+`offer` is in the signature too and **no craft can exercise it** — mutating it out changes nothing. The
+reason is structural rather than lucky: the only action with `offer > 1` is a Desecration, and a
+Desecration is the only thing that flags what it placed, so its outcomes differ from every unflagged
+action's in the state key itself. There is a test on that invariant rather than on the unreachable guard,
+so a second offer mechanic that does not flag goes red next to the term protecting it.
+
+Two pre-existing tests turned out to pin both directions already, on real semantics: `markovEssenceDesecrate`
+asserts that where the untargeted draw and the Blackblooded one coincide the planner reports the
+omen-free step (now folded rather than tie-broken), and that a Sinistral Necromancy omen which genuinely
+narrows the draw is still offered and still bought.
+
+### Two levers this closes on measurement
+
+**Policy iteration for phase A: dead.** `evaluateClosedForm` is fast only because restart states are
+absorbing and are 98% of the lattice. Phase A has no restart, so every phase-A policy plays forward
+everywhere — which is the chain `heuristicPolicy` already records burning 5,000,000 sweeps and an entire
+deadline. Evaluation there degenerates into the problem being solved.
+
+**Prioritised sweeping: dead, and now measured rather than argued.** A worklist pays off when the residual
+is LOCALISED. Instrumenting phase A to count states moving by more than `tol` per sweep says it is not:
+
+| craft | sweeps | moving at sweep 1 | at 50% | at the end |
+|---|---|---|---|---|
+| 4-target Wand, from white | 1,238 | 99.8% of N | 99.2% | 31.9%, then 2.1%, then 0 |
+| 3-target Body Armour | 174 | 99.6% | 99.6% | 3.5%, then 0.1%, then 0 |
+| 3-target held Wand | 814 | 99.6% | 99.4% | 71.2%, then 24.2%, then 0 |
+
+Essentially every state moves on essentially every sweep until the last two or three. That is a global
+slow mode, not a thin spine: a worklist would re-enqueue nearly everything each round and pay predecessor
+bookkeeping for it. The same instrumentation also found **zero** actions touching an Infinity-pinned
+state on any of the three crafts, closing a third candidate before it was written.
+
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

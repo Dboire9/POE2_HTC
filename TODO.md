@@ -217,6 +217,27 @@ one is sweep-capped and no setting the user can reach will change it. That is th
 skipping states whose successors have not moved), which is the fallback if policy iteration is too
 much surgery. Measure either one in sweeps first, seconds second.
 
+**CLOSED FOR GOOD 2026-08-28 — both remaining levers named above are dead, on measurement.**
+
+*Policy iteration for phase A* cannot work: `evaluateClosedForm` is fast only because restart states are
+absorbing and are 98% of the lattice, and phase A has no restart — so every phase-A policy plays forward
+everywhere, which is the chain `heuristicPolicy`'s own comment records burning 5,000,000 sweeps and the
+whole deadline. Evaluation there degenerates into the problem being solved.
+
+*Prioritised sweeping* needs the residual to be LOCALISED, and it is not. Instrumenting phase A to count
+states moving by more than `tol` per sweep: 99.8% of N at sweep 1 and still 99.2% at the halfway point on
+a 4-target Wand (1,238 sweeps); 99.6% throughout on a 3-target Body Armour; 99.6% → 99.4% on a held Wand.
+The count collapses only in the final two or three sweeps. A worklist would re-enqueue nearly everything
+every round and pay predecessor bookkeeping for it. The same run found ZERO actions touching an
+Infinity-pinned state, closing a third candidate too.
+
+**What DID pay was the other axis — per-state work, which nothing had ever attacked.** 23-31% of the
+actions the solver evaluates are exact duplicates of a cheaper sibling (a vacuous side omen, a strength
+whose floor excludes nothing, a boss whose pool is the whole legal pool, a redundant Omen of Light).
+`pusher` in `markovActions.ts` folds them at the push choke point: **1.18-1.51x** interleaved over six
+crafts and 60 runs, with every craft returning exactly one `(cost, bound)` fold on and off. See
+docs/validation.md.
+
 Cheaper things to try first, both unmeasured:
 
 - The `1000` divisor is a knee found on two crafts, not a law. Worth re-checking on a from-ITEM craft,

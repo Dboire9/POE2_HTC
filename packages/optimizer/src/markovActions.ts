@@ -520,13 +520,69 @@ export function createActionSpace(params: ActionSpaceParams): {
   const crystallisationOk = (sd: 'prefix' | 'suffix'): boolean =>
     omenOk(sd === 'prefix' ? 'OmenofSinistralCrystallisation' : 'OmenofDextralCrystallisation');
 
+  /**
+   * Two actions with the same outcome distribution are the SAME MOVE at two prices, and the dearer one
+   * can never be worth playing: value is `(cost + Σ p·V)/(1 − pStay)`, which with the distribution held
+   * fixed is monotone in cost. So the solver need only ever see the cheapest spelling of each
+   * distribution — every sweep of both phases, and every policy-improvement round, then costs less.
+   *
+   * The redundancy is not a corner case; measured on real 0.5.0 crafts it is 23-31% of every action the
+   * solver evaluates, from four independent causes:
+   *
+   *   • A SIDE OMEN that constrains nothing. `addOutcomes` uses `constrainTo` only to close the other
+   *     side, so a Sinistral Exaltation is bit-identical to a plain one wherever the suffix side is
+   *     already full — at 20-27x the price, since an omen costs that much more than the orb it wraps.
+   *     (The opposite variant is already dropped by the empty-`dist` guard below, which is why it is
+   *     the surviving one that duplicates.)
+   *   • A STRENGTH that buys nothing. Greater/Perfect raise the minimum tier the roll can produce; on a
+   *     high-ilvl base, or once the remaining addable mods all sit above the floor anyway, the
+   *     distribution is unchanged and only the price moves.
+   *   • A BOSS whose pool happens to be the whole legal pool — the case the desecrate block below has
+   *     always noted, now acted on rather than merely tie-broken.
+   *   • An OMEN OF LIGHT where the flagged mod is the only thing an Annulment could take, so making the
+   *     removal certain makes no difference.
+   *
+   * Keeping the cheapest, first-pushed spelling reproduces today's policy EXACTLY rather than merely
+   * costing the same: a strictly cheaper duplicate already had strictly lower value and already won the
+   * argmin, and on equal cost the first survives, which is the order `bestAction`'s strict `<` already
+   * resolved in. That is also the answer the player wants — the unomened action is pushed first
+   * everywhere, so it is the one that survives: same odds, same cost, one fewer thing they must own.
+   *
+   * `isRestart` is part of the signature and MUST stay there. Phase A of the solve runs push-forward
+   * only, so it skips restarts; an Annulment that empties a one-mod item lands on the start state with
+   * P=1 exactly as a restart does, and folding those two together would leave phase A with no action at
+   * all at that state — an Infinity where a real value belongs, and a different seed for phase B.
+   */
+  const signatureOf = (action: McAction, dist: Dist, offer: number): string =>
+    `${action.currency === 'restart'}|${offer}|`
+    + [...dist].map(([k, p]) => `${k}=${p}`).sort().join(';');
+
   // The one place an action enters the space, so the one place exclusion has to hold. The `*Ok` gates
   // below also consult the policy, but only to avoid building distributions that would be thrown away
   // here — this is what makes the guarantee, not them.
-  const push = (acts: ActionDef[], action: McAction, dist: Dist, offer?: number): void => {
-    if (dist.size === 0) return;
-    if (!allowsAction(policy, action)) return;
-    acts.push({ action, cost: actionCostOf(prices, action), dist, ...(offer === undefined ? {} : { offer }) });
+  //
+  // A factory rather than a plain function because the fold needs a second piece of per-state memory
+  // alongside the action list, and the two must not drift apart: binding them together here means a
+  // caller cannot hold one without the other, and `actionsOf` gets a `push` that reads exactly as it
+  // did before the fold existed.
+  const pusher = (acts: ActionDef[]) => {
+    const seen = new Map<string, number>(); // outcome signature → its slot in `acts`
+    return (action: McAction, dist: Dist, offer?: number): void => {
+      if (dist.size === 0) return;
+      if (!allowsAction(policy, action)) return;
+      const cost = actionCostOf(prices, action);
+      const def: ActionDef = { action, cost, dist, ...(offer === undefined ? {} : { offer }) };
+      const sig = signatureOf(action, dist, offer ?? 1);
+      const at = seen.get(sig);
+      // Replace IN PLACE rather than appending, so the survivor keeps the earlier slot and the solver
+      // still sees the push order the tie-breaks above rely on.
+      if (at !== undefined) {
+        if (cost < acts[at]!.cost) acts[at] = def;
+        return;
+      }
+      seen.set(sig, acts.length);
+      acts.push(def);
+    };
   };
 
   /** Strengths this add currency can be bought at: base always, the rest only if priced and allowed. */
@@ -537,6 +593,7 @@ export function createActionSpace(params: ActionSpaceParams): {
 
   const actionsOf = (s: McState): ActionDef[] => {
     const acts: ActionDef[] = [];
+    const push = pusher(acts);
 
     // ── Below Rare: the add-chain, and nothing else that needs a Rare item ────────────────────────
     // Transmute converts Normal→Magic, Regal converts Magic→Rare, and both add a mod as they do it —
@@ -548,16 +605,16 @@ export function createActionSpace(params: ActionSpaceParams): {
       for (const currency of chain) {
         const into: McRarity = currency === 'regal' ? 'rare' : 'magic';
         for (const strength of strengthsFor(currency)) {
-          push(acts, { currency, strength }, addOutcomes(s, STRENGTH_FLOOR[strength], undefined, into));
+          push({ currency, strength }, addOutcomes(s, STRENGTH_FLOOR[strength], undefined, into));
         }
       }
       // An Annulment works on a Magic item too. It is nearly always the wrong move there — 158.7ex to
       // undo a 0.18ex Transmute — but the policy should reach that conclusion from the prices rather
       // than from the action being hidden.
       for (const constrainTo of [undefined, 'prefix', 'suffix'] as const) {
-        push(acts, { currency: 'annul', ...(constrainTo ? { side: constrainTo } : {}) }, removeOutcomes(s, constrainTo));
+        push({ currency: 'annul', ...(constrainTo ? { side: constrainTo } : {}) }, removeOutcomes(s, constrainTo));
       }
-      if (restart) push(acts, { currency: 'restart', cost: restart.cost }, restart.dist);
+      if (restart) push({ currency: 'restart', cost: restart.cost }, restart.dist);
       return acts;
     }
 
@@ -566,49 +623,51 @@ export function createActionSpace(params: ActionSpaceParams): {
     if (dextralExaltOk) exaltSides.push('suffix');
     for (const constrainTo of exaltSides) {
       for (const strength of strengths) {
-        push(acts, { currency: 'exalt', strength, ...(constrainTo ? { side: constrainTo } : {}) },
+        push({ currency: 'exalt', strength, ...(constrainTo ? { side: constrainTo } : {}) },
           addOutcomes(s, STRENGTH_FLOOR[strength], constrainTo));
       }
     }
     for (const constrainTo of [undefined, 'prefix', 'suffix'] as const) {
-      push(acts, { currency: 'annul', ...(constrainTo ? { side: constrainTo } : {}) }, removeOutcomes(s, constrainTo));
+      push({ currency: 'annul', ...(constrainTo ? { side: constrainTo } : {}) }, removeOutcomes(s, constrainTo));
     }
-    if (lightOk) push(acts, { currency: 'annul', light: true }, lightOutcomes(s));
-    push(acts, { currency: 'chaos' }, chaosOutcomes(s));
+    if (lightOk) push({ currency: 'annul', light: true }, lightOutcomes(s));
+    push({ currency: 'chaos' }, chaosOutcomes(s));
     if (desecratable) {
       // The untargeted draw is always available: it needs no omen, so nothing about the base or the
       // player's omen stock can gate it. On armour it is the ONLY desecration (see
       // desecrateAnyOutcomes); everywhere else it is the cheap alternative to a boss omen.
       //
-      // It is pushed FIRST deliberately. `bestAction` breaks ties with a strict `<`, so the earliest
-      // action wins when two score identically — and two CAN, whenever the boss's pool happens to be
-      // the whole legal pool. Preferring the omen-free action there is the better answer: same odds,
-      // same cost, one fewer thing the player must own.
-      push(acts, { currency: 'desecrate' }, desecrateAnyOutcomes(s), DESECRATION_OFFER_COUNT);
+      // It is pushed FIRST deliberately, and that ordering is now load-bearing rather than a tie-break.
+      // Two of these CAN be the same draw — whenever the boss's pool happens to be the whole legal
+      // pool — and `pusher` folds the later spelling into the earlier one, so the omen-free action is
+      // the one that survives to the solver at all: same odds, same cost, one fewer thing the player
+      // must own. (It used to survive only by winning `bestAction`'s strict `<`, after both had been
+      // evaluated on every sweep.)
+      push({ currency: 'desecrate' }, desecrateAnyOutcomes(s), DESECRATION_OFFER_COUNT);
       for (const sd of ['prefix', 'suffix'] as const) {
-        if (necromancyOk(sd)) push(acts, { currency: 'desecrate', side: sd }, desecrateAnyOutcomes(s, sd), DESECRATION_OFFER_COUNT);
+        if (necromancyOk(sd)) push({ currency: 'desecrate', side: sd }, desecrateAnyOutcomes(s, sd), DESECRATION_OFFER_COUNT);
       }
       // Boss targeting is "Weapon or Jewellery" only — offering it on armour would plan a step the
       // game refuses.
       if (bossTargetable) {
         for (const boss of ['blackblooded', 'liege', 'sovereign'] as const) {
-          push(acts, { currency: 'desecrate', boss }, desecrateOutcomes(s, boss), DESECRATION_OFFER_COUNT);
+          push({ currency: 'desecrate', boss }, desecrateOutcomes(s, boss), DESECRATION_OFFER_COUNT);
           for (const sd of ['prefix', 'suffix'] as const) {
-            if (necromancyOk(sd)) push(acts, { currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd), DESECRATION_OFFER_COUNT);
+            if (necromancyOk(sd)) push({ currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd), DESECRATION_OFFER_COUNT);
           }
         }
       }
     }
     for (const i of perfectTargets) {
       const target = representative(list[i]!).id;
-      push(acts, { currency: 'perfect-essence', target }, perfectEssenceOutcomes(s, i));
+      push({ currency: 'perfect-essence', target }, perfectEssenceOutcomes(s, i));
       for (const sd of ['prefix', 'suffix'] as const) {
         if (crystallisationOk(sd)) {
-          push(acts, { currency: 'perfect-essence', target, side: sd }, perfectEssenceOutcomes(s, i, sd));
+          push({ currency: 'perfect-essence', target, side: sd }, perfectEssenceOutcomes(s, i, sd));
         }
       }
     }
-    if (restart) push(acts, { currency: 'restart', cost: restart.cost }, restart.dist);
+    if (restart) push({ currency: 'restart', cost: restart.cost }, restart.dist);
     return acts;
   };
 

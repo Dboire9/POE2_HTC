@@ -3,6 +3,9 @@ import type { ItemBase, ItemState, Mod, PatchData } from '../../engine/src/index
 import { markovFromItem, actionCostOf } from './markovFromItem.ts';
 import type { Prices } from './cost.ts';
 import { mulberry32 } from './simulate.ts';
+import { loadPatch } from '../../engine/src/loadPatch.ts';
+import { loadPrices } from './loadPrices.ts';
+import { FLAG_NONE, decodeState, type StateKey } from './markovState.ts';
 
 /**
  * The tolerance these hand-computed cases need.
@@ -435,7 +438,82 @@ describe('markovFromItem — desecrated alternatives', () => {
     ]);
     expect(r.feasible).toBe(true);
     for (const nd of r.nodes) {
-      expect(nd.present.filter((id) => id === 'DP1' || id === 'DS2').length).toBeLessThanOrEqual(1);
+      expect(nd.present.filter((ids) => ids.includes('DP1') || ids.includes('DS2')).length).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+/**
+ * THE ITEM YOU ALREADY HOLD counts toward the one-per-item caps — or the model plans a step the game
+ * refuses.
+ *
+ * Both rules are "an item carries at most one of these", and the model reaches them by opposite
+ * routes. A held CARVED mod is recognised: `classifyStart` flags it (from `PlacedMod.desecrated`, or
+ * simply from its pool), and `hasDesecrated` then empties both bone builders, so `push` never even
+ * stores the action. A held ESSENCE mod is not: it lands in `jp`/`js`, which is a bare count with no
+ * marker, so nothing downstream can tell it from ordinary junk.
+ *
+ * The finished item is safe either way — `isAccepting` demands zero junk — so this is about the ROUTE,
+ * and the illegal one is the cheap one: a Perfect Essence's swap does some of the annulling for free,
+ * so the model prefers it and quotes a cost that comes in low.
+ *
+ * Real 0.5.0 data rather than the synthetic base above, because the point is which mods the shipped
+ * pools actually contain.
+ */
+describe('markovFromItem — one carved mod, one essence modifier, counting the item you hold', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const wand = real.bases.get('Wands')!;
+  const placed = (id: string) => ({ modId: id, tierName: real.mods.get(id)!.tiers[0]!.name });
+  const item = (prefixes: string[], suffixes: string[]): ItemState => ({
+    base: wand, level: 82, rarity: 'rare',
+    prefixes: prefixes.map(placed), suffixes: suffixes.map(placed),
+  });
+  const CAST = 'Wands/IncreasedCastSpeed';
+  const CRIT = 'Wands/SpellCriticalStrikeChance';
+  const HELD_ESS = 'Wands/PerfectEssence_EssenceAbyss';
+  const WANT_ESS = 'Wands/PerfectEssence_FireDamage';
+  const HELD_DES = 'Wands/Desecrated_BleedingDamage';
+  const WANT_DES = 'Wands/Desecrated_SpellAreaOfEffect';
+
+  it('refuses a second essence modifier, naming the one already on the item', () => {
+    const r = markovFromItem(real, rp, item([HELD_ESS], [CAST, CRIT]), [{ modId: WANT_ESS }]);
+    expect(r.feasible).toBe(false);
+    expect(r.reason).toContain(HELD_ESS);
+    expect(r.reason).toMatch(/one essence modifier/i);
+  });
+
+  // …but only where an essence ACTION exists to be offered wrongly. With no essence target the held
+  // mod is ordinary junk to be annulled, which the model already handles — refusing here would decline
+  // a craft it gets right.
+  it('plans normally when the held essence mod is just junk in the way', () => {
+    const r = markovFromItem(real, rp, item([HELD_ESS], [CAST]), [{ modId: CRIT }]);
+    expect(r.feasible).toBe(true);
+    expect(r.expectedCost).toBeGreaterThan(0);
+  });
+
+  // …and the held mod being the target itself is the ordinary "you already have it" case: it is
+  // `present`, not junk, and `perfectEssenceOutcomes` already declines to add what is on the item.
+  it('accepts the held essence mod when it IS the target', () => {
+    const r = markovFromItem(real, rp, item([HELD_ESS], [CAST]), [{ modId: HELD_ESS }, { modId: CAST }]);
+    expect(r.feasible).toBe(true);
+  });
+
+  /**
+   * The desecration half, which needs no refusal because the state carries the fact. This is the
+   * assertion the rule never had: a bone is not merely priced out of the policy but STRUCTURALLY
+   * absent from every state where a carved mod is already on the item.
+   */
+  it('never plays a bone while a carved mod is already on the item', () => {
+    const r = markovFromItem(real, rp, item([HELD_DES], [CAST]), [{ modId: WANT_DES }], { solver: 'policy' });
+    expect(r.feasible).toBe(true);
+    const start = r.nodes.find((nd) => nd.isStart)!;
+    expect(start.desecratedJunk).toBe('prefix'); // recognised from its pool, with nothing marking it
+    const bones = [...r.policy.entries()]
+      .filter(([, a]) => a.currency === 'desecrate')
+      .map(([key]) => decodeState(key as StateKey));
+    // Not vacuous: the craft does desecrate, just never before the held carved mod is gone.
+    expect(bones.length).toBeGreaterThan(0);
+    expect(bones.every((st) => st.flagged === FLAG_NONE)).toBe(true);
   });
 });

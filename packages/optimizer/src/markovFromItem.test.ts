@@ -88,7 +88,7 @@ describe('markovFromItem — hand-computed expected cost', () => {
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeCloseTo(3, 6);
     // The start's optimal move rolls the family; the graph shows a blocked (off-tier) state it recovers from.
-    expect(r.nodes.some((nd) => nd.blocked.includes('M'))).toBe(true);
+    expect(r.nodes.some((nd) => nd.blocked.some((ids) => ids.includes('M')))).toBe(true);
   });
 
   it('reports infeasible when a target can never roll at this item level', () => {
@@ -137,7 +137,7 @@ describe('markovFromItem — policy graph', () => {
   it('exposes the start, the goal, and a brick (regress) back-edge on the bad annul', () => {
     const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }], EXACT);
     const start = r.nodes.find((nd) => nd.isStart)!;
-    expect(start.present).toEqual(['T1']);
+    expect(start.present).toEqual([['T1']]); // one entry per filled POSITION, holding its member ids
     expect(start.junkPrefixes).toBe(1);
     expect(start.action).toEqual({ currency: 'annul' }); // optimal first move: annul the junk (risking T1)
     expect(r.nodes.some((nd) => nd.isGoal)).toBe(true);
@@ -1039,12 +1039,35 @@ describe('markovFromItem — slot alternatives', () => {
     expect(goal).toBeDefined();
     expect(goal.depth).toBe(0);
     // …and the finished item really is holding only one of the three, so this is not vacuous.
-    expect(goal.present.filter((id) => [XCOLD, XFIRE, XLIGHT].includes(id))).toHaveLength(1);
+    expect(goal.present.filter((ids) => ids.some((id) => [XCOLD, XFIRE, XLIGHT].includes(id)))).toHaveLength(1);
   });
 
   // A slot that is a prefix on one route and a suffix on another makes the 3-per-side count meaningless.
   it('refuses a slot whose alternatives sit on different sides', () => {
     const r = solve([{ modId: SPELL, slot: 0 }, { modId: CAST, slot: 0 }]);
+    expect(r.feasible).toBe(false);
+    expect(r.reason).toMatch(/all prefixes or all suffixes/i);
+  });
+
+  /**
+   * …and it must still fire when the two sides share a FAMILY, which is the case merging could hide.
+   *
+   * Ten families span both sides on one base in 0.5.0. `Bows/Desecrated_CompanionDamage` is a prefix
+   * and `…_2` a suffix of `CompanionDamage`. Merging any such pair would leave a position reporting a
+   * single type, so this check — which runs on the MERGED positions — would find nothing to complain
+   * about and the craft would be planned with a suffix counted against the prefix cap.
+   *
+   * (These two are kept apart by their family SETS rather than by their sides: the suffix one carries
+   * `IncreasedAttackSpeed` as well. The side term is pinned separately, in markovSymmetry.test.ts,
+   * where a built mod isolates it — no real pair in this patch can.)
+   */
+  it('refuses them even when both sides are one family — the case merging could hide', () => {
+    const bows = real.bases.get('Bows')!;
+    const bare: ItemState = { base: bows, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+    const r = markovFromItem(real, rp, bare, [
+      { modId: 'Bows/Desecrated_CompanionDamage', slot: 0 },
+      { modId: 'Bows/Desecrated_CompanionDamage_2', slot: 0 },
+    ], { restartCost: 0, solver: 'policy' });
     expect(r.feasible).toBe(false);
     expect(r.reason).toMatch(/all prefixes or all suffixes/i);
   });
@@ -1075,7 +1098,7 @@ describe('markovFromItem — slot alternatives', () => {
 describe('enumerateStates — a family cannot be held twice', () => {
   const data = loadPatch('data/patches/0.5.0');
   const mk = (type: 'prefix' | 'suffix'): McTarget =>
-    ({ modId: 'x', type, family: 'f', mod: data.mods.get('Wands/IncreasedMana')!, minIndex: 0, fractured: false });
+    ({ mods: [{ mod: data.mods.get('Wands/IncreasedMana')!, minIndex: 0 }], type, fractured: false });
   // Three prefixes, of which the last two are siblings, plus one suffix.
   const side = sideIndexOf([mk('prefix'), mk('prefix'), mk('prefix'), mk('suffix')]);
   const siblings = bit(1) | bit(2);
@@ -1109,5 +1132,182 @@ describe('enumerateStates — a family cannot be held twice', () => {
   it('leaves a lattice with no conflicts exactly as it was', () => {
     expect(enumerateStates(4, side, false, ['rare'], [])).toEqual(all);
     expect(enumerateStates(4, side, false, ['rare'], [bit(0)])).toEqual(all); // a lone target conflicts with nothing
+  });
+});
+
+/**
+ * ANCHORS — the numbers that must not move when the lattice gets smaller.
+ *
+ * Merging same-family candidates and quotienting interchangeable cross-family ones are pure
+ * representation changes: they delete states the solver could not tell apart, so every cost, bound and
+ * feasibility here is expected to survive them EXACTLY. Captured before either landed, on 0.5.0.
+ *
+ * A tolerance would defeat the point. These are `toBe`, and a change of any size is the alarm.
+ */
+describe('markovFromItem — costs are invariant under lattice reduction', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const wand = real.bases.get('Wands')!;
+  const white: ItemState = { base: wand, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+  const solve = (targets: readonly { modId: string; slot?: number; minTierIndex?: number }[]) =>
+    markovFromItem(real, rp, white, targets, { restartCost: 0, solver: 'policy' });
+
+  const SPELL = 'Wands/WeaponSpellDamage';
+  const CAST = 'Wands/IncreasedCastSpeed';
+  const XCOLD = 'Wands/DamageGainedAsCold';
+  const XFIRE = 'Wands/DamageGainedAsFire';
+  const XLIGHT = 'Wands/DamageGainedAsLightning';
+  // One family, five normal members — the mutually-exclusive case, where a group is a weight union.
+  const WFIRE = 'Wands/FireDamageWeaponPrefix';
+  const WCOLD = 'Wands/ColdDamageWeaponPrefix';
+  const WLIGHT = 'Wands/LightningDamageWeaponPrefix';
+  // Same family as those three, but `desecrated` rather than `normal`: it rolls from a different pool
+  // and cannot be exalted onto the item, so it is NOT interchangeable with them.
+  const WCARVED = 'Wands/Desecrated_WeaponDamageTypePrefix';
+
+  it('cross-family, two interchangeable alternatives', () => {
+    const r = solve([{ modId: SPELL, slot: 0 }, { modId: CAST, slot: 1 },
+      { modId: XCOLD, slot: 2 }, { modId: XLIGHT, slot: 2 }]);
+    expect(r.feasible).toBe(true);
+    expect(r.bound).toBe('exact');
+    // Cold and Lightning are interchangeable on this base, so their two spellings collapse onto one
+    // state and the outcomes that led to each are summed together. Reordering a floating-point sum
+    // moves the last bit: 55.10323732898523 against 55.103237328985244, one ulp. (The three-way craft
+    // below quotients too and lands byte-identical — whether the reordering bites is luck, which is
+    // exactly why this is pinned to fifteen figures rather than to whatever came out.)
+    expect(r.expectedCost).toBeCloseTo(55.103237328985244, 12);
+  });
+
+  it('cross-family, three alternatives', () => {
+    const r = solve([{ modId: SPELL, slot: 0 }, { modId: CAST, slot: 1 },
+      { modId: XCOLD, slot: 2 }, { modId: XFIRE, slot: 2 }, { modId: XLIGHT, slot: 2 }]);
+    expect(r.feasible).toBe(true);
+    expect(r.bound).toBe('exact');
+    expect(r.expectedCost).toBe(40.2303738299529);
+  });
+
+  it('same-family, three alternatives', () => {
+    const r = solve([{ modId: CAST, slot: 0 },
+      { modId: WFIRE, slot: 1 }, { modId: WCOLD, slot: 1 }, { modId: WLIGHT, slot: 1 }]);
+    expect(r.feasible).toBe(true);
+    expect(r.bound).toBe('exact');
+    // The one anchor that is NOT `toBe`, and the reason is the mechanism rather than a fudge: merging
+    // sums the members' weights and divides once, where three separate targets each divided first.
+    // `(a+b+c)/g` and `a/g + b/g + c/g` differ in the last bits of the mantissa — 23.539201819271984
+    // against 23.539201819271987, three ulp. Pinned to fifteen significant figures, which is far
+    // tighter than any real change to the model could hide in.
+    expect(r.expectedCost).toBeCloseTo(23.539201819271987, 12);
+  });
+
+  /**
+   * …and the merge really happened. The cost anchors above would all still pass if same-family
+   * alternatives were merely left alone, so this is the assertion that the lattice actually shrank:
+   * three siblings occupy ONE bit, exactly as one mod does, so the two crafts must have the same
+   * number of states — while the group is strictly cheaper, because three ways to fill the position is
+   * three times the weight on the roll.
+   */
+  it('costs a same-family group exactly the lattice of a single mod', () => {
+    const one = solve([{ modId: CAST, slot: 0 }, { modId: WFIRE, slot: 1 }]);
+    const three = solve([{ modId: CAST, slot: 0 },
+      { modId: WFIRE, slot: 1 }, { modId: WCOLD, slot: 1 }, { modId: WLIGHT, slot: 1 }]);
+    expect(three.nodes.length).toBe(one.nodes.length);
+    expect(three.expectedCost).toBeLessThan(one.expectedCost);
+  });
+
+  it('same-family, one member from a different pool', () => {
+    const r = solve([{ modId: CAST, slot: 0 },
+      { modId: WFIRE, slot: 1 }, { modId: WCARVED, slot: 1 }]);
+    expect(r.feasible).toBe(true);
+    expect(r.bound).toBe('exact');
+    expect(r.expectedCost).toBe(68.08074919253308);
+  });
+
+  /**
+   * A held mod is graded against ITS OWN tier floor, not the position's first member's.
+   *
+   * Tiers stay per candidate — `T1 Fire or T4 Cold` is a legal slot — and merging puts both mods on one
+   * position. Reading the floor off the position rather than off the mod actually on the item grades a
+   * Cold roll against Fire's demand, so an item that already satisfies the slot is reported `blocked`
+   * and the plan opens by annulling a mod the player wanted.
+   *
+   * Only a from-ITEM craft can catch this: `classifyStart` never sees a placed target on a from-white
+   * base, which is what every other test here starts from.
+   */
+  it('grades a held alternative against its own tier floor, not its neighbour’s', () => {
+    const startOf = (tierName: string, coldFloor: number) => {
+      const held: ItemState = {
+        base: wand, level: 82, rarity: 'rare',
+        prefixes: [{ modId: WCOLD, tierName }],
+        suffixes: [],
+      };
+      const r = markovFromItem(real, rp, held, [
+        // Fire first, so it is the position's first member and the one a naive read would use.
+        { modId: WFIRE, slot: 0, minTierIndex: 7 },
+        { modId: WCOLD, slot: 0, minTierIndex: coldFloor },
+        { modId: CAST, slot: 1 },
+      ], { solver: 'policy' });
+      expect(r.feasible).toBe(true);
+      return r.nodes.find((nd) => nd.isStart)!;
+    };
+
+    // At or above its own floor ⇒ the slot is FILLED, and the plan does not open by annulling it.
+    const good = startOf('Hailing', 3); // Cold's index 4 of 8, against a floor of 3
+    expect(good.present.some((ids) => ids.includes(WCOLD))).toBe(true);
+    expect(good.blocked).toEqual([]);
+
+    /*
+     * …and BELOW its own floor ⇒ blocked, which is the direction that actually bites.
+     *
+     * Reading the floor off the position's first member does not merely use the wrong number: it looks
+     * up a Cold tier name in Fire's tier list, finds nothing, and takes the "unrecognised tier — assume
+     * fine" branch. So every held alternative would be called satisfied whatever tier it rolled, and
+     * the assertion above would pass while the model quietly stopped grading tiers at all.
+     */
+    const bad = startOf('Bitter', 3); // Cold's index 0 of 8, against the same floor of 3
+    expect(bad.blocked.some((ids) => ids.includes(WCOLD))).toBe(true);
+    expect(bad.present).toEqual([]);
+  });
+
+  /**
+   * The cross-check that a REPRESENTATION change most needs, because it does not read V at all.
+   *
+   * Both reductions rewrite which state an outcome points at — merging folds three successors into
+   * one, canonicalising redirects a successor onto its twin — and a mistake there shows up as a
+   * distribution that no longer sums to 1, or edges that skip a state. Value iteration would happily
+   * converge on the wrong chain and report `exact`. Playing the policy on the published graph and
+   * averaging the spend is the independent check: it samples the very edges the UI draws.
+   */
+  it('a merged group: 40k policy runs match the cost it reports', () => {
+    const r = solve([{ modId: CAST, slot: 0 },
+      { modId: WFIRE, slot: 1 }, { modId: WCOLD, slot: 1 }, { modId: WLIGHT, slot: 1 }]);
+    const mc = simulatePolicyMean(r, (a) => actionCostOf(rp, a), 40_000);
+    expect(Math.abs(mc - r.expectedCost) / r.expectedCost).toBeLessThan(0.05);
+  });
+
+  it('a canonicalised group: 40k policy runs match the cost it reports', () => {
+    const r = solve([{ modId: SPELL, slot: 0 }, { modId: CAST, slot: 1 },
+      { modId: XCOLD, slot: 2 }, { modId: XLIGHT, slot: 2 }]);
+    const mc = simulatePolicyMean(r, (a) => actionCostOf(rp, a), 40_000);
+    expect(Math.abs(mc - r.expectedCost) / r.expectedCost).toBeLessThan(0.05);
+  });
+
+  // Every published distribution must still be a distribution. Collapsing two successors onto one is
+  // exactly the operation that could drop or double a branch, and `addTo` summing them is what makes
+  // it safe — so assert the sum rather than trusting it.
+  it('leaves every state’s outgoing probabilities summing to one', () => {
+    const r = solve([{ modId: SPELL, slot: 0 }, { modId: CAST, slot: 1 },
+      { modId: XCOLD, slot: 2 }, { modId: XFIRE, slot: 2 }, { modId: XLIGHT, slot: 2 }]);
+    const byFrom = new Map<string, number>();
+    for (const e of r.edges) byFrom.set(e.from, (byFrom.get(e.from) ?? 0) + e.prob);
+    expect(byFrom.size).toBeGreaterThan(1);
+    for (const [from, total] of byFrom) expect(total, from).toBeCloseTo(1, 9);
+  });
+
+  it('mixed tiers across a cross-family group', () => {
+    const r = solve([{ modId: SPELL, slot: 0 }, { modId: CAST, slot: 1 },
+      { modId: XCOLD, slot: 2, minTierIndex: 5 }, { modId: XLIGHT, slot: 2, minTierIndex: 3 }]);
+    expect(r.feasible).toBe(true);
+    expect(r.bound).toBe('exact');
+    expect(r.expectedCost).toBe(111.62502259425796);
   });
 });

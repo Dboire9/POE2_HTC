@@ -65,6 +65,55 @@ export function nextSlotId(targets: readonly TargetInput[]): number {
   return max + 1;
 }
 
+/**
+ * Do two of this slot's alternatives sit in different families AND ask different tiers?
+ *
+ * A PLANNER fact, not a game rule: nothing here stops the craft, and the answer the app gives is the
+ * same either way. It is about how long the answer takes.
+ *
+ * The solver has two ways to make a slot's alternatives cheap. Same-family alternatives merge outright
+ * — only one can ever be on the item, so they share a single bit, and their tiers are irrelevant to
+ * that. Different-family alternatives cannot merge (both can land, and each takes a different mod out
+ * of the pool), so the most the solver can do is stop tracking WHICH of them is in which state — and
+ * that needs them to be indistinguishable, which asking different tiers of them destroys.
+ *
+ * So this is exactly the case the player can do something about, and the only one worth a line: the
+ * data conditions (matching weights, no shared family) are not theirs to change.
+ *
+ * Matching the tiers is NECESSARY, not sufficient — the copy must not promise a speed-up it cannot
+ * guarantee, only name what is standing in the way.
+ */
+/**
+ * The one line the app says about it, kept here so both tabs say it identically — the reason this
+ * module exists at all. Names the mechanism and the fix, promises no number: matching the tiers is
+ * necessary for the solver to fold these together, not sufficient.
+ */
+export const MIXED_TIER_NOTE =
+  'These alternatives ask different tiers, so the solver tracks them separately — slower to compute, '
+  + 'same answer. Asking the same tier of each lets it treat them as one.';
+
+export function mixedTierAlternatives(
+  slot: Slot, targets: readonly TargetInput[], modById: ReadonlyMap<string, EngineMod>,
+): boolean {
+  // Worst acceptable tier index, exactly as `minTierIndexOf` computes it for the engine: display is
+  // 1-based from the best, the engine counts up from the worst.
+  const floorOf = (t: TargetInput): number => {
+    const n = modById.get(t.modId)?.tiers.length ?? 0;
+    return Math.max(0, Math.min(n - 1, n - t.tierDisplay));
+  };
+  for (let a = 0; a < slot.members.length; a++) {
+    for (let b = a + 1; b < slot.members.length; b++) {
+      const ta = targets[slot.members[a]!]!;
+      const tb = targets[slot.members[b]!]!;
+      if (floorOf(ta) === floorOf(tb)) continue;
+      const fa = modFamilies(modById.get(ta.modId));
+      const fb = modFamilies(modById.get(tb.modId));
+      if (!fa.some((f) => fb.includes(f))) return true;
+    }
+  }
+  return false;
+}
+
 /** Why a mod cannot be added, in the user's words — or `null` when it can. */
 export type AddBlock = string | null;
 

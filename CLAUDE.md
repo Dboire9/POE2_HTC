@@ -41,6 +41,7 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - **A Desecration needs a Rare item**, and the bone depends on the base: jawbone = weapons + quivers, rib = armour, collarbone = amulets/rings/belts. Only the **Preserved** grade applies while every desecrated mod is ilvl 65 (`prices.mjs` warns if that stops being true).
 - **Annulment does not downgrade rarity.** A Rare stays Rare as you annul mods off it — which is why "roll filler, annul it, then Desecrate" is a legal route even though no planner here searches it.
 - **An item carries at most ONE essence modifier — regular and perfect counted TOGETHER.** `isEssenceMod` (`probability.ts`) is the single predicate; every planner and picker counts with it. A regular essence needs a Magic item and turns it Rare; a **Perfect Essence works on a Rare and is a SWAP** — it forces its mod on while removing one existing mod uniformly at random (`1/(pf+sf)`, or `1/pf`,`1/sf` under a Sinistral/Dextral Crystallisation omen), and is gated at ilvl 72. The two grant from **disjoint pools**: 317 `source: 'essence'` mods vs 363 `perfect_essence`, zero id overlap, both inside `base.pools.essence`. So a Perfect Essence can never supply a second regular-essence mod, and can never be added on top of one either.
+  **The cap counts the item you already HOLD, and the two one-per-item rules reach that fact by opposite routes.** A held CARVED mod is in the state: `classifyStart` flags it (from `PlacedMod.desecrated`, or simply from its pool), `hasDesecrated` empties both bone builders, and `push` drops an action with an empty distribution — so a bone is *structurally* absent from every state holding one, not merely priced out. A held ESSENCE mod is NOT in the state: it lands in `jp`/`js`, a bare count with no marker, so nothing can tell it from ordinary junk. Measured, four states played a Perfect Essence with junk still on the item. `markovFromItem` therefore REFUSES (naming the held mod) when an essence target is asked and the item carries an essence modifier that isn't that target — and only then, since with no essence target `perfectTargets` is empty and the held mod is ordinary junk the model handles correctly. Fixing it properly needs a state axis of its own (the desecration flag means "a bone placed this" and cannot be reused), and it is unreachable from the UI — the item builder offers only rollable and desecrated mods, so a crafted share link is the only way in (`keep()` in workspace.ts checks a mod id exists, not its source). The linear planner has no such gap: it plans a fixed sequence over concrete mods, so it annuls the held mod first — `annul → annul → perfect-essence`.
 - **A Desecration OFFERS three modifiers and you keep one** (`DESECRATION_OFFER_COUNT`,
   `packages/engine/src/probability.ts`), and you cannot decline — all three bad means you still take
   one. Confirmed by the user 2026-08-24. This is applied where a bone is SPENT (`plan.ts`'s desecrate
@@ -103,6 +104,28 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 
 ## Gotchas
 
+- **A slot's alternatives are made cheap TWO different ways, and they are not interchangeable.**
+  `markovSymmetry.ts` decides which. **Same-family** alternatives (`increased Fire / Cold / Lightning`
+  are one family) can never be on the item together and behave identically once any of them lands, so
+  they MERGE into one `McTarget` holding several `mods` — one bit, weights summed on arrival. Exact
+  regardless of their weights or tier floors, because individual weights stop mattering the moment the
+  family is occupied. **Cross-family** ones (`Gain % as Extra Cold` / `… Lightning`) must keep separate
+  bits — both can land, and each takes a different mod out of the pool — so only the LABELLING goes: a
+  canonicalising `StateEncoder` picks one spelling of `(Cold present, Lightning blocked)` and the
+  lattice carries only that. Measured on a 4-slot Wands craft from white, interleaved, 4 reps each:
+  same-family 3-way **5.19s → 2.04s** (`256.959615 exact` in all 8 runs), cross-family 3-way
+  **13.91s → 4.33s** (`217.990477 exact` in all 8). The merge is unconditional; the quotient is
+  MEASURED against the data every solve (weights at every `REACHABLE_FLOORS` floor, pool exclusion,
+  boss-pool counts, no family shared with another position) and silently does not apply when the data
+  says so. **Asking different tiers of two cross-family alternatives switches it off** — that is the
+  one cause a player controls, and `MIXED_TIER_NOTE` says so on the group row.
+- **Merging DEFEATS three checks if its key is wrong, and the checks run afterwards.** "All prefixes or
+  all suffixes", "one mod per family across slots" and "at most one essence modifier" all count
+  POSITIONS, so anything the merge swallowed reports as one and sails through. That is why `mergeKey`
+  carries side, source and lock state, and refuses family-less and perfect-essence mods — and why each
+  of those is reachable in the shipped data rather than theoretical: ten families span both sides on
+  one base (`Bows/Desecrated_CompanionDamage` is a prefix, `…_2` a suffix), and six bases carry two or
+  more perfect-essence mods of one family. Mutation testing found four of these guards untested.
 - **Two desecrations, not one.** With a boss omen the draw is count-uniform over that boss's pool (`desecrationBossProbability` / `desecrationBossAnySideProbability`); *without* one it is weighted over the base's combined **normal ∪ desecrated** pool (`desecrationProbability`, and `desecrateAnyOutcomes` in the MDP). Armour only ever gets the second. Both planners must offer both, or a base loses the ability to desecrate entirely — that bug reported `feasible: false` for 342 of 527 desecrated mods for a day (fixed 2026-08-22).
 - **The VI stopping rule is scale-aware, so a test that asserts many decimals must ask for precision.**
   `tolerance` defaults to a thousandth of the craft's cheapest action, not a flat 1e-9 — these values

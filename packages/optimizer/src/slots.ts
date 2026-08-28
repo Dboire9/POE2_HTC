@@ -22,6 +22,11 @@
 //
 // Expanding for the MDP would be WRONG, not merely slower: min(cost(Cold), cost(Lightning)) over
 // separate solves throws away exactly the option value a slot buys.
+//
+// What the MDP then does with a slot's members — merge the same-family ones into a single bit, and
+// stop distinguishing interchangeable cross-family ones — lives in markovSymmetry.ts. That is a
+// SOLVER optimisation and deliberately not here: it changes how a craft is represented, never which
+// candidates are alternatives, and the linear planners must not see any of it.
 
 import type { TierTarget } from './optimize.ts';
 

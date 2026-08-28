@@ -10,7 +10,7 @@
 // collapses the space to 3^|target| × slots: a few thousand states, small enough to enumerate whole.
 
 import type { ItemState, Mod, PatchData } from '../../engine/src/types.ts';
-import { familiesOf } from '../../engine/src/pool.ts';
+import { familiesOf, modTierWeight } from '../../engine/src/pool.ts';
 
 /** Max prefixes (and suffixes) a Rare item can hold. */
 export const MAX_PER_SIDE = 3;
@@ -31,16 +31,57 @@ const RARITY_BY_CODE: readonly McRarity[] = ['normal', 'magic', 'rare'];
 /** How many mods a side can hold at each rarity: Normal none, Magic one, Rare three. */
 export const perSideCap = (r: McRarity): number => (r === 'rare' ? MAX_PER_SIDE : r === 'magic' ? 1 : 0);
 
-/** A target mod resolved for the MDP: its side, family, the mod (for per-floor weights), and lock state. */
-export interface McTarget {
-  readonly modId: string;
-  readonly type: 'prefix' | 'suffix';
-  readonly family: string;
+/** One mod that can fill a target position, and the worst tier acceptable for THAT mod. */
+export interface McCandidate {
   readonly mod: Mod;
   /** Worst acceptable tier index (engine indexing: higher index = better/higher-ilvl). */
   readonly minIndex: number;
+}
+
+/**
+ * One POSITION on the finished item, and the interchangeable mods that fill it.
+ *
+ * `mods` holds exactly one entry for every craft without alternatives, and for every slot whose
+ * alternatives cannot be merged — so a caller that has never heard of merging gets back precisely the
+ * target it always had, at the same index, keying the same states.
+ *
+ * Several entries mean SAME-FAMILY alternatives. Only one of them can ever be on the item, and once any
+ * of them is the whole family is excluded — so every later draw sees the identical pool and nothing
+ * downstream can tell which one landed. The position therefore takes ONE bit and their weights sum on
+ * arrival, which is what makes a three-way sibling slot cost what a single mod costs. See
+ * markovSymmetry.ts for the merge condition and why cross-family alternatives need the opposite
+ * treatment.
+ *
+ * Every member shares side, family set, source and lock state — that IS the merge condition — so
+ * `representative` speaks for all of them.
+ */
+export interface McTarget {
+  readonly mods: readonly McCandidate[];
+  readonly type: 'prefix' | 'suffix';
   readonly fractured: boolean;
 }
+
+/** Any member: they share side, families, source and lock state, so member 0 answers for the target. */
+export const representative = (t: McTarget): Mod => t.mods[0]!.mod;
+
+/**
+ * Weight of a roll that FILLS this position at `floor` — summed over its members, each judged against
+ * its own tier floor.
+ *
+ * The summation is the whole arithmetic of a same-family group: "Fire or Cold or Lightning" is one roll
+ * whose chance is their weights added, not three separate chances. With one member — every craft
+ * without alternatives — it is the single term it always was.
+ *
+ * Defined here rather than inside the action space because the interchangeability test in
+ * markovSymmetry.ts must ask the identical question: two positions are only swappable if they arrive
+ * with the same weight, and a second spelling of "the same weight" is a second thing to get wrong.
+ */
+export const succWeightOf = (t: McTarget, floor: number, level: number): number =>
+  t.mods.reduce((w, m) => w + modTierWeight(m.mod, floor, level, m.minIndex), 0);
+
+/** Weight of a roll that OCCUPIES this position's family at `floor`, at any tier — filling or blocking. */
+export const anyWeightOf = (t: McTarget, floor: number, level: number): number =>
+  t.mods.reduce((w, m) => w + modTierWeight(m.mod, floor, level, 0), 0);
 
 // ── Bit helpers (the present/blocked masks index into the resolved target list) ─────────────────
 
@@ -103,6 +144,15 @@ export const encodeState = (
 ): StateKey =>
   `${present}:${blocked}:${jp}:${js}:${flagged}:${RARITY_CODE[rarity]}` as StateKey;
 
+/**
+ * `encodeState`, or a stand-in that rewrites the state as it encodes.
+ *
+ * The action space builds every successor through one of these, which is what lets state
+ * canonicalisation (markovSymmetry.ts) happen in a single place instead of at each of the two dozen
+ * sites that name a successor.
+ */
+export type StateEncoder = typeof encodeState;
+
 export const decodeState = (k: StateKey): McState => {
   const [present, blocked, jp, js, flagged, rar] = k.split(':').map(Number) as number[];
   return {
@@ -152,7 +202,7 @@ export const sufUsed = (s: McState, side: SideIndex): number =>
 export function occupiedFamilies(present: number, blocked: number, list: readonly McTarget[]): Set<string> {
   const s = new Set<string>();
   for (let i = 0; i < list.length; i++) {
-    if (has(present, i) || has(blocked, i)) for (const f of familiesOf(list[i]!.mod)) s.add(f);
+    if (has(present, i) || has(blocked, i)) for (const f of familiesOf(representative(list[i]!))) s.add(f);
   }
   return s;
 }
@@ -193,6 +243,20 @@ export function enumerateStates(
    * compiles outcomes to indices.
    */
   conflicts: readonly number[] = [],
+  /**
+   * Which `(present, blocked)` arrangements are the CANONICAL spelling of their situation.
+   *
+   * A different job from `conflicts`, which deletes states the item could never hold. These states are
+   * all perfectly reachable — they are the same situation written two ways. When a slot's alternatives
+   * are interchangeable (`Gain % as Extra Cold` and `… Lightning` are sole members of their families
+   * with identical tier tables), `(Cold present, Lightning blocked)` and `(Cold blocked, Lightning
+   * present)` behave identically forever after, so only one of them is built. Supplied by
+   * markovSymmetry.ts, which also builds the encoder that maps every outcome onto the survivor — one
+   * definition, so the lattice and the transitions cannot disagree about which spelling won.
+   *
+   * Absent for every craft with nothing interchangeable, which leaves the lattice exactly as it was.
+   */
+  canonical?: (present: number, blocked: number) => boolean,
 ): StateKey[] {
   const out: StateKey[] = [];
   for (const rarity of rarities) {
@@ -208,6 +272,7 @@ export function enumerateStates(
           for (const m of conflicts) if (popcount(held & m) > 1) { clash = true; break; }
           if (clash) continue;
         }
+        if (canonical && !canonical(present, blocked)) continue;
         const tp = countSide(present, side.prefix) + countSide(blocked, side.prefix);
         const ts = countSide(present, side.suffix) + countSide(blocked, side.suffix);
         if (tp > cap || ts > cap) continue;
@@ -301,10 +366,13 @@ export function classifyStart(
         if (fromDesecration && flagged === FLAG_NONE) flagged = flagJunkSide(side);
         continue;
       }
-      const t = list[i]!;
-      const tierIdx = t.mod.tiers.findIndex((tt) => tt.name === p.tierName);
+      // Judge the mod that is actually ON THE ITEM against ITS OWN floor. A merged position holds
+      // several mods and the caller may ask a different tier of each, so reading the floor off the
+      // target rather than the member would grade a Cold roll against the Fire member's demand.
+      const member = list[i]!.mods.find((m) => m.mod.id === p.modId) ?? list[i]!.mods[0]!;
+      const tierIdx = member.mod.tiers.findIndex((tt) => tt.name === p.tierName);
       // At or above the wanted tier (or an unrecognised tier — assume fine) ⇒ present; below ⇒ blocked.
-      if (tierIdx < 0 || tierIdx >= t.minIndex) present |= bit(i);
+      if (tierIdx < 0 || tierIdx >= member.minIndex) present |= bit(i);
       else blocked |= bit(i);
       if (fromDesecration && flagged === FLAG_NONE) flagged = flagTarget(i);
     }

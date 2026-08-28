@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import type { EngineMod, TargetInput } from './engineTypes.ts';
-import { MAX_PER_SIDE, nextSlotId, slotCounts, slotsOf, whyNotAdd } from './targetSlots.ts';
+import {
+  MAX_PER_SIDE, MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotCounts, slotsOf, whyNotAdd,
+} from './targetSlots.ts';
 
 const tier = (d: number) => ({ display: d, name: `t${d}`, ilvl: 1, label: `T${d}`, range: '1–2' });
 const mod = (
@@ -145,5 +147,56 @@ describe('whyNotAdd — desecrated alternatives', () => {
   // …but JOINING that slot adds no slot: still one forced position, and either carved mod may fill it.
   it('lets a carved mod join a slot that is already carved-only', () => {
     expect(whyNotAdd(DES3, [t('des', 0)], modById, { intoSlot: 0 })).toBeNull();
+  });
+});
+
+/**
+ * MIXED TIERS — a planner note, never a rule.
+ *
+ * The craft is legal and the answer identical either way; what changes is how long the solve takes.
+ * The distinction the predicate has to get right is that the two kinds of group are optimised by
+ * different means: same-family alternatives merge into one bit regardless of the tiers asked of them,
+ * while different-family ones can only be folded together while they are indistinguishable — and a
+ * different tier is exactly the distinguishing difference the player controls.
+ */
+describe('mixedTierAlternatives', () => {
+  const at = (modId: string, slot: number, tierDisplay: number): TargetInput => ({ modId, tierDisplay, slot });
+  const slot0 = (targets: readonly TargetInput[]) => slotsOf(targets, modById)[0]!;
+
+  it('is false for a lone target, which has no alternatives to differ from', () => {
+    expect(mixedTierAlternatives(slot0([t('xcold')]), [t('xcold')], modById)).toBe(false);
+  });
+
+  it('is false when the alternatives ask the same tier', () => {
+    const targets = [at('xcold', 0, 1), at('xfire', 0, 1)];
+    expect(mixedTierAlternatives(slot0(targets), targets, modById)).toBe(false);
+  });
+
+  it('is true when cross-family alternatives ask different tiers', () => {
+    const targets = [at('xcold', 0, 1), at('xfire', 0, 2)];
+    expect(mixedTierAlternatives(slot0(targets), targets, modById)).toBe(true);
+  });
+
+  /**
+   * The assertion that stops this becoming noise. Siblings merge into a single bit whatever tiers they
+   * are asked at — the family is occupied either way, so the individual floors stop mattering the
+   * moment one lands. Telling the player to match their tiers here would be advice that buys nothing.
+   */
+  it('is false for SAME-family alternatives at different tiers, which merge anyway', () => {
+    const targets = [at('fire', 0, 1), at('cold', 0, 2)];
+    expect(mixedTierAlternatives(slot0(targets), targets, modById)).toBe(false);
+  });
+
+  // Three members where only one pair differs is still a reason to say something.
+  it('is true when any one cross-family pair differs', () => {
+    const targets = [at('xcold', 0, 1), at('xfire', 0, 1), at('spell', 0, 2)];
+    expect(mixedTierAlternatives(slot0(targets), targets, modById)).toBe(true);
+  });
+
+  // The copy is shared so the two tabs cannot drift, and it must not promise a speed-up: matching the
+  // tiers is necessary for the fold, not sufficient (the weights have to match too, which is data).
+  it('says what stands in the way without promising a number', () => {
+    expect(MIXED_TIER_NOTE).toMatch(/same answer/i);
+    expect(MIXED_TIER_NOTE).not.toMatch(/\d+(\.\d+)?\s*(x|×|%|faster)/i);
   });
 });

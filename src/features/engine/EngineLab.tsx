@@ -19,7 +19,9 @@ import {
   decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode, useOnChange,
 } from '../../lib/workspace';
 import { toast } from 'sonner';
-import { nextSlotId, slotCounts, slotsOf, whyNotAdd } from '../../lib/targetSlots';
+import {
+  MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotCounts, slotsOf, whyNotAdd,
+} from '../../lib/targetSlots';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
 import FrontierView, { fmtPct } from './FrontierView';
@@ -739,6 +741,13 @@ const EngineLab: React.FC = () => {
                     {orButton}
                   </div>
                   {rows}
+                  {mixedTierAlternatives(slot, targets, modById) && (
+                    /* A PLANNER note, not a game rule: the craft is legal and the answer identical.
+                       Same-family alternatives merge whatever tiers you ask of them; different-family
+                       ones can only be folded together while they are indistinguishable, and a
+                       different tier is the one difference the player controls. */
+                    <p className="px-0.5 text-[11px] text-muted-foreground">{MIXED_TIER_NOTE}</p>
+                  )}
                 </div>
               );
             })}

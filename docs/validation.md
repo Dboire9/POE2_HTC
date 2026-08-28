@@ -1898,6 +1898,84 @@ work. The sweep-order change was called a large win, then a large regression, on
 noise. Every number above is a median of interleaved repetitions, and anything that cannot be separated
 that way is reported as indistinguishable rather than as a result.
 
+## Making a slot's alternatives cost what one mod costs (2026-08-27)
+
+Slot alternatives shipped working but expensive: measured on a 4-slot Wands craft from white, a
+three-way group ran 2.8x (cross-family) to 5x (same-family) the single-mod solve. Dorian's read —
+*"if x is on the item, we do not need to search for y"* — is right about the goal and wrong about the
+pool. Once X lands you never need to FIND Y (`isAccepting` already stops asking), but Y is still in the
+pool: deleting it does not stop the game rolling it, it only makes the model lie about the next Exalt.
+Y stops being a target and becomes an obstacle.
+
+The redundancy is real, one step over. The solver tracks WHICH alternative landed when it only needs to
+know HOW MANY, and in what condition. Two exact reductions, and they are not interchangeable — they
+differ in whether the members can be on the item at the same time.
+
+**Same family (`increased Fire / Cold / Lightning` are one family): MERGE.** Only one can ever land, and
+once any of them does the whole family is excluded — so every later draw sees the identical pool and a
+removal returns the slot to empty either way. `McTarget` became one POSITION holding several `mods`;
+weights sum on arrival. Exact regardless of the members' weights or tier floors, because individual
+weights stop mattering the moment the family is occupied and on the way in they simply add up.
+
+**Different families (`Gain % as Extra Cold` / `… Lightning`): QUOTIENT.** These cannot merge — both can
+land, each takes a different mod out of the pool, and the "you got both" state is a finished item. Only
+the labelling can go: a canonicalising `StateEncoder` picks one spelling of `(Cold present, Lightning
+blocked)` and the lattice carries only that. One choke point rather than 24 — every successor in
+`markovActions.ts` is named through `encodeState`, so wrapping that reaches all of them, and `addTo`
+already sums duplicates so the collapse is free.
+
+**Measured, interleaved, 4 reps each, with the mechanism toggled in place so nothing else confounds it.**
+4-slot Wands craft from white, `solver: 'policy'`:
+
+| group | before | after | graph nodes | cost |
+|---|---|---|---|---|
+| same-family 3-way | 5.18 / 4.96 / 5.27 / 5.19 s | **2.17 / 2.03 / 2.05 / 1.96 s** | 60 → 32 | `256.959615 exact` in all 8 |
+| cross-family 3-way | 14.08 / 14.41 / 13.75 / 13.74 s | **3.86 / 4.25 / 4.48 / 4.41 s** | 122 → 53 | `217.990477 exact` in all 8 |
+
+**2.5x and 3.2x, with the answer identical to six decimals in every run** — which is what makes these
+optimisations rather than trades. Both beat their state-count predictions (2.1x and 2.7x) because the
+collapsed outcome distributions are smaller too.
+
+Costs move in the last bits and no further, and the reason is the mechanism: merging sums weights and
+divides once where separate targets each divided first, and canonicalising re-orders a floating-point
+sum. A same-family anchor moved 3 ulp (23.539201819271987 → …984), a cross-family one 1 ulp. Those two
+anchors are `toBeCloseTo(…, 12)`; every other anchor is `toBe`.
+
+**A prediction that was wrong, recorded because it was load-bearing.** `Wands/DamageGainedAsFire` was
+expected to be disqualified from the cross-family class: `FireDamage` also holds
+`PerfectEssence_FireDamage`, so occupying Fire excludes a mod that occupying Cold does not. It is not
+disqualified, because a Perfect Essence FORCES its mod rather than drawing one — `pools.essence` is read
+exactly once in the whole optimizer, to check a target is in it, and is never a denominator. The essence
+pool stays in the interchangeability signature anyway: the regular-Essence action (TODO 1) makes it a
+real weighted draw, and a condition added then is a condition added after the numbers were already wrong.
+
+**Mutation testing: 23 mutants, 14 caught, 9 survivors — every one a real gap.** The survivors clustered
+on one theme worth stating: merging runs BEFORE three validity checks, and all three count POSITIONS.
+"All prefixes or all suffixes", "two slots both want family X" and "at most one essence modifier" each
+compare a list that merging has already collapsed, so anything wrongly swallowed reports as one item and
+sails through. `mergeKey`'s guards are therefore load-bearing for checks downstream of them, and each is
+reachable in the shipped data rather than theoretical:
+
+- **ten families span both sides on one base** — `Bows/Desecrated_CompanionDamage` is a prefix and `…_2`
+  a suffix of `CompanionDamage`, same source, same weight, everything the merge looks at except the side;
+- **six bases carry two or more perfect-essence mods of one family** (`Bows` among them);
+- a held mod graded against a neighbour's tier floor reports a satisfied slot as `blocked`, so the plan
+  opens by annulling a mod the player wanted — only a from-ITEM craft catches it, and every test here
+  had started from white.
+
+Two conditions turned out to be inert in 0.5.0 and are pinned with built pools rather than found ones:
+**pool exclusion** (every interchangeable pair in the shipped data also has families of equal pool
+weight) and **boss-pool counts** (every differing-boss pair on Wands shares a family). Both are
+necessary — occupying a family removes its whole weight from every later denominator, and the boss draw
+is uniform over candidates rather than weighted, so weight is the wrong question there. Leaving them
+untested until a refresh moved a weight is how they would have become wrong silently.
+
+**What a player can act on.** The merge is unconditional; the quotient is measured against the data every
+solve and quietly does not apply when the data says no. Asking DIFFERENT TIERS of two cross-family
+alternatives switches it off, and that is the one cause the player controls — `MIXED_TIER_NOTE` says so
+on the group row, worded as a planner fact ("slower to compute, same answer") rather than a game rule,
+and promising no number, since matching the tiers is necessary for the fold and not sufficient.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

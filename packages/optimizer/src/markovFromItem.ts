@@ -25,18 +25,23 @@
 // targets stay on the linear planner (the caller falls back).
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
-import { familiesOf, modTierWeight, resolveMod } from '../../engine/src/pool.ts';
+import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
 import { DESECRATION_OFFER_COUNT, bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
 import { slotIndexGroups } from './slots.ts';
+import type { ResolvedCandidate } from './markovSymmetry.ts';
+import {
+  canonicalFilterFor, encoderFor, familiesOfTarget, mergeSlots, permutationClasses, slotMasksOf,
+} from './markovSymmetry.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
 import { createActionSpace } from './markovActions.ts';
 import type { McState, McTarget, StateKey, McRarity } from './markovState.ts';
 import {
   FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, MAX_PER_SIDE, bit, classifyStart, decodeState,
-  encodeState, enumerateStates, flaggedTarget, has, isAccepting, popcount, sideIndexOf, slotsFilled,
+  encodeState, enumerateStates, flaggedTarget, has, isAccepting, popcount, representative,
+  sideIndexOf, slotsFilled,
 } from './markovState.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
@@ -46,18 +51,26 @@ export { actionCostOf } from './markovActions.ts';
 
 export interface PolicyNode {
   readonly key: string;
-  /** Target mod ids present (at ≥ their wanted tier) in this state. */
-  readonly present: readonly string[];
-  /** Target mod ids whose family is occupied by a below-tier ("off-tier") roll — must be annulled first. */
-  readonly blocked: readonly string[];
+  /**
+   * One entry per FILLED POSITION, holding the interchangeable mod ids that could be filling it.
+   *
+   * A group of ids rather than one, because a position may be several same-family alternatives merged
+   * into one bit — the state records that the position is filled, and cannot say which member did it,
+   * because nothing downstream depends on the answer. One id per entry for every craft without
+   * alternatives. The UI joins each group with "or" (`mapMarkov`); the LENGTH is still the number of
+   * target mods on the item, which is what the graph's box label counts.
+   */
+  readonly present: readonly (readonly string[])[];
+  /** Positions whose family is occupied by a below-tier ("off-tier") roll — must be annulled first. */
+  readonly blocked: readonly (readonly string[])[];
   readonly junkPrefixes: number;
   readonly junkSuffixes: number;
   /** Set when the mod a Desecration placed is JUNK, naming the side it sits on. It blocks
    *  re-desecrating until it is removed. */
   readonly desecratedJunk?: 'prefix' | 'suffix';
-  /** Set when the mod a Desecration placed is one of the TARGETS — the mod id. Blocks re-desecrating
-   *  just the same, which is why keeping it can cost more than it looks. */
-  readonly desecratedTarget?: string;
+  /** Set when the mod a Desecration placed is one of the TARGETS — that position's mod ids. Blocks
+   *  re-desecrating just the same, which is why keeping it can cost more than it looks. */
+  readonly desecratedTarget?: readonly string[];
   readonly isStart: boolean;
   readonly isGoal: boolean;
   /** Minimum expected cost to reach the target from here. */
@@ -276,7 +289,7 @@ export function markovFromItem(
   // this model's vocabulary at all (TODO 1) — the Magic item it needs IS representable since the state
   // gained a rarity axis, so what's missing is the action, not the shape — and those targets stay on
   // the linear planner.
-  const list: McTarget[] = [];
+  const cands: ResolvedCandidate[] = [];
   for (const t of targets) {
     const mod = resolveMod(data, t.modId);
     if (mod.source === 'essence') {
@@ -298,31 +311,39 @@ export function markovFromItem(
       const inPool = pools.essence.prefixes.includes(mod.id) || pools.essence.suffixes.includes(mod.id);
       if (!inPool) return fail(`${t.modId} isn't in ${start.base.id}'s essence pool`);
     }
-    list.push({
-      modId: mod.id, type: mod.type, family: mod.family, mod,
-      minIndex: t.minTierIndex ?? 0, fractured: fracturedIds.has(mod.id),
-    });
+    cands.push({ mod, minIndex: t.minTierIndex ?? 0, fractured: fracturedIds.has(mod.id) });
   }
-  const n = list.length;
-  if (n === 0) return fail('no target mods');
-  if (n > MAX_CANDIDATES) return fail(`target names more than ${MAX_CANDIDATES} candidate mods`);
+  if (cands.length === 0) return fail('no target mods');
+  if (cands.length > MAX_CANDIDATES) {
+    return fail(`target names more than ${MAX_CANDIDATES} candidate mods`);
+  }
 
   /*
    * Group the candidates into SLOTS — the number of slots, not the number of candidates, is what the
    * item has to hold. `slotIndexGroups` is shared with the linear planners so the two can never
    * disagree about which candidates are alternatives; see slots.ts for why they then do opposite
    * things with the answer.
+   *
+   * Then MERGE, within each slot, the alternatives that share a family. Only one of them can ever be
+   * on the item and they behave identically once one is, so they become a single POSITION holding a
+   * single bit — which is what stops a three-way sibling slot costing three times the lattice of a
+   * plain mod. `list` is the merged positions from here on, and `n` counts positions, not candidates;
+   * the cap above deliberately still counts candidates, since that is the limit the player set.
    */
-  const slotMasks = slotIndexGroups(targets).map((g) => g.reduce((m, i) => m | bit(i), 0));
-  const desecratedBit = (i: number): boolean => list[i]!.mod.source === 'desecrated';
+  const { targets: list, slots } = mergeSlots(cands, slotIndexGroups(targets));
+  const n = list.length;
+  const slotMasks = slotMasksOf(slots);
+  const idsOf = (t: McTarget): string[] => t.mods.map((m) => m.mod.id);
+  const desecratedBit = (i: number): boolean => representative(list[i]!).source === 'desecrated';
   const slotSides: ('prefix' | 'suffix')[] = [];
   for (const mask of slotMasks) {
     const members = list.filter((_, i) => has(mask, i));
     const type = members[0]!.type;
     // A slot spanning both sides would make the 3-per-side accounting meaningless — the same slot
-    // would consume a prefix on one route and a suffix on another.
+    // would consume a prefix on one route and a suffix on another. Merged positions can still differ:
+    // side is part of the merge condition, so a prefix and a suffix never merge into one.
     if (members.some((m) => m.type !== type)) {
-      return fail(`alternatives for one slot must be all prefixes or all suffixes (${members.map((m) => m.modId).join(', ')})`);
+      return fail(`alternatives for one slot must be all prefixes or all suffixes (${members.flatMap(idsOf).join(', ')})`);
     }
     slotSides.push(type);
   }
@@ -345,7 +366,7 @@ export function markovFromItem(
   for (let k = 0; k < slotMasks.length; k++) {
     for (let i = 0; i < n; i++) {
       if (!has(slotMasks[k]!, i)) continue;
-      for (const fam of familiesOf(list[i]!.mod)) {
+      for (const fam of familiesOfTarget(list[i]!)) {
         const owner = famSlot.get(fam);
         if (owner !== undefined && owner !== k) {
           return fail(`two different slots both want family "${fam}" — an item holds one mod per family`);
@@ -408,17 +429,73 @@ export function markovFromItem(
   // …and at most one ESSENCE modifier, regular or perfect together (see `isEssenceMod`). Without this
   // `actionsOf` built a perfect-essence action per perfect target and the policy would happily stack
   // two, producing a route to an item the game cannot hold.
-  if (list.filter((t) => isEssenceMod(t.mod)).length > 1) {
+  if (list.filter((t) => isEssenceMod(representative(t))).length > 1) {
     return fail('an item can hold at most one essence modifier (regular or perfect) — pick one');
   }
-  const idxOf = new Map(list.map((t, i) => [t.modId, i]));
+  // Every member of a merged position answers to that position, so a placed mod finds its bit by id
+  // whichever alternative it happens to be.
+  const idxOf = new Map<string, number>();
+  list.forEach((t, i) => { for (const m of t.mods) idxOf.set(m.mod.id, i); });
+
+  /*
+   * …and the item you already HOLD counts toward that same cap.
+   *
+   * The check above counts TARGETS. A held essence modifier that is not itself a target lands in
+   * `jp`/`js`, and junk is a bare count with no marker — so the model cannot tell it from any other
+   * junk and will offer a Perfect Essence on an item that already carries one. Measured on a real
+   * craft (a held `PerfectEssence_EssenceAbyss`, a `PerfectEssence_FireDamage` target): four states
+   * played a Perfect Essence with junk still on the item. The finished item is safe either way —
+   * `isAccepting` demands zero junk — but the ROUTE can be one the game refuses, and it is the cheap
+   * one, because the essence's own swap does some of the annulling for free. So the quoted cost comes
+   * in low.
+   *
+   * Only refused when an essence target is asked. With none, no perfect-essence action is ever built
+   * (`perfectTargets` is empty), the held mod is ordinary junk, and the model is already right — a
+   * blanket refusal would decline a craft it handles correctly.
+   *
+   * REFUSING rather than modelling, deliberately. Fixing it properly needs a state axis of its own
+   * (the desecration flag cannot be reused: it means "a bone placed this"), and this is unreachable
+   * from the UI — the item builder offers only rollable and desecrated mods, so a crafted share link
+   * is the only way in. The linear planner has no such gap: it plans a fixed sequence over concrete
+   * mods, so it annuls the held essence before applying the new one, and `ItemActions` renders this
+   * reason beside those routes exactly as it already does for a Magic start.
+   */
+  if (list.some((t) => isEssenceMod(representative(t)))) {
+    const stray = [...start.prefixes, ...start.suffixes]
+      .map((p) => data.mods.get(p.modId))
+      .find((m) => m !== undefined && isEssenceMod(m) && !idxOf.has(m.id));
+    if (stray) {
+      return fail(`${stray.id} is already on the item, and an item holds one essence modifier `
+        + '(regular or perfect) — remove it, or make it the target');
+    }
+  }
 
   // A rollable target that can never roll (weight 0 even at base strength, the most permissive) is
   // impossible. Desecrated targets don't roll from the normal pool, so the pool check above covers them.
-  const ungettable = list.find((t) => t.mod.source === 'normal' && modTierWeight(t.mod, 0, level, t.minIndex) === 0);
-  if (ungettable) return fail(`${ungettable.modId} can't roll at item level ${level}`);
+  const ungettable = cands.find((c) => c.mod.source === 'normal' && modTierWeight(c.mod, 0, level, c.minIndex) === 0);
+  if (ungettable) return fail(`${ungettable.mod.id} can't roll at item level ${level}`);
 
   const side = sideIndexOf(list);
+
+  /*
+   * …and the OTHER half of the same idea: positions that cannot merge, because their families differ,
+   * but that nothing downstream can tell apart anyway.
+   *
+   * `Gain % as Extra Cold` and `… Lightning` each occupy their own family, so they can sit on the item
+   * together and the pool loses a different mod depending on which lands — they must keep separate
+   * bits. But if the data says those two mods are the same size in every pool at every floor (and on
+   * 0.5.0 Wands it does: sole members of their families, identical tier tables), then "Cold present,
+   * Lightning blocked" and "Cold blocked, Lightning present" are one situation spelt two ways. The
+   * encoder below picks one spelling and the lattice carries only that, which is worth ~2.7x on a
+   * three-way group.
+   *
+   * `encode` is `encodeState` itself when nothing qualifies, so every craft that predates this pays
+   * nothing — not even a branch.
+   */
+  const classes = permutationClasses({ data, pools, level }, list, slots);
+  const encode = encoderFor(classes);
+  const onlyCanonical = canonicalFilterFor(classes);
+
   const s0 = classifyStart(data, start, list, idxOf);
   /*
    * Is Desecration in play at all?
@@ -447,14 +524,14 @@ export function markovFromItem(
   // rather than leaving to `allowsAction`, which prunes ACTIONS and cannot shrink the lattice.
   const bonesAllowed = opts.policy === undefined || !opts.policy.excluded.has('desecrate');
   const desecratable = bonesAllowed
-    && (list.some((t) => t.mod.source === 'desecrated')
+    && (list.some((t) => representative(t).source === 'desecrated')
       || s0.flagged !== FLAG_NONE
       || boneCanOutbidAnExalt);
   // Where "start over" lands: the item you began with, which for a from-white craft is the bare base.
   // Built here rather than later because the action space closes over it.
-  const restartKey = encodeState(s0.present, s0.blocked, s0.jp, s0.js, s0.flagged, s0.rarity);
+  const restartKey = encode(s0.present, s0.blocked, s0.jp, s0.js, s0.flagged, s0.rarity);
   const { actionsOf } = createActionSpace({
-    data, prices, level, pools, list, side, desecratable,
+    data, prices, level, pools, list, side, desecratable, encode,
     bossTargetable: bossOmenAllowed(start.base.category),
     ...(opts.policy ? { policy: opts.policy } : {}),
     ...(opts.restartCost === undefined
@@ -468,7 +545,7 @@ export function markovFromItem(
   const rarities: McRarity[] = start.rarity === 'rare' ? ['rare']
     : start.rarity === 'magic' ? ['magic', 'rare']
     : ['normal', 'magic', 'rare'];
-  const allStates = enumerateStates(n, side, desecratable, rarities, conflicts);
+  const allStates = enumerateStates(n, side, desecratable, rarities, conflicts, onlyCanonical);
 
   /*
    * The goal states — found by TESTING the lattice, not by naming keys.
@@ -555,6 +632,12 @@ export function markovFromItem(
         // guarding once `enumerateStates` started PRUNING states (mutually-exclusive families): the
         // pruning is only sound because no action can reach what it removes, and this is what makes
         // that claim fail loudly instead of invisibly.
+        //
+        // It now guards a second, sharper claim. CANONICALISATION keeps one spelling of each
+        // interchangeable arrangement and drops the rest, so `canonicalFilterFor` (which decides what
+        // the lattice holds) and `encoderFor` (which decides where an outcome points) must agree
+        // exactly. They are built from the same function for that reason — and if they ever stop
+        // agreeing, the very next outcome lands here rather than on a state that merely looks fine.
         if (toIdx === undefined) {
           return fail(`internal: ${def.action.currency} from ${key} leads to ${toKey}, which is not in the lattice`);
         }
@@ -1249,11 +1332,11 @@ export function markovFromItem(
    * asked for, and the fact that it also locks the item out of desecrating again is the whole reason
    * the state is distinct.
    */
-  const flagFields = (st: McState): { desecratedJunk?: 'prefix' | 'suffix'; desecratedTarget?: string } => {
+  const flagFields = (st: McState): { desecratedJunk?: 'prefix' | 'suffix'; desecratedTarget?: readonly string[] } => {
     if (st.flagged === FLAG_JUNK_PREFIX) return { desecratedJunk: 'prefix' };
     if (st.flagged === FLAG_JUNK_SUFFIX) return { desecratedJunk: 'suffix' };
     const i = flaggedTarget(st.flagged);
-    return i >= 0 ? { desecratedTarget: list[i]!.modId } : {};
+    return i >= 0 ? { desecratedTarget: idsOf(list[i]!) } : {};
   };
   /**
    * Fold every goal state onto one key for display.
@@ -1282,8 +1365,8 @@ export function markovFromItem(
     const act = isGoal ? undefined : bestAction(k);
     nodes.push({
       key: k,
-      present: list.filter((_, i) => has(st.present, i)).map((t) => t.modId),
-      blocked: list.filter((_, i) => has(st.blocked, i)).map((t) => t.modId),
+      present: list.filter((_, i) => has(st.present, i)).map(idsOf),
+      blocked: list.filter((_, i) => has(st.blocked, i)).map(idsOf),
       junkPrefixes: st.jp, junkSuffixes: st.js, rarity: st.rarity,
       ...flagFields(st),
       isStart: k === startKey, isGoal, depth: distanceToGoal(k), expectedCost: V[idxOfState.get(k)!] ?? Infinity,

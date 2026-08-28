@@ -238,15 +238,22 @@ function actionLabel(action: McAction): string {
 /** Map the from-item MDP result into UI shapes: mod-text node labels, human action names, layout depth. */
 export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResult {
   const text = (id: string): string => data.mods.get(id)?.text ?? id;
+  /**
+   * One filled position, named. The solver hands back the ids that COULD be filling it — several when
+   * the position is same-family alternatives merged into one bit, because at that point nothing
+   * downstream depends on which member landed and the state genuinely does not record it. "or" is
+   * therefore the honest word: the item holds exactly one of these, and the plan works either way.
+   */
+  const label = (ids: readonly string[]): string => ids.map(text).join(' or ');
   const nodes: EnginePolicyNode[] = res.nodes.map((nd) => ({
     key: nd.key,
-    present: nd.present.map(text),
-    blocked: nd.blocked.map(text),
+    present: nd.present.map(label),
+    blocked: nd.blocked.map(label),
     junkPrefixes: nd.junkPrefixes,
     junkSuffixes: nd.junkSuffixes,
     rarity: nd.rarity,
     ...(nd.desecratedJunk ? { desecratedJunk: nd.desecratedJunk } : {}),
-    ...(nd.desecratedTarget ? { desecratedTarget: text(nd.desecratedTarget) } : {}),
+    ...(nd.desecratedTarget ? { desecratedTarget: label(nd.desecratedTarget) } : {}),
     isStart: nd.isStart,
     isGoal: nd.isGoal,
     // Steps-to-goal, taken from the solver rather than recomputed here. This used to be a second copy

@@ -8,16 +8,16 @@
 // or omen with no price is NOT offered, so a missing price can't mint a free super-orb.
 
 import type { ItemBase, PatchData } from '../../engine/src/types.ts';
-import { excluded, modTierWeight, poolTotalWeight } from '../../engine/src/pool.ts';
+import { excluded, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
 import { allowsStep, stepCost } from './cost.ts';
-import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex } from './markovState.ts';
+import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
 import {
-  FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, MAX_PER_SIDE, addTo, bit, decodeState, encodeState,
-  flagJunkSide, flagTarget, flaggedTarget, has, hasDesecrated, occupiedFamilies, perSideCap, prefUsed,
-  sufUsed,
+  FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, MAX_PER_SIDE, addTo, anyWeightOf, bit, decodeState,
+  encodeState as encodeStateRaw, flagJunkSide, flagTarget, flaggedTarget, has, hasDesecrated,
+  occupiedFamilies, perSideCap, prefUsed, representative, succWeightOf, sufUsed,
 } from './markovState.ts';
 
 export type ExaltStrength = 'base' | 'greater' | 'perfect';
@@ -137,7 +137,15 @@ export function allowsAction(policy: CurrencyPolicy | undefined, action: McActio
 }
 
 /** ilvl floor each Exalted-Orb strength imposes (mirrors pool.ts: base 0 / greater 35 / perfect 50). */
-const STRENGTH_FLOOR: Record<ExaltStrength, number> = { base: 0, greater: 35, perfect: 50 };
+export const STRENGTH_FLOOR: Record<ExaltStrength, number> = { base: 0, greater: 35, perfect: 50 };
+
+/**
+ * Every ilvl floor a craft can draw at: the three orb strengths, and 0 for the draws that have no
+ * strength (a Desecration, a Chaos). Exported because the interchangeability test in markovSymmetry.ts
+ * has to compare weights at each of them — miss one and two positions could pass as swappable while
+ * behaving differently under a Perfect Exalt.
+ */
+export const REACHABLE_FLOORS: readonly number[] = [...new Set([0, ...Object.values(STRENGTH_FLOOR)])];
 /** Map each exalt strength to its price key in the Prices record. */
 const strengthPriceKey = (s: ExaltStrength): string => s === 'base' ? 'exalt' : s === 'greater' ? 'exalt_greater' : 'exalt_perfect';
 /** The price key for any add currency at a strength — `regal_greater`, `transmute_perfect`, … */
@@ -162,6 +170,12 @@ export interface ActionSpaceParams {
    *  carries one. See `bossOmenAllowed`. */
   readonly bossTargetable: boolean;
   /**
+   * How a successor state is spelt. Defaults to `encodeState`; `markovFromItem` supplies a
+   * canonicalising encoder when the target has interchangeable alternatives, which collapses the
+   * permuted spellings of one situation onto a single state. See markovSymmetry.ts.
+   */
+  readonly encode?: StateEncoder;
+  /**
    * Whether the craft can be abandoned and begun again, and at what price.
    *
    * Absent for a held item: a specific Rare in your stash cannot be rebought, which is the whole
@@ -182,14 +196,20 @@ export function createActionSpace(params: ActionSpaceParams): {
 } {
   const { data, prices, level, pools, list, side, desecratable, policy, bossTargetable, restart } = params;
   const n = list.length;
+  // THE choke point. Every successor in this file is named through `encodeState`, so canonicalising
+  // here reaches all of them at once — no call site below knows, or needs to, that two arrangements of
+  // an interchangeable pair are one state. `addTo` already sums duplicates, so the collapse is free.
+  const encodeState: StateEncoder = params.encode ?? encodeStateRaw;
 
-  // Per-floor weights for a target: success = ≥ its wanted tier; any = the whole family.
-  const succWeight = (t: McTarget, floor: number): number => modTierWeight(t.mod, floor, level, t.minIndex);
-  const anyWeight = (t: McTarget, floor: number): number => modTierWeight(t.mod, floor, level, 0);
+  // Per-position weights: success = a roll that fills it; any = one that occupies its family at all.
+  // Both sum over the position's members — see `succWeightOf` in markovState.ts for why, and for why
+  // the interchangeability test has to ask through the same function.
+  const succWeight = (t: McTarget, floor: number): number => succWeightOf(t, floor, level);
+  const anyWeight = (t: McTarget, floor: number): number => anyWeightOf(t, floor, level);
   // Only mods in the NORMAL pool can be exalted/chaosed on. A desecrated target carries its own tier
   // weight, but it is absent from poolTotalWeight's denominator — counting it in the numerator would
   // let an Exalt conjure a desecrated mod and break the distribution's sum.
-  const rollable = (t: McTarget): boolean => t.mod.source === 'normal';
+  const rollable = (t: McTarget): boolean => representative(t).source === 'normal';
 
   // Strengths/omens available on the price sheet (base always; the rest only if listed) AND not
   // excluded by the player. Pruning here rather than only in `push` keeps the solver from building
@@ -234,7 +254,7 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (has(s.present, i) || has(s.blocked, i)) continue; // family already occupied
       const t = list[i]!;
       if (!rollable(t)) continue; // an Exalt can't produce a desecrated / essence-only mod
-      if (excluded(t.mod, occ)) continue; // defensive (validated distinct upstream)
+      if (excluded(representative(t), occ)) continue; // defensive (validated distinct upstream)
       const open = t.type === 'prefix' ? prefixOpen : suffixOpen;
       if (!open) continue;
       const succ = succWeight(t, floor);
@@ -393,7 +413,9 @@ export function createActionSpace(params: ActionSpaceParams): {
     if (candidates.length === 0) return out;
     const p = 1 / candidates.length;
     for (const { id, sd } of candidates) {
-      const i = list.findIndex((t) => t.modId === id);
+      // A merged position answers to any of its members' ids, and two pool ids landing on one
+      // position simply sum through `addTo` — which is right: either draw fills the slot.
+      const i = list.findIndex((t) => t.mods.some((m) => m.mod.id === id));
       // Whatever the bone applies becomes the item's flagged mod — a target it wanted just as much as
       // junk it didn't. Landing a target you asked for still locks the item out of desecrating again.
       if (i >= 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, flagTarget(i), s.rarity), p);
@@ -443,9 +465,9 @@ export function createActionSpace(params: ActionSpaceParams): {
     for (let i = 0; i < n; i++) {
       if (has(s.present, i) || has(s.blocked, i)) continue; // family already occupied
       const t = list[i]!;
-      const src = t.mod.source;
+      const src = representative(t).source;
       if (src !== 'normal' && src !== 'desecrated') continue; // essence-only mods are in neither pool
-      if (excluded(t.mod, occ)) continue;
+      if (excluded(representative(t), occ)) continue;
       if (!(t.type === 'prefix' ? prefixOpen : suffixOpen)) continue;
       const succ = succWeight(t, 0);
       const any = anyWeight(t, 0);
@@ -492,7 +514,9 @@ export function createActionSpace(params: ActionSpaceParams): {
     }
     return out;
   };
-  const perfectTargets = list.map((t, i) => (t.mod.source === 'perfect_essence' ? i : -1)).filter((i) => i >= 0);
+  // Always singleton positions: a Perfect Essence FORCES its mod at its own price, so two of them are
+  // a choice rather than a union and `mergeKey` keeps them apart (see markovSymmetry.ts).
+  const perfectTargets = list.map((t, i) => (representative(t).source === 'perfect_essence' ? i : -1)).filter((i) => i >= 0);
   const crystallisationOk = (sd: 'prefix' | 'suffix'): boolean =>
     omenOk(sd === 'prefix' ? 'OmenofSinistralCrystallisation' : 'OmenofDextralCrystallisation');
 
@@ -576,7 +600,7 @@ export function createActionSpace(params: ActionSpaceParams): {
       }
     }
     for (const i of perfectTargets) {
-      const target = list[i]!.modId;
+      const target = representative(list[i]!).id;
       push(acts, { currency: 'perfect-essence', target }, perfectEssenceOutcomes(s, i));
       for (const sd of ['prefix', 'suffix'] as const) {
         if (crystallisationOk(sd)) {

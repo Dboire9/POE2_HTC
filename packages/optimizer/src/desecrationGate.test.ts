@@ -8,7 +8,7 @@ import { optimizeFromItem } from './fromItem.ts';
 import { markovFromItem } from './markovFromItem.ts';
 import { pricesForBase } from './cost.ts';
 import { createActionSpace } from './markovActions.ts';
-import { FLAG_NONE, decodeState, encodeState, flaggedTarget, popcount, sideIndexOf } from './markovState.ts';
+import { FLAG_NONE, decodeState, encodeState, flaggedTarget, popcount, representative, sideIndexOf } from './markovState.ts';
 import type { McTarget } from './markovState.ts';
 
 // The boss omens read "your next WEAPON OR JEWELLERY Desecration attempt will guarantee a random
@@ -416,7 +416,7 @@ describe('an unomened Desecration draws from the whole pool, normal mods include
     const ids = [...p.rollable, p.des];
     const list: McTarget[] = ids.map((id) => {
       const mod = data.mods.get(id)!;
-      return { modId: mod.id, type: mod.type, family: mod.family, mod, minIndex: 0, fractured: false };
+      return { mods: [{ mod, minIndex: 0 }], type: mod.type, fractured: false };
     });
     return {
       list,
@@ -442,7 +442,7 @@ describe('an unomened Desecration draws from the whole pool, normal mods include
       // bone marks whatever it applied, so the item cannot be desecrated again until that mod goes.
       expect(st.flagged).not.toBe(FLAG_NONE);
       const i = flaggedTarget(st.flagged);
-      if (i >= 0 && list[i]!.mod.source === 'normal') landsANormalTarget += prob;
+      if (i >= 0 && representative(list[i]!).source === 'normal') landsANormalTarget += prob;
     }
     // The fact the app's copy once denied: a bone lands an ordinary mod you asked for.
     expect(landsANormalTarget).toBeGreaterThan(0);
@@ -484,7 +484,7 @@ describe('an unomened Desecration draws from the whole pool, normal mods include
     if (!bone) return; // priced out of the space is fine; a WRONG distribution is not
     for (const [key] of bone.dist) {
       const i = flaggedTarget(decodeState(key).flagged);
-      if (i >= 0) expect(list[i]!.mod.source).not.toBe('desecrated');
+      if (i >= 0) expect(representative(list[i]!).source).not.toBe('desecrated');
     }
   });
 });

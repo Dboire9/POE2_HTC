@@ -2057,6 +2057,87 @@ bookkeeping for it. The same instrumentation also found **zero** actions touchin
 state on any of the three crafts, closing a third candidate before it was written.
 
 
+## Is there any point to the effort ladder? (2026-08-28)
+
+Dorian's question, and a fair one: *"people will rather wait and have a finished way instead of a
+semi done way."* A campaign over **18 realistic crafts and 108 solves** says the instinct is right but
+the culprit is the SOLVER, not the ladder.
+
+Until now only `exhaustive` set `solver: 'policy'`. The other four — including `standard`, the default
+— ran Gauss-Seidel value iteration, which stops on a residual TOLERANCE and therefore prints a ceiling
+(`≤ x`) when it runs out. Policy iteration stops on a CERTIFICATE: the policy stopped changing, so no
+action anywhere improves on it.
+
+### Policy iteration did not lose a single cell
+
+| | exact | ceiling | no number |
+|---|---|---|---|
+| Quick / VI | 6 | 4 | 8 |
+| Quick / **PI** | **10** | **0** | 8 |
+| Standard / VI | 9 | 5 | 4 |
+| Standard / **PI** | **14** | **0** | 4 |
+| Thorough / VI | 10 | 6 | 2 |
+| Thorough / **PI** | **16** | **0** | 2 |
+
+**PI produced a ceiling zero times.** It either solves exactly or reports it could not start — which is
+precisely the "semi done" outcome the question was about.
+
+### Waiting does not rescue value iteration
+
+The direct test. At Patient's full 300 s:
+
+| craft | VI @ 300s | PI | VI high by |
+|---|---|---|---|
+| wand-5 | 546 exact (96.5s) | 546 exact (**4.3s**) | — |
+| wand-6 | ≤2,115 (301s) | 1,319 exact (**19.7s**) | 1.60x |
+| wand-3-T1 | ≤326,624 (300s) | 240,666 exact (**4.9s**) | 1.36x |
+| wand-4-T2 | ≤54,660 (300s) | 50,934 exact (**7.7s**) | 1.07x |
+| wand-6-T2 | ≤266,824 (306s) | 108,966 exact (155s) | **2.45x** |
+| armour-4-T1 | ≤18,553 (300s) | 17,030 exact (**14.1s**) | 1.09x |
+| armour-6 | ≤909 (302s) | 855 exact (**21.6s**) | 1.06x |
+| amulet-4 | ≤174,414 (300s) | 167,889 exact (99.9s) | 1.04x |
+
+Five minutes of VI still leaves a ceiling on 7 of 8. **Switching solver beats raising effort**:
+wand-4-T2 is `≤110,585` under VI at Thorough (60 s) and the exact `50,934` under PI at STANDARD (6.7 s).
+Patient-PI and Exhaustive-PI return byte-identical costs (`108965.74824797024` for wand-6-T2 at both),
+so `exact` really is converged rather than truncated.
+
+### Why it cannot regress a number into a refusal
+
+The property that makes the swap safe rather than merely better on average. "No number" comes from
+**phase A** failing, and phase A is plain VI on both paths — `markovFromItem` returns `fail(...)` before
+it reads the solver choice. A phase B that runs out under PI yields `bound: 'upper'`, the same kind of
+ceiling VI gives. The measured no-number counts are identical at every rung (8/8, 4/4, 2/2), exactly as
+that predicts, and `solve.test.ts` now pins both halves on a Rings craft bounded by SWEEPS rather than
+by the clock (a wall-clock bound would be flaky by construction): at 5,000 sweeps VI gives `≤8,906` and
+PI the exact `781.82`; at 2,000 neither can finish phase A and both refuse.
+
+### Two negatives worth keeping
+
+**The Item tab is wholly inert across the ladder.** All three held-item crafts returned the same answer
+in the same time (0.13–1.5 s) at every preset. There is no phase B without a restart, so effort has
+nothing to buy there.
+
+**Only 1 craft of 18 changed frontier output between rungs** — wand-6-T2, from 2 alternatives / 5,760
+plans at Standard to 7 / 368,640 at Thorough. Every other craft produced identical frontier output at
+every rung. Real, but thin, and the spread holds only one craft big enough to exercise `maxPlans`.
+
+### And the hints were already wrong
+
+Re-measuring the shape the hints describe (6 T2 targets on Wands, budget 600, interleaved, 3 reps):
+**Standard 24.9 s, Thorough 84.8 s** end to end, against hints saying 15 s and "roughly a minute". The
+old figures quoted the budget search ALONE and left the MDP out of a wait the user experiences as one.
+Solver-independent — VI 24.86 s vs PI 24.45 s at Standard, 84.78 vs 85.38 at Thorough — which confirms
+the reading that a budgeted craft is bound by `maxNodes`, not by the clock. `maxMillis` governs only
+the model, via `clockLeft()`. Hints corrected; the ladder's own numbers left alone.
+
+### Not done here
+
+Collapsing the ladder. The two negatives above argue for it and the PI results weaken the case for five
+rungs, but it is a separate decision. What this entry settles is that the rungs no longer differ in
+RIGOUR — every one ends on a proof — only in how long they may take to reach one.
+
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

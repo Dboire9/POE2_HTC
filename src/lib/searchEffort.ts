@@ -7,8 +7,9 @@
 // answer now. So it becomes a setting.
 //
 // It is honest by construction because the caps already announce themselves: the frontier badge says
-// when the orb search was reduced, the alternatives badge says when it stopped early, and an
-// unconverged cost renders as "≥ x". Raising the effort makes those disappear. That is the loop —
+// when the orb search was reduced, the alternatives badge says when it stopped early, and a truncated
+// cost renders with the inequality `bound` names — "≤ x" from a white base, "≥ x" from a held item;
+// never guess the direction. Raising the effort makes those disappear. That is the loop —
 // the app says where it gave up, and the user decides whether to pay for more.
 
 import { useSyncExternalStore } from 'react';
@@ -17,9 +18,10 @@ import { PREFS_PREFIX } from './currencyPrefs.ts';
 /** The limits one preset applies. Plain numbers: this crosses to the worker by structured clone. */
 export interface EffortLimits {
   /**
-   * Wall-clock ceiling for the MDP's value iteration. Absent in tests, so they stay deterministic —
-   * only the app sets it. Hitting it yields `converged: false`, which the UI already renders as a
-   * lower bound ("≥ x") rather than an answer.
+   * Wall-clock ceiling for the MDP. Absent in tests, so they stay deterministic — only the app sets
+   * it. Hitting it yields `converged: false`, which the UI renders as the inequality `bound` names
+   * rather than as an answer. It does NOT bound a budgeted craft's total: the budget search is capped
+   * by `maxNodes`, and `clockLeft()` hands the model only what is left over.
    */
   readonly maxMillis: number;
   /** Relaxed targets the budget search may evaluate. Each costs a full Pareto run, so this is the
@@ -54,14 +56,34 @@ export interface EffortLimits {
    * iteration, which ends on a CERTIFICATE instead: when the policy stops changing, no action
    * anywhere improves on it, so it is optimal and the cost is exact.
    *
-   * Measured on crafts VI could not finish in 240s — 2p+1s T1 came back exact at 10,661 against VI's
-   * ceiling of 14,588 (37% high); 3p+1s T1 exact at 93,204 against 117,120 (26% high). Where both
-   * converge they agree to 1e-6, which is what licenses the swap at all.
+   * EVERY rung names `'policy'`, and the field stays optional only because callers outside the ladder
+   * need to ask for `'value'` — the differential tests that license the fast path are exactly that.
    *
-   * Only the top preset uses it, deliberately. PI measured 2-3.5x FASTER than VI on ordinary crafts
-   * too, so it is arguably the better default everywhere — but `standard` is documented to reproduce
-   * exactly what the app did before this setting existed, and that promise is worth more than the
-   * speedup. See TODO 3.
+   * It used to be the top rung alone, on the reasoning that `standard` should reproduce what the app
+   * did before this setting existed. A campaign over 18 realistic crafts and 108 solves retired that:
+   * PI did not lose a single cell, and VI's ceilings are not a rounding matter.
+   *
+   *                exact   ceiling   no number        (of 18 crafts)
+   *   Quick / VI       6         4           8
+   *   Quick / PI      10         0           8
+   *   Standard / VI    9         5           4
+   *   Standard / PI   14         0           4
+   *   Thorough / VI   10         6           2
+   *   Thorough / PI   16         0           2
+   *
+   * PI produced a ceiling ZERO times: it either solves exactly or says it could not start. Waiting
+   * does not rescue VI — given Patient's full 300s it still returned a ceiling on 7 of 8 hard crafts,
+   * up to 2.45x high, where PI was exact on 8 of 8 and mostly under 22s. Switching solver beats
+   * raising effort outright: wand-4-T2 is `<=110,585` under VI at Thorough (60s) and the exact 50,934
+   * under PI at STANDARD (6.7s).
+   *
+   * **It cannot regress a number into a refusal**, which is the property that makes this safe rather
+   * than merely better on average. "No number" comes from PHASE A failing, and phase A is plain VI on
+   * both paths — `markovFromItem` returns `fail(...)` before the solver choice is read. A phase B that
+   * runs out under PI yields `bound: 'upper'`, the same kind of ceiling VI gives. The measured
+   * no-number counts are identical at every rung (8/8, 4/4, 2/2), as that predicts.
+   *
+   * Where both converge they agree to 1e-6, which is what licenses the swap at all.
    */
   readonly solver?: 'value' | 'policy';
 }
@@ -86,38 +108,55 @@ export interface EffortPreset {
  * enough to be throttled (which the frontier badge says out loud). And the node cap IS the wall clock
  * for a budgeted craft, so the hints below quote the time it actually implies rather than an adverb.
  *
- * `standard` is the default and reproduces exactly what the app did before this setting existed, so
- * upgrading changes nobody's results.
+ * RE-MEASURED 2026-08-28, same shape (6 T2 targets on Wands, budget 600), interleaved, 3 reps:
+ * Standard **24.9s**, Thorough **84.8s** — end to end, which is what a reader actually waits. The
+ * hints previously said 15s and "roughly a minute", quoting the budget search ALONE and leaving the
+ * MDP out of a number the user experiences as one wait. Note `maxMillis` does not bound this: the
+ * budget search is capped by nodes, and `clockLeft()` governs only the model, so a preset's clock is
+ * the MDP's ceiling rather than the craft's. Solver-independent — VI and PI came out within noise of
+ * each other at both rungs (24.86 vs 24.45; 84.78 vs 85.38), which is what the node-bound reading
+ * predicts.
+ *
+ * WHAT SEPARATES THE RUNGS IS TIME, NOT RIGOUR. Every one of them runs policy iteration, which ends on
+ * a proof that the policy is optimal; they differ only in how long they may take to reach one. So the
+ * hints quote a budget, and none of them may claim the proof as its own — that was Exhaustive's line
+ * when it was the only rung switching solver, and it is now true everywhere.
+ *
+ * `standard` reproduces what the app did before this setting existed **in the orb search**, which is
+ * what `searchEffort.test.ts` pins (`plansEvaluated`, `currencyDepth`). It deliberately no longer does
+ * in the MDP: where both solvers converge the cost moves in its last digits (46.35832651235128 →
+ * 46.33367129388143 on a 2-target Wand, PI being the exact one), and where VI ran out its ceiling
+ * becomes a real number. Both are the answer improving, not drifting — see the table on `solver`.
  */
 export const EFFORT_PRESETS: readonly EffortPreset[] = [
   {
     id: 'quick',
     label: 'Quick',
-    hint: 'A few seconds. More likely to report that it stopped early.',
-    limits: { maxMillis: 2_000, maxNodes: 100, maxPlans: 25_000, maxSweeps: 25_000 },
+    hint: 'A couple of seconds. Likeliest to come back asking for longer instead of an answer.',
+    limits: { maxMillis: 2_000, maxNodes: 100, maxPlans: 25_000, maxSweeps: 25_000, solver: 'policy' },
   },
   {
     id: 'standard',
     label: 'Standard',
-    hint: 'The default — around 15s on a big budgeted craft.',
-    limits: { maxMillis: 15_000, maxNodes: 200, maxPlans: 100_000, maxSweeps: 100_000 },
+    hint: 'The default — around 25s on a big budgeted craft.',
+    limits: { maxMillis: 15_000, maxNodes: 200, maxPlans: 100_000, maxSweeps: 100_000, solver: 'policy' },
   },
   {
     id: 'thorough',
     label: 'Thorough',
-    hint: 'Roughly a minute on a big budgeted craft. Finds more alternatives.',
-    limits: { maxMillis: 60_000, maxNodes: 600, maxPlans: 400_000, maxSweeps: 400_000 },
+    hint: 'Around a minute and a half on a big budgeted craft. Finds more alternatives.',
+    limits: { maxMillis: 60_000, maxNodes: 600, maxPlans: 400_000, maxSweeps: 400_000, solver: 'policy' },
   },
   {
     id: 'patient',
     label: 'Patient',
     hint: 'Several minutes. Worth it when a badge says the search stopped early.',
-    limits: { maxMillis: 300_000, maxNodes: 2_000, maxPlans: 2_000_000, maxSweeps: 2_000_000 },
+    limits: { maxMillis: 300_000, maxNodes: 2_000, maxPlans: 2_000_000, maxSweeps: 2_000_000, solver: 'policy' },
   },
   {
     id: 'exhaustive',
     label: 'Exhaustive',
-    hint: 'Runs until the answer is provably the best one, not until a timer. Minutes on a hard craft.',
+    hint: 'The longest wait — for the few crafts nothing shorter can finish. Minutes on a hard craft.',
     limits: {
       maxMillis: 900_000, maxNodes: 4_000, maxPlans: 2_000_000, maxSweeps: 20_000_000,
       solver: 'policy',

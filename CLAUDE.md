@@ -242,8 +242,30 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   Measured against VI at a 240s budget: `2p+1s T1` exact at 10,661 where VI could only bound ≤14,588
   (37% high); `3p+1s T1` exact at 93,204 against ≤117,120 (26% high); on the craft neither settles,
   PI's ceiling is 16% tighter. Where both converge they agree to **1e-6**, which is the licence for
-  the swap — and PI is 2-3.5x faster there too, so it is arguably the better default everywhere. It is
-  NOT the default only because `standard` is documented to reproduce the pre-setting behaviour exactly.
+  the swap. **EVERY effort preset runs it as of 2026-08-28**, not just the top one: a campaign over 18
+  realistic crafts and 108 solves found PI did not lose a single cell, and produced a ceiling ZERO
+  times — it either answers exactly or says it could not start.
+
+  |                | exact | ceiling | no number |
+  |---|---|---|---|
+  | Quick / VI     | 6 | 4 | 8 |
+  | Quick / **PI** | **10** | **0** | 8 |
+  | Standard / VI  | 9 | 5 | 4 |
+  | Standard / **PI** | **14** | **0** | 4 |
+  | Thorough / VI  | 10 | 6 | 2 |
+  | Thorough / **PI** | **16** | **0** | 2 |
+
+  **Waiting does not rescue VI**, which was the question that prompted the campaign. Given Patient's
+  full 300s it still returned a ceiling on 7 of 8 hard crafts — up to 2.45x high — where PI was exact
+  on 8 of 8, mostly under 22s. Switching solver beats raising effort outright: a 4-target T2 Wand is
+  `≤110,585` under VI at Thorough (60s) and the exact `50,934` under PI at STANDARD (6.7s).
+  **It cannot regress a number into a refusal**, and that is what makes it safe rather than merely
+  better on average: "no number" comes from PHASE A failing, and phase A is plain VI on both paths —
+  `markovFromItem` returns `fail(...)` before it reads the solver choice. A phase B that runs out
+  under PI still yields `bound: 'upper'`. The measured no-number counts are identical at every rung.
+  The old reason for holding it back — `standard` reproducing pre-setting behaviour — now holds only
+  for the ORB SEARCH (which is all `searchEffort.test.ts` ever pinned); the MDP half deliberately
+  changed, and every move is toward the exact answer.
   **Phase B only**: PI on a stochastic shortest path is safe only from a PROPER policy, and phase B is
   seeded from phase A's converged value, which is one. Phase A 0-initialises and keeps plain VI.
 - **Phase A is 92-98% of a solve, and replacing it with a guessed policy DOES NOT PAY on big crafts.**

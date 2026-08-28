@@ -132,6 +132,14 @@ the ceiling copy stays. And PI being faster everywhere makes it arguably the rig
 only because `standard` is documented to reproduce the pre-setting behaviour exactly, and that promise
 was judged worth more than the speedup. Revisit if that promise ever stops mattering.
 
+**RESOLVED 2026-08-28 — it stopped mattering, and the measurement is what settled it.** Every preset
+runs policy iteration now. Over 18 realistic crafts and 108 solves PI did not lose a single cell and
+produced a ceiling ZERO times; at Patient's full 300s VI still returned a ceiling on 7 of 8 hard crafts
+(up to 2.45x high) where PI was exact on 8 of 8. The promise survives where it was actually tested —
+the orb search — and the MDP half changed deliberately, every move toward the exact answer. The ceiling
+copy stays anyway: a truncated PI still yields `bound: 'upper'`, and `wand-6-T2` at Standard still
+returns no number at all. See docs/validation.md.
+
 Also closed here, from TODO 5: **`maxIters` is on the ladder** as `EffortLimits.maxSweeps`. It was a
 hardcoded 100,000 the setting could not reach, so raising effort on a sweep-bound craft did nothing at
 all — which is what a user reported, in exactly those words.

@@ -184,13 +184,16 @@ describe('the sweep cap is on the ladder, not hardcoded', () => {
 });
 
 /**
- * The top preset exists because the ladder used to run out before the solver could answer. Value
- * iteration stops on a residual tolerance, so a long-odds craft simply ran out of sweeps and the app
- * printed a ceiling — and no amount of extra clock changed that, because the clock was never what
- * bound. Exhaustive switches the solver instead of raising a number: policy iteration ends when the
- * policy stops changing, which is a proof rather than a tolerance.
+ * EVERY rung ends on a proof, and Exhaustive is now only the longest one.
+ *
+ * Value iteration stops on a residual tolerance, so a long-odds craft ran out of sweeps and the app
+ * printed a ceiling — and extra clock did not help, because the clock was never what bound. Policy
+ * iteration ends when the policy stops changing, which is a proof. That used to be Exhaustive's
+ * distinguishing feature; measured over 18 crafts it turned out to be strictly better everywhere (PI
+ * produced a ceiling zero times, and was faster in nearly every cell), so the whole ladder runs it and
+ * what separates the rungs is time alone. See the table on `EffortLimits.solver`.
  */
-describe('Exhaustive — the rung that ends on a proof', () => {
+describe('every rung ends on a proof', () => {
   const top = EFFORT_PRESETS[EFFORT_PRESETS.length - 1]!;
 
   it('is the top of the ladder, so isTopEffort points at it', () => {
@@ -198,9 +201,17 @@ describe('Exhaustive — the rung that ends on a proof', () => {
     expect(isTopEffort('patient')).toBe(false); // it used to be, and the check is derived not named
   });
 
-  it('is the only rung that switches solver', () => {
-    expect(top.limits.solver).toBe('policy');
-    for (const p of EFFORT_PRESETS.slice(0, -1)) expect(p.limits.solver).toBeUndefined();
+  /**
+   * The inverse of the test this replaces, which asserted every rung BUT the top left `solver` unset.
+   *
+   * Stated this way it keeps doing the job that one was reaching for: a preset added later cannot end
+   * up on the slow solver by omission. Leaving one on value iteration is not a small regression — at
+   * Standard it was the difference between 14 exact answers and 9 exact plus 5 ceilings.
+   */
+  it('leaves no rung on value iteration', () => {
+    for (const p of EFFORT_PRESETS) {
+      expect(p.limits.solver, `${p.id} must name its solver`).toBe('policy');
+    }
   });
 
   // Policy iteration still runs sweeps to evaluate each policy, so a stingy cap would stop it short

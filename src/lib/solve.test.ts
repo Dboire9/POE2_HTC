@@ -222,3 +222,53 @@ describe('Search effort reaches value iteration, not just the preset table', () 
     expect(got.markov?.converged).toBe(true);
   });
 });
+
+/**
+ * The whole point of putting policy iteration on every rung, asserted end to end through `runSolve`.
+ *
+ * Value iteration stops on a residual TOLERANCE, so when it runs out the app can only say "at most x".
+ * Policy iteration stops on a CERTIFICATE — the policy stopped changing, so no action anywhere improves
+ * on it — and returns the exact cost. Measured across 18 crafts, PI produced a ceiling zero times.
+ *
+ * Bounded by SWEEPS rather than by the clock, deliberately: a wall-clock cap would make this flaky by
+ * construction, green on a slow machine and red on a fast one. Sweep counts are deterministic.
+ */
+describe('policy iteration answers where value iteration can only bound', () => {
+  const ring = {
+    kind: 'lab', from: { baseId: 'Rings', level: 82 },
+    targets: [
+      { modId: 'Rings/IncreasedLife', tierDisplay: 99 }, { modId: 'Rings/IncreasedMana', tierDisplay: 99 },
+      { modId: 'Rings/ColdResistance', tierDisplay: 99 }, { modId: 'Rings/ChaosResistance', tierDisplay: 99 },
+    ],
+  } as const;
+  const solve = (maxSweeps: number, solver: 'value' | 'policy') => {
+    const got = runSolve(eng, {
+      ...ring, effort: { maxMillis: 120_000, maxNodes: 200, maxPlans: 100_000, maxSweeps, solver },
+    });
+    if (got.kind !== 'lab') throw new Error('wrong kind');
+    return got.markov!;
+  };
+
+  it('turns a ceiling into an exact answer at the same budget', () => {
+    const vi = solve(5_000, 'value');
+    const pi = solve(5_000, 'policy');
+    expect(vi.bound).toBe('upper');   // ≤ 8,906 — an honest ceiling, and 11x the truth
+    expect(pi.bound).toBe('exact');   // 781.82
+    // A from-white solve truncates DOWNWARD, so VI's ceiling must sit above the exact cost. If this
+    // ever inverts, the bound is being read the wrong way round somewhere.
+    expect(vi.expectedCost).toBeGreaterThan(pi.expectedCost);
+  }, 60_000);
+
+  /**
+   * …and it cannot turn a number into a refusal, which is what makes the swap safe rather than merely
+   * better on average.
+   *
+   * "No number" comes from PHASE A failing, and phase A is plain value iteration on both paths —
+   * `markovFromItem` returns `fail(...)` before it reads the solver choice. So a budget too small for
+   * phase A must refuse identically under both, and this craft at 2,000 sweeps is exactly that budget.
+   */
+  it('refuses identically when the budget is too small for either', () => {
+    expect(solve(2_000, 'value').feasible).toBe(false);
+    expect(solve(2_000, 'policy').feasible).toBe(false);
+  }, 60_000);
+});

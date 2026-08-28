@@ -99,21 +99,29 @@ describe('markovFromItem — hand-computed expected cost', () => {
     expect(r.reason).toMatch(/roll/i);
   });
 
-  it('declines a REGULAR-essence target, and blames the missing action rather than the rarity', () => {
-    // v3 accepts desecrated and perfect-essence targets. A regular essence is out of reach because the
-    // action space has no Essence in it (TODO 1) — NOT because of the Magic item it needs, which the
-    // state gained a rarity axis to represent. Saying "needs a Magic item" here would name a limit
-    // this model no longer has, and send a from-white crafter looking for a rarity they already pass
-    // through.
+  /**
+   * This assertion is the INVERSE of the one it replaces, and the flip is the point.
+   *
+   * It used to read "blames the missing action rather than the rarity", because the model had no
+   * Essence action at all — so naming the Magic item would have described a limit that was not the
+   * binding one. The action exists as of 2026-08-28, and now the rarity IS the binding constraint: a
+   * regular Essence works on a Magic item, so from a Rare there is genuinely no route. Saying so is
+   * the actionable answer; "no Essence action" would now be false.
+   */
+  it('declines a REGULAR-essence target on a held RARE, naming the rarity that blocks it', () => {
+    const essBase = { ...base, pools: { ...base.pools, essence: { prefixes: ['E1'], suffixes: [] } } };
     const withEss: PatchData = {
       patch: 't',
       mods: new Map([...data.mods, ['E1', { ...mk('E1', 'prefix', 'FE', 0), source: 'essence' as const }]]),
-      bases: new Map([['S', { ...base, pools: { ...base.pools, essence: { prefixes: ['E1'], suffixes: [] } } }]]),
+      bases: new Map([['S', essBase]]),
     };
-    const r = markovFromItem(withEss, prices, rare([]), [{ modId: 'E1' }]);
+    // The ITEM must carry the pool-bearing base too — `markovFromItem` reads `start.base.pools`, not
+    // the one in `data.bases`, so a fixture that updates only the map tests the pool check instead.
+    const held: ItemState = { base: essBase, level: 100, rarity: 'rare', prefixes: [], suffixes: [] };
+    const r = markovFromItem(withEss, prices, held, [{ modId: 'E1' }]);
     expect(r.feasible).toBe(false);
-    expect(r.reason).toMatch(/no Essence action/i);
-    expect(r.reason).not.toMatch(/craft it from white/i);
+    expect(r.reason).toMatch(/needs a Magic item/i);
+    expect(r.reason).not.toMatch(/craft it from white/i); // still not advice a from-white crafter needs
   });
 });
 

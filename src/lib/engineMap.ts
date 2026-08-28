@@ -197,7 +197,7 @@ function toEngineSlot(data: PatchData, slot: SlotChange): EngineSlot {
   return slot.kind === 'swapped' ? { ...kept, fromText: text(slot.from) } : kept;
 }
 
-function actionLabel(action: McAction): string {
+function actionLabel(data: PatchData, action: McAction): string {
   if (action.currency === 'exalt') {
     const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
     const strengthLabel = action.strength === 'base' ? null : action.strength === 'greater' ? 'Greater' : 'Perfect';
@@ -232,6 +232,14 @@ function actionLabel(action: McAction): string {
     const sideLabel = action.side === 'prefix' ? 'Sinistral' : action.side === 'suffix' ? 'Dextral' : null;
     return sideLabel ? `Perfect Essence (${sideLabel})` : 'Perfect Essence';
   }
+  // A regular Essence is bought BY NAME, and the name is the tier: an essence mod's tiers are its
+  // levels, so `tiers[tierIndex].name` is literally "Greater Essence of Alacrity" — the thing the
+  // player puts in the trade search. Falling back to the level word keeps this honest if a data
+  // refresh ever drops the name, rather than printing a level the sheet did not price.
+  if (action.currency === 'essence') {
+    const name = data.mods.get(action.target)?.tiers[action.tierIndex]?.name;
+    return name ?? `${action.level === 'lesser' ? 'Lesser ' : action.level === 'greater' ? 'Greater ' : ''}Essence`;
+  }
   return 'Chaos';
 }
 
@@ -263,9 +271,9 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
     depth: nd.depth,
     visitRate: nd.visitRate,
     expectedCost: nd.expectedCost,
-    ...(nd.action ? { action: actionLabel(nd.action) } : {}),
+    ...(nd.action ? { action: actionLabel(data, nd.action) } : {}),
   }));
-  const edges = res.edges.map((e) => ({ from: e.from, to: e.to, action: actionLabel(e.action), prob: e.prob, regress: e.regress }));
+  const edges = res.edges.map((e) => ({ from: e.from, to: e.to, action: actionLabel(data, e.action), prob: e.prob, regress: e.regress }));
   return {
     applicable: true, feasible: res.feasible, expectedCost: res.expectedCost,
     converged: res.converged, bound: res.bound,

@@ -284,19 +284,16 @@ export function markovFromItem(
   const fracturedIds = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
 
   // Resolve targets into the ordered list the bitmasks index: rollable normal mods, desecrated mods
-  // (added by a Desecration with the boss omen that selects them), and perfect-essence mods (forced on
-  // by a Perfect Essence, which eats one existing mod as it adds). A REGULAR essence has no action in
-  // this model's vocabulary at all (TODO 1) — the Magic item it needs IS representable since the state
-  // gained a rarity axis, so what's missing is the action, not the shape — and those targets stay on
-  // the linear planner.
+  // (added by a Desecration with the boss omen that selects them), perfect-essence mods (forced on by a
+  // Perfect Essence, which eats one existing mod as it adds), and regular-essence mods (forced on by an
+  // Essence, which converts Magic → Rare and removes nothing). The last of those needs a MAGIC item,
+  // which the state has been able to represent since it gained a rarity axis.
   const cands: ResolvedCandidate[] = [];
   for (const t of targets) {
     const mod = resolveMod(data, t.modId);
-    if (mod.source === 'essence') {
-      return fail(`${t.modId} can only be added by a regular Essence, and this model has no Essence action yet`);
-    }
-    if (mod.source !== 'normal' && mod.source !== 'desecrated' && mod.source !== 'perfect_essence') {
-      return fail(`${t.modId} is not a rollable, desecrated or perfect-essence mod (the MDP handles those)`);
+    if (mod.source !== 'normal' && mod.source !== 'desecrated'
+      && mod.source !== 'perfect_essence' && mod.source !== 'essence') {
+      return fail(`${t.modId} is not a rollable, desecrated or essence mod (the MDP handles those)`);
     }
     if (mod.source === 'desecrated') {
       const inPool = pools.desecrated.prefixes.includes(mod.id) || pools.desecrated.suffixes.includes(mod.id);
@@ -307,7 +304,9 @@ export function markovFromItem(
       // unreachable. Rejecting on either used to report `feasible: false` for 342 of the 527
       // desecrated mods, all of them craftable.
     }
-    if (mod.source === 'perfect_essence') {
+    // Both essence grades draw from `pools.essence`, and they are disjoint id sets inside it (317
+    // `essence` against 363 `perfect_essence`, zero overlap) — so one membership check serves both.
+    if (mod.source === 'perfect_essence' || mod.source === 'essence') {
       const inPool = pools.essence.prefixes.includes(mod.id) || pools.essence.suffixes.includes(mod.id);
       if (!inPool) return fail(`${t.modId} isn't in ${start.base.id}'s essence pool`);
     }
@@ -497,6 +496,27 @@ export function markovFromItem(
   const onlyCanonical = canonicalFilterFor(classes);
 
   const s0 = classifyStart(data, start, list, idxOf);
+
+  /**
+   * A regular Essence needs a MAGIC item, so a held Rare can never apply one.
+   *
+   * `enumerateStates` gives a Rare start the single `['rare']` rung, so no Magic state exists and the
+   * essence action is never built — the craft is genuinely unreachable rather than merely dear. Without
+   * this the solve dies as the generic "no policy reaches the target", which tells the reader nothing
+   * they can act on. Named here instead, with the rule that causes it.
+   *
+   * Only when the target is NOT already satisfied: an essence mod sitting on the Rare at or above its
+   * wanted tier is simply `present` in `s0`, and that craft needs no Essence at all.
+   */
+  if (start.rarity === 'rare') {
+    const stuck = list.findIndex((t, i) => representative(t).source === 'essence' && !has(s0.present, i));
+    if (stuck >= 0) {
+      const mod = representative(list[stuck]!);
+      return fail(`${mod.id} can only be added by a regular Essence, which needs a Magic item — `
+        + 'this one is already Rare, so no route reaches it (a Perfect Essence works on a Rare, '
+        + 'a regular one does not)');
+    }
+  }
   /*
    * Is Desecration in play at all?
    *

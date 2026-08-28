@@ -44,8 +44,9 @@ export interface EffortLimits {
    *
    * Raising it is not free and not a cure — the same craft needs ~1.1 MILLION more sweeps (~2.8
    * hours) to actually converge, and that is a floor because the decay rate itself degrades. So the
-   * ladder buys real headroom for the crafts near the edge, and `sweepBound` below is what stops the
-   * UI promising the ones beyond it something a longer wait cannot deliver.
+   * ladder buys real headroom for the crafts near the edge. (This used to name a `sweepBound` helper
+   * "below" as the thing that stops the UI over-promising. No such function exists, or ever did —
+   * `isTopEffort` is what the copy actually consults.)
    */
   readonly maxSweeps: number;
   /**

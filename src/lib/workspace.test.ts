@@ -83,6 +83,36 @@ describe('URL codec — a link from another build must degrade, not crash', () =
     expect(out.workspace.lab.targets).toHaveLength(2); // the real ones survived
   });
 
+  /**
+   * A link may ask for an essence mod; it may not claim you are already holding one.
+   *
+   * The two directions differ because the model does. A regular-essence TARGET is planned properly
+   * (the MDP gained an Essence action on 2026-08-28). A HELD essence mod has no state axis at all — it
+   * lands in the junk counts with no marker, so the one-essence-per-item rule cannot be enforced
+   * around it — and the item builder never offers one, so only a hand-edited link can produce it.
+   */
+  it('drops an essence mod claimed as already ON the item, but keeps it as a target', () => {
+    const ws = filled();
+    const ess = [...data.mods.values()].find((m) => m.source === 'essence' && m.id.startsWith('Wands/'))!;
+    const payload = encodeWorkspace({
+      ...ws,
+      lab: { ...ws.lab, targets: [...ws.lab.targets, { modId: ess.id, tierDisplay: 1 }] },
+      item: {
+        ...ws.item,
+        prefixes: ess.type === 'prefix'
+          ? [...ws.item.prefixes, { modId: ess.id, tierDisplay: 1 }] : ws.item.prefixes,
+        suffixes: ess.type === 'suffix'
+          ? [...ws.item.suffixes, { modId: ess.id, tierDisplay: 1 }] : ws.item.suffixes,
+      },
+    });
+    const out = decodeWorkspace(payload, data)!;
+    const held = [...out.workspace.item.prefixes, ...out.workspace.item.suffixes].map((m) => m.modId);
+    expect(held).not.toContain(ess.id);
+    expect(out.dropped).toContain(ess.id);
+    // …and the same id as a TARGET is untouched, which is the half that must keep working.
+    expect(out.workspace.lab.targets.map((t) => t.modId)).toContain(ess.id);
+  });
+
   it('drops a base that no longer exists rather than planning against nothing', () => {
     const ws = filled();
     const payload = encodeWorkspace({ ...ws, lab: { ...ws.lab, baseId: 'Trebuchets' } });

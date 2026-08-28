@@ -15,6 +15,7 @@
 
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 import type { PatchData } from '../../packages/engine/src/types.ts';
+import { isEssenceMod } from '../../packages/engine/src/probability.ts';
 import type { ItemModInput, TargetInput } from './engineTypes.ts';
 import { PREFS_PREFIX } from './currencyPrefs';
 
@@ -327,10 +328,25 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
         ? { modId: full, tierDisplay: clampTier(tier) }
         : { modId: full, tierDisplay: clampTier(tier), slot: s }];
     });
+  /**
+   * What the item builder can produce, and therefore what a link may claim you are HOLDING.
+   *
+   * `keep` checks a mod id exists, which is the right bar for a TARGET — a regular-essence mod is a
+   * perfectly good thing to ask for, and the MDP has planned one since 2026-08-28. It is the wrong bar
+   * for a mod already on the item: the builder's add columns offer normal and desecrated mods only
+   * (ItemActions), so an essence-source mod here could only have come from a hand-edited link.
+   *
+   * It matters because the model cannot represent it. A held essence mod lands in `jp`/`js` as bare
+   * junk with no marker, so nothing downstream can tell it from an ordinary roll and the one-essence
+   * rule goes unenforced — `markovFromItem` refuses such a craft rather than quoting a number the game
+   * would not allow. Dropping it here keeps the app on states its own UI can build; the underlying gap
+   * (there is no state axis for "this item holds an essence mod") is unchanged.
+   */
   const itemMods = (base: string, list: readonly WireItemModIn[] | undefined): ItemModInput[] =>
     (list ?? []).flatMap(([id, tier, frac]) => {
       const full = base ? keep(base, id) : null;
       if (!full) return [];
+      if (isEssenceMod(data.mods.get(full)!)) { dropped.push(full); return []; }
       const t = clampTier(tier);
       return [frac ? { modId: full, tierDisplay: t, fractured: true } : { modId: full, tierDisplay: t }];
     });

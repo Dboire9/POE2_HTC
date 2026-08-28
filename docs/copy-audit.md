@@ -135,6 +135,7 @@ it goes.
 | 15 | "Plans will never use anything you tick here… you'll be told rather than shown a plan you can't run" | `CurrencyExclusions.tsx:56` | Guaranteed by `if (policy && steps.some((s) => !allowsStep(policy, s))) continue` in `optimizePareto`; the MDP takes the same `policy`. The pruning above it is an optimisation, not the guarantee |
 | 16 | The exclusions empty-hint's "…or the target may be out of reach anyway, which this can't tell you without re-running it unrestricted" | `EngineLab.tsx:677` | Correctly refuses to over-claim |
 | 17 | The desecration empty state, "In game you can still do this…" | `EngineLab.tsx:666-673` | Fixed 2026-08-22; the model the rest of this audit should follow |
+| 18 | The frontier empty state, "the craft may still be possible by a route the planner doesn't explore" | `FrontierView.tsx:97-101` | **Traced 2026-08-28 and ACCURATE.** TODO 2 asked whether this "calls unsearched" a route the MDP now searches. It does not: it claims no impossibility, names the tier/ilvl causes as the *usual* one, and admits the guess. It could be more helpful — the policy graph beside it does explore the desecration filler route — but that is an improvement, not a correction. Left alone deliberately. |
 | 18 | "orb search reduced to strongest only (target too large for full)" | `FrontierView.tsx:25` | Accurate description of `currencyDepth` |
 | 19 | "(weights are unknown, so this is an approximation)" | `EngineLab.tsx:636` | States its own uncertainty |
 

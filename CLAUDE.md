@@ -41,7 +41,21 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - **A Desecration needs a Rare item**, and the bone depends on the base: jawbone = weapons + quivers, rib = armour, collarbone = amulets/rings/belts. Only the **Preserved** grade applies while every desecrated mod is ilvl 65 (`prices.mjs` warns if that stops being true).
 - **Annulment does not downgrade rarity.** A Rare stays Rare as you annul mods off it — which is why "roll filler, annul it, then Desecrate" is a legal route even though no planner here searches it.
 - **An item carries at most ONE essence modifier — regular and perfect counted TOGETHER.** `isEssenceMod` (`probability.ts`) is the single predicate; every planner and picker counts with it. A regular essence needs a Magic item and turns it Rare; a **Perfect Essence works on a Rare and is a SWAP** — it forces its mod on while removing one existing mod uniformly at random (`1/(pf+sf)`, or `1/pf`,`1/sf` under a Sinistral/Dextral Crystallisation omen), and is gated at ilvl 72. The two grant from **disjoint pools**: 317 `source: 'essence'` mods vs 363 `perfect_essence`, zero id overlap, both inside `base.pools.essence`. So a Perfect Essence can never supply a second regular-essence mod, and can never be added on top of one either.
-  **The cap counts the item you already HOLD, and the two one-per-item rules reach that fact by opposite routes.** A held CARVED mod is in the state: `classifyStart` flags it (from `PlacedMod.desecrated`, or simply from its pool), `hasDesecrated` empties both bone builders, and `push` drops an action with an empty distribution — so a bone is *structurally* absent from every state holding one, not merely priced out. A held ESSENCE mod is NOT in the state: it lands in `jp`/`js`, a bare count with no marker, so nothing can tell it from ordinary junk. Measured, four states played a Perfect Essence with junk still on the item. `markovFromItem` therefore REFUSES (naming the held mod) when an essence target is asked and the item carries an essence modifier that isn't that target — and only then, since with no essence target `perfectTargets` is empty and the held mod is ordinary junk the model handles correctly. Fixing it properly needs a state axis of its own (the desecration flag means "a bone placed this" and cannot be reused), and it is unreachable from the UI — the item builder offers only rollable and desecrated mods, so a crafted share link is the only way in (`keep()` in workspace.ts checks a mod id exists, not its source). The linear planner has no such gap: it plans a fixed sequence over concrete mods, so it annuls the held mod first — `annul → annul → perfect-essence`.
+  **The MDP models BOTH grades as of 2026-08-28.** A regular Essence is an action on the Magic rung
+  beside the Regal: it forces its mod and converts Magic → Rare, removing nothing, at P=1 — the mirror
+  of `essenceForcedProbability`, condition for condition. Its side-room check is against the RARE cap,
+  because the essence converts as it adds and the slot it needs is a slot on the item it makes; the
+  Magic cap would refuse a legal essence on a 1-suffix Magic item. An essence mod's TIERS ARE ITS
+  LEVELS (Lesser ilvl 15 → Essence 30 → Greater 60, ascending like any other mod's), so
+  `mod.tiers[minTierIndex]` is at once the tier the player gets, the essence they buy, and the
+  `essence:<level>:<modId>` key that prices it. **The MDP picks the same level the linear planner does
+  (`clamp(minTierIndex)`) on purpose** — a shared limitation, since the sheet is not monotone in level
+  (Essence of Abrasion: Lesser 116ex, Normal 107ex, Greater 0.81ex), so both can buy a level 100x
+  dearer than one that would do. Fix that where they share the choice, or they will disagree.
+  From a held RARE the action is unreachable and `markovFromItem` says so by name, because a regular
+  Essence needs a Magic item — that refusal replaced a blanket `applicable: false` in the facade which
+  was also refusing the from-white case the model handles.
+  **The cap counts the item you already HOLD, and the two one-per-item rules reach that fact by opposite routes.** A held CARVED mod is in the state: `classifyStart` flags it (from `PlacedMod.desecrated`, or simply from its pool), `hasDesecrated` empties both bone builders, and `push` drops an action with an empty distribution — so a bone is *structurally* absent from every state holding one, not merely priced out. A held ESSENCE mod is NOT in the state: it lands in `jp`/`js`, a bare count with no marker, so nothing can tell it from ordinary junk. Measured, four states played a Perfect Essence with junk still on the item. `markovFromItem` therefore REFUSES (naming the held mod) when an essence target is asked and the item carries an essence modifier that isn't that target — and only then, since with no essence target `perfectTargets` is empty and the held mod is ordinary junk the model handles correctly. Fixing it properly needs a state axis of its own (the desecration flag means "a bone placed this" and cannot be reused), and it is unreachable from the UI — the item builder offers only rollable and desecrated mods, and since 2026-08-28 the share-link decoder drops an essence-source mod claimed as HELD to match (a target keeps working; only the held slot is refused). The linear planner has no such gap: it plans a fixed sequence over concrete mods, so it annuls the held mod first — `annul → annul → perfect-essence`.
 - **A Desecration OFFERS three modifiers and you keep one** (`DESECRATION_OFFER_COUNT`,
   `packages/engine/src/probability.ts`), and you cannot decline — all three bad means you still take
   one. Confirmed by the user 2026-08-24. This is applied where a bone is SPENT (`plan.ts`'s desecrate
@@ -195,8 +209,10 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   commonest starting point in the game into an error, and inviting the player to misdescribe their item
   to get past it. A Magic item is now opened with a **Regal**, which converts to Rare while adding one
   mod; it is the only add available there, since Exalt and Chaos both score 0 on a Magic item and
-  `baseTransforms` emits no `augment`. The MDP still models Rare only and says so in `reason`, which
-  `ItemActions` now renders rather than dropping the panel in silence.
+  `baseTransforms` emits no `augment`. (This bullet used to end "the MDP still models Rare only and
+  says so in `reason`" — that was FALSE and stayed for weeks. `markovFromItem` gives a Magic start the
+  rungs `['magic','rare']` and no such reason string exists anywhere. `ItemActions` renders whatever
+  reason does come back rather than dropping the panel in silence.)
 - **The policy route says "most likely lands X", never "add X".** The MDP chooses the ORB, never the
   outcome — an Exalt is a slam. `StepChanges` (`src/lib/policyPath.ts`) names the mod on the step's
   highest-probability edge, which is the edge the route follows by construction; phrasing it as an

@@ -273,8 +273,14 @@ function orbAssignments(rolled: readonly string[], legal: Map<string, CurrencyTi
   return acc;
 }
 
-/** An essence mod's level (its tiers ARE Lesser/Normal/Greater), read from the tier name for pricing. */
-function essenceLevelOf(tierName: string | undefined): string {
+/**
+ * An essence mod's level (its tiers ARE Lesser/Normal/Greater), read from the tier name for pricing.
+ *
+ * Exported for the MDP's own Essence action (markovActions.ts). One reader, because it decides the
+ * `essence:<level>:<modId>` key `stepCost` looks up — a second copy would drift and the two planners
+ * would quietly price the same essence differently.
+ */
+export function essenceLevelOf(tierName: string | undefined): string {
   const n = (tierName ?? '').toLowerCase();
   if (n.startsWith('lesser')) return 'lesser';
   if (n.startsWith('greater')) return 'greater';

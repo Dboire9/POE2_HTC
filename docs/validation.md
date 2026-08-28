@@ -2138,6 +2138,76 @@ rungs, but it is a separate decision. What this entry settles is that the rungs 
 RIGOUR — every one ends on a proof — only in how long they may take to reach one.
 
 
+## The MDP learns to buy an Essence (2026-08-28)
+
+The last place in the app where a player asked a reasonable question and got no answer. A craft naming
+an essence-only mod was refused outright — *"this model has no Essence action yet"* — and fell through
+to the step routes. Perfect essences had been modelled for weeks; only the REGULAR grade was missing.
+
+The gap was genuinely just the action. `essenceForcedProbability` already existed, `PlanStep` already
+had `{ currency: 'essence'; add; essenceTier; essenceLevel }`, `stepCost` already priced it as
+`essence:<level>:<modId>`, and the state had carried rarity since the Magic rung was added. So the work
+was one outcome builder mirroring the probability primitive condition for condition, plus letting the
+target through two validators.
+
+### Three things the data decided
+
+**An essence mod's tiers ARE its levels**, ascending exactly like a normal mod's: `Lesser Essence of
+Alacrity` (ilvl 15) → `Essence of Alacrity` (30) → `Greater Essence of Alacrity` (60), against
+`of Talent` [9,12] → `of Nimbleness` [13,16] → … So `minTierIndex` needed no special case, and
+`mod.tiers[minTierIndex]` is at once the tier the player receives, the essence they buy, and the price
+key. It also gives the policy graph a label worth reading: the step says **"Greater Essence of
+Alacrity"**, which is what goes in a trade search, rather than "Essence (greater)".
+
+**The side-room check is against the RARE cap, not the Magic one.** An Essence converts as it adds, so
+the slot it needs is a slot on the item it produces — the same treatment a Regal gets. Checking the
+Magic cap (1 per side) would refuse a legal essence on the commonest shape there is: a transmuted item
+that happened to roll the other side. Mutation testing caught this; the cost tests did not, because the
+wrong answer is still a legal route at a higher price and the argmin simply hides it.
+
+**Both planners buy the same level, and that is a shared LIMITATION as much as an agreement.** The MDP
+mirrors the linear planner's `clamp(minTierIndex)` rather than shopping for a cheaper level that would
+also satisfy the target, because two models pricing one step differently is how the D8 desecration
+mispricing survived. But the sheet is **not monotone in level** — Essence of Abrasion runs Lesser 116ex,
+Normal 107ex, Greater 0.81ex — so any level at or above `minIndex` satisfies the target and both
+planners can be buying one 100x dearer than one that would do. Fixing that belongs wherever the two
+share the choice; doing it in one of them would recreate D8.
+
+### Two refusals, replacing one that was too broad
+
+`optimizeItemMarkov` carried a blanket `applicable: false` for any regular-essence target, reasoning
+that those need a Magic item while the model starts from the Rare you hold. Half right — and the wrong
+half was refusing the case that works, since the Lab's from-white craft climbs through Magic on its way
+up. It is gone. What replaces it is narrower and can name the mod: from a held **Rare** the action is
+genuinely unreachable, so `markovFromItem` says *"can only be added by a regular Essence, which needs a
+Magic item — this one is already Rare"*. The generic *"no policy reaches the target"* told the reader
+nothing to act on.
+
+An older test asserting the reason "blames the missing action rather than the rarity" is now inverted,
+and the inversion is the point: when there was no action, naming the rarity described a limit that was
+not binding. Now the action exists and the rarity IS the binding constraint.
+
+### Verified
+
+Hand-computed on a synthetic pool where a Transmute can only land one mod and the Essence is the only
+route to a suffix: E = 0.2 + 5 exactly, with the three levels priced 5 / 50 / 500 apart so a wrong
+level cannot hide in a tolerance. On real 0.5.0 data: the MDP's chosen `tierIndex` and `level` equal the
+linear planner's, and `actionCostOf` equals `stepCost` through the two different entry points. Plus a
+40k-run policy simulation, because a P=1 edge is exactly where a mis-encoded successor hides — nothing
+else in the distribution can dilute it.
+
+Five of six guards were caught by mutation testing after two rounds; the sixth (`excluded(mod, occ)`)
+is unreachable by construction, since two slots wanting one family are refused upstream — the same
+reason the identical line in `addOutcomes` is labelled defensive.
+
+### Found on the way, not fixed
+
+**A lone essence target still throws in the LINEAR planner** — *"an essence-only mod needs a Magic item
+first"* — and `runSolve` calls that planner before the model, so the throw takes down a compute the MDP
+could now answer. That is the inverse of the standing rule that an MDP failure must never delete the
+frontier. Recorded in TODO 2.
+
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

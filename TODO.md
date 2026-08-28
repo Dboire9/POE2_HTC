@@ -47,13 +47,21 @@ of the sample, which is why the misread was a wrong number rather than a wrong m
 Done 2026-08-23: the true-cost model handles Normal and Magic starts, so the Lab tab has a policy
 route and an honest cost. What that left open:
 
-- **The MDP has no Essence action**, so a craft whose target needs one still has no true cost (the
-  panel says so and falls back to the step routes). Essences are a deterministic add on a Magic item —
-  the same shape as the add-chain actions now in the space.
+- ~~**The MDP has no Essence action**~~ — **DONE 2026-08-28.** A regular Essence is now an action on
+  the Magic rung beside the Regal: forces its mod, converts Magic → Rare, removes nothing, P=1. Both
+  planners buy the same level by construction (`clamp(minTierIndex)`), which a test pins. See
+  docs/validation.md, and note the shared level-pricing limitation recorded there.
 - **The step planner still cannot express filler.** Interesting consequence: the MDP *can* — it rolls
-  whatever lands and desecrates — so a lone desecrated target from white is now feasible in one model
-  and not the other. Worth checking whether `FrontierView`'s desecration empty-hint should now point
-  at the policy instead of calling it unsearched. See docs/copy-audit.md row 4.
+  whatever lands and desecrates — so a lone desecrated target from white is feasible in one model and
+  not the other. **Traced 2026-08-28 and the copy is FINE**: `FrontierView`'s empty-state says "Nothing
+  this search tried worked … the craft may still be possible by a route the planner doesn't explore",
+  which claims no impossibility and names no wrong cause. It could be *more* helpful — it could point
+  at the policy graph, which does explore that route — but that is an improvement, not a correction,
+  and it is not a copy-audit defect. Left alone deliberately.
+- **A lone essence target still throws in the LINEAR planner** ("an essence-only mod needs a Magic item
+  first — include at least one rollable mod"), and `runSolve` runs that planner first, so the throw
+  takes the whole compute down before the MDP — which CAN now do it — gets a chance. The inverse of the
+  rule that an MDP failure must never delete the frontier. Not fixed here; worth a look.
 - **Suite time.** Lab tests now run an MDP; keep an eye on it. (2026-08-23: `searchEffort.test.ts`
   was buying a 6-target from-white MDP to assert the STEP planner's orb depth — 209s and 134s for
   numbers it never read. It now calls `optimize` directly and keeps one `runSolve` case for the
@@ -262,8 +270,11 @@ item is the Regal opener that converts it to Rare (added 2026-08-23). For a targ
 that is the right move anyway; for a 2-mod target an Augmentation (0.27ex) would be cheaper than a
 Regal, and the planner cannot express it. Pinned by a test that asserts the gap rather than hiding it.
 
-Related and larger: **the MDP does not model Magic at all**, so a Magic item gets step routes but no
-true expected cost and no policy graph. The UI now says so instead of silently dropping the panel.
+~~Related and larger: **the MDP does not model Magic at all**~~ — **STALE, and done long since.** The
+state carries rarity and `markovFromItem` gives a Magic start the rungs `['magic','rare']`. Everything
+below this line about synthetic start nodes and rarity in the state key describes work that shipped;
+it is kept only because the reasoning about `stateLabel` is still the reason the label carries rarity.
+The Augmentation gap in the LINEAR planner (the paragraph above) is the part of §4 still open.
 
 Restoring it is smaller than it first looks. `enumerateStates` builds the FULL rare lattice, not the
 reachable subset, so value iteration already computes V for every post-Regal state. A Magic start is

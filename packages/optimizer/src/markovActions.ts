@@ -12,6 +12,7 @@ import { excluded, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
+import { essenceLevelOf } from './optimize.ts';
 import { allowsStep, stepCost } from './cost.ts';
 import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
 import {
@@ -38,6 +39,18 @@ export type McAction =
   // A Perfect Essence forces one specific mod on while removing one at random. `side` is a
   // Sinistral/Dextral Crystallisation omen constraining WHICH mod the essence eats.
   | { readonly currency: 'perfect-essence'; readonly target: string; readonly side?: 'prefix' | 'suffix' }
+  // A REGULAR Essence: forces one specific mod on and converts the item Magic → Rare, removing nothing.
+  // `tierIndex` picks the essence LEVEL — an essence mod's tiers ARE its levels (Lesser / Essence /
+  // Greater, ascending), so the index into `mod.tiers` is both the tier the player gets and the level
+  // they buy. It is the mod, not the currency, that carries the price: see `PricedStep`.
+  //
+  // `level` is derivable from `tierIndex` given the mod, and is carried anyway because `pricedStepOf`
+  // is a pure translation with no `PatchData` to look it up in. Resolved once where the mod IS in
+  // scope, by the linear planner's own `essenceLevelOf`.
+  | {
+    readonly currency: 'essence'; readonly target: string; readonly tierIndex: number;
+    readonly level: string;
+  }
   // The add-chain, for a craft that starts below Rare. Transmute takes a white base to Magic, Augment
   // fills the Magic item's second slot, Regal converts to Rare — each adding one random mod as it goes,
   // and each with the same Greater/Perfect strengths an Exalt has (all six variants are priced).
@@ -107,6 +120,12 @@ function pricedStepOf(action: McAction): PricedStep {
       // `target` is the mod the essence forces, which is what prices it — see PricedStep.
       return { currency: 'perfect-essence', add: action.target, ...(omen ? { omen } : {}) };
     }
+    case 'essence':
+      // Both halves of the price come from the mod: `add` selects `essence:<level>:<modId>`, and
+      // `essenceLevel` is the fallback for a sheet with no per-essence entry.
+      // No `essenceTier` here: that is a PlanStep field the PROBABILITY side reads. Pricing needs
+      // only which mod and which level, and `PricedStep` carries exactly that.
+      return { currency: 'essence', add: action.target, essenceLevel: action.level };
     case 'transmute':
     case 'augment':
     case 'regal':
@@ -514,6 +533,54 @@ export function createActionSpace(params: ActionSpaceParams): {
     }
     return out;
   };
+  /**
+   * A REGULAR Essence: forces its mod on and converts the item Magic → Rare, removing nothing.
+   *
+   * The mirror of `essenceForcedProbability` (packages/engine/src/probability.ts), condition for
+   * condition, because the two planners must agree on when a step is legal as well as what it costs —
+   * that is the D8 lesson. It returns 1 or 0, so this distribution is a single outcome at P=1.
+   *
+   * The side-room check is against the RARE cap, not the Magic one, exactly as a Regal's is: the
+   * essence converts as it adds, so the slot it needs is a slot on the item it produces. Checking the
+   * Magic cap would refuse a legal essence on a 1-prefix Magic item.
+   *
+   * WHICH LEVEL is not this function's choice — see `essenceTargets` below.
+   */
+  const essenceOutcomes = (s: McState, i: number, tierIndex: number): Dist => {
+    const out: Dist = new Map();
+    if (s.rarity !== 'magic') return out;              // a regular Essence needs a Magic item
+    const t = list[i]!;
+    if (has(s.present, i) || has(s.blocked, i)) return out;  // its family is already occupied
+    const mod = representative(t);
+    const occ = occupiedFamilies(s.present, s.blocked, list);
+    if (excluded(mod, occ)) return out;                // defensive (validated distinct upstream)
+    const open = t.type === 'prefix' ? prefixOpenIn(s, 'rare') : suffixOpenIn(s, 'rare');
+    if (!open) return out;
+    const tier = mod.tiers[tierIndex];
+    if (tier === undefined || tier.ilvl > level) return out;  // the level outranks the item
+    addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, s.flagged, 'rare'), 1);
+    return out;
+  };
+
+  /**
+   * The essence targets, and the level each one is bought at.
+   *
+   * `tierIndex` MIRRORS the linear planner's `clamp(minTierIndex)` (optimize.ts) rather than shopping
+   * for the cheapest level that would satisfy the target, and that is deliberate: two models pricing
+   * the same step differently is how the D8 desecration mispricing survived for a day.
+   *
+   * It is also a shared LIMITATION worth knowing about, because the price sheet is not monotone in
+   * level — Essence of Abrasion runs Lesser 116ex, Normal 107ex, Greater 0.81ex. Any level at or above
+   * `minIndex` satisfies the target, so both planners can be buying a level 100x dearer than one that
+   * would do. Fixing that belongs wherever the two share the choice, not here in one of them.
+   */
+  const essenceTargets = list.map((t, i) => {
+    const mod = representative(t);
+    if (mod.source !== 'essence') return undefined;
+    const tierIndex = Math.max(0, Math.min(mod.tiers.length - 1, t.mods[0]!.minIndex));
+    return { i, tierIndex, level: essenceLevelOf(mod.tiers[tierIndex]?.name), target: mod.id };
+  }).filter((e) => e !== undefined);
+
   // Always singleton positions: a Perfect Essence FORCES its mod at its own price, so two of them are
   // a choice rather than a union and `mergeKey` keeps them apart (see markovSymmetry.ts).
   const perfectTargets = list.map((t, i) => (representative(t).source === 'perfect_essence' ? i : -1)).filter((i) => i >= 0);
@@ -607,6 +674,13 @@ export function createActionSpace(params: ActionSpaceParams): {
         for (const strength of strengthsFor(currency)) {
           push({ currency, strength }, addOutcomes(s, STRENGTH_FLOOR[strength], undefined, into));
         }
+      }
+      // A regular Essence also converts Magic → Rare, forcing its mod instead of rolling one. It is
+      // the ONLY way an essence-source target ever reaches the item, so without this the whole craft
+      // is unreachable rather than merely expensive.
+      for (const e of essenceTargets) {
+        push({ currency: 'essence', target: e.target, tierIndex: e.tierIndex, level: e.level },
+          essenceOutcomes(s, e.i, e.tierIndex));
       }
       // An Annulment works on a Magic item too. It is nearly always the wrong move there — 158.7ex to
       // undo a 0.18ex Transmute — but the policy should reach that conclusion from the prices rather

@@ -232,26 +232,19 @@ export function optimizeItem(
 
 /**
  * The TRUE expected cost + optimal-policy graph for a from-item craft, from the MDP model (push-forward,
- * no restart — see markovFromItem). `applicable` is false for a REGULAR-essence target: those need a
- * Magic item and this model starts from the Rare you already hold, so the caller falls back to
- * `optimizeItem`'s frontier. Rollable, desecrated and perfect-essence targets all go through the MDP.
+ * no restart — see markovFromItem). Rollable, desecrated and BOTH essence grades go through it.
+ *
+ * There used to be a blanket `applicable: false` here for any regular-essence target, on the reasoning
+ * that those need a Magic item while the model starts from the Rare you hold. Half of that was right:
+ * the model now HAS an Essence action, and the Lab's from-white craft reaches Magic on its way up, so
+ * the gate was refusing the case it works for. The genuinely unreachable case — a target needing a
+ * regular Essence on an item that is already Rare — is refused inside `markovFromItem`, which can name
+ * the mod and the rule instead of speaking for every essence craft at once.
  */
 export function optimizeItemMarkov(
   eng: Engine, item: ExistingItem, targets: readonly TargetInput[], opts: MarkovOptions = {},
 ): EngineMarkovResult {
   const { data, prices } = eng;
-  const applicable = targets.every((t) => data.mods.get(t.modId)?.source !== 'essence');
-  if (!applicable) {
-    return {
-      applicable: false, feasible: false, expectedCost: Infinity, converged: true, bound: 'exact',
-      assumedOdds: false, nodes: [], edges: [],
-      // Note this is NOT "craft it from white": the Lab's from-scratch craft reaches this too, and
-      // telling someone already crafting from white to craft from white is the kind of confident
-      // non-advice this project keeps having to take back out.
-      reason: 'this model has no Essence action yet, so a craft that needs one has no true expected '
-        + 'cost — the step-by-step routes below do cover essences',
-    };
-  }
   const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);
   return mapMarkov(data, res);
 }

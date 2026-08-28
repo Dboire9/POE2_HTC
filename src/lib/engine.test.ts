@@ -582,18 +582,33 @@ describe('engine facade — optimizeItemMarkov (0.5.0)', () => {
     expect(r.nodes.some((nd) => nd.action?.startsWith('Desecrate (Omen of the '))).toBe(true);
   });
 
-  // The reason names the missing ACTION, not a missing rarity. It used to say "needs a Magic item —
-  // craft it from white", which the Lab's own from-scratch craft reaches: telling someone already
-  // crafting from white to craft from white is confident non-advice, and since the state gained a
-  // rarity axis the Magic item isn't the obstacle anyway. The obstacle is that no Essence action
-  // exists in the model yet (TODO 1).
-  it('is not applicable for a REGULAR-essence target (no Essence action; caller uses the frontier)', () => {
+  /**
+   * The facade used to refuse EVERY regular-essence craft with a blanket `applicable: false`, on the
+   * reasoning that those need a Magic item while this model starts from the Rare you hold. Half right,
+   * and the wrong half was doing the damage: the model gained an Essence action on 2026-08-28, and the
+   * Lab's own from-white craft climbs through Magic on its way up — so the gate was refusing the case
+   * it works for. The genuinely unreachable case is refused deeper down, where it can name the mod.
+   */
+  it('answers a REGULAR-essence craft from a white base, and names the essence to buy', () => {
+    const wands = listMods(eng050.data, 'Wands');
+    const ess = [...wands.prefixes, ...wands.suffixes].find((m) => m.source === 'essence')!;
+    const white: ExistingItem = { baseId: 'Wands', level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+    const r = optimizeItemMarkov(eng050, white,
+      [{ modId: MANA, tierDisplay: 99 }, { modId: ess.id, tierDisplay: 1 }], { restartCost: 0 });
+    expect(r.applicable).toBe(true);
+    expect(r.feasible).toBe(true);
+    // The label is the essence's own name, which is what the player types into a trade search — not
+    // "Essence (greater)", which would leave them to work out which one.
+    expect(r.nodes.some((nd) => nd.action?.includes('Essence of '))).toBe(true);
+  });
+
+  it('still refuses one on a held RARE, because a regular Essence needs a Magic item', () => {
     const wands = listMods(eng050.data, 'Wands');
     const ess = [...wands.prefixes, ...wands.suffixes].find((m) => m.source === 'essence')!;
     const r = optimizeItemMarkov(eng050, start, [{ modId: MANA, tierDisplay: 99 }, { modId: ess.id, tierDisplay: 1 }]);
-    expect(r.applicable).toBe(false);
-    expect(r.reason).toMatch(/no Essence action/i);
-    expect(r.reason).not.toMatch(/from white/i);
+    expect(r.feasible).toBe(false);
+    expect(r.reason).toMatch(/needs a Magic item/i);
+    expect(r.reason).not.toMatch(/from white/i); // still not advice a from-white crafter needs
   });
 });
 

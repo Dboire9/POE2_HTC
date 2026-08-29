@@ -111,6 +111,15 @@ export interface EngineResult {
   readonly currencyDepth: CurrencyDepth;
   /** True when a search cap stopped the planner early — the UI must offer more Search effort. */
   readonly truncated?: boolean;
+  /**
+   * Why there is no frontier, when the planner DECLINED rather than searched and found nothing.
+   *
+   * The two are different answers and must not render alike: "nothing this search tried worked" sends
+   * the reader off adjusting a tier, which is useless advice when the planner refused the craft's shape
+   * outright (a lone essence-only target, say). `runSolve`'s `frontierOrReason` carries the planner's
+   * own sentence here, and `FrontierView` prefers it over its generic hint.
+   */
+  readonly reason?: string;
   /** True when a shown number depends on the ASSUMED desecrated spawn weight (an unomened
    *  Desecration). The UI must say so — see PriceBasisNote's `exactOdds`. */
   readonly assumedOdds: boolean;

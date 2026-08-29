@@ -48,10 +48,15 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   Magic cap would refuse a legal essence on a 1-suffix Magic item. An essence mod's TIERS ARE ITS
   LEVELS (Lesser ilvl 15 → Essence 30 → Greater 60, ascending like any other mod's), so
   `mod.tiers[minTierIndex]` is at once the tier the player gets, the essence they buy, and the
-  `essence:<level>:<modId>` key that prices it. **The MDP picks the same level the linear planner does
-  (`clamp(minTierIndex)`) on purpose** — a shared limitation, since the sheet is not monotone in level
-  (Essence of Abrasion: Lesser 116ex, Normal 107ex, Greater 0.81ex), so both can buy a level 100x
-  dearer than one that would do. Fix that where they share the choice, or they will disagree.
+  `essence:<level>:<modId>` key that prices it. **Which level to buy is `cheapestEssenceLevel`
+  (cost.ts), called by BOTH planners** — one function on purpose, because pricing one step two ways is
+  how the D8 desecration bug survived. It was `clamp(minTierIndex)` in both until 2026-08-29, which
+  agreed on the wrong number: every level at or above the wanted one satisfies the target AND rolls
+  better, and **the sheet is not monotone in level for 250 of 302 fully-priced essences (83%)**. Across
+  all 317 essence targets in 0.5.0 the quoted price falls **8,595.8ex → 646.6ex (13.3x)**, with
+  `Bows/Essence_FireDamage` alone going 364.2ex → 0.3ex. Priced through `stepCost`, not the raw key, so
+  a level whose per-mod entry is missing is compared at its `essence_<lvl>` fallback and the choice can
+  never disagree with the bill.
   From a held RARE the action is unreachable and `markovFromItem` says so by name, because a regular
   Essence needs a Magic item — that refusal replaced a blanket `applicable: false` in the facade which
   was also refusing the from-white case the model handles.
@@ -258,7 +263,14 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   Measured against VI at a 240s budget: `2p+1s T1` exact at 10,661 where VI could only bound ≤14,588
   (37% high); `3p+1s T1` exact at 93,204 against ≤117,120 (26% high); on the craft neither settles,
   PI's ceiling is 16% tighter. Where both converge they agree to **1e-6**, which is the licence for
-  the swap. **EVERY effort preset runs it as of 2026-08-28**, not just the top one: a campaign over 18
+  the swap. **EVERY effort preset runs it as of 2026-08-28**, and there are THREE of them as of 2026-08-29 —
+  Quick / Standard / Exhaustive. Thorough and Patient were retired because they overlapped, not because
+  effort stopped mattering: the gradient is real (Quick resolved 10 of 18 measured crafts exactly,
+  Standard 14, Thorough 16, Patient 18), but Patient and Exhaustive returned BYTE-IDENTICAL costs on
+  every hard craft and Thorough sat between neighbours that bracketed it. `RETIRED_EFFORT` maps a stored
+  `thorough`/`patient` UPWARD to `exhaustive`, in both `read()` and `limitsFor` — the plain unknown-id
+  fallback would have moved someone who deliberately chose Patient to a SHORTER search and a worse
+  answer without telling them. The comparison that decided it: a campaign over 18
   realistic crafts and 108 solves found PI did not lose a single cell, and produced a ceiling ZERO
   times — it either answers exactly or says it could not start.
 
@@ -323,10 +335,16 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   forward steps as steps backwards. And the route walk only steps to states the craft can be FINISHED
   from: a from-white policy scraps and restarts for most outcomes, so plenty of states have no forward
   move at all, and following the likeliest edge walked into one and stalled.
-- **An MDP failure must never delete the frontier.** Both tabs compute the step frontier first and the
-  model second; `markovOrReason` in `solve.ts` turns a throw into a `reason` the panel renders. This is
-  not a blanket catch — the message is carried through. It exists because an unmocked `optimizeItemMarkov`
-  in a test took the whole lab result down, and the same shape could happen in production.
+- **Neither planner's failure may delete the other's answer, and the guard runs BOTH ways.**
+  `markovOrReason` in `solve.ts` turns an MDP throw into a `reason` the panel renders; it exists because
+  an unmocked `optimizeItemMarkov` in a test took the whole lab result down. `frontierOrReason` is its
+  mirror, added 2026-08-29: the STEP planner throws on shapes it cannot express, and a craft naming only
+  an essence mod ("an essence-only mod needs a Magic item first") was taking down a compute the MDP
+  answers perfectly well — reachable from the day the model learned to buy an Essence. Neither is a
+  blanket catch; both carry the message through. `EngineResult.reason` outranks `FrontierView`'s generic
+  "nothing this search tried worked", because a planner that DECLINED and a search that RAN and found
+  nothing are different answers — telling the second reader to lower a tier is advice, telling the first
+  is a wrong diagnosis.
 - **A held item's step-route card shows no expected-cost total.** `planExpectedCost` divides a real
   per-run cost by the plan's success chance, and at ~7e-13 that is billions of divine — right, and not
   a budget. `FrontierView`'s `freeRestart={false}` drops `expected` and `expectedAttempts` and shows

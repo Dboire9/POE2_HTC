@@ -15,7 +15,7 @@ import { evaluatePlan } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
 import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
-import { allowsStep, planExpectedCost, pricesForBase } from './cost.ts';
+import { allowsStep, cheapestEssenceLevel, essenceLevelOf, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, factorial, permutations } from './combinatorics.ts';
 import { expandSlots, itemLegalCombinations } from './slots.ts';
 
@@ -274,20 +274,6 @@ function orbAssignments(rolled: readonly string[], legal: Map<string, CurrencyTi
 }
 
 /**
- * An essence mod's level (its tiers ARE Lesser/Normal/Greater), read from the tier name for pricing.
- *
- * Exported for the MDP's own Essence action (markovActions.ts). One reader, because it decides the
- * `essence:<level>:<modId>` key `stepCost` looks up — a second copy would drift and the two planners
- * would quietly price the same essence differently.
- */
-export function essenceLevelOf(tierName: string | undefined): string {
-  const n = (tierName ?? '').toLowerCase();
-  if (n.startsWith('lesser')) return 'lesser';
-  if (n.startsWith('greater')) return 'greater';
-  return 'normal';
-}
-
-/**
  * Build the step sequences for ONE ordering, essence/desecrated/perfect sets, target-tier map and orb
  * assignment. Returns a LIST because a perfect-essence target branches: a Perfect Essence adds its mod
  * while eating one already on the item, and which mod it eats is a real choice the search must make.
@@ -297,6 +283,8 @@ function buildParetoSteps(
   data: PatchData, order: readonly string[], essences: ReadonlySet<string>, desecrated: ReadonlySet<string>,
   perfects: ReadonlySet<string>,
   tierOf: Map<string, number>, orbOf: Map<string, CurrencyTier>,
+  /** Essence level per essence-only target — see `cheapestEssenceLevel`. */
+  essenceTierOf: ReadonlyMap<string, number>,
   /** False on armour, where a Desecration can't be boss-targeted at all — see `bossOmenAllowed`. */
   bossOk: boolean,
 ): PlanStep[][] {
@@ -331,7 +319,7 @@ function buildParetoSteps(
         ];
         // After swap + re-add the item holds exactly what it would have with a plain add of `id`, so
         // the remainder of the ordering continues on unchanged state.
-        const after = buildParetoSteps(data, rest, essences, desecrated, perfects, tierOf, orbOf, bossOk);
+        const after = buildParetoSteps(data, rest, essences, desecrated, perfects, tierOf, orbOf, essenceTierOf, bossOk);
         // `rest` can contain no further perfect target (one essence modifier per item), so `after` has
         // exactly one element — but map over it rather than assuming, so a future second branch can't
         // silently drop sequences.
@@ -341,7 +329,9 @@ function buildParetoSteps(
     if (essences.has(id)) {
       // Essence-only mod: guaranteed (P=1) by an essence at the chosen level (its tier index).
       const mod = resolveMod(data, id);
-      const essenceTier = Math.max(0, Math.min(mod.tiers.length - 1, minTierIndex));
+      // Not `clamp(minTierIndex)`: any level at or above it satisfies the target and rolls better, and
+      // the sheet is not monotone in level (Abrasion: Lesser 116ex, Greater 0.81ex). See cost.ts.
+      const essenceTier = essenceTierOf.get(id) ?? Math.max(0, Math.min(mod.tiers.length - 1, minTierIndex));
       steps.push({ currency: 'essence', add: id, essenceTier, essenceLevel: essenceLevelOf(mod.tiers[essenceTier]?.name) });
       rarity = 'rare';
     } else if (desecrated.has(id)) {
@@ -579,6 +569,15 @@ function paretoForOneCraft(
     throw new Error('an essence-only mod needs a Magic item first — include at least one rollable mod in the target');
   }
   const tierOf = new Map(targets.map((t) => [t.modId, t.minTierIndex ?? 0]));
+  /**
+   * Which essence LEVEL each essence-only target is bought at — resolved once per craft, not per
+   * ordering. `buildParetoSteps` runs for every permutation the search tries (thousands), and this
+   * choice depends on nothing the ordering changes.
+   */
+  const essenceTierOf = new Map([...essSet].map((id) => {
+    const mod = resolveMod(data, id);
+    return [id, cheapestEssenceLevel(prices, mod, tierOf.get(id) ?? 0, level)] as const;
+  }));
 
   // Pick the deepest orb-tier search that stays within maxPlans (report which one we used). Only the
   // rolled mods carry an orb-strength choice; essence-only mods have a fixed level (no orb axis). Each
@@ -610,7 +609,7 @@ function paretoForOneCraft(
   for (const order of permutations(modIds)) {
     for (const orbOf of assignments) {
       baseSequences.push(
-        ...buildParetoSteps(data, order, essSet, desSet, perfSet, tierOf, orbOf, bossOmenAllowed(base.category)),
+        ...buildParetoSteps(data, order, essSet, desSet, perfSet, tierOf, orbOf, essenceTierOf, bossOmenAllowed(base.category)),
       );
     }
   }

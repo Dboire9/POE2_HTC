@@ -90,10 +90,12 @@ describe('the setting reaches the planners', () => {
   /**
    * Measured on this exact target (6 mods at tier display 3, Wands, ilvl 82):
    *
-   *   quick      strongest-only      5,760 plans
-   *   standard   strongest-only      5,760      ← same as the old hard-coded default
-   *   thorough   base+strongest    184,320
-   *   patient    full              622,080
+   *   quick       strongest-only      5,760 plans
+   *   standard    strongest-only      5,760      ← same as the old hard-coded default
+   *   exhaustive  full              622,080
+   *
+   * (`thorough` sat at 184,320 and `patient` at 622,080 before both were retired on 2026-08-29 —
+   * Patient and Exhaustive had proved byte-identical, and Thorough was bracketed by its neighbours.)
    *
    * Worth noting what that shows: on a craft this size the DEFAULT only searches the strongest orbs,
    * and the whole point of the setting is that a user can buy the other 108x. The assertions are on
@@ -101,20 +103,37 @@ describe('the setting reaches the planners', () => {
    * threshold bites doesn't produce a false failure — but a setting that stopped mattering would.
    */
 
-  // Slow on purpose, and declared so. The Patient preset means 2,000,000 plans; the assertion is about
-  // what that buys, so the craft cannot be shrunk without shrinking the question. Measured at ~19s
-  // locally, and CI runs slower — the default 30s ceiling is not enough headroom for a test that is
-  // legitimately this expensive.
+  // Slow on purpose, and declared so. The top preset means 2,000,000 plans; the assertion is about what
+  // that buys, so the craft cannot be shrunk without shrinking the question. Measured at ~19s locally,
+  // and CI runs slower — the default 30s ceiling is not enough headroom for a test this expensive.
   it('a bigger plan cap really does buy a deeper orb search', () => {
     const quick = depthAt('quick');
-    const thorough = depthAt('thorough');
-    const patient = depthAt('patient');
-    expect(thorough.plansEvaluated).toBeGreaterThan(quick.plansEvaluated);
-    expect(patient.plansEvaluated).toBeGreaterThan(thorough.plansEvaluated);
-    // The deepest preset must actually reach the exhaustive search, or "Patient" is a lie.
-    expect(patient.currencyDepth).toBe('full');
+    const top = depthAt('exhaustive');
+    expect(top.plansEvaluated).toBeGreaterThan(quick.plansEvaluated);
+    // The deepest preset must actually reach the exhaustive search, or its name is a lie.
+    expect(top.currencyDepth).toBe('full');
     expect(quick.currencyDepth).not.toBe('full');
+    // Standard buys nothing here, and that is the measured truth rather than an oversight: on a craft
+    // this size the orb search saturates below its cap, which is exactly what the header records.
+    expect(depthAt('standard').plansEvaluated).toBe(quick.plansEvaluated);
   }, 120_000);
+
+  /**
+   * A retired rung resolves UPWARD, not to the default.
+   *
+   * `read()`'s fallback is right for a corrupt value and wrong for a rung this build dropped: someone
+   * who deliberately chose Patient would be moved to a SHORTER search and get a worse answer without
+   * being told. `limitsFor` honours the same map, so a stored id reaching the solver by any path — a
+   * worker message, a test, a link — lands on the successor too.
+   */
+  it('maps a retired rung to its successor rather than dropping to the default', () => {
+    for (const retired of ['thorough', 'patient']) {
+      expect(limitsFor(retired)).toEqual(limitsFor('exhaustive'));
+      expect(limitsFor(retired)).not.toEqual(limitsFor(DEFAULT_EFFORT));
+    }
+    // …while a value that never was a rung still falls back, which is the other half of the contract.
+    expect(limitsFor('not-a-preset')).toEqual(limitsFor(DEFAULT_EFFORT));
+  });
 
   // Standard must reproduce the old hard-coded behaviour exactly, so shipping this setting changes
   // nobody's existing results — only what they can opt into. Both sides go through the planner
@@ -198,7 +217,7 @@ describe('every rung ends on a proof', () => {
 
   it('is the top of the ladder, so isTopEffort points at it', () => {
     expect(isTopEffort(top.id)).toBe(true);
-    expect(isTopEffort('patient')).toBe(false); // it used to be, and the check is derived not named
+    expect(isTopEffort('standard')).toBe(false); // the check is derived from the list, not named
   });
 
   /**
@@ -217,6 +236,6 @@ describe('every rung ends on a proof', () => {
   // Policy iteration still runs sweeps to evaluate each policy, so a stingy cap would stop it short
   // of the proof it exists to deliver and hand back a ceiling anyway — the exact failure being fixed.
   it('carries the headroom its own evaluation needs', () => {
-    expect(top.limits.maxSweeps).toBeGreaterThan(limitsFor('patient').maxSweeps);
+    expect(top.limits.maxSweeps).toBeGreaterThan(limitsFor('standard').maxSweeps);
   });
 });

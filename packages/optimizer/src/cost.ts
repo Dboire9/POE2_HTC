@@ -17,7 +17,7 @@
 // about half the time. Same recursion, solved over a cost grid instead of collapsed to a scalar.
 
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
-import type { AffixType, CurrencyTier, ItemBase } from '../../engine/src/types.ts';
+import type { AffixType, CurrencyTier, ItemBase, Mod } from '../../engine/src/types.ts';
 import type { AnnulOmen, DesecrationBossOmen, EssenceOmen } from '../../engine/src/probability.ts';
 import { desecrationBoneFor } from '../../engine/src/probability.ts';
 
@@ -203,6 +203,53 @@ export function allowsStep(policy: CurrencyPolicy | undefined, step: PricedStep)
   if (!policy || policy.excluded.size === 0) return true;
   if (policy.excluded.has(currencyKey(step))) return false;
   return !stepOmenIds(step).some((id) => policy.excluded.has(id));
+}
+
+/** An essence mod's level (its tiers ARE Lesser/Normal/Greater), read from the tier name for pricing. */
+export function essenceLevelOf(tierName: string | undefined): string {
+  const n = (tierName ?? '').toLowerCase();
+  if (n.startsWith('lesser')) return 'lesser';
+  if (n.startsWith('greater')) return 'greater';
+  return 'normal';
+}
+
+/**
+ * Which ESSENCE LEVEL to buy for a target that will accept tier `minIndex` or better.
+ *
+ * Both planners used to take `minIndex` itself, on the reasonable-sounding assumption that a weaker
+ * essence is a cheaper one. The sheet says otherwise, and not marginally: **Essence of Abrasion runs
+ * Lesser 116ex, Normal 107ex, Greater 0.81ex.** An essence mod's tiers ascend, so every level at or
+ * above `minIndex` satisfies the target AND rolls better stats — buying the named one was quoting
+ * ~140x the price of a strictly better item. Since the optimizer ranks plans BY cost, that is a wrong
+ * recommendation, not merely a wrong total.
+ *
+ * ONE function, called by both planners, and that is the point rather than tidiness: the linear
+ * planner and the MDP pricing the same step differently is exactly how the D8 desecration mispricing
+ * survived. They cannot drift while they share this.
+ *
+ * Priced through `stepCost` rather than the raw key so the `essence_<lvl>` fallback is respected — a
+ * level whose per-mod entry is missing must be compared at what it will actually be charged, or the
+ * choice and the bill disagree. Ties keep the lowest index, so a sheet with one flat price reproduces
+ * the old behaviour exactly. Levels the item outranks are skipped (`tier.ilvl > itemLevel`), which is
+ * the same gate `essenceForcedProbability` applies.
+ */
+export function cheapestEssenceLevel(
+  prices: Prices, mod: Mod, minIndex: number, itemLevel: number,
+): number {
+  const lo = Math.max(0, Math.min(mod.tiers.length - 1, minIndex));
+  let best = lo;
+  let bestCost = Infinity;
+  for (let j = lo; j < mod.tiers.length; j++) {
+    const tier = mod.tiers[j];
+    if (tier === undefined || tier.ilvl > itemLevel) continue;
+    const c = stepCost(prices, {
+      currency: 'essence', add: mod.id, essenceLevel: essenceLevelOf(tier.name),
+    });
+    if (c < bestCost) { best = j; bestCost = c; }
+  }
+  // Every level outranked by the item: nothing is buyable, so hand back the one the target named and
+  // let the caller's own ilvl gate refuse it. Choosing here would hide the refusal.
+  return bestCost === Infinity ? lo : best;
 }
 
 /** The pre-per-essence key: one price per LEVEL. Still used when a sheet has no per-essence entry. */

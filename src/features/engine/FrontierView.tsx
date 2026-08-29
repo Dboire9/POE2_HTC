@@ -94,12 +94,16 @@ const FrontierView: React.FC<{
             which also happens when the craft is legal but outside what the planner explores (the
             desecration filler route, for one). Naming the likely cause and admitting it is a guess
             beats a confident wrong diagnosis that sends the player off adjusting a tier. */}
-        {emptyHint ?? (
+        {/* `result.reason` outranks the generic text because they answer different questions. The
+            fallback below explains a search that RAN and found nothing; a reason means the planner
+            declined the craft's shape before searching at all, and telling that reader to try a lower
+            tier would send them adjusting something that was never the problem. */}
+        {emptyHint ?? (result.reason ? <p>{result.reason}</p> : (
           <p>Nothing this search tried worked. The usual cause is a target tier gated above the item
             level, or a mod that can’t roll on this base — try a lower target tier or a higher item
             level. If neither applies, the craft may still be possible by a route the planner doesn’t
             explore.</p>
-        )}
+        ))}
       </Card>
     ) : (
       <div className="space-y-3">

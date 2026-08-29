@@ -2208,6 +2208,85 @@ could now answer. That is the inverse of the standing rule that an MDP failure m
 frontier. Recorded in TODO 2.
 
 
+## A better essence is usually the cheaper one (2026-08-29)
+
+Three fixes, two of them consequences of teaching the model to buy an Essence the day before.
+
+### The step planner was taking the model's answer down with it
+
+Ask for ONLY an essence mod — the most natural essence query there is — and `runSolve` died before the
+model ran. `optimize()` throws *"an essence-only mod needs a Magic item first — include at least one
+rollable mod in the target"*, and it was called unguarded. The MDP answers that craft perfectly well
+(transmute, roll whatever lands, then essence), so from the moment it learned the Essence action the app
+was throwing away an answer it had.
+
+`frontierOrReason` is the mirror of `markovOrReason`, which has protected the frontier from a model
+failure for months. The rule was always symmetric; only one half had ever been reachable.
+`EngineResult.reason` carries the planner's own sentence, and `FrontierView` prefers it over the generic
+"nothing this search tried worked" — a search that RAN and found nothing and a planner that DECLINED are
+different answers, and telling the second reader to try a lower tier sends them to fix something that
+was never the problem.
+
+### Both planners were quoting essences ~13x too dear, on average
+
+An essence mod's tiers ascend, so every level at or above the wanted one satisfies the target **and**
+rolls better stats. Both planners took the wanted level itself — `clamp(minTierIndex)` — on the
+reasonable-sounding assumption that a weaker essence is a cheaper one.
+
+**It is not, for 250 of the 302 fully-priced essences in 0.5.0 — 83%.** Measured across all 317 essence
+targets, choosing the cheapest satisfying level instead:
+
+| | before | after |
+|---|---|---|
+| total quoted price, all targets | 8,595.8 ex | **646.6 ex** (13.3x cheaper) |
+| targets whose level changed | — | 251 of 317 (79%) |
+| worst single case | `Bows/Essence_FireDamage` 364.2 ex | **0.3 ex** (1,214x) |
+
+Examples of the shape: `Amulets/Essence_FireResistance` lesser 15 / normal 100 / **greater 1.886**;
+`Amulets/Essence_ColdResistance` 20 / 54.99 / **0.9385**. Since the optimizer ranks plans BY cost, this
+was a wrong recommendation and not merely a wrong total.
+
+`cheapestEssenceLevel` lives in `cost.ts` and **both planners call it** — one function on purpose, since
+two models pricing one step differently is exactly how the D8 desecration mispricing survived. It prices
+candidates through `stepCost` rather than the raw key, so a level whose per-mod entry is missing is
+compared at the `essence_<lvl>` fallback it will actually be charged; ties keep the lower level, so a
+flat sheet reproduces the old behaviour exactly. The linear planner resolves it **once per craft**, not
+per ordering — `buildParetoSteps` runs for every permutation the search tries.
+
+### The ladder is three rungs
+
+Retired `thorough` and `patient`. Not because effort stopped mattering — the MDP gradient under policy
+iteration is real (Quick 10 of 18 crafts exact, Standard 14, Thorough 16, Patient 18) — but because two
+rungs overlapped: Patient and Exhaustive returned **byte-identical costs** on every hard craft, and
+Thorough sat between neighbours that already bracketed it.
+
+The surviving top rung keeps Exhaustive's 900 s clock rather than Patient's 300 s, deliberately: every
+craft in the 18-craft spread settled inside ~300 s, but 18 crafts is a spread and not a census, the
+clock is a ceiling rather than a promise, `maxSweeps` is usually what binds, and cancel is a worker
+`terminate()`.
+
+**A retired rung maps UPWARD.** `read()`'s unknown-id fallback is right for a corrupt value and wrong
+here: it would have moved someone who deliberately chose Patient to a *shorter* search and a worse
+answer without telling them. `RETIRED_EFFORT` is honoured by `limitsFor` too, so a stored id reaching
+the solver by any path — a worker message, a test, a link — lands on the successor.
+
+### Sentry: the gating verified, not assumed
+
+No DSN was added; Dorian sets it in Vercel, and the production build runs there, so a local `.env` would
+not reach the site. What was checked is that the build-time gating behaves as documented — the check
+that would have caught the 2026-08-26 error, where a bundle was profiled with Sentry compiled out:
+
+| build | entry chunk | Sentry chunk |
+|---|---|---|
+| no DSN | 374.07 kB (gzip 113.75) | — |
+| DSN set | 375.83 kB (gzip 114.60) | 479.24 kB (gzip 158.85), separate |
+
+The entry chunk moves 0.85 kB gzip because the SDK is a **dynamic** import; a static one took it to
+202 kB. `warnIfUnmonitored` prints on the unset build as intended. Steps now live in
+`docs/DEVELOPMENT.md` where a deployer will find them, pointing at `.env.example` as canonical rather
+than duplicating it.
+
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

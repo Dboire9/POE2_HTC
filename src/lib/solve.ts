@@ -190,6 +190,30 @@ function markovOrReason(run: () => EngineMarkovResult): EngineMarkovResult {
   }
 }
 
+/**
+ * …and the same protection in the other direction, which the rule above always implied.
+ *
+ * The step planner throws on shapes it cannot express, and `runSolve` called it unguarded — so a craft
+ * naming ONLY an essence mod ("an essence-only mod needs a Magic item first") took down the whole
+ * compute, model included, even though the MDP answers it perfectly well: transmute, roll whatever
+ * lands, then essence. That is the exact inverse of the failure `markovOrReason` exists to prevent, and
+ * it became reachable the moment the model learned to buy an Essence (2026-08-28).
+ *
+ * An empty frontier is already a state both tabs render. Carrying the planner's own sentence into
+ * `reason` is what stops it rendering as the generic "nothing this search tried worked", which would be
+ * a confident wrong diagnosis — the search did not try and fail, it declined to start.
+ */
+function frontierOrReason(run: () => EngineResult): EngineResult {
+  try {
+    return run();
+  } catch (err) {
+    return {
+      frontier: [], plansEvaluated: 0, currencyDepth: 'base-only', assumedOdds: false,
+      reason: `the step planner can’t lay out this craft: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+}
+
 /** Perform one solve. Pure compute — no Worker, no DOM — so tests can call it directly. */
 export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveProgress) => void): SolveResult {
   // Built once per solve, then shared by every planner below — they must all run under the same rules,
@@ -252,7 +276,8 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
       ? { onProgress: (done: number, total: number): void => onProgress({ phase: 'plan', fraction: within(ITEM_PLAN, done, total) }) }
       : {};
     const planOpts = withPlanLimit(withPolicy(planOnProgress));
-    const plan = optimizeItem(eng, req.item, req.targets, planShare === undefined ? planOpts : { ...planOpts, maxMillis: planShare });
+    const plan = frontierOrReason(() => optimizeItem(eng, req.item, req.targets,
+      planShare === undefined ? planOpts : { ...planOpts, maxMillis: planShare }));
     // The honest expected cost + optimal-policy graph.
     const mdpReport = onProgress
       ? { onProgress: (p: MarkovProgress): void => onProgress({ phase: p.phase, fraction: within(ITEM_MDP, toFraction(p) * 1000, 1000) }) }
@@ -274,11 +299,11 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const planOpts = withPlanLimit(withPolicy(onProgress
     ? { onProgress: emit('plan', hasBudget ? LAB_PLAN_THEN_SEARCH : LAB_PLAN_ALONE) }
     : {}));
-  const result = 'item' in from
+  const result = frontierOrReason(() => ('item' in from
     // The from-item planner has no progress reporting of its own yet; a carved craft therefore shows
     // no movement until the budget search starts.
     ? optimizeItem(eng, from.item, req.targets, withPlanLimit(withPolicy({})))
-    : optimize(eng, from.baseId, from.level, req.targets, planOpts);
+    : optimize(eng, from.baseId, from.level, req.targets, planOpts)));
 
   // The same push-forward model the Item tab uses. A white base is not an item you hold, so it gets the
   // one thing a held item cannot have: permission to scrap and start again, priced at what another base
@@ -311,9 +336,17 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // The slow half of a lab compute when a budget is set — every node it visits is a full Pareto run.
   const want = req.want ?? req.targets;
   const altOpts = withNodeLimit(withPolicy(onProgress ? { onProgress: emit('alternatives', LAB_SEARCH) } : {}));
-  const alts = 'item' in from
-    ? alternativesForItem(eng, from.item, want, budget, altOpts)
-    : alternatives(eng, from.baseId, from.level, want, budget, altOpts);
+  // The near-miss search runs the SAME planner per relaxed target, so it throws on the same shapes.
+  // There is nowhere to carry a message here — `alts: null` already means "that question went
+  // unanswered" — and it needs none: whatever the planner objected to, `result.reason` above is
+  // already saying it in the panel directly beside this one.
+  const alts = ((): EngineAlternatives | null => {
+    try {
+      return 'item' in from
+        ? alternativesForItem(eng, from.item, want, budget, altOpts)
+        : alternatives(eng, from.baseId, from.level, want, budget, altOpts);
+    } catch { return null; }
+  })();
   // The search can stop just short of its node cap (196 of 200 is typical), which would leave the bar
   // sitting at 98% while the work is finished. Say so explicitly, as the MDP path does.
   onProgress?.({ phase: 'alternatives', fraction: 1 });

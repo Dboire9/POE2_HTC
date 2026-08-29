@@ -12,8 +12,7 @@ import { excluded, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
-import { essenceLevelOf } from './optimize.ts';
-import { allowsStep, stepCost } from './cost.ts';
+import { allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost } from './cost.ts';
 import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
 import {
   FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, MAX_PER_SIDE, addTo, anyWeightOf, bit, decodeState,
@@ -565,19 +564,18 @@ export function createActionSpace(params: ActionSpaceParams): {
   /**
    * The essence targets, and the level each one is bought at.
    *
-   * `tierIndex` MIRRORS the linear planner's `clamp(minTierIndex)` (optimize.ts) rather than shopping
-   * for the cheapest level that would satisfy the target, and that is deliberate: two models pricing
-   * the same step differently is how the D8 desecration mispricing survived for a day.
+   * `cheapestEssenceLevel` (cost.ts) makes the choice, and BOTH planners call it — which is what keeps
+   * them from pricing the same step two ways, the failure that produced the D8 desecration bug.
    *
-   * It is also a shared LIMITATION worth knowing about, because the price sheet is not monotone in
-   * level — Essence of Abrasion runs Lesser 116ex, Normal 107ex, Greater 0.81ex. Any level at or above
-   * `minIndex` satisfies the target, so both planners can be buying a level 100x dearer than one that
-   * would do. Fixing that belongs wherever the two share the choice, not here in one of them.
+   * It used to be `clamp(minTierIndex)` here and in optimize.ts, mirrored on purpose. That agreed, but
+   * agreed on the wrong number: the sheet is not monotone in level (Essence of Abrasion runs Lesser
+   * 116ex, Normal 107ex, Greater 0.81ex), and every level at or above `minIndex` satisfies the target
+   * while rolling better stats. Fixed once, in the place they share.
    */
   const essenceTargets = list.map((t, i) => {
     const mod = representative(t);
     if (mod.source !== 'essence') return undefined;
-    const tierIndex = Math.max(0, Math.min(mod.tiers.length - 1, t.mods[0]!.minIndex));
+    const tierIndex = cheapestEssenceLevel(prices, mod, t.mods[0]!.minIndex, level);
     return { i, tierIndex, level: essenceLevelOf(mod.tiers[tierIndex]?.name), target: mod.id };
   }).filter((e) => e !== undefined);
 

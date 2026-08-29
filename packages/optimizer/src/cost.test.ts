@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import type { PatchData, PlanResult, PlanStep } from '../../engine/src/index.ts';
+import type { Mod, PatchData, PlanResult, PlanStep } from '../../engine/src/index.ts';
 import { loadPatch } from '../../engine/src/index.ts';
-import { planExpectedCost, stepCost } from './cost.ts';
+import { cheapestEssenceLevel, essenceLevelOf, planExpectedCost, stepCost } from './cost.ts';
 import type { Prices } from './cost.ts';
 import { loadPrices } from './loadPrices.ts';
 import { optimizeCost } from './optimize.ts';
@@ -83,5 +83,69 @@ describe('optimizeCost — essence-vs-roll crossover', () => {
       expect(plans[k - 1]!.cost.expected).toBeLessThanOrEqual(plans[k]!.cost.expected);
     }
     expect(Number.isFinite(plans[0]!.cost.expected)).toBe(true);
+  });
+});
+
+/**
+ * Which essence LEVEL to buy — the choice both planners now share.
+ *
+ * An essence mod's tiers ascend, so every level at or above the wanted one satisfies the target AND
+ * rolls better stats. Both planners used to take the wanted level itself, on the reasonable assumption
+ * that weaker means cheaper. The sheet says otherwise for **250 of 302 fully-priced essences (83%)**,
+ * and the aggregate is not marginal: over all 317 essence targets in 0.5.0 the quoted price falls
+ * 8,595.8ex → 646.6ex, a 13.3x drop, with `Bows/Essence_FireDamage` alone going 364.2ex → 0.3ex.
+ */
+describe('cheapestEssenceLevel — a better essence is often the cheaper one', () => {
+  const ess = (id: string, ilvls: number[]): Mod => ({
+    id, group: id, field: id, source: 'essence', type: 'suffix', categories: [], family: `F${id}`,
+    tags: [], text: id,
+    tiers: [
+      { name: `Lesser Essence of ${id}`, ilvl: ilvls[0]!, weight: 0, ranges: [], stats: [] },
+      { name: `Essence of ${id}`, ilvl: ilvls[1]!, weight: 0, ranges: [], stats: [] },
+      { name: `Greater Essence of ${id}`, ilvl: ilvls[2]!, weight: 0, ranges: [], stats: [] },
+    ],
+  });
+  const priced = (lesser: number, normal: number, greater: number): Prices => ({
+    currency: { 'essence:lesser:E': lesser, 'essence:normal:E': normal, 'essence:greater:E': greater },
+    omens: {},
+  });
+  const E = ess('E', [15, 30, 60]);
+
+  it('takes a strictly better level when it costs less', () => {
+    // The shape of Amulets/Essence_FireResistance: lesser 15, normal 100, greater 1.886.
+    expect(cheapestEssenceLevel(priced(15, 100, 1.886), E, 0, 82)).toBe(2);
+  });
+
+  it('takes the named level when the sheet IS monotone', () => {
+    expect(cheapestEssenceLevel(priced(1, 10, 100), E, 0, 82)).toBe(0);
+  });
+
+  it('never goes BELOW the wanted tier, however cheap', () => {
+    // Lesser is nearly free and still illegal: the target asked for the Greater roll.
+    expect(cheapestEssenceLevel(priced(0.01, 0.02, 500), E, 2, 82)).toBe(2);
+  });
+
+  it('skips a cheaper better level the item outranks', () => {
+    // Greater is ilvl 60 and the item is 50, so the bargain is unbuyable and Lesser stands.
+    expect(cheapestEssenceLevel(priced(15, 100, 1.886), E, 0, 50)).toBe(0);
+  });
+
+  it('ties keep the lower level, so a flat sheet reproduces the old behaviour', () => {
+    expect(cheapestEssenceLevel(priced(7, 7, 7), E, 0, 82)).toBe(0);
+  });
+
+  /**
+   * Priced through `stepCost`, not the raw key — so a level whose per-mod entry is MISSING is compared
+   * at what it will actually be charged (`essence_<lvl>`), and the choice can never disagree with the
+   * bill. Here the greater has no per-mod price and its fallback is dear, so it must lose.
+   */
+  it('compares levels at the price that will actually be charged', () => {
+    const sheet: Prices = {
+      currency: { 'essence:lesser:E': 15, 'essence:normal:E': 100, essence_greater: 900 },
+      omens: {},
+    };
+    expect(cheapestEssenceLevel(sheet, E, 0, 82)).toBe(0);
+    expect(stepCost(sheet, { currency: 'essence', add: 'E', essenceLevel: essenceLevelOf(E.tiers[2]!.name) }))
+      .toBe(900);
   });
 });

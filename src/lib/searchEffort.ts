@@ -143,27 +143,31 @@ export const EFFORT_PRESETS: readonly EffortPreset[] = [
     limits: { maxMillis: 15_000, maxNodes: 200, maxPlans: 100_000, maxSweeps: 100_000, solver: 'policy' },
   },
   {
-    id: 'thorough',
-    label: 'Thorough',
-    hint: 'Around a minute and a half on a big budgeted craft. Finds more alternatives.',
-    limits: { maxMillis: 60_000, maxNodes: 600, maxPlans: 400_000, maxSweeps: 400_000, solver: 'policy' },
-  },
-  {
-    id: 'patient',
-    label: 'Patient',
-    hint: 'Several minutes. Worth it when a badge says the search stopped early.',
-    limits: { maxMillis: 300_000, maxNodes: 2_000, maxPlans: 2_000_000, maxSweeps: 2_000_000, solver: 'policy' },
-  },
-  {
     id: 'exhaustive',
     label: 'Exhaustive',
-    hint: 'The longest wait — for the few crafts nothing shorter can finish. Minutes on a hard craft.',
+    hint: 'Minutes. For the crafts nothing shorter can finish — every one measured settled inside five.',
     limits: {
       maxMillis: 900_000, maxNodes: 4_000, maxPlans: 2_000_000, maxSweeps: 20_000_000,
       solver: 'policy',
     },
   },
 ];
+
+/**
+ * Rungs that used to exist, mapped to the one that replaced them.
+ *
+ * `Thorough` and `Patient` were dropped on 2026-08-29 because they overlapped rather than because
+ * effort stopped mattering — the gradient is real (Quick resolved 10 of 18 measured crafts exactly,
+ * Standard 14, Thorough 16, Patient 18). Patient and Exhaustive returned BYTE-IDENTICAL costs on every
+ * hard craft, so that pair was genuinely one rung wearing two names; Thorough sat between neighbours
+ * that already bracketed it.
+ *
+ * They map UP, not to the default. `read()` falls back to `standard` for an id it does not recognise,
+ * which is right for a corrupt value and wrong for this: someone who deliberately chose Patient would
+ * be quietly moved to a SHORTER search and get a worse answer without being told. Removing a rung must
+ * not silently spend less of a user's patience than they asked for.
+ */
+const RETIRED_EFFORT: Record<string, string> = { thorough: 'exhaustive', patient: 'exhaustive' };
 
 export const DEFAULT_EFFORT = 'standard';
 
@@ -179,7 +183,10 @@ export function isTopEffort(id: string): boolean {
 }
 
 export function limitsFor(id: string): EffortLimits {
-  return (EFFORT_PRESETS.find((p) => p.id === id) ?? EFFORT_PRESETS.find((p) => p.id === DEFAULT_EFFORT)!).limits;
+  // Retired ids resolve here too, not only in `read()` — anything holding a stored id (a worker
+  // message, a test, a URL) must get the successor rather than be silently dropped to the default.
+  const want = RETIRED_EFFORT[id] ?? id;
+  return (EFFORT_PRESETS.find((p) => p.id === want) ?? EFFORT_PRESETS.find((p) => p.id === DEFAULT_EFFORT)!).limits;
 }
 
 export const EFFORT_STORAGE_KEY = `${PREFS_PREFIX}effort.v1`;
@@ -187,9 +194,12 @@ export const EFFORT_STORAGE_KEY = `${PREFS_PREFIX}effort.v1`;
 function read(): string {
   try {
     const raw = localStorage.getItem(EFFORT_STORAGE_KEY);
-    // An unknown id (a preset renamed in a later version) must fall back, not wedge the app on limits
-    // that no longer exist.
-    return raw && EFFORT_PRESETS.some((p) => p.id === raw) ? raw : DEFAULT_EFFORT;
+    if (raw && EFFORT_PRESETS.some((p) => p.id === raw)) return raw;
+    // A rung this build retired resolves to its successor — see RETIRED_EFFORT for why that is upward.
+    if (raw && RETIRED_EFFORT[raw]) return RETIRED_EFFORT[raw]!;
+    // Anything else (a corrupt value, a preset renamed in a later version) must fall back rather than
+    // wedge the app on limits that no longer exist.
+    return DEFAULT_EFFORT;
   } catch {
     return DEFAULT_EFFORT; // unreadable or unavailable storage must not stop the app from planning
   }

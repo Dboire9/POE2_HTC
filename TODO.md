@@ -58,10 +58,11 @@ route and an honest cost. What that left open:
   which claims no impossibility and names no wrong cause. It could be *more* helpful — it could point
   at the policy graph, which does explore that route — but that is an improvement, not a correction,
   and it is not a copy-audit defect. Left alone deliberately.
-- **A lone essence target still throws in the LINEAR planner** ("an essence-only mod needs a Magic item
-  first — include at least one rollable mod"), and `runSolve` runs that planner first, so the throw
-  takes the whole compute down before the MDP — which CAN now do it — gets a chance. The inverse of the
-  rule that an MDP failure must never delete the frontier. Not fixed here; worth a look.
+- ~~**A lone essence target still throws in the LINEAR planner**~~ — **DONE 2026-08-29.**
+  `frontierOrReason` in `solve.ts` mirrors `markovOrReason`, so the step planner declining a shape no
+  longer removes the model's answer beside it. The planner's own sentence reaches the reader through
+  `EngineResult.reason`. Teaching the linear planner to roll filler is still not done, and is still a
+  step-vocabulary change rather than a bug.
 - **Suite time.** Lab tests now run an MDP; keep an eye on it. (2026-08-23: `searchEffort.test.ts`
   was buying a 6-target from-white MDP to assert the STEP planner's orb depth — 209s and 134s for
   numbers it never read. It now calls `optimize` directly and keeps one `runSolve` case for the

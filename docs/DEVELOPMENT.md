@@ -277,6 +277,35 @@ npm run build
 `dist/` is the whole deliverable — a static site. There is no desktop packaging step, and no JRE or
 `backend.jar` to ship.
 
+### Error reporting (Sentry)
+
+**Sentry is OFF unless `VITE_SENTRY_DSN` is set AT BUILD TIME**, and the production build runs on
+Vercel — so a local `.env` does not reach the deployed site. Set it in **Vercel → Settings →
+Environment Variables**, then **redeploy**; setting it after a deploy changes nothing until the next
+build.
+
+[`.env.example`](../.env.example) is the canonical explanation of the variable (including why a DSN is
+not a secret). What belongs here is how to *check* it, because the failure mode is silent — Vite inlines
+`import.meta.env.*` as a literal, so with the variable unset the init in `src/lib/sentry.ts` is provably
+dead and Rollup deletes it. The build succeeds, the site works, and nothing reports anywhere.
+
+Two things make that visible:
+
+- `npm run build` prints a warning when the variable is unset (`warnIfUnmonitored`, `vite.config.ts`).
+- The bundle changes shape. Measured 2026-08-29:
+
+  | build | entry chunk | Sentry chunk |
+  |---|---|---|
+  | no DSN | 374.07 kB (gzip 113.75) | — |
+  | DSN set | 375.83 kB (gzip 114.60) | 479.24 kB (gzip 158.85), separate |
+
+  The entry chunk barely moves because the SDK is a **dynamic** import; a static one took it to 202 kB
+  gzip. If you ever see Sentry inside the entry chunk, that import got flattened.
+
+**Measure a bundle in the configuration it actually ships in.** A build with no DSN has Sentry compiled
+out, so profiling one and concluding "Sentry is only 6.9% of the bundle" measures the leftovers rather
+than the SDK — which is exactly the mistake corrected in TODO 6.
+
 ### Release process
 
 1. Bump `version` in `package.json` (there is no `pom.xml`).

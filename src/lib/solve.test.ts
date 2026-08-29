@@ -5,7 +5,7 @@ import type { MarkovProgress } from '../../packages/optimizer/src/markovFromItem
 import {
   optimize, optimizeItem, optimizeItemMarkov, alternatives, listMods, type ExistingItem,
 } from './engine.ts';
-import { runSolve, toFraction, type SolveProgress } from './solve.ts';
+import { runSolve, toFraction, type SolveProgress, type SolveRequest } from './solve.ts';
 
 // `runSolve` exists so a compute can cross a Worker boundary as a plain message. Its entire job is to
 // dispatch to the same planner calls the UI used to make inline, so the thing worth testing is that it
@@ -233,6 +233,62 @@ describe('Search effort reaches value iteration, not just the preset table', () 
  * Bounded by SWEEPS rather than by the clock, deliberately: a wall-clock cap would make this flaky by
  * construction, green on a slow machine and red on a fast one. Sweep counts are deterministic.
  */
+/**
+ * A planner that DECLINES a craft must not take the other planner's answer with it.
+ *
+ * `markovOrReason` has always protected the frontier from a model failure. Nothing protected the
+ * reverse until it became reachable: the step planner throws on a lone essence-only target ("needs a
+ * Magic item first — include at least one rollable mod"), and the MDP learned to buy an Essence on
+ * 2026-08-28 — so from that day the app was throwing away an answer it had.
+ */
+describe('a planner that declines does not delete the other one', () => {
+  const essenceOnly = (): SolveRequest => {
+    const wands = listMods(eng.data, 'Wands');
+    const ess = [...wands.prefixes, ...wands.suffixes].find((m) => m.source === 'essence')!;
+    return {
+      kind: 'lab', from: { baseId: 'Wands', level: 82 },
+      targets: [{ modId: ess.id, tierDisplay: 99 }],
+    };
+  };
+
+  it('a lone essence target still returns the model’s answer', () => {
+    const got = runSolve(eng, essenceOnly());
+    if (got.kind !== 'lab') throw new Error('wrong kind');
+    // The step planner refused the shape…
+    expect(got.result.frontier).toEqual([]);
+    expect(got.result.reason).toMatch(/step planner can.t lay out this craft/i);
+    expect(got.result.reason).toMatch(/rollable mod/i); // …carrying its OWN sentence, not a generic one
+    // …and the model answered anyway, which is the whole point.
+    expect(got.markov?.feasible).toBe(true);
+    expect(got.markov!.expectedCost).toBeGreaterThan(0);
+    expect(Number.isFinite(got.markov!.expectedCost)).toBe(true);
+  }, 120_000);
+
+  it('leaves a craft both planners CAN do completely untouched', () => {
+    const got = runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets });
+    if (got.kind !== 'lab') throw new Error('wrong kind');
+    expect(got.result.frontier.length).toBeGreaterThan(0);
+    expect(got.result.reason).toBeUndefined(); // no reason means nothing was caught
+  });
+
+  /**
+   * The budgeted path survives too.
+   *
+   * The near-miss search runs the SAME planner per relaxed target, so it can throw the same way — but
+   * it does not on THIS input, and the test says so rather than pretending otherwise: relaxing a
+   * one-target craft produces sub-crafts that never hit the lone-essence guard. Its catch in
+   * `runSolve` is therefore defensive, reachable only when every relaxation still leaves an
+   * essence-only target standing alone. What this pins is the property that matters either way — a
+   * budget must not turn a working compute into a thrown one.
+   */
+  it('survives the budgeted path too', () => {
+    const got = runSolve(eng, { ...essenceOnly(), budget: 600 } as SolveRequest);
+    if (got.kind !== 'lab') throw new Error('wrong kind');
+    expect(got.markov?.feasible).toBe(true);
+    expect(got.result.reason).toMatch(/step planner can.t lay out this craft/i);
+  }, 120_000);
+});
+
 describe('policy iteration answers where value iteration can only bound', () => {
   const ring = {
     kind: 'lab', from: { baseId: 'Rings', level: 82 },

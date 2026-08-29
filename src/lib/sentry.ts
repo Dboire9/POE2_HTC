@@ -25,8 +25,14 @@ import type * as SentryNS from '@sentry/react';
 
 const DSN = import.meta.env.VITE_SENTRY_DSN;
 
+/** What a caller may attach to a report. Deliberately tiny — enough to file an issue in the right
+ *  place without importing the SDK's own option types into modules that must not pull it in. */
+export interface ReportContext {
+  readonly tags?: Readonly<Record<string, string>>;
+}
+
 let sdk: typeof SentryNS | null = null;
-const queued: Error[] = [];
+const queued: { readonly error: Error; readonly context?: ReportContext }[] = [];
 
 export function initSentry(): void {
   if (!DSN) return;
@@ -54,18 +60,25 @@ export function initSentry(): void {
     });
 
     sdk = Sentry;
-    for (const e of queued.splice(0)) Sentry.captureException(e);
+    for (const q of queued.splice(0)) Sentry.captureException(q.error, q.context);
   }).catch(() => {
     // An ad blocker or a failed chunk fetch must never take the app down with it. Reporting is a
     // nice-to-have; the craft the player came for is not.
   });
 }
 
-/** Send an error if reporting is on and has loaded; queue it if it is still in flight. */
-export function reportError(error: Error): void {
+/**
+ * Send an error if reporting is on and has loaded; queue it if it is still in flight.
+ *
+ * `context` is passed straight to `captureException`, which is the only way tags actually reach
+ * Sentry — hanging a `tags` property off the Error does nothing, it is simply ignored. The queue
+ * carries it too, or an error thrown before the chunk lands would arrive untagged and be filed in the
+ * wrong place, which is precisely the startup case worth keeping.
+ */
+export function reportError(error: Error, context?: ReportContext): void {
   if (!DSN) return;
-  if (sdk) sdk.captureException(error);
-  else if (queued.length < 20) queued.push(error); // bounded: a render loop must not eat memory
+  if (sdk) sdk.captureException(error, context);
+  else if (queued.length < 20) queued.push({ error, ...(context ? { context } : {}) });
 }
 
 /**

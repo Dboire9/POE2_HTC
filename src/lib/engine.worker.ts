@@ -17,7 +17,10 @@ export type WorkerRequest = { readonly id: number; readonly req: SolveRequest };
 export type WorkerResponse =
   | { readonly id: number; readonly type: 'progress'; readonly progress: SolveProgress }
   | { readonly id: number; readonly type: 'done'; readonly result: SolveResult }
-  | { readonly id: number; readonly type: 'error'; readonly message: string };
+  // `stack` is carried because the main thread is the only side with Sentry on it: a worker error
+  // with no stack arrives in the issue tracker as a bare sentence and is nearly useless. See
+  // engineClient.ts, which rebuilds an Error from these two fields before reporting it.
+  | { readonly id: number; readonly type: 'error'; readonly message: string; readonly stack?: string };
 
 const post = (msg: WorkerResponse): void => { (self as unknown as DedicatedWorkerGlobalScope).postMessage(msg); };
 
@@ -35,8 +38,19 @@ self.onmessage = async (e: MessageEvent<WorkerRequest>): Promise<void> => {
     const result = runSolve(eng, req, (progress) => post({ id, type: 'progress', progress }));
     post({ id, type: 'done', result });
   } catch (err) {
-    // Errors here are the planner's own "that target is illegal" messages, which the UI shows verbatim,
-    // so carry the message across rather than letting the worker die with an unhandled rejection.
-    post({ id, type: 'error', message: err instanceof Error ? err.message : String(err) });
+    // Carry the failure across rather than letting the worker die with an unhandled rejection — the UI
+    // shows the message verbatim.
+    //
+    // This USED to be where the planner's own "that target is illegal" refusals surfaced. It mostly
+    // is not any more: `runSolve` wraps both planners (`frontierOrReason`, `markovOrReason`) and turns
+    // their refusals into a `reason` on a result that returns normally. So what reaches here should be
+    // genuinely unexpected, which is why engineClient reports it to Sentry. If the issue tracker fills
+    // with validation sentences, that is the signal that some path is not wrapped — not a reason to
+    // stop reporting.
+    post({
+      id, type: 'error',
+      message: err instanceof Error ? err.message : String(err),
+      ...(err instanceof Error && err.stack ? { stack: err.stack } : {}),
+    });
   }
 };

@@ -366,6 +366,16 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   errors thrown before the chunk lands are queued and flushed. `ErrorBoundary` is ours, not
   `Sentry.ErrorBoundary`, precisely because that component forced the SDK into the entry bundle.
   Vercel Analytics is unconditional and same-origin (`/_vercel/insights`), so it needs no CSP entry.
+  **Source maps ship publicly** (`build.sourcemap: true`) — ~2.2 MB of deploy, zero page weight (a
+  browser fetches a `.map` only with devtools open), and fine because the repo is public and AGPL; a
+  private repo would want `'hidden'` plus `@sentry/vite-plugin` and a `SENTRY_AUTH_TOKEN`, which
+  unlike a DSN IS a real secret. **Worker errors report from the MAIN thread.** The solver's worker
+  carries no SDK — 158 kB gzip on a thread built to stay light and respawned on every cancel — so it
+  sends `message` + `stack` across the error channel it already had, and `engineClient` calls
+  `reportError` tagged `origin: worker-solve` / `worker-fatal`. Without that the hardest code in the
+  app reported nothing and a crash was just a progress bar that stopped. **Tags must be
+  `captureException`'s SECOND ARGUMENT** — hanging them off the Error type-checks, runs, reports, and
+  silently drops them; `sentry.test.ts` mutation-pins that, the queue's copy of it, and the queue cap.
 - **The CSP is a real response header in `vercel.json`, never a `<meta>` tag.** A meta CSP silently
   ignores `frame-ancestors`, and being part of the document it applies in dev too — which is why the
   old one had to allow `ws://localhost:*` for Vite HMR and shipped those allowances to production.

@@ -2287,6 +2287,52 @@ The entry chunk moves 0.85 kB gzip because the SDK is a **dynamic** import; a st
 than duplicating it.
 
 
+## Making Sentry worth having (2026-08-29)
+
+Turning the DSN on closed the "we hear nothing" gap. Two more gaps decided whether what we now hear is
+worth reading, and both were found by looking rather than assumed.
+
+**No source maps.** An issue would have read `index-R5rPqtGC.js:1:284729` inside a function called
+`Xe`. `build.sourcemap: true` now, served publicly — which costs ~2.2 MB of deploy and **nothing** in
+page weight, since a browser fetches a `.map` only with devtools open. Public is the right trade here
+specifically: the repo is public and AGPL-3.0, so a map reveals nothing GitHub does not already. The
+alternative (`'hidden'` plus `@sentry/vite-plugin` uploading them) needs a `SENTRY_AUTH_TOKEN` — which,
+unlike a DSN, is a genuine secret to store and rotate. Worth switching to only if the repo goes private.
+
+**The solver reported nothing.** Everything hard in this codebase — the MDP, policy iteration, the
+action space — runs in a Web Worker, and the main-thread SDK does not see it. A throw there was a
+progress bar that stopped.
+
+The obvious fix is a `Sentry.init` inside the worker, and it is the wrong one: that is the entire
+158 kB gzip SDK on the thread whose whole job is to keep weight off the one the user is looking at, and
+this app respawns the worker on **every cancel**. The worker already had an error channel to the main
+thread, which already has the SDK loaded. So it now sends `stack` alongside `message`, and
+`engineClient` rebuilds the Error and reports it with `origin: worker-solve` or `worker-fatal`. Nothing
+extra is downloaded and the worker's startup cost is unchanged.
+
+One thing this exposed on the way: **the worker's outer catch is no longer what its comment said.** It
+used to be where the planner's "that target is illegal" refusals surfaced. Since `frontierOrReason` and
+`markovOrReason` wrap both planners, those now come back as a `reason` on a result that returns
+normally — so what reaches the catch should be genuinely unexpected, which is what makes reporting it
+sane rather than noise. If the issue tracker fills with validation sentences, that is the signal some
+path is unwrapped, not a reason to stop reporting.
+
+### The bug the test exists for
+
+The first version tagged the report by hanging a `tags` property off the Error:
+
+```ts
+reportError(Object.assign(err, { tags: { origin } }));   // type-checks, runs, reports — no tags
+```
+
+Sentry reads tags from `captureException`'s **second argument** and nowhere else, so that silently
+dropped them. It type-checked, it ran, the error arrived — only the tag was missing, which is the kind
+of thing nobody notices until they need to filter by it. `reportError(error, context)` carries them
+now, the queue carries them too (an error thrown before the chunk lands is the startup case most worth
+seeing, and replaying it untagged files it in the wrong place), and `sentry.test.ts` mutation-pins all
+three: the live path, the queue replay, and the queue's 20-item cap.
+
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

@@ -302,6 +302,20 @@ Two things make that visible:
   The entry chunk barely moves because the SDK is a **dynamic** import; a static one took it to 202 kB
   gzip. If you ever see Sentry inside the entry chunk, that import got flattened.
 
+**Source maps ship, and are served publicly.** Without them a Sentry issue reads
+`index-R5rPqtGC.js:1:284729` inside a function called `Xe`. `build.sourcemap` is `true`, which costs
+~2.2 MB of deploy size and **nothing** in page weight — a browser fetches a `.map` only with devtools
+open. Public is fine because this repo is public and AGPL-3.0, so a map reveals nothing GitHub does not.
+If it ever goes private, switch to `'hidden'` plus `@sentry/vite-plugin` and upload them instead; that
+needs a `SENTRY_AUTH_TOKEN`, which unlike a DSN **is** a real secret.
+
+**Worker errors are reported from the main thread, and the worker carries no SDK.** The solver runs in
+a Web Worker — where all the hard code lives — and a crash there used to be a progress bar that simply
+stopped. Rather than pay 158 kB gzip to put the SDK on a thread that exists to stay light (and is
+respawned on every cancel), `engine.worker.ts` sends the stack across its existing error channel and
+`engineClient.ts` reports it, tagged `origin: worker-solve` or `worker-fatal`. Nothing extra is
+downloaded.
+
 **Measure a bundle in the configuration it actually ships in.** A build with no DSN has Sentry compiled
 out, so profiling one and concluding "Sentry is only 6.9% of the bundle" measures the leftovers rather
 than the SDK — which is exactly the mistake corrected in TODO 6.

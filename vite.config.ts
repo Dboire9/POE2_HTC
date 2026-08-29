@@ -92,6 +92,23 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
     assetsDir: 'static',
+    /**
+     * Source maps, served publicly alongside the bundles.
+     *
+     * Without them a Sentry issue reads `index-R5rPqtGC.js:1:284729` inside a function called `Xe` —
+     * you learn that something broke and on which craft, but not where. With them the stack names the
+     * real file and line.
+     *
+     * Public is the right trade HERE specifically: this repo is public and AGPL-3.0, so the source is
+     * already readable on GitHub and a `.map` reveals nothing new. That is also what makes this the
+     * cheap option — the alternative (`'hidden'` plus @sentry/vite-plugin uploading them) needs a
+     * SENTRY_AUTH_TOKEN, which unlike a DSN is a real secret to store and rotate. Reach for that only
+     * if this repo ever stops being public.
+     *
+     * Users do not pay for them: a browser fetches a `.map` only when devtools are open, so the cost
+     * is deploy size, not page weight.
+     */
+    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks: undefined,

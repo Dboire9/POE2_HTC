@@ -10,6 +10,7 @@
 
 import type { SolveProgress, SolveRequest, SolveResult } from './solve.ts';
 import type { WorkerRequest, WorkerResponse } from './engine.worker.ts';
+import { reportError } from './sentry.ts';
 
 /** Thrown into the rejected promise when a solve is cancelled or superseded. Not a failure. */
 export class SolveCancelled extends Error {
@@ -38,6 +39,31 @@ let worker: Worker | null = null;
 let inFlight: InFlight | null = null;
 let nextId = 1;
 
+/**
+ * Turn a worker failure into a reported Error on the main thread.
+ *
+ * **The worker carries no Sentry SDK, deliberately.** It would be the whole 158 kB (gzip) of it, on a
+ * thread whose entire job is to keep heavy work off the one the user is looking at — and this app
+ * spawns a fresh worker on every cancel. The main thread already has the SDK loaded, and the worker
+ * already had an error channel to it, so the cheap move is to send the stack across and report from
+ * here. Nothing new is downloaded and nothing about the worker's startup cost changes.
+ *
+ * The stack belongs to worker code, so the frames are real but the SOURCE is the worker bundle
+ * (`engine.worker-*.js`), not the entry chunk. `tags.origin` says which handler saw it so a crash in
+ * the solver is not filed next to one in the UI.
+ *
+ * Cancellation never reaches here: `cancelInFlight` rejects with `SolveCancelled` directly, without
+ * going through `onmessage` or `onerror`. So a cancelled solve is not reported as a failure, which it
+ * is not.
+ */
+function fromWorker(message: string, stack: string | undefined, origin: string): Error {
+  const err = new Error(message);
+  err.name = 'SolverError';
+  if (stack) err.stack = stack;
+  reportError(err, { tags: { origin } });
+  return err;
+}
+
 function spawn(): Worker {
   const w = new Worker(new URL('./engine.worker.ts', import.meta.url), { type: 'module' });
   w.onmessage = (e: MessageEvent<WorkerResponse>) => {
@@ -47,13 +73,16 @@ function spawn(): Worker {
     if (msg.type === 'progress') { inFlight.onProgress?.(msg.progress); return; }
     const job = inFlight;
     inFlight = null;
-    if (msg.type === 'done') job.resolve(msg.result);
-    else job.reject(new Error(msg.message));
+    if (msg.type === 'done') { job.resolve(msg.result); return; }
+    job.reject(fromWorker(msg.message, msg.stack, 'worker-solve'));
   };
   w.onerror = (e) => {
     const job = inFlight;
     inFlight = null;
-    job?.reject(new Error(e.message || 'the solver crashed'));
+    // No `stack` here: `onerror` fires for failures the worker could not catch itself — a module that
+    // would not load, a crash in the runtime — so the ErrorEvent's own location is all there is.
+    const where = e.filename ? ` (${e.filename}:${e.lineno})` : '';
+    job?.reject(fromWorker(`${e.message || 'the solver crashed'}${where}`, undefined, 'worker-fatal'));
   };
   return w;
 }

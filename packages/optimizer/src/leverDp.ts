@@ -183,3 +183,98 @@ export function bestLeverAssignments(
   });
   return { candidates, combinations, capped };
 }
+
+/** Report roughly this many times across a run: frequent enough to animate, rare enough to be free. */
+export const PROGRESS_REPORTS = 100;
+
+/** Prune past this many held candidates. Amortises the sort without letting memory run away. */
+const NARROW_AT = 4_096;
+
+export interface SkeletonSearch {
+  /**
+   * The Pareto-optimal assignments across every skeleton, on the DP's own PROVISIONAL arithmetic.
+   * Score them with `evaluatePlanFrom` + `planExpectedCost` before reporting anything — see
+   * `LeverCandidate`. A margin is kept around the frontier so the re-score, not the DP, decides ties.
+   */
+  readonly candidates: LeverCandidate[];
+  /** Assignments this search stands for. Most are ruled out by proof rather than by evaluation. */
+  readonly searched: number;
+  /** The clock ran out, or a skeleton's frontier hit its cap — either way the answer is partial. */
+  readonly truncated: boolean;
+}
+
+export interface SkeletonSearchOptions {
+  readonly policy?: CurrencyPolicy;
+  /** Wall-clock ceiling. Absent in tests, so results stay deterministic and machine-independent. */
+  readonly maxMillis?: number;
+  readonly onProgress?: (done: number, total: number) => void;
+}
+
+/**
+ * Drop the candidates that can no longer reach the frontier, keeping a hair's margin for ties.
+ *
+ * The margin is the point. Ranking happens on the DP's arithmetic and reporting happens on
+ * `evaluatePlanFrom`'s, and the two associate their products differently — so a candidate the DP puts
+ * a few ulps behind another may come out ahead once re-scored. Cutting exactly at the DP's numbers
+ * would decide those ties with the wrong ruler; `paretoFrontier` decides them afterwards with the
+ * right one.
+ *
+ * In place, because this runs inside the search loop on a list that is mostly kept.
+ */
+function narrowInPlace(rows: LeverCandidate[]): void {
+  rows.sort((a, b) => a.expected - b.expected || b.probability - a.probability);
+  let best = 0; // every probability is > 0, so this admits the first row without a special case
+  let n = 0;
+  for (const r of rows) {
+    if (r.probability > best * (1 - 1e-9)) {
+      rows[n++] = r;
+      if (r.probability > best) best = r.probability;
+    }
+  }
+  rows.length = n;
+}
+
+/**
+ * Run the lever DP over a list of skeletons and keep what could still reach the frontier.
+ *
+ * The shape both planners share: enumerate sequence SKELETONS (which mods, in which order, by which
+ * currency), then let this decide every step's orb strength and omen. Splitting it that way is what
+ * turned a `K! x Π|strengths| x 2^omens` product into a sum — the skeletons are still enumerated, but
+ * the levers on them are not.
+ *
+ * Narrowed as it goes rather than at the end: a big craft has tens of thousands of skeletons, and
+ * holding every one's candidates would cost far more memory than the answer is worth. Re-scoring per
+ * skeleton would be worse still — roughly half the win — and buys nothing, since a candidate the
+ * global filter already beats cannot come back.
+ */
+export function searchSkeletons(
+  data: PatchData, prices: Prices, start: ItemState,
+  skeletons: readonly (readonly PlanStep[])[], opts: SkeletonSearchOptions = {},
+): SkeletonSearch {
+  const report = opts.onProgress;
+  const stride = Math.max(1, Math.floor(skeletons.length / PROGRESS_REPORTS));
+  const deadline = opts.maxMillis === undefined ? Infinity : Date.now() + opts.maxMillis;
+  const DEADLINE_CHECK = 64; // Date.now() per skeleton would be measurable; per 64 is not
+  let truncated = false;
+  let searched = 0;
+  const candidates: LeverCandidate[] = [];
+
+  for (let i = 0; i < skeletons.length; i++) {
+    // `>=` rather than `>`: it makes a zero budget mean "do nothing" deterministically, which is what
+    // makes this testable without a wall-clock race. The 1ms difference is otherwise immaterial, and
+    // the app floors the budget well above zero.
+    if (deadline !== Infinity && i % DEADLINE_CHECK === 0 && Date.now() >= deadline) {
+      truncated = true;
+      break;
+    }
+    const dp = bestLeverAssignments(data, prices, start, skeletons[i]!, opts.policy);
+    searched += dp.combinations;
+    if (dp.capped) truncated = true; // a capped frontier is a SUBSET, and the caller must say so
+    for (const c of dp.candidates) candidates.push(c);
+    if (candidates.length > NARROW_AT) narrowInPlace(candidates);
+    if (report && i % stride === 0) report(i, skeletons.length);
+  }
+  report?.(skeletons.length, skeletons.length);
+  narrowInPlace(candidates);
+  return { candidates, searched, truncated };
+}

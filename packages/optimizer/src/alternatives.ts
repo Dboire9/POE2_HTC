@@ -83,8 +83,6 @@ export interface AlternativesOptions {
   level?: number;
   /** Cap on relaxed targets evaluated. Each costs a full Pareto run, so this bounds the wall clock. */
   maxNodes?: number;
-  /** `maxPlans` handed to each node's Pareto run (throttles its currencyDepth). */
-  maxPlansPerNode?: number;
   /** `maxCells` handed to each P(in budget) evaluation. */
   costCells?: number;
   /**
@@ -101,8 +99,6 @@ export interface AlternativesOptions {
 }
 
 export const DEFAULT_MAX_NODES = 200;
-/** Lower than optimizePareto's own 100k default: we run one search PER NODE, so depth trades for breadth. */
-export const DEFAULT_MAX_PLANS_PER_NODE = 5_000;
 
 const FRONTIER_EPS = 1e-12;
 // How INCOMPLETE each depth is; the aggregate below takes the worst across nodes so the badge never
@@ -493,7 +489,6 @@ export function alternativesFromWhite(
   budget: number, opts: AlternativesOptions = {},
 ): AlternativesResult {
   const level = opts.level ?? 100;
-  const maxPlans = opts.maxPlansPerNode ?? DEFAULT_MAX_PLANS_PER_NODE;
   const policy = opts.policy;
   const prices = pricesForBase(rawPrices, base); // the bone a Desecration consumes depends on the base
   // A slot with alternatives becomes one concrete craft per member. The relaxation lattice below reads
@@ -503,7 +498,7 @@ export function alternativesFromWhite(
     (id) => resolveMod(data, id).source === 'desecrated');
   const run = (d: readonly AlternativeTarget[], maxNodes: number): AlternativesResult => searchAlternatives(
     data, base, prices,
-    (targets) => optimizePareto(data, prices, base, targets, { level, maxPlans, ...(policy ? { policy } : {}) }),
+    (targets) => optimizePareto(data, prices, base, targets, { level, ...(policy ? { policy } : {}) }),
     d, budget, { ...opts, maxNodes },
   );
   if (combos.length > 1) return mergeAlternativeRuns(combos, run, opts.maxNodes ?? DEFAULT_MAX_NODES);

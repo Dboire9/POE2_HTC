@@ -21,9 +21,8 @@ import { planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, orderedSelections, permutations } from './combinatorics.ts';
 import { expandSlots, itemLegalCombinations } from './slots.ts';
 import type { OptimizeParetoOptions, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
-import { PROGRESS_REPORTS, mergeParetoRuns, paretoFrontier } from './optimize.ts';
-import type { LeverCandidate } from './leverDp.ts';
-import { bestLeverAssignments } from './leverDp.ts';
+import { mergeParetoRuns, paretoFrontier } from './optimize.ts';
+import { searchSkeletons } from './leverDp.ts';
 
 /**
  * Target validation for the from-item planner: 1–6 mods, ≤3/side. A target mod is one the planner can
@@ -238,52 +237,24 @@ function fromItemForOneCraft(
   // This loop used to be unbounded and silent: it read nothing from `opts` but `policy`, so the
   // player's Search-effort setting reached it and did nothing, and the progress bar showed no movement
   // for its whole run. The lever is the WALL CLOCK — `maxPlans` selects an orb-strength *depth* in the
-  // from-white planner, and there is no depth to select here: `bestLeverAssignments` searches every
-  // strength on every step and proves the losers cannot win, rather than trading breadth for time. So
-  // `maxMillis` stays absent unless the caller passes it, exactly as the MDP's does, and tests stay
-  // deterministic.
+  // from-white planner, and there is no depth to select on either path any more: the lever DP searches
+  // every strength on every step and proves the losers cannot win, rather than trading breadth for
+  // time. So `maxMillis` stays absent unless the caller passes it, exactly as the MDP's does, and
+  // tests stay deterministic.
   //
   // WHAT CHANGED, AND WHY THE COUNTS MOVED. Each sequence used to be expanded into its omen power set
-  // (2^k plans) and every one of them scored. It is now handed to the lever DP, which decides orb
-  // strength AND omen for every step in one backward pass. That adds an axis this planner never had —
-  // `baseTransforms` sets no `tier`, so every add was a base-strength orb and the badge said so — while
-  // evaluating a small fraction of the assignments it now stands for.
-  const report = opts.onProgress;
-  const stride = Math.max(1, Math.floor(sequences.length / PROGRESS_REPORTS));
-  const deadline = opts.maxMillis === undefined ? Infinity : Date.now() + opts.maxMillis;
-  const DEADLINE_CHECK = 64; // Date.now() per sequence would be measurable; per 64 is not
-  let truncated = false;
-  let searched = 0;
+  // (2^k plans) and every one of them scored. `searchSkeletons` now hands each to the lever DP, which
+  // decides orb strength AND omen for every step in one backward pass. That adds an axis this planner
+  // never had — `baseTransforms` sets no `tier`, so every add was a base-strength orb and the badge
+  // said so — while evaluating a small fraction of the assignments it now stands for.
+  const found = searchSkeletons(data, prices, start, sequences, {
+    ...(policy ? { policy } : {}),
+    ...(opts.maxMillis === undefined ? {} : { maxMillis: opts.maxMillis }),
+    ...(opts.onProgress ? { onProgress: opts.onProgress } : {}),
+  });
 
-  // Candidates carry the DP's OWN cost and probability, which are provisional — it associates the tail
-  // products differently from `evaluatePlanFrom`, so they can differ in the last bits. They are good
-  // enough to rank with and are never reported: the survivors are re-scored below through the same
-  // functions every other planner uses.
-  const candidates: LeverCandidate[] = [];
-  for (let i = 0; i < sequences.length; i++) {
-    // `>=` rather than `>`: it makes a zero budget mean "do nothing" deterministically, which is what
-    // makes this testable without a wall-clock race. The 1ms difference is otherwise immaterial, and
-    // the app floors the budget well above zero.
-    if (deadline !== Infinity && i % DEADLINE_CHECK === 0 && Date.now() >= deadline) {
-      truncated = true;
-      break;
-    }
-    const dp = bestLeverAssignments(data, prices, start, sequences[i]!, policy);
-    searched += dp.combinations;
-    if (dp.capped) truncated = true; // a capped frontier is a SUBSET, and the app must say so
-    for (const c of dp.candidates) candidates.push(c);
-    // Narrow as we go rather than at the end: a big craft has tens of thousands of sequences, and
-    // holding every one's candidates would cost far more memory than the answer is worth.
-    if (candidates.length > NARROW_AT) narrowInPlace(candidates);
-    if (report && i % stride === 0) report(i, sequences.length);
-  }
-  report?.(sequences.length, sequences.length);
-
-  // Re-score only what could still reach the frontier. Doing it per sequence instead would spend
-  // roughly half the win the DP buys, and buys nothing: a candidate the global filter already beats
-  // cannot come back.
-  narrowInPlace(candidates);
-  const plans = candidates.map((c): ParetoPlan => {
+  // Re-scored through the same functions every other planner uses: the DP only RANKS.
+  const plans = found.candidates.map((c): ParetoPlan => {
     const result = evaluatePlanFrom(data, start, c.steps);
     return { steps: c.steps, result, cost: planExpectedCost(prices, result, c.steps), probability: result.total };
   });
@@ -292,39 +263,12 @@ function fromItemForOneCraft(
     frontier: paretoFrontier(plans),
     // The assignments this search stands for, not the handful it scored — the DP rules the rest out by
     // proof rather than by evaluation, and a count that omitted them would understate the search.
-    plansEvaluated: searched,
+    plansEvaluated: found.searched,
     // `full`, and earned: every step is offered every strength the sheet prices and the player owns,
     // and an option is dropped only when something at least as likely and no dearer beats it. This
     // read `base-only` for as long as `baseTransforms` set no `tier` — an honest admission then, and
     // the gap it admitted to is the one this closes.
     currencyDepth: 'full',
-    ...(truncated ? { truncated: true } : {}),
+    ...(found.truncated ? { truncated: true } : {}),
   };
-}
-
-/** Prune past this many held candidates. Amortises the sort without letting memory run away. */
-const NARROW_AT = 4_096;
-
-/**
- * Drop the candidates that can no longer reach the frontier, keeping a hair's margin for ties.
- *
- * The margin is the point. Ranking happens on the DP's arithmetic and reporting happens on
- * `evaluatePlanFrom`'s, and the two associate their products differently — so a candidate the DP puts
- * a few ulps behind another may come out ahead once re-scored. Cutting exactly at the DP's numbers
- * would decide those ties with the wrong ruler; `paretoFrontier` decides them afterwards with the
- * right one.
- *
- * In place, because this runs inside the search loop on a list that is mostly kept.
- */
-function narrowInPlace(rows: LeverCandidate[]): void {
-  rows.sort((a, b) => a.expected - b.expected || b.probability - a.probability);
-  let best = 0; // every probability is > 0, so this admits the first row without a special case
-  let n = 0;
-  for (const r of rows) {
-    if (r.probability > best * (1 - 1e-9)) {
-      rows[n++] = r;
-      if (r.probability > best) best = r.probability;
-    }
-  }
-  rows.length = n;
 }

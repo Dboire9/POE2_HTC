@@ -223,7 +223,7 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   highest-probability edge, which is the edge the route follows by construction; phrasing it as an
   instruction would tell the player to do something the game gives them no way to do. The odds render
   beside it, which is what makes the wording self-consistent.
-- **The from-item planner searches orb strength by DECOMPOSING it, not by enumerating it** (2026-09-01).
+- **BOTH step planners search orb strength by DECOMPOSING it, not by enumerating it** (2026-09-01).
   It used to set no `tier` on any add and report `currencyDepth: 'base-only'`, which was honest and was
   a real gap: the axis is worth up to **322x** the success chance per attempt on a 5-target craft.
   Enumerating it is a `3^m` product on a search already at 295,680 plans, and the from-white
@@ -245,11 +245,32 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   there (a better tier still satisfies "any tier or better"), and it moves the odds 0.36x–1.79x across
   real targets. Reusing it would have shipped the axis as a no-op for the commonest from-item target.
   `leverOptions` filters on `p > 0`, which is exact because it computes the probability before deciding.
-  The same hole is still LIVE in `optimizePareto` — see TODO.
+  `legalOrbTiers` is DELETED as of the from-white adoption below, which is what closed that hole.
   The invariant is a property of today's `applyStep`, not a law, so `levers.test.ts` asserts it
   directly: every option must leave the same item behind. An Omen of Greater Exaltation adds TWO mods
   and could never be a lever here; `essenceTier` IS read by `applyStep`, which is why an essence level
   is chosen per craft by `cheapestEssenceLevel` instead.
+  **The FROM-WHITE planner adopted it the same day**, and both planners now share `searchSkeletons`.
+  Measured 19-66x faster on tiered crafts — and the answers moved, because the old `maxPlans` throttle
+  did not merely slow the search down, it DELETED ROWS: `strongest-only` drops base strength, so a
+  6-target T1 craft's cheapest plan was 42.7 billion ex where the real answer is 2.47 billion (−94%),
+  and a 5-target T1 craft's was 54.2M against 18.3M (−66%). Deleted with it: `orbAssignments`,
+  `reduceOrbTiers`, `legalOrbTiers`, `strengthUsable`, `ORB_TIERS`, `ADD_CURRENCIES`,
+  `withOmenVariants`, the `estimate`/depth ternary — 113 lines — and **`maxPlans` off the effort
+  ladder**, because a dial that moves nothing does not belong on a control that promises it will.
+  Two things fell out: `OptimizeParetoOptions.maxMillis` had been declared and read by NO CODE on the
+  from-white path, so the lab step planner has a clock for the first time (a ceiling, not a
+  reservation — the model still takes the remainder via `clockLeft()`); and `CurrencyDepth` now has one
+  reachable value, kept only because `DEPTH_RANK` still merges runs.
+  **A GREATER ORB IS OFTEN CHEAPER THAN A PLAIN ONE** on the live sheet — Transmute 0.1333 against
+  0.1775, Augmentation 0.07389 against 0.2699 — so on a tiered craft the stronger orb can be strictly
+  better and base is genuinely dominated. A frontier with no base-strength step is therefore the DATA
+  talking, not a throttle; `pareto.test.ts` pins that base survives on a craft where it earns its
+  place, which is the assertion that tells the two apart.
+  **A test had pinned the bug with a false reason attached**: `it('an any-tier target uses only a base
+  orb (stronger orbs would reject tiers you accept)')`. The parenthetical is the error — a stronger orb
+  raises the ilvl FLOOR, and a higher tier still satisfies "any tier or better". Written from the
+  implementation's reasoning rather than the game's, it passed for as long as the bug existed.
 - **The budget search screens before it settles, and the asymmetry IS the correctness argument.**
   `searchAlternatives` picks each node's best plan by `P(finish in budget)` over its whole frontier —
   necessary, because the cheapest plan is not automatically the likeliest to land inside a budget. But

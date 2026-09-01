@@ -2540,6 +2540,84 @@ was extracted into `bestByBudget`, which takes its two scorers as arguments, and
 deliberately useless screen (`[0, 1]` for everything) and a valid-but-backwards one. Both now fail the
 mutation. **A guarantee that cannot be made to fail on real data has to be tested somewhere it can.**
 
+## The from-white planner adopts the lever DP, and loses a dial that did nothing (2026-09-01)
+
+`paretoForOneCraft` built `permutations x orbAssignments`, expanded each into its omen power set, and
+scored the lot — a `K! x Π|strengths| x 2^omens` product, rationed by `maxPlans` picking a coarser
+orb-strength DEPTH when the estimate grew. Replacing that with `searchSkeletons` leaves only the
+orderings to enumerate.
+
+### It is faster nearly everywhere, and dramatically so where it was slow
+
+Interleaved within each rep against the previous planner, medians of 3, Wands at ilvl 82:
+
+| craft | old | new | | old depth |
+|---|---|---|---|---|
+| 5 tgt T3 | 464 ms [473, 456, 464] | **7 ms** [6, 7, 7] | **66.3x** | full |
+| 4 tgt T1 | 28 ms [28, 40, 28] | **1 ms** [1, 1, 1] | **28.0x** | full |
+| 5 tgt T1 | 131 ms [130, 131, 153] | **6 ms** [6, 5, 6] | **21.8x** | base+strongest |
+| 4 tgt T3 | 19 ms [21, 19, 18] | **1 ms** [1, 1, 1] | **19.0x** | full |
+| 6 tgt T3 | 73 ms [77, 73, 63] | 45 ms [44, 45, 45] | 1.62x | strongest-only |
+| 6 tgt T1 | 63 ms [60, 65, 63] | 44 ms [43, 45, 44] | 1.43x | strongest-only |
+| 6 tgt any | 78 ms [88, 70, 78] | 49 ms [61, 49, 48] | 1.59x | full |
+| 4 tgt any | 1 ms [3, 1, 1] | 3 ms [5, 1, 3] | 0.33x | full |
+
+The 6-target crafts gain least because they are skeleton-bound (720 orderings), not lever-bound; the
+sub-5 ms rows are noise. Every craft now reports `full`.
+
+### The answers improved, and by more than the timings
+
+The throttle was not merely slow — where it bit, it deleted rows. `strongest-only` drops BASE strength,
+and `legalOrbTiers` was suppressing the axis entirely for any-tier targets while the badge said "tried
+every orb strength".
+
+| craft | cheapest plan, old → new | surest, old → new |
+|---|---|---|
+| 6 tgt T1 | 42,683,000,412 → **2,470,362,374** (−94%) | unchanged |
+| 5 tgt T1 | 54,217,303 → **18,259,582** (−66%) | unchanged |
+| 6 tgt T3 | 3,522,806 → **2,486,398** (−29%) | 7.49e-8 → **1.72e-7** (2.3x) |
+| 5 tgt any | 9,054 → **3,513** (−61%) | 6.64e-5 → 1.00e-4 (1.5x) |
+| 4 tgt any | 1,485 → **570** (−62%) | 4.02e-4 → 6.06e-4 (1.5x) |
+| 2 tgt any | 10.57 → **4.29** (−59%) | 1.86e-2 → 4.51e-2 (2.4x) |
+
+The any-tier rows are the `legalOrbTiers` bug, and the reason they get **cheaper** is worth stating
+plainly: on the live sheet a **Greater Transmute costs LESS than a plain one** (0.1333 against 0.1775),
+as does a Greater Augmentation (0.07389 against 0.2699). So on many crafts the stronger orb is both
+likelier and cheaper — strictly better — and the search was refusing to consider it at all.
+
+That also explains a frontier with no base-strength step on it, which looks like a throttle and is not:
+on a craft whose targets all sit at ilvl 25-60, base is genuinely dominated. `pareto.test.ts` pins that
+base SURVIVES on a craft where it earns its place, which is the assertion that distinguishes the two.
+
+### A test had pinned the bug, with a false reason attached
+
+`pareto.test.ts` carried:
+
+> `it('an any-tier target uses only a base orb (stronger orbs would reject tiers you accept)')`
+
+The parenthetical is the whole error. A stronger orb raises the ilvl FLOOR of what it can roll, and a
+higher tier still satisfies "any tier or better" — so a Greater orb is legal on an any-tier target. The
+test asserted a one-row frontier and passed for as long as the bug existed, which is what a test
+written from the implementation's reasoning rather than the game's will do.
+
+### `maxPlans` is gone from the effort ladder
+
+It selected an orb-strength depth. There is no depth left to select, so it moved nothing — and a dial
+that does nothing does not belong on a control that promises the user it will. Removed from
+`EffortLimits`, the three presets, `OptimizeParetoOptions` and `AlternativesOptions.maxPlansPerNode`.
+
+Two things fell out of that:
+
+- **`OptimizeParetoOptions.maxMillis` had never been read on the from-white path.** It was declared,
+  documented ("Hitting it sets `truncated`"), and used by no code. `searchSkeletons` honours it, so the
+  lab step planner has a clock for the first time — and `solve.ts` hands it the preset's, as a ceiling
+  rather than a reservation, since the model still takes the remainder via `clockLeft()`.
+- **`alternativesFromItem` never had a plan cap either**, and now cannot want one.
+
+`optimize.ts` lost 113 lines: `orbAssignments`, `reduceOrbTiers`, `legalOrbTiers`, `strengthUsable`,
+`ORB_TIERS`, `ADD_CURRENCIES`, `withOmenVariants` and the `estimate`/depth ternary. `CurrencyDepth`
+survives because `DEPTH_RANK` still merges runs, but every planner now reports `full`.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

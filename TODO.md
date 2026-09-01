@@ -312,44 +312,37 @@ deleting the cheap end of the frontier rather than widening the search.
 
 Three things came out of it that are NOT done:
 
-### 5a. `legalOrbTiers` suppresses the orb axis for any-tier targets — in the FROM-WHITE planner
+### 5a. ~~`legalOrbTiers` suppresses the orb axis for any-tier targets~~ — DONE 2026-09-01
 
-`legalOrbTiers` (`optimize.ts`) decides which strengths are legal from the target's MINIMUM tier: it
-reads `tiers[minTierIndex].ilvl`, which is about 1 for an any-tier target, finds every strength floor
-above it, and returns `['base']`. But a Greater orb is legal on an any-tier target — a better tier still
-satisfies "any tier or better". Measured on real Wands at level 82, `minTierIndex: 0`:
+Fixed by 5b, which deleted `legalOrbTiers` outright. The from-white planner reported
+`currencyDepth: 'full'` — rendered as "tried every orb strength" — on any-tier crafts where it had
+tried exactly one, because `legalOrbTiers` read `tiers[minTierIndex].ilvl` (about 1 for an any-tier
+target), found every strength floor above it, and returned `['base']`. A Greater orb is legal there: a
+better tier still satisfies "any tier or better".
 
-| target | base | greater | perfect |
-|---|---|---|---|
-| `Wands/IncreasedMana` | 0.1153 | 0.1635 (1.42x) | 0.1878 (**1.63x**) |
-| `Wands/LocalAttributeRequirements` | 0.0524 | 0.0817 (1.56x) | 0.0939 (**1.79x**) |
-| `Wands/WeaponSpellDamage` | 0.0456 | 0.0204 (0.45x) | 0.0164 (**0.36x**) |
+Measured consequence on live crafts: the cheapest plan for a 2-target any-tier craft fell **10.57 →
+4.29 ex** and the surest rose **2.4x**. The reason it gets CHEAPER is worth remembering — on the live
+sheet a Greater Transmute costs *less* than a plain one (0.1333 against 0.1775), so the stronger orb
+was often strictly better and the search would not look at it.
 
-A real two-way trade the from-white search never offers — **and it reports `currencyDepth: 'full'`
-while doing so**, which the badge renders as "tried every orb strength". That is the overclaim
-`docs/copy-audit.md` exists to prevent, in the planner's own self-report.
+### 5b. ~~Adopt the lever DP in the from-white planner~~ — DONE 2026-09-01
 
-The from-item planner sidesteps it (`leverOptions` filters on `p > 0`, which is exact), so this is
-now a from-white-only bug. The fix is the same one: stop guessing from a tier index and let the
-probability decide — which falls out of 5b.
+`paretoForOneCraft` now enumerates skeletons and hands them to `searchSkeletons`. **19-66x faster** on
+tiered crafts, with cheaper plans where the old throttle had bitten (a 6-target T1 craft's cheapest
+fell from 42.7 billion ex to 2.47 billion). Deleted: `orbAssignments`, `reduceOrbTiers`,
+`legalOrbTiers`, `strengthUsable`, `ORB_TIERS`, `ADD_CURRENCIES`, `withOmenVariants`, the
+`estimate`/depth ternary, and `maxPlans` from the effort ladder — 113 lines out of `optimize.ts`.
 
-### 5b. Adopt the lever DP in the from-white planner
+Both blockers named here turned out to be non-issues in practice: `essenceTier` stays resolved once per
+craft by `cheapestEssenceLevel` and is part of the skeleton, and the alchemy openers simply became
+extra skeletons.
 
-`paretoForOneCraft` still builds `permutations x orbAssignments` and then expands `withOmenVariants`
-over each. Replacing that with `bestLeverAssignments` over the permutation skeletons alone would delete
-`orbAssignments`, `reduceOrbTiers`, `legalOrbTiers`, `strengthUsable`, the `estimate`/depth ternary and
-most of `CurrencyDepth` — and fix 5a as a side effect. The search collapses from `K! x Π|tiers| x
-2^exalts` to `K!` skeletons.
+What is still open, and is now the only orb-strength gap left:
 
-Two blockers, which is why it was not done in the same pass:
-
-- **`essenceTier` IS read by `applyStep`**, and from-white emits `essence` steps. It is resolved once
-  per craft by `cheapestEssenceLevel`, so it is not a per-plan lever today — but promoting it to one
-  would break the invariant the whole DP rests on.
-- **Alchemy openers** (`alchemyOpenerSequences`) produce a different sequence SHAPE, not a lever
-  assignment. They stay outside the DP as extra skeletons.
-
-It also changes shipped from-white numbers, so it needs its own measurement campaign.
+- **`CurrencyDepth` has one reachable value.** Every planner reports `full`, so the badge always says
+  "tried every orb strength" and `DEPTH_RANK`'s merge is a fold over a constant. The type is kept for
+  now because deleting it touches `engineTypes`, `engineMap`, `FrontierView` and the alternatives
+  merge; it is dead weight rather than a lie, so it is not urgent.
 
 ### 5c. ~~`planCostCdf` is 86% of a from-item alternatives run~~ — DONE 2026-09-01
 

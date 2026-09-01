@@ -25,17 +25,41 @@ describe('optimizePareto — tier targeting drives orb strength', () => {
     const r = optimizePareto(data, prices, wands, [{ modId: P1, minTierIndex: t1(P1) }]);
     expect(r.currencyDepth).toBe('full');
     expect(r.frontier.length).toBe(3); // one transmute step, three orb strengths, all non-dominated
-    expect(r.frontier.map((p) => (p.steps[0] as { tier?: string }).tier)).toEqual(['base', 'greater', 'perfect']);
+    // `?? 'base'`: a base-strength step carries NO `tier` now. The skeleton sets none and the base
+    // lever leaves it that way, which `currencyKey` and the UI's `ORB_SUFFIX` have always treated as
+    // identical to an explicit 'base'.
+    expect(r.frontier.map((p) => (p.steps[0] as { tier?: string }).tier ?? 'base')).toEqual(['base', 'greater', 'perfect']);
     for (let k = 1; k < r.frontier.length; k++) {
       expect(r.frontier[k]!.cost.expected).toBeGreaterThan(r.frontier[k - 1]!.cost.expected);
       expect(r.frontier[k]!.probability).toBeGreaterThan(r.frontier[k - 1]!.probability);
     }
   });
 
-  it('an any-tier target uses only a base orb (stronger orbs would reject tiers you accept)', () => {
+  /**
+   * THIS TEST USED TO ASSERT THE OPPOSITE, AND ITS REASON WAS WRONG.
+   *
+   * It read "an any-tier target uses only a base orb (stronger orbs would reject tiers you accept)"
+   * and pinned a one-row frontier. The parenthetical is the false step: a stronger orb raises the ilvl
+   * FLOOR of what it can roll, and a higher tier still satisfies "any tier or better" — so a Greater
+   * orb is perfectly legal on an any-tier target. `legalOrbTiers` reached the other conclusion by
+   * arithmetic on `tiers[minTierIndex].ilvl`, which for an any-tier target is about 1, below every
+   * floor. The search then reported `currencyDepth: 'full'` — "tried every orb strength" — while
+   * having tried exactly one.
+   *
+   * It is a real two-way trade, not a free upgrade. Measured on live Wands at level 82: a stronger orb
+   * moves an any-tier target's odds by 0.36x to 1.79x depending on where its own tiers sit, because
+   * the floor deletes low tiers from the whole pool including the target's. So the honest frontier has
+   * several rows, and this asserts they are a genuine cost-probability trade rather than merely more.
+   */
+  it('an any-tier target still has an orb-strength choice, and it is a trade', () => {
     const r = optimizePareto(data, prices, wands, [{ modId: P1 }]); // minTierIndex 0 → target ilvl ~1
-    expect(r.frontier.length).toBe(1);
-    expect((r.frontier[0]!.steps[0] as { tier?: string }).tier).toBe('base');
+    expect(r.frontier.length).toBeGreaterThan(1);
+    const strengths = r.frontier.map((p) => (p.steps[0] as { tier?: string }).tier ?? 'base');
+    expect(new Set(strengths).size).toBe(strengths.length); // one row per strength, none dominated
+    for (let k = 1; k < r.frontier.length; k++) {
+      expect(r.frontier[k]!.cost.expected).toBeGreaterThan(r.frontier[k - 1]!.cost.expected);
+      expect(r.frontier[k]!.probability).toBeGreaterThan(r.frontier[k - 1]!.probability);
+    }
   });
 
   it('the frontier is a valid Pareto set: cost ascending, probability strictly ascending', () => {
@@ -150,8 +174,15 @@ describe('optimizePareto — Orb of Alchemy opener', () => {
     // The optimizer's alchemy plan must reproduce the (independently MC-validated) engine function.
     const expected = alchemyProbability(data, wands, four.map((t) => t.modId));
     expect(alch!.probability).toBeCloseTo(expected, 12);
-    // It's a genuine frontier point: the surest way to get all four (one 4-mod slam), and the dearest.
-    expect(alch!.probability).toBe(Math.max(...r.frontier.map((p) => p.probability)));
+    // It is a genuine frontier point — non-dominated, so nothing cheaper is surer.
+    for (const p of r.frontier) {
+      if (p.cost.expected < alch!.cost.expected) expect(p.probability).toBeLessThan(alch!.probability);
+    }
+    // It used to be the SUREST plan outright, and no longer is: with orb strength now searched on
+    // any-tier targets too, a Greater/Perfect add-chain beats a 4-mod slam for certainty (0.000530
+    // against alchemy's 0.000468 on this craft). Alchemy keeps the cheap end, which is what it was
+    // always for.
+    expect(Math.max(...r.frontier.map((p) => p.probability))).toBeGreaterThan(alch!.probability);
   });
 
   it('does NOT use alchemy when a target needs a specific tier (alchemy rolls any tier)', () => {
@@ -175,17 +206,42 @@ describe('optimizePareto — Orb of Alchemy opener', () => {
   });
 });
 
-describe('optimizePareto — search stays bounded', () => {
-  it('throttles the orb-tier search on a big target and reports the depth (never silent)', () => {
-    // 6 mods (3 prefix + 3 suffix) all at T1 → full search would be ~500k plans → must throttle
-    const targets = [
-      'Wands/MAXIMUM_MANA', 'Wands/INCREASED_SPELL_DAMAGE', 'Wands/DAMAGE_AS_EXTRA_FIRE_DAMAGE',
-      'Wands/INTELLIGENCE', 'Wands/MANA_REGENERATION_RATE', 'Wands/INCREASED_CAST_SPEED',
-    ].map((modId) => ({ modId, minTierIndex: t1(modId) }));
+/**
+ * This used to be "throttles the orb-tier search on a big target and reports the depth", asserting
+ * `currencyDepth !== 'full'` and `plansEvaluated <= 120_000` on a 6-target T1 craft.
+ *
+ * There is no throttle any more, and that is the point rather than a regression. The old search was a
+ * `K! x Π|strengths| x 2^omens` product, so a big craft had to buy breadth back by dropping strengths —
+ * and the rung it dropped to was `strongest-only`, which removes BASE strength and with it the cheap
+ * end of the frontier. The lever DP decides strength and omen per step instead, so the product never
+ * forms: what is enumerated is the orderings, and every strength is searched on every craft.
+ *
+ * So the bound this describes moved. `plansEvaluated` counts the assignments the search STANDS FOR and
+ * is now far larger by design; what is bounded is the work, by the skeleton count and the clock.
+ */
+describe('optimizePareto — a big craft searches every strength, without a throttle', () => {
+  const targets = [
+    'Wands/MAXIMUM_MANA', 'Wands/INCREASED_SPELL_DAMAGE', 'Wands/DAMAGE_AS_EXTRA_FIRE_DAMAGE',
+    'Wands/INTELLIGENCE', 'Wands/MANA_REGENERATION_RATE', 'Wands/INCREASED_CAST_SPEED',
+  ].map((modId) => ({ modId, minTierIndex: t1(modId) }));
+
+  it('reports `full` and has earned it — the frontier really does reach for stronger orbs', () => {
     const r = optimizePareto(data, prices, wands, targets);
-    expect(r.currencyDepth).not.toBe('full'); // reduced to keep the plan count bounded
+    expect(r.currencyDepth).toBe('full');
     expect(r.frontier.length).toBeGreaterThan(0);
-    expect(r.plansEvaluated).toBeLessThanOrEqual(120_000);
+    expect(r.truncated).toBeUndefined();
+    const strengths = new Set(r.frontier.flatMap((p) =>
+      p.steps.map((s) => ('tier' in s ? s.tier : undefined) ?? 'base')));
+    expect(strengths.size).toBeGreaterThan(1);
+    // Base strength must survive too. The old throttle's answer to this craft dropped it entirely.
+    expect(strengths.has('base')).toBe(true);
+  });
+
+  it('still stops on a wall clock, which the from-white planner previously ignored', () => {
+    // `maxMillis` was declared on OptimizeParetoOptions and read by nothing on this path — a documented
+    // option that did nothing. A zero budget is already spent, so this is deterministic.
+    const r = optimizePareto(data, prices, wands, targets, { maxMillis: 0 });
+    expect(r.truncated).toBe(true);
   });
 });
 

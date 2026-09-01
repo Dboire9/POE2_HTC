@@ -7,7 +7,7 @@ export type {
   TierTarget, ParetoPlan, ParetoResult, OptimizeParetoOptions, CurrencyDepth,
 } from './optimize.ts';
 export { alternativesFromWhite, alternativesFromItem, compareCloseness } from './alternatives.ts';
-export { DEFAULT_MAX_NODES, DEFAULT_MAX_PLANS_PER_NODE } from './alternatives.ts';
+export { DEFAULT_MAX_NODES } from './alternatives.ts';
 export type {
   Alternative, AlternativesOptions, AlternativesResult, AlternativeTarget, Closeness, SlotChange,
 } from './alternatives.ts';

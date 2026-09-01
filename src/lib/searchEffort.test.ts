@@ -23,11 +23,10 @@ describe('the effort presets', () => {
       expect(hi.maxMillis).toBeGreaterThan(lo.maxMillis);
       expect(hi.maxNodes).toBeGreaterThan(lo.maxNodes);
       expect(hi.maxSweeps).toBeGreaterThan(lo.maxSweeps);
-      // `maxPlans` SATURATES and so is the one dial that may repeat: a 6-target craft needs ~34,560
-      // plans for the full orb search, so every rung from Standard up already covers it and a higher
-      // number buys literally nothing. Demanding a strict rise here would only be satisfiable by
-      // padding the figure to please the test, which is worse than the test being precise about it.
-      expect(hi.maxPlans).toBeGreaterThanOrEqual(lo.maxPlans);
+      // Every remaining dial rises strictly. `maxPlans` used to sit here with a `>=` because it
+      // SATURATED — every rung from Standard up already covered the full orb search — and it is gone
+      // now: the lever DP removed the product it rationed, so it moved nothing at all. A dial that
+      // saturates is a warning; a dial that does nothing is a lie, and the ladder carries neither.
     }
   });
 
@@ -78,45 +77,65 @@ describe('the setting reaches the planners', () => {
   /**
    * Against the STEP PLANNER, not `runSolve`.
    *
-   * These assertions are about `maxPlans` and nothing else, and a lab `runSolve` also buys a from-white
-   * MDP whose own budget is the preset's wall clock — so asking for the deepest orb search here used to
-   * charge 209s and 134s for a true-cost model the assertions never read. `optimize` is the exact call
-   * `runSolve` makes for the frontier (see solve.ts's lab branch, `withPlanLimit`); the case below then
-   * pins that `runSolve` really does hand it these limits.
+   * A lab `runSolve` also buys a from-white MDP whose own budget is the preset's wall clock, so asking
+   * for the deepest search here used to charge 209s and 134s for a true-cost model these assertions
+   * never read. `optimize` is the exact call `runSolve` makes for the frontier (see solve.ts's lab
+   * branch, `withClock`); the case at the end then pins that `runSolve` really does hand it the limits.
    */
-  const depthAt = (effort: string) =>
-    optimize(eng, 'Wands', 82, targets, { maxPlans: limitsFor(effort).maxPlans });
+  const searchAt = (effort: string) =>
+    optimize(eng, 'Wands', 82, targets, { maxMillis: limitsFor(effort).maxMillis });
 
   /**
-   * Measured on this exact target (6 mods at tier display 3, Wands, ilvl 82):
+   * THIS USED TO BE "a bigger plan cap really does buy a deeper orb search", and the measured table it
+   * rested on was:
    *
    *   quick       strongest-only      5,760 plans
    *   standard    strongest-only      5,760      ← same as the old hard-coded default
    *   exhaustive  full              622,080
    *
-   * (`thorough` sat at 184,320 and `patient` at 622,080 before both were retired on 2026-08-29 —
-   * Patient and Exhaustive had proved byte-identical, and Thorough was bracketed by its neighbours.)
+   * That was true, and it was a bad bargain. What `quick` and `standard` bought on a craft this size
+   * was `strongest-only` — a search with BASE strength removed, and with it the cheap end of the
+   * frontier. Buying "the other 108x" meant buying back rows the throttle had taken away.
    *
-   * Worth noting what that shows: on a craft this size the DEFAULT only searches the strongest orbs,
-   * and the whole point of the setting is that a user can buy the other 108x. The assertions are on
-   * the measured ordering rather than on specific labels, so a data change that shifts where each
-   * threshold bites doesn't produce a false failure — but a setting that stopped mattering would.
+   * The lever DP decides orb strength per step, so the product being rationed never forms and every
+   * preset searches every strength. Measured on 15 from-white crafts: 19-66x faster on tiered targets,
+   * and the answers improved where the throttle had bitten — a 6-target T1 craft's cheapest plan fell
+   * from 42.7 billion ex to 2.47 billion, a 5-target T1 craft's from 54.2M to 18.3M.
+   *
+   * So the assertion inverts. Effort must NOT change how thoroughly the orbs are searched, because the
+   * answer to that question is now "completely" at every rung.
    */
-
-  // Slow on purpose, and declared so. The top preset means 2,000,000 plans; the assertion is about what
-  // that buys, so the craft cannot be shrunk without shrinking the question. Measured at ~19s locally,
-  // and CI runs slower — the default 30s ceiling is not enough headroom for a test this expensive.
-  it('a bigger plan cap really does buy a deeper orb search', () => {
-    const quick = depthAt('quick');
-    const top = depthAt('exhaustive');
-    expect(top.plansEvaluated).toBeGreaterThan(quick.plansEvaluated);
-    // The deepest preset must actually reach the exhaustive search, or its name is a lie.
-    expect(top.currencyDepth).toBe('full');
-    expect(quick.currencyDepth).not.toBe('full');
-    // Standard buys nothing here, and that is the measured truth rather than an oversight: on a craft
-    // this size the orb search saturates below its cap, which is exactly what the header records.
-    expect(depthAt('standard').plansEvaluated).toBe(quick.plansEvaluated);
+  it('searches every orb strength at every preset, not just the dearest one', () => {
+    const quick = searchAt('quick');
+    const top = searchAt('exhaustive');
+    for (const r of [quick, top]) {
+      expect(r.currencyDepth).toBe('full');
+      expect(r.truncated).toBeUndefined();
+      // `orb`, not `tier`: `optimize` returns an EngineResult, whose steps are the UI's own shape.
+      const strengths = new Set(r.frontier.flatMap((p) => p.steps.map((st) => st.orb ?? 'base')));
+      expect(strengths.size).toBeGreaterThan(1); // stronger orbs really are on the frontier
+      // …and the reader is told which, since that is the point of searching them.
+      expect(r.frontier.some((p) => p.steps.some((st) => /\((Greater|Perfect)\)/.test(st.label)))).toBe(true);
+    }
+    // Identical answers, not merely similar ones: there is no depth left for effort to trade.
+    expect(top.plansEvaluated).toBe(quick.plansEvaluated);
+    expect(top.frontier.length).toBe(quick.frontier.length);
+    // NOTE this craft's frontier carries NO base-strength step, and that is the data talking rather
+    // than a throttle: its six targets sit at ilvl 25-60, and on the live sheet a Greater Transmute is
+    // both likelier AND cheaper than a plain one (0.1333 against 0.1775; augment 0.07389 against
+    // 0.2699), so base is genuinely dominated here. That base SURVIVES where it earns its place is
+    // pinned in `pareto.test.ts`, on a craft where it does.
   }, 120_000);
+
+  // Standard must reproduce what passing no limit does, so the setting changes nobody's results by
+  // being present. It goes through the planner directly for the same reason as above.
+  it('Standard is identical to passing no limit at all', () => {
+    const bare = optimize(eng, 'Wands', 82, targets);
+    const standard = searchAt('standard');
+    expect(bare.plansEvaluated).toBe(standard.plansEvaluated);
+    expect(bare.currencyDepth).toBe(standard.currencyDepth);
+    expect(bare.frontier.length).toBe(standard.frontier.length);
+  });
 
   /**
    * A retired rung resolves UPWARD, not to the default.
@@ -135,16 +154,6 @@ describe('the setting reaches the planners', () => {
     expect(limitsFor('not-a-preset')).toEqual(limitsFor(DEFAULT_EFFORT));
   });
 
-  // Standard must reproduce the old hard-coded behaviour exactly, so shipping this setting changes
-  // nobody's existing results — only what they can opt into. Both sides go through the planner
-  // directly for the same reason as above; the wiring itself is the next case.
-  it('Standard is identical to passing no limit at all', () => {
-    const bare = optimize(eng, 'Wands', 82, targets);
-    const standard = depthAt('standard');
-    expect(bare.plansEvaluated).toBe(standard.plansEvaluated);
-    expect(bare.currencyDepth).toBe(standard.currencyDepth);
-  });
-
   // …and the one case that goes the whole way through `runSolve`, because a setting that reaches the
   // planner in a unit test and gets dropped by the caller is exactly the failure the suite is for.
   // Quick, so the MDP it also runs is on the shortest clock the presets offer.
@@ -153,8 +162,8 @@ describe('the setting reaches the planners', () => {
       kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, effort: limitsFor('quick'),
     });
     if (res.kind !== 'lab') throw new Error('expected a lab solve');
-    expect(res.result.plansEvaluated).toBe(depthAt('quick').plansEvaluated);
-    expect(res.result.currencyDepth).toBe(depthAt('quick').currencyDepth);
+    expect(res.result.plansEvaluated).toBe(searchAt('quick').plansEvaluated);
+    expect(res.result.currencyDepth).toBe(searchAt('quick').currencyDepth);
   }, 60_000);
 });
 

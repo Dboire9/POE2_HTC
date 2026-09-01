@@ -206,7 +206,7 @@ describe('progress reporting', () => {
  * craft. If the wiring goes, the two runs stop differing and the test fails.
  */
 describe('Search effort reaches value iteration, not just the preset table', () => {
-  const generous = { maxMillis: 60_000, maxNodes: 200, maxPlans: 100_000 };
+  const generous = { maxMillis: 60_000, maxNodes: 200 };
   const run = (maxSweeps: number) =>
     runSolve(eng, { kind: 'item', item, targets, effort: { ...generous, maxSweeps } });
 
@@ -299,7 +299,7 @@ describe('policy iteration answers where value iteration can only bound', () => 
   } as const;
   const solve = (maxSweeps: number, solver: 'value' | 'policy') => {
     const got = runSolve(eng, {
-      ...ring, effort: { maxMillis: 120_000, maxNodes: 200, maxPlans: 100_000, maxSweeps, solver },
+      ...ring, effort: { maxMillis: 120_000, maxNodes: 200, maxSweeps, solver },
     });
     if (got.kind !== 'lab') throw new Error('wrong kind');
     return got.markov!;

@@ -41,7 +41,6 @@ interface ExcludingRequest {
   readonly effort?: {
     readonly maxMillis: number;
     readonly maxNodes: number;
-    readonly maxPlans: number;
     /** Value-iteration sweeps. Absent ⇒ the solver's own default, which is what tests rely on. */
     readonly maxSweeps?: number;
     /** Phase-B solver. 'policy' ends on a proof of optimality rather than a residual tolerance. */
@@ -130,8 +129,8 @@ const MDP_SPAN: Record<MarkovProgress['phase'], Span> = {
 const ITEM_PLAN: Span = [0, 0.2];
 const ITEM_MDP: Span = [0.2, 1];
 /** Share of the effort budget the ITEM tab's step planner may spend before the MDP takes the rest.
- *  The lab's step planner has no clock of its own — `maxPlans` bounds it — so it takes what it needs
- *  and the model gets the remainder (`clockLeft`). */
+ *  The lab's step planner takes the whole clock as a CEILING and normally finishes far inside it, so
+ *  the model gets the remainder (`clockLeft`) rather than a fixed share. */
 const ITEM_PLAN_SHARE = 0.4;
 
 /**
@@ -222,12 +221,17 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     ? { excluded: new Set(req.excluded) }
     : undefined;
   const withPolicy = <T extends object>(o: T): T => (policy ? { ...o, policy } : o);
-  // Each limit goes to the planner that owns it: relaxed targets to the budget search, enumerated
-  // plans to the orb-strength search. The wall clock is NOT one of these — an item compute shares a
-  // single budget across its two planners, which is done inline below. Absent ⇒ the planner's own
-  // default stands.
+  // Each limit goes to the planner that owns it: relaxed targets to the budget search, the clock to
+  // the step planner. Absent ⇒ the planner's own default stands.
+  //
+  // `withPlanLimit` used to sit here handing the step planner `maxPlans`, which chose a coarser
+  // orb-strength depth. The lever DP removed that dial (see searchEffort.ts), so the step planner's
+  // only throttle is time — which it had never actually been given on the lab path, where
+  // `OptimizeParetoOptions.maxMillis` was declared and read by nothing. It is a CEILING, not a
+  // reservation: the model still takes whatever is left over via `clockLeft()`, and the item tab
+  // overrides it with its own minority share below.
   const eff = req.effort;
-  const withPlanLimit = <T extends object>(o: T): T => (eff ? { ...o, maxPlans: eff.maxPlans } : o);
+  const withClock = <T extends object>(o: T): T => (eff ? { ...o, maxMillis: eff.maxMillis } : o);
   const withNodeLimit = <T extends object>(o: T): T => (eff ? { ...o, maxNodes: eff.maxNodes } : o);
   /**
    * The MDP's sweep cap — and it must reach BOTH the lab and item paths, which is why it is a helper
@@ -249,9 +253,9 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
    *
    * The preset promises the user a total wait, so the model gets the remainder after the step search
    * rather than a fixed share of the whole. A fixed share is worse in both directions: the step
-   * planner is capped by `maxPlans`, not by time, so on a craft where it finishes in three seconds a
-   * 40% reservation is budget nobody spends — measured at Thorough that was 24 of 60 seconds simply
-   * dropped, on exactly the craft that needed them.
+   * planner takes the clock as a ceiling it rarely approaches, so on a craft where it finishes in
+   * three seconds a 40% reservation is budget nobody spends — measured at Thorough that was 24 of 60
+   * seconds simply dropped, on exactly the craft that needed them.
    *
    * The floor matters too: a search that ate the whole budget would otherwise leave the model zero
    * sweeps and a value of 0, which renders as "≥ 0" — technically true, useless to read.
@@ -275,7 +279,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     const planOnProgress = onProgress
       ? { onProgress: (done: number, total: number): void => onProgress({ phase: 'plan', fraction: within(ITEM_PLAN, done, total) }) }
       : {};
-    const planOpts = withPlanLimit(withPolicy(planOnProgress));
+    const planOpts = withClock(withPolicy(planOnProgress));
     const plan = frontierOrReason(() => optimizeItem(eng, req.item, req.targets,
       planShare === undefined ? planOpts : { ...planOpts, maxMillis: planShare }));
     // The honest expected cost + optimal-policy graph.
@@ -296,13 +300,13 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const emit = (phase: SolvePhase, span: Span) =>
     (done: number, total: number): void => onProgress?.({ phase, fraction: within(span, done, total) });
 
-  const planOpts = withPlanLimit(withPolicy(onProgress
+  const planOpts = withClock(withPolicy(onProgress
     ? { onProgress: emit('plan', hasBudget ? LAB_PLAN_THEN_SEARCH : LAB_PLAN_ALONE) }
     : {}));
   const result = frontierOrReason(() => ('item' in from
     // The from-item planner has no progress reporting of its own yet; a carved craft therefore shows
     // no movement until the budget search starts.
-    ? optimizeItem(eng, from.item, req.targets, withPlanLimit(withPolicy({})))
+    ? optimizeItem(eng, from.item, req.targets, withClock(withPolicy({})))
     : optimize(eng, from.baseId, from.level, req.targets, planOpts)));
 
   // The same push-forward model the Item tab uses. A white base is not an item you hold, so it gets the

@@ -28,13 +28,6 @@ export interface EffortLimits {
    *  dominant cost of a budgeted craft. */
   readonly maxNodes: number;
   /**
-   * Plans the orb-strength search may enumerate before it drops to a shallower currency depth.
-   * NOTE this one saturates: a 6-target craft needs ~34,560 plans for the full search, so anything
-   * past the Standard value buys nothing there. It only bites on targets big enough to be throttled,
-   * which is exactly when the frontier badge says so.
-   */
-  readonly maxPlans: number;
-  /**
    * Value-iteration sweeps the MDP may run.
    *
    * This was a hardcoded 100,000 and NOT on the ladder, which made the top preset a lie: on a craft
@@ -134,21 +127,20 @@ export const EFFORT_PRESETS: readonly EffortPreset[] = [
     id: 'quick',
     label: 'Quick',
     hint: 'A couple of seconds. Likeliest to come back asking for longer instead of an answer.',
-    limits: { maxMillis: 2_000, maxNodes: 100, maxPlans: 25_000, maxSweeps: 25_000, solver: 'policy' },
+    limits: { maxMillis: 2_000, maxNodes: 100, maxSweeps: 25_000, solver: 'policy' },
   },
   {
     id: 'standard',
     label: 'Standard',
     hint: 'The default — around 25s on a big budgeted craft.',
-    limits: { maxMillis: 15_000, maxNodes: 200, maxPlans: 100_000, maxSweeps: 100_000, solver: 'policy' },
+    limits: { maxMillis: 15_000, maxNodes: 200, maxSweeps: 100_000, solver: 'policy' },
   },
   {
     id: 'exhaustive',
     label: 'Exhaustive',
     hint: 'Minutes. For the crafts nothing shorter can finish — every one measured settled inside five.',
     limits: {
-      maxMillis: 900_000, maxNodes: 4_000, maxPlans: 2_000_000, maxSweeps: 20_000_000,
-      solver: 'policy',
+      maxMillis: 900_000, maxNodes: 4_000, maxSweeps: 20_000_000, solver: 'policy',
     },
   },
 ];

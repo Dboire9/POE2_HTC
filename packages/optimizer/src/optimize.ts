@@ -8,16 +8,18 @@
 // of them and score each exactly with the engine's evaluatePlan. No heuristic, no beam pruning: the
 // returned plan is the true probability-maximising ordering. The search is analytic and exact.
 
-import type { CurrencyTier, ItemBase, ItemState, PatchData, Rarity } from '../../engine/src/types.ts';
-import { CURRENCY_FLOOR } from '../../engine/src/types.ts';
+import type { ItemBase, ItemState, PatchData, Rarity } from '../../engine/src/types.ts';
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
-import { evaluatePlan } from '../../engine/src/plan.ts';
+import { evaluatePlan, evaluatePlanFrom } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
+import { whiteItem } from '../../engine/src/item.ts';
 import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
 import { allowsStep, cheapestEssenceLevel, essenceLevelOf, planExpectedCost, pricesForBase } from './cost.ts';
-import { combinations, factorial, permutations } from './combinatorics.ts';
+import { combinations, permutations } from './combinatorics.ts';
 import { expandSlots, itemLegalCombinations } from './slots.ts';
+import type { LeverCandidate } from './leverDp.ts';
+import { searchSkeletons } from './leverDp.ts';
 
 // The from-item planner (optimizeFromItem) lives in ./fromItem.ts and imports withOmenVariants +
 // paretoFrontier from here — so those two are exported below. This file owns the from-white optimizers.
@@ -206,12 +208,16 @@ export interface ParetoResult {
 
 export interface OptimizeParetoOptions {
   level?: number;
-  /** Throttle the currency-tier search once the estimated plan count exceeds this. Default 100000. */
-  maxPlans?: number;
   /**
    * Wall-clock ceiling. Absent by default and absent in tests, so results stay deterministic and
    * machine-independent — only the app sets it, exactly as the MDP's `maxMillis` works. Hitting it
    * sets `truncated`.
+   *
+   * This is now the ONLY throttle on either step planner. `maxPlans` used to sit beside it and chose a
+   * coarser orb-strength DEPTH when the estimated plan count got large; the lever DP removed the
+   * product it was rationing, so there is no depth left to trade and the option was deleted rather
+   * than left on the effort ladder doing nothing. It had also never been read on this path at all —
+   * `maxMillis` was declared here and used by no code until the same change.
    */
   maxMillis?: number;
   /**
@@ -226,63 +232,17 @@ export interface OptimizeParetoOptions {
   policy?: CurrencyPolicy;
 }
 
-/** The four add-chain currencies — which one a mod uses depends on its POSITION in the order. */
-const ADD_CURRENCIES: readonly AddCurrency[] = ['transmute', 'augment', 'regal', 'exalt'];
-
 /**
- * Whether an orb strength is worth enumerating at all. A given strength maps to a different price key
- * per add currency (`regal_greater` vs `exalt_greater`, decided by position), so a strength can only be
- * dropped up front when EVERY add currency is excluded at it — which is exactly what the UI's global
- * "I don't have Perfect orbs" row produces. Anything subtler is caught by the per-step filter below;
- * this only avoids enumerating what could never survive it.
- */
-function strengthUsable(policy: CurrencyPolicy | undefined, tier: CurrencyTier): boolean {
-  if (!policy || tier === 'base') return true;
-  return ADD_CURRENCIES.some((c) => !policy.excluded.has(`${c}_${tier}`));
-}
-
-/** Report roughly this many times across the run: frequent enough to animate, rare enough to be free. */
-export const PROGRESS_REPORTS = 100;
-
-const ORB_TIERS: readonly CurrencyTier[] = ['base', 'greater', 'perfect'];
-
-/** Orb strengths that can still hit `modId` at tier `minTierIndex` on a `level` item (floor ≤ target ilvl). */
-function legalOrbTiers(data: PatchData, modId: string, minTierIndex: number, level: number): CurrencyTier[] {
-  const mod = resolveMod(data, modId);
-  const t = mod.tiers[minTierIndex] ?? mod.tiers[0];
-  const targetIlvl = Math.min(t ? t.ilvl : 0, level);
-  const legal = ORB_TIERS.filter((ct) => CURRENCY_FLOOR[ct] <= targetIlvl);
-  return legal.length > 0 ? legal : ['base'];
-}
-
-function reduceOrbTiers(legal: CurrencyTier[], depth: CurrencyDepth): CurrencyTier[] {
-  if (depth === 'full' || legal.length <= 1) return legal;
-  const strongest = legal[legal.length - 1]!;
-  return depth === 'strongest-only' ? [strongest] : ['base', strongest];
-}
-
-/** Cartesian product of each rolled mod's allowed orb tiers → a list of {modId → orb tier} assignments. */
-function orbAssignments(rolled: readonly string[], legal: Map<string, CurrencyTier[]>): Map<string, CurrencyTier>[] {
-  let acc: Map<string, CurrencyTier>[] = [new Map()];
-  for (const id of rolled) {
-    const tiers = legal.get(id)!;
-    const next: Map<string, CurrencyTier>[] = [];
-    for (const partial of acc) for (const t of tiers) next.push(new Map(partial).set(id, t));
-    acc = next;
-  }
-  return acc;
-}
-
-/**
- * Build the step sequences for ONE ordering, essence/desecrated/perfect sets, target-tier map and orb
- * assignment. Returns a LIST because a perfect-essence target branches: a Perfect Essence adds its mod
+ * Build the step SKELETONS for one ordering and the essence/desecrated/perfect sets — which mods, in
+ * which order, by which currency, and nothing about orb strength or omens (those are levers, decided
+ * per step by `leverOptions`). Returns a LIST because a perfect-essence target branches: a Perfect Essence adds its mod
  * while eating one already on the item, and which mod it eats is a real choice the search must make.
  * Every other case yields exactly one sequence.
  */
 function buildParetoSteps(
   data: PatchData, order: readonly string[], essences: ReadonlySet<string>, desecrated: ReadonlySet<string>,
   perfects: ReadonlySet<string>,
-  tierOf: Map<string, number>, orbOf: Map<string, CurrencyTier>,
+  tierOf: Map<string, number>,
   /** Essence level per essence-only target — see `cheapestEssenceLevel`. */
   essenceTierOf: ReadonlyMap<string, number>,
   /** False on armour, where a Desecration can't be boss-targeted at all — see `bossOmenAllowed`. */
@@ -293,8 +253,9 @@ function buildParetoSteps(
   const placed: string[] = [];
   let rarity: Rarity = 'normal';
   let modCount = 0;
+  // No `tier`: this builds a SKELETON, and the orb strength on it is `leverOptions`' to decide.
   const addStep = (id: string): PlanStep =>
-    ({ currency: nextAddCurrency(rarity, modCount), add: id, minTierIndex: tierOf.get(id) ?? 0, tier: orbOf.get(id) ?? 'base' });
+    ({ currency: nextAddCurrency(rarity, modCount), add: id, minTierIndex: tierOf.get(id) ?? 0 });
 
   for (let k = 0; k < order.length; k++) {
     const id = order[k]!;
@@ -315,11 +276,11 @@ function buildParetoSteps(
         const tail: PlanStep[] = [
           { currency: 'perfect-essence', add: id, remove: victim },
           // Re-add the sacrificed target. The item is Rare by now, so this is always an Exalt.
-          { currency: 'exalt', add: victim, minTierIndex: tierOf.get(victim) ?? 0, tier: orbOf.get(victim) ?? 'base' },
+          { currency: 'exalt', add: victim, minTierIndex: tierOf.get(victim) ?? 0 },
         ];
         // After swap + re-add the item holds exactly what it would have with a plain add of `id`, so
         // the remainder of the ordering continues on unchanged state.
-        const after = buildParetoSteps(data, rest, essences, desecrated, perfects, tierOf, orbOf, essenceTierOf, bossOk);
+        const after = buildParetoSteps(data, rest, essences, desecrated, perfects, tierOf, essenceTierOf, bossOk);
         // `rest` can contain no further perfect target (one essence modifier per item), so `after` has
         // exactly one element — but map over it rather than assuming, so a future second branch can't
         // silently drop sequences.
@@ -358,13 +319,13 @@ function buildParetoSteps(
  * Alchemy-opener base sequences: an Orb of Alchemy turns a white item Rare with 4 mods at once, then
  * the remaining targets are exalted on top. Alchemy has no tier control (any tier), so only targets
  * with no tier requirement can be alchemy-supplied — this fires only when ≥4 targets are "any tier".
- * For each choice of which 4 go to alchemy (a legal ≤3-per-side split) we permute the exalt tail and
- * assign its orb strengths; per-exalt side omens are layered on downstream by withOmenVariants. Yields
+ * For each choice of which 4 go to alchemy (a legal ≤3-per-side split) we permute the exalt tail; the
+ * tail's orb strengths and side omens are levers, decided per step by `leverOptions`. Yields
  * nothing when alchemy can't legally open (fewer than 4 any-tier mods) — the caller also skips it when
  * the plan uses an essence (an essence needs the Magic→Rare path; alchemy goes straight to Rare).
  */
 function alchemyOpenerSequences(
-  data: PatchData, modIds: readonly string[], tierOf: Map<string, number>, legal: Map<string, CurrencyTier[]>,
+  data: PatchData, modIds: readonly string[], tierOf: Map<string, number>,
 ): PlanStep[][] {
   if (modIds.length < ALCHEMY_MOD_COUNT) return [];
   const anyTier = modIds.filter((id) => (tierOf.get(id) ?? 0) === 0);
@@ -377,72 +338,13 @@ function alchemyOpenerSequences(
     if (pre > 3 || suf > 3) continue; // alchemy places at most 3 per side
     const fourSet = new Set(four);
     const rest = modIds.filter((id) => !fourSet.has(id));
-    const restOrbs = orbAssignments(rest, legal);
     for (const order of permutations(rest)) {
-      for (const orbOf of restOrbs) {
-        const steps: PlanStep[] = [{ currency: 'alchemy', adds: four }];
-        for (const id of order) {
-          steps.push({ currency: 'exalt', add: id, minTierIndex: tierOf.get(id) ?? 0, tier: orbOf.get(id) ?? 'base' });
-        }
-        out.push(steps);
-      }
+      const steps: PlanStep[] = [{ currency: 'alchemy', adds: four }];
+      for (const id of order) steps.push({ currency: 'exalt', add: id, minTierIndex: tierOf.get(id) ?? 0 });
+      out.push(steps);
     }
   }
   return out;
-}
-
-/**
- * All ways to side-constrain (Sinistral/Dextral Exaltation) a subset of the plan's EXALT steps.
- * Constraining an exalt to the added mod's side shrinks the pool it can roll from → higher probability,
- * at the omen surcharge — a real cost↔probability lever. A from-white chain has ≤ K−2 exalts, so the
- * 2^n subset enumeration stays tiny. Exported for the from-item planner (fromItem.ts).
- */
-export function withOmenVariants(
-  data: PatchData, steps: PlanStep[], start?: ItemState, policy?: CurrencyPolicy,
-): PlanStep[][] {
-  // Steps that can take an optional side-omen or targeted-removal omen as a cost↔probability lever:
-  // - EXALT constrains the ADD to its mod's side (Sinistral/Dextral Exaltation → smaller pool, higher P)
-  // - PERFECT-ESSENCE constrains the random REMOVAL to the sacrificed mod's side (Sinistral/Dextral
-  //   Crystallisation → likelier to hit the intended junk)
-  // - ANNUL of a desecrated junk mod (on a desecrated item) can target it via Omen of Light (P=1 removal,
-  //   guaranteed instead of 1/N random) — enumerate all combos of this lever per eligible annul step.
-  // - DESECRATE with a boss omen draws across BOTH sides of that boss's pool (D8); a Sinistral/Dextral
-  //   NECROMANCY omen locks it to the added mod's side, shrinking the pool to the per-slot 1/N for a
-  //   second omen surcharge on top of the boss omen.
-  // Checking the START item is enough for the Light lever: desecrated JUNK can only be there from the
-  // start, since no plan spends a Desecration to create a mod it means to remove. And the gate is only
-  // an enumeration filter — annulProbability re-checks legality against the evolving item, so an
-  // over-offered variant scores 0 and drops out of the frontier rather than lying.
-  const idx = steps.map((s, i) => {
-    if (s.currency === 'exalt' || s.currency === 'perfect-essence') return i;
-    if (s.currency === 'desecrate' && s.boss) return i;
-    if (s.currency === 'annul' && start?.desecrated) {
-      const removed = resolveMod(data, s.remove);
-      if (removed.source === 'desecrated') return i;
-    }
-    return -1;
-  }).filter((i) => i >= 0);
-  /** Turn one eligible step into its omen-bearing form. */
-  const withOmen = (s: PlanStep): PlanStep => {
-    if (s.currency === 'exalt') return { ...s, constrainTo: resolveMod(data, s.add).type };
-    if (s.currency === 'perfect-essence') return { ...s, omen: resolveMod(data, s.remove).type === 'prefix' ? 'sinistral' : 'dextral' };
-    if (s.currency === 'desecrate') return { ...s, constrainTo: resolveMod(data, s.add).type };
-    if (s.currency === 'annul') return { ...s, omen: 'light' };
-    return s;
-  };
-  // Drop levers whose omen the player doesn't have BEFORE enumerating, not after. This loop is 2^k, so
-  // excluding omens collapses it to a single variant instead of generating a power set to discard —
-  // the difference between the search skipping them and merely hiding them.
-  const usable = policy ? idx.filter((i) => allowsStep(policy, withOmen(steps[i]!))) : idx;
-
-  const variants: PlanStep[][] = [];
-  for (let mask = 0; mask < (1 << usable.length); mask++) {
-    variants.push(steps.map((s, i) => {
-      const bit = usable.indexOf(i);
-      return bit < 0 || !(mask & (1 << bit)) ? s : withOmen(s);
-    }));
-  }
-  return variants;
 }
 
 /** Keep only non-dominated plans (min cost, max probability), cheapest-first. Exported for fromItem.ts. */
@@ -579,65 +481,50 @@ function paretoForOneCraft(
     return [id, cheapestEssenceLevel(prices, mod, tierOf.get(id) ?? 0, level)] as const;
   }));
 
-  // Pick the deepest orb-tier search that stays within maxPlans (report which one we used). Only the
-  // rolled mods carry an orb-strength choice; essence-only mods have a fixed level (no orb axis). Each
-  // exalt step also gets an on/off side-omen (≤ K−2 exalts → a small 2^n factor per plan).
-  const maxPlans = opts.maxPlans ?? 100_000;
-  const preRare = essences.length > 0 ? 2 : 3; // mods placed before the item turns Rare (no exalt yet)
-  const omenFactor = Math.pow(2, Math.max(0, modIds.length - preRare));
-  const fullLegal = new Map(rolled.map((id) => [id, legalOrbTiers(data, id, tierOf.get(id) ?? 0, level)]));
-  const kfact = factorial(modIds.length);
-  const estimate = (depth: CurrencyDepth): number =>
-    kfact * omenFactor * rolled.reduce((p, id) => p * reduceOrbTiers(fullLegal.get(id)!, depth).length, 1);
-  const currencyDepth: CurrencyDepth =
-    estimate('full') <= maxPlans ? 'full' : estimate('base+strongest') <= maxPlans ? 'base+strongest' : 'strongest-only';
-  const policy = opts.policy;
-  // Keep at least one strength even if everything is excluded: the per-step filter below will reject
-  // the resulting plans anyway, and an empty tier list would silently produce no sequences at all,
-  // which reads as "impossible craft" rather than "you excluded the orbs that do it".
-  const prune = (tiers: CurrencyTier[]): CurrencyTier[] => {
-    const kept = tiers.filter((t) => strengthUsable(policy, t));
-    return kept.length > 0 ? kept : tiers.slice(0, 1);
-  };
-  const legal = new Map(rolled.map((id) => [id, prune(reduceOrbTiers(fullLegal.get(id)!, currencyDepth))]));
-
-  const assignments = orbAssignments(rolled, legal);
-  const baseSequences: PlanStep[][] = [];
-  // (1) Add-chain / essence / desecration / perfect-essence openers: every mod ordering × orb-strength
-  // assignment. A perfect-essence target yields several sequences per ordering (one per sacrificed
-  // mod), so this spreads rather than pushes.
+  // (1) Add-chain / essence / desecration / perfect-essence openers: every mod ordering. A
+  // perfect-essence target yields several skeletons per ordering (one per sacrificed mod), so this
+  // spreads rather than pushes.
+  //
+  // This used to be `permutations x orbAssignments`, then each result expanded into its omen power
+  // set — a `K! x Π|strengths| x 2^omens` product, throttled by picking a coarser orb-strength DEPTH
+  // when the estimate exceeded `maxPlans`. The lever DP replaced all of it: orb strength and omens are
+  // decided per step, against a state the skeleton already fixes, so what is enumerated here is the
+  // orderings alone. `currencyDepth` is `full` on every craft as a result, and it is now earned rather
+  // than estimated — the throttle's own `full` was a claim about the ladder rung, not about what was
+  // searched, and `legalOrbTiers` was quietly suppressing the whole axis for any-tier targets while it
+  // said so.
+  const skeletons: PlanStep[][] = [];
   for (const order of permutations(modIds)) {
-    for (const orbOf of assignments) {
-      baseSequences.push(
-        ...buildParetoSteps(data, order, essSet, desSet, perfSet, tierOf, orbOf, essenceTierOf, bossOmenAllowed(base.category)),
-      );
-    }
+    skeletons.push(
+      ...buildParetoSteps(data, order, essSet, desSet, perfSet, tierOf, essenceTierOf, bossOmenAllowed(base.category)),
+    );
   }
   // (2) Orb of Alchemy opener — a cheap, low-probability frontier point the add-chain can't produce
   // (4 mods slammed at once, the rest exalted). Not combinable with an essence (Magic→Rare) or a
   // desecration (alchemy lands 4 normal mods; the desecrated ones would need a separate Desecration).
   if (essences.length === 0 && desecrated.length === 0) {
-    for (const seq of alchemyOpenerSequences(data, modIds, tierOf, legal)) baseSequences.push(seq);
+    for (const seq of alchemyOpenerSequences(data, modIds, tierOf)) skeletons.push(seq);
   }
 
-  // Evaluating the sequences is the bulk of the work and the count is already known, so this is where
-  // progress is reported from.
-  const plans: ParetoPlan[] = [];
-  const report = opts.onProgress;
-  const stride = Math.max(1, Math.floor(baseSequences.length / PROGRESS_REPORTS));
-  for (let i = 0; i < baseSequences.length; i++) {
-    for (const steps of withOmenVariants(data, baseSequences[i]!, undefined, policy)) {
-      // The guarantee: a plan using a currency the player doesn't have never reaches the frontier. The
-      // pruning above only saves work; this is what makes it true, including for the add-chain, whose
-      // currency depends on a mod's position and so can't be filtered before the steps exist.
-      if (policy && steps.some((s) => !allowsStep(policy, s))) continue;
-      const result = evaluatePlan(data, base, steps, level);
-      plans.push({ steps, result, cost: planExpectedCost(prices, result, steps), probability: result.total });
-    }
-    if (report && i % stride === 0) report(i, baseSequences.length);
-  }
-  report?.(baseSequences.length, baseSequences.length);
-  return { frontier: paretoFrontier(plans), plansEvaluated: plans.length, currencyDepth };
+  const white = whiteItem(base, level);
+  const found = searchSkeletons(data, prices, white, skeletons, {
+    ...(opts.policy ? { policy: opts.policy } : {}),
+    ...(opts.maxMillis === undefined ? {} : { maxMillis: opts.maxMillis }),
+    ...(opts.onProgress ? { onProgress: opts.onProgress } : {}),
+  });
+
+  // Re-scored through the canonical evaluator: the DP only RANKS, and its own arithmetic associates
+  // the products differently, so nothing it computes is ever reported.
+  const plans = found.candidates.map((c: LeverCandidate): ParetoPlan => {
+    const result = evaluatePlanFrom(data, white, c.steps);
+    return { steps: c.steps, result, cost: planExpectedCost(prices, result, c.steps), probability: result.total };
+  });
+  return {
+    frontier: paretoFrontier(plans),
+    plansEvaluated: found.searched,
+    currencyDepth: 'full',
+    ...(found.truncated ? { truncated: true } : {}),
+  };
 }
 
 /**

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { Mod, PatchData, PlanResult, PlanStep } from '../../engine/src/index.ts';
 import { loadPatch } from '../../engine/src/index.ts';
-import { cheapestEssenceLevel, essenceLevelOf, planExpectedCost, stepCost } from './cost.ts';
+import { allowsStep, cheapestEssenceLevel, essenceLevelOf, planExpectedCost, stepCost } from './cost.ts';
 import type { Prices } from './cost.ts';
 import { loadPrices } from './loadPrices.ts';
 import { optimizeCost } from './optimize.ts';
@@ -40,6 +40,57 @@ describe('stepCost — currency price plus omen surcharge', () => {
   });
   it('unknown currencies/omens cost 0 (never NaN)', () => {
     expect(stepCost({ currency: {}, omens: {} }, { currency: 'exalt' })).toBe(0);
+  });
+});
+
+/**
+ * A CHAOS ORB HAS STRENGTHS, AND THEY WERE FREE.
+ *
+ * `currencyKey` gated its `_greater`/`_perfect` suffix on a four-currency list — transmute, augment,
+ * regal, exalt — and chaos was not on it. Meanwhile the engine had honoured the strength all along:
+ * `chaosProbability` forwards its `opts` to `exaltProbability`, so the ilvl floor applied and the odds
+ * moved. Only the bill stayed at the base price.
+ *
+ * Latent for as long as no planner emitted a tiered chaos. The from-item orb-strength axis emits them
+ * constantly and chaos is that planner's main transform, so this had to be fixed BEFORE the axis, not
+ * after: a Perfect Chaos at 33.39ex for 4.5x the odds dominates every frontier it can reach.
+ *
+ * Two failures, one key. `stepCost` under-bills it 62x; `allowsStep` reads the SAME `currencyKey`, so a
+ * player who ticked "I don't have Perfect Chaos Orbs" — the UI offers exactly that
+ * (`CURRENCY_GROUPS`), and `cost.ts` cites `'chaos_perfect'` as its own example exclusion key — would
+ * have been handed a plan built on them.
+ */
+describe('stepCost — a Chaos Orb has strengths, and they are not free', () => {
+  const prices: Prices = {
+    currency: { chaos: 33.39, chaos_greater: 98.47, chaos_perfect: 2058, exalt: 1, exalt_greater: 4.796 },
+    omens: {},
+  };
+  const chaos = (tier?: 'base' | 'greater' | 'perfect'): PlanStep =>
+    ({ currency: 'chaos', remove: 'A', add: 'B', ...(tier ? { tier } : {}) });
+
+  it('bills a Greater/Perfect Chaos at its own key, not the base one', () => {
+    expect(stepCost(prices, chaos())).toBe(33.39);
+    expect(stepCost(prices, chaos('base'))).toBe(33.39);
+    expect(stepCost(prices, chaos('greater'))).toBe(98.47);
+    expect(stepCost(prices, chaos('perfect'))).toBe(2058);
+  });
+
+  it('still refuses a strength the player says they do not have', () => {
+    const policy = { excluded: new Set(['chaos_perfect']) };
+    expect(allowsStep(policy, chaos('perfect'))).toBe(false);
+    expect(allowsStep(policy, chaos('greater'))).toBe(true);
+    expect(allowsStep(policy, chaos())).toBe(true);
+  });
+
+  /**
+   * The other half of the same guard, and the reason a caller may not simply enumerate all three:
+   * `stepCost` charges 0 for a key the sheet omits, so an unlisted strength comes back FREE and wins
+   * every comparison it enters. Whoever enumerates strengths has to skip the ones the sheet does not
+   * price — pinned here so the rule has a home next to the thing that makes it necessary.
+   */
+  it('charges 0 for a strength the sheet does not list — which is why callers must skip those', () => {
+    const thin: Prices = { currency: { chaos: 33.39 }, omens: {} };
+    expect(stepCost(thin, chaos('perfect'))).toBe(0);
   });
 });
 

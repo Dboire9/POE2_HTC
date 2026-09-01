@@ -39,7 +39,17 @@ import { desecrationBoneFor } from '../../engine/src/probability.ts';
  */
 export interface PricedStep {
   readonly currency: PlanStep['currency'];
-  /** Orb strength for the add-currencies (transmute/augment/regal/exalt). */
+  /**
+   * Orb strength — transmute/augment/regal/exalt **and chaos**.
+   *
+   * Chaos was missing from `currencyKey`'s list for as long as this field existed, while the engine
+   * honoured it the whole time: `chaosProbability` forwards its `opts` to `exaltProbability`, so the
+   * ilvl floor applied and the odds moved. Only the price stayed put. Latent while no planner emitted
+   * a tiered chaos; the from-item orb-strength axis emits them constantly, and chaos is that planner's
+   * main transform — a Perfect Chaos would have been billed at 33.39ex instead of 2058ex (62x under),
+   * and a player's "I don't have Perfect Chaos" would have been ignored, since `allowsStep` reads this
+   * same key.
+   */
   readonly tier?: CurrencyTier;
   /** Regular-essence level (lesser/normal/greater) — selects `essence_*`. */
   readonly essenceLevel?: string;
@@ -115,6 +125,9 @@ export function indexPrices(file: PricesFile): Prices {
 /**
  * The `prices.currency` key a step maps to, including its orb strength — e.g. an exalt step with
  * `tier: 'greater'` costs `exalt_greater`. Base tier (or no tier) uses the plain currency key.
+ *
+ * A missing key is charged 0 by `stepCost`, so a caller enumerating strengths must skip one the sheet
+ * does not list rather than let it come back free — see `leverOptions`.
  */
 function currencyKey(step: PricedStep): string {
   // Essences are priced per ESSENCE, not per level — `essence:<level>:<modId>` — because the market
@@ -124,8 +137,11 @@ function currencyKey(step: PricedStep): string {
     const level = step.currency === 'perfect-essence' ? 'perfect' : (step.essenceLevel ?? 'normal');
     return step.add ? `essence:${level}:${step.add}` : legacyEssenceKey(step);
   }
-  const isAdd = step.currency === 'transmute' || step.currency === 'augment' || step.currency === 'regal' || step.currency === 'exalt';
-  if (isAdd && step.tier && step.tier !== 'base') return `${step.currency}_${step.tier}`;
+  // Which currencies the sheet sells at a strength. NOT "is this an add" — a chaos both removes and
+  // adds, and it belongs here because `chaos_greater` / `chaos_perfect` are real listings.
+  const hasStrengths = step.currency === 'transmute' || step.currency === 'augment'
+    || step.currency === 'regal' || step.currency === 'exalt' || step.currency === 'chaos';
+  if (hasStrengths && step.tier && step.tier !== 'base') return `${step.currency}_${step.tier}`;
   return step.currency;
 }
 

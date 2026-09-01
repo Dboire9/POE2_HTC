@@ -1,0 +1,146 @@
+name: Refresh prices
+
+# The optimizer RANKS plans by cost, so a stale *relative* price changes which route it recommends,
+# not just the total printed on it. `npm run update-prices` has always existed and always depended on
+# someone remembering; this runs it every Monday and opens a pull request with the result.
+#
+# A pull request, not a push, on purpose: a bad feed (poe.ninja down, a renamed currency id, a league
+# rollover) must not reach the site unreviewed. The refresh script prints every price that moved and by
+# what factor, and that output becomes the PR body — it is exactly the review a human wants to see.
+
+on:
+  schedule:
+    # Monday 06:00 UTC. A scheduled run always uses the default branch, which is what the PR targets.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      league:
+        description: 'poe.ninja league id (blank = the current temporary league)'
+        required: false
+        type: string
+
+jobs:
+  refresh:
+    name: Fetch poe.ninja and open a PR
+    runs-on: ubuntu-latest
+
+    # Declared rather than inherited, same reasoning as ci.yml. This job needs to push one branch and
+    # open one PR; it gets exactly that.
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `tee` so the console output is BOTH visible in the Actions log and captured for the PR body.
+      # `pipefail` because the pipe would otherwise mask a non-zero exit from the script — the exact
+      # trap that let a failing check look green during the 2026-09 optimizer work.
+      # LEAGUE arrives through `env`, never interpolated into the script body. A `${{ }}` expansion is
+      # substituted as raw text BEFORE bash sees it, so a dispatch input containing a quote and a
+      # semicolon would run as a command; through env it is only ever data.
+      - name: Fetch prices from poe.ninja
+        id: fetch
+        shell: bash
+        env:
+          LEAGUE: ${{ inputs.league }}
+        run: |
+          set -euo pipefail
+          league_arg=()
+          if [ -n "${LEAGUE:-}" ]; then league_arg=(--league "$LEAGUE"); fi
+          node tools/refresh/prices.mjs "${league_arg[@]}" 2>&1 | tee /tmp/refresh.log
+
+      - name: Did anything change?
+        id: diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- data/patches; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No price moved. Nothing to open a PR for."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- data/patches
+          fi
+
+      # The guard runs HERE, not on the pull request. A PR opened with the built-in GITHUB_TOKEN does
+      # not trigger workflows — GitHub suppresses that to prevent recursion — so relying on "CI will
+      # catch it on the PR" would have shipped a PR nothing had checked. Running the shape tests in
+      # this job instead means a bad feed fails loudly before a PR exists at all, and needs no PAT.
+      - name: Guard the shape of the new sheet
+        if: steps.diff.outputs.changed == 'true'
+        run: npx vitest run packages/optimizer/src/priceResolution.test.ts packages/optimizer/src/costConsistency.test.ts
+
+      - name: Open or update the pull request
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch=chore/refresh-prices
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add data/patches
+          git commit -m "Refresh prices from poe.ninja"
+
+          # Force-push a FIXED branch so a weekly re-run updates the one open PR instead of piling up
+          # a new one every Monday. Nothing but this job ever writes here, so there is no work to lose.
+          git push --force origin "$branch"
+
+          # The omenQuotes staleness warning is the one part of the refresh a bot cannot do: poe.ninja
+          # serves no omen endpoint (`type=Omens` returns byte-identical output to an invalid type), so
+          # those quotes are hand-transcribed. Lift it to the top of the body where it will be read.
+          {
+            echo "Automated weekly refresh of \`data/patches/0.5.0/prices.json\` from poe.ninja."
+            echo
+            if grep -q 'WARNING omenQuotes' /tmp/refresh.log; then
+              echo "> [!WARNING]"
+              grep 'WARNING omenQuotes' /tmp/refresh.log | sed 's/^ */> /'
+              echo ">"
+              echo "> Omen prices are hand-transcribed — poe.ninja serves no omen endpoint. Re-transcribe"
+              echo "> them before merging, or the omen half of every cost is as old as the warning says."
+              echo
+            fi
+            if grep -q 'WARNING' /tmp/refresh.log; then
+              echo "Other warnings from this run:"
+              echo '```'
+              grep 'WARNING' /tmp/refresh.log | grep -v 'omenQuotes' || true
+              echo '```'
+              echo
+            fi
+            echo "\`priceResolution\` and \`costConsistency\` passed against the new sheet in the refresh"
+            echo "job — a PR opened by \`GITHUB_TOKEN\` does not trigger CI, so that check ran there."
+            echo
+            echo "**Do not auto-merge.** Read the price moves below first: on the week a new league"
+            echo "starts the script follows poe.ninja to the new league and every price legitimately"
+            echo "moves 5-50x, which is correct and still worth a human confirming."
+            echo
+            echo "<details><summary>Full refresh output</summary>"
+            echo
+            echo '```'
+            cat /tmp/refresh.log
+            echo '```'
+            echo
+            echo "</details>"
+          } > /tmp/pr-body.md
+
+          if gh pr view "$branch" --json number >/dev/null 2>&1; then
+            gh pr edit "$branch" --title "Refresh prices from poe.ninja" --body-file /tmp/pr-body.md
+          else
+            gh pr create --base "$BASE" --head "$branch" \
+              --title "Refresh prices from poe.ninja" --body-file /tmp/pr-body.md
+          fi

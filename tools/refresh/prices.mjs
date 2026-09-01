@@ -121,13 +121,24 @@ const median = (xs) => {
  * inverting it is unambiguous (1288 pairs, no collisions), so each craft can be charged for the
  * essence it would really buy.
  *
- * Not every essence is listed — ~29 of 93 (level, essence) combinations have no trades at all, the
- * four "Alloy" essences among them. Those FALL BACK, in order: the same essence's other levels (its
- * identity matters more than its level), then that level's median across essences. Every fallback is
- * reported so the sheet can say which prices are inferred rather than observed.
+ * Not every essence is listed, and — since 2026-09-01 — a listing with no VOLUME behind it counts as
+ * not listed either. A quote at under `DEPTH.minEssenceUnits` trades a day is one person's asking
+ * price, not a market: on the day this was added, `essence-of-command` was quoting a price up
+ * **16,567% in a week on literally zero units traded**, and the old code took it at face value. Since
+ * the optimizer ranks plans BY cost, that does not merely misreport a total — it changes which route
+ * is recommended for every craft naming that essence's mods.
+ *
+ * Both cases FALL BACK the same way, in order: the same essence's other levels (its identity matters
+ * more than its level), then that level's median across essences. Every fallback is reported, so the
+ * sheet's `caveat` keeps telling the user which prices are inferred rather than observed — which is
+ * why routing untraded quotes here is better than either trusting them or blocking the refresh: the
+ * honesty machinery already exists and this simply feeds it the truth.
  */
 function priceEssences(essencesFile, lines, exalt) {
-  const live = new Map(lines.map((l) => [l.id, l.primaryValue / exalt]));
+  const unitsOf = (l) => (l.primaryValue ? (l.volumePrimaryValue ?? 0) / l.primaryValue : 0);
+  const untraded = lines.filter((l) => unitsOf(l) < DEPTH.minEssenceUnits);
+  const live = new Map(lines.filter((l) => unitsOf(l) >= DEPTH.minEssenceUnits)
+    .map((l) => [l.id, l.primaryValue / exalt]));
   const byEssence = new Map();   // name -> [price…] across its listed levels
   const byLevel = new Map();     // level -> [price…] across essences
   for (const e of essencesFile.essences) {
@@ -165,7 +176,87 @@ function priceEssences(essencesFile, lines, exalt) {
     const m = median(byLevel.get(level) ?? []);
     if (m !== undefined) prices[key] = Number(m.toPrecision(4));
   }
-  return { prices, inferred };
+  return { prices, inferred, untraded: untraded.length };
+}
+
+/**
+ * Market depth: is a price backed by a market, or by one listing?
+ *
+ * poe.ninja hands us `volumePrimaryValue` and a 7-day `sparkline` on every line, and until 2026-09-01
+ * this script read neither — so a price backed by a single trade was trusted exactly as much as the
+ * Exalted Orb's. That matters more here than in a price viewer, because **the optimizer RANKS plans by
+ * cost**: a thin quote does not merely make a total wrong, it changes which route the app recommends,
+ * and the shape tests pass because the shape is fine.
+ *
+ * **Depth is UNITS TRADED, which is `volumePrimaryValue / primaryValue` — never the raw volume.**
+ * That field is denominated in the exchange's primary currency (divine), so it is systematically
+ * wrong at both ends: a Transmute costs ~0.0004 div, so thousands of them trade for a tiny divine
+ * figure, while a Mirror is huge per unit. Measured 2026-09-01, raw volume called plain Transmute the
+ * fourth-THINNEST currency (0.42) and the Mirror the deepest market on the exchange (48,400); by units
+ * it is Transmute 2,548/day and Mirror **7**. Reading the raw field ranks liquidity backwards.
+ *
+ * What that correction shows, on the same day's data:
+ *   • Currency the sheet uses is healthy — transmute 2,548, regal 3,384, greater augment 1,536,
+ *     annul 5,526, exalted 856,572 units/day.
+ *   • Bones the sheet uses are healthy — preserved jawbone 220, rib 347, collarbone 357.
+ *   • **Essences are not a market.** Median 2 units/day; 72 of 78 lines under 50; several at literally
+ *     zero units still quoting a price, one of them (`essence-of-command`) up 16,567% in a week.
+ *     They are also 1,292 of the sheet's 1,312 price keys.
+ *
+ * So the gate treats them differently, and the asymmetry is the whole design. An orb or bone price
+ * enters EVERY plan, and those lines are deep, so one going thin-and-moving is genuinely abnormal and
+ * worth a human. An individual essence is thin every single day — that is its market's normal state,
+ * not a signal — and it prices only the crafts that name that one mod, so it is reported and not
+ * blocked. A large SHARE of essences moving at once is different in kind: that points at the feed
+ * rather than at one listing, and does block.
+ */
+const DEPTH = {
+  /** Units traded per day below which a line has no real market behind it. */
+  minUnits: 50,
+  /** A 7-day move at or beyond this percent is "unstable". */
+  spikePct: 50,
+  /**
+   * Units/day below which an ESSENCE quote is not evidence and is routed through the inference path
+   * instead. Lower than `minUnits` because essences trade in tiny numbers even when real: the feed's
+   * median is 2/day. Measured 2026-09-01, depth predicts stability sharply — of the 29 lines under
+   * 1 unit/day, 72% had moved over 50% in a week; of the 25 above 10 units/day, 28% had. Under 1 is
+   * where a "price" is one person's listing.
+   */
+  minEssenceUnits: 1,
+  /**
+   * Share of essence lines moving that means a feed-level EVENT rather than the usual churn.
+   *
+   * Set high on purpose. Half this market swings 50% in a normal week (measured: 51%), so a threshold
+   * near that would hold every refresh forever and defeat the point of automating it. The blocker is
+   * for a change in KIND — a league rollover, where essentially everything moves at once — not a
+   * change in degree, which the untraded-quote filter above already handles at the source.
+   */
+  essenceShareToBlock: 0.9,
+};
+
+/**
+ * `id -> { units, chg }` for one feed.
+ *
+ * A line quoting a price at zero volume yields 0 units, which is the honest answer: nothing traded.
+ */
+function depthIndex(feedLines) {
+  return new Map(feedLines.map((l) => [l.id, {
+    units: l.primaryValue ? (l.volumePrimaryValue ?? 0) / l.primaryValue : 0,
+    chg: l.sparkline?.totalChange ?? 0,
+  }]));
+}
+
+/** Lines in `ids` with no real market AND a big recent move. `label` names them in the report. */
+function suspectsIn(index, ids, label) {
+  const out = [];
+  for (const [name, id] of ids) {
+    const d = index.get(id);
+    if (!d) continue;
+    if (d.units < DEPTH.minUnits && Math.abs(d.chg) >= DEPTH.spikePct) {
+      out.push({ label, name, units: d.units, chg: d.chg });
+    }
+  }
+  return out;
 }
 
 async function getJson(url) {
@@ -184,6 +275,7 @@ async function main() {
 
   const cur = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Currency`);
   const lines = new Map(cur.lines.map((l) => [l.id, l]));
+  const curDepth = depthIndex(cur.lines);
 
   // Everything is quoted against the exchange's "primary" currency (divine); we store
   // exalt-equivalents, so divide through by the Exalted Orb's own primary value.
@@ -195,7 +287,7 @@ async function main() {
   const prices = { ...prev.prices };
 
   const missing = [];
-  let changed = 0;
+  let changed = 0;   // CURRENCY-map moves only; `totalMoved` below counts the whole sheet.
   for (const [key, id] of Object.entries(CURRENCY)) {
     const line = lines.get(id);
     if (!line) { missing.push(`${key} (${id})`); continue; }
@@ -213,6 +305,7 @@ async function main() {
   // ── Desecration: priced by the BONE the base consumes, not one flat number ──
   const abyss = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Abyss`);
   const abyssLines = new Map(abyss.lines.map((l) => [l.id, l.primaryValue / exalt]));
+  const boneDepth = depthIndex(abyss.lines);
   const bones = {};
   console.log('\ndesecration bones (Preserved — Gnawed caps at item level 64, and every desecrated mod is ilvl 65):');
   for (const [bone, id] of Object.entries(BONES)) {
@@ -232,13 +325,16 @@ async function main() {
   // ── Essences: one price per ESSENCE, not per level ──
   const essFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Essences`);
   const essencesFile = JSON.parse(readFileSync(join(ROOT, `data/patches/${PATCH}/essences.json`), 'utf8'));
-  const { prices: essencePrices, inferred } = priceEssences(essencesFile, essFeed.lines, exalt);
+  const { prices: essencePrices, inferred, untraded } = priceEssences(essencesFile, essFeed.lines, exalt);
   for (const key of Object.keys(prices)) if (key.startsWith('essence')) delete prices[key];
   Object.assign(prices, essencePrices);
   // `desecrationBoneFor` treats an unmapped category as armour, so the flat fallback key mirrors the
   // rib price rather than keeping the old 0.5 guess.
   if (bones.rib !== undefined) prices.desecrate = bones.rib;
   console.log(`\nessences: ${Object.keys(essencePrices).length} (level, mod) prices from ${essFeed.lines.length} live lines`);
+  if (untraded) {
+    console.log(`  ${untraded} of ${essFeed.lines.length} listed lines moved under ${DEPTH.minEssenceUnits} unit(s)/day and were IGNORED as quotes rather than markets.`);
+  }
   if (inferred.length) {
     console.log(`  ${inferred.length} not traded, inferred from the same essence's other levels: ${inferred.slice(0, 6).join(', ')}${inferred.length > 6 ? ', …' : ''}`);
   }
@@ -253,6 +349,52 @@ async function main() {
   }
   // The quotes are a dated hand transcription, so say how stale they are rather than let them rot
   // silently — a fresh currency sheet paired with months-old omen quotes is the desync described above.
+  // ── Market depth: which of these prices has a market behind it? ──────────────────────────────
+  const essDepth = depthIndex(essFeed.lines);
+  const hard = [
+    ...suspectsIn(curDepth, Object.entries(CURRENCY), 'currency'),
+    ...suspectsIn(boneDepth, Object.entries(BONES), 'bone'),
+  ];
+  const essSus = suspectsIn(essDepth, essFeed.lines.map((l) => [l.id, l.id]), 'essence');
+  // The essence BLOCK counts every line that moved, thin or not: a feed-level event moves deep lines
+  // too, and it is the share that distinguishes "one listing" from "something happened".
+  const essMoved = essFeed.lines.filter((l) => Math.abs(l.sparkline?.totalChange ?? 0) >= DEPTH.spikePct);
+  const essShare = essFeed.lines.length ? essMoved.length / essFeed.lines.length : 0;
+  const show = (x) => `  ${x.label.padEnd(8)} ${x.name.padEnd(34)} ${String(Math.round(x.units)).padStart(7)} units/day  7d ${String(x.chg).padStart(9)}%`;
+
+  console.log(`\nmarket depth (units traded per day = volume / unit price; "thin" is under ${DEPTH.minUnits}):`);
+  if (hard.length === 0) {
+    console.log('  every currency and bone the sheet uses is backed by a real market.');
+  } else {
+    for (const x of hard.sort((a, b) => Math.abs(b.chg) - Math.abs(a.chg))) console.log(show(x));
+  }
+  console.log(`  essences: ${essSus.length} of ${essFeed.lines.length} lines thin AND moving; ${essMoved.length} moving at all (${(essShare * 100).toFixed(0)}%).`);
+  for (const x of essSus.sort((a, b) => Math.abs(b.chg) - Math.abs(a.chg)).slice(0, 8)) console.log(show(x));
+  if (essSus.length > 8) console.log(`  … and ${essSus.length - 8} more.`);
+
+  // The gate the CI workflow reads. See DEPTH for why essences are reported rather than blocked.
+  const blockers = [];
+  if (hard.length > 0) blockers.push(`${hard.length} currency/bone price(s) thin and moving`);
+  if (essShare >= DEPTH.essenceShareToBlock) {
+    blockers.push(`${(essShare * 100).toFixed(0)}% of essence lines moved over ${DEPTH.spikePct}%`);
+  }
+  // The headline count, over the WHOLE sheet rather than the CURRENCY map. `changed` counts only the
+  // orb loop, and the essence keys are deleted and rebuilt wholesale — so a run that rewrote 1,311
+  // keys, 561 of them by more than 2x, was reporting "18 price(s) changed". That number is the first
+  // line of a pull request this job now merges by itself, so it has to describe the whole diff.
+  const movedKeys = Object.keys({ ...prev.prices, ...prices })
+    .filter((k) => prev.prices[k] !== prices[k]);
+  const bigMoves = movedKeys.filter((k) => {
+    const a = prev.prices[k]; const b = prices[k];
+    return a && b && (b / a > 2 || b / a < 0.5);
+  });
+  const summary = `${movedKeys.length} price key(s) changed, ${bigMoves.length} by more than 2x`
+    + ` (${changed} of them in the currency table)`;
+
+  console.log(blockers.length === 0
+    ? '\nDEPTH-VERDICT: clean'
+    : `\nDEPTH-VERDICT: review — ${blockers.join('; ')}`);
+
   const ageDays = Math.round((Date.now() - Date.parse(prev.omenQuotesAsOf)) / 86_400_000);
   const staleness = ageDays > 30 ? `  WARNING omenQuotes are ${ageDays} days old — re-transcribe from ${prev.omenQuotesSource?.split(' ')[0]}` : `  omenQuotes are ${ageDays} day(s) old.`;
   console.log(staleness);
@@ -280,11 +422,11 @@ async function main() {
   };
 
   if (DRY) {
-    console.log(`\n--dry-run: ${changed} price(s) would change; not writing.`);
+    console.log(`\n--dry-run: ${summary}; not writing.`);
     return;
   }
   writeFileSync(file, `${JSON.stringify(out, null, 2)}\n`);
-  console.log(`\nwrote ${file} — ${changed} price(s) changed.`);
+  console.log(`\nwrote ${file} — ${summary}.`);
 }
 
 main().catch((e) => { console.error(String(e)); process.exit(1); });

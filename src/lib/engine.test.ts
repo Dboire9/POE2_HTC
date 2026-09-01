@@ -5,6 +5,7 @@ import {
 } from './engine.ts';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
+import { loadFrozenPrices } from '../../packages/optimizer/src/frozenPrices.ts';
 
 // The facade's data loading uses fetch(?url) which needs a browser; here we build the same snapshot
 // via the node loaders and exercise the pure mapping/optimize glue the UI depends on.
@@ -412,7 +413,12 @@ describe('engine facade — fractured mods flow through to the odds', () => {
 // Budget alternatives: "I have N ex — what's the closest thing I can actually finish?" Uses the 0.5.0
 // snapshot the app ships, so the mod ids match what the UI would hand the facade.
 describe('engine facade — budget alternatives (0.5.0)', () => {
-  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
+  // FROZEN prices here alone. This block pins how TIGHT the budget bracket is (< 0.01), which is a
+  // claim about the CDF grid, not about the economy — and the grid is h = budget/maxCells over the
+  // plan's own step costs, so it moves whenever prices do. The 2026-09-01 refresh widened it to
+  // 0.016 with nothing wrong. Every other describe in this file keeps reading the shipped sheet, on
+  // purpose: they assert behaviour rather than magnitudes, and are worth running against what ships.
+  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadFrozenPrices() };
   const GEM = 'Wands/GlobalIncreaseSpellSkillGemLevelWeapon'; // suffix, 500 total weight
   const MANA050 = 'Wands/IncreasedMana';
   const SPELL = 'Wands/WeaponSpellDamage';

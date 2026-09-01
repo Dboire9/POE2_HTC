@@ -4,9 +4,21 @@ name: Refresh prices
 # not just the total printed on it. `npm run update-prices` has always existed and always depended on
 # someone remembering; this runs it daily and opens a pull request with the result.
 #
-# A pull request, not a push, on purpose: a bad feed (poe.ninja down, a renamed currency id, a league
-# rollover) must not reach the site unreviewed. The refresh script prints every price that moved and by
-# what factor, and that output becomes the PR body — it is exactly the review a human wants to see.
+# It opens a pull request either way, because that is the audit trail — but it MERGES the PR itself
+# when the data looks trustworthy, so the normal week needs nobody. `prices.mjs` ends its run with a
+# machine-readable `DEPTH-VERDICT:` line, and that is the gate:
+#
+#   clean   -> merge automatically. Vercel redeploys; nothing for a human to do.
+#   review  -> leave the PR open, titled so it is obvious, and say why in the body.
+#
+# The verdict is about MARKET DEPTH, measured in units traded per day, because the optimizer ranks
+# plans BY cost: a price with no market behind it does not merely misreport a total, it changes which
+# route the app recommends, and the shape tests pass because the shape is fine. Currency and bones are
+# deep (transmute 2,548/day, preserved rib 347) so one of them going thin-and-moving is genuinely
+# abnormal and holds the PR. Essences are not a market at all (median 2/day) and are handled at the
+# SOURCE instead — the script ignores a quote under 1 unit/day and infers that price from the same
+# essence's other levels — so they hold the PR only if essentially all of them move at once, which
+# means a league rollover rather than one listing.
 
 on:
   schedule:
@@ -72,7 +84,7 @@ jobs:
           if [ -n "${LEAGUE:-}" ]; then league_arg=(--league "$LEAGUE"); fi
           node tools/refresh/prices.mjs "${league_arg[@]}" 2>&1 | tee /tmp/refresh.log
 
-      - name: Did anything change?
+      - name: Did anything change, and does the data look trustworthy?
         id: diff
         shell: bash
         run: |
@@ -84,6 +96,15 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
             git diff --stat -- data/patches
           fi
+          # Default to REVIEW if the line is absent for any reason. A missing verdict means the script
+          # changed shape or died mid-run; the safe reading of "I don't know" is "a human looks", never
+          # "merge it".
+          if grep -q '^DEPTH-VERDICT: clean' /tmp/refresh.log; then
+            echo "verdict=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "verdict=review" >> "$GITHUB_OUTPUT"
+            { echo "why<<EOF"; grep '^DEPTH-VERDICT:' /tmp/refresh.log || echo "DEPTH-VERDICT: absent from the log"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+          fi
 
       # The guard runs HERE, not on the pull request. A PR opened with the built-in GITHUB_TOKEN does
       # not trigger workflows — GitHub suppresses that to prevent recursion — so relying on "CI will
@@ -93,11 +114,13 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         run: npx vitest run packages/optimizer/src/priceResolution.test.ts packages/optimizer/src/costConsistency.test.ts
 
-      - name: Open or update the pull request
+      - name: Open or update the pull request, and merge it if the data is clean
         if: steps.diff.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           BASE: ${{ github.ref_name }}
+          VERDICT: ${{ steps.diff.outputs.verdict }}
+          WHY: ${{ steps.diff.outputs.why }}
         shell: bash
         run: |
           set -euo pipefail
@@ -116,8 +139,28 @@ jobs:
           # The omenQuotes staleness warning is the one part of the refresh a bot cannot do: poe.ninja
           # serves no omen endpoint (`type=Omens` returns byte-identical output to an invalid type), so
           # those quotes are hand-transcribed. Lift it to the top of the body where it will be read.
+          if [ "$VERDICT" = clean ]; then
+            title="Refresh prices from poe.ninja"
+          else
+            title="REVIEW NEEDED — refresh prices from poe.ninja"
+          fi
+
           {
-            echo "Automated weekly refresh of \`data/patches/0.5.0/prices.json\` from poe.ninja."
+            echo "Automated daily refresh of \`data/patches/0.5.0/prices.json\` from poe.ninja."
+            echo
+            if [ "$VERDICT" = clean ]; then
+              echo "> [!NOTE]"
+              echo "> Market-depth check passed, so this **merges itself**. Every currency and bone price"
+              echo "> the sheet uses is backed by a real market, and no feed-wide event was detected."
+            else
+              echo "> [!CAUTION]"
+              echo "> **Held for review — not merged.**"
+              echo "$WHY" | sed 's/^/> /'
+              echo ">"
+              echo "> A currency or bone price enters EVERY plan, and the optimizer ranks plans BY cost,"
+              echo "> so a quote with no market behind it changes which route is recommended rather than"
+              echo "> only what it says the route costs. Check the depth table below before merging."
+            fi
             echo
             if grep -q 'WARNING omenQuotes' /tmp/refresh.log; then
               echo "> [!WARNING]"
@@ -137,9 +180,9 @@ jobs:
             echo "\`priceResolution\` and \`costConsistency\` passed against the new sheet in the refresh"
             echo "job — a PR opened by \`GITHUB_TOKEN\` does not trigger CI, so that check ran there."
             echo
-            echo "**Do not auto-merge.** Read the price moves below first: on the week a new league"
-            echo "starts the script follows poe.ninja to the new league and every price legitimately"
-            echo "moves 5-50x, which is correct and still worth a human confirming."
+            echo "On the week a new league starts the script correctly follows poe.ninja to the new"
+            echo "league and every price legitimately moves 5-50x. That trips the feed-wide check, so it"
+            echo "arrives held for review rather than merged."
             echo
             echo "<details><summary>Full refresh output</summary>"
             echo
@@ -157,8 +200,23 @@ jobs:
           # means a merged or closed predecessor correctly reads as "none", and a new PR is opened.
           open_pr=$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')
           if [ -n "$open_pr" ]; then
-            gh pr edit "$open_pr" --title "Refresh prices from poe.ninja" --body-file /tmp/pr-body.md
+            gh pr edit "$open_pr" --title "$title" --body-file /tmp/pr-body.md
+            pr="$open_pr"
           else
-            gh pr create --base "$BASE" --head "$branch" \
-              --title "Refresh prices from poe.ninja" --body-file /tmp/pr-body.md
+            gh pr create --base "$BASE" --head "$branch" --title "$title" --body-file /tmp/pr-body.md
+            pr=$(gh pr list --head "$branch" --state open --json number --jq '.[0].number')
+          fi
+
+          if [ "$VERDICT" != clean ]; then
+            echo "::warning::Held for review, not merged. $WHY"
+            exit 0
+          fi
+
+          # Merge failing is NOT a job failure: the PR is open, correct, and mergeable by hand, which
+          # is strictly the old behaviour. Branch protection requiring an approval is the likely cause
+          # and is the repo owner's call to relax, not something this job should paper over.
+          if gh pr merge "$pr" --squash --delete-branch; then
+            echo "Merged #$pr. Vercel will redeploy from $BASE."
+          else
+            echo "::warning::Depth check was clean but the merge was refused — most likely branch protection requires an approving review. PR #$pr is open and ready to merge by hand."
           fi

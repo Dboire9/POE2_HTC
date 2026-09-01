@@ -108,6 +108,8 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 
 ## Prices
 
+- **The sheet refreshes ITSELF, daily.** `.github/workflows/refresh-prices.yml` runs the script at 06:00 UTC, and **merges its own PR** when the data passes a market-depth check; a failed check leaves the PR open, titled `REVIEW NEEDED`. Depth is **units traded per day = `volumePrimaryValue / primaryValue`**, never the raw volume field — that is denominated in divine, so it ranks liquidity backwards (measured 2026-09-01: raw volume calls plain Transmute the 4th-thinnest currency at 0.42 and the Mirror the deepest market at 48,400; by units it is Transmute 2,548/day and Mirror **7**). Currency and bones are deep and hold the PR if one goes thin-and-moving; essences are not a market at all (median **2** units/day, 72 of 78 lines under 50) and are handled at the SOURCE instead — `priceEssences` ignores any quote under 1 unit/day and infers that price from the same essence's other levels, which is why `caveat` now names ~51 inferred variants rather than ~21. Without that filter the sheet took `essence-of-command` at **+16,567% in a week on zero units traded**.
+- **A test that asserts an EXACT cost must read `loadFrozenPrices()`**, not the shipped sheet — `packages/optimizer/src/frozenPrices.ts`, a snapshot of the 2026-08-22 sheet that is never refreshed. Those tests pin the MODEL (lattice reduction is cost-invariant to 15 figures; the unit ladder's output string; how tight the budget bracket is), and a daily refresh made 8 of them fail across 3 files with nothing wrong. The fixture is deliberately the sheet those numbers were DERIVED from: re-freezing a newer one and updating the expectations to match would re-baseline them to whatever came out. Everything else keeps reading what ships — especially `priceResolution.test.ts` and `costConsistency.test.ts`, which ARE the refresh workflow's guard and would be pointless frozen.
 - `data/patches/0.5.0/prices.json` is **live poe.ninja data**, not hand-authored: currency, Abyss bones (`bones`), and 1288 per-essence `essence:<level>:<modId>` keys. The `caveat` field names exactly what is still inferred (currently 29 untraded essence variants) — `PriceBasisNote` renders it, so keep it a complete sentence.
 - **Omens have no poe.ninja endpoint** — `type=Omens` returns byte-identical output to an invalid type. They're hand-transcribed into `omenQuotes` in *native units* and re-converted on every refresh so they can't silently desync.
 - `pricesForBase(prices, base)` resolves the sheet once per solve for the base's bone. Don't thread a base through every step.
@@ -272,11 +274,17 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   from-white path, so the lab step planner has a clock for the first time (a ceiling, not a
   reservation — the model still takes the remainder via `clockLeft()`); and `CurrencyDepth` now has one
   reachable value, kept only because `DEPTH_RANK` still merges runs.
-  **A GREATER ORB IS OFTEN CHEAPER THAN A PLAIN ONE** on the live sheet — Transmute 0.1333 against
-  0.1775, Augmentation 0.07389 against 0.2699 — so on a tiered craft the stronger orb can be strictly
-  better and base is genuinely dominated. A frontier with no base-strength step is therefore the DATA
-  talking, not a throttle; `pareto.test.ts` pins that base survives on a craft where it earns its
-  place, which is the assertion that tells the two apart.
+  **A GREATER ORB CAN BE CHEAPER THAN A PLAIN ONE, AND WHETHER IT IS CHANGES WEEK TO WEEK.** On the
+  2026-08-22 sheet it was: Transmute 0.1333 against 0.1775, Augmentation 0.07389 against 0.2699, so
+  the stronger orb was strictly better on a tiered craft and base was genuinely dominated. **The
+  2026-09-01 refresh INVERTED it** — Transmute 0.06552 against a Greater 0.3995 (6.1x DEARER),
+  Augmentation 0.06029 against 0.1575 (2.6x) — because plain Transmute and Augmentation both fell
+  about 4x while their Greater versions rose. Nothing in the engine changed; this is the market.
+  So do not read either direction as a fact about the game, and do not "fix" a frontier that stops
+  naming Greater orbs. A frontier with no base-strength step is the DATA talking, not a throttle, and
+  the converse is equally true; `pareto.test.ts` pins that base survives on a craft where it earns its
+  place, which is the assertion that tells a throttle from a price. Anything downstream that quotes
+  these numbers is quoting a snapshot — the shipped sheet now refreshes DAILY (see Prices).
   **A test had pinned the bug with a false reason attached**: `it('an any-tier target uses only a base
   orb (stronger orbs would reject tiers you accept)')`. The parenthetical is the error — a stronger orb
   raises the ilvl FLOOR, and a higher tier still satisfies "any tier or better". Written from the

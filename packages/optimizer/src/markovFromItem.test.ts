@@ -4,7 +4,7 @@ import { loadPatch } from '../../engine/src/index.ts';
 import { markovFromItem, actionCostOf } from './markovFromItem.ts';
 import type { McAction } from './markovFromItem.ts';
 import type { Prices } from './cost.ts';
-import { loadPrices } from './loadPrices.ts';
+import { loadFrozenPrices } from './frozenPrices.ts';
 import { mulberry32 } from './simulate.ts';
 import { bit, decodeState, enumerateStates, popcount, sideIndexOf } from './markovState.ts';
 import type { McTarget, StateKey } from './markovState.ts';
@@ -256,7 +256,7 @@ describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to veri
 
   it('real Wands (keep Mana, swap Int→Spell Damage): policy mean matches V', () => {
     const real = loadPatch('data/patches/0.5.0');
-    const rp = loadPrices('data/patches/0.5.0');
+    const rp = loadFrozenPrices();
     const w = real.bases.get('Wands')!;
     const MANA = 'Wands/IncreasedMana'; const INT = 'Wands/Intelligence'; const SPELL = 'Wands/WeaponSpellDamage';
     const start: ItemState = {
@@ -278,7 +278,7 @@ describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to veri
     // (Greater/Perfect exalts and side-omens are all priced in 0.5.0). The MC plays whatever policy VI
     // picks through the real random process; matching V is the end-to-end fidelity check.
     const real = loadPatch('data/patches/0.5.0');
-    const rp = loadPrices('data/patches/0.5.0');
+    const rp = loadFrozenPrices();
     const w = real.bases.get('Wands')!;
     const MANA = 'Wands/IncreasedMana'; const SPELL = 'Wands/WeaponSpellDamage';
     const start: ItemState = {
@@ -313,7 +313,7 @@ describe('markovFromItem — Monte-Carlo cross-check (analytic first, MC to veri
 describe('markovFromItem — progress reporting', () => {
   it('never sends the same progress number twice in a row', () => {
     const real = loadPatch('data/patches/0.5.0');
-    const rp = loadPrices('data/patches/0.5.0');
+    const rp = loadFrozenPrices();
     const w = real.bases.get('Wands')!;
     const start: ItemState = {
       base: w, level: 82, rarity: 'rare',
@@ -368,7 +368,7 @@ describe('markovFromItem — progress reporting', () => {
  */
 describe('markovFromItem — the stopping rule scales with the craft', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
   const wand = real.bases.get('Wands')!;
   const white: ItemState = { base: wand, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
   const targets = [{ modId: 'Wands/WeaponSpellDamage' }, { modId: 'Wands/ManaRegeneration' }];
@@ -422,7 +422,7 @@ describe('markovFromItem — the stopping rule scales with the craft', () => {
 // The Lab tab — the app's primary mode — therefore had no true-cost model and no policy graph at all.
 describe('markovFromItem — from a white base', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
   const wand = real.bases.get('Wands')!;
   const white: ItemState = { base: wand, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
   const targets = [{ modId: 'Wands/WeaponSpellDamage' }, { modId: 'Wands/ManaRegeneration' }];
@@ -587,7 +587,7 @@ describe('markovFromItem — policy iteration', () => {
    */
   it('needs SEVERAL rounds, and still lands on value iteration\'s answer', () => {
     const real = loadPatch('data/patches/0.5.0');
-    const rp = loadPrices('data/patches/0.5.0');
+    const rp = loadFrozenPrices();
     const w = real.bases.get('Wands')!;
     const white: ItemState = { base: w, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
     const targets = [
@@ -621,7 +621,7 @@ describe('markovFromItem — policy iteration', () => {
  */
 describe('markovFromItem — visitRate ranks the craft, not the failures', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
   const white = (): ItemState =>
     ({ base: real.bases.get('Wands')!, level: 82, rarity: 'normal', prefixes: [], suffixes: [] });
   const solved = () => markovFromItem(real, rp, white(), [
@@ -687,7 +687,7 @@ describe('markovFromItem — visitRate ranks the craft, not the failures', () =>
  */
 describe('markovFromItem — an exact bound is never claimed for an unsettled solve', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
   const white = (): ItemState =>
     ({ base: real.bases.get('Wands')!, level: 82, rarity: 'normal', prefixes: [], suffixes: [] });
   const targets = [
@@ -750,7 +750,7 @@ describe('markovFromItem — an exact bound is never claimed for an unsettled so
  */
 describe('markovFromItem — closed-form evaluation agrees with iterating it', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
   const white = (): ItemState =>
     ({ base: real.bases.get('Wands')!, level: 82, rarity: 'normal', prefixes: [], suffixes: [] });
   const targets = [
@@ -837,7 +837,7 @@ describe('markovFromItem — closed-form evaluation agrees with iterating it', (
  */
 describe('markovFromItem — the heuristic seed, opt-in, gives the same answer as phase A', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
   const white = (): ItemState =>
     ({ base: real.bases.get('Wands')!, level: 82, rarity: 'normal', prefixes: [], suffixes: [] });
   const base = { restartCost: 0, maxIters: 2_000_000, solver: 'policy' as const };
@@ -937,7 +937,7 @@ describe('markovFromItem — the heuristic seed, opt-in, gives the same answer a
  */
 describe('markovFromItem — slot alternatives', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
   const wand = real.bases.get('Wands')!;
   const white: ItemState = { base: wand, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
   // `solver: 'policy'` is the Exhaustive preset's setting, and the only one that ends on a certificate
@@ -1154,7 +1154,7 @@ describe('enumerateStates — a family cannot be held twice', () => {
  */
 describe('markovFromItem — costs are invariant under lattice reduction', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
   const wand = real.bases.get('Wands')!;
   const white: ItemState = { base: wand, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
   const solve = (targets: readonly { modId: string; slot?: number; minTierIndex?: number }[]) =>
@@ -1335,7 +1335,7 @@ describe('markovFromItem — costs are invariant under lattice reduction', () =>
  */
 describe('markovFromItem — a Magic start is modelled, not approximated', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
   const wand = real.bases.get('Wands')!;
   const P = wand.pools.normal.prefixes;
   const S = wand.pools.normal.suffixes;

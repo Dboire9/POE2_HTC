@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { exactExalts, formatCost, formatIn, pickUnit } from './currency.ts';
-import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
+import { loadFrozenPrices } from '../../packages/optimizer/src/frozenPrices.ts';
 
-// Real rates from the shipped sheet, so the thresholds are exercised against the actual economy
-// rather than round numbers that flatter the code.
-const sheet = loadPrices('data/patches/0.5.0');
+// Real rates from a real sheet, so the thresholds are exercised against the actual economy rather
+// than round numbers that flatter the code — but a FROZEN one, because this file asserts the exact
+// string the ladder produces ("22.6K div") and the shipped sheet now refreshes daily. The economy
+// this reads is real; it is simply always 2026-09-01's. See frozenPrices.ts.
+const sheet = loadFrozenPrices();
 const rates = { chaos: sheet.currency.chaos!, divine: sheet.currency.divine! };
 
 describe('the unit ladder', () => {

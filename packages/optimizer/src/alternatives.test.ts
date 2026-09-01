@@ -2,8 +2,11 @@ import { describe, it, expect } from 'vitest';
 import type { ItemBase, ItemState, Mod, PatchData } from '../../engine/src/index.ts';
 import { loadPatch } from '../../engine/src/index.ts';
 import type { AlternativeTarget, SlotChange } from './alternatives.ts';
-import { alternativesFromItem, alternativesFromWhite, compareCloseness } from './alternatives.ts';
-import type { Prices } from './cost.ts';
+import { alternativesFromItem, alternativesFromWhite, bestByBudget, compareCloseness } from './alternatives.ts';
+import type { CostCdfBounds, Prices } from './cost.ts';
+import type { ParetoPlan } from './optimize.ts';
+import { planCostCdf } from './cost.ts';
+import { optimizeFromItem } from './fromItem.ts';
 import { loadPrices } from './loadPrices.ts';
 
 // Synthetic pool built to isolate the two swap regimes that decide this feature's whole design:
@@ -364,5 +367,126 @@ describe('alternativesFromWhite — a slot does not multiply the wall clock', ()
     // The cap has to actually bite, or this test proves nothing about dividing it.
     expect(one.nodesEvaluated).toBeGreaterThan(30);
     expect(two.nodesEvaluated).toBeLessThanOrEqual(one.nodesEvaluated * 1.2);
+  });
+});
+
+/**
+ * THE SCREENING PASS MUST NOT CHANGE THE WINNER.
+ *
+ * Picking a node's best plan means the highest `P(finish in budget)` over its whole frontier, and
+ * `planCostCdf` is expensive — it was 86% of a from-item alternatives run, almost all of it spent
+ * proving that plans lose. So each plan is bracketed cheaply first, and one whose bracket tops out
+ * below a rival's confirmed floor never gets the full sweep.
+ *
+ * That is exact, not approximate: `planCostCdf` returns a bracket AROUND the true value at any cell
+ * count, so a screening `upper` bounds the truth from above and a settled `lower` bounds it from
+ * below. A plan skipped on that comparison genuinely could not have won.
+ *
+ * "Exact" is a claim about the ANSWER, so the test is on the answer: recompute every candidate plan's
+ * CDF at full precision and demand the search reported the best of them. A screen that pruned too
+ * hard would report a lower number here, not a crash.
+ */
+describe('alternativesFromItem — the cost-CDF screen never changes the answer', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const wand = real.bases.get('Wands')!;
+  const P = wand.pools.normal.prefixes;
+  const S = wand.pools.normal.suffixes;
+  const held: ItemState = {
+    base: wand, level: 82, rarity: 'rare',
+    prefixes: [{ modId: P[0]!, tierName: real.mods.get(P[0]!)!.tiers[0]!.name }], suffixes: [],
+  };
+  const want: AlternativeTarget[] = [P[1]!, S[0]!].map((modId) => {
+    const n = real.mods.get(modId)!.tiers.length;
+    return { modId, minTierIndex: Math.max(0, n - 3) };
+  });
+  const BUDGET = 2_000;
+
+  it('reports the best plan on the winning node’s own frontier, not merely a good one', () => {
+    const r = alternativesFromItem(real, rp, held, want, BUDGET, { maxNodes: 40 });
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const top = r.frontier[0]!;
+    // Rebuild that node's craft and score EVERY plan at full precision — no screen involved.
+    const targets = top.slots.flatMap((s) => (s.kind === 'dropped' ? [] : [{ modId: s.modId, minTierIndex: s.minTierIndex }]));
+    const res = optimizeFromItem(real, rp, held, targets);
+    const best = Math.max(...res.frontier.map((p) => planCostCdf(rp, p.result, p.steps, BUDGET).lower));
+    expect(top.inBudget).toBeCloseTo(best, 12);
+  });
+
+  /**
+   * And the screen must actually be doing something, or the test above proves nothing: a search that
+   * skipped no plans would pass it trivially. The winning node's frontier has to hold rivals the
+   * screen could have pruned — several plans, spanning a real range of in-budget chances.
+   */
+  it('has rivals to prune, so the guarantee is not vacuous', () => {
+    const r = alternativesFromItem(real, rp, held, want, BUDGET, { maxNodes: 40 });
+    const top = r.frontier[0]!;
+    const targets = top.slots.flatMap((s) => (s.kind === 'dropped' ? [] : [{ modId: s.modId, minTierIndex: s.minTierIndex }]));
+    const res = optimizeFromItem(real, rp, held, targets);
+    expect(res.frontier.length).toBeGreaterThan(1);
+    const scores = res.frontier.map((p) => planCostCdf(rp, p.result, p.steps, BUDGET).lower);
+    expect(Math.max(...scores)).toBeGreaterThan(Math.min(...scores));
+  });
+});
+
+/**
+ * The screen's correctness argument, isolated from the data.
+ *
+ * End-to-end the screen is far too tight to expose a mistake — on real crafts its bracket is a few
+ * parts in ten thousand, so pruning on the wrong bound picks the same plans anyway and a broken
+ * version passes every test above. That is exactly the case for testing the rule rather than the
+ * result: `bestByBudget` takes its two scorers as arguments, so a test can hand it a deliberately
+ * useless screen and see whether the answer survives.
+ */
+describe('bestByBudget — the screen may skip, never decide', () => {
+  const plan = (probability: number): ParetoPlan =>
+    ({ steps: [], result: { steps: [], total: probability }, cost: { expected: 1 / probability, perAttempt: 1, expectedAttempts: 1 / probability }, probability });
+  // Truth: the SECOND plan is the best buy. Nothing about the frontier order gives that away.
+  const truth = new Map([[0.1, 0.20], [0.2, 0.90], [0.3, 0.50]]);
+  const frontier = [plan(0.1), plan(0.2), plan(0.3)];
+  const settle = (p: ParetoPlan): CostCdfBounds =>
+    ({ lower: truth.get(p.probability)!, upper: truth.get(p.probability)!, exact: true });
+
+  it('finds the best plan when the screen is exact', () => {
+    const r = bestByBudget(frontier, settle, settle);
+    expect(r.plan).toBe(frontier[1]);
+    expect(r.lower).toBeCloseTo(0.9, 12);
+  });
+
+  /**
+   * A screen so coarse it brackets [0,1] for everything orders nothing and prunes nothing — the search
+   * degrades to the exhaustive scan it replaced. That is the RIGHT failure mode, and it is the one
+   * that separates a safe screen from an unsafe one: prune on the screen's ceiling and this still
+   * finds the winner; prune on its floor and the winner is cut before it is ever settled.
+   */
+  it('still finds the best plan when the screen is useless', () => {
+    const useless = (): CostCdfBounds => ({ lower: 0, upper: 1, exact: false });
+    const r = bestByBudget(frontier, useless, settle);
+    expect(r.plan).toBe(frontier[1]);
+    expect(r.lower).toBeCloseTo(0.9, 12);
+  });
+
+  /**
+   * A screen that ranks the winner LAST costs extra sweeps, never the answer — as long as its ceiling
+   * really is a ceiling. That is the contract, and it is the only thing `bestByBudget` asks of a
+   * screen: `screen(x).upper >= truth(x)`. `planCostCdf` satisfies it at every cell count by
+   * construction, since it returns a bracket around the true value rather than an estimate of it.
+   */
+  it('is not fooled by a valid screen that orders the frontier backwards', () => {
+    // Valid (barely above the truth for every plan) but ranks the best plan last.
+    const backwards = (p: ParetoPlan): CostCdfBounds =>
+      ({ lower: 0, upper: 1 - 0.001 * truth.get(p.probability)!, exact: false });
+    const r = bestByBudget(frontier, backwards, settle);
+    expect(r.plan).toBe(frontier[1]);
+    expect(r.lower).toBeCloseTo(0.9, 12);
+  });
+
+  it('reports nothing for an empty frontier rather than an arbitrary row', () => {
+    expect(bestByBudget([], settle, settle).plan).toBeUndefined();
+  });
+
+  it('keeps the earlier frontier row on a tie, as the plain scan did', () => {
+    const flat = (): CostCdfBounds => ({ lower: 0.4, upper: 0.4, exact: true });
+    expect(bestByBudget(frontier, flat, flat).plan).toBe(frontier[0]);
   });
 });

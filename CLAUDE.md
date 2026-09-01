@@ -250,6 +250,24 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   directly: every option must leave the same item behind. An Omen of Greater Exaltation adds TWO mods
   and could never be a lever here; `essenceTier` IS read by `applyStep`, which is why an essence level
   is chosen per craft by `cheapestEssenceLevel` instead.
+- **The budget search screens before it settles, and the asymmetry IS the correctness argument.**
+  `searchAlternatives` picks each node's best plan by `P(finish in budget)` over its whole frontier —
+  necessary, because the cheapest plan is not automatically the likeliest to land inside a budget. But
+  `planCostCdf` costs ~7ms per plan and that ran on **1,447 plans across 200 nodes**: 86% of a
+  from-item alternatives run, almost all of it proving that plans LOSE. `bestByBudget` brackets each
+  plan on a grid a tenth as fine and settles only the plans that could still win — **3.4-3.7x**, rows
+  byte-identical. The skip is exact with no assumption about the grids lining up, because
+  `planCostCdf` returns a bracket AROUND the truth at any cell count: `settle(x).lower <= truth(x) <=
+  screen(x).upper`. **Prune on the screen's `upper`, never its `lower`** — two bounds that do not
+  bracket each other can cut the true winner. That mutation survived every end-to-end test, because on
+  real data the screening bracket is a few parts in ten thousand and the wrong comparison picks the
+  same plans anyway; the rule was extracted into `bestByBudget` so a test can inject a deliberately
+  useless screen. A guarantee that cannot be made to fail on real data has to be tested where it can.
+  Two dead ends recorded so they are not re-walked: `exactQuantum` does NOT fail on the live sheet (it
+  returns 0.001 at d=3 — `exact` is false because `budget/quantum` is then 5,000,000 cells, 25x over
+  the cap), and lowering `DEFAULT_COST_CELLS` does not work either, because the bracket has to stay
+  narrow enough for `fmtPct(lower)` and `fmtPct(upper)` to render the same string or the panel prints
+  a range where it printed a number.
 - **A Chaos Orb has strengths, and they were free.** `currencyKey` gated its `_greater`/`_perfect`
   suffix on transmute/augment/regal/exalt and chaos was not on the list, while `chaosProbability` had
   forwarded the ilvl floor to `exaltProbability` since it was written. So a tiered chaos landed at

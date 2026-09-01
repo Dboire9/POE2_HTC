@@ -351,23 +351,33 @@ Two blockers, which is why it was not done in the same pass:
 
 It also changes shipped from-white numbers, so it needs its own measurement campaign.
 
-### 5c. `planCostCdf` is 86% of a from-item alternatives run
+### 5c. ~~`planCostCdf` is 86% of a from-item alternatives run~~ — DONE 2026-09-01
 
-Measured 2026-09-01 on a T3 3-target craft at `maxNodes: 200`: **8,802 ms falls to 1,213 ms** when
-`costCells` drops from the shipped default of 200,000 to 2,000. The cause is that `exactQuantum` FAILS
-on the live sheet — 4.796, 8.561, 98.47, 0.9274 are not commensurable at ≤6 dp — so it falls back to a
-uniform grid at the full cell cap on every plan of every node. The note in `cost.ts` ("Real sheets
-(0.2, 1, 1.5, 15, …) give a 0.1 quantum ⇒ ~2000 cells for a 200ex budget") does not describe the sheet
-the app actually ships.
+Fixed by screening before settling: bracket every frontier plan cheaply, and skip the full sweep for
+any whose ceiling sits below a rival's settled floor. **3.4-3.7x** on 3-target crafts, 1.8x on
+4-target, with byte-identical rows. `bestByBudget` (`alternatives.ts`) owns the rule.
 
-Lowering `costCells` is NOT the fix on its own — below the exact quantum the answer becomes a bracket
-(`exact: false`) rather than a number. Worth understanding whether a coarser-but-still-exact quantum
-exists for the live sheet, or whether the CDF can be computed some other way.
+**The diagnosis in the first draft of this entry was wrong and is worth recording as such.** It said
+`exactQuantum` fails on the live sheet because the prices are not commensurable at ≤6 dp. Measured:
+it succeeds, returning **0.001 at d=3**. What actually happens is that `budget / quantum` is then
+**5,000,000 cells** at a 5,000 ex budget — 25x over `DEFAULT_COST_CELLS` — so `exact` is false because
+of the CAP, not because of the prices. Two different bugs with the same symptom, and only one of them
+was real.
 
-This is also where the orb-strength axis costs something: it produces ~29% more frontier rows (1,120 →
-1,447 plans handed to the CDF across 200 nodes), which at 86% CDF-bound reads as a **25–33% regression**
-on 3-target alternatives crafts (8,714 ms → 11,132 ms) and a 1.15x IMPROVEMENT on the 4-target one. The
-extra rows are the feature working; the multiplier on them is this bug.
+The obvious follow-on — just lower `DEFAULT_COST_CELLS` — was also measured, and it does not work.
+The bracket has to be narrow enough that `fmtPct(lower)` and `fmtPct(upper)` render the SAME string,
+or the panel shows a range like "1.2%-1.3%" instead of a number. On live plans:
+
+| cells | bracket width | renders as |
+|---|---|---|
+| 200,000 | 3e-6 to 4e-5 | one number |
+| 50,000 | 2e-5 to 1.6e-4 | a range on some rows |
+| 20,000 | 5e-5 to 3.9e-4 | a range on some rows |
+| 2,000 | 5e-4 to 2.3e-2 | a wide range |
+
+So 200,000 is well chosen for the number the app prints; the waste was never the cell count, it was
+running the full sweep on plans that could not win. Left open: whether a coarser-but-still-exact
+quantum exists for this sheet, which would make the settle cheap as well as rare.
 
 ### 5d. The MDP models Chaos at base strength only
 

@@ -2457,10 +2457,14 @@ A 25–33% regression on the 3-target shapes. Diagnosed rather than assumed:
 **`planCostCdf` is 86% of a from-item alternatives run** — 8,802 ms falls to 1,213 ms when the cell cap
 drops 100x. The planner itself accounts for 70 ms of the 1,897 ms difference; the rest is 327 extra
 frontier rows (+29%, the widened search doing its job) multiplied by a CDF that is running a
-200,000-cell fallback sweep. `exactQuantum` fails on the live sheet — 4.796, 8.561, 98.47, 0.9274 are
-not commensurable at ≤6 dp — so the "real sheets give a 0.1 quantum ⇒ ~2000 cells" note in `cost.ts`
-does not hold for the sheet the app ships. That is a much larger fish than this regression and it is
-recorded in TODO rather than fixed here.
+200,000-cell fallback sweep. Fixed the same day — see the next entry, which also corrects the cause
+stated here.
+
+> **Correction (2026-09-01, same day).** This paragraph originally continued: "`exactQuantum` fails on
+> the live sheet — 4.796, 8.561, 98.47, 0.9274 are not commensurable at ≤6 dp". That was inferred from
+> `exact: false`, not measured, and it is wrong. `exactQuantum` SUCCEEDS on these plans, returning
+> 0.001 at d=3. `exact` is false because `budget / quantum` is then 5,000,000 cells, 25x over the
+> 200,000 cap. Same symptom, different cause, and the fix that follows from each is different.
 
 ### 7. A latent mispricing this armed, fixed first
 
@@ -2471,6 +2475,70 @@ Perfect Chaos, a **62x underquote**. And `allowsStep` reads the same key, so a p
 Chaos Orbs — a row the UI offers, and the example `cost.ts` cites — would have been handed a plan built
 on them. Inert while no planner emitted one; chaos is this planner's main transform, so it shipped
 separately and first.
+
+## The cost CDF was 86% of a near-miss search, spent proving plans lose (2026-09-01)
+
+`searchAlternatives` picks each node's best plan by `P(finish in budget)` over its whole frontier — the
+cheapest plan is not automatically the likeliest to land inside a budget, so the scan is necessary. But
+`planCostCdf` costs ~7 ms per plan at the shipped cell cap, and this ran on **1,447 plans across 200
+nodes** to report one winner each.
+
+### What it is NOT
+
+Two plausible causes were checked and killed before anything was built.
+
+**It is not incommensurable prices.** `exactQuantum` succeeds on live plans, returning **0.001 at
+d=3**. `exact` comes back false because `budget / quantum` is then **5,000,000 cells** at a 5,000 ex
+budget, 25x over `DEFAULT_COST_CELLS`. The first draft of TODO 5c blamed the prices; that was inferred
+from the `exact` flag rather than measured.
+
+**It is not an over-large cell cap.** Lowering it is the obvious fix and it does not work, because the
+bracket has to be narrow enough for `fmtPct(lower)` and `fmtPct(upper)` to render the same string —
+otherwise the panel prints "1.2%–1.3%" where it used to print a number. Measured on live plans at a
+5,000 ex budget:
+
+| cells | bracket width | ms/plan | renders as |
+|---|---|---|---|
+| 200,000 | 3e-6 – 4e-5 | 6.4–8.8 | one number |
+| 50,000 | 2e-5 – 1.6e-4 | 1.6–2.2 | a range on some rows |
+| 20,000 | 5e-5 – 3.9e-4 | 0.6–0.8 | a range on some rows |
+| 5,000 | 2e-4 – 1.7e-3 | 0.0–0.2 | a range |
+| 2,000 | 5e-4 – 2.3e-2 | 0.0–1.0 | a wide range |
+
+One row needed the full 200,000 to collapse to a single percentage. So the default is well chosen for
+the number the app prints, and the waste was never the resolution — it was spending full resolution on
+plans that could not win.
+
+### Screen, then settle
+
+`bestByBudget` brackets each plan on a grid a tenth as fine, then settles only the plans that could
+still win. The skip is exact and needs no assumption about the two grids lining up: `planCostCdf`
+returns a bracket AROUND the true value at any cell count, so `settle(x).lower ≤ truth(x) ≤
+screen(x).upper`, and a plan whose screening ceiling is below a rival's settled floor is beaten
+outright.
+
+Interleaved, medians of 3, `maxNodes: 200`, rows compared byte-for-byte:
+
+| craft | unscreened | screened | |
+|---|---|---|---|
+| T3 3-target | 11,047 ms [11132, 11047, 10991] | **3,027 ms** [3027, 3027, 3097] | **3.65x** |
+| T1 3-target | 12,009 ms [11981, 12009, 12250] | **3,539 ms** [3530, 3625, 3539] | **3.39x** |
+| T3 4-target | 33,394 ms [33348, 33394, 33407] | **18,595 ms** [18831, 18523, 18595] | 1.80x |
+
+Every `inBudget` / `inBudgetMax` / plan identical to 12 decimal places. Taken with the orb-strength
+work the same day, the 3-target from-item alternatives search is **2.9x faster than before either
+change** (8,714 ms → 3,027 ms) while now also searching every orb strength.
+
+### The asymmetry is the whole argument, and it needed extracting to test
+
+The ceiling must come from the screen and the floor from a settled sweep. Pruning on the screen's own
+`lower` compares two bounds that do not bracket each other and can cut the true winner.
+
+That mutation **survived every end-to-end test**, because on real data the screening bracket is a few
+parts in ten thousand — tight enough that the wrong comparison picks the same plans anyway. So the rule
+was extracted into `bestByBudget`, which takes its two scorers as arguments, and the test injects a
+deliberately useless screen (`[0, 1]` for everything) and a valid-but-backwards one. Both now fail the
+mutation. **A guarantee that cannot be made to fail on real data has to be tested somewhere it can.**
 
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +

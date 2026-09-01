@@ -22,7 +22,8 @@
 import type { ItemBase, ItemState, PatchData, Tier } from '../../engine/src/types.ts';
 import { familiesOf, resolveMod } from '../../engine/src/pool.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
-import { planCostCdf, pricesForBase } from './cost.ts';
+import type { CostCdfBounds } from './cost.ts';
+import { DEFAULT_COST_CELLS, planCostCdf, pricesForBase } from './cost.ts';
 import type { CurrencyDepth, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
 import { DEPTH_RANK, optimizePareto } from './optimize.ts';
 import { expandSlots, itemLegalCombinations } from './slots.ts';
@@ -200,6 +201,61 @@ function keyOf(slots: readonly SlotChange[]): string {
   return slots.map((s) => (s.kind === 'dropped' ? '-' : `${s.modId}@${s.minTierIndex}`)).join('|');
 }
 
+/**
+ * The frontier plan likeliest to finish inside the budget — screening cheaply before settling.
+ *
+ * The CHEAPEST plan isn't automatically the likeliest to land inside the budget: a dearer, surer plan
+ * can finish in budget more often, so the whole frontier has to be scanned rather than assumed about.
+ *
+ * Scanning it at full precision was **86% of a from-item alternatives run**, and almost all of that
+ * went on proving that plans LOSE — `planCostCdf` costs ~7 ms per plan at the shipped cell cap, and
+ * this ran on every row of every node: 1,447 sweeps across 200 nodes to report one winner each.
+ * Screening first cut a real search 3.4-3.7x with byte-identical rows.
+ *
+ * WHY THE SKIP IS EXACT. `planCostCdf` returns a bracket AROUND the true value at any cell count. So
+ * `settle(x).lower <= truth(x) <= screen(x).upper` for every plan, whatever the two grids are doing —
+ * no nesting assumption, no tolerance. A plan whose screening ceiling sits below a rival's SETTLED
+ * floor is therefore beaten outright, and skipping it cannot change the winner.
+ *
+ * The comparison is asymmetric on purpose, and that is the whole of the correctness argument: the
+ * ceiling must come from the screen and the floor from a settled sweep. Pruning on the screen's own
+ * `lower` would compare two bounds that do not bracket each other and could cut the true winner —
+ * `alternatives.test.ts` injects a deliberately coarse screen to hold that down, because on real data
+ * the screen is tight enough that the mistake is invisible.
+ *
+ * Best-first, so the likeliest winner sets a high floor immediately and the rest fall to it. Ties keep
+ * the earlier frontier row, which is what the plain loop's strict `>` resolved to.
+ *
+ * The ONE thing `screen` must satisfy is `screen(x).upper >= truth(x)`. It may be arbitrarily loose
+ * and may rank the frontier backwards — that costs extra settled sweeps and nothing else. A screen
+ * that under-states the ceiling breaks the guarantee, which is why this takes a `CostCdfBounds` (a
+ * bracket, by construction) rather than a number.
+ */
+export function bestByBudget(
+  frontier: readonly ParetoPlan[],
+  screen: (p: ParetoPlan) => CostCdfBounds,
+  settle: (p: ParetoPlan) => CostCdfBounds,
+): { plan?: ParetoPlan; lower: number; upper: number } {
+  const screened = frontier.map((plan, at) => ({ plan, at, ceiling: screen(plan).upper }));
+  screened.sort((a, b) => b.ceiling - a.ceiling || a.at - b.at);
+
+  let plan: ParetoPlan | undefined;
+  let at = Infinity;
+  let lower = -1;
+  let upper = 0;
+  for (const c of screened) {
+    if (c.ceiling < lower) continue; // its best case is below a floor already reached
+    const cdf = settle(c.plan);
+    if (cdf.lower > lower || (cdf.lower === lower && c.at < at)) {
+      lower = cdf.lower;
+      upper = cdf.upper;
+      plan = c.plan;
+      at = c.at;
+    }
+  }
+  return plan ? { plan, lower, upper } : { lower: 0, upper: 0 };
+}
+
 function searchAlternatives(
   data: PatchData, base: ItemBase, prices: Prices,
   planFor: (targets: readonly TierTarget[]) => ParetoResult,
@@ -208,6 +264,12 @@ function searchAlternatives(
   if (desired.length === 0) throw new Error('no desired mods');
   const maxNodes = Math.max(1, opts.maxNodes ?? DEFAULT_MAX_NODES);
   const cdfOpts = opts.costCells !== undefined ? { maxCells: opts.costCells } : {};
+  // The screening grid. A tenth of the settling one is ~10x cheaper per plan and still brackets a real
+  // craft's answer to a few parts in ten thousand — measured on live 0.5.0 plans, widths of 5e-5 to
+  // 4e-4 against probabilities near 1e-2 — which is far tighter than the gaps between rival plans, so
+  // it prunes nearly all of them. It is only ever a screen: every reported number still comes from a
+  // full-precision sweep.
+  const screenOpts = { maxCells: Math.max(1, Math.floor((opts.costCells ?? DEFAULT_COST_CELLS) / 10)) };
 
   /** Best P(in budget) reachable for one relaxed target — the best way to spend the budget on it. */
   const evaluate = (slots: readonly SlotChange[], closeness: Closeness): { alt?: Alternative; depth: CurrencyDepth } => {
@@ -222,19 +284,11 @@ function searchAlternatives(
       // children still are, so the caller keeps expanding.
       return { depth: 'full' };
     }
-    // The CHEAPEST plan isn't automatically the likeliest to land inside the budget — a dearer, surer
-    // plan can finish in budget more often — so scan the whole frontier rather than assuming.
-    let best: ParetoPlan | undefined;
-    let lower = -1;
-    let upper = 0;
-    for (const p of res.frontier) {
-      const cdf = planCostCdf(prices, p.result, p.steps, budget, cdfOpts);
-      if (cdf.lower > lower) {
-        lower = cdf.lower;
-        upper = cdf.upper;
-        best = p;
-      }
-    }
+    const { plan: best, lower, upper } = bestByBudget(
+      res.frontier,
+      (p) => planCostCdf(prices, p.result, p.steps, budget, screenOpts),
+      (p) => planCostCdf(prices, p.result, p.steps, budget, cdfOpts),
+    );
     if (!best) return { depth: res.currencyDepth };
     return { alt: { slots, closeness, inBudget: lower, inBudgetMax: upper, plan: best }, depth: res.currencyDepth };
   };

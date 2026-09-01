@@ -2,7 +2,7 @@
 
 Ordered by value. Update this file in the same commit that closes an item — see `.claude/skills/ship`.
 
-Last reviewed: 2026-08-24.
+Last reviewed: 2026-09-01 — sections 7–17 are that review; see the note above them.
 
 ---
 
@@ -449,6 +449,505 @@ actually ships in.** A feature gated on a build-time env var is invisible to the
 that var is set.
 
 ---
+
+---
+
+# Review of 2026-09-01 — where the project stands, and what to do next
+
+> Written by Claude Fable 5.1 after a full pass over the repo, the docs, the data pipeline, CI, and the
+> deployed site, for Claude Opus 5 (or anyone) to execute from in later sessions. Each section is meant
+> to be self-contained: what to do, WHY it matters more than the alternatives, how to verify it, and what
+> NOT to do while there. Where a claim rests on a measurement it is stated with the number; where it
+> rests on judgement it says so.
+>
+> **The one-line verdict: the engine has outrun the product around it.** The solver is exact, fast, and
+> unusually honest about what it does not know. The README describes a Windows installer removed in
+> August, the user guide explains a Java beam search that no longer exists, and no automated test has
+> loaded the app in a real browser. The last 120 commits went almost entirely into the engine. The next
+> week should go almost entirely into everything else — not because the engine work was wrong, but
+> because it is done, and the surface a player touches first has been drifting for a month.
+>
+> Sections 7–9 are a day of work in total and should come before anything else. 10–12 are real product
+> gaps of a few days each. 13–16 are larger and worth planning rather than starting. 17 records what was
+> considered and deliberately rejected, so it is not re-proposed.
+
+---
+
+## 7. The public docs describe a retired app — TIER 1, DO FIRST
+
+**What is wrong.** `README.md` and `docs/USER_GUIDE.md` describe the application as it was in July: an
+Electron desktop app with a Windows installer, an auto-updater, and a Java beam-search backend. All of
+that is gone. A player who finds the project on GitHub — which is how most players will find it — reads
+about a different app than the one at poe2htc.com, and the first thing they are told to do (download an
+`.exe`) is impossible.
+
+The specific lines, so the fix is a checklist rather than a hunt:
+
+**`README.md`**
+- Line 9 — the Platform badge says `Windows | Linux`. The app is a web page. Drop the badge or make it
+  say "Web".
+- Lines 69–82 — the entire **Desktop Application** section: "Download the installer", the `.exe`
+  filename, the code-signing warning, "The installer includes everything you need!". Delete it. The
+  Linux/macOS subsection that follows is really "run from source" and should be titled that.
+- Line 199 — `[x] Auto-update system`. Removed with Electron on 2026-08-22. Delete.
+- Line 200 — `[x] Multi-platform support (Windows, Linux)`. Same. Delete.
+- Line 205 — `[ ] Add crafting cost estimation` is on the roadmap as NOT DONE. It is the headline
+  feature: the MDP's true expected cost, the Pareto frontier's expected cost, live poe.ninja prices.
+  Move it to Completed, and say what it actually is.
+- The Features list (lines 56–61) does not mention the MDP at all — the one thing no other PoE2 tool
+  does. "True expected cost from an optimal policy that recovers in place after a bad roll" belongs
+  at the top of that list, not absent from it.
+- The Known Issues line ("Some rare edge cases with essence combinations may not be fully optimized")
+  is vague to the point of meaninglessness. Either name the real known limits — the step planner
+  cannot express "roll filler and remove it"; the desecrated spawn weight is measured from 40 bones —
+  or link to `docs/copy-audit.md`, which is the honest inventory.
+
+**`docs/USER_GUIDE.md`** — this one is worse, because it describes the retired ALGORITHM, and a reader
+who trusts it will misunderstand every number the app shows them:
+- Lines 19–20 — the installer again.
+- Line 34 — `http://localhost:5173` as "first launch". That is the dev server.
+- Line 233 — "Click the **Start Simulation** button". There is no simulation; the engine is analytic.
+  The button says Compute.
+- Lines 241–245 — "Explores millions of possible crafting sequences … Returns the top 10-20 most
+  efficient paths". This describes the Java beam search. The current engine evaluates plans exactly
+  and returns a Pareto frontier — the whole point of `docs/ALGORITHM.md`, which the guide contradicts.
+- Line 251 and 425 — "lower the threshold in settings". There is no threshold setting. There is a
+  Search-effort preset, and it does the opposite of what "threshold" implies.
+- Line 274 — "Expected Transmutes: ~4.2 million". Costs are in exalt-equivalents on a unit ladder,
+  from a live price sheet. The guide never mentions prices at all.
+- Lines 353–360 — "Dextral Omen: Removes 1 suffix when used with essence". That is not what a Dextral
+  omen does in this app or in the game as modelled here (Dextral Exaltation constrains an Exalt to the
+  suffix side; Dextral Annulment constrains an Annulment; Dextral Crystallisation constrains a Perfect
+  Essence's removal). A player following this tip would buy the wrong omen.
+- Lines 456, 462 — "Server error", "Restart the application". There is no server and no application
+  to restart.
+- The guide never mentions: the Item tab, the true expected cost, the policy graph, "≥ x" / "≤ x"
+  bounds, Search effort, currency exclusions, share links, or the price basis note. That is most of the
+  product.
+
+**Why this outranks every engine item.** The engine's rigour is invisible if the front door says
+something false. And this project's standing rule — never state something about the game or the
+planner that has not been traced — is being broken by its own README, which is the most-read text it
+has.
+
+**How to do it.** Rewrite rather than patch. The USER_GUIDE in particular should be rebuilt from the
+current UI: Lab tab (from white), Item tab (from what you hold), what each panel means, what the bound
+markers mean, what Search effort trades. Screenshots are Dorian's to take (they need a browser); the
+text can be written from the components. Keep `docs/ALGORITHM.md` as the technical companion — it IS
+current, and is the model for how the others should read. Delete `docs/DOWNLOAD.md` or leave it as the
+one-line "nothing to download" it already is.
+
+**Verify.** `grep -nE "Electron|installer|\.exe|auto-update|Start Simulation|threshold|beam|Java"
+README.md docs/USER_GUIDE.md` returns nothing. Every feature the app has is named in the README's
+Features list. The roadmap contains nothing that already ships.
+
+**Do not** touch `docs/ABOUT.md`'s past-tense history of the Java era — that is deliberate and accurate
+(see CLAUDE.md, "Java-retirement doc debt"). The problem is present-tense claims, not history.
+
+---
+
+## 8. Prices should refresh themselves — TIER 1
+
+**What is wrong.** `data/patches/0.5.0/prices.json` was last updated 2026-08-22 — ten days before this
+review. poe.ninja confirms "Runes of Aldur" is still the live league, so the data is not WRONG, but a
+PoE economy moves: early in a league the chaos-to-exalt ratio can shift 2x in a week, and this optimizer
+ranks plans by cost, so a stale relative price changes WHICH route it recommends, not just the total on
+it (CLAUDE.md, "Prices"). The refresh (`npm run update-prices`) exists, works, and depends on someone
+remembering.
+
+**How to do it.** A GitHub Actions workflow on a weekly `schedule` (plus `workflow_dispatch`) that runs
+`node tools/refresh/prices.mjs`, and if `prices.json` changed, opens a pull request with the script's
+own console output as the body — it already prints every price that moved and by what factor, which is
+exactly the review a human wants to see. Use a bot-created PR rather than a direct push so a bad feed
+(poe.ninja down, a renamed currency id) cannot silently ship; CI runs on the PR and `priceResolution.test.ts`
+plus `costConsistency.test.ts` guard the shape.
+
+Concretely:
+- `.github/workflows/refresh-prices.yml`, `permissions: contents: write, pull-requests: write`, on
+  `schedule: cron '0 6 * * 1'` (Monday 06:00 UTC) and `workflow_dispatch`.
+- Steps: checkout, setup-node 20, `npm ci`, `node tools/refresh/prices.mjs`, then
+  `peter-evans/create-pull-request` (or `gh pr create` with a diff check) with the captured stdout as
+  body and a fixed branch name so re-runs update one PR rather than piling up.
+- The script already defaults `--league` to the first entry of poe.ninja's `/leagues` endpoint
+  (`prices.mjs:181`), so a league change needs no code change — but it means the bot will silently
+  switch leagues the week a new one starts, and the first PR after a league launch will show every
+  price moving 5–50x. That is correct behaviour and the PR body will make it obvious; just do not
+  auto-merge.
+
+**Two things to preserve.** `omenQuotes` are hand-transcribed (poe.ninja has no omen endpoint —
+`type=Omens` returns byte-identical output to an invalid type; see CLAUDE.md "Prices") and the script
+already warns when they are over 30 days old. The PR body should carry that warning prominently, since
+it is the one part of the refresh a bot cannot do. And `caveat` must stay a complete sentence
+(`PriceBasisNote` renders it) — the script already ensures this; the test `priceResolution.test.ts`
+should be checked to pin it if it does not.
+
+**Verify.** Run the workflow by hand via `workflow_dispatch`; a PR appears with a diff confined to
+`prices.json` and a body listing the moved prices. Merge it; the live site's `PriceBasisNote` shows the
+new `updated` date.
+
+**Do not** fetch prices at runtime from the browser. poe.ninja sends no CORS header and their docs ask
+clients not to call the API directly; the committed-snapshot design is right (the header comment in
+`prices.mjs` explains it). Automate the snapshot, do not replace it.
+
+---
+
+## 9. A linter, and manifest hygiene — TIER 1
+
+**What is wrong.** There is no ESLint (or Biome, or anything) — only `.editorconfig`. `tsc` catches type
+errors and nothing else: not unused imports, not accidental `any` in tests, not `console.log` left in
+source, not inconsistent import ordering. With 114 of the last 120 commits AI-assisted, the drift that
+lint catches is exactly the drift this codebase will accumulate — today's work removed unused imports
+by hand after each edit because nothing else would have.
+
+Also: `@testing-library/dom` is in `dependencies` rather than `devDependencies` (`package.json:30`).
+Harmless — Vite tree-shakes it — but it is a sign the manifest has not been read in a while, and it
+makes `npm audit --omit=dev` lie about the production surface.
+
+**How to do it.**
+- `npm i -D eslint typescript-eslint @eslint/js eslint-plugin-react-hooks` and a flat
+  `eslint.config.js` using `tseslint.configs.strictTypeChecked` for `packages/**` and
+  `recommendedTypeChecked` for `src/**` (the packages already run under stricter tsconfigs; lint
+  should match). Enable `react-hooks/rules-of-hooks` and `exhaustive-deps` for `src/`.
+- Add `"lint": "eslint ."` to scripts and a **Lint** step to `.github/workflows/ci.yml` after the
+  type-checks. Also to `.claude/skills/ship` so the local verify chain matches CI.
+- Move `@testing-library/dom` to `devDependencies`. Check nothing else is misplaced while there:
+  `class-variance-authority`, `clsx` and `tailwind-merge` are in devDependencies but are runtime
+  imports (one source file each) — that only works because Vite bundles them; it is wrong by
+  convention and will confuse the next person who reads the manifest. Either move them or add a
+  one-line comment saying why. And `lucide-react` is in devDependencies and **imported by nothing**
+  (verified 2026-09-01: zero non-test files) — remove it, and let the lint's unused-import rule be
+  what catches the next one.
+- Expect a first run to flag real things. Fix them in a separate commit from the config, so the config
+  commit is reviewable on its own.
+
+**Verify.** `npm run lint` is green locally and in CI. `npm audit --omit=dev` reports the actual
+production dependency set.
+
+**Do not** add Prettier in the same pass. The codebase has a consistent hand style (the long doc
+comments, the wrapped conditionals); reformatting 20,000 lines in one commit destroys `git blame` for
+every file at once. If formatting is wanted later, do it file-by-file as files are touched.
+
+---
+
+## 10. Browser smoke tests — TIER 2, THE BIGGEST ENGINEERING GAP
+
+**What is wrong.** 1,262 tests, all under jsdom. Zero run in a real browser. `docs/validation.md`'s
+"Still deferred" says it in its own words: *"Nothing shipped since 2026-08-21 has been seen in a
+browser."* jsdom has no layout engine, no Web Worker, no real `fetch`, no CSP enforcement, and cannot
+tell you whether the 3.1 MB `mods.json` preload actually fires. The whole class of bug that ships as
+"the page loads but nothing happens" is invisible to this suite, and on 2026-09-01 the numbers the Lab
+tab shows changed by orders of magnitude (a 6-target T1 craft went 42.7bn → 2.47bn ex) with nothing
+but jsdom confirming the panel still renders them.
+
+**How to do it.** Playwright, not Cypress (it drives Chromium/Firefox/WebKit from one runner and has
+first-class Worker support). Five tests, no more to start:
+
+1. **Cold load.** Navigate to `/`, wait for the base picker to be enabled. Assert no console errors and
+   no CSP violations (`page.on('console')`, `page.on('pageerror')`). This alone catches a broken
+   preload, a bad CSP header, or a Worker that fails to construct.
+2. **Lab compute.** Pick Wands, add one prefix and one suffix at any tier, click Compute, wait for the
+   frontier to show a row with a cost. Assert the "checked N plans" line renders a number > 0 and the
+   true-expected-cost panel shows a value. This is the whole product working end to end in the Worker.
+3. **Item compute.** Item tab, build a Rare with one mod, target one more, Compute, assert a policy
+   graph or route renders.
+4. **Share link round-trip.** Build a workspace, click Share, navigate to the copied URL in a fresh
+   context, assert the same targets are restored.
+5. **Mobile viewport.** Test 2 again at 390×844. Assert the mod columns stacked (the
+   `flex-col sm:flex-row` fix from 2026-08-22 has never been verified by anything) and nothing overflows
+   horizontally (`document.documentElement.scrollWidth <= window.innerWidth`).
+
+Run against `vite preview` of a production build, not the dev server — the dev server has no CSP
+header and different chunking, so it would pass where production fails. In CI, add it as a job after
+Build that installs Playwright's Chromium only (`npx playwright install chromium --with-deps`) to keep
+it under two minutes.
+
+**Verify.** All five green in CI. Then break something deliberately — remove `worker-src 'self'` from
+`vercel.json`'s CSP — and confirm test 1 or 2 goes red. If neither does, the tests are not testing what
+they claim. (The CSP lives in `vercel.json`, which `vite preview` does not read; the smoke suite should
+serve `dist/` behind a tiny static server that sets the same headers — or read them from `vercel.json`
+so they cannot drift.)
+
+**Do not** try to assert on specific cost values. They change with the price sheet and with every
+solver improvement; the smoke suite asserts that a number APPEARS, not what it is. Correctness of the
+number is the unit suite's job, and it does that well.
+
+---
+
+## 11. Belts — TIER 2, AND CHEAPER THAN IT LOOKS
+
+**What is wrong.** The shipped data has 41 bases across 19 categories and **no belts**, a core rare
+slot every player crafts. The README roadmap has had "Belt item type support" open for months. Also
+absent: Charms and Jewels (Jewels are arguably out of scope — different crafting model — but Charms are
+ordinary rares).
+
+**Why it is cheaper than it looks.** The upstream data is already on disk. `tools/refresh/cache/
+repoe_base_items.json` contains **20 belt bases** (and 9 jewels). They are missing from the app
+because `CATEGORY_CLASS` in `tools/refresh/refresh.mjs` (line 38) and `apply_pools.mjs` (line 64) —
+the maps from our category names to RePoE item classes — simply do not have a `Belts: 'Belts'` entry.
+Nothing filters belts out; they were never mapped in.
+
+**How to do it.**
+- Add `Belts: 'Belts'` to both `CATEGORY_CLASS` maps. Check whether belts count as "Jewellery" for the
+  boss-omen rule (`bossOmenAllowed` in `packages/engine/src/probability.ts` — the omens read "Weapon or
+  Jewellery"; CLAUDE.md lists amulets/rings/belts as the collarbone group, so belts ARE jewellery for
+  desecration and the collarbone applies).
+- Belts need a poe2db class page cached under `tools/refresh/cache/poe2db/` for spawn weights
+  (`run.sh` says pages are "fetched once; re-fetch by deleting them"). Fetch `https://poe2db.tw/us/Belts`
+  the same way the others were.
+- Run `./tools/refresh/run.sh`, inspect `docs/refresh-0.5.0-diff.md`, and check `shipped-pools.test.ts`
+  and `dataIntegrity.test.ts` still pass — they pin pool shapes and will say if a belt base came out
+  malformed.
+- Cross-check ONE belt's weights against craftofexile.com the way Wands/Rings/Amulets were
+  (`scripts/coe-verify.mts`), and record the result in `docs/validation.md`. Belts have a small pool;
+  it is a quick check.
+- Then do Charms the same way if the RePoE dump has them (`grep -i charm` the cache).
+
+**Verify.** Belts appear in `BaseSelect`; a two-mod belt craft computes on both tabs; the CoE
+cross-check matches; the 41 → 61 base count is reflected wherever it is asserted (`grep -rn "41"
+packages/engine/src/*.test.ts` to find any pinned count).
+
+**Do not** add Jewels in the same pass. Jewels have no prefix/suffix cap of 3+3, cannot be Regal'd
+the same way, and have their own mod pool structure. They would need their own validation, and
+possibly their own `perSideCap`. Separate item, if ever.
+
+---
+
+## 12. Omen of Whittling — TIER 2, HALF OF IT IS HARD
+
+**What is wrong.** The Omen of Whittling makes an Orb of Annulment remove the **lowest-tier** modifier
+on the item instead of a random one. It is arguably the most-used crafting omen in PoE2 for the
+exalt-slam loop (slam, whittle the junk off, slam again), and the app does not model it at all — it is
+not even in `prices.json`'s `omenQuotes`, so it would need hand-transcribing from
+`https://poe.ninja/poe2/economy/runesofaldur/omens` like the other thirteen.
+
+**The easy half — the step planner.** For a fixed sequence the item's mods and their tiers are known at
+every step, so "remove the lowest-tier mod" is a DETERMINISTIC removal: P = 1 if the mod the plan names
+is the unique lowest, 0 otherwise (ties would need the game's tiebreak rule — find it before modelling
+it; if it is random among ties, P = 1/k). That is a new `AnnulOmen` value (`'whittling'`) in
+`packages/engine/src/probability.ts`, a branch in `annulProbability`, a price key in `stepOmenIds`
+(`cost.ts`), and a lever in `withOmen` (`levers.ts`) — the DP handles the rest for free, since a
+Whittling annul changes odds and price but not what happens next (it removes the mod the skeleton
+names, as every annul does), so the invariant `levers.test.ts` pins holds.
+
+**One prerequisite, and it is a real one.** `PlacedMod.tierName` is honest for the item a player
+HOLDS — `buildItemState` (engineMap) writes the tier the player picked, and the MDP's `classifyStart`
+(`markovState.ts:373`) reads it. But for every mod a plan ADDS mid-sequence, `addMod` (`plan.ts:166`)
+places it at `tierIndex 0` regardless of the step's `minTierIndex`, so after the first add the walked
+item's tiers are fiction. Whittling is the first mechanic whose probability depends on those tiers, so
+`applyStep` has to start placing an added mod at the tier the step asks for (`minTierIndex`), and the
+2026-09-01 design review's note that the tier "is cosmetic for probability purposes" stops being true
+the moment this ships. Pin that with a test BEFORE adding the omen: walk a two-add plan, assert the
+placed tiers match the steps' `minTierIndex`.
+
+**The hard half — the MDP.** `McState` is `(present, blocked, jp, js, flagged, rarity)`. It knows WHICH
+targets are present and HOW MANY junk mods sit on each side. **It does not know any mod's tier.** So
+"remove the lowest-tier mod" has no meaning in the state space — the model cannot tell whether the
+lowest-tier mod is a target or junk, which is the entire question Whittling answers. Making it work
+needs either a tier axis on the state (blows up the lattice; every junk mod would need a tier bucket)
+or an approximation ("Whittling removes junk with probability p_junk, estimated from the pool"), which
+is exactly the kind of guess this project has refused to make elsewhere.
+
+**Recommendation.** Ship the step-planner half, and say in the UI that the true-cost model does not
+play Whittling. That is honest, it gives the player the recipe-level answer they most often want
+("slam, whittle, slam — what are the odds?"), and it leaves the MDP's numbers as a documented
+lower-bound-ish comparison rather than silently wrong. Record the MDP gap in this file as its own item,
+with the state-axis cost measured before anyone builds it (a tier bucket per junk mod is the same shape
+as the `flagged` axis, which cost ~5x solve time — see §3).
+
+**Verify.** Hand-computed test on the synthetic fixture: a 3-mod Rare with tiers T1/T3/T5, target the
+T1 and T3, plan `annul(T5) with whittling` — P must be 1, and P for `annul(T3) with whittling` must be
+0. Then on live data: a craft where Whittling beats a plain Annulment appears on the frontier at the
+omen's price.
+
+**Do not** model it as "Whittling removes the lowest tier among JUNK". The game does not know what the
+player considers junk; if the player's target T5 mod is the lowest tier on the item, Whittling removes
+it. That is the trap, and the honest model has to fall into it.
+
+---
+
+## 13. Split `mods.json` into solver data and display data — TIER 3
+
+**What is wrong.** `mods.json` is 3.1 MB (238 kB gzip) and is the dominant first-load cost — the JS
+bundle is 114 kB gzip. Measured 2026-09-01: **37% of it is display-only** (`tiers[].ranges` and
+`tiers[].stats`), fields the Worker never reads. `indexPatch` and every probability function consume
+`tiers[].{name, ilvl, weight}`, `family`, `type`, `source`, and the pools. The UI reads `text`,
+`ranges`, and `stats` for labels and the tier dropdown.
+
+**Why it matters more than 37% suggests.** The Worker cannot start solving until `mods.json` has fully
+downloaded and parsed on the main thread and been posted to it. On a phone on a poor connection that is
+the entire time-to-first-result. A solver-only file would let the Worker begin the moment the numbers
+arrive, with the display text streaming in behind for the picker — and the picker is not on the
+critical path to a result if the user arrived via a share link.
+
+**How to do it.**
+- The pipeline (`tools/refresh/refresh.mjs`) writes two files: `mods.solver.json` (id, type, family,
+  source, categories, tiers as `{name, ilvl, weight}`) and `mods.display.json` (id → `{text, tiers:
+  [{ranges, stats}]}`), joined by id and tier index.
+- `indexPatch` takes the solver file. `engineMap`'s label functions take the display file. The two
+  must be produced from one source in one run so they cannot desync — pin that with a test that
+  round-trips them (`dataIntegrity.test.ts` is the home).
+- The preload in `vite.config.ts` (`preloadPatchData`) warms the SOLVER file first, display second.
+- `loadEngine` resolves as soon as solver + bases + prices are in; a separate `loadDisplay()` feeds the
+  picker. Components that need text before it arrives show the mod id (they already fall back to it:
+  `data.mods.get(id)?.text ?? id` appears three times in `engineMap.ts`).
+
+**Verify.** Lighthouse mobile before/after on the deployed site: time to first compute result on a
+share link, throttled to "Slow 4G". Bundle: `mods.solver.json` gzip ≤ 160 kB. All existing tests pass
+against the split files (the fixtures in `packages/engine/src/__fixtures__` may need the same split, or
+a loader that merges them for tests).
+
+**Do not** try to shrink the JSON further by shortening keys or dropping tier names. Gzip already
+handles repeated keys; the 37% is real content. And tier names are read by the essence code
+(`essenceLevelOf` parses "Lesser"/"Greater" out of the tier name) — they are solver data.
+
+---
+
+## 14. Omen of Greater Exaltation — TIER 3
+
+**What is wrong.** An Omen of Greater Exaltation makes an Exalted Orb add **two** modifiers. It is
+priced (`prices.json` has it at 9.539 ex as of 2026-08-22), it is on the README roadmap, and neither
+planner models it.
+
+**Why it is a different shape of work from the 2026-09-01 orb-strength axis.** That axis was a
+LEVER: it changed a step's odds and price and nothing else, which is what let `leverDp.ts` decide it
+per step without enumerating. A Greater Exaltation changes WHAT HAPPENS — two mods land, the item state
+afterwards is different — so it can never be a lever. `levers.test.ts` asserts exactly that invariant
+and would go red if someone tried. It is a skeleton-level action: a distinct step type, enumerated
+where the orderings are.
+
+**How to do it.**
+- **Engine** (`packages/engine/src/probability.ts`, `plan.ts`): a `greater-exalt` step with `adds:
+  [a, b]` — P(both named mods land, in either order, from a pool that shrinks between the two draws)
+  and an `applyStep` that places both. The two-draw probability is the same recursion
+  `alchemyProbability` already does for four draws; factor that recursion out and reuse it. The
+  rarity/slot legality: Rare only, needs two open slots (any sides — or one per side? find the rule).
+- **Step planner**: `buildParetoSteps` (from white) and `baseTransforms` (from item) offer it wherever
+  two missing rollable mods remain and two slots are open, as an alternative to two consecutive
+  Exalts. It roughly halves the ordering count for the pair it covers, so it will not blow up the
+  skeleton enumeration.
+- **MDP** (`markovActions.ts`): a new `McAction` `{ currency: 'exalt', strength, double: true }` (or
+  its own currency) whose outcome distribution is the two-draw distribution over the state lattice.
+  Price it via `stepOmenIds` so `costConsistency.test.ts` gets a PAIR row — the D8 lesson.
+- Measure the MDP's solve-time cost the way 5d was measured (interleaved, on/off, six crafts). If it
+  costs 1.5x and changes no answer, revert the MDP half and keep the step planner's, exactly as 5d did.
+  A 9.5 ex omen for a second slam has a much better chance of paying off than a 98 ex Greater Chaos
+  did, so the prior is different — but measure.
+
+**Verify.** Hand-computed two-draw probability on the synthetic fixture matches the engine. MC
+(`simulate.ts`) confirms it on live data. `costConsistency` has the pair. A live craft where two
+Exalts cost more than one Greater Exaltation shows the omen on the frontier.
+
+---
+
+## 15. Crowdsource the desecrated spawn weight — TIER 3, NOT A CODE ITEM
+
+**What is wrong.** `DESECRATED_ASSUMED_WEIGHT = 2500` (`tools/refresh/apply_pools.mjs:61`) is called,
+in this file and in `docs/validation.md`, "the single largest unverified number in the app". It was
+fitted from **one sample of 40 bones** on one base (`Helmets_dex_int`), maximum likelihood 2,512,
+plausible range 1,995–3,981. It prices every craft on armour and weapons — not only carved ones — since
+a bone became the cheapest way to add an ORDINARY mod. A 2x error in it moves a Wands craft ~4x.
+
+**Why crowdsourcing.** It is cheap to observe (a bone shows three modifiers; count how many are carved)
+and there is no data source — poe2db reports 1 for every row. `scripts/desecrate-weight.mts` already
+turns a count into a fitted weight. What is missing is the sample, and a Discord full of players who
+spend bones daily is the sample.
+
+**How to do it.**
+- A pinned Discord post (or a GitHub Discussion, linked from the app's Report-a-problem panel) asking:
+  "Next time you use bones on a Rare, note the base, how many bones, and how many of the 3N modifiers
+  shown were 'carved by the Abyss'." Three numbers. The script's own header says why MODIFIERS not
+  offers — the form should say the same, because that exact misreading already inflated one fit by 50%.
+- Collect in a simple table in `docs/validation.md` D4. Re-fit with the script per base as samples
+  arrive; the weight may well differ by base, which would itself be a finding.
+- When the pooled sample passes ~200 bones, replace the assumption with the fit, and change
+  `PriceBasisNote`'s "assumed odds" wording to cite the sample size.
+
+**Verify.** The fitted interval narrows. `assumedOdds` copy updates to say "measured from N bones by M
+players" — a stronger claim than any competitor can make about this number.
+
+---
+
+## 16. The Item tab shows two models, and one calls itself fiction — DESIGN QUESTION
+
+**What is being asked.** Not a bug. A question about whether the Item tab's shape is right, raised
+because the code already half-answers it.
+
+`ItemActions.tsx` (901 lines) and `EngineLab.tsx` (911 lines) each present TWO answers to "how do I
+get from here to there": the step planner's Pareto frontier and the MDP's true expected cost + policy
+graph. CLAUDE.md is explicit that on the Item tab the step planner's cost model "is fiction for a held
+item" (it restarts to your item for free on a miss), that its total "was the single most-complained-
+about number in the app" and is no longer shown, and that the routes "collapse once the MDP has
+answered" via `trueCostAnswered`. So on the Item tab there is a large component whose main design
+feature is hiding itself.
+
+**The case for keeping it** is real: the frontier gives a RECIPE — a fixed sequence, per-attempt odds,
+per-run cost — which is how players actually think and talk about crafts ("slam, annul, slam"), and
+which the MDP's policy graph, correct as it is, does not express as a list of steps you can follow. The
+2026-09-01 orb-strength work also made the frontier genuinely informative (a 5-target craft went from 1
+row to 5 real choices).
+
+**The case for demoting it**: two headline panels answering one question with numbers that differ by
+orders of magnitude (the step routes sit ~68,000x above the MDP's cost on a five-target craft, and
+that is AFTER orb strength) is a lot for a player to reconcile, and the panel already collapses to
+manage that. A page that shows one answer and offers the other as "if you insist on a fixed recipe"
+would be simpler to read and simpler to maintain.
+
+**Recommendation.** Do not decide this from the code. Decide it from users: the Discord, and Sentry's
+session data once it has some (which panels get expanded, whether the collapsed routes ever get
+opened). If the routes are opened by fewer than one user in ten, demote them to a disclosure below
+the policy graph and let the two 900-line components shrink. If they are opened often, the recipe view
+is earning its place and the work is making its cost model honest instead (a from-item expected cost
+that restarts to the item at the item's REAL replacement price, not zero — which is what
+`freeRestart={false}` currently hides rather than fixes).
+
+Either way, this is the item most likely to be wrong if decided from the engineer's chair.
+
+---
+
+## 17. Considered and rejected — so they are not re-proposed
+
+Recorded with the reason, in the spirit of the negative results in `docs/validation.md`.
+
+- **Recombinators.** The endgame crafting meta in PoE2, and a genuine gap. But a recombinator takes two
+  items in and produces one out, with its own mod-inheritance rules — it is a different engine, not a
+  new action in this one. Would double the model's state space and needs its own validation campaign.
+  Not a 1.0 item; possibly not a 1.x item.
+- **More MDP performance work.** It is exact, ends on a proof, and the worst measured craft is ~1
+  second at Standard effort. The 2026-09-01 result on the Chaos strength axis — 1.2–1.5x slower for
+  ZERO change to any answer — is what diminishing returns look like. Three earlier ideas (prioritised
+  sweeping, dead-state pruning, PI for phase A) were also measured dead. Stop here unless a user
+  reports a craft that is actually slow.
+- **A backend, or runtime trade-API calls.** poe.ninja sends no CORS header and asks clients not to
+  call it directly; any other source would need a proxy. A backend turns "static site on Vercel" into
+  something that must be run, monitored, and paid for, and breaks the offline guarantee the README
+  makes. The committed snapshot is right — §8 automates it.
+- **Rust / WASM / a native engine.** The `C` branch is the monument to this. The TypeScript engine is
+  fast enough (see above), the Worker keeps it off the main thread, and every hour spent on a port is
+  an hour not spent on §7–§12.
+- **Lowering the cost-CDF cell cap** and **making `exactQuantum` succeed** — both measured on
+  2026-09-01 and both wrong; see §5c. The waste was running full precision on plans that could not win,
+  and that is fixed.
+- **A Chaos strength axis in the MDP** — built, measured, reverted; see §5d. Revisit only if
+  `chaos_greater` falls well below 3x the plain price.
+- **Prettier across the codebase.** See §9 — one commit reformatting everything destroys `git blame`
+  for every file. Not worth it for a solo project with a consistent hand style.
+
+---
+
+## What 1.0 means
+
+The project is at 0.9.7. The engine is past 1.0 quality — exact, validated, measured, honest about
+its bounds. What is not 1.0 is everything around it. A coherent definition:
+
+- §7 — the docs describe the app that exists.
+- §8 — prices refresh themselves.
+- §9 — a linter runs in CI.
+- §10 — five browser tests run in CI.
+- §11 — belts ship.
+
+That is roughly a week. Ship it as 1.0, and write the CHANGELOG entry as the story it is: a Java beam
+search that became an exact analytic engine, that grew a true-cost model no other PoE2 tool has, and
+that now says so on its own front page.
 
 ## Recently closed
 

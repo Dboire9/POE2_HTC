@@ -1,574 +1,501 @@
-# User Guide - POE2 How To Craft
+# User Guide — POE2 How To Craft
+
+This guide covers the app as it runs at **[poe2htc.com](https://poe2htc.com)**. It explains every panel,
+what each number means, and — just as importantly — what each number *doesn't* mean.
+
+If you want the maths rather than the buttons, read [ALGORITHM.md](ALGORITHM.md) instead. This guide and
+that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's right.
 
 ## Table of Contents
 
-1. [Getting Started](#getting-started)
-2. [Understanding the Interface](#understanding-the-interface)
-3. [Step-by-Step Crafting Guide](#step-by-step-crafting-guide)
-4. [Understanding Results](#understanding-results)
-5. [Advanced Tips](#advanced-tips)
-6. [Troubleshooting](#troubleshooting)
+- [Getting started](#getting-started)
+- [The two tabs](#the-two-tabs)
+- [Plan from scratch](#plan-from-scratch)
+  - [1. Pick a base and item level](#1-pick-a-base-and-item-level)
+  - [2. Choose the mods you want](#2-choose-the-mods-you-want)
+  - [3. Tiers, alternatives and pins](#3-tiers-alternatives-and-pins)
+  - [4. Find plans](#4-find-plans)
+- [Reading the results](#reading-the-results)
+  - [Your options — the plan cards](#your-options--the-plan-cards)
+  - [True expected cost — and why it's lower](#true-expected-cost--and-why-its-lower)
+  - [The bound markers: "≥ x" and "≤ x"](#the-bound-markers--x-and--x)
+  - [The policy graph](#the-policy-graph)
+- [I have an item](#i-have-an-item)
+  - [Quick currency check](#quick-currency-check)
+  - [Full plan to a target](#full-plan-to-a-target)
+  - [Why this tab reads differently](#why-this-tab-reads-differently)
+- [Budget mode](#budget-mode)
+- [Search effort](#search-effort)
+- [Currency I don't have](#currency-i-dont-have)
+- [Sharing a workspace](#sharing-a-workspace)
+- [Where the numbers come from](#where-the-numbers-come-from)
+- [Troubleshooting](#troubleshooting)
+- [PoE2 crafting, briefly](#poe2-crafting-briefly)
+- [FAQ](#faq)
+- [Glossary](#glossary)
+- [Getting help](#getting-help)
 
 ---
 
-## Getting Started
+## Getting started
 
-### Installation
+Open **[poe2htc.com](https://poe2htc.com)**. That's it — there is nothing to download, no account, and
+no server. The whole engine is JavaScript running in your browser; nothing you type leaves your machine.
 
-**Windows:**
-1. Download the installer from [Releases](https://github.com/Dboire9/POE2_HTC/releases/latest)
-2. Run `POE2HTC-Setup-X.X.X.exe`
-3. Launch from Start Menu or Desktop shortcut
+The first load pulls about 3 MB of modifier data for patch 0.5.0. After that the page works offline.
 
-**Linux/macOS:**
-```bash
-git clone https://github.com/Dboire9/POE2_HTC.git
-cd POE2_HTC
-npm install --legacy-peer-deps
-npm run dev
-```
-
-### First Launch
-
-When you first open the application:
-1. The interface loads at `http://localhost:5173`
-2. The crafting engine and patch data load client-side — there is no backend server to wait on
-3. You're ready to craft immediately
+Running it yourself instead? `npm run dev` serves it at `http://localhost:5173` — see
+[DEVELOPMENT.md](DEVELOPMENT.md).
 
 ---
 
-## Understanding the Interface
+## The two tabs
 
-### Main Sections
+At the top of the page:
 
-The application interface is divided into three main areas:
+| Tab | Use it when |
+|---|---|
+| **Plan from scratch** | You have (or can buy) a white base and want to know how to craft it up |
+| **I have an item** | You're mid-craft, holding something with mods already on it, and want the best move from *here* |
 
-#### 1. Item Selection (Top)
-- **Item Category Dropdown**: Choose the base item type (Wands, Helmets, Body Armours, etc.)
-- **Subcategory Dropdown**: For hybrid items, select the specific variant (e.g., ES/Armor Hybrid)
-- **Item Preview**: Shows the selected base item with its properties
-
-#### 2. Modifier Selection (Middle)
-The modifier selection area has two tabs:
-
-**Prefixes Tab:**
-- Shows all available prefix modifiers for your item
-- Maximum 3 prefixes per item
-- Each modifier displays:
-  - Modifier text (e.g., "+# to maximum Life")
-  - Available tiers (T1 = best, T10 = worst)
-  - Modifier family (important for conflict detection)
-  - Source type (Normal, Perfect Essence, Desecrated)
-
-**Suffixes Tab:**
-- Shows all available suffix modifiers
-- Maximum 3 suffixes per item
-- Same information as prefixes
-
-#### 3. Results Display (Bottom)
-- Shows crafting paths after simulation
-- Multiple paths ranked by success probability
-- Each path shows step-by-step currency usage
+They are genuinely different questions and the app answers them differently. Most of the confusion
+people report comes from reading a "Plan from scratch" number as though it applied to the Rare in their
+stash — see [Why this tab reads differently](#why-this-tab-reads-differently).
 
 ---
 
-## Step-by-Step Crafting Guide
+## Plan from scratch
 
-### Step 1: Select Your Item Type
+### 1. Pick a base and item level
 
-**Purpose:** Define what item you want to craft.
+- **Base** — the item type, e.g. *Attuned Wand*. Available mods change completely with the base.
+- **Item level** — the ilvl of the white base you'll start from. This is a hard gate: a tier that
+  requires ilvl 82 simply cannot roll on an ilvl 75 base, and the planner will tell you so rather than
+  pretending otherwise.
+- **Base cost** *(optional)* — what another white base costs you. Leave it blank for the default. Type
+  `0` and you're telling the planner bases are free, so it will happily bin a nearly-finished item and
+  start over; that's the right answer if you're farming your own bases and the wrong one if you're
+  buying them. A typed `0` is a real answer and a blank field is "no opinion" — they aren't the same.
 
-**How to:**
-1. Click the first dropdown menu labeled "Select Item Category"
-2. Browse through categories:
-   - **Weapons**: Wands, Staves, Bows, Crossbows, Spears, Maces, etc.
-   - **Armor**: Helmets, Body Armours, Gloves, Boots, Shields
-   - **Jewelry**: Rings, Amulets, Quivers
+### 2. Choose the mods you want
 
-3. If applicable, select a subcategory:
-   - Body Armours: Pure AR, Pure EV, Pure ES, AR/EV Hybrid, AR/ES Hybrid, EV/ES Hybrid
-   - Boots: Pure AR, Pure EV, Pure ES, Hybrid variants
-   - Helmets: Same as above
-   - Gloves: Same as above
+Mods are listed in two columns, **Prefixes** and **Suffixes**. A Rare can hold at most 3 of each. Click
+a mod to add it to your target.
 
-**Example:**
-```
-Category: Body Armours
-Subcategory: Energy Shield/Armour (Hybrid)
-```
+The list shows what can actually roll on the chosen base at the chosen item level. If a mod you expect
+isn't there, the base or the level is why.
 
-**Why it matters:** Different item types have different modifier pools. A bow can have "+# to Bow Attack Range" but a wand cannot.
+**Sources.** Most mods roll from the normal pool. Some are **essence-only** — they can only be placed by
+an Essence. Others are **desecrated** — only a Bone offering places them. The app marks these and routes
+accordingly.
 
----
+### 3. Tiers, alternatives and pins
 
-### Step 2: Choose Your Desired Modifiers
+- **Target tier** — every target mod carries a tier selector. It means *"this tier **or better**"*, not
+  "exactly this tier". Tier 1 is the best roll. Asking for T1 on six mods at once is what makes a craft
+  cost billions; asking for "T3 or better" is usually the same item for a tiny fraction of the money.
+- **Or / alternatives** — the `or` button on a target row adds an alternative to that slot. The slot
+  counts as filled by *whichever one lands*. Use this when you'd be happy with any of several mods —
+  it can cut the cost by orders of magnitude and costs you nothing.
+- **Fractured** — mark a mod as fractured if it's already locked on your base. A fractured mod can't be
+  removed or rerolled, so this changes the whole route; the planner starts from a Rare rather than white.
+- **Pin** — pin a target as non-negotiable so budget mode may not relax it. Only relevant with a budget.
 
-**Purpose:** Define the exact modifiers you want on your final item.
+### 4. Find plans
 
-#### Understanding Modifiers
-
-**Modifier Components:**
-
-1. **Modifier Text**: The actual effect (e.g., "+# to maximum Life")
-2. **Tier**: Quality level (T1 = highest values, T5 = lowest values)
-   - Example for Life:
-     - T1: +80 to 100 Life
-     - T2: +70 to 79 Life
-     - T3: +60 to 69 Life
-     - T4: +50 to 59 Life
-     - T5: +40 to 49 Life
-
-3. **Modifier Family**: Grouping that prevents conflicts
-   - Example: "LifePrefix" family
-   - You cannot have two modifiers from the same family
-   - The app prevents you from selecting conflicting modifiers
-
-4. **Source Type**: How the modifier can be obtained
-   - **Normal**: Available through standard crafting currencies
-   - **Perfect Essence**: Only from perfect essences (guarantees this specific modifier)
-   - **Desecrated**: Only from desecrated currency
-
-#### How to Select Modifiers
-
-**For Prefixes:**
-1. Click the "Prefixes" tab
-2. Scroll through the list of available modifiers
-3. For each modifier you want:
-   - Click on the modifier name to select it
-   - Use the dropdown to choose the tier (default is T1)
-4. Selected modifiers appear highlighted
-5. You can select up to 3 prefixes
-
-**For Suffixes:**
-1. Click the "Suffixes" tab
-2. Follow the same process as prefixes
-3. You can select up to 3 suffixes
-
-#### Filtering by Source
-
-Use the filter buttons at the top of each tab:
-- **All**: Shows all modifiers
-- **Normal**: Shows only standard craftable modifiers
-- **Perfect Essences**: Shows only perfect essence modifiers
-- **Desecrated**: Shows only desecrated currency modifiers
-
-**Why filter?**
-- If you don't have perfect essences, filter them out
-- If you want the most common craft, stick to "Normal"
-
-#### Common Mistakes to Avoid
-
-❌ **Selecting conflicting modifiers:**
-```
-Bad: Selecting both "+# to maximum Life" (T1) and "#% increased maximum Life" (T1)
-Why: Both are in the "LifePrefix" family
-```
-
-✅ **Correct approach:**
-```
-Good: Select "+# to maximum Life" (T1) from prefixes
-     Select "+#% to Fire Resistance" (T1) from suffixes
-Why: Different families, no conflict
-```
-
-❌ **Mixing impossible combinations:**
-```
-Bad: Selecting 3 normal prefixes + 1 perfect essence prefix = 4 prefixes
-Why: Only 3 prefix slots available
-```
+Press **Find plans**. The solve runs in a Web Worker, so the page stays responsive; you get a progress
+bar and a **Cancel** button. Long solves are normal — see [Search effort](#search-effort).
 
 ---
 
-### Step 3: Understanding Modifier Families
+## Reading the results
 
-**What are modifier families?**
+### Your options — the plan cards
 
-Modifier families are groups of related modifiers that cannot coexist on the same item. This is a Path of Exile 2 game mechanic.
+The heading reads **"Your options — cheapest to surest"**. Each card is one plan: a fixed sequence of
+currencies, with per-step odds. The set of cards is a **Pareto frontier** — every plan on it is either
+cheaper or likelier than every other, so none of them is strictly worse than another. There is no single
+"best"; there's a trade.
 
-**Example Families:**
+On each card:
 
-**LifePrefix Family:**
-- "+# to maximum Life"
-- "#% increased maximum Life"
-- "Regenerate # Life per second"
+| Figure | What it means |
+|---|---|
+| **expected cost** | Total exalt-equivalents to *finish*, averaged over retries — i.e. cost per attempt divided by the chance an attempt lands |
+| **chance per attempt** | Probability that one run of this exact sequence produces the item |
+| **≈ n attempts** | How many runs it takes on average |
+| **per attempt** | What a single run costs, whether or not it works |
 
-**WeaponDamagePrefix Family:**
-- "Adds # to # Physical Damage"
-- "#% increased Physical Damage"
-- "+# to Accuracy Rating"
+Badges:
 
-**Why this matters:**
+- **best value** — the plan with the best cost-to-success trade; highlighted with a ring
+- **cheapest** — lowest expected cost
+- **surest** — highest chance per attempt
 
-If you select:
-1. "+# to maximum Life" (from LifePrefix family)
+A **very** low chance per attempt (say 0.000001%) with a huge expected cost is the app telling you this
+craft is not realistic as a fixed recipe. That's information, not a bug — and it's exactly the case where
+the **True expected cost** panel below will show a far smaller number, because a real crafter doesn't
+restart from white every time.
 
-You **CANNOT** also select:
-2. "#% increased maximum Life" (also from LifePrefix family)
+### True expected cost — and why it's lower
 
-The application will:
-- Gray out conflicting modifiers
-- Show a warning if you try to select them
-- Prevent you from starting a simulation with conflicts
+Below the plan cards sits a single figure: **True expected cost**.
 
-**How to check:**
+The plan cards price a *script*: do these steps, and if any step misses, throw the item away and start
+again. That's a fair model of crafting from a white base you can rebuy, and it's how nearly every
+crafting calculator works.
 
-Hover over any modifier to see:
-- Modifier name
-- Tier options
-- **Family name** (e.g., "Family: LifePrefix")
-- Source type
+It's also not how anyone actually crafts. If you Exalt onto a Rare and get the wrong mod, you don't bin
+it — you look at what you're holding and pick the best move *from there*: annul it off, chaos it, or
+accept it and carry on.
 
----
+The **True expected cost** is the cost of doing that optimally. The engine builds the full set of item
+states you can reach, works out every legal move from each one, and solves for the policy that minimises
+expected cost — a Markov decision process, solved by policy iteration. The number it produces is the
+real one, and it is often *dramatically* lower than the cheapest plan card, because recovering in place
+beats restarting.
 
-### Step 4: Start Crafting Simulation
+**Which should you follow?** The policy, when it's available — it's a better strategy. The plan cards
+are the readable version: a sequence you can follow without consulting the app after every orb. Use the
+cards to understand the route, the true cost to understand the price.
 
-**Purpose:** Calculate the optimal crafting paths to achieve your desired modifiers.
+### The bound markers: "≥ x" and "≤ x"
 
-**How to:**
-1. Ensure you've selected:
-   - An item type
-   - Between 1 and 6 modifiers total (prefixes + suffixes)
-   - No conflicting modifier families
+Sometimes the cost is printed as **"≥ 480 ex"** or **"≤ 480 ex"** rather than a bare number. This is
+deliberate and it matters.
 
-2. Click the **"Start Simulation"** button
+The policy solver iterates until the answer stops moving. If it hits its time or sweep limit first, it
+stops with a value that hasn't settled — and the app knows *which side of the truth* that value is on:
 
-3. Wait for the calculation:
-   - Complex crafts (6 modifiers): ~2-30 seconds
+- **≥ x** — the true cost is at least this. The solve was still finding improvements.
+- **≤ x** — the true cost is at most this. The solver had a working policy but hadn't proved it optimal.
+- **no marker** — the solve converged. This is the exact answer.
 
-**What happens during simulation:**
+Raise **Search effort** and run it again to turn a bound into an exact figure. The app will never print
+a confident number it hasn't earned.
 
-The algorithm:
-1. Explores millions of possible crafting sequences
-2. Applies all available currencies in different orders
-3. Calculates probabilities for each path
-4. Ranks paths by success rate
-5. Returns the top 10-20 most efficient paths
+### The policy graph
 
-**If simulation fails:**
+**Step-by-step routes** expands the policy into something you can read. Each node is an item state; each
+edge is a move. Click any state to highlight the route through it and dim the rest.
 
-The simulation might not find any paths if:
-- Your desired modifiers are impossible to achieve together (conflicting families)
-- The threshold is too high (try lowering it in settings)
-- The combination is extremely rare (algorithm couldn't find it in time limit)
+A state shows:
 
----
+| Field | Meaning |
+|---|---|
+| **Target mods held** | Which of your targets this item already has |
+| **Stuck below tier** | Target mods present but rolled too low — they need rerolling, not adding |
+| **Junk to clear** | Non-target mods occupying slots you need |
+| **Placed by a Desecration** | Desecrated mods, which behave differently under Annulment |
+| **Cost to finish** | Expected cost from *this* state onward |
+| **Best move** | What the optimal policy does here |
 
-### Step 5: Review Results
-
-**Purpose:** Choose the best crafting path and understand the success probability.
-
-#### Understanding the Results Display
-
-Each result shows:
-
-**1. Success Probability**
-```
-Probability: 0.00002359% (1 in 4,239,159)
-```
-- Shows chance of success for this exact path
-- Higher is better
-- "1 in X" format shows expected number of attempts
-
-**2. Expected Cost**
-```
-Expected Transmutes: ~4.2 million
-Expected Regals: ~4.2 million
-Expected Exalts: ~500,000
-```
-- Approximate currency needed to succeed
-- Multiply probability by currency used per attempt
-
-**3. Step-by-Step Path**
-```
-Step 1: Transmutation Orb → Adds 50-100 Physical Damage (T1)
-Step 2: Augmentation Orb → +30% Attack Speed (T1)
-Step 3: Regal Orb → +80 Life (T1)
-Step 4: Exalted Orb → +50% Crit Chance (T1)
-Step 5: Essence of Contempt (Dextral Omen) → +45% Fire Res (T1)
-Step 6: Essence of Hatred (Dextral Omen) → +45% Cold Res (T1)
-```
-
-**4. Detailed Probability Breakdown**
-
-Each step shows:
-- Currency used
-- Modifier obtained
-- Probability of success for that specific step
-- Cumulative probability up to that point
-
-#### Interpreting Results
-
-**High Probability Paths (>0.1%):**
-- Achievable with reasonable effort
-- Expected attempts: <1,000
-- Recommended for most crafts
-
-**Medium Probability Paths (0.001% - 0.1%):**
-- Requires dedication and currency investment
-- Expected attempts: 1,000 - 100,000
-- Feasible for valuable items
-
-**Low Probability Paths (<0.001%):**
-- Extremely rare outcomes
-- Expected attempts: >100,000
-- Consider alternative modifier combinations
-
-#### Example Result Interpretation
-
-```
-Path A: Probability 0.05% (1 in 2,000)
-  Step 1: Transmute → +100 Phys Damage (1/80 = 1.25%)
-  Step 2: Augment → +30% Attack Speed (1/40 = 2.5%)
-  Step 3: Regal → +80 Life (1/38 = 2.63%)
-  Step 4: Exalt → +50% Crit (1/35 = 2.86%)
-  Total: 0.0125 × 0.025 × 0.0263 × 0.0286 = 0.05%
-```
-
-**What this means:**
-- You'll need about 2,000 attempts to succeed
-- Each attempt costs: 1 Transmute + 1 Augment + 1 Regal + 1 Exalt
-- Total cost: 2,000 of each currency
+If it says *"No route to show yet"*, the solve stopped before the policy settled — same fix as above,
+raise Search effort.
 
 ---
 
-## Advanced Tips
+## I have an item
 
-### Tip 1: Use Essences Strategically
+Enter the base, the item level, the rarity, and the mods currently on it. Then pick one of two
+sub-modes.
 
-**Perfect Essences:**
-- Guarantee a specific modifier
-- Use them for the hardest-to-hit modifiers
-- Combine with omens to protect good modifiers
+### Quick currency check
 
-**Example:**
-```
-Instead of: Hoping to exalt +50% Crit Chance (1/35 chance)
-Do: Use Essence of Contempt (100% chance)
-```
+*"I'm holding this. What does one orb do?"*
 
-### Tip 2: Omen Usage
+Choose a **Mod to add** and/or a **Mod to sacrifice (Chaos / Annul)**, and the **Currency options** list
+shows, for every currency that can legally apply: the chance a **single orb** does exactly what you
+asked, and what that orb costs.
 
-**Omens modify currency behavior:**
+This is a per-orb number, not a plan. How many orbs it takes overall depends on what you do after a
+miss — that's the other sub-mode.
 
-**Dextral Omen:**
-- Removes 1 suffix when used with essence
-- Keeps prefixes intact
-- Perfect for protecting good prefix rolls
+Where a currency can't apply, the row says why rather than hiding.
 
-**Example:**
-```
-Item: 3 good prefixes, 2 bad suffixes
-Use: Essence + Dextral Omen
-Result: 3 prefixes kept, 1 suffix removed, 1 new suffix from essence
-```
+### Full plan to a target
 
-### Tip 3: Start Simple
+*"I'm holding this. Get me to that."*
 
-**For new players:**
-1. Start with 2-3 modifier crafts
-2. Learn the interface
-3. Understand probability calculations
-4. Graduate to 4-6 modifier crafts
+Set **What should the item end up as?** — the **final** mods you want. **Copy my current mods** seeds it
+from what you have. Anything on your item that isn't in the target list is treated as junk and will be
+removed; anything that *is* in the list is kept, not re-rolled.
 
-**Progression:**
-```
-Beginner: 2 modifiers (0.1% - 1% success rate)
-    ↓
-Intermediate: 3-4 modifiers (0.01% - 0.1% success rate)
-    ↓
-Advanced: 5-6 modifiers (0.001% - 0.01% success rate)
-    ↓
-Expert: Perfect 6-mod T1 items (0.0001% - 0.001% success rate)
-```
+Then **Compute plan**. You get the same two views as the Lab: plan cards, and the true expected cost with
+its policy.
 
-### Tip 4: Compare Multiple Paths
+### Why this tab reads differently
 
-The app shows multiple paths for a reason:
+Look closely and the plan cards here show different figures: **chance per attempt** and **what one run
+costs**, ordered *likeliest first*, with a **likeliest** badge instead of *best value*.
 
-**Path A:** Higher probability, uses common currencies
-**Path B:** Lower probability, but uses essences you already have
-**Path C:** Medium probability, but shorter sequence
+The reason is honest bookkeeping. The expected-cost model assumes a failure costs you nothing but a
+restart — you buy another white base. That's true from white. It is **fiction** for the Rare in your
+stash: you only have one of it.
 
-**Choose based on:**
-- Your currency availability
-- Time you want to spend
-- Value of the final item
+Under that fiction the ranking actually inverts and produces nonsense. An Orb of Annulment costs about
+159 ex against an Exalt's 1 ex, so a plan that hides its Annulments behind a 0.1% gate you rarely reach
+"saves" roughly 65× on paper — and the "cheapest" plan becomes one no player would ever run. So on this
+tab the total and the attempt count are dropped, the likeliest route leads, and the two figures that
+survive are the ones you can act on: **how often one run lands**, and **what one run costs**.
 
-### Tip 5: Tier Flexibility
+The **True expected cost** panel below is unaffected and remains the number to trust — the policy solver
+never assumed a free restart.
 
-If a T1 craft is too expensive:
+---
 
-**Try lowering tiers:**
-```
-T1: +80-100 Life (very rare)
-   ↓
-T2: +70-79 Life (more common)
-   ↓
-Cost reduction: Often 5-10x more likely
-```
+## Budget mode
 
-**Check results:** Re-run simulation with T2 tiers to see cost difference
+Type a number into **Budget (exalts, optional)** and a new panel appears: **Closest crafts for N ex**.
+
+This answers *"what is the best item this money can actually finish?"* — not *"what's the average cost
+of my dream item"*, which busts about half the time by definition.
+
+Each row is a real, craftable item, ranked **closest to what you asked for first**, with the probability
+you **finish it for ≤ your budget**. Because the rows get easier as you read down, the odds rise down the
+list, and the last row is the surest thing you can afford.
+
+Row 0 is always your exact target, however hopeless — that's the point of the panel. Use **pin** on a
+target mod to forbid the search from relaxing it.
+
+If the panel says *"No craftable alternative found"*, that is **not** about your budget: the closest item
+is always listed, whatever the odds. It means nothing in the target's neighbourhood could be planned at
+all — usually a tier gated above your item level, or a mod that can't roll on that base.
+
+---
+
+## Search effort
+
+A dropdown next to the compute button, with three settings:
+
+| Setting | Time | Use |
+|---|---|---|
+| **Quick** | a couple of seconds | Likeliest to come back asking for longer instead of an answer |
+| **Standard** | ~25 s on a big budgeted craft | The default |
+| **Exhaustive** | minutes | For crafts nothing shorter can finish — every one measured settled inside five |
+
+Effort is not about accuracy of the maths — every probability shown is exact at every setting. It's about
+whether the search finishes. A higher setting turns "≥ x" bounds into exact answers and finds routes a
+shorter search missed. If a result says it stopped early, this is the control to reach for. When you're
+already on Exhaustive the app says so instead of pointing you at a setting with nothing above it.
+
+---
+
+## Currency I don't have
+
+Don't own Perfect Exalts? Refuse to buy Omens? Expand **Currency I don't have** and mark them. The
+planner then routes around them entirely, rather than quoting you a plan you can't run.
+
+The rule has two levels, and it's worth reading once:
+
+- **Mark a row** — e.g. *Exalted Orbs* — and the **whole group** is excluded: Basic, Greater and Perfect.
+- **Then tick members inside it** — e.g. just *Perfect* — and the exclusion **narrows** to only those.
+  So "I have Basic and Greater Exalts but not Perfect" is: mark *Exalted Orbs*, tick *Perfect*.
+
+Because ticking members narrows rather than widens, unticking your last member widens the exclusion back
+out to the whole group. Every marked row states its effect in words underneath, so you can always read
+what you've actually said.
+
+Groups available: *Chaos Orbs*, *Exalted Orbs*, *Orbs of Annulment*, *Orbs of Alchemy*, *Regal Orbs*,
+*Orbs of Transmutation*, *Orbs of Augmentation*, *Essences* (Lesser / Normal / Greater / Perfect),
+*Desecration (bones)*, *Greater and Perfect orbs and essences* (every strength in one row), and *Omens*
+— all of which are listed individually by name.
+
+Excluding something removes it from both solvers, so the true expected cost respects your exclusions too.
+
+---
+
+## Sharing a workspace
+
+**Copy link** puts a URL on your clipboard that reproduces your current setup — which tab you're on,
+the base, item level, targets and their tiers, alternatives, fractured marks, pins, budget, base cost,
+and on the item tab the rarity and the mods you entered. Paste it in Discord to ask someone about a
+craft, or keep it as a bookmark. Nothing is uploaded; the whole workspace is encoded in the link itself.
+
+Two settings are deliberately **not** in the link: **Search effort** and **Currency I don't have**. Those
+describe *your* machine and *your* stash, not the craft — a link that silently imposed the sender's
+patience or the sender's missing currency on the recipient would answer a different question than the one
+they thought they were opening.
+
+---
+
+## Where the numbers come from
+
+**The odds are exact.** They're analytic weight-pool calculations over the real 0.5.0 modifier data —
+the same arithmetic the game does, not a simulation. They're differential-tested, cross-checked against
+Craft of Exile, and independently validated by a Monte-Carlo simulator. There is no sampling noise
+because there is no sampling.
+
+**The costs are those odds multiplied by a price sheet.** Currency and omen prices come from
+[poe.ninja](https://poe.ninja) for the live league; the date is printed under every cost figure. Some
+prices — desecration and essences — are still hand-authored estimates, and where that's true the app
+says so in amber rather than quietly.
+
+This matters more than it looks: because the optimizer *ranks plans by cost*, a stale **relative** price
+changes which route it recommends, not just the total on it. Use costs to compare plans; don't budget to
+the last exalt off them.
+
+**One probability is not exact, and the app flags it.** A Desecration used **without** a boss omen draws
+by weight from the combined normal and desecrated pool, and no data source publishes weights for
+desecrated mods. The shipped value is measured in game (40 bone offerings on one base) rather than
+guessed, but one base can't rule out per-category variation. Plans that use an unomened Desecration carry
+a warning; a boss-omened one is count-uniform, ignores weights entirely, and stays exact.
 
 ---
 
 ## Troubleshooting
 
-### "No crafting paths found"
+### "No plans found" / empty results
 
-**Causes:**
-1. Conflicting modifier families selected
-2. Threshold too restrictive
-3. Impossible combination
+In rough order of likelihood:
 
-**Solutions:**
-1. Check for family conflicts (hover over modifiers)
-2. Lower the threshold in settings
-3. Try a different modifier combination
+1. **A tier is gated above your item level.** T1 mods commonly need ilvl 80+. Lower the tier or raise
+   the level.
+2. **A mod can't roll on that base.** Check the mod list — if it isn't offered, it can't roll.
+3. **Two targets are in the same family.** PoE2 allows only one mod per family; two targets from the
+   same family are mutually exclusive.
+4. **You asked for more than 3 prefixes or 3 suffixes.**
+5. **An exclusion closed the only route.** Clear **Currency I don't have** and retry to check.
+6. **The planner genuinely doesn't model that route.** It has no concept of "roll filler and annul it
+   off", so a few real routes are outside its search. The policy solver may still find one.
 
-### "Simulation taking too long"
+### A cost is shown as "≥ x" or "≤ x"
 
-**Causes:**
-1. Very complex 6-modifier craft
-2. System running slow
-3. Background processes
+The solve didn't converge. Raise **Search effort**. See
+[The bound markers](#the-bound-markers--x-and--x) — the marker tells you which side of the truth you're
+on, so a "≤" figure is still a usable ceiling.
 
-**Solutions:**
-1. Wait up to 60 seconds for complex crafts
-2. Close other applications
-3. Reduce number of modifiers temporarily to test
+### It says "stopped early"
 
-### "Nothing happens / results won't appear"
+The search hit its node cap. The ends of the list are solid; the middle is sampled. Raise Search effort
+for a complete list.
 
-The engine runs entirely in the app (there is no backend to connect to), so this is almost always a
-loading or input issue.
+### It's taking a long time
 
-**Causes & solutions:**
-1. **Patch data still loading** — the first compute waits for the data files to fetch; give it a moment.
-2. **Impossible target** — the chosen mods can't coexist (family conflict, too many on one side, or a
-   tier gated above the item level). Adjust the selection.
-3. **Stale build** — if you're running from source, restart the dev server and hard-refresh
-   (`Ctrl/Cmd+Shift+R`) to clear cached assets.
+Big targets are genuinely expensive to solve — six T1 mods is an enormous state space. The solve runs off
+the main thread, so you can keep using the page, and **Cancel** always works. Lower Search effort, or
+relax a tier, or add alternatives with `or`.
 
-### "Modifiers not loading"
+### The numbers changed since last time
 
-**Causes:**
-1. Selected item type not fully loaded
-2. Server error
-3. Data file corruption
+Prices are refreshed from poe.ninja periodically and the engine itself improves. The date under every
+cost figure tells you which sheet you're looking at.
 
-**Solutions:**
-1. Refresh the page (F5)
-2. Check browser console for errors (F12)
-3. Restart the application
-4. Re-clone the repository if data files are corrupted
+### "True expected cost" is much lower than the cheapest plan
 
-### "Wrong probabilities shown"
-
-**Causes:**
-1. Out-of-date modifier data
-2. Game patch changed mechanics
-3. Bug in probability calculation
-
-**Solutions:**
-1. Check for application updates
-2. Report the issue on GitHub with:
-   - Item type
-   - Modifiers selected
-   - Expected vs actual probability
-3. Compare with community crafting guides
+That's expected and correct — see
+[True expected cost](#true-expected-cost--and-why-its-lower). The plan restarts from scratch on a miss;
+the policy recovers in place.
 
 ---
 
-## Understanding PoE2 Crafting Mechanics
+## PoE2 crafting, briefly
 
-### Rarity Tiers
+Enough to read the app; not a crafting guide.
 
-**Normal (White):**
-- 0 modifiers
-- Use Transmutation Orb to upgrade to Magic
+### Rarity
 
-**Magic (Blue):**
-- 1-2 modifiers (1 prefix and/or 1 suffix)
-- Use Regal Orb to upgrade to Rare
+| Rarity | Mods |
+|---|---|
+| **Normal** (white) | none |
+| **Magic** (blue) | up to 1 prefix + 1 suffix |
+| **Rare** (yellow) | up to 3 prefixes + 3 suffixes |
 
-**Rare (Yellow):**
-- 3-6 modifiers (up to 3 prefixes + 3 suffixes)
-- Cannot be downgraded
+Rarity goes up, not down — a Transmutation makes white into Magic, a Regal makes Magic into Rare. An
+Orb of Annulment removes a mod but does **not** downgrade rarity, which is what makes several recovery
+routes possible.
 
-### Crafting Currencies
+### Currencies the engine models
 
-**Basic Currencies:**
-- **Transmutation Orb**: Normal → Magic (adds 1 random modifier)
-- **Augmentation Orb**: Magic → Magic (adds 1 random modifier)
-- **Regal Orb**: Magic → Rare (adds 1 random modifier)
-- **Exalted Orb**: Rare → Rare (adds 1 random modifier)
-- **Annulment Orb**: Removes 1 random modifier
+| Currency | What it does |
+|---|---|
+| **Orb of Transmutation** | White → Magic, with one random mod |
+| **Orb of Augmentation** | Adds the second mod to a Magic item |
+| **Regal Orb** | Magic → Rare, adding one mod |
+| **Exalted Orb** | Adds a mod to a Rare with a free slot |
+| **Chaos Orb** | Removes a random mod and adds a new one |
+| **Orb of Annulment** | Removes a random mod |
+| **Orb of Alchemy** | White → Rare with a full set of mods |
+| **Essences** | Guarantee a specific mod. Lesser / Normal / Greater / Perfect |
+| **Bone offerings (Desecration)** | Place a desecrated mod |
 
-**Essences:**
-- Guarantee a specific modifier
-- Reroll all other modifiers
-- Perfect Essences: Highest tier guaranteed
+**Strengths.** Transmutation, Augmentation, Regal, Exalted and Chaos all come in **Basic**, **Greater**
+and **Perfect**. A stronger orb raises the *minimum tier* the roll can produce — which is not always an
+improvement: raising the floor also deletes low tiers from the pool, so a Perfect orb can be *worse* for
+a mod whose good tiers sit low. The engine searches all three and picks per step.
 
-**Desecrated Currency:**
-- Adds specific low-tier modifiers
-- Useful for filling slots strategically
+**Omens** modify the currency used with them — the ones the engine models are Sinistral (prefix side),
+Dextral (suffix side), Light, Crystallisation, Necromancy, the Blackblooded, the Liege and the Sovereign.
+A *Dextral Exaltation* constrains an Exalt to add a **suffix**; a *Dextral Annulment* constrains an
+Annulment to remove one; a *Dextral Crystallisation* constrains a Perfect Essence's removal. They are
+different omens for different currencies — check what the plan step actually names before buying.
+
+### Families
+
+Mods belong to families and an item can hold only one mod per family. This is why "increased Physical
+Damage" and "increased Physical Damage and Accuracy" can't coexist. The engine enforces it everywhere,
+including in the policy solver's state space.
 
 ---
 
 ## FAQ
 
-**Q: Can I craft items with only perfect essence modifiers?**
-A: No, perfect essence modifiers can only be obtained from perfect essences. You must have access to those essences.
+**Do I need to install anything?** No. It's a web page.
 
-**Q: Why does the probability seem so low?**
-A: PoE2 crafting is designed to be challenging. Perfect 6-mod items are intentionally very rare. The app shows realistic probabilities.
+**Does it send my data anywhere?** No. The engine runs in your browser; the only network request is
+loading the page and its data files.
 
-**Q: Can I save my crafting plans?**
-A: Not yet, but this feature is planned for a future update.
+**Which patch does it model?** 0.5.0.
 
-**Q: Does this work for Unique items?**
-A: No, unique items cannot be crafted. This tool is for rare items only.
+**Are the probabilities accurate?** They are exact, with one flagged exception (unomened Desecration —
+see [Where the numbers come from](#where-the-numbers-come-from)). They're cross-checked against Craft of
+Exile and a Monte-Carlo simulator.
 
-**Q: Can I use this for Influenced items?**
-A: Currently, influenced items are not supported. This may be added in future updates.
+**Are the costs accurate?** They're as accurate as the price sheet, whose date is printed under every
+figure. Currency and omens are live poe.ninja data; desecration and essence prices are estimates. Compare
+plans with them; don't budget to the exalt.
 
-**Q: How accurate are the probabilities?**
-A: Very accurate. The calculations are based on the actual game mechanics and modifier weights.
+**Why do the two cost figures disagree?** They answer different questions — a fixed recipe versus optimal
+play. See [True expected cost](#true-expected-cost--and-why-its-lower).
 
-**Q: Can I share crafting paths?**
-A: You can screenshot the results or manually copy the steps. Export/share functionality is planned.
+**Can it plan for belts?** Not yet. Every other equipment category works.
+
+**Does it support Omen of Whittling / Greater Exaltation?** Not yet — both are on the roadmap.
+
+**Why can't I target a Perfect-Essence-only mod from scratch?** The from-white planner doesn't model the
+remove-and-add-on-Rare flow those need. Use the **I have an item** tab, which does.
 
 ---
 
 ## Glossary
 
-**Affix**: General term for modifiers (prefixes or suffixes)
-**Prefix**: Modifier that occupies a prefix slot (max 3)
-**Suffix**: Modifier that occupies a suffix slot (max 3)
-**Tier**: Quality level of a modifier (T1 = best, T5 = worst)
-**Family**: Group of related modifiers that conflict
-**Weight**: A modifier's roll weight; its odds are its weight over the addable pool's total
-**Pareto frontier**: The set of plans where none is both cheaper and likelier — the cost/odds trade-off curve
-**Expected cost**: Average currency spend to succeed, in exalt-equivalents (accounts for retries)
-**Omen**: Currency modifier that changes crafting behavior
-**Essence**: Currency that guarantees a specific modifier
-**Exalt**: Short for Exalted Orb
-**Regal**: Short for Regal Orb
-**Aug**: Short for Augmentation Orb
-**Trans**: Short for Transmutation Orb
-**Annul**: Short for Annulment Orb
+| Term | Meaning |
+|---|---|
+| **Affix** | A prefix or suffix |
+| **Tier** | Quality band of a roll. T1 is best; higher tiers need higher item level |
+| **Family** | Group of mutually exclusive mods; one per item |
+| **Pareto frontier** | The set of plans where none is both cheaper and likelier than another |
+| **Expected cost** | Cost per attempt ÷ chance per attempt — the average total to finish |
+| **True expected cost** | Expected cost under *optimal play*, recovering after bad rolls instead of restarting |
+| **Policy** | The rule "in this state, do this" — what the MDP solves for |
+| **ex** | Exalted Orb, the unit costs are quoted in |
+| **ilvl** | Item level; gates which tiers can roll |
+| **Fractured** | A mod locked onto the item; can't be removed or rerolled |
+| **Desecrated** | A mod that only a Bone offering can place |
 
 ---
 
-## Getting Help
+## Getting help
 
-**Community Resources:**
-- [GitHub Issues](https://github.com/Dboire9/POE2_HTC/issues) - Bug reports and feature requests
-- [GitHub Discussions](https://github.com/Dboire9/POE2_HTC/discussions) - Questions and community help
-- [PoE2 Wiki](https://www.poewiki.net/wiki/Path_of_Exile_2) - Game mechanics reference
+- **[Discord](https://discord.gg/RvxCWyFF3D)** — fastest, and the best place for "is this craft sane?"
+- **[GitHub Issues](https://github.com/Dboire9/POE2_HTC/issues)** — bugs, with the **Copy link** URL for
+  the workspace that shows the problem
+- **[GitHub Discussions](https://github.com/Dboire9/POE2_HTC/discussions)** — feature ideas
 
-**Reporting Bugs:**
-1. Check existing issues first
-2. Provide detailed steps to reproduce
-3. Include screenshots if applicable
-4. Mention your OS and application version
+The app also has a **Report a problem** control. It builds a complete report — app version, patch,
+price basis, and the craft you were running — as a block you copy and paste wherever you like: Discord,
+a GitHub issue, a message to a friend. It doesn't file anything for you.
+
+---
+
+*This is a third-party tool and is not affiliated with or endorsed by Grinding Gear Games.*

@@ -2,7 +2,7 @@ name: Refresh prices
 
 # The optimizer RANKS plans by cost, so a stale *relative* price changes which route it recommends,
 # not just the total printed on it. `npm run update-prices` has always existed and always depended on
-# someone remembering; this runs it every Monday and opens a pull request with the result.
+# someone remembering; this runs it daily and opens a pull request with the result.
 #
 # A pull request, not a push, on purpose: a bad feed (poe.ninja down, a renamed currency id, a league
 # rollover) must not reach the site unreviewed. The refresh script prints every price that moved and by
@@ -10,8 +10,20 @@ name: Refresh prices
 
 on:
   schedule:
-    # Monday 06:00 UTC. A scheduled run always uses the default branch, which is what the PR targets.
-    - cron: '0 6 * * 1'
+    # Daily, 06:00 UTC. A scheduled run always uses the default branch, which is what the PR targets.
+    #
+    # Daily rather than weekly, and it costs poe.ninja almost nothing: one run is FOUR requests
+    # (/leagues, then the Currency, Abyss and Essences overviews), from one runner, with a descriptive
+    # User-Agent. Their stated ask — quoted in prices.mjs's header — is that clients not call the
+    # endpoints from end-user machines; the committed-snapshot design already honours that, and a
+    # thousand players still generate zero requests. This moves 4 requests, not 4,000.
+    #
+    # It is also self-throttling in two ways that make daily cheap to LIVE with, which was the real
+    # question. If no price moved the job stops at the diff check and opens nothing, so quiet weeks
+    # stay silent. And because it force-pushes one fixed branch, daily updates a single PR rather than
+    # stacking seven — with the diff always measured against the default branch, so what a reviewer
+    # reads is "everything since the last merge" rather than "since yesterday".
+    - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       league:

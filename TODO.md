@@ -603,8 +603,13 @@ new `updated` date.
 clients not to call the API directly; the committed-snapshot design is right (the header comment in
 `prices.mjs` explains it). Automate the snapshot, do not replace it.
 
-**DONE 2026-09-01** (`3d8bc5e`). `.github/workflows/refresh-prices.yml`, Monday 06:00 UTC plus
-`workflow_dispatch`. A dry run while writing it found **18 prices already moved** since the 2026-08-22
+**DONE 2026-09-01** (`3d8bc5e`). `.github/workflows/refresh-prices.yml`, **daily at 06:00 UTC** plus
+`workflow_dispatch`. (The plan above said weekly; daily was chosen on 2026-09-01 after costing it. One
+run is FOUR poe.ninja requests — `/leagues` plus three overviews — from one runner, so daily moves 4
+requests where the committed-snapshot design already saves thousands: a player never calls poe.ninja at
+all, which is the thing they actually ask for. It is self-throttling on the review side too: no price
+movement means no PR, and the fixed branch means daily refreshes ONE PR rather than stacking seven,
+with the diff always against the default branch so a reviewer reads "since the last merge".) A dry run while writing it found **18 prices already moved** since the 2026-08-22
 sheet, so the premise was live rather than theoretical. Three departures from the plan above, each for
 a reason worth keeping: (1) the shape tests run in the REFRESH JOB, not on the PR — a PR opened with
 the built-in `GITHUB_TOKEN` does not trigger workflows, so "CI will catch it on the PR" would have

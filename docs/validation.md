@@ -2333,6 +2333,145 @@ seeing, and replaying it untagged files it in the wrong place), and `sentry.test
 three: the live path, the queue replay, and the queue's 20-item cap.
 
 
+## The from-item planner learns orb strength, by decomposing it (2026-09-01)
+
+`baseTransforms` set no `tier` on any add, so every plan the from-item planner built used a
+base-strength orb; it reported `currencyDepth: 'base-only'` and the badge said so. TODO 5 proposed
+copying the from-white **estimate-then-reduce throttle**. Three measurements said that was the wrong
+fix, and a fourth said a better one was available.
+
+### 1. The naive product is unusable, and the throttle would have been worse than slow
+
+Skeleton count for `j` junk and `m` missing rollable mods is `Σ_c C(j,c)·C(m,c)·c!·(j+m−c)!`. Measured
+against the real planner, the model is exact — `j=2, m=5` gives 14,640 skeletons and **295,680 plans in
+3.6–3.9 s**, reproducing the figure recorded in `fromItem.ts`.
+
+Running the code's own `estimate()` ladder at its default `maxPlans` of 100,000:
+
+| craft (j, m) | plans today | at `full` | at `base+strongest` | rung it would pick |
+|---|---|---|---|---|
+| j=1, m=4 | 2,688 | 217,728 | 43,008 | `base+strongest` |
+| j=3, m=3 | 10,980 | 296,460 | 87,840 | `base+strongest` |
+| j=2, m=4 | 20,352 | 1,648,512 | 325,632 | **`strongest-only`** |
+| j=3, m=4 | 168,192 | 13,623,552 | 2,691,072 | **`strongest-only`** |
+| j=2, m=5 | 295,680 | 71,850,240 | 9,461,760 | **`strongest-only`** |
+
+`reduceOrbTiers` at `strongest-only` returns `[strongest]` — it **drops base entirely**. So on every
+craft big enough to need the throttle it would have deleted the cheap end of the frontier this planner
+returns today: not a wider search, a changed answer. There is no rung equal to today's behaviour and
+the ladder has no fourth branch to add one to.
+
+### 2. The axis does not need enumerating
+
+`applyStep` reads only `currency` / `remove` / `add` / `adds` / `essenceTier` — never `tier`,
+`constrainTo` or `omen` — and `stepProbability` is pure in `(data, state, step)` on all ten branches.
+So the state trajectory is fixed by the skeleton and the levers move only price and probability. That
+makes the cost separable: `E = (Σ c_k·S_{k−1})/S_n = Σ_k c_k / T_k` with `T_k = Π_{i≥k} p_i` the SUFFIX
+product, so `T_k = p_k·T_{k+1}` and `E_k = E_{k+1} + c_k/T_k` — a backward DP over the steps.
+
+Pruning it is exact rather than heuristic. For `T_a ≥ T_b`, `E_a ≤ E_b`, extending both by `(p, c)`
+gives `p·T_a ≥ p·T_b` and `E_a + c/(p·T_a) ≤ E_b + c/(p·T_b)`, so domination survives every extension.
+Needs `c ≥ 0` and `p > 0`; `leverOptions` guarantees both. `leverDp.test.ts` checks it against an actual
+brute force on eight skeleton shapes plus the live sheet, rather than taking the algebra's word.
+
+### 3. It is FASTER, and it searches ~192x more
+
+Interleaved within each rep — A then B, per craft, per rep — because this machine has a documented ~40%
+wall-clock spread and two opposite conclusions have already been drawn here from batched runs. Medians
+of 3, all reps shown.
+
+| craft | old | new | | plans old → new |
+|---|---|---|---|---|
+| wand j2 m5 T1 | **3,667 ms** [3667, 4599, 3459] | **1,050 ms** [1037, 1050, 1110] | **3.49x** | 295,680 → 56,687,040 |
+| wand j2 m5 T3 | 3,950 ms [3950, 3882, 4425] | 1,209 ms [1209, 1199, 1338] | **3.27x** | 295,680 → 56,687,040 |
+| wand j2 m5 any | 3,638 ms [3638, 3602, 3869] | 1,039 ms [1039, 1026, 1161] | **3.50x** | 295,680 → 56,687,040 |
+| wand j2 m4 T1 | 239 ms [239, 237, 278] | 140 ms [137, 140, 178] | 1.71x | 20,352 → 1,648,512 |
+| wand j2 m4 T3 | 211 ms [211, 206, 238] | 127 ms [127, 123, 140] | 1.66x | 20,352 → 1,648,512 |
+| wand j3 m3 T3 | 100 ms [100, 100, 108] | 114 ms [114, 107, 123] | **0.88x** | 10,980 → 296,460 |
+| wand j2 m3 T3 | 14 ms [15, 12, 14] | 15 ms [18, 15, 14] | **0.93x** | 1,608 → 43,416 |
+| armour j2 m3 T3 | 12 ms [13, 11, 12] | 14 ms [15, 13, 14] | **0.86x** | 1,608 → 43,416 |
+
+**It loses 7–14% on the small crafts and wins 3.5x on the big ones**, and the reason is visible in the
+counts: the DP replaces the omen power set, so it pays off in proportion to how many `2^k` variants it
+deletes. A skeleton heavy in annuls and chaos swaps has few omen levers to save and the DP's per-step
+enumeration is not yet repaid. Those crafts run in 12–115 ms, where 14 ms is not a wait; the ones that
+were seconds are the ones that got faster.
+
+### 4. The answers moved, a long way
+
+Best success-per-attempt on the frontier, old against new:
+
+| craft | old | new | |
+|---|---|---|---|
+| wand j2 m5 T1 | 1.407e-14 | 4.533e-11 | **322x** |
+| wand j2 m5 T3 | 3.082e-10 | 5.771e-08 | **187x** |
+| wand j2 m4 T3 | 1.655e-08 | 8.133e-07 | 49x |
+| wand j1 m2 T3 | 3.474e-04 | 5.910e-03 | 17x |
+| wand j2 m5 any | 4.763e-07 | 7.772e-07 | 1.63x |
+
+The frontier also got longer — `j2 m5 T1` went from **1 row to 5**, `j2 m4 T3` from 6 to 15 — which is
+the point: an orb strength is a cost↔probability trade, so each one that survives is a real choice the
+panel can offer. The dearest row's per-attempt cost rose in step (356 ex → 2,673 ex on `j2 m4 T3`).
+
+Note the **any-tier** row. It moved 1.63x, and it is the reason this must NOT reuse `legalOrbTiers`:
+that function reads `tiers[minTierIndex].ilvl` (≈1 for an any-tier target), finds every strength floor
+above it, and concludes `['base']`. But a Greater orb is legal on an any-tier target — a better tier
+still satisfies "any tier or better". Reusing it would have shipped the whole axis as a no-op for the
+commonest from-item target there is. `leverOptions` filters on `p > 0` instead, which is exact and
+needs no guess. **The same hole is live in `optimizePareto`, which reports `full` — "tried every orb
+strength" — on any-tier crafts where it tried one.** See TODO.
+
+### 5. The carried frontier does not blow up
+
+Measured over three real 5-target crafts, 72,900 backward DP steps each:
+
+| targets | peak carried frontier | cap |
+|---|---|---|
+| T1 | 6 | 256 |
+| T3 | 11 | 256 |
+| any tier | 9 | 256 |
+
+A contraction argument says why, rather than luck: subtracting two extensions gives
+`E'_a − E'_b = (E_a − E_b) − (c/p)·(1/T_b − 1/T_a)`, so every step that costs anything erodes the gap
+between two incomparable points until one dies. `MAX_FRONTIER` has never been observed to bind; when it
+does it sets `truncated`, because a capped frontier is a SUBSET and the app must say so.
+
+### 6. The regression, and where it actually lives
+
+`alternativesFromItem` runs one from-item search per relaxed node, then `planCostCdf` per frontier plan
+per node. Interleaved, `maxNodes: 200`:
+
+| craft | old | new | |
+|---|---|---|---|
+| T3 3-target | 8,714 ms | 11,132 ms | **0.78x** |
+| T1 3-target | 9,229 ms | 12,247 ms | **0.75x** |
+| T3 4-target | 39,430 ms | 34,140 ms | 1.15x |
+
+A 25–33% regression on the 3-target shapes. Diagnosed rather than assumed:
+
+| costCells | old | new | plans handed to `planCostCdf` |
+|---|---|---|---|
+| 200,000 (shipped default) | 8,802 ms | 10,699 ms | 1,120 → 1,447 |
+| 2,000 | 1,213 ms | 1,283 ms | 1,120 → 1,447 |
+
+**`planCostCdf` is 86% of a from-item alternatives run** — 8,802 ms falls to 1,213 ms when the cell cap
+drops 100x. The planner itself accounts for 70 ms of the 1,897 ms difference; the rest is 327 extra
+frontier rows (+29%, the widened search doing its job) multiplied by a CDF that is running a
+200,000-cell fallback sweep. `exactQuantum` fails on the live sheet — 4.796, 8.561, 98.47, 0.9274 are
+not commensurable at ≤6 dp — so the "real sheets give a 0.1 quantum ⇒ ~2000 cells" note in `cost.ts`
+does not hold for the sheet the app ships. That is a much larger fish than this regression and it is
+recorded in TODO rather than fixed here.
+
+### 7. A latent mispricing this armed, fixed first
+
+`currencyKey` gated its `_greater`/`_perfect` suffix on transmute/augment/regal/exalt — **chaos was not
+on the list** — while `chaosProbability` had forwarded the ilvl floor to `exaltProbability` all along.
+So a tiered chaos landed at better odds and billed at the base price: 33.39 ex instead of 2,058 ex for a
+Perfect Chaos, a **62x underquote**. And `allowsStep` reads the same key, so a player excluding Perfect
+Chaos Orbs — a row the UI offers, and the example `cost.ts` cites — would have been handed a plan built
+on them. Inert while no planner emitted one; chaos is this planner's main transform, so it shipped
+separately and first.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

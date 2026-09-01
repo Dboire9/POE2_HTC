@@ -3,6 +3,7 @@ import type { ItemBase, ItemState, Mod, PatchData } from '../../engine/src/index
 import { loadPatch } from '../../engine/src/index.ts';
 import { optimizeFromItem } from './fromItem.ts';
 import type { Prices } from './cost.ts';
+import { loadPrices } from './loadPrices.ts';
 
 // Synthetic base: prefixes NP1(w20,Fp1) NP2(w30,Fp2); suffix NS1(w50,Fs1). Prefix total 50, suffix 50.
 const mk = (id: string, type: 'prefix' | 'suffix', family: string, weight: number): Mod =>
@@ -338,17 +339,24 @@ describe('optimizeFromItem — real data (Wands)', () => {
 
 // This planner used to read nothing from `opts` but `policy`. The player's Search-effort setting was
 // passed in, obeyed by every other planner, and silently discarded here — so the one control offered
-// for "how long am I willing to wait" did not bind on the slowest half of a from-item compute. It also
-// reported `currencyDepth: 'full'`, which the UI renders as "tried every orb strength", while
-// `baseTransforms` sets no `tier` on any add and so only ever uses base-strength orbs.
+// for "how long am I willing to wait" did not bind on the slowest half of a from-item compute.
+//
+// It also reported `currencyDepth: 'base-only'`, and that was the honest thing to say for as long as
+// `baseTransforms` set no `tier` on any add. The claim inverted when the lever DP arrived: every step
+// is now offered every strength the sheet prices and the player owns, so `'full'` is earned rather
+// than assumed. The assertion below moved with it — which is the point of pinning a claim to the
+// plans rather than to a string.
 describe('optimizeFromItem — limits and what it admits to', () => {
   const start = rareItem(['NP1'], []); // one junk prefix to clear, one target to add
   const targets = [{ modId: 'NP2' }];
 
-  it('never claims to have tried every orb strength, because it tries exactly one', () => {
+  it('claims to have tried every orb strength, and now may', () => {
     const r = optimizeFromItem(data, prices, start, targets);
-    expect(r.currencyDepth).toBe('base-only');
-    // …and the claim matches the plans: not one add carries an orb-strength tier.
+    expect(r.currencyDepth).toBe('full');
+    // On THIS fixture the claim still resolves to base-strength plans, and for two honest reasons: its
+    // mods have a single tier at ilvl 1, below every strength floor, and its sheet lists no `_greater`
+    // key to buy. Both are exactly the cases `leverOptions` is required to skip rather than fake, so
+    // this doubles as a check that a thin sheet cannot mint a free Perfect orb.
     for (const p of r.frontier) {
       for (const s of p.steps) expect('tier' in s ? s.tier : undefined).toBeUndefined();
     }
@@ -356,7 +364,7 @@ describe('optimizeFromItem — limits and what it admits to', () => {
 
   it('says so too when the item already matches the target', () => {
     const r = optimizeFromItem(data, prices, rareItem(['NP2'], []), targets);
-    expect(r.currencyDepth).toBe('base-only');
+    expect(r.currencyDepth).toBe('full');
   });
 
   it('runs to completion, and admits nothing was cut, when given no clock', () => {
@@ -435,5 +443,68 @@ describe('optimizeFromItem — a Magic item opens with a Regal', () => {
   it('still refuses a white base, which is the Lab’s job', () => {
     const white: ItemState = { base, level: 100, rarity: 'normal', prefixes: [], suffixes: [] };
     expect(() => optimizeFromItem(data, prices, white, [{ modId: 'NP2' }])).toThrow(/white base/i);
+  });
+});
+
+/**
+ * THE AXIS, END TO END, ON THE SHIPPED SHEET.
+ *
+ * The synthetic fixture above cannot show this: single-tier mods at ilvl 1 put every strength floor out
+ * of reach, and its price sheet lists no `_greater` key to buy. So the claim that this planner now
+ * varies orb strength has to be made against the data the app actually runs on, or it is a claim about
+ * a `currencyDepth` string and nothing else.
+ *
+ * Worth 1,116x on the craft that prompted this (success per attempt 1.53e-10% at base strength against
+ * 1.71e-7% at Perfect), measured 2026-08-23 while the axis was still missing.
+ */
+describe('optimizeFromItem — orb strength on real 0.5.0 data', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const wand = real.bases.get('Wands')!;
+  const tierName = (id: string): string => real.mods.get(id)!.tiers[0]!.name;
+  const P = wand.pools.normal.prefixes;
+  const S = wand.pools.normal.suffixes;
+  const start: ItemState = {
+    base: wand, level: 82, rarity: 'rare',
+    prefixes: [{ modId: P[0]!, tierName: tierName(P[0]!) }], suffixes: [],
+  };
+  /** A high tier, so the target is one an orb's ilvl floor can help reach. */
+  const hi = (id: string): { modId: string; minTierIndex: number } =>
+    ({ modId: id, minTierIndex: real.mods.get(id)!.tiers.length - 2 });
+
+  it('buys a Greater or Perfect orb when it is worth it', () => {
+    const r = optimizeFromItem(real, rp, start, [hi(P[1]!), hi(S[0]!)]);
+    expect(r.currencyDepth).toBe('full');
+    const strengths = new Set(r.frontier.flatMap((p) => p.steps.map((s) => ('tier' in s ? s.tier : undefined) ?? 'base')));
+    expect(strengths.size).toBeGreaterThan(1);
+  });
+
+  /**
+   * And it is a TRADE, not a free upgrade — which is what makes it belong on a Pareto frontier at all.
+   * The surer plans cost more per attempt; if a stronger orb were strictly better the frontier would
+   * collapse to one row.
+   */
+  it('puts the stronger orbs at the surer, dearer end of the frontier', () => {
+    const r = optimizeFromItem(real, rp, start, [hi(P[1]!), hi(S[0]!)]);
+    expect(r.frontier.length).toBeGreaterThan(1);
+    for (let k = 1; k < r.frontier.length; k++) {
+      expect(r.frontier[k]!.probability).toBeGreaterThan(r.frontier[k - 1]!.probability);
+      expect(r.frontier[k]!.cost.perAttempt).toBeGreaterThan(r.frontier[k - 1]!.cost.perAttempt - 1e-9);
+    }
+  });
+
+  /**
+   * The exclusion promise, on the axis that has just been added. `allowsStep` reads the same
+   * `currencyKey` that prices the orb, so this also pins the `chaos_greater` half of that key — the
+   * one that was missing until this work began.
+   */
+  it('never buys a strength the player says they do not have', () => {
+    const excluded = new Set(['exalt_greater', 'exalt_perfect', 'chaos_greater', 'chaos_perfect',
+      'regal_greater', 'regal_perfect']);
+    const r = optimizeFromItem(real, rp, start, [hi(P[1]!), hi(S[0]!)], { policy: { excluded } });
+    expect(r.frontier.length).toBeGreaterThan(0);
+    for (const p of r.frontier) {
+      for (const s of p.steps) expect('tier' in s ? s.tier : undefined).toBeUndefined();
+    }
   });
 });

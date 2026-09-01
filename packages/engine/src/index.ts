@@ -24,5 +24,5 @@ export { indexPatch } from './indexPatch.ts';
 export type { ModsFile, BasesFile } from './indexPatch.ts';
 export { loadPatch } from './loadPatch.ts';
 
-export { evaluatePlan, evaluatePlanFrom } from './plan.ts';
+export { evaluatePlan, evaluatePlanFrom, planStates, stepProbability } from './plan.ts';
 export type { PlanStep, PlanStepResult, PlanResult } from './plan.ts';

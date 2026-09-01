@@ -83,7 +83,7 @@ function addOpts(step: AddFields & { constrainTo?: AffixType }): CurrencyOptions
 }
 
 /** Probability of `step` given the state immediately before it. Dispatches to the per-step fns. */
-function stepProbability(data: PatchData, state: ItemState, step: PlanStep): number {
+export function stepProbability(data: PatchData, state: ItemState, step: PlanStep): number {
   switch (step.currency) {
     case 'transmute': return transmuteProbability(data, state.base, step.add, { ...addOpts(step), level: state.level });
     case 'augment': return augmentationProbability(data, state, step.add, addOpts(step));
@@ -215,4 +215,33 @@ export function evaluatePlanFrom(data: PatchData, start: ItemState, steps: reado
     state = applyStep(data, state, step);
   }
   return { steps: results, total };
+}
+
+/**
+ * The item state as it stands BEFORE each step of `steps` — `out[k]` is what step `k` acts on.
+ *
+ * Exists so a caller can score one step against its own state without re-deriving the walk.
+ * `evaluatePlanFrom` above threads exactly this sequence and is the only other place that knows it;
+ * a second copy is the shape of failure this project already paid for once (one planner learned
+ * about an omen surcharge, the other did not), so both read the same `applyStep`.
+ *
+ * The walk is well-defined for a plan that cannot actually be run: `applyStep` describes the intended
+ * outcome, and an impossible step scores 0 in `evaluatePlanFrom` rather than throwing. So a caller
+ * gets a state to score against either way, and the 0 is what prunes it.
+ *
+ * WHY A CALLER WOULD WANT THIS. `applyStep` reads only `currency` / `remove` / `add` / `adds` /
+ * `essenceTier` — never `tier`, `constrainTo` or `omen`. So the states this returns are the same for
+ * every choice of orb strength or omen over the same skeleton, which is what lets a search price those
+ * choices one step at a time instead of enumerating their product. That property is load-bearing for
+ * `packages/optimizer/src/levers.ts`; a new field read by `applyStep` would silently break it, which
+ * is why `levers.test.ts` asserts it rather than trusting this comment.
+ */
+export function planStates(data: PatchData, start: ItemState, steps: readonly PlanStep[]): ItemState[] {
+  const out: ItemState[] = [];
+  let state = start;
+  for (const step of steps) {
+    out.push(state);
+    state = applyStep(data, state, step);
+  }
+  return out;
 }

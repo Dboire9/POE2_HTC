@@ -48,6 +48,26 @@ describe('FrontierView — the empty state does not overclaim', () => {
     const many = render(<FrontierView result={{ ...empty, plansEvaluated: 2 }} />);
     expect(many.container.textContent).toMatch(/checked 2 plans/);
   });
+
+  /**
+   * A planner that DECLINED must not be badged with which orbs it tried.
+   *
+   * `frontierOrReason` (solve.ts) turns a step-planner refusal into an empty result carrying the
+   * planner's own sentence, and it has to put SOMETHING in `currencyDepth` because the type demands
+   * one. Rendering that unconditionally described a search that never ran — and after the from-item
+   * planner gained its orb-strength axis the fabricated value would have read "tried every orb
+   * strength" about a planner that tried nothing at all.
+   *
+   * So the badge is gated on the count, which is the one field that can say a search happened.
+   */
+  it('makes no claim about orb strengths when no search ran', () => {
+    const declined = render(<FrontierView result={{ ...empty, plansEvaluated: 0 }} />);
+    expect(declined.container.textContent).not.toMatch(/orb strength/i);
+    expect(declined.container.textContent).toMatch(/checked 0 plans/);
+    // …and it still says so when one did.
+    const ran = render(<FrontierView result={{ ...empty, plansEvaluated: 1 }} />);
+    expect(ran.container.textContent).toMatch(/tried every orb strength/i);
+  });
 });
 
 // The reported craft, in miniature. `expected` is computed under restart-on-first-failure — a miss
@@ -60,7 +80,7 @@ const cheapButSilly = { probability: 1.77e-7, expected: 1.07e7, perAttempt: 340,
 const dearButSensible = { probability: 1.36e-6, expected: 1.78e8, perAttempt: 357, expectedAttempts: 7.3e5, steps: [] };
 const twoPlans: EngineResult = {
   frontier: [cheapButSilly, dearButSensible], // search order is always cheapest → surest
-  plansEvaluated: 295_680, currencyDepth: 'base-only', assumedOdds: false,
+  plansEvaluated: 56_687_040, currencyDepth: 'full', assumedOdds: false,
 };
 
 const costOf = (card: HTMLElement) => card.textContent ?? '';

@@ -296,29 +296,86 @@ Two things stop it being a drop-in, and both are design rather than arithmetic:
 
 Worth doing, and it wants its own MC cross-check like the rest of the MDP work.
 
-## 5. The from-item step planner never varies orb strength
+## 5. ~~The from-item step planner never varies orb strength~~ — DONE 2026-09-01
 
-`baseTransforms` (`packages/optimizer/src/fromItem.ts`) builds every add at base strength — no `tier`
-field — so the planner cannot buy the probability a Greater or Perfect Exalt offers. The MDP *does*
-weigh them, which is part of why the two models' costs diverge so hard on a long-shot craft. As of
-2026-08-23 the badge tells the truth about this (`currencyDepth: 'base-only'`) instead of claiming
-"tried every orb strength".
+Closed by decomposing the axis rather than throttling it. `applyStep` reads only
+`currency`/`remove`/`add`/`adds`/`essenceTier`, so orb strength and omens move a step's price and odds
+and nothing else — the item trajectory is fixed by the SKELETON. That makes
+`planExpectedCost` separable over the suffix product, and a backward DP (`leverDp.ts`) finds every
+Pareto-optimal assignment exactly, subsuming `withOmenVariants`'s `2^k` power set on the way.
+**3.3–3.5x faster on the big crafts while searching 192x more assignments**; up to **322x** better
+success per attempt. Full measurement in `docs/validation.md`.
 
-**Measured 2026-08-23: worth 1,116x** on the reported craft (success per attempt 1.53e-10% at base
-against 1.71e-7% at Perfect). But it does NOT make the step routes useful — even at Perfect they sit
-~68,000x above the MDP's figure, because a step plan is one fixed sequence naming every mod. So this
-is a correctness/honesty item, not a fix for "the step routes are unusable"; that was addressed by
-collapsing them once the MDP answers.
+The throttle this section proposed would have been worse than slow: at the default `maxPlans` it picks
+`strongest-only` on every craft big enough to need it, and that rung **drops base strength entirely**,
+deleting the cheap end of the frontier rather than widening the search.
 
-Fixing it means an orb-strength axis over the adds, multiplying the search by roughly `3^k` on a
-search that already evaluates 295,680 plans (~3.2s) for a 5-target craft. It needs the same
-estimate-then-reduce throttle `optimizePareto` uses, not a naive product. Note `reduceOrbTiers` does
-not currently handle the `base-only` depth — it would fall through to `['base', strongest]`. Worth
-doing; not small.
+Three things came out of it that are NOT done:
 
-Related, smaller: above the Thorough preset the MDP's `maxIters` (100k sweeps, ~50s) binds before
-`maxMillis`, so Patient buys nothing on crafts like the one in docs/validation.md. Either expose the
-sweep cap on the effort ladder or stop implying more time helps.
+### 5a. `legalOrbTiers` suppresses the orb axis for any-tier targets — in the FROM-WHITE planner
+
+`legalOrbTiers` (`optimize.ts`) decides which strengths are legal from the target's MINIMUM tier: it
+reads `tiers[minTierIndex].ilvl`, which is about 1 for an any-tier target, finds every strength floor
+above it, and returns `['base']`. But a Greater orb is legal on an any-tier target — a better tier still
+satisfies "any tier or better". Measured on real Wands at level 82, `minTierIndex: 0`:
+
+| target | base | greater | perfect |
+|---|---|---|---|
+| `Wands/IncreasedMana` | 0.1153 | 0.1635 (1.42x) | 0.1878 (**1.63x**) |
+| `Wands/LocalAttributeRequirements` | 0.0524 | 0.0817 (1.56x) | 0.0939 (**1.79x**) |
+| `Wands/WeaponSpellDamage` | 0.0456 | 0.0204 (0.45x) | 0.0164 (**0.36x**) |
+
+A real two-way trade the from-white search never offers — **and it reports `currencyDepth: 'full'`
+while doing so**, which the badge renders as "tried every orb strength". That is the overclaim
+`docs/copy-audit.md` exists to prevent, in the planner's own self-report.
+
+The from-item planner sidesteps it (`leverOptions` filters on `p > 0`, which is exact), so this is
+now a from-white-only bug. The fix is the same one: stop guessing from a tier index and let the
+probability decide — which falls out of 5b.
+
+### 5b. Adopt the lever DP in the from-white planner
+
+`paretoForOneCraft` still builds `permutations x orbAssignments` and then expands `withOmenVariants`
+over each. Replacing that with `bestLeverAssignments` over the permutation skeletons alone would delete
+`orbAssignments`, `reduceOrbTiers`, `legalOrbTiers`, `strengthUsable`, the `estimate`/depth ternary and
+most of `CurrencyDepth` — and fix 5a as a side effect. The search collapses from `K! x Π|tiers| x
+2^exalts` to `K!` skeletons.
+
+Two blockers, which is why it was not done in the same pass:
+
+- **`essenceTier` IS read by `applyStep`**, and from-white emits `essence` steps. It is resolved once
+  per craft by `cheapestEssenceLevel`, so it is not a per-plan lever today — but promoting it to one
+  would break the invariant the whole DP rests on.
+- **Alchemy openers** (`alchemyOpenerSequences`) produce a different sequence SHAPE, not a lever
+  assignment. They stay outside the DP as extra skeletons.
+
+It also changes shipped from-white numbers, so it needs its own measurement campaign.
+
+### 5c. `planCostCdf` is 86% of a from-item alternatives run
+
+Measured 2026-09-01 on a T3 3-target craft at `maxNodes: 200`: **8,802 ms falls to 1,213 ms** when
+`costCells` drops from the shipped default of 200,000 to 2,000. The cause is that `exactQuantum` FAILS
+on the live sheet — 4.796, 8.561, 98.47, 0.9274 are not commensurable at ≤6 dp — so it falls back to a
+uniform grid at the full cell cap on every plan of every node. The note in `cost.ts` ("Real sheets
+(0.2, 1, 1.5, 15, …) give a 0.1 quantum ⇒ ~2000 cells for a 200ex budget") does not describe the sheet
+the app actually ships.
+
+Lowering `costCells` is NOT the fix on its own — below the exact quantum the answer becomes a bracket
+(`exact: false`) rather than a number. Worth understanding whether a coarser-but-still-exact quantum
+exists for the live sheet, or whether the CDF can be computed some other way.
+
+This is also where the orb-strength axis costs something: it produces ~29% more frontier rows (1,120 →
+1,447 plans handed to the CDF across 200 nodes), which at 86% CDF-bound reads as a **25–33% regression**
+on 3-target alternatives crafts (8,714 ms → 11,132 ms) and a 1.15x IMPROVEMENT on the 4-target one. The
+extra rows are the feature working; the multiplier on them is this bug.
+
+### 5d. The MDP models Chaos at base strength only
+
+`markovActions.ts:31` is `{ readonly currency: 'chaos' }` with no `strength`, where exalt, transmute,
+augment and regal all carry one. `chaos_greater` (98.47ex) and `chaos_perfect` (2058ex) are real
+listings and `currencyKey` prices them correctly as of 2026-09-01. So the linear planner now searches a
+lever the MDP cannot play, on a tab that shows both side by side. Not a correctness bug — they answer
+different questions — but the asymmetry is now the other way round from what it was.
 
 ## 6. Startup: what measurement left on the table
 

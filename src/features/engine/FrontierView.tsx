@@ -27,9 +27,10 @@ const DEPTH_NOTE: Record<EngineResult['currencyDepth'], string> = {
   full: 'tried every orb strength',
   'base+strongest': 'only tried base + strongest orbs — too many combinations for all of them',
   'strongest-only': 'only tried the strongest orbs — too many combinations for all of them',
-  // The from-item planner never varies orb strength at all — every add it builds is a base-strength
-  // orb. It used to report `full`, i.e. "tried every orb strength", which was simply untrue and hid a
-  // real reason its numbers sit so far above the MDP's (which does reach for Greater/Perfect Exalts).
+  // Reached only by a planner that DECLINED to run (`frontierOrReason` in solve.ts fabricates it for
+  // an empty result), and never rendered, because the badge below is gated on a search having
+  // happened. It was the from-item planner's honest self-description until that planner learned to
+  // vary orb strength — see `bestLeverAssignments`.
   'base-only': 'base-strength orbs only — this planner doesn’t vary orb strength on an item you hold',
 };
 
@@ -72,7 +73,10 @@ const FrontierView: React.FC<{
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h2 className="text-lg font-bold">{heading}</h2>
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <Badge variant="outline">{DEPTH_NOTE[result.currencyDepth]}</Badge>
+        {/* A search that checked nothing has no depth to report. Without this gate a planner that
+            DECLINED — where `reason` says why, in the panel below — would still be badged with a claim
+            about which orbs it tried, which is a statement about a search that never ran. */}
+        {result.plansEvaluated > 0 && <Badge variant="outline">{DEPTH_NOTE[result.currencyDepth]}</Badge>}
         {result.truncated && (
           <Badge variant="outline" className="border-amber-500/60 text-amber-700 dark:text-amber-300">
             stopped early — raise Search effort for more

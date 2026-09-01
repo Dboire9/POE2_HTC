@@ -223,10 +223,39 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   highest-probability edge, which is the edge the route follows by construction; phrasing it as an
   instruction would tell the player to do something the game gives them no way to do. The odds render
   beside it, which is what makes the wording self-consistent.
-- **The from-item planner never varies orb strength** (`baseTransforms` sets no `tier`), so it reports
-  `currencyDepth: 'base-only'`. It used to report `full`, rendered as "tried every orb strength" — a
-  false claim that also hid why its costs sit so far above the MDP's, which does use Greater/Perfect
-  Exalts.
+- **The from-item planner searches orb strength by DECOMPOSING it, not by enumerating it** (2026-09-01).
+  It used to set no `tier` on any add and report `currencyDepth: 'base-only'`, which was honest and was
+  a real gap: the axis is worth up to **322x** the success chance per attempt on a 5-target craft.
+  Enumerating it is a `3^m` product on a search already at 295,680 plans, and the from-white
+  estimate-then-reduce throttle would have made it *worse than slow*: at the default `maxPlans` it picks
+  `strongest-only` on every craft big enough to need it, and `reduceOrbTiers` at that rung **drops base
+  entirely** — deleting the cheap end of the frontier rather than widening the search.
+  **The move that dissolves it**: `applyStep` reads only `currency`/`remove`/`add`/`adds`/`essenceTier`,
+  so orb strength and omens change a step's price and odds and *nothing else* — the item trajectory is
+  fixed by the sequence SKELETON. That makes the cost separable: `planExpectedCost`'s
+  `Σ c_k·S_{k−1}/S_n` rewrites as `Σ_k c_k / T_k` over the SUFFIX product `T_k = Π_{i≥k} p_i`, so
+  `T_k = p_k·T_{k+1}` and `E_k = E_{k+1} + c_k/T_k` — a backward DP (`leverDp.ts`) that also subsumes
+  `withOmenVariants`'s `2^k` power set. Pruning it is EXACT: for `T_a ≥ T_b`, `E_a ≤ E_b`, extending
+  both by `(p, c)` preserves both inequalities, so a dominated point can never come back. Needs
+  `c ≥ 0` and `p > 0`; `leverOptions` guarantees both. Measured: **3.3–3.5x FASTER** on the big crafts
+  while searching 192x more assignments (295,680 → 56,687,040), 0.86–0.93x on small ones where there
+  was no power set to delete. `currencyDepth` is now `'full'` and earned.
+  **Do NOT reuse `legalOrbTiers` for this.** It reads `tiers[minTierIndex].ilvl` — about 1 for an
+  any-tier target — finds every strength floor above it and concludes `['base']`. A Greater orb IS legal
+  there (a better tier still satisfies "any tier or better"), and it moves the odds 0.36x–1.79x across
+  real targets. Reusing it would have shipped the axis as a no-op for the commonest from-item target.
+  `leverOptions` filters on `p > 0`, which is exact because it computes the probability before deciding.
+  The same hole is still LIVE in `optimizePareto` — see TODO.
+  The invariant is a property of today's `applyStep`, not a law, so `levers.test.ts` asserts it
+  directly: every option must leave the same item behind. An Omen of Greater Exaltation adds TWO mods
+  and could never be a lever here; `essenceTier` IS read by `applyStep`, which is why an essence level
+  is chosen per craft by `cheapestEssenceLevel` instead.
+- **A Chaos Orb has strengths, and they were free.** `currencyKey` gated its `_greater`/`_perfect`
+  suffix on transmute/augment/regal/exalt and chaos was not on the list, while `chaosProbability` had
+  forwarded the ilvl floor to `exaltProbability` since it was written. So a tiered chaos landed at
+  better odds and billed at the base price — 33.39ex instead of 2,058ex, a **62x underquote** — and
+  `allowsStep` reads the same key, so excluding Perfect Chaos Orbs (a row the UI offers) did nothing.
+  Latent until the from-item axis started emitting them, which is why it shipped first and alone.
 - **The MDP now models rarity, so a craft can start from a white base or a Magic item.** State is
   `(present, blocked, jp, js, desJunk, rarity)`; `enumerateStates` takes the rungs a craft occupies and
   DEFAULTS to Rare alone, which is what keeps every from-item solve exactly as fast as before. Transmute
@@ -354,7 +383,10 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   really is replaceable for free.
 - **Once the MDP has answered, the step routes collapse.** Measured on a five-target craft they read
   ~5,000,000x above the true cost, and orb strength (worth 1,116x) would still leave ~68,000x — the
-  remainder is the model, not a gap. `trueCostAnswered` in `ItemActions` is the single predicate for
+  remainder is the model, not a gap. Orb strength has since been ADDED (2026-09-01, worth up to 322x
+  measured on the frontier's best row), so the multiple is smaller; the conclusion is not, because a
+  step plan is one fixed sequence naming every mod and can never adapt to what the game hands you.
+  `trueCostAnswered` in `ItemActions` is the single predicate for
   both that collapse and the "No true expected cost" card; keep it single, or the panel can end up
   hiding the routes AND explaining their absence at the same time.
 - **Sentry is OFF unless `VITE_SENTRY_DSN` is set at BUILD time, and it loads lazily when it is.**

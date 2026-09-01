@@ -421,15 +421,51 @@ describe('optimizeFromItem — a Magic item opens with a Regal', () => {
     expect(r.frontier.some((p) => p.steps.every((s) => s.currency !== 'regal'))).toBe(true);
   });
 
-  it('reaches a Magic item’s open slot only by Regal — there is no augment step', () => {
-    // Worth pinning as a KNOWN GAP rather than leaving it to be discovered: `baseTransforms` emits
-    // chaos/annul/exalt and no `augment`, and both Chaos and Exalt score 0 on a Magic item. So the one
-    // way this planner can add a mod to a Magic item is the Regal that converts it to Rare. For a
-    // target needing 3+ mods that is also the right move; for a 2-mod target an Augment would be
-    // cheaper, and the planner cannot express it. See TODO.
+  /**
+   * A GAME RULE, and it used to be recorded here as a planner gap.
+   *
+   * This case wants NP1 and NP2 — both prefixes — and a Magic item holds at most one per side. So no
+   * Augmentation can finish it whatever the planner offers: the item genuinely has to become Rare
+   * first, and the Regal is the orb that does it. The assertion is unchanged; what was wrong was the
+   * comment above it, which read "there is no augment step … for a 2-mod target an Augment would be
+   * cheaper, and the planner cannot express it" and cited TODO 4.
+   *
+   * Both halves were off. The planner really was missing the step (fixed 2026-09-01) — but not on
+   * THIS craft, where the rule forbids it anyway; and on the live sheet an Augmentation is DEARER than
+   * a Regal (0.2699 against 0.1977), so "cheaper" was the wrong reason to want it. What it actually
+   * buys is a smaller pool to draw from, which the case below pins.
+   *
+   * CLAUDE.md's standing rule cuts both ways: do not call a game rule a planner limit, and do not call
+   * a planner limit a game rule. This was the first kind.
+   */
+  it('needs a Regal for a second PREFIX, because a Magic item holds only one', () => {
     const r = optimizeFromItem(data, prices, magic(['NP1'], []), [{ modId: 'NP1' }, { modId: 'NP2' }]);
     expect(r.frontier.length).toBeGreaterThan(0);
     for (const p of r.frontier) expect(p.steps.some((s) => s.currency === 'regal')).toBe(true);
+  });
+
+  /**
+   * …and where the rule allows it, the Augmentation is now on offer.
+   *
+   * One held prefix, target = that prefix plus a SUFFIX. The suffix side is free, so an Augmentation
+   * finishes the craft on a Magic item and no Regal is needed at all. It is a genuine
+   * cost-probability trade rather than a strictly better move: the Augmentation draws from the suffix
+   * pool alone where a Regal draws from both sides, so it is likelier to land NS1 — and it costs more
+   * for it.
+   */
+  it('finishes a prefix+suffix target with an Augmentation, no Regal', () => {
+    const r = optimizeFromItem(data, prices, magic(['NP1'], []), [{ modId: 'NP1' }, { modId: 'NS1' }]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    const augmented = r.frontier.filter((p) => p.steps.some((st) => st.currency === 'augment'));
+    expect(augmented.length).toBeGreaterThan(0);
+    // The Augmentation route needs nothing else — one step, and the item stays Magic.
+    expect(augmented.some((p) => p.steps.length === 1)).toBe(true);
+    // And it really is the surer of the two, which is why it belongs on the frontier beside the Regal.
+    const regalOnly = r.frontier.filter((p) => p.steps.some((st) => st.currency === 'regal'));
+    if (regalOnly.length > 0) {
+      expect(Math.max(...augmented.map((p) => p.probability)))
+        .toBeGreaterThan(Math.max(...regalOnly.map((p) => p.probability)));
+    }
   });
 
   it('scores every returned plan above zero — none is an illegal Magic-item exalt', () => {

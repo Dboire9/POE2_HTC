@@ -83,8 +83,23 @@ const PAIRS: readonly { readonly name: string; readonly action: McAction; readon
     step: { currency: 'annul', remove: 'M', omen: 'light' },
     cost: 8 + (1 << 12),
   },
+  /**
+   * A Chaos Orb has no strength here, and that is now a MEASURED choice rather than an oversight.
+   *
+   * `chaos_greater` (98.47ex) and `chaos_perfect` (2058ex) are real listings, `chaosProbability`
+   * forwards the ilvl floor to `exaltProbability`, and `currencyKey` prices them correctly as of
+   * 2026-09-01 — so the linear planner searches them. Giving the MDP a matching `strength` axis was
+   * built and measured on 2026-09-01, and reverted: interleaved over six crafts (2-3 targets, any/T3/T1)
+   * it cost **1.2-1.5x the solve time and changed no answer at all** — identical `expectedCost` and
+   * `bound` on every one. A Greater Chaos is 2.95x the price of a plain one for at most ~2.6x the odds,
+   * and a Perfect is 61.6x for at most ~4.5x, so the model was paying to prove what the price sheet
+   * already implies.
+   *
+   * The trade is worth revisiting if those prices move, since it is the prices and not the mechanics
+   * that decide it. See docs/validation.md.
+   */
   {
-    name: 'Chaos Orb',
+    name: 'Chaos Orb (no strength axis in the MDP — see above)',
     action: { currency: 'chaos' },
     step: { currency: 'chaos', remove: 'M', add: 'N' },
     cost: 16,

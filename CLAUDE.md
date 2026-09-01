@@ -212,9 +212,14 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - **Rarity on the Item tab describes the item you HOLD, not the item you want.** The from-item planner
   used to throw "supports Rare items (use the currency check for Magic)" on a Magic start — turning the
   commonest starting point in the game into an error, and inviting the player to misdescribe their item
-  to get past it. A Magic item is now opened with a **Regal**, which converts to Rare while adding one
-  mod; it is the only add available there, since Exalt and Chaos both score 0 on a Magic item and
-  `baseTransforms` emits no `augment`. (This bullet used to end "the MDP still models Rare only and
+  to get past it. A Magic item is opened with a **Regal** (converts to Rare while adding one mod) or an
+  **Augmentation** (fills the second slot and leaves it Magic), and the openers cover
+  augment-then-regal too. The Augmentation is a real cost↔probability trade, not a cheaper Regal: on a
+  Magic item holding one prefix it must land a SUFFIX, so it draws from one side's pool where a Regal
+  draws from both — likelier, and DEARER for it (0.2699 against 0.1977). TODO 4 claimed the opposite
+  ("an Augment would be cheaper") and its pinning test used a two-PREFIX target, which a Magic item
+  cannot hold at all — so on that craft the Regal is a GAME RULE and no Augmentation could have helped.
+  The gap was real; the example demonstrated something else. Both halves of the copy rule, in one bug. (This bullet used to end "the MDP still models Rare only and
   says so in `reason`" — that was FALSE and stayed for weeks. `markovFromItem` gives a Magic start the
   rungs `['magic','rare']` and no such reason string exists anywhere. `ItemActions` renders whatever
   reason does come back rather than dropping the panel in silence.)
@@ -284,6 +289,17 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   real data the screening bracket is a few parts in ten thousand and the wrong comparison picks the
   same plans anyway; the rule was extracted into `bestByBudget` so a test can inject a deliberately
   useless screen. A guarantee that cannot be made to fail on real data has to be tested where it can.
+- **The MDP models Chaos at BASE STRENGTH ONLY, and that is measured rather than missed.** The linear
+  planner searches `chaos_greater` / `chaos_perfect` (real listings; the engine has always honoured the
+  floor). Giving the MDP a matching `strength` axis was built and reverted on 2026-09-01: interleaved
+  over six crafts it cost **1.2–1.5x the solve time and changed NO answer** — identical `expectedCost`
+  and `bound` on every one. The MDP is the slowest component and its headline number, so slower means
+  more crafts return a ceiling; that is a real loss against a measured-zero benefit. The prices say why:
+  a Greater Chaos is 2.95x the price for at most ~2.6x the odds, a Perfect 61.6x for at most ~4.5x.
+  **It is the PRICES that decide this, not the mechanics** — re-measure if they move. `pusher` cannot
+  absorb these: it folds only IDENTICAL distributions, and these differ in distribution while losing on
+  price. Note also that a strength axis is an EXCLUSION surface — "exclude chaos" stopped meaning
+  "exclude every chaos" the moment one existed, which the exclusions regression test caught.
   Two dead ends recorded so they are not re-walked: `exactQuantum` does NOT fail on the live sheet (it
   returns 0.001 at d=3 — `exact` is false because `budget/quantum` is then 5,000,000 cells, 25x over
   the cap), and lowering `DEFAULT_COST_CELLS` does not work either, because the bracket has to stay

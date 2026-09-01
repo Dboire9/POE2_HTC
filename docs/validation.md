@@ -2618,6 +2618,64 @@ Two things fell out of that:
 `ORB_TIERS`, `ADD_CURRENCIES`, `withOmenVariants` and the `estimate`/depth ternary. `CurrencyDepth`
 survives because `DEPTH_RANK` still merges runs, but every planner now reports `full`.
 
+## An Augmentation the planner could not spend, and a Chaos axis not worth having (2026-09-01)
+
+Two small items from TODO 4 and 5d. One shipped, one was built and reverted on its measurement.
+
+### The Augmentation step (TODO 4) — shipped
+
+`baseTransforms` emits chaos/annul/exalt and no `augment`, so the only way the from-item planner could
+add a mod to a MAGIC item was the Regal that converts it to Rare. Openers now cover the whole add
+chain: Regal, Augmentation, and Augmentation-then-Regal.
+
+It is a genuine cost-probability trade rather than a missing cheap option. On a Magic item holding one
+prefix, an Augmentation must land a SUFFIX — the prefix side is full at one — so it draws from the
+suffix pool alone, where a Regal draws from both sides. Likelier, and dearer for it: 0.2699 against the
+Regal's 0.1977.
+
+**TODO 4's stated reason was wrong on both halves**, which is worth recording. It read "for a 2-mod
+target an Augment would be cheaper, and the planner cannot express it". An Augmentation is DEARER than
+a Regal on this sheet, so "cheaper" was the wrong reason to want it; and the test pinning the gap used
+a two-PREFIX target, which a Magic item cannot hold at all — so on that craft the Regal is required by
+a game rule and no Augmentation could ever have helped. The gap was real; the example was not.
+
+That test now asserts the rule it was actually demonstrating, and a second one covers the prefix+suffix
+case where the Augmentation does apply and finishes the craft in one step.
+
+### The MDP's Chaos strength axis (TODO 5d) — built, measured, reverted
+
+`chaos_greater` and `chaos_perfect` are real listings, the engine has always honoured the floor, and
+`currencyKey` prices them correctly since earlier the same day — so the linear planner searches them
+and the MDP did not. The matching `strength` axis was built and then reverted.
+
+Interleaved, medians of 3, six crafts (2 and 3 targets, any/T3/T1, two held junk mods):
+
+| craft | axis off | axis on | | answer |
+|---|---|---|---|---|
+| 3 tgt T1 | 1,778 ms [1664, 1851, 1778] | 2,690 ms [2370, 2690, 2982] | **0.66x** | identical, 164,682.69 exact |
+| 3 tgt T3 | 689 ms [742, 672, 689] | 961 ms [961, 983, 955] | 0.72x | identical, 28,377.16 exact |
+| 3 tgt any | 131 ms [144, 131, 129] | 182 ms [182, 210, 181] | 0.72x | identical, 2,684.76 exact |
+| 2 tgt T1 | 213 ms [223, 213, 205] | 289 ms [296, 289, 284] | 0.74x | identical, 19,362.79 exact |
+| 2 tgt T3 | 78 ms [81, 78, 61] | 85 ms [103, 84, 85] | 0.92x | identical, 3,782.28 exact |
+| 2 tgt any | 39 ms [59, 39, 33] | 47 ms [64, 47, 47] | 0.83x | identical, 904.15 exact |
+
+**1.2-1.5x the solve time, and not one answer moved.** The MDP is the app's slowest component and its
+headline number, so slower means more crafts return a ceiling rather than an exact cost at a given
+effort. That is a real loss against a benefit that measured exactly zero.
+
+The prices explain it: a Greater Chaos is 2.95x the price of a plain one for at most ~2.6x the odds, a
+Perfect 61.6x for at most ~4.5x. The model was paying to prove what the sheet already implies.
+
+**It is the PRICES that decide this, not the mechanics**, so the trade should be re-measured if they
+move. The pricing half stays shipped, and `costConsistency.test.ts` carries the reasoning next to the
+pair that would need adding back.
+
+Two findings survive the revert. The exclusion regression test had to grow `chaos_greater` and
+`chaos_perfect` to keep passing — a strength axis is also an exclusion surface, and "exclude chaos"
+stops meaning "exclude every chaos" the moment one exists. And `pusher` folds only IDENTICAL outcome
+distributions, so it cannot absorb a strength that differs in distribution but loses on price; the
+principled fix would be a dominance rule over distributions, and there is no cheap one.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

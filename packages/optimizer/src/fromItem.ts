@@ -206,29 +206,49 @@ function fromItemForOneCraft(
     };
   }
 
-  // A MAGIC item has to become Rare before it can be exalted, desecrated or perfect-essenced, and a
-  // Regal Orb is that transition — it converts to Rare *and* adds one mod, so it is an opener rather
-  // than a step in the middle. This planner names the mod every step adds, so a Regal names one too:
-  // one opener per rollable target it could land.
+  // A MAGIC item is partway up the add chain, and this enumerates the ways to continue it.
   //
-  // The empty opener is offered as well, because a target that fits a Magic item (≤1 prefix and ≤1
-  // suffix) needs no Regal at all. Nothing here checks which of those applies: an exalt on a Magic
-  // item scores 0 in `evaluatePlanFrom` and the plan drops, which is the same "offer it and let
-  // evaluation prune" rule the desecrate branch relies on rather than duplicating plan.ts's legality.
-  const openers: { steps: PlanStep[]; adds?: string }[] = start.rarity === 'rare'
-    ? [{ steps: [] }]
-    : [
-        { steps: [] },
-        ...missingRollable.map((add) => ({
-          steps: [{ currency: 'regal' as const, add, minTierIndex: tierOf.get(add) ?? 0 }],
-          adds: add,
-        })),
-      ];
+  // A Regal converts to Rare *and* adds one mod, so it is an opener rather than a step in the middle;
+  // this planner names the mod every step adds, so a Regal names one too. An AUGMENTATION fills a
+  // Magic item's second slot and LEAVES IT MAGIC — which the planner could not express at all until
+  // 2026-09-01, so the only way it knew to add a mod to a Magic item was to Regal it to Rare.
+  //
+  // That mattered because the two are a real cost-probability trade, not a strictly worse option. On a
+  // Magic item holding one prefix, an Augmentation must land a SUFFIX (the prefix side is full at 1),
+  // so it draws from the suffix pool alone; a Regal draws from both sides and is correspondingly less
+  // likely to hit a particular suffix. The Augmentation is dearer for it — 0.2699 against the Regal's
+  // 0.1977 on the live sheet — which is exactly the shape of every other choice on this frontier.
+  //
+  // The empty opener is offered too, because a target that fits a Magic item (≤1 prefix and ≤1 suffix)
+  // needs neither. Nothing here checks which case applies: an exalt on a Magic item scores 0 in
+  // `evaluatePlanFrom` and the plan drops, which is the same "offer it and let evaluation prune" rule
+  // the desecrate branch relies on rather than duplicating plan.ts's legality.
+  const openers: { steps: PlanStep[]; adds: readonly string[] }[] = [{ steps: [], adds: [] }];
+  if (start.rarity !== 'rare') {
+    const addStep = (currency: 'augment' | 'regal', add: string): PlanStep =>
+      ({ currency, add, minTierIndex: tierOf.get(add) ?? 0 });
+    // A Magic item holds at most two mods, so an Augmentation only has somewhere to go while it holds
+    // fewer. Offering it on a full Magic item would just score 0 — but not offering it keeps the
+    // sequence list smaller, and this one multiplies.
+    const room = start.prefixes.length + start.suffixes.length < 2;
+    for (const first of missingRollable) {
+      openers.push({ steps: [addStep('regal', first)], adds: [first] });
+      if (!room) continue;
+      // Augment alone: the target is finished on a Magic item, no Regal needed.
+      openers.push({ steps: [addStep('augment', first)], adds: [first] });
+      // Augment then Regal: fills the second Magic slot from the smaller pool, THEN converts. For a
+      // 3-mod target this is a different route from Regal-then-exalt, not a longer spelling of it.
+      for (const second of missingRollable) {
+        if (second === first) continue;
+        openers.push({ steps: [addStep('augment', first), addStep('regal', second)], adds: [first, second] });
+      }
+    }
+  }
 
   const bossOk = bossOmenAllowed(start.base.category);
   const sequences: PlanStep[][] = [];
   for (const opener of openers) {
-    const rest = opener.adds === undefined ? missingRollable : missingRollable.filter((id) => id !== opener.adds);
+    const rest = missingRollable.filter((id) => !opener.adds.includes(id));
     for (const seq of transformSequences(data, junk, rest, missingPerfect, missingDesecrated, tierOf, bossOk)) {
       sequences.push(opener.steps.length > 0 ? [...opener.steps, ...seq] : seq);
     }

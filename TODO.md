@@ -263,38 +263,24 @@ Cheaper things to try first, both unmeasured:
   the whole budget before the deadline check can stop it. A cheaper cap, or checking the clock more
   often than every 32 sweeps, may matter more than it looks.
 
-## 4. A Magic item can only be opened with a Regal — there is no Augment step
+## 4. ~~A Magic item can only be opened with a Regal — there is no Augment step~~ — DONE 2026-09-01
 
-`baseTransforms` (`packages/optimizer/src/fromItem.ts`) emits chaos / annul / exalt and no `augment`,
-and both Chaos and Exalt score 0 on a Magic item. So the only way this planner adds a mod to a Magic
-item is the Regal opener that converts it to Rare (added 2026-08-23). For a target needing 3+ mods
-that is the right move anyway; for a 2-mod target an Augmentation (0.27ex) would be cheaper than a
-Regal, and the planner cannot express it. Pinned by a test that asserts the gap rather than hiding it.
+`fromItem.ts`'s openers now cover the whole add chain from a Magic start: Regal, Augmentation, and
+Augmentation-then-Regal. An Augmentation fills a Magic item's second slot and leaves it Magic, drawing
+from one side's pool where a Regal draws from both — likelier, and dearer for it (0.2699 against
+0.1977).
 
-~~Related and larger: **the MDP does not model Magic at all**~~ — **STALE, and done long since.** The
-state carries rarity and `markovFromItem` gives a Magic start the rungs `['magic','rare']`. Everything
-below this line about synthetic start nodes and rarity in the state key describes work that shipped;
-it is kept only because the reasoning about `stateLabel` is still the reason the label carries rarity.
-The Augmentation gap in the LINEAR planner (the paragraph above) is the part of §4 still open.
+**This section's stated reason was wrong on both halves.** It said "for a 2-mod target an Augmentation
+(0.27ex) would be cheaper than a Regal": it is not, on this sheet. And the test pinning the gap used a
+two-PREFIX target, which a Magic item cannot hold — so on that craft the Regal is required by a game
+rule and no Augmentation could have helped. The gap was real; the example demonstrated something else.
 
-Restoring it is smaller than it first looks. `enumerateStates` builds the FULL rare lattice, not the
-reachable subset, so value iteration already computes V for every post-Regal state. A Magic start is
-then one Bellman backup on top of an existing solve:
-
-    V(magic) = cost(regal) + Σ P(outcome) · V(rare_outcome)
-
-with the outcome distribution being P(regal lands each target) / blocks a family / lands junk. No new
-state axis, no change to VI.
-
-Two things stop it being a drop-in, and both are design rather than arithmetic:
-
-1. **The state key has no rarity**, so a Magic start encodes identically to the Rare state with the
-   same mods (`0:0:1:1:0`). It needs a synthetic start node, or a rarity bit in the key.
-2. **`stateLabel` would render both identically** — "0 mods · +2 junk" for the Magic item you hold and
-   for the Rare item you get after annulling. A graph whose first two boxes read the same but mean
-   different things is worse than no graph, so the label needs to carry rarity too.
-
-Worth doing, and it wants its own MC cross-check like the rest of the MDP work.
+Still open from this section, unchanged: **the MDP does not model a Magic START as a distinct node.**
+`enumerateStates` builds the full rare lattice, so `V(magic) = cost(regal) + Σ P(outcome)·V(rare)` is
+one Bellman backup on top of an existing solve. Two things stop it being a drop-in, both design rather
+than arithmetic: the state key has no rarity, so a Magic start encodes identically to the Rare state
+with the same mods; and `stateLabel` would render both the same, giving a graph whose first two boxes
+read alike and mean different things.
 
 ## 5. ~~The from-item step planner never varies orb strength~~ — DONE 2026-09-01
 
@@ -372,13 +358,40 @@ So 200,000 is well chosen for the number the app prints; the waste was never the
 running the full sweep on plans that could not win. Left open: whether a coarser-but-still-exact
 quantum exists for this sheet, which would make the settle cheap as well as rare.
 
-### 5d. The MDP models Chaos at base strength only
+### 5d. ~~The MDP models Chaos at base strength only~~ — BUILT, MEASURED, REVERTED 2026-09-01
 
-`markovActions.ts:31` is `{ readonly currency: 'chaos' }` with no `strength`, where exalt, transmute,
-augment and regal all carry one. `chaos_greater` (98.47ex) and `chaos_perfect` (2058ex) are real
-listings and `currencyKey` prices them correctly as of 2026-09-01. So the linear planner now searches a
-lever the MDP cannot play, on a tab that shows both side by side. Not a correctness bug — they answer
-different questions — but the asymmetry is now the other way round from what it was.
+`markovActions.ts` has `{ currency: 'chaos' }` with no `strength`, where exalt/transmute/augment/regal
+all carry one. The axis was added — `McAction`, `pricedStepOf`, `chaosOutcomes` taking a floor,
+`strengthsFor('chaos')`, plus the `costConsistency` pairs and the exclusion keys — and then reverted on
+the measurement.
+
+Interleaved, medians of 3, six crafts (2 and 3 targets, any/T3/T1, two held junk mods):
+
+| craft | axis off | axis on | | answer |
+|---|---|---|---|---|
+| 3 tgt T1 | 1,778 ms | 2,690 ms | **0.66x** | identical, 164,682.69 exact |
+| 3 tgt T3 | 689 ms | 961 ms | 0.72x | identical, 28,377.16 exact |
+| 3 tgt any | 131 ms | 182 ms | 0.72x | identical, 2,684.76 exact |
+| 2 tgt T1 | 213 ms | 289 ms | 0.74x | identical, 19,362.79 exact |
+| 2 tgt any | 39 ms | 47 ms | 0.83x | identical, 904.15 exact |
+
+**1.2-1.5x the solve time, zero change to any answer.** The MDP is the app's slowest component and its
+headline number, so slower means more crafts return a ceiling instead of an exact cost at a given
+effort — a real loss, traded for a benefit that measured exactly zero.
+
+The prices say why: a Greater Chaos is 2.95x the price of a plain one for at most ~2.6x the odds, and a
+Perfect is 61.6x for at most ~4.5x. The model was paying to prove what the sheet already implies.
+
+**Revisit if the prices move**, since it is the prices and not the mechanics that decide it — the axis
+is mechanically correct and the engine has always honoured it. Two things make that cheap: the pricing
+half already shipped (`currencyKey` handles `chaos_greater`/`chaos_perfect`), and `costConsistency.test.ts`
+carries the reasoning beside the pair that would need adding back.
+
+Two useful findings survive the revert. The exclusion test had to grow `chaos_greater`/`chaos_perfect`
+to keep passing — a reminder that a strength axis is also an exclusion surface, and that "exclude
+chaos" stops meaning "exclude every chaos" the moment one exists. And `pusher` folds only IDENTICAL
+distributions, so it could not absorb strengths that differ in distribution but lose on price; a
+dominance rule over distributions would be the principled fix, and there is no cheap one.
 
 ## 6. Startup: what measurement left on the table
 

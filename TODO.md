@@ -612,7 +612,15 @@ opened a PR nothing had checked, and doing it this way needs no PAT; (2) `gh pr 
 `peter-evans/create-pull-request` — `gh` is already on the runner, and this repo runs CodeQL, so adding
 a third-party action to touch the file the whole cost model rests on is a poor trade for twenty lines;
 (3) the dispatch input reaches bash through `env`, never `${{ }}` inline, which would be a script
-injection. The omenQuotes staleness warning is lifted into a GitHub warning callout at the top of the
+injection.
+
+**Two things to know before the first run.** `gh pr create` under the built-in token needs
+**Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests"**, which is
+OFF by default — without it every step runs and the last one fails. And the re-run lookup must ask for
+OPEN pull requests only (`gh pr list --head … --state open`): `gh pr view "$branch"` prefers an open PR
+but FALLS BACK to a merged one, so the week after the first refresh was merged it would have taken the
+edit path, retitled the merged PR, and never opened another — the automation stopping after exactly one
+use, silently. Caught on re-reading, before the workflow had ever run. The omenQuotes staleness warning is lifted into a GitHub warning callout at the top of the
 PR body, and the body says not to auto-merge and why.
 ---
 

@@ -138,8 +138,14 @@ jobs:
             echo "</details>"
           } > /tmp/pr-body.md
 
-          if gh pr view "$branch" --json number >/dev/null 2>&1; then
-            gh pr edit "$branch" --title "Refresh prices from poe.ninja" --body-file /tmp/pr-body.md
+          # `gh pr list --state open`, NOT `gh pr view "$branch"`. `pr view` prefers an open PR but
+          # FALLS BACK to a merged or closed one, so the week after the first refresh was merged it
+          # would succeed, take the edit path, quietly retitle the merged PR, and never open a new
+          # one — the automation stopping after exactly one use, silently. Asking for open PRs only
+          # means a merged or closed predecessor correctly reads as "none", and a new PR is opened.
+          open_pr=$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$open_pr" ]; then
+            gh pr edit "$open_pr" --title "Refresh prices from poe.ninja" --body-file /tmp/pr-body.md
           else
             gh pr create --base "$BASE" --head "$branch" \
               --title "Refresh prices from poe.ninja" --body-file /tmp/pr-body.md

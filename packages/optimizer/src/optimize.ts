@@ -181,27 +181,15 @@ export interface ParetoPlan extends CostedPlan {
   readonly probability: number;
 }
 
-/**
- * How deep the currency-tier (orb strength) search went — reported, never silently truncated.
- *
- * `base-only` is not a throttle: it is the from-item planner saying it never varies orb strength at
- * all. That planner used to report `full`, which the UI renders as "tried every orb strength" — an
- * outright false claim, and one that hid a real reason its costs sit so far above the MDP's, since
- * the MDP does reach for Greater and Perfect Exalts.
- */
-export type CurrencyDepth = 'full' | 'base+strongest' | 'strongest-only' | 'base-only';
-
-/** Ranked worst-last, so merging searches can report the SHALLOWEST depth any of them settled for. */
-export const DEPTH_RANK: Record<CurrencyDepth, number> = {
-  full: 0, 'base+strongest': 1, 'strongest-only': 2, 'base-only': 3,
-};
-
 export interface ParetoResult {
   /** Non-dominated plans, cheapest-first (probability rises along the frontier). */
   readonly frontier: readonly ParetoPlan[];
+  /**
+   * How many plans the search stands for. NOT how many it scored: the lever DP proves most assignments
+   * cannot win rather than evaluating them, and a count that left those out would understate the
+   * search rather than describe it.
+   */
   readonly plansEvaluated: number;
-  /** The orb-strength search depth actually used (throttled down for very large targets). */
-  readonly currencyDepth: CurrencyDepth;
   /** True when a cap (plans or wall clock) stopped the search before it had seen everything. */
   readonly truncated?: boolean;
 }
@@ -413,7 +401,6 @@ export function mergeParetoRuns(
 ): ParetoResult {
   const all: ParetoPlan[] = [];
   let plansEvaluated = 0;
-  let currencyDepth: CurrencyDepth = 'full';
   let truncated = false;
   const ticks = combos.length * COMBO_TICKS;
   for (let c = 0; c < combos.length; c++) {
@@ -426,14 +413,13 @@ export function mergeParetoRuns(
     plansEvaluated += r.plansEvaluated;
     // The merged result must report the SHALLOWEST orb search any expansion settled for — claiming
     // 'full' because one cheap expansion managed it would overstate every other route on the frontier.
-    if (DEPTH_RANK[r.currencyDepth] > DEPTH_RANK[currencyDepth]) currencyDepth = r.currencyDepth;
     if (r.truncated) truncated = true;
   }
   report?.(ticks, ticks);
   // Re-run the dominance filter across the union: a route chasing one member routinely dominates a
   // whole expansion's frontier, and leaving those in would list plans nobody should ever run.
   return {
-    frontier: paretoFrontier(all), plansEvaluated, currencyDepth, ...(truncated ? { truncated: true } : {}),
+    frontier: paretoFrontier(all), plansEvaluated, ...(truncated ? { truncated: true } : {}),
   };
 }
 
@@ -489,10 +475,9 @@ function paretoForOneCraft(
   // set — a `K! x Π|strengths| x 2^omens` product, throttled by picking a coarser orb-strength DEPTH
   // when the estimate exceeded `maxPlans`. The lever DP replaced all of it: orb strength and omens are
   // decided per step, against a state the skeleton already fixes, so what is enumerated here is the
-  // orderings alone. `currencyDepth` is `full` on every craft as a result, and it is now earned rather
-  // than estimated — the throttle's own `full` was a claim about the ladder rung, not about what was
-  // searched, and `legalOrbTiers` was quietly suppressing the whole axis for any-tier targets while it
-  // said so.
+  // orderings alone. There is no depth to report any more, which is why `CurrencyDepth` is gone: the
+  // throttle's own `full` was a claim about the ladder rung rather than about what was searched, and
+  // `legalOrbTiers` was quietly suppressing the whole axis for any-tier targets while it said so.
   const skeletons: PlanStep[][] = [];
   for (const order of permutations(modIds)) {
     skeletons.push(
@@ -522,7 +507,6 @@ function paretoForOneCraft(
   return {
     frontier: paretoFrontier(plans),
     plansEvaluated: found.searched,
-    currencyDepth: 'full',
     ...(found.truncated ? { truncated: true } : {}),
   };
 }

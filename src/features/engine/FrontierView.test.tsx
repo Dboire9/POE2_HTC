@@ -4,7 +4,7 @@ import FrontierView from './FrontierView';
 import type { EnginePriceBasis, EngineResult } from '../../lib/engine';
 
 const empty: EngineResult = {
-  frontier: [], plansEvaluated: 1, currencyDepth: 'full', assumedOdds: false,
+  frontier: [], plansEvaluated: 1, assumedOdds: false,
 };
 
 // An empty frontier means THIS SEARCH found nothing. It does not mean the craft is impossible: a legal
@@ -53,12 +53,12 @@ describe('FrontierView — the empty state does not overclaim', () => {
    * A planner that DECLINED must not be badged with which orbs it tried.
    *
    * `frontierOrReason` (solve.ts) turns a step-planner refusal into an empty result carrying the
-   * planner's own sentence, and it has to put SOMETHING in `currencyDepth` because the type demands
-   * one. Rendering that unconditionally described a search that never ran — and after the from-item
-   * planner gained its orb-strength axis the fabricated value would have read "tried every orb
-   * strength" about a planner that tried nothing at all.
+   * planner's own sentence. Saying "every orb strength" beside that would describe a search that never
+   * ran — the planner declined before looking at a single orb.
    *
-   * So the badge is gated on the count, which is the one field that can say a search happened.
+   * The claim is therefore gated on the plan count, which is the one field that can say a search
+   * happened. It used to be a `currencyDepth` badge with four possible values and the same gate; the
+   * field is gone (every craft searches every strength, so it had one), and the gate outlived it.
    */
   it('makes no claim about orb strengths when no search ran', () => {
     const declined = render(<FrontierView result={{ ...empty, plansEvaluated: 0 }} />);
@@ -66,7 +66,7 @@ describe('FrontierView — the empty state does not overclaim', () => {
     expect(declined.container.textContent).toMatch(/checked 0 plans/);
     // …and it still says so when one did.
     const ran = render(<FrontierView result={{ ...empty, plansEvaluated: 1 }} />);
-    expect(ran.container.textContent).toMatch(/tried every orb strength/i);
+    expect(ran.container.textContent).toMatch(/every orb strength/i);
   });
 });
 
@@ -80,7 +80,7 @@ const cheapButSilly = { probability: 1.77e-7, expected: 1.07e7, perAttempt: 340,
 const dearButSensible = { probability: 1.36e-6, expected: 1.78e8, perAttempt: 357, expectedAttempts: 7.3e5, steps: [] };
 const twoPlans: EngineResult = {
   frontier: [cheapButSilly, dearButSensible], // search order is always cheapest → surest
-  plansEvaluated: 56_687_040, currencyDepth: 'full', assumedOdds: false,
+  plansEvaluated: 56_687_040, assumedOdds: false,
 };
 
 const costOf = (card: HTMLElement) => card.textContent ?? '';

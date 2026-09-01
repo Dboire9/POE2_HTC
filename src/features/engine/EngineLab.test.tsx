@@ -25,7 +25,7 @@ const DS2 = mod('ds2', 'Desecrated Suffix Two', 'suffix', 'desecrated', 'FamD2',
 
 const okFrontier: EngineResult = {
   frontier: [{ probability: 0.5, expected: 2, perAttempt: 1, expectedAttempts: 2, steps: [] }],
-  plansEvaluated: 1, currencyDepth: 'full', assumedOdds: false,
+  plansEvaluated: 1, assumedOdds: false,
 };
 
 const mocks = vi.hoisted(() => ({

@@ -4,7 +4,7 @@ export { markovFromItem, actionCostOf } from './markovFromItem.ts';
 export type { MarkovResult, MarkovOptions, McAction, ExaltStrength, PolicyNode, PolicyEdge } from './markovFromItem.ts';
 export type {
   OptimizedPlan, OptimizeOptions, OptimizeCostOptions, CostedPlan, AddCurrency,
-  TierTarget, ParetoPlan, ParetoResult, OptimizeParetoOptions, CurrencyDepth,
+  TierTarget, ParetoPlan, ParetoResult, OptimizeParetoOptions,
 } from './optimize.ts';
 export { alternativesFromWhite, alternativesFromItem, compareCloseness } from './alternatives.ts';
 export { DEFAULT_MAX_NODES } from './alternatives.ts';

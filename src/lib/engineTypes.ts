@@ -3,7 +3,6 @@
 
 import type { CurrencyTier } from '../../packages/engine/src/types.ts';
 import type { PlanStep } from '../../packages/engine/src/plan.ts';
-import type { CurrencyDepth } from '../../packages/optimizer/src/optimize.ts';
 
 export interface EngineBase {
   readonly id: string;
@@ -108,7 +107,6 @@ export interface EnginePlan {
 export interface EngineResult {
   readonly frontier: readonly EnginePlan[];
   readonly plansEvaluated: number;
-  readonly currencyDepth: CurrencyDepth;
   /** True when a search cap stopped the planner early — the UI must offer more Search effort. */
   readonly truncated?: boolean;
   /**
@@ -216,7 +214,6 @@ export interface EngineAlternatives {
   readonly nodesEvaluated: number;
   /** The node cap stopped the search early — farther alternatives may be missing. */
   readonly truncated: boolean;
-  readonly currencyDepth: CurrencyDepth;
 }
 
 // ── From-item MDP (true expected cost + optimal-policy graph) ──────────────────

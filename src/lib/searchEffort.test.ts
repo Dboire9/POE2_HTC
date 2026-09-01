@@ -109,7 +109,6 @@ describe('the setting reaches the planners', () => {
     const quick = searchAt('quick');
     const top = searchAt('exhaustive');
     for (const r of [quick, top]) {
-      expect(r.currencyDepth).toBe('full');
       expect(r.truncated).toBeUndefined();
       // `orb`, not `tier`: `optimize` returns an EngineResult, whose steps are the UI's own shape.
       const strengths = new Set(r.frontier.flatMap((p) => p.steps.map((st) => st.orb ?? 'base')));
@@ -133,7 +132,6 @@ describe('the setting reaches the planners', () => {
     const bare = optimize(eng, 'Wands', 82, targets);
     const standard = searchAt('standard');
     expect(bare.plansEvaluated).toBe(standard.plansEvaluated);
-    expect(bare.currencyDepth).toBe(standard.currencyDepth);
     expect(bare.frontier.length).toBe(standard.frontier.length);
   });
 
@@ -163,7 +161,6 @@ describe('the setting reaches the planners', () => {
     });
     if (res.kind !== 'lab') throw new Error('expected a lab solve');
     expect(res.result.plansEvaluated).toBe(searchAt('quick').plansEvaluated);
-    expect(res.result.currencyDepth).toBe(searchAt('quick').currencyDepth);
   }, 60_000);
 });
 

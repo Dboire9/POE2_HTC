@@ -177,7 +177,7 @@ export function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
   const assumedOdds = res.frontier.some((plan) =>
     plan.steps.some((step) => step.currency === 'desecrate' && step.boss === undefined));
   return {
-    frontier, plansEvaluated: res.plansEvaluated, currencyDepth: res.currencyDepth, assumedOdds,
+    frontier, plansEvaluated: res.plansEvaluated, assumedOdds,
     ...(res.truncated ? { truncated: true } : {}),
   };
 }
@@ -294,8 +294,8 @@ export function mapAlternatives(data: PatchData, res: AlternativesResult): Engin
       inBudget: a.inBudget,
       inBudgetMax: a.inBudgetMax,
       exact: a.inBudgetMax - a.inBudget < 1e-9,
-      plan: mapFrontier(data, { frontier: [a.plan], plansEvaluated: 1, currencyDepth: res.currencyDepth }).frontier[0]!,
+      plan: mapFrontier(data, { frontier: [a.plan], plansEvaluated: 1 }).frontier[0]!,
     };
   });
-  return { rows, nodesEvaluated: res.nodesEvaluated, truncated: res.truncated, currencyDepth: res.currencyDepth };
+  return { rows, nodesEvaluated: res.nodesEvaluated, truncated: res.truncated };
 }

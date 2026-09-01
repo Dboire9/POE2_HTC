@@ -275,12 +275,16 @@ from one side's pool where a Regal draws from both — likelier, and dearer for 
 two-PREFIX target, which a Magic item cannot hold — so on that craft the Regal is required by a game
 rule and no Augmentation could have helped. The gap was real; the example demonstrated something else.
 
-Still open from this section, unchanged: **the MDP does not model a Magic START as a distinct node.**
-`enumerateStates` builds the full rare lattice, so `V(magic) = cost(regal) + Σ P(outcome)·V(rare)` is
-one Bellman backup on top of an existing solve. Two things stop it being a drop-in, both design rather
-than arithmetic: the state key has no rarity, so a Magic start encodes identically to the Rare state
-with the same mods; and `stateLabel` would render both the same, giving a graph whose first two boxes
-read alike and mean different things.
+**The rest of this section was STALE, and is now closed too.** It said "the MDP does not model a Magic
+START as a distinct node", blocked on "the state key has no rarity" and "`stateLabel` would render
+both identically". Both describe a design superseded when rarity entered the state: the key ends in a
+rarity code (`0:0:0:0:0:1` for Magic against `:2` for Rare), and no `stateLabel` exists anywhere in the
+repo. Verified 2026-09-01 — a Magic start solves exactly, over 397 states spanning the `magic` and
+`rare` rungs, at 1,552.19 ex against the Rare item's 1,426.68.
+
+The note survived a rewrite of this section because it was copied rather than checked. It is pinned by
+tests now (`markovFromItem.test.ts`, "a Magic start is modelled, not approximated") rather than
+described, which is the difference that would have caught it.
 
 ## 5. ~~The from-item step planner never varies orb strength~~ — DONE 2026-09-01
 
@@ -410,9 +414,18 @@ visualiser (`ANALYZE=1 npm run build`) showed, as a share of the 108.7 kB gzip b
 
 Two things worth a look, neither obviously worth it:
 
-- **tailwind-merge at 8.8%** is a lot for merging class strings. It is used only by the `cn()` helper.
-  If nothing actually relies on conflict resolution, `clsx` alone would do — but swapping it risks
-  quiet style breakage, so it needs a real audit of `cn()` call sites first.
+- ~~**tailwind-merge at 8.8%**~~ — **AUDITED 2026-09-01, KEEP IT.** `cn()` has exactly three call
+  sites (`badge.tsx`, `button.tsx`, `PolicyGraph.tsx`), and **two of them depend on conflict
+  resolution**, so `clsx` alone would not do:
+  - `<Badge variant="outline" className="border-amber-500/60 …">` — the "stopped early" badge. The
+    outline variant supplies `border-input`; both are border-COLOUR utilities.
+  - `<Badge className="text-[10px]">` — against the base's `text-xs`. Both are font sizes.
+
+  "Order the classes correctly" is not a fix: both members of each pair land in the stylesheet at the
+  same specificity, so the winner is decided by TAILWIND'S output order, not by the `class` attribute.
+  Dropping the loser is the only reliable way to make the caller's intent win. `src/lib/utils.test.ts`
+  pins this with the real class strings, so the audit does not need re-running and a swap fails the
+  suite.
 - **react-dom is half the bundle** and irreducible without changing framework. Not worth it.
 
 **CORRECTED 2026-08-26 — the Sentry row above was measured on a build with Sentry compiled OUT.**

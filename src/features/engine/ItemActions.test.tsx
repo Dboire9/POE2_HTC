@@ -21,7 +21,7 @@ const PE = mod('pe', 'Abyssal Mark', 'prefix', 'perfect', 'FamP', 1);
 
 const okFrontier: EngineResult = {
   frontier: [{ probability: 0.5, expected: 2, perAttempt: 1, expectedAttempts: 2, steps: [] }],
-  plansEvaluated: 1, currencyDepth: 'full', assumedOdds: false,
+  plansEvaluated: 1, assumedOdds: false,
 };
 // Two Annulment actions (plain + Omen of Light) — the component must render BOTH (keyed by label, not
 // currency, or React would collide the two 'annul' entries).

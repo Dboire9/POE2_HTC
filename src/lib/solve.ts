@@ -207,7 +207,7 @@ function frontierOrReason(run: () => EngineResult): EngineResult {
     return run();
   } catch (err) {
     return {
-      frontier: [], plansEvaluated: 0, currencyDepth: 'base-only', assumedOdds: false,
+      frontier: [], plansEvaluated: 0, assumedOdds: false,
       reason: `the step planner can’t lay out this craft: ${err instanceof Error ? err.message : String(err)}`,
     };
   }

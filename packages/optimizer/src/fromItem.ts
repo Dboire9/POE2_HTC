@@ -8,7 +8,7 @@
 // Essence (which removes one random mod as it adds). A MAGIC start is handled by opening with a Regal
 // Orb, which converts to Rare while adding one mod — without that, the commonest starting point in the
 // game (a magic base you are part-way through) had no planner at all. Everything runs at base orb
-// strength (`currencyDepth: 'base-only'`); tier targets are honoured and per-exalt /
+// strength; tier targets are honoured and per-exalt /
 // per-perfect-essence side omens are explored.
 
 import type { ItemBase, ItemState, PatchData } from '../../engine/src/types.ts';
@@ -202,7 +202,7 @@ function fromItemForOneCraft(
     const result = evaluatePlanFrom(data, start, []); // already the target — nothing to do
     return {
       frontier: [{ steps: [], result, cost: planExpectedCost(prices, result, []), probability: 1 }],
-      plansEvaluated: 1, currencyDepth: 'full',
+      plansEvaluated: 1,
     };
   }
 
@@ -284,11 +284,6 @@ function fromItemForOneCraft(
     // The assignments this search stands for, not the handful it scored — the DP rules the rest out by
     // proof rather than by evaluation, and a count that omitted them would understate the search.
     plansEvaluated: found.searched,
-    // `full`, and earned: every step is offered every strength the sheet prices and the player owns,
-    // and an option is dropped only when something at least as likely and no dearer beats it. This
-    // read `base-only` for as long as `baseTransforms` set no `tier` — an honest admission then, and
-    // the gap it admitted to is the one this closes.
-    currencyDepth: 'full',
     ...(found.truncated ? { truncated: true } : {}),
   };
 }

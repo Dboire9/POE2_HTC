@@ -23,7 +23,6 @@ const t1 = (id: string): number => data.mods.get(id)!.tiers.length - 1; // index
 describe('optimizePareto — tier targeting drives orb strength', () => {
   it('a T1 target yields a base→greater→perfect frontier (cost and probability both rise)', () => {
     const r = optimizePareto(data, prices, wands, [{ modId: P1, minTierIndex: t1(P1) }]);
-    expect(r.currencyDepth).toBe('full');
     expect(r.frontier.length).toBe(3); // one transmute step, three orb strengths, all non-dominated
     // `?? 'base'`: a base-strength step carries NO `tier` now. The skeleton sets none and the base
     // lever leaves it that way, which `currencyKey` and the UI's `ORB_SUFFIX` have always treated as
@@ -208,7 +207,9 @@ describe('optimizePareto — Orb of Alchemy opener', () => {
 
 /**
  * This used to be "throttles the orb-tier search on a big target and reports the depth", asserting
- * `currencyDepth !== 'full'` and `plansEvaluated <= 120_000` on a 6-target T1 craft.
+ * `currencyDepth !== 'full'` and `plansEvaluated <= 120_000` on a 6-target T1 craft. `CurrencyDepth`
+ * itself is gone now — with every craft searching every strength there was only ever one value left to
+ * report, and a badge that can say only one thing is noise rather than information.
  *
  * There is no throttle any more, and that is the point rather than a regression. The old search was a
  * `K! x Π|strengths| x 2^omens` product, so a big craft had to buy breadth back by dropping strengths —
@@ -225,9 +226,8 @@ describe('optimizePareto — a big craft searches every strength, without a thro
     'Wands/INTELLIGENCE', 'Wands/MANA_REGENERATION_RATE', 'Wands/INCREASED_CAST_SPEED',
   ].map((modId) => ({ modId, minTierIndex: t1(modId) }));
 
-  it('reports `full` and has earned it — the frontier really does reach for stronger orbs', () => {
+  it('really does reach for stronger orbs, and keeps base where it earns its place', () => {
     const r = optimizePareto(data, prices, wands, targets);
-    expect(r.currencyDepth).toBe('full');
     expect(r.frontier.length).toBeGreaterThan(0);
     expect(r.truncated).toBeUndefined();
     const strengths = new Set(r.frontier.flatMap((p) =>

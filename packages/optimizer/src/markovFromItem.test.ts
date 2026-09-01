@@ -1319,3 +1319,57 @@ describe('markovFromItem — costs are invariant under lattice reduction', () =>
     expect(r.expectedCost).toBe(111.62502259425796);
   });
 });
+
+/**
+ * A MAGIC START IS ITS OWN NODE, AND HAS BEEN SINCE RARITY ENTERED THE STATE.
+ *
+ * TODO 4 carried a paragraph saying this was still to do, with two blockers: "the state key has no
+ * rarity, so a Magic start encodes identically to the Rare state with the same mods", and "`stateLabel`
+ * would render both identically". Both described a design that had already been superseded — the key
+ * ends in a rarity code, and no `stateLabel` exists anywhere in the repo. The note survived a rewrite
+ * of the section around it because it was copied rather than checked, which is the failure mode a
+ * behavioural test closes and a comment does not.
+ *
+ * So: pinned rather than described. A Magic start must solve, must encode as Magic, and must produce a
+ * policy spanning BOTH rungs — the Regal or Augmentation that leaves Magic, and the Rare item after.
+ */
+describe('markovFromItem — a Magic start is modelled, not approximated', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadPrices('data/patches/0.5.0');
+  const wand = real.bases.get('Wands')!;
+  const P = wand.pools.normal.prefixes;
+  const S = wand.pools.normal.suffixes;
+  const placed = (id: string) => ({ modId: id, tierName: real.mods.get(id)!.tiers[0]!.name });
+  const targets = [P[1]!, S[0]!].map((modId) => ({ modId, minTierIndex: 0 }));
+  // `policy` is keyed by plain `string` while `decodeState` takes the branded `StateKey` — the same
+  // key, narrowed at a boundary this test happens to sit outside of.
+  const rungsOf = (keys: Iterable<string>): Set<string> =>
+    new Set([...keys].map((k) => decodeState(k as StateKey).rarity));
+  const held = { base: wand, level: 82, prefixes: [placed(P[0]!)], suffixes: [] };
+  const magic: ItemState = { ...held, rarity: 'magic' };
+  const rare: ItemState = { ...held, rarity: 'rare' };
+
+  it('solves a Magic start exactly, over both rarity rungs', () => {
+    const r = markovFromItem(real, rp, magic, targets, { solver: 'policy' });
+    expect(r.feasible).toBe(true);
+    expect(r.bound).toBe('exact');
+    expect(r.expectedCost).toBeGreaterThan(0);
+    const rungs = rungsOf(r.policy.keys());
+    expect(rungs.has('magic')).toBe(true);
+    expect(rungs.has('rare')).toBe(true);
+  });
+
+  /**
+   * The two starts must not collapse onto one another. Same mods, different rarity, different state —
+   * and a different answer, because a Magic item has to be opened before it can be exalted at all.
+   */
+  it('does not encode a Magic item as the Rare one with the same mods', () => {
+    const m = markovFromItem(real, rp, magic, targets, { solver: 'policy' });
+    const r = markovFromItem(real, rp, rare, targets, { solver: 'policy' });
+    const rungs = rungsOf(r.policy.keys());
+    expect(rungs.has('magic')).toBe(false); // a Rare craft never visits the Magic rung
+    expect(m.expectedCost).not.toBe(r.expectedCost);
+    // Dearer, and that is the direction that makes sense: the Magic item must be opened first.
+    expect(m.expectedCost).toBeGreaterThan(r.expectedCost);
+  });
+});

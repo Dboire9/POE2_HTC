@@ -251,6 +251,10 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   real targets. Reusing it would have shipped the axis as a no-op for the commonest from-item target.
   `leverOptions` filters on `p > 0`, which is exact because it computes the probability before deciding.
   `legalOrbTiers` is DELETED as of the from-white adoption below, which is what closed that hole.
+  **`CurrencyDepth` is gone too** (2026-09-01): with every craft searching every strength there was one
+  reachable value left, so a four-way field and its badge could only ever say one thing. The claim
+  survives as static text on the "checked N plans" line, still gated on a search having run — a planner
+  that DECLINED reports 0 plans and makes no claim about orbs it never looked at.
   The invariant is a property of today's `applyStep`, not a law, so `levers.test.ts` asserts it
   directly: every option must leave the same item behind. An Omen of Greater Exaltation adds TWO mods
   and could never be a lever here; `essenceTier` IS read by `applyStep`, which is why an essence level
@@ -312,7 +316,12 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   `allowsStep` reads the same key, so excluding Perfect Chaos Orbs (a row the UI offers) did nothing.
   Latent until the from-item axis started emitting them, which is why it shipped first and alone.
 - **The MDP now models rarity, so a craft can start from a white base or a Magic item.** State is
-  `(present, blocked, jp, js, desJunk, rarity)`; `enumerateStates` takes the rungs a craft occupies and
+  `(present, blocked, jp, js, flagged, rarity)` — the rarity really is in the KEY (`0:0:0:0:0:1` for
+  Magic against `:2` for Rare), so the two never collapse onto one another; a Magic start solves
+  exactly over both rungs and costs more, which is the direction that makes sense since the item has to
+  be opened first. TODO 4 claimed the opposite for weeks — "the state key has no rarity" and
+  "`stateLabel` would render both identically", the latter naming a function that does not exist —
+  because the note was copied through a rewrite rather than checked. Pinned by tests now. `enumerateStates` takes the rungs a craft occupies and
   DEFAULTS to Rare alone, which is what keeps every from-item solve exactly as fast as before. Transmute
   / Augment / Regal are actions with the same Greater/Perfect strengths an Exalt has; Exalt, Chaos,
   Desecrate and Perfect Essence are absent below Rare because the game says so.

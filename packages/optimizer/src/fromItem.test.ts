@@ -342,29 +342,23 @@ describe('optimizeFromItem — real data (Wands)', () => {
 // for "how long am I willing to wait" did not bind on the slowest half of a from-item compute.
 //
 // It also reported `currencyDepth: 'base-only'`, and that was the honest thing to say for as long as
-// `baseTransforms` set no `tier` on any add. The claim inverted when the lever DP arrived: every step
-// is now offered every strength the sheet prices and the player owns, so `'full'` is earned rather
-// than assumed. The assertion below moved with it — which is the point of pinning a claim to the
-// plans rather than to a string.
+// `baseTransforms` set no `tier` on any add. The lever DP made it false — every step is now offered
+// every strength the sheet prices and the player owns — and the field is gone entirely, because with
+// nothing left to report it was a badge that could only say one thing. The assertion below is on the
+// PLANS, which is what it should always have been pinned to.
 describe('optimizeFromItem — limits and what it admits to', () => {
   const start = rareItem(['NP1'], []); // one junk prefix to clear, one target to add
   const targets = [{ modId: 'NP2' }];
 
-  it('claims to have tried every orb strength, and now may', () => {
+  it('tries every orb strength, and no longer has to admit otherwise', () => {
     const r = optimizeFromItem(data, prices, start, targets);
-    expect(r.currencyDepth).toBe('full');
-    // On THIS fixture the claim still resolves to base-strength plans, and for two honest reasons: its
+    // On THIS fixture the search still resolves to base-strength plans, and for two honest reasons: its
     // mods have a single tier at ilvl 1, below every strength floor, and its sheet lists no `_greater`
     // key to buy. Both are exactly the cases `leverOptions` is required to skip rather than fake, so
     // this doubles as a check that a thin sheet cannot mint a free Perfect orb.
     for (const p of r.frontier) {
       for (const s of p.steps) expect('tier' in s ? s.tier : undefined).toBeUndefined();
     }
-  });
-
-  it('says so too when the item already matches the target', () => {
-    const r = optimizeFromItem(data, prices, rareItem(['NP2'], []), targets);
-    expect(r.currencyDepth).toBe('full');
   });
 
   it('runs to completion, and admits nothing was cut, when given no clock', () => {
@@ -488,7 +482,7 @@ describe('optimizeFromItem — a Magic item opens with a Regal', () => {
  * The synthetic fixture above cannot show this: single-tier mods at ilvl 1 put every strength floor out
  * of reach, and its price sheet lists no `_greater` key to buy. So the claim that this planner now
  * varies orb strength has to be made against the data the app actually runs on, or it is a claim about
- * a `currencyDepth` string and nothing else.
+ * a type-level claim and nothing else.
  *
  * Worth 1,116x on the craft that prompted this (success per attempt 1.53e-10% at base strength against
  * 1.71e-7% at Perfect), measured 2026-08-23 while the axis was still missing.
@@ -510,7 +504,6 @@ describe('optimizeFromItem — orb strength on real 0.5.0 data', () => {
 
   it('buys a Greater or Perfect orb when it is worth it', () => {
     const r = optimizeFromItem(real, rp, start, [hi(P[1]!), hi(S[0]!)]);
-    expect(r.currencyDepth).toBe('full');
     const strengths = new Set(r.frontier.flatMap((p) => p.steps.map((s) => ('tier' in s ? s.tier : undefined) ?? 'base')));
     expect(strengths.size).toBeGreaterThan(1);
   });

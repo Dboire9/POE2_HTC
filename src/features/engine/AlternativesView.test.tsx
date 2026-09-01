@@ -83,7 +83,7 @@ describe('AlternativesView', () => {
 // The panel used to `return null` on an empty frontier, so it silently wasn't there — indistinguishable
 // from a crash. Two things are pinned: that it renders something, and that what it renders is TRUE.
 describe('AlternativesView — the empty frontier', () => {
-  const empty = { rows: [], nodesEvaluated: 12, truncated: false, currencyDepth: 'full' as const };
+  const empty = { rows: [], nodesEvaluated: 12, truncated: false };
 
   it('says something instead of vanishing', () => {
     const { container } = render(<AlternativesView alts={empty} budget={5} />);

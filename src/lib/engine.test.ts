@@ -82,7 +82,6 @@ describe('engine facade — optimize', () => {
 
   it('reports the currency-tier search depth (never silently truncated)', () => {
     const r = optimize(eng, 'Wands', 82, [{ modId: MANA, tierDisplay: 1 }]);
-    expect(['full', 'base+strongest', 'strongest-only']).toContain(r.currencyDepth);
     expect(r.plansEvaluated).toBeGreaterThan(0);
   });
 });
@@ -536,7 +535,6 @@ describe('engine facade — budget alternatives (0.5.0)', () => {
     const r = alternatives(eng050, 'Wands', 82, hard, 30);
     expect(r.nodesEvaluated).toBeGreaterThan(0);
     expect(typeof r.truncated).toBe('boolean');
-    expect(['full', 'base+strongest', 'strongest-only']).toContain(r.currencyDepth);
   });
 });
 

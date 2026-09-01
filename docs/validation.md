@@ -2676,6 +2676,60 @@ stops meaning "exclude every chaos" the moment one exists. And `pusher` folds on
 distributions, so it cannot absorb a strength that differs in distribution but loses on price; the
 principled fix would be a dominance rule over distributions, and there is no cheap one.
 
+## Clearing the last of the backlog: three checks, two of them negative (2026-09-01)
+
+### `CurrencyDepth` deleted — one reachable value is not a report
+
+The field named which orb strengths a search had settled for, and its badge said so. With both planners
+searching every strength there was one value left, so a four-way type and a badge that could only ever
+say one thing were noise where they had been information. Removed from `optimize.ts`, `alternatives.ts`,
+`engineTypes.ts`, `engineMap.ts`, `solve.ts` and `FrontierView.tsx`, along with `DEPTH_RANK` and the
+depth-merging in both `mergeParetoRuns` and `mergeAlternativeRuns`. `evaluate` in `alternatives.ts`
+dropped its wrapper object and returns `Alternative | undefined`.
+
+The claim itself survives as static text on the "checked N plans" line, which is where a reader asking
+"how hard did it try" is already looking — and it stays gated on a search having run, so a planner that
+DECLINED reports 0 plans and makes no claim about orbs it never looked at.
+
+### The MDP's Magic start was already done, and the TODO saying otherwise was stale
+
+TODO 4 carried: "the MDP does not model a Magic START as a distinct node", blocked on "the state key has
+no rarity, so a Magic start encodes identically to the Rare state with the same mods" and "`stateLabel`
+would render both identically".
+
+Both describe a design superseded when rarity entered the state. Measured:
+
+| start | feasible | cost | bound | policy states | rungs | first key |
+|---|---|---|---|---|---|---|
+| Magic | yes | 1,552.19 | exact | 397 | magic, rare | `0:0:0:0:0:1` |
+| Rare | yes | 1,426.68 | exact | 357 | rare | `0:0:0:0:0:2` |
+
+The key ends in a rarity code, so the two never collapse; the Magic craft spans both rungs and costs
+more, which is the direction that makes sense since the item has to be opened first. And `stateLabel`
+does not exist anywhere in the repo — the note named a function that was never written.
+
+**It survived a rewrite of the section around it because it was copied rather than checked**, which is
+the failure a behavioural test closes and a comment does not. Pinned now in `markovFromItem.test.ts`.
+
+### tailwind-merge stays — the hypothesis was false
+
+TODO 6 proposed dropping tailwind-merge (8.8% of the bundle, ~10 kB gzip) for bare `clsx`, "if nothing
+actually relies on conflict resolution". `cn()` has exactly three call sites, and **two of them do**:
+
+| call site | conflicting pair | why |
+|---|---|---|
+| `<Badge variant="outline" className="border-amber-500/60 …">` | `border-input` vs `border-amber-500/60` | both border COLOUR |
+| `<Badge className="text-[10px]">` | `text-xs` vs `text-[10px]` | both font SIZE |
+| `PolicyGraph`'s coverage buttons | none | `border` is a width, `border-primary/60` a colour |
+
+"Just order the classes correctly" is not an escape: both members of each pair are emitted at the same
+specificity, so the winner is decided by TAILWIND'S output order rather than by the `class` attribute.
+Dropping the loser is the only reliable way to make the caller's intent win — which is precisely what
+tailwind-merge does and `clsx` does not.
+
+Pinned in `src/lib/utils.test.ts` with the real class strings, so the audit does not need re-running and
+a swap fails the suite rather than quietly breaking the amber "stopped early" badge.
+
 ## Still deferred
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
   8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.

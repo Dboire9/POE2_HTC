@@ -24,8 +24,8 @@ import { familiesOf, resolveMod } from '../../engine/src/pool.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import type { CostCdfBounds } from './cost.ts';
 import { DEFAULT_COST_CELLS, planCostCdf, pricesForBase } from './cost.ts';
-import type { CurrencyDepth, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
-import { DEPTH_RANK, optimizePareto } from './optimize.ts';
+import type { ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
+import { optimizePareto } from './optimize.ts';
 import { expandSlots, itemLegalCombinations } from './slots.ts';
 import { optimizeFromItem } from './fromItem.ts';
 
@@ -76,7 +76,6 @@ export interface AlternativesResult {
    */
   readonly truncated: boolean;
   /** The coarsest orb-strength search depth any node fell back to — reported, never silent. */
-  readonly currencyDepth: CurrencyDepth;
 }
 
 export interface AlternativesOptions {
@@ -268,25 +267,25 @@ function searchAlternatives(
   const screenOpts = { maxCells: Math.max(1, Math.floor((opts.costCells ?? DEFAULT_COST_CELLS) / 10)) };
 
   /** Best P(in budget) reachable for one relaxed target — the best way to spend the budget on it. */
-  const evaluate = (slots: readonly SlotChange[], closeness: Closeness): { alt?: Alternative; depth: CurrencyDepth } => {
+  const evaluate = (slots: readonly SlotChange[], closeness: Closeness): Alternative | undefined => {
     const targets: TierTarget[] = [];
     for (const s of slots) if (s.kind !== 'dropped') targets.push({ modId: s.modId, minTierIndex: s.minTierIndex });
-    if (targets.length === 0) return { depth: 'full' }; // dropped everything — not an item
+    if (targets.length === 0) return undefined; // dropped everything — not an item
     let res: ParetoResult;
     try {
       res = planFor(targets);
     } catch {
       // The relaxation made the target illegal (essence rules, slot shape). Not a candidate — but its
       // children still are, so the caller keeps expanding.
-      return { depth: 'full' };
+      return undefined;
     }
     const { plan: best, lower, upper } = bestByBudget(
       res.frontier,
       (p) => planCostCdf(prices, p.result, p.steps, budget, screenOpts),
       (p) => planCostCdf(prices, p.result, p.steps, budget, cdfOpts),
     );
-    if (!best) return { depth: res.currencyDepth };
-    return { alt: { slots, closeness, inBudget: lower, inBudgetMax: upper, plan: best }, depth: res.currencyDepth };
+    if (!best) return undefined;
+    return { slots, closeness, inBudget: lower, inBudgetMax: upper, plan: best };
   };
 
   const replaceAt = (slots: readonly SlotChange[], i: number, s: SlotChange): SlotChange[] =>
@@ -348,7 +347,6 @@ function searchAlternatives(
   const evaluated: Alternative[] = [];
   let nodes = 0;
   let truncated = false;
-  let depth: CurrencyDepth = 'full';
 
   /** Evaluate a node unless already seen. `spent` says whether a node budget was actually consumed —
    *  an already-seen node (a lattice diamond, or a seed that IS its own anchor) must not be charged. */
@@ -356,12 +354,11 @@ function searchAlternatives(
     const k = keyOf(slots);
     if (seen.has(k)) return { spent: false };
     seen.add(k);
-    const { alt, depth: d } = evaluate(slots, closenessOf(data, desired, slots));
+    const alt = evaluate(slots, closenessOf(data, desired, slots));
     nodes++;
     // The one place `nodes` moves, so the one place progress needs reporting. Per-node is cheap: the
     // cap is 200, and each node just cost a full Pareto run.
     opts.onProgress?.(nodes, maxNodes);
-    if (DEPTH_RANK[d] > DEPTH_RANK[depth]) depth = d;
     if (alt) {
       evaluated.push(alt);
       return { spent: true, alt };
@@ -421,7 +418,7 @@ function searchAlternatives(
     for (const seed of edits) explore(seed, each);
   }
 
-  return { frontier: frontierOf(evaluated), nodesEvaluated: nodes, truncated, currencyDepth: depth };
+  return { frontier: frontierOf(evaluated), nodesEvaluated: nodes, truncated };
 }
 
 /**
@@ -469,15 +466,13 @@ function mergeAlternativeRuns(
   const all: Alternative[] = [];
   let nodesEvaluated = 0;
   let truncated = false;
-  let depth: CurrencyDepth = 'full';
   for (const combo of combos) {
     const r = run(combo, each);
     all.push(...r.frontier);
     nodesEvaluated += r.nodesEvaluated;
     if (r.truncated) truncated = true;
-    if (DEPTH_RANK[r.currencyDepth] > DEPTH_RANK[depth]) depth = r.currencyDepth;
   }
-  return { frontier: frontierOf(all), nodesEvaluated, truncated, currencyDepth: depth };
+  return { frontier: frontierOf(all), nodesEvaluated, truncated };
 }
 
 /**

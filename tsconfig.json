@@ -11,6 +11,12 @@
     "noEmit": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
+    // Turned on 2026-09-01. `src` ALREADY compiled clean under it — the code has always written
+    // `arr[0]!` as though the flag were on, matching the packages, which have carried it from the
+    // start. So the root project was one notch looser than the code assumed: paying the cost of the
+    // stricter setting without getting its protection. ESLint is what surfaced this, by reporting 157
+    // "unnecessary" assertions that are only unnecessary while this line is missing.
+    "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "moduleResolution": "bundler",

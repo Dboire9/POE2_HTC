@@ -13,7 +13,7 @@
 // alternatives, policy graph). Results are derived, and a stored one could outlive the inputs that
 // produced it — a plan on screen that no longer matches the item above it is worse than no plan.
 
-import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
 import type { PatchData } from '../../packages/engine/src/types.ts';
 import { isEssenceMod } from '../../packages/engine/src/probability.ts';
 import type { ItemModInput, TargetInput } from './engineTypes.ts';
@@ -468,18 +468,26 @@ export function useMode(): ['plan' | 'item', (m: 'plan' | 'item') => void] {
  * That signature is the point: every call site in the components
  * (`setFractured((f) => { const n = new Set(f); … })`) keeps working untouched, so moving state out of
  * the components is a change to their `useState` lines and nothing else.
+ *
+ * The setter is `useCallback`'d, and that is load-bearing rather than a micro-optimisation. It used to
+ * be a fresh closure every render, which made it a LYING dependency: a caller that listed it in an
+ * effect's dep array — which is exactly what `react-hooks/exhaustive-deps` asks for — would re-run
+ * that effect on every render, and the effects holding it are the ones that load the engine. So every
+ * consumer was forced to omit it and suppress the rule. Memoising is safe here without qualification
+ * because the closure captures nothing render-scoped: it reads `getWorkspace()` live, precisely so two
+ * updates in one tick both land, so there is no snapshot to go stale.
  */
 export function useField<S extends 'lab' | 'item', K extends keyof Workspace[S]>(
   section: S, key: K,
 ): [Workspace[S][K], (v: Workspace[S][K] | ((prev: Workspace[S][K]) => Workspace[S][K])) => void] {
   const ws = useWorkspace();
-  const set = (v: Workspace[S][K] | ((prev: Workspace[S][K]) => Workspace[S][K])): void => {
+  const set = useCallback((v: Workspace[S][K] | ((prev: Workspace[S][K]) => Workspace[S][K])): void => {
     // Read through the store, not the render-time snapshot: two updates in one tick (adding a target
     // and clearing its pin, say) must both land rather than the second overwriting the first.
     const live = getWorkspace();
     const prev = live[section][key];
     const nextValue = typeof v === 'function' ? (v as (p: Workspace[S][K]) => Workspace[S][K])(prev) : v;
     setWorkspace({ ...live, [section]: { ...live[section], [key]: nextValue } });
-  };
+  }, [section, key]);
   return [ws[section][key], set];
 }

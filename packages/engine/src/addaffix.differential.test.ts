@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import type { ItemState, PatchData, PlacedMod } from './index.ts';
+import type { ItemState, PlacedMod } from './index.ts';
 import { loadPatch, addAffixProbability } from './index.ts';
 
 // Full-branch differential: `addAffixProbability` (the shared transmute/aug/regal/exalt math) vs the
@@ -38,7 +38,7 @@ describe('add-affix — TS vs Java differential across all NormalCompute branche
   for (const scenario of scenariosFile.scenarios) {
     const probs = fixture.scenarios[scenario.name];
     describe(scenario.name, () => {
-      it('scenario present in fixture', () => expect(probs).toBeDefined());
+      it('scenario present in fixture', () => { expect(probs).toBeDefined(); });
       const item = buildItem(scenario);
 
       for (const [modId, v] of Object.entries(probs ?? {})) {

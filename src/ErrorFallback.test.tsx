@@ -13,7 +13,7 @@ import { ErrorBoundary } from './lib/sentry';
 const setUrl = (href: string) => {
   Object.defineProperty(window, 'location', {
     configurable: true,
-    value: new URL(href) as unknown as Location,
+    value: new URL(href),
   });
 };
 const origin = window.location.href;

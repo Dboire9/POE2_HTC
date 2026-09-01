@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import type { ItemState, Mod } from './index.ts';
+import type { ItemState } from './index.ts';
 import { loadPatch, essenceForcedProbability, desecrationProbability, desecrationBossProbability } from './index.ts';
 import type { DesecrationBossOmen } from './probability.ts';
 
@@ -43,8 +43,14 @@ describe('0.5.0 shipped essence pool', () => {
         if (m.source === 'perfect_essence') { mod = m; break outer; }
       }
     expect(mod, 'a perfect-essence mod exists in 0.5.0').toBeDefined();
+    // The `!`s are NOT redundant: `expect(...).toBeDefined()` is a runtime assertion vitest cannot
+    // express as a type predicate, so `mod` stays `Mod | undefined` to the compiler. ESLint's
+    // no-unnecessary-type-assertion disagrees because it reads this file against a project where the
+    // narrowing happens to hold; the engine's own tsconfig is stricter and is the one CI runs.
+    /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
     expect(mod!.tiers.length).toBe(1);
     expect(mod!.tiers[0]!.weight).toBe(0); // deterministic — no roll weight
+    /* eslint-enable @typescript-eslint/no-unnecessary-type-assertion */
   });
 
   it('a regular essence deterministically forces its mod (P=1) onto a Magic item; 0 on white/rare', () => {
@@ -58,12 +64,6 @@ describe('0.5.0 shipped essence pool', () => {
 });
 
 describe('0.5.0 shipped desecrated pool', () => {
-  const firstDesecratedPrefix = (): Mod => {
-    for (const base of data.bases.values())
-      for (const id of base.pools.desecrated.prefixes) return data.mods.get(id)!;
-    throw new Error('no desecrated prefixes in 0.5.0');
-  };
-
   it('every desecrated entry resolves to a source=desecrated mod with a positive weight', () => {
     let seen = 0;
     for (const base of data.bases.values())

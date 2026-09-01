@@ -15,7 +15,7 @@ import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
 import { allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost } from './cost.ts';
 import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
 import {
-  FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, MAX_PER_SIDE, addTo, anyWeightOf, bit, decodeState,
+  FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, addTo, anyWeightOf, bit, decodeState,
   encodeState as encodeStateRaw, flagJunkSide, flagTarget, flaggedTarget, has, hasDesecrated,
   occupiedFamilies, perSideCap, prefUsed, representative, succWeightOf, sufUsed,
 } from './markovState.ts';

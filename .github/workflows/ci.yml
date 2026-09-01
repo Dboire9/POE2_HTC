@@ -39,6 +39,11 @@ jobs:
       - name: Type check engine + optimizer
         run: npm run type-check:engine && npm run type-check:optimizer
 
+      # `tsc` sees no unused import, no floating promise, no stale eslint-disable, no accidental `any`
+      # in a test. Added 2026-09-01 — see eslint.config.js for why the two trees get different tiers.
+      - name: Lint
+        run: npm run lint
+
       - name: Test
         run: npm test -- --run
 

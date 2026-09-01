@@ -22,7 +22,7 @@ describe('transmute — TS vs Java differential (patch 0.5)', () => {
   for (const [baseId, probs] of Object.entries(fixture.bases)) {
     describe(baseId, () => {
       const base = data.bases.get(baseId);
-      it('base exists', () => expect(base).toBeDefined());
+      it('base exists', () => { expect(base).toBeDefined(); });
 
       for (const [modId, javaP] of Object.entries(probs)) {
         it(`${modId} matches Java (${javaP.toFixed(6)})`, () => {

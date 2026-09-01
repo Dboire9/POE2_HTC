@@ -65,7 +65,7 @@ function auditPatch(patch: string, baseline: Baseline): void {
       const bad: string[] = [];
       for (const m of data.mods.values()) {
         if (!m.group || !m.field) bad.push(`${m.id}: empty group/field`);
-        if (m.type !== 'prefix' && m.type !== 'suffix') bad.push(`${m.id}: bad type ${m.type}`);
+        if (m.type !== 'prefix' && m.type !== 'suffix') bad.push(`${m.id}: bad type ${String(m.type)}`);
         if (m.tiers.length === 0) bad.push(`${m.id}: no tiers`);
       }
       expect(bad).toEqual([]);

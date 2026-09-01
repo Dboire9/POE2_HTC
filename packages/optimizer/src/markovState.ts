@@ -154,7 +154,7 @@ export const encodeState = (
 export type StateEncoder = typeof encodeState;
 
 export const decodeState = (k: StateKey): McState => {
-  const [present, blocked, jp, js, flagged, rar] = k.split(':').map(Number) as number[];
+  const [present, blocked, jp, js, flagged, rar] = k.split(':').map(Number);
   return {
     present: present!, blocked: blocked!, jp: jp!, js: js!,
     flagged: flagged!, rarity: RARITY_BY_CODE[rar!]!,

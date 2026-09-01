@@ -129,7 +129,7 @@ describe('alternativesFromWhite — value retained', () => {
     const desired: AlternativeTarget[] = [{ modId: 'PAsymRare', minTierIndex: 2 }, { modId: 'SFill' }];
     const r = alternativesFromWhite(data, prices, base, desired, 20);
     const slid = r.frontier.find((a) =>
-      a.slots[0]!.kind === 'kept' && 'minTierIndex' in a.slots[0]! && a.slots[0]!.minTierIndex === 1);
+      a.slots[0]!.kind === 'kept' && 'minTierIndex' in a.slots[0]! && a.slots[0].minTierIndex === 1);
     expect(slid).toBeDefined();
     expect(slid!.closeness.valueRetained).toBeCloseTo(5 / 6, 9);
   });
@@ -155,7 +155,7 @@ describe('alternativesFromWhite — pinned targets are frozen', () => {
     const free = alternativesFromWhite(data, prices, base,
       [{ modId: 'PAsymRare', minTierIndex: 2 }, { modId: 'SFill' }], 20);
     expect(free.frontier.some((a) => !(
-      a.slots[0]!.kind === 'kept' && 'minTierIndex' in a.slots[0]! && a.slots[0]!.minTierIndex === 2
+      a.slots[0]!.kind === 'kept' && 'minTierIndex' in a.slots[0]! && a.slots[0].minTierIndex === 2
     ))).toBe(true);
   });
 });

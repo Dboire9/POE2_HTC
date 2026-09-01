@@ -470,10 +470,16 @@ that var is set.
 > Sections 7–9 are a day of work in total and should come before anything else. 10–12 are real product
 > gaps of a few days each. 13–16 are larger and worth planning rather than starting. 17 records what was
 > considered and deliberately rejected, so it is not re-proposed.
+>
+> **Update 2026-09-01, same day: 7, 8 and 9 are DONE.** Their sections are kept in full rather than
+> deleted, because each records why the work was scoped the way it was and what NOT to do next time —
+> see the closing note under each. **§10 (Playwright smoke tests) is now the first open item**, and it
+> is where the verdict above still bites: nothing that ships has been seen in a browser by anything
+> but a person.
 
 ---
 
-## 7. The public docs describe a retired app — TIER 1, DO FIRST
+## 7. ~~The public docs describe a retired app~~ — DONE 2026-09-01
 
 **What is wrong.** `README.md` and `docs/USER_GUIDE.md` describe the application as it was in July: an
 Electron desktop app with a Windows installer, an auto-updater, and a Java beam-search backend. All of
@@ -544,9 +550,17 @@ Features list. The roadmap contains nothing that already ships.
 **Do not** touch `docs/ABOUT.md`'s past-tense history of the Java era — that is deliberate and accurate
 (see CLAUDE.md, "Java-retirement doc debt"). The problem is present-tense claims, not history.
 
+**DONE 2026-09-01** (`b47e38a`). Both files rewritten rather than patched. The `grep` in *Verify*
+returns only past-tense Java mentions, which are deliberate. Three claims written from the components
+turned out to be wrong about the components and were corrected before landing: the exclusions control
+is labelled **"Currency I don't have"** and ticking members NARROWS the exclusion rather than widening
+it; **Copy link carries neither Search effort nor currency exclusions** (both are localStorage, and the
+guide now explains why that split is right — they describe your machine and your stash, not the craft);
+and **Report a problem builds a copyable block**, it does not file an issue. Screenshots are still
+absent and still Dorian's to take. `docs/DOWNLOAD.md` was already accurate and was left alone.
 ---
 
-## 8. Prices should refresh themselves — TIER 1
+## 8. ~~Prices should refresh themselves~~ — DONE 2026-09-01
 
 **What is wrong.** `data/patches/0.5.0/prices.json` was last updated 2026-08-22 — ten days before this
 review. poe.ninja confirms "Runes of Aldur" is still the live league, so the data is not WRONG, but a
@@ -589,9 +603,20 @@ new `updated` date.
 clients not to call the API directly; the committed-snapshot design is right (the header comment in
 `prices.mjs` explains it). Automate the snapshot, do not replace it.
 
+**DONE 2026-09-01** (`3d8bc5e`). `.github/workflows/refresh-prices.yml`, Monday 06:00 UTC plus
+`workflow_dispatch`. A dry run while writing it found **18 prices already moved** since the 2026-08-22
+sheet, so the premise was live rather than theoretical. Three departures from the plan above, each for
+a reason worth keeping: (1) the shape tests run in the REFRESH JOB, not on the PR — a PR opened with
+the built-in `GITHUB_TOKEN` does not trigger workflows, so "CI will catch it on the PR" would have
+opened a PR nothing had checked, and doing it this way needs no PAT; (2) `gh pr create` rather than
+`peter-evans/create-pull-request` — `gh` is already on the runner, and this repo runs CodeQL, so adding
+a third-party action to touch the file the whole cost model rests on is a poor trade for twenty lines;
+(3) the dispatch input reaches bash through `env`, never `${{ }}` inline, which would be a script
+injection. The omenQuotes staleness warning is lifted into a GitHub warning callout at the top of the
+PR body, and the body says not to auto-merge and why.
 ---
 
-## 9. A linter, and manifest hygiene — TIER 1
+## 9. ~~A linter, and manifest hygiene~~ — DONE 2026-09-01
 
 **What is wrong.** There is no ESLint (or Biome, or anything) — only `.editorconfig`. `tsc` catches type
 errors and nothing else: not unused imports, not accidental `any` in tests, not `console.log` left in
@@ -627,6 +652,38 @@ production dependency set.
 comments, the wrapped conditionals); reformatting 20,000 lines in one commit destroys `git blame` for
 every file at once. If formatting is wanted later, do it file-by-file as files are touched.
 
+**DONE 2026-09-01** (`c3b3cde` config + manifest, then the fixes). `npm run lint` is green, in CI
+after the type-checks, and in the ship skill.
+
+**The first run paid for the install immediately, in a way worth recording.** It reported 157
+"unnecessary" non-null assertions in `src/` — unnecessary only because the ROOT tsconfig lacked
+`noUncheckedIndexedAccess`. The code had always written `arr[0]!` as though the flag were on, matching
+the packages. So the root project was a notch looser than the code assumed: paying the stricter
+setting's cost without its protection. Turning it on cost **zero** errors and dropped the finding count
+274 → 85. `exactOptionalPropertyTypes` is the remaining gap (8 errors, all React prop spreading) and is
+NOT done — a good small follow-up.
+
+**Do not clear findings with a blanket `--fix`.** It produced two wrong changes here. It deleted the
+parameter defaults from the `StateEncoder` returned by `encoderFor` (`markovSymmetry.ts`) — `keepClass`
+calls that with four arguments, so keys would have become `…:undefined:undefined`, stopped matching
+`encodeState`, and disabled symmetry reduction **silently** rather than failing. And it stripped `mod!`
+from `shipped-pools.test.ts`, which the engine's stricter tsconfig requires (`expect(x).toBeDefined()`
+is not a type predicate). Both are now pinned with a disable comment carrying the reason.
+
+Beyond the config, the fixes were real: 13 dead imports and variables removed; 7 `eslint-disable`
+comments for `import/first`, a rule this repo never had a plugin for, deleted; `Response.json()`'s
+`any` named at the boundary (`ModsFile` / `BasesFile` / `PricesFile`) so a data refresh that changed a
+shape would now fail the type-check; `new Array(N)` given its element type in the MDP's three hot
+allocations; two async click handlers made explicitly fire-and-forget; and `useField`'s setter wrapped
+in `useCallback` — it was a fresh closure every render, which made it a **lying dependency**: any
+caller that listed it, as `exhaustive-deps` asks, would re-run its effect on every render, and the
+effects holding it are the ones that load the engine. Memoising is unconditionally safe there because
+the closure captures nothing render-scoped; it reads `getWorkspace()` live by design.
+
+Manifest: `lucide-react` removed (imported by nothing), `@testing-library/dom` moved to
+devDependencies, `class-variance-authority`/`clsx`/`tailwind-merge` moved to dependencies where their
+runtime imports say they belong, and a pre-existing high-severity `browserslist` advisory fixed.
+`npm audit --omit=dev` now reports zero. Prettier was **not** added, per the note above.
 ---
 
 ## 10. Browser smoke tests — TIER 2, THE BIGGEST ENGINEERING GAP

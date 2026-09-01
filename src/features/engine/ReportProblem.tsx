@@ -57,10 +57,15 @@ const ReportProblem: React.FC<{ version: string; open: boolean; onClose: () => v
   const [basis, setBasis] = useState<{ patch?: string; asOf?: string } | undefined>(undefined);
   const [body, setBody] = useState('');
 
+  // A synchronous setState in an effect, deliberately: the body is a SNAPSHOT of the workspace at the
+  // moment the panel opens, and `shareUrl()` reads the live store rather than anything in props. Doing
+  // it during render would recompose on every keystroke elsewhere in the app, so a user who opened the
+  // panel, then went back to adjust their craft, would find the report silently rewritten under them.
   useEffect(() => {
     if (!open) return;
     // Composed on OPEN, not on render: the workspace changes as the user works, and a report built
     // early would describe a craft they have since moved on from.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setBody(reportBody(version, shareUrl(), navigator.userAgent, basis));
   }, [open, version, basis]);
 
@@ -112,7 +117,7 @@ const ReportProblem: React.FC<{ version: string; open: boolean; onClose: () => v
         className="w-full rounded-md border border-input bg-background p-2 font-mono text-[11px] focus:outline-none focus:ring-2 focus:ring-ring"
       />
       <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={copy} size="sm">Copy report</Button>
+        <Button onClick={() => void copy()} size="sm">Copy report</Button>
         <a
           href={DISCORD_URL} target="_blank" rel="noopener noreferrer"
           className="text-xs underline text-muted-foreground hover:text-foreground"

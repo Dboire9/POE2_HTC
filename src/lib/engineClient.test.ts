@@ -11,11 +11,8 @@ vi.mock('./engine.ts', async (importOriginal) => {
   return { ...actual, loadEngine: () => Promise.resolve(eng) };
 });
 
-// eslint-disable-next-line import/first
 import { solve, isCancelled } from './engineClient.ts';
-// eslint-disable-next-line import/first
 import type { SolveProgress } from './solve.ts';
-// eslint-disable-next-line import/first
 import { listMods } from './engine.ts';
 
 // The client is the one link in the chain nothing else covers: solve.ts is tested directly, and the

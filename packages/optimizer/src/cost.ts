@@ -91,7 +91,7 @@ export interface Prices {
   readonly meta?: PricesMeta;
 }
 
-interface PricesFile {
+export interface PricesFile {
   patch?: string; prices: Record<string, number>; omens?: Record<string, number>;
   bones?: Record<string, number>;
   generated?: string; updated?: string; source?: string; unit?: string; estimated?: boolean;
@@ -416,7 +416,7 @@ export function planCostCdf(
   const maxCells = Math.max(1, Math.floor(opts.maxCells ?? DEFAULT_COST_CELLS));
   const quantum = exactQuantum([...fails.map((f) => f.cost), total]);
   const exact = quantum !== undefined && budget / quantum <= maxCells;
-  const h = exact && quantum !== undefined ? quantum : budget / maxCells;
+  const h = exact ? quantum : budget / maxCells;
   // floor, NOT max(1, floor): cell i represents a cost of i·h, so when the budget can't even cover one
   // quantum the honest cell count is 0 (only a free plan fits) — clamping up to 1 would invent a cell
   // ABOVE the budget and report plans as affordable that aren't.

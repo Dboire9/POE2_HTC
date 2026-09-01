@@ -8,14 +8,14 @@
 // of them and score each exactly with the engine's evaluatePlan. No heuristic, no beam pruning: the
 // returned plan is the true probability-maximising ordering. The search is analytic and exact.
 
-import type { ItemBase, ItemState, PatchData, Rarity } from '../../engine/src/types.ts';
+import type { ItemBase, PatchData, Rarity } from '../../engine/src/types.ts';
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlan, evaluatePlanFrom } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
 import { whiteItem } from '../../engine/src/item.ts';
 import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
-import { allowsStep, cheapestEssenceLevel, essenceLevelOf, planExpectedCost, pricesForBase } from './cost.ts';
+import { cheapestEssenceLevel, essenceLevelOf, planExpectedCost, pricesForBase } from './cost.ts';
 import { combinations, permutations } from './combinatorics.ts';
 import { expandSlots, itemLegalCombinations } from './slots.ts';
 import type { LeverCandidate } from './leverDp.ts';
@@ -322,7 +322,10 @@ function alchemyOpenerSequences(
   for (const four of combinations(anyTier, ALCHEMY_MOD_COUNT)) {
     let pre = 0;
     let suf = 0;
-    for (const id of four) (resolveMod(data, id).type === 'prefix' ? pre++ : suf++);
+    for (const id of four) {
+      if (resolveMod(data, id).type === 'prefix') pre++;
+      else suf++;
+    }
     if (pre > 3 || suf > 3) continue; // alchemy places at most 3 per side
     const fourSet = new Set(four);
     const rest = modIds.filter((id) => !fourSet.has(id));
@@ -405,8 +408,7 @@ export function mergeParetoRuns(
   const ticks = combos.length * COMBO_TICKS;
   for (let c = 0; c < combos.length; c++) {
     const sub = report
-      ? (done: number, total: number) =>
-        report(c * COMBO_TICKS + Math.round((COMBO_TICKS * done) / Math.max(1, total)), ticks)
+      ? (done: number, total: number) => { report(c * COMBO_TICKS + Math.round((COMBO_TICKS * done) / Math.max(1, total)), ticks); }
       : undefined;
     const r = run(combos[c]!, sub);
     all.push(...r.frontier);

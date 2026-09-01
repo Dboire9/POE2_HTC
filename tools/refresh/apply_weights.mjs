@@ -69,7 +69,7 @@ function getIndex(page) {
     try {
       const html = readFileSync(join(PDB, `${page}.html`), 'utf8');
       idx = buildWeightIndex(parsePoe2dbHtml(html).normal || []);
-    } catch (e) { /* missing page */ }
+    } catch { /* missing page */ }
     pageCache.set(page, idx);
   }
   return pageCache.get(page);

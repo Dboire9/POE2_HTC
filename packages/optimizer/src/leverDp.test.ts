@@ -216,7 +216,7 @@ describe('bestLeverAssignments — brute force agrees on real data too', () => {
   it('reaches for a stronger orb on the live sheet, which is the whole point', () => {
     const skeleton: PlanStep[] = [{ currency: 'exalt', add: ids[2]!, minTierIndex: 6 }];
     const r = bestLeverAssignments(real, rp, held, skeleton);
-    const strengths = new Set(r.candidates.map((c) => ('tier' in c.steps[0]! ? c.steps[0]!.tier : undefined) ?? 'base'));
+    const strengths = new Set(r.candidates.map((c) => ('tier' in c.steps[0]! ? c.steps[0].tier : undefined) ?? 'base'));
     expect(strengths.size).toBeGreaterThan(1); // base alone would mean the axis does nothing
   });
 });

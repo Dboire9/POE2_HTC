@@ -263,11 +263,11 @@ describe('optimizePareto — desecrated targets (from white)', () => {
       ['NS1', mk('NS1', 'suffix', 'Fs1', 'normal')], ['DS1', mk('DS1', 'suffix', 'Fds', 'desecrated', ['kurgal_mod'])],
     ]),
     bases: new Map([['S', sbase]]),
-  } as unknown as PatchData;
+  };
   const sprices: Prices = { currency: { transmute: 0.002, augment: 0.01, regal: 0.15, exalt: 1, desecrate: 0.5 }, omens: {} };
 
   it('builds the Rare with the normal add-chain, then Desecrates the desecrated mod (boss omen)', () => {
-    const r = optimizePareto(sdata, sprices, sbase as never, [
+    const r = optimizePareto(sdata, sprices, sbase, [
       { modId: 'NP1' }, { modId: 'NP2' }, { modId: 'NS1' }, { modId: 'DS1' },
     ]);
     expect(r.frontier.length).toBeGreaterThan(0);
@@ -295,7 +295,7 @@ describe('optimizePareto — desecrated targets (from white)', () => {
         ['DS1', mk('DS1', 'suffix', 'Fds', 'desecrated', ['amanamu_mod'])],
       ]),
       bases: new Map([['S', twoDes]]),
-    } as unknown as PatchData;
+    };
     expect(() => optimizePareto(d2, sprices, twoDes as never, [
       { modId: 'NP1' }, { modId: 'DP1' }, { modId: 'DS1' },
     ])).toThrow(/at most one desecrated mod/i);
@@ -304,7 +304,7 @@ describe('optimizePareto — desecrated targets (from white)', () => {
   it('returns no plan when the normal mods can’t reach Rare on their own (only 1 normal + desecrated)', () => {
     // One normal prefix + the desecrated suffix: the add-chain never reaches Rare (no regal), so the
     // desecration can never fire — an honest empty frontier rather than a bogus plan.
-    const r = optimizePareto(sdata, sprices, sbase as never, [{ modId: 'NP1' }, { modId: 'DS1' }]);
+    const r = optimizePareto(sdata, sprices, sbase, [{ modId: 'NP1' }, { modId: 'DS1' }]);
     expect(r.frontier.length).toBe(0);
   });
 });

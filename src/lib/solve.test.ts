@@ -14,7 +14,7 @@ import { runSolve, toFraction, type SolveProgress, type SolveRequest } from './s
 // why the logic was pulled out to here.
 const eng = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
 const mods = listMods(eng.data, 'Wands');
-const [p0, p1] = [mods.prefixes[0]!.id, mods.prefixes[1]!.id];
+const p0 = mods.prefixes[0]!.id;
 const s0 = mods.suffixes[0]!.id;
 
 const item: ExistingItem = {
@@ -260,8 +260,8 @@ describe('a planner that declines does not delete the other one', () => {
     expect(got.result.reason).toMatch(/rollable mod/i); // …carrying its OWN sentence, not a generic one
     // …and the model answered anyway, which is the whole point.
     expect(got.markov?.feasible).toBe(true);
-    expect(got.markov!.expectedCost).toBeGreaterThan(0);
-    expect(Number.isFinite(got.markov!.expectedCost)).toBe(true);
+    expect(got.markov.expectedCost).toBeGreaterThan(0);
+    expect(Number.isFinite(got.markov.expectedCost)).toBe(true);
   }, 120_000);
 
   it('leaves a craft both planners CAN do completely untouched', () => {
@@ -302,7 +302,7 @@ describe('policy iteration answers where value iteration can only bound', () => 
       ...ring, effort: { maxMillis: 120_000, maxNodes: 200, maxSweeps, solver },
     });
     if (got.kind !== 'lab') throw new Error('wrong kind');
-    return got.markov!;
+    return got.markov;
   };
 
   it('turns a ceiling into an exact answer at the same budget', () => {

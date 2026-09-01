@@ -49,7 +49,7 @@ describe('transmute on a white item (hand-computed)', () => {
 
   it('rejects non-pool and non-normal mods', () => {
     expect(transmuteProbability(DATA, BASE, 'S_ATTR')).toBeGreaterThan(0);
-    expect(transmuteProbability(DATA, BASE, 'NOPE' as string & {})).toBe(0);
+    expect(transmuteProbability(DATA, BASE, 'NOPE')).toBe(0);
   });
 });
 

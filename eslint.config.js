@@ -99,7 +99,7 @@ export default tseslint.config(
 
   // ---- tests -----------------------------------------------------------------------------------
   {
-    files: ['**/*.test.{ts,tsx}', '**/*.differential.test.ts', 'src/setupTests.ts'],
+    files: ['**/*.test.{ts,tsx}', 'src/test/**/*.ts'],
     languageOptions: {
       globals: { ...globals.node },
     },
@@ -113,6 +113,14 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
+      // A test asserting a fact the TYPE already guarantees is not a redundant check — it is the
+      // test doing its job. `dataIntegrity.test.ts` verifies that mods.json ON DISK matches the shape
+      // `Mod` claims; `exclusions.test.ts` probes a PlanStep's runtime fields. The type is the claim
+      // under test, so it cannot also be the authority that excuses the test.
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      // A test shim implements a browser interface it does not fully own — the in-process Worker's
+      // `postMessage` is async where the DOM's is void — and assigns onto `globalThis`.
+      '@typescript-eslint/no-misused-promises': 'off',
       // Measurement harnesses print their numbers; that is the point of them.
       'no-console': 'off',
     },

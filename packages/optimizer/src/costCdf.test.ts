@@ -8,7 +8,7 @@ import { mulberry32 } from './simulate.ts';
 // every atom is hand-computable. No engine, no data — this tests the cost math in isolation.
 const prices: Prices = { currency: { transmute: 1, exalt: 2 }, omens: {} };
 const steps = (...cur: ('transmute' | 'exalt')[]): PlanStep[] =>
-  cur.map((currency) => ({ currency, add: 'X' }) as PlanStep);
+  cur.map((currency) => ({ currency, add: 'X' }));
 const result = (...probs: number[]): PlanResult => ({
   steps: probs.map((prob) => ({ currency: 'exalt' as const, target: 'X', prob })),
   total: probs.reduce((a, b) => a * b, 1),

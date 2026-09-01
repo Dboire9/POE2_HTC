@@ -40,7 +40,7 @@ import { createActionSpace } from './markovActions.ts';
 import type { McState, McTarget, StateKey, McRarity } from './markovState.ts';
 import {
   FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, MAX_PER_SIDE, bit, classifyStart, decodeState,
-  encodeState, enumerateStates, flaggedTarget, has, isAccepting, popcount, representative,
+  enumerateStates, flaggedTarget, has, isAccepting, popcount, representative,
   sideIndexOf, slotsFilled,
 } from './markovState.ts';
 
@@ -291,7 +291,13 @@ export function markovFromItem(
   const cands: ResolvedCandidate[] = [];
   for (const t of targets) {
     const mod = resolveMod(data, t.modId);
+    // `ModSource` currently has exactly these four members, so TypeScript proves this branch dead
+    // and the rule says so. It stays because the check is on DATA, not on the type: `mods.json` is
+    // regenerated from poe2db by `tools/refresh/`, and a fifth source appearing there would arrive as
+    // a string the loader happily carries. Better a named refusal than a mod silently resolving into
+    // a bitmask position it does not belong in.
     if (mod.source !== 'normal' && mod.source !== 'desecrated'
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       && mod.source !== 'perfect_essence' && mod.source !== 'essence') {
       return fail(`${t.modId} is not a rollable, desecrated or essence mod (the MDP handles those)`);
     }
@@ -627,7 +633,7 @@ export function markovFromItem(
     /** Draws shown to the player, of which they keep the best; 1 for an ordinary action. See `valueOf`. */
     readonly offer: number;
   }
-  const compiled: CompiledAction[][] = new Array(N);
+  const compiled: CompiledAction[][] = new Array<CompiledAction[]>(N);
   let cheapestAction = Infinity;
   let widestOffer = 0; // biggest outcome count among offer actions, to size the sort scratch once
   for (let i = 0; i < N; i++) {
@@ -953,8 +959,8 @@ export function markovFromItem(
    */
   const evaluateClosedForm = (pol: Int32Array, evalCap?: number): boolean => {
     // Frozen realized weights per state, against V as it stands right now.
-    const wTo: Int32Array[] = new Array(N);
-    const wPr: Float64Array[] = new Array(N);
+    const wTo: Int32Array[] = new Array<Int32Array>(N);
+    const wPr: Float64Array[] = new Array<Float64Array>(N);
     const selfW = new Float64Array(N);
     const isTerm = new Uint8Array(N);   // goal or "policy restarts here" — the chain stops
     const cOf = new Float64Array(N);
@@ -983,7 +989,7 @@ export function markovFromItem(
           tail -= a.prob[j]!;
           const nextPow = tail <= 0 ? 0 : tail ** a.offer;
           w[j] = tailPow - nextPow;
-          if (a.to[j] === i) self += w[j]!;
+          if (a.to[j] === i) self += w[j];
           tailPow = nextPow;
         }
         wTo[i] = a.to; wPr[i] = w; selfW[i] = self;

@@ -6,7 +6,6 @@ import { Spinner } from '../../components/ui/spinner';
 import {
   loadEngine, listBases, listMods, listDesecrated, listPerfectEssences, recommendedIndex, bossOmenAllowed,
   priceBasis,
-  modFamilies,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
   type EngineAlternatives, type AltTargetInput, type EngineMarkovResult,
 } from '../../lib/engine';
@@ -29,7 +28,7 @@ import AlternativesView from './AlternativesView';
 import PolicyGraph from './PolicyGraph';
 import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
-import { exactExalts, formatBoundedCost, formatCost } from '../../lib/currency';
+import { exactExalts, formatBoundedCost } from '../../lib/currency';
 import BaseSelect from './BaseSelect';
 
 const selectCls =
@@ -198,7 +197,7 @@ const EngineLab: React.FC = () => {
         setBaseId((b) => b || bases.find((x) => x.id === 'Wands')?.id || bases[0]?.id || '');
       })
       .catch((e) => setLoadErr(e instanceof Error ? e.message : String(e)));
-  }, []);
+  }, [setBaseId]);
 
   const bases: EngineBase[] = useMemo(() => (data ? listBases(data) : []), [data]);
   // The target pool = rollable + regular-essence mods (listMods) PLUS desecrated mods (Desecration on
@@ -325,11 +324,11 @@ const EngineLab: React.FC = () => {
   // always allowed so the user can resolve the conflict.
   const toggleFractured = (modId: string) => {
     if (!fractured.has(modId) && regularEssenceUsed) return;
-    setFractured((f) => { const n = new Set(f); n.has(modId) ? n.delete(modId) : n.add(modId); return n; });
+    setFractured((f) => { const n = new Set(f); if (n.has(modId)) n.delete(modId); else n.add(modId); return n; });
   };
   // Pin a target as non-negotiable so the budget search never relaxes/swaps/drops it.
   const togglePinned = (modId: string) =>
-    setPinned((p) => { const n = new Set(p); n.has(modId) ? n.delete(modId) : n.add(modId); return n; });
+    setPinned((p) => { const n = new Set(p); if (n.has(modId)) n.delete(modId); else n.add(modId); return n; });
 
   // Clear the whole craft (targets, tier picks, fractured marks, results) — keeps the base + item level.
   // Encode the whole workspace into a link. The state already lives in one store, so this is a
@@ -542,7 +541,7 @@ const EngineLab: React.FC = () => {
           )}
           <SearchEffort />
           <div className="flex-1" />
-          <Button variant="outline" onClick={share} disabled={targets.length === 0 && mode === 'plan'} size="lg" title="Copy a link that reproduces this workspace">
+          <Button variant="outline" onClick={() => void share()} disabled={targets.length === 0 && mode === 'plan'} size="lg" title="Copy a link that reproduces this workspace">
             Copy link
           </Button>
           <Button variant="outline" onClick={reset} disabled={targets.length === 0 && !result} size="lg">

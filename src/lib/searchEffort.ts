@@ -188,7 +188,7 @@ function read(): string {
     const raw = localStorage.getItem(EFFORT_STORAGE_KEY);
     if (raw && EFFORT_PRESETS.some((p) => p.id === raw)) return raw;
     // A rung this build retired resolves to its successor — see RETIRED_EFFORT for why that is upward.
-    if (raw && RETIRED_EFFORT[raw]) return RETIRED_EFFORT[raw]!;
+    if (raw && RETIRED_EFFORT[raw]) return RETIRED_EFFORT[raw];
     // Anything else (a corrupt value, a preset renamed in a later version) must fall back rather than
     // wedge the app on limits that no longer exist.
     return DEFAULT_EFFORT;

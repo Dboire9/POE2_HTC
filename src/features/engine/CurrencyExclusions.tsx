@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   ALL_GROUPS, describeGroup, setExclusions, toExcludedKeys, useExclusions,
-  type CurrencyGroup, type Exclusions,
+  type CurrencyGroup,
 } from '../../lib/currencyPrefs';
 
 /**
@@ -24,13 +24,13 @@ const CurrencyExclusions: React.FC = () => {
     const next: Record<string, { only: readonly string[] }> = { ...exclusions };
     if (next[g.id]) delete next[g.id];
     else next[g.id] = { only: [] }; // marking a group starts at "all of it"
-    setExclusions(next as Exclusions);
+    setExclusions(next);
   };
 
   const toggleMember = (g: CurrencyGroup, memberId: string) => {
     const only = exclusions[g.id]?.only ?? [];
     const nextOnly = only.includes(memberId) ? only.filter((m) => m !== memberId) : [...only, memberId];
-    setExclusions({ ...exclusions, [g.id]: { only: nextOnly } } as Exclusions);
+    setExclusions({ ...exclusions, [g.id]: { only: nextOnly } });
   };
 
   return (

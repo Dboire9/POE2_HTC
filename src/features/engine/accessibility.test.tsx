@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { EngineMod, EngineResult } from '../../lib/engine';
 
@@ -43,7 +43,6 @@ vi.mock('../../lib/engine', async (importOriginal) => {
   };
 });
 
-// eslint-disable-next-line import/first
 import EngineLab from './EngineLab';
 
 async function lab() {

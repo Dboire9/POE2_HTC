@@ -58,9 +58,7 @@ vi.mock('../../lib/engine', async (importOriginal) => {
   };
 });
 
-// eslint-disable-next-line import/first
 import EngineLab from './EngineLab';
-// eslint-disable-next-line import/first
 import { DEFAULT_EFFORT, EFFORT_PRESETS, setEffort } from '../../lib/searchEffort';
 
 /** The picker row for a mod's text (the row div holding its "+"), from within the mod-picker card. */

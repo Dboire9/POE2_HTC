@@ -8,7 +8,7 @@ import {
   priceBasis,
   modFamilies,
   type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type CurrencyAction,
-  type TargetInput, type EngineResult, type EngineMarkovResult,
+  type EngineResult, type EngineMarkovResult,
 } from '../../lib/engine';
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
@@ -17,7 +17,7 @@ import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField, useOnChange } from '../../lib/workspace';
 import { MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotsOf, whyNotAdd } from '../../lib/targetSlots';
-import { exactExalts, formatBoundedCost, formatCost, formatIn, pickUnit } from '../../lib/currency';
+import { exactExalts, formatBoundedCost, formatCost } from '../../lib/currency';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
 import PriceBasisNote from './PriceBasisNote';
@@ -151,7 +151,7 @@ const ItemActions: React.FC = () => {
         setBaseId((b) => b || bases.find((x) => x.id === 'Wands')?.id || bases[0]?.id || '');
       })
       .catch((e) => setLoadErr(e instanceof Error ? e.message : String(e)));
-  }, []);
+  }, [setBaseId]);
 
   const bases: EngineBase[] = useMemo(() => (engine ? listBases(engine.data) : []), [engine]);
   // The item builder offers rollable (normal) mods AND desecrated mods — a real item can carry a
@@ -192,11 +192,20 @@ const ItemActions: React.FC = () => {
     setTarget([]); setPlan(null); setPlanErr(null); setSearch('');
   });
   // Dropping to magic can overflow the 1-per-side cap; trim to keep the item legal.
+  //
+  // This is a synchronous setState in an effect, which `react-hooks/set-state-in-effect` flags, and
+  // the flag is right about the mechanism: it costs a second render pass. It is still correct here,
+  // and the alternatives are worse. Deriving the trimmed lists during render would only hide the
+  // overflow rather than fix it — the STORE would keep the illegal item, and a share link encoded
+  // from it would hand someone a two-suffix Magic wand. Trimming inside the rarity setter would put
+  // the invariant in one call site instead of on the state it constrains. So the item is repaired
+  // where it lives, once, on the transition that can break it.
   useEffect(() => {
     setPrefixes((p) => p.slice(0, CAP[rarity]));
     setSuffixes((s) => s.slice(0, CAP[rarity]));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPlan(null); setPlanErr(null);
-  }, [rarity]);
+  }, [rarity, setPrefixes, setSuffixes]);
 
   const onItem = useMemo(() => new Set([...prefixes, ...suffixes].map((m) => m.modId)), [prefixes, suffixes]);
   const fracturedIds = useMemo(

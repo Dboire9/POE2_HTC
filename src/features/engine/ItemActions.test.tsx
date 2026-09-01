@@ -53,7 +53,6 @@ vi.mock('../../lib/engine', async (importOriginal) => {
   };
 });
 
-// eslint-disable-next-line import/first
 import ItemActions from './ItemActions';
 
 async function loaded() {

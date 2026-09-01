@@ -7,7 +7,7 @@
 // The UI-shaped types live in ./engineTypes.ts and the presentation/mapping helpers in ./engineMap.ts;
 // this file is the thin public API (data loading + the list/compute/currency calls the UI imports).
 
-import { indexPatch } from '../../packages/engine/src/indexPatch.ts';
+import { indexPatch, type BasesFile, type ModsFile } from '../../packages/engine/src/indexPatch.ts';
 import { resolveMod } from '../../packages/engine/src/pool.ts';
 import type { PatchData } from '../../packages/engine/src/types.ts';
 import {
@@ -16,7 +16,7 @@ import {
 // Whether a Desecration on this base can be boss-targeted ("Weapon or Jewellery" only). Re-exported
 // because the UI has to DESCRIBE desecration differently on armour, not just cost it differently.
 export { bossOmenAllowed } from '../../packages/engine/src/probability.ts';
-import { indexPrices, type Prices } from '../../packages/optimizer/src/cost.ts';
+import { indexPrices, type Prices, type PricesFile } from '../../packages/optimizer/src/cost.ts';
 import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
@@ -85,10 +85,13 @@ export function loadEngine(): Promise<Engine> {
       // Absent (dev, tests, and the worker, which has no `window`) this is just a normal fetch.
       const warm = (globalThis as { __patchPreload?: { mods?: Promise<Response | null> } }).__patchPreload;
       const modsRes = (await warm?.mods) ?? (await fetch(modsUrl));
+      // `Response.json()` is `any`, so without these the three files entered `indexPatch` /
+      // `indexPrices` unchecked — the one place a data refresh could change a shape and nothing would
+      // complain until a probability came out wrong. Named here, at the boundary they cross.
       const [mods, bases, prices] = await Promise.all([
-        modsRes.json(),
-        fetch(basesUrl).then((r) => r.json()),
-        fetch(pricesUrl).then((r) => r.json()),
+        modsRes.json() as Promise<ModsFile>,
+        fetch(basesUrl).then((r) => r.json() as Promise<BasesFile>),
+        fetch(pricesUrl).then((r) => r.json() as Promise<PricesFile>),
       ]);
       return { data: indexPatch(mods, bases), prices: indexPrices(prices) };
     })();

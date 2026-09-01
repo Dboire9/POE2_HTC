@@ -79,7 +79,7 @@ describe('markovFromItem — hand-computed expected cost', () => {
       mods: new Map([['M', {
         id: 'M', group: 'M', field: 'M', source: 'normal', type: 'prefix', categories: [], family: 'FM', tags: [], text: 'M',
         tiers: [{ name: 'lo', ilvl: 1, weight: 1, ranges: [], stats: [] }, { name: 'hi', ilvl: 1, weight: 1, ranges: [], stats: [] }],
-      } as Mod]]),
+      }]]),
       bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['M'], suffixes: [] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
     };
     const tp: Prices = { currency: { exalt: 1, annul: 1, chaos: 100 }, omens: {} };
@@ -176,7 +176,7 @@ describe('markovFromItem — v2 levers (orb strength + side exalts)', () => {
       mods: new Map([['M', {
         id: 'M', group: 'M', field: 'M', source: 'normal', type: 'prefix', categories: [], family: 'FM', tags: [], text: 'M',
         tiers: [{ name: 'lo', ilvl: 1, weight: 1, ranges: [], stats: [] }, { name: 'hi', ilvl: 60, weight: 1, ranges: [], stats: [] }],
-      } as Mod]]),
+      }]]),
       bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['M'], suffixes: [] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
     };
     const empty: ItemState = { base: tiered.bases.get('S')!, level: 100, rarity: 'rare', prefixes: [], suffixes: [] };

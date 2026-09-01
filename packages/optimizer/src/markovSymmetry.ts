@@ -134,6 +134,13 @@ export const familiesOfTarget = (t: McTarget): readonly string[] => familiesOf(r
 export function encoderFor(classes: readonly (readonly number[])[]): StateEncoder {
   const real = classes.filter((c) => c.length > 1);
   if (real.length === 0) return encodeState;
+  // The defaults are NOT redundant, whatever `no-useless-default-assignment` says: `StateEncoder` is
+  // `typeof encodeState`, whose last two parameters are OPTIONAL, and `keepClass` below calls this
+  // with four arguments. Drop them and `flagged`/`rarity` arrive as `undefined`, the key becomes
+  // "…:undefined:undefined" instead of "…:0:2", and it stops matching `encodeState`'s spelling of the
+  // same state — silently breaking symmetry reduction rather than failing. The rule reads the arrow's
+  // own signature and cannot see the contextual type that makes the arguments omissible.
+  // eslint-disable-next-line @typescript-eslint/no-useless-default-assignment
   return (present, blocked, jp, js, flagged = FLAG_NONE, rarity = 'rare') => {
     let p = present;
     let b = blocked;

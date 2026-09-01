@@ -50,6 +50,9 @@ describe('cn — tailwind-merge earns its place, and here is where', () => {
   });
 
   it('still does the plain clsx job: conditionals and falsy values', () => {
+    // The constant `false` is the INPUT under test — cn() must drop a falsy argument, which is how
+    // every conditional class in the app is written (`isActive && 'ring-2'`).
+    // eslint-disable-next-line no-constant-binary-expression
     expect(cn('a', false && 'b', undefined, 'c')).toBe('a c');
   });
 });

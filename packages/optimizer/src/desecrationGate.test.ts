@@ -476,7 +476,7 @@ describe('an unomened Desecration draws from the whole pool, normal mods include
   it('on a side with no carved mods, can never land a carved target', () => {
     const { list, actionsOf } = spaceFor(ARMOUR);
     const barren = (['prefix', 'suffix'] as const)
-      .find((sd) => ARMOUR.base.pools.desecrated[`${sd}es` as 'prefixes' | 'suffixes'].length === 0);
+      .find((sd) => ARMOUR.base.pools.desecrated[`${sd}es`].length === 0);
     expect(barren).toBeDefined();
     const empty = decodeState(encodeState(0, 0, 0, 0, FLAG_NONE, 'rare'));
     const bone = actionsOf(empty)

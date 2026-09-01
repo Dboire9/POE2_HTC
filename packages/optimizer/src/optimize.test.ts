@@ -106,7 +106,7 @@ describe('optimizer self-check — analytic per-step probs match Monte-Carlo', (
     const analytic = best.result.steps.map((s) => s.prob);
     const empirical = simulatePerStepRates(data, wands, best.steps, 200_000, 12345);
     expect(empirical.length).toBe(analytic.length);
-    analytic.forEach((p, k) => expect(empirical[k]!).toBeCloseTo(p, 2)); // ~0.005 tolerance at 200k
+    analytic.forEach((p, k) => { expect(empirical[k]!).toBeCloseTo(p, 2); }); // ~0.005 tolerance at 200k
   });
 
   it('holds at a sub-100 item level too, where the item-level cap excludes high-ilvl tiers (D5)', () => {
@@ -115,6 +115,6 @@ describe('optimizer self-check — analytic per-step probs match Monte-Carlo', (
     const best = optimizeAddChain(data, wands, [P1, P2, P3, S1], { level: 55 })[0]!;
     const analytic = best.result.steps.map((s) => s.prob);
     const empirical = simulatePerStepRates(data, wands, best.steps, 200_000, 999, 55);
-    analytic.forEach((p, k) => expect(empirical[k]!).toBeCloseTo(p, 2));
+    analytic.forEach((p, k) => { expect(empirical[k]!).toBeCloseTo(p, 2); });
   });
 });

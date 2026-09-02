@@ -710,7 +710,7 @@ runtime imports say they belong, and a pre-existing high-severity `browserslist`
 `npm audit --omit=dev` now reports zero. Prettier was **not** added, per the note above.
 ---
 
-## 10. Browser smoke tests — TIER 2, THE BIGGEST ENGINEERING GAP
+## 10. ~~Browser smoke tests~~ — DONE 2026-09-02
 
 **What is wrong.** 1,262 tests, all under jsdom. Zero run in a real browser. `docs/validation.md`'s
 "Still deferred" says it in its own words: *"Nothing shipped since 2026-08-21 has been seen in a
@@ -751,6 +751,35 @@ so they cannot drift.)
 **Do not** try to assert on specific cost values. They change with the price sheet and with every
 solver improvement; the smoke suite asserts that a number APPEARS, not what it is. Correctness of the
 number is the unit suite's job, and it does that well.
+
+**DONE 2026-09-02.** All five as specified, green, in CI after Build (Chromium only). `npm run test:e2e`.
+
+**The verification step's own mutation does not work, and that is worth knowing before someone repeats
+it.** This section says to remove `worker-src 'self'` and confirm a test goes red. Removing it breaks
+NOTHING — `worker-src` falls back through `child-src` to `script-src 'self'`, which is present — so the
+app kept solving and only the literal header assertion failed, which is a tautology, not coverage. The
+mutation that actually proves the suite works is `worker-src 'none'`: that forbids the solver outright
+and takes **four of the five** tests down, three of them behaviourally (the compute never renders and
+times out at 60s). Done, and the suite passes again with the CSP restored.
+
+**The harness needed two fixes the plan could not have predicted, both found by running it.** The
+parenthetical about serving `dist/` behind a header-faithful server was right and is done —
+`e2e/serve-dist.mjs` READS the headers out of `vercel.json` so they cannot drift. But (1) a naive SPA
+fallback served `index.html` for any missing path, so a request for a missing `.js` came back as HTML
+and Chromium's MIME refusal appeared as a console error in the very test that asserts there are none;
+it now 404s anything with an extension, like a real static host. And (2) Vercel Analytics fetches
+`/_vercel/insights/script.js`, which the PLATFORM serves and a local `dist/` does not have — so the
+server stubs it. Filtering that error out in the test was the alternative and is worse: an exception
+list is where a real error eventually hides.
+
+**Selectors, for whoever extends this.** The Lab adds a target with an `Add …` button; the Item tab
+adds one from a `<select>` labelled "Add a target mod", and its `Add …` buttons build the item you
+HOLD. An unscoped `.first()` hits the wrong one and leaves `Compute plan` disabled on "Pick at least
+one target mod above" — a failure that looks like a broken button and is really a mis-aimed click.
+
+Deliberately NOT done, per the section's own instruction: no assertion anywhere on a cost VALUE. With
+the price sheet now refreshing daily that would have been a guaranteed false red — which is exactly
+what broke the refresh automation on its first run (see 8).
 
 ---
 

@@ -53,6 +53,8 @@ export default tseslint.config(
             // Measurement and cross-check scripts, run ad hoc with `node --experimental-strip-types`.
             // They belong to no build, so no tsconfig includes them.
             'scripts/*.mts',
+            // The Playwright suite belongs to no tsconfig — it is built by Playwright, not by tsc.
+            'e2e/*.ts',
           ],
         },
         tsconfigRootDir: import.meta.dirname,
@@ -97,6 +99,22 @@ export default tseslint.config(
     },
   },
 
+  // ---- the Playwright suite --------------------------------------------------------------------
+  // Node globals, and untyped: `e2e/*.ts` is in `allowDefaultProject` above, so the type-aware rules
+  // have no program to consult and would error on every one of them.
+  //
+  // BOTH global sets, which is not sloppiness — a spec genuinely spans two runtimes. The file runs in
+  // Node, but the body of a `page.evaluate(() => …)` is serialised and executed in the BROWSER, so
+  // `document` and `window` are real there and nowhere else in the file.
+  {
+    files: ['e2e/**/*.ts'],
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      ...tseslint.configs.disableTypeChecked.languageOptions,
+      globals: { ...globals.node, ...globals.browser },
+    },
+  },
+
   // ---- tests -----------------------------------------------------------------------------------
   {
     files: ['**/*.test.{ts,tsx}', 'src/test/**/*.ts'],
@@ -133,6 +151,7 @@ export default tseslint.config(
   {
     files: [
       'tools/**/*.{mjs,js}', 'scripts/**/*.{mjs,js,mts}', '*.config.{js,ts}', 'eslint.config.js',
+      'e2e/**/*.mjs',
     ],
     ...tseslint.configs.disableTypeChecked,
     languageOptions: {

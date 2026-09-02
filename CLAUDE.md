@@ -488,4 +488,23 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   `'unsafe-inline'` stays in `script-src` deliberately: `preloadPatchData` injects an inline script
   whose content changes with every data refresh, so a hash would need regenerating each time. The app
   has no XSS sink for it to matter — no `innerHTML`, no `eval`, no `dangerouslySetInnerHTML`.
+  **`worker-src 'self'` is explicit, not load-bearing** — measured 2026-09-02: deleting it breaks
+  nothing, because `worker-src` falls back through `child-src` to `script-src 'self'`. Keep it (an
+  explicit directive is the right documentation of intent), but a mutation test that deletes it proves
+  nothing. Use `worker-src 'none'` — that genuinely forbids the solver and takes four of the five
+  browser smoke tests down with it.
+- **Five browser tests exist, and they are the only ones that run in a browser.** `e2e/smoke.spec.ts`
+  under Playwright/Chromium, in CI after Build. Cold load with zero console errors, a Lab compute, an
+  Item compute, a share-link round trip in a fresh context, and a 390x844 mobile pass asserting no
+  horizontal overflow. **They never assert a cost VALUE** — those move with the daily price sheet and
+  with every solver change, and a smoke test that pinned one would fail for reasons that are not
+  defects. They assert a number APPEARS. Correctness of the number is the unit suite's job.
+  They run against `dist/` served by `e2e/serve-dist.mjs`, **never `vite preview`**, which does not
+  read `vercel.json` and therefore serves no CSP at all — a suite behind it would pass on exactly the
+  deploy that breaks. The server READS the headers from `vercel.json` so the two cannot drift, 404s a
+  missing file rather than SPA-falling-back to `index.html` (the fallback served HTML for a missing
+  `.js` and Chromium's MIME refusal then broke the no-console-errors test), and stubs
+  `/_vercel/insights/*`, which the Vercel platform serves and a local `dist/` has not — filtering that
+  error out in the test instead would have started an exception list, which is where a real error
+  eventually hides.
 - Direct pushes to `main` are sanctioned despite branch protection; `remote: Bypassed rule violations` is expected output, not an error. `main` and `revival` are kept in sync.

@@ -16,6 +16,11 @@ export default defineConfig({
     // item` (2.7s here) blew the 5s default on GitHub Actions. 30s leaves headroom for a slow
     // runner while still failing a genuine hang rather than waiting forever.
     testTimeout: 30_000,
+    // `e2e/` belongs to Playwright, which has its own runner, config and browser. Vitest's default
+    // include sweeps every `*.spec.ts` in the project, so without this it picks up the browser suite,
+    // runs it under jsdom with no `test()` from @playwright/test registered, and fails the unit run —
+    // which is how `npm test` went red the moment the smoke tests landed.
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

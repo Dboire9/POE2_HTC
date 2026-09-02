@@ -9,11 +9,11 @@
 import type { AffixType, CurrencyTier, ItemBase, ItemState, PatchData, PlacedMod, Rarity } from './types.ts';
 import { familyAvailable, resolveMod } from './pool.ts';
 import { MAX_AFFIXES_PER_SIDE, prefixesFull, suffixesFull, whiteItem, withAffix } from './item.ts';
-import type { AnnulOmen, ChaosOmen, CurrencyOptions, DesecrationBossOmen, EssenceOmen } from './probability.ts';
+import type { AnnulOmen, ChaosOmen, CurrencyOptions, DesecrationBossOmen, DrawTarget, EssenceOmen } from './probability.ts';
 import {
   alchemyProbability, annulProbability, augmentationProbability, chaosProbability, desecrationBossAnySideProbability,
-  desecrationBossProbability, desecrationOffered, desecrationProbability, essenceForcedProbability, exaltProbability, perfectEssenceProbability, regalProbability,
-  transmuteProbability,
+  desecrationBossProbability, desecrationOffered, desecrationProbability, essenceForcedProbability, exaltProbability,
+  greaterExaltProbability, perfectEssenceProbability, regalProbability, transmuteProbability,
 } from './probability.ts';
 
 /**
@@ -32,6 +32,17 @@ export type PlanStep =
   | ({ currency: 'augment' } & AddFields)
   | ({ currency: 'regal' } & AddFields)
   | ({ currency: 'exalt'; constrainTo?: AffixType } & AddFields)
+  // An Exalted Orb spent under an Omen of Greater Exaltation: it adds TWO random modifiers instead of
+  // one, and `adds` names both (each with its own tier requirement — they are different targets).
+  //
+  // This cannot be an omen FIELD on the exalt step above, the way Whittling is one on chaos. An omen
+  // that changes only a step's odds and price is a LEVER, priced per step by levers.ts without the
+  // search enumerating it; this one leaves a different item behind, so it has to be enumerated where
+  // the orderings are. `levers.test.ts` asserts that distinction rather than trusting this comment.
+  //
+  // `tier` is the strength of the orb the omen is spent on — the omen works on a Greater or Perfect
+  // Exalted Orb as well as a plain one (user ruling 2026-09-02; the item text does not settle it).
+  | { currency: 'greater-exalt'; adds: readonly [DrawTarget, DrawTarget]; tier?: CurrencyTier }
   // An Orb of Alchemy OPENER: turns a white item Rare with 4 random mods at once. `adds` are the (≤4)
   // target mods we need to be among those 4 — the whole point is that the item ends as EXACTLY those
   // mods, so `adds` is normally 4 (a 4-mod target) or the 4 of a 5–6-mod target that alchemy supplies,
@@ -91,6 +102,8 @@ export function stepProbability(data: PatchData, state: ItemState, step: PlanSte
     case 'augment': return augmentationProbability(data, state, step.add, addOpts(step));
     case 'regal': return regalProbability(data, state, step.add, addOpts(step));
     case 'exalt': return exaltProbability(data, state, step.add, addOpts(step));
+    case 'greater-exalt':
+      return greaterExaltProbability(data, state, step.adds, step.tier === undefined ? {} : { currencyTier: step.tier });
     case 'alchemy':
       // Alchemy is a from-white opener: only legal on a fresh normal item (0 mods). P = all `adds`
       // land among the 4 rolled mods (computed from the base's normal pool).
@@ -181,6 +194,10 @@ function applyStep(data: PatchData, state: ItemState, step: PlanStep): ItemState
     case 'annul': return removeMod(state, step.remove);
     // Alchemy lands all `adds` at once (each on its own side, tier 0), turning the item Rare.
     case 'alchemy': return step.adds.reduce((s, id) => addMod(data, s, 'alchemy', id), state);
+    // Both modifiers land on the one orb, each at the tier its target asked for — same reasoning as
+    // the `minTierIndex` note below, applied to two mods instead of one. Rarity is unchanged (Rare).
+    case 'greater-exalt':
+      return step.adds.reduce((s, t) => addMod(data, s, 'greater-exalt', t.modId, t.minTierIndex ?? 0), state);
     // Chaos removes the target mod then adds the new one (item stays Rare).
     case 'chaos': return addMod(data, removeMod(state, step.remove), 'chaos', step.add);
     case 'perfect-essence': return addMod(data, removeMod(state, step.remove), step.currency, step.add);
@@ -222,6 +239,7 @@ export function evaluatePlanFrom(data: PatchData, start: ItemState, steps: reado
     total *= prob;
     const target = step.currency === 'annul' ? step.remove
       : step.currency === 'alchemy' ? step.adds.join('+')
+      : step.currency === 'greater-exalt' ? step.adds.map((t) => t.modId).join('+')
       : step.add;
     results.push({ currency: step.currency, target, prob });
     state = applyStep(data, state, step);

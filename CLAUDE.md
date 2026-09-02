@@ -113,6 +113,34 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   **NOTHING is excluded by default, and a pinned Whittling toggle was built and REMOVED** the same day — do not rebuild either. The optimizer already declines an omen that does not pay, since it ranks BY cost, and a Whittling route lands on the frontier as its own ROW beside the plain one, so the comparison a button would give you is already on screen. And once the button went the default could not stay: a currency silently excluded with no visible control is hidden state — the app would refuse a route and nothing on screen would say why, which is `docs/copy-audit.md`'s failure in a new place. Default-off and a visible control are a pair; either both or neither. A player who owns none still ticks the row in "Currency I don't have", like any other currency they lack.
   **A chaos step's `constrainTo` is NOT the Erasure omen.** Sinistral/Dextral Erasure constrain what a Chaos Orb REMOVES; that field tunes what it ADDS. Nothing emits it, so it is inert — do not "fix" it by pricing it as Erasure.
 - **`addMod` places a mid-plan add at the step's `minTierIndex`, not tier 0** (2026-09-02). It was tier 0 — the LOWEST ilvl a mod has — regardless of what the step asked for, which was invisible while nothing read a walked item's tiers: `tierName` fed the UI and the MDP's `classifyStart`, which reads the item a player HOLDS. Whittling ended that, since a placed tier is now an input to a probability, and with every add pinned at tier 0 everything a plan added would have tied for "lowest level". `minTierIndex` means "this tier or better", so placing at exactly it is the worst tier that satisfies the target — the conservative reading, since a lower level makes a mod MORE likely to be whittled. A Desecration keeps tier 0: a bone offers what it offers and the step carries no tier target.
+- **The Omen of Greater Exaltation makes an Exalted Orb add TWO modifiers**, and that is why it is a
+  STEP and not a lever (traced to poe2db 2026-09-02, `OmenOnExaltAddTwoMods`). `levers.ts` may only
+  offer choices that leave the same item behind; this leaves a different one, so it is chosen where
+  the ORDERINGS are (`doubleExalt.ts` fuses adjacent Exalt pairs in a skeleton) rather than per step.
+  `levers.test.ts` is what enforces that boundary — it would go red if someone made it a field.
+  **Its price key is `exalt`, not its own currency name.** It is spent ON an Exalted Orb, so
+  `currencyKey` maps it to `exalt`/`exalt_greater`/`exalt_perfect` and `stepOmenIds` adds the omen as
+  a surcharge. Keying it as `greater-exalt` would have made it FREE (no such key on any sheet) and
+  made "I don't own Exalted Orbs" stop excluding it, since `allowsStep` reads the same key.
+  **`currencyKey` is exported for exactly this reason**: `leverOptions` used to rebuild the strength
+  key inline as `` `${step.currency}_${tier}` ``, which agreed with `currencyKey` only by coincidence
+  and would have gated this step on a nonexistent `greater-exalt_perfect`, silently dropping every
+  strength above base. One step, one key — the D8 rule again.
+  **A Greater or Perfect Exalted Orb CAN carry it** — user ruling 2026-09-02, not the item text,
+  which says "your next Exalted Orb" while a Greater Exalted Orb is its own BaseType
+  (`CurrencyAddModToRare2`). That ruling is what gives the step a strength axis. The **one-open-slot**
+  case is deliberately unmodelled and scores 0; an explicit guard for it was written and DELETED
+  because no mutation could distinguish it from the recursion's own answer.
+  **From WHITE the route needs five targets to exist at all** (the add chain is
+  transmute→augment→regal→exalt…, so no adjacent Exalt pair below five). Measured worth: a 6-target
+  T1 Wand craft 4.04e9 → 2.35e9 ex (−42%); from a held item it does not lower the cheapest cost but
+  makes a SURER route exist (1.997% → 2.266% per attempt). Costs ~2x the step planner's time, on a
+  planner whose worst measured craft is 105 ms. **The MDP does not have this action** — see TODO 14.
+- **`alchemyProbability` and `greaterExaltProbability` share one recursion** (`multiDrawProbability`),
+  parameterised by draw count, starting item and ilvl floor. The rule it adds over the alchemy version:
+  **a target landing at too LOW a tier is a failure, not a retry** — its family is spent, so the craft
+  can never reach the tier asked for. A needed mod advances only on its at-or-above-tier weight while
+  occupying its family on its FULL weight. Collapsing those two is a mutation the tests catch.
 - **Fractured mods are locked**: never annulled, never chaosed, out of every removal pool.
 
 ## Prices

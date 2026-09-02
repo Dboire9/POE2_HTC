@@ -13,11 +13,12 @@ export {
   transmuteProbability, augmentationProbability, regalProbability, exaltProbability,
   annulProbability, perfectEssenceProbability, essenceForcedProbability,
   desecrationBossProbability, desecrationBossAnySideProbability, desecrationProbability, desecrationOmenForMod, chaosProbability, chaosRemovalProbability, lowestLevelMods, alchemyProbability,
-  ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationBoneFor, isEssenceMod,
+  ALCHEMY_MOD_COUNT, greaterExaltProbability, GREATER_EXALT_MOD_COUNT,
+  bossOmenAllowed, desecrationBoneFor, isEssenceMod,
 } from './probability.ts';
 export type {
   AddAffixOptions, CurrencyOptions, TransmuteOptions, NormalAddCurrency,
-  AnnulOmen, ChaosOmen, EssenceOmen, DesecrationBossOmen, DesecrationOptions,
+  AnnulOmen, ChaosOmen, EssenceOmen, DesecrationBossOmen, DesecrationOptions, DrawTarget,
 } from './probability.ts';
 
 export { indexPatch } from './indexPatch.ts';

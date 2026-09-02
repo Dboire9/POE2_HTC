@@ -127,9 +127,14 @@ export function indexPrices(file: PricesFile): Prices {
  * `tier: 'greater'` costs `exalt_greater`. Base tier (or no tier) uses the plain currency key.
  *
  * A missing key is charged 0 by `stepCost`, so a caller enumerating strengths must skip one the sheet
- * does not list rather than let it come back free — see `leverOptions`.
+ * does not list rather than let it come back free — see `leverOptions`. **Exported for exactly that**:
+ * `leverOptions` used to rebuild the key inline as `` `${step.currency}_${tier}` ``, which agreed with
+ * this function only by coincidence and stopped agreeing the moment a step's currency name differed
+ * from the orb it buys — a `greater-exalt` would have been gated on a nonexistent
+ * `greater-exalt_perfect` key, so every strength above base would have been silently skipped. One
+ * function, one key: the same rule the D8 mispricing was fixed by.
  */
-function currencyKey(step: PricedStep): string {
+export function currencyKey(step: PricedStep): string {
   // Essences are priced per ESSENCE, not per level — `essence:<level>:<modId>` — because the market
   // prices each one separately and their levels don't form a ladder. The old per-level keys remain
   // the fallback for a sheet that predates this (or an essence with no listing).
@@ -137,12 +142,17 @@ function currencyKey(step: PricedStep): string {
     const level = step.currency === 'perfect-essence' ? 'perfect' : (step.essenceLevel ?? 'normal');
     return step.add ? `essence:${level}:${step.add}` : legacyEssenceKey(step);
   }
+  // An Omen of Greater Exaltation is spent ON an Exalted Orb, so the orb is what the sheet charges
+  // for and `exalt`/`exalt_greater`/`exalt_perfect` is the right key — the omen itself is a separate
+  // surcharge in `stepOmenIds`. Keying it as its own currency would have made it FREE (no such key on
+  // the sheet) and made "I don't own Exalted Orbs" stop excluding it, since `allowsStep` reads this.
+  const orb = step.currency === 'greater-exalt' ? 'exalt' : step.currency;
   // Which currencies the sheet sells at a strength. NOT "is this an add" — a chaos both removes and
   // adds, and it belongs here because `chaos_greater` / `chaos_perfect` are real listings.
-  const hasStrengths = step.currency === 'transmute' || step.currency === 'augment'
-    || step.currency === 'regal' || step.currency === 'exalt' || step.currency === 'chaos';
-  if (hasStrengths && step.tier && step.tier !== 'base') return `${step.currency}_${step.tier}`;
-  return step.currency;
+  const hasStrengths = orb === 'transmute' || orb === 'augment'
+    || orb === 'regal' || orb === 'exalt' || orb === 'chaos';
+  if (hasStrengths && step.tier && step.tier !== 'base') return `${orb}_${step.tier}`;
+  return orb;
 }
 
 /**
@@ -176,6 +186,11 @@ export function stepOmenIds(step: PricedStep): string[] {
     // pricing it as Erasure would charge for an omen that does something else.
     case 'chaos':
       return step.omen === 'whittling' ? ['OmenofWhittling'] : [];
+    // The Omen of Greater Exaltation is not optional on this step — it IS the step. A `greater-exalt`
+    // without it is just an Exalt, which the plan vocabulary already has, so there is no unomened
+    // variant to branch on the way `constrainTo` branches above.
+    case 'greater-exalt':
+      return ['OmenofGreaterExaltation'];
     case 'desecrate': {
       const ids: string[] = [];
       if (step.boss === 'blackblooded') ids.push('OmenoftheBlackblooded');

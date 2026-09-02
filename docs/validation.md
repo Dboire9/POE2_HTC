@@ -2986,6 +2986,86 @@ the end-to-end licence that nothing the app reads was thrown away.
 `Tier` and into the projection, and the asset gains ~11 kB. Dropping it from the wire costs that
 feature nothing today.
 
+## Omen of Greater Exaltation, in the step planners (2026-09-02)
+
+**"While this item is active in your inventory your next Exalted Orb will add two random modifiers"**
+— poe2db, internal id `OmenOnExaltAddTwoMods`. 2.331 ex on the sheet, cross-checked against poe2db's
+own 2.7 ex. TODO 14.
+
+### Two rulings, both flagged as rulings
+
+- **A Greater or Perfect Exalted Orb can carry the omen.** The item text says "your next Exalted
+  Orb", and a Greater Exalted Orb is its own BaseType (`CurrencyAddModToRare2`, "Minimum Modifier
+  Level: 35" — which matches the engine's `CURRENCY_FLOOR.greater` exactly), so the text does not
+  settle it. **User ruling, 2026-09-02.** It is what gives the step a strength axis; without it the
+  step would be plain-orb only. Modelled, not observed.
+- **The one-open-slot case is not modelled at all.** What the game does with a half-spendable omen is
+  untraced. `greaterExaltProbability` returns 0 there, and the recursion is what says so — an explicit
+  `free < 2` guard was written and DELETED, because no mutation could distinguish it. The move is
+  dominated wherever it would be legal (it can only land what a plain Exalt lands, with 2.331 ex on
+  top), so nothing is lost and nothing is claimed.
+
+### One recursion, two currencies
+
+`alchemyProbability`'s four-draw recursion became `multiDrawProbability`, parameterised by draw count,
+starting item and ilvl floor; alchemy is four draws onto a white base and this is two onto the Rare
+you hold. The alchemy differential fixtures did not move a digit, which is the licence for the
+refactor.
+
+The one genuinely new rule is the tier gate. **A target landing at too LOW a tier is a failure, not a
+retry** — its family is spent, so the craft can no longer reach the tier it asked for. A needed mod
+therefore advances only on its at-or-above-tier weight while occupying its family on its FULL weight.
+Mutation-checked: collapsing the two makes the tier test go red.
+
+Validated against Monte-Carlo on the shipped 0.5.0 Wands pool (400k runs, three mod pairs plus a
+Greater-orb floor), with the simulation written from the item text and sharing no code with the
+function it checks.
+
+### Why it can win, being dearer
+
+A plan is a fixed sequence, so two Exalts commit to an order: A then B. One omened orb gets BOTH
+orders, because its two draws are unordered. Up to 2x the probability for 1.67x the price
+(1 + 2.331 ex against 1 + 1 ex). Measured on Wands at ilvl 82, omen priced out vs in:
+
+| craft | cheapest expected | best P/attempt | frontier rows using it |
+|---|---|---|---|
+| from white, 5 targets | 2,019.08 → 2,019.08 | 0.008756% → 0.008756% | 0 of 8 |
+| from white, 6 targets | 117,053 → **77,774** (−33.6%) | 0.0002081% → 0.0002638% | 4 of 4 |
+| from white, 6 targets **T1** | 4.040e9 → **2.349e9** (−41.9%) | — | 5 of 5 |
+| held 1 mod, want 3 | 265.61 → 265.61 | 1.997% → **2.266%** | 2 of 6 |
+| held 1 mod, want 4 | 1,720.71 → 1,720.71 | 0.2857% → **0.3344%** | 3 of 6 |
+| held 2 mods, want 4 | 214.06 → 214.06 | 1.800% → 1.800% | 0 of 4 |
+
+Two shapes of win, and they are different: from white it makes the craft **cheaper**; from a held item
+it makes a **surer** route exist that did not before. The rows that show no change are honest —
+offered, ranked, and beaten on price.
+
+**From white the route needs FIVE targets before it can exist at all**, because the add chain is
+transmute → augment → regal → exalt…, so there is no adjacent Exalt pair below five. That is why the
+2-target craft above searched byte-identically.
+
+### Cost of the widened search
+
+Interleaved, 5 reps, medians (per CLAUDE.md's ~40% spread rule):
+
+| craft | off | on | |
+|---|---|---|---|
+| white 5 targets | 8.5 ms | 14.0 ms | 1.64x |
+| white 6 targets | 48.7 ms | 104.6 ms | 2.15x |
+| white 6 targets T1 | 44 ms | 96 ms | 2.16x |
+| item held 1 want 4 | 0.6 ms | 0.9 ms | 1.45x |
+| item held 1 want 5 | 1.4 ms | 4.0 ms | 2.85x |
+
+Accepted: ~2x on a planner whose worst measured craft is 105 ms, against a 42% cheaper answer on the
+hardest one. Note **`plansEvaluated` grew only 8% while time doubled** — a fused skeleton has one step
+where there were two, so it stands for fewer lever assignments while still costing a DP pass. The
+"checked N plans" figure is a weaker proxy for time than it was.
+
+### What is NOT done
+
+The MDP does not have this action; only the two step planners do. Recorded in TODO 14 with the
+measurement protocol, which follows the Chaos-strength precedent (built, measured, reverted).
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

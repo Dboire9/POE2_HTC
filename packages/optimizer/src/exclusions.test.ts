@@ -54,11 +54,45 @@ function traitsOf(step: PlanStep): string[] {
   if ('constrainTo' in step && step.constrainTo) out.push(`omen:${step.constrainTo}`);
   if ('omen' in step && step.omen) out.push(`omen:${step.omen}`);
   if ('boss' in step && step.boss) out.push(`omen:${step.boss}`);
+  // A `greater-exalt` carries its omen in its CURRENCY, not in a field — the Omen of Greater
+  // Exaltation is what the step is, so there is no `omen: 'greaterExaltation'` to read. Without this
+  // line the "no omen survives" assertions below would pass on a frontier full of omened orbs.
+  if (step.currency === 'greater-exalt') out.push('omen:greaterExaltation');
   return out;
 }
 
 const allSteps = (frontier: readonly { steps: readonly PlanStep[] }[]): PlanStep[] =>
   frontier.flatMap((p) => [...p.steps]);
+
+// SIX targets, so the add chain ends in two adjacent Exalts that an Omen of Greater Exaltation can
+// buy as one. At five it is offered and simply loses on price, which would make the assertions below
+// pass without the exclusion doing any work.
+const sixTargets = [...distinctFamilies(wands.pools.normal.prefixes, 3), ...distinctFamilies(wands.pools.normal.suffixes, 3)]
+  .map((modId) => ({ modId, minTierIndex: 0 }));
+
+describe('the Omen of Greater Exaltation is excludable like any other', () => {
+  const usesOmen = (r: { frontier: readonly { steps: readonly PlanStep[] }[] }) =>
+    allSteps(r.frontier).some((st) => st.currency === 'greater-exalt');
+
+  it('reaches the frontier unexcluded — otherwise the next assertion proves nothing', () => {
+    expect(usesOmen(optimizePareto(data, prices, wands, sixTargets, { level: 82 }))).toBe(true);
+  });
+
+  it('disappears when the omen is excluded, and the craft still solves', () => {
+    const r = optimizePareto(data, prices, wands, sixTargets, { level: 82, policy: policy('OmenofGreaterExaltation') });
+    expect(r.frontier.length).toBeGreaterThan(0);
+    expect(usesOmen(r)).toBe(false);
+  });
+
+  it('disappears when EXALTED ORBS are excluded, because it spends one', () => {
+    // The route's price key is `exalt`, not its own currency name. A player with no Exalted Orbs must
+    // not be handed a plan that buys one with an omen on it.
+    const r = optimizePareto(data, prices, wands, sixTargets, {
+      level: 82, policy: policy('exalt', 'exalt_greater', 'exalt_perfect'),
+    });
+    expect(usesOmen(r)).toBe(false);
+  });
+});
 
 describe('optimizePareto (from white) honours exclusions', () => {
   it('returns plans at all without a policy — otherwise the assertions below prove nothing', () => {

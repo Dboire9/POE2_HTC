@@ -24,7 +24,7 @@ import type { PlanStep } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
 import { stepProbability } from '../../engine/src/plan.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
-import { allowsStep, stepCost } from './cost.ts';
+import { allowsStep, currencyKey, stepCost } from './cost.ts';
 
 /** One way to buy a step: the fully-specified step, what it lands, and what it costs. */
 export interface StepLever {
@@ -45,7 +45,11 @@ const STRENGTHS: readonly CurrencyTier[] = ['base', 'greater', 'perfect'];
  */
 function atStrength(step: PlanStep, tier: CurrencyTier): PlanStep | undefined {
   switch (step.currency) {
-    case 'transmute': case 'augment': case 'regal': case 'exalt': case 'chaos':
+    // `greater-exalt` is on this list because it IS an Exalted Orb — one with an Omen of Greater
+    // Exaltation on it — and the omen works on a Greater or Perfect orb too (user ruling 2026-09-02).
+    // Its STRENGTH is a lever: it moves the odds and the price and leaves the same two mods behind.
+    // The omen is not, which is why it is baked into the step rather than offered by `withOmen`.
+    case 'transmute': case 'augment': case 'regal': case 'exalt': case 'chaos': case 'greater-exalt':
       return { ...step, tier };
     default:
       return undefined;
@@ -122,10 +126,12 @@ export function leverOptions(
     if (tier === 'base') {
       at = step;
     } else {
-      if (prices.currency[`${step.currency}_${tier}`] === undefined) continue;
       at = atStrength(step, tier);
+      // Priced through `currencyKey`, never by rebuilding the key here: a step's currency name is not
+      // always the orb it buys (a `greater-exalt` buys an `exalt`), and a gate that guessed wrong
+      // would silently drop every strength above base instead of failing.
+      if (at === undefined || prices.currency[currencyKey(at)] === undefined) continue;
     }
-    if (at === undefined) continue;
     variants.push(at);
     const omened = withOmen(data, prices, at);
     if (omened !== undefined) variants.push(omened);

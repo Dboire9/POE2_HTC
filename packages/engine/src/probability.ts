@@ -1,7 +1,7 @@
 import type { AffixType, CurrencyTier, ItemBase, ItemState, Mod, PatchData, PlacedMod } from './types.ts';
 import { CURRENCY_FLOOR } from './types.ts';
 import { familiesOf, familyAvailable, itemFamilies, modTierWeight, poolTotalWeight, resolveMod } from './pool.ts';
-import { prefixCount, prefixesFull, suffixCount, suffixesFull, whiteItem } from './item.ts';
+import { MAX_AFFIXES_PER_SIDE, prefixCount, prefixesFull, suffixCount, suffixesFull, whiteItem } from './item.ts';
 
 export interface AddAffixOptions {
   /** Currency-strength floor ilvl. Default 0 (base). */
@@ -306,6 +306,90 @@ export function chaosRemovalProbability(
 /** Number of modifiers an Orb of Alchemy rolls onto a white item (PoE2: fixed at 4). */
 export const ALCHEMY_MOD_COUNT = 4;
 
+/** Number of modifiers an Omen of Greater Exaltation makes an Exalted Orb add (PoE2: fixed at 2). */
+export const GREATER_EXALT_MOD_COUNT = 2;
+
+/** A mod a multi-draw currency must land, and the tier it must land at or above. */
+export interface DrawTarget {
+  readonly modId: string;
+  /** Index into `mod.tiers`; the draw counts only at this tier or better. Default 0 (any tier). */
+  readonly minTierIndex?: number;
+}
+
+/**
+ * P(every one of `targets` lands) when a currency rolls `draws` modifiers onto `item` at once.
+ *
+ * ONE recursion, two currencies. An Orb of Alchemy is four draws onto a white base; an Exalted Orb
+ * under an Omen of Greater Exaltation is two draws onto the Rare you hold. The mechanics are the
+ * same underneath — sequential weighted draws from the normal pool, where each draw shrinks the pool
+ * it came from (the mod's families are now occupied) and can close a side (three per side on a Rare)
+ * — and the differences are all parameters: how many draws, what the item already carries, and the
+ * ilvl floor the orb's strength imposes. Writing it twice is how two currencies come to disagree
+ * about family exclusion, so they share it.
+ *
+ * Exact, not sampled: the recursion enumerates the draw orders and sums them, which is why the
+ * caller never has to say which mod lands first.
+ *
+ * **A target that lands at too LOW a tier is a failure, not a retry.** Its family is occupied, so the
+ * craft can no longer reach the tier it asked for — the branch contributes 0. That is why a needed
+ * mod advances only on its at-or-above-tier weight (`good`) while every mod, needed or not, occupies
+ * its family on its FULL weight (`w`). Alchemy passes no tier requirements, where the two coincide.
+ */
+function multiDrawProbability(
+  data: PatchData, item: ItemState, targets: readonly DrawTarget[], draws: number,
+  opts: { floor?: number; slotLimit?: number } = {},
+): number {
+  const floor = opts.floor ?? 0;
+  const limit = opts.slotLimit ?? MAX_AFFIXES_PER_SIDE;
+  const cap = item.level;
+  const need = new Set(targets.map((t) => t.modId));
+  if (need.size === 0 || need.size !== targets.length || need.size > draws) return 0;
+
+  // Families already on the item are unreachable for the whole roll — the same D6 exclusion every
+  // single-draw currency applies, only here it also has to hold BETWEEN the draws.
+  const held = itemFamilies(data, item);
+  const goodOf = new Map(targets.map((t) => [t.modId, t.minTierIndex ?? 0]));
+  const build = (ids: readonly string[], side: AffixType) =>
+    ids.map((id) => {
+      const m = resolveMod(data, id);
+      return {
+        id, side, families: familiesOf(m),
+        w: modTierWeight(m, floor, cap, 0),
+        good: modTierWeight(m, floor, cap, goodOf.get(id) ?? 0),
+      };
+    }).filter((x) => x.w > 0 && !x.families.some((f) => held.has(f)));
+  const pre = build(item.base.pools.normal.prefixes, 'prefix');
+  const suf = build(item.base.pools.normal.suffixes, 'suffix');
+  const reachable = new Map([...pre, ...suf].map((x) => [x.id, x]));
+  for (const t of need) if ((reachable.get(t)?.good ?? 0) <= 0) return 0;
+
+  const occupied = new Set<string>();
+  const f = (left: number, pf: number, sf: number): number => {
+    if (need.size === 0) return 1;      // every target already landed
+    if (left < need.size) return 0;     // too few draws left to catch them all
+    const pool = [...(pf < limit ? pre : []), ...(sf < limit ? suf : [])]
+      .filter((x) => !x.families.some((fam) => occupied.has(fam)));
+    let total = 0;
+    for (const x of pool) total += x.w;
+    if (total === 0) return 0;
+    let p = 0;
+    for (const x of pool) {
+      // A mod occupies ALL of its families for the rest of this branch, not just the primary one.
+      const added = x.families.filter((fam) => !occupied.has(fam));
+      for (const fam of added) occupied.add(fam);
+      const wasNeeded = need.delete(x.id); // true iff x was a still-needed target
+      // A needed mod only advances the craft on its at-or-above-tier mass; the rest of its weight is
+      // a branch where the family is spent on a roll too low to accept, which can never recover.
+      const w = wasNeeded ? x.good : x.w;
+      if (w > 0) p += (w / total) * f(left - 1, x.side === 'prefix' ? pf + 1 : pf, x.side === 'suffix' ? sf + 1 : sf);
+      if (wasNeeded) need.add(x.id);
+      for (const fam of added) occupied.delete(fam);
+    }
+    return p;
+  };
+  return f(draws, prefixCount(item), suffixCount(item));
+}
+
 /**
  * Orb of Alchemy (PoE2): a white item becomes Rare with 4 modifiers rolled at once — equivalent to 4
  * sequential weighted draws from the normal pool without replacement (family-excluded, max 3 per side,
@@ -316,41 +400,49 @@ export const ALCHEMY_MOD_COUNT = 4;
 export function alchemyProbability(
   data: PatchData, base: ItemBase, targetModIds: readonly string[], opts: { level?: number } = {},
 ): number {
-  const level = opts.level ?? 100;
-  const targets = new Set(targetModIds);
-  if (targets.size === 0 || targets.size > ALCHEMY_MOD_COUNT) return 0;
-  const build = (ids: readonly string[], side: AffixType) =>
-    ids.map((id) => { const m = resolveMod(data, id); return { id, families: familiesOf(m), side, w: modTierWeight(m, 0, level, 0) }; })
-      .filter((x) => x.w > 0);
-  const pre = build(base.pools.normal.prefixes, 'prefix');
-  const suf = build(base.pools.normal.suffixes, 'suffix');
-  const reachable = new Set([...pre, ...suf].map((x) => x.id));
-  for (const t of targets) if (!reachable.has(t)) return 0;
+  if (new Set(targetModIds).size !== targetModIds.length) return 0;
+  return multiDrawProbability(
+    data, whiteItem(base, opts.level ?? 100), targetModIds.map((modId) => ({ modId })), ALCHEMY_MOD_COUNT,
+  );
+}
 
-  const limit = 3; // max mods per side on a Rare
-  const need = new Set(targets);
-  const occupied = new Set<string>();
-  const f = (draws: number, pf: number, sf: number): number => {
-    if (need.size === 0) return 1;      // every target already landed
-    if (draws < need.size) return 0;    // too few draws left to catch them all
-    const pool = [...(pf < limit ? pre : []), ...(sf < limit ? suf : [])]
-      .filter((x) => !x.families.some((f) => occupied.has(f)));
-    let total = 0;
-    for (const x of pool) total += x.w;
-    if (total === 0) return 0;
-    let p = 0;
-    for (const x of pool) {
-      // A mod occupies ALL of its families for the rest of this branch, not just the primary one.
-      const added = x.families.filter((fam) => !occupied.has(fam));
-      for (const fam of added) occupied.add(fam);
-      const wasNeeded = need.delete(x.id); // true iff x was a still-needed target
-      p += (x.w / total) * f(draws - 1, x.side === 'prefix' ? pf + 1 : pf, x.side === 'suffix' ? sf + 1 : sf);
-      if (wasNeeded) need.add(x.id);
-      for (const fam of added) occupied.delete(fam);
-    }
-    return p;
-  };
-  return f(ALCHEMY_MOD_COUNT, 0, 0);
+/**
+ * Omen of Greater Exaltation: **"your next Exalted Orb will add two random modifiers"** — traced to
+ * poe2db 2026-09-02, internal id `OmenOnExaltAddTwoMods`. Returns P(both `targets` land on this one
+ * orb, in either order).
+ *
+ * NOT a lever on the Exalt step, and `levers.test.ts` is what enforces that: a lever may change a
+ * step's odds and price and nothing else, while this leaves a DIFFERENT item behind. So it is its own
+ * step, enumerated where the orderings are.
+ *
+ * `currencyTier` is the strength of the orb the omen is spent on. That a Greater or Perfect Exalted
+ * Orb can carry the omen is the user's ruling (2026-09-02) rather than something the item text
+ * settles — "your next Exalted Orb" against a Greater Exalted Orb that is its own BaseType
+ * (`CurrencyAddModToRare2`). Recorded in docs/validation.md as a ruling, not an observation.
+ *
+ * Returns 0 for anything the game refuses: a non-Rare item, fewer than two free slots, a target
+ * outside the base's normal pool, a family already on the item, and two targets of one family.
+ * The **one open slot** case is deliberately unmodelled — see `GREATER_EXALT_MOD_COUNT`'s caller in
+ * plan.ts.
+ */
+export function greaterExaltProbability(
+  data: PatchData, item: ItemState, targets: readonly DrawTarget[], opts: CurrencyOptions = {},
+): number {
+  if (item.rarity !== 'rare' || targets.length !== GREATER_EXALT_MOD_COUNT) return 0;
+  // On an item with only ONE free slot this returns 0, and the recursion is what says so rather than
+  // a guard here: the second draw finds both sides capped and the branch dies. An explicit
+  // `free < 2` check was written first and DELETED — no mutation could distinguish it, which is the
+  // project's standing test for a branch that is not really there. What the game does with a
+  // half-spendable omen is untraced, and the move is dominated wherever it would be legal (it can
+  // only land what a plain Exalt lands, with the omen's price on top), so nothing here claims it.
+  for (const t of targets) {
+    const mod = data.mods.get(t.modId);
+    if (!mod || mod.source !== 'normal') return 0;
+  }
+  return multiDrawProbability(data, item, targets, GREATER_EXALT_MOD_COUNT, {
+    floor: CURRENCY_FLOOR[opts.currencyTier ?? 'base'],
+    slotLimit: MAX_AFFIXES_PER_SIDE,
+  });
 }
 
 /** Essence omen: none (any mod removed), sinistral (prefix-only removal), dextral (suffix-only removal). */

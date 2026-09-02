@@ -23,6 +23,7 @@ import { expandSlots, itemLegalCombinations } from './slots.ts';
 import type { OptimizeParetoOptions, ParetoPlan, ParetoResult, TierTarget } from './optimize.ts';
 import { mergeParetoRuns, paretoFrontier } from './optimize.ts';
 import { searchSkeletons } from './leverDp.ts';
+import { withGreaterExaltations } from './doubleExalt.ts';
 
 /**
  * Target validation for the from-item planner: 1–6 mods, ≤3/side. A target mod is one the planner can
@@ -267,7 +268,7 @@ function fromItemForOneCraft(
   // decides orb strength AND omen for every step in one backward pass. That adds an axis this planner
   // never had — `baseTransforms` sets no `tier`, so every add was a base-strength orb and the badge
   // said so — while evaluating a small fraction of the assignments it now stands for.
-  const found = searchSkeletons(data, prices, start, sequences, {
+  const found = searchSkeletons(data, prices, start, withGreaterExaltations(prices, sequences), {
     ...(policy ? { policy } : {}),
     ...(opts.maxMillis === undefined ? {} : { maxMillis: opts.maxMillis }),
     ...(opts.onProgress ? { onProgress: opts.onProgress } : {}),

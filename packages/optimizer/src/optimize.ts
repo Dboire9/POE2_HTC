@@ -20,6 +20,7 @@ import { combinations, permutations } from './combinatorics.ts';
 import { expandSlots, itemLegalCombinations } from './slots.ts';
 import type { LeverCandidate } from './leverDp.ts';
 import { searchSkeletons } from './leverDp.ts';
+import { withGreaterExaltations } from './doubleExalt.ts';
 
 // The from-item planner (optimizeFromItem) lives in ./fromItem.ts and imports withOmenVariants +
 // paretoFrontier from here — so those two are exported below. This file owns the from-white optimizers.
@@ -494,7 +495,10 @@ function paretoForOneCraft(
   }
 
   const white = whiteItem(base, level);
-  const found = searchSkeletons(data, prices, white, skeletons, {
+  // (3) …and for each of those, the variant that buys an adjacent pair of Exalts as ONE orb under an
+  // Omen of Greater Exaltation. Applied to the whole list rather than inside the builders because the
+  // alchemy opener's exalt tail deserves it just as much as the add chain does.
+  const found = searchSkeletons(data, prices, white, withGreaterExaltations(prices, skeletons), {
     ...(opts.policy ? { policy: opts.policy } : {}),
     ...(opts.maxMillis === undefined ? {} : { maxMillis: opts.maxMillis }),
     ...(opts.onProgress ? { onProgress: opts.onProgress } : {}),

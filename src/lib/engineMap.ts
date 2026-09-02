@@ -27,6 +27,9 @@ const BOSS_LABEL: Record<'blackblooded' | 'liege' | 'sovereign', string> = {
 const CURRENCY_LABEL: Record<PlanStep['currency'], string> = {
   transmute: 'Transmutation', augment: 'Augmentation', regal: 'Regal', exalt: 'Exalted',
   alchemy: 'Alchemy', chaos: 'Chaos', annul: 'Annulment', desecrate: 'Desecration', essence: 'Essence', 'perfect-essence': 'Perfect Essence',
+  // Still an Exalted Orb — the omen is what makes it land two mods, and it is named in the suffix
+  // below rather than here, so the player reads which ORB to buy first and which omen to put on it.
+  'greater-exalt': 'Exalted',
 };
 
 function tierLabel(display: number, tierCount: number, name: string, ilvl: number, range: string): string {
@@ -153,9 +156,13 @@ export function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
       // uniform one. Named in full because "+ Whittling" alone would not tell a player which orb it
       // modifies, and this is the only omen here that changes a REMOVAL on an adding currency.
       const whittling = step.currency === 'chaos' && step.omen === 'whittling';
+      // Omen of Greater Exaltation: the orb adds TWO modifiers. Not optional on this step — it IS the
+      // step — so it is derived from the currency rather than from a field, unlike every omen above.
+      const doubled = step.currency === 'greater-exalt';
       // A desecration is constrained to its boss (the omen that targets the desecrated mod).
       const boss = step.currency === 'desecrate' ? step.boss : undefined;
-      const omen = whittling ? ' + Omen of Whittling'
+      const omen = doubled ? ' + Omen of Greater Exaltation'
+        : whittling ? ' + Omen of Whittling'
         : constrainTo ? (constrainTo === 'prefix' ? ' + Sinistral' : ' + Dextral')
         : peOmen ? (peOmen === 'sinistral' ? ' + Sinistral' : ' + Dextral')
         : boss ? ` + Omen of the ${BOSS_LABEL[boss]}` : '';
@@ -166,6 +173,7 @@ export function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
       // Each step names what it acts on: alchemy supplies 4 mods, chaos swaps one for another, annul
       // removes one, everything else adds one.
       const target = step.currency === 'alchemy' ? step.adds.map(text).join(' + ')
+        : step.currency === 'greater-exalt' ? step.adds.map((a) => `+${text(a.modId)}`).join('  ')
         : step.currency === 'chaos' ? `−${text(step.remove)}  +${text(step.add)}`
         : step.currency === 'perfect-essence' ? `+${text(step.add)}  −${text(step.remove)} (random)`
         : step.currency === 'annul' ? `removes ${text(step.remove)}`

@@ -1063,7 +1063,47 @@ payload is 85,599 bytes.
 ---
 
 
-## 14. Omen of Greater Exaltation — TIER 3
+## 14. Omen of Greater Exaltation — STEP PLANNERS DONE 2026-09-02, MDP OPEN
+
+**Both step planners now search it** (`doubleExalt.ts`, `greaterExaltProbability`). Traced to poe2db
+(`OmenOnExaltAddTwoMods`), hand-computed and Monte-Carlo validated, priced as an Exalted Orb plus an
+omen surcharge, excludable, and measured: a 6-target T1 Wand craft falls 4.04e9 → 2.35e9 ex (−42%),
+and a held-item craft gains a surer route (1.997% → 2.266% per attempt) at ~2x the planner's time.
+Full numbers in docs/validation.md ("Omen of Greater Exaltation, in the step planners").
+
+### 14a. The MDP cannot play it — OPEN
+
+`markovActions.ts` has no two-mod action, so the Item tab's headline number ignores a route the step
+frontier beside it now uses. Two things make this harder than the step-planner half, and neither is a
+reason not to do it — they are the reason to measure before keeping it:
+
+- **The outcome distribution is over PAIRS.** Every existing action sets at most one bit of
+  `(present, blocked, jp, js, flagged, rarity)`. This one moves two, and the second draw sees the pool
+  the first shrank, so it is not a convolution of two single-draw distributions — it is the same
+  recursion, enumerated over outcome pairs (target+target, target+junk, junk+junk).
+- **`pusher` folds by distribution.** A two-mod action whose distribution collapses onto a one-mod
+  one must not be folded away at the wrong price; check the fold key covers it.
+
+**Measure it the way the Chaos strength axis was measured (§5d)**: interleaved, six crafts, on/off. If
+it costs ≥1.5x the solve time and changes no answer, REVERT the MDP half and keep the step planners' —
+exactly as 5d did. The prior here is better than 5d's: a 2.331 ex omen for a second slam is a far
+cheaper lever than a 98 ex Greater Chaos was, and it already earns its place on the step frontier.
+
+### 14b. Only ONE fusion per skeleton — OPEN, probably fine
+
+`withGreaterExaltations` fuses one adjacent Exalt pair per skeleton, so a craft with four Exalts is
+never offered two omened orbs. Four Exalts needs a held item missing four rollable mods. Covering it
+adds a second combinatorial axis over a search that already enumerates orderings, and the measured
+worth of the first fusion should decide whether that is bought.
+
+### Original entry, kept for what it got right and wrong
+
+"Rarity/slot legality: Rare only, needs two open slots (any sides — or one per side? find the rule)"
+— answered: any sides, and the one-slot case is unmodelled rather than guessed. The claim that the
+two-draw probability is "the same recursion `alchemyProbability` already does" was right, and the
+factoring it proposed is what shipped.
+
+## 14z. Original notes — Omen of Greater Exaltation
 
 **What is wrong.** An Omen of Greater Exaltation makes an Exalted Orb add **two** modifiers. It is
 priced (`prices.json` has it at 9.539 ex as of 2026-08-22), it is on the README roadmap, and neither

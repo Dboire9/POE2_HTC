@@ -24,6 +24,10 @@ the whole product now — and it is the same code, so it is not a lesser one.
 Older `.AppImage` / `.exe` files may still exist under GitHub Releases. **Don't use them**: they are
 frozen at 0.5-era data and predate every crafting-mechanic correction since.
 
+From 1.0.0 a release also attaches a `POE2HTC-web-<version>.zip`. That is **not** an app to install —
+it is the built site, for anyone who wants to host their own copy (see below). Nothing on the Releases
+page is something you need in order to use POE2HTC.
+
 ## Running it yourself
 
 ```bash

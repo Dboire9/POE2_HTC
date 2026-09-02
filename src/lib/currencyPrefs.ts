@@ -158,22 +158,25 @@ export const PREFS_PREFIX = 'poe2htc.';
 export const STORAGE_KEY = `${PREFS_PREFIX}exclusions.v1`;
 
 /**
- * Whittling is excluded until you say otherwise.
+ * NOTHING is excluded by default, Whittling included.
  *
- * The only default-excluded currency in the app, and it is a product decision rather than a modelling
- * one: at ~4,700ex the Omen of Whittling is among the dearest things the planner can spend, most
- * crafts should not reach for it, and a player who does not own one wants the frontier computed
- * without it. The optimizer would decline it on price where it does not pay — it ranks by cost — so
- * this is not correcting the maths; it is choosing which question is asked by default.
+ * Whittling was briefly default-excluded with a pinned toggle beside Search effort, on the reasoning
+ * that at ~4,700ex it is among the dearest things the planner can spend. Both were removed on
+ * 2026-09-02, and the reason is worth keeping so it is not rebuilt: **the optimizer already declines
+ * an omen that does not pay**, because it ranks plans BY cost, and a Whittling route lands on the
+ * frontier as its OWN ROW beside the plain one — so the comparison a player would press a button for
+ * is already on screen. The control protected nobody from a bad recommendation; it only changed which
+ * question was asked by default.
  *
- * It costs nothing to reverse: `WhittlingToggle` flips exactly this member, and the row is in the
- * "Currency I don't have" panel like every other exclusion, so the state has one home and one meaning.
+ * And once the button went, the default could not stay: a currency silently excluded with no visible
+ * control is hidden state. The app would quietly refuse a route and nothing on screen would say why —
+ * which is the failure `docs/copy-audit.md` exists to prevent, in a new place. Default-off and a
+ * visible control are a pair; either both or neither, and neither is right here.
  *
- * Applied ONLY when storage holds nothing. A stored `{}` is a user who cleared their exclusions and
- * must stay cleared — reapplying the default there would re-exclude Whittling behind their back on
- * every reload.
+ * A player who genuinely owns no Whittling omens still ticks its row in "Currency I don't have", like
+ * every other currency they lack. That is the honest meaning of an exclusion.
  */
-export const DEFAULT_EXCLUSIONS: Exclusions = { omens: { only: [WHITTLING_MEMBER] } };
+export const DEFAULT_EXCLUSIONS: Exclusions = {};
 
 function read(): Exclusions {
   try {

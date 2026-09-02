@@ -283,11 +283,13 @@ export function chaosProbability(
  * Without an omen this is a no-omen Annulment: uniform over the removable mods. With Whittling the
  * game takes the lowest-level modifier, so the target is taken iff it IS that modifier.
  *
- * **The tie is the one untraced piece.** Where several mods share the lowest level, poe2db's text
- * ("will remove the lowest level modifier") does not say which the game picks, and nothing here can
- * settle it. Uniform among the tied is modelled, matching every other pick-among-equals in this
- * engine — an unomened Annulment, a boss-omened Desecration — and it is recorded in docs/validation.md
- * as an assumption rather than a traced rule. It is also the conservative direction for the common
+ * **The tie is the one untraced piece, and is modelled by RULING rather than by evidence.** Where
+ * several mods share the lowest level, poe2db's text ("will remove the lowest level modifier") does
+ * not say which the game picks. Uniform among the tied is modelled — 50/50 on two, 1/k on k — which
+ * the user chose on 2026-09-02 and which matches every other pick-among-equals in this engine (an
+ * unomened Annulment, a boss-omened Desecration). Note what that is and is not: a decision to model
+ * it this way, NOT an observation of the game. It stays on docs/validation.md's deferred list until
+ * someone sees a tie resolve in play. It is also the conservative direction for the common
  * case: a plan that whittles junk off gets a LOWER probability than a deterministic tiebreak in its
  * favour would give it, so the model cannot flatter such a plan.
  */

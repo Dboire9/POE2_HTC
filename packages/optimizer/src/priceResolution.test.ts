@@ -110,3 +110,48 @@ describe('an essence is priced individually, not by level', () => {
     expect(stepCost(prices, { currency: 'perfect-essence' })).toBeGreaterThan(0);
   });
 });
+
+// --- nothing the planners can spend is FREE ------------------------------------------------------
+// `stepCost` reads `prices.currency[key] ?? 0`, so an absent key is not "unavailable" — it is a free
+// orb, and a free anything dominates every frontier it can reach. This is the shape a league rollover
+// produces: for the first days of a new league almost nothing has traded, and the refresh REBUILDS the
+// essence keys wholesale rather than keeping the previous value the way the currency loop does. Before
+// 2026-09-02 a sheet with no essence trades priced a Greater Essence and a Perfect Essence at 0.
+//
+// Lives here, against the SHIPPED sheet, because it is a claim about what ships — and this file is one
+// of the two guards the daily refresh runs before merging, so a sheet that lost a key cannot reach the
+// site without a human seeing it.
+describe('no shipped price is zero', () => {
+  const mustBePositive = [
+    'transmute', 'augment', 'regal', 'exalt', 'chaos', 'annul', 'alchemy', 'desecrate',
+    'transmute_greater', 'augment_greater', 'regal_greater', 'exalt_greater', 'chaos_greater',
+    'transmute_perfect', 'augment_perfect', 'regal_perfect', 'exalt_perfect', 'chaos_perfect',
+    // The per-LEVEL essence fallbacks, which `essenceKey` reaches whenever a specific essence has no
+    // entry of its own. These are the keys the rebuild deletes and may fail to restore.
+    'essence_lesser', 'essence', 'essence_greater', 'perfect_essence',
+  ];
+
+  it.each(mustBePositive)('%s has a positive price', (key) => {
+    expect(prices.currency[key], `${key} is missing or zero — stepCost would charge nothing for it`)
+      .toBeGreaterThan(0);
+  });
+
+  it('every omen the app can spend is priced', () => {
+    for (const id of Object.keys(prices.omens)) {
+      expect(prices.omens[id], `${id} priced at 0`).toBeGreaterThan(0);
+    }
+    expect(Object.keys(prices.omens).length).toBeGreaterThanOrEqual(13);
+  });
+
+  it('every per-essence entry that EXISTS is positive, and most essences have one', () => {
+    const perEssence = Object.entries(prices.currency).filter(([k]) => k.startsWith('essence:'));
+    expect(perEssence.length).toBeGreaterThan(500);
+    for (const [k, v] of perEssence) expect(v, `${k} priced at 0`).toBeGreaterThan(0);
+  });
+
+  it('every bone the desecration model resolves is priced', () => {
+    for (const bone of ['jawbone', 'rib', 'collarbone'] as const) {
+      expect(prices.bones?.[bone], `bone ${bone} missing`).toBeGreaterThan(0);
+    }
+  });
+});

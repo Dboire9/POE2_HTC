@@ -369,8 +369,23 @@ async function main() {
   const essFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Essences`);
   const essencesFile = JSON.parse(readFileSync(join(ROOT, `data/patches/${PATCH}/essences.json`), 'utf8'));
   const { prices: essencePrices, inferred, untraded } = priceEssences(essencesFile, essFeed.lines, exalt);
+  // NEVER DELETE A PRICE YOU CANNOT REPLACE. The essence keys are rebuilt wholesale each run, which
+  // is right while the feed lists essences and catastrophic the week it does not: `stepCost` reads
+  // `prices.currency[key] ?? 0`, so a deleted key is a FREE essence, and a free anything dominates
+  // every frontier it can reach. On a fresh league nothing is traded for the first days, and this is
+  // the one part of the sheet that could go to zero rather than merely stale — the currency loop
+  // already keeps the previous value by starting from `{...prev.prices}` and skipping a missing line.
+  // Verified reachable before fixing: an essence sheet stripped of its keys prices a Greater Essence
+  // and a Perfect Essence at 0.
+  const essenceBefore = Object.fromEntries(
+    Object.entries(prices).filter(([k]) => k.startsWith('essence')),
+  );
   for (const key of Object.keys(prices)) if (key.startsWith('essence')) delete prices[key];
   Object.assign(prices, essencePrices);
+  const restored = [];
+  for (const [k, v] of Object.entries(essenceBefore)) {
+    if (prices[k] === undefined) { prices[k] = v; restored.push(k); }
+  }
   // `desecrationBoneFor` treats an unmapped category as armour, so the flat fallback key mirrors the
   // rib price rather than keeping the old 0.5 guess.
   if (bones.rib !== undefined) prices.desecrate = bones.rib;
@@ -380,6 +395,9 @@ async function main() {
   }
   if (inferred.length) {
     console.log(`  ${inferred.length} not traded, inferred from the same essence's other levels: ${inferred.slice(0, 6).join(', ')}${inferred.length > 6 ? ', …' : ''}`);
+  }
+  if (restored.length) {
+    console.warn(`  WARNING ${restored.length} essence key(s) had no live price and KEPT their previous value rather than being dropped to 0: ${restored.slice(0, 5).join(', ')}${restored.length > 5 ? ', …' : ''}`);
   }
 
   // Omens come from the RITUAL feed — that is where poe.ninja files them. See priceOmens.
@@ -423,6 +441,17 @@ async function main() {
 
   // The gate the CI workflow reads. See DEPTH for why essences are reported rather than blocked.
   const blockers = [];
+  // A LEAGUE CHANGE is the one case worth naming outright rather than inferring from price movement.
+  // On the first days of a league almost nothing has traded, so every price is thin, volatile, or
+  // simply absent — and the ones that DO exist are not yet the prices anyone will pay a week later.
+  // The depth checks would probably catch it, but "probably" is the wrong standard for the single
+  // most predictable way this sheet can go wrong, and the signal is exact and free.
+  if (prev.league && prev.league !== league) {
+    blockers.push(`LEAGUE CHANGED: ${prev.league} -> ${league}. Early-league prices are thin and move fast; read the whole diff before merging`);
+  }
+  if (restored.length > 0) {
+    blockers.push(`${restored.length} essence key(s) had no live price and kept their previous value`);
+  }
   if (hard.length > 0) blockers.push(`${hard.length} currency/bone price(s) thin and moving`);
   if (essShare >= DEPTH.essenceShareToBlock) {
     blockers.push(`${(essShare * 100).toFixed(0)}% of essence lines moved over ${DEPTH.spikePct}%`);

@@ -13,7 +13,7 @@ import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { EFFORT_PRESETS, isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
-import { SearchEffort, SearchEffortHint, WhittlingToggle } from './SearchEffort';
+import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import {
   decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode, useOnChange,
 } from '../../lib/workspace';
@@ -540,7 +540,6 @@ const EngineLab: React.FC = () => {
             </label>
           )}
           <SearchEffort />
-          <WhittlingToggle />
           <div className="flex-1" />
           <Button variant="outline" onClick={() => void share()} disabled={targets.length === 0 && mode === 'plan'} size="lg" title="Copy a link that reproduces this workspace">
             Copy link

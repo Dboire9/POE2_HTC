@@ -2867,11 +2867,46 @@ a given craft is hard enough to separate them depends on what the orbs cost. Wit
 craft became easy enough that VI settled it too, so the test failed while its claim stayed true. It
 reads `loadFrozenPrices()` now, like the other price-pinned tests.
 
+## The league-rollover zero, found by asking what happens on day one (2026-09-02)
+
+A fair worry: on the first days of a new league, prices are thin or absent — so does the optimizer
+start recommending things that are only cheap because nobody has traded them yet? Checked rather than
+reassured, and the answer split three ways.
+
+**Currency and bones are SAFE.** The refresh starts from `{...prev.prices}` and `continue`s past a
+line the feed does not carry, so a missing orb keeps its previous price. Stale, never free.
+
+**Omens are safe.** They fall back to `omenQuotes` under the units/day depth gate.
+
+**Essences were NOT.** The refresh DELETES every `essence*` key and rebuilds them from the feed, and
+the per-level fallbacks (`essence_lesser`, `essence`, `essence_greater`) are written only when a
+median exists. With no essence trades those keys simply vanish — and `stepCost` reads
+`prices.currency[key] ?? 0`, so an absent key is not "unavailable", it is a **free essence**, which
+dominates every frontier it can reach. Confirmed by building a sheet with the keys stripped: a Greater
+Essence and a Perfect Essence both priced **0**.
+
+Three changes:
+
+1. **Never delete a price you cannot replace.** Essence keys the new run could not price now keep
+   their previous value, matching what the currency loop always did, and the run says how many.
+2. **A league change blocks the auto-merge by name**, rather than being inferred from price movement.
+   `prev.league !== league` is exact and free, and early-league prices are the single most predictable
+   way this sheet goes wrong — "probably caught by the depth checks" is the wrong standard for it.
+3. **A no-free-price guard in `priceResolution.test.ts`**, which is one of the two tests the refresh
+   runs before merging, so a sheet that lost a key cannot reach the site unseen. Mutation-checked:
+   deleting `essence_greater` turns it red.
+
+Worth being clear about what is NOT fixed, because it cannot be: if an orb genuinely trades at 5ex on
+day two because nobody has found any yet, the optimizer will use it, and it is right to — that is what
+the orb costs that day. The guards above are against prices that are ABSENT or unbacked, not against a
+market that is simply young.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
-  the lowest item level, which does the Chaos Orb remove? Uniform among them is modelled and flagged.
-  (The price is no longer outstanding — poe.ninja serves omens under `type=Ritual`, so the mechanic
-  is live at ~4,700ex.)
+  the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the
+  user's ruling rather than by observation, so it stays here until someone sees a tie resolve in play.
+  (The price is no longer outstanding: poe.ninja serves omens under `type=Ritual`, so the mechanic is
+  live at ~4,700ex.)
 - **Cross-check the BELT weights against Craft of Exile** (added 2026-09-02, table above). CoE is
   client-rendered and `scripts/coe-verify.mts` takes hand-entered numbers, so this needs a browser.
   Every other shipped category has had this check; belts have not.

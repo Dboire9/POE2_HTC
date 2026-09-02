@@ -86,10 +86,11 @@ describe('toExcludedKeys — group settings become price-sheet keys', () => {
     expect(toExcludedKeys({ omens: { only: [] } })).toContain('OmenofWhittling');
   });
 
-  it('Whittling is excluded by default, and only Whittling', () => {
-    // The one default-excluded currency in the app — a product decision, not a modelling one. See
-    // DEFAULT_EXCLUSIONS. Pinned because a silent change here alters every fresh user's answer.
-    expect(toExcludedKeys(DEFAULT_EXCLUSIONS)).toEqual(['OmenofWhittling']);
+  it('nothing is excluded by default — no hidden state', () => {
+    // Whittling was briefly default-excluded with a pinned toggle; both were removed. A currency
+    // silently excluded with NO visible control is hidden state: the app would refuse a route and
+    // nothing on screen would say why. See DEFAULT_EXCLUSIONS for the full reasoning.
+    expect(toExcludedKeys(DEFAULT_EXCLUSIONS)).toEqual([]);
   });
 
   it('nothing marked excludes nothing', () => {

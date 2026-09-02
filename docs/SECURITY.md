@@ -49,34 +49,37 @@ Send an email to **dboire@student.42.fr** with:
 
 ## Security Best Practices for Users
 
-### Installation
+### There is nothing to install
 
-- Download only from official sources:
-  - [GitHub Releases](https://github.com/Dboire9/POE2_HTC/releases)
-  - Never download from third-party sites
-- Verify file checksums if provided
-- Use the auto-updater to stay current
+POE2HTC is a web page at **[poe2htc.com](https://poe2htc.com)**. It has no installer and no desktop
+build, so there is no file to verify and no updater to trust — you always get the current version by
+loading the page.
 
-### Running the Application
+**If you find a POE2HTC `.exe` or `.AppImage` anywhere, do not run it.** Old Electron builds were
+published to GitHub Releases until 2026-08-22 and are frozen at stale game data; anything newer
+claiming to be a POE2HTC download did not come from this project.
 
-- The application runs entirely on your machine
-- All calculations happen **client-side** in pure TypeScript — there is **no backend server** and no
-  local port is opened
-- No crafting data is sent to external servers
+### Running it
+
+- Every calculation happens **client-side**, in your browser. There is no backend server and no local
+  port is opened.
+- **No craft is ever sent anywhere to be computed.** What the page does send when something breaks is
+  listed under *What leaves your browser* below — stated exactly rather than promised away.
 
 ### Permissions
 
-The application requires:
-- **File System**: To store configuration and (desktop) auto-update files
-- **Network**: Only for the desktop app's auto-updater and optional error/analytics reporting — not
-  for crafting, which is fully local
-- **No Sensitive Data**: Application doesn't access or store sensitive information
+POE2HTC is a web page. There is no installer, no account, no login and no server of ours to talk to:
+
+- **Network**: the patch data and price sheet are downloaded once as static files. Solving is done in
+  your browser and sends nothing. Beyond that the page contacts only its error reporting and its
+  analytics — see *What leaves your browser* below.
+- **Storage**: your workspace is kept in your own browser so a reload does not lose it.
+- **No accounts**: nothing to sign in to, so there are no credentials to lose.
 
 ### Updates
 
-- Enable auto-updates in settings
-- Review release notes for security fixes
-- Keep your system and dependencies updated
+Reloading the page is the update. Release notes for each version are on the
+[Releases](https://github.com/Dboire9/POE2_HTC/releases) page.
 
 ## Known Security Considerations
 
@@ -86,19 +89,24 @@ The app is fully client-side — there is **no backend process** and **no listen
 `localhost:8080` server was retired). Nothing to firewall, nothing to authenticate. Crafting
 computation happens in the same sandboxed context as the UI.
 
-### Electron Security
+### The one untrusted input: a shared link
 
-We follow Electron security best practices:
-- Context isolation enabled
-- Node integration disabled in renderer
-- Content Security Policy in place
-- No remote code execution
+A `?s=` share link is the only thing a stranger can hand the app, and it is parsed before you click
+anything. It is decoded defensively: a malformed link is refused rather than throwing (a throw inside
+React unmounts the page, which is how one bad link once white-screened the app), and every value it
+carries is re-validated on the way in — a link is not a form. Fuzzed in `workspace.test.ts`.
+
+### Browser-level protections
+
+A Content-Security-Policy is served as a **real response header**, not a `<meta>` tag: `script-src`
+and `worker-src` are `'self'`, so no third-party script can run; `frame-ancestors 'none'`, so the page
+cannot be embedded for clickjacking; `object-src 'none'`; `form-action 'none'`. HSTS is set for two
+years, and no cookies are used at all.
 
 ### Third-Party Dependencies
 
-We regularly update dependencies to patch known vulnerabilities:
-- npm packages (app + engine)
-- Electron framework
+We regularly update dependencies to patch known vulnerabilities. `npm audit` is checked in CI and is
+currently clean for both the shipped bundle and the build tooling.
 
 Check `npm audit` reports in CI/CD. (There are no Maven dependencies or bundled JRE anymore — the
 Java backend was retired.)
@@ -107,20 +115,38 @@ Java backend was retired.)
 
 ### Application
 
-- ✅ Crafting runs locally — no item/craft data leaves your machine
-- ✅ Open source (auditable)
-- ✅ Sandboxed Electron renderer
-- ✅ Automatic updates with signature verification
-- ℹ️ Uses **Sentry** (crash/error reporting) and **Vercel Analytics** (aggregate, privacy-preserving
-  usage metrics). These send diagnostics/analytics only — never your crafting inputs — and the code is
-  open for inspection.
+- ✅ **The solver runs entirely in your browser.** No craft is sent anywhere to be computed, and the
+  page keeps working with the network off.
+- ✅ Open source, and every claim on this page is checkable in the code.
+- ✅ A strict Content-Security-Policy served as a real header: no third-party script can execute, and
+  the page cannot be framed. No cookies are set.
+
+### What leaves your browser
+
+Stated exactly, because an earlier version of this page said "never your crafting inputs" and that was
+**not accurate** — it was written for the desktop build and was not revisited when error reporting
+gained session replay.
+
+- **Vercel Analytics** — page views, served from this site's own domain. Aggregate; no profile of you.
+- **Sentry**, only when something goes wrong:
+  - the error and its stack trace, your browser and OS, and **the page URL** — and a shared-workspace
+    link carries your craft in that URL;
+  - a **session replay of the minutes before the error**, which records the page as displayed,
+    including the base, modifiers, tiers and budget you had on screen. Ordinary sessions are **not**
+    recorded (`replaysSessionSampleRate: 0`) — only ones that hit an error;
+  - your IP address reaches Sentry as the sender of the request, as it does for any web request.
+
+None of that is an account, a password or a payment detail, because the app has none. It is your
+crafting session, and it is captured so a crash can be diagnosed. If you would rather it were not, a
+tracker-blocking extension stops Sentry loading and the app works normally without it.
 
 ### Development
 
-- ✅ GitHub Actions security scanning
-- ✅ Dependency vulnerability checks
-- ✅ Code review process for all changes
-- ✅ Automated builds (no manual tampering)
+- ✅ CodeQL scanning and a linter on every push
+- ✅ `npm audit` clean, and every workflow declares the minimum permission it needs
+- ✅ Automated builds — a release is built by CI from a tag, never uploaded by hand
+- ℹ️ This is a solo project: changes are not peer-reviewed, they are gated by the test suite, three
+  type-checks and five browser tests. Said plainly rather than claimed as review.
 
 ## Questions?
 

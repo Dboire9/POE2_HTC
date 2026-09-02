@@ -47,6 +47,7 @@ the surest way. Everything runs in your browser; there is no server and nothing 
 - [📖 How Does It Work?](#-how-does-it-work)
 - [💻 Development](#-development)
 - [🤝 Contributing](#-contributing)
+- [📚 Documentation](#-documentation)
 - [📝 API Documentation](#-api-documentation)
 - [🐛 Known Issues](#-known-issues)
 - [🗺️ Roadmap](#️-roadmap)
@@ -202,6 +203,38 @@ We welcome contributions! Here's how you can help:
 **📘 For detailed contribution guidelines, development setup, and code style, see the [Contributing Guide](docs/CONTRIBUTING.md).**
 
 ---
+
+## 📚 Documentation
+
+Everything in `docs/`, so nothing is only findable by knowing it exists.
+
+**If you play the game**
+
+| | |
+|---|---|
+| [What's new in 1.0](docs/WHATS-NEW.md) | What the site does now, and what changed. Start here if you've used it before. |
+| [User Guide](docs/USER_GUIDE.md) | Every panel and every number, plus what to do when a result looks wrong. |
+| [Running POE2HTC](docs/DOWNLOAD.md) | Short version: there is nothing to download. |
+
+**If you want to know whether to trust it**
+
+| | |
+|---|---|
+| [How it works](docs/ALGORITHM.md) | The maths — exact weight-pool probability and the decision model. |
+| [Validation log](docs/validation.md) | Every measurement behind every claim, including the experiments that **failed**. Three thousand lines of "we tried this and it didn't work", kept on purpose. |
+| [Copy audit](docs/copy-audit.md) | Every claim the app makes about the game, and what enforces it. Written because telling a player something is impossible when it isn't costs them real currency. |
+| [Changelog](docs/CHANGELOG.md) | Release by release. |
+
+**If you want to work on it**
+
+| | |
+|---|---|
+| [Development guide](docs/DEVELOPMENT.md) | Setup, project structure, the verify chain. |
+| [Contributing](docs/CONTRIBUTING.md) | How to propose a change. |
+| [Data layer](docs/data-layer.md) | How the patch data is versioned, refreshed and shipped. |
+| [0.5.0 refresh diff](docs/refresh-0.5.0-diff.md) | What changed between the Java-extracted baseline and the poe2db data the app ships. |
+| [API examples](docs/API_EXAMPLES.md) | Calling the engine packages directly. |
+| [Security policy](docs/SECURITY.md) · [Code of conduct](docs/CODE_OF_CONDUCT.md) | |
 
 ## 📝 API Documentation
 

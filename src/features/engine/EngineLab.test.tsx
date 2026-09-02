@@ -357,10 +357,24 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
     await loaded();
     await user.click(addButton('Normal Prefix'));
     await user.click(screen.getByRole('button', { name: /Find plans/i }));
-    const said = await screen.findByText(/Best value:/);
+    const said = await screen.findByText(/per attempt\./);
     // The exact string FrontierView puts on the card for this probability — same scale, same digits.
-    expect(said).toHaveTextContent('Best value: 0.0000063% per attempt');
-    expect(said).not.toHaveTextContent(/Best value: 0\.0% /);
+    expect(said).toHaveTextContent('0.0000063% per attempt');
+    expect(said).not.toHaveTextContent(/0\.0% per attempt/);
+    // …and it does NOT call it best value. 1.6e7 attempts clears no practicality bar, so this is the
+    // fallback — the surest plan, which on a frontier ascending in price is also the dearest. The
+    // badge stopped making that claim; the announcement is the one channel a screen-reader user
+    // cannot check against the cards, so it has to stop making it too.
+    expect(said).not.toHaveTextContent(/Best value/);
+    expect(said).toHaveTextContent(/No route lands inside 40 attempts/);
+  });
+
+  it('does say "best value" when a plan really is practical', async () => {
+    const user = userEvent.setup();
+    await loaded(); // okFrontier is a 2-attempt plan
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/Best value: 50\.00% per attempt/)).toBeInTheDocument();
   });
 
   it('says a white base may simply be binned and rerolled', async () => {

@@ -3,7 +3,7 @@ import PriceBasisNote from './PriceBasisNote';
 import type { EnginePriceBasis } from '../../lib/engine';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { recommendedIndex, type EngineResult } from '../../lib/engine';
+import { MAX_PRACTICAL_ATTEMPTS, recommendPlan, type EngineResult } from '../../lib/engine';
 import { exactExalts, formatIn, pickUnit } from '../../lib/currency';
 
 /**
@@ -19,6 +19,22 @@ export function fmtPct(p: number): string {
   if (pct >= 0.01) return `${pct.toFixed(3)}%`;
   if (pct <= 0) return '0%';
   return `${pct.toPrecision(2)}%`;
+}
+
+/**
+ * An expected-attempt count, at whatever scale it happens to be.
+ *
+ * `toFixed(1)` alone printed a long-shot craft as **"≈ 1050000000000.0 attempts"** — twelve
+ * unseparated digits and a decimal place that is noise at that size. It is the same defect as the
+ * total beside it: a true number rendered in a form nobody can read. Thousands separators fix the
+ * middle of the range; past a million even those give a string too long to take in at a glance, so it
+ * goes exponential, which is also how the chance beside it already renders.
+ */
+export function fmtAttempts(n: number): string {
+  if (!Number.isFinite(n)) return '∞';
+  if (n < 1000) return n.toFixed(1);
+  if (n < 1e6) return Math.round(n).toLocaleString();
+  return n.toExponential(1);
 }
 
 /** The (expected cost ↔ success probability) frontier: one card per non-dominated plan. */
@@ -45,12 +61,18 @@ const FrontierView: React.FC<{
 
   // Flags are decided on the SEARCH order (cheapest→surest) and carried, so reversing the display
   // can't slide "best value" onto the wrong card.
-  const rec = recommendedIndex(result.frontier);
+  //
+  // `leads` and `isRecommended` are deliberately different things. The recommended card keeps its
+  // highlight either way — a list has to open somewhere — but it only makes the "best value" CLAIM
+  // when a plan actually cleared the practicality bar. Where none did, that card is the fallback,
+  // which is the surest and therefore the dearest plan on the frontier.
+  const rec = recommendPlan(result.frontier);
   const cards = result.frontier.map((plan, i) => ({
     plan,
     isCheapest: i === 0,
     isSurest: i === result.frontier.length - 1,
-    isRecommended: i === rec,
+    isRecommended: i === rec.index,
+    leads: i === rec.index && rec.practical,
   }));
   const ordered = freeRestart ? cards : [...cards].reverse();
   const heading = title ?? (freeRestart ? 'Your options — cheapest to surest' : 'Your options — likeliest first');
@@ -101,7 +123,38 @@ const FrontierView: React.FC<{
       </Card>
     ) : (
       <div className="space-y-3">
-        {ordered.map(({ plan, isCheapest, isSurest, isRecommended }, i) => {
+        {/* What `expected cost` assumes, said out loud on exactly the crafts where the assumption
+            stops holding.
+
+            The figure is one run's cost divided by the chance it lands, which prices scrapping the
+            item and buying a fresh base after every miss. That is fair from white on an ordinary
+            craft. It stops being fair the further the odds fall, because the division runs away: a
+            6-mod T1 Wand lands 3.9e-10% of the time, so the total is a real Perfect Transmutation
+            Orb bought 260 billion times, and 99.3% of a 6.1-billion-divine answer is that one step.
+            Nobody scraps an item six steps in — they repair it — which is the model the true expected
+            cost uses, and why it came back four orders of magnitude lower on the same craft.
+
+            Shown only where NO plan clears the bar, so an ordinary craft never sees it, and worded
+            around the assumption rather than a verdict so it reads sensibly at 45 attempts as well as
+            at 1e12. It points at the figures that survive the assumption intact.
+
+            It DESCRIBES the card's labels rather than repeating them. Quoting "expected cost" and
+            "chance per attempt" back verbatim put a second copy of each label on screen above the
+            cards — and broke three tests that locate a card by its labels, which is the same
+            ambiguity a reader would have had. */}
+        {freeRestart && !rec.practical && (
+          <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+            <strong className="text-foreground">
+              No route here lands inside {MAX_PRACTICAL_ATTEMPTS} attempts.
+            </strong>{' '}
+            The total on each card divides one run&rsquo;s cost by the chance it lands, so it prices
+            scrapping the item and starting from a fresh base after every miss — the further past that
+            bar a plan sits, the more that total is arithmetic than a budget. The odds and the per-run
+            price beside it hold either way, and <strong>True expected cost</strong> prices repairing
+            the item rather than replacing it.
+          </p>
+        )}
+        {ordered.map(({ plan, isCheapest, isSurest, isRecommended, leads }, i) => {
           const cost = (
             <div>
               <div className="text-2xl font-bold tabular-nums" title={exactExalts(plan.expected)}>
@@ -139,7 +192,7 @@ const FrontierView: React.FC<{
                 {freeRestart ? <>{cost}{odds}</> : <>{odds}{perRun}</>}
                 {freeRestart && (
                   <div className="text-xs text-muted-foreground">
-                    <div>≈ {Number.isFinite(plan.expectedAttempts) ? plan.expectedAttempts.toFixed(1) : '∞'} attempts</div>
+                    <div>≈ {fmtAttempts(plan.expectedAttempts)} attempts</div>
                     <div title={exactExalts(plan.perAttempt)}>{formatIn(unitPerAttempt, plan.perAttempt)} per attempt</div>
                   </div>
                 )}
@@ -149,9 +202,9 @@ const FrontierView: React.FC<{
                       the reader cannot see. Only the ordering claim survives. */}
                   {freeRestart ? (
                     <>
-                      {isRecommended && <Badge>best value</Badge>}
-                      {isCheapest && <Badge variant={isRecommended ? 'outline' : 'secondary'}>cheapest</Badge>}
-                      {isSurest && !isCheapest && <Badge variant={isRecommended ? 'outline' : 'secondary'}>surest</Badge>}
+                      {leads && <Badge>best value</Badge>}
+                      {isCheapest && <Badge variant={leads ? 'outline' : 'secondary'}>cheapest</Badge>}
+                      {isSurest && !isCheapest && <Badge variant={leads ? 'outline' : 'secondary'}>surest</Badge>}
                     </>
                   ) : (
                     isSurest && <Badge>likeliest</Badge>

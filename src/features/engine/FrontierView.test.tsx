@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import FrontierView from './FrontierView';
+import FrontierView, { fmtAttempts } from './FrontierView';
 import type { EnginePriceBasis, EngineResult } from '../../lib/engine';
 
 const empty: EngineResult = {
@@ -116,14 +116,18 @@ describe('FrontierView — whether a restart is really free', () => {
     expect(screen.getAllByText(/what one run costs/i).length).toBe(2);
   });
 
-  it('keeps "best value" on the plan the search picked, not on whatever ends up first', () => {
+  it('rings the plan the search picked, not whatever ends up first', () => {
     // The flags are decided on the search order and carried through the reversal. Recomputing them
     // after reversing would silently move the ring to the wrong card. (Only meaningful while the cost
     // is on screen — with it hidden, "best value" would be a claim about a number you cannot see.)
     const { container } = render(<FrontierView result={twoPlans} freeRestart />);
     const ringed = container.querySelectorAll('.ring-2');
     expect(ringed.length).toBe(1);
-    expect(ringed[0]!.textContent).toContain('best value');
+    // Neither of these finishes in a practical number of attempts — 5.6e6 and 7.3e5 — so the ringed
+    // card is the FALLBACK, and it makes no claim about value. It used to say "best value" here, on
+    // the dearer of the two. The list still has to open somewhere, so the ring stays.
+    expect(ringed[0]!.textContent).toContain('surest');
+    expect(ringed[0]!.textContent).not.toContain('best value');
   });
 });
 
@@ -148,3 +152,79 @@ describe('FrontierView — units are per quantity, not per view', () => {
     expect(screen.getAllByText(/^expected cost$/i)[0]!.previousSibling?.textContent).toMatch(/div$/);
   });
 });
+
+// ── "best value" has to be earned ────────────────────────────────────────────
+// The frontier ascends in BOTH cost and probability, so its last plan is the surest AND the dearest.
+// `recommendPlan` falls back to that plan when nothing clears the practicality bar — correct, a list
+// has to open somewhere — but the badge restated the fallback as a claim. On a real 6-mod T1 Wand it
+// therefore read "best value" on a 6.1-billion-divine plan while a 190-million-divine one sat on the
+// same screen, 32x cheaper and differing only in the first step's orb.
+describe('FrontierView — the "best value" claim', () => {
+  const plan = (expected: number, expectedAttempts: number) => ({
+    expected, probability: 1 / expectedAttempts, perAttempt: expected / expectedAttempts,
+    expectedAttempts, steps: [],
+  });
+  const frontier = (...plans: ReturnType<typeof plan>[]): EngineResult =>
+    ({ frontier: plans, plansEvaluated: 10, assumedOdds: false });
+
+  it('is made when a plan really does finish in a practical number of attempts', () => {
+    render(<FrontierView result={frontier(plan(3, 2500), plan(9.5, 7))} />);
+    expect(screen.getByText('best value')).toBeInTheDocument();
+  });
+
+  it('is WITHHELD when no plan clears the bar, rather than landing on the dearest', () => {
+    render(<FrontierView result={frontier(plan(3, 5000), plan(9, 200))} />);
+    expect(screen.queryByText('best value')).toBeNull();
+    // The ordering badges still stand — they are claims about the list, not about value.
+    expect(screen.getByText('cheapest')).toBeInTheDocument();
+    expect(screen.getByText('surest')).toBeInTheDocument();
+  });
+
+  // The number stays — someone may want it — but what it ASSUMES stops being implicit. Expected cost
+  // divides one run's cost by the chance it lands, i.e. it prices scrapping the item and buying a
+  // fresh base on every miss; at 3.9e-10% that division is the whole answer.
+  it('says what expected cost assumes, exactly where the assumption stops holding', () => {
+    const { container } = render(<FrontierView result={frontier(plan(3, 5000), plan(9, 200))} />);
+    expect(screen.getByText(/No route here lands inside 40 attempts/i)).toBeInTheDocument();
+    expect(container.textContent).toMatch(/starting from a fresh base after every miss/i);
+    // ...and it must not put a SECOND copy of a card's label on screen: three tests find a card by
+    // its labels, and a reader scanning for "expected cost" has the same ambiguity.
+    expect(screen.queryAllByText(/^expected cost$/i)).toHaveLength(2); // the two cards, and nothing else
+  });
+
+  it('says nothing of the sort on an ordinary craft', () => {
+    const { container } = render(<FrontierView result={frontier(plan(3, 2500), plan(9.5, 7))} />);
+    expect(container.textContent).not.toMatch(/No route here lands inside/i);
+  });
+
+  // The from-item panel drops the expected-cost total entirely (freeRestart={false}), so a note about
+  // what that total assumes would describe a number the reader cannot see.
+  it('stays silent where there is no total to caveat', () => {
+    const { container } = render(
+      <FrontierView result={frontier(plan(3, 5000), plan(9, 200))} freeRestart={false} />,
+    );
+    expect(container.textContent).not.toMatch(/No route here lands inside/i);
+  });
+});
+
+// Same defect as the total it sits beside: a true number in a form nobody can read.
+describe('FrontierView — attempt counts stay readable at every scale', () => {
+  it('keeps a decimal where one carries information', () => {
+    expect(fmtAttempts(1.6)).toBe('1.6');
+    expect(fmtAttempts(7.3)).toBe('7.3');
+    expect(fmtAttempts(999.4)).toBe('999.4');
+  });
+  it('groups the middle of the range instead of running the digits together', () => {
+    expect(fmtAttempts(2500)).toBe('2,500');
+    expect(fmtAttempts(730_000)).toBe('730,000');
+  });
+  it('goes exponential where separators no longer help', () => {
+    // Was "1050000000000.0 attempts" on the reported 6-mod T1 Wand.
+    expect(fmtAttempts(1.05e12)).toBe('1.1e+12');
+    expect(fmtAttempts(2.6e11)).toBe('2.6e+11');
+  });
+  it('says infinity rather than NaN', () => {
+    expect(fmtAttempts(Infinity)).toBe('∞');
+  });
+});
+

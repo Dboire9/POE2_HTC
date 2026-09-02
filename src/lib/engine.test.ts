@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   listBases, listMods, listPerfectEssences, listDesecrated, optimize, optimizeItem, optimizeItemMarkov,
-  currencyActions, recommendedIndex, alternatives, alternativesForItem, type CurrencyAction,
+  currencyActions, recommendPlan, MAX_PRACTICAL_ATTEMPTS, alternatives, alternativesForItem, type CurrencyAction,
   type EngineMod, type ExistingItem, type ItemModInput,
 } from './engine.ts';
 import { desecrationProbability } from '../../packages/engine/src/probability.ts';
@@ -433,23 +433,32 @@ describe('engine facade — desecrated mods on an item (0.5.0)', () => {
   });
 });
 
-describe('recommendedIndex — best-value (cheapest practical) pick', () => {
+describe('recommendPlan — best-value (cheapest practical) pick', () => {
   const plan = (expected: number, expectedAttempts: number) =>
     ({ expected, probability: 1 / expectedAttempts, perAttempt: expected / expectedAttempts, expectedAttempts, steps: [] });
 
   it('skips a cheap-but-grindy plan for the cheapest practical one', () => {
     // cheapest = 2500 attempts (a grind), then a 7-attempt plan, then a 1.6-attempt plan.
     const frontier = [plan(3, 2500), plan(9.5, 7), plan(31, 1.6)];
-    expect(recommendedIndex(frontier)).toBe(1); // the 7-attempt plan — cheapest that's practical
+    expect(recommendPlan(frontier)).toEqual({ index: 1, practical: true }); // the 7-attempt plan
   });
   it('recommends the cheapest when it is already practical', () => {
-    expect(recommendedIndex([plan(5, 8), plan(20, 1.5)])).toBe(0);
+    expect(recommendPlan([plan(5, 8), plan(20, 1.5)])).toEqual({ index: 0, practical: true });
   });
-  it('falls back to the surest when no plan is practical', () => {
-    expect(recommendedIndex([plan(3, 5000), plan(9, 200)])).toBe(1);
+
+  // The fallback, and the flag that stops a caller restating it as a fact. The frontier ascends in
+  // price, so the surest plan is also the DEAREST — on a real 6-mod T1 Wand the badge sat on a
+  // 6.1-billion-divine plan with a 190-million-divine one on the same screen. The index is still
+  // wanted (a list has to open somewhere); the "best value" claim is not.
+  it('falls back to the surest when no plan is practical, and says the claim is unearned', () => {
+    expect(recommendPlan([plan(3, 5000), plan(9, 200)])).toEqual({ index: 1, practical: false });
   });
-  it('empty frontier → -1', () => {
-    expect(recommendedIndex([])).toBe(-1);
+  it('marks a plan that only just misses the bar as unearned too', () => {
+    expect(recommendPlan([plan(3, MAX_PRACTICAL_ATTEMPTS + 1)]).practical).toBe(false);
+    expect(recommendPlan([plan(3, MAX_PRACTICAL_ATTEMPTS)]).practical).toBe(true);
+  });
+  it('empty frontier → index -1, and nothing to claim', () => {
+    expect(recommendPlan([])).toEqual({ index: -1, practical: false });
   });
 });
 

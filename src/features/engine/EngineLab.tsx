@@ -4,7 +4,8 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, listDesecrated, listPerfectEssences, recommendedIndex, bossOmenAllowed,
+  loadEngine, listBases, listMods, listDesecrated, listPerfectEssences, recommendPlan, bossOmenAllowed,
+  MAX_PRACTICAL_ATTEMPTS,
   priceBasis,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
   type EngineAlternatives, type AltTargetInput, type EngineMarkovResult,
@@ -377,8 +378,15 @@ const EngineLab: React.FC = () => {
     ? 'No achievable plan — every route scored zero.'
     : `${result.frontier.length} plan${result.frontier.length === 1 ? '' : 's'} found.`
       + (() => {
-        const best = result.frontier[recommendedIndex(result.frontier)] ?? result.frontier[0];
-        return best ? ` Best value: ${fmtPct(best.probability)} per attempt.` : '';
+        // The same claim the badge makes, and it has to be gated the same way: with nothing clearing
+        // the practicality bar this is the surest plan, which is also the dearest, and announcing it
+        // as "best value" is the one channel a screen-reader user cannot check against the cards.
+        const rec = recommendPlan(result.frontier);
+        const best = result.frontier[rec.index] ?? result.frontier[0];
+        if (!best) return '';
+        return rec.practical
+          ? ` Best value: ${fmtPct(best.probability)} per attempt.`
+          : ` No route lands inside ${MAX_PRACTICAL_ATTEMPTS} attempts; surest is ${fmtPct(best.probability)} per attempt.`;
       })()
       + (alts ? ` ${alts.rows.length} budget alternative${alts.rows.length === 1 ? '' : 's'} listed.` : '');
 

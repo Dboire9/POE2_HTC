@@ -36,6 +36,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is in the box's tooltip and in the detail panel a click away.
 - `addBlockedReason` told a player that a carved or essence-only mod "can’t roll on this base". It
   rolls there fine; it just needs a different currency. It now names the one that can place it.
+- **"best value" sat on the most expensive plan on the frontier.** The frontier ascends in both price
+  and probability, so its last row is the surest AND the dearest. When no plan finishes inside a
+  practical number of attempts the app falls back to that row — correct, a list has to open somewhere
+  — but the badge restated the fallback as a claim. On a six-mod T1 Wand it therefore read "best
+  value" on a 6.1-billion-divine plan while a 190-million-divine one sat on the same screen, 32x
+  cheaper and differing only in the first step's orb. The fallback stays and keeps its highlight; the
+  claim goes, and the screen-reader announcement that repeated it goes with it.
+- **The expected-cost total now says what it assumes, on the crafts where the assumption stops
+  holding.** That figure divides one run's cost by the chance it lands, which prices scrapping the
+  item and starting from a fresh base after every miss — fair from white on an ordinary craft, and
+  runaway on a long shot. On that same Wand, 99.3% of the 6.1 billion divine is a single Perfect
+  Transmutation Orb bought 260 billion times, and the true expected cost of the same craft is four
+  orders of magnitude lower because it repairs the item instead of replacing it. The number stays;
+  a note beside it now explains what it is, and only where no route lands inside 40 attempts.
+- **Attempt counts were unreadable at the top of the range** — `≈ 1050000000000.0 attempts`, twelve
+  unseparated digits and a decimal place that is noise at that size. They now group in the thousands
+  and go exponential past a million, matching how the chance beside them already renders.
 - **The link preview was a grey rectangle.** Every meta tag was already correct — 1200x630,
   `summary_large_image`, absolute URL — but the image behind them was a flat fill and a monochrome
   outline, and Discord renders it about 500px wide, where that said nothing about what the site is.

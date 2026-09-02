@@ -971,6 +971,41 @@ recorded in `docs/validation.md` as an assumption rather than a rule.
 
 **The MDP half is untouched and needs its own item** — see 12b below.
 
+### 12d. "A missing price means UNAVAILABLE, not free" — BUILT, REVERTED, and it found something
+
+**The idea, and it is right.** `stepCost` reads `prices.currency[key] ?? 0`, so a key the sheet does
+not carry reads as FREE and dominates every frontier it can reach. An orb nobody has quoted is
+*unavailable*, not free. Both planners already gate a few cases by hand — orb strengths in `levers.ts`
+and `markovActions.ts`, the side omens, Whittling — each remembering separately, and
+**`markovActions`' BOSS omens were never gated at all**, which CLAUDE.md has listed as a known hole.
+
+**The implementation is small and was working**: `stepIsPriced(prices, step)` + `stepAvailable(prices,
+policy, step)` in `cost.ts`, derived from the same `currencyKey` / `stepOmenIds` descriptor that prices
+the step, replacing the three ad-hoc gates and closing the boss-omen hole. There are exactly two
+call sites — `levers.ts`'s `allowsStep` check and `markovActions`' `allowsAction`.
+
+**Why it was reverted.** It surfaced that many synthetic test fixtures rely on unpriced currencies
+being free — which CLAUDE.md already forbids ("price every currency the policy might reach") — and 12
+of the 14 resulting failures were exactly that, fixed by completing the fixtures. But **two were not**:
+
+1. `markovEssenceDesecrate.test.ts` prices a Crystallisation omen at literally `0` to mean "free, so it
+   dominates". Under the new rule 0 means unpriced, so that has to become a negligible non-zero price.
+   Fine, and arguably clearer — a zero price is not a market state.
+2. **`never finishes on an item holding two carved mods` fails, and it is RIGHT to.** That test guards
+   a game rule via the desecration slot relaxation. Closing the boss-omen hole removes free actions,
+   the policy re-routes, and a two-carved GOAL state (`3:0:0:0:0:2`, present `[["DP1"],["DS2"]]`)
+   appears in the node set. Isolated: it appears with `omens: {}` and with the original fixture, so it
+   is the gate, not the fixture edits.
+
+**The finding is the valuable part.** That state was ALWAYS in the lattice — the test passed only
+because the policy never walked through it. So the invariant it claims to protect ("the finished item
+never carries two carved mods") is not enforced by the state space; it was true of one path. Any change
+that re-routes the policy can expose it, and this one did.
+
+**Do this before re-landing the gate**: work out whether `goalKeys` / the slot relaxation should
+exclude two-carved states outright, or whether the action space should. Then the gate is a small,
+mechanical re-apply — the diff is described above and the fixture work is understood.
+
 ### 12b. The MDP cannot play Whittling — NEW, TIER 3
 
 `McState` is `(present, blocked, jp, js, flagged, rarity)`: it knows WHICH targets are present and HOW

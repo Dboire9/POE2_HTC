@@ -66,6 +66,7 @@ const CATEGORY_CLASS = {
   Quarterstaves: 'Quarterstaves', Staves: 'Staves', Spears: 'Spears',
   OneHand_Maces: 'One_Hand_Maces', TwoHand_Maces: 'Two_Hand_Maces',
   Foci: 'Foci', Quivers: 'Quivers', Bucklers: 'Bucklers', Amulets: 'Amulets', Rings: 'Rings',
+  Belts: 'Belts',
 };
 const pageName = (base) => (ARMOUR_CATS.has(base.category) ? base.id : CATEGORY_CLASS[base.category]);
 const BOSS_TAGS = new Set(['amanamu_mod', 'kurgal_mod', 'ulaman_mod']);

@@ -2,7 +2,7 @@
   "patch": "0.5.0",
   "generated": "2026-07-04",
   "source": "NORMAL structure from RePoE-fork PoE2 dump (client 4.5.4.3) + NORMAL weights from poe2db (DropChance). ESSENCE + DESECRATED + PERFECT_ESSENCE pools built from poe2db per-class pages by apply_pools.mjs (essence tiers = Lesser/Normal/Greater levels; perfect_essence = 1-tier, both deterministic weight 0; desecrated = one mod per row, boss tags preserved). DESECRATED WEIGHTS ARE AN ASSUMPTION: poe2db publishes none (it reports 1 for every row), so all of them are set to 2500 — see docs/validation.md D4. They are NOT observed data.",
-  "count": 2140,
+  "count": 2193,
   "mods": [
     {
       "id": "Amulets/AllAttributes",
@@ -4928,6 +4928,3319 @@
           ],
           "stats": [
             "additional_strength"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/BeltFlaskLifeRecoveryRate",
+      "group": "BeltFlaskLifeRecoveryRate",
+      "field": "BeltFlaskLifeRecoveryRate",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "flask_life_recovery_rate_+%"
+      ],
+      "family": "BeltFlaskRecoveryRate",
+      "tags": [
+        "flask",
+        "resource",
+        "life"
+      ],
+      "text": "#% increased Flask Life Recovery rate",
+      "tiers": [
+        {
+          "name": "Restoring",
+          "ilvl": 1,
+          "weight": 800,
+          "ranges": [
+            [
+              5,
+              10
+            ]
+          ],
+          "stats": [
+            "flask_life_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Recovering",
+          "ilvl": 16,
+          "weight": 800,
+          "ranges": [
+            [
+              11,
+              16
+            ]
+          ],
+          "stats": [
+            "flask_life_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Renewing",
+          "ilvl": 33,
+          "weight": 800,
+          "ranges": [
+            [
+              17,
+              22
+            ]
+          ],
+          "stats": [
+            "flask_life_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Refreshing",
+          "ilvl": 46,
+          "weight": 800,
+          "ranges": [
+            [
+              23,
+              28
+            ]
+          ],
+          "stats": [
+            "flask_life_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Rejuvenating",
+          "ilvl": 60,
+          "weight": 800,
+          "ranges": [
+            [
+              29,
+              34
+            ]
+          ],
+          "stats": [
+            "flask_life_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Regenerating",
+          "ilvl": 75,
+          "weight": 800,
+          "ranges": [
+            [
+              35,
+              40
+            ]
+          ],
+          "stats": [
+            "flask_life_recovery_rate_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/BeltFlaskManaRecoveryRate",
+      "group": "BeltFlaskManaRecoveryRate",
+      "field": "BeltFlaskManaRecoveryRate",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "flask_mana_recovery_rate_+%"
+      ],
+      "family": "BeltFlaskRecoveryRate",
+      "tags": [
+        "flask",
+        "resource",
+        "mana"
+      ],
+      "text": "#% increased Flask Mana Recovery rate",
+      "tiers": [
+        {
+          "name": "Affecting",
+          "ilvl": 5,
+          "weight": 800,
+          "ranges": [
+            [
+              5,
+              10
+            ]
+          ],
+          "stats": [
+            "flask_mana_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Stirring",
+          "ilvl": 11,
+          "weight": 800,
+          "ranges": [
+            [
+              11,
+              16
+            ]
+          ],
+          "stats": [
+            "flask_mana_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Heartening",
+          "ilvl": 26,
+          "weight": 800,
+          "ranges": [
+            [
+              17,
+              22
+            ]
+          ],
+          "stats": [
+            "flask_mana_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Exciting",
+          "ilvl": 36,
+          "weight": 800,
+          "ranges": [
+            [
+              23,
+              28
+            ]
+          ],
+          "stats": [
+            "flask_mana_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Galvanizing",
+          "ilvl": 54,
+          "weight": 800,
+          "ranges": [
+            [
+              29,
+              34
+            ]
+          ],
+          "stats": [
+            "flask_mana_recovery_rate_+%"
+          ]
+        },
+        {
+          "name": "Inspiring",
+          "ilvl": 63,
+          "weight": 800,
+          "ranges": [
+            [
+              35,
+              40
+            ]
+          ],
+          "stats": [
+            "flask_mana_recovery_rate_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/BeltIncreasedCharmChargesGained",
+      "group": "BeltIncreasedCharmChargesGained",
+      "field": "BeltIncreasedCharmChargesGained",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "charm_charges_gained_+%"
+      ],
+      "family": "BeltCharmChargesGained",
+      "tags": [
+        "charm"
+      ],
+      "text": "#% increased Charm Charges gained",
+      "tiers": [
+        {
+          "name": "of Plenty",
+          "ilvl": 2,
+          "weight": 800,
+          "ranges": [
+            [
+              5,
+              10
+            ]
+          ],
+          "stats": [
+            "charm_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of Surplus",
+          "ilvl": 16,
+          "weight": 800,
+          "ranges": [
+            [
+              11,
+              16
+            ]
+          ],
+          "stats": [
+            "charm_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of Fertility",
+          "ilvl": 32,
+          "weight": 800,
+          "ranges": [
+            [
+              17,
+              22
+            ]
+          ],
+          "stats": [
+            "charm_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of Bounty",
+          "ilvl": 48,
+          "weight": 800,
+          "ranges": [
+            [
+              23,
+              28
+            ]
+          ],
+          "stats": [
+            "charm_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of the Harvest",
+          "ilvl": 70,
+          "weight": 800,
+          "ranges": [
+            [
+              29,
+              34
+            ]
+          ],
+          "stats": [
+            "charm_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of Abundance",
+          "ilvl": 81,
+          "weight": 800,
+          "ranges": [
+            [
+              35,
+              40
+            ]
+          ],
+          "stats": [
+            "charm_charges_gained_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/BeltIncreasedCharmDuration",
+      "group": "BeltIncreasedCharmDuration",
+      "field": "BeltIncreasedCharmDuration",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "charm_duration_+%"
+      ],
+      "family": "BeltCharmDuration",
+      "tags": [
+        "charm"
+      ],
+      "text": "#% increased Charm Effect Duration",
+      "tiers": [
+        {
+          "name": "Conservative",
+          "ilvl": 8,
+          "weight": 800,
+          "ranges": [
+            [
+              4,
+              9
+            ]
+          ],
+          "stats": [
+            "charm_duration_+%"
+          ]
+        },
+        {
+          "name": "Transformative",
+          "ilvl": 33,
+          "weight": 800,
+          "ranges": [
+            [
+              10,
+              15
+            ]
+          ],
+          "stats": [
+            "charm_duration_+%"
+          ]
+        },
+        {
+          "name": "Progressive",
+          "ilvl": 46,
+          "weight": 800,
+          "ranges": [
+            [
+              16,
+              21
+            ]
+          ],
+          "stats": [
+            "charm_duration_+%"
+          ]
+        },
+        {
+          "name": "Innovative",
+          "ilvl": 60,
+          "weight": 800,
+          "ranges": [
+            [
+              22,
+              27
+            ]
+          ],
+          "stats": [
+            "charm_duration_+%"
+          ]
+        },
+        {
+          "name": "Revolutionary",
+          "ilvl": 75,
+          "weight": 800,
+          "ranges": [
+            [
+              28,
+              33
+            ]
+          ],
+          "stats": [
+            "charm_duration_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/BeltIncreasedFlaskChargesGained",
+      "group": "BeltIncreasedFlaskChargesGained",
+      "field": "BeltIncreasedFlaskChargesGained",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "flask_charges_gained_+%"
+      ],
+      "family": "BeltFlaskChargesGained",
+      "tags": [
+        "flask"
+      ],
+      "text": "#% increased Flask Charges gained",
+      "tiers": [
+        {
+          "name": "of Refilling",
+          "ilvl": 2,
+          "weight": 800,
+          "ranges": [
+            [
+              5,
+              10
+            ]
+          ],
+          "stats": [
+            "flask_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of Restocking",
+          "ilvl": 16,
+          "weight": 800,
+          "ranges": [
+            [
+              11,
+              16
+            ]
+          ],
+          "stats": [
+            "flask_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of Replenishing",
+          "ilvl": 32,
+          "weight": 800,
+          "ranges": [
+            [
+              17,
+              22
+            ]
+          ],
+          "stats": [
+            "flask_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of Pouring",
+          "ilvl": 48,
+          "weight": 800,
+          "ranges": [
+            [
+              23,
+              28
+            ]
+          ],
+          "stats": [
+            "flask_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of Brimming",
+          "ilvl": 70,
+          "weight": 800,
+          "ranges": [
+            [
+              29,
+              34
+            ]
+          ],
+          "stats": [
+            "flask_charges_gained_+%"
+          ]
+        },
+        {
+          "name": "of Overflowing",
+          "ilvl": 81,
+          "weight": 800,
+          "ranges": [
+            [
+              35,
+              40
+            ]
+          ],
+          "stats": [
+            "flask_charges_gained_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/BeltReducedCharmChargesUsed",
+      "group": "BeltReducedCharmChargesUsed",
+      "field": "BeltReducedCharmChargesUsed",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "charm_charges_used_+%"
+      ],
+      "family": "BeltCharmChargesUsed",
+      "tags": [
+        "charm"
+      ],
+      "text": "#% reduced Charm Charges used",
+      "tiers": [
+        {
+          "name": "of Austerity",
+          "ilvl": 3,
+          "weight": 800,
+          "ranges": [
+            [
+              -10,
+              -8
+            ]
+          ],
+          "stats": [
+            "charm_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Frugality",
+          "ilvl": 18,
+          "weight": 800,
+          "ranges": [
+            [
+              -13,
+              -11
+            ]
+          ],
+          "stats": [
+            "charm_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Temperance",
+          "ilvl": 33,
+          "weight": 800,
+          "ranges": [
+            [
+              -16,
+              -14
+            ]
+          ],
+          "stats": [
+            "charm_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Restraint",
+          "ilvl": 50,
+          "weight": 800,
+          "ranges": [
+            [
+              -19,
+              -17
+            ]
+          ],
+          "stats": [
+            "charm_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Economy",
+          "ilvl": 72,
+          "weight": 800,
+          "ranges": [
+            [
+              -22,
+              -20
+            ]
+          ],
+          "stats": [
+            "charm_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Scarcity",
+          "ilvl": 81,
+          "weight": 800,
+          "ranges": [
+            [
+              -25,
+              -23
+            ]
+          ],
+          "stats": [
+            "charm_charges_used_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/BeltReducedFlaskChargesUsed",
+      "group": "BeltReducedFlaskChargesUsed",
+      "field": "BeltReducedFlaskChargesUsed",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "flask_charges_used_+%"
+      ],
+      "family": "BeltFlaskChargesUsed",
+      "tags": [
+        "flask"
+      ],
+      "text": "#% reduced Flask Charges used",
+      "tiers": [
+        {
+          "name": "of Sipping",
+          "ilvl": 3,
+          "weight": 800,
+          "ranges": [
+            [
+              -10,
+              -8
+            ]
+          ],
+          "stats": [
+            "flask_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Imbibing",
+          "ilvl": 18,
+          "weight": 800,
+          "ranges": [
+            [
+              -13,
+              -11
+            ]
+          ],
+          "stats": [
+            "flask_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Relishing",
+          "ilvl": 33,
+          "weight": 800,
+          "ranges": [
+            [
+              -16,
+              -14
+            ]
+          ],
+          "stats": [
+            "flask_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Savouring",
+          "ilvl": 50,
+          "weight": 800,
+          "ranges": [
+            [
+              -19,
+              -17
+            ]
+          ],
+          "stats": [
+            "flask_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Reveling",
+          "ilvl": 72,
+          "weight": 800,
+          "ranges": [
+            [
+              -22,
+              -20
+            ]
+          ],
+          "stats": [
+            "flask_charges_used_+%"
+          ]
+        },
+        {
+          "name": "of Nourishing",
+          "ilvl": 81,
+          "weight": 800,
+          "ranges": [
+            [
+              -25,
+              -23
+            ]
+          ],
+          "stats": [
+            "flask_charges_used_+%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/ChaosResistance",
+      "group": "ChaosResistance",
+      "field": "ChaosResistance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "base_chaos_damage_resistance_%"
+      ],
+      "family": "ChaosResistance",
+      "tags": [
+        "chaos_resistance",
+        "chaos",
+        "resistance"
+      ],
+      "text": "+#% to Chaos Resistance",
+      "tiers": [
+        {
+          "name": "of the Lost",
+          "ilvl": 16,
+          "weight": 250,
+          "ranges": [
+            [
+              4,
+              7
+            ]
+          ],
+          "stats": [
+            "base_chaos_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of Banishment",
+          "ilvl": 30,
+          "weight": 250,
+          "ranges": [
+            [
+              8,
+              11
+            ]
+          ],
+          "stats": [
+            "base_chaos_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of Eviction",
+          "ilvl": 44,
+          "weight": 250,
+          "ranges": [
+            [
+              12,
+              15
+            ]
+          ],
+          "stats": [
+            "base_chaos_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of Expulsion",
+          "ilvl": 56,
+          "weight": 250,
+          "ranges": [
+            [
+              16,
+              19
+            ]
+          ],
+          "stats": [
+            "base_chaos_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of Exile",
+          "ilvl": 68,
+          "weight": 250,
+          "ranges": [
+            [
+              20,
+              23
+            ]
+          ],
+          "stats": [
+            "base_chaos_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of Bameth",
+          "ilvl": 81,
+          "weight": 250,
+          "ranges": [
+            [
+              24,
+              27
+            ]
+          ],
+          "stats": [
+            "base_chaos_damage_resistance_%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/ColdResistance",
+      "group": "ColdResistance",
+      "field": "ColdResistance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "base_cold_damage_resistance_%"
+      ],
+      "family": "ColdResistance",
+      "tags": [
+        "cold_resistance",
+        "elemental_resistance",
+        "elemental",
+        "cold",
+        "resistance"
+      ],
+      "text": "+#% to Cold Resistance",
+      "tiers": [
+        {
+          "name": "of the Seal",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              6,
+              10
+            ]
+          ],
+          "stats": [
+            "base_cold_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Penguin",
+          "ilvl": 14,
+          "weight": 1000,
+          "ranges": [
+            [
+              11,
+              15
+            ]
+          ],
+          "stats": [
+            "base_cold_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Narwhal",
+          "ilvl": 26,
+          "weight": 1000,
+          "ranges": [
+            [
+              16,
+              20
+            ]
+          ],
+          "stats": [
+            "base_cold_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Yeti",
+          "ilvl": 38,
+          "weight": 1000,
+          "ranges": [
+            [
+              21,
+              25
+            ]
+          ],
+          "stats": [
+            "base_cold_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Walrus",
+          "ilvl": 50,
+          "weight": 1000,
+          "ranges": [
+            [
+              26,
+              30
+            ]
+          ],
+          "stats": [
+            "base_cold_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Polar Bear",
+          "ilvl": 60,
+          "weight": 1000,
+          "ranges": [
+            [
+              31,
+              35
+            ]
+          ],
+          "stats": [
+            "base_cold_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Ice",
+          "ilvl": 71,
+          "weight": 1000,
+          "ranges": [
+            [
+              36,
+              40
+            ]
+          ],
+          "stats": [
+            "base_cold_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of Haast",
+          "ilvl": 82,
+          "weight": 1000,
+          "ranges": [
+            [
+              41,
+              45
+            ]
+          ],
+          "stats": [
+            "base_cold_damage_resistance_%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_CharmChargesUsed",
+      "group": "Desecrated_CharmChargesUsed",
+      "field": "Desecrated_CharmChargesUsed",
+      "source": "desecrated",
+      "type": "prefix",
+      "categories": [],
+      "family": "CharmChargesUsed",
+      "tags": [
+        "amanamu_mod"
+      ],
+      "text": "#% chance for Charms you use to not consume Charges",
+      "tiers": [
+        {
+          "name": "Amanamu's",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              10,
+              18
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_ColdAndChaosDamageResistance",
+      "group": "Desecrated_ColdAndChaosDamageResistance",
+      "field": "Desecrated_ColdAndChaosDamageResistance",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "ColdAndChaosDamageResistance",
+      "tags": [
+        "kurgal_mod"
+      ],
+      "text": "+#% to Cold and Chaos Resistances",
+      "tiers": [
+        {
+          "name": "of Kurgal",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              13,
+              17
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_Dexterity",
+      "group": "Desecrated_Dexterity",
+      "field": "Desecrated_Dexterity",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "Dexterity",
+      "families": [
+        "Dexterity",
+        "Intelligence"
+      ],
+      "tags": [
+        "kurgal_mod"
+      ],
+      "text": "+# to Dexterity and Intelligence",
+      "tiers": [
+        {
+          "name": "of Kurgal",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              9,
+              15
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_FireAndChaosDamageResistance",
+      "group": "Desecrated_FireAndChaosDamageResistance",
+      "field": "Desecrated_FireAndChaosDamageResistance",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "FireAndChaosDamageResistance",
+      "tags": [
+        "amanamu_mod"
+      ],
+      "text": "+#% to Fire and Chaos Resistances",
+      "tiers": [
+        {
+          "name": "of Amanamu",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              13,
+              17
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_FlaskChargeGeneration",
+      "group": "Desecrated_FlaskChargeGeneration",
+      "field": "Desecrated_FlaskChargeGeneration",
+      "source": "desecrated",
+      "type": "prefix",
+      "categories": [],
+      "family": "FlaskChargeGeneration",
+      "tags": [
+        "amanamu_mod"
+      ],
+      "text": "Charms gain # charges per Second",
+      "tiers": [
+        {
+          "name": "Amanamu's",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              0.1,
+              0.2
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_FlaskChargeGeneration_2",
+      "group": "Desecrated_FlaskChargeGeneration",
+      "field": "Desecrated_FlaskChargeGeneration",
+      "source": "desecrated",
+      "type": "prefix",
+      "categories": [],
+      "family": "FlaskChargeGeneration",
+      "tags": [
+        "kurgal_mod"
+      ],
+      "text": "Mana Flasks gain # charges per Second",
+      "tiers": [
+        {
+          "name": "Kurgal's",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              0.1,
+              0.2
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_FlaskChargeGeneration_3",
+      "group": "Desecrated_FlaskChargeGeneration",
+      "field": "Desecrated_FlaskChargeGeneration",
+      "source": "desecrated",
+      "type": "prefix",
+      "categories": [],
+      "family": "FlaskChargeGeneration",
+      "tags": [
+        "ulaman_mod"
+      ],
+      "text": "Life Flasks gain # charges per Second",
+      "tiers": [
+        {
+          "name": "Ulaman's",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              0.1,
+              0.2
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_FlaskChargesUsed",
+      "group": "Desecrated_FlaskChargesUsed",
+      "field": "Desecrated_FlaskChargesUsed",
+      "source": "desecrated",
+      "type": "prefix",
+      "categories": [],
+      "family": "FlaskChargesUsed",
+      "tags": [
+        "kurgal_mod"
+      ],
+      "text": "#% chance for Flasks you use to not consume Charges",
+      "tiers": [
+        {
+          "name": "Kurgal's",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              10,
+              15
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_FlaskChargesUsed_2",
+      "group": "Desecrated_FlaskChargesUsed",
+      "field": "Desecrated_FlaskChargesUsed",
+      "source": "desecrated",
+      "type": "prefix",
+      "categories": [],
+      "family": "FlaskChargesUsed",
+      "tags": [
+        "ulaman_mod"
+      ],
+      "text": "#% chance for Flasks you use to not consume Charges",
+      "tiers": [
+        {
+          "name": "Ulaman's",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              10,
+              18
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_FlaskExtraLifeRegeneration",
+      "group": "Desecrated_FlaskExtraLifeRegeneration",
+      "field": "Desecrated_FlaskExtraLifeRegeneration",
+      "source": "desecrated",
+      "type": "prefix",
+      "categories": [],
+      "family": "FlaskExtraLifeRegeneration",
+      "tags": [
+        "ulaman_mod"
+      ],
+      "text": "#% increased Life Regeneration rate during Effect of any Life Flask",
+      "tiers": [
+        {
+          "name": "Ulaman's",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              20,
+              30
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_IncreasedPhysicalDamageReductionRating",
+      "group": "Desecrated_IncreasedPhysicalDamageReductionRating",
+      "field": "Desecrated_IncreasedPhysicalDamageReductionRating",
+      "source": "desecrated",
+      "type": "prefix",
+      "categories": [],
+      "family": "IncreasedPhysicalDamageReductionRating",
+      "tags": [
+        "kurgal_mod"
+      ],
+      "text": "Gain #% of Maximum Mana as Armour",
+      "tiers": [
+        {
+          "name": "Kurgal's",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              6,
+              12
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_LightningAndChaosDamageResistance",
+      "group": "Desecrated_LightningAndChaosDamageResistance",
+      "field": "Desecrated_LightningAndChaosDamageResistance",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "LightningAndChaosDamageResistance",
+      "tags": [
+        "ulaman_mod"
+      ],
+      "text": "+#% to Lightning and Chaos Resistances",
+      "tiers": [
+        {
+          "name": "of Ulaman",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              13,
+              17
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_ManaRegeneration",
+      "group": "Desecrated_ManaRegeneration",
+      "field": "Desecrated_ManaRegeneration",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "ManaRegeneration",
+      "tags": [
+        "kurgal_mod"
+      ],
+      "text": "#% increased Mana Regeneration Rate",
+      "tiers": [
+        {
+          "name": "of Kurgal",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              30,
+              40
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_ReducedAilmentDuration",
+      "group": "Desecrated_ReducedAilmentDuration",
+      "field": "Desecrated_ReducedAilmentDuration",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "ReducedAilmentDuration",
+      "tags": [
+        "kurgal_mod"
+      ],
+      "text": "#% reduced Duration of Bleeding on You",
+      "tiers": [
+        {
+          "name": "of Kurgal",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              20,
+              30
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_ReducedAilmentDuration_2",
+      "group": "Desecrated_ReducedAilmentDuration",
+      "field": "Desecrated_ReducedAilmentDuration",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "ReducedAilmentDuration",
+      "tags": [
+        "ulaman_mod"
+      ],
+      "text": "#% reduced Poison Duration on you",
+      "tiers": [
+        {
+          "name": "of Ulaman",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              20,
+              30
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_ReducedSelfIgniteDuration",
+      "group": "Desecrated_ReducedSelfIgniteDuration",
+      "field": "Desecrated_ReducedSelfIgniteDuration",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "ReducedSelfIgniteDuration",
+      "tags": [
+        "amanamu_mod"
+      ],
+      "text": "#% reduced Ignite Duration on you",
+      "tiers": [
+        {
+          "name": "of Amanamu",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              20,
+              30
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_SlowEffect",
+      "group": "Desecrated_SlowEffect",
+      "field": "Desecrated_SlowEffect",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "SlowEffect",
+      "tags": [
+        "ulaman_mod"
+      ],
+      "text": "#% reduced Slowing Potency of Debuffs on You if you've used a Charm Recently",
+      "tiers": [
+        {
+          "name": "of Ulaman",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              17,
+              25
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_Strength",
+      "group": "Desecrated_Strength",
+      "field": "Desecrated_Strength",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "Strength",
+      "families": [
+        "Strength",
+        "Intelligence"
+      ],
+      "tags": [
+        "amanamu_mod"
+      ],
+      "text": "+# to Strength and Intelligence",
+      "tiers": [
+        {
+          "name": "of Amanamu",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              9,
+              15
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_Strength_2",
+      "group": "Desecrated_Strength",
+      "field": "Desecrated_Strength",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "Strength",
+      "families": [
+        "Strength",
+        "Dexterity"
+      ],
+      "tags": [
+        "ulaman_mod"
+      ],
+      "text": "+# to Strength and Dexterity",
+      "tiers": [
+        {
+          "name": "of Ulaman",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              9,
+              15
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_Thorns",
+      "group": "Desecrated_Thorns",
+      "field": "Desecrated_Thorns",
+      "source": "desecrated",
+      "type": "prefix",
+      "categories": [],
+      "family": "Thorns",
+      "tags": [
+        "amanamu_mod"
+      ],
+      "text": "2 to 4 Fire Thorns damage per 100 maximum Life",
+      "tiers": [
+        {
+          "name": "Amanamu's",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Desecrated_Thorns_2",
+      "group": "Desecrated_Thorns",
+      "field": "Desecrated_Thorns",
+      "source": "desecrated",
+      "type": "suffix",
+      "categories": [],
+      "family": "Thorns",
+      "tags": [
+        "amanamu_mod"
+      ],
+      "text": "+#% to Thorns Critical Hit Chance",
+      "tiers": [
+        {
+          "name": "of Amanamu",
+          "ilvl": 65,
+          "weight": 2500,
+          "ranges": [
+            [
+              2,
+              4
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Essence_ChaosResistance",
+      "group": "Essence_ChaosResistance",
+      "field": "Essence_ChaosResistance",
+      "source": "essence",
+      "type": "suffix",
+      "categories": [],
+      "family": "ChaosResistance",
+      "tags": [],
+      "text": "+#% to Chaos Resistance",
+      "tiers": [
+        {
+          "name": "Lesser Essence of Ruin",
+          "ilvl": 16,
+          "weight": 0,
+          "ranges": [
+            [
+              4,
+              7
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Essence of Ruin",
+          "ilvl": 30,
+          "weight": 0,
+          "ranges": [
+            [
+              8,
+              11
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Greater Essence of Ruin",
+          "ilvl": 56,
+          "weight": 0,
+          "ranges": [
+            [
+              16,
+              19
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Essence_ColdResistance",
+      "group": "Essence_ColdResistance",
+      "field": "Essence_ColdResistance",
+      "source": "essence",
+      "type": "suffix",
+      "categories": [],
+      "family": "ColdResistance",
+      "tags": [],
+      "text": "+#% to Cold Resistance",
+      "tiers": [
+        {
+          "name": "Lesser Essence of Thawing",
+          "ilvl": 14,
+          "weight": 0,
+          "ranges": [
+            [
+              11,
+              15
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Essence of Thawing",
+          "ilvl": 38,
+          "weight": 0,
+          "ranges": [
+            [
+              21,
+              25
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Greater Essence of Thawing",
+          "ilvl": 60,
+          "weight": 0,
+          "ranges": [
+            [
+              31,
+              35
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Essence_FireResistance",
+      "group": "Essence_FireResistance",
+      "field": "Essence_FireResistance",
+      "source": "essence",
+      "type": "suffix",
+      "categories": [],
+      "family": "FireResistance",
+      "tags": [],
+      "text": "+#% to Fire Resistance",
+      "tiers": [
+        {
+          "name": "Lesser Essence of Insulation",
+          "ilvl": 12,
+          "weight": 0,
+          "ranges": [
+            [
+              11,
+              15
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Essence of Insulation",
+          "ilvl": 36,
+          "weight": 0,
+          "ranges": [
+            [
+              21,
+              25
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Greater Essence of Insulation",
+          "ilvl": 60,
+          "weight": 0,
+          "ranges": [
+            [
+              31,
+              35
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Essence_IncreasedLife",
+      "group": "Essence_IncreasedLife",
+      "field": "Essence_IncreasedLife",
+      "source": "essence",
+      "type": "prefix",
+      "categories": [],
+      "family": "IncreasedLife",
+      "tags": [],
+      "text": "+# to maximum Life",
+      "tiers": [
+        {
+          "name": "Lesser Essence of the Body",
+          "ilvl": 16,
+          "weight": 0,
+          "ranges": [
+            [
+              30,
+              39
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Essence of the Body",
+          "ilvl": 46,
+          "weight": 0,
+          "ranges": [
+            [
+              85,
+              99
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Greater Essence of the Body",
+          "ilvl": 54,
+          "weight": 0,
+          "ranges": [
+            [
+              100,
+              119
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Essence_IncreasedMana",
+      "group": "Essence_IncreasedMana",
+      "field": "Essence_IncreasedMana",
+      "source": "essence",
+      "type": "prefix",
+      "categories": [],
+      "family": "IncreasedMana",
+      "tags": [],
+      "text": "+# to maximum Mana",
+      "tiers": [
+        {
+          "name": "Lesser Essence of the Mind",
+          "ilvl": 16,
+          "weight": 0,
+          "ranges": [
+            [
+              25,
+              34
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Essence of the Mind",
+          "ilvl": 38,
+          "weight": 0,
+          "ranges": [
+            [
+              65,
+              79
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Greater Essence of the Mind",
+          "ilvl": 46,
+          "weight": 0,
+          "ranges": [
+            [
+              80,
+              89
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/Essence_LightningResistance",
+      "group": "Essence_LightningResistance",
+      "field": "Essence_LightningResistance",
+      "source": "essence",
+      "type": "suffix",
+      "categories": [],
+      "family": "LightningResistance",
+      "tags": [],
+      "text": "+#% to Lightning Resistance",
+      "tiers": [
+        {
+          "name": "Lesser Essence of Grounding",
+          "ilvl": 13,
+          "weight": 0,
+          "ranges": [
+            [
+              11,
+              15
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Essence of Grounding",
+          "ilvl": 37,
+          "weight": 0,
+          "ranges": [
+            [
+              21,
+              25
+            ]
+          ],
+          "stats": []
+        },
+        {
+          "name": "Greater Essence of Grounding",
+          "ilvl": 60,
+          "weight": 0,
+          "ranges": [
+            [
+              31,
+              35
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/FireResistance",
+      "group": "FireResistance",
+      "field": "FireResistance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "base_fire_damage_resistance_%"
+      ],
+      "family": "FireResistance",
+      "tags": [
+        "elemental_resistance",
+        "fire_resistance",
+        "elemental",
+        "fire",
+        "resistance"
+      ],
+      "text": "+#% to Fire Resistance",
+      "tiers": [
+        {
+          "name": "of the Whelpling",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              6,
+              10
+            ]
+          ],
+          "stats": [
+            "base_fire_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Salamander",
+          "ilvl": 12,
+          "weight": 1000,
+          "ranges": [
+            [
+              11,
+              15
+            ]
+          ],
+          "stats": [
+            "base_fire_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Drake",
+          "ilvl": 24,
+          "weight": 1000,
+          "ranges": [
+            [
+              16,
+              20
+            ]
+          ],
+          "stats": [
+            "base_fire_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Kiln",
+          "ilvl": 36,
+          "weight": 1000,
+          "ranges": [
+            [
+              21,
+              25
+            ]
+          ],
+          "stats": [
+            "base_fire_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Furnace",
+          "ilvl": 48,
+          "weight": 1000,
+          "ranges": [
+            [
+              26,
+              30
+            ]
+          ],
+          "stats": [
+            "base_fire_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Volcano",
+          "ilvl": 60,
+          "weight": 1000,
+          "ranges": [
+            [
+              31,
+              35
+            ]
+          ],
+          "stats": [
+            "base_fire_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of Magma",
+          "ilvl": 71,
+          "weight": 1000,
+          "ranges": [
+            [
+              36,
+              40
+            ]
+          ],
+          "stats": [
+            "base_fire_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of Tzteosh",
+          "ilvl": 82,
+          "weight": 1000,
+          "ranges": [
+            [
+              41,
+              45
+            ]
+          ],
+          "stats": [
+            "base_fire_damage_resistance_%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/IncreasedLife",
+      "group": "IncreasedLife",
+      "field": "IncreasedLife",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "base_maximum_life"
+      ],
+      "family": "IncreasedLife",
+      "tags": [
+        "resource",
+        "life"
+      ],
+      "text": "+# to maximum Life",
+      "tiers": [
+        {
+          "name": "Hale",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              10,
+              19
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        },
+        {
+          "name": "Healthy",
+          "ilvl": 6,
+          "weight": 1000,
+          "ranges": [
+            [
+              20,
+              29
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        },
+        {
+          "name": "Sanguine",
+          "ilvl": 16,
+          "weight": 1000,
+          "ranges": [
+            [
+              30,
+              39
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        },
+        {
+          "name": "Stalwart",
+          "ilvl": 24,
+          "weight": 1000,
+          "ranges": [
+            [
+              40,
+              59
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        },
+        {
+          "name": "Stout",
+          "ilvl": 33,
+          "weight": 1000,
+          "ranges": [
+            [
+              60,
+              69
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        },
+        {
+          "name": "Robust",
+          "ilvl": 38,
+          "weight": 1000,
+          "ranges": [
+            [
+              70,
+              84
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        },
+        {
+          "name": "Rotund",
+          "ilvl": 46,
+          "weight": 1000,
+          "ranges": [
+            [
+              85,
+              99
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        },
+        {
+          "name": "Virile",
+          "ilvl": 54,
+          "weight": 1000,
+          "ranges": [
+            [
+              100,
+              119
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        },
+        {
+          "name": "Athlete's",
+          "ilvl": 60,
+          "weight": 1000,
+          "ranges": [
+            [
+              120,
+              149
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        },
+        {
+          "name": "Fecund",
+          "ilvl": 65,
+          "weight": 1000,
+          "ranges": [
+            [
+              150,
+              174
+            ]
+          ],
+          "stats": [
+            "base_maximum_life"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/IncreasedMana",
+      "group": "IncreasedMana",
+      "field": "IncreasedMana",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "base_maximum_mana"
+      ],
+      "family": "IncreasedMana",
+      "tags": [
+        "resource",
+        "mana"
+      ],
+      "text": "+# to maximum Mana",
+      "tiers": [
+        {
+          "name": "Beryl",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              10,
+              14
+            ]
+          ],
+          "stats": [
+            "base_maximum_mana"
+          ]
+        },
+        {
+          "name": "Cobalt",
+          "ilvl": 6,
+          "weight": 1000,
+          "ranges": [
+            [
+              15,
+              24
+            ]
+          ],
+          "stats": [
+            "base_maximum_mana"
+          ]
+        },
+        {
+          "name": "Azure",
+          "ilvl": 16,
+          "weight": 1000,
+          "ranges": [
+            [
+              25,
+              34
+            ]
+          ],
+          "stats": [
+            "base_maximum_mana"
+          ]
+        },
+        {
+          "name": "Teal",
+          "ilvl": 25,
+          "weight": 1000,
+          "ranges": [
+            [
+              35,
+              54
+            ]
+          ],
+          "stats": [
+            "base_maximum_mana"
+          ]
+        },
+        {
+          "name": "Cerulean",
+          "ilvl": 33,
+          "weight": 1000,
+          "ranges": [
+            [
+              55,
+              64
+            ]
+          ],
+          "stats": [
+            "base_maximum_mana"
+          ]
+        },
+        {
+          "name": "Aqua",
+          "ilvl": 38,
+          "weight": 1000,
+          "ranges": [
+            [
+              65,
+              79
+            ]
+          ],
+          "stats": [
+            "base_maximum_mana"
+          ]
+        },
+        {
+          "name": "Opalescent",
+          "ilvl": 46,
+          "weight": 1000,
+          "ranges": [
+            [
+              80,
+              89
+            ]
+          ],
+          "stats": [
+            "base_maximum_mana"
+          ]
+        },
+        {
+          "name": "Gentian",
+          "ilvl": 54,
+          "weight": 1000,
+          "ranges": [
+            [
+              90,
+              104
+            ]
+          ],
+          "stats": [
+            "base_maximum_mana"
+          ]
+        },
+        {
+          "name": "Chalybeous",
+          "ilvl": 60,
+          "weight": 1000,
+          "ranges": [
+            [
+              105,
+              124
+            ]
+          ],
+          "stats": [
+            "base_maximum_mana"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/LifeRegeneration",
+      "group": "LifeRegeneration",
+      "field": "LifeRegeneration",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "base_life_regeneration_rate_per_minute"
+      ],
+      "family": "LifeRegeneration",
+      "tags": [
+        "flat_life_regen",
+        "resource",
+        "life"
+      ],
+      "text": "# Life Regeneration per second",
+      "tiers": [
+        {
+          "name": "of the Newt",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              60,
+              120
+            ]
+          ],
+          "stats": [
+            "base_life_regeneration_rate_per_minute"
+          ]
+        },
+        {
+          "name": "of the Lizard",
+          "ilvl": 5,
+          "weight": 1000,
+          "ranges": [
+            [
+              126,
+              180
+            ]
+          ],
+          "stats": [
+            "base_life_regeneration_rate_per_minute"
+          ]
+        },
+        {
+          "name": "of the Flatworm",
+          "ilvl": 11,
+          "weight": 1000,
+          "ranges": [
+            [
+              186,
+              240
+            ]
+          ],
+          "stats": [
+            "base_life_regeneration_rate_per_minute"
+          ]
+        },
+        {
+          "name": "of the Starfish",
+          "ilvl": 17,
+          "weight": 1000,
+          "ranges": [
+            [
+              246,
+              360
+            ]
+          ],
+          "stats": [
+            "base_life_regeneration_rate_per_minute"
+          ]
+        },
+        {
+          "name": "of the Hydra",
+          "ilvl": 26,
+          "weight": 1000,
+          "ranges": [
+            [
+              366,
+              540
+            ]
+          ],
+          "stats": [
+            "base_life_regeneration_rate_per_minute"
+          ]
+        },
+        {
+          "name": "of the Troll",
+          "ilvl": 35,
+          "weight": 1000,
+          "ranges": [
+            [
+              546,
+              780
+            ]
+          ],
+          "stats": [
+            "base_life_regeneration_rate_per_minute"
+          ]
+        },
+        {
+          "name": "of Convalescence",
+          "ilvl": 47,
+          "weight": 1000,
+          "ranges": [
+            [
+              786,
+              1080
+            ]
+          ],
+          "stats": [
+            "base_life_regeneration_rate_per_minute"
+          ]
+        },
+        {
+          "name": "of Recuperation",
+          "ilvl": 58,
+          "weight": 1000,
+          "ranges": [
+            [
+              1086,
+              1380
+            ]
+          ],
+          "stats": [
+            "base_life_regeneration_rate_per_minute"
+          ]
+        },
+        {
+          "name": "of Resurgence",
+          "ilvl": 68,
+          "weight": 1000,
+          "ranges": [
+            [
+              1386,
+              1740
+            ]
+          ],
+          "stats": [
+            "base_life_regeneration_rate_per_minute"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/LightningResistance",
+      "group": "LightningResistance",
+      "field": "LightningResistance",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "base_lightning_damage_resistance_%"
+      ],
+      "family": "LightningResistance",
+      "tags": [
+        "elemental_resistance",
+        "lightning_resistance",
+        "elemental",
+        "lightning",
+        "resistance"
+      ],
+      "text": "+#% to Lightning Resistance",
+      "tiers": [
+        {
+          "name": "of the Cloud",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              6,
+              10
+            ]
+          ],
+          "stats": [
+            "base_lightning_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Squall",
+          "ilvl": 13,
+          "weight": 1000,
+          "ranges": [
+            [
+              11,
+              15
+            ]
+          ],
+          "stats": [
+            "base_lightning_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Storm",
+          "ilvl": 25,
+          "weight": 1000,
+          "ranges": [
+            [
+              16,
+              20
+            ]
+          ],
+          "stats": [
+            "base_lightning_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Thunderhead",
+          "ilvl": 37,
+          "weight": 1000,
+          "ranges": [
+            [
+              21,
+              25
+            ]
+          ],
+          "stats": [
+            "base_lightning_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Tempest",
+          "ilvl": 49,
+          "weight": 1000,
+          "ranges": [
+            [
+              26,
+              30
+            ]
+          ],
+          "stats": [
+            "base_lightning_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Maelstrom",
+          "ilvl": 60,
+          "weight": 1000,
+          "ranges": [
+            [
+              31,
+              35
+            ]
+          ],
+          "stats": [
+            "base_lightning_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of the Lightning",
+          "ilvl": 71,
+          "weight": 1000,
+          "ranges": [
+            [
+              36,
+              40
+            ]
+          ],
+          "stats": [
+            "base_lightning_damage_resistance_%"
+          ]
+        },
+        {
+          "name": "of Ephij",
+          "ilvl": 82,
+          "weight": 1000,
+          "ranges": [
+            [
+              41,
+              45
+            ]
+          ],
+          "stats": [
+            "base_lightning_damage_resistance_%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/PerfectEssence_CorruptionIntertactions",
+      "group": "PerfectEssence_CorruptionIntertactions",
+      "field": "PerfectEssence_CorruptionIntertactions",
+      "source": "perfect_essence",
+      "type": "suffix",
+      "categories": [],
+      "family": "CorruptionIntertactions",
+      "tags": [],
+      "text": "On Corruption, Item gains two Enchantments",
+      "tiers": [
+        {
+          "name": "Perfect Essence of Insanity",
+          "ilvl": 1,
+          "weight": 0,
+          "ranges": [],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/PerfectEssence_EnchantmentHeistArmour",
+      "group": "PerfectEssence_EnchantmentHeistArmour",
+      "field": "PerfectEssence_EnchantmentHeistArmour",
+      "source": "perfect_essence",
+      "type": "prefix",
+      "categories": [],
+      "family": "EnchantmentHeistArmour",
+      "tags": [],
+      "text": "#% increased Explicit Resistance Modifier magnitudes",
+      "tiers": [
+        {
+          "name": "Perfect Essence of Sovereign Alloy",
+          "ilvl": 65,
+          "weight": 0,
+          "ranges": [
+            [
+              20,
+              30
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/PerfectEssence_EssenceAbyss",
+      "group": "PerfectEssence_EssenceAbyss",
+      "field": "PerfectEssence_EssenceAbyss",
+      "source": "perfect_essence",
+      "type": "prefix",
+      "categories": [],
+      "family": "EssenceAbyss",
+      "tags": [],
+      "text": "Mark of the Abyssal Lord",
+      "tiers": [
+        {
+          "name": "Perfect Essence of the Abyss",
+          "ilvl": 1,
+          "weight": 0,
+          "ranges": [],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/PerfectEssence_FireDamageTakenRecoupedAsLife",
+      "group": "PerfectEssence_FireDamageTakenRecoupedAsLife",
+      "field": "PerfectEssence_FireDamageTakenRecoupedAsLife",
+      "source": "perfect_essence",
+      "type": "suffix",
+      "categories": [],
+      "family": "FireDamageTakenRecoupedAsLife",
+      "tags": [],
+      "text": "#% of Fire Damage taken Recouped as Life",
+      "tiers": [
+        {
+          "name": "Perfect Essence of Insulation",
+          "ilvl": 72,
+          "weight": 0,
+          "ranges": [
+            [
+              26,
+              30
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/PerfectEssence_FlaskChargeGeneration",
+      "group": "PerfectEssence_FlaskChargeGeneration",
+      "field": "PerfectEssence_FlaskChargeGeneration",
+      "source": "perfect_essence",
+      "type": "suffix",
+      "categories": [],
+      "family": "FlaskChargeGeneration",
+      "tags": [],
+      "text": "Flasks gain # charges per Second",
+      "tiers": [
+        {
+          "name": "Perfect Essence of Swift Alloy",
+          "ilvl": 45,
+          "weight": 0,
+          "ranges": [
+            [
+              0.75,
+              1
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/PerfectEssence_RecoverRunicWardOnCharmUse",
+      "group": "PerfectEssence_RecoverRunicWardOnCharmUse",
+      "field": "PerfectEssence_RecoverRunicWardOnCharmUse",
+      "source": "perfect_essence",
+      "type": "prefix",
+      "categories": [],
+      "family": "RecoverRunicWardOnCharmUse",
+      "tags": [],
+      "text": "Recover # Runic Ward when a Charm is used",
+      "tiers": [
+        {
+          "name": "Perfect Essence of Protective Alloy",
+          "ilvl": 25,
+          "weight": 0,
+          "ranges": [
+            [
+              32,
+              45
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/PerfectEssence_StunThreshold",
+      "group": "PerfectEssence_StunThreshold",
+      "field": "PerfectEssence_StunThreshold",
+      "source": "perfect_essence",
+      "type": "suffix",
+      "categories": [],
+      "family": "StunThreshold",
+      "tags": [],
+      "text": "+# to Stun Threshold",
+      "tiers": [
+        {
+          "name": "Perfect Essence of Hysteria",
+          "ilvl": 72,
+          "weight": 0,
+          "ranges": [
+            [
+              254,
+              304
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/PerfectEssence_WardRegenerationRate",
+      "group": "PerfectEssence_WardRegenerationRate",
+      "field": "PerfectEssence_WardRegenerationRate",
+      "source": "perfect_essence",
+      "type": "prefix",
+      "categories": [],
+      "family": "WardRegenerationRate",
+      "tags": [],
+      "text": "#% increased Runic Ward Regeneration Rate",
+      "tiers": [
+        {
+          "name": "Perfect Essence of Runic Alloy",
+          "ilvl": 13,
+          "weight": 0,
+          "ranges": [
+            [
+              15,
+              20
+            ]
+          ],
+          "stats": []
+        }
+      ]
+    },
+    {
+      "id": "Belts/PhysicalDamageReductionRating",
+      "group": "PhysicalDamageReductionRating",
+      "field": "PhysicalDamageReductionRating",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "base_physical_damage_reduction_rating"
+      ],
+      "family": "IncreasedPhysicalDamageReductionRating",
+      "tags": [
+        "defences",
+        "armour"
+      ],
+      "text": "+# to Armour",
+      "tiers": [
+        {
+          "name": "Lacquered",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              12,
+              22
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        },
+        {
+          "name": "Studded",
+          "ilvl": 11,
+          "weight": 1000,
+          "ranges": [
+            [
+              23,
+              51
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        },
+        {
+          "name": "Ribbed",
+          "ilvl": 16,
+          "weight": 1000,
+          "ranges": [
+            [
+              52,
+              68
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        },
+        {
+          "name": "Fortified",
+          "ilvl": 25,
+          "weight": 1000,
+          "ranges": [
+            [
+              69,
+              107
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        },
+        {
+          "name": "Plated",
+          "ilvl": 33,
+          "weight": 1000,
+          "ranges": [
+            [
+              108,
+              140
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        },
+        {
+          "name": "Carapaced",
+          "ilvl": 46,
+          "weight": 1000,
+          "ranges": [
+            [
+              141,
+              186
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        },
+        {
+          "name": "Encased",
+          "ilvl": 54,
+          "weight": 1000,
+          "ranges": [
+            [
+              187,
+              225
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        },
+        {
+          "name": "Enveloped",
+          "ilvl": 65,
+          "weight": 1000,
+          "ranges": [
+            [
+              226,
+              267
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        },
+        {
+          "name": "Abating",
+          "ilvl": 70,
+          "weight": 1000,
+          "ranges": [
+            [
+              268,
+              311
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        },
+        {
+          "name": "Unmoving",
+          "ilvl": 80,
+          "weight": 1000,
+          "ranges": [
+            [
+              312,
+              351
+            ]
+          ],
+          "stats": [
+            "base_physical_damage_reduction_rating"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/Strength",
+      "group": "Strength",
+      "field": "Strength",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "additional_strength"
+      ],
+      "family": "Strength",
+      "tags": [
+        "attribute"
+      ],
+      "text": "+# to Strength",
+      "tiers": [
+        {
+          "name": "of the Brute",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              5,
+              8
+            ]
+          ],
+          "stats": [
+            "additional_strength"
+          ]
+        },
+        {
+          "name": "of the Wrestler",
+          "ilvl": 11,
+          "weight": 1000,
+          "ranges": [
+            [
+              9,
+              12
+            ]
+          ],
+          "stats": [
+            "additional_strength"
+          ]
+        },
+        {
+          "name": "of the Bear",
+          "ilvl": 22,
+          "weight": 1000,
+          "ranges": [
+            [
+              13,
+              16
+            ]
+          ],
+          "stats": [
+            "additional_strength"
+          ]
+        },
+        {
+          "name": "of the Lion",
+          "ilvl": 33,
+          "weight": 1000,
+          "ranges": [
+            [
+              17,
+              20
+            ]
+          ],
+          "stats": [
+            "additional_strength"
+          ]
+        },
+        {
+          "name": "of the Gorilla",
+          "ilvl": 44,
+          "weight": 1000,
+          "ranges": [
+            [
+              21,
+              24
+            ]
+          ],
+          "stats": [
+            "additional_strength"
+          ]
+        },
+        {
+          "name": "of the Goliath",
+          "ilvl": 55,
+          "weight": 1000,
+          "ranges": [
+            [
+              25,
+              27
+            ]
+          ],
+          "stats": [
+            "additional_strength"
+          ]
+        },
+        {
+          "name": "of the Leviathan",
+          "ilvl": 66,
+          "weight": 1000,
+          "ranges": [
+            [
+              28,
+              30
+            ]
+          ],
+          "stats": [
+            "additional_strength"
+          ]
+        },
+        {
+          "name": "of the Titan",
+          "ilvl": 74,
+          "weight": 1000,
+          "ranges": [
+            [
+              31,
+              33
+            ]
+          ],
+          "stats": [
+            "additional_strength"
+          ]
+        },
+        {
+          "name": "of the Gods",
+          "ilvl": 81,
+          "weight": 1000,
+          "ranges": [
+            [
+              34,
+              36
+            ]
+          ],
+          "stats": [
+            "additional_strength"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/StunThreshold",
+      "group": "StunThreshold",
+      "field": "StunThreshold",
+      "source": "normal",
+      "type": "suffix",
+      "categories": [
+        "stun_threshold_+"
+      ],
+      "family": "StunThreshold",
+      "tags": [],
+      "text": "+# to Stun Threshold",
+      "tiers": [
+        {
+          "name": "of Thick Skin",
+          "ilvl": 1,
+          "weight": 800,
+          "ranges": [
+            [
+              6,
+              11
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        },
+        {
+          "name": "of Reinforced Skin",
+          "ilvl": 8,
+          "weight": 800,
+          "ranges": [
+            [
+              12,
+              29
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        },
+        {
+          "name": "of Stone Skin",
+          "ilvl": 15,
+          "weight": 800,
+          "ranges": [
+            [
+              30,
+              49
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        },
+        {
+          "name": "of Iron Skin",
+          "ilvl": 22,
+          "weight": 800,
+          "ranges": [
+            [
+              50,
+              72
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        },
+        {
+          "name": "of Steel Skin",
+          "ilvl": 29,
+          "weight": 800,
+          "ranges": [
+            [
+              73,
+              97
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        },
+        {
+          "name": "of Granite Skin",
+          "ilvl": 36,
+          "weight": 800,
+          "ranges": [
+            [
+              98,
+              124
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        },
+        {
+          "name": "of Platinum Skin",
+          "ilvl": 45,
+          "weight": 800,
+          "ranges": [
+            [
+              125,
+              163
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        },
+        {
+          "name": "of Adamantite Skin",
+          "ilvl": 54,
+          "weight": 800,
+          "ranges": [
+            [
+              164,
+              206
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        },
+        {
+          "name": "of Corundum Skin",
+          "ilvl": 63,
+          "weight": 800,
+          "ranges": [
+            [
+              207,
+              253
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        },
+        {
+          "name": "of Obsidian Skin",
+          "ilvl": 72,
+          "weight": 800,
+          "ranges": [
+            [
+              254,
+              304
+            ]
+          ],
+          "stats": [
+            "stun_threshold_+"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Belts/ThornsPhysicalDamage",
+      "group": "ThornsPhysicalDamage",
+      "field": "ThornsPhysicalDamage",
+      "source": "normal",
+      "type": "prefix",
+      "categories": [
+        "thorns_minimum_base_physical_damage",
+        "thorns_maximum_base_physical_damage"
+      ],
+      "family": "Thorns",
+      "tags": [
+        "physical_damage",
+        "damage",
+        "physical"
+      ],
+      "text": "# to # Physical Thorns damage",
+      "tiers": [
+        {
+          "name": "Thorny",
+          "ilvl": 1,
+          "weight": 1000,
+          "ranges": [
+            [
+              1,
+              2
+            ],
+            [
+              3,
+              4
+            ]
+          ],
+          "stats": [
+            "thorns_minimum_base_physical_damage",
+            "thorns_maximum_base_physical_damage"
+          ]
+        },
+        {
+          "name": "Spiny",
+          "ilvl": 10,
+          "weight": 1000,
+          "ranges": [
+            [
+              5,
+              7
+            ],
+            [
+              7,
+              10
+            ]
+          ],
+          "stats": [
+            "thorns_minimum_base_physical_damage",
+            "thorns_maximum_base_physical_damage"
+          ]
+        },
+        {
+          "name": "Barbed",
+          "ilvl": 19,
+          "weight": 1000,
+          "ranges": [
+            [
+              11,
+              16
+            ],
+            [
+              17,
+              23
+            ]
+          ],
+          "stats": [
+            "thorns_minimum_base_physical_damage",
+            "thorns_maximum_base_physical_damage"
+          ]
+        },
+        {
+          "name": "Pointed",
+          "ilvl": 38,
+          "weight": 1000,
+          "ranges": [
+            [
+              24,
+              35
+            ],
+            [
+              36,
+              53
+            ]
+          ],
+          "stats": [
+            "thorns_minimum_base_physical_damage",
+            "thorns_maximum_base_physical_damage"
+          ]
+        },
+        {
+          "name": "Spiked",
+          "ilvl": 48,
+          "weight": 1000,
+          "ranges": [
+            [
+              40,
+              60
+            ],
+            [
+              61,
+              92
+            ]
+          ],
+          "stats": [
+            "thorns_minimum_base_physical_damage",
+            "thorns_maximum_base_physical_damage"
+          ]
+        },
+        {
+          "name": "Edged",
+          "ilvl": 63,
+          "weight": 1000,
+          "ranges": [
+            [
+              64,
+              97
+            ],
+            [
+              98,
+              145
+            ]
+          ],
+          "stats": [
+            "thorns_minimum_base_physical_damage",
+            "thorns_maximum_base_physical_damage"
+          ]
+        },
+        {
+          "name": "Jagged",
+          "ilvl": 74,
+          "weight": 1000,
+          "ranges": [
+            [
+              101,
+              151
+            ],
+            [
+              152,
+              220
+            ]
+          ],
+          "stats": [
+            "thorns_minimum_base_physical_damage",
+            "thorns_maximum_base_physical_damage"
           ]
         }
       ]

@@ -783,7 +783,7 @@ what broke the refresh automation on its first run (see 8).
 
 ---
 
-## 11. Belts — TIER 2, AND CHEAPER THAN IT LOOKS
+## 11. ~~Belts~~ — DONE 2026-09-02
 
 **What is wrong.** The shipped data has 41 bases across 19 categories and **no belts**, a core rare
 slot every player crafts. The README roadmap has had "Belt item type support" open for months. Also
@@ -819,6 +819,52 @@ packages/engine/src/*.test.ts` to find any pinned count).
 **Do not** add Jewels in the same pass. Jewels have no prefix/suffix cap of 3+3, cannot be Regal'd
 the same way, and have their own mod pool structure. They would need their own validation, and
 possibly their own `perSideCap`. Separate item, if ever.
+
+**DONE 2026-09-02.** 41 bases → 42. Belts plan on both models: the step planner returns a 3-row
+frontier (transmute → augment) and the MDP returns `bound: 'exact'` at 7.99ex on a 2-mod craft.
+
+**ONE belt base, not 20, and that is what the data says.** All 20 share a byte-identical craftable
+pool — 166 mods, the same `mod → tier → ilvl` map across all three tag groups. They differ only in
+`drop_level` and in their IMPLICIT, which is fixed on the base rather than rolled, so nothing this app
+models can touch it. Twenty rows would be twenty identical crafts, four of them sharing the name
+"Runemastered Heavy Belt". This matches how Amulets and Rings already ship; only the armour slots
+carry several bases, because there Str/Dex/Int genuinely changes the pool.
+
+**Three corrections to the plan above, each of which would have cost time.**
+
+1. **THREE category maps, not two.** `apply_weights.mjs` has its own copy, and missing it fails
+   silently in the worst way: the pipeline completes, belts appear, and one line mid-log —
+   `bases with NO poe2db page: Belts->undefined` — is the only sign that every belt weight defaulted.
+   Coverage went 97.9% → 100.0% once it was added.
+2. **Adding the map entry alone does nothing**, because `refresh.mjs:159` iterates
+   `baseline.items` — the 0.5 Java baseline, which has no belts. But the loop reads only
+   `id`/`name`/`category` (pools are rebuilt from RePoE), so the baseline is a ROSTER: `EXTRA_BASES`
+   extends it without editing the frozen differential anchor.
+3. **`BONE_BY_CATEGORY` had no `Belts` entry** despite its comment reading "Amulet, Ring or Belt".
+   The fallthrough is `?? 'rib'`, so a belt would have been charged the armour bone (0.41ex against
+   the collarbone's 4.69ex, ~11x under) and — since `bossOmenAllowed` is "not rib" — silently refused
+   boss omens the game allows. Fixed. A comment is not a mapping.
+
+`pickVariant` needed no change: `runeforged`, `not_for_sale` and `demigods` were already in
+`SPECIALIZER`, and those are exactly the three tags separating the belt groups, so it picked
+`[belt,default]` unaided.
+
+`dataIntegrity`'s family/side ratchet caught two new violations, both instances of patterns already
+baselined rather than anything new — `Desecrated_Thorns` / `_2` spanning sides (the
+`CompanionDamage on Bows` shape) and a desecrated/perfect-essence pair on opposite sides. Baselined
+with that reasoning recorded.
+
+**STILL OUTSTANDING: the CoE cross-check.** Craft of Exile is client-rendered and the harness
+(`scripts/coe-verify.mts`) takes hand-entered numbers, so this one needs a browser and is Dorian's,
+like the screenshots. The weight table is in `docs/validation.md` ready to compare. Internal
+consistency is a good sign meanwhile: Chaos Resistance sits at 250 against 1000 for each elemental
+resist, the same ~1:4 ratio Rings shows (1500 against 8000).
+
+**Charms and Jewels are NOT done, and charms are less trivial than this section assumed.** Charms are
+in the dump (13 bases, one shared pool, 4 prefix + 5 suffix families) but are tagged
+`utility_flask,flask,default` — flasks — and this model assumes the 3-prefix/3-suffix rare
+(`perSideCap` is keyed by RARITY, with no category axis). Whether that cap holds for a charm is
+untraced, so adding them would be asserting a mechanic rather than reading one.
 
 ---
 

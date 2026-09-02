@@ -40,10 +40,28 @@ const CATEGORY_CLASS = {
   Quarterstaves: 'Quarterstaves', Staves: 'Staves', Spears: 'Spears',
   OneHand_Maces: 'One Hand Maces', TwoHand_Maces: 'Two Hand Maces',
   Foci: 'Foci', Quivers: 'Quivers', Bucklers: 'Bucklers',
-  Amulets: 'Amulets', Rings: 'Rings',
+  Amulets: 'Amulets', Rings: 'Rings', Belts: 'Belts',
   Body_Armours: 'Body Armours', Boots: 'Boots', Gloves: 'Gloves', Helmets: 'Helmets',
   Shields: 'Shields',
 };
+
+// Bases the 0.5 Java baseline never had, because the Java engine never modelled them.
+//
+// The loop below reads only `id`, `name` and `category` off each baseline entry — the pools are
+// rebuilt from RePoE every run — so the baseline serves as a ROSTER, and extending the roster here is
+// what adds an item class. The alternative was editing `data/patches/0.5/base_items.json`, and that
+// file is the frozen differential anchor for the Java-era fixtures; growing it to add a slot Java
+// never had would put new data inside the thing whose job is to not change.
+//
+// ONE belt base, matching how Amulets and Rings are already handled. All 20 of RePoE's belt bases
+// share a byte-identical craftable pool (166 mods, same mod -> tier -> ilvl map across all three tag
+// groups, verified 2026-09-02); they differ only in `drop_level` and in their IMPLICIT, and an
+// implicit is fixed on the base rather than rolled, so no currency in this model can touch it.
+// Twenty entries would be twenty identical rows in the picker — four of them literally sharing the
+// name "Runemastered Heavy Belt".
+const EXTRA_BASES = [
+  { id: 'Belts', name: 'Belts', category: 'Belts' },
+];
 // Tags that mark a NON-canonical (specialised) base variant; the generic base has none of them.
 const SPECIALIZER = new Set([
   'ezomyte_basetype', 'maraketh_basetype', 'vaal_basetype', 'karui_basetype',
@@ -151,12 +169,12 @@ function buildMod(baseId, type, group, modIds, baseTags) {
 const warnings = [];
 const warn = (m) => warnings.push(m);
 
-// --- main: iterate our 41 baseline bases ------------------------------------------------------
+// --- main: iterate the baseline roster, plus any base Java never had ---------------------------
 const mods = new Map(); // id -> mod
 const items = [];
 const mapping = []; // for the log
 
-for (const base of baseline.items) {
+for (const base of [...baseline.items, ...EXTRA_BASES]) {
   const cls = CATEGORY_CLASS[base.category];
   if (!cls) { warn(`no class mapping for category ${base.category} (base ${base.id})`); continue; }
   const attrTag = attributeTag(base.id, cls);

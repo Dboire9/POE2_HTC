@@ -27,6 +27,7 @@ const CATEGORY_CLASS = {
   Quarterstaves: 'Quarterstaves', Staves: 'Staves', Spears: 'Spears',
   OneHand_Maces: 'One_Hand_Maces', TwoHand_Maces: 'Two_Hand_Maces',
   Foci: 'Foci', Quivers: 'Quivers', Bucklers: 'Bucklers', Amulets: 'Amulets', Rings: 'Rings',
+  Belts: 'Belts',
 };
 const ARMOUR_CATS = new Set(['Body_Armours', 'Boots', 'Gloves', 'Helmets', 'Shields']);
 

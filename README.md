@@ -219,8 +219,10 @@ the engine is uncertain, it says so on screen.
 - **The step planner has no concept of filler.** Every step it emits names a target mod, so it cannot
   express "roll junk, annul it off, then Desecrate" — a route that works in game. The policy solver
   *can* find those, which is one reason the two models' numbers differ.
-- **Belts are not supported yet.** Every other equipment category is.
 - **Omen of Whittling and Omen of Greater Exaltation are not modelled.** They are on the roadmap.
+- **Charms and Jewels are not supported.** Both are classed differently from ordinary gear (charms are
+  flasks in the game data, jewels have their own affix model), so neither fits the 3-prefix/3-suffix
+  rare that this optimizer plans for. Every equipment slot IS supported.
 - **The "Plan from scratch" tab can't target a Perfect-Essence-only mod.** The "I have an item" tab and
   the policy solver both handle them fully.
 
@@ -242,9 +244,9 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for reported b
       step planner and the policy solver (Chaos strengths are searched by the step planner; the policy
       solver models Chaos at basic strength, which was measured in 2026-09 to change no answer)
 - [x] **Currency exclusions** — plan around the currency and omens you don't have
+- [x] **Belts** — every equipment slot is now supported
 
 ### Short-Term (Next Release)
-- [ ] Belt item type support
 - [ ] Omen of Whittling support
 - [ ] Omen of Greater Exaltation support
 - [ ] Automated weekly price refresh

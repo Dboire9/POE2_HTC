@@ -10,7 +10,7 @@ Staged data: `data/patches/0.5.0/` (RePoE-fork, client 4.5.4.3). Baseline: `data
 ## Totals
 
 - Baseline: 1351 mods (all sources), 41 bases.
-- Refresh (normal-only): 2140 mods, 41 bases, 7982 tiers.
+- Refresh (normal-only): 2193 mods, 42 bases, 8164 tiers.
 - Matched mod families (normal pool, by base): 838.
   - with a tier-**count** change: 86
   - with an **ilvl** change on a matched tier: 113

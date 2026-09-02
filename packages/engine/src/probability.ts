@@ -385,7 +385,11 @@ const BONE_BY_CATEGORY: Record<string, DesecrationBone> = {
   Body_Armours: 'rib', Boots: 'rib', Gloves: 'rib', Helmets: 'rib',
   Shields: 'rib', Bucklers: 'rib', Foci: 'rib',
   // "Amulet, Ring or Belt"
-  Amulets: 'collarbone', Rings: 'collarbone',
+  // Belts were listed in this comment for weeks before the category existed, and the fallthrough was
+  // NOT harmless: `?? 'rib'` would have charged a belt the armour bone (0.41ex against the
+  // collarbone's 4.69ex on the 2026-09-02 sheet, ~11x under) and, because `bossOmenAllowed` is
+  // defined as "not rib", silently refused the boss omens the game does allow on a belt.
+  Amulets: 'collarbone', Rings: 'collarbone', Belts: 'collarbone',
 };
 
 export function desecrationBoneFor(category: string): DesecrationBone {

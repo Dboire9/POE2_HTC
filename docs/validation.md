@@ -2730,9 +2730,73 @@ tailwind-merge does and `clsx` does not.
 Pinned in `src/lib/utils.test.ts` with the real class strings, so the audit does not need re-running and
 a swap fails the suite rather than quietly breaking the amber "stopped early" badge.
 
+## Belts, and the weight table that still needs a human (2026-09-02)
+
+41 bases → 42. Belts plan on both models: the step planner returns a 3-row frontier
+(`transmute → augment`) and the MDP returns `bound: 'exact'` at **7.99ex** on a 2-mod craft at ilvl 82.
+
+**Why ONE base rather than 20.** All 20 of RePoE's belt bases carry a byte-identical craftable pool —
+166 mods, the same `mod → tier → ilvl` map across all three tag groups (`belt,default`,
+`runeforged,belt,default`, `not_for_sale,demigods,belt,default`). They differ only in `drop_level` and
+in their implicit, and an implicit is fixed on the base rather than rolled. This matches Amulets and
+Rings, which have always shipped as one base each.
+
+**Weight coverage.** poe2db filled 100.0% of normal tiers after `apply_weights.mjs` learned the
+category (97.9% before — the missing third of three category maps). Zero-weight mods are exactly the
+essence and perfect-essence ones, which is correct and matches Amulets and Rings:
+
+| category | total mods | normal | desecrated | essence | perfect | zero-weight |
+|---|---|---|---|---|---|---|
+| Amulets | 80 | 33 | 31 | 7 | 9 | essence 7, perfect 9 |
+| Rings | 67 | 31 | 22 | 7 | 7 | essence 7, perfect 7 |
+| **Belts** | **53** | **18** | **21** | **6** | **8** | essence 6, perfect 8 |
+
+### The belt normal pool, for cross-checking
+
+**NOT YET CROSS-CHECKED against Craft of Exile.** CoE is client-rendered and `scripts/coe-verify.mts`
+takes hand-entered numbers, so this needs a browser — outstanding, and listed under "Still deferred".
+The table is here so the comparison is quick when someone does it.
+
+| side | mod | top-tier weight | tiers | ilvl range |
+|---|---|---|---|---|
+| prefix | BeltFlaskLifeRecoveryRate | 800 | 6 | 1–75 |
+| prefix | BeltFlaskManaRecoveryRate | 800 | 6 | 5–63 |
+| prefix | BeltIncreasedCharmDuration | 800 | 5 | 8–75 |
+| prefix | IncreasedLife | 1000 | 10 | 1–65 |
+| prefix | IncreasedMana | 1000 | 9 | 1–60 |
+| prefix | PhysicalDamageReductionRating | 1000 | 10 | 1–80 |
+| prefix | ThornsPhysicalDamage | 1000 | 7 | 1–74 |
+| suffix | BeltIncreasedCharmChargesGained | 800 | 6 | 2–81 |
+| suffix | BeltIncreasedFlaskChargesGained | 800 | 6 | 2–81 |
+| suffix | BeltReducedCharmChargesUsed | 800 | 6 | 3–81 |
+| suffix | BeltReducedFlaskChargesUsed | 800 | 6 | 3–81 |
+| suffix | ChaosResistance | 250 | 6 | 16–81 |
+| suffix | ColdResistance | 1000 | 8 | 1–82 |
+| suffix | FireResistance | 1000 | 8 | 1–82 |
+| suffix | LifeRegeneration | 1000 | 9 | 1–68 |
+| suffix | LightningResistance | 1000 | 8 | 1–82 |
+| suffix | Strength | 1000 | 9 | 1–81 |
+| suffix | StunThreshold | 800 | 10 | 1–72 |
+
+Internal consistency is encouraging while that check is outstanding: Chaos Resistance sits at 250
+against 1000 for each elemental resist, the same ~1:4 ratio Rings shows (1500 against 8000).
+
+### A latent mispricing found on the way
+
+`BONE_BY_CATEGORY` (`probability.ts`) listed "Amulet, Ring or Belt" in its comment while having no
+`Belts` entry, and `desecrationBoneFor` falls through to `?? 'rib'`. So the day belts landed, a belt
+Desecration would have been charged the ARMOUR bone — 0.41ex against the collarbone's 4.69ex on the
+2026-09-02 sheet, an 11x underquote — and `bossOmenAllowed`, which is defined as "not rib", would have
+silently refused the boss omens the game does allow on a belt. Found by checking the map rather than
+reading the comment; fixed in the same commit that added the category.
+
 ## Still deferred
+- **Cross-check the BELT weights against Craft of Exile** (added 2026-09-02, table above). CoE is
+  client-rendered and `scripts/coe-verify.mts` takes hand-entered numbers, so this needs a browser.
+  Every other shipped category has had this check; belts have not.
 - **Resolve the baselined data findings** (16 mis-slots, 4 mixed families on 0.5; CompanionDamage +
-  8 desecrated/perfect cross-source families on 0.5.0) — domain/CoE ruling on `type` vs pool.
+  8 desecrated/perfect cross-source families on 0.5.0, plus `Thorns on Belts` and
+  `FlaskChargeGeneration on Belts` added 2026-09-02) — domain/CoE ruling on `type` vs pool.
 - ~~UI for budget alternatives~~ DONE 2026-07-17 — optional Budget field in the Engine Lab, 📌 pins on
   target rows, and an `AlternativesView` panel below the frontier. Rendering is covered by a component
   test driven by **real engine output** (`AlternativesView.test.tsx`) rather than a hand-made fixture,

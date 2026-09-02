@@ -2,7 +2,7 @@
   "patch": "0.5.0",
   "generated": "2026-07-04",
   "source": "regenerated from RePoE-fork PoE2 dump (client 4.5.4.3); NORMAL pools only (essence/desecrated deferred). Structure (tiers/ilvl/ranges/pools) is authoritative; WEIGHTS are game-file placeholders (uniformly 1/0 in the 0.5 dump) and MUST be replaced by community-verified weights via weights_overrides.json before probabilities are meaningful.",
-  "count": 41,
+  "count": 42,
   "items": [
     {
       "id": "Amulets",
@@ -106,6 +106,85 @@
             "Amulets/PerfectEssence_PercentageDexterity",
             "Amulets/PerfectEssence_PercentageIntelligence",
             "Amulets/PerfectEssence_DamageTakenGainedAsLife"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Belts",
+      "name": "Belts",
+      "category": "Belts",
+      "class": "Belts",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Belts/IncreasedLife",
+            "Belts/IncreasedMana",
+            "Belts/PhysicalDamageReductionRating",
+            "Belts/ThornsPhysicalDamage",
+            "Belts/BeltFlaskLifeRecoveryRate",
+            "Belts/BeltFlaskManaRecoveryRate",
+            "Belts/BeltIncreasedCharmDuration"
+          ],
+          "suffixes": [
+            "Belts/Strength",
+            "Belts/FireResistance",
+            "Belts/ColdResistance",
+            "Belts/LightningResistance",
+            "Belts/ChaosResistance",
+            "Belts/StunThreshold",
+            "Belts/LifeRegeneration",
+            "Belts/BeltIncreasedFlaskChargesGained",
+            "Belts/BeltReducedFlaskChargesUsed",
+            "Belts/BeltIncreasedCharmChargesGained",
+            "Belts/BeltReducedCharmChargesUsed"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Belts/Desecrated_FlaskChargeGeneration",
+            "Belts/Desecrated_Thorns",
+            "Belts/Desecrated_CharmChargesUsed",
+            "Belts/Desecrated_FlaskChargeGeneration_2",
+            "Belts/Desecrated_IncreasedPhysicalDamageReductionRating",
+            "Belts/Desecrated_FlaskChargesUsed",
+            "Belts/Desecrated_FlaskChargeGeneration_3",
+            "Belts/Desecrated_FlaskChargesUsed_2",
+            "Belts/Desecrated_FlaskExtraLifeRegeneration"
+          ],
+          "suffixes": [
+            "Belts/Desecrated_FireAndChaosDamageResistance",
+            "Belts/Desecrated_Strength",
+            "Belts/Desecrated_ReducedSelfIgniteDuration",
+            "Belts/Desecrated_Thorns_2",
+            "Belts/Desecrated_ColdAndChaosDamageResistance",
+            "Belts/Desecrated_Dexterity",
+            "Belts/Desecrated_ReducedAilmentDuration",
+            "Belts/Desecrated_ManaRegeneration",
+            "Belts/Desecrated_LightningAndChaosDamageResistance",
+            "Belts/Desecrated_Strength_2",
+            "Belts/Desecrated_ReducedAilmentDuration_2",
+            "Belts/Desecrated_SlowEffect"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Belts/Essence_IncreasedLife",
+            "Belts/Essence_IncreasedMana",
+            "Belts/PerfectEssence_EssenceAbyss",
+            "Belts/PerfectEssence_WardRegenerationRate",
+            "Belts/PerfectEssence_RecoverRunicWardOnCharmUse",
+            "Belts/PerfectEssence_EnchantmentHeistArmour"
+          ],
+          "suffixes": [
+            "Belts/Essence_ChaosResistance",
+            "Belts/Essence_FireResistance",
+            "Belts/Essence_ColdResistance",
+            "Belts/Essence_LightningResistance",
+            "Belts/PerfectEssence_StunThreshold",
+            "Belts/PerfectEssence_CorruptionIntertactions",
+            "Belts/PerfectEssence_FireDamageTakenRecoupedAsLife",
+            "Belts/PerfectEssence_FlaskChargeGeneration"
           ]
         }
       }

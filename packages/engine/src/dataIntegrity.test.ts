@@ -127,6 +127,13 @@ auditPatch('0.5.0', {
     'ManaCostEfficiency on Helmets_dex', 'ManaCostEfficiency on Helmets_dex_int',
     'ManaCostEfficiency on Helmets_int', 'ManaCostEfficiency on Helmets_str',
     'ManaCostEfficiency on Helmets_str_dex', 'ManaCostEfficiency on Helmets_str_int',
+    // Belts, added 2026-09-02. Both are instances of the two patterns already listed above rather
+    // than anything new, which is the only reason they are baselined rather than investigated:
+    //   Thorns   — `Desecrated_Thorns` (prefix) and `Desecrated_Thorns_2` (suffix), the same
+    //              one-family-two-sides desecrated pair as `CompanionDamage on Bows`.
+    //   FlaskChargeGeneration — three desecrated prefixes and a PERFECT_ESSENCE suffix; different
+    //              mods by different mechanics, so family exclusion still holds.
+    'Thorns on Belts', 'FlaskChargeGeneration on Belts',
   ]),
 });
 

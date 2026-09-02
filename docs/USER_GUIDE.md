@@ -458,7 +458,12 @@ plans with them; don't budget to the exalt.
 **Why do the two cost figures disagree?** They answer different questions — a fixed recipe versus optimal
 play. See [True expected cost](#true-expected-cost--and-why-its-lower).
 
-**Can it plan for belts?** Not yet. Every other equipment category works.
+**Can it plan for belts?** Yes, since 2026-09-02 — every equipment slot is supported. Belts appear as
+a single base because all 20 of the game's belt bases share one identical craftable mod pool; they
+differ only in their implicit, which is fixed on the base and cannot be crafted.
+
+**What about charms and jewels?** No. Charms are flasks in the game's own data and jewels have their
+own affix model, so neither is the 3-prefix/3-suffix rare this tool plans for.
 
 **Does it support Omen of Whittling / Greater Exaltation?** Not yet — both are on the roadmap.
 

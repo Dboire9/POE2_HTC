@@ -2,7 +2,7 @@
   "patch": "0.5.0",
   "generated": "2026-07-13",
   "source": "poe2db per-class essence rows, grouped by essence -> level -> forced mod ids (apply_pools.mjs)",
-  "count": 37,
+  "count": 38,
   "essences": [
     {
       "name": "Abrasion",
@@ -413,6 +413,7 @@
       "tiers": {
         "LESSER": [
           "Amulets/Essence_LightningResistance",
+          "Belts/Essence_LightningResistance",
           "Body_Armours_dex/Essence_LightningResistance",
           "Body_Armours_dex_int/Essence_LightningResistance",
           "Body_Armours_int/Essence_LightningResistance",
@@ -446,6 +447,7 @@
         ],
         "NORMAL": [
           "Amulets/Essence_LightningResistance",
+          "Belts/Essence_LightningResistance",
           "Body_Armours_dex/Essence_LightningResistance",
           "Body_Armours_dex_int/Essence_LightningResistance",
           "Body_Armours_int/Essence_LightningResistance",
@@ -479,6 +481,7 @@
         ],
         "GREATER": [
           "Amulets/Essence_LightningResistance",
+          "Belts/Essence_LightningResistance",
           "Body_Armours_dex/Essence_LightningResistance",
           "Body_Armours_dex_int/Essence_LightningResistance",
           "Body_Armours_int/Essence_LightningResistance",
@@ -587,6 +590,7 @@
         "GREATER": [],
         "PERFECT": [
           "Amulets/PerfectEssence_DamageTakenGainedAsLife",
+          "Belts/PerfectEssence_StunThreshold",
           "Body_Armours_dex/PerfectEssence_Thorns",
           "Body_Armours_dex_int/PerfectEssence_Thorns",
           "Body_Armours_int/PerfectEssence_Thorns",
@@ -658,10 +662,22 @@
       }
     },
     {
+      "name": "Insanity",
+      "tiers": {
+        "LESSER": [],
+        "NORMAL": [],
+        "GREATER": [],
+        "PERFECT": [
+          "Belts/PerfectEssence_CorruptionIntertactions"
+        ]
+      }
+    },
+    {
       "name": "Insulation",
       "tiers": {
         "LESSER": [
           "Amulets/Essence_FireResistance",
+          "Belts/Essence_FireResistance",
           "Body_Armours_dex/Essence_FireResistance",
           "Body_Armours_dex_int/Essence_FireResistance",
           "Body_Armours_int/Essence_FireResistance",
@@ -695,6 +711,7 @@
         ],
         "NORMAL": [
           "Amulets/Essence_FireResistance",
+          "Belts/Essence_FireResistance",
           "Body_Armours_dex/Essence_FireResistance",
           "Body_Armours_dex_int/Essence_FireResistance",
           "Body_Armours_int/Essence_FireResistance",
@@ -728,6 +745,7 @@
         ],
         "GREATER": [
           "Amulets/Essence_FireResistance",
+          "Belts/Essence_FireResistance",
           "Body_Armours_dex/Essence_FireResistance",
           "Body_Armours_dex_int/Essence_FireResistance",
           "Body_Armours_int/Essence_FireResistance",
@@ -759,7 +777,9 @@
           "Shields_str_dex/Essence_FireResistance",
           "Shields_str_int/Essence_FireResistance"
         ],
-        "PERFECT": []
+        "PERFECT": [
+          "Belts/PerfectEssence_FireDamageTakenRecoupedAsLife"
+        ]
       }
     },
     {
@@ -906,6 +926,7 @@
         "NORMAL": [],
         "GREATER": [],
         "PERFECT": [
+          "Belts/PerfectEssence_RecoverRunicWardOnCharmUse",
           "Bows/PerfectEssence_BaseRunicWard",
           "Bucklers/PerfectEssence_GainFlatLifeOnBlock",
           "Crossbows/PerfectEssence_BaseRunicWard",
@@ -927,6 +948,7 @@
       "tiers": {
         "LESSER": [
           "Amulets/Essence_ChaosResistance",
+          "Belts/Essence_ChaosResistance",
           "Body_Armours_dex/Essence_ChaosResistance",
           "Body_Armours_dex_int/Essence_ChaosResistance",
           "Body_Armours_int/Essence_ChaosResistance",
@@ -960,6 +982,7 @@
         ],
         "NORMAL": [
           "Amulets/Essence_ChaosResistance",
+          "Belts/Essence_ChaosResistance",
           "Body_Armours_dex/Essence_ChaosResistance",
           "Body_Armours_dex_int/Essence_ChaosResistance",
           "Body_Armours_int/Essence_ChaosResistance",
@@ -993,6 +1016,7 @@
         ],
         "GREATER": [
           "Amulets/Essence_ChaosResistance",
+          "Belts/Essence_ChaosResistance",
           "Body_Armours_dex/Essence_ChaosResistance",
           "Body_Armours_dex_int/Essence_ChaosResistance",
           "Body_Armours_int/Essence_ChaosResistance",
@@ -1042,6 +1066,7 @@
         "GREATER": [],
         "PERFECT": [
           "Amulets/PerfectEssence_RunicWardPercent",
+          "Belts/PerfectEssence_WardRegenerationRate",
           "Rings/PerfectEssence_BaseRunicWard"
         ]
       }
@@ -1124,6 +1149,7 @@
         "GREATER": [],
         "PERFECT": [
           "Amulets/PerfectEssence_EnchantmentHeistArmour",
+          "Belts/PerfectEssence_EnchantmentHeistArmour",
           "Body_Armours_dex/PerfectEssence_LocalRunicWardPercent",
           "Body_Armours_dex_int/PerfectEssence_LocalRunicWardPercent",
           "Body_Armours_int/PerfectEssence_LocalRunicWardPercent",
@@ -1173,6 +1199,7 @@
         "NORMAL": [],
         "GREATER": [],
         "PERFECT": [
+          "Belts/PerfectEssence_FlaskChargeGeneration",
           "Bucklers/PerfectEssence_SummonTotemCastSpeed",
           "Foci/PerfectEssence_SummonTotemCastSpeed",
           "Gloves_dex/PerfectEssence_IncreasedCastSpeed",
@@ -1193,6 +1220,7 @@
       "tiers": {
         "LESSER": [
           "Amulets/Essence_ColdResistance",
+          "Belts/Essence_ColdResistance",
           "Body_Armours_dex/Essence_ColdResistance",
           "Body_Armours_dex_int/Essence_ColdResistance",
           "Body_Armours_int/Essence_ColdResistance",
@@ -1226,6 +1254,7 @@
         ],
         "NORMAL": [
           "Amulets/Essence_ColdResistance",
+          "Belts/Essence_ColdResistance",
           "Body_Armours_dex/Essence_ColdResistance",
           "Body_Armours_dex_int/Essence_ColdResistance",
           "Body_Armours_int/Essence_ColdResistance",
@@ -1259,6 +1288,7 @@
         ],
         "GREATER": [
           "Amulets/Essence_ColdResistance",
+          "Belts/Essence_ColdResistance",
           "Body_Armours_dex/Essence_ColdResistance",
           "Body_Armours_dex_int/Essence_ColdResistance",
           "Body_Armours_int/Essence_ColdResistance",
@@ -1308,6 +1338,7 @@
         "GREATER": [],
         "PERFECT": [
           "Amulets/PerfectEssence_EssenceAbyss",
+          "Belts/PerfectEssence_EssenceAbyss",
           "Body_Armours_dex/PerfectEssence_EssenceAbyss",
           "Body_Armours_dex_int/PerfectEssence_EssenceAbyss",
           "Body_Armours_int/PerfectEssence_EssenceAbyss",
@@ -1356,6 +1387,7 @@
       "tiers": {
         "LESSER": [
           "Amulets/Essence_IncreasedLife",
+          "Belts/Essence_IncreasedLife",
           "Body_Armours_dex/Essence_IncreasedLife",
           "Body_Armours_dex_int/Essence_IncreasedLife",
           "Body_Armours_int/Essence_IncreasedLife",
@@ -1389,6 +1421,7 @@
         ],
         "NORMAL": [
           "Amulets/Essence_IncreasedLife",
+          "Belts/Essence_IncreasedLife",
           "Body_Armours_dex/Essence_IncreasedLife",
           "Body_Armours_dex_int/Essence_IncreasedLife",
           "Body_Armours_int/Essence_IncreasedLife",
@@ -1421,6 +1454,7 @@
         ],
         "GREATER": [
           "Amulets/Essence_IncreasedLife",
+          "Belts/Essence_IncreasedLife",
           "Body_Armours_dex/Essence_IncreasedLife",
           "Body_Armours_dex_int/Essence_IncreasedLife",
           "Body_Armours_int/Essence_IncreasedLife",
@@ -1601,6 +1635,7 @@
       "tiers": {
         "LESSER": [
           "Amulets/Essence_IncreasedMana",
+          "Belts/Essence_IncreasedMana",
           "Boots_dex/Essence_IncreasedMana",
           "Boots_dex_int/Essence_IncreasedMana",
           "Boots_int/Essence_IncreasedMana",
@@ -1623,6 +1658,7 @@
         ],
         "NORMAL": [
           "Amulets/Essence_IncreasedMana",
+          "Belts/Essence_IncreasedMana",
           "Boots_dex/Essence_IncreasedMana",
           "Boots_dex_int/Essence_IncreasedMana",
           "Boots_int/Essence_IncreasedMana",
@@ -1645,6 +1681,7 @@
         ],
         "GREATER": [
           "Amulets/Essence_IncreasedMana",
+          "Belts/Essence_IncreasedMana",
           "Boots_dex/Essence_IncreasedMana",
           "Boots_dex_int/Essence_IncreasedMana",
           "Boots_int/Essence_IncreasedMana",

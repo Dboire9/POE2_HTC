@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { loadPatch } from '../../engine/src/loadPatch.ts';
 import { loadPrices } from './loadPrices.ts';
+import { loadFrozenPrices } from './frozenPrices.ts';
 import { indexPrices, pricesForBase, stepCost } from './cost.ts';
 
 // Two prices used to be single numbers standing in for whole families of items, and both were wrong
@@ -10,6 +11,17 @@ import { indexPrices, pricesForBase, stepCost } from './cost.ts';
 //   • an ESSENCE is priced individually, not by level — Greater essences run 0.25ex to 4.39ex.
 // Since the optimizer ranks plans BY cost, charging one average for either changes which plan wins,
 // not just the total printed on it.
+//
+// THIS FILE READS THE SHIPPED SHEET ON PURPOSE — it is one of the two guards the daily price-refresh
+// workflow runs before merging, so freezing it would be freezing the guard. That makes it the one
+// place where a magnitude pinned from a market snapshot is actively harmful: it fails on a day the
+// market moved, blocks an otherwise-good refresh, and says nothing about the code. It happened on the
+// automation's FIRST scheduled run (2026-09-02): `amulet / wand > 10` came back 6.82 and held the
+// refresh, while every assertion about RESOLUTION passed.
+//
+// So the split below is deliberate and must be kept. **Live** assertions state what the CODE does —
+// this base resolves to that bone, this essence to its own price. **Frozen** assertions state why it
+// was worth doing, in numbers that stay true because the sheet behind them never moves.
 const data = loadPatch('data/patches/0.5.0');
 const prices = loadPrices('data/patches/0.5.0');
 const essences = JSON.parse(readFileSync('data/patches/0.5.0/essences.json', 'utf8')).essences as
@@ -26,8 +38,6 @@ describe('a Desecration is priced by the bone the base consumes', () => {
     expect(wand).toBeCloseTo(prices.bones!.jawbone!, 12);
     expect(armour).toBeCloseTo(prices.bones!.rib!, 12);
     expect(amulet).toBeCloseTo(prices.bones!.collarbone!, 12);
-    // The spread is the whole point — one flat number could not have expressed it.
-    expect(amulet / wand).toBeGreaterThan(10);
   });
 
   it('quivers pay the weapon bone, and off-hands the armour one', () => {
@@ -43,6 +53,27 @@ describe('a Desecration is priced by the bone the base consumes', () => {
   });
 });
 
+// The magnitudes, against a sheet that cannot move under them. These are the EVIDENCE for the two
+// changes this file guards — they are why a flat price was wrong, not a claim about today's economy —
+// so they belong on the frozen 2026-08-22 snapshot. Asserting them live is what broke the automation.
+describe('why per-bone and per-essence pricing was worth it (frozen sheet)', () => {
+  const frozen = loadFrozenPrices();
+  const on = (baseId: string) =>
+    stepCost(pricesForBase(frozen, data.bases.get(baseId)!), { currency: 'desecrate' });
+
+  it('the bones span an order of magnitude, so one flat number could not express them', () => {
+    expect(on('Amulets') / on('Wands')).toBeGreaterThan(10);
+  });
+
+  it('Greater essences alone span more than 2x, so one price per LEVEL could not express them', () => {
+    const priced = ['Abrasion', 'Flames', 'Opulence', 'Ice']
+      .map((name) => essences.find((e) => e.name === name)?.tiers?.GREATER?.[0])
+      .filter((m): m is string => m !== undefined)
+      .map((add) => stepCost(frozen, { currency: 'essence', essenceLevel: 'greater', add }));
+    expect(Math.max(...priced) / Math.min(...priced)).toBeGreaterThan(2);
+  });
+});
+
 describe('an essence is priced individually, not by level', () => {
   const greaterMod = (name: string) => essences.find((e) => e.name === name)?.tiers?.GREATER?.[0];
 
@@ -53,7 +84,6 @@ describe('an essence is priced individually, not by level', () => {
       .map((add) => stepCost(prices, { currency: 'essence', essenceLevel: 'greater', add }));
     expect(priced.length).toBeGreaterThan(2);
     expect(new Set(priced).size).toBeGreaterThan(1); // not one flat level price
-    expect(Math.max(...priced) / Math.min(...priced)).toBeGreaterThan(2);
   });
 
   it('prices a Greater and a Perfect essence as separate purchases', () => {

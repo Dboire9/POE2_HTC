@@ -619,6 +619,17 @@ a third-party action to touch the file the whole cost model rests on is a poor t
 (3) the dispatch input reaches bash through `env`, never `${{ }}` inline, which would be a script
 injection.
 
+**First scheduled run, 2026-09-02: it FAILED, at its own guard, and the cause is worth keeping.**
+`priceResolution.test.ts` asserted `amulet / wand > 10` — the spread between the jewellery bone and
+the weapon bone. Every assertion about RESOLUTION passed (each base charges its own bone); the ratio
+came back 6.82 because the market moved, and held an otherwise-good refresh. A magnitude pinned from a
+market snapshot is harmless in an ordinary test and actively wrong inside the gate the automation
+depends on, because freezing that file is not an option — it IS the guard. The file now splits: live
+assertions state what the CODE does (this base resolves to that bone), frozen ones state why it was
+worth doing (the bones span 10x). Mutation-checked — a flat-bone regression still turns three tests
+red. The same treatment was applied to the Greater-essence spread assertion, which was the next one
+due to fail.
+
 **Two things to know before the first run.** `gh pr create` under the built-in token needs
 **Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests"**, which is
 OFF by default — without it every step runs and the last one fails. And the re-run lookup must ask for

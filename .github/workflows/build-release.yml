@@ -13,8 +13,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # `contents: write` publishes the release and attaches the zip. `discussions: write` is for the
+    # Announcements post the release creates alongside itself — the release API accepts
+    # `discussion_category_name`, but the token has to be allowed to write a discussion or the whole
+    # call is refused, taking the release with it. Granted deliberately and narrowly rather than
+    # discovered by a failed 1.0 tag.
     permissions:
       contents: write
+      discussions: write
 
     steps:
       - name: Checkout code
@@ -94,5 +100,17 @@ jobs:
           body_path: RELEASE_NOTES.md
           draft: false
           prerelease: false
+          # Post the release as an Announcements discussion too. The repository has 34 stars and ZERO
+          # watchers, so a release notifies nobody on its own — it is visible to whoever happens to
+          # open the repository page, and that is all. A discussion is the part people can subscribe
+          # to and reply in.
+          #
+          # This is the category's NAME, without the 📣 GitHub shows beside it (the emoji is stored
+          # separately). A name that does not match makes the GitHub API reject the whole call — and
+          # since the release and its discussion are created together, that means NO release rather
+          # than a release without a discussion. If it ever fails that way: fix the name, then
+          # `git tag -d v1.0.0 && git push origin :v1.0.0` and re-tag. Nothing is half-published,
+          # because the API call is atomic.
+          discussion_category_name: Announcements
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

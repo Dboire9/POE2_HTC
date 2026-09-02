@@ -212,14 +212,13 @@ These are the real limits, named rather than hinted at. None of them make a show
 the engine is uncertain, it says so on screen.
 
 - **The desecrated spawn weight is measured, not published.** poe2db reports a weight of 1 for every
-  desecrated mod, which cannot be right. The shipped value (4000) comes from 40 bone offerings on one
+  desecrated mod, which cannot be right. The shipped value (2500) comes from 40 bone offerings on one
   base — good enough to trust, not good enough to be sure it doesn't vary by item category. A plan that
   uses a Desecration **without** a boss omen says so in the app and marks those odds as an estimate;
   every other probability is exact.
 - **The step planner has no concept of filler.** Every step it emits names a target mod, so it cannot
   express "roll junk, annul it off, then Desecrate" — a route that works in game. The policy solver
   *can* find those, which is one reason the two models' numbers differ.
-- **Omen of Whittling and Omen of Greater Exaltation are not modelled.** They are on the roadmap.
 - **Charms and Jewels are not supported.** Both are classed differently from ordinary gear (charms are
   flasks in the game data, jewels have their own affix model), so neither fits the 3-prefix/3-suffix
   rare that this optimizer plans for. Every equipment slot IS supported.
@@ -245,11 +244,15 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for reported b
       solver models Chaos at basic strength, which was measured in 2026-09 to change no answer)
 - [x] **Currency exclusions** — plan around the currency and omens you don't have
 - [x] **Belts** — every equipment slot is now supported
+- [x] **Omen of Whittling** — the Chaos Orb that removes your lowest-level modifier
+- [x] **Omen of Greater Exaltation** — one Exalted Orb landing two modifiers, searched by the step
+      planner (the policy solver was measured in 2026-09 and never plays it: it re-decides after every
+      orb, and this omen is a promise not to)
+- [x] **Automated daily price refresh** — the sheet updates itself from poe.ninja and merges its own
+      pull request when the market data passes a liquidity check
 
 ### Short-Term (Next Release)
-- [ ] Omen of Whittling support
-- [ ] Omen of Greater Exaltation support
-- [ ] Automated weekly price refresh
+- [ ] A measured desecrated spawn weight, from players' own bone counts rather than one 40-bone sample
 
 ### Long-Term
 - [ ] Integration with trade API for cost optimization

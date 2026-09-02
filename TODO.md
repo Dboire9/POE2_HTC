@@ -1108,43 +1108,6 @@ worth of the first fusion should decide whether that is bought.
 two-draw probability is "the same recursion `alchemyProbability` already does" was right, and the
 factoring it proposed is what shipped.
 
-## 14z. Original notes — Omen of Greater Exaltation
-
-**What is wrong.** An Omen of Greater Exaltation makes an Exalted Orb add **two** modifiers. It is
-priced (`prices.json` has it at 9.539 ex as of 2026-08-22), it is on the README roadmap, and neither
-planner models it.
-
-**Why it is a different shape of work from the 2026-09-01 orb-strength axis.** That axis was a
-LEVER: it changed a step's odds and price and nothing else, which is what let `leverDp.ts` decide it
-per step without enumerating. A Greater Exaltation changes WHAT HAPPENS — two mods land, the item state
-afterwards is different — so it can never be a lever. `levers.test.ts` asserts exactly that invariant
-and would go red if someone tried. It is a skeleton-level action: a distinct step type, enumerated
-where the orderings are.
-
-**How to do it.**
-- **Engine** (`packages/engine/src/probability.ts`, `plan.ts`): a `greater-exalt` step with `adds:
-  [a, b]` — P(both named mods land, in either order, from a pool that shrinks between the two draws)
-  and an `applyStep` that places both. The two-draw probability is the same recursion
-  `alchemyProbability` already does for four draws; factor that recursion out and reuse it. The
-  rarity/slot legality: Rare only, needs two open slots (any sides — or one per side? find the rule).
-- **Step planner**: `buildParetoSteps` (from white) and `baseTransforms` (from item) offer it wherever
-  two missing rollable mods remain and two slots are open, as an alternative to two consecutive
-  Exalts. It roughly halves the ordering count for the pair it covers, so it will not blow up the
-  skeleton enumeration.
-- **MDP** (`markovActions.ts`): a new `McAction` `{ currency: 'exalt', strength, double: true }` (or
-  its own currency) whose outcome distribution is the two-draw distribution over the state lattice.
-  Price it via `stepOmenIds` so `costConsistency.test.ts` gets a PAIR row — the D8 lesson.
-- Measure the MDP's solve-time cost the way 5d was measured (interleaved, on/off, six crafts). If it
-  costs 1.5x and changes no answer, revert the MDP half and keep the step planner's, exactly as 5d did.
-  A 9.5 ex omen for a second slam has a much better chance of paying off than a 98 ex Greater Chaos
-  did, so the prior is different — but measure.
-
-**Verify.** Hand-computed two-draw probability on the synthetic fixture matches the engine. MC
-(`simulate.ts`) confirms it on live data. `costConsistency` has the pair. A live craft where two
-Exalts cost more than one Greater Exaltation shows the omen on the frontier.
-
----
-
 ## 15. Crowdsource the desecrated spawn weight — TIER 3, NOT A CODE ITEM
 
 **What is wrong.** `DESECRATED_ASSUMED_WEIGHT = 2500` (`tools/refresh/apply_pools.mjs:61`) is called,

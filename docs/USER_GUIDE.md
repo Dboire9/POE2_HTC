@@ -465,7 +465,19 @@ differ only in their implicit, which is fixed on the base and cannot be crafted.
 **What about charms and jewels?** No. Charms are flasks in the game's own data and jewels have their
 own affix model, so neither is the 3-prefix/3-suffix rare this tool plans for.
 
-**Does it support Omen of Whittling / Greater Exaltation?** Not yet — both are on the roadmap.
+**Does it support Omen of Whittling / Greater Exaltation?** Yes, both.
+
+*Whittling* makes a Chaos Orb remove your **lowest-level** modifier rather than a random one, so it
+appears as its own row on the frontier beside the plain Chaos route — compare the two and pick.
+
+*Greater Exaltation* makes one Exalted Orb add **two** modifiers. The step routes reach for it when a
+craft needs two more mods: a single orb gets both in either order, where two separate Exalts have to
+land them in the order the plan wrote down. It shows up most on expensive orbs, because the omen is a
+flat surcharge — one omened Greater Exalt costs less than two of them.
+
+The **true cost** panel does not use Greater Exaltation, and that is deliberate rather than missing:
+that model re-chooses after every single orb, so committing to two draws in advance costs it more
+flexibility than the omen saves. Both behaviours were measured; see `docs/validation.md`.
 
 **Why can't I target a Perfect-Essence-only mod from scratch?** The from-white planner doesn't model the
 remove-and-add-on-Rare flow those need. Use the **I have an item** tab, which does.

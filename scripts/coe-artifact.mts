@@ -11,7 +11,21 @@ interface Base {
 }
 const data = JSON.parse(readFileSync('/tmp/coe.json', 'utf8')) as Record<string, Base>;
 
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/**
+ * HTML-escape, including BOTH quote characters — this output lands inside attributes as well as in
+ * text, and an escaper that only covers `& < >` is one attribute away from producing broken markup.
+ *
+ * Not theoretical on this data: nine shipped mods carry an apostrophe ("if you've Hit Recently",
+ * "Nature's Archon"). They are harmless in today's double-quoted attributes and would not have been
+ * in single-quoted ones, which is exactly the kind of difference nobody notices while editing markup.
+ * `&` must stay first or it would re-escape the ampersands the later rules introduce.
+ */
+const esc = (s: string) => s
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
 const fmt = (n: number) => n.toLocaleString('en-US');
 const pct = (w: number, tot: number) => (100 * w / tot).toFixed(3);
 const coeUrl = 'https://www.craftofexile.com/?game=poe2';

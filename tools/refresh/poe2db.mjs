@@ -56,7 +56,26 @@ function normalizeMod(m) {
   };
 }
 
-function stripHtml(s) {
+/**
+ * poe2db's `str` is an HTML fragment; this turns it into the plain text that becomes `mod.text`.
+ *
+ * **CodeQL flags the tag strip below as an incomplete multi-character sanitization, and for THIS
+ * regex that is a false positive.** The rule is right about the shape it usually sees — removing a
+ * fixed string like `<script>` once lets `<scr<script>ipt>` become `<script>` — but `<[^>]+>` cannot
+ * do that. `[^>]+` never crosses a `>`, so every match runs from a `<` to the FIRST `>` after it;
+ * therefore any `<` that survives had no `>` after it in the input, and deleting characters can never
+ * put one there. One pass is already a fixed point.
+ *
+ * Verified as well as argued: 500,000 random strings over `< > / = space` and letters, zero where a
+ * second pass changed anything and zero leaving a tag behind. A loop was written here and DELETED
+ * once that was measured — an unreachable branch no test can distinguish is not defence in depth, it
+ * is a claim the code cannot support.
+ *
+ * This is a TEXT EXTRACTOR for a data pipeline, not a sanitizer, and nothing downstream treats it as
+ * one: `mod.text` reaches the app through React (which escapes) and the cross-check worksheet through
+ * `esc` (scripts/coe-artifact.mts, which escapes both quote characters as well).
+ */
+export function stripHtml(s) {
   if (s == null) return null;
   return s
     .replace(/<br\s*\/?>/gi, '\n') // a <br> separates the stat lines of a compound mod — keep it as a

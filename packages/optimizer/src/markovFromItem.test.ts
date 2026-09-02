@@ -23,8 +23,8 @@ const EXACT = { tolerance: 1e-12 } as const;
 // T1 is the gettable target (weight 100); J1 is a weight-0 prefix — ungettable by an exalt, so it only
 // ever exists as junk carried on the START item. Suffix pool empty.
 const mk = (id: string, type: 'prefix' | 'suffix', family: string, weight: number): Mod => ({
-  id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: id,
-  tiers: [{ name: 't1', ilvl: 1, weight, ranges: [], stats: [] }],
+  id, source: 'normal', type, family, tags: [], text: id,
+  tiers: [{ name: 't1', ilvl: 1, weight, ranges: [] }],
 });
 const base: ItemBase = {
   id: 'S', name: 'S', category: 'C',
@@ -77,8 +77,8 @@ describe('markovFromItem — hand-computed expected cost', () => {
     const tiered: PatchData = {
       patch: 't',
       mods: new Map([['M', {
-        id: 'M', group: 'M', field: 'M', source: 'normal', type: 'prefix', categories: [], family: 'FM', tags: [], text: 'M',
-        tiers: [{ name: 'lo', ilvl: 1, weight: 1, ranges: [], stats: [] }, { name: 'hi', ilvl: 1, weight: 1, ranges: [], stats: [] }],
+        id: 'M', source: 'normal', type: 'prefix', family: 'FM', tags: [], text: 'M',
+        tiers: [{ name: 'lo', ilvl: 1, weight: 1, ranges: [] }, { name: 'hi', ilvl: 1, weight: 1, ranges: [] }],
       }]]),
       bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['M'], suffixes: [] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
     };
@@ -174,8 +174,8 @@ describe('markovFromItem — v2 levers (orb strength + side exalts)', () => {
     const tiered: PatchData = {
       patch: 't',
       mods: new Map([['M', {
-        id: 'M', group: 'M', field: 'M', source: 'normal', type: 'prefix', categories: [], family: 'FM', tags: [], text: 'M',
-        tiers: [{ name: 'lo', ilvl: 1, weight: 1, ranges: [], stats: [] }, { name: 'hi', ilvl: 60, weight: 1, ranges: [], stats: [] }],
+        id: 'M', source: 'normal', type: 'prefix', family: 'FM', tags: [], text: 'M',
+        tiers: [{ name: 'lo', ilvl: 1, weight: 1, ranges: [] }, { name: 'hi', ilvl: 60, weight: 1, ranges: [] }],
       }]]),
       bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['M'], suffixes: [] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
     };
@@ -199,8 +199,8 @@ describe('markovFromItem — v2 levers (orb strength + side exalts)', () => {
     const sideData: PatchData = {
       patch: 't',
       mods: new Map<string, Mod>([
-        ['P', { id: 'P', group: 'P', field: 'P', source: 'normal', type: 'prefix', categories: [], family: 'FP', tags: [], text: 'P', tiers: [{ name: 't', ilvl: 1, weight: 1, ranges: [], stats: [] }] }],
-        ['J', { id: 'J', group: 'J', field: 'J', source: 'normal', type: 'suffix', categories: [], family: 'FJ', tags: [], text: 'J', tiers: [{ name: 't', ilvl: 1, weight: 100, ranges: [], stats: [] }] }],
+        ['P', { id: 'P', source: 'normal', type: 'prefix', family: 'FP', tags: [], text: 'P', tiers: [{ name: 't', ilvl: 1, weight: 1, ranges: [] }] }],
+        ['J', { id: 'J', source: 'normal', type: 'suffix', family: 'FJ', tags: [], text: 'J', tiers: [{ name: 't', ilvl: 1, weight: 100, ranges: [] }] }],
       ]),
       bases: new Map([['S', { ...base, pools: { normal: { prefixes: ['P'], suffixes: ['J'] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } } }]]),
     };

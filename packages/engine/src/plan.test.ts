@@ -7,8 +7,8 @@ import { chaosProbability, evaluatePlan, evaluatePlanFrom, exaltProbability, loa
 // Synthetic base: prefixes NP1(w20,Fp1) NP2(w30,Fp2); suffixes NS1(w50,Fs1). Totals: prefix 50, suffix 50.
 describe('evaluatePlan — hand-computed composition', () => {
   const mod = (id: string, type: 'prefix' | 'suffix', family: string, weight: number): Mod =>
-    ({ id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: null,
-       tiers: [{ name: 't1', ilvl: 1, weight, ranges: [], stats: [] }] });
+    ({ id, source: 'normal', type, family, tags: [], text: null,
+       tiers: [{ name: 't1', ilvl: 1, weight, ranges: [] }] });
   const base: ItemBase = {
     id: 'S', name: 'S', category: 'C',
     pools: {
@@ -214,9 +214,9 @@ describe('evaluatePlan — real-data plans thread cleanly', () => {
 // makes the mod MORE likely to be the one whittled off, so the model never flatters a plan.
 describe('a mid-plan add is placed at the step’s minTierIndex, not always tier 0', () => {
   const tiers = (n: number) =>
-    Array.from({ length: n }, (_, i) => ({ name: `t${i}`, ilvl: 1 + i * 10, weight: 100, ranges: [], stats: [] }));
+    Array.from({ length: n }, (_, i) => ({ name: `t${i}`, ilvl: 1 + i * 10, weight: 100, ranges: [] }));
   const mod = (id: string, type: 'prefix' | 'suffix', family: string): Mod =>
-    ({ id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: null, tiers: tiers(4) });
+    ({ id, source: 'normal', type, family, tags: [], text: null, tiers: tiers(4) });
   const base: ItemBase = {
     id: 'B', name: 'B', category: 'C',
     pools: {

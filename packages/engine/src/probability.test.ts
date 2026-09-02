@@ -3,9 +3,9 @@ import type { ItemBase, Mod, PatchData, Tier } from './index.ts';
 import { transmuteProbability, addAffixProbability, whiteItem, loadPatch, resolveMod } from './index.ts';
 
 // --- tiny synthetic pool with hand-computable weights ----------------------------------------
-const tier = (name: string, ilvl: number, weight: number): Tier => ({ name, ilvl, weight, ranges: [], stats: [] });
+const tier = (name: string, ilvl: number, weight: number): Tier => ({ name, ilvl, weight, ranges: [] });
 const mod = (id: string, type: 'prefix' | 'suffix', family: string, tiers: Tier[]): Mod => ({
-  id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: id, tiers,
+  id, source: 'normal', type, family, tags: [], text: id, tiers,
 });
 
 const MODS: Mod[] = [

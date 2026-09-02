@@ -32,12 +32,12 @@ import { leverOptions } from './levers.ts';
 // synthetic fixture the other from-item tests share is single-tier at ilvl 1, where every strength
 // floor is out of reach and the whole axis is invisible.
 const tiers = (weights: readonly [number, number, number]): Tier[] => [
-  { name: 't3', ilvl: 1, weight: weights[0], ranges: [], stats: [] },
-  { name: 't2', ilvl: 40, weight: weights[1], ranges: [], stats: [] },
-  { name: 't1', ilvl: 70, weight: weights[2], ranges: [], stats: [] },
+  { name: 't3', ilvl: 1, weight: weights[0], ranges: [] },
+  { name: 't2', ilvl: 40, weight: weights[1], ranges: [] },
+  { name: 't1', ilvl: 70, weight: weights[2], ranges: [] },
 ];
 const mk = (id: string, type: 'prefix' | 'suffix', family: string, w: readonly [number, number, number]): Mod =>
-  ({ id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: id, tiers: tiers(w) });
+  ({ id, source: 'normal', type, family, tags: [], text: id, tiers: tiers(w) });
 
 const base: ItemBase = {
   id: 'S', name: 'S', category: 'Wands',

@@ -192,7 +192,36 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - The shipped `0.5.0` data is cross-checked exact vs Craft of Exile (Wands/Amulets/Rings/Body Armour/Quivers); re-validate with the `scripts/coe-*` harness when 1.0 lands. `data/patches/<patch>/` versioning is what makes a re-refresh safe.
 - `0.5` (Java-extracted) and `0.5.0` (poe2db) use DIFFERENT mod-id schemes (`MAXIMUM_MANA` vs `IncreasedMana`); the app + facade tests are id-agnostic (they list from the loaded data), but hardcoded ids in a test must match whichever patch that test loads.
 - Java-retirement doc debt was audited 2026-08-21 — `docs/{API_EXAMPLES,DEVELOPMENT,CONTRIBUTING,ABOUT,data-layer}.md` all lead with the "backend retired, pure client-side TS" note, and the remaining Java mentions (the frozen `__fixtures__` anchor, the `0.5` snapshot, past-tense history in ABOUT) are deliberate and accurate. Don't "fix" those. The audit predated the Electron removal; `DOWNLOAD.md` was rewritten separately on 2026-08-23 and now says there is nothing to download.
-- **`vercel.json` holds the cache headers, and JSON has no comments.** `/static/*` is content-hashed by Vite so it is cached `immutable` for a year; `/` is not hashed (it is how a new deploy is discovered) so it is `max-age=0, must-revalidate`. Getting those backwards either re-downloads 3.1 MB every visit or pins users to a stale build. Vercel's schema **rejects unknown properties** — a `"//"` key added to explain each rule failed the build outright ("headers[0] should NOT have additional property //"), so the headers never shipped. Explanations go here; `src/lib/deployConfig.test.ts` enforces the schema locally so the next mistake fails in the suite rather than in a deploy.
+- **The repo's copy of the patch data and the browser's copy are two different jobs** (2026-09-02).
+  On disk `data/patches/<patch>/*.json` is the RECORD: pretty-printed so a refresh diffs readably,
+  and complete down to `group`/`field`/`categories`/`tiers[].stats`, which **no code reads**. Over
+  the wire it is a download, where all of that is cost. `shipMods.ts` projects a parsed `mods.json`
+  onto exactly the fields `Mod`/`Tier` declare and minifies it; `shipPatchData` (vite.config.ts)
+  applies that to the emitted asset and minifies the other two. Measured at the live site's own
+  compression (**brotli q3 / lgwin 19**, which reproduces poe2htc.com's byte counts exactly — not the
+  q11 default, which flatters every option ~3x): mods 137,701 → 65,013 wire bytes, `JSON.parse`
+  6.15 ms → 3.32 ms, patch data total −46.3%, first load −26.6%.
+  **The type is what makes it safe, not the plugin.** `Mod` used to say it "mirrors the JSON exactly"
+  while declaring four fields nothing read; now it declares only what the app reads, so a stripped
+  field is a compile error in dev as well as in a build. `shipModsFile` is typed `ModsFile ->
+  ModsFile` **with `: Mod` / `: Tier` annotations on its two `.map` callbacks** — contextual typing
+  through `.map` alone does NOT run excess-property checking, so without them only a MISSING field
+  was caught and an added one shipped silently. Both directions are mutation-verified.
+  **TODO 13 asked for a solver/display SPLIT and it was the wrong shape twice over.** `tiers[].ranges`
+  is read by `valueRatio` (alternatives.ts) and `text` by `engineMap`, which runs INSIDE the worker —
+  so the "fields the Worker never reads" were read by it. And two files cost 74,015 wire bytes against
+  one file's 65,013, because splitting duplicates the id column and gives brotli two smaller corpora.
+  Don't re-propose it. `tiers[].stats` stays in the FILE as the named route to cross-family similarity.
+- **Rollup fixes an asset's content hash BEFORE `generateBundle`, so rewriting content there ships new
+  bytes at the old URL.** The first working strip emitted 988 kB as `mods-BfEpI_vg.json` — byte-for-byte
+  the name the live site serves the 3.1 MB file under. Harmless that day; a silent correctness bug the
+  day someone adds a field to `Mod` and the projection without the DATA changing, because
+  `immutable, max-age=31536000` then pins every returning browser to an asset missing it. `assetFileNames`
+  is therefore a FUNCTION that hashes the bytes the build will write, sharing one `shippedJson` helper
+  with the rewrite so a name can never describe bytes nobody emitted. Both output configs (main build
+  and worker build) must pass the same function, or the two stop resolving to one file and the data
+  ships twice. Mutation-checked: dropping `tags` from the projection moves `mods-z68ZDNnb` → `mods-FDp1al5J`.
+- **`vercel.json` holds the cache headers, and JSON has no comments.** `/static/*` is content-hashed by Vite so it is cached `immutable` for a year; `/` is not hashed (it is how a new deploy is discovered) so it is `max-age=0, must-revalidate`. Getting those backwards either re-downloads the whole patch payload every visit or pins users to a stale build. Vercel's schema **rejects unknown properties** — a `"//"` key added to explain each rule failed the build outright ("headers[0] should NOT have additional property //"), so the headers never shipped. Explanations go here; `src/lib/deployConfig.test.ts` enforces the schema locally so the next mistake fails in the suite rather than in a deploy.
 - **A share link is untrusted input, and `parsed as Wire` is a cast, not a check.** `?s=` is the app's
   only attack surface — a public URL any stranger can craft. Two failure modes, and they need
   different defences. A bad SHAPE throws inside the decoder, so `decodeWorkspace`'s try/catch converts

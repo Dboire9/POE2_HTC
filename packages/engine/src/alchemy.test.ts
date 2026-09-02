@@ -5,8 +5,8 @@ import { alchemyProbability } from './index.ts';
 // Synthetic base with VARIED weights so the Monte-Carlo cross-check is meaningful (not just uniform).
 const W: Record<string, number> = { P1: 300, P2: 200, P3: 100, S1: 300, S2: 200, S3: 100 };
 const mod = (id: string, type: 'prefix' | 'suffix'): Mod => ({
-  id, group: 'B', field: id, source: 'normal', type, categories: [], family: 'fam_' + id, tags: [], text: id,
-  tiers: [{ name: 't1', ilvl: 1, weight: W[id]!, ranges: [], stats: [] }],
+  id, source: 'normal', type, family: 'fam_' + id, tags: [], text: id,
+  tiers: [{ name: 't1', ilvl: 1, weight: W[id]!, ranges: [] }],
 });
 const ALL = [mod('P1', 'prefix'), mod('P2', 'prefix'), mod('P3', 'prefix'), mod('S1', 'suffix'), mod('S2', 'suffix'), mod('S3', 'suffix')];
 const base: ItemBase = {

@@ -79,8 +79,8 @@ describe('desecration boss omen, unconstrained (D8) — hand-computed', () => {
 // Synthetic base: prefix pool = N1(w10, normal) + D1(w30, desecrated); suffix pool = N2(w60, normal).
 describe('desecration default (combined pool) — hand-computed', () => {
   const mod = (id: string, type: 'prefix' | 'suffix', source: 'normal' | 'desecrated', family: string, weight: number): Mod =>
-    ({ id, group: id, field: id, source, type, categories: [], family, tags: [], text: null,
-       tiers: [{ name: 't1', ilvl: 1, weight, ranges: [], stats: [] }] });
+    ({ id, source, type, family, tags: [], text: null,
+       tiers: [{ name: 't1', ilvl: 1, weight, ranges: [] }] });
   const N1 = mod('N1', 'prefix', 'normal', 'Fn1', 10);
   const D1 = mod('D1', 'prefix', 'desecrated', 'Fd1', 30);
   const N2 = mod('N2', 'suffix', 'normal', 'Fn2', 60);

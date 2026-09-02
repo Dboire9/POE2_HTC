@@ -1035,42 +1035,33 @@ warning at the call site.
 
 ---
 
-## 13. Split `mods.json` into solver data and display data — TIER 3
+## 13. ~~Split `mods.json` into solver data and display data~~ — DONE DIFFERENTLY 2026-09-02
 
-**What is wrong.** `mods.json` is 3.1 MB (238 kB gzip) and is the dominant first-load cost — the JS
-bundle is 114 kB gzip. Measured 2026-09-01: **37% of it is display-only** (`tiers[].ranges` and
-`tiers[].stats`), fields the Worker never reads. `indexPatch` and every probability function consume
-`tiers[].{name, ilvl, weight}`, `family`, `type`, `source`, and the pools. The UI reads `text`,
-`ranges`, and `stats` for labels and the tier dropdown.
+**The split was not the fix, and it was not available either.** Both halves of this entry's premise
+were wrong. `tiers[].ranges` is read by `valueRatio` (`alternatives.ts`) and `text` by `engineMap`,
+which runs INSIDE the worker — so "fields the Worker never reads" named two fields it reads. And the
+238 kB gzip figure was off the wrong compressor: Vercel serves brotli, and poe2htc.com returns
+137,701 bytes, reproduced exactly at brotli q3 / lgwin 19.
 
-**Why it matters more than 37% suggests.** The Worker cannot start solving until `mods.json` has fully
-downloaded and parsed on the main thread and been posted to it. On a phone on a poor connection that is
-the entire time-to-first-result. A solver-only file would let the Worker begin the moment the numbers
-arrive, with the display text streaming in behind for the picker — and the picker is not on the
-critical path to a result if the user arrived via a share link.
+**What is actually unread is dead, not display.** `group`, `field`, `categories` and `tiers[].stats`
+are read by no code at all. Dropping them and minifying takes the asset to **65,013 wire bytes
+(−52.8%)** and `JSON.parse` from **6.15 ms → 3.32 ms** — against **74,015** for the two-file split,
+which loses because it duplicates the id column and gives brotli two smaller corpora. One file beats
+two, so there is no second fetch and no interval where the picker shows mod ids.
 
-**How to do it.**
-- The pipeline (`tools/refresh/refresh.mjs`) writes two files: `mods.solver.json` (id, type, family,
-  source, categories, tiers as `{name, ilvl, weight}`) and `mods.display.json` (id → `{text, tiers:
-  [{ranges, stats}]}`), joined by id and tier index.
-- `indexPatch` takes the solver file. `engineMap`'s label functions take the display file. The two
-  must be produced from one source in one run so they cannot desync — pin that with a test that
-  round-trips them (`dataIntegrity.test.ts` is the home).
-- The preload in `vite.config.ts` (`preloadPatchData`) warms the SOLVER file first, display second.
-- `loadEngine` resolves as soon as solver + bases + prices are in; a separate `loadDisplay()` feeds the
-  picker. Components that need text before it arrives show the mod id (they already fall back to it:
-  `data.mods.get(id)?.text ?? id` appears three times in `engineMap.ts`).
+Shipped: `Mod`/`Tier` now declare only what the app reads (so a stripped field is a compile error),
+`shipMods.ts` projects the file onto that contract, and `vite.config.ts` applies it to the emitted
+asset — hashing the bytes it writes rather than the repo's copy, which Rollup does not do by default.
+Full measurement, including the cache hazard that found, in docs/validation.md ("Shipping the patch
+data: the split loses to the strip").
 
-**Verify.** Lighthouse mobile before/after on the deployed site: time to first compute result on a
-share link, throttled to "Slow 4G". Bundle: `mods.solver.json` gzip ≤ 160 kB. All existing tests pass
-against the split files (the fixtures in `packages/engine/src/__fixtures__` may need the same split, or
-a loader that merges them for tests).
-
-**Do not** try to shrink the JSON further by shortening keys or dropping tier names. Gzip already
-handles repeated keys; the 37% is real content. And tier names are read by the essence code
-(`essenceLevelOf` parses "Lesser"/"Greater" out of the tier name) — they are solver data.
+**Still open from the original entry, and worth doing on its own merits:** nothing here made the
+Worker start earlier. It starts when `loadEngine()` resolves, which still waits on all three files.
+Whether that is worth splitting for is now a much smaller question than it was — the whole patch
+payload is 85,599 bytes.
 
 ---
+
 
 ## 14. Omen of Greater Exaltation — TIER 3
 

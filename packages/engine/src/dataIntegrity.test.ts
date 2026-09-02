@@ -9,8 +9,22 @@
 // so any regression fails immediately); 0.5 keeps the known-ambiguous findings from the Java data.
 
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { loadPatch } from './loadPatch.ts';
 import type { ItemBase, PatchData } from './types.ts';
+
+/**
+ * The RAW rows, as `mods.json` holds them — deliberately not `Mod`.
+ *
+ * `group` and `field` are the RePoE provenance keys. No engine code has ever read them, so as of
+ * 2026-09-02 `Mod` no longer declares them and `shipMods.ts` strips them out of the browser asset.
+ * They stay in the file, and checking them stays worth doing: they are what an import that silently
+ * lost its join would go empty in. That makes this a check on the FILE rather than on the model, so
+ * it reads the file rather than a `PatchData`, and the local type says which of the two it is.
+ */
+interface RawMod { readonly id: string; readonly group?: string; readonly field?: string }
+const rawMods = (patch: string): readonly RawMod[] =>
+  (JSON.parse(readFileSync(`data/patches/${patch}/mods.json`, 'utf8')) as { mods: RawMod[] }).mods;
 
 const POOLS = ['normal', 'desecrated', 'essence'] as const;
 const SIDES = ['prefixes', 'suffixes'] as const;
@@ -60,14 +74,18 @@ function auditPatch(patch: string, baseline: Baseline): void {
       expect(dupes).toEqual([]);
     });
 
-    it('every mod is well-formed (group/field set, valid type, ≥1 tier)', () => {
+    it('every mod is well-formed (valid type, ≥1 tier)', () => {
       // family MAY be empty — that means "no exclusion group" and the engine treats it as such (see pool.ts).
       const bad: string[] = [];
       for (const m of data.mods.values()) {
-        if (!m.group || !m.field) bad.push(`${m.id}: empty group/field`);
         if (m.type !== 'prefix' && m.type !== 'suffix') bad.push(`${m.id}: bad type ${String(m.type)}`);
         if (m.tiers.length === 0) bad.push(`${m.id}: no tiers`);
       }
+      expect(bad).toEqual([]);
+    });
+
+    it('the file on disk still carries its RePoE provenance (group/field set)', () => {
+      const bad = rawMods(patch).filter((m) => !m.group || !m.field).map((m) => `${m.id}: empty group/field`);
       expect(bad).toEqual([]);
     });
 

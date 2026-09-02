@@ -1,6 +1,6 @@
 // Browser facade over the pure TS crafting engine + optimizer. This is the client-side replacement
 // for the Java HTTP backend: it loads the patch data snapshot once (fetched as static assets so the
-// 3.1 MB mods.json never lands in the JS bundle) and exposes a small, UI-shaped API — list bases,
+// mods data never lands in the JS bundle) and exposes a small, UI-shaped API — list bases,
 // list a base's rollable mods with their tiers, and compute the (cost ↔ probability) Pareto frontier
 // for a tier-targeted craft.
 //
@@ -78,7 +78,8 @@ let cache: Promise<Engine> | null = null;
 export function loadEngine(): Promise<Engine> {
   if (!cache) {
     cache = (async () => {
-      // `mods.json` is 3.1 MB and its download would otherwise not START until this function runs —
+      // `mods.json` is the biggest asset the app fetches and its download would otherwise not START
+      // until this function runs —
       // after the JS bundle has been fetched and parsed. The build injects a tiny head script that
       // kicks the fetch off during HTML parse and leaves the Promise here (see `preloadPatchData` in
       // vite.config.ts). Reusing that exact Promise is what makes it one request rather than two.

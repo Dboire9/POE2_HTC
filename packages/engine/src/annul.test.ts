@@ -34,8 +34,8 @@ describe('annul — hand-computed', () => {
 
 describe('annul — Omen of Light (desecrated only)', () => {
   const des: Mod = {
-    id: 'D', group: 'D', field: 'D', source: 'desecrated', type: 'prefix',
-    categories: [], family: 'Fd', tags: [], text: null, tiers: [{ name: 't', ilvl: 1, weight: 1, ranges: [], stats: [] }],
+    id: 'D', source: 'desecrated', type: 'prefix',
+    family: 'Fd', tags: [], text: null, tiers: [{ name: 't', ilvl: 1, weight: 1, ranges: [] }],
   };
   const data: PatchData = { patch: 't', mods: new Map([['D', des]]), bases: new Map() };
   const withDes = (desecrated: boolean): ItemState =>

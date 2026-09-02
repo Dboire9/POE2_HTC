@@ -26,8 +26,8 @@ const EXACT = { tolerance: 1e-12 } as const;
 const mk = (
   id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source'], tags: string[] = [],
 ): Mod => ({
-  id, group: id, field: id, source, type, categories: [], family, tags, text: id,
-  tiers: [{ name: 't1', ilvl: 1, weight: source === 'normal' ? 100 : 1, ranges: [], stats: [] }],
+  id, source, type, family, tags, text: id,
+  tiers: [{ name: 't1', ilvl: 1, weight: source === 'normal' ? 100 : 1, ranges: [] }],
 });
 
 const base: ItemBase = {
@@ -308,7 +308,7 @@ describe('markovFromItem — Perfect Essence as an MDP action (hand-computed)', 
     mods: new Map([
       ['NP1', mk('NP1', 'prefix', 'Fp1', 'normal')],
       ['NS1', mk('NS1', 'suffix', 'Fs1', 'normal')],
-      ['PE1', { ...mk('PE1', 'prefix', 'Fpe', 'perfect_essence'), tiers: [{ name: 't1', ilvl: 1, weight: 0, ranges: [], stats: [] }] }],
+      ['PE1', { ...mk('PE1', 'prefix', 'Fpe', 'perfect_essence'), tiers: [{ name: 't1', ilvl: 1, weight: 0, ranges: [] }] }],
     ]),
     bases: new Map([['P', pbase]]),
   };

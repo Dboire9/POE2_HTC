@@ -1,17 +1,92 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 import path from "path"
+import { createHash } from "node:crypto"
 import { visualizer } from "rollup-plugin-visualizer"
 import type { Plugin } from "vite"
+import { shipModsJson } from "./packages/engine/src/shipMods.ts"
+import type { ModsFile } from "./packages/engine/src/indexPatch.ts"
+
+/** The emitted patch-data assets. One regex, because two plugins below both have to find them. */
+const JSON_ASSET_RE = /^static\/json\/.*\.json$/
+const MODS_ASSET_RE = /^static\/json\/mods-[^/]*\.json$/
 
 /**
- * Start the 3.1 MB `mods.json` download while the browser is still fetching and parsing the JS bundle.
+ * Ship the patch data as bytes rather than as the repo's working copy of it.
+ *
+ * `data/patches/<patch>/*.json` is a RECORD: pretty-printed so a refresh produces a readable diff,
+ * and complete down to fields nothing reads (see shipMods.ts). None of that should reach a phone on
+ * a bad connection. Every emitted JSON asset is re-serialized minified, and the mods file is also
+ * projected onto exactly the fields `Mod` declares.
+ *
+ * Measured against the live site's own compression (brotli q3 / lgwin 19, which reproduces
+ * poe2htc.com's byte counts exactly) — see docs/validation.md:
+ *
+ *   mods.json        137,701 -> 65,013 wire bytes (-52.8%), JSON.parse 6.15ms -> 3.32ms
+ *   base_items.json   14,132 -> 13,142
+ *   prices.json        7,567 ->  7,444
+ *
+ * A build with no data asset means the naming scheme moved, and silently shipping the unstripped
+ * file would be a 2x regression nobody would notice, so it warns rather than passing quietly.
+ */
+function shipPatchData(): Plugin {
+  return {
+    name: "ship-patch-data",
+    apply: "build",
+    generateBundle(_options, bundle) {
+      let sawMods = false
+      for (const [fileName, out] of Object.entries(bundle)) {
+        if (out.type !== "asset" || !JSON_ASSET_RE.test(fileName)) continue
+        sawMods ||= MODS_ASSET_RE.test(fileName)
+        out.source = shippedJson(sourceName(out), asText(out.source))
+      }
+      if (!sawMods) this.warn("no mods asset in this build — shipping patch data unstripped")
+    },
+  }
+}
+
+const asText = (source: string | Uint8Array): string =>
+  typeof source === "string" ? source : Buffer.from(source).toString("utf8")
+
+/** The original filename of an emitted asset, across Rollup's `name` (deprecated) and `names`. */
+const sourceName = (info: { names?: readonly string[]; name?: string | undefined }): string =>
+  info.names?.[0] ?? info.name ?? ""
+
+/** The bytes a patch-data asset ships as. Minified always; the mods file also projected onto `Mod`. */
+function shippedJson(sourceFileName: string, text: string): string {
+  const parsed: unknown = JSON.parse(text)
+  return sourceFileName === "mods.json" ? shipModsJson(parsed as ModsFile) : JSON.stringify(parsed)
+}
+
+/**
+ * Name a JSON asset after the bytes it SHIPS, not after the repo's copy of them.
+ *
+ * Rollup fixes an asset's content hash before `generateBundle`, so a plugin that rewrites the content
+ * there — which `shipPatchData` does — leaves the URL describing a file that no longer exists at it.
+ * Harmless the day it lands, and a silent correctness bug the day the projection changes without the
+ * DATA changing: same hash, same `immutable, max-age=31536000` URL, and every returning browser keeps
+ * an asset missing whatever field was just added to `Mod`. Hashing the shipped bytes makes the URL
+ * turn over exactly when the download does, which is what a content hash is for.
+ *
+ * `shippedJson` is shared with the rewrite above rather than reimplemented, because a name hashed
+ * over bytes the build then does not write would be worse than not hashing at all.
+ */
+const DEFAULT_ASSET_NAMES = "static/[ext]/[name]-[hash].[ext]"
+function assetFileNames(info: { names?: readonly string[]; name?: string | undefined; source: string | Uint8Array }): string {
+  const name = sourceName(info)
+  if (!name.endsWith(".json")) return DEFAULT_ASSET_NAMES
+  const hash = createHash("sha256").update(shippedJson(name, asText(info.source))).digest("base64url").slice(0, 8)
+  return `static/json/${name.replace(/\.json$/, "")}-${hash}.json`
+}
+
+/**
+ * Start the `mods.json` download while the browser is still fetching and parsing the JS bundle.
  * Without this the fetch cannot begin until `loadEngine()` runs, so the two biggest downloads on the
  * critical path are strictly serial.
  *
  * It hands `loadEngine` the actual Promise rather than emitting `<link rel="preload" as="fetch">`.
  * A preload link only avoids a second request when its mode and credentials match the later `fetch()`
- * exactly; get that wrong and the browser downloads 3.1 MB TWICE, which is worse than not preloading
+ * exactly; get that wrong and the browser downloads the whole asset TWICE, which is worse than not preloading
  * at all. Reusing one Promise makes it a single request by construction, with no matching rules to
  * get wrong. The filename is content-hashed, so the tag can only be written once the bundle exists.
  *
@@ -24,7 +99,7 @@ function preloadPatchData(): Plugin {
     transformIndexHtml: {
       order: "post",
       handler(html, ctx) {
-        const mods = Object.keys(ctx.bundle ?? {}).find((f) => /static\/json\/mods-[^/]*\.json$/.test(f))
+        const mods = Object.keys(ctx.bundle ?? {}).find((f) => MODS_ASSET_RE.test(f))
         if (!mods) return html // no data asset in this build — inject nothing rather than a broken URL
         const url = JSON.stringify(`./${mods}`)
         return {
@@ -78,6 +153,7 @@ const analyze = process.env.ANALYZE === "1"
 export default defineConfig({
   plugins: [
     react(),
+    shipPatchData(),
     preloadPatchData(),
     warnIfUnmonitored(),
     ...(analyze ? [visualizer({ filename: "dist/stats.html", gzipSize: true, brotliSize: false })] : []),
@@ -114,13 +190,14 @@ export default defineConfig({
         manualChunks: undefined,
         entryFileNames: 'static/js/[name]-[hash].js',
         chunkFileNames: 'static/js/[name]-[hash].js',
-        assetFileNames: 'static/[ext]/[name]-[hash].[ext]'
+        assetFileNames
       }
     }
   },
   // The solve worker is built separately from the main bundle, with its own asset pipeline — and it
   // imports the same `?url` data files, so with default naming it emitted a SECOND copy of them
-  // (mods.json alone is 3.1 MB). Giving it the identical naming scheme makes both builds resolve to
+  // (mods.json is the big one). Giving it the identical naming scheme — including the `assetFileNames`
+  // FUNCTION above, which both outputs must share — makes both builds resolve to
   // the same content-hashed path, so the file is written once and both entry points fetch it.
   worker: {
     format: 'es',
@@ -128,7 +205,7 @@ export default defineConfig({
       output: {
         entryFileNames: 'static/js/[name]-[hash].js',
         chunkFileNames: 'static/js/[name]-[hash].js',
-        assetFileNames: 'static/[ext]/[name]-[hash].[ext]'
+        assetFileNames
       }
     }
   },

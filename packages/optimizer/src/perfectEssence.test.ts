@@ -18,8 +18,8 @@ import type { Prices } from './cost.ts';
 const mk = (
   id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source'], weight = 100, ilvl = 1,
 ): Mod => ({
-  id, group: id, field: id, source, type, categories: [], family, tags: [], text: id,
-  tiers: [{ name: id === 'PE1' ? 'Perfect Essence of Test' : 't1', ilvl, weight, ranges: [], stats: [] }],
+  id, source, type, family, tags: [], text: id,
+  tiers: [{ name: id === 'PE1' ? 'Perfect Essence of Test' : 't1', ilvl, weight, ranges: [] }],
 });
 
 /**

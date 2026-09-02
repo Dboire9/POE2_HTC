@@ -2901,6 +2901,91 @@ day two because nobody has found any yet, the optimizer will use it, and it is r
 the orb costs that day. The guards above are against prices that are ABSENT or unbacked, not against a
 market that is simply young.
 
+## Shipping the patch data: the split loses to the strip (2026-09-02)
+
+TODO 13 asked to split `mods.json` into a solver half and a display half, so the Worker could start
+before the labels finished downloading. Its premise was that "37% of it is display-only, fields the
+Worker never reads". Both halves of that turned out to be wrong, and measuring the alternative made
+the split unnecessary rather than merely unattractive.
+
+**The Worker reads the "display" fields.** `tiers[].ranges` is read by `valueRatio`
+(`alternatives.ts`) to score how much of the asked-for stat a relaxed tier still guarantees — solver
+data by any definition. And `text` is read by `engineMap`, which runs **inside** the worker: every
+result the worker returns is mapped to UI shapes before it is posted. So the clean split the TODO
+described was not available; the worker needs both.
+
+**What is actually unread is not display data — it is dead data.** `group`, `field`, `categories`
+and `tiers[].stats` are read by nothing in `src/` or `packages/`, production or otherwise. They
+appear only in the type and in test fixtures. `stats` alone is 575,841 raw bytes.
+
+**And the transfer numbers were being read off the wrong compressor.** The TODO quoted 238 kB gzip.
+Vercel serves the asset brotli-compressed; `poe2htc.com` returns 137,701 bytes for it, which
+`brotliCompressSync` reproduces exactly at **quality 3, lgwin 19** — so that is the setting every
+number below is measured at, rather than a default quality 11 that would flatter every option by ~3x.
+
+### The comparison
+
+| shipped as | raw | wire (br q3/w19) | `JSON.parse` |
+|---|---|---|---|
+| today — pretty, all fields | 3,211,239 | **137,701** | 6.15 ms |
+| minified only | 1,531,678 | 104,414 | 5.4 ms |
+| pretty, dead fields dropped | 2,335,632 | 89,420 | 6.5 ms |
+| **minified + dead fields dropped** | **988,070** | **65,013** | **3.32 ms** |
+| the TODO's solver half (no `text`, no `ranges`) | 728,900 | 44,240 | 2.3 ms |
+| …plus its display companion | 201,650 | 19,729 | 0.3 ms |
+
+The last two rows are the finding. Even granting the split were possible, it costs **74,015** wire
+bytes against one file's **65,013** — worse, because splitting duplicates the id column across both
+files and hands brotli two smaller corpora instead of one. The simpler change is strictly the bigger
+win, so there is no second fetch, no half-loaded state, and no interval where the picker renders mod
+ids. TODO 13 is closed as **done differently**, not deferred.
+
+### Shipped
+
+- `Mod` and `Tier` (`types.ts`) no longer declare the four dead fields. That is the load-bearing part:
+  the data file keeps them, and the type is now the app's contract, so a stripped field cannot be read
+  by accident — it is a compile error everywhere, in dev as well as in a build.
+- `shipMods.ts` projects a parsed `mods.json` onto exactly that contract and minifies it. Typed
+  `ModsFile -> ModsFile`, with `: Mod` / `: Tier` annotations on the two `.map` callbacks — verified
+  by mutation that omitting `tags` and that adding `group` or `stats` are each a `type-check:engine`
+  failure. (Contextual typing through `.map` alone does **not** run excess-property checking; without
+  those annotations only the first direction was caught.)
+- `shipPatchData` (vite.config.ts) applies it to the emitted asset, and minifies the other two.
+- `dataIntegrity.test.ts`'s group/field invariant now reads the raw file, which is what it was always
+  really asserting — the RePoE join is a property of the import, not of the engine's model.
+
+### The hash had to move with it
+
+Rollup fixes an asset's content hash **before** `generateBundle`, so the first working version shipped
+988 kB under the byte-identical filename `mods-BfEpI_vg.json` that the live site already serves for
+the 3.1 MB version. Harmless on the day — but `immutable, max-age=31536000` means the day someone adds
+a field to `Mod` and to the projection **without** the data changing, the URL does not turn over and
+every returning browser keeps an asset missing that field. Silent, and exactly the class of bug this
+project spends its time on.
+
+So `assetFileNames` is a function that hashes the bytes the build will actually write, sharing one
+`shippedJson` helper with the rewrite so a name can never describe bytes nobody emitted. Mutation-
+checked: dropping `tags` from the projection moves the asset `mods-z68ZDNnb` → `mods-FDp1al5J`.
+
+### Result
+
+| | live today | after |
+|---|---|---|
+| `mods.json` | 137,701 | 65,013 (−52.8%) |
+| `base_items.json` | 14,132 | 13,142 (−7.0%) |
+| `prices.json` | 7,567 | 7,444 (−1.6%) |
+| patch data total | 159,400 | **85,599 (−46.3%)** |
+| first load, incl. the 118,123-byte JS entry | 277,523 | **203,722 (−26.6%)** |
+
+`JSON.parse` of the mods file: **6.15 ms → 3.32 ms** (median of 9). The five browser smoke tests pass
+against the stripped `dist/` — a real Chromium cold load, a Lab compute and an Item compute — which is
+the end-to-end licence that nothing the app reads was thrown away.
+
+**Not done, deliberately:** `tiers[].stats` is the named route to cross-family similarity in
+`alternatives.ts`'s header. It stays in the file; the day that feature is built it goes back into
+`Tier` and into the projection, and the asset gains ~11 kB. Dropping it from the wire costs that
+feature nothing today.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

@@ -7,9 +7,9 @@ import { excluded, familiesOf, familyAvailable, itemFamilies, loadPatch, poolTot
 // carries that as a multi-entry ModFamilyList; `family` keeps the primary (it keys the weight join and
 // the UI label) and `families` carries the whole set.
 const mk = (id: string, type: 'prefix' | 'suffix', family: string, weight: number, families?: string[]): Mod => ({
-  id, group: id, field: id, source: 'normal', type, categories: [], family,
+  id, source: 'normal', type, family,
   ...(families ? { families } : {}), tags: [], text: id,
-  tiers: [{ name: 't1', ilvl: 1, weight, ranges: [], stats: [] }],
+  tiers: [{ name: 't1', ilvl: 1, weight, ranges: [] }],
 });
 
 // STR(w10) and INT(w20) are ordinary single-family suffixes; HYBRID(w30) spans both their groups.

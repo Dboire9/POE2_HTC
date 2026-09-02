@@ -148,12 +148,12 @@ describe('optimizeCost — essence-vs-roll crossover', () => {
  */
 describe('cheapestEssenceLevel — a better essence is often the cheaper one', () => {
   const ess = (id: string, ilvls: number[]): Mod => ({
-    id, group: id, field: id, source: 'essence', type: 'suffix', categories: [], family: `F${id}`,
+    id, source: 'essence', type: 'suffix', family: `F${id}`,
     tags: [], text: id,
     tiers: [
-      { name: `Lesser Essence of ${id}`, ilvl: ilvls[0]!, weight: 0, ranges: [], stats: [] },
-      { name: `Essence of ${id}`, ilvl: ilvls[1]!, weight: 0, ranges: [], stats: [] },
-      { name: `Greater Essence of ${id}`, ilvl: ilvls[2]!, weight: 0, ranges: [], stats: [] },
+      { name: `Lesser Essence of ${id}`, ilvl: ilvls[0]!, weight: 0, ranges: [] },
+      { name: `Essence of ${id}`, ilvl: ilvls[1]!, weight: 0, ranges: [] },
+      { name: `Greater Essence of ${id}`, ilvl: ilvls[2]!, weight: 0, ranges: [] },
     ],
   });
   const priced = (lesser: number, normal: number, greater: number): Prices => ({

@@ -177,8 +177,8 @@ describe('the action space never offers two spellings of one move', () => {
  */
 describe('a restart is never folded into the action that happens to match it', () => {
   const mk = (id: string, type: 'prefix' | 'suffix', family: string, weight: number): Mod => ({
-    id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: id,
-    tiers: [{ name: 't1', ilvl: 1, weight, ranges: [], stats: [] }],
+    id, source: 'normal', type, family, tags: [], text: id,
+    tiers: [{ name: 't1', ilvl: 1, weight, ranges: [] }],
   });
   const base: ItemBase = {
     id: 'S', name: 'S', category: 'C',

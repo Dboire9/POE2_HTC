@@ -1,5 +1,14 @@
-// Data model — mirrors data/patches/<patch>/{mods,base_items}.json exactly.
+// Data model — what the app READS out of data/patches/<patch>/{mods,base_items}.json.
 // Probabilities are f64 in [0,1] internally; format % only at the UI edge.
+//
+// It used to say "mirrors ... exactly", and that was the problem: `mods.json` carries four fields no
+// code has ever read (`group`, `field`, `categories`, `tiers[].stats`), and while the type declared
+// them nothing could tell that from the outside. They stay in the FILE — it is the versioned record,
+// `group`/`field` are the RePoE provenance `dataIntegrity.test.ts` checks the import against, and
+// `stats` is the named route to cross-family similarity (see alternatives.ts). They are gone from
+// this type, which is now the app's contract: `shipMods.ts` projects the file onto exactly these
+// fields for the browser, so anything this type does not declare is not in the asset the app loads.
+// Add a field here and you must add it there, or the build will ship data the type promises.
 
 export type AffixType = 'prefix' | 'suffix';
 export type ModSource = 'normal' | 'desecrated' | 'essence' | 'perfect_essence';
@@ -10,17 +19,15 @@ export interface Tier {
   readonly name: string;
   readonly ilvl: number;
   readonly weight: number;
+  /** Read by `valueRatio` (alternatives.ts) to rank how much of the asked-for stat a relaxed tier
+   * still guarantees — solver data, not decoration, despite also feeding the picker's labels. */
   readonly ranges: readonly (readonly number[])[];
-  readonly stats: readonly string[];
 }
 
 export interface Mod {
   readonly id: string;
-  readonly group: string;
-  readonly field: string;
   readonly source: ModSource;
   readonly type: AffixType;
-  readonly categories: readonly string[];
   /** Primary family-exclusion group: an item may hold at most one mod per family. Also the key the
    * poe2db weight join uses and the label the UI shows — keep it stable. */
   readonly family: string;
@@ -28,6 +35,7 @@ export interface Mod {
    * in both Strength and Intelligence). `families[0]` === `family`. Read it via `familiesOf(mod)` in
    * pool.ts rather than directly — that helper is what makes single- and multi-family mods uniform. */
   readonly families?: readonly string[];
+  /** Desecration boss pools are selected by tag (`DES_BOSS_TAG`, probability.ts) — solver data. */
   readonly tags: readonly string[];
   readonly text: string | null;
   /** Ascending by ilvl: tiers[0] = lowest ilvl (worst), tiers[last] = highest ilvl (best). */

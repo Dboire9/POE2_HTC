@@ -32,8 +32,8 @@ const mk = (
   id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source'],
   tiers: { name: string; ilvl: number }[] = [{ name: 't1', ilvl: 1 }],
 ): Mod => ({
-  id, group: id, field: id, source, type, categories: [], family, tags: [], text: id,
-  tiers: tiers.map((t) => ({ ...t, weight: source === 'normal' ? 100 : 0, ranges: [], stats: [] })),
+  id, source, type, family, tags: [], text: id,
+  tiers: tiers.map((t) => ({ ...t, weight: source === 'normal' ? 100 : 0, ranges: [] })),
 });
 
 const base: ItemBase = {

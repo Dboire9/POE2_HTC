@@ -7,8 +7,8 @@ import { loadPrices } from './loadPrices.ts';
 
 // Synthetic base: prefixes NP1(w20,Fp1) NP2(w30,Fp2); suffix NS1(w50,Fs1). Prefix total 50, suffix 50.
 const mk = (id: string, type: 'prefix' | 'suffix', family: string, weight: number): Mod =>
-  ({ id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: id,
-     tiers: [{ name: 't1', ilvl: 1, weight, ranges: [], stats: [] }] });
+  ({ id, source: 'normal', type, family, tags: [], text: id,
+     tiers: [{ name: 't1', ilvl: 1, weight, ranges: [] }] });
 const base: ItemBase = {
   id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
   pools: { normal: { prefixes: ['NP1', 'NP2'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } },
@@ -89,8 +89,8 @@ describe('optimizeFromItem — desecrated mods (kept and crafted, hand-computed)
   // Base with a normal prefix NP1, normal suffix NS1, and a desecrated suffix DS1 in the KURGAL pool
   // (boss omen = Blackblooded) — the only kurgal desecrated suffix, so targeting it is 1/1.
   const dmk = (id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source'], tags: string[] = []): Mod =>
-    ({ id, group: id, field: id, source, type, categories: [], family, tags,
-       text: id, tiers: [{ name: 't1', ilvl: 1, weight: source === 'desecrated' ? 1 : 20, ranges: [], stats: [] }] });
+    ({ id, source, type, family, tags,
+       text: id, tiers: [{ name: 't1', ilvl: 1, weight: source === 'desecrated' ? 1 : 20, ranges: [] }] });
   const dbase: ItemBase = {
     id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
     pools: { normal: { prefixes: ['NP1'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: ['DS1'] }, essence: { prefixes: [], suffixes: [] } },
@@ -275,8 +275,8 @@ describe('optimizeFromItem — desecrated mods (kept and crafted, hand-computed)
 describe('optimizeFromItem — perfect essences (hand-computed)', () => {
   // Base S: normal prefix NP1 + suffix NS1, and a PERFECT-ESSENCE prefix PE1 (in the essence pool).
   const pmk = (id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source']): Mod =>
-    ({ id, group: id, field: id, source, type, categories: [], family, tags: [], text: id,
-       tiers: [{ name: 't1', ilvl: 1, weight: source === 'perfect_essence' ? 0 : 20, ranges: [], stats: [] }] });
+    ({ id, source, type, family, tags: [], text: id,
+       tiers: [{ name: 't1', ilvl: 1, weight: source === 'perfect_essence' ? 0 : 20, ranges: [] }] });
   const pbase: ItemBase = {
     id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
     pools: { normal: { prefixes: ['NP1'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: ['PE1'], suffixes: [] } },

@@ -6,8 +6,8 @@ import { chaosProbability } from './index.ts';
 // has no Java counterpart (absent from the engine), so we verify against hand-computed values here and
 // MC-validate on real data during optimizer integration.
 const mod = (id: string, type: 'prefix' | 'suffix'): Mod => ({
-  id, group: 'B', field: id, source: 'normal', type, categories: [], family: 'fam_' + id, tags: [], text: id,
-  tiers: [{ name: 't1', ilvl: 1, weight: 100, ranges: [], stats: [] }],
+  id, source: 'normal', type, family: 'fam_' + id, tags: [], text: id,
+  tiers: [{ name: 't1', ilvl: 1, weight: 100, ranges: [] }],
 });
 const P = ['P1', 'P2', 'P3'].map((id) => mod(id, 'prefix'));
 const S = ['S1', 'S2', 'S3'].map((id) => mod(id, 'suffix'));

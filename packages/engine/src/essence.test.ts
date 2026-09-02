@@ -53,8 +53,8 @@ describe('perfect essence — hand-computed remove probability', () => {
 // --- essenceForcedProbability: the guaranteed add is deterministic (P = 1 when legal) -----------
 describe('essence forced add — deterministic', () => {
   const mod = (id: string, type: 'prefix' | 'suffix', family: string, ilvl: number): Mod =>
-    ({ id, group: id, field: id, source: 'essence', type, categories: [], family, tags: [], text: null,
-       tiers: [{ name: 't1', ilvl, weight: 1, ranges: [], stats: [] }] });
+    ({ id, source: 'essence', type, family, tags: [], text: null,
+       tiers: [{ name: 't1', ilvl, weight: 1, ranges: [] }] });
   const pf = mod('FP', 'prefix', 'Fp', 1);
   const sf = mod('FS', 'suffix', 'Fs', 1);
   const highIlvl = mod('FH', 'prefix', 'Fh', 84);
@@ -90,11 +90,10 @@ describe('essence forced add — deterministic', () => {
   });
   it('the essence level (tier index) selects which level’s ilvl gate applies', () => {
     // An essence mod's tiers ARE its levels: Lesser ilvl 8, Normal ilvl 33, Greater ilvl 60.
-    const leveled: Mod = { id: 'FL', group: 'FL', field: 'FL', source: 'essence', type: 'prefix', categories: [],
-      family: 'Fl', tags: [], text: null, tiers: [
-        { name: 'Lesser Essence', ilvl: 8, weight: 1, ranges: [], stats: [] },
-        { name: 'Essence', ilvl: 33, weight: 1, ranges: [], stats: [] },
-        { name: 'Greater Essence', ilvl: 60, weight: 1, ranges: [], stats: [] },
+    const leveled: Mod = { id: 'FL', source: 'essence', type: 'prefix',       family: 'Fl', tags: [], text: null, tiers: [
+        { name: 'Lesser Essence', ilvl: 8, weight: 1, ranges: [] },
+        { name: 'Essence', ilvl: 33, weight: 1, ranges: [] },
+        { name: 'Greater Essence', ilvl: 60, weight: 1, ranges: [] },
       ] };
     const d3: PatchData = { patch: 't', mods: new Map([['FL', leveled]]), bases: new Map() };
     // Greater (index 2, ilvl 60) is out of reach at level 50 but fine at 60; Lesser (default) is fine at 50.

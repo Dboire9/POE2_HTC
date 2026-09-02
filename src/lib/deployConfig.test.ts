@@ -30,7 +30,8 @@ describe('vercel.json', () => {
   });
 
   // The whole reason this file exists: hashed assets cached forever, the unhashed entry point never.
-  // Getting these backwards would either re-download 3.1 MB every visit or pin users to a stale build.
+  // Getting these backwards would either re-download the whole patch payload every visit or pin users
+  // to a stale build.
   it('caches hashed assets immutably and revalidates index.html', () => {
     const bySource = new Map((config.headers ?? []).map((r) => [r.source, r.headers ?? []]));
     const valueOf = (source: string) =>

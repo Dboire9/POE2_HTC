@@ -19,8 +19,8 @@ import {
 const mod = (
   id: string, type: 'prefix' | 'suffix', source: 'normal' | 'desecrated', family: string, weight: number, tags: string[] = [],
 ): Mod => ({
-  id, group: id, field: id, source, type, categories: [], family, tags, text: null,
-  tiers: [{ name: 't1', ilvl: 1, weight, ranges: [], stats: [] }],
+  id, source, type, family, tags, text: null,
+  tiers: [{ name: 't1', ilvl: 1, weight, ranges: [] }],
 });
 
 const mods = new Map<string, Mod>([
@@ -167,10 +167,10 @@ describe('omens.json catalog', () => {
 // does not have. Tier numbers are also not comparable across mods — a T5 of a five-tier mod is its
 // worst roll, a T5 of a ten-tier mod is mid-range — so only item level gives one scale for the item.
 describe('Omen of Whittling — a Chaos Orb removes the lowest-level modifier', () => {
-  const tier = (name: string, ilvl: number) => ({ name, ilvl, weight: 100, ranges: [], stats: [] });
+  const tier = (name: string, ilvl: number) => ({ name, ilvl, weight: 100, ranges: [] });
   // Three mods, each with tiers at distinct ilvls so a placed tier names a distinct level.
   const mod = (id: string, type: 'prefix' | 'suffix', family: string): Mod =>
-    ({ id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: null,
+    ({ id, source: 'normal', type, family, tags: [], text: null,
        tiers: [tier('low', 10), tier('mid', 40), tier('high', 70)] });
   const base: ItemBase = {
     id: 'B', name: 'B', category: 'C',

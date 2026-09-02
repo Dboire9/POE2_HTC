@@ -16,8 +16,8 @@ import { loadPrices } from './loadPrices.ts';
 //           real IncreaseSocketedGemLevel case: 500 vs 2600).
 // All tiers sit at ilvl 1 so nothing is level-gated and the orb-strength axis stays trivial.
 const mod = (id: string, type: 'prefix' | 'suffix', family: string, tiers: { w: number; v: number }[]): Mod => ({
-  id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: id,
-  tiers: tiers.map((t, i) => ({ name: `t${i}`, ilvl: 1, weight: t.w, ranges: [[t.v, t.v]], stats: [] })),
+  id, source: 'normal', type, family, tags: [], text: id,
+  tiers: tiers.map((t, i) => ({ name: `t${i}`, ilvl: 1, weight: t.w, ranges: [[t.v, t.v]] })),
 });
 const three = (w: number): { w: number; v: number }[] => [{ w, v: 10 }, { w, v: 20 }, { w, v: 30 }];
 

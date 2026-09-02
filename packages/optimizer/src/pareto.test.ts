@@ -250,8 +250,8 @@ describe('optimizePareto — desecrated targets (from white)', () => {
   // (boss omen = Blackblooded, the only kurgal suffix → 1/1). Reaching Rare needs the 3 normal mods
   // (transmute → augment → regal), then the item can be Desecrated.
   const mk = (id: string, type: 'prefix' | 'suffix', family: string, source: 'normal' | 'desecrated', tags: string[] = []) =>
-    ({ id, group: id, field: id, source, type, categories: [], family, tags, text: id,
-       tiers: [{ name: 't1', ilvl: 1, weight: source === 'desecrated' ? 1 : 20, ranges: [[1, 1]], stats: [] }] });
+    ({ id, source, type, family, tags, text: id,
+       tiers: [{ name: 't1', ilvl: 1, weight: source === 'desecrated' ? 1 : 20, ranges: [[1, 1]] }] });
   const sbase = {
     id: 'S', name: 'S', category: 'Wands', // a real Weapon category: boss omens are "Weapon or Jewellery" only (bossOmenAllowed)
     pools: { normal: { prefixes: ['NP1', 'NP2'], suffixes: ['NS1'] }, desecrated: { prefixes: [], suffixes: ['DS1'] }, essence: { prefixes: [], suffixes: [] } },

@@ -11,9 +11,9 @@ import { addAffixProbability } from './index.ts';
 //   prefix A: a1(ilvl1,w10)  a50(ilvl50,w20)  a80(ilvl80,w30)
 //   prefix B: b1(ilvl1,w40)
 //   suffix C: c1(ilvl1,w50)  c60(ilvl60,w60)
-const tier = (name: string, ilvl: number, weight: number): Tier => ({ name, ilvl, weight, ranges: [], stats: [] });
+const tier = (name: string, ilvl: number, weight: number): Tier => ({ name, ilvl, weight, ranges: [] });
 const mod = (id: string, type: 'prefix' | 'suffix', family: string, tiers: Tier[]): Mod =>
-  ({ id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: null, tiers });
+  ({ id, source: 'normal', type, family, tags: [], text: null, tiers });
 
 const A = mod('A', 'prefix', 'FA', [tier('a1', 1, 10), tier('a50', 50, 20), tier('a80', 80, 30)]);
 const B = mod('B', 'prefix', 'FB', [tier('b1', 1, 40)]);

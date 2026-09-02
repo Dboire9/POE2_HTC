@@ -33,8 +33,11 @@ you want to spend.
 Describe what's on the item — including fractured mods and anything a Desecration put there — and ask
 two different questions:
 
-- **Quick currency check:** "if I slam this right now, what happens?" Exact per-use odds for every
-  currency that can act on the item.
+- **Quick currency check:** "if I slam this right now, what happens?" Name a mod to add and/or one
+  you'd sacrifice, and get the exact odds a *single* orb does what you asked, with what it costs.
+  Covers Exalted, Chaos, Augmentation, Regal and Annulment — plus Annulment with an Omen of Light
+  when the mod you'd sacrifice is a desecrated one. Bones and essences aren't in this list yet; ask
+  for them through the full planner below.
 - **Full plan to a target:** the same route list as above, but costed from *your* item rather than
   from a blank base, so it never proposes throwing away the good mods you already have.
 

@@ -192,9 +192,30 @@ state closure under the heading "optimal policy" even when that closure **does n
 target** (measured: 14 states, depths 7→4, goal absent). It now says there is no route yet and to
 raise Search effort. See `docs/validation.md`.
 
+## Sweep 3 — the Quick currency check's coverage (2026-09-02)
+
+### 7. "for every currency that can legally apply" — `docs/USER_GUIDE.md` ✅ FIXED
+
+**Found by a question, not by a sweep.** Asked whether the panel described in the new
+`WHATS-NEW.md` really existed, checking it against `currencyActions` (`src/lib/engine.ts`) showed the
+panel offers exactly **six** rows: Exalted, Chaos, Augmentation, Regal, Annulment, and Annulment with
+an Omen of Light. Bones, essences, Alchemy, Transmutation and every orb STRENGTH are absent.
+
+Both docs claimed comprehensiveness — the User Guide's "for every currency that can legally apply"
+and a freshly written "every currency that can act on the item". Neither is true, and the failure
+mode is the familiar one: a player holding a Rare with a desecrated mod looks for a bone row, does
+not find it, and concludes the game forbids what is merely unimplemented in one panel.
+
+**The app itself never overclaimed.** The on-screen heading is `Currency options`, which promises
+nothing. This was purely a documentation defect — which is its own lesson, since the copy audit had
+only ever swept the UI strings.
+
+Both fixed by naming the six rows exactly and saying, in the guide, that the omission is a limit of
+this panel rather than of the engine or of the game. Broadening the panel is TODO 18.
+
 ## Still open
 
-Nothing. Kept as a record of what was found and what it cost, not as a worklist.
+Nothing in the UI copy. `docs/` is now swept once (2026-09-02) and row 7 is what that found.
 
 The two lessons worth carrying forward, both already in CLAUDE.md's critical rules:
 

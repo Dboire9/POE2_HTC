@@ -1203,6 +1203,35 @@ Recorded with the reason, in the spirit of the negative results in `docs/validat
 
 ---
 
+## 18. The Quick currency check offers six rows where the engine has more — TIER 3
+
+**What is wrong.** `currencyActions` (`src/lib/engine.ts`) answers "what does one orb do to this
+item?" for Exalted, Chaos, Augmentation, Regal, Annulment and Annulment+Light. It does not offer a
+**Desecration**, an **Essence**, or any orb **STRENGTH** — so a player holding a Rare and wondering
+what a bone does has to leave the panel that exists to answer exactly that question.
+
+**Why it is worth doing and small.** Every missing row is already a single-use question the engine
+answers exactly, with the function written and tested:
+
+- Desecration — `desecrationProbability` (unomened) and `desecrationBossProbability` /
+  `desecrationBossAnySideProbability` (boss-omened), through `desecrationOffered` for the
+  three-mod offer. The bone comes from `pricesForBase`, which the panel does not currently resolve.
+- Perfect Essence — `perfectEssenceProbability` for the removal it forces, `essenceForcedProbability`
+  for the P=1 add. A regular Essence needs a Magic item and belongs on the Magic branch.
+- Orb strengths — `exaltProbability` already takes `currencyTier`; the rows are the same call at
+  `greater`/`perfect`, priced by `currencyKey`, gated on the sheet listing them (an unpriced strength
+  must be SKIPPED, never charged the base price — see `leverOptions`).
+
+**Do NOT add the Omen of Greater Exaltation here.** It adds two mods, and this panel's whole shape is
+one add and/or one sacrifice. It would need a second "mod to add" control, which is a redesign of the
+panel rather than a row on it.
+
+**Verify.** A row's probability must equal what the planner charges for the same orb on the same item
+— the D8 rule, so route it through the same `stepCost`/`currencyKey` the planners use rather than a
+second price lookup. The panel's own copy must keep naming what it checks (docs/copy-audit.md row 7).
+
+---
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

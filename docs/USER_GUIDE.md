@@ -206,8 +206,23 @@ sub-modes.
 *"I'm holding this. What does one orb do?"*
 
 Choose a **Mod to add** and/or a **Mod to sacrifice (Chaos / Annul)**, and the **Currency options** list
-shows, for every currency that can legally apply: the chance a **single orb** does exactly what you
-asked, and what that orb costs.
+shows the chance a **single orb** does exactly what you asked, and what that orb costs.
+
+**Which currencies it checks**, exactly — this list is the whole list, and it is shorter than the set
+the planner searches:
+
+| | when |
+|---|---|
+| **Exalted Orb** | Rare, you named a mod to add |
+| **Chaos Orb** | Rare, you named both an add and a sacrifice |
+| **Orb of Augmentation** | Magic, you named a mod to add |
+| **Regal Orb** | Magic, you named a mod to add |
+| **Orb of Annulment** | you named a mod to sacrifice |
+| **Annulment + Omen of Light** | …and that mod is a desecrated one on a desecrated item |
+
+**Bones, essences and orb strengths are not here.** That is a limit of this panel, not of the engine
+or of the game — the *Full plan to a target* sub-mode and the true-cost model both use all of them.
+If you want to know what a Desecration or a Greater Exalt does to your item, ask there.
 
 This is a per-orb number, not a plan. How many orbs it takes overall depends on what you do after a
 miss — that's the other sub-mode.

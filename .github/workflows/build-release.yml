@@ -43,6 +43,43 @@ jobs:
           name: web-build
           path: dist/**
 
+      # The release NOTES, taken from the changelog rather than written twice.
+      #
+      # Without a body, `action-gh-release` publishes an empty release — which is what the repository
+      # home page shows in its sidebar, so "1.0.0" would have appeared to everyone as a version number
+      # and a zip file and nothing else. `generate_release_notes` would fill it with a commit list,
+      # which is a worse answer than the changelog entry that already exists.
+      #
+      # Fails loudly when the tagged version has no changelog section. That is the right outcome: the
+      # build has already succeeded by this point, so nothing is lost by stopping, and the alternative
+      # is silently publishing the blank release this step exists to prevent.
+      - name: Build the release notes
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          {
+            echo "**[Open POE2HTC](https://poe2htc.com)** — nothing to install, no account."
+            echo
+            echo "New here, or coming back? [What's new in ${version}](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/docs/WHATS-NEW.md)"
+            echo "is the tour; the [User Guide](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/docs/USER_GUIDE.md)"
+            echo "walks through a first craft."
+            echo
+            echo "---"
+            echo
+            # The section for THIS version only: from its own heading to the next one.
+            awk -v v="## [$version]" '
+              index($0, v) == 1 { inside = 1; print; next }
+              inside && /^## \[/ { exit }
+              inside { print }
+            ' docs/CHANGELOG.md
+          } > RELEASE_NOTES.md
+          if ! grep -q '^## \[' RELEASE_NOTES.md; then
+            echo "::error::docs/CHANGELOG.md has no '## [$version]' section — write it before tagging."
+            exit 1
+          fi
+          echo "--- release notes ($(wc -l < RELEASE_NOTES.md) lines) ---"
+          head -20 RELEASE_NOTES.md
+
       - name: Attach to the release
         if: startsWith(github.ref, 'refs/tags/')
         # Pinned to a COMMIT, not the `v2` tag. A tag is mutable: whoever controls the action can
@@ -54,6 +91,7 @@ jobs:
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           files: POE2HTC-web-*.zip
+          body_path: RELEASE_NOTES.md
           draft: false
           prerelease: false
         env:

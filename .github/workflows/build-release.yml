@@ -1,8 +1,13 @@
 name: Build Release
 
-# The app ships as a web page. This used to package Electron binaries for Windows and Linux; the
-# desktop build was retired when the solver moved into a Web Worker (Chromium blocks module Workers
-# from the file:// origin a packaged Electron app loads from), so a tag now produces the static site.
+# The app ships as a web page, so a tag publishes a RELEASE PAGE — notes from the changelog, and an
+# Announcements discussion — rather than anything to download. It builds first, so a tag that does not
+# compile is never announced.
+#
+# This used to package Electron binaries for Windows and Linux; the desktop build was retired when the
+# solver moved into a Web Worker (Chromium blocks module Workers from the file:// origin a packaged
+# app loads from). The zip of `dist/` that replaced them was removed at 1.0 for the same reason — see
+# the release step.
 
 on:
   push:
@@ -13,7 +18,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # `contents: write` publishes the release and attaches the zip. `discussions: write` is for the
+    # `contents: write` publishes the release. `discussions: write` is for the
     # Announcements post the release creates alongside itself — the release API accepts
     # `discussion_category_name`, but the token has to be allowed to write a discussion or the whole
     # call is refused, taking the release with it. Granted deliberately and narrowly rather than
@@ -38,11 +43,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Bundle the site
-        run: |
-          version=$(node -p "require('./package.json').version")
-          zip -r "POE2HTC-web-v${version}.zip" dist
-
+      # A workflow artifact, NOT a release asset: owner-visible, 90-day retention, for inspecting what
+      # a tagged build actually produced. Deliberately not attached to the release — see below.
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -53,7 +55,7 @@ jobs:
       #
       # Without a body, `action-gh-release` publishes an empty release — which is what the repository
       # home page shows in its sidebar, so "1.0.0" would have appeared to everyone as a version number
-      # and a zip file and nothing else. `generate_release_notes` would fill it with a commit list,
+      # and nothing else at all. `generate_release_notes` would fill it with a commit list,
       # which is a worse answer than the changelog entry that already exists.
       #
       # Fails loudly when the tagged version has no changelog section. That is the right outcome: the
@@ -94,9 +96,16 @@ jobs:
         # practice; a third-party action with write access is the one that earns a SHA.
         # 3bb1273 is the v2 tag as of 2026-08-24 (release 2.6.2). To update: re-resolve the tag,
         # read the diff, then move this deliberately.
+        #
+        # NO FILES ARE ATTACHED, and that is the point. Until 1.0 this step published a zip of `dist/`,
+        # inherited from when the workflow shipped Electron installers. A visitor would unzip it,
+        # double-click `index.html`, get a page that renders and a Compute button that does nothing —
+        # because Chromium blocks module Workers on `file://`, which is the exact failure that retired
+        # the desktop build in the first place. It only works behind a web server, and anyone who can
+        # run one can run `npm run build`. So it served no user, and sat on a Releases page whose own
+        # documentation says there is nothing here you need to download.
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
-          files: POE2HTC-web-*.zip
           body_path: RELEASE_NOTES.md
           draft: false
           prerelease: false

@@ -135,7 +135,19 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   transmute→augment→regal→exalt…, so no adjacent Exalt pair below five). Measured worth: a 6-target
   T1 Wand craft 4.04e9 → 2.35e9 ex (−42%); from a held item it does not lower the cheapest cost but
   makes a SURER route exist (1.997% → 2.266% per attempt). Costs ~2x the step planner's time, on a
-  planner whose worst measured craft is 105 ms. **The MDP does not have this action** — see TODO 14.
+  planner whose worst measured craft is 105 ms.
+  **The MDP was given this action and it was REVERTED** (2026-09-02, the §5d pattern): offered 1,519
+  times per solve, 1.08–1.42x slower, and every expected cost identical to eight figures across six
+  crafts with the policy never playing it. The reason is structural, so do not rebuild it without a
+  price change. Its distribution IS "exalt, then exalt" in that model, so
+  `Q(GE@T) − Q(exalt@T) = c_omen − c_orb(T) + E[Q(mid, exalt@T) − V(mid)]`, and that last term — the
+  regret of being FORCED to exalt at strength T again — is ≥ 0. The discount is genuine (a flat
+  surcharge means one omened Greater Exalt is 11.118 ex against 17.574 for two, and Perfect 1,025 vs
+  2,046), but after one Greater Exalt the policy usually wants a cheap base Exalt or a Chaos instead.
+  **The MDP re-decides after every draw; this omen is a promise not to.** The step planners want it for
+  exactly the mirror reason: a fixed sequence has no flexibility to give up, so the regret term is zero
+  there by construction. One mechanic, worth 42% to one model and nothing to the other, and each
+  model's shape explains its own answer.
 - **`alchemyProbability` and `greaterExaltProbability` share one recursion** (`multiDrawProbability`),
   parameterised by draw count, starting item and ilvl floor. The rule it adds over the alchemy version:
   **a target landing at too LOW a tier is a failure, not a retry** — its family is spent, so the craft

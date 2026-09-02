@@ -3061,10 +3061,46 @@ hardest one. Note **`plansEvaluated` grew only 8% while time doubled** — a fus
 where there were two, so it stands for fewer lever assignments while still costing a DP pass. The
 "checked N plans" figure is a weaker proxy for time than it was.
 
-### What is NOT done
+### The MDP half: built, measured, REVERTED — and there is a reason, not just a number
 
-The MDP does not have this action; only the two step planners do. Recorded in TODO 14 with the
-measurement protocol, which follows the Chaos-strength precedent (built, measured, reverted).
+Added as `{ currency: 'greater-exalt', strength }` with its distribution composed from `addOutcomes`
+twice, the way `chaosOutcomes` composes a removal with an add. Instrumented, the action was genuinely
+offered **1,519 times per solve** (and folded 1,415 more by `pusher`, where only one slot was free so
+the second draw collapsed the distribution onto a plain Exalt's). Interleaved, 3 reps, medians:
+
+| craft | expected cost off → on | time | policy plays it |
+|---|---|---|---|
+| held 1, want 3, any tier | 3912.8886 → 3912.8886 | 146 → 173 ms (1.19x) | no |
+| held 1, want 4, any tier | 12022.604 → 12022.604 | 953 → 1034 ms (1.08x) | no |
+| held 0, want 3, any tier | 3928.3519 → 3928.3519 | 147 → 182 ms (1.23x) | no |
+| held 1, want 3, **T1** | 96138.986 → 96138.986 | 870 → 1054 ms (1.21x) | no |
+| held 2, want 4, any tier | 11713.232 → 11713.232 | 936 → 1187 ms (1.27x) | no |
+| held 1, want 5, any tier | 24228.676 → 24228.676 | 3935 → 5576 ms (1.42x) | no |
+
+Every cost identical to eight figures, `bound: exact` on both sides of all six. Same verdict as the
+Chaos strength axis (§5d), and reverted the same way.
+
+**Why it loses is structural, not a property of these six crafts.** The omened orb's distribution is
+exactly "exalt, then exalt" in this model, so:
+
+    Q(s, GE@T) − Q(s, exalt@T) = c_omen − c_orb(T) + E[ Q(mid, exalt@T) − V(mid) ]
+
+The last term is the **regret of being forced to exalt at strength T again**, and it is ≥ 0 because
+the policy would otherwise pick the best action at `mid`. So the omen wins only when its discount
+beats the flexibility it takes away. The discount is real and worth having — the omen is a FLAT
+surcharge, so at Greater strength one omened orb is 11.118 ex against 17.574 for two, and at Perfect
+1,025.331 against 2,046 — but after one Greater Exalt the right move is usually a cheap base Exalt, a
+Chaos, or an Annulment, not another Greater Exalt. The MDP re-decides after every draw; this omen is
+a promise not to.
+
+**That is also why the step planners DO want it.** A plan is a fixed sequence with no decision points,
+so it has no flexibility to give up — the regret term is zero there by construction, and all that is
+left is the discount and the two-orders bonus. The same mechanic, worth 42% on one model and nothing
+on the other, for a reason each model's shape explains.
+
+Re-measure only if the omen's price falls below a plain Exalted Orb's, or if the strength prices move
+far enough that a doubled Perfect Exalt becomes a route the policy would take anyway. The attempt is
+kept at `scratchpad/markovActions.mdp-attempt.ts` for the session; the diff is ~30 lines.
 
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share

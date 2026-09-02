@@ -1071,23 +1071,28 @@ omen surcharge, excludable, and measured: a 6-target T1 Wand craft falls 4.04e9 
 and a held-item craft gains a surer route (1.997% → 2.266% per attempt) at ~2x the planner's time.
 Full numbers in docs/validation.md ("Omen of Greater Exaltation, in the step planners").
 
-### 14a. The MDP cannot play it — OPEN
+### 14a. The MDP cannot play it — BUILT, MEASURED, REVERTED 2026-09-02
 
-`markovActions.ts` has no two-mod action, so the Item tab's headline number ignores a route the step
-frontier beside it now uses. Two things make this harder than the step-planner half, and neither is a
-reason not to do it — they are the reason to measure before keeping it:
+Built as `{ currency: 'greater-exalt', strength }`, its distribution composed from `addOutcomes` twice
+(the way `chaosOutcomes` composes a removal with an add — so family exclusion and the per-side cap
+carry across for free and cannot drift from the single-draw version). Instrumented, it was genuinely
+offered **1,519 times per solve**. Interleaved over six crafts: **1.08–1.42x slower, every expected
+cost identical to eight figures, `bound: exact` both ways, and the policy never played it once.**
+Reverted, exactly as the Chaos strength axis was (§5d).
 
-- **The outcome distribution is over PAIRS.** Every existing action sets at most one bit of
-  `(present, blocked, jp, js, flagged, rarity)`. This one moves two, and the second draw sees the pool
-  the first shrank, so it is not a convolution of two single-draw distributions — it is the same
-  recursion, enumerated over outcome pairs (target+target, target+junk, junk+junk).
-- **`pusher` folds by distribution.** A two-mod action whose distribution collapses onto a one-mod
-  one must not be folded away at the wrong price; check the fold key covers it.
+**Do not rebuild it without a price change, because the reason it loses is structural.** The omened
+orb's distribution IS "exalt, then exalt" in this model, so
 
-**Measure it the way the Chaos strength axis was measured (§5d)**: interleaved, six crafts, on/off. If
-it costs ≥1.5x the solve time and changes no answer, REVERT the MDP half and keep the step planners' —
-exactly as 5d did. The prior here is better than 5d's: a 2.331 ex omen for a second slam is a far
-cheaper lever than a 98 ex Greater Chaos was, and it already earns its place on the step frontier.
+    Q(s, GE@T) − Q(s, exalt@T) = c_omen − c_orb(T) + E[ Q(mid, exalt@T) − V(mid) ]
+
+and the last term — the regret of being forced to exalt at strength T again — is ≥ 0. The discount is
+real (the omen is a flat surcharge, so at Greater strength one omened orb is 11.118 ex against 17.574
+for two, at Perfect 1,025.331 against 2,046), but after one Greater Exalt the policy usually wants a
+cheap base Exalt or a Chaos, not another Greater Exalt. **The MDP re-decides after every draw; this
+omen is a promise not to.** The step planners want it precisely because a fixed sequence has no
+flexibility to give up — the regret term is zero there by construction.
+
+Re-measure only if the omen falls below a plain Exalted Orb's price. Numbers in docs/validation.md.
 
 ### 14b. Only ONE fusion per skeleton — OPEN, probably fine
 

@@ -138,12 +138,24 @@ describe('Omen of Whittling — priced or not offered', () => {
     };
   };
 
-  it('is absent from the shipped sheet, so no chaos step gets an omen variant today', () => {
-    expect(prices.omens['OmenofWhittling']).toBeUndefined();
+  it('is offered on the shipped sheet, which prices it', () => {
+    // Priced live from poe.ninja's Ritual feed since 2026-09-02 — omens are Ritual content, which is
+    // why `type=Omens` never served them. Before that this test asserted the opposite.
+    expect(prices.omens['OmenofWhittling']).toBeGreaterThan(0);
     const state = twoTiered();
     const step: PlanStep = { currency: 'chaos', remove: P[0]!, add: S[1]! };
     const opts = leverOptions(data, prices, state, step);
+    expect(opts.some((o) => 'omen' in o.step && o.step.omen === 'whittling')).toBe(true);
+  });
+
+  it('is NOT offered when the sheet does not price it — the free-omen gate', () => {
+    const unpriced: Prices = { ...prices, omens: { ...prices.omens } };
+    delete unpriced.omens['OmenofWhittling'];
+    const state = twoTiered();
+    const step: PlanStep = { currency: 'chaos', remove: P[0]!, add: S[1]! };
+    const opts = leverOptions(data, unpriced, state, step);
     expect(opts.length).toBeGreaterThan(0);
+    // `stepCost` charges 0 for a missing key, so an ungated Whittling would be FREE and dominate.
     expect(opts.some((o) => 'omen' in o.step && o.step.omen === 'whittling')).toBe(false);
   });
 

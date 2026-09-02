@@ -14,7 +14,7 @@ import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
-import { SearchEffort, SearchEffortHint } from './SearchEffort';
+import { SearchEffort, SearchEffortHint, WhittlingToggle } from './SearchEffort';
 import { useField, useOnChange } from '../../lib/workspace';
 import { MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotsOf, whyNotAdd } from '../../lib/targetSlots';
 import { exactExalts, formatBoundedCost, formatCost } from '../../lib/currency';
@@ -753,6 +753,7 @@ const ItemActions: React.FC = () => {
                     the Lab tab with no way to see or change it. */}
                 <div className="flex flex-wrap items-end gap-3">
                   <SearchEffort />
+                  <WhittlingToggle />
                   <div className="flex-1" />
                   {/* The reason a disabled button is disabled belongs NEXT TO IT. This message used to
                       share the button's row; moving it below the effort hint left the button greyed out

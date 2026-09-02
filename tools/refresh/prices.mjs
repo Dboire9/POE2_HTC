@@ -79,11 +79,20 @@ const BONES = {
 const ESSENCE_PREFIX = { LESSER: 'lesser-', NORMAL: '', GREATER: 'greater-', PERFECT: 'perfect-' };
 
 /**
- * Omens are quoted, not fetched. poe.ninja's economy API has no `type` value that serves them —
- * Currency/Essences/Fragments/Runes all work, but `type=Omens` returns byte-identical output to
- * `type=NonsenseXYZ` (empty core, no rates), i.e. it is an *invalid* type rather than an empty valid
- * one — and their Omens page is client-rendered, so it cannot be scraped with a plain fetch either.
- * So `prices.json` carries hand-transcribed `omenQuotes` from that page.
+ * **Omens ARE fetched, from `type=Ritual`** (2026-09-02). They were hand-transcribed for months on the
+ * belief that poe.ninja does not serve them, and that belief was half right: `type=Omens` really does
+ * return byte-identical output to `type=NonsenseXYZ`, and the Omens *page* really is client-rendered
+ * with no embedded payload. But omens are RITUAL content in PoE2, and the Ritual feed carries 36 of
+ * them — every one this sheet needs, plus Whittling, with volume and a sparkline like any other line.
+ * Only the name was wrong. Confirmed against poe2db independently: 11.7 divine there against 11.4.
+ *
+ * That matters more than a chore removed. Omens are an ADDITIVE surcharge 20-27x the orb they modify,
+ * so a stale omen:orb ratio changes which plans the optimizer recommends rather than only what it says
+ * they cost — and against the 11-day-old transcription the live feed moved Greater Exaltation by
+ * **0.20x** and Sinistral Necromancy by 1.77x.
+ *
+ * `omenQuotes` survives as a FALLBACK for any omen the feed drops, and is still stored in native units
+ * (divine or chaos) and re-converted here, for the reason below.
  *
  * They are stored IN THE UNIT THE MARKET QUOTES THEM IN (divine or chaos) rather than pre-converted to
  * exalts, and re-converted here on every run. That matters: omen prices are sticky in divine/chaos
@@ -92,16 +101,50 @@ const ESSENCE_PREFIX = { LESSER: 'lesser-', NORMAL: '', GREATER: 'greater-', PER
  * the orb they modify, a drifted omen:orb ratio changes which plans the optimizer recommends. Storing
  * the quote and converting late keeps the whole sheet on one consistent exchange rate.
  */
-function convertOmens(quotes, rates) {
+/** poe.ninja's id for an omen: OmenofSinistralAnnulment -> omen-of-sinistral-annulment. */
+const omenId = (key) =>
+  key.replace(/^Omenof/, 'Omen-of-').replace(/(?<!^)(?=[A-Z])/g, '-').toLowerCase().replace(/-+/g, '-');
+
+/**
+ * Live omen prices from the Ritual feed, in exalt-equivalents, falling back to the stored quote.
+ *
+ * Same depth rule as everything else: a line under `DEPTH.minUnits` traded per day is not a market,
+ * and its quote is kept instead of taken. Measured 2026-09-02, that is 2 of 14 — the Blackblooded (23
+ * a day) and the Sovereign (7) — while Whittling trades 839.
+ */
+function priceOmens(feedLines, quotes, exalt, rates) {
+  const lines = new Map(feedLines.map((l) => [l.id, l]));
   const omens = {};
-  for (const [id, q] of Object.entries(quotes ?? {})) {
+  const fallback = [];
+  const thin = [];
+  for (const key of new Set([...Object.keys(quotes ?? {}), ...OMEN_KEYS])) {
+    const line = lines.get(omenId(key));
+    const units = line && line.primaryValue ? (line.volumePrimaryValue ?? 0) / line.primaryValue : 0;
+    if (line && units >= DEPTH.minUnits) {
+      omens[key] = Number((line.primaryValue / exalt).toPrecision(4));
+      continue;
+    }
+    if (line) thin.push(`${key} (${Math.round(units)}/day)`);
+    const q = quotes?.[key];
+    if (!q) continue; // no live line and no quote: leave the key absent rather than mint a free omen
     const rate = rates[q.unit];
-    if (!rate) throw new Error(`omen ${id}: no exalt rate for unit "${q.unit}"`);
-    // The page quotes either "12 Divine → 1.0 Omen" or "1.0 Chaos → 66 Omens"; both are (price, qty).
-    omens[id] = Number(((q.price * rate) / q.quantity).toPrecision(4));
+    if (!rate) throw new Error(`omen ${key}: no exalt rate for unit "${q.unit}"`);
+    omens[key] = Number(((q.price * rate) / q.quantity).toPrecision(4));
+    fallback.push(key);
   }
-  return omens;
+  return { omens, fallback, thin };
 }
+
+/** Omens this app prices. Anything here missing from BOTH the feed and the quotes is reported. */
+const OMEN_KEYS = [
+  'OmenofSinistralAnnulment', 'OmenofDextralAnnulment', 'OmenofLight',
+  'OmenofSinistralExaltation', 'OmenofDextralExaltation', 'OmenofGreaterExaltation',
+  'OmenofSinistralCrystallisation', 'OmenofDextralCrystallisation',
+  'OmenofSinistralNecromancy', 'OmenofDextralNecromancy',
+  'OmenoftheBlackblooded', 'OmenoftheLiege', 'OmenoftheSovereign',
+  'OmenofWhittling',
+];
+
 
 /** poe.ninja's id for an essence: "Essence of the Body" at Greater → greater-essence-of-the-body. */
 const essenceId = (name, level) =>
@@ -339,16 +382,22 @@ async function main() {
     console.log(`  ${inferred.length} not traded, inferred from the same essence's other levels: ${inferred.slice(0, 6).join(', ')}${inferred.length > 6 ? ', …' : ''}`);
   }
 
-  // Omens re-derive from their stored market quotes at the same exchange rate as everything above.
+  // Omens come from the RITUAL feed — that is where poe.ninja files them. See priceOmens.
   const rates = { exalt: 1, chaos: lines.get('chaos').primaryValue / exalt, divine: lines.get('divine').primaryValue / exalt };
-  const omens = convertOmens(prev.omenQuotes, rates);
+  const ritualFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Ritual`);
+  const { omens, fallback, thin } = priceOmens(ritualFeed.lines, prev.omenQuotes, exalt, rates);
   console.log(`\nomens (1 chaos = ${rates.chaos.toFixed(2)}ex, 1 divine = ${rates.divine.toFixed(2)}ex):`);
+  console.log(`  ${Object.keys(omens).length - fallback.length} of ${Object.keys(omens).length} priced live from type=Ritual (${ritualFeed.lines.length} lines).`);
+  if (thin.length) console.log(`  too thin to trust, kept the stored quote: ${thin.join(', ')}`);
+  const absent = OMEN_KEYS.filter((k) => omens[k] === undefined);
+  if (absent.length) console.warn(`  WARNING no price at all (neither feed nor quote): ${absent.join(', ')}`);
   for (const [id, value] of Object.entries(omens)) {
     const before = prev.omens?.[id];
     if (before !== value) console.log(`  ${id.padEnd(32)} ${String(before).padStart(9)} -> ${String(value).padEnd(9)} (x${(value / before).toFixed(1)})`);
   }
-  // The quotes are a dated hand transcription, so say how stale they are rather than let them rot
-  // silently — a fresh currency sheet paired with months-old omen quotes is the desync described above.
+  // The quotes now only matter for omens the FEED could not price (too thin, or absent), so the
+  // staleness warning is scoped to those rather than fired unconditionally. Fired unconditionally it
+  // would nag about a transcription nothing reads.
   // ── Market depth: which of these prices has a market behind it? ──────────────────────────────
   const essDepth = depthIndex(essFeed.lines);
   const hard = [
@@ -396,7 +445,11 @@ async function main() {
     : `\nDEPTH-VERDICT: review — ${blockers.join('; ')}`);
 
   const ageDays = Math.round((Date.now() - Date.parse(prev.omenQuotesAsOf)) / 86_400_000);
-  const staleness = ageDays > 30 ? `  WARNING omenQuotes are ${ageDays} days old — re-transcribe from ${prev.omenQuotesSource?.split(' ')[0]}` : `  omenQuotes are ${ageDays} day(s) old.`;
+  const staleness = fallback.length === 0
+    ? `  every omen priced live; the ${ageDays}-day-old omenQuotes were not consulted.`
+    : ageDays > 30
+      ? `  WARNING omenQuotes are ${ageDays} days old and ${fallback.length} omen(s) still fall back to them (${fallback.join(', ')}) — re-transcribe from ${prev.omenQuotesSource?.split(' ')[0]}`
+      : `  ${fallback.length} omen(s) fell back to the ${ageDays}-day-old quotes: ${fallback.join(', ')}.`;
   console.log(staleness);
 
   const out = {

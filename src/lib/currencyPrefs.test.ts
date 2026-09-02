@@ -3,6 +3,7 @@ import { act, renderHook } from '@testing-library/react';
 import {
   ALL_GROUPS, CURRENCY_GROUPS, OMEN_GROUP, STORAGE_KEY, STRENGTH_GROUP,
   describeGroup, getExclusions, setExclusions, toExcludedKeys, useExclusions,
+  DEFAULT_EXCLUSIONS,
 } from './currencyPrefs';
 
 // The UI speaks in groups ("I don't have Chaos Orbs"); the planners speak in price-sheet keys. This is
@@ -78,8 +79,17 @@ describe('toExcludedKeys — group settings become price-sheet keys', () => {
     expect(keys).toContain('chaos_perfect');
   });
 
-  it('excludes all 13 omens when the omen row is marked', () => {
-    expect(toExcludedKeys({ omens: { only: [] } })).toHaveLength(13);
+  it('excludes every omen when the omen row is marked', () => {
+    // Derived from the group rather than pinned to a count: the number changed 13 -> 14 the day
+    // Whittling became priceable, and a hard-coded 14 would just move the same chore one omen along.
+    expect(toExcludedKeys({ omens: { only: [] } })).toHaveLength(OMEN_GROUP.members.length);
+    expect(toExcludedKeys({ omens: { only: [] } })).toContain('OmenofWhittling');
+  });
+
+  it('Whittling is excluded by default, and only Whittling', () => {
+    // The one default-excluded currency in the app — a product decision, not a modelling one. See
+    // DEFAULT_EXCLUSIONS. Pinned because a silent change here alters every fresh user's answer.
+    expect(toExcludedKeys(DEFAULT_EXCLUSIONS)).toEqual(['OmenofWhittling']);
   });
 
   it('nothing marked excludes nothing', () => {

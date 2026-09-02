@@ -92,6 +92,9 @@ export const STRENGTH_GROUP: CurrencyGroup = {
   ],
 };
 
+/** The Whittling row's member id, named once so the toggle and the default cannot drift apart. */
+export const WHITTLING_MEMBER = 'whittling';
+
 export const OMEN_GROUP: CurrencyGroup = {
   id: 'omens',
   label: 'Omens',
@@ -104,10 +107,7 @@ export const OMEN_GROUP: CurrencyGroup = {
     { id: 'greaterExalt', label: 'Greater Exaltation', keys: ['OmenofGreaterExaltation'] },
     { id: 'sinCryst', label: 'Sinistral Crystallisation', keys: ['OmenofSinistralCrystallisation'] },
     { id: 'dexCryst', label: 'Dextral Crystallisation', keys: ['OmenofDextralCrystallisation'] },
-    // NO Whittling row yet, deliberately. `currencyPrefs.test.ts` pins that every key here exists in
-    // the shipped sheet, and `OmenofWhittling` does not — poe.ninja serves no omen endpoint, so the
-    // quotes are hand-transcribed and this one has never been. The row would also lie: excluding an
-    // omen the planner never offers changes nothing. Add it in the same commit as the quote.
+    { id: WHITTLING_MEMBER, label: 'Whittling', keys: ['OmenofWhittling'] },
     { id: 'sinNecro', label: 'Sinistral Necromancy', keys: ['OmenofSinistralNecromancy'] },
     { id: 'dexNecro', label: 'Dextral Necromancy', keys: ['OmenofDextralNecromancy'] },
     { id: 'blackblooded', label: 'the Blackblooded', keys: ['OmenoftheBlackblooded'] },
@@ -157,10 +157,28 @@ export function describeGroup(group: CurrencyGroup, only: readonly string[]): st
 export const PREFS_PREFIX = 'poe2htc.';
 export const STORAGE_KEY = `${PREFS_PREFIX}exclusions.v1`;
 
+/**
+ * Whittling is excluded until you say otherwise.
+ *
+ * The only default-excluded currency in the app, and it is a product decision rather than a modelling
+ * one: at ~4,700ex the Omen of Whittling is among the dearest things the planner can spend, most
+ * crafts should not reach for it, and a player who does not own one wants the frontier computed
+ * without it. The optimizer would decline it on price where it does not pay — it ranks by cost — so
+ * this is not correcting the maths; it is choosing which question is asked by default.
+ *
+ * It costs nothing to reverse: `WhittlingToggle` flips exactly this member, and the row is in the
+ * "Currency I don't have" panel like every other exclusion, so the state has one home and one meaning.
+ *
+ * Applied ONLY when storage holds nothing. A stored `{}` is a user who cleared their exclusions and
+ * must stay cleared — reapplying the default there would re-exclude Whittling behind their back on
+ * every reload.
+ */
+export const DEFAULT_EXCLUSIONS: Exclusions = { omens: { only: [WHITTLING_MEMBER] } };
+
 function read(): Exclusions {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
+    if (!raw) return DEFAULT_EXCLUSIONS;
     const parsed: unknown = JSON.parse(raw);
     return parsed && typeof parsed === 'object' ? (parsed as Exclusions) : {};
   } catch {

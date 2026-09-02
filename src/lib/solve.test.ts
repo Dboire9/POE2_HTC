@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
+import { loadFrozenPrices } from '../../packages/optimizer/src/frozenPrices.ts';
 import type { MarkovProgress } from '../../packages/optimizer/src/markovFromItem.ts';
 import {
   optimize, optimizeItem, optimizeItemMarkov, alternatives, listMods, type ExistingItem,
@@ -290,6 +291,13 @@ describe('a planner that declines does not delete the other one', () => {
 });
 
 describe('policy iteration answers where value iteration can only bound', () => {
+  // FROZEN prices for this block alone. The claim is about the SOLVERS — that policy iteration is
+  // exact where value iteration can only bound, at the same sweep budget — but whether a given craft
+  // is hard enough to separate them depends on what the orbs cost, and the sheet now refreshes daily.
+  // On 2026-09-02 the omens went live from poe.ninja's Ritual feed and this craft became easy enough
+  // that VI settled it too, so the test failed while asserting something still true of the solvers.
+  // Everything else in this file keeps reading the shipped sheet.
+  const frozen = { data: eng.data, prices: loadFrozenPrices() };
   const ring = {
     kind: 'lab', from: { baseId: 'Rings', level: 82 },
     targets: [
@@ -298,7 +306,7 @@ describe('policy iteration answers where value iteration can only bound', () => 
     ],
   } as const;
   const solve = (maxSweeps: number, solver: 'value' | 'policy') => {
-    const got = runSolve(eng, {
+    const got = runSolve(frozen, {
       ...ring, effort: { maxMillis: 120_000, maxNodes: 200, maxSweeps, solver },
     });
     if (got.kind !== 'lab') throw new Error('wrong kind');

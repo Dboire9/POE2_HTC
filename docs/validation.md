@@ -2831,11 +2831,47 @@ boss-omened Desecration). It is also the conservative direction for the common c
 junk off gets a LOWER probability than a deterministic tiebreak in its favour would give it. Listed
 under "Still deferred" until someone can confirm it in game.
 
+## poe.ninja serves omens after all — under `type=Ritual` (2026-09-02)
+
+The sheet hand-transcribed 13 omen quotes for months on the belief that poe.ninja has no omen
+endpoint. That belief was HALF right, and the wrong half was never tested: `type=Omens` really does
+return byte-identical output to `type=NonsenseXYZ`, and the Omens page really is client-rendered with
+no `__NEXT_DATA__` or equivalent to scrape. But **omens are Ritual content in PoE2**, and
+`type=Ritual` returns 38 lines of which **36 are omens** — every key this sheet uses, plus Whittling —
+with `volumePrimaryValue` and a sparkline like any other line.
+
+Found by enumerating the type values rather than by guessing better: of 17 tried, ten are valid
+(Currency 51, Runes 132, Essences 76, Ritual 38, SoulCores 35, Breach 28, Delirium 26, Fragments 25,
+Expedition 23, Abyss 15). Cross-checked against poe2db, which quotes Whittling at 11.4 divine against
+poe.ninja's 11.7 — two independent sources agreeing.
+
+**Why it mattered more than a chore removed.** Omens are an ADDITIVE surcharge 20-27x the orb they
+modify, so a drifted omen:orb ratio changes which plans the optimizer recommends rather than only what
+it says they cost. Against the 11-day-old transcription:
+
+| omen | transcribed 22 Aug (ex) | live (ex) | factor |
+|---|---|---|---|
+| Sinistral Annulment | 4,837 | 7,068 | 1.5x |
+| Dextral Crystallisation | 199.9 | 107.7 | 0.5x |
+| **Greater Exaltation** | **11.9** | **2.33** | **0.20x** |
+| Sinistral Necromancy | 1.157 | 2.051 | 1.8x |
+| **Whittling** | *(absent)* | **4,731** | — |
+
+`omenQuotes` stays as a fallback for anything the feed cannot price, under the same units/day depth
+gate as the currencies: 2 of 14 fall back today — the Blackblooded at 23/day and the Sovereign at 7 —
+and the staleness warning is now scoped to those rather than fired on every run.
+
+**A test moved because of it, and the move is the interesting part.** `solve.test.ts`'s "policy
+iteration answers where value iteration can only bound" asserts a fact about the SOLVERS, but whether
+a given craft is hard enough to separate them depends on what the orbs cost. With omens live the
+craft became easy enough that VI settled it too, so the test failed while its claim stayed true. It
+reads `loadFrozenPrices()` now, like the other price-pinned tests.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Uniform among them is modelled and flagged.
-  Also outstanding: hand-transcribe the omen's quote into `omenQuotes`, which is what activates the
-  whole mechanic — it is wired and dormant.
+  (The price is no longer outstanding — poe.ninja serves omens under `type=Ritual`, so the mechanic
+  is live at ~4,700ex.)
 - **Cross-check the BELT weights against Craft of Exile** (added 2026-09-02, table above). CoE is
   client-rendered and `scripts/coe-verify.mts` takes hand-entered numbers, so this needs a browser.
   Every other shipped category has had this check; belts have not.

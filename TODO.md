@@ -868,7 +868,7 @@ untraced, so adding them would be asserting a mechanic rather than reading one.
 
 ---
 
-## 12. ~~Omen of Whittling~~ — MECHANIC SHIPPED, DORMANT UNTIL PRICED (2026-09-02)
+## 12. ~~Omen of Whittling~~ — DONE AND LIVE 2026-09-02
 
 **What is wrong.** The Omen of Whittling makes an Orb of Annulment remove the **lowest-tier** modifier
 on the item instead of a random one. It is arguably the most-used crafting omen in PoE2 for the
@@ -954,16 +954,20 @@ it touched. `withOmen` therefore gates on the omen having a price, mirroring how
 gated. Today no chaos step gets an omen variant, which is exactly current behaviour; it lights up on
 its own the day the quote lands.
 
-**TO FINISH IT, someone with the game and a browser needs to do three things:**
-1. Hand-transcribe the Omen of Whittling quote into `omenQuotes` (poe.ninja serves no omen endpoint —
-   see CLAUDE.md "Prices"). Everything else is already wired.
-2. Add `{ id: 'whittling', label: 'Whittling', keys: ['OmenofWhittling'] }` to `OMEN_GROUP` in
-   `currencyPrefs.ts`. It was written and REVERTED: `currencyPrefs.test.ts` pins that every key there
-   exists in the shipped sheet, and the row would also lie, since excluding an omen the planner never
-   offers changes nothing. It belongs in the same commit as the quote.
-3. Settle the TIE rule. Where several mods share the lowest level the game's choice is untraced;
-   uniform among the tied is modelled, matching every other pick-among-equals here, and recorded in
-   `docs/validation.md` as an assumption. It is the conservative direction for the common case.
+**IT IS LIVE.** The blocker was believed to be the price, and that belief was wrong too: **poe.ninja
+does serve omens, under `type=Ritual`** — omens are Ritual content in PoE2. `type=Omens` really is an
+invalid type and the Omens page really is client-rendered, so the note in CLAUDE.md was half right;
+nobody had tried the other name. Whittling prices at **~4,700ex** (11.7 divine, 839 traded a day), and
+all 13 previously hand-transcribed omens now refresh daily too. See docs/validation.md.
+
+The exclusion row landed with it, and Whittling is the app's **one default-excluded currency** — a
+product decision, not a modelling one, since the optimizer ranks BY cost and declines an omen that
+does not pay. `WhittlingToggle` pins an on/off beside Search effort on both tabs, writing the same
+`omens.only` member the panel writes.
+
+**Still outstanding: the TIE rule.** Where several mods share the lowest level the game's choice is
+untraced; uniform among the tied is modelled, matching every other pick-among-equals here, and
+recorded in `docs/validation.md` as an assumption rather than a rule.
 
 **The MDP half is untouched and needs its own item** — see 12b below.
 

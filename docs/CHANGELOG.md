@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **The Quick currency check offers Desecration.** Asked "it says Exalted Orb but we could desecrate
+  also?", the honest answer was that the panel only ever knew six orbs. It now shows a **Desecration**
+  row on every add, plus a **Desecration + Omen of the …** row when the mod is a carved one, and
+  carved mods are selectable in *Mod to add*. The odds are the three-mod offer a bone actually gives
+  you, not a single draw — on a nearly-finished Wand wanting `+# to Intelligence`, a bone reads 26.8%
+  at 0.62ex against the Exalt's 12.6% at 1ex, which is 3.5x cheaper per success and was invisible
+  before. Essences and orb strengths are still absent, and the guide says so.
+- Two rules the panel now states rather than hiding: an item holds **at most one desecrated mod**, so
+  the row is refused while a carved mod is on it; and the boss omens work on a **Weapon or Jewellery**
+  only, so on armour the row says why instead of vanishing.
+
+### Fixed
+
+- **The Quick currency check priced its own orbs.** Every row now goes through the planners'
+  `stepCost` on a `pricesForBase` sheet, which fixed two live defects on rows that already shipped: a
+  Desecration would have been charged the flat `desecrate` key — the *rib* price, 0.30ex — on every
+  base including weapons (0.62ex) and jewellery (4.00ex); and the Omen of Light surcharge was summed
+  by hand, a second copy of the pricing rule. One step, one price: the same discipline the D8
+  desecration mispricing was fixed by.
+- **Long labels overlapped in the policy graph.** SVG text neither wraps nor truncates, so a state
+  label ran under the ×N beside it and an action name ran under its cost — `5 mods · 1 off-tier ·
+  desecrated` drawn on top of `Desecrate (Omen of the Sovereign)` on top of `2,934 chaos`. The box
+  now lays its two rows out in HTML: the numbers keep their width and the label ends in an ellipsis,
+  measured by the browser rather than guessed from a character count. Nothing is lost — the full state
+  is in the box's tooltip and in the detail panel a click away.
+- `addBlockedReason` told a player that a carved or essence-only mod "can’t roll on this base". It
+  rolls there fine; it just needs a different currency. It now names the one that can place it.
+- **A 70% chance read as a certainty.** The Quick check's plain-language line rounds "1 in N" to a
+  whole number, which was harmless while nothing on the panel cleared 50% — the boss-omened
+  Desecration lands at 70.4% and rendered as *"≈ 1 in 1 each orb"*, directly beneath the percentage
+  saying otherwise. N now carries a decimal below 10, and above 95% the idiom is dropped for "almost
+  every orb", since even a decimal shows 1.0 there. Only P=1 may still say "guaranteed".
+
 ## [1.0.0] - 2026-09-02
 
 The release that retires the backend. **0.9.7 was a Java service** — a beam search behind an HTTP API,

@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
   listBases, listMods, listPerfectEssences, listDesecrated, optimize, optimizeItem, optimizeItemMarkov,
-  currencyActions, recommendedIndex, alternatives, alternativesForItem, type EngineMod, type ExistingItem,
+  currencyActions, recommendedIndex, alternatives, alternativesForItem, type CurrencyAction,
+  type EngineMod, type ExistingItem, type ItemModInput,
 } from './engine.ts';
+import { desecrationProbability } from '../../packages/engine/src/probability.ts';
+import { buildItemState } from './engineMap.ts';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
 import { loadFrozenPrices } from '../../packages/optimizer/src/frozenPrices.ts';
@@ -133,6 +136,107 @@ describe('engine facade — existing-item currency actions (Option 1)', () => {
     expect(acts.some((a) => a.currency === 'augment')).toBe(true);
     expect(acts.some((a) => a.currency === 'regal')).toBe(true);
     expect(acts.some((a) => a.currency === 'exalt')).toBe(false);
+  });
+});
+
+// ── The Desecration rows (TODO 18, first half) ────────────────────────────────
+// A player holding a Rare and a bone had to leave the panel that exists to answer "what does one orb
+// do?". These cover what the row must get right, which is more than calling one probability function:
+// the three-mod offer, the one-carved-mod-per-item rule, the Weapon-or-Jewellery omen gate, and — the
+// D8 rule — that the price shown is the price a ROUTE using the same orb is charged.
+describe('engine facade — the Quick check’s Desecration rows', () => {
+  const CARVED = 'Wands/DESECRATED_HINDERED_ENEMY_INCREASED_PHYSICAL_DAMAGE'; // a Sovereign wand suffix
+  const ARMOUR_CARVED = 'Body_Armours_Normal/DESECRATED_FIRE_AND_CHAOS_DAMAGE_RESISTANCE';
+  const rare = (prefixes: string[], suffixes: ItemModInput[] = []): ExistingItem => ({
+    baseId: 'Wands', level: 82, rarity: 'rare',
+    prefixes: prefixes.map((modId) => ({ modId, tierDisplay: 1 })),
+    suffixes,
+  });
+  const des = (acts: readonly CurrencyAction[]) => acts.filter((a) => a.currency === 'desecrate');
+
+  it('quotes the THREE-mod offer, not the single draw', () => {
+    const item = rare([MANA]);
+    const [bone] = des(currencyActions(eng, item, { addModId: 'Wands/INTELLIGENCE' }));
+    const draw = desecrationProbability(eng.data, buildItemState(eng.data, item), 'Wands/INTELLIGENCE');
+    expect(draw).toBeGreaterThan(0);
+    // A bone OFFERS three modifiers and you keep one. Quoting `draw` would understate the row by ~3x
+    // and — worse — disagree with every route that spends the same bone.
+    expect(bone!.prob).toBeCloseTo(1 - (1 - draw) ** 3, 12);
+    expect(bone!.prob).toBeGreaterThan(draw);
+  });
+
+  it('a carved mod is addable by a bone and by nothing else on this panel', () => {
+    const acts = currencyActions(eng, rare([MANA]), { addModId: CARVED });
+    const ex = acts.find((a) => a.currency === 'exalt')!;
+    expect(ex.feasible).toBe(false);
+    // Not the old catch-all "it can’t roll on this base" — it rolls here fine, just not from an Exalt.
+    expect(ex.reason).toMatch(/only a Desecration can add it/);
+    expect(des(acts)[0]!.feasible).toBe(true);
+  });
+
+  it('a carved target on a WEAPON gets its boss-omen row, named and feasible', () => {
+    const rows = des(currencyActions(eng, rare([MANA]), { addModId: CARVED }));
+    const boss = rows.find((a) => /Omen of the/.test(a.label))!;
+    expect(boss.label).toMatch(/Omen of the Sovereign/);
+    expect(boss.feasible).toBe(true);
+    // Forcing one boss's pool is the point of the omen: it must beat the untargeted draw.
+    expect(boss.prob).toBeGreaterThan(rows.find((a) => !/Omen/.test(a.label))!.prob);
+  });
+
+  it('on ARMOUR the boss omens are impossible, and the row says why rather than vanishing', () => {
+    const armour: ExistingItem = { baseId: 'Body_Armours_int', level: 82, rarity: 'rare', prefixes: [], suffixes: [] };
+    const rows = des(currencyActions(eng, armour, { addModId: ARMOUR_CARVED }));
+    expect(rows.find((a) => !/Omen/.test(a.label))!.feasible).toBe(true); // the plain bone still works
+    const boss = rows.find((a) => /Omen of the/.test(a.label))!;
+    expect(boss.feasible).toBe(false);
+    expect(boss.reason).toMatch(/Weapon or Jewellery/);
+  });
+
+  it('refuses the bone while a carved mod is still on the item', () => {
+    const held = rare([MANA], [{ modId: CARVED, tierDisplay: 1, desecrated: true }]);
+    const rows = des(currencyActions(eng, held, { addModId: 'Wands/INTELLIGENCE' }));
+    expect(rows.length).toBeGreaterThan(0);
+    for (const r of rows) {
+      expect(r.feasible).toBe(false);
+      expect(r.reason).toMatch(/already holds a desecrated mod/);
+    }
+    // The Exalt is unaffected — the cap is on carved mods, not on the slot.
+    expect(currencyActions(eng, held, { addModId: 'Wands/INTELLIGENCE' })
+      .find((a) => a.currency === 'exalt')!.feasible).toBe(true);
+  });
+});
+
+// The panel and the planners must quote ONE price for one orb. Run against the SHIPPED 0.5.0 sheet,
+// because it is the one that carries a per-category `bones` block — the 0.5 sheet has a single flat
+// `desecrate` key, under which this whole class of error is invisible.
+describe('engine facade — the Quick check prices what the routes charge', () => {
+  const shipped = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
+  const wand: ExistingItem = {
+    baseId: 'Wands', level: 82, rarity: 'rare',
+    prefixes: [{ modId: 'Wands/WeaponSpellDamage', tierDisplay: 1 }], suffixes: [],
+  };
+
+  it('charges a Wand its OWN bone, not the flat desecrate key', () => {
+    const bones = shipped.prices.bones!;
+    // Guard against a vacuous pass: if the sheet ever prices every bone alike, this test proves
+    // nothing and should fail loudly rather than go quiet.
+    expect(bones['jawbone']).not.toBe(shipped.prices.currency['desecrate']);
+    const bone = currencyActions(shipped, wand, { addModId: 'Wands/Intelligence' })
+      .find((a) => a.currency === 'desecrate')!;
+    expect(bone.cost).toBeCloseTo(bones['jawbone']!, 12);
+  });
+
+  it('charges an omened row the orb PLUS its omen, from the same table the planners read', () => {
+    const carved = shipped.data.bases.get('Wands')!.pools.desecrated.suffixes[0]!;
+    const held: ExistingItem = {
+      ...wand, suffixes: [{ modId: carved, tierDisplay: 1, desecrated: true }],
+    };
+    const acts = currencyActions(shipped, held, { removeModId: carved });
+    const plain = acts.find((a) => a.label === 'Orb of Annulment')!;
+    const light = acts.find((a) => /Omen of Light/.test(a.label))!;
+    // This sum used to be written out by hand here — a second copy of `stepCost`, which is the shape
+    // the D8 mispricing hid in. Asserted relationally so the daily price refresh can't break it.
+    expect(light.cost).toBeCloseTo(plain.cost + shipped.prices.omens['OmenofLight']!, 9);
   });
 });
 

@@ -1203,19 +1203,29 @@ Recorded with the reason, in the spirit of the negative results in `docs/validat
 
 ---
 
-## 18. The Quick currency check offers six rows where the engine has more — TIER 3
+## 18. The Quick currency check offers fewer rows than the engine has — TIER 3, DESECRATION DONE
 
-**What is wrong.** `currencyActions` (`src/lib/engine.ts`) answers "what does one orb do to this
-item?" for Exalted, Chaos, Augmentation, Regal, Annulment and Annulment+Light. It does not offer a
-**Desecration**, an **Essence**, or any orb **STRENGTH** — so a player holding a Rare and wondering
-what a bone does has to leave the panel that exists to answer exactly that question.
+**Desecration shipped 2026-09-02**, prompted by a player asking the obvious question of the panel
+("it says Exalted Orb but we could desecrate also?"). What landed:
 
-**Why it is worth doing and small.** Every missing row is already a single-use question the engine
-answers exactly, with the function written and tested:
+- A **Desecration** row on every add, and a **Desecration + Omen of the …** row when the mod is a
+  carved one — through `desecrationProbability` / `desecrationBossAnySideProbability`, both lifted by
+  `desecrationOffered` because a bone offers three modifiers and you keep one. Quoting the per-draw
+  number would have disagreed with every route that spends the same bone.
+- Carved mods are now selectable in the check tab's *Mod to add*. `addBlockedReason` stopped saying
+  "it can’t roll on this base" for them — it rolls fine, just not from an Exalt — and now names the
+  currency that can place it.
+- The two rules that belong to SPENDING a bone are enforced and explained on screen: at most one
+  carved mod per item, and boss omens on Weapon-or-Jewellery only.
+- **Every row is now priced by `stepCost` on a `pricesForBase` sheet.** That was the D8 requirement
+  below and it fixed two live defects on the rows that already existed: a Desecration would have been
+  charged the flat `desecrate` key (the RIB price, 0.30ex) on every base, and the Omen of Light
+  surcharge was summed by hand here — a second copy of the pricing rule.
 
-- Desecration — `desecrationProbability` (unomened) and `desecrationBossProbability` /
-  `desecrationBossAnySideProbability` (boss-omened), through `desecrationOffered` for the
-  three-mod offer. The bone comes from `pricesForBase`, which the panel does not currently resolve.
+Seven mutations checked, all caught (`src/lib/engine.test.ts`).
+
+**Still open — essences and orb strengths:**
+
 - Perfect Essence — `perfectEssenceProbability` for the removal it forces, `essenceForcedProbability`
   for the P=1 add. A regular Essence needs a Magic item and belongs on the Magic branch.
 - Orb strengths — `exaltProbability` already takes `currencyTier`; the rows are the same call at
@@ -1225,6 +1235,11 @@ answers exactly, with the function written and tested:
 **Do NOT add the Omen of Greater Exaltation here.** It adds two mods, and this panel's whole shape is
 one add and/or one sacrifice. It would need a second "mod to add" control, which is a redesign of the
 panel rather than a row on it.
+
+**Also considered and deliberately skipped:** a Sinistral/Dextral Necromancy row. It constrains which
+SIDE a bone draws on, which changes nothing whenever only one side is open — the common case on the
+nearly-finished Rare this panel is for — so it would usually be an extra row quoting identical odds at
+a higher price. Worth revisiting only alongside a way to show that it is a no-op here.
 
 **Verify.** A row's probability must equal what the planner charges for the same orb on the same item
 — the D8 rule, so route it through the same `stepCost`/`currencyKey` the planners use rather than a

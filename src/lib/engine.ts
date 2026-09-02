@@ -9,14 +9,18 @@
 
 import { indexPatch, type BasesFile, type ModsFile } from '../../packages/engine/src/indexPatch.ts';
 import { resolveMod } from '../../packages/engine/src/pool.ts';
-import type { PatchData } from '../../packages/engine/src/types.ts';
+import type { ItemState, Mod, PatchData } from '../../packages/engine/src/types.ts';
 import {
-  annulProbability, augmentationProbability, chaosProbability, exaltProbability, regalProbability,
+  annulProbability, augmentationProbability, bossOmenAllowed, chaosProbability,
+  desecrationBossAnySideProbability, desecrationOffered, desecrationOmenForMod, desecrationProbability,
+  exaltProbability, regalProbability,
 } from '../../packages/engine/src/probability.ts';
 // Whether a Desecration on this base can be boss-targeted ("Weapon or Jewellery" only). Re-exported
 // because the UI has to DESCRIBE desecration differently on armour, not just cost it differently.
-export { bossOmenAllowed } from '../../packages/engine/src/probability.ts';
-import { indexPrices, type Prices, type PricesFile } from '../../packages/optimizer/src/cost.ts';
+export { bossOmenAllowed };
+import {
+  indexPrices, pricesForBase, stepCost, type PricedStep, type Prices, type PricesFile,
+} from '../../packages/optimizer/src/cost.ts';
 import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
@@ -30,7 +34,7 @@ import type {
 } from './engineTypes.ts';
 import {
   prettyName, toEngineMod, toTierTargets, toAltTargets, buildItemState, addBlockedReason,
-  mapFrontier, mapAlternatives, mapMarkov,
+  bossOmenLabel, mapFrontier, mapAlternatives, mapMarkov,
 } from './engineMap.ts';
 
 // Fetched as URLs (Vite copies them to /assets) rather than imported as modules, so the big JSON is
@@ -260,13 +264,75 @@ export function optimizeItemMarkov(
 // miss (chaos rerolls, annul removes a random mod), the total depends on your retry strategy, which is
 // the harder planner math. So we report the honest per-use odds and leave the budget to the full planner.
 
+/** One row before it is priced — a step descriptor plus the words that go beside it. */
+interface ActionRow {
+  readonly step: PricedStep;
+  readonly label: string;
+  readonly detail: string;
+  readonly prob: number;
+  readonly reason?: string;
+}
+
+/**
+ * The Desecration rows: a plain bone, and — for a carved mod — the bone plus its boss omen.
+ *
+ * Sits beside the Exalt because it answers the same question, and inside the caller's `rare` branch
+ * because the bone's own text says so: "Desecrates a **Rare** Weapon or Quiver" / "…a **Rare** Armour".
+ *
+ * Two rules belong to SPENDING a bone rather than to the draw, and `desecrationProbability` — a
+ * per-draw primitive — enforces neither:
+ *
+ *   1. **The bone offers three modifiers and you keep one.** Worth ~3x, applied by every caller that
+ *      spends one (`plan.ts`'s desecrate step, the MDP's desecrate actions) via `desecrationOffered`.
+ *   2. **An item holds at most one desecrated mod**, so a bone is refused outright while a carved mod
+ *      is still on it — the `hasDesecrated` gate in `markovActions`.
+ *
+ * Quoting the raw per-draw number would advertise odds no route ever charges, which is the one thing
+ * this panel must never do. The boss omens are separate rows because they are a different draw (1/N
+ * over one boss's carved pool, not a weighted draw over normal ∪ desecrated), and their text is "your
+ * next **Weapon or Jewellery** Desecration attempt" — so on armour they are impossible, said out loud
+ * rather than left as a missing row, because that gap is the most confusing part of the mechanic.
+ */
+function desecrationRows(data: PatchData, state: ItemState, add: Mod): ActionRow[] {
+  const rows: ActionRow[] = [];
+  const carried = state.desecrated === true;
+  const held = carried ? 'the item already holds a desecrated mod — remove it first' : null;
+  const why = (): string => held ?? addBlockedReason(data, state, add);
+  const row = (step: PricedStep, label: string, detail: string, draw: number): ActionRow => {
+    const prob = desecrationOffered(draw);
+    return prob > 0 ? { step, label, detail, prob } : { step, label, detail, prob, reason: why() };
+  };
+
+  // The plain bone draws by weight from the COMBINED normal ∪ desecrated pool, so it can land an
+  // ordinary mod as well as a carved one — which is why this row belongs on every add, not only on
+  // desecrated ones.
+  rows.push(row({ currency: 'desecrate' }, 'Desecration',
+    `offers 3 mods — the odds one of them is ${add.text}`,
+    carried ? 0 : desecrationProbability(data, state, add.id)));
+
+  const boss = desecrationOmenForMod(add);
+  if (boss === undefined) return rows; // not a carved mod: no boss owns it, so no omen can target it
+  const allowed = bossOmenAllowed(state.base.category);
+  const name = bossOmenLabel(boss);
+  const draw = carried || !allowed ? 0 : desecrationBossAnySideProbability(data, state, add.id, { omen: boss });
+  const r = row({ currency: 'desecrate', boss }, `Desecration + Omen of the ${name}`,
+    `draws only from the ${name}’s carved pool, then offers 3`, draw);
+  rows.push(allowed ? r : { ...r, reason: 'the boss omens only work on a Weapon or Jewellery' });
+  return rows;
+}
+
 /**
  * What each currency can do to an item you already hold. `addModId` = a mod you want ONTO the item;
  * `removeModId` = a mod currently on it you'd sacrifice. Returns the applicable currencies with their
  * exact per-use probability and feasibility:
- *   • Rare + add → **Exalted** (fill an open slot); + a removeModId → **Chaos** (swap it out for the add).
+ *   • Rare + add → **Exalted** (fill an open slot); + a removeModId → **Chaos** (swap it out for the
+ *     add); + a **Desecration**, plus its boss omen when the mod is a carved one.
  *   • Magic + add → **Augmentation** (fill the open slot) and **Regal** (upgrade to Rare adding it).
  *   • removeModId alone → **Annulment** (remove one random mod — odds it's the one you named).
+ *
+ * Still SIX kinds of orb, not every one the engine models: an Essence row and the Greater/Perfect orb
+ * strengths are not here yet (TODO §18). The panel's copy says what it checks rather than implying it
+ * is exhaustive.
  */
 export function currencyActions(
   eng: Engine, item: ExistingItem, sel: { addModId?: string; removeModId?: string },
@@ -274,13 +340,21 @@ export function currencyActions(
   const { data, prices } = eng;
   const state = buildItemState(data, item);
   const actions: CurrencyAction[] = [];
-  const price = (k: string): number => prices.currency[k] ?? 0;
+  // Every row is priced by the PLANNERS' own `stepCost`, on a base-resolved sheet. Two reasons, and
+  // the panel got both wrong before: a Desecration's bone depends on the item's category (jawbone
+  // 0.62ex, rib 0.30ex, collarbone 4.00ex) and only `pricesForBase` knows which; and the Omen of Light
+  // surcharge was summed by hand here — `prices.currency[k] ?? 0` plus `prices.omens[id] ?? 0` — a
+  // second copy of the pricing rule, which is the exact shape the D8 mispricing hid in. A row that
+  // quotes a different number from the route that uses the same orb is worse than no row.
+  const sheet = pricesForBase(prices, state.base);
   const text = (id: string): string => data.mods.get(id)?.text ?? id;
   const push = (
-    currency: CurrencyAction['currency'], label: string, detail: string, prob: number, cost: number, reason?: string,
+    step: PricedStep, label: string, detail: string, prob: number, reason?: string,
   ): void => {
-    actions.push(reason ? { currency, label, detail, prob, cost, feasible: prob > 0, reason }
-      : { currency, label, detail, prob, cost, feasible: prob > 0 });
+    const row = {
+      currency: step.currency, label, detail, prob, cost: stepCost(sheet, step), feasible: prob > 0,
+    };
+    actions.push(reason === undefined ? row : { ...row, reason });
   };
 
   const { addModId, removeModId } = sel;
@@ -289,32 +363,33 @@ export function currencyActions(
     const reason = (): string => addBlockedReason(data, state, add);
     if (state.rarity === 'rare') {
       const p = exaltProbability(data, state, addModId);
-      push('exalt', 'Exalted Orb', `adds ${text(addModId)} to an open ${add.type}`, p, price('exalt'), p > 0 ? undefined : reason());
+      push({ currency: 'exalt' }, 'Exalted Orb', `adds ${text(addModId)} to an open ${add.type}`, p, p > 0 ? undefined : reason());
       if (removeModId) {
         const c = chaosProbability(data, state, removeModId, addModId);
         const onItem = state.prefixes.concat(state.suffixes).some((m) => m.modId === removeModId);
-        push('chaos', 'Chaos Orb', `removes ${text(removeModId)}, adds ${text(addModId)}`, c, price('chaos'),
+        push({ currency: 'chaos' }, 'Chaos Orb', `removes ${text(removeModId)}, adds ${text(addModId)}`, c,
           c > 0 ? undefined : (!onItem ? `${text(removeModId)} isn’t on the item` : `can’t add ${text(addModId)} even after the swap`));
       }
+      for (const row of desecrationRows(data, state, add)) push(row.step, row.label, row.detail, row.prob, row.reason);
     }
     if (state.rarity === 'magic') {
       const a = augmentationProbability(data, state, addModId);
-      push('augment', 'Orb of Augmentation', `adds ${text(addModId)} to the open ${add.type}`, a, price('augment'), a > 0 ? undefined : reason());
+      push({ currency: 'augment' }, 'Orb of Augmentation', `adds ${text(addModId)} to the open ${add.type}`, a, a > 0 ? undefined : reason());
       const rg = regalProbability(data, state, addModId);
-      push('regal', 'Regal Orb', `upgrades to Rare, adds ${text(addModId)}`, rg, price('regal'), rg > 0 ? undefined : reason());
+      push({ currency: 'regal' }, 'Regal Orb', `upgrades to Rare, adds ${text(addModId)}`, rg, rg > 0 ? undefined : reason());
     }
   }
   if (removeModId) {
     const p = annulProbability(data, state, removeModId);
     const onItem = state.prefixes.concat(state.suffixes).some((m) => m.modId === removeModId);
-    push('annul', 'Orb of Annulment', `removes one random mod — odds it’s ${text(removeModId)}`, p, price('annul'),
+    push({ currency: 'annul' }, 'Orb of Annulment', `removes one random mod — odds it’s ${text(removeModId)}`, p,
       p > 0 ? undefined : (onItem ? undefined : `${text(removeModId)} isn’t on the item`));
     // Omen of Light makes the Annulment remove the DESECRATED mod for certain (P=1) — the targeted-
     // removal lever. Only meaningful when the sacrifice is itself a desecrated mod on a desecrated item.
     if (onItem && data.mods.get(removeModId)?.source === 'desecrated' && state.desecrated) {
       const lp = annulProbability(data, state, removeModId, { omen: 'light' });
-      push('annul', 'Orb of Annulment + Omen of Light', `removes the desecrated ${text(removeModId)} for certain`,
-        lp, price('annul') + (prices.omens['OmenofLight'] ?? 0));
+      push({ currency: 'annul', omen: 'light' }, 'Orb of Annulment + Omen of Light',
+        `removes the desecrated ${text(removeModId)} for certain`, lp);
     }
   }
   return actions;

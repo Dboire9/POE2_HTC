@@ -213,6 +213,13 @@ only ever swept the UI strings.
 Both fixed by naming the six rows exactly and saying, in the guide, that the omission is a limit of
 this panel rather than of the engine or of the game. Broadening the panel is TODO 18.
 
+**Update, same day.** A player asked the panel's own question back at it — *"it says Exalted Orb but
+we could desecrate also?"* — which is precisely the failure mode this row predicted, arriving within
+hours of the row being written. The Desecration rows shipped; the guide's table and its "not here"
+sentence now name **essences and orb strengths**, which are what remains. The lesson holds and is
+worth restating: the copy was accurate the whole time and the panel was still wrong. Naming a gap
+honestly documents it; it does not close it.
+
 ## Still open
 
 Nothing in the UI copy. `docs/` is now swept once (2026-09-02) and row 7 is what that found.

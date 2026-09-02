@@ -24,6 +24,16 @@ const ORB_SUFFIX: Record<CurrencyTier, string> = { base: '', greater: ' (Greater
 const BOSS_LABEL: Record<'blackblooded' | 'liege' | 'sovereign', string> = {
   blackblooded: 'Blackblooded', liege: 'Liege', sovereign: 'Sovereign',
 };
+/**
+ * A boss omen's in-game name on its own, for anything that has to NAME the omen rather than draw a
+ * whole step (the Quick currency check's Desecration rows). Same table as `stepLabel` uses, exported
+ * rather than copied — two spellings of one omen is how a player ends up reading two different names
+ * for the same purchase.
+ */
+export function bossOmenLabel(boss: keyof typeof BOSS_LABEL): string {
+  return BOSS_LABEL[boss];
+}
+
 const CURRENCY_LABEL: Record<PlanStep['currency'], string> = {
   transmute: 'Transmutation', augment: 'Augmentation', regal: 'Regal', exalt: 'Exalted',
   alchemy: 'Alchemy', chaos: 'Chaos', annul: 'Annulment', desecrate: 'Desecration', essence: 'Essence', 'perfect-essence': 'Perfect Essence',
@@ -131,6 +141,13 @@ export function addBlockedReason(data: PatchData, state: ItemState, mod: Mod): s
   const cap = state.rarity === 'magic' ? 1 : 3;
   if (onSide >= cap) return `the ${mod.type} side is full`;
   if (!familyAvailable(data, state, mod)) return `its “${mod.family}” family is already on the item`;
+  // A carved or essence-only mod IS craftable on this base — just not by the orb being asked about.
+  // The catch-all below said "it can’t roll on this base", which is false for these three and sends
+  // the player looking for a different base instead of a different currency. Name the currency that
+  // can place it; that is the whole answer.
+  if (mod.source === 'desecrated') return 'only a Desecration can add it';
+  if (mod.source === 'perfect_essence') return 'only a Perfect Essence can add it';
+  if (mod.source === 'essence') return 'only an Essence can add it';
   return 'it can’t roll on this base';
 }
 

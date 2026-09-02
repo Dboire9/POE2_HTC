@@ -215,14 +215,28 @@ the planner searches:
 |---|---|
 | **Exalted Orb** | Rare, you named a mod to add |
 | **Chaos Orb** | Rare, you named both an add and a sacrifice |
+| **Desecration** | Rare, you named a mod to add |
+| **Desecration + a boss omen** | …and that mod is a desecrated one |
 | **Orb of Augmentation** | Magic, you named a mod to add |
 | **Regal Orb** | Magic, you named a mod to add |
 | **Orb of Annulment** | you named a mod to sacrifice |
 | **Annulment + Omen of Light** | …and that mod is a desecrated one on a desecrated item |
 
-**Bones, essences and orb strengths are not here.** That is a limit of this panel, not of the engine
-or of the game — the *Full plan to a target* sub-mode and the true-cost model both use all of them.
-If you want to know what a Desecration or a Greater Exalt does to your item, ask there.
+**About the Desecration rows.** A bone **offers three modifiers and you keep one**, so the number
+shown is the chance one of the three is what you asked for — roughly three times the chance of a
+single draw, and the same number the planner uses. A plain bone draws from the normal **and**
+desecrated pools together, so it can land an ordinary mod too; that is often the cheaper buy, because
+a bone costs a fraction of an Exalted Orb. The row is priced by the bone your item actually consumes
+(jawbone for a weapon or quiver, rib for armour, collarbone for jewellery and belts).
+
+Two rules it will tell you about rather than hide: an item holds **at most one desecrated mod**, so
+the row is refused while a carved mod is still on the item; and the boss omens read *"your next
+**Weapon or Jewellery** Desecration attempt"*, so on armour there is no way to target a boss's pool at
+all — the row says that instead of disappearing.
+
+**Essences and orb strengths are not here.** That is a limit of this panel, not of the engine or of
+the game — the *Full plan to a target* sub-mode and the true-cost model both use all of them. If you
+want to know what a Greater Exalt or an Essence does to your item, ask there.
 
 This is a per-orb number, not a plan. How many orbs it takes overall depends on what you do after a
 miss — that's the other sub-mode.

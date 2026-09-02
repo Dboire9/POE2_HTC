@@ -40,11 +40,25 @@ function fmtPct(p: number): string {
   return `${pct.toPrecision(2)}%`;
 }
 
-/** Plain-language odds for a single orb: "guaranteed" at P=1, else "≈ 1 in N each orb". */
-function oddsText(p: number): string {
+/**
+ * Plain-language odds for a single orb: "guaranteed" at P=1, else "≈ 1 in N each orb".
+ *
+ * N carries a decimal below 10. Rounding it to an integer everywhere was fine while nothing on this
+ * panel cleared ~50%, and then the boss-omened Desecration arrived at 70.4% and rendered as
+ * **"≈ 1 in 1 each orb"** — which reads as a certainty, directly under a number saying it is not.
+ * A decimal holds the relative error at 5% across the whole range, the same as rounding does above 10.
+ *
+ * Above 95% even a decimal cannot: N is then under 1.05, which shows as "1 in 1.0" and lies the same
+ * way. "1 in N" is simply the wrong idiom that close to certain, so it stops being used — the exact
+ * percentage sits on the line above, and only P=1 is ever allowed to say "guaranteed".
+ */
+export function oddsText(p: number): string {
   if (p >= 1) return 'guaranteed';
   if (p <= 0) return '—';
-  return `≈ 1 in ${Math.round(1 / p).toLocaleString()} each orb`;
+  if (p >= 0.95) return 'almost every orb';
+  const n = 1 / p;
+  const shown = n < 10 ? n.toFixed(1).replace(/\.0$/, '') : Math.round(n).toLocaleString();
+  return `≈ 1 in ${shown} each orb`;
 }
 
 /** Rarity → per-side slot cap (magic = 1 prefix + 1 suffix, rare = 3 + 3). */
@@ -274,6 +288,15 @@ const ItemActions: React.FC = () => {
   const itemMods = useMemo(
     () => [...prefixes, ...suffixes].map((m) => modById.get(m.modId)).filter((m): m is EngineMod => !!m),
     [prefixes, suffixes, modById],
+  );
+  // The Quick check's own add list. Carved mods belong here as well as in the plan tab's, because a
+  // Desecration is the ONLY currency that can place one — leaving them out left the panel silent on
+  // the exact question a player holding a bone is asking. Every other row then reports "only a
+  // Desecration can add it" rather than the old catch-all "it can’t roll on this base", which was
+  // false: it rolls here fine, just not from an Exalt.
+  const checkAddable = useMemo(
+    () => [...addable, ...desecratedTargets.filter((m) => !onItem.has(m.id))],
+    [addable, desecratedTargets, onItem],
   );
 
   const item: ExistingItem = { baseId, level, rarity, prefixes, suffixes };
@@ -558,7 +581,11 @@ const ItemActions: React.FC = () => {
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Mod to add</span>
                 <select className={`${selectCls} min-w-72`} value={addModId ?? ''} onChange={(e) => setAddModId(e.target.value || null)}>
                   <option value="">— none —</option>
-                  {addable.map((m) => <option key={m.id} value={m.id}>{m.type === 'prefix' ? 'P' : 'S'} · {m.text}</option>)}
+                  {checkAddable.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.type === 'prefix' ? 'P' : 'S'} · {m.text}{m.source === 'desecrated' ? ' · Desecrated' : ''}
+                    </option>
+                  ))}
                 </select>
               </label>
               <label className="flex flex-col gap-1">

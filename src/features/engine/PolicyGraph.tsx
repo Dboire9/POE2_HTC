@@ -15,7 +15,13 @@ import { cn } from '../../lib/utils';
 // rounding to the same cost because they sit within a fraction of a percent of each other. Honest,
 // complete, and unreadable; it earns its place as the detail view, not the answer.
 
-const W = 148; // node width
+// 176, not the 148 this was: measured in Chromium on a 2-target policy (17 boxes), the narrower box
+// cut 8 of 17 ACTION names — `Annul (Om…`, `Desecrate…` — where the omen is the instruction. 176 is
+// the knee: it shows every action on that craft in full and nearly halves total truncation (20 → 11
+// clipped labels); 190 buys one more label and 204 buys nothing. Longer actions exist
+// (`Desecrate (Omen of the Sovereign, Dextral)`), so the ellipsis is still the safety net — this only
+// moves where it starts.
+const W = 176; // node width
 const H = 54; // node height
 const COL_GAP = 84; // horizontal gap between depth columns (room for arrows)
 const ROW_GAP = 22;
@@ -561,15 +567,37 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
               {node.isGoal ? (
                 <text x={x + W / 2} y={y + H / 2 + 4} textAnchor="middle" className="fill-emerald-600 dark:fill-emerald-400 text-[12px] font-semibold">✓ target</text>
               ) : (
-                <>
-                  <text x={x + 9} y={y + 18} className="fill-foreground text-[11px] font-medium">{stateLabel(node)}</text>
-                  {count > 1 && (
-                    <text x={x + W - 9} y={y + 18} textAnchor="end" className="fill-muted-foreground text-[10px] tabular-nums">×{count}</text>
-                  )}
-                  <text x={x + 9} y={y + 34} className="fill-primary text-[11px] font-semibold">{node.action}</text>
-                  <text x={x + W - 9} y={y + 34} textAnchor="end" className="fill-muted-foreground text-[10px] tabular-nums">{fmtCost(node.expectedCost)}</text>
-                  {node.isStart && <text x={x + 9} y={y + 48} className="fill-primary text-[9px] uppercase tracking-wider">start</text>}
-                </>
+                // HTML in a <foreignObject>, not SVG <text>. SVG text neither wraps nor truncates, so
+                // each row's left string ran straight under the number pinned to the box's right edge
+                // and the two drew on top of each other — `5 mods · 1 off-tier · desecrated` over `×3`,
+                // `Desecrate (Omen of the Sovereign)` over `2,934 chaos`. Widening the box only moves
+                // the threshold: both strings are open-ended (a state label carries up to five clauses,
+                // an action names an orb plus two omens). A flex row is the arrangement that fits any
+                // input — the number keeps its width, the label gives up its own and ends in a real
+                // ellipsis, measured by the browser in the actual font instead of guessed from a
+                // character count. Nothing is lost to the truncation: the <title> above carries the
+                // full state, and clicking the box opens the detail panel.
+                <foreignObject x={x + 1} y={y + 1} width={W - 2} height={H - 2}>
+                  <div className="flex h-full flex-col justify-center gap-1 px-2 leading-tight">
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="min-w-0 truncate text-[11px] font-medium text-foreground">{stateLabel(node)}</span>
+                      {count > 1 && (
+                        <span className="ml-auto shrink-0 text-[10px] tabular-nums text-muted-foreground">×{count}</span>
+                      )}
+                      {/* The cost sits with the STATE, not with the action, and that is a reading fix as
+                          much as a layout one: it is what finishing from here costs, never the price of
+                          the orb named below — which is exactly how a number pinned beside `Annul` gets
+                          read. Moving it also hands the action row the box's full width, and the action
+                          is the half a player acts on: `Annul (Om…` and `Desecrate…` were the two
+                          strings being cut, out of a vocabulary where the omen IS the instruction. */}
+                      <span className="ml-auto shrink-0 text-[10px] tabular-nums text-muted-foreground">{fmtCost(node.expectedCost)}</span>
+                    </div>
+                    <div className="flex items-baseline">
+                      <span className="min-w-0 truncate text-[11px] font-semibold text-primary">{node.action}</span>
+                    </div>
+                    {node.isStart && <span className="text-[9px] uppercase tracking-wider text-primary">start</span>}
+                  </div>
+                </foreignObject>
               )}
             </g>
           );

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CurrencyAction, EngineMod, EngineResult } from '../../lib/engine';
+import { oddsText } from './ItemActions';
 
 // ItemActions ("I have an item") holds the item builder + quick-check + full-plan target rules. Driven
 // against a MOCKED facade with a tiny controlled mod set; the facade logic (currencyActions, optimizeItem)
@@ -407,5 +408,34 @@ describe('ItemActions — a slot with alternatives', () => {
 
     await user.click(screen.getByRole('button', { name: /Remove Abyssal Mark from the target/i }));
     expect(screen.queryByText(/Any one of/i)).toBeNull();
+  });
+});
+
+// The panel's plain-language odds. Regression-guarded because the failure is silent and specific: an
+// integer "1 in N" turns any probability above two-thirds into "1 in 1", which reads as a certainty
+// right beneath the percentage that says otherwise. Nothing here cleared 50% until the boss-omened
+// Desecration row arrived at 70.4%.
+describe('ItemActions — oddsText', () => {
+  it('never rounds a real chance into a certainty', () => {
+    expect(oddsText(0.7037)).toBe('≈ 1 in 1.4 each orb');
+    // Above 95% the decimal cannot save it either — 1/0.99 shows as "1.0" — so the idiom is dropped.
+    expect(oddsText(0.99)).toBe('almost every orb');
+    expect(oddsText(0.96)).toBe('almost every orb');
+    expect(oddsText(1)).toBe('guaranteed'); // the ONLY string that may claim certainty
+  });
+
+  it('keeps whole numbers whole and groups large ones', () => {
+    expect(oddsText(0.5)).toBe('≈ 1 in 2 each orb');
+    expect(oddsText(1 / 3)).toBe('≈ 1 in 3 each orb');
+    expect(oddsText(0.0003)).toBe('≈ 1 in 3,333 each orb');
+    expect(oddsText(0)).toBe('—');
+  });
+
+  it('holds the relative error under 5% across the range', () => {
+    for (const p of [0.9, 0.7037, 0.42, 0.2684, 0.1262, 0.05, 0.011, 0.0004]) {
+      // Read back only the N — the digits in the leading "1 in" are part of the idiom, not the value.
+      const shown = Number(/1 in ([\d.,]+)/.exec(oddsText(p))![1]!.replace(/,/g, ''));
+      expect(Math.abs(shown - 1 / p) / (1 / p)).toBeLessThan(0.05);
+    }
   });
 });

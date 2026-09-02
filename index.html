@@ -14,15 +14,23 @@
     <meta name="keywords" content="Path of Exile 2, PoE2, crafting calculator, item crafting, currency optimizer, crafting simulator, PoE2 tools, path of exile crafting" />
     <meta name="author" content="Dboire" />
     
-    <!-- Open Graph / Social Media -->
+    <!-- Open Graph / Social Media.
+         The image is rendered from scripts/og-card.html by `npm run og` — edit the card, not the jpg.
+
+         The ?v= IS the point of that query string, not decoration. Discord, Slack, X and Facebook all
+         cache a link preview against the image URL and hold it for a long time, so replacing the file
+         at the same path leaves everyone who has seen the old card still seeing it — including in
+         messages already posted. Bump the number whenever the image changes; the URL is the only
+         cache key any of them expose. -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://poe2htc.com/" />
     <meta property="og:title" content="POE2HTC - Path of Exile 2 Crafting Calculator" />
     <meta property="og:description" content="Free Path of Exile 2 crafting calculator. The optimal route, the true expected cost, and your real odds — priced from live market data." />
-    <meta property="og:image" content="https://poe2htc.com/og.jpg" />
+    <meta property="og:image" content="https://poe2htc.com/og.jpg?v=2" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="POE2 HTC — a hammer and anvil over the site name" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content="POE2 HTC — hammer and anvil logo above the line “Path of Exile 2 crafting, solved — not guessed”, with optimal route, true expected cost, exact odds and live prices" />
     <meta property="og:site_name" content="POE2 HTC" />
     
     <!-- Twitter Card -->
@@ -30,7 +38,7 @@
     <meta name="twitter:url" content="https://poe2htc.com/" />
     <meta name="twitter:title" content="POE2HTC - Path of Exile 2 Crafting Calculator" />
     <meta name="twitter:description" content="Free Path of Exile 2 crafting calculator. The optimal route, the true expected cost, and your real odds — priced from live market data." />
-    <meta name="twitter:image" content="https://poe2htc.com/og.jpg" />
+    <meta name="twitter:image" content="https://poe2htc.com/og.jpg?v=2" />
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://poe2htc.com/" />

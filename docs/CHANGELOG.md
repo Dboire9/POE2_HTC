@@ -36,6 +36,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is in the box's tooltip and in the detail panel a click away.
 - `addBlockedReason` told a player that a carved or essence-only mod "can’t roll on this base". It
   rolls there fine; it just needs a different currency. It now names the one that can place it.
+- **The link preview was a grey rectangle.** Every meta tag was already correct — 1200x630,
+  `summary_large_image`, absolute URL — but the image behind them was a flat fill and a monochrome
+  outline, and Discord renders it about 500px wide, where that said nothing about what the site is.
+  The new card carries the logo, what the tool does, and the domain, on a background with actual
+  depth. It is rendered from `scripts/og-card.html` by `npm run og`, so the tagline and palette can
+  be edited as text rather than re-exported from a design tool. The image URL gained a `?v=2`,
+  which is the only cache key Discord, Slack, X and Facebook expose — replacing the file at the same
+  path would have left everyone who had already seen the old card still seeing it.
 - **A 70% chance read as a certainty.** The Quick check's plain-language line rounds "1 in N" to a
   whole number, which was harmless while nothing on the panel cleared 50% — the boss-omened
   Desecration lands at 70.4% and rendered as *"≈ 1 in 1 each orb"*, directly beneath the percentage

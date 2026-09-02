@@ -25,7 +25,8 @@
     "test:coverage": "vitest --coverage",
     "test:engine": "vitest run packages/engine",
     "update-data": "bash tools/refresh/run.sh",
-    "update-prices": "node tools/refresh/prices.mjs"
+    "update-prices": "node tools/refresh/prices.mjs",
+    "og": "npx tsx scripts/og.mts"
   },
   "dependencies": {
     "@sentry/react": "^10.26.0",

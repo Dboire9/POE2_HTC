@@ -1,0 +1,126 @@
+<!doctype html>
+<meta charset="utf-8" />
+<!--
+  SOURCE for public/og.jpg — the image Discord, Slack, X and Google show when someone links the site.
+  Render it with `npm run og`; do not edit the .jpg by hand, or the next render silently reverts it.
+
+  Constraints this design is built against, not preferences:
+    * 1200x630 is Facebook's spec and what every other reader inherited; the meta tags in index.html
+      declare exactly that, and a mismatch makes some readers fall back to a small square thumbnail.
+    * Discord renders it about 500px wide. So the type has to survive a 2.4x downscale: everything
+      here is >= 22px at full size, which is >= 9px as seen. The old card failed for the opposite
+      reason — it was legible, but it was a flat fill and a monochrome outline, so at 500px it read as
+      a grey rectangle that said nothing about what the site does.
+    * Colours are the app's own tokens (src/index.css), converted from HSL: background 220 10% 18%,
+      primary 295 10% 56%, foreground 240 10% 92%. The cream is the logo's own #f0ebe0.
+
+  assets/og/{mark,anvil}.png are the logo keyed off its flat background, stored as greyscale+alpha —
+  the RGB planes of a one-colour mark carry nothing, so dropping them took 242 kB to 19 kB. They are
+  the cream baked in, and the RGB zeroed wherever alpha is 0 — leftover colour under a transparent
+  pixel is noise a PNG still pays to store. 242 kB -> 25 kB.
+
+  They are <img>, NOT a CSS mask, and that is not a style preference: Chromium refuses to fetch a
+  mask-image across a file:// document's opaque origin, so the masked version rendered the card with
+  no logo at all and no error anywhere. An <img> on the same path loads fine.
+
+  Derived from assets/icon-source.png; to regenerate (alpha ramp from luminance, then crop to ink):
+
+    python3 -c "
+    from PIL import Image
+    im = Image.open('assets/icon-source.png').convert('RGBA'); px = im.load(); w, h = im.size
+    xs, ys = [], []
+    for y in range(h):
+      for x in range(w):
+        r, g, b, _ = px[x, y]; lum = 0.299*r + 0.587*g + 0.114*b
+        if lum < 110: px[x, y] = (0, 0, 0, 0)
+        else:
+          px[x, y] = (240, 235, 224, 255 if lum > 150 else int(255*(lum-110)/40)); xs.append(x); ys.append(y)
+    im = im.crop((min(xs), min(ys), max(xs)+1, max(ys)+1))
+    im.save('assets/og/mark.png', optimize=True)
+    im.crop((0, 0, 395, im.size[1])).save('assets/og/anvil.png', optimize=True)"
+-->
+<title>POE2HTC — link preview card</title>
+<style>
+  @page { size: 1200px 630px; margin: 0 }
+  * { margin: 0; padding: 0; box-sizing: border-box }
+  body {
+    width: 1200px; height: 630px; overflow: hidden; position: relative;
+    background: #23262b;
+    font-family: "Liberation Sans", "DejaVu Sans", system-ui, sans-serif;
+    color: #e9e9ed;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Depth, in three layers. A single flat fill is exactly what made the old card read as nothing:
+     a forge-warm glow low-left, the app's purple high-right, and a vignette to hold the edges. */
+  .glow-warm, .glow-cool, .vignette, .grid { position: absolute; inset: 0 }
+  .glow-warm {
+    background: radial-gradient(880px 700px at 6% 112%, rgba(214, 126, 58, 0.46), transparent 66%);
+  }
+  .glow-cool {
+    background: radial-gradient(780px 640px at 96% -16%, rgba(158, 132, 178, 0.50), transparent 64%);
+  }
+  /* A faint rule grid, so the surface has a texture at 500px rather than a gradient smear. */
+  .grid {
+    background-image:
+      linear-gradient(rgba(233, 233, 237, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(233, 233, 237, 0.045) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(760px 500px at 30% 40%, #000 20%, transparent 78%);
+  }
+  .vignette {
+    background: radial-gradient(1040px 720px at 46% 46%, transparent 44%, rgba(0, 0, 0, 0.38));
+  }
+
+  /* The anvil alone, bleeding off the right edge — brand presence without a second wordmark, and
+     faint enough to be surface texture rather than a second object competing with the real logo. */
+  .watermark {
+    position: absolute; right: -40px; top: 54%; transform: translateY(-50%);
+    width: 400px; opacity: 0.028;
+  }
+
+  .card { position: absolute; inset: 0; padding: 66px 72px; display: flex; flex-direction: column }
+  .mark { width: 430px; margin: -6px 0 34px -8px }
+
+  h1 {
+    font-size: 55px; line-height: 1.14; font-weight: 700; letter-spacing: -0.5px;
+    max-width: 740px;
+  }
+  h1 em { font-style: normal; color: #d9c3a4 }
+
+  .caps { margin-top: 30px; display: flex; gap: 10px; flex-wrap: nowrap }
+  .cap {
+    font-size: 21px; font-weight: 600; padding: 10px 17px; border-radius: 999px;
+    color: #efe9de; background: rgba(233, 233, 237, 0.07);
+    border: 1px solid rgba(233, 233, 237, 0.16);
+    white-space: nowrap;
+  }
+
+  .foot {
+    margin-top: auto; padding-top: 26px; display: flex; align-items: baseline; gap: 20px;
+    border-top: 1px solid rgba(233, 233, 237, 0.14);
+  }
+  .domain { font-size: 34px; font-weight: 700; letter-spacing: 0.3px }
+  .note { font-size: 23px; color: #a9a9b4; margin-left: auto }
+</style>
+
+<div class="glow-warm"></div>
+<div class="glow-cool"></div>
+<div class="grid"></div>
+<img class="watermark" src="../assets/og/anvil.png" alt="" />
+<div class="vignette"></div>
+
+<div class="card">
+  <img class="mark" src="../assets/og/mark.png" alt="POE2 HTC" />
+  <h1>Path of Exile 2 crafting,<br /><em>solved</em> — not guessed.</h1>
+  <div class="caps">
+    <span class="cap">Optimal route</span>
+    <span class="cap">True expected cost</span>
+    <span class="cap">Exact odds</span>
+    <span class="cap">Live prices</span>
+  </div>
+  <div class="foot">
+    <span class="domain">poe2htc.com</span>
+    <span class="note">Free · runs in your browser · no account</span>
+  </div>
+</div>

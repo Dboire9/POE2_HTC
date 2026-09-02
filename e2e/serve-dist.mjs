@@ -23,6 +23,9 @@ const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon',
+  // og.jpg is the link-preview image; without this it fell through to application/octet-stream, which
+  // is not what Vercel serves and not what a crawler wants to see.
+  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   '.woff2': 'font/woff2', '.map': 'application/json; charset=utf-8',
 };
 

@@ -1243,7 +1243,8 @@ Prepared, not released: `package.json` is at 1.0.0, the header no longer says BE
 version from the manifest, and `docs/CHANGELOG.md` carries the 1.0.0 entry. **Nothing is pushed** —
 the release goes out when Dorian says so.
 
-To release: push `revival` and `main`, then `git tag v1.0.0 && git push origin v1.0.0`.
+Released 2026-09-02. The flow is now: work on `beta`, check its Vercel preview, fast-forward `main`,
+then `git tag vX.Y.Z && git push origin vX.Y.Z`.
 `build-release.yml` fires on the tag, builds the site, names the artifact from `package.json` and
 attaches it to a GitHub release. Vercel deploys from `main` independently of the tag.
 

@@ -13,7 +13,7 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - **Currency exclusions.** `CurrencyPolicy` + `allowsStep` (`packages/optimizer/src/cost.ts`) let a player exclude currency they don't own; the UI model is `src/lib/currencyPrefs.ts`. Exclusions **prune** the search rather than filter results (63ms → 4ms on a 6-mod craft), so an excluded currency can never reach the frontier.
 - **Workspace persistence + sharing.** `src/lib/workspace.ts` — a `useSyncExternalStore` module store with `useField` / `useMode`, plus a base64url URL codec for share links. Use `useOnChange` (never a bare `useEffect` with a dep array) for "reset when X changes": a plain effect fires on mount and wipes restored state.
 - `data/patches/<patch>/*.json` — versioned data. **The app ships `0.5.0`** (poe2db, cross-checked exact vs Craft of Exile). `0.5` (Java-extracted) is retained ONLY as the engine differential anchor (see below).
-- **Java is gone** (`src/main/java/`, `pom.xml` removed). Its validation legacy survives as frozen golden fixtures: `packages/engine/src/__fixtures__/*-java.json`, read by the differential tests (no live Java). Full history is on the `revival` branch.
+- **Java is gone** (`src/main/java/`, `pom.xml` removed). Its validation legacy survives as frozen golden fixtures: `packages/engine/src/__fixtures__/*-java.json`, read by the differential tests (no live Java). Its full history is in `main`'s own history, reachable by walking back past the 1.0 release — the `revival` branch that used to be named as its home was deleted at 1.0, having become byte-identical to `main`.
 - `C` branch: abandoned partial C/WASM engine — reference only, do not continue.
 
 ## Commands
@@ -587,4 +587,21 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   `/_vercel/insights/*`, which the Vercel platform serves and a local `dist/` has not — filtering that
   error out in the test instead would have started an exception list, which is where a real error
   eventually hides.
-- Direct pushes to `main` are sanctioned despite branch protection; `remote: Bypassed rule violations` is expected output, not an error. `main` and `revival` are kept in sync.
+- **Work lands on `beta`, production is `main`, and the gap between them is the point** (2026-09-02,
+  replacing `revival`). Vercel builds every branch, so `beta` has its own preview URL — which is the
+  first deploy anything gets. Before 1.0 there was no such gap: `revival` and `main` were pushed in the
+  same breath, so poe2htc.com WAS the first deploy of every change, and "the build is fine but the
+  deployed page is not" had nowhere to show up but in front of users.
+  The loop: commit to `beta` → push → CI plus the preview build → look at the preview → fast-forward
+  `main`. Direct pushes to `main` are still sanctioned despite branch protection, and
+  `remote: Bypassed rule violations` is expected output rather than an error — the gate is the preview,
+  not a PR.
+  **The daily price refresh is a deliberate exception and merges straight to `main`.** It is data, not
+  code; it is guarded by `priceResolution` and `costConsistency` running in its own job before it
+  merges; and routing it through `beta` would mean prices never reach players without a human, which is
+  exactly what "automatic without me doing nothing" ruled out. The consequence to remember: after the
+  bot merges, `main` is AHEAD of `beta`, and the next `beta`→`main` push is rejected as a
+  non-fast-forward. Merge `main` into `beta` then — never force, which is blocked separately anyway.
+  `revival` and a stale `test` branch were deleted at 1.0; both were byte-identical to `main` with zero
+  unique commits. `C` (abandoned C/WASM engine, 29 unique commits) and `static` (37 unique commits from
+  April 2026) still hold history that is on no other branch — do not delete either without asking.

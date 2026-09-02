@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Toaster } from './components/ui/toaster';
 import EngineLab from './features/engine/EngineLab';
 import ReportProblem, { DISCORD_URL, PANEL_ID } from './features/engine/ReportProblem';
-
-// App version (shown in the header).
-const version = '0.9.7';
+// Read from the manifest rather than restated here, because the two HAVE drifted: for three commits
+// around `d866713` the header told users 0.5.9 while the package — which is what the release workflow
+// tags and names its artifact from — said 0.9.0. A hardcoded string makes the version a player sees
+// the one thing in a release that nothing checks. Vite emits JSON named exports as individual
+// bindings, so this inlines the string; the manifest itself is not in the bundle (verified).
+import { version } from '../package.json';
 
 /** Shared chip styling for the header actions — one place, so they can't drift apart. */
 const CHIP = 'flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-md border transition-all cursor-pointer '
@@ -25,7 +28,7 @@ export default function App() {
           <div className="flex items-center gap-2 sm:gap-4">
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight">
-                POE2HTC <span className="text-xs sm:text-sm text-yellow-500 font-semibold">BETA</span>
+                POE2HTC
               </h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Path of Exile 2 How to Craft</p>
             </div>

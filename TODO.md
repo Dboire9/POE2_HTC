@@ -1203,20 +1203,23 @@ Recorded with the reason, in the spirit of the negative results in `docs/validat
 
 ---
 
-## What 1.0 means
+## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
-The project is at 0.9.7. The engine is past 1.0 quality — exact, validated, measured, honest about
-its bounds. What is not 1.0 is everything around it. A coherent definition:
+The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh
+themselves, §9 a linter runs in CI, §10 five browser tests run in CI, §11 belts ship. It was costed at
+"roughly a week" and took two days. **All five are done**, and §12 (Omen of Whittling) and §14 (Omen
+of Greater Exaltation) landed on top of them.
 
-- §7 — the docs describe the app that exists.
-- §8 — prices refresh themselves.
-- §9 — a linter runs in CI.
-- §10 — five browser tests run in CI.
-- §11 — belts ship.
+Prepared, not released: `package.json` is at 1.0.0, the header no longer says BETA and reads its
+version from the manifest, and `docs/CHANGELOG.md` carries the 1.0.0 entry. **Nothing is pushed** —
+the release goes out when Dorian says so.
 
-That is roughly a week. Ship it as 1.0, and write the CHANGELOG entry as the story it is: a Java beam
-search that became an exact analytic engine, that grew a true-cost model no other PoE2 tool has, and
-that now says so on its own front page.
+To release: push `revival` and `main`, then `git tag v1.0.0 && git push origin v1.0.0`.
+`build-release.yml` fires on the tag, builds the site, names the artifact from `package.json` and
+attaches it to a GitHub release. Vercel deploys from `main` independently of the tag.
+
+Worth doing in the same session, since a release is when people look: post the Discord ask for
+desecrated-bone counts (§15), which is now the only item left in the README's Short-Term list.
 
 ## Recently closed
 

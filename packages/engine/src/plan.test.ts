@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import type { ItemBase, ItemState, Mod, PatchData, PlanStep } from './index.ts';
-import { chaosProbability, evaluatePlan, evaluatePlanFrom, exaltProbability, loadPatch } from './index.ts';
+import { chaosProbability, evaluatePlan, evaluatePlanFrom, exaltProbability, loadPatch, planStates } from './index.ts';
 
 // --- hand-computed: composition threads state and multiplies -----------------------------------
 // Synthetic base: prefixes NP1(w20,Fp1) NP2(w30,Fp2); suffixes NS1(w50,Fs1). Totals: prefix 50, suffix 50.
@@ -195,4 +195,63 @@ describe('evaluatePlan — real-data plans thread cleanly', () => {
       expect(r.total).toBeGreaterThan(0); // every spec is a legal, achievable plan
     });
   }
+});
+
+// --- a mid-plan add lands at the tier the step ASKED for ---------------------------------------
+// Until 2026-09-02 `addMod` placed every add at `tierIndex 0` — the WORST tier — whatever the step's
+// `minTierIndex` said. That was invisible while nothing read a placed tier: `tierName` fed the UI and
+// the MDP's `classifyStart` (which reads the item a player HOLDS, never a walked one), and no
+// probability depended on it.
+//
+// The Omen of Whittling ends that. It makes a Chaos Orb remove the LOWEST LEVEL modifier, so the
+// walked item's tiers stop being cosmetic and become the input to a probability. With every add
+// pinned at tier 0 — the lowest ilvl a mod has — every mod a plan added would have looked like the
+// lowest-level mod on the item, and Whittling would have been modelled as removing whatever was
+// added last rather than what the game would take.
+//
+// `minTierIndex` means "this tier OR BETTER", so placing at exactly that index is the worst tier that
+// still satisfies the target. That is the conservative reading for Whittling: a lower placed level
+// makes the mod MORE likely to be the one whittled off, so the model never flatters a plan.
+describe('a mid-plan add is placed at the step’s minTierIndex, not always tier 0', () => {
+  const tiers = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({ name: `t${i}`, ilvl: 1 + i * 10, weight: 100, ranges: [], stats: [] }));
+  const mod = (id: string, type: 'prefix' | 'suffix', family: string): Mod =>
+    ({ id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: null, tiers: tiers(4) });
+  const base: ItemBase = {
+    id: 'B', name: 'B', category: 'C',
+    pools: {
+      normal: { prefixes: ['P1'], suffixes: ['S1'] },
+      desecrated: { prefixes: [], suffixes: [] },
+      essence: { prefixes: [], suffixes: [] },
+    },
+  };
+  const data: PatchData = {
+    patch: 't',
+    mods: new Map([['P1', mod('P1', 'prefix', 'Fp')], ['S1', mod('S1', 'suffix', 'Fs')]]),
+    bases: new Map([['B', base]]),
+  };
+  const white: ItemState = { base, level: 100, rarity: 'normal', prefixes: [], suffixes: [] };
+
+  it('carries each add’s requested tier through the walk', () => {
+    const states = planStates(data, white, [
+      { currency: 'transmute', add: 'P1', minTierIndex: 2 },
+      { currency: 'augment', add: 'S1', minTierIndex: 1 },
+    ]);
+    // planStates returns the state BEFORE each step, so walk one more to see the finished item.
+    const final = evaluatePlanFrom(data, white, [
+      { currency: 'transmute', add: 'P1', minTierIndex: 2 },
+      { currency: 'augment', add: 'S1', minTierIndex: 1 },
+    ]);
+    expect(final.total).toBeGreaterThan(0);
+    expect(states).toHaveLength(2);
+    expect(states[1]!.prefixes[0]!.tierName).toBe('t2');
+  });
+
+  it('still defaults to tier 0 when a step names no tier', () => {
+    const states = planStates(data, white, [
+      { currency: 'transmute', add: 'P1' },
+      { currency: 'augment', add: 'S1' },
+    ]);
+    expect(states[1]!.prefixes[0]!.tierName).toBe('t0');
+  });
 });

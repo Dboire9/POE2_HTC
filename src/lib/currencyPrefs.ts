@@ -104,6 +104,10 @@ export const OMEN_GROUP: CurrencyGroup = {
     { id: 'greaterExalt', label: 'Greater Exaltation', keys: ['OmenofGreaterExaltation'] },
     { id: 'sinCryst', label: 'Sinistral Crystallisation', keys: ['OmenofSinistralCrystallisation'] },
     { id: 'dexCryst', label: 'Dextral Crystallisation', keys: ['OmenofDextralCrystallisation'] },
+    // NO Whittling row yet, deliberately. `currencyPrefs.test.ts` pins that every key here exists in
+    // the shipped sheet, and `OmenofWhittling` does not — poe.ninja serves no omen endpoint, so the
+    // quotes are hand-transcribed and this one has never been. The row would also lie: excluding an
+    // omen the planner never offers changes nothing. Add it in the same commit as the quote.
     { id: 'sinNecro', label: 'Sinistral Necromancy', keys: ['OmenofSinistralNecromancy'] },
     { id: 'dexNecro', label: 'Dextral Necromancy', keys: ['OmenofDextralNecromancy'] },
     { id: 'blackblooded', label: 'the Blackblooded', keys: ['OmenoftheBlackblooded'] },

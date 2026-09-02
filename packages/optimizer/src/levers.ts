@@ -60,8 +60,17 @@ function atStrength(step: PlanStep, tier: CurrencyTier): PlanStep | undefined {
  * Necromancy omen on an UNOMENED desecration is a real, priced lever that neither offers — left alone
  * here so this change stays one change.
  */
-function withOmen(data: PatchData, step: PlanStep): PlanStep | undefined {
+function withOmen(data: PatchData, prices: Prices, step: PlanStep): PlanStep | undefined {
   switch (step.currency) {
+    // Omen of Whittling: the Chaos Orb removes the LOWEST-LEVEL modifier instead of a uniform one.
+    // Gated on the omen having a PRICE, for the same reason the strengths above are: `stepCost`
+    // charges 0 for a missing key, and this omen is not in the shipped `omenQuotes` yet (poe.ninja
+    // serves no omen endpoint, so those are hand-transcribed). Ungated, an unpriced Whittling would
+    // come back FREE and dominate every chaos step it touched — the exact trap this module's other
+    // gate exists for. It lights up on its own the day the quote is added; until then a chaos step
+    // simply has no omen variant, which is today's behaviour exactly.
+    case 'chaos':
+      return prices.omens['OmenofWhittling'] === undefined ? undefined : { ...step, omen: 'whittling' };
     case 'exalt': return { ...step, constrainTo: resolveMod(data, step.add).type };
     case 'perfect-essence':
       return { ...step, omen: resolveMod(data, step.remove).type === 'prefix' ? 'sinistral' : 'dextral' };
@@ -118,7 +127,7 @@ export function leverOptions(
     }
     if (at === undefined) continue;
     variants.push(at);
-    const omened = withOmen(data, at);
+    const omened = withOmen(data, prices, at);
     if (omened !== undefined) variants.push(omened);
   }
 

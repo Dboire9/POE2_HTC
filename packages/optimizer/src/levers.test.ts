@@ -113,3 +113,68 @@ describe('leverOptions — an any-tier target still has an orb-strength choice',
     expect(new Set(opts.map((o) => o.prob)).size).toBeGreaterThan(1);
   });
 });
+
+// --- Omen of Whittling: offered only when it is PRICED ------------------------------------------
+// The omen is not in the shipped `omenQuotes` — poe.ninja serves no omen endpoint, so those are
+// hand-transcribed and this one has never been. `stepCost` charges 0 for a missing key, so an ungated
+// Whittling would come back FREE and dominate every chaos step it touched. The gate is what keeps the
+// mechanic dormant until a real quote exists, and this pins both halves of it.
+describe('Omen of Whittling — priced or not offered', () => {
+  const withWhittling = (p: Prices, price: number): Prices =>
+    ({ ...p, omens: { ...p.omens, OmenofWhittling: price } });
+
+  // Two prefixes, deliberately placed at DIFFERENT tiers so one is unambiguously the lowest level.
+  const twoTiered = (): ItemState => {
+    const [a, b] = [P[0]!, P[1]!];
+    const modA = data.mods.get(a)!;
+    const modB = data.mods.get(b)!;
+    return {
+      base: wand, level: 82, rarity: 'rare',
+      prefixes: [
+        { modId: a, tierName: modA.tiers[0]!.name },                              // lowest ilvl
+        { modId: b, tierName: modB.tiers[modB.tiers.length - 1]!.name },          // highest ilvl
+      ],
+      suffixes: [{ modId: S[0]!, tierName: data.mods.get(S[0]!)!.tiers[Math.min(2, data.mods.get(S[0]!)!.tiers.length - 1)]!.name }],
+    };
+  };
+
+  it('is absent from the shipped sheet, so no chaos step gets an omen variant today', () => {
+    expect(prices.omens['OmenofWhittling']).toBeUndefined();
+    const state = twoTiered();
+    const step: PlanStep = { currency: 'chaos', remove: P[0]!, add: S[1]! };
+    const opts = leverOptions(data, prices, state, step);
+    expect(opts.length).toBeGreaterThan(0);
+    expect(opts.some((o) => 'omen' in o.step && o.step.omen === 'whittling')).toBe(false);
+  });
+
+  it('appears once priced, charging the omen on top of the orb', () => {
+    const state = twoTiered();
+    const step: PlanStep = { currency: 'chaos', remove: P[0]!, add: S[1]! };
+    const priced = withWhittling(prices, 500);
+    const opts = leverOptions(data, priced, state, step);
+    const plain = opts.find((o) => !('omen' in o.step && o.step.omen === 'whittling'))!;
+    const whittled = opts.find((o) => 'omen' in o.step && o.step.omen === 'whittling');
+    expect(whittled, 'a whittling variant is offered').toBeDefined();
+    expect(whittled!.cost).toBeCloseTo(plain.cost + 500, 9);
+  });
+
+  it('buys a strictly better chance when the removal target IS the lowest-level mod', () => {
+    const state = twoTiered();
+    // P[0] sits at the mod's lowest tier, so it is the item's lowest-level modifier.
+    const step: PlanStep = { currency: 'chaos', remove: P[0]!, add: S[1]! };
+    const opts = leverOptions(data, withWhittling(prices, 500), state, step);
+    const plain = opts.find((o) => o.step.currency === 'chaos' && !('omen' in o.step && o.step.omen === 'whittling'))!;
+    const whittled = opts.find((o) => 'omen' in o.step && o.step.omen === 'whittling')!;
+    // Three mods on the item, so an unomened chaos removes this one 1 time in 3; Whittling takes it
+    // every time. The ADD half is identical, so the ratio is exactly 3.
+    expect(whittled.prob / plain.prob).toBeCloseTo(3, 9);
+  });
+
+  it('is pruned when the removal target is NOT the lowest — P=0, so it never reaches the DP', () => {
+    const state = twoTiered();
+    // P[1] is at its highest tier, so it is not the lowest-level mod: Whittling cannot take it.
+    const step: PlanStep = { currency: 'chaos', remove: P[1]!, add: S[1]! };
+    const opts = leverOptions(data, withWhittling(prices, 500), state, step);
+    expect(opts.some((o) => 'omen' in o.step && o.step.omen === 'whittling')).toBe(false);
+  });
+});

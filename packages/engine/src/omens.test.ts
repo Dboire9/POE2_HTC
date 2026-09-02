@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import type { ItemBase, ItemState, Mod, PatchData, PlacedMod } from './index.ts';
 import {
-  annulProbability, desecrationBossProbability, desecrationProbability,
-  exaltProbability, perfectEssenceProbability,
+  annulProbability, chaosProbability, chaosRemovalProbability, desecrationBossProbability,
+  desecrationProbability, exaltProbability, lowestLevelMods, perfectEssenceProbability,
 } from './index.ts';
 
 // SPEC Phase-1 omen sub-step, step 2: "Port each omen as a pool/outcome transformation with its own
@@ -157,5 +157,80 @@ describe('omens.json catalog', () => {
   it('exactly one omen (Greater Exaltation) is deferred', () => {
     const deferred = catalog.omens.filter((o) => !o.verified);
     expect(deferred.map((o) => o.id)).toEqual(['OmenofGreaterExaltation']);
+  });
+});
+
+// --- Omen of Whittling: a CHAOS omen that removes the lowest-LEVEL modifier ---------------------
+// Traced to poe2db 2026-09-02: "your next Chaos Orb will remove the lowest level modifier", internal
+// id OmenOnChaosLowestLevelMod. TODO 12 specified it as an ANNULMENT omen removing the lowest TIER;
+// both halves of that were wrong, and modelling it that way would have priced a mechanic the game
+// does not have. Tier numbers are also not comparable across mods — a T5 of a five-tier mod is its
+// worst roll, a T5 of a ten-tier mod is mid-range — so only item level gives one scale for the item.
+describe('Omen of Whittling — a Chaos Orb removes the lowest-level modifier', () => {
+  const tier = (name: string, ilvl: number) => ({ name, ilvl, weight: 100, ranges: [], stats: [] });
+  // Three mods, each with tiers at distinct ilvls so a placed tier names a distinct level.
+  const mod = (id: string, type: 'prefix' | 'suffix', family: string): Mod =>
+    ({ id, group: id, field: id, source: 'normal', type, categories: [], family, tags: [], text: null,
+       tiers: [tier('low', 10), tier('mid', 40), tier('high', 70)] });
+  const base: ItemBase = {
+    id: 'B', name: 'B', category: 'C',
+    pools: {
+      normal: { prefixes: ['P1', 'P2'], suffixes: ['S1'] },
+      desecrated: { prefixes: [], suffixes: [] },
+      essence: { prefixes: [], suffixes: [] },
+    },
+  };
+  const data: PatchData = {
+    patch: 't',
+    mods: new Map([
+      ['P1', mod('P1', 'prefix', 'Fa')], ['P2', mod('P2', 'prefix', 'Fb')], ['S1', mod('S1', 'suffix', 'Fs')],
+    ]),
+    bases: new Map([['B', base]]),
+  };
+  // P1 at ilvl 70, P2 at 40, S1 at 10 — S1 is the unique lowest level.
+  const item: ItemState = {
+    base, level: 100, rarity: 'rare',
+    prefixes: [{ modId: 'P1', tierName: 'high' }, { modId: 'P2', tierName: 'mid' }],
+    suffixes: [{ modId: 'S1', tierName: 'low' }],
+  };
+
+  it('names the unique lowest-level mod', () => {
+    expect(lowestLevelMods(data, item)).toEqual(['S1']);
+  });
+
+  it('removes that mod with P=1, and any other with P=0', () => {
+    expect(chaosRemovalProbability(data, item, 'S1', 'whittling')).toBe(1);
+    expect(chaosRemovalProbability(data, item, 'P2', 'whittling')).toBe(0);
+    expect(chaosRemovalProbability(data, item, 'P1', 'whittling')).toBe(0);
+  });
+
+  it('without the omen the removal is uniform over all three', () => {
+    for (const id of ['P1', 'P2', 'S1']) {
+      expect(chaosRemovalProbability(data, item, id, 'none')).toBeCloseTo(1 / 3, 12);
+    }
+  });
+
+  it('splits a tie uniformly — the one piece of this that is assumed, not traced', () => {
+    const tied: ItemState = { ...item, prefixes: [{ modId: 'P1', tierName: 'low' }, { modId: 'P2', tierName: 'mid' }] };
+    expect(lowestLevelMods(data, tied).sort()).toEqual(['P1', 'S1']);
+    expect(chaosRemovalProbability(data, tied, 'P1', 'whittling')).toBeCloseTo(1 / 2, 12);
+    expect(chaosRemovalProbability(data, tied, 'S1', 'whittling')).toBeCloseTo(1 / 2, 12);
+    expect(chaosRemovalProbability(data, tied, 'P2', 'whittling')).toBe(0);
+  });
+
+  it('a fractured mod is never whittled, even when it is the lowest level', () => {
+    const frac: ItemState = { ...item, suffixes: [{ modId: 'S1', tierName: 'low', fractured: true }] };
+    // S1 is excluded from the removal pool entirely, so the lowest REMOVABLE level is P2's.
+    expect(lowestLevelMods(data, frac)).toEqual(['P2']);
+    expect(chaosRemovalProbability(data, frac, 'S1', 'whittling')).toBe(0);
+    expect(chaosRemovalProbability(data, frac, 'P2', 'whittling')).toBe(1);
+  });
+
+  it('flows through chaosProbability: the omen changes the removal factor only', () => {
+    // Removing S1 frees the suffix side; the add is whatever the pool allows, unchanged by the omen.
+    const plain = chaosProbability(data, item, 'S1', 'S1');
+    const whittled = chaosProbability(data, item, 'S1', 'S1', { omen: 'whittling' });
+    expect(plain).toBeGreaterThan(0);
+    expect(whittled).toBeCloseTo(plain * 3, 12); // 1 instead of 1/3 on the removal
   });
 });

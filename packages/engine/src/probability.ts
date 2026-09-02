@@ -171,6 +171,49 @@ export function exaltProbability(data: PatchData, item: ItemState, desiredModId:
 export type AnnulOmen = 'none' | 'sinistral' | 'dextral' | 'light';
 
 /**
+ * Omens that change what a CHAOS ORB removes.
+ *
+ * `whittling` is the Omen of Whittling, and it is a CHAOS omen — not an Annulment one. Traced to
+ * poe2db 2026-09-02: *"your next Chaos Orb will remove the lowest level modifier"*, internal id
+ * `OmenOnChaosLowestLevelMod`. Worth stating because it is easy to assume otherwise from how players
+ * describe the slam-and-clean loop, and TODO 12 specified it as an Annulment omen throughout.
+ *
+ * **"Lowest LEVEL", not "lowest tier".** The distinction is not pedantry: tier numbers are per-mod and
+ * not comparable across mods (a T5 of a five-tier mod is its worst roll; a T5 of a ten-tier mod is
+ * mid-range), so "lowest tier" would have no well-defined meaning on an item carrying both. Item
+ * level is one scale for every mod on the item, and every tier already carries its `ilvl`.
+ *
+ * The Sinistral/Dextral Erasure omens ("remove only prefix/suffix modifiers") are the other two chaos
+ * omens and are deliberately NOT modelled here yet — see `stepOmenIds` in the optimizer for why the
+ * `constrainTo` field on a chaos step is a different thing from them.
+ */
+export type ChaosOmen = 'none' | 'whittling';
+
+/**
+ * The modifiers an Omen of Whittling would consider "lowest level" on this item.
+ *
+ * Returns every removable mod tied at the minimum tier ilvl, so a caller can price the tie. A
+ * FRACTURED mod is excluded, as it is from every other removal pool — it cannot be taken.
+ *
+ * A placed mod's level is the ilvl of the TIER IT WAS ROLLED AT, which is why `addMod` had to start
+ * honouring a step's `minTierIndex` before this could mean anything: while every mid-plan add landed
+ * at tier 0 — the lowest ilvl a mod has — everything a plan added tied for lowest.
+ */
+export function lowestLevelMods(data: PatchData, item: ItemState): string[] {
+  const placed = [...item.prefixes, ...item.suffixes].filter((p) => !p.fractured);
+  const levelOf = (p: PlacedMod): number => {
+    const mod = data.mods.get(p.modId);
+    const tier = mod?.tiers.find((t) => t.name === p.tierName);
+    // An unresolvable tier falls back to the mod's lowest, which is the conservative reading: it can
+    // only make the mod look MORE likely to be whittled, never less.
+    return tier?.ilvl ?? mod?.tiers[0]?.ilvl ?? 0;
+  };
+  if (placed.length === 0) return [];
+  const min = Math.min(...placed.map(levelOf));
+  return placed.filter((p) => levelOf(p) === min).map((p) => p.modId);
+}
+
+/**
  * Probability that an Orb of Annulment removes the mod `targetModId` currently on `item`.
  * Faithful port of `AnnulProbability.ComputePercentageAnnul` — annul removes a uniformly random mod:
  *   none      → 1 / (total mods)
@@ -218,15 +261,44 @@ function removeFromItem(item: ItemState, modId: string): ItemState {
  *   • removal = a no-omen Annulment → 1 / (total mods on the item), 0 if the mod isn't there;
  *   • add     = an Exalt on the freed item → weighted, any open side (the add is NOT tied to the removed
  *     mod's side — a removed suffix can be replaced by a prefix), family-excluding the mods that remain.
- * `opts` tune the add (orb tier, tier target). Base orb only — Whittling / side-lock omens come later.
+ * `opts` tune the add (orb tier, tier target).
+ *
+ * With an **Omen of Whittling** the removal stops being uniform and becomes the lowest-LEVEL modifier
+ * — see `ChaosOmen`. The add is untouched by the omen, so the factorisation still holds and only the
+ * first factor changes.
  */
 export function chaosProbability(
-  data: PatchData, item: ItemState, removeModId: string, addModId: string, opts: CurrencyOptions = {},
+  data: PatchData, item: ItemState, removeModId: string, addModId: string,
+  opts: CurrencyOptions & { omen?: ChaosOmen } = {},
 ): number {
   if (item.rarity !== 'rare') return 0; // Chaos Orbs act on Rare items
-  const removeP = annulProbability(data, item, removeModId); // uniform 1/total; 0 if not on the item
+  const removeP = chaosRemovalProbability(data, item, removeModId, opts.omen ?? 'none');
   if (removeP === 0) return 0;
   return removeP * exaltProbability(data, removeFromItem(item, removeModId), addModId, opts);
+}
+
+/**
+ * P(a Chaos Orb removes `removeModId`), which is the only factor an omen touches.
+ *
+ * Without an omen this is a no-omen Annulment: uniform over the removable mods. With Whittling the
+ * game takes the lowest-level modifier, so the target is taken iff it IS that modifier.
+ *
+ * **The tie is the one untraced piece.** Where several mods share the lowest level, poe2db's text
+ * ("will remove the lowest level modifier") does not say which the game picks, and nothing here can
+ * settle it. Uniform among the tied is modelled, matching every other pick-among-equals in this
+ * engine — an unomened Annulment, a boss-omened Desecration — and it is recorded in docs/validation.md
+ * as an assumption rather than a traced rule. It is also the conservative direction for the common
+ * case: a plan that whittles junk off gets a LOWER probability than a deterministic tiebreak in its
+ * favour would give it, so the model cannot flatter such a plan.
+ */
+export function chaosRemovalProbability(
+  data: PatchData, item: ItemState, removeModId: string, omen: ChaosOmen = 'none',
+): number {
+  if (omen !== 'whittling') return annulProbability(data, item, removeModId);
+  const placed = [...item.prefixes, ...item.suffixes].find((p) => p.modId === removeModId);
+  if (!placed || placed.fractured === true) return 0;
+  const lowest = lowestLevelMods(data, item);
+  return lowest.includes(removeModId) ? 1 / lowest.length : 0;
 }
 
 /** Number of modifiers an Orb of Alchemy rolls onto a white item (PoE2: fixed at 4). */

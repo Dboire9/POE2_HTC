@@ -9,7 +9,7 @@
 import type { AffixType, CurrencyTier, ItemBase, ItemState, PatchData, PlacedMod, Rarity } from './types.ts';
 import { familyAvailable, resolveMod } from './pool.ts';
 import { MAX_AFFIXES_PER_SIDE, prefixesFull, suffixesFull, whiteItem, withAffix } from './item.ts';
-import type { AnnulOmen, CurrencyOptions, DesecrationBossOmen, EssenceOmen } from './probability.ts';
+import type { AnnulOmen, ChaosOmen, CurrencyOptions, DesecrationBossOmen, EssenceOmen } from './probability.ts';
 import {
   alchemyProbability, annulProbability, augmentationProbability, chaosProbability, desecrationBossAnySideProbability,
   desecrationBossProbability, desecrationOffered, desecrationProbability, essenceForcedProbability, exaltProbability, perfectEssenceProbability, regalProbability,
@@ -40,7 +40,9 @@ export type PlanStep =
   // A Chaos Orb on a Rare item: remove the existing `remove` mod (uniformly at random) and add the new
   // `add` mod to any open side (weighted). `constrainTo`/`tier`/`minTierIndex` tune the add. The natural
   // home for this is the craft-from-existing-item flow (rerolling an item you already hold).
-  | ({ currency: 'chaos'; remove: string; constrainTo?: AffixType } & AddFields)
+  // `omen: 'whittling'` is the Omen of Whittling — it makes the REMOVAL deterministic (the
+  // lowest-level modifier) instead of uniform. `constrainTo` is a different axis and tunes the ADD.
+  | ({ currency: 'chaos'; remove: string; constrainTo?: AffixType; omen?: ChaosOmen } & AddFields)
   | { currency: 'annul'; remove: string; omen?: AnnulOmen }
   | { currency: 'desecrate'; add: string; boss?: DesecrationBossOmen; constrainTo?: AffixType }
   // A non-perfect essence forcing its guaranteed mod onto an open slot (deterministic, P=1).
@@ -94,7 +96,9 @@ export function stepProbability(data: PatchData, state: ItemState, step: PlanSte
       // land among the 4 rolled mods (computed from the base's normal pool).
       if (state.rarity !== 'normal' || state.prefixes.length + state.suffixes.length > 0) return 0;
       return alchemyProbability(data, state.base, step.adds, { level: state.level });
-    case 'chaos': return chaosProbability(data, state, step.remove, step.add, addOpts(step));
+    case 'chaos':
+      return chaosProbability(data, state, step.remove, step.add,
+        step.omen ? { ...addOpts(step), omen: step.omen } : addOpts(step));
     case 'annul': return annulProbability(data, state, step.remove, step.omen ? { omen: step.omen } : {});
     case 'desecrate': {
       // A desecration acts on a RARE item and adds a mod to an OPEN slot of its side (family free). The
@@ -181,7 +185,15 @@ function applyStep(data: PatchData, state: ItemState, step: PlanStep): ItemState
     case 'chaos': return addMod(data, removeMod(state, step.remove), 'chaos', step.add);
     case 'perfect-essence': return addMod(data, removeMod(state, step.remove), step.currency, step.add);
     case 'essence': return addMod(data, state, step.currency, step.add, step.essenceTier ?? 0);
-    default: return addMod(data, state, step.currency, step.add);
+    // `minTierIndex` — "this tier or better" — is what the step ASKED for, and until 2026-09-02 every
+    // add landed at tier 0 regardless, so a walked item's tiers were fiction after the first add.
+    // That was harmless only while nothing read them; the Omen of Whittling removes the LOWEST LEVEL
+    // modifier, which makes the placed tier an input to a probability. Placing at exactly
+    // `minTierIndex` is the worst tier that still satisfies the target, so the walk never flatters a
+    // plan: a lower placed level makes the mod MORE likely to be the one Whittling takes.
+    // A Desecration carries no tier target — the bone offers what it offers — so it keeps tier 0.
+    case 'desecrate': return addMod(data, state, step.currency, step.add);
+    default: return addMod(data, state, step.currency, step.add, step.minTierIndex ?? 0);
   }
 }
 

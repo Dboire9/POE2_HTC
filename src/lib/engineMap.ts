@@ -149,9 +149,14 @@ export function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
       // a perfect-essence step can carry a Sinistral/Dextral Crystallisation omen (constrains the removal).
       const constrainTo = (step.currency === 'exalt' || step.currency === 'chaos') ? step.constrainTo : undefined;
       const peOmen = step.currency === 'perfect-essence' ? step.omen : undefined;
+      // Omen of Whittling — a CHAOS omen: the orb removes the lowest-LEVEL modifier rather than a
+      // uniform one. Named in full because "+ Whittling" alone would not tell a player which orb it
+      // modifies, and this is the only omen here that changes a REMOVAL on an adding currency.
+      const whittling = step.currency === 'chaos' && step.omen === 'whittling';
       // A desecration is constrained to its boss (the omen that targets the desecrated mod).
       const boss = step.currency === 'desecrate' ? step.boss : undefined;
-      const omen = constrainTo ? (constrainTo === 'prefix' ? ' + Sinistral' : ' + Dextral')
+      const omen = whittling ? ' + Omen of Whittling'
+        : constrainTo ? (constrainTo === 'prefix' ? ' + Sinistral' : ' + Dextral')
         : peOmen ? (peOmen === 'sinistral' ? ' + Sinistral' : ' + Dextral')
         : boss ? ` + Omen of the ${BOSS_LABEL[boss]}` : '';
       const label = CURRENCY_LABEL[step.currency]

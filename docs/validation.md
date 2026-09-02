@@ -2790,7 +2790,52 @@ Desecration would have been charged the ARMOUR bone — 0.41ex against the colla
 silently refused the boss omens the game does allow on a belt. Found by checking the map rather than
 reading the comment; fixed in the same commit that added the category.
 
+## Omen of Whittling: the spec had the mechanic wrong (2026-09-02)
+
+TODO 12 described the Omen of Whittling as making an **Orb of Annulment** remove the lowest **tier**
+modifier. Both halves are wrong. Traced to poe2db:
+
+> *"While this item is active in your inventory your next **Chaos Orb** will remove the **lowest level**
+> modifier"* — `Metadata/Items/Currency/OmenOnChaosLowestLevelMod`
+
+It is a CHAOS omen, and it works on item LEVEL. That second point resolves an ambiguity the section
+worried about: tier numbers are per-mod and not comparable across mods (a T5 of a five-tier mod is its
+worst roll; a T5 of a ten-tier mod is mid-range), so "lowest tier" would have had no well-defined
+meaning on an item carrying both. Item level is one scale for the whole item.
+
+The same trace produced the full 45-omen list, which also settles a question left open on 2026-09-01:
+the chaos side-omens DO exist (**Sinistral / Dextral Erasure**, "remove only prefix/suffix modifiers"),
+but they constrain what the orb REMOVES, where `PlanStep.chaos.constrainTo` tunes what it ADDS. So the
+inert field is still not priceable as an Erasure omen — see TODO 12c.
+
+**Prerequisite, fixed first and pinned by a test written to fail.** `addMod` placed every mid-plan add
+at `tierIndex 0`, the lowest ilvl a mod has, regardless of the step's `minTierIndex`. Harmless while
+no probability read a walked tier; fatal for Whittling, since everything a plan added would have tied
+for lowest level. Placing at `minTierIndex` is the worst tier that still satisfies the target, so the
+model never flatters a plan.
+
+**Measured behaviour**, on a Wand holding three mods with one at its lowest tier: an unomened Chaos
+removes that mod 1 time in 3, Whittling takes it every time — the option costs the orb plus the omen
+and buys exactly **3x** the chance, because only the removal factor moves. Where the named removal is
+NOT the lowest-level mod the option scores 0 and never reaches the DP.
+
+**Shipped dormant.** `OmenofWhittling` has no `omenQuotes` entry and `stepCost` charges 0 for a
+missing key, so the lever is gated on the omen having a price — ungated it would have come back free
+and dominated every chaos step it touched.
+
+### The one assumption
+
+Where several mods share the lowest level, the game's tiebreak is **untraced**. Uniform among the tied
+is modelled, matching every other pick-among-equals in this engine (an unomened Annulment, a
+boss-omened Desecration). It is also the conservative direction for the common case: a plan whittling
+junk off gets a LOWER probability than a deterministic tiebreak in its favour would give it. Listed
+under "Still deferred" until someone can confirm it in game.
+
 ## Still deferred
+- **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
+  the lowest item level, which does the Chaos Orb remove? Uniform among them is modelled and flagged.
+  Also outstanding: hand-transcribe the omen's quote into `omenQuotes`, which is what activates the
+  whole mechanic — it is wired and dormant.
 - **Cross-check the BELT weights against Craft of Exile** (added 2026-09-02, table above). CoE is
   client-rendered and `scripts/coe-verify.mts` takes hand-entered numbers, so this needs a browser.
   Every other shipped category has had this check; belts have not.

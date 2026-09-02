@@ -18,7 +18,7 @@
 
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
 import type { AffixType, CurrencyTier, ItemBase, Mod } from '../../engine/src/types.ts';
-import type { AnnulOmen, DesecrationBossOmen, EssenceOmen } from '../../engine/src/probability.ts';
+import type { AnnulOmen, ChaosOmen, DesecrationBossOmen, EssenceOmen } from '../../engine/src/probability.ts';
 import { desecrationBoneFor } from '../../engine/src/probability.ts';
 
 /**
@@ -55,8 +55,8 @@ export interface PricedStep {
   readonly essenceLevel?: string;
   /** Side constraint that costs a Sinistral/Dextral omen on exalt and desecrate. */
   readonly constrainTo?: AffixType;
-  /** Side (or Light) omen on annul and perfect-essence. */
-  readonly omen?: AnnulOmen | EssenceOmen;
+  /** Side (or Light) omen on annul and perfect-essence; Whittling on chaos. */
+  readonly omen?: AnnulOmen | EssenceOmen | ChaosOmen;
   /** Which boss pool a desecration draws from — each is its own omen. */
   readonly boss?: DesecrationBossOmen;
   /** The mod an essence forces. Read ONLY for essence pricing — see the note above. */
@@ -165,6 +165,17 @@ export function stepOmenIds(step: PricedStep): string[] {
       if (step.omen === 'sinistral') return ['OmenofSinistralCrystallisation'];
       if (step.omen === 'dextral') return ['OmenofDextralCrystallisation'];
       return [];
+    // The Omen of Whittling: "your next Chaos Orb will remove the lowest level modifier". A CHAOS
+    // omen — traced to poe2db 2026-09-02, internal id OmenOnChaosLowestLevelMod.
+    //
+    // `constrainTo` on a chaos step is deliberately NOT priced here, and must not be "fixed" by
+    // treating it as an Erasure omen. The two traced chaos side-omens — Sinistral and Dextral Erasure
+    // — constrain what a Chaos Orb REMOVES ("will remove only prefix modifiers"), whereas this field
+    // tunes what the step ADDS (`addOpts` feeds it to the exalt half). They are different mechanics
+    // that happen to share a word. Nothing emits a chaos `constrainTo` today, so the field is inert;
+    // pricing it as Erasure would charge for an omen that does something else.
+    case 'chaos':
+      return step.omen === 'whittling' ? ['OmenofWhittling'] : [];
     case 'desecrate': {
       const ids: string[] = [];
       if (step.boss === 'blackblooded') ids.push('OmenoftheBlackblooded');

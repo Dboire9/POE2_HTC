@@ -868,7 +868,7 @@ untraced, so adding them would be asserting a mechanic rather than reading one.
 
 ---
 
-## 12. Omen of Whittling — TIER 2, HALF OF IT IS HARD
+## 12. ~~Omen of Whittling~~ — MECHANIC SHIPPED, DORMANT UNTIL PRICED (2026-09-02)
 
 **What is wrong.** The Omen of Whittling makes an Orb of Annulment remove the **lowest-tier** modifier
 on the item instead of a random one. It is arguably the most-used crafting omen in PoE2 for the
@@ -918,6 +918,81 @@ omen's price.
 **Do not** model it as "Whittling removes the lowest tier among JUNK". The game does not know what the
 player considers junk; if the player's target T5 mod is the lowest tier on the item, Whittling removes
 it. That is the trap, and the honest model has to fall into it.
+
+**THIS SECTION HAD THE MECHANIC WRONG, in both halves.** Traced to poe2db on 2026-09-02
+(`https://poe2db.tw/us/Omen_of_Whittling`, and the full list at `/us/Omens`):
+
+> Omen of Whittling — *"While this item is active in your inventory your next **Chaos Orb** will
+> remove the **lowest level** modifier"*, internal id **`OmenOnChaosLowestLevelMod`**.
+
+So it is a **CHAOS** omen, not an Orb of Annulment one, and it removes the lowest **LEVEL** modifier,
+not the lowest **tier**. Building it as specified above would have modelled a mechanic the game does
+not have. The level/tier distinction is not pedantry either: tier numbers are per-mod and not
+comparable across mods — a T5 of a five-tier mod is its worst roll, a T5 of a ten-tier mod is
+mid-range — so "lowest tier" has no well-defined meaning on an item carrying both. Item level is one
+scale for the whole item, and every tier already carries its `ilvl`, so the ambiguity this section
+worried about simply does not arise.
+
+**The prerequisite was real and is DONE.** `addMod` placed every mid-plan add at `tierIndex 0` — the
+LOWEST ilvl a mod has — whatever the step's `minTierIndex` said, so every mod a plan added would have
+tied for "lowest level" and Whittling would have modelled removing whatever was added last. It now
+places at `minTierIndex`, which is the worst tier that still satisfies the target and therefore the
+conservative reading: a lower placed level makes a mod MORE likely to be whittled, so the walk can
+never flatter a plan. Pinned by a test written to fail first, exactly as this section asked. A
+Desecration keeps tier 0 — a bone offers what it offers and the step carries no tier target.
+
+**What shipped**: `ChaosOmen` + `lowestLevelMods` + `chaosRemovalProbability` in the engine, the omen
+on `PlanStep`'s chaos variant, `OmenofWhittling` in `stepOmenIds`, a price-gated lever in `levers.ts`,
+and the label in `engineMap`. Hand-computed tests cover unique-lowest (P=1), not-lowest (P=0), the
+no-omen uniform case, ties, a fractured mod (never whittled, and its exclusion moves the "lowest"),
+and the flow through `chaosProbability` (exactly 3x on a 3-mod item, since only the removal factor
+moves).
+
+**IT IS DORMANT, and that is deliberate.** `OmenofWhittling` is not in `omenQuotes`, and `stepCost`
+charges 0 for a missing key — an ungated Whittling would come back FREE and dominate every chaos step
+it touched. `withOmen` therefore gates on the omen having a price, mirroring how the strengths are
+gated. Today no chaos step gets an omen variant, which is exactly current behaviour; it lights up on
+its own the day the quote lands.
+
+**TO FINISH IT, someone with the game and a browser needs to do three things:**
+1. Hand-transcribe the Omen of Whittling quote into `omenQuotes` (poe.ninja serves no omen endpoint —
+   see CLAUDE.md "Prices"). Everything else is already wired.
+2. Add `{ id: 'whittling', label: 'Whittling', keys: ['OmenofWhittling'] }` to `OMEN_GROUP` in
+   `currencyPrefs.ts`. It was written and REVERTED: `currencyPrefs.test.ts` pins that every key there
+   exists in the shipped sheet, and the row would also lie, since excluding an omen the planner never
+   offers changes nothing. It belongs in the same commit as the quote.
+3. Settle the TIE rule. Where several mods share the lowest level the game's choice is untraced;
+   uniform among the tied is modelled, matching every other pick-among-equals here, and recorded in
+   `docs/validation.md` as an assumption. It is the conservative direction for the common case.
+
+**The MDP half is untouched and needs its own item** — see 12b below.
+
+### 12b. The MDP cannot play Whittling — NEW, TIER 3
+
+`McState` is `(present, blocked, jp, js, flagged, rarity)`: it knows WHICH targets are present and HOW
+MANY junk mods sit per side, and **no mod's level**. "Remove the lowest-level modifier" therefore has
+no meaning in that state space — the model cannot tell whether the lowest-level mod is a target or
+junk, which is the entire question the omen answers. A level axis would need a bucket per junk mod,
+the same shape as the `flagged` axis, which cost ~5x solve time (see 3). Measure that before building
+it. Meanwhile the step planner offers the omen and the true-cost model does not, so once the quote
+lands the two models will diverge further on exactly the crafts players use Whittling for — and the
+UI should say so on a plan that uses it. That copy is NOT written, because writing it now would
+describe a dormant feature.
+
+### 12c. A chaos step's `constrainTo` is inert, and now traceably so — NEW, TIER 3
+
+`PlanStep`'s chaos variant carries `constrainTo`, `addOpts` feeds it to the exalt half, and
+`stepOmenIds` charges nothing for it — a free omen if anything ever emitted one. Nothing does, so it
+stays latent, and the 2026-09-01 design review left it alone for lack of evidence that a chaos side
+omen exists at all.
+
+It does, and it is **not this field**. The two traced chaos side-omens are **Sinistral Erasure** and
+**Dextral Erasure** — *"your next Chaos Orb will remove only prefix/suffix modifiers"* — and they
+constrain what the orb **REMOVES**, whereas `constrainTo` here tunes what it **ADDS**. Different
+mechanics sharing a word. So do NOT close this hole by pricing `constrainTo` as Erasure; either delete
+the field, or model the Erasure omens properly as a removal constraint (the chaos analogue of
+Sinistral/Dextral Annulment, which `annulProbability` already does). `stepOmenIds` now carries that
+warning at the call site.
 
 ---
 

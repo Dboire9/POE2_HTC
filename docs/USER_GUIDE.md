@@ -42,7 +42,8 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
 Open **[poe2htc.com](https://poe2htc.com)**. That's it — there is nothing to download, no account, and
 no server. The whole engine is JavaScript running in your browser; nothing you type leaves your machine.
 
-The first load pulls about 3 MB of modifier data for patch 0.5.0. After that the page works offline.
+The first load pulls the modifier data for patch 0.5.0 — about 1 MB, and 85 kB over the wire once
+compressed. After that the page works offline.
 
 Running it yourself instead? `npm run dev` serves it at `http://localhost:5173` — see
 [DEVELOPMENT.md](DEVELOPMENT.md).
@@ -425,7 +426,9 @@ improvement: raising the floor also deletes low tiers from the pool, so a Perfec
 a mod whose good tiers sit low. The engine searches all three and picks per step.
 
 **Omens** modify the currency used with them — the ones the engine models are Sinistral (prefix side),
-Dextral (suffix side), Light, Crystallisation, Necromancy, the Blackblooded, the Liege and the Sovereign.
+Dextral (suffix side), Light, Crystallisation, Necromancy, the Blackblooded, the Liege, the Sovereign,
+**Whittling** (a Chaos Orb removes your lowest-level mod instead of a random one) and **Greater
+Exaltation** (one Exalted Orb adds two mods).
 A *Dextral Exaltation* constrains an Exalt to add a **suffix**; a *Dextral Annulment* constrains an
 Annulment to remove one; a *Dextral Crystallisation* constrains a Perfect Essence's removal. They are
 different omens for different currencies — check what the plan step actually names before buying.

@@ -81,6 +81,7 @@ the surest way. Everything runs in your browser; there is no server and nothing 
 it works on desktop and mobile browsers, and it keeps working offline once loaded.
 
 New here? The **[User Guide](docs/USER_GUIDE.md)** walks through a first craft end to end.
+Used it before? **[What's new in 1.0](docs/WHATS-NEW.md)** is the tour of what the site does now.
 
 ### Running from source
 

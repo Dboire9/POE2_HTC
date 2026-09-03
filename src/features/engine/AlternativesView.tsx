@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import type { EngineAlternative, EngineAlternatives, EngineSlot } from '../../lib/engine';
-import { exactExalts, formatCount, formatIn, formatOdds, pickUnit, type CostUnit, type Rates } from '../../lib/currency';
+import { exactExalts, formatChance, formatIn, formatOdds, pickUnit, type CostUnit, type Rates } from '../../lib/currency';
 
 /**
  * Odds of FINISHING inside the budget. Small values still matter here (row 0 is often ~0.1%).
@@ -105,11 +105,16 @@ const Row: React.FC<{ alt: EngineAlternative; budget: number; best: boolean; uni
               <span className="tabular-nums text-xs text-muted-foreground">{Math.min(s.prob * 100, 100).toFixed(1)}%</span>
             </li>
           ))}
+          {/* The same two figures the plan cards keep, for the same reason: this line used to carry
+              `expected` — one run's price divided by the chance it lands, which prices binning the item
+              and buying a fresh base after every miss — and an attempt count that was exactly `1/p`,
+              the chance restated. Neither is a number to act on. What is left says what one clean run
+              of this sequence does, next to the in-budget odds that are this panel's whole point. */}
           <li className="pt-1 text-[11px] text-muted-foreground">
             {alt.plan.probability > 0 && (
-              <>≈ {formatCount(alt.plan.expectedAttempts)} attempts ·{' '}
-                <span title={exactExalts(alt.plan.expected)}>{formatIn(unit, alt.plan.expected)} expected</span>
-                · that’s a {fmtPct(alt.inBudget)} chance of getting there for ≤ {formatIn(unit, budget)}.</>
+              <>One clean run lands {formatChance(alt.plan.probability)} and costs{' '}
+                <span title={exactExalts(alt.plan.perAttempt)}>{formatIn(unit, alt.plan.perAttempt)}</span>
+                {' '}— that’s a {fmtPct(alt.inBudget)} chance of getting there for ≤ {formatIn(unit, budget)}.</>
             )}
           </li>
         </ol>
@@ -125,8 +130,13 @@ const Row: React.FC<{ alt: EngineAlternative; budget: number; best: boolean; uni
  */
 const AlternativesView: React.FC<{ alts: EngineAlternatives; budget: number; rates?: Rates }> = ({ alts, budget, rates }) => {
   // The budget joins the max: a row and the budget it is measured against must never disagree on units.
+  //
+  // It used to take the max over each row's `expected` too, which is the "one unit per QUANTITY" bug
+  // FrontierView already had — a single long-shot row at 1e12 ex chose divine for the whole panel, and
+  // then a budget the user had typed as "500" read back at them as "1.2 div". `expected` no longer
+  // renders here, so the max is over the two costs that do: the budget, and what one run costs.
   const unit = pickUnit(
-    Math.max(budget, ...alts.rows.map((a) => a.plan.expected).filter(Number.isFinite)),
+    Math.max(budget, ...alts.rows.map((a) => a.plan.perAttempt).filter(Number.isFinite)),
     rates,
   );
   // An empty frontier is NOT "nothing fits the budget". Row 0 is the exact target and enters with

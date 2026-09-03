@@ -38,6 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   both visible numbers** by another card in the same list — one Helmet craft led with 25.2ex a run at 1
   in 60,000 while its last card asked 4.0ex at 1 in 10,500. Cards drop from an average of 7.9 to 4.3
   and every one left earns its place. The budget search is untouched; this is a display filter.
+- **The budget panel's expanded plans match the cards.** A row's plan footer read
+  "≈ n attempts · X expected"; it now says what one clean run lands and what it costs. Which plan a row
+  picks was already sound — `bestByBudget` ranks on the within-budget CDF, not on expected cost — so
+  this is display only.
+
 - **Gone with it**, all claims that ranked on the hidden total: the `best value`, `cheapest` and
   `surest` badges, the "no route lands inside 40 attempts" note, `recommendPlan`,
   `MAX_PRACTICAL_ATTEMPTS`, and the `freeRestart` prop with its five branches. The Lab's screen-reader
@@ -58,6 +63,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   beside it, which is genuinely a second fact, stays.
 
 ### Fixed
+
+- **A long-shot row re-denominated the whole budget panel.** `pickUnit` took its max over every row's
+  `expected`, which divides by a ~1e-9 chance and is astronomical by construction — so one hopeless row
+  chose divine for the panel and a budget typed as "500" read back as "1.4 div". The same "one unit per
+  QUANTITY, not per view" defect already fixed in `FrontierView`. The max is now over the costs that
+  actually render.
 
 - **Four percentage formatters had drifted apart.** `FrontierView`, `ItemActions`, `AlternativesView`
   and `PolicyGraph` each carried their own, and all four fell through to `toPrecision`, which emits an

@@ -117,3 +117,35 @@ describe('AlternativesView — the empty frontier', () => {
     expect(broke.rows[0]!.inBudget).toBe(0);
   });
 });
+
+// ── The rows carry the same two figures as the plan cards ────────────────────
+// This footer used to read "≈ N attempts · X expected". Both were retired from the cards for reasons
+// that apply here unchanged: `expected` prices binning the item and buying a fresh base after every
+// miss (a policy True expected cost already beats), and the attempt count was exactly `1/p` — the
+// chance beside it, restated.
+describe('AlternativesView — what an expanded plan may claim', () => {
+  const rates = { chaos: 33.39, divine: 364.2 };
+
+  it('says what one clean run does, and no free-restart total', async () => {
+    const user = userEvent.setup();
+    render(<AlternativesView alts={alts} budget={30} />);
+    await user.click(screen.getAllByTitle(/Show the cheapest way to reach this item/i)[0]!);
+    expect(screen.getByText(/One clean run lands/)).toBeInTheDocument();
+    expect(screen.queryByText(/expected/)).toBeNull();
+    expect(screen.queryByText(/attempts/)).toBeNull();
+  });
+
+  // "One unit per QUANTITY, not per view" — FrontierView's bug, living on in this panel's `pickUnit`
+  // call. A single long-shot row's `expected` (astronomical by construction, it divides by a ~1e-9
+  // chance) dragged the whole panel into divine, and the budget the user typed as "500" read back at
+  // them as "1.4 div". The max is now over the costs that actually render.
+  it('does not re-denominate the budget because some row had an astronomical total', () => {
+    const astronomical = {
+      ...alts,
+      rows: alts.rows.map((r) => ({ ...r, plan: { ...r.plan, expected: 1e12, perAttempt: 12 } })),
+    };
+    render(<AlternativesView alts={astronomical} budget={500} rates={rates} />);
+    expect(screen.getByText(/Closest crafts for 500 ex/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Closest crafts for .* div/i)).toBeNull();
+  });
+});

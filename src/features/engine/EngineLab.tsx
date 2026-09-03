@@ -24,12 +24,12 @@ import {
 } from '../../lib/targetSlots';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
-import FrontierView, { fmtPct } from './FrontierView';
+import FrontierView from './FrontierView';
 import AlternativesView from './AlternativesView';
 import PolicyGraph from './PolicyGraph';
 import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
-import { exactExalts, formatBoundedCost } from '../../lib/currency';
+import { exactExalts, formatBoundedCost, formatChance } from '../../lib/currency';
 import BaseSelect from './BaseSelect';
 
 const selectCls =
@@ -385,8 +385,8 @@ const EngineLab: React.FC = () => {
         const best = result.frontier[rec.index] ?? result.frontier[0];
         if (!best) return '';
         return rec.practical
-          ? ` Best value: ${fmtPct(best.probability)} per attempt.`
-          : ` No route lands inside ${MAX_PRACTICAL_ATTEMPTS} attempts; surest is ${fmtPct(best.probability)} per attempt.`;
+          ? ` Best value: ${formatChance(best.probability)} per attempt.`
+          : ` No route lands inside ${MAX_PRACTICAL_ATTEMPTS} attempts; surest is ${formatChance(best.probability)} per attempt.`;
       })()
       + (alts ? ` ${alts.rows.length} budget alternative${alts.rows.length === 1 ? '' : 's'} listed.` : '');
 

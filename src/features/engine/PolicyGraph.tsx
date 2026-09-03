@@ -57,7 +57,16 @@ function stateLabel(nd: EnginePolicyNode): string {
   return parts.join(' · ');
 }
 
-const pct = (p: number): string => (p >= 0.1 ? `${Math.round(p * 100)}%` : `${(p * 100).toPrecision(1)}%`);
+// Deliberately NOT the shared `formatChance`: every caller here writes into a fixed 48px column or a
+// dense inline row, and "1 in 5.3 million" would re-break the layout the box widening just fixed. What
+// it does borrow is the refusal to go exponential — `toPrecision(1)` emitted "3e-8%" under 1e-7 — so
+// the tail becomes a floor instead. 0.001% keeps the once-in-twenty-thousand edges the graph draws.
+const PCT_FLOOR = 0.00001;
+const pct = (p: number): string => {
+  if (p >= 0.1) return `${Math.round(p * 100)}%`;
+  if (p > 0 && p < PCT_FLOOR) return `<${PCT_FLOOR * 100}%`;
+  return `${(p * 100).toPrecision(1)}%`;
+};
 
 /**
  * What a step does, in words.

@@ -20,8 +20,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the row is refused while a carved mod is on it; and the boss omens work on a **Weapon or Jewellery**
   only, so on armour the row says why instead of vanishing.
 
+### Changed
+
+- **Numbers are written for a player, not a spreadsheet.** Reported as "some of the numbers can be
+  pretty big and not user friendly, like 5.10e9 or having costs in the Billions". Scientific notation
+  is gone from every panel: a chance below a hundredth of a percent is now stated as odds (`3.9e-10%`
+  → **1 in 256.4 billion**), and a magnitude past a million is said in words (`6.1B div` → **6.1
+  billion div**, `5.1e+9` → **5.1 billion**). Words start at a million and not below, which was
+  measured rather than picked — "8.2 thousand ex" loses to "8,219 ex", so separators keep the middle
+  of the range.
+- **The plan cards stop printing one number twice.** `expectedAttempts` is `1 / total` and
+  `probability` *is* that same `total`, so "chance per attempt" and "≈ n attempts" were exact
+  reciprocals. On a real six-target Wand the card read `1 in 868,920` directly above `≈ 868,920
+  attempts`. The duplication survived this long because the two used to render as `3.9e-10%` and
+  `2.6e+11` — two unreadable strings do not look alike. The attempt count is gone; the per-run price
+  beside it, which is genuinely a second fact, stays.
+
 ### Fixed
 
+- **Four percentage formatters had drifted apart.** `FrontierView`, `ItemActions`, `AlternativesView`
+  and `PolicyGraph` each carried their own, and all four fell through to `toPrecision`, which emits an
+  exponent below 1e-7. They now share `formatChance`/`formatOdds`/`formatCount` in `src/lib/currency.ts`
+  — the same consolidation, one concern over, that the cost formatters in that file already record.
+  Two keep a local rounding policy for a reason now written down: `AlternativesView` renders *brackets*
+  ("45%–52%") where a second decimal doubles the width, and `PolicyGraph` writes into a 48px column
+  where "1 in 5.3 million" would re-break the layout — it floors at `<0.001%` instead.
 - **The Quick currency check priced its own orbs.** Every row now goes through the planners'
   `stepCost` on a `pricesForBase` sheet, which fixed two live defects on rows that already shipped: a
   Desecration would have been charged the flat `desecrate` key — the *rib* price, 0.30ex — on every

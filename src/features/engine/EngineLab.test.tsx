@@ -346,7 +346,7 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
    *
    * It had its own `toFixed(1)` and read "Best value: 0.0% per attempt" for a plan whose card, three
    * lines below, said 0.0000063% — a craft the app had just called achievable, announced to a screen
-   * reader as impossible. `fmtPct` is FrontierView's, so the two cannot drift apart again.
+   * reader as impossible. Both now call `formatChance`, so the two cannot drift apart again.
    */
   it('announces a long-shot chance at its real scale, not rounded to zero', async () => {
     mocks.optimize.mockReturnValue({
@@ -358,9 +358,12 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
     await user.click(addButton('Normal Prefix'));
     await user.click(screen.getByRole('button', { name: /Find plans/i }));
     const said = await screen.findByText(/per attempt\./);
-    // The exact string FrontierView puts on the card for this probability — same scale, same digits.
-    expect(said).toHaveTextContent('0.0000063% per attempt');
+    // The exact string FrontierView puts on the card for this probability — same scale, same idiom.
+    // It read "0.0000063%" until `formatChance` started reciprocating below a hundredth of a percent:
+    // a screen reader voices that as seven zeros, which is worse aloud than it is on screen.
+    expect(said).toHaveTextContent('1 in 15.9 million per attempt');
     expect(said).not.toHaveTextContent(/0\.0% per attempt/);
+    expect(said).not.toHaveTextContent(/e[+-]/); // …and never an exponent, which is unvoiceable.
     // …and it does NOT call it best value. 1.6e7 attempts clears no practicality bar, so this is the
     // fallback — the surest plan, which on a frontier ascending in price is also the dearest. The
     // badge stopped making that claim; the announcement is the one channel a screen-reader user

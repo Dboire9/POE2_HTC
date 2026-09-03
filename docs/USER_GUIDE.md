@@ -123,9 +123,10 @@ On each card:
 | Figure | What it means |
 |---|---|
 | **expected cost** | Total exalt-equivalents to *finish*, averaged over retries — i.e. cost per attempt divided by the chance an attempt lands |
-| **chance per attempt** | Probability that one run of this exact sequence produces the item |
-| **≈ n attempts** | How many runs it takes on average |
+| **chance per attempt** | Probability that one run of this exact sequence produces the item. Long shots are written as odds — "1 in 5.3 million" — because a percentage that small is read by counting zeros |
 | **per attempt** | What a single run costs, whether or not it works |
+
+There is no separate attempt count: it was `1 ÷ chance per attempt`, the same number twice.
 
 Badges:
 
@@ -133,7 +134,7 @@ Badges:
 - **cheapest** — lowest expected cost
 - **surest** — highest chance per attempt
 
-A **very** low chance per attempt (say 0.000001%) with a huge expected cost is the app telling you this
+A **very** low chance per attempt (say 1 in 100 million) with a huge expected cost is the app telling you this
 craft is not realistic as a fixed recipe. That's information, not a bug — and it's exactly the case where
 the **True expected cost** panel below will show a far smaller number, because a real crafter doesn't
 restart from white every time.

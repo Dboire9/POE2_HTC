@@ -17,7 +17,7 @@ import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField, useOnChange } from '../../lib/workspace';
 import { MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotsOf, whyNotAdd } from '../../lib/targetSlots';
-import { exactExalts, formatBoundedCost, formatCost, type Rates } from '../../lib/currency';
+import { exactExalts, formatBoundedCost, formatChance, formatCost, type Rates } from '../../lib/currency';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
 import PriceBasisNote from './PriceBasisNote';
@@ -31,14 +31,6 @@ const selectCls =
 // Bare <button>s miss the Button component's ring (button.tsx), falling back to the browser default —
 // visible, but inconsistent with the rest of the app.
 const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm';
-
-function fmtPct(p: number): string {
-  const pct = p * 100;
-  if (pct >= 1) return `${pct.toFixed(2)}%`;
-  if (pct >= 0.01) return `${pct.toFixed(3)}%`;
-  if (pct <= 0) return '0%';
-  return `${pct.toPrecision(2)}%`;
-}
 
 /**
  * Plain-language odds for a single orb: "guaranteed" at P=1, else "≈ 1 in N each orb".
@@ -673,7 +665,7 @@ const ItemActions: React.FC = () => {
                   {a.feasible ? (
                     <>
                       <div className="text-right">
-                        <div className="text-xl font-bold tabular-nums text-primary">{fmtPct(a.prob)}</div>
+                        <div className="text-xl font-bold tabular-nums text-primary">{formatChance(a.prob)}</div>
                         <div className="text-[11px] text-muted-foreground">{oddsText(a.prob)}</div>
                       </div>
                       <div className="text-xs text-muted-foreground w-24 text-right" title={exactExalts(a.cost)}>

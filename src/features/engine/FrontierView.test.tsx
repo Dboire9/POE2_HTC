@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import FrontierView, { fmtAttempts } from './FrontierView';
+import FrontierView from './FrontierView';
 import type { EnginePriceBasis, EngineResult } from '../../lib/engine';
 
 const empty: EngineResult = {
@@ -207,24 +207,41 @@ describe('FrontierView — the "best value" claim', () => {
   });
 });
 
-// Same defect as the total it sits beside: a true number in a form nobody can read.
-describe('FrontierView — attempt counts stay readable at every scale', () => {
-  it('keeps a decimal where one carries information', () => {
-    expect(fmtAttempts(1.6)).toBe('1.6');
-    expect(fmtAttempts(7.3)).toBe('7.3');
-    expect(fmtAttempts(999.4)).toBe('999.4');
+// ── One fact, printed once ───────────────────────────────────────────────────
+// `expectedAttempts` is `1 / total` (cost.ts) and `probability` IS that same `total` (optimize.ts,
+// "= result.total"), so the card was showing one number twice. It hid because the two rendered as
+// "3.9e-10%" and "2.6e+11" — two unreadable strings do not look alike.
+describe('FrontierView — numbers a player can read', () => {
+  const longShot: EngineResult = {
+    frontier: [{ probability: 3.9e-12, expected: 2.46e12, perAttempt: 357, expectedAttempts: 2.56e11, steps: [] }],
+    plansEvaluated: 10, assumedOdds: false,
+  };
+
+  it('never puts an exponent on screen', () => {
+    const { container } = render(<FrontierView result={longShot} freeRestart priceBasis={basis} />);
+    expect(container.textContent).not.toMatch(/e[+-]\d/);
   });
-  it('groups the middle of the range instead of running the digits together', () => {
-    expect(fmtAttempts(2500)).toBe('2,500');
-    expect(fmtAttempts(730_000)).toBe('730,000');
+
+  it('says a long-shot chance as odds rather than a run of zeros', () => {
+    render(<FrontierView result={longShot} freeRestart priceBasis={basis} />);
+    expect(screen.getByText('1 in 256.4 billion')).toBeInTheDocument();
   });
-  it('goes exponential where separators no longer help', () => {
-    // Was "1050000000000.0 attempts" on the reported 6-mod T1 Wand.
-    expect(fmtAttempts(1.05e12)).toBe('1.1e+12');
-    expect(fmtAttempts(2.6e11)).toBe('2.6e+11');
+
+  it('says the total in words rather than a suffix', () => {
+    render(<FrontierView result={longShot} freeRestart priceBasis={basis} />);
+    // 2.46e12 ex at 364.2 ex/div. Was "6.8B div".
+    expect(screen.getByText(/billion div/)).toBeInTheDocument();
   });
-  it('says infinity rather than NaN', () => {
-    expect(fmtAttempts(Infinity)).toBe('∞');
+
+  // The deletion. Not "an attempt count is unwelcome" — it is the SAME NUMBER as the chance above it,
+  // and a reader given both spends the glance working out whether they differ.
+  it('does not restate the chance as an attempt count', () => {
+    render(<FrontierView result={longShot} freeRestart priceBasis={basis} />);
+    // Scoped to the CARD: the note above it legitimately says "inside 40 attempts", which is a bar,
+    // not a restatement of this plan's odds.
+    const card = screen.getByText(/chance per attempt/i).closest('div.rounded-lg')!;
+    expect(card.textContent).not.toMatch(/attempts/);
+    // …while the per-run price, which is genuinely a second fact, stays.
+    expect(card.textContent).toMatch(/357 ex per attempt/);
   });
 });
-

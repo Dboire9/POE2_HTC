@@ -4,38 +4,7 @@ import type { EnginePriceBasis } from '../../lib/engine';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { MAX_PRACTICAL_ATTEMPTS, recommendPlan, type EngineResult } from '../../lib/engine';
-import { exactExalts, formatIn, pickUnit } from '../../lib/currency';
-
-/**
- * A success chance, at whatever scale it happens to be.
- *
- * Exported because the Lab's screen-reader announcement had its own `toFixed(1)` and read
- * "Best value: 0.0% per attempt" for the 0.0000063% this panel was showing three lines below —
- * a plan the app had just called achievable, announced as impossible.
- */
-export function fmtPct(p: number): string {
-  const pct = p * 100;
-  if (pct >= 1) return `${pct.toFixed(2)}%`;
-  if (pct >= 0.01) return `${pct.toFixed(3)}%`;
-  if (pct <= 0) return '0%';
-  return `${pct.toPrecision(2)}%`;
-}
-
-/**
- * An expected-attempt count, at whatever scale it happens to be.
- *
- * `toFixed(1)` alone printed a long-shot craft as **"≈ 1050000000000.0 attempts"** — twelve
- * unseparated digits and a decimal place that is noise at that size. It is the same defect as the
- * total beside it: a true number rendered in a form nobody can read. Thousands separators fix the
- * middle of the range; past a million even those give a string too long to take in at a glance, so it
- * goes exponential, which is also how the chance beside it already renders.
- */
-export function fmtAttempts(n: number): string {
-  if (!Number.isFinite(n)) return '∞';
-  if (n < 1000) return n.toFixed(1);
-  if (n < 1e6) return Math.round(n).toLocaleString();
-  return n.toExponential(1);
-}
+import { exactExalts, formatChance, formatIn, pickUnit } from '../../lib/currency';
 
 /** The (expected cost ↔ success probability) frontier: one card per non-dominated plan. */
 const FrontierView: React.FC<{
@@ -165,7 +134,7 @@ const FrontierView: React.FC<{
           );
           const odds = (
             <div>
-              <div className="text-2xl font-bold tabular-nums text-primary">{fmtPct(plan.probability)}</div>
+              <div className="text-2xl font-bold tabular-nums text-primary">{formatChance(plan.probability)}</div>
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">chance per attempt</div>
             </div>
           );
@@ -190,10 +159,15 @@ const FrontierView: React.FC<{
                     the two figures that survive are ones you can act on: how often one run lands, and
                     what one run costs. */}
                 {freeRestart ? <>{cost}{odds}</> : <>{odds}{perRun}</>}
+                {/* No attempt count here, because there is nothing to count that the chance beside it
+                    does not already say: `expectedAttempts` is `1 / total` (cost.ts) and `probability`
+                    IS that same `total` (optimize.ts, "= result.total"), so the two are exact
+                    reciprocals. The duplication hid while they rendered as "3.9e-10%" and "2.6e+11" --
+                    two unreadable strings do not look alike. Writing the chance as "1 in 260 billion"
+                    made them the same sentence, which is the tell. */}
                 {freeRestart && (
-                  <div className="text-xs text-muted-foreground">
-                    <div>≈ {fmtAttempts(plan.expectedAttempts)} attempts</div>
-                    <div title={exactExalts(plan.perAttempt)}>{formatIn(unitPerAttempt, plan.perAttempt)} per attempt</div>
+                  <div className="text-xs text-muted-foreground" title={exactExalts(plan.perAttempt)}>
+                    {formatIn(unitPerAttempt, plan.perAttempt)} per attempt
                   </div>
                 )}
                 <div className="flex-1" />

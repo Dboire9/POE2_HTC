@@ -2,16 +2,24 @@ import React, { useState } from 'react';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import type { EngineAlternative, EngineAlternatives, EngineSlot } from '../../lib/engine';
-import { exactExalts, formatIn, pickUnit, type CostUnit, type Rates } from '../../lib/currency';
+import { exactExalts, formatCount, formatIn, formatOdds, pickUnit, type CostUnit, type Rates } from '../../lib/currency';
 
-/** Odds of FINISHING inside the budget. Small values still matter here (row 0 is often ~0.1%). */
+/**
+ * Odds of FINISHING inside the budget. Small values still matter here (row 0 is often ~0.1%).
+ *
+ * Deliberately coarser than the shared `formatChance`, and this is the one place that difference is
+ * design rather than drift: these are BRACKETS, rendered as "45%-52%" when the CDF is inexact, and a
+ * second decimal on each end doubles the width of the range while claiming a precision the bracket
+ * itself denies. Only the tail is shared — below a hundredth of a percent no rounding saves the
+ * percentage form, so it hands over to the same "1 in N" the rest of the app uses.
+ */
 function fmtPct(p: number): string {
   const pct = p * 100;
   if (pct >= 10) return `${pct.toFixed(0)}%`;
   if (pct >= 1) return `${pct.toFixed(1)}%`;
   if (pct >= 0.01) return `${pct.toFixed(2)}%`;
-  if (pct <= 0) return '0%';
-  return `${pct.toPrecision(2)}%`;
+  if (p <= 0) return '0%';
+  return formatOdds(p);
 }
 
 /** One slot of the alternative item: kept as asked, swapped for a sibling, or dropped. */
@@ -99,7 +107,7 @@ const Row: React.FC<{ alt: EngineAlternative; budget: number; best: boolean; uni
           ))}
           <li className="pt-1 text-[11px] text-muted-foreground">
             {alt.plan.probability > 0 && (
-              <>≈ {alt.plan.expectedAttempts.toFixed(1)} attempts ·{' '}
+              <>≈ {formatCount(alt.plan.expectedAttempts)} attempts ·{' '}
                 <span title={exactExalts(alt.plan.expected)}>{formatIn(unit, alt.plan.expected)} expected</span>
                 · that’s a {fmtPct(alt.inBudget)} chance of getting there for ≤ {formatIn(unit, budget)}.</>
             )}

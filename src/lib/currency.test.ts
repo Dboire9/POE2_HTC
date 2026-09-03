@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { exactExalts, formatCost, formatIn, pickUnit } from './currency.ts';
+import { exactExalts, formatChance, formatCost, formatCount, formatIn, formatOdds, pickUnit } from './currency.ts';
 import { loadFrozenPrices } from '../../packages/optimizer/src/frozenPrices.ts';
 
 // Real rates from a real sheet, so the thresholds are exercised against the actual economy rather
@@ -74,5 +74,73 @@ describe('rounding', () => {
     const unit = pickUnit(5_000_000, rates);
     expect(formatIn(unit, 5_000_000)).toMatch(/div$/);
     expect(formatIn(unit, 12)).toMatch(/div$/); // small sibling stays in the shared unit
+  });
+});
+
+// ── Counts and chances ───────────────────────────────────────────────────────
+// Same defect as the costs above, one quantity over: a true number in a form nobody can read. These
+// asserted `fmtAttempts` in FrontierView.test before the formatter moved here.
+
+describe('formatCount — readable at every scale', () => {
+  it('keeps a decimal where one carries information', () => {
+    expect(formatCount(1.6)).toBe('1.6');
+    expect(formatCount(7.3)).toBe('7.3');
+    expect(formatCount(999.4)).toBe('999.4');
+  });
+
+  it('groups the middle of the range instead of running the digits together', () => {
+    expect(formatCount(2500)).toBe('2,500');
+    expect(formatCount(730_000)).toBe('730,000');
+  });
+
+  // Was "1050000000000.0 attempts" on the reported 6-mod T1 Wand, then "1.1e+12" once separators
+  // stopped helping. An exponent is not a form a player reads; the word is.
+  it('says the magnitude in words rather than an exponent', () => {
+    expect(formatCount(1.05e12)).toBe('1.1 trillion');
+    expect(formatCount(2.6e11)).toBe('260 billion');
+    expect(formatCount(5.1e9)).toBe('5.1 billion');
+    expect(formatCount(2.5e6)).toBe('2.5 million');
+  });
+
+  // Intl stops at "trillion" and lets the mantissa run, so grouping has to stay on above it.
+  it('groups the mantissa where Intl runs out of words', () => {
+    expect(formatCount(2.4728e15)).toBe('2,472.8 trillion');
+  });
+
+  it('says infinity rather than NaN', () => {
+    expect(formatCount(Infinity)).toBe('∞');
+  });
+});
+
+describe('formatChance — a percentage until a percentage stops reading', () => {
+  it('stays a percentage while one can be read at a glance', () => {
+    expect(formatChance(0.7037)).toBe('70.37%');
+    expect(formatChance(0.004)).toBe('0.400%');
+    expect(formatChance(0.0001)).toBe('0.010%');
+  });
+
+  // THE string this was built for. `toPrecision(2)` gives up below 1e-7 and emits "3.9e-10%" — the
+  // form a 6-mod T1 Wand's chance per attempt actually rendered in.
+  it('never emits an exponent', () => {
+    expect(formatChance(3.9e-12)).toBe('1 in 256.4 billion');
+    expect(formatChance(1.9e-7)).toBe('1 in 5.3 million');
+    for (const p of [1e-3, 1e-5, 1e-8, 1e-11, 1e-14, 3.9e-12, 1.77e-7]) {
+      expect(formatChance(p)).not.toMatch(/e[+-]/);
+    }
+  });
+
+  it('reciprocates without losing the value', () => {
+    for (const p of [1e-5, 4.2e-7, 3.9e-12]) {
+      const shown = Number(/1 in ([\d.,]+)/.exec(formatOdds(p))![1]!.replace(/,/g, ''));
+      const scale = { thousand: 1e3, million: 1e6, billion: 1e9, trillion: 1e12 };
+      const word = Object.keys(scale).find((w) => formatOdds(p).includes(w));
+      const n = shown * (word ? scale[word as keyof typeof scale] : 1);
+      expect(Math.abs(n - 1 / p) / (1 / p)).toBeLessThan(0.01);
+    }
+  });
+
+  it('does not divide by zero', () => {
+    expect(formatChance(0)).toBe('0%');
+    expect(formatChance(-1)).toBe('0%');
   });
 });

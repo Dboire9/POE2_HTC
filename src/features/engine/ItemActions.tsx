@@ -299,6 +299,29 @@ const ItemActions: React.FC = () => {
     // say so here — which the rarity trim below never did.
   };
 
+  /**
+   * What tier each mod on the item is actually rolled at, 1 = best.
+   *
+   * Every held mod used to be recorded at `tierDisplay: 1` with no control to change it, so the app
+   * assumed your item carried the BEST roll of everything on it. The engine has always graded a held
+   * mod against the tier you asked for — `classifyStart` marks it `present` at or above that floor and
+   * `blocked` below, and blocked means it has to come OFF before the slot can be re-rolled — so the
+   * whole `blocked` branch was unreachable from the UI, and a T8 you would have to annul away was
+   * reported as a mod you already had. Measured on a Wand wanting T1 `#% increased Chaos Damage`:
+   * 439,140 ex holding it at T1 against 501,850 ex holding it at T8, a 14% difference the app could
+   * not be told about.
+   */
+  const heldTier = useMemo(
+    () => new Map([...prefixes, ...suffixes].map((m) => [m.modId, m.tierDisplay])),
+    [prefixes, suffixes],
+  );
+  const patchItemMod = (modId: string, tierDisplay: number): void => {
+    const set = (l: readonly ItemModInput[]) => l.map((x) => (x.modId === modId ? { ...x, tierDisplay } : x));
+    setPrefixes(set);
+    setSuffixes(set);
+    setPlan(null);
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const pick = (list: readonly EngineMod[]) =>
@@ -306,10 +329,24 @@ const ItemActions: React.FC = () => {
     return { prefixes: pick(pool.prefixes), suffixes: pick(pool.suffixes) };
   }, [pool, search, onItem]);
 
-  // "Mod to add" (quick-check) — currency can only add NORMAL mods, so desecrated ones are excluded here.
+  // "Mod to add" (quick-check) — currency can only add NORMAL mods, so desecrated ones are excluded
+  // here, and so is anything already on the item: no orb can add a mod you have.
   const addable = useMemo(
     () => [...pool.prefixes, ...pool.suffixes].filter((m) => !onItem.has(m.id) && m.source === 'normal'),
     [pool, onItem],
+  );
+  /**
+   * What the TARGET picker offers, which is a different question and had the wrong answer.
+   *
+   * It reused `addable`, so a mod already on the item could not be named as a target at all — and
+   * "I have this wand, I want the mana roll better" is the commonest from-item craft there is. The
+   * only way to express it was `Copy my current mods`, which copies everything at its worst tier.
+   * Nothing here needs the exclusion: `whyNotAdd` reasons about the TARGET list (duplicates, side
+   * caps, families, the essence rules) and never about what the item happens to hold.
+   */
+  const targetable = useMemo(
+    () => [...pool.prefixes, ...pool.suffixes].filter((m) => m.source === 'normal'),
+    [pool],
   );
   const itemMods = useMemo(
     () => [...prefixes, ...suffixes].map((m) => modById.get(m.modId)).filter((m): m is EngineMod => !!m),
@@ -516,6 +553,18 @@ const ItemActions: React.FC = () => {
                   >
                     <Badge variant={m.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{m.type === 'prefix' ? 'P' : 'S'}</Badge>
                     {m.text}
+                    {/* The tier this mod is ROLLED AT, not a tier you are asking for. It decides
+                        whether the planner keeps the mod or has to strip it, so it is the difference
+                        between a craft that is nearly done and one that is not started. */}
+                    <select
+                      className="h-6 rounded border border-input bg-background px-1 text-[11px]"
+                      value={heldTier.get(m.id) ?? 1}
+                      onChange={(e) => patchItemMod(m.id, Number(e.target.value))}
+                      aria-label={`Tier this mod is rolled at: ${m.text}`}
+                      title="The tier this mod is actually rolled at"
+                    >
+                      {m.tiers.map((ti) => <option key={ti.display} value={ti.display}>{ti.label}</option>)}
+                    </select>
                     {isDesecrated && <span className="rounded bg-rose-500/20 px-1 text-[10px] text-rose-700 dark:text-rose-300">desecrated</span>}
                     {isFractured && <span className="rounded bg-amber-500/20 px-1 text-[10px] text-amber-700 dark:text-amber-300">fractured</span>}
                     <button
@@ -626,12 +675,15 @@ const ItemActions: React.FC = () => {
                       no explanation anywhere. A <select> gives no room for a described-by node, so the
                       reason rides in the option's own text: it is the only place a screen reader,
                       a keyboard and a touch user all reach it. */}
-                  {[...addable, ...perfect, ...desecratedTargets].map((m) => {
+                  {[...targetable, ...perfect, ...desecratedTargets].map((m) => {
                     const why = blockFor(m);
                     return (
                       <option key={m.id} value={m.id} disabled={why !== null}>
                         {m.type === 'prefix' ? 'P' : 'S'} · {m.text}
                         {modSourceLabel(m.source)}
+                        {/* Which of these you already hold is the thing this panel was worst at
+                            saying. The row it becomes says it too, but by then you have picked. */}
+                        {onItem.has(m.id) ? ' · on your item' : ''}
                         {why ? ` — ${why}` : ''}
                       </option>
                     );
@@ -656,14 +708,40 @@ const ItemActions: React.FC = () => {
                   const t = target[memberIndex]!;
                   const mod = modById.get(t.modId);
                   if (!mod) return null;
-                  const have = onItem.has(t.modId);
+                  // Three states, not two. A target is a mod you already have AT A GOOD ENOUGH ROLL,
+                  // a mod you have but too low — which is worse than not having it, because the slot
+                  // and family are occupied and the bad roll has to be stripped first — or a mod that
+                  // is simply not on the item yet. The list showed only "already have", keyed on the
+                  // mod id alone, so the middle case rendered as the first: green, reassuring, and the
+                  // exact opposite of the truth. Lower display = better roll, so "good enough" is
+                  // `held <= wanted`, the same "this tier or better" the target selector means.
+                  const held = heldTier.get(t.modId);
+                  const satisfied = held !== undefined && held <= t.tierDisplay;
+                  const tooLow = held !== undefined && held > t.tierDisplay;
                   return (
                     <div key={t.modId} className="flex flex-wrap items-center gap-2 rounded-md border border-border/60 px-2 py-1.5">
                       <Badge variant={mod.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{mod.type === 'prefix' ? 'P' : 'S'}</Badge>
                       <span className="flex-1 min-w-40 text-sm">{mod.text}</span>
                       {mod.source === 'desecrated' && <span className="text-[10px] rounded bg-rose-500/15 px-1 text-rose-600 dark:text-rose-300">desecrated</span>}
                       {mod.source === 'perfect' && <span className="text-[10px] rounded bg-purple-500/15 px-1 text-purple-600 dark:text-purple-300">perfect essence</span>}
-                      {have && <span className="text-[10px] rounded bg-emerald-500/15 px-1 text-emerald-600 dark:text-emerald-300">already have</span>}
+                      {satisfied && (
+                        <span className="text-[10px] rounded bg-emerald-500/15 px-1 text-emerald-600 dark:text-emerald-300">
+                          already have
+                        </span>
+                      )}
+                      {tooLow && (
+                        <span
+                          className="text-[10px] rounded bg-amber-500/15 px-1 text-amber-700 dark:text-amber-300"
+                          title={`Your item has this at ${mod.tiers.find((ti) => ti.display === held)?.label ?? `T${held}`}, below the tier you want — the planner has to remove it and re-roll the slot`}
+                        >
+                          have {mod.tiers.find((ti) => ti.display === held)?.label ?? `T${held}`} — must re-roll
+                        </span>
+                      )}
+                      {held === undefined && (
+                        <span className="text-[10px] rounded bg-sky-500/15 px-1 text-sky-700 dark:text-sky-300">
+                          to add
+                        </span>
+                      )}
                       <select
                         className={selectCls}
                         value={t.tierDisplay}

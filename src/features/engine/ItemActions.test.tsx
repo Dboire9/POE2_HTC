@@ -542,3 +542,83 @@ describe('ItemActions — how far along your item really is', () => {
   });
 });
 
+// ── What tier your mods are actually rolled at ───────────────────────────────
+// Every held mod was recorded at tierDisplay 1 with no control to change it, so the app assumed your
+// item carried the BEST roll of everything on it. `classifyStart` has always graded a held mod against
+// the tier asked for — `present` at or above it, `blocked` below, and blocked means the mod must come
+// OFF before the slot can be re-rolled — so the entire blocked branch was unreachable from the UI.
+// Measured on a Wand wanting T1 `#% increased Chaos Damage`: 439,140 ex holding it at T1 against
+// 501,850 ex at T8.
+describe('ItemActions — the tier a held mod is rolled at', () => {
+  const heldTierSelect = () => screen.getByLabelText(/Tier this mod is rolled at: Normal Prefix/i);
+
+  it('is settable, and is what the solver is told', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    await user.selectOptions(heldTierSelect(), '3');
+    // The control must READ from the item, not merely write to it. Pinning its `value` to 1 left this
+    // whole test green — `selectOptions` still fires the change, so only the displayed tier was wrong,
+    // and the one place a player checks what they told the app is the box itself.
+    expect(heldTierSelect()).toHaveValue('3');
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'ns');
+    await user.click(screen.getByRole('button', { name: /Compute plan/i }));
+    await waitFor(() => expect(mocks.optimizeItem).toHaveBeenCalled());
+    const [, item] = mocks.optimizeItem.mock.calls.at(-1)!;
+    expect(item.prefixes).toEqual([{ modId: 'np', tierDisplay: 3 }]);
+  });
+
+  it('defaults to the best roll, which is what the app already assumed', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    expect(heldTierSelect()).toHaveValue('1');
+  });
+});
+
+// ── A target row says which of three things it is ────────────────────────────
+// The row showed "already have" keyed on the mod id ALONE. A mod held below the tier you want is worse
+// than one you do not have — the slot and family are occupied and the bad roll has to be stripped —
+// and it rendered green, which is the exact opposite of the truth.
+describe('ItemActions — have it, have it too low, or need it', () => {
+  const toTarget = async (user: ReturnType<typeof userEvent.setup>, heldTier?: string) => {
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    if (heldTier) await user.selectOptions(screen.getByLabelText(/Tier this mod is rolled at/i), heldTier);
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+  };
+
+  it('says "already have" only when the roll is good enough', async () => {
+    const user = userEvent.setup();
+    await toTarget(user, '1'); // held T1, target defaults to T1
+    expect(screen.getByText('already have')).toBeInTheDocument();
+    expect(screen.queryByText(/must re-roll/)).toBeNull();
+  });
+
+  it('says the roll must be re-rolled when it is below the tier you asked for', async () => {
+    const user = userEvent.setup();
+    await toTarget(user, '3'); // held T3, target still T1
+    expect(screen.getByText(/have T3 — must re-roll/)).toBeInTheDocument();
+    expect(screen.queryByText('already have')).toBeNull();
+  });
+
+  // A better roll than you asked for still satisfies "this tier or better".
+  it('accepts a roll better than the target', async () => {
+    const user = userEvent.setup();
+    await toTarget(user, '1');
+    await user.selectOptions(screen.getByLabelText(/Target tier for Normal Prefix/i), '3');
+    expect(screen.getByText('already have')).toBeInTheDocument();
+  });
+
+  // The half the report was actually about: telling a mod you will be ADDING from one already there.
+  it('marks a target that is not on the item at all as one to add', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    expect(screen.getByText('to add')).toBeInTheDocument();
+    expect(screen.queryByText('already have')).toBeNull();
+  });
+});

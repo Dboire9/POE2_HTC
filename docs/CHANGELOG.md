@@ -22,6 +22,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **You can say what tier your mods are actually rolled at.** Reported as *"we cannot differentiate
+  what mod we want / are going to add from the mods that are already there"*. Every held mod was
+  recorded at its BEST tier with no control to change it, so the app assumed your item carried a
+  perfect roll of everything on it. Each mod on the item now carries the same tier selector the target
+  rows have. This is not cosmetic: `classifyStart` grades a held mod against the tier you asked for —
+  at or above it the planner keeps the mod, below it the mod is **blocked** and has to come off before
+  the slot can be re-rolled — so that whole branch of the engine was unreachable from the UI. On a Wand
+  wanting T1 `#% increased Chaos Damage`, holding it at T1 costs 439,140 ex and holding it at T8 costs
+  **501,850 ex**, a 14% difference the app had no way to be told about.
+- **A target row now says which of three things it is**: `already have` (green — your roll is at the
+  tier you asked for or better), `have T8 — must re-roll` (amber — you have the mod but too low, which
+  is *worse* than not having it, since the slot and family are occupied and the bad roll must be
+  stripped), or `to add` (blue — not on the item yet). It showed only "already have", keyed on the mod
+  id alone, so the middle case rendered green.
+- **The target picker offers mods you already hold**, labelled `· on your item`. It reused the Quick
+  check's add list, which excludes them — so *"I have this wand, I want the mana roll better"*, the
+  commonest from-item craft there is, could not be expressed at all except by `Copy my current mods`,
+  which copies everything at its worst tier.
+
 - **The Quick currency check offers orb strengths and essences** (TODO §18, now closed). Every add row
   also appears at **Greater** and **Perfect** where the sheet prices one and it can land — the route
   cards beside it have named those orbs since the orb-strength axis shipped, so the panel had been

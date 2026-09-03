@@ -22,6 +22,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **An item can only hold one fractured modifier, and both tabs now say so.** You could mark every mod
+  on your item as fractured, which describes an item that cannot exist — the Fracturing Orb's own text
+  is *"Fracture a random modifier on a rare item with at least 4 modifiers"* and *"Cannot be used on
+  Fractured items"*. Marking a second now releases the first, the way the one-carved-mod rule already
+  worked, and the note under the item says why. A share link carrying two is clamped on decode, across
+  both sides, since the cap is per item. Deliberately **not** gated on "at least 4 modifiers" — that is
+  a rule about applying the orb, not about the item afterwards, and annulling a fractured item down to
+  two mods leaves the fracture in place.
+- **"Copy my current mods" copies the tier too.** It set every target to the *worst* tier, which was
+  the only honest option while a held mod had no tier of its own — now that the item builder carries
+  the real one, it copies that, and the row reads `✓ on your item (T2)` rather than asking you to
+  re-roll something you already have.
+
 - **Alloys are named and priced properly.** The 13 Runes of Aldur Alloys were already modelled — poe2db
   files them beside the Perfect Essences because they share a mechanic — but under a name the pipeline
   invented (*"Perfect Essence of Sovereign Alloy"*; the game says **Sovereign Alloy**) and a price

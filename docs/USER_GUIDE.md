@@ -100,6 +100,8 @@ accordingly.
   it can cut the cost by orders of magnitude and costs you nothing.
 - **Fractured** — mark a mod as fractured if it's already locked on your base. A fractured mod can't be
   removed or rerolled, so this changes the whole route; the planner starts from a Rare rather than white.
+  **One per item**: a Fracturing Orb locks a single random modifier and can't be used on an item that
+  already has one, so marking a second releases the first.
 - **Pin** — pin a target as non-negotiable so budget mode may not relax it. Only relevant with a budget.
 
 ### 4. Find plans
@@ -278,8 +280,9 @@ Where a currency can't apply, the row says why rather than hiding.
 *"I'm holding this. Get me to that."*
 
 Set **What should the item end up as?** — the **final** mods you want. **Copy my current mods** seeds it
-from what you have. Anything on your item that isn't in the target list is treated as junk and will be
-removed; anything that *is* in the list is kept, not re-rolled.
+from what you have, at the tiers those mods are rolled at. Anything on your item that isn't in the
+target list is treated as junk and will be removed; anything that *is* in the list is kept, not
+re-rolled — as long as its roll is at the tier you asked for or better, which the row tells you.
 
 Then **Compute plan**. You get the same two views as the Lab: plan cards, and the true expected cost with
 its policy.

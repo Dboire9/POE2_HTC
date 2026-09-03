@@ -325,9 +325,13 @@ const EngineLab: React.FC = () => {
   // Mark a target as already fractured on the base (locked) — or clear it. Locking a NEW one is blocked
   // while an essence is in the craft (essence needs Magic, a fracture forces a Rare start); unlocking is
   // always allowed so the user can resolve the conflict.
+  //
+  // ONE per base, so marking a second clears the first — the Fracturing Orb's own text: it locks "a
+  // random modifier" and "cannot be used on Fractured items", so a second is unreachable in game. The
+  // Item tab enforces the same cap on the item you hold.
   const toggleFractured = (modId: string) => {
     if (!fractured.has(modId) && regularEssenceUsed) return;
-    setFractured((f) => { const n = new Set(f); if (n.has(modId)) n.delete(modId); else n.add(modId); return n; });
+    setFractured((f) => (f.has(modId) ? new Set<string>() : new Set([modId])));
   };
   // Pin a target as non-negotiable so the budget search never relaxes/swaps/drops it.
   const togglePinned = (modId: string) =>

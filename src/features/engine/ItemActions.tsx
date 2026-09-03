@@ -252,10 +252,30 @@ const ItemActions: React.FC = () => {
     [prefixes, suffixes],
   );
   // Toggle a current mod's fractured lock: it can't be removed and is excluded from random removal.
+  /**
+   * Toggle a mod's fractured lock. **At most one per item**, so marking a second clears the first.
+   *
+   * This is a GAME RULE, and it comes from the Fracturing Orb's own text in the RePoE dump rather than
+   * from anyone's recollection: *"Fracture a random modifier on a rare item with at least 4 modifiers,
+   * locking it in place"*, and — the half that caps it — *"Cannot be used on Fractured items."* One orb
+   * fractures one mod, and it refuses an item that already carries one, so two is unreachable. The orb
+   * is the only fracture source in the dump (`CurrencyFractureRare`; the Shard combines into it, and
+   * `Fractured Fossil` is a PoE1 leftover).
+   *
+   * Clearing rather than refusing, the same way `toggleDesecrated` handles the one-carved-mod rule: a
+   * player fixing a mistake wants the new mark to take, not a control that goes dead with no reason
+   * given.
+   *
+   * NOT gated on "at least 4 modifiers", which is a rule about APPLYING the orb, not about the item
+   * afterwards — annul a fractured 4-mod Rare down to two and the fracture stays. Enforcing it here
+   * would refuse a real item, which is the copy-audit failure in a new place.
+   */
   const toggleFractured = (modId: string) => {
-    const flip = (l: readonly ItemModInput[]) => l.map((x) => (x.modId === modId ? { ...x, fractured: !x.fractured } : x));
-    setPrefixes(flip);
-    setSuffixes(flip);
+    const on = !fracturedIds.has(modId);
+    const set = (l: readonly ItemModInput[]) => l.map((x) => (
+      x.modId === modId ? { ...x, fractured: on } : { ...x, fractured: false }));
+    setPrefixes(set);
+    setSuffixes(set);
     setPlan(null);
   };
   const desecratedIds = useMemo(
@@ -430,8 +450,17 @@ const ItemActions: React.FC = () => {
     });
     setPlan(null);
   };
+  /**
+   * "Copy my current mods" — the target becomes what the item already is.
+   *
+   * It used to copy every mod at `tiers.length`, the WORST tier, which meant "any tier or better".
+   * That was the only honest option while a held mod had no tier of its own: claiming T1 would have
+   * asserted a roll the player never told us about. Now that the item builder carries the real tier,
+   * copying it is both more accurate and what the button's name promises — and the target still comes
+   * out satisfied, since `held <= wanted` holds when the two are equal.
+   */
   const copyItemToTarget = () => {
-    setTarget([...prefixes, ...suffixes].map((m) => ({ modId: m.modId, tierDisplay: modById.get(m.modId)?.tiers.length ?? 1 })));
+    setTarget([...prefixes, ...suffixes].map((m) => ({ modId: m.modId, tierDisplay: m.tierDisplay })));
     setPlan(null);
   };
   /**
@@ -626,6 +655,8 @@ const ItemActions: React.FC = () => {
               <p className="text-[11px] text-muted-foreground">
                 🔒 Fractured mods are locked — the planner keeps them, never removes them, and they’re excluded
                 from what an Annulment / Chaos / Essence can randomly remove (so those odds go up).
+                An item holds <strong>one</strong>: a Fracturing Orb locks a random modifier and can’t be
+                used on an item that already has one, so marking a second here clears the first.
               </p>
             )}
             {itemMods.some((m) => m.source === 'desecrated') && (

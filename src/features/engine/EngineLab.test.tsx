@@ -518,3 +518,33 @@ describe('EngineLab — a slot with alternatives', () => {
     expect(screen.getByText(/It eases/i)).toBeInTheDocument();
   });
 });
+
+// ── One fractured modifier per base ──────────────────────────────────────────
+// The same game rule the Item tab enforces, from the Fracturing Orb's own text: it locks "a random
+// modifier" and "cannot be used on Fractured items". The Lab let you mark every target as already
+// fractured, which describes a base that cannot exist.
+describe('EngineLab — a base holds one fractured mod', () => {
+  const lock = (name: RegExp) => screen.getByLabelText(new RegExp(`Fractured on the base: ${name.source}`));
+
+  it('marking a second clears the first', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(addButton('Normal Suffix'));
+    await user.click(lock(/Normal Prefix/));
+    expect(lock(/Normal Prefix/)).toHaveAttribute('aria-pressed', 'true');
+
+    await user.click(lock(/Normal Suffix/));
+    expect(lock(/Normal Suffix/)).toHaveAttribute('aria-pressed', 'true');
+    expect(lock(/Normal Prefix/)).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('still releases the one you have', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(lock(/Normal Prefix/));
+    await user.click(lock(/Normal Prefix/));
+    expect(lock(/Normal Prefix/)).toHaveAttribute('aria-pressed', 'false');
+  });
+});

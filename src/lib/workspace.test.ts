@@ -400,3 +400,51 @@ describe('slot alternatives round-trip, without stranding old links', () => {
     expect(back!.workspace.lab.targets[0]!.slot).toBeUndefined();
   });
 });
+
+// ── A link cannot carry an item the app can no longer build ──────────────────
+// Both pickers cap fractured marks at one (the Fracturing Orb locks "a random modifier" and "cannot be
+// used on Fractured items"), so a link carrying two describes a state nothing can produce. It crashes
+// nothing — every planner filters `!fractured` and copes with any number — it quietly returns odds for
+// an item that cannot exist, which is why `?? default` was never the guard a link needed.
+describe('decodeWorkspace — one fractured modifier survives, not two', () => {
+  const b64 = (o: unknown) => Buffer.from(JSON.stringify(o), 'utf8').toString('base64')
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+  it('keeps one of several fractured targets on the base', () => {
+    const wire = {
+      v: 1, m: 'p',
+      l: { b: 'Wands', lv: 82, t: [], f: ['IncreasedMana', 'LocalAttributeRequirements'], p: [] },
+      i: { b: 'Wands', lv: 82 },
+    };
+    const got = decodeWorkspace(b64(wire), data)?.workspace;
+    expect(got?.lab.fractured.size).toBe(1);
+  });
+
+  // Across BOTH sides, because the cap is per ITEM and a link can put one on each.
+  it('keeps one fractured mod across the prefix and suffix lists', () => {
+    const wire = {
+      v: 1, m: 'i',
+      l: { b: 'Wands', lv: 82, t: [], f: [], p: [] },
+      i: {
+        b: 'Wands', lv: 82, r: 'r',
+        px: [['IncreasedMana', 1, 1]],
+        sx: [['LocalAttributeRequirements', 1, 1]],
+      },
+    };
+    const got = decodeWorkspace(b64(wire), data)?.workspace;
+    const all = [...(got?.item.prefixes ?? []), ...(got?.item.suffixes ?? [])];
+    expect(all.length).toBe(2);                                     // both mods survive…
+    expect(all.filter((m) => m.fractured === true)).toHaveLength(1); // …only one stays locked
+  });
+
+  it('leaves an ordinary link alone', () => {
+    const wire = {
+      v: 1, m: 'i',
+      l: { b: 'Wands', lv: 82, t: [], f: [], p: [] },
+      i: { b: 'Wands', lv: 82, r: 'r', px: [['IncreasedMana', 1, 1]], sx: [['LocalAttributeRequirements', 1]] },
+    };
+    const got = decodeWorkspace(b64(wire), data)?.workspace;
+    expect(got?.item.prefixes[0]?.fractured).toBe(true);
+    expect(got?.item.suffixes[0]?.fractured).toBeUndefined();
+  });
+});

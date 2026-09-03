@@ -364,6 +364,18 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
     }
     return out;
   };
+  /**
+   * An item holds ONE fractured modifier — the Fracturing Orb locks "a random modifier" and "cannot be
+   * used on Fractured items". Both pickers enforce that, so a link carrying two describes a state the
+   * app can no longer produce. It does not crash anything (every planner filters `!fractured` and
+   * copes with any number) — it quietly returns odds for an item that cannot exist, which is the same
+   * class of defect as the `bg`/`bc` clamps: a link is untrusted input, and `?? default` does not
+   * catch a value that is merely wrong.
+   */
+  const oneFractured = (set: ReadonlySet<string>): Set<string> => {
+    const first = [...set][0];
+    return first === undefined ? new Set() : new Set([first]);
+  };
 
   const lb = knownBase(wire.l.b);
   const ib = knownBase(wire.i.b);
@@ -373,12 +385,22 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
       mode: wire.m === 'i' ? 'item' : 'plan',
       lab: {
         baseId: lb, level: clampLevel(wire.l.lv, d.lab.level), targets: targets(lb, wire.l.t),
-        fractured: ids(lb, wire.l.f), pinned: ids(lb, wire.l.p), budget: clampText(wire.l.bg),
+        fractured: oneFractured(ids(lb, wire.l.f)), pinned: ids(lb, wire.l.p), budget: clampText(wire.l.bg),
         baseCost: clampText(wire.l.bc),
       },
       item: {
         baseId: ib, level: clampLevel(wire.i.lv, d.item.level), rarity: wire.i.r === 'm' ? 'magic' : 'rare',
-        prefixes: itemMods(ib, wire.i.px), suffixes: itemMods(ib, wire.i.sx),
+        // Across BOTH sides, since the cap is per item and a link could put one on each.
+        ...(() => {
+          const seen = { any: false };
+          const cap = (l: ItemModInput[]): ItemModInput[] => l.map((m) => {
+            if (m.fractured !== true) return m;
+            if (seen.any) { const { fractured: _drop, ...rest } = m; return rest; }
+            seen.any = true;
+            return m;
+          });
+          return { prefixes: cap(itemMods(ib, wire.i.px)), suffixes: cap(itemMods(ib, wire.i.sx)) };
+        })(),
         subMode: wire.i.sm === 'p' ? 'plan' : 'check', target: targets(ib, wire.i.t),
       },
     },

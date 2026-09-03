@@ -658,3 +658,63 @@ describe('ItemActions — have it, have it too low, or need it', () => {
     expect(tally.textContent).toMatch(/1.*to add/);
   });
 });
+
+// ── One fractured modifier per item ──────────────────────────────────────────
+// A GAME RULE, from the Fracturing Orb's own text in the RePoE dump: it locks "a random modifier on a
+// rare item with at least 4 modifiers" and "cannot be used on Fractured items". One orb, one mod, and
+// it refuses an item that already carries one — so two is unreachable, and the builder let you mark
+// every mod on the item.
+describe('ItemActions — an item holds one fractured mod', () => {
+  const lock = (text: RegExp) => screen.getByLabelText(new RegExp(`Fractured \\(locked on the item\\): ${text.source}`));
+
+  it('marking a second clears the first', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    await user.click(builderButton(/Normal Suffix/));
+    await user.click(lock(/Normal Prefix/));
+    expect(lock(/Normal Prefix/)).toHaveAttribute('aria-pressed', 'true');
+
+    await user.click(lock(/Normal Suffix/));
+    expect(lock(/Normal Suffix/)).toHaveAttribute('aria-pressed', 'true');
+    // …and the first is released rather than both being locked.
+    expect(lock(/Normal Prefix/)).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('still lets you unmark the one you have', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    await user.click(lock(/Normal Prefix/));
+    await user.click(lock(/Normal Prefix/));
+    expect(lock(/Normal Prefix/)).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  // The rule has to be visible, not just enforced — a control that silently undoes your last click is
+  // indistinguishable from a broken one.
+  it('says why on screen', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    await user.click(lock(/Normal Prefix/));
+    expect(screen.getByText(/can.t be used on an item that already has one/i)).toBeInTheDocument();
+  });
+});
+
+// ── "Copy my current mods" copies the tier too ───────────────────────────────
+// It copied every mod at `tiers.length` — the WORST tier, meaning "any tier or better". That was the
+// only honest option while a held mod had no tier of its own; now that the builder carries the real
+// one, claiming the worst understates the item you are holding.
+describe('ItemActions — copying the item to the target', () => {
+  it('copies the tier the mod is actually rolled at', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    await user.selectOptions(screen.getByLabelText(/Tier this mod is rolled at/i), '2');
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.click(screen.getByRole('button', { name: /Copy my current mods/i }));
+    // T2 held -> T2 wanted, so the row reads as satisfied rather than as something to re-roll.
+    expect(screen.getByLabelText(/Target tier for Normal Prefix/i)).toHaveValue('2');
+    expect(screen.getByText(/on your item \(T2\)/)).toBeInTheDocument();
+  });
+});

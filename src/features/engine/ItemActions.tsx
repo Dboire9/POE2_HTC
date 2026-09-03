@@ -8,7 +8,7 @@ import {
   loadEngine, listBases, listMods, listPerfectEssences, listDesecrated,
   priceBasis,
   modFamilies,
-  type EngineBase, type EngineMod, type ExistingItem, type ItemModInput,
+  type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type TargetInput,
   type EngineResult, type EngineMarkovResult,
 } from '../../lib/engine';
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
@@ -434,6 +434,20 @@ const ItemActions: React.FC = () => {
     setTarget([...prefixes, ...suffixes].map((m) => ({ modId: m.modId, tierDisplay: modById.get(m.modId)?.tiers.length ?? 1 })));
     setPlan(null);
   };
+  /**
+   * Which of three things a target is, relative to the item you hold.
+   *
+   * One function because three things read it — the row's stripe, its badge, and the tally above the
+   * list — and a reader comparing a green stripe against a "must re-roll" badge would trust neither.
+   * Lower display = better roll, so "good enough" is `held <= wanted`: exactly the "this tier or
+   * better" the target selector already means.
+   */
+  const targetState = (t: TargetInput): 'have' | 'reroll' | 'add' => {
+    const held = heldTier.get(t.modId);
+    if (held === undefined) return 'add';
+    return held <= t.tierDisplay ? 'have' : 'reroll';
+  };
+
   const patchTarget = (modId: string, tierDisplay: number) =>
     setTarget((t) => t.map((x) => (x.modId === modId ? { ...x, tierDisplay } : x)));
 
@@ -698,6 +712,32 @@ const ItemActions: React.FC = () => {
               </p>
             )}
 
+            {/* Read before the rows are read. A slot is one POSITION on the item, so alternatives count
+                once — and a slot counts as held if ANY of its candidates is, since whichever lands
+                fills it. This is the answer to "how far along am I" that the list itself makes you
+                assemble row by row. */}
+            {targetSlots.length > 0 && (() => {
+              const per = targetSlots.map((slot) => {
+                const states = slot.members.map((i) => targetState(target[i]!));
+                return states.includes('have') ? 'have' : states.includes('reroll') ? 'reroll' : 'add';
+              });
+              const n = (k: string): number => per.filter((x) => x === k).length;
+              const parts: React.ReactNode[] = [];
+              if (n('have') > 0) parts.push(<span key="h" className="text-emerald-600 dark:text-emerald-400"><strong>{n('have')}</strong> already on your item</span>);
+              if (n('reroll') > 0) parts.push(<span key="r" className="text-amber-700 dark:text-amber-300"><strong>{n('reroll')}</strong> to re-roll</span>);
+              if (n('add') > 0) parts.push(<span key="a" className="text-sky-700 dark:text-sky-300"><strong>{n('add')}</strong> to add</span>);
+              return (
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs">
+                  <span className="font-semibold text-foreground">
+                    {targetSlots.length} slot{targetSlots.length === 1 ? '' : 's'}:
+                  </span>
+                  {parts.map((el, i) => (
+                    <React.Fragment key={i}>{i > 0 && <span className="text-muted-foreground">·</span>}{el}</React.Fragment>
+                  ))}
+                </p>
+              );
+            })()}
+
             {target.length > 0 && (
               <div className="space-y-2">
                 {/* By SLOT, not by target: a slot with alternatives is one position on the item and has
@@ -716,30 +756,45 @@ const ItemActions: React.FC = () => {
                   // exact opposite of the truth. Lower display = better roll, so "good enough" is
                   // `held <= wanted`, the same "this tier or better" the target selector means.
                   const held = heldTier.get(t.modId);
-                  const satisfied = held !== undefined && held <= t.tierDisplay;
-                  const tooLow = held !== undefined && held > t.tierDisplay;
+                  const state = targetState(t);
+                  const heldLabel = mod.tiers.find((ti) => ti.display === held)?.label ?? `T${held}`;
+                  // A 10px badge on the right edge was the whole signal, and it read as decoration.
+                  // The stripe puts the state where the eye lands first and makes the list scannable
+                  // as three groups without reordering it — which the slots forbid, since a slot's
+                  // alternatives are one position and must stay together whatever state each is in.
+                  const stripe = state === 'have'
+                    ? 'border-l-4 border-l-emerald-500 bg-emerald-500/[0.07]'
+                    : state === 'reroll'
+                      ? 'border-l-4 border-l-amber-500 bg-amber-500/[0.07]'
+                      : 'border-l-4 border-l-sky-500 bg-sky-500/[0.07]';
                   return (
-                    <div key={t.modId} className="flex flex-wrap items-center gap-2 rounded-md border border-border/60 px-2 py-1.5">
+                    <div key={t.modId} className={`flex flex-wrap items-center gap-2 rounded-md border border-border/60 px-2 py-1.5 ${stripe}`}>
                       <Badge variant={mod.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{mod.type === 'prefix' ? 'P' : 'S'}</Badge>
                       <span className="flex-1 min-w-40 text-sm">{mod.text}</span>
                       {mod.source === 'desecrated' && <span className="text-[10px] rounded bg-rose-500/15 px-1 text-rose-600 dark:text-rose-300">desecrated</span>}
                       {mod.source === 'perfect' && <span className="text-[10px] rounded bg-purple-500/15 px-1 text-purple-600 dark:text-purple-300">perfect essence</span>}
-                      {satisfied && (
-                        <span className="text-[10px] rounded bg-emerald-500/15 px-1 text-emerald-600 dark:text-emerald-300">
-                          already have
-                        </span>
-                      )}
-                      {tooLow && (
+                      {state === 'have' && (
                         <span
-                          className="text-[10px] rounded bg-amber-500/15 px-1 text-amber-700 dark:text-amber-300"
-                          title={`Your item has this at ${mod.tiers.find((ti) => ti.display === held)?.label ?? `T${held}`}, below the tier you want — the planner has to remove it and re-roll the slot`}
+                          className="shrink-0 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300"
+                          title={`Your item already has this at ${heldLabel} — the planner keeps it`}
                         >
-                          have {mod.tiers.find((ti) => ti.display === held)?.label ?? `T${held}`} — must re-roll
+                          ✓ on your item ({heldLabel})
                         </span>
                       )}
-                      {held === undefined && (
-                        <span className="text-[10px] rounded bg-sky-500/15 px-1 text-sky-700 dark:text-sky-300">
-                          to add
+                      {state === 'reroll' && (
+                        <span
+                          className="shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-300"
+                          title={`Your item has this at ${heldLabel}, below the tier you want — the planner has to strip it and re-roll the slot, which costs more than an empty slot would`}
+                        >
+                          ↻ yours is {heldLabel} — must re-roll
+                        </span>
+                      )}
+                      {state === 'add' && (
+                        <span
+                          className="shrink-0 rounded bg-sky-500/15 px-1.5 py-0.5 text-[11px] font-medium text-sky-700 dark:text-sky-300"
+                          title="Not on your item — the plan has to land this one"
+                        >
+                          + to add
                         </span>
                       )}
                       <select

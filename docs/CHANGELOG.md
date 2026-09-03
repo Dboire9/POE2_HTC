@@ -31,11 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the slot can be re-rolled — so that whole branch of the engine was unreachable from the UI. On a Wand
   wanting T1 `#% increased Chaos Damage`, holding it at T1 costs 439,140 ex and holding it at T8 costs
   **501,850 ex**, a 14% difference the app had no way to be told about.
-- **A target row now says which of three things it is**: `already have` (green — your roll is at the
-  tier you asked for or better), `have T8 — must re-roll` (amber — you have the mod but too low, which
-  is *worse* than not having it, since the slot and family are occupied and the bad roll must be
-  stripped), or `to add` (blue — not on the item yet). It showed only "already have", keyed on the mod
-  id alone, so the middle case rendered green.
+- **A target row now says which of three things it is, and says it where you look first.** Each row
+  carries a coloured left stripe and a labelled badge: `✓ on your item (T3)` (green — your roll is at
+  the tier you asked for or better), `↻ yours is T8 — must re-roll` (amber — you have the mod but too
+  low, which is *worse* than not having it, since the slot and family are occupied and the bad roll
+  must be stripped), `+ to add` (blue — not on the item yet). It showed only "already have", keyed on
+  the mod id alone, so the middle case rendered green; the first fix put all three in a 10px badge on
+  the right edge, which read as decoration.
+- **A tally above the list** — `3 slots: 1 already on your item · 1 to re-roll · 1 to add`. Counted by
+  SLOT rather than by target, because a slot's alternatives are one position filled by whichever mod
+  lands, so three candidates must not read as three mods you need. The rows themselves cannot be
+  grouped into those three sections for the same reason: a slot's members can be in different states
+  and have to stay together.
 - **The target picker offers mods you already hold**, labelled `· on your item`. It reused the Quick
   check's add list, which excludes them — so *"I have this wand, I want the mana roll better"*, the
   commonest from-item craft there is, could not be expressed at all except by `Copy my current mods`,

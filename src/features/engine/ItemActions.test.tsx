@@ -577,10 +577,11 @@ describe('ItemActions — the tier a held mod is rolled at', () => {
   });
 });
 
-// ── A target row says which of three things it is ────────────────────────────
+// ── A target row says which of three things it is, and says it loudly ────────
 // The row showed "already have" keyed on the mod id ALONE. A mod held below the tier you want is worse
 // than one you do not have — the slot and family are occupied and the bad roll has to be stripped —
-// and it rendered green, which is the exact opposite of the truth.
+// and it rendered green. Reported again once the three states existed but sat in a 10px badge on the
+// right edge: "do something that we see more, maybe a separation or make it more visible".
 describe('ItemActions — have it, have it too low, or need it', () => {
   const toTarget = async (user: ReturnType<typeof userEvent.setup>, heldTier?: string) => {
     await loaded();
@@ -589,19 +590,24 @@ describe('ItemActions — have it, have it too low, or need it', () => {
     await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
     await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
   };
+  /** The row's own state, read off the stripe — the signal a player actually sees first. */
+  const stripe = (container: HTMLElement): string => {
+    const row = container.querySelector('[class*="border-l-4"]')!;
+    return /emerald/.test(row.className) ? 'have' : /amber/.test(row.className) ? 'reroll' : 'add';
+  };
 
-  it('says "already have" only when the roll is good enough', async () => {
+  it('says "on your item" only when the roll is good enough', async () => {
     const user = userEvent.setup();
     await toTarget(user, '1'); // held T1, target defaults to T1
-    expect(screen.getByText('already have')).toBeInTheDocument();
+    expect(screen.getByText(/on your item \(T1\)/)).toBeInTheDocument();
     expect(screen.queryByText(/must re-roll/)).toBeNull();
   });
 
   it('says the roll must be re-rolled when it is below the tier you asked for', async () => {
     const user = userEvent.setup();
     await toTarget(user, '3'); // held T3, target still T1
-    expect(screen.getByText(/have T3 — must re-roll/)).toBeInTheDocument();
-    expect(screen.queryByText('already have')).toBeNull();
+    expect(screen.getByText(/yours is T3 — must re-roll/)).toBeInTheDocument();
+    expect(screen.queryByText(/on your item \(/)).toBeNull();
   });
 
   // A better roll than you asked for still satisfies "this tier or better".
@@ -609,7 +615,7 @@ describe('ItemActions — have it, have it too low, or need it', () => {
     const user = userEvent.setup();
     await toTarget(user, '1');
     await user.selectOptions(screen.getByLabelText(/Target tier for Normal Prefix/i), '3');
-    expect(screen.getByText('already have')).toBeInTheDocument();
+    expect(screen.getByText(/on your item \(T1\)/)).toBeInTheDocument();
   });
 
   // The half the report was actually about: telling a mod you will be ADDING from one already there.
@@ -618,7 +624,37 @@ describe('ItemActions — have it, have it too low, or need it', () => {
     await loaded();
     await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
     await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
-    expect(screen.getByText('to add')).toBeInTheDocument();
-    expect(screen.queryByText('already have')).toBeNull();
+    expect(screen.getByText(/^\+ to add$/)).toBeInTheDocument();
+    expect(screen.queryByText(/on your item \(/)).toBeNull();
+  });
+
+  // The badge is small and sits at the right edge. The stripe is the signal that survives a glance,
+  // so it has to agree with the badge rather than merely exist.
+  it('stripes the row to match, so the state survives a glance', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<ItemActions />);
+    await screen.findByPlaceholderText(/Search modifiers to add to your item/i);
+    await user.click(builderButton(/Normal Prefix/));
+    await user.selectOptions(screen.getByLabelText(/Tier this mod is rolled at/i), '3');
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    expect(stripe(container)).toBe('reroll');
+    // Ask for the tier you actually hold and the same row turns green.
+    await user.selectOptions(screen.getByLabelText(/Target tier for Normal Prefix/i), '3');
+    expect(stripe(container)).toBe('have');
+  });
+
+  // Counted by SLOT, not by target: alternatives are one position on the item, filled by whichever
+  // lands, so three candidates for one slot must not read as three mods you need.
+  it('tallies the slots above the list so the shape is readable before the rows are', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(builderButton(/Normal Prefix/));
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'ns');
+    const tally = screen.getByText(/2 slots:/).parentElement!;
+    expect(tally.textContent).toMatch(/1.*already on your item/);
+    expect(tally.textContent).toMatch(/1.*to add/);
   });
 });

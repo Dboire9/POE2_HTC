@@ -12,7 +12,7 @@ import type { EngineMod, EngineResult } from '../../lib/engine';
 // one of them used to announce as an emoji, because emoji text content outranks `title` when a name
 // is computed.
 
-const tier = (display: number) => ({ display, name: `t${display}`, ilvl: 1, label: `T${display}`, range: '10–20' });
+const tier = (display: number) => ({ display, name: `t${display}`, ilvl: 1, label: `T${display}`, range: '10–20', values: ['10–20'] });
 const mod = (
   id: string, text: string, type: 'prefix' | 'suffix', source: EngineMod['source'], family: string, tiers = 3,
 ): EngineMod => ({ id, text, type, family, source, tiers: Array.from({ length: tiers }, (_, i) => tier(i + 1)) });

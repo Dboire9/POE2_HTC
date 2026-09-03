@@ -13,6 +13,7 @@
 //
 // Usage: node tools/refresh/refresh.mjs [repoeDir=tools/refresh/cache] [outDir=data/patches/0.5.0] [baselineDir=data/patches/0.5]
 
+import { templateFixedRoll } from './modText.mjs';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -161,7 +162,7 @@ function buildMod(baseId, type, group, modIds, baseTags) {
     // was the same bug the poe2db path had, and silently dropping groups is how it stayed hidden.
     ...(rep.groups && rep.groups.length > 1 ? { families: rep.groups } : {}),
     tags: rep.implicit_tags || [],
-    text: cleanText(rep.text),
+    text: templateFixedRoll(cleanText(rep.text), tiers),
     tiers,
   };
 }

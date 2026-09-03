@@ -165,4 +165,11 @@ export default tseslint.config(
       'no-console': 'off',
     },
   },
+  // A declaration file declares signatures and binds nothing: its parameter names are documentation,
+  // so `no-unused-vars` reports every one of them. `tools/refresh/modText.d.mts` exists because a test
+  // imports that rule to pin the generator and the shipped data to one implementation.
+  {
+    files: ['**/*.d.{ts,mts,cts}'],
+    rules: { 'no-unused-vars': 'off', '@typescript-eslint/no-unused-vars': 'off' },
+  },
 );

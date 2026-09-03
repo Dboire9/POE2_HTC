@@ -2720,7 +2720,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+1 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Combat",
@@ -2780,7 +2780,7 @@
         "minion",
         "gem"
       ],
-      "text": "+1 to Level of all Minion Skills",
+      "text": "+# to Level of all Minion Skills",
       "tiers": [
         {
           "name": "of the Taskmaster",
@@ -2837,7 +2837,7 @@
       ],
       "family": "IncreaseSocketedGemLevel",
       "tags": [],
-      "text": "+1 to Level of all Projectile Skills",
+      "text": "+# to Level of all Projectile Skills",
       "tiers": [
         {
           "name": "of the Archer",
@@ -2897,7 +2897,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Spell Skills",
+      "text": "+# to Level of all Spell Skills",
       "tiers": [
         {
           "name": "of the Mage",
@@ -10352,7 +10352,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -13693,7 +13693,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -16958,7 +16958,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -20548,7 +20548,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -24128,7 +24128,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -27339,7 +27339,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -31181,7 +31181,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -31611,7 +31611,7 @@
       "tags": [
         "speed"
       ],
-      "text": "10% increased Movement Speed",
+      "text": "#% increased Movement Speed",
       "tiers": [
         {
           "name": "Runner's",
@@ -34360,7 +34360,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -34809,7 +34809,7 @@
       "tags": [
         "speed"
       ],
-      "text": "10% increased Movement Speed",
+      "text": "#% increased Movement Speed",
       "tiers": [
         {
           "name": "Runner's",
@@ -37502,7 +37502,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -37951,7 +37951,7 @@
       "tags": [
         "speed"
       ],
-      "text": "10% increased Movement Speed",
+      "text": "#% increased Movement Speed",
       "tiers": [
         {
           "name": "Runner's",
@@ -41085,7 +41085,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -41268,7 +41268,7 @@
       "tags": [
         "speed"
       ],
-      "text": "10% increased Movement Speed",
+      "text": "#% increased Movement Speed",
       "tiers": [
         {
           "name": "Runner's",
@@ -44475,7 +44475,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -44658,7 +44658,7 @@
       "tags": [
         "speed"
       ],
-      "text": "10% increased Movement Speed",
+      "text": "#% increased Movement Speed",
       "tiers": [
         {
           "name": "Runner's",
@@ -47538,7 +47538,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -47857,7 +47857,7 @@
       "tags": [
         "speed"
       ],
-      "text": "10% increased Movement Speed",
+      "text": "#% increased Movement Speed",
       "tiers": [
         {
           "name": "Runner's",
@@ -49762,7 +49762,7 @@
       ],
       "family": "IncreaseSocketedGemLevel",
       "tags": [],
-      "text": "+1 to Level of all Projectile Skills",
+      "text": "+# to Level of all Projectile Skills",
       "tiers": [
         {
           "name": "of the Fletcher",
@@ -50074,7 +50074,7 @@
         "life",
         "attack"
       ],
-      "text": "Grants 2 Life per Enemy Hit",
+      "text": "Grants # Life per Enemy Hit",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -50378,7 +50378,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -53974,7 +53974,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -54540,7 +54540,7 @@
         "chaos",
         "resistance"
       ],
-      "text": "+1% to Maximum Chaos Resistance",
+      "text": "+#% to Maximum Chaos Resistance",
       "tiers": [
         {
           "name": "of Regularity",
@@ -54603,7 +54603,7 @@
         "cold",
         "resistance"
       ],
-      "text": "+1% to Maximum Cold Resistance",
+      "text": "+#% to Maximum Cold Resistance",
       "tiers": [
         {
           "name": "of Furs",
@@ -54670,7 +54670,7 @@
         "lightning",
         "resistance"
       ],
-      "text": "+1% to all Maximum Elemental Resistances",
+      "text": "+#% to all Maximum Elemental Resistances",
       "tiers": [
         {
           "name": "of the Deathless",
@@ -54719,7 +54719,7 @@
         "fire",
         "resistance"
       ],
-      "text": "+1% to Maximum Fire Resistance",
+      "text": "+#% to Maximum Fire Resistance",
       "tiers": [
         {
           "name": "of the Bushfire",
@@ -54782,7 +54782,7 @@
         "lightning",
         "resistance"
       ],
-      "text": "+1% to Maximum Lightning Resistance",
+      "text": "+#% to Maximum Lightning Resistance",
       "tiers": [
         {
           "name": "of Impedance",
@@ -56230,7 +56230,7 @@
       ],
       "family": "IncreaseSocketedGemLevel",
       "tags": [],
-      "text": "+2 to Level of all Projectile Skills",
+      "text": "+# to Level of all Projectile Skills",
       "tiers": [
         {
           "name": "of the Fletcher",
@@ -56542,7 +56542,7 @@
         "life",
         "attack"
       ],
-      "text": "Grants 2 Life per Enemy Hit",
+      "text": "Grants # Life per Enemy Hit",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -56846,7 +56846,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -60689,7 +60689,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Spell Skills",
+      "text": "+# to Level of all Spell Skills",
       "tiers": [
         {
           "name": "of the Mage",
@@ -61373,7 +61373,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -64434,7 +64434,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+1 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Combat",
@@ -65304,7 +65304,7 @@
         "life",
         "attack"
       ],
-      "text": "Gain 2 Life per Enemy Hit with Attacks",
+      "text": "Gain # Life per Enemy Hit with Attacks",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -65777,7 +65777,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -68750,7 +68750,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+1 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Combat",
@@ -69491,7 +69491,7 @@
         "life",
         "attack"
       ],
-      "text": "Gain 2 Life per Enemy Hit with Attacks",
+      "text": "Gain # Life per Enemy Hit with Attacks",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -69964,7 +69964,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -72899,7 +72899,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+1 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Combat",
@@ -73769,7 +73769,7 @@
         "life",
         "attack"
       ],
-      "text": "Gain 2 Life per Enemy Hit with Attacks",
+      "text": "Gain # Life per Enemy Hit with Attacks",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -74242,7 +74242,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -77371,7 +77371,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+1 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Combat",
@@ -78112,7 +78112,7 @@
         "life",
         "attack"
       ],
-      "text": "Gain 2 Life per Enemy Hit with Attacks",
+      "text": "Gain # Life per Enemy Hit with Attacks",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -78702,7 +78702,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -81769,7 +81769,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+1 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Combat",
@@ -82639,7 +82639,7 @@
         "life",
         "attack"
       ],
-      "text": "Gain 2 Life per Enemy Hit with Attacks",
+      "text": "Gain # Life per Enemy Hit with Attacks",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -83229,7 +83229,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -86215,7 +86215,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+1 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Combat",
@@ -86956,7 +86956,7 @@
         "life",
         "attack"
       ],
-      "text": "Gain 2 Life per Enemy Hit with Attacks",
+      "text": "Gain # Life per Enemy Hit with Attacks",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -87429,7 +87429,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -90178,7 +90178,7 @@
         "minion",
         "gem"
       ],
-      "text": "+1 to Level of all Minion Skills",
+      "text": "+# to Level of all Minion Skills",
       "tiers": [
         {
           "name": "of the Taskmaster",
@@ -91280,7 +91280,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -93433,7 +93433,7 @@
         "minion",
         "gem"
       ],
-      "text": "+1 to Level of all Minion Skills",
+      "text": "+# to Level of all Minion Skills",
       "tiers": [
         {
           "name": "of the Taskmaster",
@@ -94535,7 +94535,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -96515,7 +96515,7 @@
         "minion",
         "gem"
       ],
-      "text": "+1 to Level of all Minion Skills",
+      "text": "+# to Level of all Minion Skills",
       "tiers": [
         {
           "name": "of the Taskmaster",
@@ -97617,7 +97617,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -99920,7 +99920,7 @@
         "minion",
         "gem"
       ],
-      "text": "+1 to Level of all Minion Skills",
+      "text": "+# to Level of all Minion Skills",
       "tiers": [
         {
           "name": "of the Taskmaster",
@@ -101139,7 +101139,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -103257,7 +103257,7 @@
         "minion",
         "gem"
       ],
-      "text": "+1 to Level of all Minion Skills",
+      "text": "+# to Level of all Minion Skills",
       "tiers": [
         {
           "name": "of the Taskmaster",
@@ -104476,7 +104476,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -106513,7 +106513,7 @@
         "minion",
         "gem"
       ],
-      "text": "+1 to Level of all Minion Skills",
+      "text": "+# to Level of all Minion Skills",
       "tiers": [
         {
           "name": "of the Taskmaster",
@@ -107615,7 +107615,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -109366,7 +109366,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+1 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Dueling",
@@ -109678,7 +109678,7 @@
         "life",
         "attack"
       ],
-      "text": "Grants 2 Life per Enemy Hit",
+      "text": "Grants # Life per Enemy Hit",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -109968,7 +109968,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -113322,7 +113322,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+2 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Dueling",
@@ -113763,7 +113763,7 @@
         "life",
         "attack"
       ],
-      "text": "Grants 2 Life per Enemy Hit",
+      "text": "Grants # Life per Enemy Hit",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -114053,7 +114053,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -124894,7 +124894,7 @@
         "minion",
         "gem"
       ],
-      "text": "+1 to Level of all Minion Skills",
+      "text": "+# to Level of all Minion Skills",
       "tiers": [
         {
           "name": "of the Taskmaster",
@@ -125342,7 +125342,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -128145,7 +128145,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -128446,7 +128446,7 @@
         "chaos",
         "resistance"
       ],
-      "text": "+1% to Maximum Chaos Resistance",
+      "text": "+#% to Maximum Chaos Resistance",
       "tiers": [
         {
           "name": "of Regularity",
@@ -128509,7 +128509,7 @@
         "cold",
         "resistance"
       ],
-      "text": "+1% to Maximum Cold Resistance",
+      "text": "+#% to Maximum Cold Resistance",
       "tiers": [
         {
           "name": "of Furs",
@@ -128576,7 +128576,7 @@
         "lightning",
         "resistance"
       ],
-      "text": "+1% to all Maximum Elemental Resistances",
+      "text": "+#% to all Maximum Elemental Resistances",
       "tiers": [
         {
           "name": "of the Deathless",
@@ -128625,7 +128625,7 @@
         "fire",
         "resistance"
       ],
-      "text": "+1% to Maximum Fire Resistance",
+      "text": "+#% to Maximum Fire Resistance",
       "tiers": [
         {
           "name": "of the Bushfire",
@@ -128688,7 +128688,7 @@
         "lightning",
         "resistance"
       ],
-      "text": "+1% to Maximum Lightning Resistance",
+      "text": "+#% to Maximum Lightning Resistance",
       "tiers": [
         {
           "name": "of Impedance",
@@ -131302,7 +131302,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -131603,7 +131603,7 @@
         "chaos",
         "resistance"
       ],
-      "text": "+1% to Maximum Chaos Resistance",
+      "text": "+#% to Maximum Chaos Resistance",
       "tiers": [
         {
           "name": "of Regularity",
@@ -131666,7 +131666,7 @@
         "cold",
         "resistance"
       ],
-      "text": "+1% to Maximum Cold Resistance",
+      "text": "+#% to Maximum Cold Resistance",
       "tiers": [
         {
           "name": "of Furs",
@@ -131733,7 +131733,7 @@
         "lightning",
         "resistance"
       ],
-      "text": "+1% to all Maximum Elemental Resistances",
+      "text": "+#% to all Maximum Elemental Resistances",
       "tiers": [
         {
           "name": "of the Deathless",
@@ -131782,7 +131782,7 @@
         "fire",
         "resistance"
       ],
-      "text": "+1% to Maximum Fire Resistance",
+      "text": "+#% to Maximum Fire Resistance",
       "tiers": [
         {
           "name": "of the Bushfire",
@@ -131845,7 +131845,7 @@
         "lightning",
         "resistance"
       ],
-      "text": "+1% to Maximum Lightning Resistance",
+      "text": "+#% to Maximum Lightning Resistance",
       "tiers": [
         {
           "name": "of Impedance",
@@ -133942,7 +133942,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -134378,7 +134378,7 @@
         "chaos",
         "resistance"
       ],
-      "text": "+1% to Maximum Chaos Resistance",
+      "text": "+#% to Maximum Chaos Resistance",
       "tiers": [
         {
           "name": "of Regularity",
@@ -134441,7 +134441,7 @@
         "cold",
         "resistance"
       ],
-      "text": "+1% to Maximum Cold Resistance",
+      "text": "+#% to Maximum Cold Resistance",
       "tiers": [
         {
           "name": "of Furs",
@@ -134508,7 +134508,7 @@
         "lightning",
         "resistance"
       ],
-      "text": "+1% to all Maximum Elemental Resistances",
+      "text": "+#% to all Maximum Elemental Resistances",
       "tiers": [
         {
           "name": "of the Deathless",
@@ -134557,7 +134557,7 @@
         "fire",
         "resistance"
       ],
-      "text": "+1% to Maximum Fire Resistance",
+      "text": "+#% to Maximum Fire Resistance",
       "tiers": [
         {
           "name": "of the Bushfire",
@@ -134620,7 +134620,7 @@
         "lightning",
         "resistance"
       ],
-      "text": "+1% to Maximum Lightning Resistance",
+      "text": "+#% to Maximum Lightning Resistance",
       "tiers": [
         {
           "name": "of Impedance",
@@ -134799,7 +134799,7 @@
       "tags": [
         "physical"
       ],
-      "text": "4% additional Physical Damage Reduction",
+      "text": "#% additional Physical Damage Reduction",
       "tiers": [
         {
           "name": "of the Watchman",
@@ -136331,7 +136331,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+1 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Dueling",
@@ -136402,7 +136402,7 @@
       ],
       "family": "IncreaseSocketedGemLevel",
       "tags": [],
-      "text": "+1 to Level of all Projectile Skills",
+      "text": "+# to Level of all Projectile Skills",
       "tiers": [
         {
           "name": "of the Fletcher",
@@ -136714,7 +136714,7 @@
         "life",
         "attack"
       ],
-      "text": "Grants 2 Life per Enemy Hit",
+      "text": "Grants # Life per Enemy Hit",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -137004,7 +137004,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -140813,7 +140813,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Chaos Spell Skills",
+      "text": "+# to Level of all Chaos Spell Skills",
       "tiers": [
         {
           "name": "of Anarchy",
@@ -140903,7 +140903,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Cold Spell Skills",
+      "text": "+# to Level of all Cold Spell Skills",
       "tiers": [
         {
           "name": "of Snow",
@@ -140993,7 +140993,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Fire Spell Skills",
+      "text": "+# to Level of all Fire Spell Skills",
       "tiers": [
         {
           "name": "of Coals",
@@ -141083,7 +141083,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Lightning Spell Skills",
+      "text": "+# to Level of all Lightning Spell Skills",
       "tiers": [
         {
           "name": "of Sparks",
@@ -141172,7 +141172,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Physical Spell Skills",
+      "text": "+# to Level of all Physical Spell Skills",
       "tiers": [
         {
           "name": "of Agony",
@@ -141260,7 +141260,7 @@
         "caster",
         "gem"
       ],
-      "text": "+2 to Level of all Spell Skills",
+      "text": "+# to Level of all Spell Skills",
       "tiers": [
         {
           "name": "of the Mage",
@@ -142176,7 +142176,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -144316,7 +144316,7 @@
       "tags": [
         "attack"
       ],
-      "text": "+2 to Level of all Melee Skills",
+      "text": "+# to Level of all Melee Skills",
       "tiers": [
         {
           "name": "of Dueling",
@@ -144628,7 +144628,7 @@
         "life",
         "attack"
       ],
-      "text": "Grants 2 Life per Enemy Hit",
+      "text": "Grants # Life per Enemy Hit",
       "tiers": [
         {
           "name": "of Rejuvenation",
@@ -144918,7 +144918,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",
@@ -148770,7 +148770,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Chaos Spell Skills",
+      "text": "+# to Level of all Chaos Spell Skills",
       "tiers": [
         {
           "name": "of Anarchy",
@@ -148860,7 +148860,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Cold Spell Skills",
+      "text": "+# to Level of all Cold Spell Skills",
       "tiers": [
         {
           "name": "of Snow",
@@ -148950,7 +148950,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Fire Spell Skills",
+      "text": "+# to Level of all Fire Spell Skills",
       "tiers": [
         {
           "name": "of Coals",
@@ -149040,7 +149040,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Lightning Spell Skills",
+      "text": "+# to Level of all Lightning Spell Skills",
       "tiers": [
         {
           "name": "of Sparks",
@@ -149129,7 +149129,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Physical Spell Skills",
+      "text": "+# to Level of all Physical Spell Skills",
       "tiers": [
         {
           "name": "of Agony",
@@ -149217,7 +149217,7 @@
         "caster",
         "gem"
       ],
-      "text": "+1 to Level of all Spell Skills",
+      "text": "+# to Level of all Spell Skills",
       "tiers": [
         {
           "name": "of the Mage",
@@ -150133,7 +150133,7 @@
       ],
       "family": "LocalAttributeRequirements",
       "tags": [],
-      "text": "15% reduced Attribute Requirements",
+      "text": "#% reduced Attribute Requirements",
       "tiers": [
         {
           "name": "of the Worthy",

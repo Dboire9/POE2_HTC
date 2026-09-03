@@ -17,8 +17,15 @@ export interface EngineTier {
   readonly name: string;
   readonly ilvl: number;
   readonly label: string;
-  /** The roll range as "min–max" (e.g. "165–179"), or "" for a value-less mod. */
+  /** The first roll range as "min–max" (e.g. "165–179"), a bare "5" when fixed, "" when value-less. */
   readonly range: string;
+  /**
+   * One formatted value per `#` in the mod's text, in order — 153 mods carry two or three.
+   *
+   * Kept beside `range` rather than replacing it because they answer different questions: `range` is a
+   * compact suffix for a tier LABEL, these are what the sentence reads with the numbers filled in.
+   */
+  readonly values: readonly string[];
 }
 
 export interface EngineMod {

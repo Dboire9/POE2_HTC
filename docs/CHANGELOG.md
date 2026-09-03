@@ -20,7 +20,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the row is refused while a carved mod is on it; and the boss omens work on a **Weapon or Jewellery**
   only, so on armour the row says why instead of vanishing.
 
+### Fixed
+
+- **115 mods labelled themselves with their WORST roll.** Reported by a player wanting `+5 to Level of
+  all Fire Spell Skills` who was shown *"+1 to Level of all Fire Spell Skills"* beside a dropdown
+  reading `T1 · of Inferno · ilvl 81 · 5–5`, and left to join the two up. `cleanText` in the refresh
+  only collapses a *parenthesised* range to `#`, and RePoE renders a fixed roll without parentheses —
+  so the literal from `tierIds[0]`, the worst tier, survived into the label of every tier.
+  `15% reduced Attribute Requirements` really goes to **35%**. Fixed in the generator
+  (`tools/refresh/modText.mjs`, so a refresh cannot put it back) and in the shipped data, by one rule a
+  test holds both to. It rewrites only what it can prove — the rolls must vary, the worst must be a
+  single value, and the text must hold exactly one number matching it in *magnitude*, since the sign
+  lives in the words. One mod of the 115 has no number at all (`Loads an additional bolt`) and is
+  correctly left alone.
+
 ### Added
+
+- **A mod now reads with the numbers the tier you picked actually rolls** — `+5 to Level of all Fire
+  Spell Skills`, not `+#`. On target rows in both tabs and on the item's own mod chips, resolved
+  against that row's tier. The browse list keeps its `#`, because no tier has been chosen there yet.
+  Mods with two or three values (153 of them) fill in order: `101–151 to 152–220 Physical Thorns
+  damage`.
+- **A fixed roll stops printing as a range.** The tier label said `· 5–5`; it says `· 5`. Negative
+  rolls show their magnitude, low to high — `#% reduced Charm Charges used` is stored `[-10, -8]` and
+  now reads `8–10` rather than `10–8`.
 
 - **You can say what tier your mods are actually rolled at.** Reported as *"we cannot differentiate
   what mod we want / are going to add from the mods that are already there"*. Every held mod was

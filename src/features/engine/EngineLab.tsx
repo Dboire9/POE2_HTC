@@ -29,6 +29,7 @@ import PolicyGraph from './PolicyGraph';
 import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
 import { exactExalts, formatBoundedCost, formatChance } from '../../lib/currency';
+import { modTextAtTier } from '../../lib/engineMap';
 import BaseSelect from './BaseSelect';
 
 const selectCls =
@@ -632,7 +633,10 @@ const EngineLab: React.FC = () => {
                     {mod.type === 'prefix' ? 'P' : 'S'}
                   </Badge>
                   <span className="flex-1 min-w-40 text-sm">
-                    {mod.text}
+                    {/* Resolved against the tier chosen on THIS row, the same as the Item tab. The
+                        picker list above deliberately keeps its `#`: no tier has been chosen there,
+                        so a number would be a claim about a roll the reader has not asked for. */}
+                    {modTextAtTier(mod, t.tierDisplay)}
                     {mod.source === 'essence' && (
                       <span className="ml-1.5 rounded bg-purple-500/15 px-1 text-[10px] text-purple-600 dark:text-purple-300">essence-only</span>
                     )}

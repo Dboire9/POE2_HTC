@@ -4,7 +4,7 @@ import {
   MAX_PER_SIDE, MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotCounts, slotsOf, whyNotAdd,
 } from './targetSlots.ts';
 
-const tier = (d: number) => ({ display: d, name: `t${d}`, ilvl: 1, label: `T${d}`, range: '1–2' });
+const tier = (d: number) => ({ display: d, name: `t${d}`, ilvl: 1, label: `T${d}`, range: '1–2', values: ['1–2'] });
 const mod = (
   id: string, type: 'prefix' | 'suffix', family: string, source: EngineMod['source'] = 'normal',
 ): EngineMod => ({ id, text: id, type, family, source, tiers: [tier(1), tier(2)] });

@@ -3,7 +3,7 @@ import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
-import { modSourceLabel } from '../../lib/engineMap';
+import { modSourceLabel, modTextAtTier } from '../../lib/engineMap';
 import {
   loadEngine, listBases, listMods, listPerfectEssences, listDesecrated,
   priceBasis,
@@ -566,7 +566,7 @@ const ItemActions: React.FC = () => {
                     className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-sm ${isFractured ? 'border-amber-500/60 bg-amber-500/10' : 'border-border/60'}`}
                   >
                     <Badge variant={m.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{m.type === 'prefix' ? 'P' : 'S'}</Badge>
-                    {m.text}
+                    {modTextAtTier(m, heldTier.get(m.id) ?? 1)}
                     {/* The tier this mod is ROLLED AT, not a tier you are asking for. It decides
                         whether the planner keeps the mod or has to strip it, so it is the difference
                         between a craft that is nearly done and one that is not started. */}
@@ -770,7 +770,11 @@ const ItemActions: React.FC = () => {
                   return (
                     <div key={t.modId} className={`flex flex-wrap items-center gap-2 rounded-md border border-border/60 px-2 py-1.5 ${stripe}`}>
                       <Badge variant={mod.type === 'prefix' ? 'default' : 'secondary'} className="text-[10px]">{mod.type === 'prefix' ? 'P' : 'S'}</Badge>
-                      <span className="flex-1 min-w-40 text-sm">{mod.text}</span>
+                      {/* The sentence with the numbers this tier actually rolls. It read
+                          "+# to Level of all Fire Spell Skills" — or worse, before the data fix,
+                          "+1 …" from the WORST tier — beside a dropdown saying "T1 · of Inferno ·
+                          ilvl 81 · 5–5", leaving the reader to join the two up. */}
+                      <span className="flex-1 min-w-40 text-sm">{modTextAtTier(mod, t.tierDisplay)}</span>
                       {mod.source === 'desecrated' && <span className="text-[10px] rounded bg-rose-500/15 px-1 text-rose-600 dark:text-rose-300">desecrated</span>}
                       {mod.source === 'perfect' && <span className="text-[10px] rounded bg-purple-500/15 px-1 text-purple-600 dark:text-purple-300">perfect essence</span>}
                       {state === 'have' && (

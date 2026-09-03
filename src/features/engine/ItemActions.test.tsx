@@ -8,7 +8,7 @@ import { oddsText } from './QuickCurrencyCheck';
 // against a MOCKED facade with a tiny controlled mod set; the facade logic (currencyActions, optimizeItem)
 // is tested in engine.test.ts, so here we verify the COMPONENT's wiring and rules.
 
-const tier = (display: number) => ({ display, name: `t${display}`, ilvl: 1, label: `T${display}`, range: '10–20' });
+const tier = (display: number) => ({ display, name: `t${display}`, ilvl: 1, label: `T${display}`, range: '10–20', values: ['10–20'] });
 const mod = (
   id: string, text: string, type: 'prefix' | 'suffix', source: EngineMod['source'], family: string, tiers = 3,
 ): EngineMod => ({ id, text, type, family, source, tiers: Array.from({ length: tiers }, (_, i) => tier(i + 1)) });

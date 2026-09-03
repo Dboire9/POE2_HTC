@@ -37,7 +37,7 @@ import type {
 } from './engineTypes.ts';
 import {
   prettyName, toEngineMod, toTierTargets, toAltTargets, buildItemState, addBlockedReason,
-  bossOmenLabel, mapFrontier, mapAlternatives, mapMarkov,
+  bossOmenLabel, mapFrontier, mapAlternatives, mapMarkov, rollLabel,
 } from './engineMap.ts';
 
 // Fetched as URLs (Vite copies them to /assets) rather than imported as modules, so the big JSON is
@@ -148,13 +148,13 @@ export function listPerfectEssences(data: PatchData, baseId: string): EngineMod[
       const mod = data.mods.get(id);
       if (!mod || mod.source !== 'perfect_essence' || mod.tiers.length === 0) return [];
       const t = mod.tiers[0]!;
-      const r = t.ranges[0];
-      const range = r && r.length >= 2 ? `${r[0]}–${r[1]}` : '';
+      const values = (t.ranges ?? []).map(rollLabel).filter((v) => v !== '');
+      const range = values[0] ?? '';
       return [{
         id: mod.id, text: mod.text ?? mod.id, type, family: mod.family,
         ...(mod.families && mod.families.length > 1 ? { families: mod.families } : {}),
         source: 'perfect',
-        tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `${t.name} · ilvl ${t.ilvl}${range ? ` · ${range}` : ''}`, range }],
+        tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `${t.name} · ilvl ${t.ilvl}${range ? ` · ${range}` : ''}`, range, values }],
       }];
     });
   return [...build(base.pools.essence.prefixes, 'prefix'), ...build(base.pools.essence.suffixes, 'suffix')]
@@ -175,13 +175,13 @@ export function listDesecrated(data: PatchData, baseId: string): EngineMod[] {
       const mod = data.mods.get(id);
       if (!mod || mod.source !== 'desecrated' || mod.tiers.length === 0) return [];
       const t = mod.tiers[0]!;
-      const r = t.ranges[0];
-      const range = r && r.length >= 2 ? `${r[0]}–${r[1]}` : '';
+      const values = (t.ranges ?? []).map(rollLabel).filter((v) => v !== '');
+      const range = values[0] ?? '';
       return [{
         id: mod.id, text: mod.text ?? mod.id, type, family: mod.family,
         ...(mod.families && mod.families.length > 1 ? { families: mod.families } : {}),
         source: 'desecrated',
-        tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `desecrated · ilvl ${t.ilvl}${range ? ` · ${range}` : ''}`, range }],
+        tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `desecrated · ilvl ${t.ilvl}${range ? ` · ${range}` : ''}`, range, values }],
       }];
     });
   return [...build(base.pools.desecrated.prefixes, 'prefix'), ...build(base.pools.desecrated.suffixes, 'suffix')]

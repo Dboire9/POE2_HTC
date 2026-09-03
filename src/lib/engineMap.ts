@@ -71,6 +71,45 @@ export function modSourceLabel(source: EngineMod['source']): string {
   }
 }
 
+/**
+ * One roll, as a player reads it.
+ *
+ * Exported because three call sites built this string by hand — `toEngineMod` plus the perfect-essence
+ * and desecrated builders in `engine.ts` — and all three had the same two bugs, which is what a third
+ * copy of a formatting rule is for.
+ *
+ * Two things the raw pair gets wrong. A fixed roll is stored `[5, 5]` and rendered "5–5", which reads
+ * as a range that is not one — the tier dropdown said `T1 · of Inferno · ilvl 81 · 5–5`. And the SIGN
+ * lives in the words, not the number: `15% reduced Attribute Requirements` is stored `[-15, -15]` and
+ * its best tier `[-35, -35]`, so printing the stored value would give "-35% reduced". Magnitude, then
+ * ordered low-high, because taking the magnitude of `[-10, -8]` reverses it.
+ */
+export function rollLabel(r: readonly number[] | undefined): string {
+  if (!r || r.length < 2) return '';
+  const [lo, hi] = [Math.abs(r[0]!), Math.abs(r[1]!)].sort((a, b) => a - b);
+  return lo === hi ? `${lo}` : `${lo}–${hi}`;
+}
+
+/**
+ * The mod's text with the numbers a given tier actually rolls, e.g. `+5 to Level of all Fire Spell
+ * Skills` rather than `+# to Level of all Fire Spell Skills`.
+ *
+ * Reported by a player asking for +5 who was shown "+1 to Level of all Fire Spell Skills" beside a
+ * dropdown reading "T1 · of Inferno · ilvl 81 · 5–5", and had to join the two up themselves. The "+1"
+ * was a separate data bug (the text came from the WORST tier with its value baked in, fixed in
+ * `tools/refresh/modText.mjs`); this is the half that makes the row say what you are asking for.
+ *
+ * Placeholders are filled in order against `values`, since 153 mods carry two or three. A `#` with no
+ * value left is left as `#` rather than dropped — a sentence missing a number is better than one
+ * silently missing a clause.
+ */
+export function modTextAtTier(mod: EngineMod, tierDisplay: number): string {
+  const tier = mod.tiers.find((t) => t.display === tierDisplay);
+  if (tier === undefined || tier.values.length === 0) return mod.text;
+  let i = 0;
+  return mod.text.replace(/#/g, () => tier.values[i++] ?? '#');
+}
+
 export function toEngineMod(data: PatchData, modId: string, type: 'prefix' | 'suffix'): EngineMod | null {
   const mod = data.mods.get(modId);
   if (!mod || mod.tiers.length === 0) return null;
@@ -84,11 +123,11 @@ export function toEngineMod(data: PatchData, modId: string, type: 'prefix' | 'su
   const tiers: EngineTier[] = mod.tiers
     .map((t, engineIndex) => {
       const display = n - engineIndex; // engineIndex n-1 (best) → display 1
-      const r = t.ranges[0];
-      const range = r && r.length >= 2 ? `${r[0]}–${r[1]}` : '';
+      const values = (t.ranges ?? []).map(rollLabel).filter((v) => v !== '');
+      const range = values[0] ?? '';
       const suffix = range ? ` · ${range}` : '';
       const label = isEssence ? essenceTierLabel(t.name, t.ilvl, suffix) : tierLabel(display, n, t.name, t.ilvl, suffix);
-      return { display, name: t.name, ilvl: t.ilvl, label, range };
+      return { display, name: t.name, ilvl: t.ilvl, label, range, values };
     })
     .sort((a, b) => a.display - b.display);
   return {

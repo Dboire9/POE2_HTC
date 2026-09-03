@@ -152,6 +152,31 @@ export interface MarkovResult {
   readonly edges: readonly PolicyEdge[];
   /** Optimal action for EVERY non-goal state (key → action), for simulation/validation. */
   readonly policy: ReadonlyMap<string, McAction>;
+  /**
+   * What this same craft would cost starting from a BARE item of the start's rarity — none of the
+   * targets, no junk. The zero point `expectedCost` is progress against.
+   *
+   * **Free.** The solve already computes V for every state in the lattice, and the bare state is one
+   * of them; this reads it out rather than solving anything twice. A second solve would double a
+   * three-minute craft.
+   *
+   * It exists because "how many of my targets are already on the item" is a bad proxy for how far
+   * along you are, and measurably so: on a 6-target T2 Wand, holding FOUR of the six is 4.4% of the
+   * cost, not 67% (docs/validation.md, 2026-09-03). Cost is back-loaded — each mod added shrinks the
+   * slots an Exalt can land in, while a miss then needs an Annulment that picks uniformly and can take
+   * what was banked.
+   *
+   * `expectedCost` can be LARGER than this, and that is measured rather than assumed: a Wand carrying
+   * three junk mods and none of the six targets costs **1.509914e6 against the bare 1.509425e6 — 489 ex
+   * WORSE than an empty base**, because the junk has to come off and an Annulment takes a mod at
+   * random. Callers must handle that sign rather than assuming progress is positive. (A first attempt
+   * to demonstrate this failed: the item held four targets alongside the junk, and their value swamped
+   * it at +14,196. A branch for a state nobody has produced is dead code dressed as care.)
+   *
+   * Absent when there is nothing to compare — the guard for an item that already matches its target
+   * returns before a lattice exists — or when the bare state is unreachable (V pinned at Infinity).
+   */
+  readonly bareCost?: number;
 }
 
 /**
@@ -1532,5 +1557,12 @@ export function markovFromItem(
   const withVisits = nodes.map((nd) => (
     { ...nd, visitRate: (forward.get(nd.key) ?? 0) * (toGoal.get(nd.key) ?? 0) }));
 
-  return { expectedCost: startCost, feasible: true, converged, bound, nodes: withVisits, edges, policy };
+  // The lattice already holds V for a bare item of this rarity; reading it out is the whole cost of
+  // the comparison. Omitted rather than faked when the state is unreachable and V stayed at Infinity.
+  const bareIdx = idxOfState.get(encode(0, 0, 0, 0, FLAG_NONE, s0.rarity));
+  const bare = bareIdx === undefined ? undefined : V[bareIdx];
+  return {
+    expectedCost: startCost, feasible: true, converged, bound, nodes: withVisits, edges, policy,
+    ...(bare !== undefined && Number.isFinite(bare) ? { bareCost: bare } : {}),
+  };
 }

@@ -17,7 +17,7 @@ import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField, useOnChange } from '../../lib/workspace';
 import { MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotsOf, whyNotAdd } from '../../lib/targetSlots';
-import { exactExalts, formatBoundedCost, formatCost } from '../../lib/currency';
+import { exactExalts, formatBoundedCost, formatCost, type Rates } from '../../lib/currency';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
 import PriceBasisNote from './PriceBasisNote';
@@ -60,6 +60,62 @@ export function oddsText(p: number): string {
   const shown = n < 10 ? n.toFixed(1).replace(/\.0$/, '') : Math.round(n).toLocaleString();
   return `≈ 1 in ${shown} each orb`;
 }
+
+/**
+ * What the item you are holding is actually worth to this craft.
+ *
+ * "I have four of the six, I just need two more" feels two-thirds done. Measured on a 6-target T2
+ * Wand it is **4.4%** — the last mod alone is 53% of the craft and the first three together are 0.27%
+ * of it (docs/validation.md, 2026-09-03). Cost is back-loaded because every mod added leaves fewer
+ * open slots for the next one to land in, while a miss then needs an Annulment that picks uniformly
+ * and can take what was banked. Nothing on screen said this, and counting mods invites exactly the
+ * wrong conclusion, so the panel says it in currency.
+ *
+ * The comparison is free: `bareCost` is a value the solve already computed for another state in the
+ * same lattice, not a second solve.
+ *
+ * Three things it refuses to do:
+ *  - **Claim a figure it cannot stand behind.** Shown only when `bound` is `exact`. Both numbers come
+ *    from one solve, so when that solve ran out of clock they are two floors on values still climbing
+ *    and their DIFFERENCE is not a bound on anything.
+ *  - **Assume progress is positive.** A dirty item costs more than a clean one because the junk has to
+ *    come off, and that is worth saying plainly rather than rendering as a negative percentage.
+ *  - **State the obvious.** A bare start IS the baseline, so there is nothing to compare and the row
+ *    does not appear — which is also what silences it on the Lab tab, where every craft starts bare.
+ */
+const ItemWorth: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ markov, rates }) => {
+  const bare = markov.bareCost;
+  if (bare === undefined || markov.bound !== 'exact') return null;
+  const start = markov.nodes.find((n) => n.isStart);
+  const bareStart = start !== undefined && start.present.length === 0 && start.blocked.length === 0
+    && start.junkPrefixes === 0 && start.junkSuffixes === 0;
+  if (bareStart || bare <= 0) return null;
+
+  const worth = bare - markov.expectedCost;
+  const share = worth / bare;
+  return (
+    <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+      {worth > 0 ? (
+        <>
+          <strong className="text-foreground">
+            Your item has done {share < 0.001 ? 'under 0.1' : (share * 100).toFixed(1)}% of this craft
+          </strong>{' '}
+          — it saves <span title={exactExalts(worth)}>{formatCost(worth, rates)}</span> against the same
+          base carrying none of these mods. The rest is in what you still need: cost is back-loaded,
+          because every mod already on the item leaves fewer open slots for the next one to land in.
+          <strong> Counting mods overstates how far along you are.</strong>
+        </>
+      ) : (
+        <>
+          <strong className="text-foreground">Your item is behind a clean start</strong> — finishing it
+          costs <span title={exactExalts(-worth)}>{formatCost(-worth, rates)}</span> more than the same
+          base carrying none of these mods, because what you do not want has to come off first, and an
+          Annulment takes a mod at random rather than the one you picked.
+        </>
+      )}
+    </p>
+  );
+};
 
 /** Rarity → per-side slot cap (magic = 1 prefix + 1 suffix, rare = 3 + 3). */
 const CAP: Record<'magic' | 'rare', number> = { magic: 1, rare: 3 };
@@ -858,6 +914,7 @@ const ItemActions: React.FC = () => {
                   shot, which is itself the answer: on this target, it isn’t close.
                 </p>
               )}
+              <ItemWorth markov={markov} rates={rates} />
               <p className="text-[11px] text-muted-foreground">
                 The honest average spend to reach this target, playing the optimal policy — it weighs
                 Greater/Perfect Exalts and side omens, and <strong>recovers in place</strong> after a bad roll

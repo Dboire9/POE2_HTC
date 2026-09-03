@@ -36,6 +36,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is in the box's tooltip and in the detail panel a click away.
 - `addBlockedReason` told a player that a carved or essence-only mod "can’t roll on this base". It
   rolls there fine; it just needs a different currency. It now names the one that can place it.
+- **The Item tab says how far along your item really is, in currency.** "I have four of the six, I
+  just need two more" reads as two-thirds done. On a six-mod craft it measured **4.4%** — the last mod
+  alone is 53% of the cost and the first three together are 0.27% of it. Cost is back-loaded: every mod
+  already on the item leaves fewer open slots for the next one to land in, while a miss then needs an
+  Annulment that takes a mod at random. The true-cost card now names what your item saves against the
+  same base with none of those mods, and says outright that counting mods overstates your progress. It
+  is free — the figure is a value the solve already computed. It also handles the other direction: an
+  item carrying junk and none of your targets measured **489 ex worse than an empty base**, and reads
+  as "behind a clean start" rather than as a negative percentage. Shown only when the solve converged,
+  since two unconverged figures are floors whose difference bounds nothing.
 - **An item that already matched its target took 71 seconds to be told so.** *Copy my current mods*
   sets every target to the worst tier, so whatever you hold satisfies it by construction — and the
   true-cost model then solved all 15,545 states to reach zero. Worse on the default setting, where it

@@ -310,6 +310,7 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
     // Same rule as the frontier's: only an unomened Desecration leans on the assumed weight.
     assumedOdds: [...res.policy.values()].some((a) => a.currency === 'desecrate' && a.boss === undefined),
     nodes, edges,
+    ...(res.bareCost !== undefined ? { bareCost: res.bareCost } : {}),
     ...(res.reason ? { reason: res.reason } : {}),
   };
 }

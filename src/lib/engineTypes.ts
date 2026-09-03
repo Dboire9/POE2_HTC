@@ -292,6 +292,19 @@ export interface EngineMarkovResult {
   /** True when a shown number depends on the ASSUMED desecrated spawn weight (an unomened
    *  Desecration). The UI must say so — see PriceBasisNote's `exactOdds`. */
   readonly assumedOdds: boolean;
+  /**
+   * What the same craft would cost from a BARE item of this rarity — none of the targets, no junk.
+   *
+   * The zero point `expectedCost` is progress against, and it is free: the solver already computes a
+   * value for every state and this is one of them. It exists because "how many of my targets are
+   * already on" is a bad proxy for how far along you are — holding four of six measured at 4.4% of
+   * the cost, not 67% (docs/validation.md, 2026-09-03).
+   *
+   * `expectedCost` can EXCEED it — measured, not assumed: a Wand holding three junk mods and none of
+   * the targets came out 489 ex WORSE than an empty base. Any UI must handle that sign. Absent when
+   * the start is already the target, or unreachable.
+   */
+  readonly bareCost?: number;
   readonly nodes: readonly EnginePolicyNode[];
   readonly edges: readonly EnginePolicyEdge[];
 }

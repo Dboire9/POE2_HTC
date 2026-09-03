@@ -439,3 +439,72 @@ describe('ItemActions — oddsText', () => {
     }
   });
 });
+
+// ── What the item you hold is actually worth ─────────────────────────────────
+// "I have four of the six, I just need two more" reads as two-thirds done. Measured on a 6-target T2
+// Wand it is 4.4% (docs/validation.md, 2026-09-03), because cost is back-loaded: the last mod alone is
+// 53% of the craft. The panel says it in currency, since counting mods invites the wrong conclusion.
+describe('ItemActions — how far along your item really is', () => {
+  const startNode = (present: string[], junk = 0) => ({
+    key: 's', present, blocked: [], junkPrefixes: junk, junkSuffixes: 0, rarity: 'rare' as const,
+    isStart: true, isGoal: false, depth: 2, expectedCost: 0, visitRate: 1,
+  });
+  /**
+   * The panel's HEADING, not the phrase.
+   *
+   * ItemActions also names "True expected cost" in the paragraph explaining why this tab reads
+   * differently, so `getByText(/True expected cost/i)` matches two elements and throws. It passed when
+   * this file ran alone and failed in the full suite, which is the sort of order-dependence a loose
+   * query buys you: assert on the role you actually mean.
+   */
+  const panelHeading = () => screen.getByRole('heading', { name: /True expected cost/i });
+  const withWorth = (over: Record<string, unknown>) =>
+    ({ ...okMarkov, nodes: [startNode(['Normal Prefix'])], ...over });
+
+  async function computeWith(markov: unknown) {
+    mocks.optimizeItemMarkov.mockReturnValue(markov);
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(screen.getByRole('button', { name: /Full plan to a target/i }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    await user.click(screen.getByRole('button', { name: /Compute plan/i }));
+  }
+
+  it('reports progress in currency, and warns that counting mods overstates it', async () => {
+    await computeWith(withWorth({ expectedCost: 956, bareCost: 1000 }));
+    await waitFor(() => expect(screen.getByText(/has done 4\.4% of this craft/i)).toBeInTheDocument());
+    expect(screen.getByText(/Counting mods overstates how far along you are/i)).toBeInTheDocument();
+  });
+
+  // A dirty item is worth LESS than a clean one — the junk has to come off, and an Annulment takes a
+  // mod at random. Rendering that as a negative percentage would be nonsense.
+  it('says plainly when the item is a liability rather than progress', async () => {
+    await computeWith(withWorth({ expectedCost: 1200, bareCost: 1000, nodes: [startNode([], 2)] }));
+    await waitFor(() => expect(screen.getByText(/behind a clean start/i)).toBeInTheDocument());
+    expect(screen.queryByText(/has done .* of this craft/i)).toBeNull();
+  });
+
+  // Both figures come from ONE solve. When it ran out of clock they are two floors on values still
+  // climbing, so their difference bounds nothing — and a percentage would be pure invention.
+  it('claims nothing when the solve did not converge', async () => {
+    await computeWith(withWorth({ expectedCost: 956, bareCost: 1000, bound: 'lower', converged: false }));
+    await waitFor(() => expect(panelHeading()).toBeInTheDocument());
+    expect(screen.queryByText(/of this craft/i)).toBeNull();
+  });
+
+  // A bare start IS the baseline. This is also what keeps the row off the Lab tab, where every craft
+  // begins with nothing on the item.
+  it('says nothing when there is nothing to compare', async () => {
+    await computeWith(withWorth({ expectedCost: 1000, bareCost: 1000, nodes: [startNode([])] }));
+    await waitFor(() => expect(panelHeading()).toBeInTheDocument());
+    expect(screen.queryByText(/of this craft/i)).toBeNull();
+    expect(screen.queryByText(/behind a clean start/i)).toBeNull();
+  });
+
+  it('says nothing when the baseline is absent', async () => {
+    await computeWith(withWorth({ expectedCost: 956 }));
+    await waitFor(() => expect(panelHeading()).toBeInTheDocument());
+    expect(screen.queryByText(/of this craft/i)).toBeNull();
+  });
+});
+

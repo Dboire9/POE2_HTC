@@ -3181,6 +3181,37 @@ caught. The test asserts `policy.size === 0` rather than a wall time: the policy
 non-goal state, so an empty one proves no lattice was built, where asserting the cost alone would pass
 just as happily after a full solve.
 
+### Surfacing it: what the item you hold is worth, for free
+
+The finding is only useful if the app says it, and "4 of 6" is the framing that misleads — so the Item
+tab states it in currency instead. `MarkovResult.bareCost` is what the same craft would cost from a
+bare item of the start's rarity, and it costs NOTHING to obtain: the solver already computes a value
+for every state in the lattice and the bare state is one of them. A second solve would have doubled a
+three-minute craft.
+
+Verified against the sweep above, reading the field out of a HELD item's lattice and comparing with
+the bare-Rare figure measured hours earlier in a separate process:
+
+| | read out here | separately measured |
+|---|---|---|
+| from the held item (sided k=4) | 1.443641e+6 | 1.443641e+6 |
+| `bareCost` | 1.509425e+6 | 1.509425e+6 |
+
+Digit-for-digit, so the field is the same quantity and not an approximation of it. The item is worth
+**65,784 ex = 4.36%** of the craft, which is what the panel now says.
+
+**The liability case is real, and had to be shown rather than asserted.** The UI carries a branch for
+`expectedCost > bareCost` — "your item is behind a clean start" — and a branch for a state nobody has
+produced is dead code dressed as care. The first attempt to demonstrate it FAILED: an item holding
+four targets alongside junk came out at **+14,196**, because the targets' value swamped the junk. A
+junk-ONLY Wand (three mods, none of them targets) settles it: **1.509914e6 against the bare 1.509425e6
+— 489 ex worse than an empty base**, `bound: exact`. Small against a 1.5M ex craft, and reachable.
+
+The row is withheld unless `bound` is `exact`. Both figures come from one solve, so when that solve
+runs out of clock they are two floors on values still climbing and their DIFFERENCE bounds nothing; a
+percentage there would be invention. It is also withheld on a bare start, which is what keeps it off
+the Lab tab without a second rule.
+
 **Two test fixtures were passing BECAUSE of the bug**, and that is the part worth carrying forward.
 `solve.test.ts` and `engineClient.test.ts` both held an item whose targets it already satisfied (item
 = p0 + s0, targets = p0 + s0 at the same tier). Three tests — progress messages advance monotonically,

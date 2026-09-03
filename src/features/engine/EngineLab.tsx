@@ -4,8 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Spinner } from '../../components/ui/spinner';
 import {
-  loadEngine, listBases, listMods, listDesecrated, listPerfectEssences, recommendPlan, bossOmenAllowed,
-  MAX_PRACTICAL_ATTEMPTS,
+  loadEngine, listBases, listMods, listDesecrated, listPerfectEssences, bossOmenAllowed,
   priceBasis,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
   type EngineAlternatives, type AltTargetInput, type EngineMarkovResult,
@@ -378,15 +377,12 @@ const EngineLab: React.FC = () => {
     ? 'No achievable plan — every route scored zero.'
     : `${result.frontier.length} plan${result.frontier.length === 1 ? '' : 's'} found.`
       + (() => {
-        // The same claim the badge makes, and it has to be gated the same way: with nothing clearing
-        // the practicality bar this is the surest plan, which is also the dearest, and announcing it
-        // as "best value" is the one channel a screen-reader user cannot check against the cards.
-        const rec = recommendPlan(result.frontier);
-        const best = result.frontier[rec.index] ?? result.frontier[0];
+        // Whatever the top card says, said the same way. This is the one channel a screen-reader user
+        // cannot check against the cards, so it must not make a claim the cards have stopped making —
+        // it announced "Best value: …" long after that badge was withdrawn from the dearest plan.
+        const best = result.frontier.at(-1); // the frontier ends surest; the cards lead with it
         if (!best) return '';
-        return rec.practical
-          ? ` Best value: ${formatChance(best.probability)} per attempt.`
-          : ` No route lands inside ${MAX_PRACTICAL_ATTEMPTS} attempts; surest is ${formatChance(best.probability)} per attempt.`;
+        return ` Likeliest: ${formatChance(best.probability)} per attempt.`;
       })()
       + (alts ? ` ${alts.rows.length} budget alternative${alts.rows.length === 1 ? '' : 's'} listed.` : '');
 

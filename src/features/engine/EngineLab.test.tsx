@@ -364,20 +364,19 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
     expect(said).toHaveTextContent('1 in 15.9 million per attempt');
     expect(said).not.toHaveTextContent(/0\.0% per attempt/);
     expect(said).not.toHaveTextContent(/e[+-]/); // …and never an exponent, which is unvoiceable.
-    // …and it does NOT call it best value. 1.6e7 attempts clears no practicality bar, so this is the
-    // fallback — the surest plan, which on a frontier ascending in price is also the dearest. The
-    // badge stopped making that claim; the announcement is the one channel a screen-reader user
-    // cannot check against the cards, so it has to stop making it too.
+    // …and it makes no claim the cards have stopped making. It announced "Best value: …" while that
+    // badge sat on the dearest plan on screen; both are gone, and this is the one channel a
+    // screen-reader user cannot check against the cards.
     expect(said).not.toHaveTextContent(/Best value/);
-    expect(said).toHaveTextContent(/No route lands inside 40 attempts/);
+    expect(said).not.toHaveTextContent(/cheapest/i);
   });
 
-  it('does say "best value" when a plan really is practical', async () => {
+  it('names the same plan the cards lead with', async () => {
     const user = userEvent.setup();
     await loaded(); // okFrontier is a 2-attempt plan
     await user.click(addButton('Normal Prefix'));
     await user.click(screen.getByRole('button', { name: /Find plans/i }));
-    expect(await screen.findByText(/Best value: 50\.00% per attempt/)).toBeInTheDocument();
+    expect(await screen.findByText(/Likeliest: 50\.00% per attempt/)).toBeInTheDocument();
   });
 
   it('says a white base may simply be binned and rerolled', async () => {

@@ -70,12 +70,13 @@ describe('FrontierView — the empty state does not overclaim', () => {
   });
 });
 
-// The reported craft, in miniature. `expected` is computed under restart-on-first-failure — a miss
-// hands you a free replacement of your starting item. From a white base that is roughly true. From the
-// Rare in your stash it is fiction, and the ranking it produces inverts: an Annulment costs 158.7ex
-// against an Exalt's 1ex, so burying the Annuls behind a 0.1% gate you rarely pass "saves" ~65x and
-// the cheapest plan is one no player would run. On the real craft the surest route — annul, annul,
-// then exalt, which is what a player reaches for — sat last on the list at 7.7x the success chance.
+// The reported craft, in miniature. `expected` used to lead these cards, computed under
+// restart-on-first-failure: a miss hands you a free replacement of your starting item. That is fiction
+// from a held Rare, and it was never much better from white — nobody bins an item six steps in holding
+// five of six targets, they annul the bad mod. The ranking it produced inverts: an Annulment costs
+// 158.7ex against an Exalt's 1ex, so burying the Annuls behind a 0.1% gate you rarely pass "saves"
+// ~65x and the cheapest plan is one no player would run. The total is gone from both tabs; the two
+// figures these cards keep survive the assumption intact.
 const cheapButSilly = { probability: 1.77e-7, expected: 1.07e7, perAttempt: 340, expectedAttempts: 5.6e6, steps: [] };
 const dearButSensible = { probability: 1.36e-6, expected: 1.78e8, perAttempt: 357, expectedAttempts: 7.3e5, steps: [] };
 const twoPlans: EngineResult = {
@@ -85,49 +86,40 @@ const twoPlans: EngineResult = {
 
 const costOf = (card: HTMLElement) => card.textContent ?? '';
 
-describe('FrontierView — whether a restart is really free', () => {
+describe('FrontierView — what a card is allowed to claim', () => {
   const cards = () => screen.getAllByText(/chance per attempt/i).map((el) => el.closest('div.rounded-lg') as HTMLElement);
 
-  it('leads with the cheapest when a restart IS free (a white base)', () => {
-    render(<FrontierView result={twoPlans} freeRestart />);
-    expect(costOf(cards()[0]!)).toContain('cheapest');
-    expect(costOf(cards()[0]!)).toContain('expected cost');
-  });
-
-  it('leads with the likeliest route when it is not', () => {
-    render(<FrontierView result={twoPlans} freeRestart={false} />);
-    // Surest first — the annuls-first route a player would actually run.
+  it('leads with the likeliest route — the one a player reaches for', () => {
+    render(<FrontierView result={twoPlans} />);
     expect(costOf(cards()[0]!)).toContain('likeliest');
   });
 
   // Dividing a real per-run cost by a ~1e-13 chance gives billions of divine. It is arithmetically
-  // right and it is not a budget — nobody runs a sequence 1e14 times, they abandon it. Reported as
-  // "i do not like the Step-by-step routes, the costs are astronomical".
-  it('shows no free-restart total at all on a held item', () => {
-    render(<FrontierView result={twoPlans} freeRestart={false} />);
+  // right and it is not a budget — nobody runs a sequence 1e14 times, they abandon it. Reported first
+  // as "i do not like the Step-by-step routes, the costs are astronomical", then on the Lab tab as
+  // "the prices are so high, I'd rather just keep the true expected cost".
+  it('shows no free-restart total at all', () => {
+    render(<FrontierView result={twoPlans} />);
     expect(screen.queryByText(/expected cost/i)).toBeNull();
     expect(screen.queryByText(/cost if restarts were free/i)).toBeNull();
     expect(screen.queryByText(/attempts$/i)).toBeNull();
   });
 
   it('keeps the two figures you can act on', () => {
-    render(<FrontierView result={twoPlans} freeRestart={false} />);
+    render(<FrontierView result={twoPlans} />);
     expect(screen.getAllByText(/chance per attempt/i).length).toBe(2);
     expect(screen.getAllByText(/what one run costs/i).length).toBe(2);
   });
 
-  it('rings the plan the search picked, not whatever ends up first', () => {
-    // The flags are decided on the search order and carried through the reversal. Recomputing them
-    // after reversing would silently move the ring to the wrong card. (Only meaningful while the cost
-    // is on screen — with it hidden, "best value" would be a claim about a number you cannot see.)
-    const { container } = render(<FrontierView result={twoPlans} freeRestart />);
-    const ringed = container.querySelectorAll('.ring-2');
-    expect(ringed.length).toBe(1);
-    // Neither of these finishes in a practical number of attempts — 5.6e6 and 7.3e5 — so the ringed
-    // card is the FALLBACK, and it makes no claim about value. It used to say "best value" here, on
-    // the dearer of the two. The list still has to open somewhere, so the ring stays.
-    expect(ringed[0]!.textContent).toContain('surest');
-    expect(ringed[0]!.textContent).not.toContain('best value');
+  // "cheapest" and "best value" both ranked on the total. With it gone they would be claims about a
+  // number the reader cannot see — which is how "best value" came to sit on a 6.1-billion-divine plan
+  // with a 190-million-divine one on the same screen.
+  it('makes no claim that rests on the hidden total', () => {
+    const { container } = render(<FrontierView result={twoPlans} />);
+    expect(screen.queryByText('best value')).toBeNull();
+    expect(screen.queryByText('cheapest')).toBeNull();
+    expect(container.querySelectorAll('.ring-2').length).toBe(0);
+    expect(container.textContent).not.toMatch(/No route here lands inside/i);
   });
 });
 
@@ -138,72 +130,16 @@ const basis: EnginePriceBasis = {
   rates: { chaos: 33.39, divine: 364.2 },
 };
 
-describe('FrontierView — units are per quantity, not per view', () => {
+describe('FrontierView — the per-run figure keeps its own unit', () => {
   it('does not push a 357ex per-attempt figure into divine because another number is astronomical', () => {
     // One unit for the whole card set took the max across BOTH quantities: `expected` (1.78e8 ex)
     // chose divine, and then perAttempt — 357 ex, the number you actually hand over per try — rendered
     // as "0.98 div". Sharing a unit down a column is what makes rows comparable; sharing one ACROSS
-    // columns that measure different things does the opposite.
-    // Asserted in the free-restart mode, which is the one that still shows both quantities at once.
-    const { container } = render(<FrontierView result={twoPlans} freeRestart priceBasis={basis} />);
-    const text = container.textContent ?? '';
-    expect(text).toMatch(/357 ex per attempt/);
-    // …while the astronomical column really does escalate, or the two would not be sharing a view.
-    expect(screen.getAllByText(/^expected cost$/i)[0]!.previousSibling?.textContent).toMatch(/div$/);
-  });
-});
-
-// ── "best value" has to be earned ────────────────────────────────────────────
-// The frontier ascends in BOTH cost and probability, so its last plan is the surest AND the dearest.
-// `recommendPlan` falls back to that plan when nothing clears the practicality bar — correct, a list
-// has to open somewhere — but the badge restated the fallback as a claim. On a real 6-mod T1 Wand it
-// therefore read "best value" on a 6.1-billion-divine plan while a 190-million-divine one sat on the
-// same screen, 32x cheaper and differing only in the first step's orb.
-describe('FrontierView — the "best value" claim', () => {
-  const plan = (expected: number, expectedAttempts: number) => ({
-    expected, probability: 1 / expectedAttempts, perAttempt: expected / expectedAttempts,
-    expectedAttempts, steps: [],
-  });
-  const frontier = (...plans: ReturnType<typeof plan>[]): EngineResult =>
-    ({ frontier: plans, plansEvaluated: 10, assumedOdds: false });
-
-  it('is made when a plan really does finish in a practical number of attempts', () => {
-    render(<FrontierView result={frontier(plan(3, 2500), plan(9.5, 7))} />);
-    expect(screen.getByText('best value')).toBeInTheDocument();
-  });
-
-  it('is WITHHELD when no plan clears the bar, rather than landing on the dearest', () => {
-    render(<FrontierView result={frontier(plan(3, 5000), plan(9, 200))} />);
-    expect(screen.queryByText('best value')).toBeNull();
-    // The ordering badges still stand — they are claims about the list, not about value.
-    expect(screen.getByText('cheapest')).toBeInTheDocument();
-    expect(screen.getByText('surest')).toBeInTheDocument();
-  });
-
-  // The number stays — someone may want it — but what it ASSUMES stops being implicit. Expected cost
-  // divides one run's cost by the chance it lands, i.e. it prices scrapping the item and buying a
-  // fresh base on every miss; at 3.9e-10% that division is the whole answer.
-  it('says what expected cost assumes, exactly where the assumption stops holding', () => {
-    const { container } = render(<FrontierView result={frontier(plan(3, 5000), plan(9, 200))} />);
-    expect(screen.getByText(/No route here lands inside 40 attempts/i)).toBeInTheDocument();
-    expect(container.textContent).toMatch(/starting from a fresh base after every miss/i);
-    // ...and it must not put a SECOND copy of a card's label on screen: three tests find a card by
-    // its labels, and a reader scanning for "expected cost" has the same ambiguity.
-    expect(screen.queryAllByText(/^expected cost$/i)).toHaveLength(2); // the two cards, and nothing else
-  });
-
-  it('says nothing of the sort on an ordinary craft', () => {
-    const { container } = render(<FrontierView result={frontier(plan(3, 2500), plan(9.5, 7))} />);
-    expect(container.textContent).not.toMatch(/No route here lands inside/i);
-  });
-
-  // The from-item panel drops the expected-cost total entirely (freeRestart={false}), so a note about
-  // what that total assumes would describe a number the reader cannot see.
-  it('stays silent where there is no total to caveat', () => {
-    const { container } = render(
-      <FrontierView result={frontier(plan(3, 5000), plan(9, 200))} freeRestart={false} />,
-    );
-    expect(container.textContent).not.toMatch(/No route here lands inside/i);
+    // columns that measure different things does the opposite. `expected` no longer renders at all,
+    // which retires that bug rather than fixing it — this pins that it stays retired.
+    const { container } = render(<FrontierView result={twoPlans} priceBasis={basis} />);
+    expect(container.textContent ?? '').toMatch(/357 ex/);
+    expect(container.textContent ?? '').not.toMatch(/div/);
   });
 });
 
@@ -218,30 +154,22 @@ describe('FrontierView — numbers a player can read', () => {
   };
 
   it('never puts an exponent on screen', () => {
-    const { container } = render(<FrontierView result={longShot} freeRestart priceBasis={basis} />);
+    const { container } = render(<FrontierView result={longShot} priceBasis={basis} />);
     expect(container.textContent).not.toMatch(/e[+-]\d/);
   });
 
   it('says a long-shot chance as odds rather than a run of zeros', () => {
-    render(<FrontierView result={longShot} freeRestart priceBasis={basis} />);
+    render(<FrontierView result={longShot} priceBasis={basis} />);
     expect(screen.getByText('1 in 256.4 billion')).toBeInTheDocument();
   });
 
-  it('says the total in words rather than a suffix', () => {
-    render(<FrontierView result={longShot} freeRestart priceBasis={basis} />);
-    // 2.46e12 ex at 364.2 ex/div. Was "6.8B div".
-    expect(screen.getByText(/billion div/)).toBeInTheDocument();
-  });
-
-  // The deletion. Not "an attempt count is unwelcome" — it is the SAME NUMBER as the chance above it,
-  // and a reader given both spends the glance working out whether they differ.
+  // The deletion. Not "an attempt count is unwelcome" — it is the SAME NUMBER as the chance above it
+  // (1/p), and a reader given both spends the glance working out whether they differ.
   it('does not restate the chance as an attempt count', () => {
-    render(<FrontierView result={longShot} freeRestart priceBasis={basis} />);
-    // Scoped to the CARD: the note above it legitimately says "inside 40 attempts", which is a bar,
-    // not a restatement of this plan's odds.
+    render(<FrontierView result={longShot} priceBasis={basis} />);
     const card = screen.getByText(/chance per attempt/i).closest('div.rounded-lg')!;
     expect(card.textContent).not.toMatch(/attempts/);
     // …while the per-run price, which is genuinely a second fact, stays.
-    expect(card.textContent).toMatch(/357 ex per attempt/);
+    expect(card.textContent).toMatch(/357 ex/);
   });
 });

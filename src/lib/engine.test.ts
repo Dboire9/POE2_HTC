@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   listBases, listMods, listPerfectEssences, listDesecrated, optimize, optimizeItem, optimizeItemMarkov,
-  currencyActions, recommendPlan, MAX_PRACTICAL_ATTEMPTS, alternatives, alternativesForItem, type CurrencyAction,
+  currencyActions, alternatives, alternativesForItem, type CurrencyAction,
   type EngineMod, type ExistingItem, type ItemModInput,
 } from './engine.ts';
 import { desecrationProbability } from '../../packages/engine/src/probability.ts';
@@ -433,35 +433,6 @@ describe('engine facade — desecrated mods on an item (0.5.0)', () => {
   });
 });
 
-describe('recommendPlan — best-value (cheapest practical) pick', () => {
-  const plan = (expected: number, expectedAttempts: number) =>
-    ({ expected, probability: 1 / expectedAttempts, perAttempt: expected / expectedAttempts, expectedAttempts, steps: [] });
-
-  it('skips a cheap-but-grindy plan for the cheapest practical one', () => {
-    // cheapest = 2500 attempts (a grind), then a 7-attempt plan, then a 1.6-attempt plan.
-    const frontier = [plan(3, 2500), plan(9.5, 7), plan(31, 1.6)];
-    expect(recommendPlan(frontier)).toEqual({ index: 1, practical: true }); // the 7-attempt plan
-  });
-  it('recommends the cheapest when it is already practical', () => {
-    expect(recommendPlan([plan(5, 8), plan(20, 1.5)])).toEqual({ index: 0, practical: true });
-  });
-
-  // The fallback, and the flag that stops a caller restating it as a fact. The frontier ascends in
-  // price, so the surest plan is also the DEAREST — on a real 6-mod T1 Wand the badge sat on a
-  // 6.1-billion-divine plan with a 190-million-divine one on the same screen. The index is still
-  // wanted (a list has to open somewhere); the "best value" claim is not.
-  it('falls back to the surest when no plan is practical, and says the claim is unearned', () => {
-    expect(recommendPlan([plan(3, 5000), plan(9, 200)])).toEqual({ index: 1, practical: false });
-  });
-  it('marks a plan that only just misses the bar as unearned too', () => {
-    expect(recommendPlan([plan(3, MAX_PRACTICAL_ATTEMPTS + 1)]).practical).toBe(false);
-    expect(recommendPlan([plan(3, MAX_PRACTICAL_ATTEMPTS)]).practical).toBe(true);
-  });
-  it('empty frontier → index -1, and nothing to claim', () => {
-    expect(recommendPlan([])).toEqual({ index: -1, practical: false });
-  });
-});
-
 describe('engine facade — fractured mods flow through to the odds', () => {
   it('a fractured mod is excluded from Annulment removal (the other mod is removed for certain)', () => {
     const item: ExistingItem = {
@@ -773,5 +744,66 @@ describe('engine facade — a slot with alternatives reaches the solver (0.5.0)'
     expect(goal).toBeDefined();
     const extras = goal.present.filter((t) => /Extra (Cold|Fire) Damage/.test(t));
     expect(extras).toHaveLength(1);
+  });
+});
+
+// ── The frontier is filtered on the axes the cards SHOW ──────────────────────
+// The optimizer prunes on `(expected cost, probability)`, which was right while a card led with the
+// expected-cost total. It no longer does: that total prices scrapping the item and buying a fresh base
+// after every miss, a policy no player follows and one True expected cost already beats. What the card
+// shows is `(what one run costs, chance per attempt)` — and a set non-dominated on one pair is not on
+// the other, because `expected` is `Σ c_k·S_{k-1} / S_n` and so charges a step only by how often you
+// REACH it. A plan saving its 1023ex Perfect Exalt for last, behind a chain it clears one time in ten
+// thousand, scores as though the orb were nearly free.
+//
+// Measured over 61 multi-plan frontiers: 51 had a per-run cost that FELL as the odds rose, and 229 of
+// 470 cards were beaten on BOTH visible numbers by another card in the same list.
+describe('engine facade — no card is beaten on both numbers a reader can see', () => {
+  // Distinct families, rollable by ordinary currency: two mods of one family cannot coexist, and an
+  // essence-only mod makes the craft infeasible — either returns an empty frontier and a test that
+  // asserts nothing.
+  const rollable = (side: 'prefixes' | 'suffixes', n: number, tierDisplay: number) => {
+    const seen = new Set<string>();
+    return listMods(eng.data, 'Wands')[side]
+      .filter((m) => m.source === 'normal' && m.tiers.length >= tierDisplay && !seen.has(m.family) && seen.add(m.family))
+      .slice(0, n)
+      .map((m) => ({ modId: m.id, tierDisplay }));
+  };
+
+  const dominated = (frontier: readonly { perAttempt: number; probability: number }[]) =>
+    frontier.filter((a) => frontier.some((b) =>
+      b !== a && b.perAttempt <= a.perAttempt && b.probability >= a.probability
+      && (b.perAttempt < a.perAttempt || b.probability > a.probability)));
+
+  it('holds on a from-white frontier wide enough to have contained one', () => {
+    const r = optimize(eng, 'Wands', 82, [...rollable('prefixes', 3, 4), ...rollable('suffixes', 2, 4)]);
+    expect(r.frontier.length).toBeGreaterThan(1); // or the assertion below is vacuous
+    expect(dominated(r.frontier)).toEqual([]);
+  });
+
+  // Both planners map through `mapFrontier`, so the filter has to hold from an item too — the Item tab
+  // has hidden the total for longer and carried these cards the whole time.
+  it('holds on a from-item frontier', () => {
+    const item: ExistingItem = {
+      baseId: 'Wands', level: 82, rarity: 'rare',
+      prefixes: [{ modId: MANA, tierDisplay: 5 }],
+      suffixes: [{ modId: 'Wands/INTELLIGENCE', tierDisplay: 5 }],
+    };
+    const r = optimizeItem(eng, item, [
+      { modId: MANA, tierDisplay: 3 },
+      { modId: 'Wands/INTELLIGENCE', tierDisplay: 3 },
+      ...rollable('prefixes', 2, 4),
+    ]);
+    expect(r.frontier.length).toBeGreaterThan(0);
+    expect(dominated(r.frontier)).toEqual([]);
+  });
+
+  // Ordering is what the cards reverse to put the likeliest first, so it has to survive the filter.
+  it('still ascends in both figures, cheapest run first', () => {
+    const r = optimize(eng, 'Wands', 82, [...rollable('prefixes', 2, 4), ...rollable('suffixes', 2, 4)]);
+    for (let i = 1; i < r.frontier.length; i++) {
+      expect(r.frontier[i]!.perAttempt).toBeGreaterThanOrEqual(r.frontier[i - 1]!.perAttempt);
+      expect(r.frontier[i]!.probability).toBeGreaterThan(r.frontier[i - 1]!.probability);
+    }
   });
 });

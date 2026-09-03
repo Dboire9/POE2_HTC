@@ -850,18 +850,19 @@ const ItemActions: React.FC = () => {
             )}
           </Card>
 
-          {/* This panel shows TWO cost models and the note used to describe only one of them, labelled
-              just "Cost model:". Worse, the one it described is the optimistic fiction — fromItem.ts
-              says so in its own header — while "True expected cost" below it deliberately models the
-              opposite. Naming both is the honest version, and it explains why the two numbers differ. */}
+          {/* This panel used to show TWO cost totals and the note described only one of them, labelled
+              just "Cost model:". Naming both was the honest version then. The step plan's total is now
+              gone entirely — it priced replacing your item for free on every miss, which for an item
+              you hold you cannot do, and which no player does from a white base either — so there is
+              one total left and the note's job changed: not "why do these two numbers differ" but
+              "what are the routes below, given they no longer carry one". */}
           <p className="text-[11px] text-muted-foreground px-1">
-            <strong>Two cost models below.</strong> The step plan assumes that on a miss you reset to <em>your</em>{' '}
-            item and retry — so it never throws away the mods you started with, but it also assumes you can replace
-            that item for free, which for an item you already hold you cannot. <strong>True expected cost</strong>{' '}
-            makes no such assumption: a miss leaves you in a worse state and the policy digs out of it in place.
-            The two can differ by any amount and in <em>either</em> direction — a step plan is one fixed sequence
-            where every slam must hit one named mod, so on a long-shot target it reads far <em>above</em> the true
-            cost, while the policy adapts and takes whatever lands.
+            <strong>One total, and a set of routes.</strong> <strong>True expected cost</strong> is the whole
+            answer: a miss leaves you in a worse state and the policy digs out of it in place, taking whatever
+            lands. The step routes below are the simpler view — each is one <em>fixed</em> sequence where every
+            slam must hit a named mod, so they tell you the odds of a clean run and what that run costs, and on a
+            long-shot target they will look far harder than the true cost, because the policy is allowed to adapt
+            and they are not.
           </p>
 
           {planErr && (
@@ -963,10 +964,6 @@ const ItemActions: React.FC = () => {
             <FrontierView
               priceBasis={engine ? priceBasis(engine) : undefined}
               result={plan}
-              // A held item cannot be replaced for free, so the restart-model ranking is fiction here:
-              // it buries 158.7ex Annuls behind a 0.1% gate to avoid paying for them and calls the
-              // result "cheapest". Lead with the likeliest route instead.
-              freeRestart={false}
               title="Step-by-step routes (per-plan view)"
               emptyHint={excludedKeys.length > 0 ? (
                 <p>No route avoids the {excludedKeys.length} currenc{excludedKeys.length === 1 ? 'y' : 'ies'} you

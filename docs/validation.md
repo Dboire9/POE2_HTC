@@ -3226,6 +3226,57 @@ quoted as 215 s, taken from a probe that used a T2 target rather than `copyItemT
 one. Running the actual user path is what corrected it — and what surfaced the 16 s Standard case,
 which the probe could not have shown at all.
 
+## The plan cards were filtered on a number they no longer show (2026-09-03)
+
+Asked to drop the free-restart total from the Lab tab — *"the prices are so high, I'd rather just keep
+the true expected cost"* — the removal itself is one prop. What it exposes is the ordering underneath.
+
+**Why the total had to go, beyond the price.** `expected` is the cost of a policy *forbidden to repair*:
+on any miss you bin the item and start from a fresh base. That is as false from white as from a held
+Rare — nobody bins an item six steps in holding five of six targets. The MDP behind True expected cost
+already has `restartCost` among its actions (`solve.ts:326`), so wherever restarting genuinely is
+cheapest it agrees; where it is not, it comes back orders of magnitude lower. The frontier's total can
+never be the better number, only the same or worse. Nothing is lost by deleting it.
+
+**What that exposed.** `paretoFrontier` prunes on `(expected, probability)`. The cards show
+`(perAttempt, probability)`. A set non-dominated on one pair is not on the other, because
+`expected = Σ c_k·S_{k−1} / S_n` charges a step only by how often you REACH it — so a plan that saves
+its 1023ex Perfect Exalt for last, behind a chain it clears one time in ten thousand, is scored as
+though the orb were nearly free.
+
+Measured over 61 multi-plan from-white frontiers (5 bases × 5 target shapes × 3 tiers):
+
+| | |
+|---|---|
+| frontiers whose per-run cost FELL as the odds rose | **51 of 61** |
+| cards beaten on BOTH visible numbers by another card in the same list | **229 of 470 (49%)** |
+| worst single frontier | Bows 3p/2s T3: **20 cards → 6** |
+
+The sharpest single case, a Helmet 3p/3s at any tier — first card **25.2 ex/run at 1 in 60,000**, last
+card **4.0 ex/run at 1 in 10,500**. The last is cheaper per run *and* 5.7× likelier, and it was listed
+last, ranked by a number about to be taken off the screen.
+
+**The fix** is a display-axis Pareto filter in `mapFrontier` (`src/lib/engineMap.ts`), deliberately not
+a change to `paretoFrontier`: the budget search downstream still needs the expected-cost frontier. It
+sits at the display boundary rather than inside the component so the cards and the Lab's screen-reader
+announcement cannot describe different lists.
+
+**It does not gut the frontier.** Over 124 crafts (7 bases × 5 shapes × 4 tiers), cards fall from 983
+to 531 — average 7.9 → 4.3 — and the distribution stays a frontier rather than collapsing to one route:
+
+| cards shown | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| crafts | 12 | 11 | 13 | 38 | 18 | 20 | 6 | 1 | 4 | 1 |
+
+Mutation-checked: removing the filter reddens both the domination property test and the ordering test
+(4 dominated cards on the from-white fixture, and `25.002` where `≥ 28.102` was required). The
+from-item fixture passes either way — the property holds there by luck, which is why the from-white
+case is the one that carries the guard.
+
+**Dead code deleted with it**, since `freeRestart` then had one reachable value: the prop and its five
+branches, `recommendPlan`, `Recommendation`, `MAX_PRACTICAL_ATTEMPTS`, the impractical-frontier note,
+and the `best value` / `cheapest` / `surest` badges — all claims that ranked on the hidden total.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

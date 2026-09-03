@@ -3,48 +3,22 @@ import PriceBasisNote from './PriceBasisNote';
 import type { EnginePriceBasis } from '../../lib/engine';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
-import { MAX_PRACTICAL_ATTEMPTS, recommendPlan, type EngineResult } from '../../lib/engine';
+import type { EngineResult } from '../../lib/engine';
 import { exactExalts, formatChance, formatIn, pickUnit } from '../../lib/currency';
 
 /** The (expected cost ↔ success probability) frontier: one card per non-dominated plan. */
 const FrontierView: React.FC<{
   result: EngineResult; title?: string; emptyHint?: React.ReactNode; priceBasis?: EnginePriceBasis;
-  /**
-   * Whether a miss really can be shrugged off. The cost model behind `expected` restarts to the
-   * STARTING item for free on every failure — sound for a white base (buy another), fiction for the
-   * Rare in your stash. Under that fiction the ranking inverts: an Annulment costs 158.7ex against an
-   * Exalt's 1ex, so burying the Annuls behind a 0.1% gate you rarely pass "saves" ~65x, and the
-   * cheapest plan becomes one no player would run. When false, the likeliest route leads instead and
-   * the cost figure is captioned with the assumption it rests on.
-   */
-  freeRestart?: boolean;
-}> = ({
-  result, title, emptyHint, priceBasis, freeRestart = true,
-}) => {
-  // ONE unit per QUANTITY, not per view. Cards are read by comparing the same figure down the column,
-  // which is what a shared unit buys; sharing one across DIFFERENT quantities does the opposite, and
-  // on a long-shot craft (expected 1e14 ex, per-attempt 357 ex) it rendered 357 ex as "0.98 div".
+}> = ({ result, title, emptyHint, priceBasis }) => {
+  // ONE unit down the column, so the cards can be read by comparing the same figure — which is what a
+  // shared unit buys. It was once shared across DIFFERENT quantities too, and on a long-shot craft
+  // (expected 1e14 ex, per-attempt 357 ex) that rendered 357 ex as "0.98 div".
   const rates = priceBasis?.rates;
-  const unitExpected = pickUnit(Math.max(0, ...result.frontier.map((p) => p.expected).filter(Number.isFinite)), rates);
   const unitPerAttempt = pickUnit(Math.max(0, ...result.frontier.map((p) => p.perAttempt).filter(Number.isFinite)), rates);
-
-  // Flags are decided on the SEARCH order (cheapest→surest) and carried, so reversing the display
-  // can't slide "best value" onto the wrong card.
-  //
-  // `leads` and `isRecommended` are deliberately different things. The recommended card keeps its
-  // highlight either way — a list has to open somewhere — but it only makes the "best value" CLAIM
-  // when a plan actually cleared the practicality bar. Where none did, that card is the fallback,
-  // which is the surest and therefore the dearest plan on the frontier.
-  const rec = recommendPlan(result.frontier);
-  const cards = result.frontier.map((plan, i) => ({
-    plan,
-    isCheapest: i === 0,
-    isSurest: i === result.frontier.length - 1,
-    isRecommended: i === rec.index,
-    leads: i === rec.index && rec.practical,
-  }));
-  const ordered = freeRestart ? cards : [...cards].reverse();
-  const heading = title ?? (freeRestart ? 'Your options — cheapest to surest' : 'Your options — likeliest first');
+  // Likeliest first: the frontier is built cheapest-run → surest-run, and the route a player reaches
+  // for is the one that lands, not the one that is cheap to fail at.
+  const ordered = [...result.frontier].reverse();
+  const heading = title ?? 'Your options — likeliest first';
 
   return (
   <div className="space-y-3">
@@ -92,121 +66,65 @@ const FrontierView: React.FC<{
       </Card>
     ) : (
       <div className="space-y-3">
-        {/* What `expected cost` assumes, said out loud on exactly the crafts where the assumption
-            stops holding.
+        {ordered.map((plan, i) => (
+          <Card key={i} className="p-4 space-y-3">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+              {/* The two figures that survive the model's assumptions intact.
 
-            The figure is one run's cost divided by the chance it lands, which prices scrapping the
-            item and buying a fresh base after every miss. That is fair from white on an ordinary
-            craft. It stops being fair the further the odds fall, because the division runs away: a
-            6-mod T1 Wand lands 3.9e-10% of the time, so the total is a real Perfect Transmutation
-            Orb bought 260 billion times, and 99.3% of a 6.1-billion-divine answer is that one step.
-            Nobody scraps an item six steps in — they repair it — which is the model the true expected
-            cost uses, and why it came back four orders of magnitude lower on the same craft.
+                  What is NOT here is `expected cost`. It divides one run's price by the chance it
+                  lands, which prices scrapping the item and buying a fresh base after every miss — a
+                  policy forbidden to repair, and one no player follows: nobody bins an item six steps
+                  in holding five of their six mods, they annul the bad one. On a 6-mod T1 Wand that
+                  division produced 6.1 billion divine, 99.3% of it one Perfect Transmutation Orb
+                  charged 260 billion times. `True expected cost` answers the same question under
+                  optimal play, and it already has "bin it and start again" among its actions
+                  (`restartCost`), so wherever restarting really is best it agrees — and where it is
+                  not, it comes back orders of magnitude lower. There is nothing the total could add.
 
-            Shown only where NO plan clears the bar, so an ordinary craft never sees it, and worded
-            around the assumption rather than a verdict so it reads sensibly at 45 attempts as well as
-            at 1e12. It points at the figures that survive the assumption intact.
-
-            It DESCRIBES the card's labels rather than repeating them. Quoting "expected cost" and
-            "chance per attempt" back verbatim put a second copy of each label on screen above the
-            cards — and broke three tests that locate a card by its labels, which is the same
-            ambiguity a reader would have had. */}
-        {freeRestart && !rec.practical && (
-          <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
-            <strong className="text-foreground">
-              No route here lands inside {MAX_PRACTICAL_ATTEMPTS} attempts.
-            </strong>{' '}
-            The total on each card divides one run&rsquo;s cost by the chance it lands, so it prices
-            scrapping the item and starting from a fresh base after every miss — the further past that
-            bar a plan sits, the more that total is arithmetic than a budget. The odds and the per-run
-            price beside it hold either way, and <strong>True expected cost</strong> prices repairing
-            the item rather than replacing it.
-          </p>
-        )}
-        {ordered.map(({ plan, isCheapest, isSurest, isRecommended, leads }, i) => {
-          const cost = (
-            <div>
-              <div className="text-2xl font-bold tabular-nums" title={exactExalts(plan.expected)}>
-                {formatIn(unitExpected, plan.expected)}
+                  Nor an attempt count: `expectedAttempts` is `1 / total` (cost.ts) and `probability`
+                  IS that same `total` (optimize.ts, "= result.total"), so the two were exact
+                  reciprocals. That hid while they rendered as "3.9e-10%" and "2.6e+11" — two
+                  unreadable strings do not look alike — and became obvious once the chance was
+                  written as "1 in 260 billion". */}
+              <div>
+                <div className="text-2xl font-bold tabular-nums text-primary">{formatChance(plan.probability)}</div>
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground">chance per attempt</div>
               </div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">expected cost</div>
-            </div>
-          );
-          const odds = (
-            <div>
-              <div className="text-2xl font-bold tabular-nums text-primary">{formatChance(plan.probability)}</div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">chance per attempt</div>
-            </div>
-          );
-          // What one run through the sequence actually costs you. Real money either way, and with the
-          // free-restart total gone it is also the cost axis of the frontier: a plan that reaches for
-          // Perfect orbs costs more per run and lands more often, which is the whole trade.
-          const perRun = (
-            <div>
-              <div className="text-2xl font-bold tabular-nums" title={exactExalts(plan.perAttempt)}>
-                {formatIn(unitPerAttempt, plan.perAttempt)}
-              </div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">what one run costs</div>
-            </div>
-          );
-          return (
-            <Card key={i} className={`p-4 space-y-3 ${isRecommended && freeRestart ? 'ring-2 ring-primary/60' : ''}`}>
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
-                {/* Dividing a real per-run cost by a ~1e-13 chance produces a number in the billions of
-                    divine. It is arithmetically right and it is not a budget — nobody runs a sequence
-                    1e14 times, they abandon it. Showing it made every from-item card shout a figure
-                    that could only be ignored, so the total and the attempt count are dropped here and
-                    the two figures that survive are ones you can act on: how often one run lands, and
-                    what one run costs. */}
-                {freeRestart ? <>{cost}{odds}</> : <>{odds}{perRun}</>}
-                {/* No attempt count here, because there is nothing to count that the chance beside it
-                    does not already say: `expectedAttempts` is `1 / total` (cost.ts) and `probability`
-                    IS that same `total` (optimize.ts, "= result.total"), so the two are exact
-                    reciprocals. The duplication hid while they rendered as "3.9e-10%" and "2.6e+11" --
-                    two unreadable strings do not look alike. Writing the chance as "1 in 260 billion"
-                    made them the same sentence, which is the tell. */}
-                {freeRestart && (
-                  <div className="text-xs text-muted-foreground" title={exactExalts(plan.perAttempt)}>
-                    {formatIn(unitPerAttempt, plan.perAttempt)} per attempt
-                  </div>
-                )}
-                <div className="flex-1" />
-                <div className="flex gap-1">
-                  {/* With no total on the card, "cheapest" and "best value" are claims about a number
-                      the reader cannot see. Only the ordering claim survives. */}
-                  {freeRestart ? (
-                    <>
-                      {leads && <Badge>best value</Badge>}
-                      {isCheapest && <Badge variant={leads ? 'outline' : 'secondary'}>cheapest</Badge>}
-                      {isSurest && !isCheapest && <Badge variant={leads ? 'outline' : 'secondary'}>surest</Badge>}
-                    </>
-                  ) : (
-                    isSurest && <Badge>likeliest</Badge>
-                  )}
+              {/* Real money either way, and with the total gone this is the frontier's cost axis: a
+                  plan reaching for Perfect orbs costs more per run and lands more often. */}
+              <div>
+                <div className="text-2xl font-bold tabular-nums" title={exactExalts(plan.perAttempt)}>
+                  {formatIn(unitPerAttempt, plan.perAttempt)}
                 </div>
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground">what one run costs</div>
               </div>
+              <div className="flex-1" />
+              {/* The only claim left that a reader can check against the numbers beside it. "cheapest"
+                  and "best value" both ranked on the total, so with it gone they would be claims about
+                  something not on screen. */}
+              <div className="flex gap-1">{i === 0 && <Badge>likeliest</Badge>}</div>
+            </div>
 
-              {plan.steps.length > 0 ? (
-                <ol className="space-y-1 border-t border-border/50 pt-2">
-                  {plan.steps.map((s) => (
-                    <li key={s.n} className="flex items-center gap-2 text-sm">
-                      <span className="w-5 text-right font-mono text-muted-foreground">{s.n}.</span>
-                      <span className="font-medium min-w-40">{s.label}</span>
-                      <span className="flex-1 text-muted-foreground">{s.target}</span>
-                      <span className="tabular-nums text-xs text-muted-foreground">
-                        {Math.min(s.prob * 100, 100).toFixed(1)}%
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="border-t border-border/50 pt-2 text-sm text-muted-foreground">
-                  Your item already matches the target — no currency needed.
-                </p>
-              )}
-            </Card>
-          );
-        })}
+            {plan.steps.length > 0 ? (
+              <ol className="space-y-1 border-t border-border/50 pt-2">
+                {plan.steps.map((s) => (
+                  <li key={s.n} className="flex items-center gap-2 text-sm">
+                    <span className="w-5 text-right font-mono text-muted-foreground">{s.n}.</span>
+                    <span className="font-medium min-w-40">{s.label}</span>
+                    <span className="flex-1 text-muted-foreground">{s.target}</span>
+                    <span className="tabular-nums text-xs text-muted-foreground">
+                      {Math.min(s.prob * 100, 100).toFixed(1)}%
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="border-t border-border/50 pt-2 text-sm text-muted-foreground">
+                Your item already matches the target — no currency needed.
+              </p>
+            )}
+          </Card>
+        ))}
       </div>
     )}
   </div>

@@ -28,7 +28,7 @@ import {
   alternativesFromWhite, alternativesFromItem, type AlternativesOptions,
 } from '../../packages/optimizer/src/alternatives.ts';
 import type {
-  EngineBase, EngineMod, EngineBaseMods, EnginePlan, EngineResult, TargetInput,
+  EngineBase, EngineMod, EngineBaseMods, EngineResult, TargetInput,
   ExistingItem, CurrencyAction, AltTargetInput, EngineAlternatives, EngineMarkovResult,
   EnginePriceBasis,
 } from './engineTypes.ts';
@@ -53,43 +53,6 @@ export type {
   ItemModInput, ExistingItem, CurrencyAction, AltTargetInput, EngineSlot, EngineAlternative, EngineAlternatives,
   EngineMarkovResult, EnginePolicyNode, EnginePolicyEdge, EnginePriceBasis,
 } from './engineTypes.ts';
-
-/** Beyond this many expected attempts, a "cheap" plan is really an impractical grind (tune to taste). */
-export const MAX_PRACTICAL_ATTEMPTS = 40;
-
-/** Which plan to lead with, and whether the "best value" claim on it is earned. */
-export interface Recommendation {
-  /** Index into the frontier. -1 when it is empty. */
-  readonly index: number;
-  /**
-   * Whether a plan genuinely clears `MAX_PRACTICAL_ATTEMPTS`, so `index` really is the cheapest one
-   * worth running.
-   *
-   * **This flag exists because the fallback is the opposite of what it used to claim.** When nothing
-   * clears the bar `index` is the SUREST plan — and the frontier ascends in price, so the surest is
-   * also the DEAREST. On a 6-mod T1 Wand the badge therefore sat on a 6.1-billion-divine plan while
-   * a 190-million-divine one was on the same screen, 32x cheaper and differing only in the first
-   * step's orb; the reader was told the most expensive row was the best value. A default row still
-   * has to be highlighted, so the fallback stays — what goes is the claim about it.
-   */
-  readonly practical: boolean;
-}
-
-/**
- * The plan to lead with on a cost↔probability frontier, which runs cheapest (lowest expected cost,
- * often a sub-1% grind of thousands of attempts) → surest (highest per-attempt success, fewest
- * clicks, priciest).
- *
- * "Best value" = the **cheapest plan you'd actually want to execute** — least expected cost among
- * those succeeding within a practical number of attempts. Because expected attempts descend along the
- * frontier, the first plan clearing the bar IS that cheapest-practical one. When none does, fall back
- * to the surest and say so through `practical`, so no caller can restate the claim as a fact.
- */
-export function recommendPlan(frontier: readonly EnginePlan[]): Recommendation {
-  const idx = frontier.findIndex((p) => p.expectedAttempts <= MAX_PRACTICAL_ATTEMPTS);
-  // An empty frontier needs no special case: findIndex gives -1 and so does length - 1.
-  return idx >= 0 ? { index: idx, practical: true } : { index: frontier.length - 1, practical: false };
-}
 
 // ── Data loading (memoized) ──────────────────────────────────────────────────
 

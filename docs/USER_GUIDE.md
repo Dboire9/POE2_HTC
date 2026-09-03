@@ -113,31 +113,34 @@ bar and a **Cancel** button. Long solves are normal — see [Search effort](#sea
 
 ### Your options — the plan cards
 
-The heading reads **"Your options — cheapest to surest"**. Each card is one plan: a fixed sequence of
+The heading reads **"Your options — likeliest first"**. Each card is one plan: a fixed sequence of
 currencies, with per-step odds. The set of cards is a **Pareto frontier** — every plan on it is either
-cheaper or likelier than every other, so none of them is strictly worse than another. There is no single
-"best"; there's a trade.
+cheaper per run or likelier than every other, so none of them is strictly worse than another. There is
+no single "best"; there's a trade: cheap runs that rarely land, or dear runs that often do.
 
 On each card:
 
 | Figure | What it means |
 |---|---|
-| **expected cost** | Total exalt-equivalents to *finish*, averaged over retries — i.e. cost per attempt divided by the chance an attempt lands |
 | **chance per attempt** | Probability that one run of this exact sequence produces the item. Long shots are written as odds — "1 in 5.3 million" — because a percentage that small is read by counting zeros |
-| **per attempt** | What a single run costs, whether or not it works |
+| **what one run costs** | What a single run costs you, whether or not it works |
 
-There is no separate attempt count: it was `1 ÷ chance per attempt`, the same number twice.
+**There is no expected-cost total here, by design.** It divided one run's price by the chance it lands,
+which prices binning your item and buying a fresh base after every miss — something nobody does six
+steps into a craft. [True expected cost](#true-expected-cost--and-why-its-lower) answers the same
+question properly, and it is allowed to start over when starting over really is cheapest.
 
-Badges:
+There is no attempt count either: it was `1 ÷ chance per attempt`, the same number twice.
 
-- **best value** — the plan with the best cost-to-success trade; highlighted with a ring
-- **cheapest** — lowest expected cost
-- **surest** — highest chance per attempt
+Cards are listed **likeliest first**, and every card is one you could reasonably pick — a route beaten
+on *both* numbers by another route in the same list is not shown at all.
 
-A **very** low chance per attempt (say 1 in 100 million) with a huge expected cost is the app telling you this
-craft is not realistic as a fixed recipe. That's information, not a bug — and it's exactly the case where
-the **True expected cost** panel below will show a far smaller number, because a real crafter doesn't
-restart from white every time.
+One badge: **likeliest** — the top card, the route with the best chance of landing in one clean run.
+
+A **very** low chance per attempt (say 1 in 100 million) is the app telling you this craft is not
+realistic as a fixed recipe. That's information, not a bug — and it's exactly the case where the
+**True expected cost** panel will show something far more manageable, because a real crafter repairs
+the item instead of restarting from white every time.
 
 ### True expected cost — and why it's lower
 
@@ -154,8 +157,8 @@ accept it and carry on.
 The **True expected cost** is the cost of doing that optimally. The engine builds the full set of item
 states you can reach, works out every legal move from each one, and solves for the policy that minimises
 expected cost — a Markov decision process, solved by policy iteration. The number it produces is the
-real one, and it is often *dramatically* lower than the cheapest plan card, because recovering in place
-beats restarting.
+real one, and it is the only cost total the app shows, because recovering in place beats restarting —
+and where it does not, the policy simply restarts, so it is never the worse answer.
 
 **Which should you follow?** The policy, when it's available — it's a better strategy. The plan cards
 are the readable version: a sequence you can follow without consulting the app after every orb. Use the
@@ -255,23 +258,24 @@ removed; anything that *is* in the list is kept, not re-rolled.
 Then **Compute plan**. You get the same two views as the Lab: plan cards, and the true expected cost with
 its policy.
 
-### Why this tab reads differently
+### Why the cards carry no total
 
-Look closely and the plan cards here show different figures: **chance per attempt** and **what one run
-costs**, ordered *likeliest first*, with a **likeliest** badge instead of *best value*.
+The plan cards on both tabs show **chance per attempt** and **what one run costs**, and no
+expected-cost total. That is honest bookkeeping rather than a missing feature.
 
-The reason is honest bookkeeping. The expected-cost model assumes a failure costs you nothing but a
-restart — you buy another white base. That's true from white. It is **fiction** for the Rare in your
-stash: you only have one of it.
+An expected-cost total assumes a failure costs you nothing but a restart — you buy another white base.
+It is plainly **fiction** for the Rare in your stash: you only have one of it. Under that fiction the
+ranking inverts and produces nonsense. An Orb of Annulment costs about 159 ex against an Exalt's 1 ex,
+so a plan that hides its Annulments behind a 0.1% gate you rarely reach "saves" roughly 65× on paper —
+and the "cheapest" plan becomes one no player would ever run.
 
-Under that fiction the ranking actually inverts and produces nonsense. An Orb of Annulment costs about
-159 ex against an Exalt's 1 ex, so a plan that hides its Annulments behind a 0.1% gate you rarely reach
-"saves" roughly 65× on paper — and the "cheapest" plan becomes one no player would ever run. So on this
-tab the total and the attempt count are dropped, the likeliest route leads, and the two figures that
-survive are the ones you can act on: **how often one run lands**, and **what one run costs**.
+It was barely better from a white base. Nobody bins an item six steps in holding five of their six
+target mods; they annul the bad one and carry on. That is the model **True expected cost** uses — and
+it is *allowed* to bin the item and start again when starting again really is the cheapest move, so
+wherever the restart assumption was right, it already agrees. It can only ever come out the same or
+lower, which is why the total added nothing worth the confusion.
 
-The **True expected cost** panel below is unaffected and remains the number to trust — the policy solver
-never assumed a free restart.
+The **True expected cost** panel is the number to trust.
 
 ---
 
@@ -412,11 +416,10 @@ relax a tier, or add alternatives with `or`.
 Prices are refreshed from poe.ninja periodically and the engine itself improves. The date under every
 cost figure tells you which sheet you're looking at.
 
-### "True expected cost" is much lower than the cheapest plan
+### The plan cards don't show a total cost
 
-That's expected and correct — see
-[True expected cost](#true-expected-cost--and-why-its-lower). The plan restarts from scratch on a miss;
-the policy recovers in place.
+Deliberate — see [Why the cards carry no total](#why-the-cards-carry-no-total). The only total is
+**True expected cost**, which is the one worth budgeting against.
 
 ---
 
@@ -524,8 +527,7 @@ remove-and-add-on-Rare flow those need. Use the **I have an item** tab, which do
 | **Affix** | A prefix or suffix |
 | **Tier** | Quality band of a roll. T1 is best; higher tiers need higher item level |
 | **Family** | Group of mutually exclusive mods; one per item |
-| **Pareto frontier** | The set of plans where none is both cheaper and likelier than another |
-| **Expected cost** | Cost per attempt ÷ chance per attempt — the average total to finish |
+| **Pareto frontier** | The set of plans where none is both cheaper per run and likelier than another |
 | **True expected cost** | Expected cost under *optimal play*, recovering after bad rolls instead of restarting |
 | **Policy** | The rule "in this state, do this" — what the MDP solves for |
 | **ex** | Exalted Orb, the unit costs are quoted in |

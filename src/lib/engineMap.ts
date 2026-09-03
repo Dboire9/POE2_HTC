@@ -207,9 +207,40 @@ export function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
   const assumedOdds = res.frontier.some((plan) =>
     plan.steps.some((step) => step.currency === 'desecrate' && step.boss === undefined));
   return {
-    frontier, plansEvaluated: res.plansEvaluated, assumedOdds,
+    frontier: paretoOnDisplayed(frontier), plansEvaluated: res.plansEvaluated, assumedOdds,
     ...(res.truncated ? { truncated: true } : {}),
   };
+}
+
+/**
+ * Keep only the plans that are non-dominated on the two figures a card actually SHOWS.
+ *
+ * The optimizer's `paretoFrontier` prunes on `(expected cost, probability)`, and it is right to: that
+ * is the frontier of the question it answers. But the cards no longer show expected cost — it is the
+ * cost of a policy forbidden to repair, which no player follows and the MDP already beats — so the
+ * pair on screen is `(what one run costs, chance per attempt)`, and a set that is non-dominated on one
+ * pair is not on the other.
+ *
+ * They come apart because `expected` is `Σ c_k·S_{k-1} / S_n`: a step is charged only by how often you
+ * REACH it, so a plan that saves its 1023ex Perfect Exalt for last, behind a chain it clears one time
+ * in ten thousand, is scored as though that orb were nearly free. Measured over 61 multi-plan
+ * frontiers, 51 had a per-run cost that FELL as the odds rose, and half of all cards (229 of 470) were
+ * beaten on both visible numbers by another card in the same list — a Helmet craft led with 25.2ex a
+ * run at 1 in 60,000 while its last card asked 4.0ex at 1 in 10,500. Worst case, 20 cards became 6.
+ *
+ * Same shape and same tolerance as `paretoFrontier`, and deliberately NOT a change to it: the budget
+ * search downstream still needs the expected-cost frontier, so this is a display filter and lives at
+ * the display boundary. It runs here rather than in the component so that the cards and the Lab's
+ * screen-reader announcement can never describe different lists.
+ */
+function paretoOnDisplayed(plans: readonly EnginePlan[]): EnginePlan[] {
+  const sorted = [...plans].sort((a, b) => a.perAttempt - b.perAttempt || b.probability - a.probability);
+  const kept: EnginePlan[] = [];
+  let surest = -Infinity;
+  for (const plan of sorted) {
+    if (plan.probability > surest + 1e-12) { kept.push(plan); surest = plan.probability; }
+  }
+  return kept;
 }
 
 /** Engine slot → UI slot: turns minTierIndex back into a 1-based display tier and a compact label. */

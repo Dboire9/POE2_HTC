@@ -22,6 +22,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The step-plan cards no longer show a free-restart total, on either tab.** Reported as *"the prices
+  are so high, I'd rather just keep the true expected cost"*. That total divided one run's price by the
+  chance it lands, which prices binning the item and buying a fresh base after every miss — a policy
+  forbidden to repair, and one no player follows from white any more than from a held Rare. **True
+  expected cost** already answers the same question under optimal play *and* has "bin it and start
+  again" among its actions, so wherever restarting really is cheapest it agrees, and where it is not it
+  comes back orders of magnitude lower. A card now shows the two figures that survive intact: the
+  chance one clean run lands, and what that run costs.
+- **The frontier is filtered on the numbers a card actually shows.** The optimizer prunes on
+  `(expected cost, probability)` — correct for the question it answers, wrong for a card that no longer
+  shows expected cost. Because `expected` charges a step only by how often you *reach* it, a plan
+  saving its 1023ex Perfect Exalt for last scored as though the orb were free. Measured over 61
+  frontiers: 51 had a per-run cost that fell as the odds rose, and **229 of 470 cards were beaten on
+  both visible numbers** by another card in the same list — one Helmet craft led with 25.2ex a run at 1
+  in 60,000 while its last card asked 4.0ex at 1 in 10,500. Cards drop from an average of 7.9 to 4.3
+  and every one left earns its place. The budget search is untouched; this is a display filter.
+- **Gone with it**, all claims that ranked on the hidden total: the `best value`, `cheapest` and
+  `surest` badges, the "no route lands inside 40 attempts" note, `recommendPlan`,
+  `MAX_PRACTICAL_ATTEMPTS`, and the `freeRestart` prop with its five branches. The Lab's screen-reader
+  announcement now names the plan the cards lead with instead of announcing "Best value".
+
 - **Numbers are written for a player, not a spreadsheet.** Reported as "some of the numbers can be
   pretty big and not user friendly, like 5.10e9 or having costs in the Billions". Scientific notation
   is gone from every panel: a chance below a hundredth of a percent is now stated as odds (`3.9e-10%`

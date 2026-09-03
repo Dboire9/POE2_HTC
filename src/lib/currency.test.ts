@@ -31,6 +31,14 @@ describe('the unit ladder', () => {
   // The case this was built for: a hopeless craft used to read as a wall of digits.
   it('turns a wall of digits into a quantity a player can picture', () => {
     expect(formatCost(8_219_067, rates)).toBe('22.6K div');
+  });
+
+  // The top of the ladder: past 10,000 divine no unit brings the figure back under the ceiling, and
+  // that is where True expected cost lives on a long-shot craft. It read "6.8B div" — a suffix the
+  // reader has to decode — before words started at a million.
+  it('says a figure past the end of the ladder in words', () => {
+    expect(formatCost(2.46e12, rates)).toMatch(/^[\d.,]+ billion div$/);
+    expect(formatCost(2.46e12, rates)).not.toMatch(/[BMKT] div/);
     // …and the exact figure is never thrown away, only moved into the title.
     expect(exactExalts(8_219_067)).toContain('8,219,067');
   });

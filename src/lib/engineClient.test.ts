@@ -21,10 +21,16 @@ import { listMods } from './engine.ts';
 // elapsed timer keeps counting (it is local to the component) while the bar never moves, because the
 // progress messages never arrive.
 const mods = listMods(loadPatch('data/patches/0.5.0'), 'Wands');
+// The item must NOT already satisfy `targets`. It used to: the item held p0 and s0 and the targets
+// were p0 and s0 at the same tier, so the start state was already the goal — and `markovFromItem` now
+// short-circuits that in ~1 ms without building a state space (see its `isAccepting` guard). Every
+// test below that needs a real solve — progress messages, sweep limits — was silently measuring the
+// solver grinding through a lattice for a craft that was already finished, and passed only because
+// that waste existed. Hold ONE of them and ask for both.
 const item = {
   baseId: 'Wands', level: 82, rarity: 'rare' as const,
   prefixes: [{ modId: mods.prefixes[0]!.id, tierDisplay: 99 }],
-  suffixes: [{ modId: mods.suffixes[0]!.id, tierDisplay: 99 }],
+  suffixes: [],
 };
 const targets = [
   { modId: mods.prefixes[0]!.id, tierDisplay: 99 },

@@ -51,6 +51,44 @@ describe('markovFromItem — hand-computed expected cost', () => {
     expect(r.expectedCost).toBe(0);
   });
 
+  /**
+   * …and it answers WITHOUT building the lattice, which is a different claim from costing 0.
+   *
+   * Reachable in two clicks, and it was costing real time. The Item tab's "Copy my current mods" sets
+   * every target to `tiers.length` — the WORST tier — so whatever you hold satisfies it by
+   * construction. Compute then solved the whole state space to reach zero: measured on a finished
+   * 6-mod Wand at **16.3 s on Standard and 71.1 s on Exhaustive**, and Standard ran out of clock on
+   * the way, so it returned `bound: 'lower'` on a cost of zero and the panel rendered "≥ 0 ex" under
+   * the heading `True expected cost`. Both are 1-2 ms now.
+   *
+   * `policy` is the assertion that carries this. It holds one entry per non-goal state, so an empty
+   * policy means no state space was ever built — where cost alone would pass just as happily after a
+   * full solve, and a timing assertion would be flaky. `bound: 'exact'` is the second half: a
+   * short-circuit must never come back as a bound, which is exactly what the clock-limited path did.
+   */
+  it('answers an already-finished item without building a state space at all', () => {
+    const r = markovFromItem(data, prices, rare(['T1']), [{ modId: 'T1' }], EXACT);
+    expect(r.policy.size).toBe(0);
+    expect(r.edges).toEqual([]);
+    expect(r.bound).toBe('exact'); // never "≥ 0"
+    expect(r.converged).toBe(true);
+    // One square, and it is both ends of the graph — so the UI draws "✓ target" and nothing else.
+    expect(r.nodes).toHaveLength(1);
+    expect(r.nodes[0]!.isStart).toBe(true);
+    expect(r.nodes[0]!.isGoal).toBe(true);
+    expect(r.nodes[0]!.expectedCost).toBe(0);
+    expect(r.nodes[0]!.present).toEqual([['T1']]);
+    expect(r.nodes[0]!.blocked).toEqual([]);
+  });
+
+  // The guard must not swallow a craft that merely LOOKS finished. Junk on the item is not accepting —
+  // the target is "these mods and nothing else" — so this one still has to be solved properly.
+  it('does not short-circuit an item carrying junk alongside the target', () => {
+    const r = markovFromItem(data, prices, rare(['T1', 'J1']), [{ modId: 'T1' }], EXACT);
+    expect(r.expectedCost).toBeGreaterThan(0);
+    expect(r.policy.size).toBeGreaterThan(0);
+  });
+
   it('an empty rare needs exactly one exalt (the target is the only gettable mod)', () => {
     const r = markovFromItem(data, prices, rare([]), [{ modId: 'T1' }], EXACT);
     expect(r.expectedCost).toBeCloseTo(1, 9); // one exalt, always lands T1 (only prefix with weight)

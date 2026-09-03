@@ -36,6 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is in the box's tooltip and in the detail panel a click away.
 - `addBlockedReason` told a player that a carved or essence-only mod "can’t roll on this base". It
   rolls there fine; it just needs a different currency. It now names the one that can place it.
+- **An item that already matched its target took 71 seconds to be told so.** *Copy my current mods*
+  sets every target to the worst tier, so whatever you hold satisfies it by construction — and the
+  true-cost model then solved all 15,545 states to reach zero. Worse on the default setting, where it
+  ran out of clock on the way and reported the result as a bound: **16 seconds to print "≥ 0 ex"**
+  under the heading *True expected cost*. Both are 1–2 ms now. The step routes beside it had always
+  short-circuited this; only the true-cost model did the work.
 - **"best value" sat on the most expensive plan on the frontier.** The frontier ascends in both price
   and probability, so its last row is the surest AND the dearest. When no plan finishes inside a
   practical number of attempts the app falls back to that row — correct, a list has to open somewhere

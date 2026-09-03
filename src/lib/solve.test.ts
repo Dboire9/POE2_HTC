@@ -18,9 +18,15 @@ const mods = listMods(eng.data, 'Wands');
 const p0 = mods.prefixes[0]!.id;
 const s0 = mods.suffixes[0]!.id;
 
+// The item must NOT already satisfy `targets`. It used to: the item held p0 and s0 and the targets
+// were p0 and s0 at the same tier, so the start state was already the goal — and `markovFromItem` now
+// short-circuits that in ~1 ms without building a state space (see its `isAccepting` guard). Every
+// test below that needs a real solve — progress messages, sweep limits — was silently measuring the
+// solver grinding through a lattice for a craft that was already finished, and passed only because
+// that waste existed. Hold ONE of them and ask for both.
 const item: ExistingItem = {
   baseId: 'Wands', level: 82, rarity: 'rare',
-  prefixes: [{ modId: p0, tierDisplay: 99 }], suffixes: [{ modId: s0, tierDisplay: 99 }],
+  prefixes: [{ modId: p0, tierDisplay: 99 }], suffixes: [],
 };
 const targets = [{ modId: p0, tierDisplay: 99 }, { modId: s0, tierDisplay: 99 }];
 

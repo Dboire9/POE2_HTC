@@ -556,6 +556,58 @@ export function markovFromItem(
   // Where "start over" lands: the item you began with, which for a from-white craft is the bare base.
   // Built here rather than later because the action space closes over it.
   const restartKey = encode(s0.present, s0.blocked, s0.jp, s0.js, s0.flagged, s0.rarity);
+
+  const flagFields = (st: McState): { desecratedJunk?: 'prefix' | 'suffix'; desecratedTarget?: readonly string[] } => {
+    if (st.flagged === FLAG_JUNK_PREFIX) return { desecratedJunk: 'prefix' };
+    if (st.flagged === FLAG_JUNK_SUFFIX) return { desecratedJunk: 'suffix' };
+    const i = flaggedTarget(st.flagged);
+    return i >= 0 ? { desecratedTarget: idsOf(list[i]!) } : {};
+  };
+
+  /**
+   * The item already IS the target. Answer here, before a lattice exists.
+   *
+   * Not a micro-optimisation — it is reachable in two clicks and it was costing real time. The Item
+   * tab's **Copy my current mods** sets every target to `tiers.length`, the WORST tier, so whatever
+   * you hold satisfies it by construction; Compute then solved the whole state space to reach zero.
+   * Measured on a finished 6-mod Wand: **16.3 s on Standard and 71.1 s on Exhaustive**, and Standard
+   * ran out of clock on the way, so it came back `bound: 'lower'` on a cost of zero and the panel
+   * rendered "≥ 0 ex" under the heading `True expected cost`. The step planner beside it has always
+   * short-circuited this (`fromItem.ts`, the `steps: []` frontier) — only the MDP did the work.
+   *
+   * `isAccepting` is the same predicate `goalKeys` is built from below, so this cannot disagree with
+   * the solver about what "finished" means: it already demands zero blocked, zero junk and Rare.
+   *
+   * The node is built exactly as the graph BFS builds one, from `s0` rather than from constants —
+   * `isAccepting` guarantees the blocked and junk fields are empty, but deriving them keeps one
+   * construction instead of two that could drift apart. Start and goal are the same square, so there
+   * is nothing to walk: no edges, and an empty policy (which is also what a test can assert on to
+   * prove the lattice was never built, without timing anything).
+   */
+  if (isAccepting(s0, slotMasks)) {
+    return {
+      expectedCost: 0,
+      feasible: true,
+      converged: true,
+      bound: 'exact',
+      nodes: [{
+        key: restartKey,
+        present: list.filter((_, i) => has(s0.present, i)).map(idsOf),
+        blocked: list.filter((_, i) => has(s0.blocked, i)).map(idsOf),
+        junkPrefixes: s0.jp,
+        junkSuffixes: s0.js,
+        rarity: s0.rarity,
+        ...flagFields(s0),
+        isStart: true,
+        isGoal: true,
+        depth: 0,
+        expectedCost: 0,
+        visitRate: 1,
+      }],
+      edges: [],
+      policy: new Map(),
+    };
+  }
   const { actionsOf } = createActionSpace({
     data, prices, level, pools, list, side, desecratable, encode,
     bossTargetable: bossOmenAllowed(start.base.category),
@@ -1358,12 +1410,6 @@ export function markovFromItem(
    * asked for, and the fact that it also locks the item out of desecrating again is the whole reason
    * the state is distinct.
    */
-  const flagFields = (st: McState): { desecratedJunk?: 'prefix' | 'suffix'; desecratedTarget?: readonly string[] } => {
-    if (st.flagged === FLAG_JUNK_PREFIX) return { desecratedJunk: 'prefix' };
-    if (st.flagged === FLAG_JUNK_SUFFIX) return { desecratedJunk: 'suffix' };
-    const i = flaggedTarget(st.flagged);
-    return i >= 0 ? { desecratedTarget: idsOf(list[i]!) } : {};
-  };
   /**
    * Fold every goal state onto one key for display.
    *

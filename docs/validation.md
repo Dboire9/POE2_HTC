@@ -3102,6 +3102,99 @@ Re-measure only if the omen's price falls below a plain Exalted Orb's, or if the
 far enough that a doubled Perfect Exalt becomes a route the policy would take anyway. The attempt is
 kept at `scratchpad/markovActions.mdp-attempt.ts` for the session; the diff is ~30 lines.
 
+## What a mod you already hold is worth, and a no-op that cost 71 seconds (2026-09-03)
+
+Prompted by a user question — *"adding 2 mods on a 4 mod item took ~3 minutes on Exhaustive. Is it
+normal? Did it redo everything?"* — which turned out to have three separate answers, one of them a bug.
+
+**The craft.** Six targets on a Wand at ilvl 82, three prefixes and three suffixes, every one at T2:
+`WeaponSpellDamage`, `IncreasedMana`, `DamageGainedAsCold`, `SpellCriticalStrikeChance`,
+`IncreasedCastSpeed`, `GlobalIncreaseSpellSkillGemLevelWeapon`. 24 solves in total. Every figure below
+is `bound: 'exact'` — a proof, not a stopping rule — so the costs are deterministic and one run each
+is enough; only timings would need reps, and timings are not the finding.
+
+### ~3 minutes is normal, and holding more of the target does not shrink the work
+
+Exhaustive settled this craft in 71-303 s. The state count did **not** move with the starting item:
+**15,545 states in all 14 runs**, at every held count. `enumerateStates` takes the TARGET count and
+loops `present` and `blocked` over 2^n each; it never sees the item. What the held mods do is set the
+start state — `classifyStart` does `present |= bit(i)` for each one at or above its wanted tier — so
+they are kept, not re-rolled, and you begin deeper inside a lattice of unchanged size.
+
+At Standard (15 s) every run clocked out at `bound: 'lower'`, so this craft genuinely needs Exhaustive.
+Two Standard runs of the SAME input returned 2.747e5 and 2.089e5: not nondeterminism, but two floors on
+a value still climbing when the clock stopped, which is the argument for rendering `lower` as ">=" and
+never as a figure.
+
+### The marginal value of a mod you already hold
+
+`V(k)` = expected cost still to come, holding the first k targets of a fill order.
+
+| hold | sided (P,P,P,S,S,S) | saved | balanced (P,S,P,S,P,S) | saved |
+|---|---|---|---|---|
+| 0 | 1,509,425 ex | 0.00% | 1,509,425 ex | 0.00% |
+| 1 | 1,509,117 | 0.02% | 1,509,117 | 0.02% |
+| 2 | 1,508,804 | 0.04% | 1,499,575 | 0.65% |
+| 3 | 1,505,412 | 0.27% | 1,490,419 | 1.26% |
+| 4 | 1,443,641 | 4.36% | 1,302,866 | 13.68% |
+| 5 | 801,762 | 46.88% | 801,762 | 46.88% |
+| 6 | 0 | 100% | 0 | 100% |
+
+**Four of six is 4-14% done, not 67%.** The last mod alone is 53% of the craft; the first three
+together are 0.27% of it. Cost on a fixed-size item is violently back-loaded — each mod added shrinks
+the slots an Exalt can land in, while a miss then needs a 179 ex Annulment that picks uniformly and can
+take what was banked. The curves are pinned together at k=0, 1, 5 and 6 (same items by construction),
+which is four free consistency checks; k=0 also reproduced digit-for-digit across separately-launched
+processes, which is what licenses comparing the rest.
+
+**Which four you hold matters ~3x more than how many** — 140,775 ex apart at k=4. A "completing a side
+forces later Exalts onto the other side, so it should help" prediction was made in advance and
+**falsified**: filling the prefix side was worse, not better. The cause is per-draw rarity, not shape.
+On an empty Rare at T2-or-better, prefixes average **0.92%** per Exalt against suffixes' **0.37%**
+(2.47x), so banking the easy side leaves the expensive half still to buy. Log-log correlation between
+P(everything still owed) and V is r = -0.72 — the right direction, and loose enough that how full the
+item is clearly does work too. `balanced` beating `sided` is therefore an artifact of this mod list's
+ordering, not a rule about sides; the rule is that a held mod is worth the difficulty of what it
+removes from the shopping list.
+
+### The bug: an already-finished item solved the whole lattice to reach zero
+
+`copyItemToTarget` (`ItemActions.tsx`) sets every target to `tiers.length` — the WORST tier, since
+tiers run best-first — so **Copy my current mods -> Compute plan** builds a target the item already
+satisfies. The step planner has always short-circuited that (`fromItem.ts`, the `steps: []` frontier).
+`markovFromItem` did not: it computed `s0` and then ignored it, building all 15,545 states to return 0.
+
+Measured on a finished 6-mod Wand, through the real facade with `copyItemToTarget`'s own tier logic:
+
+| | before | after |
+|---|---|---|
+| Standard (the default) | 16,292 ms, `bound: 'lower'`, rendered **"&ge; 0 ex"** | 2 ms, `exact` |
+| Exhaustive | 71,092 ms | 1 ms |
+
+The default path is the worse one and was the one nearly everybody would hit. It is also where the
+`lower` bound made it absurd rather than merely slow: a floor on zero, printed under the heading *True
+expected cost*.
+
+Fixed by a guard where `s0` is built, gated on `isAccepting` — the same predicate `goalKeys` is built
+from, so it cannot disagree with the solver about what "finished" means. Three mutations checked, all
+caught. The test asserts `policy.size === 0` rather than a wall time: the policy holds one entry per
+non-goal state, so an empty one proves no lattice was built, where asserting the cost alone would pass
+just as happily after a full solve.
+
+**Two test fixtures were passing BECAUSE of the bug**, and that is the part worth carrying forward.
+`solve.test.ts` and `engineClient.test.ts` both held an item whose targets it already satisfied (item
+= p0 + s0, targets = p0 + s0 at the same tier). Three tests — progress messages advance monotonically,
+a one-sweep budget cannot converge, the worker forwards progress on an item solve — were therefore
+measuring the solver grinding through a lattice for a craft that was already finished, and went red
+the moment the grinding stopped. Their INTENT was sound; the fixture was not. Both now hold one mod
+and ask for two, and a re-run of the guard mutation confirms they pass with the guard either way, so
+they no longer depend on the waste they were accidentally exercising.
+
+**A number in an earlier draft of this was wrong and is worth recording as such.** The 71 s was first
+quoted as 215 s, taken from a probe that used a T2 target rather than `copyItemToTarget`'s worst-tier
+one. Running the actual user path is what corrected it — and what surfaced the 16 s Standard case,
+which the probe could not have shown at all.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

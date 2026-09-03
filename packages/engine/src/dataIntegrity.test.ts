@@ -152,6 +152,14 @@ auditPatch('0.5.0', {
     //   FlaskChargeGeneration — three desecrated prefixes and a PERFECT_ESSENCE suffix; different
     //              mods by different mechanics, so family exclusion still holds.
     'Thorns on Belts', 'FlaskChargeGeneration on Belts',
+    // Spell-element wand/staff variants, added 2026-09-03. Not a new finding: a variant inherits its
+    // parent's carved and essence pools verbatim (they read the same poe2db class page), so this is
+    // `ElementalInfusion on Staves` above, restated once per base id — the same way all six
+    // `ManaCostEfficiency on Helmets_*` rows restate one fact about helmets. The NORMAL pools are the
+    // only thing a variant narrows, and they introduce no span at all.
+    'ElementalInfusion on Staves_fire', 'ElementalInfusion on Staves_cold',
+    'ElementalInfusion on Staves_lightning', 'ElementalInfusion on Staves_chaos',
+    'ElementalInfusion on Staves_physical',
   ]),
 });
 

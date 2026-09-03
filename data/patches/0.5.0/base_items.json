@@ -2,7 +2,7 @@
   "patch": "0.5.0",
   "generated": "2026-07-04",
   "source": "regenerated from RePoE-fork PoE2 dump (client 4.5.4.3); NORMAL pools only (essence/desecrated deferred). Structure (tiers/ilvl/ranges/pools) is authoritative; WEIGHTS are game-file placeholders (uniformly 1/0 in the 0.5 dump) and MUST be replaced by community-verified weights via weights_overrides.json before probabilities are meaningful.",
-  "count": 42,
+  "count": 52,
   "items": [
     {
       "id": "Amulets",
@@ -3009,7 +3009,7 @@
     },
     {
       "id": "Staves",
-      "name": "Staves",
+      "name": "Chiming Staff, Dark Staff, Perching Staff, Permafrost Staff, Ravenous Staff, Reflecting Staff, Roaring Staff, Sanctified Staff, Spriggan Staff",
       "category": "Staves",
       "class": "Staves",
       "pools": {
@@ -3086,6 +3086,369 @@
             "Staves/PerfectEssence_SoulCore",
             "Staves/PerfectEssence_IncreasedCastSpeed",
             "Staves/PerfectEssence_ChanceToGainNaturesArchon"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Staves_chaos",
+      "name": "Rending Staff",
+      "category": "Staves",
+      "class": "Staves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Staves/IncreasedMana",
+            "Staves/WeaponSpellDamage",
+            "Staves/WeaponSpellDamageAndMana",
+            "Staves/ChaosDamageWeaponPrefix",
+            "Staves/DamageGainedAsFire",
+            "Staves/DamageGainedAsCold",
+            "Staves/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Staves/Intelligence",
+            "Staves/LocalAttributeRequirements",
+            "Staves/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreaseChaosSpellSkillGemLevelWeapon",
+            "Staves/ManaRegeneration",
+            "Staves/LifeGainedFromEnemyDeath",
+            "Staves/ManaGainedFromEnemyDeath",
+            "Staves/IncreasedCastSpeed",
+            "Staves/SpellCriticalStrikeChance",
+            "Staves/SpellCriticalStrikeMultiplier",
+            "Staves/LightRadiusAndManaRegeneration"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Staves_chaos/Desecrated_WeaponCasterDamagePrefix",
+            "Staves_chaos/Desecrated_BaseSpirit",
+            "Staves_chaos/Desecrated_ChaosDamage",
+            "Staves_chaos/Desecrated_WeaponCasterDamagePrefix_2",
+            "Staves_chaos/Desecrated_ElementalInfusion",
+            "Staves_chaos/Desecrated_WeaponCasterDamagePrefix_3",
+            "Staves_chaos/Desecrated_AilmentEffect"
+          ],
+          "suffixes": [
+            "Staves_chaos/Desecrated_SkillLifeCost",
+            "Staves_chaos/Desecrated_ArchonDuration",
+            "Staves_chaos/Desecrated_AdditionalBlock",
+            "Staves_chaos/Desecrated_ArchonDelayRecovery",
+            "Staves_chaos/Desecrated_MaximumPuppeteerStacks",
+            "Staves_chaos/Desecrated_CastSpeedOnLowLife",
+            "Staves_chaos/Desecrated_SpellsFire2AdditionalProjectileChance"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Staves_chaos/Essence_WeaponCasterDamagePrefix",
+            "Staves_chaos/PerfectEssence_EssenceAbyss",
+            "Staves_chaos/PerfectEssence_FireDamage",
+            "Staves_chaos/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Staves_chaos/Essence_SpellCriticalStrikeChanceIncrease",
+            "Staves_chaos/Essence_IncreasedCastSpeed",
+            "Staves_chaos/PerfectEssence_IncreaseSocketedGemLevel",
+            "Staves_chaos/PerfectEssence_ManaCostEfficiency",
+            "Staves_chaos/PerfectEssence_BaseRunicWard",
+            "Staves_chaos/PerfectEssence_ExposureEffect",
+            "Staves_chaos/PerfectEssence_ElementalInfusion",
+            "Staves_chaos/PerfectEssence_SoulCore",
+            "Staves_chaos/PerfectEssence_IncreasedCastSpeed",
+            "Staves_chaos/PerfectEssence_ChanceToGainNaturesArchon"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Staves_cold",
+      "name": "Gelid Staff, Icicle Staff",
+      "category": "Staves",
+      "class": "Staves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Staves/IncreasedMana",
+            "Staves/WeaponSpellDamage",
+            "Staves/WeaponSpellDamageAndMana",
+            "Staves/ColdDamageWeaponPrefix",
+            "Staves/DamageGainedAsFire",
+            "Staves/DamageGainedAsCold",
+            "Staves/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Staves/Intelligence",
+            "Staves/LocalAttributeRequirements",
+            "Staves/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreaseColdSpellSkillGemLevelWeapon",
+            "Staves/ManaRegeneration",
+            "Staves/LifeGainedFromEnemyDeath",
+            "Staves/ManaGainedFromEnemyDeath",
+            "Staves/IncreasedCastSpeed",
+            "Staves/SpellCriticalStrikeChance",
+            "Staves/SpellCriticalStrikeMultiplier",
+            "Staves/LightRadiusAndManaRegeneration",
+            "Staves/FreezeDamageIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Staves_cold/Desecrated_WeaponCasterDamagePrefix",
+            "Staves_cold/Desecrated_BaseSpirit",
+            "Staves_cold/Desecrated_ChaosDamage",
+            "Staves_cold/Desecrated_WeaponCasterDamagePrefix_2",
+            "Staves_cold/Desecrated_ElementalInfusion",
+            "Staves_cold/Desecrated_WeaponCasterDamagePrefix_3",
+            "Staves_cold/Desecrated_AilmentEffect"
+          ],
+          "suffixes": [
+            "Staves_cold/Desecrated_SkillLifeCost",
+            "Staves_cold/Desecrated_ArchonDuration",
+            "Staves_cold/Desecrated_AdditionalBlock",
+            "Staves_cold/Desecrated_ArchonDelayRecovery",
+            "Staves_cold/Desecrated_MaximumPuppeteerStacks",
+            "Staves_cold/Desecrated_CastSpeedOnLowLife",
+            "Staves_cold/Desecrated_SpellsFire2AdditionalProjectileChance"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Staves_cold/Essence_WeaponCasterDamagePrefix",
+            "Staves_cold/PerfectEssence_EssenceAbyss",
+            "Staves_cold/PerfectEssence_FireDamage",
+            "Staves_cold/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Staves_cold/Essence_SpellCriticalStrikeChanceIncrease",
+            "Staves_cold/Essence_IncreasedCastSpeed",
+            "Staves_cold/PerfectEssence_IncreaseSocketedGemLevel",
+            "Staves_cold/PerfectEssence_ManaCostEfficiency",
+            "Staves_cold/PerfectEssence_BaseRunicWard",
+            "Staves_cold/PerfectEssence_ExposureEffect",
+            "Staves_cold/PerfectEssence_ElementalInfusion",
+            "Staves_cold/PerfectEssence_SoulCore",
+            "Staves_cold/PerfectEssence_IncreasedCastSpeed",
+            "Staves_cold/PerfectEssence_ChanceToGainNaturesArchon"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Staves_fire",
+      "name": "Ashen Staff, Pyrophyte Staff",
+      "category": "Staves",
+      "class": "Staves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Staves/IncreasedMana",
+            "Staves/WeaponSpellDamage",
+            "Staves/WeaponSpellDamageAndMana",
+            "Staves/FireDamageWeaponPrefix",
+            "Staves/DamageGainedAsFire",
+            "Staves/DamageGainedAsCold",
+            "Staves/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Staves/Intelligence",
+            "Staves/LocalAttributeRequirements",
+            "Staves/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreaseFireSpellSkillGemLevelWeapon",
+            "Staves/ManaRegeneration",
+            "Staves/LifeGainedFromEnemyDeath",
+            "Staves/ManaGainedFromEnemyDeath",
+            "Staves/IncreasedCastSpeed",
+            "Staves/SpellCriticalStrikeChance",
+            "Staves/SpellCriticalStrikeMultiplier",
+            "Staves/LightRadiusAndManaRegeneration",
+            "Staves/IgniteChanceIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Staves_fire/Desecrated_WeaponCasterDamagePrefix",
+            "Staves_fire/Desecrated_BaseSpirit",
+            "Staves_fire/Desecrated_ChaosDamage",
+            "Staves_fire/Desecrated_WeaponCasterDamagePrefix_2",
+            "Staves_fire/Desecrated_ElementalInfusion",
+            "Staves_fire/Desecrated_WeaponCasterDamagePrefix_3",
+            "Staves_fire/Desecrated_AilmentEffect"
+          ],
+          "suffixes": [
+            "Staves_fire/Desecrated_SkillLifeCost",
+            "Staves_fire/Desecrated_ArchonDuration",
+            "Staves_fire/Desecrated_AdditionalBlock",
+            "Staves_fire/Desecrated_ArchonDelayRecovery",
+            "Staves_fire/Desecrated_MaximumPuppeteerStacks",
+            "Staves_fire/Desecrated_CastSpeedOnLowLife",
+            "Staves_fire/Desecrated_SpellsFire2AdditionalProjectileChance"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Staves_fire/Essence_WeaponCasterDamagePrefix",
+            "Staves_fire/PerfectEssence_EssenceAbyss",
+            "Staves_fire/PerfectEssence_FireDamage",
+            "Staves_fire/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Staves_fire/Essence_SpellCriticalStrikeChanceIncrease",
+            "Staves_fire/Essence_IncreasedCastSpeed",
+            "Staves_fire/PerfectEssence_IncreaseSocketedGemLevel",
+            "Staves_fire/PerfectEssence_ManaCostEfficiency",
+            "Staves_fire/PerfectEssence_BaseRunicWard",
+            "Staves_fire/PerfectEssence_ExposureEffect",
+            "Staves_fire/PerfectEssence_ElementalInfusion",
+            "Staves_fire/PerfectEssence_SoulCore",
+            "Staves_fire/PerfectEssence_IncreasedCastSpeed",
+            "Staves_fire/PerfectEssence_ChanceToGainNaturesArchon"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Staves_lightning",
+      "name": "Paralysing Staff, Voltaic Staff",
+      "category": "Staves",
+      "class": "Staves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Staves/IncreasedMana",
+            "Staves/WeaponSpellDamage",
+            "Staves/WeaponSpellDamageAndMana",
+            "Staves/LightningDamageWeaponPrefix",
+            "Staves/DamageGainedAsFire",
+            "Staves/DamageGainedAsCold",
+            "Staves/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Staves/Intelligence",
+            "Staves/LocalAttributeRequirements",
+            "Staves/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreaseLightningSpellSkillGemLevelWeapon",
+            "Staves/ManaRegeneration",
+            "Staves/LifeGainedFromEnemyDeath",
+            "Staves/ManaGainedFromEnemyDeath",
+            "Staves/IncreasedCastSpeed",
+            "Staves/SpellCriticalStrikeChance",
+            "Staves/SpellCriticalStrikeMultiplier",
+            "Staves/LightRadiusAndManaRegeneration",
+            "Staves/ShockChanceIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Staves_lightning/Desecrated_WeaponCasterDamagePrefix",
+            "Staves_lightning/Desecrated_BaseSpirit",
+            "Staves_lightning/Desecrated_ChaosDamage",
+            "Staves_lightning/Desecrated_WeaponCasterDamagePrefix_2",
+            "Staves_lightning/Desecrated_ElementalInfusion",
+            "Staves_lightning/Desecrated_WeaponCasterDamagePrefix_3",
+            "Staves_lightning/Desecrated_AilmentEffect"
+          ],
+          "suffixes": [
+            "Staves_lightning/Desecrated_SkillLifeCost",
+            "Staves_lightning/Desecrated_ArchonDuration",
+            "Staves_lightning/Desecrated_AdditionalBlock",
+            "Staves_lightning/Desecrated_ArchonDelayRecovery",
+            "Staves_lightning/Desecrated_MaximumPuppeteerStacks",
+            "Staves_lightning/Desecrated_CastSpeedOnLowLife",
+            "Staves_lightning/Desecrated_SpellsFire2AdditionalProjectileChance"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Staves_lightning/Essence_WeaponCasterDamagePrefix",
+            "Staves_lightning/PerfectEssence_EssenceAbyss",
+            "Staves_lightning/PerfectEssence_FireDamage",
+            "Staves_lightning/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Staves_lightning/Essence_SpellCriticalStrikeChanceIncrease",
+            "Staves_lightning/Essence_IncreasedCastSpeed",
+            "Staves_lightning/PerfectEssence_IncreaseSocketedGemLevel",
+            "Staves_lightning/PerfectEssence_ManaCostEfficiency",
+            "Staves_lightning/PerfectEssence_BaseRunicWard",
+            "Staves_lightning/PerfectEssence_ExposureEffect",
+            "Staves_lightning/PerfectEssence_ElementalInfusion",
+            "Staves_lightning/PerfectEssence_SoulCore",
+            "Staves_lightning/PerfectEssence_IncreasedCastSpeed",
+            "Staves_lightning/PerfectEssence_ChanceToGainNaturesArchon"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Staves_physical",
+      "name": "Reaping Staff",
+      "category": "Staves",
+      "class": "Staves",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Staves/IncreasedMana",
+            "Staves/WeaponSpellDamage",
+            "Staves/WeaponSpellDamageAndMana",
+            "Staves/PhysicalSpellDamageWeaponPrefix",
+            "Staves/DamageGainedAsFire",
+            "Staves/DamageGainedAsCold",
+            "Staves/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Staves/Intelligence",
+            "Staves/LocalAttributeRequirements",
+            "Staves/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Staves/GlobalIncreasePhysicalSpellSkillGemLevelWeapon",
+            "Staves/ManaRegeneration",
+            "Staves/LifeGainedFromEnemyDeath",
+            "Staves/ManaGainedFromEnemyDeath",
+            "Staves/IncreasedCastSpeed",
+            "Staves/SpellCriticalStrikeChance",
+            "Staves/SpellCriticalStrikeMultiplier",
+            "Staves/LightRadiusAndManaRegeneration"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Staves_physical/Desecrated_WeaponCasterDamagePrefix",
+            "Staves_physical/Desecrated_BaseSpirit",
+            "Staves_physical/Desecrated_ChaosDamage",
+            "Staves_physical/Desecrated_WeaponCasterDamagePrefix_2",
+            "Staves_physical/Desecrated_ElementalInfusion",
+            "Staves_physical/Desecrated_WeaponCasterDamagePrefix_3",
+            "Staves_physical/Desecrated_AilmentEffect"
+          ],
+          "suffixes": [
+            "Staves_physical/Desecrated_SkillLifeCost",
+            "Staves_physical/Desecrated_ArchonDuration",
+            "Staves_physical/Desecrated_AdditionalBlock",
+            "Staves_physical/Desecrated_ArchonDelayRecovery",
+            "Staves_physical/Desecrated_MaximumPuppeteerStacks",
+            "Staves_physical/Desecrated_CastSpeedOnLowLife",
+            "Staves_physical/Desecrated_SpellsFire2AdditionalProjectileChance"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Staves_physical/Essence_WeaponCasterDamagePrefix",
+            "Staves_physical/PerfectEssence_EssenceAbyss",
+            "Staves_physical/PerfectEssence_FireDamage",
+            "Staves_physical/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Staves_physical/Essence_SpellCriticalStrikeChanceIncrease",
+            "Staves_physical/Essence_IncreasedCastSpeed",
+            "Staves_physical/PerfectEssence_IncreaseSocketedGemLevel",
+            "Staves_physical/PerfectEssence_ManaCostEfficiency",
+            "Staves_physical/PerfectEssence_BaseRunicWard",
+            "Staves_physical/PerfectEssence_ExposureEffect",
+            "Staves_physical/PerfectEssence_ElementalInfusion",
+            "Staves_physical/PerfectEssence_SoulCore",
+            "Staves_physical/PerfectEssence_IncreasedCastSpeed",
+            "Staves_physical/PerfectEssence_ChanceToGainNaturesArchon"
           ]
         }
       }
@@ -3177,7 +3540,7 @@
     },
     {
       "id": "Wands",
-      "name": "Wands",
+      "name": "Acrid Wand, Attuned Wand, Critical Wand, Dueling Wand, Runic Fork, Siphoning Wand, Torture Wand, Twisted Wand",
       "category": "Wands",
       "class": "Wands",
       "pools": {
@@ -3255,6 +3618,374 @@
             "Wands/PerfectEssence_SoulCore",
             "Wands/PerfectEssence_IncreasedCastSpeed",
             "Wands/PerfectEssence_ElementalSkillLimit"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Wands_chaos",
+      "name": "Primordial Wand, Withered Wand",
+      "category": "Wands",
+      "class": "Wands",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Wands/IncreasedMana",
+            "Wands/WeaponSpellDamage",
+            "Wands/WeaponSpellDamageAndMana",
+            "Wands/ChaosDamageWeaponPrefix",
+            "Wands/DamageGainedAsFire",
+            "Wands/DamageGainedAsCold",
+            "Wands/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Wands/Intelligence",
+            "Wands/LocalAttributeRequirements",
+            "Wands/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreaseChaosSpellSkillGemLevelWeapon",
+            "Wands/ManaRegeneration",
+            "Wands/LifeGainedFromEnemyDeath",
+            "Wands/ManaGainedFromEnemyDeath",
+            "Wands/IncreasedCastSpeed",
+            "Wands/SpellCriticalStrikeChance",
+            "Wands/SpellCriticalStrikeMultiplier",
+            "Wands/LightRadiusAndManaRegeneration"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Wands_chaos/Desecrated_WeaponDamageTypePrefix",
+            "Wands_chaos/Desecrated_MinionDamage",
+            "Wands_chaos/Desecrated_WeaponCasterDamagePrefix",
+            "Wands_chaos/Desecrated_WeaponCasterDamagePrefix_2",
+            "Wands_chaos/Desecrated_MartialWeaponGainedDamage",
+            "Wands_chaos/Desecrated_BleedingDamage"
+          ],
+          "suffixes": [
+            "Wands_chaos/Desecrated_SpellAreaOfEffect",
+            "Wands_chaos/Desecrated_SkillLifeCost",
+            "Wands_chaos/Desecrated_HinderedEnemyTakeIncreasedDamage",
+            "Wands_chaos/Desecrated_IncreasedCastSpeed",
+            "Wands_chaos/Desecrated_IncreasedCastSpeed_2",
+            "Wands_chaos/Desecrated_HinderedEnemyTakeIncreasedDamage_2",
+            "Wands_chaos/Desecrated_ArmourBreak",
+            "Wands_chaos/Desecrated_ArmourBreak_2",
+            "Wands_chaos/Desecrated_HinderedEnemyTakeIncreasedDamage_3"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Wands_chaos/Essence_WeaponCasterDamagePrefix",
+            "Wands_chaos/PerfectEssence_EssenceAbyss",
+            "Wands_chaos/PerfectEssence_FireDamage",
+            "Wands_chaos/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Wands_chaos/Essence_SpellCriticalStrikeChanceIncrease",
+            "Wands_chaos/Essence_IncreasedCastSpeed",
+            "Wands_chaos/PerfectEssence_IncreaseSocketedGemLevel",
+            "Wands_chaos/PerfectEssence_ManaCostEfficiency",
+            "Wands_chaos/PerfectEssence_BaseRunicWard",
+            "Wands_chaos/PerfectEssence_ExposureEffect",
+            "Wands_chaos/PerfectEssence_ElementalInfusion",
+            "Wands_chaos/PerfectEssence_SoulCore",
+            "Wands_chaos/PerfectEssence_IncreasedCastSpeed",
+            "Wands_chaos/PerfectEssence_ElementalSkillLimit"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Wands_cold",
+      "name": "Frigid Wand",
+      "category": "Wands",
+      "class": "Wands",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Wands/IncreasedMana",
+            "Wands/WeaponSpellDamage",
+            "Wands/WeaponSpellDamageAndMana",
+            "Wands/ColdDamageWeaponPrefix",
+            "Wands/DamageGainedAsFire",
+            "Wands/DamageGainedAsCold",
+            "Wands/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Wands/Intelligence",
+            "Wands/LocalAttributeRequirements",
+            "Wands/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreaseColdSpellSkillGemLevelWeapon",
+            "Wands/ManaRegeneration",
+            "Wands/LifeGainedFromEnemyDeath",
+            "Wands/ManaGainedFromEnemyDeath",
+            "Wands/IncreasedCastSpeed",
+            "Wands/SpellCriticalStrikeChance",
+            "Wands/SpellCriticalStrikeMultiplier",
+            "Wands/LightRadiusAndManaRegeneration",
+            "Wands/FreezeDamageIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Wands_cold/Desecrated_WeaponDamageTypePrefix",
+            "Wands_cold/Desecrated_MinionDamage",
+            "Wands_cold/Desecrated_WeaponCasterDamagePrefix",
+            "Wands_cold/Desecrated_WeaponCasterDamagePrefix_2",
+            "Wands_cold/Desecrated_MartialWeaponGainedDamage",
+            "Wands_cold/Desecrated_BleedingDamage"
+          ],
+          "suffixes": [
+            "Wands_cold/Desecrated_SpellAreaOfEffect",
+            "Wands_cold/Desecrated_SkillLifeCost",
+            "Wands_cold/Desecrated_HinderedEnemyTakeIncreasedDamage",
+            "Wands_cold/Desecrated_IncreasedCastSpeed",
+            "Wands_cold/Desecrated_IncreasedCastSpeed_2",
+            "Wands_cold/Desecrated_HinderedEnemyTakeIncreasedDamage_2",
+            "Wands_cold/Desecrated_ArmourBreak",
+            "Wands_cold/Desecrated_ArmourBreak_2",
+            "Wands_cold/Desecrated_HinderedEnemyTakeIncreasedDamage_3"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Wands_cold/Essence_WeaponCasterDamagePrefix",
+            "Wands_cold/PerfectEssence_EssenceAbyss",
+            "Wands_cold/PerfectEssence_FireDamage",
+            "Wands_cold/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Wands_cold/Essence_SpellCriticalStrikeChanceIncrease",
+            "Wands_cold/Essence_IncreasedCastSpeed",
+            "Wands_cold/PerfectEssence_IncreaseSocketedGemLevel",
+            "Wands_cold/PerfectEssence_ManaCostEfficiency",
+            "Wands_cold/PerfectEssence_BaseRunicWard",
+            "Wands_cold/PerfectEssence_ExposureEffect",
+            "Wands_cold/PerfectEssence_ElementalInfusion",
+            "Wands_cold/PerfectEssence_SoulCore",
+            "Wands_cold/PerfectEssence_IncreasedCastSpeed",
+            "Wands_cold/PerfectEssence_ElementalSkillLimit"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Wands_fire",
+      "name": "Volatile Wand",
+      "category": "Wands",
+      "class": "Wands",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Wands/IncreasedMana",
+            "Wands/WeaponSpellDamage",
+            "Wands/WeaponSpellDamageAndMana",
+            "Wands/FireDamageWeaponPrefix",
+            "Wands/DamageGainedAsFire",
+            "Wands/DamageGainedAsCold",
+            "Wands/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Wands/Intelligence",
+            "Wands/LocalAttributeRequirements",
+            "Wands/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreaseFireSpellSkillGemLevelWeapon",
+            "Wands/ManaRegeneration",
+            "Wands/LifeGainedFromEnemyDeath",
+            "Wands/ManaGainedFromEnemyDeath",
+            "Wands/IncreasedCastSpeed",
+            "Wands/SpellCriticalStrikeChance",
+            "Wands/SpellCriticalStrikeMultiplier",
+            "Wands/LightRadiusAndManaRegeneration",
+            "Wands/IgniteChanceIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Wands_fire/Desecrated_WeaponDamageTypePrefix",
+            "Wands_fire/Desecrated_MinionDamage",
+            "Wands_fire/Desecrated_WeaponCasterDamagePrefix",
+            "Wands_fire/Desecrated_WeaponCasterDamagePrefix_2",
+            "Wands_fire/Desecrated_MartialWeaponGainedDamage",
+            "Wands_fire/Desecrated_BleedingDamage"
+          ],
+          "suffixes": [
+            "Wands_fire/Desecrated_SpellAreaOfEffect",
+            "Wands_fire/Desecrated_SkillLifeCost",
+            "Wands_fire/Desecrated_HinderedEnemyTakeIncreasedDamage",
+            "Wands_fire/Desecrated_IncreasedCastSpeed",
+            "Wands_fire/Desecrated_IncreasedCastSpeed_2",
+            "Wands_fire/Desecrated_HinderedEnemyTakeIncreasedDamage_2",
+            "Wands_fire/Desecrated_ArmourBreak",
+            "Wands_fire/Desecrated_ArmourBreak_2",
+            "Wands_fire/Desecrated_HinderedEnemyTakeIncreasedDamage_3"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Wands_fire/Essence_WeaponCasterDamagePrefix",
+            "Wands_fire/PerfectEssence_EssenceAbyss",
+            "Wands_fire/PerfectEssence_FireDamage",
+            "Wands_fire/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Wands_fire/Essence_SpellCriticalStrikeChanceIncrease",
+            "Wands_fire/Essence_IncreasedCastSpeed",
+            "Wands_fire/PerfectEssence_IncreaseSocketedGemLevel",
+            "Wands_fire/PerfectEssence_ManaCostEfficiency",
+            "Wands_fire/PerfectEssence_BaseRunicWard",
+            "Wands_fire/PerfectEssence_ExposureEffect",
+            "Wands_fire/PerfectEssence_ElementalInfusion",
+            "Wands_fire/PerfectEssence_SoulCore",
+            "Wands_fire/PerfectEssence_IncreasedCastSpeed",
+            "Wands_fire/PerfectEssence_ElementalSkillLimit"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Wands_lightning",
+      "name": "Galvanic Wand",
+      "category": "Wands",
+      "class": "Wands",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Wands/IncreasedMana",
+            "Wands/WeaponSpellDamage",
+            "Wands/WeaponSpellDamageAndMana",
+            "Wands/LightningDamageWeaponPrefix",
+            "Wands/DamageGainedAsFire",
+            "Wands/DamageGainedAsCold",
+            "Wands/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Wands/Intelligence",
+            "Wands/LocalAttributeRequirements",
+            "Wands/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreaseLightningSpellSkillGemLevelWeapon",
+            "Wands/ManaRegeneration",
+            "Wands/LifeGainedFromEnemyDeath",
+            "Wands/ManaGainedFromEnemyDeath",
+            "Wands/IncreasedCastSpeed",
+            "Wands/SpellCriticalStrikeChance",
+            "Wands/SpellCriticalStrikeMultiplier",
+            "Wands/LightRadiusAndManaRegeneration",
+            "Wands/ShockChanceIncrease"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Wands_lightning/Desecrated_WeaponDamageTypePrefix",
+            "Wands_lightning/Desecrated_MinionDamage",
+            "Wands_lightning/Desecrated_WeaponCasterDamagePrefix",
+            "Wands_lightning/Desecrated_WeaponCasterDamagePrefix_2",
+            "Wands_lightning/Desecrated_MartialWeaponGainedDamage",
+            "Wands_lightning/Desecrated_BleedingDamage"
+          ],
+          "suffixes": [
+            "Wands_lightning/Desecrated_SpellAreaOfEffect",
+            "Wands_lightning/Desecrated_SkillLifeCost",
+            "Wands_lightning/Desecrated_HinderedEnemyTakeIncreasedDamage",
+            "Wands_lightning/Desecrated_IncreasedCastSpeed",
+            "Wands_lightning/Desecrated_IncreasedCastSpeed_2",
+            "Wands_lightning/Desecrated_HinderedEnemyTakeIncreasedDamage_2",
+            "Wands_lightning/Desecrated_ArmourBreak",
+            "Wands_lightning/Desecrated_ArmourBreak_2",
+            "Wands_lightning/Desecrated_HinderedEnemyTakeIncreasedDamage_3"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Wands_lightning/Essence_WeaponCasterDamagePrefix",
+            "Wands_lightning/PerfectEssence_EssenceAbyss",
+            "Wands_lightning/PerfectEssence_FireDamage",
+            "Wands_lightning/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Wands_lightning/Essence_SpellCriticalStrikeChanceIncrease",
+            "Wands_lightning/Essence_IncreasedCastSpeed",
+            "Wands_lightning/PerfectEssence_IncreaseSocketedGemLevel",
+            "Wands_lightning/PerfectEssence_ManaCostEfficiency",
+            "Wands_lightning/PerfectEssence_BaseRunicWard",
+            "Wands_lightning/PerfectEssence_ExposureEffect",
+            "Wands_lightning/PerfectEssence_ElementalInfusion",
+            "Wands_lightning/PerfectEssence_SoulCore",
+            "Wands_lightning/PerfectEssence_IncreasedCastSpeed",
+            "Wands_lightning/PerfectEssence_ElementalSkillLimit"
+          ]
+        }
+      }
+    },
+    {
+      "id": "Wands_physical",
+      "name": "Bone Wand, Offering Wand",
+      "category": "Wands",
+      "class": "Wands",
+      "pools": {
+        "normal": {
+          "prefixes": [
+            "Wands/IncreasedMana",
+            "Wands/WeaponSpellDamage",
+            "Wands/WeaponSpellDamageAndMana",
+            "Wands/PhysicalSpellDamageWeaponPrefix",
+            "Wands/DamageGainedAsFire",
+            "Wands/DamageGainedAsCold",
+            "Wands/DamageGainedAsLightning"
+          ],
+          "suffixes": [
+            "Wands/Intelligence",
+            "Wands/LocalAttributeRequirements",
+            "Wands/GlobalIncreaseSpellSkillGemLevelWeapon",
+            "Wands/GlobalIncreasePhysicalSpellSkillGemLevelWeapon",
+            "Wands/ManaRegeneration",
+            "Wands/LifeGainedFromEnemyDeath",
+            "Wands/ManaGainedFromEnemyDeath",
+            "Wands/IncreasedCastSpeed",
+            "Wands/SpellCriticalStrikeChance",
+            "Wands/SpellCriticalStrikeMultiplier",
+            "Wands/LightRadiusAndManaRegeneration"
+          ]
+        },
+        "desecrated": {
+          "prefixes": [
+            "Wands_physical/Desecrated_WeaponDamageTypePrefix",
+            "Wands_physical/Desecrated_MinionDamage",
+            "Wands_physical/Desecrated_WeaponCasterDamagePrefix",
+            "Wands_physical/Desecrated_WeaponCasterDamagePrefix_2",
+            "Wands_physical/Desecrated_MartialWeaponGainedDamage",
+            "Wands_physical/Desecrated_BleedingDamage"
+          ],
+          "suffixes": [
+            "Wands_physical/Desecrated_SpellAreaOfEffect",
+            "Wands_physical/Desecrated_SkillLifeCost",
+            "Wands_physical/Desecrated_HinderedEnemyTakeIncreasedDamage",
+            "Wands_physical/Desecrated_IncreasedCastSpeed",
+            "Wands_physical/Desecrated_IncreasedCastSpeed_2",
+            "Wands_physical/Desecrated_HinderedEnemyTakeIncreasedDamage_2",
+            "Wands_physical/Desecrated_ArmourBreak",
+            "Wands_physical/Desecrated_ArmourBreak_2",
+            "Wands_physical/Desecrated_HinderedEnemyTakeIncreasedDamage_3"
+          ]
+        },
+        "essence": {
+          "prefixes": [
+            "Wands_physical/Essence_WeaponCasterDamagePrefix",
+            "Wands_physical/PerfectEssence_EssenceAbyss",
+            "Wands_physical/PerfectEssence_FireDamage",
+            "Wands_physical/PerfectEssence_IncreasedMana"
+          ],
+          "suffixes": [
+            "Wands_physical/Essence_SpellCriticalStrikeChanceIncrease",
+            "Wands_physical/Essence_IncreasedCastSpeed",
+            "Wands_physical/PerfectEssence_IncreaseSocketedGemLevel",
+            "Wands_physical/PerfectEssence_ManaCostEfficiency",
+            "Wands_physical/PerfectEssence_BaseRunicWard",
+            "Wands_physical/PerfectEssence_ExposureEffect",
+            "Wands_physical/PerfectEssence_ElementalInfusion",
+            "Wands_physical/PerfectEssence_SoulCore",
+            "Wands_physical/PerfectEssence_IncreasedCastSpeed",
+            "Wands_physical/PerfectEssence_ElementalSkillLimit"
           ]
         }
       }

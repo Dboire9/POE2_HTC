@@ -3277,6 +3277,71 @@ case is the one that carries the guard.
 branches, `recommendPlan`, `Recommendation`, `MAX_PRACTICAL_ATTEMPTS`, the impractical-frontier note,
 and the `best value` / `cheapest` / `surest` badges — all claims that ranked on the hidden total.
 
+## Wand and staff bases are locked to one spell element, and the app shipped the permissive one (2026-09-03)
+
+Reported: *"a cold wand base, it can only roll +x to cold spell skills, and not fire"*. True, and the
+dump says so outright rather than by implication — a base carries negative tags (`no_fire_spell_mods`,
+…) and every mod they gate lists that tag at weight 0. `resolveWeight`'s first-match convention has
+implemented this correctly the whole time.
+
+**What shipped instead.** `pickVariant` collapses each class to one RePoE tag-set, and `isSpecializer`
+matches `/^no_.*_spell_mods$/` — so it deliberately skipped every restricted variant and picked the
+unrestricted one. `Wands` was the Attuned Wand: right for 9 of 18 wand bases, wrong for the other 7.
+
+**Scope, measured against the dump rather than guessed.** Only two classes. Wands: 18 bases → 6 pools.
+Staves: 19 → 6. Sceptres: 16 bases, 1 pool. Quarterstaves has 8 tag-set variants but they are
+`ezomyte`/`maraketh`/`vaal`/`karui` cultural tags, and **no mod anywhere gates on a `*_basetype` tag**,
+so those genuinely share a pool and stay collapsed. 42 bases → 52.
+
+**Two costs, and the second is the one that matters.** The app offered mods the base can never roll —
+a plan naming `+X to Level of all Fire Spell Skills` on a Frigid Wand is a craft that cannot complete.
+And because the gated mods stayed in the DENOMINATOR, it understated the odds of every mod that IS
+legal. The restriction drops 10-11 of 29 groups: the elemental damage prefixes, the gem-level mods, and
+the ailment mods (`FreezeDamageIncrease`, `IgniteChanceIncrease`, `ShockChanceIncrease`).
+
+| | app (`Wands`) | real (`Wands_cold`) | |
+|---|---|---|---|
+| prefix-side weight, ilvl 82 | 41,400 | 31,200 | **1.327x** |
+| suffix-side weight | 73,000 | 62,600 | 1.166x |
+| one exalt lands `+X cold spell skills` | 2.273% | **3.030%** | 1.33x |
+| 3-target cold craft, surest per run | 0.0072% | **0.0146%** | **2.03x**, and 2 plans where there was 1 |
+
+The error ran CONSERVATIVE — overstating cost, understating odds — which is the safer direction to be
+wrong in, and still made exactly the bases a cold or fire caster would buy look worse than they are.
+
+**Three things made the fix cheap, each measured rather than assumed.**
+
+1. **No new normal mods.** A variant's pool is a subset of its parent's groups, and every group they
+   share resolves to the same weight — checked across all ten variants: 118-123 shared mods each, zero
+   differing, zero gated-to-0, because a variant's own `mods` list is already the restricted pool. So a
+   variant reuses the parent's `Wands/<group>` ids and `mods.json` gains no normal mod.
+2. **No downstream map entry.** `apply_weights` and `apply_pools` resolve a poe2db page from
+   `base.category`, not `base.id`, for everything outside `ARMOUR_CATS` — so a variant keeping
+   `category: 'Wands'` reads the same page as its parent. This is the three-map trap the belt note in
+   CLAUDE.md warns about, sidestepped by varying only the id.
+3. **Share links keep working.** The parent keeps the id `Wands`, so an existing link still resolves
+   and still means the unrestricted base.
+
+**The pipeline reproduces the shipped data byte-for-byte**, verified by running it unchanged before
+touching anything — which also confirmed the `templateFixedRoll` fix from earlier the same day agrees
+exactly with the migrated file. Every diff after that point is this change alone.
+
+**Costs.** +285 mods, all desecrated/essence: `apply_pools` mints per-base carved ids, and that is the
+established pattern rather than something this introduced — `Body_Armours_str` and `_dex` already carry
+byte-identical 10-mod carved pools under different ids. Wire cost +4.4 kB gzip (mods 79.69 → 82.46,
+base_items 11.38 → 13.03).
+
+**Not asserted either way:** whether the desecrated and essence pools are element-gated too. They come
+from poe2db's class page and nothing in the RePoE dump gates a non-normal mod with these tags, so a
+variant inherits its parent's carved pool. If that is wrong the variants over-offer carved mods exactly
+as the single base over-offered normal ones — worth a look, and not something to guess at.
+
+**A stale invariant found on the way.** `workspace.ts` claimed every id in a base's pool starts with
+that base's prefix, "verified across all 1297". False as of this change: `Wands_cold` reuses `Wands/…`
+ids, so nothing is stripped and those links carry the full id. The round trip is still exact — `strip`
+only shortens on a match and `restore` passes through any short form containing a slash — but exact by
+construction rather than by that invariant, and `spellBases.test.ts` pins it.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

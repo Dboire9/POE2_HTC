@@ -115,7 +115,13 @@ export function priceBasis(eng: { prices: Prices }): EnginePriceBasis {
 /** All craftable bases, sorted by display name. */
 export function listBases(data: PatchData): EngineBase[] {
   return [...data.bases.values()]
-    .map((b): EngineBase => ({ id: b.id, name: prettyName(b.id), category: b.category }))
+    // The DATA's name wins when it carries more than the id does. For most bases the two are the same
+    // string and `prettyName` is what makes "Body_Armours_str_int" readable; for a spell-element wand
+    // or staff variant the data holds the real game bases that row covers ("Frigid Wand"), which is
+    // how a player recognises the item in their stash and is not derivable from the id at all.
+    .map((b): EngineBase => ({
+      id: b.id, name: b.name && b.name !== b.id ? b.name : prettyName(b.id), category: b.category,
+    }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 

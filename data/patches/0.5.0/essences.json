@@ -56,7 +56,17 @@
           "Gloves_str_int/PerfectEssence_IncreasedAttackSpeed",
           "Sceptres/PerfectEssence_MinionGainPuppetMasterOnCommand",
           "Staves/PerfectEssence_FireDamage",
-          "Wands/PerfectEssence_FireDamage"
+          "Staves_chaos/PerfectEssence_FireDamage",
+          "Staves_cold/PerfectEssence_FireDamage",
+          "Staves_fire/PerfectEssence_FireDamage",
+          "Staves_lightning/PerfectEssence_FireDamage",
+          "Staves_physical/PerfectEssence_FireDamage",
+          "Wands/PerfectEssence_FireDamage",
+          "Wands_chaos/PerfectEssence_FireDamage",
+          "Wands_cold/PerfectEssence_FireDamage",
+          "Wands_fire/PerfectEssence_FireDamage",
+          "Wands_lightning/PerfectEssence_FireDamage",
+          "Wands_physical/PerfectEssence_FireDamage"
         ]
       }
     },
@@ -66,22 +76,62 @@
         "LESSER": [
           "Foci/Essence_IncreasedCastSpeed",
           "Staves/Essence_IncreasedCastSpeed",
-          "Wands/Essence_IncreasedCastSpeed"
+          "Staves_chaos/Essence_IncreasedCastSpeed",
+          "Staves_cold/Essence_IncreasedCastSpeed",
+          "Staves_fire/Essence_IncreasedCastSpeed",
+          "Staves_lightning/Essence_IncreasedCastSpeed",
+          "Staves_physical/Essence_IncreasedCastSpeed",
+          "Wands/Essence_IncreasedCastSpeed",
+          "Wands_chaos/Essence_IncreasedCastSpeed",
+          "Wands_cold/Essence_IncreasedCastSpeed",
+          "Wands_fire/Essence_IncreasedCastSpeed",
+          "Wands_lightning/Essence_IncreasedCastSpeed",
+          "Wands_physical/Essence_IncreasedCastSpeed"
         ],
         "NORMAL": [
           "Foci/Essence_IncreasedCastSpeed",
           "Staves/Essence_IncreasedCastSpeed",
-          "Wands/Essence_IncreasedCastSpeed"
+          "Staves_chaos/Essence_IncreasedCastSpeed",
+          "Staves_cold/Essence_IncreasedCastSpeed",
+          "Staves_fire/Essence_IncreasedCastSpeed",
+          "Staves_lightning/Essence_IncreasedCastSpeed",
+          "Staves_physical/Essence_IncreasedCastSpeed",
+          "Wands/Essence_IncreasedCastSpeed",
+          "Wands_chaos/Essence_IncreasedCastSpeed",
+          "Wands_cold/Essence_IncreasedCastSpeed",
+          "Wands_fire/Essence_IncreasedCastSpeed",
+          "Wands_lightning/Essence_IncreasedCastSpeed",
+          "Wands_physical/Essence_IncreasedCastSpeed"
         ],
         "GREATER": [
           "Foci/Essence_IncreasedCastSpeed",
           "Staves/Essence_IncreasedCastSpeed",
-          "Wands/Essence_IncreasedCastSpeed"
+          "Staves_chaos/Essence_IncreasedCastSpeed",
+          "Staves_cold/Essence_IncreasedCastSpeed",
+          "Staves_fire/Essence_IncreasedCastSpeed",
+          "Staves_lightning/Essence_IncreasedCastSpeed",
+          "Staves_physical/Essence_IncreasedCastSpeed",
+          "Wands/Essence_IncreasedCastSpeed",
+          "Wands_chaos/Essence_IncreasedCastSpeed",
+          "Wands_cold/Essence_IncreasedCastSpeed",
+          "Wands_fire/Essence_IncreasedCastSpeed",
+          "Wands_lightning/Essence_IncreasedCastSpeed",
+          "Wands_physical/Essence_IncreasedCastSpeed"
         ],
         "PERFECT": [
           "Foci/PerfectEssence_ManaCostEfficiency",
           "Staves/PerfectEssence_ManaCostEfficiency",
-          "Wands/PerfectEssence_ManaCostEfficiency"
+          "Staves_chaos/PerfectEssence_ManaCostEfficiency",
+          "Staves_cold/PerfectEssence_ManaCostEfficiency",
+          "Staves_fire/PerfectEssence_ManaCostEfficiency",
+          "Staves_lightning/PerfectEssence_ManaCostEfficiency",
+          "Staves_physical/PerfectEssence_ManaCostEfficiency",
+          "Wands/PerfectEssence_ManaCostEfficiency",
+          "Wands_chaos/PerfectEssence_ManaCostEfficiency",
+          "Wands_cold/PerfectEssence_ManaCostEfficiency",
+          "Wands_fire/PerfectEssence_ManaCostEfficiency",
+          "Wands_lightning/PerfectEssence_ManaCostEfficiency",
+          "Wands_physical/PerfectEssence_ManaCostEfficiency"
         ]
       }
     },
@@ -142,8 +192,18 @@
           "Quarterstaves/PerfectEssence_IncreasedAccuracy",
           "Spears/PerfectEssence_IncreasedAccuracy",
           "Staves/PerfectEssence_IncreasedMana",
+          "Staves_chaos/PerfectEssence_IncreasedMana",
+          "Staves_cold/PerfectEssence_IncreasedMana",
+          "Staves_fire/PerfectEssence_IncreasedMana",
+          "Staves_lightning/PerfectEssence_IncreasedMana",
+          "Staves_physical/PerfectEssence_IncreasedMana",
           "TwoHand_Maces/PerfectEssence_IncreasedAccuracy",
-          "Wands/PerfectEssence_IncreasedMana"
+          "Wands/PerfectEssence_IncreasedMana",
+          "Wands_chaos/PerfectEssence_IncreasedMana",
+          "Wands_cold/PerfectEssence_IncreasedMana",
+          "Wands_fire/PerfectEssence_IncreasedMana",
+          "Wands_lightning/PerfectEssence_IncreasedMana",
+          "Wands_physical/PerfectEssence_IncreasedMana"
         ]
       }
     },
@@ -810,7 +870,17 @@
           "Quivers/PerfectEssence_Chain",
           "Sceptres/PerfectEssence_ElementalInfusion",
           "Staves/PerfectEssence_ElementalInfusion",
-          "Wands/PerfectEssence_ElementalInfusion"
+          "Staves_chaos/PerfectEssence_ElementalInfusion",
+          "Staves_cold/PerfectEssence_ElementalInfusion",
+          "Staves_fire/PerfectEssence_ElementalInfusion",
+          "Staves_lightning/PerfectEssence_ElementalInfusion",
+          "Staves_physical/PerfectEssence_ElementalInfusion",
+          "Wands/PerfectEssence_ElementalInfusion",
+          "Wands_chaos/PerfectEssence_ElementalInfusion",
+          "Wands_cold/PerfectEssence_ElementalInfusion",
+          "Wands_fire/PerfectEssence_ElementalInfusion",
+          "Wands_lightning/PerfectEssence_ElementalInfusion",
+          "Wands_physical/PerfectEssence_ElementalInfusion"
         ]
       }
     },
@@ -914,8 +984,18 @@
           "Sceptres/PerfectEssence_MinionDamagingAilments",
           "Spears/PerfectEssence_AilmentEffect",
           "Staves/PerfectEssence_ExposureEffect",
+          "Staves_chaos/PerfectEssence_ExposureEffect",
+          "Staves_cold/PerfectEssence_ExposureEffect",
+          "Staves_fire/PerfectEssence_ExposureEffect",
+          "Staves_lightning/PerfectEssence_ExposureEffect",
+          "Staves_physical/PerfectEssence_ExposureEffect",
           "TwoHand_Maces/PerfectEssence_AilmentEffect",
-          "Wands/PerfectEssence_ExposureEffect"
+          "Wands/PerfectEssence_ExposureEffect",
+          "Wands_chaos/PerfectEssence_ExposureEffect",
+          "Wands_cold/PerfectEssence_ExposureEffect",
+          "Wands_fire/PerfectEssence_ExposureEffect",
+          "Wands_lightning/PerfectEssence_ExposureEffect",
+          "Wands_physical/PerfectEssence_ExposureEffect"
         ]
       }
     },
@@ -938,8 +1018,18 @@
           "Shields_str_int/PerfectEssence_GainFlatLifeOnBlock",
           "Spears/PerfectEssence_BaseRunicWard",
           "Staves/PerfectEssence_BaseRunicWard",
+          "Staves_chaos/PerfectEssence_BaseRunicWard",
+          "Staves_cold/PerfectEssence_BaseRunicWard",
+          "Staves_fire/PerfectEssence_BaseRunicWard",
+          "Staves_lightning/PerfectEssence_BaseRunicWard",
+          "Staves_physical/PerfectEssence_BaseRunicWard",
           "TwoHand_Maces/PerfectEssence_BaseRunicWard",
-          "Wands/PerfectEssence_BaseRunicWard"
+          "Wands/PerfectEssence_BaseRunicWard",
+          "Wands_chaos/PerfectEssence_BaseRunicWard",
+          "Wands_cold/PerfectEssence_BaseRunicWard",
+          "Wands_fire/PerfectEssence_BaseRunicWard",
+          "Wands_lightning/PerfectEssence_BaseRunicWard",
+          "Wands_physical/PerfectEssence_BaseRunicWard"
         ]
       }
     },
@@ -1082,8 +1172,18 @@
           "Quarterstaves/Essence_CriticalStrikeChanceIncrease",
           "Spears/Essence_CriticalStrikeChanceIncrease",
           "Staves/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_chaos/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_cold/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_fire/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_lightning/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_physical/Essence_SpellCriticalStrikeChanceIncrease",
           "TwoHand_Maces/Essence_CriticalStrikeChanceIncrease",
-          "Wands/Essence_SpellCriticalStrikeChanceIncrease"
+          "Wands/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_chaos/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_cold/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_fire/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_lightning/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_physical/Essence_SpellCriticalStrikeChanceIncrease"
         ],
         "NORMAL": [
           "Bows/Essence_CriticalStrikeChanceIncrease",
@@ -1093,8 +1193,18 @@
           "Quarterstaves/Essence_CriticalStrikeChanceIncrease",
           "Spears/Essence_CriticalStrikeChanceIncrease",
           "Staves/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_chaos/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_cold/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_fire/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_lightning/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_physical/Essence_SpellCriticalStrikeChanceIncrease",
           "TwoHand_Maces/Essence_CriticalStrikeChanceIncrease",
-          "Wands/Essence_SpellCriticalStrikeChanceIncrease"
+          "Wands/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_chaos/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_cold/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_fire/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_lightning/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_physical/Essence_SpellCriticalStrikeChanceIncrease"
         ],
         "GREATER": [
           "Bows/Essence_CriticalStrikeChanceIncrease",
@@ -1104,8 +1214,18 @@
           "Quarterstaves/Essence_CriticalStrikeChanceIncrease",
           "Spears/Essence_CriticalStrikeChanceIncrease",
           "Staves/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_chaos/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_cold/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_fire/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_lightning/Essence_SpellCriticalStrikeChanceIncrease",
+          "Staves_physical/Essence_SpellCriticalStrikeChanceIncrease",
           "TwoHand_Maces/Essence_CriticalStrikeChanceIncrease",
-          "Wands/Essence_SpellCriticalStrikeChanceIncrease"
+          "Wands/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_chaos/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_cold/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_fire/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_lightning/Essence_SpellCriticalStrikeChanceIncrease",
+          "Wands_physical/Essence_SpellCriticalStrikeChanceIncrease"
         ],
         "PERFECT": [
           "Body_Armours_dex/PerfectEssence_ReducedCriticalStrikeDamageTaken",
@@ -1123,21 +1243,61 @@
         "LESSER": [
           "Foci/Essence_WeaponCasterDamagePrefix",
           "Staves/Essence_WeaponCasterDamagePrefix",
-          "Wands/Essence_WeaponCasterDamagePrefix"
+          "Staves_chaos/Essence_WeaponCasterDamagePrefix",
+          "Staves_cold/Essence_WeaponCasterDamagePrefix",
+          "Staves_fire/Essence_WeaponCasterDamagePrefix",
+          "Staves_lightning/Essence_WeaponCasterDamagePrefix",
+          "Staves_physical/Essence_WeaponCasterDamagePrefix",
+          "Wands/Essence_WeaponCasterDamagePrefix",
+          "Wands_chaos/Essence_WeaponCasterDamagePrefix",
+          "Wands_cold/Essence_WeaponCasterDamagePrefix",
+          "Wands_fire/Essence_WeaponCasterDamagePrefix",
+          "Wands_lightning/Essence_WeaponCasterDamagePrefix",
+          "Wands_physical/Essence_WeaponCasterDamagePrefix"
         ],
         "NORMAL": [
           "Foci/Essence_WeaponCasterDamagePrefix",
           "Staves/Essence_WeaponCasterDamagePrefix",
-          "Wands/Essence_WeaponCasterDamagePrefix"
+          "Staves_chaos/Essence_WeaponCasterDamagePrefix",
+          "Staves_cold/Essence_WeaponCasterDamagePrefix",
+          "Staves_fire/Essence_WeaponCasterDamagePrefix",
+          "Staves_lightning/Essence_WeaponCasterDamagePrefix",
+          "Staves_physical/Essence_WeaponCasterDamagePrefix",
+          "Wands/Essence_WeaponCasterDamagePrefix",
+          "Wands_chaos/Essence_WeaponCasterDamagePrefix",
+          "Wands_cold/Essence_WeaponCasterDamagePrefix",
+          "Wands_fire/Essence_WeaponCasterDamagePrefix",
+          "Wands_lightning/Essence_WeaponCasterDamagePrefix",
+          "Wands_physical/Essence_WeaponCasterDamagePrefix"
         ],
         "GREATER": [
           "Foci/Essence_WeaponCasterDamagePrefix",
           "Staves/Essence_WeaponCasterDamagePrefix",
-          "Wands/Essence_WeaponCasterDamagePrefix"
+          "Staves_chaos/Essence_WeaponCasterDamagePrefix",
+          "Staves_cold/Essence_WeaponCasterDamagePrefix",
+          "Staves_fire/Essence_WeaponCasterDamagePrefix",
+          "Staves_lightning/Essence_WeaponCasterDamagePrefix",
+          "Staves_physical/Essence_WeaponCasterDamagePrefix",
+          "Wands/Essence_WeaponCasterDamagePrefix",
+          "Wands_chaos/Essence_WeaponCasterDamagePrefix",
+          "Wands_cold/Essence_WeaponCasterDamagePrefix",
+          "Wands_fire/Essence_WeaponCasterDamagePrefix",
+          "Wands_lightning/Essence_WeaponCasterDamagePrefix",
+          "Wands_physical/Essence_WeaponCasterDamagePrefix"
         ],
         "PERFECT": [
           "Staves/PerfectEssence_IncreaseSocketedGemLevel",
-          "Wands/PerfectEssence_IncreaseSocketedGemLevel"
+          "Staves_chaos/PerfectEssence_IncreaseSocketedGemLevel",
+          "Staves_cold/PerfectEssence_IncreaseSocketedGemLevel",
+          "Staves_fire/PerfectEssence_IncreaseSocketedGemLevel",
+          "Staves_lightning/PerfectEssence_IncreaseSocketedGemLevel",
+          "Staves_physical/PerfectEssence_IncreaseSocketedGemLevel",
+          "Wands/PerfectEssence_IncreaseSocketedGemLevel",
+          "Wands_chaos/PerfectEssence_IncreaseSocketedGemLevel",
+          "Wands_cold/PerfectEssence_IncreaseSocketedGemLevel",
+          "Wands_fire/PerfectEssence_IncreaseSocketedGemLevel",
+          "Wands_lightning/PerfectEssence_IncreaseSocketedGemLevel",
+          "Wands_physical/PerfectEssence_IncreaseSocketedGemLevel"
         ]
       }
     },
@@ -1187,8 +1347,18 @@
           "Shields_str_int/PerfectEssence_LocalRunicWardPercent",
           "Spears/PerfectEssence_SoulCore",
           "Staves/PerfectEssence_SoulCore",
+          "Staves_chaos/PerfectEssence_SoulCore",
+          "Staves_cold/PerfectEssence_SoulCore",
+          "Staves_fire/PerfectEssence_SoulCore",
+          "Staves_lightning/PerfectEssence_SoulCore",
+          "Staves_physical/PerfectEssence_SoulCore",
           "TwoHand_Maces/PerfectEssence_SoulCore",
-          "Wands/PerfectEssence_SoulCore"
+          "Wands/PerfectEssence_SoulCore",
+          "Wands_chaos/PerfectEssence_SoulCore",
+          "Wands_cold/PerfectEssence_SoulCore",
+          "Wands_fire/PerfectEssence_SoulCore",
+          "Wands_lightning/PerfectEssence_SoulCore",
+          "Wands_physical/PerfectEssence_SoulCore"
         ]
       }
     },
@@ -1377,8 +1547,18 @@
           "Shields_str_int/PerfectEssence_EssenceAbyss",
           "Spears/PerfectEssence_EssenceAbyss",
           "Staves/PerfectEssence_EssenceAbyss",
+          "Staves_chaos/PerfectEssence_EssenceAbyss",
+          "Staves_cold/PerfectEssence_EssenceAbyss",
+          "Staves_fire/PerfectEssence_EssenceAbyss",
+          "Staves_lightning/PerfectEssence_EssenceAbyss",
+          "Staves_physical/PerfectEssence_EssenceAbyss",
           "TwoHand_Maces/PerfectEssence_EssenceAbyss",
-          "Wands/PerfectEssence_EssenceAbyss"
+          "Wands/PerfectEssence_EssenceAbyss",
+          "Wands_chaos/PerfectEssence_EssenceAbyss",
+          "Wands_cold/PerfectEssence_EssenceAbyss",
+          "Wands_fire/PerfectEssence_EssenceAbyss",
+          "Wands_lightning/PerfectEssence_EssenceAbyss",
+          "Wands_physical/PerfectEssence_EssenceAbyss"
         ]
       }
     },
@@ -1718,7 +1898,17 @@
           "Crossbows/PerfectEssence_AdditionalBallistaTotem",
           "Sceptres/PerfectEssence_MaximumPuppeteerStacks",
           "Staves/PerfectEssence_ChanceToGainNaturesArchon",
-          "Wands/PerfectEssence_ElementalSkillLimit"
+          "Staves_chaos/PerfectEssence_ChanceToGainNaturesArchon",
+          "Staves_cold/PerfectEssence_ChanceToGainNaturesArchon",
+          "Staves_fire/PerfectEssence_ChanceToGainNaturesArchon",
+          "Staves_lightning/PerfectEssence_ChanceToGainNaturesArchon",
+          "Staves_physical/PerfectEssence_ChanceToGainNaturesArchon",
+          "Wands/PerfectEssence_ElementalSkillLimit",
+          "Wands_chaos/PerfectEssence_ElementalSkillLimit",
+          "Wands_cold/PerfectEssence_ElementalSkillLimit",
+          "Wands_fire/PerfectEssence_ElementalSkillLimit",
+          "Wands_lightning/PerfectEssence_ElementalSkillLimit",
+          "Wands_physical/PerfectEssence_ElementalSkillLimit"
         ]
       }
     },
@@ -1750,8 +1940,18 @@
           "Quarterstaves/PerfectEssence_Strength",
           "Spears/PerfectEssence_Strength",
           "Staves/PerfectEssence_IncreasedCastSpeed",
+          "Staves_chaos/PerfectEssence_IncreasedCastSpeed",
+          "Staves_cold/PerfectEssence_IncreasedCastSpeed",
+          "Staves_fire/PerfectEssence_IncreasedCastSpeed",
+          "Staves_lightning/PerfectEssence_IncreasedCastSpeed",
+          "Staves_physical/PerfectEssence_IncreasedCastSpeed",
           "TwoHand_Maces/PerfectEssence_Strength",
-          "Wands/PerfectEssence_IncreasedCastSpeed"
+          "Wands/PerfectEssence_IncreasedCastSpeed",
+          "Wands_chaos/PerfectEssence_IncreasedCastSpeed",
+          "Wands_cold/PerfectEssence_IncreasedCastSpeed",
+          "Wands_fire/PerfectEssence_IncreasedCastSpeed",
+          "Wands_lightning/PerfectEssence_IncreasedCastSpeed",
+          "Wands_physical/PerfectEssence_IncreasedCastSpeed"
         ]
       }
     }

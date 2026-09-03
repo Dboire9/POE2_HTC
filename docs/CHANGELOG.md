@@ -20,6 +20,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the row is refused while a carved mod is on it; and the boss omens work on a **Weapon or Jewellery**
   only, so on armour the row says why instead of vanishing.
 
+### Added
+
+- **Wand and staff bases are split by spell element** (42 bases → 52). Reported as *"a cold wand base
+  can only roll +x to cold spell skills, and not fire"* — true, and the dump says so outright: a base
+  carries `no_fire_spell_mods` and friends, and every mod they gate lists that tag at weight 0. The
+  refresh had deliberately skipped those variants, so the app shipped the unrestricted **Attuned Wand**
+  as "Wands" — right for 9 of 18 wand bases, wrong for the other 7. Pick your base in the **Variant**
+  menu: `Cold only · Frigid Wand`, `Chaos only · Primordial Wand, Withered Wand`, and so on, named by
+  the base you actually own. Only Wands and Staves are affected; Quarterstaves' `ezomyte`/`maraketh`
+  cultural variants gate no mod at all and stay collapsed.
+- The correction is not just the missing rows. Gated mods stayed in the **denominator**, so the app
+  understated the odds of every mod that *is* legal: one Exalt landing `+X to Level of all Cold Spell
+  Skills` goes **2.273% → 3.030%**, and a 3-target cold craft **0.0072% → 0.0146% per run (2.03×)**,
+  with two plans on the frontier where there had been one. The old error ran conservative, which made
+  exactly the bases a cold or fire caster would buy look worse than they are.
+- **The base picker names real game bases.** `listBases` had always thrown the data's name away and
+  synthesised one from the id; it now prefers the data's when it carries more, which is what lets a row
+  say `Frigid Wand` rather than `Wands cold`. Developer placeholder bases (`[DNT…]`) are filtered out.
+
 ### Fixed
 
 - **115 mods labelled themselves with their WORST roll.** Reported by a player wanting `+5 to Level of

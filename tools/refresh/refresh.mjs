@@ -33,6 +33,9 @@ const load = (dir, f) => JSON.parse(readFileSync(join(dir, f), 'utf8'));
 const repoeMods = load(REPOE_DIR, 'repoe_mods.json');
 const repoeByBase = load(REPOE_DIR, 'repoe_mods_by_base.json');
 const baseline = load(BASELINE_DIR, 'base_items.json');
+// Only for DISPLAY names on the spell-element variants below — a player matches their stash by the
+// base's real name ("Frigid Wand"), never by a tag set.
+const repoeBaseItems = load(REPOE_DIR, 'repoe_base_items.json');
 
 // --- our base id -> (RePoE item class, required attribute tag) --------------------------------
 // Class comes from the base's category; the attribute tag (for armour/shields) from the id suffix.
@@ -197,6 +200,89 @@ for (const base of [...baseline.items, ...EXTRA_BASES]) {
     }
   }
   items.push({ id: base.id, name: base.name, category: base.category, class: cls, pools });
+}
+
+// --- spell-element base variants (Wands, Staves) ------------------------------------------------
+//
+// A wand or staff base can be locked to ONE spell element, and the dump says so outright: the base
+// carries negative tags (`no_fire_spell_mods`, …) and every mod they gate lists that tag at weight 0.
+// A Frigid Wand rolls cold spell mods and no others; an Attuned Wand rolls all five.
+//
+// `pickVariant` deliberately skips these — `isSpecializer` matches `/^no_.*_spell_mods$/` — so every
+// class collapsed to its unrestricted variant, and the app shipped the Attuned Wand as "Wands". That
+// is right for 9 of 18 wand bases and wrong for the other 7, in two ways: it OFFERS mods the base can
+// never roll, and, because the gated mods stay in the denominator, it understates the odds of every
+// mod that IS legal — 1.33x on the prefix side of a single-element wand at ilvl 82, compounding over
+// a multi-step craft.
+//
+// This is the same rule the belt note above applies, with the opposite answer. Belts ship as ONE base
+// because all 20 pools are byte-identical; the armour slots carry several because the Str/Dex/Int
+// split genuinely changes the pool. Here it genuinely changes the pool, so here they split.
+//
+// Three things make this cheap, and all three were measured rather than assumed:
+//
+//  1. **No new mods.** A variant's pool is a SUBSET of its parent's groups, and every group they share
+//     resolves to the same weight (checked across all 10 variants: 118-123 shared mods each, zero
+//     differing, zero gated-to-0 — the variant's own `mods` list is already the restricted pool). So a
+//     variant reuses the parent's `Wands/<group>` ids and `mods.json` does not grow by one entry.
+//  2. **The downstream stages need no map entry.** `apply_weights` and `apply_pools` resolve a poe2db
+//     page from `base.category`, not `base.id`, for everything outside `ARMOUR_CATS` — so a variant
+//     keeping `category: 'Wands'` reads the same page as its parent. This is the three-map trap the
+//     belt note warns about, sidestepped by varying only the id.
+//  3. **Share links keep working.** The parent keeps the id `Wands`, so a link encoding it still
+//     resolves, and still means what it meant: the unrestricted base.
+//
+// What is NOT modelled, and is not asserted either way: whether the desecrated and essence pools are
+// element-gated too. Those come from poe2db's class page, and nothing in the RePoE dump gates a
+// non-normal mod with these tags — so a variant inherits its parent's carved pool. See docs/validation.md.
+const SPELL_ELEMENTS = ['fire', 'cold', 'lightning', 'physical', 'chaos'];
+const blockedElements = (sig) => sig.split(',')
+  .map((t) => /^no_(.+)_spell_mods$/.exec(t)?.[1])
+  .filter((e) => e !== undefined);
+
+/**
+ * Display names of the real game bases behind a RePoE variant, e.g. ["Frigid Wand"].
+ *
+ * `[DNT…]` marks a name the game itself says Do Not Translate — a developer placeholder, not something
+ * a player can own. Two of them sit in the unrestricted staff variant and would have been offered as
+ * the answer to "which staff is this row?".
+ */
+const baseNamesOf = (variant) => [...new Set((variant.bases || [])
+  .map((path) => repoeBaseItems[path]?.name)
+  .filter((n) => n && !/^\[DNT/i.test(n)))].sort();
+
+for (const parent of [...items]) {
+  const variants = repoeByBase[parent.class];
+  if (!variants) continue;
+  const restricted = Object.entries(variants).filter(([sig]) =>
+    blockedElements(sig).length > 0 && !sig.split(',').some((t) => SPECIALIZER.has(t)));
+  if (restricted.length === 0) continue;
+
+  // The parent is the unrestricted base, and it has real names too — a player holding a Siphoning Wand
+  // needs to be told that is the "any element" row, or the split has only moved the guesswork.
+  const parentNames = baseNamesOf(variants[
+    Object.keys(variants).find((sig) => blockedElements(sig).length === 0 && !sig.split(',').some((t) => SPECIALIZER.has(t)))
+  ] || {});
+  if (parentNames.length > 0) parent.name = parentNames.join(', ');
+
+  for (const [sig, v] of restricted) {
+    const allowed = SPELL_ELEMENTS.filter((e) => !blockedElements(sig).includes(e));
+    // Every shipped variant blocks four of the five. More than one left would mean a pool shape this
+    // id scheme cannot name, so say so rather than inventing a name for it.
+    if (allowed.length !== 1) { warn(`${parent.id}: variant [${sig}] allows ${allowed.length} elements, skipped`); continue; }
+    const element = allowed[0];
+    const id = `${parent.id}_${element}`;
+    if (items.some((b) => b.id === id)) { warn(`duplicate spell variant ${id}`); continue; }
+    const names = baseNamesOf(v);
+    const pools = { normal: { prefixes: [], suffixes: [] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } };
+    for (const [type, key] of [['prefix', 'prefixes'], ['suffix', 'suffixes']]) {
+      const groups = new Set(Object.keys(v.mods?.[type] || {}));
+      // The parent's ids are `${parent.id}/${group}`, so the group is what follows the first slash.
+      pools.normal[key] = parent.pools.normal[key].filter((mid) => groups.has(mid.slice(parent.id.length + 1)));
+    }
+    items.push({ id, name: names.join(', ') || id, category: parent.category, class: parent.class, pools });
+    mapping.push(`${id.padEnd(24)} -> ${parent.class} :: [${sig}]  (${element} only: ${names.join(', ')})`);
+  }
 }
 
 // --- emit --------------------------------------------------------------------------------------

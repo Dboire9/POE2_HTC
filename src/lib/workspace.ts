@@ -66,10 +66,16 @@ export function defaultWorkspace(): Workspace {
 }
 
 // ── Wire format ───────────────────────────────────────────────────────────────
-// Short keys and, crucially, mod ids with their `<baseId>/` prefix stripped: every id in a base's pool
-// starts with it (verified across all 1297), so carrying it would roughly double the payload for no
-// information. `v` is a format version, so a future change is REJECTED rather than mis-parsed into a
-// workspace that looks plausible and isn't.
+// Short keys and, crucially, mod ids with their `<baseId>/` prefix stripped, since carrying it would
+// roughly double the payload for no information. `v` is a format version, so a future change is
+// REJECTED rather than mis-parsed into a workspace that looks plausible and isn't.
+//
+// It used to say every id in a base's pool starts with that prefix, verified across all 1297. That
+// stopped being true with the spell-element wand and staff variants (2026-09-03): `Wands_cold` reuses
+// its parent's `Wands/…` ids, so nothing is stripped and those links carry the full id. The round trip
+// is still exact — `strip` only shortens on a match, and `restore` returns any short form already
+// containing a slash unchanged — but it is exact by construction rather than by that invariant, and
+// `spellBases.test.ts` pins it so a "simplification" of either half cannot break sharing silently.
 
 /**
  * The format a workspace is WRITTEN as. Not a constant, because two are current at once.

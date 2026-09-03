@@ -163,7 +163,14 @@ export function whyNotAdd(
   const clash = modFamilies(mod).find((f) => taken.has(f));
   if (clash !== undefined) return `Family “${clash}” is already on the item — one mod per family`;
 
-  const isEssence = (m: EngineMod | undefined): boolean => m?.source === 'essence' || m?.source === 'perfect';
+  // `'alloy'` is here deliberately, and it is the one place adding that source could have changed a
+  // RULE rather than a label. An Alloy is a Perfect Essence by mechanic — the engine's source for both
+  // is `perfect_essence`, and `isEssenceMod` counts them together — so leaving it out would have let a
+  // player ask for two essence modifiers on one item, a rule change smuggled in as a rename.
+  // Whether the cap really covers Alloys is UNTRACED; keeping today's behaviour is the conservative
+  // reading, and `whyNotAdd` is where that choice is written down rather than left to drift.
+  const isEssence = (m: EngineMod | undefined): boolean =>
+    m?.source === 'essence' || m?.source === 'perfect' || m?.source === 'alloy';
   if (isEssence(mod) && targets.some((t) => isEssence(modById.get(t.modId)))) {
     return 'An item can hold one essence modifier — regular or perfect, not both';
   }

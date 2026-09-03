@@ -88,6 +88,7 @@ const ModColumn: React.FC<ModColumnProps> = ({
       {list.map((m) => {
         const isEssence = m.source === 'essence';
         const isPerfect = m.source === 'perfect';
+        const isAlloy = m.source === 'alloy';
         const reason = blockFor(m) ?? '';
         const disabled = reason !== '';
         const tier = pickTier[m.id] ?? 1;
@@ -103,6 +104,7 @@ const ModColumn: React.FC<ModColumnProps> = ({
             <span className="flex-1 min-w-0 truncate text-sm">{m.text}</span>
             {isEssence && <span className="shrink-0 rounded bg-purple-500/15 px-1 text-[10px] text-purple-600 dark:text-purple-300">ess</span>}
             {isPerfect && <span className="shrink-0 rounded bg-fuchsia-500/15 px-1 text-[10px] text-fuchsia-600 dark:text-fuchsia-300">perf</span>}
+            {isAlloy && <span className="shrink-0 rounded bg-amber-500/15 px-1 text-[10px] text-amber-600 dark:text-amber-300">alloy</span>}
             {m.source === 'desecrated' && <span className="shrink-0 rounded bg-rose-500/15 px-1 text-[10px] text-rose-600 dark:text-rose-300">desec</span>}
             {reasonId && <span id={reasonId} className="sr-only">{reason}</span>}
             <select

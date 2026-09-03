@@ -40,6 +40,7 @@ export function shipModsFile(file: ModsFile): ModsFile {
       // serialize the key away anyway while making the object shape differ from the input's.
       ...(m.families ? { families: m.families } : {}),
       tags: m.tags,
+      ...(m.alloy ? { alloy: true } : {}),
       text: m.text,
       tiers: m.tiers.map((t): Tier => ({ name: t.name, ilvl: t.ilvl, weight: t.weight, ranges: t.ranges })),
     })),

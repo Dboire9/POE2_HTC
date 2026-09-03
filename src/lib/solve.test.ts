@@ -67,10 +67,18 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
    * 1,015 of 1,041 policy states choosing to start over — so a player for whom bases are NOT free was
    * getting advice built on someone else's economy. Two assertions, because the cost alone could move
    * for any number of reasons: the price has to reach the model AND change what it does.
+   *
+   * FROZEN prices, for the same reason the policy-iteration block below uses them: the claim is about
+   * the SOLVER — that `restartCost` reaches the model and changes the policy — not about this week's
+   * market. The second assertion counts "Start over" nodes in the returned graph, and that graph is
+   * the visit-ranked closure, so its SHAPE moves with the sheet even when the model's behaviour has
+   * not. A live refresh flipped the count 6/26 the wrong way on 2026-09-03 with no code change behind
+   * it; the same run passed against the previous sheet.
    */
   it('charges the base price the player set, and stops binning items when it bites', () => {
+    const frozenEng = { data: eng.data, prices: loadFrozenPrices() };
     const solveAt = (baseCost?: number) => {
-      const got = runSolve(eng, {
+      const got = runSolve(frozenEng, {
         kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets,
         ...(baseCost === undefined ? {} : { baseCost }),
       });

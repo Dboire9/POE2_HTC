@@ -382,13 +382,19 @@ describe('engine facade — essence targeting on the shipped 0.5.0 data', () => 
 describe('engine facade — perfect essences in the from-item planner (0.5.0)', () => {
   const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
 
-  it('listPerfectEssences surfaces perfect-essence mods (source "perfect", single tier)', () => {
+  it('surfaces both currencies that use this flow, each single-tier', () => {
     const perfects = listPerfectEssences(eng050.data, 'Wands');
     expect(perfects.length).toBeGreaterThan(0);
-    expect(perfects.every((m) => m.source === 'perfect' && m.tiers.length === 1)).toBe(true);
-    // they must NOT leak into the from-white picker (listMods stays normal + regular essence).
+    // TWO sources, because two currencies share this mechanic: a Perfect Essence and an ALLOY, which
+    // poe2db files in the same pool (`Removes: true` on both). They are one thing to the planner and
+    // two to a player — different names, and prices that differ by three orders of magnitude — so the
+    // list carries the distinction while the flow does not.
+    expect(perfects.every((m) => (m.source === 'perfect' || m.source === 'alloy') && m.tiers.length === 1)).toBe(true);
+    expect(perfects.some((m) => m.source === 'alloy')).toBe(true);
+    expect(perfects.some((m) => m.source === 'perfect')).toBe(true);
+    // Neither may leak into the from-white picker (listMods stays normal + regular essence).
     const white = listMods(eng050.data, 'Wands');
-    expect([...white.prefixes, ...white.suffixes].some((m) => m.source === 'perfect')).toBe(false);
+    expect([...white.prefixes, ...white.suffixes].some((m) => m.source === 'perfect' || m.source === 'alloy')).toBe(false);
   });
 
   it('reaches a perfect-essence target by sacrificing a junk mod (perfect-essence step)', () => {

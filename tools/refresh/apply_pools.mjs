@@ -272,13 +272,27 @@ for (const base of basesFile.items) {
     const dedup = `${family}:${cleanText(row.text)}`;
     if (perfectSeen.has(dedup)) continue; // same perfect outcome duplicated (attribute variants / both slots)
     perfectSeen.add(dedup);
-    const essence = essenceNameOf(hrefOf(row.name)) || family;
+    // poe2db files ALLOYS in this same array — a Runes of Aldur currency, flagged `IsAlloy: true` and
+    // `IsPerfect: "0"` in the raw row, whose outcomes sit beside the Perfect Essences because it shares
+    // their mechanic (`Removes: true` on both, against `false` on the 1,676 regular-essence rows).
+    // The NAME is not shared: this line used to prepend "Perfect Essence of" unconditionally, so
+    // `href="Runic_Alloy"` became "Perfect Essence of Runic Alloy" — a string that appears nowhere in
+    // poe2db and nowhere in the game. The href already tells the two apart, and does it without
+    // teaching the parser to carry a field for one consumer: a real perfect essence is
+    // `Perfect_Essence_of_Enhancement`, an Alloy is `Runic_Alloy`, and `essenceNameOf` strips the
+    // "Essence of" wrapper when there is one to strip.
+    const slugName = hrefOf(row.name);
+    const isEssenceOf = /^(?:Lesser_|Greater_|Perfect_)?Essence_of_/.test(slugName || '');
+    const essence = essenceNameOf(slugName) || family;
     const id = uniqueId(`PerfectEssence_${family}`);
     const mod = {
       id, group: `PerfectEssence_${family}`, field: `PerfectEssence_${family}`, source: 'perfect_essence', type: row.type,
       categories: [], family, tags: [],
+      // Carried so the UI can LABEL an Alloy as one. Deliberately not a different `source`: the source
+      // is what decides the mechanic, and the mechanic is genuinely the perfect-essence one.
+      ...(isEssenceOf ? {} : { alloy: true }),
       text: cleanText(row.text),
-      tiers: [{ name: `Perfect Essence of ${essence}`, ilvl: row.ilvl ?? 0, weight: 0, ranges: parseRanges(row.text), stats: [] }],
+      tiers: [{ name: isEssenceOf ? `Perfect Essence of ${essence}` : essence, ilvl: row.ilvl ?? 0, weight: 0, ranges: parseRanges(row.text), stats: [] }],
     };
     modsById.set(id, mod); modsFile.mods.push(mod);
     base.pools.essence[row.type === 'prefix' ? 'prefixes' : 'suffixes'].push(id);

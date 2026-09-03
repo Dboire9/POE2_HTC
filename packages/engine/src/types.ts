@@ -37,6 +37,15 @@ export interface Mod {
   readonly families?: readonly string[];
   /** Desecration boss pools are selected by tag (`DES_BOSS_TAG`, probability.ts) — solver data. */
   readonly tags: readonly string[];
+  /**
+   * This mod comes from an ALLOY, a Runes of Aldur currency, rather than from a Perfect Essence.
+   *
+   * Present only on `source: 'perfect_essence'` mods, and it changes nothing the solver does — the two
+   * share a mechanic (poe2db marks both `Removes: true`), which is why they share a source. It exists
+   * so the UI can name the currency correctly: an Alloy is "Sovereign Alloy", not "Perfect Essence of
+   * Sovereign Alloy", and it is priced from an entirely different poe.ninja feed.
+   */
+  readonly alloy?: boolean;
   readonly text: string | null;
   /** Ascending by ilvl: tiers[0] = lowest ilvl (worst), tiers[last] = highest ilvl (best). */
   readonly tiers: readonly Tier[];

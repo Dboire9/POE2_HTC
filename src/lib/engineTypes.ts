@@ -41,7 +41,12 @@ export interface EngineMod {
    * 'perfect' = a perfect-essence mod (added on a Rare by a Perfect Essence, which removes one random mod);
    * 'desecrated' = a mod from the base's desecrated pool — occupies a slot/family and is the sole
    * target an Omen of Light annul can remove for certain. */
-  readonly source: 'normal' | 'essence' | 'perfect' | 'desecrated';
+  /**
+   * Where the mod can come from. `'alloy'` is a Perfect Essence by MECHANIC — the engine's own source
+   * stays `perfect_essence` and every planner treats the two identically — and a different currency by
+   * NAME and PRICE, which is all this distinction is for.
+   */
+  readonly source: 'normal' | 'essence' | 'perfect' | 'alloy' | 'desecrated';
   /** Tiers best-first (T1 … Tn); for essence mods these are the Greater→Lesser essence levels. */
   readonly tiers: readonly EngineTier[];
 }

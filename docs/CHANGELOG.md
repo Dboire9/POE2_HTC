@@ -20,6 +20,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the row is refused while a carved mod is on it; and the boss omens work on a **Weapon or Jewellery**
   only, so on armour the row says why instead of vanishing.
 
+### Fixed
+
+- **Alloys are named and priced properly.** The 13 Runes of Aldur Alloys were already modelled — poe2db
+  files them beside the Perfect Essences because they share a mechanic — but under a name the pipeline
+  invented (*"Perfect Essence of Sovereign Alloy"*; the game says **Sovereign Alloy**) and a price
+  nobody set. All 272 of their mods carried one fabricated value, `4.331 ex`, the generic
+  perfect-essence median, because the price lookup asked poe.ninja for `perfect-essence-of-…` and the
+  Alloys are served under bare names from a feed the refresh never fetched. Now fetched from
+  **`type=Verisium`**: 272 of 272 priced, **13 distinct prices from 3.63 to 2,261 ex**. Celestial Alloy
+  was being charged **1/522nd** of what it costs — and the optimizer ranks plans by cost, so that did
+  not just understate a total, it made Alloy routes look like the bargain of the frontier.
+- Alloys are labelled `· Alloy` rather than `· Perfect Essence` in both pickers, and the entries the
+  price sheet has to infer rather than observe **fell from 58 to 41**. The `source` line shown under
+  every cost also stopped claiming omens are hand-transcribed "(no API serves them)" — they have come
+  from the Ritual feed since 2026-09-02.
+
 ### Added
 
 - **Wand and staff bases are split by spell element** (42 bases → 52). Reported as *"a cold wand base

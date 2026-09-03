@@ -777,6 +777,7 @@ const ItemActions: React.FC = () => {
                       <span className="flex-1 min-w-40 text-sm">{modTextAtTier(mod, t.tierDisplay)}</span>
                       {mod.source === 'desecrated' && <span className="text-[10px] rounded bg-rose-500/15 px-1 text-rose-600 dark:text-rose-300">desecrated</span>}
                       {mod.source === 'perfect' && <span className="text-[10px] rounded bg-purple-500/15 px-1 text-purple-600 dark:text-purple-300">perfect essence</span>}
+                      {mod.source === 'alloy' && <span className="text-[10px] rounded bg-amber-500/15 px-1 text-amber-600 dark:text-amber-300">alloy</span>}
                       {state === 'have' && (
                         <span
                           className="shrink-0 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300"

@@ -65,6 +65,10 @@ function essenceTierLabel(name: string, ilvl: number, range: string): string {
 export function modSourceLabel(source: EngineMod['source']): string {
   switch (source) {
     case 'perfect': return ' · Perfect Essence';
+    // An Alloy shares the Perfect Essence's mechanic and nothing else a player would recognise: it is
+    // its own currency, with its own name and its own market (3.6 ex to 2,261 ex, against the flat
+    // 4.331 every one of them used to be charged).
+    case 'alloy': return ' · Alloy';
     case 'essence': return ' · Essence only';
     case 'desecrated': return ' · Desecrated';
     case 'normal': return '';

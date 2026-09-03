@@ -146,9 +146,42 @@ const OMEN_KEYS = [
 ];
 
 
+/** A name as poe.ninja slugs it: "The Runebinders Alloy" → the-runebinders-alloy. */
+const nameSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
 /** poe.ninja's id for an essence: "Essence of the Body" at Greater → greater-essence-of-the-body. */
-const essenceId = (name, level) =>
-  `${ESSENCE_PREFIX[level]}essence-of-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
+const essenceId = (name, level) => `${ESSENCE_PREFIX[level]}essence-of-${nameSlug(name)}`;
+
+/**
+ * Verisium-feed lines re-keyed to the ids `priceEssences` looks up.
+ *
+ * ALLOYS are a Runes of Aldur currency that poe2db files beside the Perfect Essences because they
+ * share a mechanic, so `apply_pools.mjs` gives them a PERFECT level in `essences.json` and every craft
+ * charges them through `essence:perfect:<modId>`. Their PRICE is not shared: poe.ninja serves them
+ * from `type=Verisium` under bare-name ids (`celestial-alloy`), while `essenceId` asks for
+ * `perfect-essence-of-celestial-alloy`. That mismatch is why all 272 Alloy mods carried one fabricated
+ * price — the level median, 4.331 ex — while the real spread is 3.6 ex to 2,260 ex. A Celestial Alloy
+ * craft was costed at 1/522nd of what it takes, and the optimizer RANKS by cost.
+ *
+ * Re-keying here rather than teaching `essenceId` about Alloys keeps one id function: the lookup and
+ * the re-key read the same `nameSlug`, so they cannot drift. A line is taken ONLY when it maps onto an
+ * essence we actually ship, which is what keeps the feed's other 11 lines (`liquid-verisium`, the
+ * starlit ores, the crests — league material this app does not model) out by construction rather than
+ * by a list of names to skip.
+ */
+function alloyPriceLines(essencesFile, lines) {
+  const wanted = new Map(); // feed id -> the id priceEssences will ask for
+  for (const e of essencesFile.essences) {
+    if (!e.tiers?.PERFECT?.length) continue;
+    wanted.set(nameSlug(e.name), essenceId(e.name, 'PERFECT'));
+  }
+  const out = [];
+  for (const l of lines) {
+    const id = wanted.get(String(l.id));
+    if (id !== undefined) out.push({ ...l, id });
+  }
+  return out;
+}
 
 const median = (xs) => {
   const s = [...xs].sort((a, b) => a - b);
@@ -177,7 +210,7 @@ const median = (xs) => {
  * why routing untraded quotes here is better than either trusting them or blocking the refresh: the
  * honesty machinery already exists and this simply feeds it the truth.
  */
-function priceEssences(essencesFile, lines, exalt) {
+function priceEssences(essencesFile, lines, exalt, alloyIds = new Set()) {
   const unitsOf = (l) => (l.primaryValue ? (l.volumePrimaryValue ?? 0) / l.primaryValue : 0);
   const untraded = lines.filter((l) => unitsOf(l) < DEPTH.minEssenceUnits);
   const live = new Map(lines.filter((l) => unitsOf(l) >= DEPTH.minEssenceUnits)
@@ -186,10 +219,17 @@ function priceEssences(essencesFile, lines, exalt) {
   const byLevel = new Map();     // level -> [price…] across essences
   for (const e of essencesFile.essences) {
     for (const level of Object.keys(ESSENCE_PREFIX)) {
-      const v = live.get(essenceId(e.name, level));
+      const id = essenceId(e.name, level);
+      const v = live.get(id);
       if (v === undefined) continue;
       if (!byEssence.has(e.name)) byEssence.set(e.name, []);
       byEssence.get(e.name).push(v);
+      // An ALLOY is priced exactly and never needs a fallback, so the only question is whether it
+      // should SHAPE one — and it should not. `byLevel`'s median becomes the flat `perfect_essence`
+      // key, which is what an unknown Perfect Essence is charged, and an Alloy is not one: they are a
+      // separate currency off a separate feed, spanning 3.6 to 2,260 ex against the essences' own
+      // spread. Letting them in would drag the fallback for every essence that genuinely needs it.
+      if (alloyIds.has(id)) continue;
       if (!byLevel.has(level)) byLevel.set(level, []);
       byLevel.get(level).push(v);
     }
@@ -368,7 +408,15 @@ async function main() {
   // ── Essences: one price per ESSENCE, not per level ──
   const essFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Essences`);
   const essencesFile = JSON.parse(readFileSync(join(ROOT, `data/patches/${PATCH}/essences.json`), 'utf8'));
-  const { prices: essencePrices, inferred, untraded } = priceEssences(essencesFile, essFeed.lines, exalt);
+  // ALLOYS ride in on the same call, from their own feed. `type=Verisium` is a real endpoint, not a
+  // guess: an invalid `type` returns byte-identical output to a valid one (see the omens note above),
+  // and `Verisium` differs from that baseline while `Alloys`, `Alloy` and `Expedition2` do not.
+  const verFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Verisium`);
+  const alloyLines = alloyPriceLines(essencesFile, verFeed.lines);
+  const alloyIds = new Set(alloyLines.map((l) => l.id));
+  console.log(`  alloys: ${alloyLines.length} of ${verFeed.lines.length} Verisium lines matched an essence we ship`);
+  const { prices: essencePrices, inferred, untraded } =
+    priceEssences(essencesFile, [...essFeed.lines, ...alloyLines], exalt, alloyIds);
   // NEVER DELETE A PRICE YOU CANNOT REPLACE. The essence keys are rebuilt wholesale each run, which
   // is right while the feed lists essences and catastrophic the week it does not: `stepCost` reads
   // `prices.currency[key] ?? 0`, so a deleted key is a FREE essence, and a free anything dominates
@@ -493,9 +541,14 @@ async function main() {
     generated: prev.generated,
     updated: new Date().toISOString().slice(0, 10),
     league,
+    // Names every feed this sheet is built from, because `PriceBasisNote` shows it to players. It
+    // claimed omens were "hand-transcribed from the Omens page (no API serves them)" for weeks after
+    // that stopped being true — they come from `type=Ritual`, with the transcription kept only as a
+    // fallback for a quote too thin to trust. Alloys join it now, from `type=Verisium`.
     source: `Live poe.ninja PoE2 economy (${league}), in exalt-equivalents: currency and desecration `
-      + `bones from the API, essences priced individually, omens hand-transcribed from the Omens page `
-      + `(no API serves them) — see tools/refresh/prices.mjs.`,
+      + `bones from the API, essences priced individually, Alloys from the Verisium feed, omens from `
+      + `the Ritual feed (falling back to hand-transcribed quotes where one is too thinly traded) `
+      + `— see tools/refresh/prices.mjs.`,
     estimated: inferred.length > 0,
     ...(inferred.length > 0
       ? { caveat: `All prices are live market data, except ${inferred.length} essence variant${inferred.length === 1 ? '' : 's'} nobody is currently trading — those are inferred from the same essence's other levels.` }

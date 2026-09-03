@@ -159,7 +159,7 @@ export function listPerfectEssences(data: PatchData, baseId: string): EngineMod[
       return [{
         id: mod.id, text: mod.text ?? mod.id, type, family: mod.family,
         ...(mod.families && mod.families.length > 1 ? { families: mod.families } : {}),
-        source: 'perfect',
+        source: mod.alloy === true ? 'alloy' : 'perfect',
         tiers: [{ display: 1, name: t.name, ilvl: t.ilvl, label: `${t.name} · ilvl ${t.ilvl}${range ? ` · ${range}` : ''}`, range, values }],
       }];
     });

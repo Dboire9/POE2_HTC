@@ -3342,6 +3342,79 @@ ids, so nothing is stripped and those links carry the full id. The round trip is
 only shortens on a match and `restore` passes through any short form containing a slash — but exact by
 construction rather than by that invariant, and `spellBases.test.ts` pins it.
 
+## Alloys were named by us and priced by nobody (2026-09-03)
+
+Asked what Alloys are and whether the app sees them. It does — all 13, live, and on a Wand **8 of 11**
+perfect-essence targets are Alloys — but under a name we invented and a price we made up.
+
+**What they are, traced.** RePoE: `StackableCurrency`, ids `CurrencyVerisiumAlloy1..13`, tagged
+`verisium_common` / `uncommon` / `rare` / `mythic`, named plainly (`Runic Alloy`, `Sovereign Alloy`).
+poe2db files their outcomes in the same `perfect_essence` array `poe2db.mjs` already reads, flagged
+`"IsAlloy": true`, `"IsPerfect": "0"`, `"Removes": true`. They appear on **42 of 42** item-class pages
+and grant league stats — Runic Ward, elemental penetration, ballista limit, chain chance.
+
+**The mechanic was already right, and that is why it did not change.** Every alloy row is
+`Removes: true`, exactly as the 84 true Perfect Essence rows are, against `Removes: false` on the 1,676
+regular-essence rows. Remove-one-random + add-this-guaranteed is what poe2db asserts for both, so the
+engine source stays `perfect_essence` for both and every planner is untouched.
+
+**Defect 1 — the name.** `apply_pools.mjs` prepended `Perfect Essence of ` to every row in that pool,
+so `href="Runic_Alloy"` became *"Perfect Essence of Runic Alloy"* — a string in neither poe2db nor the
+game. Fixed by asking whether the href was an "Essence of" anything at all, which needs no new field
+on the parser's contract.
+
+**Defect 2 — the price, and it was the serious one.** `essenceId` asked poe.ninja for
+`perfect-essence-of-runic-alloy`, matching nothing, so `priceEssences` fell through
+`exact ?? median(this essence's other levels) ?? median(the level)`. Alloys have ONLY a PERFECT level,
+so the middle rung is always empty and all 272 landed on the global median.
+
+The feed exists and was never fetched: **`type=Verisium`**, 24 lines, all 13 Alloys under bare-name
+ids. Confirmed a real endpoint by the repo's own test — an invalid `type` returns byte-identical
+output, and `Verisium` differs from that baseline while `Alloys`, `Alloy` and `Expedition2` do not.
+
+| | before | after |
+|---|---|---|
+| Alloy mods priced | 192 of 272 | **272 of 272** |
+| distinct Alloy prices | **1** (`4.331`) | **13** |
+| range | — | 3.63 – 2,261 ex |
+| entries inferred rather than observed | 58 | **41** |
+
+Worst case: **Celestial Alloy, 2,261 ex, charged as 4.331 — 522x under.** CLAUDE.md: *"the optimizer
+ranks plans BY cost, so a wrong relative price changes the recommendation, not just the total."* That
+did not merely understate a total; it made Alloy routes the bargain of the frontier.
+
+**The `verisium_*` ladder does not predict price** — Adaptive and Protective are tagged `common` and
+trade at 290 and 239 ex, above the `mythic` Transcendent at 38. Do not derive one from the other.
+
+**Three things done deliberately rather than by default:**
+
+1. **Alloys are excluded from the level median.** They never need the fallback, so the only question is
+   whether they should SHAPE it — and `perfect_essence` is what an unknown PERFECT ESSENCE costs. Left
+   in, 13 values spanning 3.6–2,261 ex would drag the fallback for every essence that genuinely needs
+   it.
+2. **Only lines matching an essence we ship are taken**, so the feed's other 11 (`liquid-verisium`, the
+   starlit ores, the crests — league material this app does not model) stay out by construction rather
+   than by a list of names to skip. Logged: `13 of 24 Verisium lines matched`.
+3. **The one-essence-per-item cap still covers Alloys.** `whyNotAdd` tested
+   `source === 'essence' || 'perfect'` — a COMPARISON, so adding `'alloy'` to the union did not make
+   the compiler ask about it. Whether the cap really applies to Alloys is untraced; today's behaviour
+   is the conservative reading and is now pinned by a test rather than left to drift.
+
+**A stale disclosure found on the way.** `prices.json`'s `source` — which `PriceBasisNote` shows to
+players — still said omens were *"hand-transcribed from the Omens page (no API serves them)"*, weeks
+after the Ritual feed was found and wired up. Corrected, and it now names the Verisium feed too.
+
+**A fragile test found on the way.** `solve.test.ts`'s "stops binning items when it bites" counts
+`Start over` nodes in the returned policy graph, which is the visit-ranked closure — its SHAPE moves
+with the price sheet even when the model has not. The live refresh flipped it 6/26 with no code change
+behind it, and the same run passed against the previous sheet. Moved to `loadFrozenPrices()`, the
+precedent already set one block below it in the same file: the claim is about the solver, not the
+market.
+
+**Not asserted:** whether the desecrated pools are element-gated (see the base-split entry), and what
+the 138 poe2db rows that are `Removes: true`, `IsPerfect: 0` and NOT Alloys actually are. Both are
+their own questions.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

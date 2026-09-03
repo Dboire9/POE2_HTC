@@ -4544,10 +4544,11 @@
       "categories": [],
       "family": "EnchantmentHeistArmour",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Explicit Resistance Modifier magnitudes",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -4684,10 +4685,11 @@
       "categories": [],
       "family": "RunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Runic Alloy",
+          "name": "Runic Alloy",
           "ilvl": 13,
           "weight": 0,
           "ranges": [
@@ -7475,10 +7477,11 @@
       "categories": [],
       "family": "EnchantmentHeistArmour",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Explicit Resistance Modifier magnitudes",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -7545,10 +7548,11 @@
       "categories": [],
       "family": "FlaskChargeGeneration",
       "tags": [],
+      "alloy": true,
       "text": "Flasks gain # charges per Second",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -7570,10 +7574,11 @@
       "categories": [],
       "family": "RecoverRunicWardOnCharmUse",
       "tags": [],
+      "alloy": true,
       "text": "Recover # Runic Ward when a Charm is used",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -7620,10 +7625,11 @@
       "categories": [],
       "family": "WardRegenerationRate",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward Regeneration Rate",
       "tiers": [
         {
-          "name": "Perfect Essence of Runic Alloy",
+          "name": "Runic Alloy",
           "ilvl": 13,
           "weight": 0,
           "ranges": [
@@ -11079,10 +11085,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -11154,10 +11161,11 @@
       "categories": [],
       "family": "PresenceRadius",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Presence Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -11204,10 +11212,11 @@
       "categories": [],
       "family": "SlowPotency",
       "tags": [],
+      "alloy": true,
       "text": "#% reduced Slowing Potency of Debuffs on You",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -14386,10 +14395,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -14461,10 +14471,11 @@
       "categories": [],
       "family": "PresenceRadius",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Presence Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -14511,10 +14522,11 @@
       "categories": [],
       "family": "SlowPotency",
       "tags": [],
+      "alloy": true,
       "text": "#% reduced Slowing Potency of Debuffs on You",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -17651,10 +17663,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -17726,10 +17739,11 @@
       "categories": [],
       "family": "PresenceRadius",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Presence Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -17776,10 +17790,11 @@
       "categories": [],
       "family": "SlowPotency",
       "tags": [],
+      "alloy": true,
       "text": "#% reduced Slowing Potency of Debuffs on You",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -21144,10 +21159,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -21219,10 +21235,11 @@
       "categories": [],
       "family": "PresenceRadius",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Presence Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -21269,10 +21286,11 @@
       "categories": [],
       "family": "SlowPotency",
       "tags": [],
+      "alloy": true,
       "text": "#% reduced Slowing Potency of Debuffs on You",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -24724,10 +24742,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -24799,10 +24818,11 @@
       "categories": [],
       "family": "PresenceRadius",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Presence Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -24849,10 +24869,11 @@
       "categories": [],
       "family": "SlowPotency",
       "tags": [],
+      "alloy": true,
       "text": "#% reduced Slowing Potency of Debuffs on You",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -28032,10 +28053,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -28107,10 +28129,11 @@
       "categories": [],
       "family": "PresenceRadius",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Presence Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -28157,10 +28180,11 @@
       "categories": [],
       "family": "SlowPotency",
       "tags": [],
+      "alloy": true,
       "text": "#% reduced Slowing Potency of Debuffs on You",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -31708,10 +31732,11 @@
       "categories": [],
       "family": "BaseSpirit",
       "tags": [],
+      "alloy": true,
       "text": "+# to Spirit",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -31753,10 +31778,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -31798,10 +31824,11 @@
       "categories": [],
       "family": "SkillEffectDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Skill Effect Duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -31843,10 +31870,11 @@
       "categories": [],
       "family": "TemporaryMinionLimit",
       "tags": [],
+      "alloy": true,
       "text": "Temporary Minion Skills have +# to Limit of Minions summoned",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -34906,10 +34934,11 @@
       "categories": [],
       "family": "BaseSpirit",
       "tags": [],
+      "alloy": true,
       "text": "+# to Spirit",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -34951,10 +34980,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -34996,10 +35026,11 @@
       "categories": [],
       "family": "SkillEffectDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Skill Effect Duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -35041,10 +35072,11 @@
       "categories": [],
       "family": "TemporaryMinionLimit",
       "tags": [],
+      "alloy": true,
       "text": "Temporary Minion Skills have +# to Limit of Minions summoned",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -38048,10 +38080,11 @@
       "categories": [],
       "family": "BaseSpirit",
       "tags": [],
+      "alloy": true,
       "text": "+# to Spirit",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -38093,10 +38126,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -38138,10 +38172,11 @@
       "categories": [],
       "family": "SkillEffectDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Skill Effect Duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -38183,10 +38218,11 @@
       "categories": [],
       "family": "TemporaryMinionLimit",
       "tags": [],
+      "alloy": true,
       "text": "Temporary Minion Skills have +# to Limit of Minions summoned",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -41365,10 +41401,11 @@
       "categories": [],
       "family": "BaseSpirit",
       "tags": [],
+      "alloy": true,
       "text": "+# to Spirit",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -41410,10 +41447,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -41455,10 +41493,11 @@
       "categories": [],
       "family": "SkillEffectDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Skill Effect Duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -41500,10 +41539,11 @@
       "categories": [],
       "family": "TemporaryMinionLimit",
       "tags": [],
+      "alloy": true,
       "text": "Temporary Minion Skills have +# to Limit of Minions summoned",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -44755,10 +44795,11 @@
       "categories": [],
       "family": "BaseSpirit",
       "tags": [],
+      "alloy": true,
       "text": "+# to Spirit",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -44800,10 +44841,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -44845,10 +44887,11 @@
       "categories": [],
       "family": "SkillEffectDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Skill Effect Duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -44890,10 +44933,11 @@
       "categories": [],
       "family": "TemporaryMinionLimit",
       "tags": [],
+      "alloy": true,
       "text": "Temporary Minion Skills have +# to Limit of Minions summoned",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -47954,10 +47998,11 @@
       "categories": [],
       "family": "BaseSpirit",
       "tags": [],
+      "alloy": true,
       "text": "+# to Spirit",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -47999,10 +48044,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -48044,10 +48090,11 @@
       "categories": [],
       "family": "SkillEffectDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Skill Effect Duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -48089,10 +48136,11 @@
       "categories": [],
       "family": "TemporaryMinionLimit",
       "tags": [],
+      "alloy": true,
       "text": "Temporary Minion Skills have +# to Limit of Minions summoned",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -52168,10 +52216,11 @@
       "categories": [],
       "family": "AilmentEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Magnitude of Ailments you inflict",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -52193,10 +52242,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -52218,10 +52268,11 @@
       "categories": [],
       "family": "CurseEffectiveness",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Effect of your Mark Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -52263,10 +52314,11 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
+      "alloy": true,
       "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -52437,10 +52489,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -52462,10 +52515,11 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -54857,10 +54911,11 @@
       "categories": [],
       "family": "GainFlatLifeOnBlock",
       "tags": [],
+      "alloy": true,
       "text": "Recover # Runic Ward when you Block",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 13,
           "weight": 0,
           "ranges": [
@@ -54907,10 +54962,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -54932,10 +54988,11 @@
       "categories": [],
       "family": "SummonTotemCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Totem Placement speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -58636,10 +58693,11 @@
       "categories": [],
       "family": "AdditionalBallistaTotem",
       "tags": [],
+      "alloy": true,
       "text": "+2 to maximum number of Summoned Ballista Totems",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [],
@@ -58656,10 +58714,11 @@
       "categories": [],
       "family": "AilmentEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Magnitude of Ailments you inflict",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -58681,10 +58740,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -58726,10 +58786,11 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
+      "alloy": true,
       "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -58900,10 +58961,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -58925,10 +58987,11 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -61987,10 +62050,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -62012,10 +62076,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -62041,10 +62106,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -62091,10 +62157,11 @@
       "categories": [],
       "family": "SummonTotemCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Totem Placement speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -66440,10 +66507,11 @@
       "categories": [],
       "family": "DamagingAilmentDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Duration of Damaging Ailments on Enemies",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -66465,10 +66533,11 @@
       "categories": [],
       "family": "ElementalPenetration",
       "tags": [],
+      "alloy": true,
       "text": "Damage Penetrates #% Elemental Resistances",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -66535,10 +66604,11 @@
       "categories": [],
       "family": "IncreasedAttackAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Area of Effect for Attacks",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -66560,10 +66630,11 @@
       "categories": [],
       "family": "IncreasedAttackSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Attack Speed while missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -66585,10 +66656,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -66635,10 +66707,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -66660,10 +66733,11 @@
       "categories": [],
       "family": "RemnantPickupRadius",
       "tags": [],
+      "alloy": true,
       "text": "Remnants can be collected from #% further away",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -70645,10 +70719,11 @@
       "categories": [],
       "family": "DamagingAilmentDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Duration of Damaging Ailments on Enemies",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -70670,10 +70745,11 @@
       "categories": [],
       "family": "ElementalPenetration",
       "tags": [],
+      "alloy": true,
       "text": "Damage Penetrates #% Elemental Resistances",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -70740,10 +70816,11 @@
       "categories": [],
       "family": "IncreasedAttackAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Area of Effect for Attacks",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -70765,10 +70842,11 @@
       "categories": [],
       "family": "IncreasedAttackSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Attack Speed while missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -70790,10 +70868,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -70840,10 +70919,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -70865,10 +70945,11 @@
       "categories": [],
       "family": "RemnantPickupRadius",
       "tags": [],
+      "alloy": true,
       "text": "Remnants can be collected from #% further away",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -74923,10 +75004,11 @@
       "categories": [],
       "family": "DamagingAilmentDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Duration of Damaging Ailments on Enemies",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -74948,10 +75030,11 @@
       "categories": [],
       "family": "ElementalPenetration",
       "tags": [],
+      "alloy": true,
       "text": "Damage Penetrates #% Elemental Resistances",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -75018,10 +75101,11 @@
       "categories": [],
       "family": "IncreasedAttackAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Area of Effect for Attacks",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -75043,10 +75127,11 @@
       "categories": [],
       "family": "IncreasedAttackSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Attack Speed while missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -75068,10 +75153,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -75118,10 +75204,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -75143,10 +75230,11 @@
       "categories": [],
       "family": "RemnantPickupRadius",
       "tags": [],
+      "alloy": true,
       "text": "Remnants can be collected from #% further away",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -79248,10 +79336,11 @@
       "categories": [],
       "family": "DamagingAilmentDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Duration of Damaging Ailments on Enemies",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -79273,10 +79362,11 @@
       "categories": [],
       "family": "ElementalPenetration",
       "tags": [],
+      "alloy": true,
       "text": "Damage Penetrates #% Elemental Resistances",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -79343,10 +79433,11 @@
       "categories": [],
       "family": "IncreasedAttackAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Area of Effect for Attacks",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -79368,10 +79459,11 @@
       "categories": [],
       "family": "IncreasedAttackSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Attack Speed while missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -79393,10 +79485,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -79443,10 +79536,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -79468,10 +79562,11 @@
       "categories": [],
       "family": "RemnantPickupRadius",
       "tags": [],
+      "alloy": true,
       "text": "Remnants can be collected from #% further away",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -83775,10 +83870,11 @@
       "categories": [],
       "family": "DamagingAilmentDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Duration of Damaging Ailments on Enemies",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -83800,10 +83896,11 @@
       "categories": [],
       "family": "ElementalPenetration",
       "tags": [],
+      "alloy": true,
       "text": "Damage Penetrates #% Elemental Resistances",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -83870,10 +83967,11 @@
       "categories": [],
       "family": "IncreasedAttackAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Area of Effect for Attacks",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -83895,10 +83993,11 @@
       "categories": [],
       "family": "IncreasedAttackSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Attack Speed while missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -83920,10 +84019,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -83970,10 +84070,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -83995,10 +84096,11 @@
       "categories": [],
       "family": "RemnantPickupRadius",
       "tags": [],
+      "alloy": true,
       "text": "Remnants can be collected from #% further away",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -88110,10 +88212,11 @@
       "categories": [],
       "family": "DamagingAilmentDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Duration of Damaging Ailments on Enemies",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -88135,10 +88238,11 @@
       "categories": [],
       "family": "ElementalPenetration",
       "tags": [],
+      "alloy": true,
       "text": "Damage Penetrates #% Elemental Resistances",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -88205,10 +88309,11 @@
       "categories": [],
       "family": "IncreasedAttackAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Area of Effect for Attacks",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -88230,10 +88335,11 @@
       "categories": [],
       "family": "IncreasedAttackSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Attack Speed while missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -88255,10 +88361,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -88305,10 +88412,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -88330,10 +88438,11 @@
       "categories": [],
       "family": "RemnantPickupRadius",
       "tags": [],
+      "alloy": true,
       "text": "Remnants can be collected from #% further away",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -91867,10 +91976,11 @@
       "categories": [],
       "family": "ArchonDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Archon Buff duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -91957,10 +92067,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -91982,10 +92093,11 @@
       "categories": [],
       "family": "ManaCostEfficiency",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Mana Cost Efficiency",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -92007,10 +92119,11 @@
       "categories": [],
       "family": "SpellAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "Spell Skills have #% increased Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -95134,10 +95247,11 @@
       "categories": [],
       "family": "ArchonDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Archon Buff duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -95224,10 +95338,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -95249,10 +95364,11 @@
       "categories": [],
       "family": "ManaCostEfficiency",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Mana Cost Efficiency",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -95274,10 +95390,11 @@
       "categories": [],
       "family": "SpellAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "Spell Skills have #% increased Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -98216,10 +98333,11 @@
       "categories": [],
       "family": "ArchonDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Archon Buff duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -98306,10 +98424,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -98331,10 +98450,11 @@
       "categories": [],
       "family": "ManaCostEfficiency",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Mana Cost Efficiency",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -98356,10 +98476,11 @@
       "categories": [],
       "family": "SpellAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "Spell Skills have #% increased Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -101609,10 +101730,11 @@
       "categories": [],
       "family": "ArchonDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Archon Buff duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -101699,10 +101821,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -101724,10 +101847,11 @@
       "categories": [],
       "family": "ManaCostEfficiency",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Mana Cost Efficiency",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -101749,10 +101873,11 @@
       "categories": [],
       "family": "SpellAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "Spell Skills have #% increased Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -104946,10 +105071,11 @@
       "categories": [],
       "family": "ArchonDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Archon Buff duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -105036,10 +105162,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -105061,10 +105188,11 @@
       "categories": [],
       "family": "ManaCostEfficiency",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Mana Cost Efficiency",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -105086,10 +105214,11 @@
       "categories": [],
       "family": "SpellAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "Spell Skills have #% increased Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -108214,10 +108343,11 @@
       "categories": [],
       "family": "ArchonDuration",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Archon Buff duration",
       "tiers": [
         {
-          "name": "Perfect Essence of Cyclonic Alloy",
+          "name": "Cyclonic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -108304,10 +108434,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -108329,10 +108460,11 @@
       "categories": [],
       "family": "ManaCostEfficiency",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Mana Cost Efficiency",
       "tiers": [
         {
-          "name": "Perfect Essence of Expansive Alloy",
+          "name": "Expansive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -108354,10 +108486,11 @@
       "categories": [],
       "family": "SpellAreaOfEffect",
       "tags": [],
+      "alloy": true,
       "text": "Spell Skills have #% increased Area of Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -111998,10 +112131,11 @@
       "categories": [],
       "family": "AilmentEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Magnitude of Ailments you inflict",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -112023,10 +112157,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -112068,10 +112203,11 @@
       "categories": [],
       "family": "GloryChanceToNotConsume",
       "tags": [],
+      "alloy": true,
       "text": "#% chance for Skills to retain 40% of Glory on use",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runefathers Alloy",
+          "name": "The Runefathers Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -112093,10 +112229,11 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
+      "alloy": true,
       "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -112267,10 +112404,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -112292,10 +112430,11 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -116083,10 +116222,11 @@
       "categories": [],
       "family": "AilmentEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Magnitude of Ailments you inflict",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -116108,10 +116248,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -116133,10 +116274,11 @@
       "categories": [],
       "family": "BellHitLimit",
       "tags": [],
+      "alloy": true,
       "text": "Tempest Bells are destroyed after an additional # Hits",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runefathers Alloy",
+          "name": "The Runefathers Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -116178,10 +116320,11 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
+      "alloy": true,
       "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -116352,10 +116495,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -116377,10 +116521,11 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -118236,10 +118381,11 @@
       "categories": [],
       "family": "Chain",
       "tags": [],
+      "alloy": true,
       "text": "#% chance to Chain an additional time",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -122835,10 +122981,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Runic Alloy",
+          "name": "Runic Alloy",
           "ilvl": 13,
           "weight": 0,
           "ranges": [
@@ -122860,10 +123007,11 @@
       "categories": [],
       "family": "EnchantmentHeistArmour",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Explicit Resistance Modifier magnitudes",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -122905,10 +123053,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Attack Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -125931,10 +126080,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -125956,10 +126106,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -125996,10 +126147,11 @@
       "categories": [],
       "family": "MaximumPuppeteerStacks",
       "tags": [],
+      "alloy": true,
       "text": "+# maximum stacks of Puppet Master",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -126021,10 +126173,11 @@
       "categories": [],
       "family": "MinionDamagingAilments",
       "tags": [],
+      "alloy": true,
       "text": "Minions have #% increased Magnitude of Damaging Ailments",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -126046,10 +126199,11 @@
       "categories": [],
       "family": "MinionGainPuppetMasterOnCommand",
       "tags": [],
+      "alloy": true,
       "text": "#% Surpassing Chance to gain a Puppet Master stack whenever you use a Command Skill",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -126071,10 +126225,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -128763,10 +128918,11 @@
       "categories": [],
       "family": "GainFlatLifeOnBlock",
       "tags": [],
+      "alloy": true,
       "text": "Recover # Runic Ward when you Block",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 13,
           "weight": 0,
           "ranges": [
@@ -128813,10 +128969,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -128838,10 +128995,11 @@
       "categories": [],
       "family": "SummonTotemCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Totem Placement speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -131920,10 +132078,11 @@
       "categories": [],
       "family": "GainFlatLifeOnBlock",
       "tags": [],
+      "alloy": true,
       "text": "Recover # Runic Ward when you Block",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 13,
           "weight": 0,
           "ranges": [
@@ -131970,10 +132129,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -131995,10 +132155,11 @@
       "categories": [],
       "family": "SummonTotemCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Totem Placement speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -134695,10 +134856,11 @@
       "categories": [],
       "family": "GainFlatLifeOnBlock",
       "tags": [],
+      "alloy": true,
       "text": "Recover # Runic Ward when you Block",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 13,
           "weight": 0,
           "ranges": [
@@ -134745,10 +134907,11 @@
       "categories": [],
       "family": "LocalRunicWardPercent",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -134770,10 +134933,11 @@
       "categories": [],
       "family": "SummonTotemCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Totem Placement speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Swift Alloy",
+          "name": "Swift Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -139034,10 +139198,11 @@
       "categories": [],
       "family": "AilmentEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Magnitude of Ailments you inflict",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -139059,10 +139224,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -139104,10 +139270,11 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
+      "alloy": true,
       "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -139253,10 +139420,11 @@
       "categories": [],
       "family": "MeleeWeaponAndUnarmedRange",
       "tags": [],
+      "alloy": true,
       "text": "+# to Weapon Range",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runefathers Alloy",
+          "name": "The Runefathers Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -139303,10 +139471,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -139328,10 +139497,11 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -140011,10 +140181,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -140036,10 +140207,11 @@
       "categories": [],
       "family": "ChanceToGainNaturesArchon",
       "tags": [],
+      "alloy": true,
       "text": "#% chance to gain Nature's Archon when your Plants Overgrow",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -140061,10 +140233,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -140101,10 +140274,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -140126,10 +140300,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -140151,10 +140326,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -140180,10 +140356,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -140250,10 +140427,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -140800,10 +140978,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -140825,10 +141004,11 @@
       "categories": [],
       "family": "ChanceToGainNaturesArchon",
       "tags": [],
+      "alloy": true,
       "text": "#% chance to gain Nature's Archon when your Plants Overgrow",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -140850,10 +141030,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -140890,10 +141071,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -140915,10 +141097,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -140940,10 +141123,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -140969,10 +141153,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -141039,10 +141224,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -141589,10 +141775,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -141614,10 +141801,11 @@
       "categories": [],
       "family": "ChanceToGainNaturesArchon",
       "tags": [],
+      "alloy": true,
       "text": "#% chance to gain Nature's Archon when your Plants Overgrow",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -141639,10 +141827,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -141679,10 +141868,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -141704,10 +141894,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -141729,10 +141920,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -141758,10 +141950,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -141828,10 +142021,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -142378,10 +142572,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -142403,10 +142598,11 @@
       "categories": [],
       "family": "ChanceToGainNaturesArchon",
       "tags": [],
+      "alloy": true,
       "text": "#% chance to gain Nature's Archon when your Plants Overgrow",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -142428,10 +142624,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -142468,10 +142665,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -142493,10 +142691,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -142518,10 +142717,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -142547,10 +142747,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -142617,10 +142818,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -143167,10 +143369,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -143192,10 +143395,11 @@
       "categories": [],
       "family": "ChanceToGainNaturesArchon",
       "tags": [],
+      "alloy": true,
       "text": "#% chance to gain Nature's Archon when your Plants Overgrow",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -143217,10 +143421,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -143257,10 +143462,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -143282,10 +143488,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -143307,10 +143514,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -143336,10 +143544,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -143406,10 +143615,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -146436,10 +146646,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -146461,10 +146672,11 @@
       "categories": [],
       "family": "ChanceToGainNaturesArchon",
       "tags": [],
+      "alloy": true,
       "text": "#% chance to gain Nature's Archon when your Plants Overgrow",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -146486,10 +146698,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -146526,10 +146739,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -146551,10 +146765,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -146576,10 +146791,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -146605,10 +146821,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -146675,10 +146892,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -150893,10 +151111,11 @@
       "categories": [],
       "family": "AilmentEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Magnitude of Ailments you inflict",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -150918,10 +151137,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -150963,10 +151183,11 @@
       "categories": [],
       "family": "GloryChanceToNotConsume",
       "tags": [],
+      "alloy": true,
       "text": "#% chance for Skills to retain 40% of Glory on use",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runefathers Alloy",
+          "name": "The Runefathers Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -150988,10 +151209,11 @@
       "categories": [],
       "family": "IncreasedAccuracy",
       "tags": [],
+      "alloy": true,
       "text": "+# to Accuracy Rating\n#% increased Attack Speed",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -151162,10 +151384,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -151187,10 +151410,11 @@
       "categories": [],
       "family": "Strength",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Physical Damage\n+# to all Attributes",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -151913,10 +152137,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -151938,10 +152163,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -151958,10 +152184,11 @@
       "categories": [],
       "family": "ElementalSkillLimit",
       "tags": [],
+      "alloy": true,
       "text": "+1 to Limit for Elemental Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [],
@@ -151998,10 +152225,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -152023,10 +152251,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -152048,10 +152277,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -152077,10 +152307,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -152147,10 +152378,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -152740,10 +152972,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -152765,10 +152998,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -152785,10 +153019,11 @@
       "categories": [],
       "family": "ElementalSkillLimit",
       "tags": [],
+      "alloy": true,
       "text": "+1 to Limit for Elemental Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [],
@@ -152825,10 +153060,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -152850,10 +153086,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -152875,10 +153112,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -152904,10 +153142,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -152974,10 +153213,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -153567,10 +153807,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -153592,10 +153833,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -153612,10 +153854,11 @@
       "categories": [],
       "family": "ElementalSkillLimit",
       "tags": [],
+      "alloy": true,
       "text": "+1 to Limit for Elemental Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [],
@@ -153652,10 +153895,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -153677,10 +153921,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -153702,10 +153947,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -153731,10 +153977,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -153801,10 +154048,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -154394,10 +154642,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -154419,10 +154668,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -154439,10 +154689,11 @@
       "categories": [],
       "family": "ElementalSkillLimit",
       "tags": [],
+      "alloy": true,
       "text": "+1 to Limit for Elemental Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [],
@@ -154479,10 +154730,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -154504,10 +154756,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -154529,10 +154782,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -154558,10 +154812,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -154628,10 +154883,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -155221,10 +155477,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -155246,10 +155503,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -155266,10 +155524,11 @@
       "categories": [],
       "family": "ElementalSkillLimit",
       "tags": [],
+      "alloy": true,
       "text": "+1 to Limit for Elemental Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [],
@@ -155306,10 +155565,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -155331,10 +155591,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -155356,10 +155617,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -155385,10 +155647,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -155455,10 +155718,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -158528,10 +158792,11 @@
       "categories": [],
       "family": "BaseRunicWard",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Protective Alloy",
+          "name": "Protective Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -158553,10 +158818,11 @@
       "categories": [],
       "family": "ElementalInfusion",
       "tags": [],
+      "alloy": true,
       "text": "+1 to maximum number of Elemental Infusions",
       "tiers": [
         {
-          "name": "Perfect Essence of Mystic Alloy",
+          "name": "Mystic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [],
@@ -158573,10 +158839,11 @@
       "categories": [],
       "family": "ElementalSkillLimit",
       "tags": [],
+      "alloy": true,
       "text": "+1 to Limit for Elemental Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of The Runebinders Alloy",
+          "name": "The Runebinders Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [],
@@ -158613,10 +158880,11 @@
       "categories": [],
       "family": "ExposureEffect",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Exposure Effect",
       "tiers": [
         {
-          "name": "Perfect Essence of Prismatic Alloy",
+          "name": "Prismatic Alloy",
           "ilvl": 45,
           "weight": 0,
           "ranges": [
@@ -158638,10 +158906,11 @@
       "categories": [],
       "family": "FireDamage",
       "tags": [],
+      "alloy": true,
       "text": "Gain #% of Damage as Extra Fire Damage while you are missing Runic Ward",
       "tiers": [
         {
-          "name": "Perfect Essence of Adaptive Alloy",
+          "name": "Adaptive Alloy",
           "ilvl": 25,
           "weight": 0,
           "ranges": [
@@ -158663,10 +158932,11 @@
       "categories": [],
       "family": "IncreasedCastSpeed",
       "tags": [],
+      "alloy": true,
       "text": "#% increased Cast Speed\nGain #% of Elemental Damage as Extra Cold Damage",
       "tiers": [
         {
-          "name": "Perfect Essence of Transcendent Alloy",
+          "name": "Transcendent Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -158692,10 +158962,11 @@
       "categories": [],
       "family": "IncreasedMana",
       "tags": [],
+      "alloy": true,
       "text": "+# to maximum Mana\n+1 to Level of all Spell Skills",
       "tiers": [
         {
-          "name": "Perfect Essence of Celestial Alloy",
+          "name": "Celestial Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [
@@ -158762,10 +159033,11 @@
       "categories": [],
       "family": "SoulCore",
       "tags": [],
+      "alloy": true,
       "text": "#% increased effect of Socketed Augment Items",
       "tiers": [
         {
-          "name": "Perfect Essence of Sovereign Alloy",
+          "name": "Sovereign Alloy",
           "ilvl": 65,
           "weight": 0,
           "ranges": [

@@ -54,6 +54,23 @@ function essenceTierLabel(name: string, ilvl: number, range: string): string {
 
 // ── Mod listing ─────────────────────────────────────────────────────────────
 
+/**
+ * How a mod's source is named to a player, as a dropdown suffix — "" for an ordinary rollable one.
+ *
+ * Beside `addBlockedReason`, which already owns the other half of this vocabulary ("only a Perfect
+ * Essence can add it"). Both pickers that offer special-source mods need it and they had one copy
+ * each, so a source added to one list would have gone unlabelled in the other — which is how the
+ * Quick check came to offer essence mods reading exactly like rollable ones.
+ */
+export function modSourceLabel(source: EngineMod['source']): string {
+  switch (source) {
+    case 'perfect': return ' · Perfect Essence';
+    case 'essence': return ' · Essence only';
+    case 'desecrated': return ' · Desecrated';
+    case 'normal': return '';
+  }
+}
+
 export function toEngineMod(data: PatchData, modId: string, type: 'prefix' | 'suffix'): EngineMod | null {
   const mod = data.mods.get(modId);
   if (!mod || mod.tiers.length === 0) return null;

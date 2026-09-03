@@ -92,6 +92,8 @@ describe('engine facade — optimize', () => {
 
 describe('engine facade — existing-item currency actions (Option 1)', () => {
   const SPELL = 'Wands/INCREASED_SPELL_DAMAGE'; // a wand prefix
+  const PERFECT_ESS = 'Wands/ESSENCE_MANA_COST_EFFICIENCY'; // perfect-essence-only suffix
+  const ESSENCE_ONLY = 'Wands/ESSENCE_INCREASED_CAST_SPEED'; // regular-essence-only suffix
   const rare = (prefixes: string[], suffixes: string[]): ExistingItem => ({
     baseId: 'Wands', level: 82, rarity: 'rare',
     prefixes: prefixes.map((modId) => ({ modId, tierDisplay: 1 })),
@@ -136,6 +138,82 @@ describe('engine facade — existing-item currency actions (Option 1)', () => {
     expect(acts.some((a) => a.currency === 'augment')).toBe(true);
     expect(acts.some((a) => a.currency === 'regal')).toBe(true);
     expect(acts.some((a) => a.currency === 'exalt')).toBe(false);
+  });
+
+  // ── Orb strengths ─────────────────────────────────────────────────────────
+  // The route cards have named Greater and Perfect orbs since the orb-strength axis shipped, while
+  // this panel knew only base orbs — the same screen disagreeing with itself about what the app knows.
+
+  it('offers an Exalt at every strength the sheet prices', () => {
+    const acts = currencyActions(eng, rare([MANA], []), { addModId: 'Wands/INTELLIGENCE' });
+    const ex = acts.filter((a) => a.currency === 'exalt');
+    expect(ex.map((a) => a.label)).toEqual(['Exalted Orb', 'Greater Exalted Orb', 'Perfect Exalted Orb']);
+    // Priced through `stepCost`, so each row is the orb's own price and not the base one.
+    expect(ex.map((a) => a.cost)).toEqual([1, 5, 20]);
+    for (const a of ex) expect(a.prob).toBeGreaterThan(0);
+  });
+
+  /**
+   * THE trap, and the reason this is a filter rather than a loop.
+   *
+   * `stepCost` charges 0 for a key the sheet does not list. This fixture prices `exalt_greater` and
+   * `exalt_perfect` but NOT `chaos_greater` / `chaos_perfect` — so an ungated enumeration would offer
+   * a Perfect Chaos Orb at **0 ex**, which is not merely wrong but the cheapest row on the panel and
+   * therefore the one a player would reach for. Gated on `currencyKey`, never on a key rebuilt here.
+   */
+  it('skips a strength the sheet does not price, rather than quoting it free', () => {
+    const acts = currencyActions(eng, rare([MANA], ['Wands/INTELLIGENCE']), { addModId: SPELL, removeModId: 'Wands/INTELLIGENCE' });
+    expect(acts.filter((a) => a.currency === 'chaos').map((a) => a.label)).toEqual(['Chaos Orb']);
+    expect(acts.every((a) => a.cost > 0 || !a.feasible)).toBe(true);
+  });
+
+  it('gives a magic item its Augmentation and Regal strengths too', () => {
+    const magic: ExistingItem = { baseId: 'Wands', level: 82, rarity: 'magic', prefixes: [{ modId: MANA, tierDisplay: 1 }], suffixes: [] };
+    const acts = currencyActions(eng, magic, { addModId: 'Wands/INTELLIGENCE' });
+    expect(acts.filter((a) => a.currency === 'augment').length).toBeGreaterThan(1);
+    expect(acts.filter((a) => a.currency === 'regal').length).toBeGreaterThan(1);
+  });
+
+  // ── Essences ──────────────────────────────────────────────────────────────
+
+  it('offers a Perfect Essence, and states the odds it eats the mod you named', () => {
+    // Two prefixes and a suffix: a uniform removal is 1 in 3, and Sinistral narrows it to 1 in 2.
+    const item = rare([MANA, SPELL], ['Wands/INTELLIGENCE']);
+    const acts = currencyActions(eng, item, { addModId: PERFECT_ESS, removeModId: MANA });
+    const rows = acts.filter((a) => a.currency === 'perfect-essence');
+    expect(rows[0]!.label).toBe('Perfect Essence');
+    expect(rows[0]!.prob).toBeCloseTo(1 / 3, 12);
+    // Only the omen for the side the sacrifice is ON — MANA is a prefix, so Dextral cannot take it.
+    expect(rows.map((a) => a.label)).toEqual([
+      'Perfect Essence', 'Perfect Essence + Omen of Sinistral Crystallisation',
+    ]);
+    expect(rows[1]!.prob).toBeCloseTo(1 / 2, 12);
+  });
+
+  // The add is guaranteed; the only uncertainty is which mod it eats. With no sacrifice named there is
+  // no probability to state, so the row explains the trade instead of quoting a number for it.
+  it('asks for a sacrifice rather than quoting a Perfect Essence without one', () => {
+    const acts = currencyActions(eng, rare([MANA], []), { addModId: PERFECT_ESS });
+    const pe = acts.find((a) => a.currency === 'perfect-essence')!;
+    expect(pe.feasible).toBe(false);
+    expect(pe.reason).toMatch(/name a mod to sacrifice/i);
+  });
+
+  it('offers a regular Essence on a Magic item, forced and certain', () => {
+    const magic: ExistingItem = { baseId: 'Wands', level: 82, rarity: 'magic', prefixes: [{ modId: MANA, tierDisplay: 1 }], suffixes: [] };
+    const acts = currencyActions(eng, magic, { addModId: ESSENCE_ONLY });
+    const ess = acts.find((a) => a.currency === 'essence')!;
+    expect(ess.prob).toBe(1);
+    expect(ess.cost).toBeGreaterThan(0); // a level was chosen, so a price was found
+    // …and the orbs that cannot place it say so rather than going quiet.
+    expect(acts.find((a) => a.currency === 'augment')!.reason).toMatch(/only an Essence/i);
+  });
+
+  // A regular essence needs a Magic item — on a Rare there is no such move, and offering one would be
+  // the "plausible but wrong" failure docs/copy-audit.md exists to prevent.
+  it('does not offer a regular Essence on a Rare', () => {
+    const acts = currencyActions(eng, rare([MANA], []), { addModId: ESSENCE_ONLY });
+    expect(acts.some((a) => a.currency === 'essence')).toBe(false);
   });
 });
 

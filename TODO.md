@@ -1136,7 +1136,34 @@ players" — a stronger claim than any competitor can make about this number.
 
 ---
 
-## 16. The Item tab shows two models, and one calls itself fiction — DESIGN QUESTION
+## 16. ~~The Item tab shows two models, and one calls itself fiction~~ — DECIDED 2026-09-03
+
+**Decided, and by the right person.** The entry's own recommendation was "do not decide this from the
+code — decide it from users", and a user did: *"I'd rather just keep the true expected cost"*, of the
+Lab tab this time rather than the Item tab. **The step planner's expected-cost total is gone from every
+surface** — Lab cards, Item cards, and the budget panel's expanded rows.
+
+Not the demotion this entry weighed, and not its other branch either. The routes stay, because the case
+for keeping them was right: a fixed sequence with per-attempt odds and a per-run price is how players
+talk about crafts, and the policy graph does not express that as a list. What went is the one number
+that could not be defended — and the reason is stronger than the price it quoted. `expected` is the cost
+of a policy FORBIDDEN TO REPAIR, which nobody follows from a white base any more than from a held Rare,
+and the MDP already has `restartCost` among its actions, so wherever restarting really is cheapest True
+expected cost agrees. It can only come out the same or lower. There was nothing to reconcile.
+
+So the "two headline panels differing by orders of magnitude" problem is not managed, it is gone: one
+total on screen, and a set of recipes that quote only what survives their own assumptions.
+
+Removing it exposed that the frontier had been FILTERED on it (`docs/validation.md`, 2026-09-03) — half
+of all cards were beaten on both visible numbers by another card in the same list. Fixed in the same
+pass. `freeRestart` then had one reachable value, so the prop, `recommendPlan`,
+`MAX_PRACTICAL_ATTEMPTS` and the `best value` / `cheapest` / `surest` badges went with it.
+
+**Still open from this entry:** nothing about the cost model. `ItemActions.tsx` and `EngineLab.tsx` are
+still large (888 and 914 lines after the Quick check moved out to its own component); if they need to
+shrink further, that is a decomposition item and not a design question.
+
+<details><summary>Original entry, kept for what it weighed</summary>
 
 **What is being asked.** Not a bug. A question about whether the Item tab's shape is right, raised
 because the code already half-answers it.
@@ -1171,6 +1198,8 @@ that restarts to the item at the item's REAL replacement price, not zero — whi
 
 Either way, this is the item most likely to be wrong if decided from the engineer's chair.
 
+</details>
+
 ---
 
 ## 17. Considered and rejected — so they are not re-proposed
@@ -1203,7 +1232,7 @@ Recorded with the reason, in the spirit of the negative results in `docs/validat
 
 ---
 
-## 18. The Quick currency check offers fewer rows than the engine has — TIER 3, DESECRATION DONE
+## 18. ~~The Quick currency check offers fewer rows than the engine has~~ — DONE 2026-09-03
 
 **Desecration shipped 2026-09-02**, prompted by a player asking the obvious question of the panel
 ("it says Exalted Orb but we could desecrate also?"). What landed:
@@ -1224,13 +1253,33 @@ Recorded with the reason, in the spirit of the negative results in `docs/validat
 
 Seven mutations checked, all caught (`src/lib/engine.test.ts`).
 
-**Still open — essences and orb strengths:**
+**Essences and orb strengths shipped 2026-09-03**, which closes the entry.
 
-- Perfect Essence — `perfectEssenceProbability` for the removal it forces, `essenceForcedProbability`
-  for the P=1 add. A regular Essence needs a Magic item and belongs on the Magic branch.
-- Orb strengths — `exaltProbability` already takes `currencyTier`; the rows are the same call at
-  `greater`/`perfect`, priced by `currencyKey`, gated on the sheet listing them (an unpriced strength
-  must be SKIPPED, never charged the base price — see `leverOptions`).
+- **Orb strengths.** Every add row now also appears at Greater and Perfect. Built from `atStrength`
+  (exported from `levers.ts` rather than restated — a second copy of which currencies have strengths is
+  how this panel and the planners would come to disagree about what the game sells) plus
+  `stepProbability` and `stepCost`, so the odds and the price are the planners' own. Gated on
+  `prices.currency[currencyKey(at)] !== undefined`, and the shipped 0.5 fixture makes that gate
+  testable for free: it prices `exalt_greater`/`exalt_perfect` but not `chaos_greater`/`chaos_perfect`,
+  so removing the gate offers a **Perfect Chaos Orb at 0 ex** — not merely wrong but the cheapest row
+  on the panel. Mutation-checked exactly there.
+  A strength that cannot land is DROPPED, not shown blocked: a raised ilvl floor legitimately puts low
+  tiers out of reach, which is a different question from "can this mod go on this item", and showing
+  both makes the panel argue with itself.
+- **Essences.** Perfect Essence on a Rare, with the two Crystallisation omens — and only the one for
+  the side the sacrifice is on, so a prefix sacrifice never sees a Dextral row. With no sacrifice named
+  the row explains the trade instead of quoting a number, because the add is certain and the only
+  uncertainty is which mod it eats. Regular Essence on the Magic branch at P=1, its LEVEL chosen by
+  `cheapestEssenceLevel` — the same function both planners use, which matters at 140x between an
+  Abrasion's Lesser and Greater.
+- The check's dropdown now offers every mod some currency can place (normal, essence, perfect-essence,
+  carved), labelled by a shared `modSourceLabel` so a source added to one picker cannot go unlabelled
+  in the other.
+- **`ItemActions.tsx` was 983 lines and the rows land in it**, so the Quick check moved out first, to
+  `QuickCurrencyCheck.tsx` (141 lines). It owns its two selections and CLAMPS them against the lists it
+  is handed, which fixed a live divergence: the parent cleared them from `dropItemMod` and the
+  base-change reset but not from the rarity trim, so a Rare→Magic switch could leave a pick on a
+  trimmed mod and render a blocked "can't apply" row underneath a dropdown reading "— none —".
 
 **Do NOT add the Omen of Greater Exaltation here.** It adds two mods, and this panel's whole shape is
 one add and/or one sacrifice. It would need a second "mod to add" control, which is a redesign of the

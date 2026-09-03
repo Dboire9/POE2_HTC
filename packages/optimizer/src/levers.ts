@@ -39,11 +39,16 @@ const STRENGTHS: readonly CurrencyTier[] = ['base', 'greater', 'perfect'];
 /**
  * The step at an orb strength, or `undefined` for a currency the game doesn't sell at strengths.
  *
+ * Exported because the Quick currency check enumerates the same strengths for a single orb. It shows
+ * infeasible rows with a reason where the search prunes them, so it cannot call `leverOptions` itself
+ * — but which currencies HAVE strengths is one fact, and a second copy of this switch is how a
+ * `greater-exalt` would end up offered by one and refused by the other.
+ *
  * Written as a switch rather than a currency-set test because that is what narrows `step` to the
  * variants carrying a `tier` field; `chaos` is on the list because `chaos_greater` / `chaos_perfect`
  * are real listings and `chaosProbability` has always honoured the floor.
  */
-function atStrength(step: PlanStep, tier: CurrencyTier): PlanStep | undefined {
+export function atStrength(step: PlanStep, tier: CurrencyTier): PlanStep | undefined {
   switch (step.currency) {
     // `greater-exalt` is on this list because it IS an Exalted Orb — one with an Omen of Greater
     // Exaltation on it — and the omen works on a Greater or Perfect orb too (user ruling 2026-09-02).

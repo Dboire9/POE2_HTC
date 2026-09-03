@@ -19,8 +19,11 @@ import {
 // because the UI has to DESCRIBE desecration differently on armour, not just cost it differently.
 export { bossOmenAllowed };
 import {
-  indexPrices, pricesForBase, stepCost, type PricedStep, type Prices, type PricesFile,
+  cheapestEssenceLevel, currencyKey, essenceLevelOf, indexPrices, pricesForBase, stepCost,
+  type PricedStep, type Prices, type PricesFile,
 } from '../../packages/optimizer/src/cost.ts';
+import { atStrength } from '../../packages/optimizer/src/levers.ts';
+import { stepProbability, type PlanStep } from '../../packages/engine/src/plan.ts';
 import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
@@ -311,9 +314,11 @@ function desecrationRows(data: PatchData, state: ItemState, add: Mod): ActionRow
  *   • Magic + add → **Augmentation** (fill the open slot) and **Regal** (upgrade to Rare adding it).
  *   • removeModId alone → **Annulment** (remove one random mod — odds it's the one you named).
  *
- * Still SIX kinds of orb, not every one the engine models: an Essence row and the Greater/Perfect orb
- * strengths are not here yet (TODO §18). The panel's copy says what it checks rather than implying it
- * is exhaustive.
+ *   • Every add orb also appears at **Greater** and **Perfect** strength where the sheet prices one and
+ *     it can actually land — the route cards beside this panel have named those orbs since the
+ *     orb-strength axis shipped, and a check that only knew base orbs disagreed with them on one screen.
+ *   • An **Essence** row: Perfect (Rare — adds its mod for certain while eating one at random, with the
+ *     Crystallisation omens that choose the side) and regular (Magic — the forced add, P=1).
  */
 export function currencyActions(
   eng: Engine, item: ExistingItem, sel: { addModId?: string; removeModId?: string },
@@ -338,26 +343,93 @@ export function currencyActions(
     actions.push(reason === undefined ? row : { ...row, reason });
   };
 
+  /**
+   * The same orb at Greater and Perfect strength, pushed under the base row it belongs to.
+   *
+   * Three gates, and the first two are not optional. A strength the sheet does not list is SKIPPED,
+   * never priced at the base key — `stepCost` charges 0 for a missing key, so an unlisted Perfect orb
+   * would read FREE and be the panel's top recommendation. And `atStrength` decides which currencies
+   * have strengths at all, imported rather than restated, because a second copy of that switch is how
+   * this panel and the planners would come to disagree about what the game sells.
+   *
+   * The third is a judgement: a strength that cannot land (`prob <= 0`) is dropped rather than shown
+   * blocked. A raised ilvl floor puts the LOW tiers out of reach, so a Perfect orb legitimately can't
+   * produce a T8 mod — true, and a different question from "can this mod go on this item at all",
+   * which the base row above already answers. Showing both makes the panel argue with itself.
+   */
+  const pushStrengths = (step: PlanStep, name: string, detail: string): void => {
+    for (const [tier, adjective] of [['greater', 'Greater'], ['perfect', 'Perfect']] as const) {
+      const at = atStrength(step, tier);
+      if (at === undefined || sheet.currency[currencyKey(at)] === undefined) continue;
+      const prob = stepProbability(data, state, at);
+      if (!(prob > 0)) continue;
+      push(at, `${adjective} ${name}`, `${detail} — ${adjective.toLowerCase()} orbs only roll the better tiers`, prob);
+    }
+  };
+
   const { addModId, removeModId } = sel;
   if (addModId) {
     const add = resolveMod(data, addModId);
     const reason = (): string => addBlockedReason(data, state, add);
+    const onItem = (id: string): boolean => state.prefixes.concat(state.suffixes).some((m) => m.modId === id);
     if (state.rarity === 'rare') {
       const p = exaltProbability(data, state, addModId);
-      push({ currency: 'exalt' }, 'Exalted Orb', `adds ${text(addModId)} to an open ${add.type}`, p, p > 0 ? undefined : reason());
+      const exalt = `adds ${text(addModId)} to an open ${add.type}`;
+      push({ currency: 'exalt' }, 'Exalted Orb', exalt, p, p > 0 ? undefined : reason());
+      pushStrengths({ currency: 'exalt', add: addModId }, 'Exalted Orb', exalt);
       if (removeModId) {
         const c = chaosProbability(data, state, removeModId, addModId);
-        const onItem = state.prefixes.concat(state.suffixes).some((m) => m.modId === removeModId);
-        push({ currency: 'chaos' }, 'Chaos Orb', `removes ${text(removeModId)}, adds ${text(addModId)}`, c,
-          c > 0 ? undefined : (!onItem ? `${text(removeModId)} isn’t on the item` : `can’t add ${text(addModId)} even after the swap`));
+        const swap = `removes ${text(removeModId)}, adds ${text(addModId)}`;
+        push({ currency: 'chaos' }, 'Chaos Orb', swap, c,
+          c > 0 ? undefined : (!onItem(removeModId) ? `${text(removeModId)} isn’t on the item` : `can’t add ${text(addModId)} even after the swap`));
+        pushStrengths({ currency: 'chaos', add: addModId, remove: removeModId }, 'Chaos Orb', swap);
       }
       for (const row of desecrationRows(data, state, add)) push(row.step, row.label, row.detail, row.prob, row.reason);
+      // A Perfect Essence adds its mod for CERTAIN and takes one at random in exchange, so the only
+      // uncertainty — and the only thing worth quoting — is which mod it eats. That makes a sacrifice
+      // mandatory to the question, not optional to it: `PlanStep`'s perfect-essence variant requires
+      // `remove`, and without one there is no probability to state, only the trade to explain.
+      if (add.source === 'perfect_essence') {
+        const essence = `adds ${text(addModId)} for certain, in exchange for one mod at random`;
+        if (removeModId === undefined) {
+          push({ currency: 'perfect-essence', add: addModId }, 'Perfect Essence', essence, 0,
+            'name a mod to sacrifice above and this shows the odds it takes that one');
+        } else {
+          for (const [omen, label, note] of [
+            [undefined, 'Perfect Essence', 'it takes any mod'],
+            ['sinistral', 'Perfect Essence + Omen of Sinistral Crystallisation', 'it can only take a prefix'],
+            ['dextral', 'Perfect Essence + Omen of Dextral Crystallisation', 'it can only take a suffix'],
+          ] as const) {
+            const step: PlanStep = { currency: 'perfect-essence', add: addModId, remove: removeModId, ...(omen ? { omen } : {}) };
+            const prob = stepProbability(data, state, step);
+            if (omen !== undefined && !(prob > 0)) continue; // an omen for the side the mod isn't on
+            push(step, label, `${essence} — odds it’s ${text(removeModId)}, ${note}`, prob,
+              prob > 0 ? undefined : (!onItem(removeModId) ? `${text(removeModId)} isn’t on the item` : reason()));
+          }
+        }
+      }
     }
     if (state.rarity === 'magic') {
       const a = augmentationProbability(data, state, addModId);
-      push({ currency: 'augment' }, 'Orb of Augmentation', `adds ${text(addModId)} to the open ${add.type}`, a, a > 0 ? undefined : reason());
+      const augment = `adds ${text(addModId)} to the open ${add.type}`;
+      push({ currency: 'augment' }, 'Orb of Augmentation', augment, a, a > 0 ? undefined : reason());
+      pushStrengths({ currency: 'augment', add: addModId }, 'Orb of Augmentation', augment);
       const rg = regalProbability(data, state, addModId);
-      push({ currency: 'regal' }, 'Regal Orb', `upgrades to Rare, adds ${text(addModId)}`, rg, rg > 0 ? undefined : reason());
+      const regal = `upgrades to Rare, adds ${text(addModId)}`;
+      push({ currency: 'regal' }, 'Regal Orb', regal, rg, rg > 0 ? undefined : reason());
+      pushStrengths({ currency: 'regal', add: addModId }, 'Regal Orb', regal);
+      // A regular Essence is the Magic-only branch: it forces its mod and turns the item Rare, P=1.
+      // Which LEVEL to quote is a real choice — Abrasion runs Lesser 116ex against Greater 0.81ex, so
+      // naming the wrong one misprices the row by 140x — and it is already made once, by the same
+      // function both planners use.
+      if (add.source === 'essence') {
+        const essenceTier = cheapestEssenceLevel(sheet, add, 0, state.level);
+        const level = essenceLevelOf(add.tiers[essenceTier]?.name ?? '');
+        const step: PlanStep = { currency: 'essence', add: addModId, essenceTier, ...(level ? { essenceLevel: level } : {}) };
+        const prob = stepProbability(data, state, step);
+        push(step, 'Essence', `forces ${text(addModId)} onto the open ${add.type} and makes the item Rare`, prob,
+          prob > 0 ? undefined : reason());
+      }
     }
   }
   if (removeModId) {

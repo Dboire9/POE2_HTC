@@ -20,6 +20,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the row is refused while a carved mod is on it; and the boss omens work on a **Weapon or Jewellery**
   only, so on armour the row says why instead of vanishing.
 
+### Added
+
+- **The Quick currency check offers orb strengths and essences** (TODO §18, now closed). Every add row
+  also appears at **Greater** and **Perfect** where the sheet prices one and it can land — the route
+  cards beside it have named those orbs since the orb-strength axis shipped, so the panel had been
+  disagreeing with them on one screen. It surfaces genuinely non-obvious trades: on a Wand wanting
+  `#% increased chance to Shock`, a **Greater** Exalt is 4.91% at 8.79ex against a plain one's 4.17% at
+  1ex — while the **Perfect** Exalt is *worse* at 4.03% for 1023ex, because its ilvl floor cuts out the
+  lower tiers that also satisfied the target.
+- **Essence rows**: Perfect Essence on a Rare, quoting the odds it eats the mod you named, with the
+  Sinistral/Dextral Crystallisation omens — and only the one for the side that mod is on. Regular
+  Essence on the Magic branch at P=1, its level chosen by `cheapestEssenceLevel`, the same function
+  both planners use. The check's dropdown now offers every mod some currency can place.
+
+### Fixed
+
+- **A Quick-check selection could outlive the mod it pointed at.** The parent cleared the add/sacrifice
+  picks when a mod was dropped and when the base changed, but not on the rarity trim that silently
+  removes mods when a Rare becomes Magic — leaving a pick on a trimmed mod, which renders a blocked
+  "can't apply" row underneath a dropdown reading "— none —". The panel is now its own component and
+  clamps both picks against the lists it is handed, which cannot have that bug.
+
 ### Changed
 
 - **The step-plan cards no longer show a free-restart total, on either tab.** Reported as *"the prices

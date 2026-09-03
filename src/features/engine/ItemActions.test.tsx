@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CurrencyAction, EngineMod, EngineResult } from '../../lib/engine';
-import { oddsText } from './ItemActions';
+import { oddsText } from './QuickCurrencyCheck';
 
 // ItemActions ("I have an item") holds the item builder + quick-check + full-plan target rules. Driven
 // against a MOCKED facade with a tiny controlled mod set; the facade logic (currencyActions, optimizeItem)
@@ -112,6 +112,40 @@ describe('ItemActions — quick check renders every currency action', () => {
     expect(screen.getByText('Orb of Annulment')).toBeInTheDocument();
     expect(screen.getByText('Orb of Annulment + Omen of Light')).toBeInTheDocument();
     expect(screen.getByText('guaranteed')).toBeInTheDocument(); // P=1 phrasing
+  });
+
+  /**
+   * A selection cannot outlive the mod it points at.
+   *
+   * The parent used to clear the two picks imperatively — from `dropItemMod` and from the base-change
+   * reset — but NOT from the rarity trim, which silently drops mods when a Rare becomes Magic. A pick
+   * left pointing at a trimmed mod then asked the engine about a mod that was no longer on the item,
+   * which does not throw: it returns a blocked "can't apply" row. So the panel rendered a refusal
+   * underneath a dropdown reading "— none —", because a `<select>` whose value matches no option
+   * displays the first one.
+   *
+   * The panel now clamps both picks against the lists it is handed, which cannot have that bug.
+   */
+  it('drops a sacrifice selection when the rarity trim takes that mod off the item', async () => {
+    const user = userEvent.setup();
+    mocks.currencyActions.mockReturnValue(annulActions);
+    await loaded();
+    await user.click(builderButton(/Carved Cast Speed/));
+    await user.selectOptions(screen.getByLabelText(/Mod to sacrifice/i), 'ds');
+    expect(screen.getByText('Orb of Annulment')).toBeInTheDocument();
+
+    // Rare (3+3) → Magic (1+1). One suffix survives, and here it is the one that was selected — so
+    // add a second first, and drop to Magic: the trim keeps the FIRST, discarding the selected one.
+    await user.click(builderButton(/Carved Armour Break/));
+    await user.selectOptions(screen.getByLabelText(/Mod to sacrifice/i), 'ds2');
+    await user.selectOptions(screen.getByLabelText(/Rarity/i), 'magic');
+
+    // Asserted on the DOM, not on the mock: the trim is an effect, so there is one intermediate render
+    // where the rarity is already Magic and the suffix list has not been cut yet. What matters is what
+    // the user is left looking at, and that has to be one thing, not a refusal under an empty select.
+    expect(screen.getByLabelText(/Mod to sacrifice/i)).toHaveValue('');
+    expect(screen.queryByText('Orb of Annulment')).toBeNull();
+    expect(screen.getByText(/Pick a/)).toBeInTheDocument();
   });
 });
 

@@ -212,8 +212,7 @@ sub-modes.
 Choose a **Mod to add** and/or a **Mod to sacrifice (Chaos / Annul)**, and the **Currency options** list
 shows the chance a **single orb** does exactly what you asked, and what that orb costs.
 
-**Which currencies it checks**, exactly — this list is the whole list, and it is shorter than the set
-the planner searches:
+**Which currencies it checks**, exactly — this list is the whole list:
 
 | | when |
 |---|---|
@@ -221,10 +220,37 @@ the planner searches:
 | **Chaos Orb** | Rare, you named both an add and a sacrifice |
 | **Desecration** | Rare, you named a mod to add |
 | **Desecration + a boss omen** | …and that mod is a desecrated one |
+| **Perfect Essence** | Rare, and the mod you want is a Perfect-Essence one |
+| **Perfect Essence + a Crystallisation omen** | …and you named a sacrifice, on the side that omen can reach |
 | **Orb of Augmentation** | Magic, you named a mod to add |
 | **Regal Orb** | Magic, you named a mod to add |
+| **Essence** | Magic, and the mod you want is an Essence-only one |
 | **Orb of Annulment** | you named a mod to sacrifice |
 | **Annulment + Omen of Light** | …and that mod is a desecrated one on a desecrated item |
+
+Every orb that adds a mod also appears at **Greater** and **Perfect** strength, when the price sheet
+lists one and it can actually land the mod you asked for.
+
+**A stronger orb is not automatically a better one**, and this is the main thing the strength rows are
+for. A Greater or Perfect orb rolls only the *better* tiers — which raises your odds when you want a
+top-tier mod, and *lowers* them when any tier would have done, because the low tiers that also counted
+have been cut out of the pool. On a Wand wanting `#% increased chance to Shock` at any tier:
+
+| | chance | cost |
+|---|---|---|
+| Exalted Orb | 4.17% | 1 ex |
+| **Greater** Exalted Orb | **4.91%** | 8.79 ex |
+| **Perfect** Exalted Orb | 4.03% | 1023 ex |
+
+The Perfect orb is worse *and* a thousand times the price. A strength that cannot land the mod at all
+is not listed rather than shown crossed out — the plain row above it already explains anything that
+rules the mod out entirely.
+
+**About the Essence rows.** A Perfect Essence adds its mod **for certain** and takes one of your
+existing mods at random in exchange, so the only thing worth quoting is *which* mod it eats — name a
+sacrifice and the row gives you the odds it takes that one. The Sinistral and Dextral Crystallisation
+omens restrict it to prefixes or to suffixes, and only the omen that can actually reach your sacrifice
+is offered. A regular Essence is a Magic-item move: it forces its mod and turns the item Rare, at 100%.
 
 **About the Desecration rows.** A bone **offers three modifiers and you keep one**, so the number
 shown is the chance one of the three is what you asked for — roughly three times the chance of a

@@ -13,7 +13,7 @@ describe('the guide disclosure', () => {
     const toggle = screen.getByRole('button', { name: /New here/i });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     // None of the body copy is on the page until asked for.
-    expect(screen.queryByText(/Tiers run the other way round/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Start from a white base/i)).not.toBeInTheDocument();
   });
 
   it('opens on click and closes again', async () => {
@@ -23,11 +23,11 @@ describe('the guide disclosure', () => {
 
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByText(/Tiers run the other way round/i)).toBeInTheDocument();
+    expect(screen.getByText(/Start from a white base/i)).toBeInTheDocument();
 
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByText(/Tiers run the other way round/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Start from a white base/i)).not.toBeInTheDocument();
   });
 
   it('offers a way through to the full guide', async () => {
@@ -52,6 +52,11 @@ describe('every string the panel quotes is still on screen somewhere', () => {
   const RENDERED_IN: Record<(typeof QUOTED_UI)[number], string> = {
     'Plan from scratch': 'features/engine/EngineLab.tsx',
     'I have an item': 'features/engine/EngineLab.tsx',
+    'Variant': 'features/engine/BaseSelect.tsx',
+    'Item level': 'features/engine/EngineLab.tsx',
+    'Find plans': 'features/engine/EngineLab.tsx',
+    'Quick currency check': 'features/engine/ItemActions.tsx',
+    'Full plan to a target': 'features/engine/ItemActions.tsx',
     'chance per attempt': 'features/engine/FrontierView.tsx',
     'what one run costs': 'features/engine/FrontierView.tsx',
     'True expected cost': 'features/engine/ItemActions.tsx',

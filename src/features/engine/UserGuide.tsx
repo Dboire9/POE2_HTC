@@ -23,6 +23,11 @@ import { openGuide } from '../../lib/guideRoute.ts';
 export const QUOTED_UI = [
   'Plan from scratch',
   'I have an item',
+  'Variant',
+  'Item level',
+  'Find plans',
+  'Quick currency check',
+  'Full plan to a target',
   'chance per attempt',
   'what one run costs',
   'True expected cost',
@@ -60,32 +65,49 @@ const UserGuide: React.FC = () => {
           </p>
 
           <div className="space-y-1">
-            <div className={LABEL}>Which tab</div>
+            <div className={LABEL}>Start from a white base</div>
+            <ol className={`${P} ml-4 list-decimal space-y-1 marker:text-muted-foreground`}>
+              <li>
+                Stay on <strong className="text-foreground">Plan from scratch</strong>. Pick your{' '}
+                <strong className="text-foreground">Base</strong> and the{' '}
+                <strong className="text-foreground">Item level</strong> of the one you will buy — the
+                level is a hard gate on which tiers can roll at all. If a{' '}
+                <strong className="text-foreground">Variant</strong> menu appears, it matters: a cold
+                wand cannot roll fire mods.
+              </li>
+              <li>
+                Click mods in the <strong className="text-foreground">Prefixes</strong> and{' '}
+                <strong className="text-foreground">Suffixes</strong> lists to make them targets. Each
+                one gets a tier selector, and it means <em>that tier or better</em>. Three of each side
+                is the most a Rare can hold.
+              </li>
+              <li>
+                Press <strong className="text-foreground">Find plans</strong> and read what comes back.
+              </li>
+            </ol>
+          </div>
+
+          <div className="space-y-1">
+            <div className={LABEL}>Or start from an item you are holding</div>
             <p className={P}>
-              <strong className="text-foreground">Plan from scratch</strong> — you have, or can buy, a
-              white base.<br />
-              <strong className="text-foreground">I have an item</strong> — you are mid-craft and want
-              the best move from <em>here</em>.
+              On <strong className="text-foreground">I have an item</strong>, enter the mods it already
+              has <em>at the tiers they are actually rolled at</em> — the selectors default to T1, so an
+              item entered without checking them is described as better than it is. Then{' '}
+              <strong className="text-foreground">Quick currency check</strong> answers “what does one
+              orb do?”, and <strong className="text-foreground">Full plan to a target</strong> answers
+              “get me from here to that”.
             </p>
           </div>
 
           <div className="space-y-1">
-            <div className={LABEL}>The two numbers, and why they disagree</div>
+            <div className={LABEL}>Reading what comes back</div>
             <p className={P}>
-              A plan card shows <strong className="text-foreground">chance per attempt</strong> and{' '}
-              <strong className="text-foreground">what one run costs</strong> — one fixed script, run
-              start to finish. <strong className="text-foreground">True expected cost</strong> answers
-              a different question: what the craft costs when you re-decide after every orb, recovering
-              in place rather than starting over. It is usually far lower. Both are right.
-            </p>
-          </div>
-
-          <div className="space-y-1">
-            <div className={LABEL}>Tiers run the other way round</div>
-            <p className={P}>
-              T1 is the <em>best</em> roll, not the worst. And the tier you pick means{' '}
-              <strong className="text-foreground">that tier or better</strong> — never exactly that
-              tier.
+              The plan cards are a <em>script</em> — a fixed sequence you can follow without checking
+              back. Each shows <strong className="text-foreground">chance per attempt</strong> and{' '}
+              <strong className="text-foreground">what one run costs</strong> for one run of it.{' '}
+              <strong className="text-foreground">True expected cost</strong> answers a different
+              question: what the craft costs when you re-decide after every orb instead of following a
+              script. It is usually far lower, and both numbers are right.
             </p>
           </div>
 

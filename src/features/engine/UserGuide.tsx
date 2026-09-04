@@ -50,7 +50,11 @@ export const QUOTED_UI = [
   'Exhaustive',
 ] as const;
 
-const P = 'text-[11px] leading-relaxed text-muted-foreground';
+// `text-sm`, not the `text-[11px]` used for the one-line asides under controls. Those are captions
+// you glance at; this is a walkthrough somebody sits and reads, and it is the same job as the plan
+// cards and the policy route list, which are `text-sm` already. The uppercase section labels stay
+// small on purpose — raising those too would just make the panel shout.
+const P = 'text-sm leading-relaxed text-muted-foreground';
 const LABEL = 'text-xs font-semibold uppercase tracking-wider text-muted-foreground';
 const LINK = 'underline underline-offset-2 hover:text-foreground';
 const OL = `${P} ml-4 list-decimal space-y-1 marker:text-muted-foreground`;
@@ -187,7 +191,7 @@ const UserGuide: React.FC = () => {
             >
               Ask on Discord
             </a>
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               — something wrong? Use <span aria-hidden="true">🐛</span> Report a problem, up top.
             </span>
           </div>

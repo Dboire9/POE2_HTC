@@ -232,6 +232,18 @@ finish and starting the slot again.
 good starting point — it is opened with a Regal (which converts to Rare while adding a mod) or an
 Augmentation (which fills the second slot and leaves it Magic), and the planner covers both.
 
+**Flag the mods that aren't ordinary.** Two toggles sit on each mod you add, and both change what your
+orbs are allowed to touch — so leaving them off doesn't just lose detail, it gets the plan wrong.
+
+| | What it means |
+|---|---|
+| **🔒 Fractured** | Locked on the item. Never removed, never re-rolled, and excluded from what an Annulment, Chaos or Essence can take at random — which *raises* the odds those orbs hit something you did want gone. An item holds **one**: a Fracturing Orb needs an unfractured item, so marking a second here clears the first |
+| **💀 Desecrated** | A Desecration placed this mod. The flag follows the **mod, not the pool** — a bone that happened to place an ordinary mod flags it just the same. While an item carries a flagged mod the Well of Souls won't touch it again, so removing that mod is what buys you a second Desecration |
+
+Neither is guesswork you should skip. A fractured mod you didn't mark will be planned as though it
+could be annulled away, and a desecrated flag you didn't set will have the planner offering a bone the
+game would refuse.
+
 ### Quick currency check
 
 *"I'm holding this. What does one orb do?"*

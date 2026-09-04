@@ -23,6 +23,7 @@ import {
 } from '../../lib/targetSlots';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import ItemActions from './ItemActions';
+import UserGuide from './UserGuide';
 import FrontierView from './FrontierView';
 import AlternativesView from './AlternativesView';
 import PolicyGraph from './PolicyGraph';
@@ -359,7 +360,7 @@ const EngineLab: React.FC = () => {
     const payload = new URLSearchParams(window.location.search).get('s');
     if (!payload) return;
     // Drop `?s=` immediately, so a later reload doesn't re-apply a stale link over newer work.
-    window.history.replaceState(null, '', window.location.pathname);
+    window.history.replaceState(null, '', window.location.pathname + window.location.hash);
     const decoded = decodeWorkspace(payload, data);
     if (!decoded) {
       toast.error('That link could not be read', { description: 'It looks truncated or is from a newer version.' });
@@ -494,6 +495,8 @@ const EngineLab: React.FC = () => {
 
   return (
     <div className="space-y-4">
+      <UserGuide />
+
       <div className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-sm">
         <button
           className={`${tabCls(mode === 'plan')} ${FOCUS_RING}`}

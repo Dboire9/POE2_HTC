@@ -1,6 +1,7 @@
 # Copy audit — absolute claims in user-facing text
 
-**Date:** 2026-08-22, reconciled 2026-08-23 · **Scope:** `src/**/*.tsx`, excluding `*.test.tsx`
+**Date:** 2026-08-22, reconciled 2026-08-23, extended 2026-09-04 · **Scope:** `src/**/*.tsx`
+(excluding `*.test.tsx`), plus `docs/USER_GUIDE.md` since it began rendering in the app
 
 **Status: every row is closed.** Rows 3, 4, 5 and 6 were copy fixes (2026-08-22); row 1 was a wrong verdict, corrected; rows 1b and 2 were resolved by shipping the feature they described. Nothing here is outstanding — new findings go in a new sweep, not by reopening these.
 
@@ -219,6 +220,53 @@ hours of the row being written. The Desecration rows shipped; the guide's table 
 sentence now name **essences and orb strengths**, which are what remains. The lesson holds and is
 worth restating: the copy was accurate the whole time and the panel was still wrong. Naming a gap
 honestly documents it; it does not close it.
+
+---
+
+# Sweep 2026-09-04 — the in-app user guide
+
+**Scope:** the new `UserGuide` panel (`src/features/engine/UserGuide.tsx`) and the guide it points at,
+`docs/USER_GUIDE.md`, which is now RENDERED IN THE APP at `#guide` rather than only living in the repo.
+That second fact is what brings the `.md` into this audit's scope for the first time as *shipped copy*:
+until now it was documentation a player had to go looking for on GitHub.
+
+### 8. "One guaranteed-mod modifier per item — Essences, Perfect Essences and Alloys together"
+`docs/USER_GUIDE.md`, the Alloys section. Enforced at `whyNotAdd` (`src/lib/targetSlots.ts`), whose
+`isEssence` predicate covers `'essence'`, `'perfect'` **and** `'alloy'`.
+
+**Verdict: OK — but only because of how it is worded, and the wording is the finding.**
+
+For Essences the one-per-item limit is a GAME RULE (`isEssenceMod`, `probability.ts`; regular and
+perfect counted together). **Whether it extends to Alloys is untraced.** poe2db marks Alloy rows
+`Removes: true` exactly as it marks Perfect Essence rows, which is the evidence for their sharing a
+*mechanic*; nothing in the data speaks to the *cap*. The app keeps the stricter behaviour because
+loosening it would be asserting a mechanic, which is the same trap as row 1 in the first sweep.
+
+So the copy states it as **what the app does**, names it as unverified, and invites correction. It does
+not say the game forbids a second Alloy, because nobody here knows that. This is row 1's lesson applied
+before the fact rather than after it: *verifying "this is impossible" and verifying "this is merely
+unimplemented" take the same care.*
+
+### 9. The Quick check's "Essences and orb strengths are not here" — REMOVED
+`docs/USER_GUIDE.md`, Quick currency check.
+
+**Verdict: was OK, went stale, now deleted.**
+
+Row 7 of the previous sweep closed by narrowing this sentence to name essences and orb strengths as
+what remained missing. Commit `fce0788` then shipped both — and the sentence stayed, four paragraphs
+below a table that by then listed `Perfect Essence`, `Essence` and a Greater/Perfect strength row. The
+guide contradicted itself on the same screen for two days.
+
+**The lesson is specific and new: a paragraph that honestly documents a gap becomes a lie the moment
+the gap closes, and nothing points at it.** An accurate claim needs re-checking when the code catches
+up with it, and "this is missing" is exactly the kind of claim that expires. The previous sweep's own
+closing note — *"naming a gap honestly documents it; it does not close it"* — is right, and this is its
+other half: naming a gap creates a debt in the copy that closing the gap must also pay off.
+
+Mitigated for the panel, not for the guide: `UserGuide.test.tsx` pins every UI string the in-app panel
+quotes (`QUOTED_UI`) against the components that render them, so a rename fails the suite. No such
+guard exists for prose that describes what a panel *lacks*, and none is obvious — which is the reason
+this row is written down rather than merely fixed.
 
 ## Still open
 

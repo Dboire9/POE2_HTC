@@ -1,9 +1,12 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { userGuidePlugin } from './src/lib/guide/vitePlugin.ts';
 
 export default defineConfig({
-  plugins: [react()],
+  // The guide page renders `virtual:user-guide`, so the tests need the same plugin the build
+  // uses — that way they assert against the real docs/USER_GUIDE.md, not a fixture of it.
+  plugins: [react(), userGuidePlugin(__dirname)],
   test: {
     globals: true,
     environment: 'jsdom',

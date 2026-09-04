@@ -5,6 +5,7 @@ import { createHash } from "node:crypto"
 import { visualizer } from "rollup-plugin-visualizer"
 import type { Plugin } from "vite"
 import { shipModsJson } from "./packages/engine/src/shipMods.ts"
+import { userGuidePlugin } from "./src/lib/guide/vitePlugin.ts"
 import type { ModsFile } from "./packages/engine/src/indexPatch.ts"
 
 /** The emitted patch-data assets. One regex, because two plugins below both have to find them. */
@@ -57,6 +58,7 @@ function shippedJson(sourceFileName: string, text: string): string {
   const parsed: unknown = JSON.parse(text)
   return sourceFileName === "mods.json" ? shipModsJson(parsed as ModsFile) : JSON.stringify(parsed)
 }
+
 
 /**
  * Name a JSON asset after the bytes it SHIPS, not after the repo's copy of them.
@@ -154,6 +156,7 @@ export default defineConfig({
   plugins: [
     react(),
     shipPatchData(),
+    userGuidePlugin(__dirname),
     preloadPatchData(),
     warnIfUnmonitored(),
     ...(analyze ? [visualizer({ filename: "dist/stats.html", gzipSize: true, brotliSize: false })] : []),

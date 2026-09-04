@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { Toaster } from './components/ui/toaster';
 import EngineLab from './features/engine/EngineLab';
 import ReportProblem, { DISCORD_URL, PANEL_ID } from './features/engine/ReportProblem';
@@ -8,6 +8,11 @@ import ReportProblem, { DISCORD_URL, PANEL_ID } from './features/engine/ReportPr
 // the one thing in a release that nothing checks. Vite emits JSON named exports as individual
 // bindings, so this inlines the string; the manifest itself is not in the bundle (verified).
 import { version } from '../package.json';
+import { useIsGuide } from './lib/guideRoute';
+
+// The guide is ~30 kB of prose that most visits never open, and the entry chunk is the thing
+// `preloadPatchData` exists to keep small — so it loads on demand, like the Sentry SDK.
+const GuidePage = lazy(() => import('./features/guide/GuidePage'));
 
 /** Shared chip styling for the header actions — one place, so they can't drift apart. */
 const CHIP = 'flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-md border transition-all cursor-pointer '
@@ -21,6 +26,7 @@ const openExternalLink = (url: string) => {
 
 export default function App() {
   const [reporting, setReporting] = useState(false);
+  const showGuide = useIsGuide();
   return (
     <div className="min-h-screen text-foreground bg-background">
       <header className="border-b border-border bg-gradient-to-r from-[oklch(0.20_0_0)] to-[oklch(0.24_0_0)]">
@@ -91,8 +97,25 @@ export default function App() {
       </header>
 
       <main className="container py-3 sm:py-4 px-3 sm:px-4 space-y-3">
-        <ReportProblem version={version} open={reporting} onClose={() => setReporting(false)} />
-        <EngineLab />
+        {showGuide && (
+          <Suspense fallback={<p className="text-xs text-muted-foreground">Loading the guide…</p>}>
+            <GuidePage />
+          </Suspense>
+        )}
+        {/* HIDDEN, never unmounted. A computed plan and an in-flight Web Worker solve live in
+            EngineLab's state, so unmounting it to show the guide would throw away a solve that may
+            have been running for minutes — for the sake of reading a paragraph.
+
+            Attribute AND class, saying the same thing twice on purpose: the attribute is what the
+            browser's UA stylesheet and jsdom both honour (so `toBeVisible()` means something in the
+            tests), and Tailwind's utility is the guard in case a stylesheet ever overrides
+            `[hidden]`. Nothing else on this element sets `display`, so they cannot disagree. */}
+        <div hidden={showGuide} className={showGuide ? 'hidden' : undefined}>
+          <div className="space-y-3">
+            <ReportProblem version={version} open={reporting} onClose={() => setReporting(false)} />
+            <EngineLab />
+          </div>
+        </div>
       </main>
 
       <Toaster />

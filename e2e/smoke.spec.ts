@@ -142,3 +142,32 @@ test('5 — mobile: the mod columns stack and nothing overflows sideways', async
   );
   expect(overflow, 'horizontal overflow in px').toBeLessThanOrEqual(0);
 });
+
+test('6 — the user guide opens, renders, and fits a phone', async ({ page }) => {
+  // The guide is 67 table rows of prose rendered from docs/USER_GUIDE.md, several of them wider than
+  // a phone. It is by far the most likely thing in the app to break the no-horizontal-overflow rule,
+  // and jsdom has no layout engine, so only a browser can tell.
+  await page.setViewportSize({ width: 390, height: 844 });
+  const errors: string[] = [];
+  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+
+  await page.goto('/');
+  await waitForReady(page);
+
+  await page.getByRole('button', { name: /New here/i }).click();
+  await page.getByRole('button', { name: /Read the full guide/i }).click();
+
+  // Content APPEARS — this suite never asserts a value, and the guide's text is the .md's business.
+  await expect(page.getByRole('heading', { level: 1, name: /User Guide/i })).toBeVisible({ timeout: 30_000 });
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow, 'horizontal overflow in px on the guide').toBeLessThanOrEqual(0);
+
+  // Back to the app, with the lab still there — it was hidden, not torn down.
+  await page.getByRole('button', { name: /Back to the app/i }).click();
+  await expect(page.getByRole('button', { name: 'Find plans' })).toBeVisible();
+
+  expect(errors, 'console errors while reading the guide').toEqual([]);
+});

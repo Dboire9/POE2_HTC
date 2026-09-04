@@ -23,7 +23,7 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
 - [I have an item](#i-have-an-item)
   - [Quick currency check](#quick-currency-check)
   - [Full plan to a target](#full-plan-to-a-target)
-  - [Why this tab reads differently](#why-this-tab-reads-differently)
+  - [Why the cards carry no total](#why-the-cards-carry-no-total)
 - [Budget mode](#budget-mode)
 - [Search effort](#search-effort)
 - [Currency I don't have](#currency-i-dont-have)
@@ -61,7 +61,7 @@ At the top of the page:
 
 They are genuinely different questions and the app answers them differently. Most of the confusion
 people report comes from reading a "Plan from scratch" number as though it applied to the Rare in their
-stash — see [Why this tab reads differently](#why-this-tab-reads-differently).
+stash — see [Why the cards carry no total](#why-the-cards-carry-no-total).
 
 ---
 
@@ -70,6 +70,12 @@ stash — see [Why this tab reads differently](#why-this-tab-reads-differently).
 ### 1. Pick a base and item level
 
 - **Base** — the item type, e.g. *Attuned Wand*. Available mods change completely with the base.
+- **Variant** — appears next to **Base** only when a category splits, and it splits on one of two
+  axes. Armour splits by attribute (*Str/Int · Armour + ES*), because the Str/Dex/Int bases genuinely
+  roll different pools. Wands and staves split by **spell element** (*Cold only · Frigid Wand*): a
+  Frigid Wand cannot roll fire spell modifiers at all, so picking the wrong variant hides mods you
+  were looking for — and picking the right one stops the planner offering a craft your base can't do.
+  Categories with one shared pool show no Variant menu, which is why every belt is a single entry.
 - **Item level** — the ilvl of the white base you'll start from. This is a hard gate: a tier that
   requires ilvl 82 simply cannot roll on an ilvl 75 base, and the planner will tell you so rather than
   pretending otherwise.
@@ -86,9 +92,18 @@ a mod to add it to your target.
 The list shows what can actually roll on the chosen base at the chosen item level. If a mod you expect
 isn't there, the base or the level is why.
 
-**Sources.** Most mods roll from the normal pool. Some are **essence-only** — they can only be placed by
-an Essence. Others are **desecrated** — only a Bone offering places them. The app marks these and routes
-accordingly.
+**Sources.** Most mods roll from the normal pool and need no special currency. The rest are labelled in
+the picker, because what places them changes the whole route:
+
+| Label | What places it |
+|---|---|
+| *(none)* | The normal pool — any orb that adds a mod |
+| **· Essence only** | A regular Essence. Needs a **Magic** item; forces its mod and turns the item Rare |
+| **· Perfect Essence** | A Perfect Essence, on a **Rare**. Forces its mod on and removes one existing mod at random |
+| **· Alloy** | An Alloy — same mechanic as a Perfect Essence, different currency ([see below](#alloys)) |
+| **· Desecrated** | A Bone offering (a Desecration) |
+
+The app routes accordingly, and tells you when a mod is out of reach rather than quietly dropping it.
 
 ### 3. Tiers, alternatives and pins
 
@@ -207,6 +222,16 @@ raise Search effort.
 Enter the base, the item level, the rarity, and the mods currently on it. Then pick one of two
 sub-modes.
 
+**Give each mod the tier it is actually rolled at.** Every mod you add to your item carries a tier
+selector, and it defaults to T1 — so an item entered without touching them is described as better than
+it is. The tiers matter twice over: a mod already at or above the tier you are targeting is **kept**,
+where one below it has to come off and be re-rolled, and that is often the difference between a cheap
+finish and starting the slot again.
+
+**Rarity describes the item you hold**, not the one you want. A **Magic (1 + 1)** item is a perfectly
+good starting point — it is opened with a Regal (which converts to Rare while adding a mod) or an
+Augmentation (which fills the second slot and leaves it Magic), and the planner covers both.
+
 ### Quick currency check
 
 *"I'm holding this. What does one orb do?"*
@@ -266,10 +291,6 @@ the row is refused while a carved mod is still on the item; and the boss omens r
 **Weapon or Jewellery** Desecration attempt"*, so on armour there is no way to target a boss's pool at
 all — the row says that instead of disappearing.
 
-**Essences and orb strengths are not here.** That is a limit of this panel, not of the engine or of
-the game — the *Full plan to a target* sub-mode and the true-cost model both use all of them. If you
-want to know what a Greater Exalt or an Essence does to your item, ask there.
-
 This is a per-orb number, not a plan. How many orbs it takes overall depends on what you do after a
 miss — that's the other sub-mode.
 
@@ -281,8 +302,26 @@ Where a currency can't apply, the row says why rather than hiding.
 
 Set **What should the item end up as?** — the **final** mods you want. **Copy my current mods** seeds it
 from what you have, at the tiers those mods are rolled at. Anything on your item that isn't in the
-target list is treated as junk and will be removed; anything that *is* in the list is kept, not
-re-rolled — as long as its roll is at the tier you asked for or better, which the row tells you.
+target list is treated as junk and will be removed.
+
+**Every target row says where it stands against the item you hold**, which is the fastest way to see
+what a craft actually costs you from here:
+
+| Row reads | Meaning |
+|---|---|
+| **✓ on your item** *(with its tier)* | Already there, at the tier you asked for or better. Kept, not re-rolled |
+| **↻ yours is T…  — must re-roll** | The mod is there but rolled too low. The slot has to be cleared and rolled again |
+| **+ to add** | Not on the item yet |
+
+A tally above the rows counts the three — *"5 slots: 2 already on your item · 1 to re-roll · 2 to add"* —
+so a target you thought was nearly done shows itself before you spend anything on it.
+
+**Your item has done N% of this craft.** Above the plan sits a progress figure, and it is measured in
+**currency, not in mod count**. Those are wildly different numbers and the mod count is the flattering
+one: holding four of six target mods is not 67% of the work, because the last mod is by far the hardest.
+On one measured Wand craft, four of six came to **4.4%** — the final mod alone was 53% of the cost. The
+panel will also tell you when your item is *behind* a clean start, which happens when junk mods are
+occupying slots and families you need: a Wand with three junk mods measured 489 ex worse than a bare base.
 
 Then **Compute plan**. You get the same two views as the Lab: plan cards, and the true expected cost with
 its policy.
@@ -480,6 +519,7 @@ routes possible.
 | **Orb of Annulment** | Removes a random mod |
 | **Orb of Alchemy** | White → Rare with a full set of mods |
 | **Essences** | Guarantee a specific mod. Lesser / Normal / Greater / Perfect |
+| **Alloys** | Guarantee a specific mod on a Rare, like a Perfect Essence ([below](#alloys)) |
 | **Bone offerings (Desecration)** | Place a desecrated mod |
 
 **Strengths.** Transmutation, Augmentation, Regal, Exalted and Chaos all come in **Basic**, **Greater**
@@ -494,6 +534,32 @@ Exaltation** (one Exalted Orb adds two mods).
 A *Dextral Exaltation* constrains an Exalt to add a **suffix**; a *Dextral Annulment* constrains an
 Annulment to remove one; a *Dextral Crystallisation* constrains a Perfect Essence's removal. They are
 different omens for different currencies — check what the plan step actually names before buying.
+
+### Alloys
+
+Alloys are Runes of Aldur currency, and there are thirteen of them — *Runic Alloy*, *Sovereign Alloy*,
+*Celestial Alloy* and so on. They carry their own names, and the picker labels their mods **· Alloy**
+rather than folding them in with essences.
+
+**Mechanically they behave as a Perfect Essence does**: used on a **Rare**, an Alloy forces its modifier
+on and removes one of your existing modifiers at random in exchange. That is why they sit beside the
+Perfect Essence rows rather than in a category of their own — the route the planner builds around one is
+the same shape.
+
+**Their prices are not remotely alike, though**, and that is the reason to pay attention to the label.
+Alloys trade from a few exalts to a few thousand — a Swift Alloy is small change and a Celestial Alloy
+is one of the most expensive things a craft can call for. They are priced from their own poe.ninja feed,
+like every other currency here. Since the app **ranks plans by cost**, an Alloy step is worth reading
+twice before you buy: two plans that look alike can differ by three orders of magnitude on that one line.
+
+On some bases they are the majority of what is on offer — on a Wand, most of the guaranteed-mod targets
+are Alloys rather than Perfect Essences.
+
+> **One caveat, stated as what the app does rather than what the game does.** The app allows **one**
+> guaranteed-mod modifier per item and counts Essences, Perfect Essences and Alloys together toward
+> that one. For Essences that limit is a game rule. Whether it extends to Alloys is **not something
+> this project has verified**, so the app keeps the stricter behaviour rather than guessing the looser
+> one. If you know it to be wrong, [say so](#getting-help) — it is a one-line change.
 
 ### Families
 
@@ -544,6 +610,13 @@ The **true cost** panel does not use Greater Exaltation, and that is deliberate 
 that model re-chooses after every single orb, so committing to two draws in advance costs it more
 flexibility than the omen saves. Both behaviours were measured; see `docs/validation.md`.
 
+**What's an Alloy, and why does the picker call some mods that?** It's Runes of Aldur currency that
+forces a mod onto a Rare exactly as a Perfect Essence does, but with its own name and its own price —
+anywhere from a few exalts to a few thousand. See [Alloys](#alloys).
+
+**Why does my wand not offer fire mods?** Because it's a cold wand. Wand and staff bases lock to a spell
+element, and the **Variant** menu next to **Base** is where you say which one you're holding.
+
 **Why can't I target a Perfect-Essence-only mod from scratch?** The from-white planner doesn't model the
 remove-and-add-on-Rare flow those need. Use the **I have an item** tab, which does.
 
@@ -563,6 +636,8 @@ remove-and-add-on-Rare flow those need. Use the **I have an item** tab, which do
 | **ilvl** | Item level; gates which tiers can roll |
 | **Fractured** | A mod locked onto the item; can't be removed or rerolled |
 | **Desecrated** | A mod that only a Bone offering can place |
+| **Alloy** | A Runes of Aldur currency that forces a mod onto a Rare, as a Perfect Essence does |
+| **Variant** | The sub-choice within a base category — attribute for armour, spell element for wands and staves |
 
 ---
 

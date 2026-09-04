@@ -481,7 +481,15 @@ const EngineLab: React.FC = () => {
   if (!data) {
     return (
       <div className="flex items-center gap-3 p-8 text-muted-foreground">
-        <Spinner /> Loading patch data…
+        {/* The label is WRAPPED, and there is no bare text node beside the spinner — `gap-3`
+              supplies the space that a literal one used to. Chrome and Edge translate a page by
+              REPLACING each text node with a <font> element of their own. React still holds a
+              reference to the text node it rendered, so when the data lands and this whole block is
+              swapped for the app, `removeChild` is handed a node that is no longer a child and the
+              boundary takes the page down. Reported from production 2026-09-04 by an Edge/zh-CN
+              reader; the text inside an element gets rewritten in place instead, and the element
+              React removes is still there. */}
+        <Spinner /><span>Loading patch data…</span>
       </div>
     );
   }

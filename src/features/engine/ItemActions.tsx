@@ -533,7 +533,12 @@ const ItemActions: React.FC = () => {
     );
   }
   if (!engine) {
-    return <div className="flex items-center gap-3 p-8 text-muted-foreground"><Spinner /> Loading patch data…</div>;
+    // Same wrap, same reason as EngineLab's loading state — see the note there.
+    return (
+      <div className="flex items-center gap-3 p-8 text-muted-foreground">
+        <Spinner /><span>Loading patch data…</span>
+      </div>
+    );
   }
 
   const subTabCls = (active: boolean) =>

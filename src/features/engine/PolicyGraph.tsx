@@ -644,8 +644,49 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
   // panel can do, so it gets a notice rather than a picture.
   const reachesTarget = result.nodes.some((n) => n.isGoal);
 
+  // A SEGMENTED CONTROL, above the content, not a grey text link under it. The picture is the thing
+  // this panel is for — every state the policy can reach and how it moves between them — and it used
+  // to be reachable only through `Show all N states…` set in muted underlined 12px BELOW the route
+  // list, which reads as a footnote rather than as the other half of the panel. Same shape as the
+  // main tab bar, because it is the same kind of choice: two views of one answer.
+  const viewCls = (active: boolean) =>
+    `px-3 py-1.5 rounded ${active ? 'bg-background shadow-sm font-medium' : 'text-muted-foreground hover:text-foreground'}`;
+  const canSwitch = reachesTarget && haveLine;
+  // ONE expression for "the picture is on screen", because the graph and its legend must never
+  // disagree about that — a legend describing squares beside a numbered list is the bug this move
+  // was fixing in the first place.
+  const showGraph = showAll || !haveLine || !reachesTarget;
+
   return (
     <div className="space-y-2">
+      {canSwitch && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <div className="inline-flex rounded-md border border-border bg-muted/40 p-0.5 text-sm">
+            <button
+              type="button"
+              onClick={() => setShowAll(false)}
+              aria-pressed={!showAll}
+              className={`${viewCls(!showAll)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
+            >
+              The route
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAll(true)}
+              aria-pressed={showAll}
+              className={`${viewCls(showAll)} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
+            >
+              Full graph · {result.nodes.length} states
+            </button>
+          </div>
+          <span className="text-[11px] text-muted-foreground">
+            {showAll
+              ? 'Every state the policy can reach, and how it moves between them. Click a box for its detail.'
+              : 'The single likeliest path through. Switch to the graph to see what happens when a roll misses.'}
+          </span>
+        </div>
+      )}
+
       {!reachesTarget && (
         <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-700 dark:text-amber-300">
           <strong>No route to show yet.</strong> The solver stopped before its policy settled, and what
@@ -677,19 +718,19 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
         </ol>
       )}
 
-      {(showAll || !haveLine || !reachesTarget) && <FullGraph result={result} fmtCost={fmtCost} />}
+      {showGraph && <FullGraph result={result} fmtCost={fmtCost} />}
 
-      {reachesTarget && haveLine && (
-        <button
-          type="button"
-          onClick={() => setShowAll((v) => !v)}
-          className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
-          aria-expanded={showAll}
-        >
-          {showAll
-            ? 'Show just the route'
-            : `Show all ${result.nodes.length} states the policy can reach`}
-        </button>
+      {/* The legend belongs to the PICTURE, so it renders with the picture. It used to live in
+          ItemActions, below a component that shows a numbered LIST by default — so the app explained
+          squares and arrows to someone looking at neither, and said nothing at all on the lab tab,
+          which renders the same graph. */}
+      {showGraph && (
+        <p className="text-[11px] text-muted-foreground">
+          Each square is an item state, from your item (left) to the target (right). Solid arrows are
+          progress; dashed amber arrows are <strong>bricks</strong> — a bad roll (a miss, or a target
+          rolled <strong>below its tier</strong> so its family is blocked) that sends you back a step,
+          which the policy then digs out of.
+        </p>
       )}
 
       {/*

@@ -1000,13 +1000,9 @@ const ItemActions: React.FC = () => {
                 still an estimate.
               </p>
               {engine && <PriceBasisNote basis={priceBasis(engine)} exactOdds={!markov.assumedOdds} />}
+              {/* The graph's legend moved INTO PolicyGraph, which is the only place that knows
+                  whether the picture or the route list is on screen. */}
               <PolicyGraph result={markov} rates={rates} />
-              <p className="text-[11px] text-muted-foreground">
-                Each square is an item state, from your item (left) to the target (right). Solid arrows are
-                progress; dashed amber arrows are <strong>bricks</strong> — a bad roll (a miss, or a target
-                rolled <strong>below its tier</strong> so its family is blocked) that sends you back a step,
-                which the policy then digs out of.
-              </p>
             </Card>
           )}
           {plan && !planErr && trueCostAnswered && !showRoutes && (

@@ -24,7 +24,7 @@ const fmt = (x: number): string => x.toPrecision(3);
 
 
 const expand = async () => {
-  await userEvent.setup().click(screen.getByRole('button', { name: /Show all \d+ states/i }));
+  await userEvent.setup().click(screen.getByRole('button', { name: /Full graph · \d+ states/i }));
 };
 
 /**
@@ -43,12 +43,12 @@ const showEveryState = async () => {
 
 // The default view is the ROUTE, not the state space. A five-target craft reaches 262 states, most
 // sharing a label and all rounding to the same cost — complete, and unreadable. The full graph is
-// still here, one click away.
+// still here, behind the view switcher.
 describe('PolicyGraph — the route', () => {
   it('leads with the route rather than the state graph', () => {
     const { container } = render(<PolicyGraph result={result} />);
     expect(container.querySelector('svg')).toBeNull();
-    expect(screen.getByRole('button', { name: /Show all \d+ states/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Full graph · \d+ states/i })).toBeInTheDocument();
   });
 
   it('names the currency to use at each step, and ends at the target', () => {
@@ -98,7 +98,7 @@ describe('PolicyGraph — the full graph, on demand', () => {
   it('collapses back to the route', async () => {
     const { container } = render(<PolicyGraph result={result} />);
     await expand();
-    await userEvent.setup().click(screen.getByRole('button', { name: /Show just the route/i }));
+    await userEvent.setup().click(screen.getByRole('button', { name: /^The route$/i }));
     expect(container.querySelector('svg')).toBeNull();
   });
 
@@ -152,7 +152,7 @@ describe('PolicyGraph — degenerate input', () => {
     expect(screen.getAllByText(/search effort/i).length).toBeGreaterThanOrEqual(2);
     // No route list is offered, and the toggle is gone — there is nothing to toggle between.
     expect(screen.queryByText(/onward/)).toBeNull();
-    expect(screen.queryByRole('button', { name: /Show all/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Full graph/i })).toBeNull();
   });
 
   it('falls back to the full graph when no route can be walked', () => {
@@ -169,7 +169,7 @@ describe('PolicyGraph — degenerate input', () => {
     };
     const { container } = render(<PolicyGraph result={stalled} />);
     expect(container.querySelector('svg')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /Show all/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Full graph/i })).toBeNull();
   });
 });
 
@@ -634,5 +634,50 @@ describe('pruneToCoverage — draw what a craft runs into, say what it left out'
   it('opens on the narrowest rung, and the widest really is everything', () => {
     expect(COVERAGE_STEPS[0]).toBeLessThan(1);
     expect(COVERAGE_STEPS[COVERAGE_STEPS.length - 1]).toBe(1);
+  });
+});
+
+/**
+ * The picture is half of what this panel is for, and it used to be reachable only through a muted
+ * 12px underlined `Show all N states…` sitting BELOW the route list — which reads as a footnote, not
+ * as the other view. Both views are named up front now, in the same segmented control the main tab
+ * bar uses.
+ */
+describe('PolicyGraph — the graph is offered, not hidden', () => {
+  it('names both views before anything is clicked', () => {
+    render(<PolicyGraph result={result} />);
+    const route = screen.getByRole('button', { name: /^The route$/i });
+    const graph = screen.getByRole('button', { name: /Full graph · \d+ states/i });
+    // `aria-pressed`, like the app's other segmented control — a pair of views, not a disclosure.
+    expect(route).toHaveAttribute('aria-pressed', 'true');
+    expect(graph).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('says how many states the graph holds, so the offer carries its own size', () => {
+    render(<PolicyGraph result={result} />);
+    expect(screen.getByRole('button', { name: new RegExp(`Full graph · ${result.nodes.length} states`) }))
+      .toBeInTheDocument();
+  });
+
+  it('flips aria-pressed when the graph is chosen', async () => {
+    render(<PolicyGraph result={result} />);
+    await expand();
+    expect(screen.getByRole('button', { name: /Full graph/i })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /^The route$/i })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  // The legend describes squares and arrows. It lived in ItemActions, below a component that shows a
+  // numbered LIST by default — so it explained the picture to someone looking at the route, and the
+  // lab tab, which renders the same graph, had no legend at all.
+  it('shows the legend with the picture and not with the route', async () => {
+    render(<PolicyGraph result={result} />);
+    expect(screen.queryByText(/Each square is an item state/i)).toBeNull();
+    await expand();
+    expect(screen.getByText(/Each square is an item state/i)).toBeInTheDocument();
+  });
+
+  it('explains what each view is for, beside the switch', () => {
+    render(<PolicyGraph result={result} />);
+    expect(screen.getByText(/single likeliest path/i)).toBeInTheDocument();
   });
 });

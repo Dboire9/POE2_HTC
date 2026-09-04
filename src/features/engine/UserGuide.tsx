@@ -44,6 +44,10 @@ export const QUOTED_UI = [
   'chance per attempt',
   'what one run costs',
   'True expected cost',
+  'Search effort',
+  'Quick',
+  'Standard',
+  'Exhaustive',
 ] as const;
 
 const P = 'text-[11px] leading-relaxed text-muted-foreground';
@@ -154,6 +158,19 @@ const UserGuide: React.FC = () => {
               of it. <UI>True expected cost</UI> answers a different question: what the craft costs when
               you re-decide after every orb instead of following a script. It is usually far lower, and
               both numbers are right.
+            </p>
+          </div>
+
+          <div className="space-y-1">
+            <div className={LABEL}>If the answer looks unfinished</div>
+            <p className={P}>
+              <UI>Search effort</UI> is how long the solver may look before it gives up —{' '}
+              <UI>Quick</UI> is seconds, <UI>Standard</UI> is the default, <UI>Exhaustive</UI> is
+              minutes. It does <em>not</em> change the maths: every probability is exact at every
+              setting. What it changes is whether the search <em>finishes</em>. So a cost that comes
+              back marked <UI>≥</UI> or <UI>≤</UI>, or a policy that says “No route to show yet”, is
+              the solver telling you it ran out of time rather than telling you about your craft —
+              raise the effort and run it again.
             </p>
           </div>
 

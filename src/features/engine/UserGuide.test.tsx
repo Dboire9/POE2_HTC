@@ -60,24 +60,32 @@ describe('the guide disclosure', () => {
 describe('every string the panel quotes is still on screen somewhere', () => {
   // Where each quoted label is actually rendered. A rename moves the string out of this file and the
   // assertion fails, naming the label that drifted.
-  const RENDERED_IN: Record<(typeof QUOTED_UI)[number], string> = {
-    'Plan from scratch': 'features/engine/EngineLab.tsx',
-    'I have an item': 'features/engine/EngineLab.tsx',
-    'Variant': 'features/engine/BaseSelect.tsx',
-    'Item level': 'features/engine/EngineLab.tsx',
-    'Rarity': 'features/engine/ItemActions.tsx',
-    'Find plans': 'features/engine/EngineLab.tsx',
-    'Compute plan': 'features/engine/ItemActions.tsx',
-    'Quick currency check': 'features/engine/ItemActions.tsx',
-    'Full plan to a target': 'features/engine/ItemActions.tsx',
-    'chance per attempt': 'features/engine/FrontierView.tsx',
-    'what one run costs': 'features/engine/FrontierView.tsx',
-    'True expected cost': 'features/engine/ItemActions.tsx',
+  // `find` overrides what to search for, and exists because a bare word is a weak guard: `Quick`
+  // appears four times in searchEffort.ts and only ONE of them is the label a player reads. Renaming
+  // that label would leave the comments matching and the test green, which is the failure this map
+  // is supposed to catch.
+  const RENDERED_IN: Record<(typeof QUOTED_UI)[number], { file: string; find?: string }> = {
+    'Plan from scratch': { file: 'features/engine/EngineLab.tsx' },
+    'I have an item': { file: 'features/engine/EngineLab.tsx' },
+    'Variant': { file: 'features/engine/BaseSelect.tsx' },
+    'Item level': { file: 'features/engine/EngineLab.tsx' },
+    'Rarity': { file: 'features/engine/ItemActions.tsx' },
+    'Find plans': { file: 'features/engine/EngineLab.tsx' },
+    'Compute plan': { file: 'features/engine/ItemActions.tsx' },
+    'Quick currency check': { file: 'features/engine/ItemActions.tsx' },
+    'Full plan to a target': { file: 'features/engine/ItemActions.tsx' },
+    'chance per attempt': { file: 'features/engine/FrontierView.tsx' },
+    'what one run costs': { file: 'features/engine/FrontierView.tsx' },
+    'True expected cost': { file: 'features/engine/ItemActions.tsx' },
+    'Search effort': { file: 'features/engine/SearchEffort.tsx' },
+    'Quick': { file: 'lib/searchEffort.ts', find: "label: 'Quick'" },
+    'Standard': { file: 'lib/searchEffort.ts', find: "label: 'Standard'" },
+    'Exhaustive': { file: 'lib/searchEffort.ts', find: "label: 'Exhaustive'" },
   };
 
   it.each(QUOTED_UI)('"%s" still appears in the component that renders it', (label) => {
-    const source = readFileSync(join(SRC, RENDERED_IN[label]), 'utf8');
-    expect(source).toContain(label);
+    const { file, find } = RENDERED_IN[label];
+    expect(readFileSync(join(SRC, file), 'utf8')).toContain(find ?? label);
   });
 
   // ACROSS BOTH TABS, because the walkthrough follows the tab: `Find plans` is only ever on the lab
@@ -156,5 +164,31 @@ describe('the mod flags are explained before you have used them', () => {
     expect(text).toContain('🔒');
     expect(text).toContain('💀');
     expect(text).toContain('Desecration');
+  });
+});
+
+describe('the Search effort block', () => {
+  beforeEach(() => { onTab('plan'); });
+  afterEach(() => { cleanup(); onTab('plan'); });
+
+  // The misconception worth heading off: people read a longer search as a more accurate one and a
+  // short one as a rough estimate. Every probability is exact at every setting; what moves is whether
+  // the search finishes at all.
+  it('says effort changes whether the search finishes, not how accurate it is', async () => {
+    const text = await openPanel();
+    expect(text).toMatch(/does not change the maths|exact at every setting/i);
+  });
+
+  it('names the signal that means "raise it"', async () => {
+    const text = await openPanel();
+    expect(text).toContain('≥');
+    expect(text).toContain('No route to show yet');
+  });
+
+  it('is on both tabs, because the control is', async () => {
+    expect(await openPanel()).toContain('Search effort');
+    cleanup();
+    onTab('item');
+    expect(await openPanel()).toContain('Search effort');
   });
 });

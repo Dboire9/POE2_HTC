@@ -3,7 +3,6 @@ import type { ItemBase, ItemState, Mod, PatchData } from '../../engine/src/index
 import { loadPatch } from '../../engine/src/index.ts';
 import { optimizeFromItem } from './fromItem.ts';
 import type { Prices } from './cost.ts';
-import { loadPrices } from './loadPrices.ts';
 import { loadFrozenPrices } from './frozenPrices.ts';
 
 // Synthetic base: prefixes NP1(w20,Fp1) NP2(w30,Fp2); suffix NS1(w50,Fs1). Prefix total 50, suffix 50.

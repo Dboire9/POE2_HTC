@@ -714,7 +714,14 @@ describe('engine facade — budget alternatives (0.5.0)', () => {
 
 // The from-item MDP (true expected cost + policy graph). Uses the 0.5.0 snapshot the app ships.
 describe('engine facade — optimizeItemMarkov (0.5.0)', () => {
-  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
+  // FROZEN, not the shipped sheet. What this asserts is a property of the MODEL, but it is computed
+  // from prices, so on the live sheet it is really an assertion about this week's economy. The
+  // Forbidden Rites league start proved that: nothing in the engine changed and it went red, because
+  // four orb strengths had not traded yet and kept their Runes of Aldur values. CLAUDE.md already
+  // requires a test asserting an exact cost to read `loadFrozenPrices()`; a test asserting a cost
+  // ORDERING is the same claim wearing a different hat. `priceResolution` and `costConsistency` remain
+  // on the live sheet, and they are the refresh's guard.
+  const eng050 = { data: loadPatch('data/patches/0.5.0'), prices: loadFrozenPrices() };
   const MANA = 'Wands/IncreasedMana'; const INT = 'Wands/Intelligence'; const SPELL = 'Wands/WeaponSpellDamage';
   const start: ExistingItem = {
     baseId: 'Wands', level: 82, rarity: 'rare',

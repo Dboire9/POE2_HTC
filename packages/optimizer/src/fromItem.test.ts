@@ -4,6 +4,7 @@ import { loadPatch } from '../../engine/src/index.ts';
 import { optimizeFromItem } from './fromItem.ts';
 import type { Prices } from './cost.ts';
 import { loadPrices } from './loadPrices.ts';
+import { loadFrozenPrices } from './frozenPrices.ts';
 
 // Synthetic base: prefixes NP1(w20,Fp1) NP2(w30,Fp2); suffix NS1(w50,Fs1). Prefix total 50, suffix 50.
 const mk = (id: string, type: 'prefix' | 'suffix', family: string, weight: number): Mod =>
@@ -489,7 +490,14 @@ describe('optimizeFromItem — a Magic item opens with a Regal', () => {
  */
 describe('optimizeFromItem — orb strength on real 0.5.0 data', () => {
   const real = loadPatch('data/patches/0.5.0');
-  const rp = loadPrices('data/patches/0.5.0');
+  // FROZEN, not the shipped sheet. What this asserts is a property of the MODEL, but it is computed
+  // from prices, so on the live sheet it is really an assertion about this week's economy. The
+  // Forbidden Rites league start proved that: nothing in the engine changed and it went red, because
+  // four orb strengths had not traded yet and kept their Runes of Aldur values. CLAUDE.md already
+  // requires a test asserting an exact cost to read `loadFrozenPrices()`; a test asserting a cost
+  // ORDERING is the same claim wearing a different hat. `priceResolution` and `costConsistency` remain
+  // on the live sheet, and they are the refresh's guard.
+  const rp = loadFrozenPrices();
   const wand = real.bases.get('Wands')!;
   const tierName = (id: string): string => real.mods.get(id)!.tiers[0]!.name;
   const P = wand.pools.normal.prefixes;

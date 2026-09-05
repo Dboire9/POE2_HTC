@@ -138,13 +138,17 @@ describe('Omen of Whittling — priced or not offered', () => {
     };
   };
 
-  it('is offered on the shipped sheet, which prices it', () => {
-    // Priced live from poe.ninja's Ritual feed since 2026-09-02 — omens are Ritual content, which is
-    // why `type=Omens` never served them. Before that this test asserted the opposite.
-    expect(prices.omens['OmenofWhittling']).toBeGreaterThan(0);
+  it('is offered when the sheet prices it', () => {
+    // A CONSTRUCTED sheet, mirroring the gate test below rather than reading whatever the market did
+    // this week. This used to assert `prices.omens['OmenofWhittling'] > 0` on the shipped sheet, which
+    // made it a claim about poe.ninja: Whittling is absent from the Forbidden Rites Ritual feed
+    // entirely (0 of 19 lines, three days in), so the assertion failed while the behaviour it names
+    // was perfectly correct. The pair now pins both directions of the gate and neither depends on
+    // anyone having listed the omen for sale.
+    const priced: Prices = { ...prices, omens: { ...prices.omens, OmenofWhittling: 4861 } };
     const state = twoTiered();
     const step: PlanStep = { currency: 'chaos', remove: P[0]!, add: S[1]! };
-    const opts = leverOptions(data, prices, state, step);
+    const opts = leverOptions(data, priced, state, step);
     expect(opts.some((o) => 'omen' in o.step && o.step.omen === 'whittling')).toBe(true);
   });
 

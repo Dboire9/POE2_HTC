@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../engine/src/loadPatch.ts';
 import { bossOmenAllowed, desecrationBoneFor } from '../../engine/src/probability.ts';
 import type { ItemState } from '../../engine/src/types.ts';
-import { loadPrices } from './loadPrices.ts';
+import { loadFrozenPrices } from './frozenPrices.ts';
 import { optimizePareto } from './optimize.ts';
 import { optimizeFromItem } from './fromItem.ts';
 import { markovFromItem } from './markovFromItem.ts';
@@ -16,7 +16,14 @@ import type { McTarget } from './markovState.ts';
 // desecration on ARMOUR too — 342 of the 527 desecrated mods in the shipped data sit on armour bases,
 // so roughly two thirds of desecrated crafts were being planned around a step the game refuses.
 const data = loadPatch('data/patches/0.5.0');
-const prices = loadPrices('data/patches/0.5.0');
+// FROZEN, not the shipped sheet. What this asserts is a property of the MODEL, but it is computed
+// from prices, so on the live sheet it is really an assertion about this week's economy. The
+// Forbidden Rites league start proved that: nothing in the engine changed and it went red, because
+// four orb strengths had not traded yet and kept their Runes of Aldur values. CLAUDE.md already
+// requires a test asserting an exact cost to read `loadFrozenPrices()`; a test asserting a cost
+// ORDERING is the same claim wearing a different hat. `priceResolution` and `costConsistency` remain
+// on the live sheet, and they are the refresh's guard.
+const prices = loadFrozenPrices();
 
 /**
  * A base of each kind, plus a desecrated mod from its pool and THREE rollable mods of distinct

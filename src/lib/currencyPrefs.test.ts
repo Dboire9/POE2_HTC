@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { act, renderHook } from '@testing-library/react';
 import {
   ALL_GROUPS, CURRENCY_GROUPS, OMEN_GROUP, STORAGE_KEY, STRENGTH_GROUP,
@@ -103,12 +105,28 @@ describe('toExcludedKeys — group settings become price-sheet keys', () => {
   });
 
   // Every key produced must be one the price sheet — and therefore the planners — actually use.
-  it('only ever emits keys that exist in the shipped price sheet', async () => {
+  /**
+   * What this really guards is TYPOS: a key the UI emits that nothing will ever match excludes
+   * nothing, silently. The shipped sheet was the proxy for "a key the model knows", and a league
+   * start broke the proxy — `OmenofWhittling` vanished from poe.ninja's Ritual feed for Forbidden
+   * Rites (0 of 19 lines), so a correct key read as a typo.
+   *
+   * An omen the market has not priced is not a typo, and it is not a hazard either: `withOmen`
+   * (levers.ts) declines to offer an omen with no price precisely so a missing key cannot come back
+   * free. So the reference is the ENGINE — a key it names in `cost.ts` is real whatever the market
+   * did this week — read from source rather than imported, because `tools/refresh/prices.mjs` calls
+   * `main()` at the top level and importing it would run the whole refresh.
+   */
+  it('only ever emits keys the price model knows', async () => {
     const sheet = (await import('../../data/patches/0.5.0/prices.json')).default;
+    const engineSource = readFileSync(
+      join(__dirname, '../../packages/optimizer/src/cost.ts'), 'utf8',
+    );
     const known = new Set([...Object.keys(sheet.prices), ...Object.keys(sheet.omens)]);
     const everything = Object.fromEntries(ALL_GROUPS.map((g) => [g.id, { only: [] }]));
     for (const key of toExcludedKeys(everything)) {
-      expect(known.has(key), `${key} is not in prices.json`).toBe(true);
+      const real = known.has(key) || engineSource.includes(`'${key}'`);
+      expect(real, `${key} is in neither prices.json nor cost.ts — typo?`).toBe(true);
     }
   });
 });

@@ -210,7 +210,16 @@ const median = (xs) => {
  * why routing untraded quotes here is better than either trusting them or blocking the refresh: the
  * honesty machinery already exists and this simply feeds it the truth.
  */
-function priceEssences(essencesFile, lines, exalt, alloyIds = new Set()) {
+/**
+ * An Alloy, by the only signal the essences file carries: its name. A real essence entry is named for
+ * its effect ("Abrasion", "Battle") and its tier renders as "Perfect Essence of Abrasion"; an Alloy is
+ * named outright ("Celestial Alloy"), which is what `apply_pools.mjs` stores and what the game calls
+ * it. `alloyPriceLines` cannot answer this — it maps EVERY perfect essence to a Verisium slug and
+ * keeps whatever the feed happened to list, so it identifies the alloys that TRADED, not the alloys.
+ */
+const isAlloy = (name) => / Alloy$/.test(name);
+
+function priceEssences(essencesFile, lines, exalt, alloyIds = new Set(), prevPrices = {}) {
   const unitsOf = (l) => (l.primaryValue ? (l.volumePrimaryValue ?? 0) / l.primaryValue : 0);
   const untraded = lines.filter((l) => unitsOf(l) < DEPTH.minEssenceUnits);
   const live = new Map(lines.filter((l) => unitsOf(l) >= DEPTH.minEssenceUnits)
@@ -243,11 +252,25 @@ function priceEssences(essencesFile, lines, exalt, alloyIds = new Set()) {
       // would inflate the caveat with entries that don't exist.
       if (!mods || mods.length === 0) continue;
       const exact = live.get(essenceId(e.name, level));
+      // An ALLOY exists at one level, so `byEssence` is empty for it and the chain fell straight
+      // through to `byLevel` — the median of every unrelated perfect essence. That is a fabricated
+      // number for a currency whose real spread is 3.6 to 2,261 ex, and it is the collapse commit
+      // 700ff5d existed to end: on the Forbidden Rites feed all 272 alloy mods landed on one value
+      // again, because only 2 of 6 Verisium lines had traded three days into the league.
+      //
+      // Its own last price is stale, but it is REAL and it preserves the ORDERING between alloys,
+      // which is what the optimizer consumes — it ranks plans by cost. Same judgement the omen path
+      // already makes in keeping a stored quote over a too-thin line. Regular essences are untouched:
+      // their same-essence median is a sound inference and still takes precedence.
+      const carried = isAlloy(e.name)
+        ? prevPrices[`essence:${level.toLowerCase()}:${mods[0]}`]
+        : undefined;
       const value = exact
         ?? median(byEssence.get(e.name) ?? [])
+        ?? carried
         ?? median(byLevel.get(level) ?? []);
       if (value === undefined) continue; // nothing to go on at all; leave the key absent
-      if (exact === undefined) inferred.push(`${level} ${e.name}`);
+      if (exact === undefined) inferred.push(`${level} ${e.name}${carried !== undefined && exact === undefined ? ' (kept its previous price)' : ''}`);
       for (const modId of mods) prices[`essence:${level.toLowerCase()}:${modId}`] = Number(value.toPrecision(4));
     }
   }
@@ -416,7 +439,7 @@ async function main() {
   const alloyIds = new Set(alloyLines.map((l) => l.id));
   console.log(`  alloys: ${alloyLines.length} of ${verFeed.lines.length} Verisium lines matched an essence we ship`);
   const { prices: essencePrices, inferred, untraded } =
-    priceEssences(essencesFile, [...essFeed.lines, ...alloyLines], exalt, alloyIds);
+    priceEssences(essencesFile, [...essFeed.lines, ...alloyLines], exalt, alloyIds, prev.prices);
   // NEVER DELETE A PRICE YOU CANNOT REPLACE. The essence keys are rebuilt wholesale each run, which
   // is right while the feed lists essences and catastrophic the week it does not: `stepCost` reads
   // `prices.currency[key] ?? 0`, so a deleted key is a FREE essence, and a free anything dominates

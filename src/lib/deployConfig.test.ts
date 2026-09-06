@@ -99,6 +99,50 @@ describe('vercel.json', () => {
   });
 });
 
+/**
+ * A crawler that fetches this page without running the script must still find out what it is.
+ *
+ * The body was an empty `<div id="root">`, so the served document had zero visible text, and Google
+ * Search Console reported a SOFT 404 on 2026-09-06 — a URL answering 200 while looking empty. The
+ * fallback markup inside `#root` is the fix, and it is the kind of thing a later refactor deletes
+ * without noticing, because nothing a human looks at changes when it goes.
+ */
+describe('index.html says what the page is without JavaScript', () => {
+  const html = readFileSync('index.html', 'utf8');
+  /** Visible text only: scripts, styles, comments and tags stripped, the way a crawler reads it. */
+  const visibleText = html
+    .replace(/<script[\s\S]*?<\/script>/g, '')
+    .replace(/<style[\s\S]*?<\/style>/g, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  it('serves real text in the body, not an empty root div', () => {
+    expect(visibleText.length).toBeGreaterThan(300);
+  });
+
+  it('names the product and what it does', () => {
+    expect(visibleText).toMatch(/POE2HTC/);
+    expect(visibleText).toMatch(/Path of Exile 2/);
+    expect(visibleText).toMatch(/craft/i);
+  });
+
+  // The fallback has to live inside the container React renders into, because that is what makes it
+  // disappear for real users — `createRoot().render()` replaces the container's contents.
+  it('puts the fallback inside #root, so React replaces it on mount', () => {
+    const root = /<div id="root">([\s\S]*?)<\/div>\s*<script/.exec(html);
+    expect(root, 'could not find #root followed by the module script').not.toBeNull();
+    expect(root![1]).toMatch(/<h1/);
+  });
+
+  // Everything here is also claimed in the meta description, and the two drifting apart is how a page
+  // ends up describing itself two different ways to the same crawler.
+  it('tells visitors the app needs JavaScript', () => {
+    expect(html).toMatch(/<noscript>/);
+  });
+});
+
 describe('no throwaway probes in the suite', () => {
   // A measurement harness written to time the solver got committed by accident. It wrote to an
   // absolute /tmp path from this machine, so it passed locally and failed CI with ENOENT. Probes are

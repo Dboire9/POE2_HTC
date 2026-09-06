@@ -171,3 +171,18 @@ test('6 — the user guide opens, renders, and fits a phone', async ({ page }) =
 
   expect(errors, 'console errors while reading the guide').toEqual([]);
 });
+
+test('7 — the crawler fallback is served, then replaced by the app', async ({ page }) => {
+  // index.html ships real text inside #root so a crawler that does not run the script still learns
+  // what the page is — Search Console called the empty version a soft 404 on 2026-09-06. The risk of
+  // that fix is the opposite failure: the fallback surviving into the running app and being shown to
+  // people. jsdom cannot answer this; only a browser that actually boots React can.
+  const raw = await page.request.get('/');
+  expect(await raw.text(), 'fallback missing from the served HTML').toContain('not simulated');
+
+  await page.goto('/');
+  await waitForReady(page);
+  await expect(page.getByText('not simulated')).toHaveCount(0);
+  // …and what replaced it is the real app.
+  await expect(page.getByRole('button', { name: 'Find plans' })).toBeVisible();
+});

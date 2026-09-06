@@ -61,7 +61,44 @@
     <link rel="apple-touch-icon" href="/icon.png" />
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      INSIDE #root ON PURPOSE, and it is not decoration.
+
+      This body used to be an empty <div>, so a crawler that fetched the page and did not run (or
+      finished running) the JavaScript saw a document with zero visible text. Google files that as a
+      SOFT 404 — a URL that answers 200 while looking like nothing is there — and Search Console
+      reported one for this site on 2026-09-06.
+
+      React removes it: `createRoot(el).render(...)` replaces whatever the container held, which is
+      pinned by a test rather than assumed. So real visitors see this only for the moment before the
+      bundle boots, where it beats a blank screen anyway; a crawler that never runs the script sees a
+      description of the page that is true.
+
+      Keep it HONEST and keep it in step with the meta description above. It is the only text some
+      readers of this page will ever get, which makes it the one place in the app where an
+      overstatement would be least visible and most damaging.
+    -->
+    <div id="root">
+      <main style="max-width:44rem;margin:0 auto;padding:3rem 1.25rem;font-family:system-ui,sans-serif;color:#e7e5e4">
+        <h1 style="font-size:1.6rem;margin:0 0 .75rem">POE2HTC — Path of Exile 2 crafting calculator</h1>
+        <p style="line-height:1.6;margin:0 0 1rem">
+          Tell it the base and the modifiers you want, and it works out how to craft the item and what
+          that will cost. The probabilities are computed exactly from Path of Exile 2's real modifier
+          weight pools — not simulated — and every route is priced from live poe.ninja market data.
+        </p>
+        <ul style="line-height:1.7;padding-left:1.1rem;margin:0 0 1rem">
+          <li>Plan a craft from a white base, or from an item you are already holding</li>
+          <li>The cheapest route and the surest route, with the odds for each</li>
+          <li>True expected cost — what the craft costs playing optimally, recovering after a bad roll
+              rather than starting over</li>
+          <li>Budget mode, currency you do not own, and shareable links</li>
+        </ul>
+        <p style="line-height:1.6;margin:0">
+          Free, no account, nothing to install — the whole engine runs in your browser.
+          <noscript><strong>It needs JavaScript enabled.</strong></noscript>
+        </p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -26,6 +26,7 @@ import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
 import QuickCurrencyCheck from './QuickCurrencyCheck';
+import PasteItem from './PasteItem';
 
 const selectCls =
   'h-9 rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring';
@@ -548,6 +549,20 @@ const ItemActions: React.FC = () => {
     <div className="space-y-4">
       {/* Your item */}
       <Card className="p-4 space-y-4">
+        {/* Above the pickers, because it REPLACES them: a player who has the item in front of them
+            should not have to work out which row of the base list it is before they can start. */}
+        {engine && (
+          <PasteItem
+            data={engine.data}
+            onApply={(it) => {
+              setBaseId(it.baseId);
+              setLevel(it.level);
+              setRarity(it.rarity);
+              setPrefixes(it.prefixes);
+              setSuffixes(it.suffixes);
+            }}
+          />
+        )}
         <div className="flex flex-wrap items-end gap-4">
           <BaseSelect bases={bases} value={baseId} onChange={setBaseId} />
           <label className="flex flex-col gap-1">

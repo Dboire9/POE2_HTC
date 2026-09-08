@@ -44,8 +44,17 @@ export interface ResolvedLine {
   readonly modId: string | undefined;
   /** The numbers read off the lines, in printed order. */
   readonly values: readonly number[];
-  /** Every tier of `modId` the values could have come from. Tier ranges overlap on flat damage mods,
-   *  so this is regularly longer than one; empty when `modId` is undefined. */
+  /**
+   * Every tier each candidate in `modIds` allows, keyed by mod id.
+   *
+   * Per CANDIDATE rather than only for the pick, because a caller that asks the player "which of
+   * these mods is it?" needs the tiers of whichever they answer — and where the mod is undecided
+   * there is no pick to have computed them from. This is worked out for every candidate anyway;
+   * reporting only the winner's used to throw the rest away and left an answered question with no
+   * tier at all.
+   */
+  readonly tiersOf: ReadonlyMap<string, readonly string[]>;
+  /** The tiers of `modId` — `tiersOf.get(modId)`, which is the common case. Empty when `modId` is. */
   readonly tierNames: readonly string[];
   /** The tier, when the values pin exactly one. Undefined when they do not — offer `tierNames`. */
   readonly tierName: string | undefined;
@@ -238,11 +247,12 @@ function one(
   const fitting = a.modIds.filter((_, i) => a.tiers[i]!.length > 0);
   const modIds = fitting.length > 0 ? fitting : a.modIds;
   const modId = pick(modIds, byId);
-  const tiers = modId === undefined ? [] : a.tiers[a.modIds.indexOf(modId)]!;
+  const tiersOf = new Map(modIds.map((id) => [id, a.tiers[a.modIds.indexOf(id)]!.map((t) => t.name)]));
+  // Derived, never computed a second way, so the two can never disagree about one mod's tiers.
+  const tierNames = (modId === undefined ? undefined : tiersOf.get(modId)) ?? [];
   return {
-    lines: [...window], modIds, modId, values: a.values,
-    tierNames: tiers.map((t) => t.name),
-    tierName: tiers.length === 1 ? tiers[0]!.name : undefined,
+    lines: [...window], modIds, modId, values: a.values, tiersOf, tierNames,
+    tierName: tierNames.length === 1 ? tierNames[0]! : undefined,
   };
 }
 

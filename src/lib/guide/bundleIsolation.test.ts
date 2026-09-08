@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
 /**
- * The markdown parser must never reach the browser.
+ * What must never reach the browser bundle, checked by walking the real import graph.
  *
  * `marked` is a devDependency used once, at build time, by vite.config.ts's `user-guide` plugin.
  * IT SHIPPED ANYWAY on the first cut of this feature: `guideRoute.ts` imported `ANCHOR_PREFIX` — one
@@ -14,14 +14,29 @@ import { dirname, join, resolve } from 'node:path';
  * Nothing failed. The build succeeded, the types were fine, the tests were green, and the only
  * evidence was `grep tokenizer dist/static/js/index-*.js`. So the rule is checked here instead, by
  * walking the real import graph from the app's entry point the way the bundler does.
+ *
+ * IT HAPPENED A SECOND TIME, differently, which is why this file is no longer only about `marked`:
+ * `pasteItem.ts` imported four functions from `packages/engine/src/index.ts`, and that barrel
+ * re-exports `loadPatch`, which imports `node:fs`. Tests passed (vitest runs in Node), all three
+ * type-checks passed, and only `npm run build` objected. One import of a convenient barrel is all it
+ * takes, so the graph is now checked for Node builtins as well.
  */
 
 const SRC = resolve(__dirname, '../../..', 'src');
 
-/** Value imports only — `import type` is erased and cannot pull code into a bundle. */
+/**
+ * Value imports only — `import type` is erased and cannot pull code into a bundle.
+ *
+ * RE-EXPORTS COUNT, and leaving them out made this test worthless for the case it was written for.
+ * A barrel is built entirely of `export { x } from './x.ts'`, which is exactly how one convenient
+ * import drags a module's whole neighbourhood into the bundle — and a matcher that only saw `import`
+ * walked into `packages/engine/src/index.ts`, found no imports at all, and reported the graph clean.
+ * Verified by mutation: pointing `pasteItem.ts` back at the barrel now fails this test, and did not
+ * before.
+ */
 function valueImports(source: string): string[] {
   const out: string[] = [];
-  const re = /import\s+(?!type\s)([\s\S]*?)\s*from\s*['"]([^'"]+)['"]|import\s*['"]([^'"]+)['"]/g;
+  const re = /(?:import|export)\s+(?!type\s)([\s\S]*?)\s*from\s*['"]([^'"]+)['"]|import\s*['"]([^'"]+)['"]/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(source)) !== null) {
     const clause = m[1];
@@ -86,5 +101,26 @@ describe('the markdown parser stays out of the browser bundle', () => {
   it('confines `marked` to the build-time parser', () => {
     const parser = readFileSync(join(SRC, 'lib/guide/parseGuide.ts'), 'utf8');
     expect(valueImports(parser)).toContain('marked');
+  });
+});
+
+describe('no Node builtin reaches the browser bundle', () => {
+  const reachable = packagesReachableFrom(join(SRC, 'App.tsx'));
+
+  /**
+   * `node:fs` and `node:path` are what `loadPatch` uses to read the patch off disk, and the app has
+   * its own browser path for that (`engine.ts` fetches the JSON and calls `indexPatch`). Reaching one
+   * from `App.tsx` means something imported the engine's barrel instead of the module it wanted.
+   */
+  it('never reaches a node: builtin from the app entry point', () => {
+    expect([...reachable].filter((p) => p.startsWith('node:'))).toEqual([]);
+  });
+
+  /** The barrel is the specific trap: it is fine to USE, just never from anything the browser loads. */
+  it('never reaches the engine barrel, which re-exports the disk loader', () => {
+    const graph = packagesReachableFrom(join(SRC, 'App.tsx'));
+    expect(graph).not.toContain('node:fs');
+    const loader = readFileSync(resolve(SRC, '../packages/engine/src/loadPatch.ts'), 'utf8');
+    expect(valueImports(loader)).toContain('node:fs');   // the thing being kept out still does it
   });
 });

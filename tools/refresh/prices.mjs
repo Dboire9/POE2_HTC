@@ -330,6 +330,19 @@ const DEPTH = {
    */
   minEssenceUnits: 1,
   /**
+   * Days after a league starts during which every refresh is held for a human to read.
+   *
+   * The changeover DAY was already named as a blocker, and that was not enough: the moment its PR
+   * merges, `prev.league` is the new league and day 2 sails through auto-merged. The week after a
+   * league starts is exactly when the sheet is least trustworthy — the whole economy is repricing —
+   * and it is when the alloy collapse shipped.
+   *
+   * A hold is one click, not a wall. The PR is open, titled REVIEW NEEDED, and mergeable the moment
+   * it has been looked at, which is what keeps "players need the site on day one" true: it is the
+   * unattended merge that stops, not the data.
+   */
+  leagueHoldDays: 7,
+  /**
    * Share of essence lines moving that means a feed-level EVENT rather than the usual churn.
    *
    * Set high on purpose. Half this market swings 50% in a normal week (measured: 51%), so a threshold
@@ -391,6 +404,14 @@ async function main() {
   const file = join(ROOT, `data/patches/${PATCH}/prices.json`);
   const prev = JSON.parse(readFileSync(file, 'utf8'));
   const prices = { ...prev.prices };
+
+  // When this sheet first saw the league, which is how `leagueHoldDays` knows the league's age. It
+  // carries forward untouched while the league is the same, and resets the day it changes; an older
+  // sheet with no such field is treated as "seen today", so the first run after this lands holds for
+  // a week rather than claiming an age it never recorded.
+  const today = new Date().toISOString().slice(0, 10);
+  const leagueSince = prev.league === league && typeof prev.leagueSince === 'string' ? prev.leagueSince : today;
+
 
   const missing = [];
   let changed = 0;   // CURRENCY-map moves only; `totalMoved` below counts the whole sheet.
@@ -517,8 +538,20 @@ async function main() {
   // simply absent — and the ones that DO exist are not yet the prices anyone will pay a week later.
   // The depth checks would probably catch it, but "probably" is the wrong standard for the single
   // most predictable way this sheet can go wrong, and the signal is exact and free.
+  //
+  // It is an AGE, not an event, and that is the fix for what the event version missed: `prev.league`
+  // becomes the new league the instant the changeover PR merges, so a one-shot check guards day 1 and
+  // waves through days 2-7 — the rest of the week the economy spends repricing.
+  //
+  // poe.ninja's /leagues serves no start date (checked: `id` and `name`, nothing else), so the sheet
+  // records when this refresh FIRST SAW the league. That is a lower bound on the league's age, which
+  // is the safe direction: a sheet that missed the first days holds for slightly longer than needed
+  // rather than shorter.
+  const leagueAgeDays = Math.floor((Date.now() - Date.parse(leagueSince)) / 86_400_000);
   if (prev.league && prev.league !== league) {
     blockers.push(`LEAGUE CHANGED: ${prev.league} -> ${league}. Early-league prices are thin and move fast; read the whole diff before merging`);
+  } else if (leagueAgeDays < DEPTH.leagueHoldDays) {
+    blockers.push(`day ${leagueAgeDays + 1} of ${league} (first seen ${leagueSince}); prices are held for a read for the first ${DEPTH.leagueHoldDays} days of a league`);
   }
   if (restored.length > 0) {
     blockers.push(`${restored.length} essence key(s) had no live price and kept their previous value`);
@@ -562,8 +595,9 @@ async function main() {
     // omens are now observed. `caveat` says which is which, so the label can't overclaim in EITHER
     // direction — neither "all guesses" nor "all live".
     generated: prev.generated,
-    updated: new Date().toISOString().slice(0, 10),
+    updated: today,
     league,
+    leagueSince,
     // Names every feed this sheet is built from, because `PriceBasisNote` shows it to players. It
     // claimed omens were "hand-transcribed from the Omens page (no API serves them)" for weeks after
     // that stopped being true — they come from `type=Ritual`, with the transcription kept only as a

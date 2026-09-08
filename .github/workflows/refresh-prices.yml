@@ -5,11 +5,21 @@ name: Refresh prices
 # someone remembering; this runs it daily and opens a pull request with the result.
 #
 # It opens a pull request either way, because that is the audit trail — but it MERGES the PR itself
-# when the data looks trustworthy, so the normal week needs nobody. `prices.mjs` ends its run with a
-# machine-readable `DEPTH-VERDICT:` line, and that is the gate:
+# when the data looks trustworthy, so the normal week needs nobody. TWO independent questions decide
+# that, and either one holds the PR:
 #
-#   clean   -> merge automatically. Vercel redeploys; nothing for a human to do.
-#   review  -> leave the PR open, titled so it is obvious, and say why in the body.
+#   depth   `prices.mjs` ends its run with a machine-readable `DEPTH-VERDICT:` line — is every price
+#           this sheet uses backed by a real market, and is the league old enough to have one?
+#   tests   does the app still work on the new numbers? The WHOLE suite, run here.
+#
+#   both clean  -> merge automatically. Vercel redeploys; nothing for a human to do.
+#   either not  -> leave the PR open, titled REVIEW NEEDED, and say which in the body.
+#
+# Three ways this used to go quiet, all fixed 2026-09-08 after a league rollover shipped collapsed
+# Alloy prices through a green guard:
+#   - the guard ran two shape tests, so data that was wrong in any other way passed;
+#   - the league check fired on the changeover DAY only, so days 2-7 auto-merged unread;
+#   - a refused merge logged a warning, leaving an ordinary-looking PR unmerged and the job green.
 #
 # The verdict is about MARKET DEPTH, measured in units traded per day, because the optimizer ranks
 # plans BY cost: a price with no market behind it does not merely misreport a total, it changes which
@@ -108,19 +118,68 @@ jobs:
 
       # The guard runs HERE, not on the pull request. A PR opened with the built-in GITHUB_TOKEN does
       # not trigger workflows — GitHub suppresses that to prevent recursion — so relying on "CI will
-      # catch it on the PR" would have shipped a PR nothing had checked. Running the shape tests in
-      # this job instead means a bad feed fails loudly before a PR exists at all, and needs no PAT.
-      - name: Guard the shape of the new sheet
+      # catch it on the PR" would have shipped a PR nothing had checked. Running the tests in this job
+      # instead means a bad feed is caught before anything merges, and needs no PAT.
+      #
+      # THE WHOLE SUITE, not the two shape tests it used to run. Those two are the sheet's own
+      # contract and they pass on data that is wrong in ways they were never asked about: on the
+      # 2026-09-05 league rollover the Alloy prices collapsed to a single median — the `700ff5d` bug
+      # returning, 272 mods repriced from their own market to one unrelated number — and the guard was
+      # green. `src/lib/alloys.test.ts` catches exactly that, reads the LIVE sheet on purpose, and was
+      # not in the list. Curating a list of price-sensitive tests would only push the problem to the
+      # next test nobody adds to it.
+      #
+      # `continue-on-error` because a failure must still OPEN the pull request. The old arrangement
+      # failed the job before the PR existed, which is loud but throws away the artifact you need to
+      # see WHAT the bad data was; now the PR is opened, held, and says so, and the job fails at the
+      # end. Both signals, not one.
+      - name: Guard the new sheet against the whole test suite
+        id: guard
         if: steps.diff.outputs.changed == 'true'
-        run: npx vitest run packages/optimizer/src/priceResolution.test.ts packages/optimizer/src/costConsistency.test.ts
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          if npm test 2>&1 | tee /tmp/guard.log; then
+            echo "passed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "passed=false" >> "$GITHUB_OUTPUT"
+            echo "::error::The test suite failed against the refreshed sheet. Held for review."
+          fi
+
+      # The depth verdict and the test result are two different questions — "is this data backed by a
+      # market" and "does the app still work on it" — and either one is enough to hold the PR.
+      - name: Combine the depth verdict with the test result
+        id: verdict
+        if: steps.diff.outputs.changed == 'true'
+        shell: bash
+        env:
+          DEPTH: ${{ steps.diff.outputs.verdict }}
+          WHY: ${{ steps.diff.outputs.why }}
+          TESTS: ${{ steps.guard.outputs.passed }}
+        run: |
+          set -euo pipefail
+          if [ "$DEPTH" = clean ] && [ "$TESTS" = true ]; then
+            echo "verdict=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "verdict=review" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "why<<VERDICT_EOF"
+            [ "$DEPTH" = clean ] || echo "${WHY:-DEPTH-VERDICT: review}"
+            [ "$TESTS" = true ] || echo "TESTS FAILED against the refreshed sheet — see the job log."
+            echo "VERDICT_EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Open or update the pull request, and merge it if the data is clean
+        id: pr
         if: steps.diff.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           BASE: ${{ github.ref_name }}
-          VERDICT: ${{ steps.diff.outputs.verdict }}
-          WHY: ${{ steps.diff.outputs.why }}
+          VERDICT: ${{ steps.verdict.outputs.verdict }}
+          WHY: ${{ steps.verdict.outputs.why }}
+          TESTS: ${{ steps.guard.outputs.passed }}
         shell: bash
         run: |
           set -euo pipefail
@@ -177,8 +236,22 @@ jobs:
               echo '```'
               echo
             fi
-            echo "\`priceResolution\` and \`costConsistency\` passed against the new sheet in the refresh"
-            echo "job — a PR opened by \`GITHUB_TOKEN\` does not trigger CI, so that check ran there."
+            echo "The whole test suite ran against the new sheet in the refresh job — a PR opened by"
+            echo "\`GITHUB_TOKEN\` does not trigger CI, so that check has to run there rather than here."
+            echo
+            if [ "$TESTS" = true ]; then
+              echo '```'
+              grep -E '^\s+(Test Files|Tests) ' /tmp/guard.log | tail -2
+              echo '```'
+            else
+              echo "<details open><summary>Failing tests</summary>"
+              echo
+              echo '```'
+              grep -E '^\s+×|^\s+(Test Files|Tests) ' /tmp/guard.log | head -40
+              echo '```'
+              echo
+              echo "</details>"
+            fi
             echo
             echo "On the week a new league starts the script correctly follows poe.ninja to the new"
             echo "league and every price legitimately moves 5-50x. That trips the feed-wide check, so it"
@@ -209,14 +282,29 @@ jobs:
 
           if [ "$VERDICT" != clean ]; then
             echo "::warning::Held for review, not merged. $WHY"
+            echo "held=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # Merge failing is NOT a job failure: the PR is open, correct, and mergeable by hand, which
-          # is strictly the old behaviour. Branch protection requiring an approval is the likely cause
-          # and is the repo owner's call to relax, not something this job should paper over.
+          # A REFUSED MERGE FAILS THE JOB, and that is the change: the PR it leaves behind carries the
+          # ordinary title, so it looks exactly like the ones that merged themselves, sitting unmerged
+          # in a list nobody re-reads. A held PR announces itself (REVIEW NEEDED) and is a decision
+          # somebody made; this is the automation quietly not working, which is the case that needs
+          # the email. It used to exit 0 on the reasoning that branch protection requiring a review is
+          # the owner's call — but the job cannot tell that apart from a merge conflict or a revoked
+          # permission, and "the price sheet silently stopped updating" is the outcome either way.
           if gh pr merge "$pr" --squash --delete-branch; then
             echo "Merged #$pr. Vercel will redeploy from $BASE."
           else
-            echo "::warning::Depth check was clean but the merge was refused — most likely branch protection requires an approving review. PR #$pr is open and ready to merge by hand."
+            echo "::error::Depth and tests were clean but the merge was REFUSED. PR #$pr is open and ready to merge by hand."
+            exit 1
           fi
+
+      # `continue-on-error` above keeps the job green by design, so the failure has to be re-raised
+      # here — after the PR exists. Without this step a red suite would open a held PR and report
+      # success, which is the exact shape of silence this whole change is about.
+      - name: Fail the job if the suite failed
+        if: steps.diff.outputs.changed == 'true' && steps.guard.outputs.passed != 'true'
+        run: |
+          echo "The test suite failed against the refreshed prices. The PR is open and held for review."
+          exit 1

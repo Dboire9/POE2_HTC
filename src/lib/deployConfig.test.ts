@@ -155,3 +155,80 @@ describe('no throwaway probes in the suite', () => {
     expect(strays).toEqual([]);
   });
 });
+
+/**
+ * The price bot merges to `main` on its own, daily, at 06:00 UTC with nobody watching — so its
+ * safeguards are the ones least likely to be noticed when they stop working, and nothing else in the
+ * suite executes that file. Same reasoning as `vercel.json` above, and the same limitation: these are
+ * assertions about TEXT, not about what GitHub will do with it. They pin decisions, not behaviour.
+ *
+ * Three ways it went quiet before 2026-09-08, each fixed and each pinned here.
+ */
+describe('the price refresh bot cannot merge quietly', () => {
+  const wf = readFileSync('.github/workflows/refresh-prices.yml', 'utf8');
+
+  /**
+   * It ran `priceResolution` and `costConsistency` only. Those are the sheet's own contract and they
+   * pass on data that is wrong in ways they were never asked about — the league rollover that
+   * collapsed 272 Alloy prices to one median went through them green, while `src/lib/alloys.test.ts`
+   * (which reads the live sheet on purpose) would have caught it and was not in the list.
+   */
+  it('guards a refresh with the whole test suite, not a curated list', () => {
+    expect(wf).toMatch(/if npm test 2>&1 \| tee/);
+    expect(wf).not.toMatch(/npx vitest run packages\/optimizer\/src\/priceResolution/);
+  });
+
+  /**
+   * The guard is `continue-on-error` so that a failure still OPENS the PR — the artifact you need to
+   * see what the bad data was. That makes the job green by default, so the failure has to be re-raised
+   * afterwards or a red suite would report success.
+   */
+  it('re-raises a failing suite, since continue-on-error swallows it', () => {
+    expect(wf).toMatch(/continue-on-error: true/);
+    expect(wf).toMatch(/steps\.guard\.outputs\.passed != 'true'/);
+  });
+
+  /**
+   * A refused merge used to log `::warning::` and exit 0. The PR it leaves behind carries the ORDINARY
+   * title, so it looks exactly like the ones that merged themselves — an automation quietly not
+   * working, which is the case that most needs the email.
+   */
+  it('fails the job when a clean merge is refused', () => {
+    const refused = wf.slice(wf.indexOf('if gh pr merge'));
+    expect(refused).toMatch(/::error::/);
+    expect(refused).toMatch(/exit 1/);
+    expect(refused).not.toMatch(/::warning::Depth check was clean/);
+  });
+
+  /** Both questions gate the merge: is the data backed by a market, and does the app work on it? */
+  it('merges only when the depth verdict AND the tests are clean', () => {
+    expect(wf).toMatch(/\[ "\$DEPTH" = clean \] && \[ "\$TESTS" = true \]/);
+  });
+});
+
+/**
+ * The league-age hold, which is in the refresh SCRIPT rather than the workflow.
+ *
+ * The check used to be `prev.league !== league` — an EVENT, which fires on the changeover day and
+ * then never again, because merging that day's PR makes `prev.league` the new league. Days 2-7 of a
+ * league auto-merged unread, and that is the week the whole economy spends repricing.
+ */
+describe('early-league prices are held for a read', () => {
+  const script = readFileSync('tools/refresh/prices.mjs', 'utf8');
+
+  it('holds on the league AGE, not only on the changeover day', () => {
+    expect(script).toMatch(/leagueHoldDays/);
+    expect(script).toMatch(/leagueAgeDays < DEPTH\.leagueHoldDays/);
+  });
+
+  /** poe.ninja's /leagues serves `id` and `name` and no start date, so the sheet has to record when
+   *  it first saw the league. Without the field there is no age and the hold cannot work. */
+  it('records when the league was first seen, and the sheet carries it', () => {
+    expect(script).toMatch(/leagueSince/);
+    const sheet = JSON.parse(readFileSync('data/patches/0.5.0/prices.json', 'utf8')) as {
+      league?: string; leagueSince?: string;
+    };
+    expect(sheet.leagueSince).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(sheet.league).toBeTruthy();
+  });
+});

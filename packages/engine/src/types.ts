@@ -58,7 +58,21 @@ export interface Pool {
 
 export interface ItemBase {
   readonly id: string;
+  /** The picker's caption for this row. Not a lookup key — see `bases`. */
   readonly name: string;
+  /**
+   * The concrete base names this row covers, as printed on an item: "Knightly Mitts", "Gold Ring".
+   *
+   * Needed to read an item somebody pasted or that was fetched for them, where all you are given is
+   * the base's own name and you have to work back to which row of the picker it belongs to. `name`
+   * cannot do that job: for 40 of the 52 shipped bases it is just the id repeated ("Gloves_str"),
+   * and where it is a real list it is comma-joined for display rather than structured.
+   *
+   * OPTIONAL because a synthetic base in a test legitimately has no real-world name. The shipped data
+   * must carry it for every base, which `dataIntegrity.test.ts` asserts — the type says "may be
+   * absent", the test says "never absent in what we publish".
+   */
+  readonly bases?: readonly string[];
   readonly category: string;
   readonly pools: {
     readonly normal: Pool;

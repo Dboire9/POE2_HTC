@@ -7,6 +7,30 @@
     {
       "id": "Amulets",
       "name": "Amulets",
+      "bases": [
+        "Absent Amulet",
+        "Amber Amulet",
+        "Azure Amulet",
+        "Bloodstone Amulet",
+        "Corona Amulet",
+        "Crimson Amulet",
+        "Distorted Amulet",
+        "Dusk Amulet",
+        "Gloam Amulet",
+        "Gold Amulet",
+        "Jade Amulet",
+        "Lament Amulet",
+        "Lapis Amulet",
+        "Lunar Amulet",
+        "Pearlescent Amulet",
+        "Penumbra Amulet",
+        "Portent Amulet",
+        "Solar Amulet",
+        "Stellar Amulet",
+        "Tenebrous Amulet",
+        "Twisted Amulet",
+        "Veridical Chain"
+      ],
       "category": "Amulets",
       "class": "Amulets",
       "pools": {
@@ -113,6 +137,23 @@
     {
       "id": "Belts",
       "name": "Belts",
+      "bases": [
+        "Double Belt",
+        "Fine Belt",
+        "Forking Belt",
+        "Heavy Belt",
+        "Invoking Belt",
+        "Linen Belt",
+        "Long Belt",
+        "Mail Belt",
+        "Ornate Belt",
+        "Plate Belt",
+        "Rawhide Belt",
+        "Sinew Belt",
+        "Stalking Belt",
+        "Utility Belt",
+        "Wide Belt"
+      ],
       "category": "Belts",
       "class": "Belts",
       "pools": {
@@ -192,6 +233,22 @@
     {
       "id": "Body_Armours_dex",
       "name": "Body_Armours_dex",
+      "bases": [
+        "Armoured Vest",
+        "Exquisite Vest",
+        "Hardleather Coat",
+        "Hunting Coat",
+        "Layered Vest",
+        "Lizardscale Coat",
+        "Mail Coat",
+        "Patchwork Vest",
+        "Riding Coat",
+        "Runner Vest",
+        "Slipstrike Vest",
+        "Strider Vest",
+        "Swiftstalker Coat",
+        "Wyrmscale Coat"
+      ],
       "category": "Body_Armours",
       "class": "Body Armours",
       "pools": {
@@ -262,6 +319,23 @@
     {
       "id": "Body_Armours_dex_int",
       "name": "Body_Armours_dex_int",
+      "bases": [
+        "Ascetic Garb",
+        "Assassin Garb",
+        "Clandestine Jacket",
+        "Devout Garb",
+        "Evangelist Garb",
+        "Falconer's Jacket",
+        "Hatungo Garb",
+        "Hawker's Jacket",
+        "Itinerant Jacket",
+        "Monastic Garb",
+        "Oiled Jacket",
+        "Primal Markings",
+        "Rambler Jacket",
+        "Sleek Jacket",
+        "Torment Jacket"
+      ],
       "category": "Body_Armours",
       "class": "Body Armours",
       "pools": {
@@ -335,6 +409,22 @@
     {
       "id": "Body_Armours_int",
       "name": "Body_Armours_int",
+      "bases": [
+        "Adherent's Raiment",
+        "Arcane Raiment",
+        "Avian Robe",
+        "Ceremonial Robe",
+        "Cursespeaker's Robe",
+        "Enlightened Robe",
+        "Flowing Raiment",
+        "Havoc Raiment",
+        "Imperial Robe",
+        "Luxurious Robe",
+        "Plated Raiment",
+        "River Raiment",
+        "Sacramental Robe",
+        "Vile Robe"
+      ],
       "category": "Body_Armours",
       "class": "Body Armours",
       "pools": {
@@ -405,6 +495,22 @@
     {
       "id": "Body_Armours_str",
       "name": "Body_Armours_str",
+      "bases": [
+        "Abyssal Cuirass",
+        "Barbarian Plate",
+        "Champion Cuirass",
+        "Colosseum Plate",
+        "Conqueror Plate",
+        "Elegant Plate",
+        "Glorious Plate",
+        "Heavy Plate",
+        "Ornate Plate",
+        "Rugged Cuirass",
+        "Sandsworn Cuirass",
+        "Soldier Cuirass",
+        "Stone Cuirass",
+        "Utzaal Cuirass"
+      ],
       "category": "Body_Armours",
       "class": "Body Armours",
       "pools": {
@@ -475,6 +581,22 @@
     {
       "id": "Body_Armours_str_dex",
       "name": "Body_Armours_str_dex",
+      "bases": [
+        "Dastard Armour",
+        "Death Mail",
+        "Gladiator Armour",
+        "Golden Mail",
+        "Heroic Armour",
+        "Lamellar Mail",
+        "Mantled Mail",
+        "Ring Mail",
+        "Scoundrel Armour",
+        "Shrouded Mail",
+        "Slayer Armour",
+        "Tournament Mail",
+        "Trailblazer Armour",
+        "Wanderer Armour"
+      ],
       "category": "Body_Armours",
       "class": "Body Armours",
       "pools": {
@@ -548,6 +670,24 @@
     {
       "id": "Body_Armours_str_int",
       "name": "Body_Armours_str_int",
+      "bases": [
+        "Ancient Mail",
+        "Bearskin Mantle",
+        "Chain Vestments",
+        "Conjurer Mantle",
+        "Corvus Mantle",
+        "Death Mantle",
+        "Gilded Vestments",
+        "Heartcarver Mantle",
+        "Occultist Mantle",
+        "Ornate Ringmail",
+        "Plated Vestments",
+        "Revered Vestments",
+        "Templar Vestments",
+        "Venerated Mantle",
+        "Wolfskin Mantle",
+        "Zenith Vestments"
+      ],
       "category": "Body_Armours",
       "class": "Body Armours",
       "pools": {
@@ -621,6 +761,17 @@
     {
       "id": "Boots_dex",
       "name": "Boots_dex",
+      "bases": [
+        "Bound Boots",
+        "Cavalry Boots",
+        "Cinched Boots",
+        "Dragonscale Boots",
+        "Embroidered Boots",
+        "Leatherplate Boots",
+        "Serpentscale Boots",
+        "Sleek Boots",
+        "Studded Boots"
+      ],
       "category": "Boots",
       "class": "Boots",
       "pools": {
@@ -696,6 +847,16 @@
     {
       "id": "Boots_dex_int",
       "name": "Boots_dex_int",
+      "bases": [
+        "Bladed Shoes",
+        "Charmed Shoes",
+        "Quickslip Shoes",
+        "Silverbuckled Shoes",
+        "Treerunner Shoes",
+        "Velour Shoes",
+        "Wanderer Shoes",
+        "Wayfarer Shoes"
+      ],
       "category": "Boots",
       "class": "Boots",
       "pools": {
@@ -774,6 +935,17 @@
     {
       "id": "Boots_int",
       "name": "Boots_int",
+      "bases": [
+        "Bangled Sandals",
+        "Bound Sandals",
+        "Dunerunner Sandals",
+        "Elaborate Sandals",
+        "Elegant Slippers",
+        "Laced Sandals",
+        "Luxurious Slippers",
+        "Sandsworn Sandals",
+        "Studded Sandals"
+      ],
       "category": "Boots",
       "class": "Boots",
       "pools": {
@@ -849,6 +1021,17 @@
     {
       "id": "Boots_str",
       "name": "Boots_str",
+      "bases": [
+        "Bulwark Greaves",
+        "Carved Greaves",
+        "Elegant Greaves",
+        "Lionheart Greaves",
+        "Monument Greaves",
+        "Ornate Greaves",
+        "Plated Greaves",
+        "Totemic Greaves",
+        "Vaal Greaves"
+      ],
       "category": "Boots",
       "class": "Boots",
       "pools": {
@@ -924,6 +1107,16 @@
     {
       "id": "Boots_str_dex",
       "name": "Boots_str_dex",
+      "bases": [
+        "Bastion Sabatons",
+        "Bold Sabatons",
+        "Flexile Sabatons",
+        "Fortress Sabatons",
+        "Goldwork Sabatons",
+        "Noble Sabatons",
+        "Soldiering Sabatons",
+        "Veteran Sabatons"
+      ],
       "category": "Boots",
       "class": "Boots",
       "pools": {
@@ -1002,6 +1195,17 @@
     {
       "id": "Boots_str_int",
       "name": "Boots_str_int",
+      "bases": [
+        "Adherent Leggings",
+        "Ancient Leggings",
+        "Apostle Leggings",
+        "Bound Leggings",
+        "Faithful Leggings",
+        "Gilt Leggings",
+        "Pious Leggings",
+        "Shamanistic Leggings",
+        "Warlock Leggings"
+      ],
       "category": "Boots",
       "class": "Boots",
       "pools": {
@@ -1080,6 +1284,24 @@
     {
       "id": "Bows",
       "name": "Bows",
+      "bases": [
+        "Adherent Bow",
+        "Cavalry Bow",
+        "Double Limb Bow",
+        "Fanatic Bow",
+        "Gemini Bow",
+        "Greatbow",
+        "Guardian Bow",
+        "Heartwood Shortbow",
+        "Heavy Bow",
+        "Ironwood Shortbow",
+        "Militant Bow",
+        "Protector Bow",
+        "Rider Bow",
+        "Snakewood Shortbow",
+        "Twin Bow",
+        "Warmonger Bow"
+      ],
       "category": "Bows",
       "class": "Bows",
       "pools": {
@@ -1165,6 +1387,19 @@
     {
       "id": "Bucklers",
       "name": "Bucklers",
+      "bases": [
+        "Aegis Buckler",
+        "Ancient Buckler",
+        "Array Buckler",
+        "Bladeguard Buckler",
+        "Coiled Buckler",
+        "Gutspike Buckler",
+        "Jingling Buckler",
+        "Oak Buckler",
+        "Ornate Buckler",
+        "Painted Buckler",
+        "Spikeward Buckler"
+      ],
       "category": "Bucklers",
       "class": "Bucklers",
       "pools": {
@@ -1231,6 +1466,23 @@
     {
       "id": "Crossbows",
       "name": "Crossbows",
+      "bases": [
+        "Bleak Crossbow",
+        "Cannonade Crossbow",
+        "Cumbrous Crossbow",
+        "Dedalian Crossbow",
+        "Desolate Crossbow",
+        "Engraved Crossbow",
+        "Esoteric Crossbow",
+        "Flexed Crossbow",
+        "Gemini Crossbow",
+        "Painted Crossbow",
+        "Robust Crossbow",
+        "Siege Crossbow",
+        "Stout Crossbow",
+        "Taut Crossbow",
+        "Twin Crossbow"
+      ],
       "category": "Crossbows",
       "class": "Crossbows",
       "pools": {
@@ -1314,6 +1566,20 @@
     {
       "id": "Foci",
       "name": "Foci",
+      "bases": [
+        "Arrayed Focus",
+        "Attuned Focus",
+        "Cultist Focus",
+        "Druidic Focus",
+        "Elegant Focus",
+        "Hallowed Focus",
+        "Jingling Focus",
+        "Leyline Focus",
+        "Magus Focus",
+        "Sacred Focus",
+        "Staghorn Focus",
+        "Wreath Focus"
+      ],
       "category": "Foci",
       "class": "Foci",
       "pools": {
@@ -1394,6 +1660,17 @@
     {
       "id": "Gloves_dex",
       "name": "Gloves_dex",
+      "bases": [
+        "Barbed Bracers",
+        "Engraved Bracers",
+        "Grand Bracers",
+        "Hardened Bracers",
+        "Hunting Bracers",
+        "Refined Bracers",
+        "Spiked Bracers",
+        "Stalking Bracers",
+        "Swift Bracers"
+      ],
       "category": "Gloves",
       "class": "Gloves",
       "pools": {
@@ -1478,6 +1755,16 @@
     {
       "id": "Gloves_dex_int",
       "name": "Gloves_dex_int",
+      "bases": [
+        "Adorned Wraps",
+        "Bandage Wraps",
+        "Cambric Wraps",
+        "Elegant Wraps",
+        "Furtive Wraps",
+        "Utility Wraps",
+        "Vaal Wraps",
+        "War Wraps"
+      ],
       "category": "Gloves",
       "class": "Gloves",
       "pools": {
@@ -1565,6 +1852,17 @@
     {
       "id": "Gloves_int",
       "name": "Gloves_int",
+      "bases": [
+        "Adorned Gloves",
+        "Baroque Gloves",
+        "Embellished Gloves",
+        "Embroidered Gloves",
+        "Gold Gloves",
+        "Grim Gloves",
+        "Ominous Gloves",
+        "Opulent Gloves",
+        "Vaal Gloves"
+      ],
       "category": "Gloves",
       "class": "Gloves",
       "pools": {
@@ -1650,6 +1948,17 @@
     {
       "id": "Gloves_str",
       "name": "Gloves_str",
+      "bases": [
+        "Ancient Mitts",
+        "Elegant Mitts",
+        "Feathered Mitts",
+        "Grand Mitts",
+        "Knightly Mitts",
+        "Ornate Mitts",
+        "Plated Mitts",
+        "Titan Mitts",
+        "Vaal Mitts"
+      ],
       "category": "Gloves",
       "class": "Gloves",
       "pools": {
@@ -1735,6 +2044,17 @@
     {
       "id": "Gloves_str_dex",
       "name": "Gloves_str_dex",
+      "bases": [
+        "Ancient Gauntlets",
+        "Burnished Gauntlets",
+        "Captain Gauntlets",
+        "Commander Gauntlets",
+        "Cultist Gauntlets",
+        "Ironmail Gauntlets",
+        "Ornate Gauntlets",
+        "Steelmail Gauntlets",
+        "Zealot Gauntlets"
+      ],
       "category": "Gloves",
       "class": "Gloves",
       "pools": {
@@ -1822,6 +2142,16 @@
     {
       "id": "Gloves_str_int",
       "name": "Gloves_str_int",
+      "bases": [
+        "Ancient Cuffs",
+        "Bound Cuffs",
+        "Braided Cuffs",
+        "Gleaming Cuffs",
+        "Heirloom Cuffs",
+        "Ornate Cuffs",
+        "Righteous Cuffs",
+        "Signet Cuffs"
+      ],
       "category": "Gloves",
       "class": "Gloves",
       "pools": {
@@ -1910,6 +2240,19 @@
     {
       "id": "Helmets_dex",
       "name": "Helmets_dex",
+      "bases": [
+        "Armoured Cap",
+        "Covert Hood",
+        "Deerstalker Hood",
+        "Desert Cap",
+        "Narrow Hood",
+        "Rotted Hood",
+        "Trapper Hood",
+        "Velvet Cap",
+        "Wool Cap",
+        "Woven Cap",
+        "Wrapped Cap"
+      ],
       "category": "Helmets",
       "class": "Helmets",
       "pools": {
@@ -1982,6 +2325,18 @@
     {
       "id": "Helmets_dex_int",
       "name": "Helmets_dex_int",
+      "bases": [
+        "Avian Mask",
+        "Bandit Mask",
+        "Brigand Mask",
+        "Death Mask",
+        "Faridun Mask",
+        "Oak Mask",
+        "Pariah Mask",
+        "Shaded Mask",
+        "Skulking Mask",
+        "Soaring Mask"
+      ],
       "category": "Helmets",
       "class": "Helmets",
       "pools": {
@@ -2056,6 +2411,19 @@
     {
       "id": "Helmets_int",
       "name": "Helmets_int",
+      "bases": [
+        "Avian Tiara",
+        "Desert Circlet",
+        "Druidic Circlet",
+        "Jungle Tiara",
+        "Kamasan Tiara",
+        "Magus Tiara",
+        "Noble Circlet",
+        "Sandsworn Tiara",
+        "Skycrown Tiara",
+        "Sorcerous Tiara",
+        "Twilight Tiara"
+      ],
       "category": "Helmets",
       "class": "Helmets",
       "pools": {
@@ -2127,6 +2495,19 @@
     {
       "id": "Helmets_str",
       "name": "Helmets_str",
+      "bases": [
+        "Corroded Greathelm",
+        "Elegant Greathelm",
+        "Goliath Greathelm",
+        "Guardian Greathelm",
+        "Homeguard Greathelm",
+        "Masked Greathelm",
+        "Mercenary Greathelm",
+        "Noble Greathelm",
+        "Paragon Greathelm",
+        "Sentinel Greathelm",
+        "Warmonger Greathelm"
+      ],
       "category": "Helmets",
       "class": "Helmets",
       "pools": {
@@ -2199,6 +2580,19 @@
     {
       "id": "Helmets_str_dex",
       "name": "Helmets_str_dex",
+      "bases": [
+        "Ancient Visor",
+        "Cabalist Helm",
+        "Cassis Helm",
+        "Champion Helm",
+        "Cryptic Helm",
+        "Decorated Helm",
+        "Domed Helm",
+        "Engraved Helm",
+        "Gallant Helm",
+        "Soldier Helm",
+        "Warded Helm"
+      ],
       "category": "Helmets",
       "class": "Helmets",
       "pools": {
@@ -2274,6 +2668,19 @@
     {
       "id": "Helmets_str_int",
       "name": "Helmets_str_int",
+      "bases": [
+        "Archon Crown",
+        "Divine Crown",
+        "Druidic Crown",
+        "Forest Crown",
+        "Hallowed Crown",
+        "Inquisitor Crown",
+        "Lavish Crown",
+        "Mailed Crown",
+        "Saintly Crown",
+        "Tenebrous Crown",
+        "Zealot Crown"
+      ],
       "category": "Helmets",
       "class": "Helmets",
       "pools": {
@@ -2348,6 +2755,24 @@
     {
       "id": "OneHand_Maces",
       "name": "OneHand_Maces",
+      "bases": [
+        "Bandit Mace",
+        "Battle Pick",
+        "Calescent Hammer",
+        "Crown Mace",
+        "Execratus Hammer",
+        "Flanged Mace",
+        "Flared Mace",
+        "Fortified Hammer",
+        "Kalguuran Forgehammer",
+        "Lumen Mace",
+        "Marauding Mace",
+        "Marching Mace",
+        "Molten Hammer",
+        "Strife Pick",
+        "Structured Hammer",
+        "Torment Club"
+      ],
       "category": "OneHand_Maces",
       "class": "One Hand Maces",
       "pools": {
@@ -2434,6 +2859,24 @@
     {
       "id": "Quarterstaves",
       "name": "Quarterstaves",
+      "bases": [
+        "Aegis Quarterstaff",
+        "Anima Quarterstaff",
+        "Arcing Quarterstaff",
+        "Barbarous Quarterstaff",
+        "Bladed Quarterstaff",
+        "Bolting Quarterstaff",
+        "Graceful Quarterstaff",
+        "Guardian Quarterstaff",
+        "Lunar Quarterstaff",
+        "Razor Quarterstaff",
+        "Reaching Quarterstaff",
+        "Sinister Quarterstaff",
+        "Striking Quarterstaff",
+        "Warding Quarterstaff",
+        "Waxing Quarterstaff",
+        "Wyrm Quarterstaff"
+      ],
       "category": "Quarterstaves",
       "class": "Quarterstaves",
       "pools": {
@@ -2515,6 +2958,19 @@
     {
       "id": "Quivers",
       "name": "Quivers",
+      "bases": [
+        "Blunt Quiver",
+        "Broadhead Quiver",
+        "Fire Quiver",
+        "Penetrating Quiver",
+        "Primed Quiver",
+        "Sacral Quiver",
+        "Serrated Quiver",
+        "Toxic Quiver",
+        "Two-Point Quiver",
+        "Visceral Quiver",
+        "Volant Quiver"
+      ],
       "category": "Quivers",
       "class": "Quivers",
       "pools": {
@@ -2569,6 +3025,34 @@
     {
       "id": "Rings",
       "name": "Rings",
+      "bases": [
+        "Abyssal Signet",
+        "Amethyst Ring",
+        "Biostatic Ring",
+        "Breach Ring",
+        "Dusk Ring",
+        "Emerald Ring",
+        "Gloam Ring",
+        "Gold Ring",
+        "Grasping Ring",
+        "Iron Ring",
+        "Kinetic Ring",
+        "Lazuli Ring",
+        "Mnemonic Ring",
+        "Oneiric Ring",
+        "Pearl Ring",
+        "Penumbra Ring",
+        "Prismatic Ring",
+        "Refined Breach Ring",
+        "Ring",
+        "Ruby Ring",
+        "Sapphire Ring",
+        "Tenebrous Ring",
+        "Topaz Ring",
+        "Two-Stone Ring",
+        "Unset Ring",
+        "Vitalic Ring"
+      ],
       "category": "Rings",
       "class": "Rings",
       "pools": {
@@ -2662,6 +3146,21 @@
     {
       "id": "Sceptres",
       "name": "Sceptres",
+      "bases": [
+        "Aromatic Sceptre",
+        "Clasped Sceptre",
+        "Devotional Sceptre",
+        "Devouring Sceptre",
+        "Hallowed Sceptre",
+        "Lupine Sceptre",
+        "Ochre Sceptre",
+        "Omen Sceptre",
+        "Pious Sceptre",
+        "Rattling Sceptre",
+        "Shrine Sceptre",
+        "Stoic Sceptre",
+        "Wrath Sceptre"
+      ],
       "category": "Sceptres",
       "class": "Sceptres",
       "pools": {
@@ -2717,6 +3216,21 @@
     {
       "id": "Shields_str",
       "name": "Shields_str",
+      "bases": [
+        "Aged Tower Shield",
+        "Blacksteel Tower Shield",
+        "Bulwark Tower Shield",
+        "Cultist Tower Shield",
+        "Defiant Tower Shield",
+        "Fortress Tower Shield",
+        "Glacial Fortress",
+        "Goldworked Tower Shield",
+        "Metalworked Tower Shield",
+        "Noble Tower Shield",
+        "Phalanx Tower Shield",
+        "Royal Tower Shield",
+        "Vaal Tower Shield"
+      ],
       "category": "Shields",
       "class": "Shields",
       "pools": {
@@ -2784,6 +3298,20 @@
     {
       "id": "Shields_str_dex",
       "name": "Shields_str_dex",
+      "bases": [
+        "Avian Targe",
+        "Baroque Targe",
+        "Carved Targe",
+        "Fur-lined Targe",
+        "Grand Targe",
+        "Ironwood Targe",
+        "Mammoth Targe",
+        "Mercenary Targe",
+        "Polished Targe",
+        "Soaring Targe",
+        "Stone Targe",
+        "Stratified Targe"
+      ],
       "category": "Shields",
       "class": "Shields",
       "pools": {
@@ -2853,6 +3381,20 @@
     {
       "id": "Shields_str_int",
       "name": "Shields_str_int",
+      "bases": [
+        "Deified Crest Shield",
+        "Dekharan Crest Shield",
+        "Descry Crest Shield",
+        "Empyreal Crest Shield",
+        "Engraved Crest Shield",
+        "Glowering Crest Shield",
+        "Intricate Crest Shield",
+        "Painted Crest Shield",
+        "Quartered Crest Shield",
+        "Sekheman Crest Shield",
+        "Stoic Crest Shield",
+        "Vaal Crest Shield"
+      ],
       "category": "Shields",
       "class": "Shields",
       "pools": {
@@ -2922,6 +3464,23 @@
     {
       "id": "Spears",
       "name": "Spears",
+      "bases": [
+        "Branched Spear",
+        "Coursing Spear",
+        "Flying Spear",
+        "Grand Spear",
+        "Helix Spear",
+        "Jagged Spear",
+        "Massive Spear",
+        "Orichalcum Spear",
+        "Pronged Spear",
+        "Spiked Spear",
+        "Stalking Spear",
+        "Steelhead Spear",
+        "Striking Spear",
+        "Swift Spear",
+        "Sword Spear"
+      ],
       "category": "Spears",
       "class": "Spears",
       "pools": {
@@ -3010,6 +3569,17 @@
     {
       "id": "Staves",
       "name": "Chiming Staff, Dark Staff, Perching Staff, Permafrost Staff, Ravenous Staff, Reflecting Staff, Roaring Staff, Sanctified Staff, Spriggan Staff",
+      "bases": [
+        "Chiming Staff",
+        "Dark Staff",
+        "Perching Staff",
+        "Permafrost Staff",
+        "Ravenous Staff",
+        "Reflecting Staff",
+        "Roaring Staff",
+        "Sanctified Staff",
+        "Spriggan Staff"
+      ],
       "category": "Staves",
       "class": "Staves",
       "pools": {
@@ -3093,6 +3663,9 @@
     {
       "id": "Staves_chaos",
       "name": "Rending Staff",
+      "bases": [
+        "Rending Staff"
+      ],
       "category": "Staves",
       "class": "Staves",
       "pools": {
@@ -3165,6 +3738,10 @@
     {
       "id": "Staves_cold",
       "name": "Gelid Staff, Icicle Staff",
+      "bases": [
+        "Gelid Staff",
+        "Icicle Staff"
+      ],
       "category": "Staves",
       "class": "Staves",
       "pools": {
@@ -3238,6 +3815,10 @@
     {
       "id": "Staves_fire",
       "name": "Ashen Staff, Pyrophyte Staff",
+      "bases": [
+        "Ashen Staff",
+        "Pyrophyte Staff"
+      ],
       "category": "Staves",
       "class": "Staves",
       "pools": {
@@ -3311,6 +3892,10 @@
     {
       "id": "Staves_lightning",
       "name": "Paralysing Staff, Voltaic Staff",
+      "bases": [
+        "Paralysing Staff",
+        "Voltaic Staff"
+      ],
       "category": "Staves",
       "class": "Staves",
       "pools": {
@@ -3384,6 +3969,9 @@
     {
       "id": "Staves_physical",
       "name": "Reaping Staff",
+      "bases": [
+        "Reaping Staff"
+      ],
       "category": "Staves",
       "class": "Staves",
       "pools": {
@@ -3456,6 +4044,24 @@
     {
       "id": "TwoHand_Maces",
       "name": "TwoHand_Maces",
+      "bases": [
+        "Aberrant Sledge",
+        "Anvil Maul",
+        "Blacksmith Maul",
+        "Disintegrating Maul",
+        "Fanatic Greathammer",
+        "Giant Maul",
+        "Greatmace",
+        "Heavy Greathammer",
+        "Ironwood Greathammer",
+        "Massive Greathammer",
+        "Precise Greathammer",
+        "Ruination Maul",
+        "Sacred Maul",
+        "Snakewood Greathammer",
+        "Solemn Maul",
+        "Zealot Greathammer"
+      ],
       "category": "TwoHand_Maces",
       "class": "Two Hand Maces",
       "pools": {
@@ -3541,6 +4147,16 @@
     {
       "id": "Wands",
       "name": "Acrid Wand, Attuned Wand, Critical Wand, Dueling Wand, Runic Fork, Siphoning Wand, Torture Wand, Twisted Wand",
+      "bases": [
+        "Acrid Wand",
+        "Attuned Wand",
+        "Critical Wand",
+        "Dueling Wand",
+        "Runic Fork",
+        "Siphoning Wand",
+        "Torture Wand",
+        "Twisted Wand"
+      ],
       "category": "Wands",
       "class": "Wands",
       "pools": {
@@ -3625,6 +4241,10 @@
     {
       "id": "Wands_chaos",
       "name": "Primordial Wand, Withered Wand",
+      "bases": [
+        "Primordial Wand",
+        "Withered Wand"
+      ],
       "category": "Wands",
       "class": "Wands",
       "pools": {
@@ -3698,6 +4318,9 @@
     {
       "id": "Wands_cold",
       "name": "Frigid Wand",
+      "bases": [
+        "Frigid Wand"
+      ],
       "category": "Wands",
       "class": "Wands",
       "pools": {
@@ -3772,6 +4395,9 @@
     {
       "id": "Wands_fire",
       "name": "Volatile Wand",
+      "bases": [
+        "Volatile Wand"
+      ],
       "category": "Wands",
       "class": "Wands",
       "pools": {
@@ -3846,6 +4472,9 @@
     {
       "id": "Wands_lightning",
       "name": "Galvanic Wand",
+      "bases": [
+        "Galvanic Wand"
+      ],
       "category": "Wands",
       "class": "Wands",
       "pools": {
@@ -3920,6 +4549,10 @@
     {
       "id": "Wands_physical",
       "name": "Bone Wand, Offering Wand",
+      "bases": [
+        "Bone Wand",
+        "Offering Wand"
+      ],
       "category": "Wands",
       "class": "Wands",
       "pools": {

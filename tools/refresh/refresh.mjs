@@ -173,6 +173,17 @@ function buildMod(baseId, type, group, modIds, baseTags) {
 const warnings = [];
 const warn = (m) => warnings.push(m);
 
+/**
+ * Display names of the real game bases behind a RePoE variant, e.g. ["Frigid Wand"].
+ *
+ * `[DNT…]` marks a name the game itself says Do Not Translate — a developer placeholder, not something
+ * a player can own. Two of them sit in the unrestricted staff variant and would have been offered as
+ * the answer to "which staff is this row?".
+ */
+const baseNamesOf = (variant) => [...new Set((variant.bases || [])
+  .map((path) => repoeBaseItems[path]?.name)
+  .filter((n) => n && !/^\[DNT/i.test(n)))].sort();
+
 // --- main: iterate the baseline roster, plus any base Java never had ---------------------------
 const mods = new Map(); // id -> mod
 const items = [];
@@ -199,7 +210,10 @@ for (const base of [...baseline.items, ...EXTRA_BASES]) {
       pools.normal[key].push(mod.id);
     }
   }
-  items.push({ id: base.id, name: base.name, category: base.category, class: cls, pools });
+  // The concrete base names this row covers — "Knightly Mitts", "Gold Ring". `name` stays the
+  // DISPLAY label (BaseSelect renders it), so the two jobs do not share a field: reading an item
+  // someone pasted or fetched needs the list, and the picker needs a caption.
+  items.push({ id: base.id, name: base.name, bases: baseNamesOf(picked.variant), category: base.category, class: cls, pools });
 }
 
 // --- spell-element base variants (Wands, Staves) ------------------------------------------------
@@ -240,16 +254,6 @@ const blockedElements = (sig) => sig.split(',')
   .map((t) => /^no_(.+)_spell_mods$/.exec(t)?.[1])
   .filter((e) => e !== undefined);
 
-/**
- * Display names of the real game bases behind a RePoE variant, e.g. ["Frigid Wand"].
- *
- * `[DNT…]` marks a name the game itself says Do Not Translate — a developer placeholder, not something
- * a player can own. Two of them sit in the unrestricted staff variant and would have been offered as
- * the answer to "which staff is this row?".
- */
-const baseNamesOf = (variant) => [...new Set((variant.bases || [])
-  .map((path) => repoeBaseItems[path]?.name)
-  .filter((n) => n && !/^\[DNT/i.test(n)))].sort();
 
 for (const parent of [...items]) {
   const variants = repoeByBase[parent.class];
@@ -263,7 +267,7 @@ for (const parent of [...items]) {
   const parentNames = baseNamesOf(variants[
     Object.keys(variants).find((sig) => blockedElements(sig).length === 0 && !sig.split(',').some((t) => SPECIALIZER.has(t)))
   ] || {});
-  if (parentNames.length > 0) parent.name = parentNames.join(', ');
+  if (parentNames.length > 0) { parent.name = parentNames.join(', '); parent.bases = parentNames; }
 
   for (const [sig, v] of restricted) {
     const allowed = SPELL_ELEMENTS.filter((e) => !blockedElements(sig).includes(e));
@@ -280,7 +284,7 @@ for (const parent of [...items]) {
       // The parent's ids are `${parent.id}/${group}`, so the group is what follows the first slash.
       pools.normal[key] = parent.pools.normal[key].filter((mid) => groups.has(mid.slice(parent.id.length + 1)));
     }
-    items.push({ id, name: names.join(', ') || id, category: parent.category, class: parent.class, pools });
+    items.push({ id, name: names.join(', ') || id, bases: names, category: parent.category, class: parent.class, pools });
     mapping.push(`${id.padEnd(24)} -> ${parent.class} :: [${sig}]  (${element} only: ${names.join(', ')})`);
   }
 }

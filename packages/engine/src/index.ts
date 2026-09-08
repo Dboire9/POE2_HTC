@@ -5,9 +5,11 @@ export type {
 export { CURRENCY_FLOOR } from './types.ts';
 
 export { resolveMod, modTierWeight, poolTotalWeight, itemFamilies, familyAvailable, familiesOf, excluded } from './pool.ts';
-export { baseNameIndex, findBase } from './baseLookup.ts';
+export { baseNameIndex, findBase, findBaseInName } from './baseLookup.ts';
 export type { BaseMatch } from './baseLookup.ts';
 export { resolveMods, linesOf } from './resolveMods.ts';
+export { parseItemText, linesOfKind } from './parseItem.ts';
+export type { ParsedItem, ParsedMod, ModKind } from './parseItem.ts';
 export type { ResolvedLine, UnresolvedLine, ResolveResult, ResolveOptions } from './resolveMods.ts';
 export {
   MAX_AFFIXES_PER_SIDE, whiteItem, prefixCount, suffixCount, prefixesFull, suffixesFull, withAffix,

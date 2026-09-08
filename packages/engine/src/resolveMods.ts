@@ -49,6 +49,19 @@ export interface ResolvedLine {
   readonly tierNames: readonly string[];
   /** The tier, when the values pin exactly one. Undefined when they do not — offer `tierNames`. */
   readonly tierName: string | undefined;
+  /**
+   * The same lines read as ONE MOD PER LINE, when that reading also resolves.
+   *
+   * Present only on a multi-line group, and it means the grouping itself is undecidable. `Bows`
+   * carries a hybrid `#% increased Physical Damage` / `+# to Accuracy Rating` AND standalone mods for
+   * each half, so a bow printing those two lines together is either one hybrid or two ordinary mods
+   * and nothing in the text says which. Silently taking the hybrid is a guess wearing a fact's hat —
+   * it changes which pool the craft plans against and how many affix slots the item is using.
+   *
+   * A Ctrl+Alt+C paste settles it: its braces say which lines belong together, so resolve those lines
+   * as their own call and this never arises.
+   */
+  readonly alternative?: readonly ResolvedLine[];
 }
 
 /** A line no mod in the base's pools claims. Not necessarily an error — see the note above. */
@@ -211,6 +224,28 @@ function pick(modIds: readonly string[], byId: (id: string) => Mod): string | un
   return normal.length === 1 ? normal[0] : undefined;
 }
 
+/** Resolve exactly this window, or nothing. Shared by the main scan and by the split-reading check
+ *  that decides whether a multi-line grouping was a real choice. */
+function one(
+  cands: readonly Candidate[], window: readonly string[], level: number | undefined,
+  byId: (id: string) => Mod,
+): ResolvedLine | undefined {
+  const a = attempt(cands.filter((c) => c.lines === window.length), window.join('\n'), level);
+  if (!a) return undefined;
+  // The roll is EVIDENCE, not a preference: a candidate whose ranges cannot produce these values did
+  // not produce them. Only drop them when something is left, so an off-range roll — a legacy item, or
+  // data drifting from the game — still resolves rather than vanishing.
+  const fitting = a.modIds.filter((_, i) => a.tiers[i]!.length > 0);
+  const modIds = fitting.length > 0 ? fitting : a.modIds;
+  const modId = pick(modIds, byId);
+  const tiers = modId === undefined ? [] : a.tiers[a.modIds.indexOf(modId)]!;
+  return {
+    lines: [...window], modIds, modId, values: a.values,
+    tierNames: tiers.map((t) => t.name),
+    tierName: tiers.length === 1 ? tiers[0]!.name : undefined,
+  };
+}
+
 /** The longest template in the shipped data is three lines; try the longest window first, so a
  *  hybrid roll is read as the one mod it is rather than as its first line plus a stray. */
 const MAX_WINDOW = 3;
@@ -235,25 +270,16 @@ export function resolveMods(
   const unresolved: UnresolvedLine[] = [];
   for (let i = 0; i < rows.length;) {
     let taken = 0;
+    // Longest window first, so a hybrid roll is read as the one mod it is rather than as its first
+    // line plus a stray.
     for (let n = Math.min(MAX_WINDOW, rows.length - i); n >= 1 && taken === 0; n--) {
-      const window = rows.slice(i, i + n);
-      const a = attempt(cands.filter((c) => c.lines === n), window.join('\n'), opts.level);
-      if (!a) continue;
-      // The roll is EVIDENCE, not a preference: a candidate whose ranges cannot produce these values
-      // did not produce them. Only drop them when something is left, so an off-range roll — a legacy
-      // item, or data drifting from the game — still resolves rather than vanishing.
-      const fitting = a.modIds.filter((_, i) => a.tiers[i]!.length > 0);
-      const modIds = fitting.length > 0 ? fitting : a.modIds;
-      const modId = pick(modIds, byId);
-      const tiers = modId === undefined ? [] : a.tiers[a.modIds.indexOf(modId)]!;
-      resolved.push({
-        lines: window,
-        modIds,
-        modId,
-        values: a.values,
-        tierNames: tiers.map((t) => t.name),
-        tierName: tiers.length === 1 ? tiers[0]!.name : undefined,
-      });
+      const row = one(cands, rows.slice(i, i + n), opts.level, byId);
+      if (!row) continue;
+      // Does the split reading work too? Only then is the grouping a real question, and the caller
+      // has to be told rather than handed the longer match as though it were the only one.
+      const split = n > 1 ? row.lines.map((l) => one(cands, [l], opts.level, byId)) : [];
+      const alternative = split.length > 1 && split.every((x) => x !== undefined) ? split : undefined;
+      resolved.push(alternative ? { ...row, alternative } : row);
       taken = n;
     }
     if (taken === 0) { unresolved.push({ line: rows[i]! }); taken = 1; }

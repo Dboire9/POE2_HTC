@@ -57,6 +57,31 @@ describe('a modifier the game prints across two lines', () => {
     expect(one('Boots_str_dex', ['+80 to Armour']).resolved).toEqual([]);
   });
 
+  /**
+   * The grouping itself can be undecidable, and that is not a corner case — it turned up on the first
+   * real player item tested. `Bows` carries the hybrid AND a standalone mod for each half, so two
+   * adjacent lines are either one mod or two, and nothing in the text says which.
+   */
+  it('reports the split reading when the same lines also read as two separate mods', () => {
+    const r = one('Bows', ['188% increased Physical Damage', '+113 to Accuracy Rating']);
+    expect(r.resolved).toHaveLength(1);
+    expect(r.resolved[0]!.modId).toBe('Bows/LocalIncreasedPhysicalDamagePercentAndAccuracyRating');
+    expect(r.resolved[0]!.alternative?.map((a) => a.modId))
+      .toEqual(['Bows/LocalPhysicalDamagePercent', 'Bows/LocalAccuracyRating']);
+  });
+
+  /** Where the halves are not mods of their own the hybrid is the only reading, and saying "this
+   *  might be two mods" there would be noise a caller has to learn to ignore. */
+  it('offers no alternative where neither half is a mod on its own', () => {
+    const r = one('Boots_str_dex', ['+80 to Armour', '+70 to Evasion Rating']);
+    expect(r.resolved[0]!.alternative).toBeUndefined();
+  });
+
+  it('never offers an alternative for a single line', () => {
+    const r = one('Helmets_str', ['+219 to Armour']);
+    expect(r.resolved[0]!.alternative).toBeUndefined();
+  });
+
   it('counts the printed lines of a mod', () => {
     expect(linesOf(data.mods.get('Boots_str_dex/LocalBaseArmourAndEvasionRating')!)).toBe(2);
     expect(linesOf(data.mods.get('Helmets_str/ArmourAppliesToElementalDamage')!)).toBe(1);

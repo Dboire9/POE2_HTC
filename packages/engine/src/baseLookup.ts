@@ -39,6 +39,30 @@ export function baseNameIndex(data: PatchData): ReadonlyMap<string, readonly str
   return idx;
 }
 
+/**
+ * Find the base INSIDE a printed name line, which is what a Magic item forces.
+ *
+ * A Rare or Unique prints its base on a line of its own, but a Magic item wraps it in the words its
+ * affixes contribute — "Fine Bow of the Wind" — so there is nothing to look up until the base has
+ * been picked out of the sentence. The longest name that appears as whole words wins, which is what
+ * keeps "Expert Bow" from being read as "Bow" on a base that is both.
+ *
+ * One function covers every rarity, and that is deliberate rather than lucky: on a Rare the last name
+ * line IS the base name, so searching it finds the whole line and the answer is the same as a direct
+ * lookup. Callers do not have to branch on rarity to find a base.
+ */
+export function findBaseInName(
+  index: ReadonlyMap<string, readonly string[]>, name: string,
+): BaseMatch {
+  const hay = ` ${key(name)} `;
+  let best: string | undefined;
+  for (const candidate of index.keys()) {
+    if (!hay.includes(` ${candidate} `)) continue;
+    if (best === undefined || candidate.length > best.length) best = candidate;
+  }
+  return best === undefined ? { ids: [], id: undefined } : findBase(index, best);
+}
+
 /** Resolve one printed base name. `id` is set only when the answer is unambiguous. */
 export function findBase(
   index: ReadonlyMap<string, readonly string[]>, name: string,

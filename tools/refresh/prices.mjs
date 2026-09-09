@@ -494,6 +494,26 @@ async function main() {
 
   // Omens come from the RITUAL feed — that is where poe.ninja files them. See priceOmens.
   const rates = { exalt: 1, chaos: lines.get('chaos').primaryValue / exalt, divine: lines.get('divine').primaryValue / exalt };
+  // RUNES, for the Aldur conversion route. An Aldur rune converts every "gain as extra <element>"
+  // modifier on an item to its own element, which is how a player stacks a modifier the family rules
+  // otherwise allow only once (see runeConvert.ts). It is SOCKETED rather than spent, so the price is
+  // not the whole cost — but it has to be on the sheet regardless, because `stepCost` reads
+  // `prices.currency[key] ?? 0` and an absent key would make the route FREE and let it dominate every
+  // frontier it can reach.
+  //
+  // Kept under a `rune:` prefix rather than bare, so a rune can never collide with a currency name,
+  // and written from the feed's own ids so no transcription sits between the two.
+  const runeFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Runes`);
+  let runesPriced = 0;
+  for (const line of runeFeed.lines ?? []) {
+    if (!/-of-aldur$|^aldurs-/.test(line.id ?? '')) continue;
+    const v = line.primaryValue;
+    if (typeof v !== 'number' || !(v > 0)) continue;
+    prices[`rune:${line.id}`] = Number((v / exalt).toPrecision(4));
+    runesPriced++;
+  }
+  console.log(`  runes: ${runesPriced} Aldur rune(s) priced of ${(runeFeed.lines ?? []).length} lines`);
+
   const ritualFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Ritual`);
   const { omens, fallback, thin } = priceOmens(ritualFeed.lines, prev.omenQuotes, exalt, rates);
   console.log(`\nomens (1 chaos = ${rates.chaos.toFixed(2)}ex, 1 divine = ${rates.divine.toFixed(2)}ex):`);

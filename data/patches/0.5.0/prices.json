@@ -1542,7 +1542,12 @@
     "essence:perfect:Wands_physical/PerfectEssence_IncreasedCastSpeed": 50.86,
     "essence_lesser": 1,
     "essence": 2.663,
-    "essence_greater": 1.589
+    "essence_greater": 1.589,
+    "rune:aldurs-legacy": 10500,
+    "rune:betrayal-of-aldur": 6.713,
+    "rune:breath-of-aldur": 3.359,
+    "rune:ire-of-aldur": 2.863,
+    "rune:passion-of-aldur": 12.13
   },
   "omenQuotesAsOf": "2026-08-22",
   "omenQuotesSource": "https://poe.ninja/poe2/economy/runesofaldur/omens — transcribed by hand; poe.ninja's economy API has no `type` value that serves omens (Currency/Essences/Fragments/Runes do), and the web page is client-rendered, so this is the only route.",

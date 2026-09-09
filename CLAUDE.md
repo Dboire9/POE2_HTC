@@ -154,6 +154,30 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   can never reach the tier asked for. A needed mod advances only on its at-or-above-tier weight while
   occupying its family on its FULL weight. Collapsing those two is a mutation the tests catch.
 - **Fractured mods are locked**: never annulled, never chaosed, out of every removal pool.
+- **AN ALDUR RUNE STACKS A MODIFIER THE FAMILY RULES ALLOW ONLY ONCE, and the route needs no engine
+  change at all.** Mechanic confirmed by the user 2026-09-09: the rune is SOCKETED (so it spends a
+  rune socket as well as its price), each rune FIXES the output element rather than the player
+  choosing, it converts EVERY `gain as extra <element>` modifier on the item rather than one, and
+  nothing gates it. So two `Gain #% of Damage as Extra Fire` — which no item may hold, one family —
+  are reached by rolling **fire AND cold**, which are different families and coexist perfectly, then
+  socketing the rune. `runeConvert.ts`.
+  **The engine never sees two mods of one family, which is the whole point of that shape.** During the
+  craft the targets are genuinely cross-family, so this is an ordinary multi-prefix craft plus one
+  deterministic step: no state axis, no exception to family exclusion, no probability touched.
+  Modelling the conversion as a mechanic instead would have meant making family exclusion conditional,
+  and every pool denominator in the engine depends on it. `runeConvert.test.ts` asserts the produced
+  targets can actually coexist (`itemFamilies(...).size === targets.length`) — if that ever failed the
+  route would be asking for an item the game forbids.
+  The element is read out of the STAT KEY (`…_to_gain_as_fire`), never a hardcoded list, so a new
+  element needs no code. **Only the FIRE rune is traced** — a real staff carried "Forged by the
+  Passion of Aldur" beside two gain-as-extra-fire mods — and the other four Aldur runes are priced by
+  the feed but unmapped, because a guessed element would print a route that does not work. Twelve
+  bases roll all three elements (the Staves and Wands families), so the stack caps at 3.
+  **Runes are on the price sheet under `rune:<id>`** (`prices.mjs`, from poe.ninja's `type=Runes`
+  feed — 5 Aldur lines). Not optional: `stepCost` reads `prices.currency[key] ?? 0`, so an unpriced
+  rune is a FREE one and would dominate every frontier it reached. Passion of Aldur is **12.13 ex**,
+  not the 0.064 the feed's raw `primaryValue` shows — that field is denominated in divine and must be
+  divided by the Exalted Orb's own primary value, exactly as every other line is.
 - **TWO MODIFIERS CAN PRINT AS ONE LINE, and no reader of the text can undo it.** The game SUMS
   same-stat modifiers on screen: a staff carrying 71% and 62% `Gain as Extra Fire` displays a single
   `133%`. That is the reverse of the hybrid case `resolveMods` handles (one modifier printing as two

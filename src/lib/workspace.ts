@@ -482,12 +482,17 @@ export function useWorkspace(): Workspace {
 const UNSET = Symbol('unset');
 
 /**
- * Run `fn` when `value` CHANGES — never on mount.
+ * Run `fn` when `value` changes, but never on mount.
  *
- * A plain `useEffect(fn, [value])` also fires on the first render. That was harmless while component
- * state was created fresh on every mount, but it is destructive against a RESTORED workspace: the
- * "reset the craft when the base changes" effects would wipe the user's work every time the component
- * mounted — which, for the item tab, is every single tab switch.
+ * NOTHING CALLS THIS ANY MORE, and the reason is worth keeping. Both tabs used it to clear a craft
+ * when the base changed, and a value watcher cannot tell WHY a value moved: a base pick, a share
+ * link, and an import all move `baseId`, and the last two arrived carrying the very targets the
+ * clear then deleted. Both are handlers on the base picker now (`changeBase`).
+ *
+ * Kept because the hook itself is right — a bare `useEffect` with a dep array fires on mount and
+ * wipes restored state, which is the bug this was written for — and the next "reset when X changes"
+ * will want it. Reach for it only when the value has ONE cause; when it has several, the handler is
+ * the honest place for the reaction.
  */
 export function useOnChange<T>(value: T, fn: () => void): void {
   const prev = useRef<T | typeof UNSET>(UNSET);

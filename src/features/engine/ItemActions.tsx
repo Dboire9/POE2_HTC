@@ -17,7 +17,7 @@ import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField } from '../../lib/workspace';
-import { importToItem } from '../../lib/importToItem';
+import { importToItem } from '../../lib/importItem';
 import { MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotsOf, whyNotAdd } from '../../lib/targetSlots';
 import { exactExalts, formatBoundedCost, formatCost, type Rates } from '../../lib/currency';
 import FrontierView from './FrontierView';

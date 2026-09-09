@@ -20,12 +20,13 @@ const { loadStreamers } = await import('../../lib/streamerGear');
 beforeEach(() => { vi.mocked(loadStreamers).mockResolvedValue(file); });
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
-/** Render the tab and wait for the gear to arrive. */
-async function open(onApply = vi.fn()) {
+/** Render the tab with the three routes stubbed, and wait for the gear to arrive. */
+async function open() {
   const user = userEvent.setup();
-  render(<StreamerGear data={data} onApply={onApply} />);
+  const routes = { own: vi.fn(), scratch: vi.fn(), aim: vi.fn() };
+  render(<StreamerGear data={data} routes={routes} />);
   await screen.findByText(new RegExp(file.characters[0]!.character));
-  return { user, onApply };
+  return { user, routes };
 }
 
 describe('the streamer gear tab', () => {
@@ -73,23 +74,48 @@ describe('the streamer gear tab', () => {
     expect(await screen.findByText(new RegExp(`All ${helm.mods.length} modifiers`))).toBeInTheDocument();
   });
 
-  it('hands the tab the item it showed, and only on the button', async () => {
-    const { user, onApply } = await open();
+  /**
+   * Three routes, three questions — and each has to reach its own one. Wiring two buttons to the same
+   * handler is the mistake that looks right on screen and silently answers the wrong question.
+   */
+  it.each([
+    ['Craft this from scratch', 'scratch'],
+    ['I have some of these', 'aim'],
+    ['I own this one', 'own'],
+  ] as const)('sends the item to the %s route, and only on that button', async (label, key) => {
+    const { user, routes } = await open();
     const helm = file.characters[0]!.items.find((i) => i.slot === 'Helm')!;
     await user.click(screen.getByRole('button', { name: new RegExp(helm.name) }));
-    // Reading is free; overwriting a craft the player has set up is not.
-    expect(onApply).not.toHaveBeenCalled();
 
-    await user.click(screen.getByRole('button', { name: /Use this item/i }));
-    await waitFor(() => { expect(onApply).toHaveBeenCalledTimes(1); });
-    const sent = vi.mocked(onApply).mock.calls[0]![0] as { baseId: string; level: number };
+    // Reading is free; overwriting a craft the player has set up is not.
+    expect(routes.own).not.toHaveBeenCalled();
+    expect(routes.scratch).not.toHaveBeenCalled();
+    expect(routes.aim).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: new RegExp(label) }));
+    await waitFor(() => { expect(routes[key]).toHaveBeenCalledTimes(1); });
+
+    for (const other of ['own', 'scratch', 'aim'] as const) {
+      if (other !== key) expect(routes[other], other).not.toHaveBeenCalled();
+    }
+    const sent = vi.mocked(routes[key]).mock.calls[0]![0] as { baseId: string; level: number };
     expect(sent.baseId).toBe(helm.baseId);
     expect(sent.level).toBe(helm.level);
   });
 
+  /** Each button says where it lands, because three arrows and no destinations loses someone's craft. */
+  it('says which tab each route goes to', async () => {
+    const { user } = await open();
+    const helm = file.characters[0]!.items.find((i) => i.slot === 'Helm')!;
+    await user.click(screen.getByRole('button', { name: new RegExp(helm.name) }));
+    expect(await screen.findByText(/plans it on a white/)).toBeInTheDocument();
+    expect(screen.getByText(/leaves your own item alone/)).toBeInTheDocument();
+    expect(screen.getByText(/replacing what is there/)).toBeInTheDocument();
+  });
+
   it('says so, rather than hanging, when the gear file cannot be fetched', async () => {
     vi.mocked(loadStreamers).mockRejectedValue(new Error('offline'));
-    render(<StreamerGear data={data} onApply={vi.fn()} />);
+    render(<StreamerGear data={data} routes={{ own: vi.fn(), scratch: vi.fn(), aim: vi.fn() }} />);
     expect(await screen.findByText(/Couldn’t load the gear file/)).toBeInTheDocument();
   });
 });

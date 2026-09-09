@@ -15,7 +15,7 @@ import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { EFFORT_PRESETS, isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import {
-  decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode, useOnChange,
+  decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode,
 } from '../../lib/workspace';
 import { toast } from 'sonner';
 import {
@@ -23,7 +23,6 @@ import {
 } from '../../lib/targetSlots';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import StreamerGear from './StreamerGear';
-import { importToItem } from '../../lib/importToItem';
 import ItemActions from './ItemActions';
 import UserGuide from './UserGuide';
 import FrontierView from './FrontierView';
@@ -226,9 +225,18 @@ const EngineLab: React.FC = () => {
     return m;
   }, [mods]);
 
-  // Reset the craft when the base changes — but NOT on mount, or a restored workspace would be wiped
-  // the moment it loaded.
-  useOnChange(baseId, () => {
+  /**
+   * Picking a different base clears the craft, because the targets name modifiers of the base they
+   * were chosen on.
+   *
+   * A HANDLER on the picker, not an effect watching `baseId`. Watching the value cannot tell a base
+   * PICK from the other two things that move it — a share link being applied, and an item being sent
+   * here to be crafted from scratch — and it wiped both. Measured: a link naming any base other than
+   * the one already on screen arrived with every target stripped. Test 4 in the e2e suite missed it
+   * twice over, by sharing the default base AND by reopening the link in a page that still had the
+   * original `localStorage`.
+   */
+  const clearCraft = () => {
     setTargets([]);
     setResult(null);
     setAlts(null);
@@ -237,7 +245,8 @@ const EngineLab: React.FC = () => {
     setPickTier({});
     setFractured(new Set());
     setPinned(new Set());
-  });
+  };
+  const changeBase = (id: string) => { setBaseId(id); clearCraft(); };
 
 
   const selectedIds = useMemo(() => new Set(targets.map((t) => t.modId)), [targets]);
@@ -535,12 +544,12 @@ const EngineLab: React.FC = () => {
       </div>
 
       {mode === 'item' ? <ItemActions />
-        : mode === 'gear' ? (data ? <StreamerGear data={data} onApply={importToItem} /> : <Spinner />)
+        : mode === 'gear' ? (data ? <StreamerGear data={data} /> : <Spinner />)
         : (<>
       {/* Setup */}
       <Card className="p-4 space-y-4">
         <div className="flex flex-wrap items-end gap-4">
-          <BaseSelect bases={bases} value={baseId} onChange={setBaseId} />
+          <BaseSelect bases={bases} value={baseId} onChange={changeBase} />
           <label className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Item level</span>
             <input

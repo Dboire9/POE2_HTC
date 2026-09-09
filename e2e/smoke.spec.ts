@@ -119,12 +119,39 @@ test('4 — share link: a workspace survives a round trip through the URL', asyn
   const url = await page.evaluate(() => navigator.clipboard.readText());
   expect(url).toContain('?s=');
 
-  // A FRESH page, so nothing is carried by localStorage or component state — the link alone has to
-  // reproduce the workspace. That is the property share links exist for.
-  const fresh = await context.newPage();
+  // A fresh CONTEXT, not merely a fresh page. `context.newPage()` shares this origin's localStorage,
+  // so the "fresh" page was restoring the very workspace the link is supposed to carry — the test
+  // passed on saved state and would have passed with the link doing nothing at all.
+  const iso = await context.browser()!.newContext();
+  const fresh = await iso.newPage();
   await fresh.goto(url);
   await waitForReady(fresh);
   await expect(fresh.getByRole('button', { name: target! })).toBeVisible({ timeout: 30_000 });
+  await iso.close();
+});
+
+test('4b — a share link on a base other than the default keeps its targets', async ({ page, context }) => {
+  // The bug this pins: the Lab cleared the craft from an effect watching `baseId`, so applying a link
+  // whose base differed from the one on screen wiped every target it carried. Test 4 could not see it
+  // — it never left the default base, and its second page had the answer in localStorage already.
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/');
+  await waitForReady(page);
+
+  await page.getByRole('combobox', { name: /^Base$/ }).selectOption({ label: 'Bows' });
+  await page.getByRole('button', { name: /^Add / }).first().click();
+  const target = await page.getByRole('button', { name: /^Remove / }).first().getAttribute('aria-label');
+  expect(target, 'a target was actually added on the non-default base').toBeTruthy();
+
+  await page.getByRole('button', { name: 'Copy link' }).click();
+  const url = await page.evaluate(() => navigator.clipboard.readText());
+
+  const iso = await context.browser()!.newContext();
+  const fresh = await iso.newPage();
+  await fresh.goto(url);
+  await waitForReady(fresh);
+  await expect(fresh.getByRole('button', { name: target! })).toBeVisible({ timeout: 30_000 });
+  await iso.close();
 });
 
 test('5 — mobile: the mod columns stack and nothing overflows sideways', async ({ page }) => {
@@ -205,7 +232,7 @@ test('8 — streamer gear loads over the network and lands on the Item tab', asy
   // Pick the first item and take it to the Item tab. Which item, and what it costs, is the unit
   // suite's business — this asserts the hand-off happens at all.
   await page.locator('ul li button').first().click();
-  await page.getByRole('button', { name: /Use this item/i }).click();
+  await page.getByRole('button', { name: /I own this one/i }).click();
 
   // The Item tab is showing (its sub-tabs are), and the gear's modifiers are on the item — a Remove
   // control exists only for a modifier the item actually holds.

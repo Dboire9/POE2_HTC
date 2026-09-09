@@ -7,6 +7,7 @@ import {
   type GearReading, type StreamerFile, type StreamerItem,
 } from '../../lib/streamerGear';
 import type { ImportedItem } from '../../lib/engineTypes';
+import { craftFromScratch, importToItem, useAsTarget } from '../../lib/importItem';
 
 /**
  * "Streamer gear" — a tab for looking at items somebody actually built.
@@ -15,8 +16,14 @@ import type { ImportedItem } from '../../lib/engineTypes';
  * supposed to LOOK like. A player who has never seen a six-mod endgame staff has no idea which
  * modifiers are worth wanting, and the pickers will not tell them. Real gear will.
  *
- * IT CRAFTS NOTHING ITSELF. Picking an item hands it to the Item tab and switches there, so there is
- * one crafting surface rather than two that have to agree.
+ * IT CRAFTS NOTHING ITSELF. It hands the item to one of the two planning tabs and switches there, so
+ * there is one crafting surface rather than two that have to agree — and THREE ways to read the same
+ * item, because they are genuinely different questions:
+ *
+ *   - **I own this** — it becomes the item you hold, and the tab plans from it.
+ *   - **Craft it from scratch** — its modifiers become targets on a white base of the same kind.
+ *   - **Aim at it** — its modifiers become the target while YOUR item stays put, which is the
+ *     "I already have two of these six, what now?" question.
  *
  * IT IS A SNAPSHOT, AND IT SAYS SO. The resolving happened in a periodic job (`tools/streamers/`),
  * because it needs a column the browser's copy of the mod data does not carry; what ships is the
@@ -49,7 +56,18 @@ const ModLine: React.FC<{ data: PatchData; modId: string; tier: number; fracture
     </li>
   );
 
-const StreamerGear: React.FC<{ data: PatchData; onApply: (item: ImportedItem) => void }> = ({ data, onApply }) => {
+/** The three routes out of this tab, injectable so a test can watch them without a workspace. */
+export interface GearRoutes {
+  readonly own: (it: ImportedItem) => void;
+  readonly scratch: (it: ImportedItem) => void;
+  readonly aim: (it: ImportedItem) => void;
+}
+
+export const DEFAULT_ROUTES: GearRoutes = {
+  own: importToItem, scratch: craftFromScratch, aim: useAsTarget,
+};
+
+const StreamerGear: React.FC<{ data: PatchData; routes?: GearRoutes }> = ({ data, routes = DEFAULT_ROUTES }) => {
   const [file, setFile] = useState<StreamerFile | null>(null);
   const [failed, setFailed] = useState(false);
   const [who, setWho] = useState(0);
@@ -72,6 +90,7 @@ const StreamerGear: React.FC<{ data: PatchData; onApply: (item: ImportedItem) =>
     () => (item ? readGear(data, item) : null),
     [data, item],
   );
+  const blocked = reading?.blocked !== undefined;
 
   return (
     <div className="space-y-4">
@@ -166,22 +185,35 @@ const StreamerGear: React.FC<{ data: PatchData; onApply: (item: ImportedItem) =>
           ))}
           {reading.blocked && <p className="text-[11px] text-amber-300">{reading.blocked}</p>}
 
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <Button
-              size="sm"
-              onClick={() => { if (!reading.blocked) onApply(reading.item); }}
-              disabled={reading.blocked !== undefined}
-            >
-              Use this item →
+          <p className="text-[11px] text-muted-foreground pt-1">
+            {reading.blocked
+              ? 'Nothing to take from this one — it is finished.'
+              : reading.omitted.length === 0
+                ? `All ${placedCount(reading)} modifiers come across.`
+                : `${placedCount(reading)} of ${placedCount(reading) + reading.omitted.length} modifiers come across, for the reasons above.`}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" onClick={() => routes.scratch(reading.item)} disabled={blocked}>
+              Craft this from scratch →
             </Button>
-            <span className="text-[11px] text-muted-foreground">
-              {reading.blocked
-                ? 'Nothing to load — this item is finished.'
-                : reading.omitted.length === 0
-                  ? `All ${placedCount(reading)} modifiers, onto the Item tab.`
-                  : `${placedCount(reading)} of ${placedCount(reading) + reading.omitted.length} modifiers, for the reasons above.`}
-            </span>
+            <Button size="sm" variant="outline" onClick={() => routes.aim(reading.item)} disabled={blocked}>
+              I have some of these →
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => routes.own(reading.item)} disabled={blocked}>
+              I own this one →
+            </Button>
           </div>
+          {/* Which tab each lands on, and what it does to work already on that tab. Three buttons that
+              all say "→" and none of which says where is how a player loses a craft they had set up. */}
+          <ul className="text-[11px] text-muted-foreground space-y-0.5">
+            <li><strong>Craft this from scratch</strong> — plans it on a white {item.baseName} from
+              nothing, on <em>Plan from scratch</em>.</li>
+            <li><strong>I have some of these</strong> — makes it the target on <em>I have an item</em>
+              and leaves your own item alone, so the plan covers only what you are missing.</li>
+            <li><strong>I own this one</strong> — puts it on <em>I have an item</em> as the item you
+              hold, replacing what is there.</li>
+          </ul>
         </Card>
       )}
     </div>

@@ -221,18 +221,37 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   not work (5 of 30 category arrays disagree in length on one character, because the game sums
   same-stat modifiers and splits hybrids), so each category uses the route that can answer it and
   nothing is matched by index. Worth 50 → 52 modifiers.
+  **THREE routes out of the gear tab, because they are three different questions** (2026-09-09):
+  `craftFromScratch` sends the modifiers to the Lab as targets on a white base of the same kind;
+  `useAsTarget` makes them the Item tab's target and leaves your own item alone (the "I already have
+  two of these six" case); `importToItem` says you own it. All in `src/lib/importItem.ts`, and each
+  button names the tab it lands on — three arrows and no destinations is how a player loses a craft.
+  **One rule decides what survives a route: a modifier list belongs to the BASE it was chosen on.**
+  Held mods and targets are both `<base>/<mod>` ids, meaningless elsewhere and unshowable by the
+  picker. So `useAsTarget` keeps your item on the same base and clears it on a different one, and
+  `importToItem` keeps a target on the same base — it used to clear one unconditionally, which
+  silently undid "aim at this item, then paste mine", the exact order that flow is used in. A
+  fractured flag is dropped on the way to a target list: there it would claim the base you buy
+  already carries it.
   **It is its own TAB, not a panel on the Item tab** (2026-09-09). Browsing gear is not crafting, and
   a third collapsible stacked above the Item tab's pickers was clutter on the densest view in the app.
   Picking an item there calls `importToItem` (`src/lib/importToItem.ts`), which writes the item and
   switches to `I have an item` — one crafting surface, not two that have to agree. `Mode` gained
   `'gear'` and the share link a `g`; an OLDER deployed client decoding it falls through to `plan`, so
   no FORMAT bump (the `bc` trade), and `modeOf` treats `m` as the untrusted leaf it is.
-  **The tab used to clear itself from an effect watching `baseId`, and that silently emptied every
-  import.** `useOnChange(baseId, …)` cannot tell a base PICK from an import that brings its own
+  **BOTH tabs used to clear themselves from an effect watching `baseId`, and it silently emptied
+  every import AND every share link naming another base.** `useOnChange(baseId, …)` cannot tell a base PICK from an import that brings its own
   modifiers, so pasting anything that was not a Wand — the tab's default — arrived with the base and
   level set and every modifier stripped. The fix is `changeBase`, a handler on the picker: the clear
   happens where the user changes a base, so intent is known rather than inferred from a value both
-  paths move. Note what did NOT fix it: making the write atomic. The effect fires on the new value
+  paths move. The Lab had the identical bug and it was WORSE there: `decodeWorkspace` writes a base
+  and its targets together, so **any share link on a base other than the one on screen arrived with
+  every target stripped**. The e2e suite missed it twice over — test 4 never left the default base,
+  and its "fresh" page was `context.newPage()`, which shares the origin's `localStorage`, so it was
+  restoring the very workspace the link was supposed to carry and would have passed with the link
+  doing nothing. Test 4 now opens a real second CONTEXT and 4b covers a non-default base.
+  `useOnChange` survives with no callers and a comment saying why: the hook is right, but reach for
+  it only when the value has ONE cause. Note what did NOT fix any of this: making the write atomic. The effect fires on the new value
   however few writes produced it, and `importToItem.test.ts` says so in a comment beside the test that
   proves the single write is real (counted through `localStorage`, because React batches the renders
   and a render-counting version of that test passed against the five-setter code it claimed to rule

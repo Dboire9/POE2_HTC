@@ -3467,6 +3467,28 @@ modifiers it is. `mapMarkov` appends the side on collision only, so every other 
 policy-graph BOX shows one position at a time and never had to care, which is why this surfaced only
 once holdings existed.
 
+### Driving the app found three things the headless campaign could not (2026-09-09)
+
+Running the real build in a browser, not the suite.
+
+1. **`holdings` was read at the STARTING rarity**, so a from-white craft got one row and the panel
+   never appeared on the Lab tab at all. Fixed to the Rare rung. Two of my own probes were also wrong
+   before the app was: one matched any `%` on the page and called a finished solve "still computing",
+   the other matched the standing explainer paragraph containing the words "True expected cost" and
+   declared a craft answered 0s after clicking. Wait on the Cancel button going, not on prose.
+2. **The Lab tab is the wrong home for the table.** With the default free base the policy bins the
+   item and restarts, so the "holding none of them" row came out equal to the white base's own cost to
+   the exalt, and three-of-four saved 18% where a held Rare saved 37%. Removed from that tab.
+3. **`bound: 'exact'` is a real gate, and it closes on ordinary crafts.** Four T1 targets on a Wand
+   with THREE of them prefixes returns a floor — and stays one at Exhaustive's 900 s clock and 20 M
+   sweeps, finishing in 7.9 s. It is neither the clock nor the sweeps, so the app's standing "raise
+   Search effort" advice does not hold for this shape. 2 prefixes + 2 suffixes at T1 settles exactly
+   on every base tried (Wands 1.0 s, Amulets 2.1 s, Rings 0.7 s, Helmets 0.5 s), so the failing axis
+   is how many land on one side, not the tier or the count.
+
+One copy bug too: JSX drops whitespace between an element and text across a line break, and the gear
+tab shipped reading "makes it the target on *I have an item*and leaves your own item alone".
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

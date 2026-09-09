@@ -39,11 +39,28 @@ const Row: React.FC<{ row: BuyRow; rates?: Rates }> = ({ row, rates }) => (
 );
 
 const WhatToBuy: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ markov, rates }) => {
-  // A bound is not an answer, and a table of bounds compared against each other is worse than one
-  // number: the differences between them are not bounded by anything. Same rule as `ItemWorth`.
-  if (markov.bound !== 'exact') return null;
   const advice = buyAdvice(markov.holdings);
   if (!advice) return null;
+
+  /**
+   * A bound is not an answer, and a table of bounds compared against each other is worse than one
+   * bound: the differences between them are not bounded by anything. Same rule as `ItemWorth`.
+   *
+   * SAID, NOT SILENT. Returning null here hid the panel with nothing to show it had ever existed, and
+   * that is common rather than rare — a craft asking three T1 prefixes on a Wand comes back a floor,
+   * and stays one at every effort preset (measured: 7.9s at Exhaustive's 900s clock, so more patience
+   * is not the answer). A reader who never sees the panel cannot know the question has an answer.
+   */
+  if (markov.bound !== 'exact') {
+    return (
+      <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
+        <strong className="text-foreground">What to look for when you buy one</strong> — the app works
+        this out from a settled cost, and this craft only reached a {markov.bound === 'lower' ? 'floor' : 'ceiling'}.
+        Asking for a lower tier on one modifier is what usually settles it; more Search effort often
+        will not.
+      </p>
+    );
+  }
 
   return (
     <div className="rounded-md border border-border bg-muted/40 px-3 py-2 space-y-2">

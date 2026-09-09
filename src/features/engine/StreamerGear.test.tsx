@@ -109,8 +109,11 @@ describe('the streamer gear tab', () => {
     const helm = file.characters[0]!.items.find((i) => i.slot === 'Helm')!;
     await user.click(screen.getByRole('button', { name: new RegExp(helm.name) }));
     expect(await screen.findByText(/plans it on a white/)).toBeInTheDocument();
-    expect(screen.getByText(/leaves your own item alone/)).toBeInTheDocument();
     expect(screen.getByText(/replacing what is there/)).toBeInTheDocument();
+    // Spelled out in full, because JSX drops the space between an element and text across a line
+    // break and this shipped reading "I have an itemand leaves your own item alone".
+    expect(screen.getByText(/makes it the target on/).textContent)
+      .toMatch(/I have an item and leaves your own item alone/);
   });
 
   it('says so, rather than hanging, when the gear file cannot be fetched', async () => {

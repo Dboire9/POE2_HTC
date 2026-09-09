@@ -557,7 +557,23 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   **The best PAIR is not the best single plus the next best** — they compete for the same three slots
   — so `buyAdvice` picks the cheapest set at each SIZE rather than ranking modifiers and stacking
   them. `startingItem.test.ts` pins that with a fixture where the two disagree.
-  `WhatToBuy` renders on BOTH tabs and refuses to draw unless `bound === 'exact'`: a table of bounds
+  **HOLDINGS ARE READ AT THE RARE RUNG, NOT AT THE STARTING RARITY**, and reading `s0.rarity` was a
+  shipped bug: a from-WHITE craft got exactly ONE row (a Normal item holds nothing, so no other mask is
+  enumerated there), `buyAdvice` declined, and the panel silently never appeared on the Lab tab. An
+  item carrying modifiers is a Rare whatever the craft starts from. `bareCost` keeps its own read at
+  `s0.rarity` — different question, and `ItemWorth` is built on that meaning. Pinning that split needs
+  `restartCost > 0`: at the default FREE base the two reads agree to the exalt, so the obvious test
+  passes against the wrong code.
+  **`WhatToBuy` is on the ITEM TAB ONLY.** A from-white craft may bin the item and start over, so V at
+  every rare state collapses toward `restartCost + V(start)` — measured, the "holding none" row equalled
+  the white base's own cost to the exalt and three-of-four saved 18% against a held Rare's 37%. Right
+  numbers, wrong question. Same reason `FrontierView` sets `freeRestart={false}`.
+  **When the solve is not exact it SAYS SO rather than vanishing.** That case is common, not rare: three
+  T1 prefixes on a Wand returns `bound: 'lower'` and stays there at every preset — 7.9s under
+  Exhaustive's 900s clock and 20M sweeps, so it is neither clock nor sweeps and MORE EFFORT DOES NOT
+  HELP. The note says to relax a tier instead, because the app's standing "raise Search effort" advice
+  is wrong for this class of craft.
+  `WhatToBuy` refuses to draw the TABLE unless `bound === 'exact'`: a table of bounds
   compared against each other is worse than one bound, because the differences between them are not
   bounded by anything (the `ItemWorth` rule). Every row assumes NO junk in the other slots, so a real
   listing costs at least that to finish — the panel says so.

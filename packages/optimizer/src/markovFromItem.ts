@@ -1586,8 +1586,24 @@ export function markovFromItem(
    * for one cell; this is the same read over all of them, and `bare` is now literally the empty entry
    * rather than a second computation that could drift from it.
    *
+   * READ AT THE RARE RUNG, ALWAYS — not at the starting rarity. An item that already carries several
+   * modifiers is a Rare by definition, so a from-WHITE craft asking this question is asking about a
+   * Rare it might buy, not about the Normal base it starts from. Reading `s0.rarity` gave a from-white
+   * solve exactly ONE row (a Normal item holds nothing, so no other mask is enumerated at that rung),
+   * which `buyAdvice` then declined — the panel silently never appeared on the Lab tab at all.
+   *
+   * `bareCost` keeps its own read at `s0.rarity`, because it answers a different question (what the
+   * craft in front of you would cost with none of it done) and `ItemWorth` is built on that meaning.
+   *
    * `encode` may canonicalise symmetric states onto one key, which is correct here rather than merely
    * tolerable: those states have equal V by construction, which is why the reduction is sound at all.
+   *
+   * A CRAFT THAT MAY RESTART MAKES THESE NUMBERS ANSWER A DIFFERENT QUESTION. With a free white base
+   * the policy simply bins the item and starts again, so V at every rare state collapses toward
+   * `restartCost + V(start)` — measured on a 4-target Wand craft, the empty row equalled the white
+   * base's own cost to the exalt and the best three-of-four saved 18% where a held Rare saved 37%.
+   * The numbers are right; "what should I buy" is not what they answer. That is the UI's call and
+   * `WhatToBuy` renders on the Item tab only.
    *
    * IT ASSUMES THE REST OF THE ITEM IS EMPTY (`jp`/`js` = 0). A real listing usually carries junk in
    * the other slots and costs MORE than this to finish, so every figure here is the best case for the
@@ -1595,7 +1611,7 @@ export function markovFromItem(
    */
   const holdings: Holding[] = [];
   for (let mask = 0; mask < (1 << list.length); mask++) {
-    const idx = idxOfState.get(encode(mask, 0, 0, 0, FLAG_NONE, s0.rarity));
+    const idx = idxOfState.get(encode(mask, 0, 0, 0, FLAG_NONE, 'rare'));
     if (idx === undefined) continue;
     const v = V[idx];
     // Unreachable states keep V = Infinity, and one must never reach a table of costs. DEFENSIVE:
@@ -1607,7 +1623,10 @@ export function markovFromItem(
     if (v === undefined || !Number.isFinite(v)) continue;
     holdings.push({ present: list.filter((_, i) => has(mask, i)).map(idsOf), cost: v });
   }
-  const bare = holdings.find((h) => h.present.length === 0)?.cost;
+  // Its own read, at the STARTING rarity — see the note above on why that differs from `holdings`.
+  const bareIdx = idxOfState.get(encode(0, 0, 0, 0, FLAG_NONE, s0.rarity));
+  const bareV = bareIdx === undefined ? undefined : V[bareIdx];
+  const bare = bareV !== undefined && Number.isFinite(bareV) ? bareV : undefined;
   return {
     expectedCost: startCost, feasible: true, converged, bound, nodes: withVisits, edges, policy,
     ...(bare !== undefined ? { bareCost: bare } : {}),

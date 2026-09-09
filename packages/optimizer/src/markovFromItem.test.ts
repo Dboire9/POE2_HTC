@@ -1429,6 +1429,35 @@ describe('holdings — what to look for when buying a base', () => {
   const bare: ItemState = { base: w, level: 82, rarity: 'rare', prefixes: [], suffixes: [] };
   const solved = markovFromItem(real, rp, bare, targets);
 
+  /**
+   * The bug this pins: `holdings` used to be read at the STARTING rarity, so a from-white craft got
+   * one row (a Normal item holds nothing) and the panel silently never appeared. An item carrying
+   * modifiers is a Rare whatever the craft starts from.
+   */
+  it('prices every subset from a WHITE start too, not just from a held Rare', () => {
+    const white: ItemState = { base: w, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+    const r = markovFromItem(real, rp, white, targets, { restartCost: 0 });
+    expect(r.holdings).toHaveLength(2 ** ids.length);
+  });
+
+  /**
+   * `bareCost` answers a different question and keeps its own read at the STARTING rarity —
+   * `ItemWorth` is built on that meaning.
+   *
+   * `restartCost: 50` is load-bearing. At the default FREE base the two reads agree to the exalt
+   * (V of a bare Rare is just "bin it and start over"), so a test written that way passes with
+   * `bareCost` wrongly read at the Rare rung — it did, until this was mutated. At 50 they separate:
+   * 2,360.906 from Normal against 2,276.336 from Rare.
+   */
+  it('keeps bareCost at the starting rarity, where holdings are at the Rare rung', () => {
+    const white: ItemState = { base: w, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
+    const r = markovFromItem(real, rp, white, targets, { restartCost: 50 });
+    // The craft STARTS bare-Normal, so its own cost is the bare cost.
+    expect(r.bareCost).toBeCloseTo(r.expectedCost, 6);
+    const emptyRow = r.holdings!.find((h) => h.present.length === 0)!;
+    expect(emptyRow.cost).not.toBeCloseTo(r.bareCost!, 3);
+  });
+
   it('prices every subset, and the empty one IS the bare cost', () => {
     expect(solved.holdings).toHaveLength(2 ** ids.length);
     const empty = solved.holdings!.find((h) => h.present.length === 0)!;

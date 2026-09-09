@@ -50,9 +50,21 @@ describe('what to look for when buying a base', () => {
    * A table of bounds compared against each other is worse than one bound: the differences between
    * them are not bounded by anything. Same rule `ItemWorth` follows.
    */
-  it.each(['lower', 'upper'] as const)('draws nothing when the solve only reached a %s bound', (bound) => {
-    const { container } = render(<WhatToBuy markov={withHoldings(HOLDINGS, { bound })} />);
-    expect(container).toBeEmptyDOMElement();
+  it.each(['lower', 'upper'] as const)('draws no TABLE when the solve only reached a %s bound', (bound) => {
+    render(<WhatToBuy markov={withHoldings(HOLDINGS, { bound })} />);
+    expect(screen.queryByRole('table')).toBeNull();
+  });
+
+  /**
+   * Hidden, but not invisible. A craft asking three T1 prefixes on a Wand returns a floor at every
+   * effort preset, so silently returning null would leave a common case with no sign the question has
+   * an answer at all — and would send the reader to a Search-effort control that will not help.
+   */
+  it('says why the table is missing, and does not blame Search effort', () => {
+    render(<WhatToBuy markov={withHoldings(HOLDINGS, { bound: 'lower' })} />);
+    expect(screen.getByText(/What to look for when you buy one/)).toBeInTheDocument();
+    expect(screen.getByText(/only reached a floor/)).toBeInTheDocument();
+    expect(screen.getByText(/more Search effort often will not/)).toBeInTheDocument();
   });
 
   it('draws nothing when the solver returned no lattice', () => {

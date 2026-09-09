@@ -23,7 +23,6 @@ import {
 } from '../../lib/targetSlots';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import StreamerGear from './StreamerGear';
-import WhatToBuy from './WhatToBuy';
 import ItemActions from './ItemActions';
 import UserGuide from './UserGuide';
 import FrontierView from './FrontierView';
@@ -932,10 +931,13 @@ const EngineLab: React.FC = () => {
             The step routes below are the simpler per-plan view: one fixed sequence, every slam hitting
             a named mod.
           </p>
-          {/* On this tab the craft starts bare, so every row is a strictly better start than the one
-              being planned — which is exactly the "should I buy a base with some of these already?"
-              question a from-scratch plan raises. */}
-          <WhatToBuy markov={markov} rates={engine ? priceBasis(engine).rates : undefined} />
+          {/* NO `WhatToBuy` HERE, deliberately. It renders on the Item tab only, because a from-white
+              craft may bin the item and start over — at the default free base it always may — so V at
+              every rare state collapses toward `restartCost + V(start)`. Measured on a 4-target Wand
+              craft the "holding none of them" row came out equal to the white base's own cost to the
+              exalt, and three-of-four saved 18% against a held Rare's 37%. Right numbers, wrong
+              question: a buyer is not weighing a purchase against scrapping it for free. Same reason
+              `FrontierView` sets `freeRestart={false}` on the Item tab. */}
           <PolicyGraph result={markov} rates={engine ? priceBasis(engine).rates : undefined} />
         </Card>
       )}

@@ -209,7 +209,9 @@ const StreamerGear: React.FC<{ data: PatchData; routes?: GearRoutes }> = ({ data
           <ul className="text-[11px] text-muted-foreground space-y-0.5">
             <li><strong>Craft this from scratch</strong> — plans it on a white {item.baseName} from
               nothing, on <em>Plan from scratch</em>.</li>
-            <li><strong>I have some of these</strong> — makes it the target on <em>I have an item</em>
+            {/* `{' '}` is load-bearing: JSX drops whitespace between an element and text across a
+                line break, and this rendered as "I have an itemand leaves" in the browser. */}
+            <li><strong>I have some of these</strong> — makes it the target on <em>I have an item</em>{' '}
               and leaves your own item alone, so the plan covers only what you are missing.</li>
             <li><strong>I own this one</strong> — puts it on <em>I have an item</em> as the item you
               hold, replacing what is there.</li>

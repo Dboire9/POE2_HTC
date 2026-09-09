@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { loadPatch } from './loadPatch.ts';
-import { runeRoute, gainAsExtraByElement, runePriceKey } from './runeConvert.ts';
+import { runeRoute, runeOpportunity, gainAsExtraByElement, runePriceKey } from './runeConvert.ts';
 import { itemFamilies } from './pool.ts';
 import type { ItemBase, ItemState } from './types.ts';
 
@@ -103,5 +103,49 @@ describe('what the plan must tell the player', () => {
     const r = runeRoute(data, base('Staves'), 'Staves/DamageGainedAsFire', 2)!;
     expect(r.caveat).toMatch(/rune socket/);
     expect(r.caveat).toMatch(/EVERY/);
+  });
+});
+
+/**
+ * The half a player actually meets. Nothing forbids asking for Extra Fire AND Extra Cold — they are
+ * different families and the picker has always allowed it — so the gap was never permission. It was
+ * that nobody would think to, and that the plan then never mentions the rune it needs at the end.
+ */
+describe('spotting the rune for a target list already chosen', () => {
+  const staff = base('Staves');
+
+  it('offers it once two of them are on the list', () => {
+    const o = runeOpportunity(data, staff, ['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsCold']);
+    expect(o?.rune).toBe('passion-of-aldur');
+    expect(o?.element).toBe('fire');
+    expect([...(o?.elements ?? [])].sort()).toEqual(["cold", "fire"]);
+  });
+
+  /** The rune converts every one of them, so it fuses elements the player never asked for either —
+   *  which is worth offering, and is exactly what the caveat is about. */
+  it('offers it even when the wanted element is not among them', () => {
+    const o = runeOpportunity(data, staff, ['Staves/DamageGainedAsCold', 'Staves/DamageGainedAsLightning']);
+    expect(o?.element).toBe('fire');
+    expect(o?.caveat).toMatch(/including any you meant to keep/);
+  });
+
+  it('says nothing for a single one, since there is nothing to fuse', () => {
+    expect(runeOpportunity(data, staff, ['Staves/DamageGainedAsFire'])).toBeUndefined();
+  });
+
+  it('says nothing for targets that are not gain-as-extra mods', () => {
+    expect(runeOpportunity(data, staff, ['Staves/Intelligence', 'Staves/WeaponSpellDamage'])).toBeUndefined();
+  });
+
+  /** A duplicate id is one modifier, not two — the list must not be fooled into offering a fusion of
+   *  something with itself. */
+  it('does not count the same target twice', () => {
+    expect(runeOpportunity(data, staff, ['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsFire']))
+      .toBeUndefined();
+  });
+
+  it('says nothing on a base that cannot roll them', () => {
+    expect(runeOpportunity(data, base('Rings'), ['Rings/AllResistances', 'Rings/ChaosResistance']))
+      .toBeUndefined();
   });
 });

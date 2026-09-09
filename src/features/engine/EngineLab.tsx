@@ -29,6 +29,7 @@ import AlternativesView from './AlternativesView';
 import PolicyGraph from './PolicyGraph';
 import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
+import RuneHint from './RuneHint';
 import { exactExalts, formatBoundedCost, formatChance } from '../../lib/currency';
 import { modTextAtTier } from '../../lib/engineMap';
 import BaseSelect from './BaseSelect';
@@ -622,6 +623,14 @@ const EngineLab: React.FC = () => {
               ? `Target item (${targets.length} mod${targets.length !== 1 ? 's' : ''})`
               : `Target item (${slots.length} slot${slots.length !== 1 ? 's' : ''}, ${targets.length} mods)`}
           </h3>
+          {/* Two "gain as extra" targets are already legal — different families — so this unlocks
+              nothing; it says what a rune would make of them, which nobody would otherwise think of. */}
+          {engine && (
+            <RuneHint
+              data={engine.data} baseId={baseId} modIds={targets.map((t) => t.modId)}
+              prices={engine.prices.currency} rates={priceBasis(engine).rates}
+            />
+          )}
           {addingTo !== null && (
             <p className="flex flex-wrap items-center gap-2 rounded-md border border-sky-500/50 bg-sky-500/10 px-2 py-1.5 text-[11px] text-sky-700 dark:text-sky-300">
               <span>Pick a mod above to add as an <strong>alternative</strong> — the slot is filled by whichever one lands.</span>

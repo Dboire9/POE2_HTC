@@ -103,3 +103,51 @@ export function runeRoute(
       + `the item to ${element} — including any you meant to keep.`,
   };
 }
+
+/** What a rune would do to the targets a player has already chosen. */
+export interface RuneOpportunity {
+  /** The chosen targets that are gain-as-extra modifiers, in the base's own order. */
+  readonly modIds: readonly string[];
+  /** The elements those cover today, before the rune. */
+  readonly elements: readonly string[];
+  readonly rune: string;
+  readonly priceKey: string;
+  /** The one element they all become. */
+  readonly element: string;
+  readonly caveat: string;
+}
+
+/**
+ * The rune worth mentioning for a target list that already exists, or nothing.
+ *
+ * The mirror of `runeRoute`, and the half a player actually meets: nothing in the app forbids asking
+ * for `Extra Fire` AND `Extra Cold` — they are different families and the picker allows it — so the
+ * gap was never permission, it was that nobody would think to, and that the plan then never mentions
+ * the rune it needs at the end. This is what a panel can say once two of them are chosen.
+ *
+ * Offered whenever two or more are on the list, whatever elements they are: the rune converts every
+ * one of them regardless, so a player holding cold and lightning can still fuse them into fire. That
+ * it may not be the element they wanted is exactly what `caveat` is for.
+ */
+export function runeOpportunity(
+  data: PatchData, base: ItemBase, modIds: readonly string[],
+): RuneOpportunity | undefined {
+  const byElement = gainAsExtraByElement(data, base);
+  const byId = new Map([...byElement].map(([e, id]) => [id, e]));
+  const chosen = [...new Set(modIds)].filter((id) => byId.has(id));
+  if (chosen.length < 2) return undefined;
+  // The rune fixes the element, so there is nothing to choose: take the one confirmed rune. Where
+  // several are confirmed a caller could offer each, which is why this returns the element it used.
+  const entry = [...ALDUR_RUNE_BY_ELEMENT].find(([e]) => byElement.has(e));
+  if (!entry) return undefined;
+  const [element, rune] = entry;
+  return {
+    modIds: chosen,
+    elements: chosen.map((id) => byId.get(id)!),
+    rune,
+    priceKey: runePriceKey(rune),
+    element,
+    caveat: `Socketing ${rune} spends a rune socket and converts EVERY "gain as extra" modifier on `
+      + `the item to ${element} — including any you meant to keep.`,
+  };
+}

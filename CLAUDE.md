@@ -168,6 +168,19 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   and every pool denominator in the engine depends on it. `runeConvert.test.ts` asserts the produced
   targets can actually coexist (`itemFamilies(...).size === targets.length`) — if that ever failed the
   route would be asking for an item the game forbids.
+  **`runeOpportunity` + `RuneHint` are the half a player meets, and they unlock nothing.** Asking for
+  Extra Fire AND Extra Cold together was always allowed — different families, the picker never
+  objected — so the gap was never permission. It was that nobody would think of it and that the plan
+  never mentioned the rune it ends on. The hint appears beside the targets on BOTH tabs once two are
+  chosen. Both costs beyond the price are in WORDS because neither is in the plan's arithmetic: the
+  rune is socketed rather than spent, and it converts every one of them, so a sibling meant to be kept
+  does not survive. An unpriced rune quotes NO price rather than "0 ex" — `stepCost` charges 0 for a
+  missing key, and saying it in words would be the same lie.
+  **It reads the engine through `runeHint` in `src/lib/engine.ts`, not the snapshot directly**, and
+  that is load-bearing rather than tidy: `EngineLab.test.tsx` mocks the facade with `data: {} as
+  never`, which is honest for tests about the picker and instantly fatal to any component that reaches
+  into `data.bases` itself. Sixty-seven tests went red on the first wiring. Mutation-checked by
+  removing the `?.`.
   The element is read out of the STAT KEY (`…_to_gain_as_fire`), never a hardcoded list, so a new
   element needs no code. **Only the FIRE rune is traced** — a real staff carried "Forged by the
   Passion of Aldur" beside two gain-as-extra-fire mods — and the other four Aldur runes are priced by

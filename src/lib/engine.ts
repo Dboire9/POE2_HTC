@@ -9,6 +9,8 @@
 
 import { indexPatch, type BasesFile, type ModsFile } from '../../packages/engine/src/indexPatch.ts';
 import { resolveMod } from '../../packages/engine/src/pool.ts';
+import { runeOpportunity } from '../../packages/engine/src/runeConvert.ts';
+import type { RuneOpportunity } from '../../packages/engine/src/runeConvert.ts';
 import type { ItemState, Mod, PatchData } from '../../packages/engine/src/types.ts';
 import {
   annulProbability, augmentationProbability, bossOmenAllowed, chaosProbability,
@@ -51,6 +53,22 @@ import pricesUrl from '../../data/patches/0.5.0/prices.json?url';
 
 // Re-export the UI-shaped types so components keep importing them from '../../lib/engine'.
 export { modFamilies } from './engineTypes.ts';
+
+/**
+ * The Aldur rune that would fuse the gain-as-extra targets a player has chosen, or nothing.
+ *
+ * Routed through this facade rather than imported into the component directly, because that is how
+ * every other engine read in the UI works — and because it is the difference between a component
+ * that can be tested with a stubbed engine and one that cannot. `EngineLab.test.tsx` mocks this
+ * module with `data: {} as never`, which is honest (those tests are about the picker, not the data)
+ * and immediately fatal to anything that reaches into the snapshot itself.
+ */
+export function runeHint(
+  data: PatchData, baseId: string, modIds: readonly string[],
+): RuneOpportunity | undefined {
+  const base = data.bases?.get(baseId);
+  return base ? runeOpportunity(data, base, modIds) : undefined;
+}
 export type {
   EngineBase, EngineTier, EngineMod, EngineBaseMods, TargetInput, EngineStep, EnginePlan, EngineResult,
   ItemModInput, ExistingItem, CurrencyAction, AltTargetInput, EngineSlot, EngineAlternative, EngineAlternatives,

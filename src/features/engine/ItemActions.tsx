@@ -27,6 +27,7 @@ import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
 import QuickCurrencyCheck from './QuickCurrencyCheck';
 import PasteItem from './PasteItem';
+import RuneHint from './RuneHint';
 
 const selectCls =
   'h-9 rounded-md border border-input bg-background px-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring';
@@ -789,6 +790,14 @@ const ItemActions: React.FC = () => {
               );
             })()}
 
+            {/* Same note as the Plan tab: these targets were always legal together, and the rune
+                that fuses them is the part no plan would otherwise mention. */}
+            {engine && (
+              <RuneHint
+                data={engine.data} baseId={baseId} modIds={target.map((t) => t.modId)}
+                prices={engine.prices.currency} rates={rates}
+              />
+            )}
             {target.length > 0 && (
               <div className="space-y-2">
                 {/* By SLOT, not by target: a slot with alternatives is one position on the item and has

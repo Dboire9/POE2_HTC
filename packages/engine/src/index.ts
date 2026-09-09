@@ -9,6 +9,10 @@ export { baseNameIndex, findBase, findBaseInName } from './baseLookup.ts';
 export type { BaseMatch } from './baseLookup.ts';
 export { resolveMods, linesOf } from './resolveMods.ts';
 export { parseItemText, linesOfKind } from './parseItem.ts';
+export { statIndex, resolveByStats, statsOf, familyConflicts } from './statLookup.ts';
+export type { StatMod, StatMatch } from './statLookup.ts';
+export { tierFit, within, fitsTier, tiersFitting, aboveEveryTier } from './tierFit.ts';
+export type { TierFit } from './tierFit.ts';
 export type { ParsedItem, ParsedMod, ModKind } from './parseItem.ts';
 export type { ResolvedLine, UnresolvedLine, ResolveResult, ResolveOptions } from './resolveMods.ts';
 export {

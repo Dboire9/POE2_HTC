@@ -154,6 +154,28 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   can never reach the tier asked for. A needed mod advances only on its at-or-above-tier weight while
   occupying its family on its FULL weight. Collapsing those two is a mutation the tests catch.
 - **Fractured mods are locked**: never annulled, never chaosed, out of every removal pool.
+- **TWO MODIFIERS CAN PRINT AS ONE LINE, and no reader of the text can undo it.** The game SUMS
+  same-stat modifiers on screen: a staff carrying 71% and 62% `Gain as Extra Fire` displays a single
+  `133%`. That is the reverse of the hybrid case `resolveMods` handles (one modifier printing as two
+  lines) and it is not recoverable from text at all. It is reachable because a **Passion of Aldur**
+  converts one modifier's element onto another's, so an item can carry two mods this data calls one
+  — in ONE FAMILY, which `ItemState` cannot represent, since family exclusion is an invariant the
+  whole engine rests on. Neither the transform nor Sanctification is modelled as a mechanic and
+  neither should be: three untraced mechanics stacked, against a planner whose every probability
+  assumes one mod per family.
+  **`statLookup.ts` is the answer for any source that serves structure rather than prose.** A profile
+  API gives each modifier its own entry with the game's stat identifiers and rolled values, so the two
+  fire mods arrive as two entries and never merged. Measured on a real character: 43 of 52 modifiers
+  resolved to id + tier against 41 through the text path, with the family clash NAMED
+  (`familyConflicts`) rather than one of them silently dropped. A mod's stat SET identifies it
+  uniquely within a base except in 8 cases over 52 bases — all the `ItemFoundRarity` prefix/suffix
+  pair, which the source's own id then settles as a TIE-BREAKER ONLY (the two id schemes disagree 24
+  times in 43, `FireResist7` against our `FireResistance`, so it is never a key).
+  **It needs the FULL mods file and cannot run in the browser.** `tiers[].stats` is stripped by
+  `shipMods.ts`, so a browser-built `PatchData` carries none and `statIndex` comes back empty. That
+  suits the job it exists for — reading profiles in a periodic task, as prices are refreshed, which
+  also keeps requests off user machines — and it is why wiring it into a browser path would first
+  mean shipping `stats`, which was measured and deliberately declined.
 - **SANCTIFICATION raises a modifier above what any of its tiers can roll** — user ruling 2026-09-09,
   and NOT derivable from the shipped data, which records only what is rollable. So a value over the
   top tier's maximum is not a stale patch and not bad data: it is a mod that was already at its best
@@ -166,6 +188,12 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   under a range's bottom is evidence of a MISREAD, not of the mechanic — two of the nine over-range
   lines on that character were a hybrid grouping taken wrongly, and labelling those Sanctified would
   have buried the bug under a plausible name.
+  **A reading that needs no extra mechanic beats one that does.** Folding Sanctification into "which
+  tiers fit" made every over-range candidate viable again — any mod is possible if it may have been
+  Sanctified — and `19% increased Rarity of Items found`, which the prefix rolls plainly and the
+  suffix could only reach Sanctified, went from settled to ambiguous. `resolveMods` therefore narrows
+  in three rungs: candidates whose ORDINARY tiers produce the roll, then candidates that need
+  Sanctification, then everything. That is what keeps the roll useful as evidence.
   **A single-tier mod can never be detected as Sanctified**, because `tiersFitting` returns the only
   tier without checking ranges at all. Harmless for the tier (there is just the one) and it costs only
   the label — but it also means a test written against a single-tier mod exercises none of this, which

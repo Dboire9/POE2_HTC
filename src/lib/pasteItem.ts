@@ -9,6 +9,7 @@ import { resolveMods } from '../../packages/engine/src/resolveMods.ts';
 import type { ResolvedLine } from '../../packages/engine/src/resolveMods.ts';
 import { baseNameIndex, findBaseInName } from '../../packages/engine/src/baseLookup.ts';
 import { resolveMod } from '../../packages/engine/src/pool.ts';
+import { tierDisplay } from '../../packages/engine/src/tierFit.ts';
 import type { ItemModInput } from './engineTypes.ts';
 
 /**
@@ -88,12 +89,10 @@ export interface PasteReading {
 
 const keyOf = (lines: readonly string[]): string => lines.join('\n');
 
-/** Engine tiers run worst-first; every picker in the app runs best-first from 1. */
-const displayOf = (data: PatchData, modId: string, tierName: string): number => {
-  const tiers = resolveMod(data, modId).tiers;
-  const i = tiers.findIndex((t) => t.name === tierName);
-  return i < 0 ? tiers.length : tiers.length - i;
-};
+/** Engine tiers run worst-first; every picker in the app runs best-first from 1. One copy of that
+ *  inversion, in `tierFit.ts`, shared with the profile reader. */
+const displayOf = (data: PatchData, modId: string, tierName: string): number =>
+  tierDisplay(resolveMod(data, modId), tierName);
 
 function toRow(
   data: PatchData, line: ResolvedLine, from: readonly ParsedMod[], choices: PasteChoices,

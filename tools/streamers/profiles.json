@@ -1,0 +1,4 @@
+{
+  "//": "poe.ninja profile slugs to fetch. A slug is the last path segment of the profile URL: https://poe.ninja/poe2/profile/fubgun-1755 -> fubgun-1755.",
+  "profiles": ["fubgun-1755"]
+}

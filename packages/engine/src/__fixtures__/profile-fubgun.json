@@ -1,0 +1,774 @@
+{
+ "character": {
+  "name": "Fubgun_Oil",
+  "league": "Forbidden Rites",
+  "level": 97
+ },
+ "items": [
+  {
+   "itemSlot": 7,
+   "itemData": {
+    "name": "Dire Spire",
+    "baseType": "Chiming Staff",
+    "ilvl": 81,
+    "rarity": "Rare",
+    "corrupted": false,
+    "inventoryId": "Weapon",
+    "mods": {
+     "explicit": [
+      {
+       "id": "GlobalFireSpellGemsLevelTwoHandWeapon5",
+       "stats": {
+        "fire_spell_skill_gem_level_+": 6
+       }
+      },
+      {
+       "id": "SpellDamageGainedAsFireTwoHand6",
+       "stats": {
+        "non_skill_base_all_damage_%_to_gain_as_fire": 71
+       }
+      },
+      {
+       "id": "SpellDamageGainedAsFireTwoHand6",
+       "stats": {
+        "non_skill_base_all_damage_%_to_gain_as_fire": 62
+       }
+      },
+      {
+       "id": "Intelligence7",
+       "stats": {
+        "additional_intelligence": 35
+       }
+      }
+     ],
+     "crafted": [
+      {
+       "id": "IncreasedCastSpeedTwoHand5",
+       "stats": {
+        "base_cast_speed_+%": 48
+       }
+      }
+     ],
+     "desecrated": [
+      {
+       "id": "SpellDamageOnTwoHandWeapon8",
+       "stats": {
+        "spell_damage_+%": 242
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "[Gain] 133% of Damage as Extra [Fire] Damage",
+     "+6 to Level of all [Fire|Fire] [Spell|Spell] Skills",
+     "+35 to [Intelligence|Intelligence]"
+    ],
+    "desecratedMods": [
+     "242% increased [Spell] Damage"
+    ],
+    "fracturedMods": [],
+    "runeMods": [
+     "Forged by the Passion of Aldur",
+     "+1 to Level of all [Spell|Spell] Skills",
+     "+1 to Level of all [Nova] Skill Gems",
+     "[ShamanOnlyMods|Bonded]: 25% increased [Fire] Damage",
+     "[ShamanOnlyMods|Bonded]: [Archon] recovery period expires 30% faster"
+    ],
+    "implicitMods": []
+   }
+  },
+  {
+   "itemSlot": 2,
+   "itemData": {
+    "name": "Horror Mitts",
+    "baseType": "Knightly Mitts",
+    "ilvl": 80,
+    "rarity": "Rare",
+    "corrupted": false,
+    "inventoryId": "Gloves",
+    "mods": {
+     "explicit": [
+      {
+       "id": "IncreasedLife8",
+       "stats": {
+        "base_maximum_life": 110
+       }
+      },
+      {
+       "id": "ArmourAppliesToElementalDamage5",
+       "stats": {
+        "armour_%_applies_to_fire_cold_lightning_damage": 42
+       }
+      },
+      {
+       "id": "ColdResist7",
+       "stats": {
+        "base_cold_damage_resistance_%": 40
+       }
+      },
+      {
+       "id": "LocalIncreasedPhysicalDamageReductionRating7__",
+       "stats": {
+        "local_base_physical_damage_reduction_rating": 166
+       }
+      },
+      {
+       "id": "LocalIncreasedPhysicalDamageReductionRatingPercent5",
+       "stats": {
+        "local_physical_damage_reduction_rating_+%": 76
+       }
+      }
+     ],
+     "desecrated": [
+      {
+       "id": "ItemFoundRarityIncrease3",
+       "stats": {
+        "base_item_found_rarity_+%": 18
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "+166 to [Armour|Armour]",
+     "76% increased [Armour|Armour]",
+     "+110 to maximum Life",
+     "+40% to [Resistances|Cold Resistance]",
+     "+42% of [Armour|Armour] also applies to [ElementalDamage|Elemental Damage]"
+    ],
+    "desecratedMods": [
+     "18% increased [ItemRarity|Rarity of Items] found"
+    ],
+    "fracturedMods": [],
+    "runeMods": [
+     "+13% to [Resistances|Chaos Resistance]"
+    ],
+    "implicitMods": []
+   }
+  },
+  {
+   "itemSlot": 9,
+   "itemData": {
+    "name": "Miracle Twirl",
+    "baseType": "Gold Ring",
+    "ilvl": 80,
+    "rarity": "Rare",
+    "corrupted": false,
+    "inventoryId": "Ring2",
+    "mods": {
+     "implicit": [
+      {
+       "id": "RingImplicitItemFoundRarityIncrease1",
+       "stats": {
+        "base_item_found_rarity_+%": 15
+       }
+      }
+     ],
+     "explicit": [
+      {
+       "id": "ColdResist6",
+       "stats": {
+        "base_cold_damage_resistance_%": 34
+       }
+      },
+      {
+       "id": "ItemFoundRarityIncreasePrefix3",
+       "stats": {
+        "base_item_found_rarity_+%": 16
+       }
+      },
+      {
+       "id": "AllResistances3",
+       "stats": {
+        "base_resist_all_elements_%": 11
+       }
+      },
+      {
+       "id": "FireDamagePercent6",
+       "stats": {
+        "fire_damage_+%": 29
+       }
+      }
+     ],
+     "crafted": [
+      {
+       "id": "ItemFoundRarityIncrease3",
+       "stats": {
+        "base_item_found_rarity_+%": 18
+       }
+      }
+     ],
+     "desecrated": [
+      {
+       "id": "IncreasedLife7",
+       "stats": {
+        "base_maximum_life": 91
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "29% increased [Fire] Damage",
+     "16% increased [ItemRarity|Rarity of Items] found",
+     "+13% to all [ElementalDamage|Elemental] [Resistances]",
+     "+40% to [Resistances|Cold Resistance]"
+    ],
+    "desecratedMods": [
+     "+91 to maximum Life"
+    ],
+    "fracturedMods": [],
+    "runeMods": [],
+    "implicitMods": [
+     "15% increased [ItemRarity|Rarity of Items] found"
+    ]
+   }
+  },
+  {
+   "itemSlot": 3,
+   "itemData": {
+    "name": "Corpse Mantle",
+    "baseType": "Dastard Armour",
+    "ilvl": 79,
+    "rarity": "Rare",
+    "corrupted": false,
+    "inventoryId": "BodyArmour",
+    "mods": {
+     "implicit": [
+      {
+       "id": "BodyArmourImplicitIncreasedLife1",
+       "stats": {
+        "base_maximum_life": 65
+       }
+      }
+     ],
+     "explicit": [
+      {
+       "id": "ArmourAppliesToElementalDamage4",
+       "stats": {
+        "armour_%_applies_to_fire_cold_lightning_damage": 34
+       }
+      },
+      {
+       "id": "FireResist7",
+       "stats": {
+        "base_fire_damage_resistance_%": 40
+       }
+      },
+      {
+       "id": "LocalIncreasedArmourAndEvasion7",
+       "stats": {
+        "local_armour_and_evasion_+%": 94
+       }
+      },
+      {
+       "id": "LocalBaseArmourAndEvasionRating8",
+       "stats": {
+        "local_base_physical_damage_reduction_rating": 159,
+        "local_base_evasion_rating": 156
+       }
+      },
+      {
+       "id": "LightningResist7",
+       "stats": {
+        "base_lightning_damage_resistance_%": 40
+       }
+      }
+     ],
+     "desecrated": [
+      {
+       "id": "LocalIncreasedArmourAndEvasionAndLife6",
+       "stats": {
+        "local_armour_and_evasion_+%": 42,
+        "base_maximum_life": 44
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "+159 to [Armour|Armour]",
+     "+156 to [Evasion] Rating",
+     "94% increased [Armour|Armour] and [Evasion|Evasion]",
+     "+40% to [Resistances|Fire Resistance]",
+     "+40% to [Resistances|Lightning Resistance]",
+     "+34% of [Armour|Armour] also applies to [ElementalDamage|Elemental Damage]"
+    ],
+    "desecratedMods": [
+     "42% increased [Armour|Armour] and [Evasion|Evasion]",
+     "+44 to maximum Life"
+    ],
+    "fracturedMods": [],
+    "runeMods": [
+     "20% increased [Armour|Armour], [Evasion|Evasion] and [EnergyShield|Energy Shield]",
+     "[Idol|Idols] socketed in this item gain the benefits of their [ShamanOnlyMods|Bonded] modifiers",
+     "[ShamanOnlyMods|Bonded]: +20 to maximum Life",
+     "[ShamanOnlyMods|Bonded]: +20 to maximum Mana",
+     "[ShamanOnlyMods|Bonded]: +5% to [Quality] of all Skills"
+    ],
+    "implicitMods": [
+     "+65 to maximum Life"
+    ]
+   }
+  },
+  {
+   "itemSlot": 5,
+   "itemData": {
+    "name": "Empyrean Pace",
+    "baseType": "Fortress Sabatons",
+    "ilvl": 82,
+    "rarity": "Rare",
+    "corrupted": false,
+    "inventoryId": "Boots",
+    "mods": {
+     "explicit": [
+      {
+       "id": "MovementVelocity6",
+       "stats": {
+        "base_movement_velocity_+%": 35
+       }
+      },
+      {
+       "id": "FireResist6",
+       "stats": {
+        "base_fire_damage_resistance_%": 34
+       }
+      },
+      {
+       "id": "ArmourAppliesToElementalDamage5",
+       "stats": {
+        "armour_%_applies_to_fire_cold_lightning_damage": 39
+       }
+      },
+      {
+       "id": "LocalBaseArmourAndEvasionRating4",
+       "stats": {
+        "local_base_physical_damage_reduction_rating": 77,
+        "local_base_evasion_rating": 68
+       }
+      }
+     ],
+     "crafted": [
+      {
+       "id": "LightningResist6",
+       "stats": {
+        "base_lightning_damage_resistance_%": 33
+       }
+      }
+     ],
+     "desecrated": [
+      {
+       "id": "LocalIncreasedArmourAndEvasion5",
+       "stats": {
+        "local_armour_and_evasion_+%": 69
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "35% increased Movement Speed",
+     "+77 to [Armour|Armour]",
+     "+68 to [Evasion] Rating",
+     "+34% to [Resistances|Fire Resistance]",
+     "+39% of [Armour|Armour] also applies to [ElementalDamage|Elemental Damage]"
+    ],
+    "desecratedMods": [
+     "69% increased [Armour|Armour] and [Evasion|Evasion]"
+    ],
+    "fracturedMods": [],
+    "runeMods": [
+     "+0.3 metres to Dodge Roll distance",
+     "[ShamanOnlyMods|Bonded]: 30% increased [Armour] if you haven't Dodge Rolled [Recently]"
+    ],
+    "implicitMods": []
+   }
+  },
+  {
+   "itemSlot": 15,
+   "itemData": {
+    "name": "Phoenix Core",
+    "baseType": "Cannonade Crossbow",
+    "ilvl": 64,
+    "rarity": "Rare",
+    "corrupted": false,
+    "inventoryId": "Weapon2",
+    "mods": {
+     "implicit": [
+      {
+       "id": "CrossbowImplicitGrenadeProjectiles1",
+       "stats": {
+        "grenade_skill_number_of_additional_projectiles": 1
+       }
+      }
+     ],
+     "explicit": [
+      {
+       "id": "LocalAddedColdDamageTwoHand2",
+       "stats": {
+        "local_minimum_added_cold_damage": 5,
+        "local_maximum_added_cold_damage": 13
+       }
+      },
+      {
+       "id": "GlobalProjectileSkillGemLevelTwoHandWeapon3",
+       "stats": {
+        "projectile_skill_gem_level_+": 3
+       }
+      },
+      {
+       "id": "LocalIncreasedAttackSpeed5",
+       "stats": {
+        "local_attack_speed_+%": 19
+       }
+      },
+      {
+       "id": "Dexterity5",
+       "stats": {
+        "additional_dexterity": 24
+       }
+      },
+      {
+       "id": "LocalIncreasedPhysicalDamagePercentAndAccuracyRating2",
+       "stats": {
+        "local_physical_damage_+%": 22,
+        "local_accuracy_rating": 22
+       }
+      }
+     ],
+     "desecrated": [
+      {
+       "id": "AbyssModCrossbowAmanamuPrefixGrenadeAdditionalCooldown",
+       "stats": {
+        "grenade_skill_cooldown_count_+": 1
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "22% increased [Physical] Damage",
+     "Adds 5 to 13 [Cold|Cold] Damage",
+     "+22 to [Accuracy|Accuracy] Rating",
+     "19% increased [Attack] Speed",
+     "+3 to Level of all [Projectile] Skills",
+     "+24 to [Dexterity|Dexterity]"
+    ],
+    "desecratedMods": [
+     "[Grenade] Skills have +1 Cooldown Use"
+    ],
+    "fracturedMods": [],
+    "runeMods": [
+     "+15 to [Spirit|Spirit]",
+     "Gain 45 Life per enemy killed",
+     "[ShamanOnlyMods|Bonded]: Regenerate 0.4% of maximum Life per second"
+    ],
+    "implicitMods": [
+     "[Grenade] Skills Fire an additional [Projectile|Projectile]"
+    ]
+   }
+  },
+  {
+   "itemSlot": 4,
+   "itemData": {
+    "name": "Pain Collar",
+    "baseType": "Gold Amulet",
+    "ilvl": 80,
+    "rarity": "Rare",
+    "corrupted": false,
+    "inventoryId": "Amulet",
+    "mods": {
+     "implicit": [
+      {
+       "id": "AmuletImplicitItemFoundRarityIncrease1",
+       "stats": {
+        "base_item_found_rarity_+%": 20
+       }
+      }
+     ],
+     "enchant": [
+      {
+       "id": "GrantedPassive",
+       "stats": {
+        "mod_granted_passive_hash": 20686
+       }
+      }
+     ],
+     "fractured": [
+      {
+       "id": "GlobalSpellGemsLevel3",
+       "stats": {
+        "spell_skill_gem_level_+": 3
+       }
+      }
+     ],
+     "explicit": [
+      {
+       "id": "IncreasedSpirit5",
+       "stats": {
+        "base_spirit_from_equipment": 50
+       }
+      },
+      {
+       "id": "IncreasedLife8",
+       "stats": {
+        "base_maximum_life": 117
+       }
+      },
+      {
+       "id": "FireResist7",
+       "stats": {
+        "base_fire_damage_resistance_%": 40
+       }
+      }
+     ],
+     "crafted": [
+      {
+       "id": "EssenceGlobalDefences1",
+       "stats": {
+        "global_armour_evasion_energy_shield_+%": 24
+       }
+      }
+     ],
+     "desecrated": [
+      {
+       "id": "AbyssModAmuletKurgalSuffixQualityofAllSkills",
+       "stats": {
+        "all_skill_gem_quality_+": 5
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "+117 to maximum Life",
+     "+50 to [Spirit|Spirit]",
+     "+40% to [Resistances|Fire Resistance]"
+    ],
+    "desecratedMods": [
+     "+5% to [Quality] of all Skills"
+    ],
+    "fracturedMods": [
+     "+4 to Level of all [Spell|Spell] Skills"
+    ],
+    "runeMods": [],
+    "implicitMods": [
+     "20% increased [ItemRarity|Rarity of Items] found"
+    ]
+   }
+  },
+  {
+   "itemSlot": 8,
+   "itemData": {
+    "name": "Damnation Circle",
+    "baseType": "Gold Ring",
+    "ilvl": 76,
+    "rarity": "Rare",
+    "corrupted": false,
+    "inventoryId": "Ring",
+    "mods": {
+     "implicit": [
+      {
+       "id": "RingImplicitItemFoundRarityIncrease1",
+       "stats": {
+        "base_item_found_rarity_+%": 15
+       }
+      }
+     ],
+     "explicit": [
+      {
+       "id": "ItemFoundRarityIncreasePrefix2",
+       "stats": {
+        "base_item_found_rarity_+%": 15
+       }
+      },
+      {
+       "id": "AllResistances5",
+       "stats": {
+        "base_resist_all_elements_%": 15
+       }
+      },
+      {
+       "id": "ChaosResist4",
+       "stats": {
+        "base_chaos_damage_resistance_%": 17
+       }
+      },
+      {
+       "id": "IncreasedLife7",
+       "stats": {
+        "base_maximum_life": 93
+       }
+      },
+      {
+       "id": "FireDamagePercent6",
+       "stats": {
+        "fire_damage_+%": 30
+       }
+      }
+     ],
+     "crafted": [
+      {
+       "id": "ItemFoundRarityIncrease3",
+       "stats": {
+        "base_item_found_rarity_+%": 15
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "36% increased [Fire] Damage",
+     "+93 to maximum Life",
+     "15% increased [ItemRarity|Rarity of Items] found",
+     "+18% to all [ElementalDamage|Elemental] [Resistances]",
+     "+17% to [Resistances|Chaos Resistance]"
+    ],
+    "desecratedMods": [],
+    "fracturedMods": [],
+    "runeMods": [],
+    "implicitMods": [
+     "15% increased [ItemRarity|Rarity of Items] found"
+    ]
+   }
+  },
+  {
+   "itemSlot": 1,
+   "itemData": {
+    "name": "Kraken Crest",
+    "baseType": "Masked Greathelm",
+    "ilvl": 81,
+    "rarity": "Rare",
+    "corrupted": false,
+    "inventoryId": "Helm",
+    "mods": {
+     "fractured": [
+      {
+       "id": "LightningResist5",
+       "stats": {
+        "base_lightning_damage_resistance_%": 29
+       }
+      }
+     ],
+     "explicit": [
+      {
+       "id": "ArmourAppliesToElementalDamage5",
+       "stats": {
+        "armour_%_applies_to_fire_cold_lightning_damage": 42
+       }
+      },
+      {
+       "id": "ItemFoundRarityIncreasePrefix3",
+       "stats": {
+        "base_item_found_rarity_+%": 16
+       }
+      },
+      {
+       "id": "LocalIncreasedPhysicalDamageReductionRating8",
+       "stats": {
+        "local_base_physical_damage_reduction_rating": 219
+       }
+      },
+      {
+       "id": "LocalIncreasedPhysicalDamageReductionRatingPercent7",
+       "stats": {
+        "local_physical_damage_reduction_rating_+%": 97
+       }
+      }
+     ],
+     "desecrated": [
+      {
+       "id": "AbyssModArmourJewelleryKurgalSuffixColdChaosResistance",
+       "stats": {
+        "cold_and_chaos_damage_resistance_%": 16
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "+219 to [Armour|Armour]",
+     "97% increased [Armour|Armour]",
+     "16% increased [ItemRarity|Rarity of Items] found",
+     "+42% of [Armour|Armour] also applies to [ElementalDamage|Elemental Damage]"
+    ],
+    "desecratedMods": [
+     "+16% to Cold and Chaos Resistances"
+    ],
+    "fracturedMods": [
+     "+29% to [Resistances|Lightning Resistance]"
+    ],
+    "runeMods": [
+     "+1 to maximum Life per 8 [ItemArmour|Armour] on [Equipped] Helmet",
+     "[ShamanOnlyMods|Bonded]: +20 to [Spirit|Spirit]"
+    ],
+    "implicitMods": []
+   }
+  },
+  {
+   "itemSlot": 11,
+   "itemData": {
+    "name": "Mageblood",
+    "baseType": "Utility Belt",
+    "ilvl": 79,
+    "rarity": "Unique",
+    "corrupted": false,
+    "inventoryId": "Belt",
+    "mods": {
+     "implicit": [
+      {
+       "id": "BeltImplicitInstantFlaskRecoveryPercent1",
+       "stats": {
+        "flask_recovery_amount_%_to_recover_instantly": 20
+       }
+      },
+      {
+       "id": "BeltImplicitCharmSlots3",
+       "stats": {
+        "local_charm_slots": 2
+       }
+      }
+     ],
+     "explicit": [
+      {
+       "id": "UniqueMagesLegacy01",
+       "stats": {
+        "local_unique_mages_legacy_1": 2
+       }
+      },
+      {
+       "id": "UniqueMagesLegacy02",
+       "stats": {
+        "local_unique_mages_legacy_2": 5
+       }
+      },
+      {
+       "id": "UniqueMagesLegacy03",
+       "stats": {
+        "local_unique_mages_legacy_3": 6
+       }
+      },
+      {
+       "id": "UniqueMagesLegacy04",
+       "stats": {
+        "local_unique_mages_legacy_4": 5
+       }
+      },
+      {
+       "id": "UniqueIncreasedMagesLegacyEffectPerDuplicateMagesLegacy",
+       "stats": {
+        "local_unique_mages_legacy_effect_+%_per_duplicate_mages_legacy": 41
+       }
+      }
+     ]
+    },
+    "explicitMods": [
+     "Legacy of [LegacyOfBasalt|Basalt]",
+     "Legacy of [LegacyOfGold|Gold]",
+     "Legacy of [LegacyOfGranite|Granite]",
+     "Legacy of [LegacyOfGold|Gold]",
+     "All [MagesLegacy|Mage's Legacies] have 41% increased effect per duplicate [MagesLegacy|Mage's Legacy] you have"
+    ],
+    "desecratedMods": [],
+    "fracturedMods": [],
+    "runeMods": [],
+    "implicitMods": [
+     "Has 2 [Charm] Slots",
+     "20% of [Flask|Flask] Recovery applied Instantly"
+    ]
+   }
+  }
+ ]
+}

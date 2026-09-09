@@ -1,0 +1,494 @@
+{
+  "patch": "0.5.0",
+  "updated": "2026-09-09",
+  "source": "poe.ninja profiles",
+  "characters": [
+    {
+      "profile": "fubgun-1755",
+      "character": "Fubgun_Oil",
+      "className": "Gemling Legionnaire",
+      "level": 97,
+      "league": "Forbidden Rites",
+      "items": [
+        {
+          "slot": "Weapon",
+          "name": "Dire Spire",
+          "baseName": "Chiming Staff",
+          "baseId": "Staves",
+          "level": 81,
+          "mods": [
+            {
+              "modId": "Staves/GlobalIncreaseFireSpellSkillGemLevelWeapon",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Staves/DamageGainedAsFire",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": true
+            },
+            {
+              "modId": "Staves/DamageGainedAsFire",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": true
+            },
+            {
+              "modId": "Staves/Intelligence",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": true
+            },
+            {
+              "modId": "Staves/IncreasedCastSpeed",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Staves/WeaponSpellDamage",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": true
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [
+            "Staves/DamageGainedAsFire"
+          ],
+          "corrupted": false
+        },
+        {
+          "slot": "Gloves",
+          "name": "Horror Mitts",
+          "baseName": "Knightly Mitts",
+          "baseId": "Gloves_str",
+          "level": 80,
+          "mods": [
+            {
+              "modId": "Gloves_str/IncreasedLife",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_str/ArmourAppliesToElementalDamage",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_str/ColdResistance",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_str/LocalPhysicalDamageReductionRating",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_str/LocalPhysicalDamageReductionRatingPercent",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_str/ItemFoundRarityIncrease",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Ring2",
+          "name": "Miracle Twirl",
+          "baseName": "Gold Ring",
+          "baseId": "Rings",
+          "level": 80,
+          "mods": [
+            {
+              "modId": "Rings/ColdResistance",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/ItemFoundRarityIncreasePrefix",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/AllResistances",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/FireDamagePercentage",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/ItemFoundRarityIncrease",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/IncreasedLife",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "BodyArmour",
+          "name": "Corpse Mantle",
+          "baseName": "Dastard Armour",
+          "baseId": "Body_Armours_str_dex",
+          "level": 79,
+          "mods": [
+            {
+              "modId": "Body_Armours_str_dex/ArmourAppliesToElementalDamage",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Body_Armours_str_dex/FireResistance",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Body_Armours_str_dex/LocalArmourAndEvasion",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Body_Armours_str_dex/LocalBaseArmourAndEvasionRating",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Body_Armours_str_dex/LightningResistance",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Body_Armours_str_dex/LocalIncreasedArmourAndEvasionAndLife",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Boots",
+          "name": "Empyrean Pace",
+          "baseName": "Fortress Sabatons",
+          "baseId": "Boots_str_dex",
+          "level": 82,
+          "mods": [
+            {
+              "modId": "Boots_str_dex/MovementVelocity",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_str_dex/FireResistance",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_str_dex/ArmourAppliesToElementalDamage",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_str_dex/LocalBaseArmourAndEvasionRating",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_str_dex/LightningResistance",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_str_dex/LocalArmourAndEvasion",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Weapon2",
+          "name": "Phoenix Core",
+          "baseName": "Cannonade Crossbow",
+          "baseId": "Crossbows",
+          "level": 64,
+          "mods": [
+            {
+              "modId": "Crossbows/LocalColdDamage",
+              "tierDisplay": 9,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Crossbows/GlobalIncreaseProjectileSkillGemLevelWeapon",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Crossbows/LocalIncreasedAttackSpeed",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Crossbows/Dexterity",
+              "tierDisplay": 4,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Crossbows/LocalIncreasedPhysicalDamagePercentAndAccuracyRating",
+              "tierDisplay": 7,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [
+            "desecrated: Grenade Skills have +1 Cooldown Use"
+          ],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Amulet",
+          "name": "Pain Collar",
+          "baseName": "Gold Amulet",
+          "baseId": "Amulets",
+          "level": 80,
+          "mods": [
+            {
+              "modId": "Amulets/BaseSpirit",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Amulets/IncreasedLife",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Amulets/FireResistance",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Amulets/GlobalIncreaseSpellSkillGemLevel",
+              "tierDisplay": 1,
+              "fractured": true,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Amulets/Desecrated_GlobalSkillGemQuality",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [
+            "crafted: EssenceGlobalDefences1"
+          ],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Ring",
+          "name": "Damnation Circle",
+          "baseName": "Gold Ring",
+          "baseId": "Rings",
+          "level": 76,
+          "mods": [
+            {
+              "modId": "Rings/ItemFoundRarityIncreasePrefix",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/AllResistances",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/ChaosResistance",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/IncreasedLife",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/FireDamagePercentage",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Rings/ItemFoundRarityIncrease",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Helm",
+          "name": "Kraken Crest",
+          "baseName": "Masked Greathelm",
+          "baseId": "Helmets_str",
+          "level": 81,
+          "mods": [
+            {
+              "modId": "Helmets_str/ArmourAppliesToElementalDamage",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_str/ItemFoundRarityIncreasePrefix",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_str/LocalPhysicalDamageReductionRating",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_str/LocalPhysicalDamageReductionRatingPercent",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_str/LightningResistance",
+              "tierDisplay": 4,
+              "fractured": true,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_str/Desecrated_ColdAndChaosDamageResistance",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        }
+      ]
+    }
+  ]
+}

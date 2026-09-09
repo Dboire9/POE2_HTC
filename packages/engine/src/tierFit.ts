@@ -95,3 +95,19 @@ export function tierFit(mod: Mod, values: readonly number[], level?: number): Ti
   if (!aboveEveryTier(mod, values)) return { names: [], sanctified: false };
   return { names: [mod.tiers.at(-1)!.name], sanctified: true };
 }
+
+/**
+ * A tier's number as every picker in the app shows it: 1 is the BEST.
+ *
+ * The engine stores tiers ascending by ilvl, so `tiers[0]` is the worst and the last is the best —
+ * the exact inverse of what a player reads. Two readers needed this conversion (a pasted item and a
+ * fetched profile) and a second copy of an inversion is a coin-flip waiting to land wrong, so it
+ * lives here beside the rest of the tier question.
+ *
+ * An unknown tier name yields the worst position rather than throwing: it means "any tier", which is
+ * the safe reading for a target and the honest one for a held mod.
+ */
+export function tierDisplay(mod: Mod, tierName: string): number {
+  const i = mod.tiers.findIndex((t) => t.name === tierName);
+  return i < 0 ? mod.tiers.length : mod.tiers.length - i;
+}

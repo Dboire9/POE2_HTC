@@ -10,6 +10,8 @@ export type { BaseMatch } from './baseLookup.ts';
 export { resolveMods, linesOf } from './resolveMods.ts';
 export { parseItemText, linesOfKind } from './parseItem.ts';
 export { statIndex, resolveByStats, statsOf, familyConflicts } from './statLookup.ts';
+export { resolveProfileItems } from './profileItems.ts';
+export type { ProfileItem, ProfileMod, ProfileResult, SourceItem } from './profileItems.ts';
 export { runeRoute, runeOpportunity, gainAsExtraByElement, runePriceKey, ALDUR_RUNE_BY_ELEMENT } from './runeConvert.ts';
 export type { RuneRoute, RuneOpportunity } from './runeConvert.ts';
 export type { StatMod, StatMatch } from './statLookup.ts';

@@ -208,6 +208,23 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   uniquely within a base except in 8 cases over 52 bases — all the `ItemFoundRarity` prefix/suffix
   pair, which the source's own id then settles as a TIE-BREAKER ONLY (the two id schemes disagree 24
   times in 43, `FireResist7` against our `FireResistance`, so it is never a key).
+  **`profileItems.ts` is the whole read, and `tools/streamers/fetch.mjs` the job around it**
+  (`npm run update-streamers`, config in `tools/streamers/profiles.json`, output
+  `data/streamers/<patch>.json`). Measured on a real character: **9 items, 52 of 54 modifiers placed**,
+  the Unique skipped with a reason, the two it cannot place NAMED. The output is the ANSWER — base
+  ids, mod ids, tier numbers — a few hundred bytes an item against the 400 kB payload it came from,
+  so nothing about `stats` has to ship. `__fixtures__/profile-fubgun.json` is that character, trimmed
+  to the fields the resolver reads; every hard case in it is real rather than invented.
+  **DESECRATED modifiers are read from TEXT, not stats**, and the data says why: **0 of 693 desecrated
+  mods carry `tiers[].stats` against 951 of 951 normal ones** — the stat vocabulary is RePoE's and
+  that pool is not. Pairing the structured entries to the printed lines by POSITION was tried and does
+  not work (5 of 30 category arrays disagree in length on one character, because the game sums
+  same-stat modifiers and splits hybrids), so each category uses the route that can answer it and
+  nothing is matched by index. Worth 50 → 52 modifiers.
+  **poe.ninja's profile endpoints**: `/poe2/api/profile/characters/<slug>/<anything>` is the character
+  list — that second segment is REQUIRED AND IGNORED (the slug alone 404s; `0`, the real account id
+  and `999999` all return the same 36,953 bytes) — and
+  `/poe2/api/profile/characters/<slug>/<leagueUrl>/<char>/model/600` is one character with its items.
   **It needs the FULL mods file and cannot run in the browser.** `tiers[].stats` is stripped by
   `shipMods.ts`, so a browser-built `PatchData` carries none and `statIndex` comes back empty. That
   suits the job it exists for — reading profiles in a periodic task, as prices are refreshed, which

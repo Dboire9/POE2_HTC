@@ -568,11 +568,21 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   every rare state collapses toward `restartCost + V(start)` — measured, the "holding none" row equalled
   the white base's own cost to the exalt and three-of-four saved 18% against a held Rare's 37%. Right
   numbers, wrong question. Same reason `FrontierView` sets `freeRestart={false}`.
-  **When the solve is not exact it SAYS SO rather than vanishing.** That case is common, not rare: three
-  T1 prefixes on a Wand returns `bound: 'lower'` and stays there at every preset — 7.9s under
-  Exhaustive's 900s clock and 20M sweeps, so it is neither clock nor sweeps and MORE EFFORT DOES NOT
-  HELP. The note says to relax a tier instead, because the app's standing "raise Search effort" advice
-  is wrong for this class of craft.
+  **When the solve is not exact it SAYS SO rather than vanishing**, and it points at Search effort.
+  The case is common: three T1 prefixes on a Wand returns `bound: 'lower'` at Standard. Raising effort
+  IS the fix — that craft needs **~2.3M value-iteration sweeps and ~262 s**, inside Exhaustive's
+  20M/900s cap and far outside Standard's 100k. And the floor is not a usable estimate: **5.08e6
+  against a true 2.33e7, out by 4.6x**, which is why no table is drawn from it.
+  **The table takes ONE unit for the whole view** (`pickUnit` over its largest row, then `formatIn`).
+  `formatCost` picks per value and its own comment says it is for "a single number with no sibling
+  values to stay comparable with" — used per row it printed a real table as "123K div / 120.6K div /
+  4,781 chaos". Percentages under 0.01% render as `<0.01%` rather than `0.00%`, which looked like a
+  bug beside the claim it was supporting.
+  **A MEASUREMENT THAT SAID OTHERWISE WAS MY OWN BUG.** `MarkovOptions` takes `maxIters`; the effort
+  ladder calls it `maxSweeps` and `withSweepLimit` (solve.ts) maps one to the other. A probe passing
+  `maxSweeps` straight to `markovFromItem` silently got the default 100,000 at every rung, which
+  looked exactly like "more effort changes nothing" — and was written up as such before the option
+  name was checked. When a sweep over a limit returns identical numbers, suspect the knob first.
   `WhatToBuy` refuses to draw the TABLE unless `bound === 'exact'`: a table of bounds
   compared against each other is worse than one bound, because the differences between them are not
   bounded by anything (the `ItemWorth` rule). Every row assumes NO junk in the other slots, so a real
@@ -756,6 +766,11 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   app reported nothing and a crash was just a progress bar that stopped. **Tags must be
   `captureException`'s SECOND ARGUMENT** — hanging them off the Error type-checks, runs, reports, and
   silently drops them; `sentry.test.ts` mutation-pins that, the queue's copy of it, and the queue cap.
+- **An `aria-label` REPLACES a visible label, it does not add to it.** `SearchEffort`'s select read
+  "How hard the solver should look before giving up" and contained none of the "Search effort" next to
+  it — WCAG 2.5.3 Label in Name, and a concrete break for voice control, where saying the visible
+  words matched nothing. The accessible name now leads with them. Found by a Playwright selector that
+  should have worked; `accessibility.test.tsx` pins the rule.
 - **The CSP is a real response header in `vercel.json`, never a `<meta>` tag.** A meta CSP silently
   ignores `frame-ancestors`, and being part of the document it applies in dev too — which is why the
   old one had to allow `ws://localhost:*` for Vite HMR and shipped those allowances to production.

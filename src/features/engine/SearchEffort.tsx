@@ -27,13 +27,18 @@ export const SearchEffort: React.FC = () => {
         Search effort
       </span>
       {/* The three solver caps were hard-coded guesses about someone else's patience. They stay
-          honest either way — the badges say when a cap bit — but now the user can pay for more. */}
+          honest either way — the badges say when a cap bit — but now the user can pay for more.
+
+          The `aria-label` leads with the VISIBLE words. It replaces the wrapping <label>'s text
+          rather than adding to it, so it used to read "How hard the solver should look before giving
+          up" and contained none of the "Search effort" on screen — WCAG 2.5.3 Label in Name, and a
+          concrete failure for voice control, where saying "Search effort" matched nothing. */}
       <select
         className={`${selectCls} w-40`}
         value={effort}
         onChange={(e) => setEffort(e.target.value)}
         title={EFFORT_PRESETS.find((p) => p.id === effort)?.hint}
-        aria-label="How hard the solver should look before giving up"
+        aria-label="Search effort — how hard the solver should look before giving up"
       >
         {EFFORT_PRESETS.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
       </select>

@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { EngineMod, EngineResult } from '../../lib/engine';
+import { SearchEffort } from './SearchEffort';
 
 // Testing Library resolves `getByRole(role, { name })` through the real accessibility tree, so
 // querying a control BY ITS ACCESSIBLE NAME is the accessibility assertion — no axe dependency
@@ -192,5 +193,23 @@ describe('header actions are reachable by name', () => {
     const trigger = screen.getByRole('button', { name: /Report a problem/i });
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     expect(trigger).toHaveAttribute('aria-controls');
+  });
+});
+
+/**
+ * A control's accessible name must CONTAIN the words next to it.
+ *
+ * `aria-label` replaces the visible label rather than adding to it, so "Search effort" had an
+ * accessible name of "How hard the solver should look before giving up" — no overlap with what is on
+ * screen. That is WCAG 2.5.3 (Label in Name), and it breaks voice control concretely: a user saying
+ * "Search effort" matches nothing. Caught while driving the app, by a selector that should have worked.
+ */
+describe('visible labels are part of the accessible name', () => {
+  it('Search effort', () => {
+    render(<SearchEffort />);
+    const select = screen.getByRole('combobox', { name: /Search effort/i });
+    expect(select).toBeInTheDocument();
+    // The explanation survives too — the point is both, not a swap.
+    expect(select.getAttribute('aria-label')).toMatch(/how hard the solver should look/i);
   });
 });

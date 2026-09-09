@@ -3480,11 +3480,31 @@ Running the real build in a browser, not the suite.
    item and restarts, so the "holding none of them" row came out equal to the white base's own cost to
    the exalt, and three-of-four saved 18% where a held Rare saved 37%. Removed from that tab.
 3. **`bound: 'exact'` is a real gate, and it closes on ordinary crafts.** Four T1 targets on a Wand
-   with THREE of them prefixes returns a floor — and stays one at Exhaustive's 900 s clock and 20 M
-   sweeps, finishing in 7.9 s. It is neither the clock nor the sweeps, so the app's standing "raise
-   Search effort" advice does not hold for this shape. 2 prefixes + 2 suffixes at T1 settles exactly
-   on every base tried (Wands 1.0 s, Amulets 2.1 s, Rings 0.7 s, Helmets 0.5 s), so the failing axis
-   is how many land on one side, not the tier or the count.
+   with THREE of them prefixes returns a floor at Standard. 2 prefixes + 2 suffixes at T1 settles
+   exactly on every base tried (Wands 1.0 s, Amulets 2.1 s, Rings 0.7 s, Helmets 0.5 s), so the
+   failing axis is how many land on ONE SIDE, not the tier or the count — a third prefix has to land
+   in the last prefix slot, and that transition governs VI's convergence rate.
+
+   | maxIters | time | bound | cost |
+   |---|---|---|---|
+   | 100,000 (Standard) | 8.2 s | lower | 5.0803e+6 |
+   | 1,000,000 | 93.4 s | lower | 2.2672e+7 |
+   | 5,000,000 | 262.5 s | **exact** | 2.3312e+7 |
+   | 20,000,000 (Exhaustive) | 261.1 s | **exact** | 2.3312e+7 |
+
+   So raising effort DOES fix it, and Standard's floor is **out by 4.6x** — not a near-miss to be read
+   as an estimate. That is the case for refusing to build a table from a bound.
+
+   Confirmed in the browser end to end: the same craft at Exhaustive settles in **123 s**, the floor
+   warning is gone, and the table draws. Two rendering bugs surfaced only there — the table used
+   `formatCost` per row and printed "123K div / 120.6K div / 4,781 chaos" (the exact mistake
+   `pickUnit`'s own comment warns about), and a +0.03% trap rounded to "+0.00%".
+
+   **The first version of this entry said the opposite, and was wrong because of the probe.**
+   `MarkovOptions` takes `maxIters`; the effort ladder calls it `maxSweeps` and `withSweepLimit`
+   maps between them. Passing `maxSweeps` directly to `markovFromItem` silently gets the default
+   100,000 at every rung — four runs, four identical numbers, read as "more effort changes nothing".
+   Identical results across a swept limit mean the limit is not being swept.
 
 One copy bug too: JSX drops whitespace between an element and text across a line break, and the gear
 tab shipped reading "makes it the target on *I have an item*and leaves your own item alone".

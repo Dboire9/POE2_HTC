@@ -790,3 +790,37 @@ describe('Reset', () => {
     expect(screen.getByDisplayValue('77')).toBeInTheDocument();
   });
 });
+
+/**
+ * An unsettled floor is not an estimate, and the tab used to say it was.
+ *
+ * The old copy ended "which is itself the answer: on this target, it isn't close" — presenting a
+ * number the solver had not settled as informative, with nothing to do about it. Measured on a
+ * four-target Wand craft with three prefixes, Standard's floor is 5.08e6 against a settled 2.33e7,
+ * and it settles at ~2.3M sweeps (~262s), which Exhaustive allows and Standard does not.
+ */
+describe('a true cost that did not settle', () => {
+  const lowerBound = {
+    applicable: true, feasible: true, expectedCost: 5.08e6, converged: false,
+    bound: 'lower' as const, assumedOdds: false, nodes: [], edges: [],
+  };
+
+  it('says the floor can be several times the truth, and points at Search effort', async () => {
+    const user = userEvent.setup();
+    mocks.optimizeItemMarkov.mockReturnValue(lowerBound);
+    mocks.optimizeItem.mockReturnValue(okFrontier);
+    render(<ItemActions />);
+    await screen.findByRole('button', { name: /apply a test import/i });
+    await user.click(screen.getByRole('button', { name: /apply a test import/i }));
+    await user.click(await screen.findByRole('button', { name: 'Full plan to a target' }));
+    await user.selectOptions(screen.getByRole('combobox', { name: /Add a target mod/i }), 'np');
+    await user.click(screen.getByRole('button', { name: 'Compute plan' }));
+
+    const warn = await screen.findByText(/The solver stopped before this number settled/);
+    expect(warn.textContent).toMatch(/can be several times it/);
+    expect(warn.textContent).toMatch(/don’t read it as an estimate/);
+    expect(warn.textContent).toMatch(/Raise Search effort/);
+    // The claim that was removed: an unsettled number presented as the answer.
+    expect(warn.textContent).not.toMatch(/itself the answer/);
+  });
+});

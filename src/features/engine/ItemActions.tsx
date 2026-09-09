@@ -14,7 +14,7 @@ import {
 import { solve, isCancelled, prewarm } from '../../lib/engineClient';
 import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
-import { limitsFor, useEffort } from '../../lib/searchEffort';
+import { EFFORT_PRESETS, isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField } from '../../lib/workspace';
 import { importToItem } from '../../lib/importItem';
@@ -174,6 +174,15 @@ const ItemActions: React.FC = () => {
   const [showRoutes, setShowRoutes] = useState(false);
   const excludedKeys = toExcludedKeys(useExclusions());
   const effort = useEffort();
+  /**
+   * What to tell someone whose solve did not settle — and NOT to tell them at the top rung, where it
+   * would point at a control with nothing above it. Same pair the Lab tab uses; this tab had neither,
+   * and told the reader the floor was "itself the answer" instead.
+   */
+  const topped = isTopEffort(effort);
+  const finishAdvice = topped
+    ? <>This is <strong>{EFFORT_PRESETS[EFFORT_PRESETS.length - 1]!.label}</strong> already — the craft is beyond what the solver can settle.</>
+    : <>Raise <strong>Search effort</strong> and compute again to let it finish.</>;
   // Exalts-per-chaos / per-divine, so a huge cost reads as a quantity rather than a wall of digits.
   const rates = engine ? priceBasis(engine).rates : undefined;
   // Held so the Cancel button can reach the running solve; refs, not state, because changing them must
@@ -1033,9 +1042,14 @@ const ItemActions: React.FC = () => {
               </div>
               {markov.bound === 'lower' && (
                 <p className="rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
-                  ⚠ The solver stopped before this number settled, so it is a <strong>floor</strong> — the real
-                  cost is at least this and may be far higher. That happens when every route is a very long
-                  shot, which is itself the answer: on this target, it isn’t close.
+                  {/* This used to end "which is itself the answer: on this target, it isn't close" — an
+                      unsettled floor presented as informative. Measured on a four-target Wand craft with
+                      three prefixes, Standard's floor is 5.08e6 against a settled 2.33e7: out by 4.6x,
+                      and it settles at ~2.3M sweeps in ~262s, which Exhaustive allows and Standard does
+                      not. So the floor is not the answer, and there IS something to do about it. */}
+                  ⚠ The solver stopped before this number settled, so it is a <strong>floor</strong> — the
+                  real cost is at least this and can be several times it, so don’t read it as an estimate.
+                  {' '}{finishAdvice}
                 </p>
               )}
               <ItemWorth markov={markov} rates={rates} />

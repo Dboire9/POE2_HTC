@@ -38,7 +38,46 @@ describe('what to look for when buying a base', () => {
   it('prints how much a worth-nothing modifier actually costs you', () => {
     render(<WhatToBuy markov={withHoldings(HOLDINGS)} />);
     expect(screen.getByText(/Worth nothing on its own/)).toBeInTheDocument();
-    expect(screen.getByText(/Adds Fire \(\+5\.00%\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Worth nothing on its own/).closest('p')!.textContent)
+      .toMatch(/Adds Fire \(\+5%\)/);
+  });
+
+  /**
+   * ONE unit across the table. A real solve rendered as "123K div / 120.6K div / 4,781 chaos" —
+   * `formatCost` picks per value, and a table is read by comparing rows.
+   */
+  it('renders every row in the same unit', () => {
+    // Spread across three orders of magnitude, with rates that make chaos and divine both reachable.
+    const spread = [
+      { present: [], cost: 4_000_000 },
+      { present: ['A'], cost: 3_500_000 },
+      { present: ['B'], cost: 900_000 },
+      { present: ['A', 'B'], cost: 40 },
+      { present: ['A', 'B', 'C'], cost: 0 },
+      { present: ['C'], cost: 3_900_000 },
+    ];
+    render(<WhatToBuy
+      markov={withHoldings(spread, { bareCost: 4_000_000 })}
+      rates={{ chaos: 0.4, divine: 200 }}
+    />);
+    const cells = screen.getAllByRole('cell').filter((_, i) => i % 3 === 1);
+    const units = new Set(cells.map((c) => c.textContent.replace(/[\d.,\s]/g, '')));
+    expect(units.size, `mixed units: ${[...units].join(', ')}`).toBe(1);
+  });
+
+  /** +0.00% reads as a bug and undercuts the claim beside it; the traps go down to +0.03%. */
+  it('never rounds a real difference away to zero', () => {
+    const tiny = [
+      { present: [], cost: 100_000 },
+      { present: ['A'], cost: 100_003 },
+      { present: ['B'], cost: 90_000 },
+      { present: ['A', 'B'], cost: 40_000 },
+      { present: ['A', 'B', 'C'], cost: 0 },
+      { present: ['C'], cost: 95_000 },
+    ];
+    render(<WhatToBuy markov={withHoldings(tiny, { bareCost: 100_000 })} />);
+    expect(screen.getByText(/Worth nothing on its own/).closest('p')!.textContent)
+      .toMatch(/\+<0\.01%/);
   });
 
   it('says every row assumes the rest of the item is empty', () => {
@@ -56,15 +95,16 @@ describe('what to look for when buying a base', () => {
   });
 
   /**
-   * Hidden, but not invisible. A craft asking three T1 prefixes on a Wand returns a floor at every
-   * effort preset, so silently returning null would leave a common case with no sign the question has
-   * an answer at all — and would send the reader to a Search-effort control that will not help.
+   * Hidden, but not invisible. A craft asking three T1 prefixes on a Wand returns a floor at the
+   * default effort, so silently returning null would leave a common case with no sign the question
+   * has an answer at all. Raising effort IS the fix there — measured at ~2.3M sweeps and ~262 s,
+   * inside Exhaustive's cap — so the note must point at that control rather than away from it.
    */
-  it('says why the table is missing, and does not blame Search effort', () => {
+  it('says why the table is missing, and points at Search effort', () => {
     render(<WhatToBuy markov={withHoldings(HOLDINGS, { bound: 'lower' })} />);
     expect(screen.getByText(/What to look for when you buy one/)).toBeInTheDocument();
     expect(screen.getByText(/only reached a floor/)).toBeInTheDocument();
-    expect(screen.getByText(/more Search effort often will not/)).toBeInTheDocument();
+    expect(screen.getByText(/Raise/)).toBeInTheDocument();
   });
 
   it('draws nothing when the solver returned no lattice', () => {

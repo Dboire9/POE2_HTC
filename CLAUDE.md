@@ -336,9 +336,13 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   tests exercise at the scale of a real craft. **Read the SIGN COUNT across seeds, never the z from
   one.** The cost distribution is heavy-tailed, and for heavy tails the sample variance understates
   the true variance, so the SE comes out too small and |z| is inflated; a bias keeps its sign across
-  independent seeds and noise does not. As of 2026-09-09 two of seven items sit outside 2 SE
-  (Pain Collar at z = −3.37) and the multi-seed follow-up has NOT been run to completion — that is an
-  open question in docs/validation.md, not a pass.
+  As of 2026-09-09 the heavy-tail explanation is CONFIRMED —
+  SD/mean is about 1.0 on every item, the worst single run is 5-9x V, and every item flips sign
+  across 6 seeds — so those z values were inflated. **One item stays open**: Pain Collar came out
+  -1.33% over 6 seeds against -1.29% on an independent 50,000-run pass, same sign and magnitude,
+  which this sample size (about +/-1.6% on the mean of means) cannot separate from zero. Suggestive,
+  not evidence. docs/validation.md carries the two ways to settle it; do not record it as a pass
+  before one of them is done.
 
 
 - Unit tests per currency rule on tiny synthetic pools (3–5 fake mods) with hand-computed expected probabilities.

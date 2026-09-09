@@ -47,6 +47,16 @@ const Row: React.FC<{
         <span className="font-mono text-[11px]">{row.lines.join(' / ')}</span>
         {row.fractured && <span className="text-[10px] text-amber-300">🔒 fractured</span>}
         {row.desecrated && <span className="text-[10px] text-purple-300">💀 desecrated</span>}
+        {/* Above anything the mod can roll. Saying so is the difference between "your best mod" and
+            a line the app appears not to understand. */}
+        {row.sanctified && (
+          <span
+            className="text-[10px] text-sky-300"
+            title="Sanctified — this rolled higher than the modifier can normally reach, so it is read as the best tier."
+          >
+            ✨ sanctified · reads as best tier
+          </span>
+        )}
       </div>
 
       <div className="mt-1 flex flex-wrap items-center gap-2">

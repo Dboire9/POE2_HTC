@@ -154,6 +154,22 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   can never reach the tier asked for. A needed mod advances only on its at-or-above-tier weight while
   occupying its family on its FULL weight. Collapsing those two is a mutation the tests catch.
 - **Fractured mods are locked**: never annulled, never chaosed, out of every removal pool.
+- **SANCTIFICATION raises a modifier above what any of its tiers can roll** — user ruling 2026-09-09,
+  and NOT derivable from the shipped data, which records only what is rollable. So a value over the
+  top tier's maximum is not a stale patch and not bad data: it is a mod that was already at its best
+  and then pushed further. `aboveEveryTier` (`resolveMods.ts`) reads one as the BEST tier and sets
+  `sanctified`, because "at least T1" is the truthful reading and leaving it unresolved reports a
+  player's finest item as unreadable. Measured on fubgun's live gear: **7 of 52 modifier lines**, and
+  handling it took that character from 34 to 41 lines resolved to id + tier.
+  **The claim is only made when the roll is above the best tier's max and below NOTHING**, compared
+  by MAGNITUDE so a "reduced" mod (stored negative, printed positive) is judged the same way. A value
+  under a range's bottom is evidence of a MISREAD, not of the mechanic — two of the nine over-range
+  lines on that character were a hybrid grouping taken wrongly, and labelling those Sanctified would
+  have buried the bug under a plausible name.
+  **A single-tier mod can never be detected as Sanctified**, because `tiersFitting` returns the only
+  tier without checking ranges at all. Harmless for the tier (there is just the one) and it costs only
+  the label — but it also means a test written against a single-tier mod exercises none of this, which
+  is how two of these tests were vacuous until mutation testing said so.
 
 ## Prices
 

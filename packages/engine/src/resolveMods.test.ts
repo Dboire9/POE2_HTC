@@ -133,6 +133,74 @@ describe('picking between candidates', () => {
   });
 });
 
+/**
+ * SANCTIFICATION raises a modifier above what any tier of it can roll (user ruling, 2026-09-09).
+ * Nothing in the shipped data says so — it only records what is rollable — so this is modelled from
+ * that ruling, not derived. Before it, seven of fubgun's fifty-two modifier lines read as "no tier
+ * fits", which is how a player's best item looks unreadable.
+ */
+describe('a Sanctified roll, above everything the mod can produce', () => {
+  it('reads as the best tier and says it was Sanctified', () => {
+    // Rings/AllResistances tops out at [15,16].
+    const r = one('Rings', ['+18% to all Elemental Resistances']);
+    expect(r.resolved[0]!.modId).toBe('Rings/AllResistances');
+    expect(r.resolved[0]!.sanctified).toBe(true);
+    expect(r.resolved[0]!.tierName).toBe('of the Rainbow');
+  });
+
+  it('leaves an ordinary in-range roll alone', () => {
+    const r = one('Rings', ['+15% to all Elemental Resistances']);
+    expect(r.resolved[0]!.sanctified).toBe(false);
+    expect(r.resolved[0]!.tierName).toBe('of the Rainbow');
+  });
+
+  /**
+   * BELOW every tier is not Sanctification, and keeping the two apart is what stops the flag from
+   * papering over a misread. Both of the over-range lines this failed to explain on a real character
+   * were a hybrid grouping taken wrongly, not a mechanic.
+   */
+  it('does not claim Sanctification for a roll that is too SMALL', () => {
+    const r = one('Crossbows', ['22% increased Physical Damage']);
+    expect(r.resolved[0]!.sanctified).toBe(false);
+    expect(r.resolved[0]!.tierName).toBeUndefined();
+  });
+
+  /**
+   * The guard that ONE value being too small refuses the whole claim. It needs a MULTI-value mod:
+   * with a single number, being below the top already fails the "higher" test, so a one-number
+   * example passes whether the guard is there or not. `Bows/LocalPhysicalDamage` tops out at
+   * [[26,39],[44,66]], so 10-to-100 is below on the first and above on the second — a misread, not a
+   * mechanic, and calling it Sanctified would bury the misread under a plausible label.
+   *
+   * The first version of this test used a real crossbow line and proved nothing, because that mod
+   * has ONE tier and `tiersFitting` returns a single tier without checking ranges at all — so it
+   * never reached this code. Mutation testing is the only reason that was noticed.
+   */
+  it('refuses the claim when one value is above but another is below', () => {
+    const r = one('Bows', ['Adds 10 to 100 Physical Damage']);
+    expect(r.resolved[0]!.modId).toBe('Bows/LocalPhysicalDamage');
+    expect(r.resolved[0]!.sanctified).toBe(false);
+  });
+
+  /**
+   * Magnitudes, so a "reduced" mod is judged like any other. Comparing raw would call a roll of 5
+   * Sanctified: the stored range is about [-24,-22], and 5 is greater than -22 while being far
+   * SMALLER than anything the mod produces.
+   */
+  it('does not claim Sanctification for a "reduced" roll that is too small', () => {
+    const r = one('Belts', ['5% reduced Flask Charges used']);
+    expect(r.resolved[0]!.modId).toBe('Belts/BeltReducedFlaskChargesUsed');
+    expect(r.resolved[0]!.sanctified).toBe(false);
+  });
+
+  it('does claim it for a "reduced" roll beyond the mod\'s largest magnitude', () => {
+    const r = one('Belts', ['90% reduced Flask Charges used']);
+    expect(r.resolved[0]!.modId).toBe('Belts/BeltReducedFlaskChargesUsed');
+    expect(r.resolved[0]!.sanctified).toBe(true);
+    expect(r.resolved[0]!.tierName).toBe('of Nourishing');
+  });
+});
+
 describe('pinning the tier', () => {
   it('names every tier the roll allows when the ranges overlap', () => {
     // Bows/LocalPhysicalDamage: Polished [[6,9],[11,16]] and Honed [[8,12],[14,21]] both hold 8/14.

@@ -163,3 +163,28 @@ describe('more mods than a side can hold', () => {
     expect(r.unresolved).toEqual(['+30 to Spirit']);
   });
 });
+
+/**
+ * Sanctification raises a modifier above what its tiers can roll (user ruling, 2026-09-09). Before
+ * this, seven of the fifty-two modifier lines on a real endgame character read as "no tier fits" —
+ * which is how a player's finest item looks to the app like an item it cannot read.
+ */
+describe('a Sanctified modifier', () => {
+  it('is settled at the best tier and marked, rather than left needing an answer', () => {
+    const r = read(item('+18% to all Elemental Resistances',
+      'Item Class: Rings\nRarity: Rare\nX Y\nGold Ring'))!;
+    const row = r.rows[0]!;
+    expect(row.sanctified).toBe(true);
+    expect(row.modId).toBe('Rings/AllResistances');
+    expect(row.tierDisplay).toBe(1);
+    expect(isSettled(row)).toBe(true);
+    expect(itemModsFrom(r).suffixes).toEqual([{ modId: 'Rings/AllResistances', tierDisplay: 1 }]);
+  });
+
+  it('leaves an ordinary roll unmarked', () => {
+    const r = read(item('+15% to all Elemental Resistances',
+      'Item Class: Rings\nRarity: Rare\nX Y\nGold Ring'))!;
+    expect(r.rows[0]!.sanctified).toBe(false);
+    expect(r.rows[0]!.tierDisplay).toBe(1);
+  });
+});

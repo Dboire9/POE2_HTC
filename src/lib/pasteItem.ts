@@ -63,6 +63,9 @@ export interface PasteRow {
   readonly desecrated: boolean;
   /** Set when these lines also read as one modifier per line — the grouping is a question. */
   readonly canSplit: boolean;
+  /** The roll is above anything the mod can produce, so it was Sanctified and reads as the best
+   *  tier. Worth showing: it is the difference between "your best mod" and "unreadable". */
+  readonly sanctified: boolean;
 }
 
 export interface PasteReading {
@@ -124,6 +127,7 @@ function toRow(
     fractured: from.some((m) => m.fractured),
     desecrated: from.some((m) => m.desecrated),
     canSplit: line.alternative !== undefined,
+    sanctified: line.sanctified,
   };
 }
 

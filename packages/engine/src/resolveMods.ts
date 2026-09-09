@@ -59,6 +59,24 @@ export interface ResolvedLine {
   /** The tier, when the values pin exactly one. Undefined when they do not — offer `tierNames`. */
   readonly tierName: string | undefined;
   /**
+   * The roll is HIGHER than this mod can roll, which means it was Sanctified.
+   *
+   * Sanctification raises a modifier's value above what any tier of it produces (user ruling,
+   * 2026-09-09 — it is not derivable from the shipped data, which only knows what can be rolled). So
+   * a value over the top tier's maximum is not bad data and not a stale patch: it is a mod that was
+   * already at its best and then pushed further. `tierName` is the best tier accordingly, because
+   * that is the truthful reading — the mod is at least T1 — and leaving it unresolved would report a
+   * player's finest item as unreadable.
+   *
+   * Measured on fubgun's gear the day this was added: 7 of 52 modifier lines. Every one of those
+   * items was desecrated.
+   *
+   * It is only claimed when the roll is above the best tier's max and below NOTHING — a value under
+   * the bottom of a range is evidence of a misread, not of Sanctification, and two of the nine
+   * over-range lines on that character were exactly that (a hybrid grouping taken wrongly).
+   */
+  readonly sanctified: boolean;
+  /**
    * The same lines read as ONE MOD PER LINE, when that reading also resolves.
    *
    * Present only on a multi-line group, and it means the grouping itself is undecidable. `Bows`
@@ -164,6 +182,33 @@ const fitsTier = (t: Tier, values: readonly number[]): boolean =>
   t.ranges.length !== values.length || t.ranges.every((r, i) => within(r, values[i]!));
 
 /**
+ * Is this roll above everything the mod can produce? Then it was Sanctified — see `sanctified`.
+ *
+ * Judged against the BEST tier rather than against "no tier fits", because those are different
+ * claims: a roll can fit no tier by being too small, by being read as the wrong mod, or by two
+ * printed lines having been grouped as one modifier they are not. Only "at or above the top, and
+ * below none of it" is evidence of the mechanic.
+ */
+function aboveEveryTier(mod: Mod, values: readonly number[]): boolean {
+  const best = mod.tiers.at(-1);
+  if (!best || best.ranges.length !== values.length || values.length === 0) return false;
+  let higher = false;
+  for (const [i, range] of best.ranges.entries()) {
+    // MAGNITUDES, which makes one comparison serve both directions. A "reduced" mod stores its range
+    // negative and the game prints the magnitude, so "more than the mod can roll" is a bigger number
+    // on screen either way; comparing raw would need the sign flip `within` does, and would then have
+    // to flip the direction of the comparison as well, since more negative is BETTER there. No
+    // shipped range spans zero (checked: 0 of them), so magnitude never loses information.
+    const lo = Math.min(...range.map(Math.abs));
+    const hi = Math.max(...range.map(Math.abs));
+    const v = Math.abs(values[i]!);
+    if (v < lo) return false;
+    if (v > hi) higher = true;
+  }
+  return higher;
+}
+
+/**
  * Which tiers of `mod` could have produced `values`.
  *
  * A single-tier mod returns that tier whatever the values say — there is nothing to choose between,
@@ -242,17 +287,25 @@ function one(
   const a = attempt(cands.filter((c) => c.lines === window.length), window.join('\n'), level);
   if (!a) return undefined;
   // The roll is EVIDENCE, not a preference: a candidate whose ranges cannot produce these values did
-  // not produce them. Only drop them when something is left, so an off-range roll — a legacy item, or
-  // data drifting from the game — still resolves rather than vanishing.
+  // not produce them. Only drop them when something is left, so an off-range roll still resolves
+  // rather than vanishing — a Sanctified mod is above every range by design and must not disappear
+  // for it.
   const fitting = a.modIds.filter((_, i) => a.tiers[i]!.length > 0);
   const modIds = fitting.length > 0 ? fitting : a.modIds;
   const modId = pick(modIds, byId);
   const tiersOf = new Map(modIds.map((id) => [id, a.tiers[a.modIds.indexOf(id)]!.map((t) => t.name)]));
   // Derived, never computed a second way, so the two can never disagree about one mod's tiers.
-  const tierNames = (modId === undefined ? undefined : tiersOf.get(modId)) ?? [];
+  const fittingTiers = (modId === undefined ? undefined : tiersOf.get(modId)) ?? [];
+  // A Sanctified roll fits no tier by being ABOVE them all, and reads as the best tier.
+  const sanctified = modId !== undefined && fittingTiers.length === 0 && aboveEveryTier(byId(modId), a.values);
+  const best = sanctified ? byId(modId).tiers.at(-1)!.name : undefined;
+  const tierNames = best === undefined ? fittingTiers : [best];
   return {
-    lines: [...window], modIds, modId, values: a.values, tiersOf, tierNames,
+    lines: [...window], modIds, modId, values: a.values,
+    tiersOf: best === undefined || modId === undefined ? tiersOf : new Map(tiersOf).set(modId, tierNames),
+    tierNames,
     tierName: tierNames.length === 1 ? tierNames[0]! : undefined,
+    sanctified,
   };
 }
 

@@ -1,5 +1,6 @@
 import type { PatchData } from '../../packages/engine/src/types.ts';
 import { familiesOf } from '../../packages/engine/src/pool.ts';
+import { runeRoute } from '../../packages/engine/src/runeConvert.ts';
 import type { ImportedItem, ItemModInput } from './engineTypes.ts';
 // The shipped answer, not the source: `tools/streamers/fetch.mjs` did the resolving in Node, because
 // it needs `tiers[].stats` and `shipMods.ts` strips that column from the asset a browser downloads.
@@ -69,10 +70,36 @@ export function loadStreamers(): Promise<StreamerFile> {
 }
 
 export interface GearReading {
-  /** What "Use this item" would hand the tab. */
+  /**
+   * What the character actually HOLDS, as far as this planner can represent it.
+   *
+   * Not always the whole item: an `ItemState` cannot carry two modifiers of one exclusion family, and
+   * a real item can. What that costs is reported in `omitted`, never hidden.
+   */
   readonly item: ImportedItem;
   /**
-   * Why each modifier the character holds is NOT on that item — one finished sentence each.
+   * What to AIM AT to end up with that item — which is NOT always the same list.
+   *
+   * The Aldur case is why. A staff carrying two `Gain as Extra Fire` was not crafted by rolling the
+   * same modifier twice, which no item allows; it was crafted by rolling fire AND cold — different
+   * families, perfectly legal together — and then socketing a Passion of Aldur, which converts the
+   * cold one to fire. So the GOAL is a six-modifier cross-family item plus a rune, and quoting the
+   * five-modifier craft instead would answer a question nobody asked, about an item nobody owns.
+   *
+   * Identical to `item` whenever no rune route applies, which is every other item measured.
+   */
+  readonly goal: ImportedItem;
+  /** The rune the goal ends on, when `goal` differs from `item`. */
+  readonly rune?: {
+    readonly rune: string;
+    readonly element: string;
+    readonly caveat: string;
+    readonly priceKey: string;
+    /** What the goal rolls instead, in the goal's own words — for the sentence the panel prints. */
+    readonly converts: readonly string[];
+  };
+  /**
+   * Why each modifier the character holds is NOT on `item` — one finished sentence each.
    *
    * Empty is the claim that the import is exact. Nothing else in the panel is allowed to say so.
    */
@@ -84,22 +111,25 @@ export interface GearReading {
 /** Same cap the game applies, and the reason over-full sides are reported rather than silently cut. */
 const SIDE_CAP = 3;
 
+interface Placed {
+  readonly prefixes: ItemModInput[];
+  readonly suffixes: ItemModInput[];
+  readonly omitted: string[];
+}
+
 /**
- * Turn one gear entry into the Item tab's shape, and account for everything that did not fit.
+ * Lay modifiers onto an item, applying the two rules an item obeys, and say what would not fit.
  *
- * Four things can drop a modifier, and each gets its own sentence because the fix differs:
- *   - the patch data has no such mod id (the gear file and the app disagree — a refresh is due);
- *   - a second modifier of one exclusion family, which the engine cannot represent at all;
- *   - more than three of a side;
- *   - the job could not read it in the first place (`unresolved`).
+ * One walk, used twice — once for what the character holds and once for the goal — so the held item
+ * and the craft that produces it can never disagree about what is legal.
  */
-export function readGear(data: PatchData, it: StreamerItem): GearReading {
+function place(data: PatchData, mods: readonly { modId: string; tierDisplay: number; fractured?: boolean; desecrated?: boolean }[]): Placed {
   const prefixes: ItemModInput[] = [];
   const suffixes: ItemModInput[] = [];
   const omitted: string[] = [];
   const seen = new Set<string>();
 
-  for (const m of it.mods) {
+  for (const m of mods) {
     const mod = data.mods.get(m.modId);
     if (!mod) {
       omitted.push(`${m.modId} — this app’s ${data.patch} data has no such modifier, so the gear file is out of date.`);
@@ -108,13 +138,13 @@ export function readGear(data: PatchData, it: StreamerItem): GearReading {
     const label = mod.text ?? m.modId;
 
     // Family exclusion is the invariant every probability rests on: an ItemState cannot hold two of
-    // one family. The game CAN — a Passion of Aldur converts a second "gain as extra" into a sibling
-    // of the first — so this is a limit of the planner, not of the game, and it says which.
+    // one family. The game CAN, via a rune conversion — which is why the GOAL substitutes a sibling
+    // rather than relying on this branch. Reaching here means no route was available.
     const families = familiesOf(mod);
     const clash = families.find((f) => seen.has(f));
     if (clash !== undefined) {
       omitted.push(
-        `${label} — the item holds two modifiers of the ${clash} family. The game allows it (a Passion of Aldur converts one into a sibling of the other); this planner cannot represent it, so the second is left off.`,
+        `${label} — the item holds two modifiers of the ${clash} family. The game allows it; this planner cannot represent an item that does, so the second is left off here.`,
       );
       continue;
     }
@@ -132,19 +162,75 @@ export function readGear(data: PatchData, it: StreamerItem): GearReading {
       ...(m.desecrated ? { desecrated: true } : {}),
     });
   }
+  return { prefixes, suffixes, omitted };
+}
 
+/**
+ * Turn one gear entry into the Item tab's shape, and account for everything that did not fit.
+ *
+ * Four things can drop a modifier from the HELD item, and each gets its own sentence because the fix
+ * differs: the patch data has no such id (the two files are out of step); a second modifier of one
+ * exclusion family; more than three of a side; or the job could not read the line at all.
+ *
+ * The GOAL is built separately, and a family duplicate that a rune explains is substituted there
+ * rather than dropped — see `GearReading.goal`.
+ */
+export function readGear(data: PatchData, it: StreamerItem): GearReading {
+  const held = place(data, it.mods);
+  const omitted = [...held.omitted];
   for (const u of it.unresolved) {
     omitted.push(`${u} — the gear reader could not match this line to a craftable modifier.`);
   }
 
-  return {
-    item: { baseId: it.baseId, level: it.level, rarity: 'rare', prefixes, suffixes },
-    omitted,
+  const item: ImportedItem = { baseId: it.baseId, level: it.level, rarity: 'rare', ...held };
+  const blocked = it.corrupted
     // A Corrupted item takes no further currency, so importing it would offer a craft that cannot be
     // performed. Reported rather than hidden: the gear is still worth looking at.
-    ...(it.corrupted ? { blocked: 'Corrupted — no currency can modify it further.' } : {}),
-  };
+    ? { blocked: 'Corrupted — no currency can modify it further.' }
+    : {};
+
+  // ── The goal: the same item, reached the way it was really made ─────────────
+  const base = data.bases.get(it.baseId);
+  const copies = new Map<string, number>();
+  for (const m of it.mods) copies.set(m.modId, (copies.get(m.modId) ?? 0) + 1);
+
+  const substitute = new Map<string, string[]>();
+  let rune: GearReading['rune'];
+  if (base) {
+    for (const [modId, n] of copies) {
+      if (n < 2) continue;
+      const route = runeRoute(data, base, modId, n);
+      if (!route) continue;
+      substitute.set(modId, [...route.targets]);
+      rune = {
+        rune: route.rune,
+        element: route.element,
+        caveat: route.caveat,
+        priceKey: route.priceKey,
+        converts: route.targets.map((id) => data.mods.get(id)?.text ?? id),
+      };
+    }
+  }
+
+  if (substitute.size === 0) return { item, goal: item, omitted, ...blocked };
+
+  // Each copy takes the next target of its route, so the wanted element keeps its own tier and the
+  // siblings take the tiers of the copies they stand in for.
+  const used = new Map<string, number>();
+  const goalMods = it.mods.map((m) => {
+    const list = substitute.get(m.modId);
+    if (!list) return m;
+    const k = used.get(m.modId) ?? 0;
+    used.set(m.modId, k + 1);
+    return { ...m, modId: list[k] ?? m.modId };
+  });
+  const goalPlaced = place(data, goalMods);
+  const goal: ImportedItem = { baseId: it.baseId, level: it.level, rarity: 'rare', ...goalPlaced };
+  return { item, goal, omitted, ...(rune ? { rune } : {}), ...blocked };
 }
 
-/** How many modifiers a reading actually placed. */
+/** How many modifiers a reading places on the item the character holds. */
 export const placedCount = (r: GearReading): number => r.item.prefixes.length + r.item.suffixes.length;
+
+/** How many the GOAL aims at — larger than `placedCount` exactly when a rune route applies. */
+export const goalCount = (r: GearReading): number => r.goal.prefixes.length + r.goal.suffixes.length;

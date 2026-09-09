@@ -122,3 +122,41 @@ describe('the streamer gear tab', () => {
     expect(await screen.findByText(/Couldn’t load the gear file/)).toBeInTheDocument();
   });
 });
+
+
+/**
+ * The staff the rune made. `I own this one` gets what the planner can HOLD; the two goal routes get
+ * what you would CRAFT, which is one modifier larger and 2.9x dearer. Sending the held version to a
+ * planner quotes a cheaper craft for an item nobody owns.
+ */
+describe('an item a rune made', () => {
+  const staffOf = () => file.characters[0]!.items.find((i) => i.familyConflict.length > 0)!;
+
+  it('sends the GOAL to the two craft routes and the HELD item to “I own this one”', async () => {
+    const { user, routes } = await open();
+    const staff = staffOf();
+    await user.click(screen.getByRole('button', { name: new RegExp(staff.name) }));
+
+    await user.click(screen.getByRole('button', { name: /Craft this from scratch/ }));
+    await user.click(screen.getByRole('button', { name: /I have some of these/ }));
+    await user.click(screen.getByRole('button', { name: /I own this one/ }));
+
+    const count = (m: ReturnType<typeof vi.fn>) => {
+      const it = vi.mocked(m).mock.calls[0]![0] as { prefixes: unknown[]; suffixes: unknown[] };
+      return it.prefixes.length + it.suffixes.length;
+    };
+    expect(count(routes.scratch), 'scratch aims at the whole item').toBe(staff.mods.length);
+    expect(count(routes.aim), 'aim targets the whole item').toBe(staff.mods.length);
+    expect(count(routes.own), 'own loads only what can be held').toBe(staff.mods.length - 1);
+  });
+
+  it('says a rune finishes the craft, and which one', async () => {
+    const { user } = await open();
+    await user.click(screen.getByRole('button', { name: new RegExp(staffOf().name) }));
+    const note = (await screen.findByText(/This one was made with a rune/)).closest('p')!;
+    // Named twice on purpose — once as the step that finishes the craft, once in the caveat about
+    // what it converts — so this asserts the paragraph, not a unique node.
+    expect(note.textContent).toMatch(/passion-of-aldur/);
+    expect(note.textContent).toMatch(/cross-family modifiers/);
+  });
+});

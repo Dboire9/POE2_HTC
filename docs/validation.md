@@ -3509,6 +3509,43 @@ Running the real build in a browser, not the suite.
 One copy bug too: JSX drops whitespace between an element and text across a line break, and the gear
 tab shipped reading "makes it the target on *I have an item*and leaves your own item alone".
 
+## The engine against a real character's gear (2026-09-09)
+
+All nine of fubgun's items, crafted from a white base of the same kind, at 20M sweeps.
+
+| item | targets | solve | cost from white |
+|---|---|---|---|
+| BodyArmour Corpse Mantle | 6 | 2.6 s | 3,778 ex |
+| Boots Empyrean Pace | 6 | 2.8 s | 4,223 ex |
+| Weapon2 Phoenix Core | 5 | 1.6 s | 7,513 ex |
+| Helm Kraken Crest | 6 | 13 s | 8,920 ex |
+| Gloves Horror Mitts | 6 | 3.8 s | 12,490 ex |
+| Amulet Pain Collar | 5 | 19 s | 18,540 ex |
+| **Weapon Dire Spire** | **6 + rune** | **4.8 s** | **19,415 ex + 12.13** |
+| Ring2 Miracle Twirl | 6 | 8.8 s | 85,780 ex |
+| Ring Damnation Circle | 6 | 24 s | 317,100 ex |
+
+Every one returns `bound: exact`. Seven were Monte-Carlo checked against V by walking the solver's own
+policy graph (2,000 runs): ratios 0.948-1.012. The two rings are too long-odds to sample, which is a
+limit of the check and not a result.
+
+### The Dire Spire row is a correction
+
+It was first measured at **6,615 ex for five targets**, because the reading dropped the second
+`Gain as Extra Fire` — two of one family, which `ItemState` cannot hold — and the craft routes were
+handed that five-modifier item. The user caught it: the staff has six modifiers, and the sixth is a
+CONVERSION, not an absence. Rolling fire AND cold is legal (different families) and a Passion of Aldur
+then converts the cold one, which is how the item was really made.
+
+So a gear reading now carries two items: `item` (what can be held, five) and `goal` (what to aim at,
+six plus the rune). The honest number is **2.9x** the one first reported — the conflation did not just
+misdescribe the craft, it flattered it.
+
+Caveats that remain, and where they land: **4 sanctified modifiers, all on this same staff** (read as
+T1, so its craft is still a floor on the real item); **7 of 9 items carry a desecrated modifier**, and
+that pool's spawn weight is the engine's one measured-not-published input (2,500 assumed, range
+1,995-3,981 from 40 bones — see D4).
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

@@ -3,7 +3,7 @@ import type { PatchData } from '../../../packages/engine/src/types.ts';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import {
-  loadStreamers, readGear, placedCount,
+  loadStreamers, readGear, placedCount, goalCount,
   type GearReading, type StreamerFile, type StreamerItem,
 } from '../../lib/streamerGear';
 import type { ImportedItem } from '../../lib/engineTypes';
@@ -24,6 +24,11 @@ import { craftFromScratch, importToItem, useAsTarget } from '../../lib/importIte
  *   - **Craft it from scratch** — its modifiers become targets on a white base of the same kind.
  *   - **Aim at it** — its modifiers become the target while YOUR item stays put, which is the
  *     "I already have two of these six, what now?" question.
+ *
+ * THE TWO GOAL ROUTES SEND `goal`, NOT `item`, AND ON ONE REAL ITEM THOSE DIFFER. A staff carrying
+ * two `Gain as Extra Fire` cannot be held by this planner — one family, twice — but it is perfectly
+ * craftable: roll fire AND cold, then socket a Passion of Aldur, which converts the cold one. Sending
+ * the five-modifier version would have quoted a cheaper craft for an item nobody owns.
  *
  * IT IS A SNAPSHOT, AND IT SAYS SO. The resolving happened in a periodic job (`tools/streamers/`),
  * because it needs a column the browser's copy of the mod data does not carry; what ships is the
@@ -190,14 +195,29 @@ const StreamerGear: React.FC<{ data: PatchData; routes?: GearRoutes }> = ({ data
               ? 'Nothing to take from this one — it is finished.'
               : reading.omitted.length === 0
                 ? `All ${placedCount(reading)} modifiers come across.`
-                : `${placedCount(reading)} of ${placedCount(reading) + reading.omitted.length} modifiers come across, for the reasons above.`}
+                : `${placedCount(reading)} of ${placedCount(reading) + reading.omitted.length} modifiers come across as the item you hold, for the reasons above.`}
           </p>
 
+          {/* The craft that actually produces this item, when it is not the item itself. Printed
+              BEFORE the buttons, because it changes what two of the three of them do. */}
+          {reading.rune && (
+            <p className="rounded border border-sky-500/40 bg-sky-500/5 px-2 py-1.5 text-[11px] text-sky-200">
+              <strong>This one was made with a rune.</strong> It holds two modifiers of one family,
+              which no amount of currency can roll — so the craft aims at{' '}
+              <strong>{goalCount(reading)} cross-family modifiers</strong> (
+              {reading.rune.converts.join(' and ')}) and finishes by socketing a{' '}
+              <strong>{reading.rune.rune}</strong>, which converts them all to {reading.rune.element}.
+              <em> Craft this from scratch</em> and <em>I have some of these</em> plan that craft;
+              {' '}<em>I own this one</em> loads the {placedCount(reading)} this planner can hold.
+              <br />{reading.rune.caveat}
+            </p>
+          )}
+
           <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" onClick={() => routes.scratch(reading.item)} disabled={blocked}>
+            <Button size="sm" onClick={() => routes.scratch(reading.goal)} disabled={blocked}>
               Craft this from scratch →
             </Button>
-            <Button size="sm" variant="outline" onClick={() => routes.aim(reading.item)} disabled={blocked}>
+            <Button size="sm" variant="outline" onClick={() => routes.aim(reading.goal)} disabled={blocked}>
               I have some of these →
             </Button>
             <Button size="sm" variant="outline" onClick={() => routes.own(reading.item)} disabled={blocked}>

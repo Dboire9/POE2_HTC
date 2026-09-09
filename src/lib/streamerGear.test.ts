@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
-import { readGear, placedCount, type StreamerFile, type StreamerItem } from './streamerGear';
+import { readGear, placedCount, goalCount, type StreamerFile, type StreamerItem } from './streamerGear';
 
 const data = loadPatch('data/patches/0.5.0');
 const file = JSON.parse(readFileSync('data/streamers/0.5.0.json', 'utf8')) as StreamerFile;
@@ -79,7 +79,9 @@ describe('readGear', () => {
     expect(placedCount(r)).toBe(staff.mods.length - 1);
     expect(r.omitted).toHaveLength(1);
     expect(r.omitted[0]).toContain('two modifiers of the');
-    expect(r.omitted[0]).toContain('Passion of Aldur');
+    // The rune belongs to the GOAL, not to this sentence: what you HOLD really is short one modifier,
+    // and what you would CRAFT is not. Saying "a rune explains it" here would blur the two.
+    expect(r.rune?.rune).toBe('passion-of-aldur');
 
     // The invariant the drop exists to protect: no family twice on the item handed to the tab.
     const families = [...r.item.prefixes, ...r.item.suffixes]
@@ -145,6 +147,80 @@ describe('readGear', () => {
       const r = readGear(data, it);
       expect(placedCount(r) + r.omitted.length, it.name)
         .toBe(it.mods.length + it.unresolved.length);
+    }
+  });
+});
+
+
+/**
+ * The Aldur staff, and the reason `goal` exists at all.
+ *
+ * The item holds two `Gain as Extra Fire`. No currency can roll that — one family, twice — so an
+ * `ItemState` cannot represent it and `item` carries five. But the item is not impossible: it was
+ * made by rolling fire AND cold, which are different families and coexist perfectly, then socketing
+ * a Passion of Aldur, which converts the cold one. Quoting the five-modifier craft as "the plan for
+ * this staff" would be answering about an item nobody owns — and it is CHEAPER, so it would flatter
+ * the craft as well as misdescribe it.
+ */
+describe('an item a rune made', () => {
+  const staff = (): StreamerItem => itemAt('Weapon');
+
+  it('aims at one more modifier than it can hold', () => {
+    const r = readGear(data, staff());
+    expect(placedCount(r)).toBe(staff().mods.length - 1);
+    expect(goalCount(r)).toBe(staff().mods.length);
+  });
+
+  it('names the rune, its element, and what it converts', () => {
+    const r = readGear(data, staff());
+    expect(r.rune?.rune).toBe('passion-of-aldur');
+    expect(r.rune?.element).toBe('fire');
+    expect(r.rune?.converts).toHaveLength(2);
+  });
+
+  /** The substitution has to be legal, or the goal is an item the game forbids too. */
+  it('substitutes a SIBLING, so every goal modifier is a different family', () => {
+    const r = readGear(data, staff());
+    const ids = [...r.goal.prefixes, ...r.goal.suffixes].map((m) => m.modId);
+    expect(new Set(ids).size, 'no modifier twice').toBe(ids.length);
+    const fams = ids.flatMap((id) => {
+      const m = data.mods.get(id)!;
+      return m.families ?? [m.family];
+    });
+    expect(new Set(fams).size, 'no family twice').toBe(fams.length);
+  });
+
+  /**
+   * The wanted element keeps its own tier; the sibling stands in for the copy it replaces.
+   *
+   * BOTH copies on the real staff are T1, so the shipped fixture cannot tell a correct pairing from a
+   * swapped one — mutating the index left every test green. Built here instead, with the copies at
+   * different tiers, which is the only way this rule is observable.
+   */
+  it('gives each substituted sibling the tier of the copy it replaces', () => {
+    const two: StreamerItem = {
+      ...staff(),
+      mods: [
+        { modId: 'Staves/DamageGainedAsFire', tierDisplay: 1, fractured: false, desecrated: false, sanctified: false },
+        { modId: 'Staves/DamageGainedAsFire', tierDisplay: 4, fractured: false, desecrated: false, sanctified: false },
+      ],
+    };
+    const r = readGear(data, two);
+    const goal = [...r.goal.prefixes, ...r.goal.suffixes];
+    expect(goal).toHaveLength(2);
+    // Route order is [wanted element, then siblings], paired with the copies in the order they appear.
+    expect(goal.find((g) => g.modId === 'Staves/DamageGainedAsFire')?.tierDisplay).toBe(1);
+    expect(goal.find((g) => g.modId === 'Staves/DamageGainedAsCold')?.tierDisplay).toBe(4);
+  });
+
+  /** Every other item is untouched: goal IS the item, and no rune is claimed. */
+  it('leaves an ordinary item alone', () => {
+    for (const it of gear.items) {
+      const r = readGear(data, it);
+      if (it.familyConflict.length > 0) continue;
+      expect(r.rune, it.name).toBeUndefined();
+      expect(goalCount(r), it.name).toBe(placedCount(r));
+      expect(r.goal).toBe(r.item);
     }
   });
 });

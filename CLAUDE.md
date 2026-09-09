@@ -259,6 +259,18 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   **The Item tab has a Reset now**, on the same contract as the Lab's: it keeps the base and item
   level and clears the modifiers, the target and any result. The Lab has had one since it shipped;
   here the only way to start over was to remove six modifiers one at a time.
+  **A GEAR READING HAS TWO ITEMS, AND CONFLATING THEM QUOTED A CRAFT FOR AN ITEM NOBODY OWNS**
+  (2026-09-09, caught by the user). `GearReading.item` is what the planner can HOLD; `GearReading.goal`
+  is what to AIM AT, and on the Aldur staff those differ. The staff carries two `Gain as Extra Fire` —
+  one family twice, which no currency can roll — so `item` has five modifiers. But the item is not
+  impossible: it was made by rolling fire AND cold (different families, legal together) and socketing
+  a Passion of Aldur. `readGear` now asks `runeRoute` and SUBSTITUTES the sibling in `goal` rather than
+  dropping it, so the two craft routes plan six targets and the panel names the rune that finishes
+  them. Measured: the five-target craft is **6,615 ex** and the real six-target one **19,415 ex + 12.13
+  for the rune — 2.9x dearer**, so the old answer flattered the craft as well as misdescribing it.
+  `I own this one` still loads the five, because that IS the limit on what can be held.
+  The pairing rule (each substituted sibling takes the tier of the copy it replaces) is invisible on
+  the shipped fixture — both fire copies are T1 — so its test builds an item with two tiers instead.
   **The panel is `StreamerGear.tsx`, and its whole job is naming what it left off.** `readGear`
   (`src/lib/streamerGear.ts`) turns one gear entry into the Item tab's shape and returns a SENTENCE per
   modifier that did not make it — a mod id this app no longer has (the two files refreshed apart), a

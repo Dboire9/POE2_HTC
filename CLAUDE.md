@@ -330,6 +330,17 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 
 ## Testing
 
+- **`scripts/policy-vs-mc.mts` checks the SOLVE, not the pools.** It walks `markovFromItem`'s own
+  policy graph, samples its edges and averages real spend; mean → V, so a persistent gap is a defect
+  in value iteration, self-loop handling or policy extraction — none of which the hand-computed unit
+  tests exercise at the scale of a real craft. **Read the SIGN COUNT across seeds, never the z from
+  one.** The cost distribution is heavy-tailed, and for heavy tails the sample variance understates
+  the true variance, so the SE comes out too small and |z| is inflated; a bias keeps its sign across
+  independent seeds and noise does not. As of 2026-09-09 two of seven items sit outside 2 SE
+  (Pain Collar at z = −3.37) and the multi-seed follow-up has NOT been run to completion — that is an
+  open question in docs/validation.md, not a pass.
+
+
 - Unit tests per currency rule on tiny synthetic pools (3–5 fake mods) with hand-computed expected probabilities.
 - Optimizer self-check: 100k MC runs of recommended plan match analytic success % / cost within tolerance.
 - Cross-validate vs craftofexile.com/?game=poe2; log divergences in `docs/validation.md`.

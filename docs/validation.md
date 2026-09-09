@@ -3525,9 +3525,43 @@ All nine of fubgun's items, crafted from a white base of the same kind, at 20M s
 | Ring2 Miracle Twirl | 6 | 8.8 s | 85,780 ex |
 | Ring Damnation Circle | 6 | 24 s | 317,100 ex |
 
-Every one returns `bound: exact`. Seven were Monte-Carlo checked against V by walking the solver's own
-policy graph (2,000 runs): ratios 0.948-1.012. The two rings are too long-odds to sample, which is a
-limit of the check and not a result.
+Every one returns `bound: exact`.
+
+### Monte Carlo against V — five clean, two OPEN
+
+`scripts/policy-vs-mc.mts` walks the solver's own policy graph, samples its transition edges and
+averages the real spend. At **50,000 runs, one seed**:
+
+| item | V (ex) | MC mean | ±2 SE | z |
+|---|---|---|---|---|
+| Corpse Mantle | 3,778 | 3,773 | ±34 | −0.32 |
+| Empyrean Pace | 4,223 | 4,229 | ±37 | +0.31 |
+| Phoenix Core | 7,513 | 7,508 | ±67 | −0.15 |
+| Kraken Crest | 8,920 | 8,931 | ±64 | +0.31 |
+| Horror Mitts | 12,490 | 12,480 | ±111 | −0.13 |
+| Dire Spire (5-target form) | 6,615 | 6,682 | ±59 | **+2.27** |
+| Pain Collar | 18,540 | 18,300 | ±147 | **−3.37** |
+
+**This is UNRESOLVED and must not be read as a pass.** Across seven items you would expect ~0.35
+exceedances of 2 SE, not two, and z = −3.37 is not a coin-flip. There are two candidate explanations
+and they need opposite responses:
+
+- **Heavy tails.** A run is a geometric-ish number of cheap restarts with a long tail, and for heavy
+  tails the SAMPLE variance understates the true variance — so the SE is too small and z is inflated.
+  Then these are non-events.
+- **A real bias** between the policy graph the MC walks and the transition model VI solved. Then it is
+  a defect, and one no unit test would catch.
+
+**One seed cannot distinguish them; independent seeds can.** A bias keeps its SIGN across seeds,
+sampling noise does not, so the test is the sign count and not the z. That sweep was attempted twice
+and has not been run to completion — 8 seeds x 20,000 runs over three items is ~480,000 policy walks
+and had not finished one item in 25 minutes. Run it small first:
+
+    npx tsx scripts/policy-vs-mc.mts 4000 8
+
+The two rings are skipped by the script: their odds are long enough that a run walks millions of
+restarts before it succeeds, so sampling them is intractable rather than informative. That is a limit
+of the check, not a result about those items.
 
 ### The Dire Spire row is a correction
 

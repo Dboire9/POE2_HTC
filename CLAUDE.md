@@ -540,11 +540,20 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   Differentially tested: each single-modifier row equals an actual `markovFromItem` solve from an item
   holding that modifier, to 6 decimals. Without that check it is a plausible-looking number nobody
   computed.
-  **The finding it exists to surface: a modifier already on the item can leave you WORSE OFF than an
-  empty base.** On a real 4-target Wand craft, holding `Increased Mana` costs 8,205 ex against 8,189
-  bare — it occupies a prefix slot the rest of the craft needs, and it is cheap enough to roll that
-  having it saves nothing. `startingItem.ts` names those explicitly, because it is the least guessable
-  thing in the panel and the difference between paying for a head start and paying for a handicap.
+  **A modifier already on the item CAN leave you worse off than an empty base — by 0.03% to 0.20%.**
+  It happens on most crafts (6 of 7 synthetic, every one of fubgun's real items), because the mod
+  occupies a slot the rest of the craft needs and is cheap enough to roll that having it saves
+  nothing. The first version of this panel called that a TRAP and the commit called it "the difference
+  between paying for a head start and paying for a handicap"; the measurement said two orders of
+  magnitude less than that, so the panel prints the percentage instead of the adjective and the copy
+  is "worth nothing, don't pay extra", not "avoid". See docs/validation.md 2026-09-09.
+  **The effect that IS large is the back-loading**, which docs/validation.md already found on
+  2026-09-03: five of six modifiers already on the item saved 97% on one real Helm and 27% on a real
+  Ring, so "the last mod is everything" is a property of which mod is rare on that base rather than a
+  rule. That spread is exactly why the table shows the best set at each SIZE.
+  **Two positions in one holding can print identically** — 8 base/text collisions in 0.5.0, all the
+  `ItemFoundRarity` prefix/suffix pair, which an item can carry at once. `mapMarkov` appends the side
+  on collision only; a policy-graph box shows one position at a time and never had to care.
   **The best PAIR is not the best single plus the next best** — they compete for the same three slots
   — so `buyAdvice` picks the cheapest set at each SIZE rather than ranking modifiers and stacking
   them. `startingItem.test.ts` pins that with a fixture where the two disagree.

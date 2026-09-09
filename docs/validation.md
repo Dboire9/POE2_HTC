@@ -3415,6 +3415,58 @@ market.
 the 138 poe2db rows that are `Removes: true`, `IsPerfect: 0` and NOT Alloys actually are. Both are
 their own questions.
 
+## Every subset priced at once, and a copy claim the measurement corrected (2026-09-09)
+
+The 2026-09-03 campaign above walked ONE fill order and paid for a solve per step. The whole table was
+already sitting in the lattice: value iteration solves every state, and "a clean item holding exactly
+these targets" is a cell of it — which is how `bareCost` had been read since it shipped. `holdings`
+reads out all `2^n` of them, so a six-target craft answers 64 shopping questions on a solve that
+already ran, and the 2026-09-03 finding that **which** mods you hold matters more than **how many** is
+now a thing the app shows rather than a thing this file records.
+
+Differentially checked before being believed: each single-modifier row equals an actual
+`markovFromItem` solve from an item holding that modifier, to 6 decimals (`markovFromItem.test.ts`).
+
+### The campaign — 7 synthetic crafts, then fubgun's 9 real items
+
+Every one returned `bound: exact`. Timing is the solve, not the table, which costs `2^n` map lookups.
+
+| craft | targets | solve | bare | best 1 | best n−1 |
+|---|---|---|---|---|---|
+| Wands 2p+1s | 3 | 70 ms | 1,997 ex | 8% | 46% |
+| Wands 2p+2s | 4 | 193 ms | 8,189 | 1% | 47% |
+| Wands 2p+2s T2+ | 4 | 361 ms | 44,523 | 11.6% | 45.7% |
+| Wands 2p+2s T1 | 4 | 1.2 s | 175,339 | 8.5% | 50.0% |
+| Wands 3p+2s | 5 | 744 ms | 17,444 | 1% | 50% |
+| Amulets 2p+2s | 4 | 268 ms | 39,680 | 4% | 30% |
+| Rings 3p+3s | 6 | 2.1 s | 42,354 | 0.1% | 35.7% |
+| Helmets_str 3p+3s | 6 | 2.2 s | 16,931 | 0% | 31% |
+
+Real gear, same shape and far wider spread — the Helm's five-of-six saves **97%** where the Ring's
+saves **27%**, so "the last mod is everything" is not a rule, it is a property of which mod is rare on
+that base. Solve times 0.9 s (Crossbow, 5) to 15.7 s (Ring, 6); all exact.
+
+### The correction: "trap" was an overclaim, by two orders of magnitude
+
+The first version of `WhatToBuy` called a modifier that leaves you worse off than an empty base a
+**trap**, and the commit called it "the difference between paying for a head start and paying for a
+handicap". The effect is real and common — 6 of 7 synthetic crafts and every real item had at least
+one — but measured, it is **+0.03% to +0.20%** of the bare cost. At that size it is "worth nothing,
+do not pay extra for it", not something to avoid. The panel prints the percentage instead of the
+adjective, and `WhatToBuy.test.tsx` pins that the number arrives with the claim.
+
+The effect that IS large is the back-loading the table shows, and it was already this file's finding
+in 2026-09-03. Nothing new was discovered by dramatising the small one.
+
+### One rendering bug the campaign surfaced
+
+A holding lists several positions on one line, and two of them can print identically: 8 base/text
+collisions exist in 0.5.0, all the `ItemFoundRarity` prefix/suffix pair, which an item can carry at
+once. Rendered plainly a row read `Rarity + Rarity` and looked like a bug rather than the two
+modifiers it is. `mapMarkov` appends the side on collision only, so every other row is unchanged. A
+policy-graph BOX shows one position at a time and never had to care, which is why this surfaced only
+once holdings existed.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

@@ -13,11 +13,17 @@ import type { EngineHolding } from './engineTypes.ts';
  *     "the best one to have", "the best two", and so on is the shape of the decision. Which two is
  *     often NOT the best one plus the next best — the mods compete for the same slots — so this is
  *     picked per size rather than built up greedily.
- *  2. **Which ones are worse than nothing.** Cost is back-loaded: a modifier already on the item
- *     occupies a slot the next one could have landed in, and if it is cheap to roll anyway it can
- *     leave you strictly WORSE off than an empty base. Measured on a real 4-target Wand craft,
- *     `Increased Mana` alone does exactly that — 8,205 ex against 8,189 bare. Nobody would guess it,
- *     and it is the difference between paying for a head start and paying for a handicap.
+ *  2. **Which ones are worth nothing at all.** A modifier already on the item occupies a slot the
+ *     next one could have landed in, and if it is cheap to roll anyway it can leave you strictly
+ *     WORSE off than an empty base. It happens on most crafts — 6 of 7 measured — but the SIZE of it
+ *     is what stops this being a warning: every case measured lands between **+0.03% and +0.20%** of
+ *     the bare cost. So the honest claim is "this one is worth nothing, do not pay extra for it", not
+ *     "this one is a trap". The panel prints the number rather than an adjective.
+ *
+ * WHAT THE TABLE IS REALLY FOR is the back-loading, which is enormous and which nobody guesses:
+ * across the same campaign, ONE modifier of four already on the item saved 0.1%-11.6%, while THREE of
+ * four saved 45-50%, and five of six on a Rings craft saved 35.7%. Counting modifiers is not counting
+ * progress, and a buyer paying pro-rata for "4 of 6 done" is overpaying by a wide margin.
  */
 
 export interface BuyRow {

@@ -15,9 +15,15 @@ import type { EngineMarkovResult } from '../../lib/engine';
  * often not the best one plus the next best, because they compete for the same three slots, and a
  * list of individually-good mods would recommend a pair that is worse than a different pair.
  *
- * AND IT NAMES THE TRAPS. A modifier already on the item takes a slot the next one could have landed
- * in, so a cheap one can leave you worse off than an empty base — priced as a head start, bought as a
- * handicap. That is the single most useful thing here and the least guessable.
+ * AND IT PRINTS THE SIZE OF THINGS RATHER THAN ADJECTIVES. A modifier already on the item takes a
+ * slot the next one could have landed in, so a cheap one can leave you worse off than an empty base.
+ * That happens on most crafts — but measured across seven, it is worth between +0.03% and +0.20%, so
+ * it is "this is worth nothing, do not pay extra" and NOT "this is a trap". The first draft of this
+ * panel said trap. The measurement said otherwise.
+ *
+ * The effect that IS large is the back-loading, and the table is mostly here to show it: one modifier
+ * of four saved 0.1-11.6% across that campaign, three of four saved 45-50%. Paying pro-rata for
+ * "4 of 6 done" overpays by a wide margin.
  */
 
 const Row: React.FC<{ row: BuyRow; rates?: Rates }> = ({ row, rates }) => (
@@ -45,9 +51,10 @@ const WhatToBuy: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ ma
         What to look for when you buy one
       </p>
       <p className="text-[11px] text-muted-foreground">
-        The best modifiers to already have, and what finishing costs from there. Measured against{' '}
+        The best modifiers to already have, and what finishing costs from there — measured against{' '}
         <span title={exactExalts(advice.bare)}>{formatCost(advice.bare, rates)}</span> for the same
-        base carrying none of them.
+        base carrying none of them. <strong>Cost is back-loaded</strong>, so read the percentages
+        rather than counting modifiers: the last one is usually worth more than the first few together.
       </p>
 
       <table className="w-full text-[11px]">
@@ -64,11 +71,14 @@ const WhatToBuy: React.FC<{ markov: EngineMarkovResult; rates?: Rates }> = ({ ma
       </table>
 
       {advice.worseThanNothing.length > 0 && (
-        <p className="text-[11px] text-amber-300">
-          <strong>Worth less than an empty base on its own:</strong>{' '}
-          {advice.worseThanNothing.map((r) => r.present.join(' + ')).join(', ')}. It fills a slot the
-          rest of the craft needs, and it is cheap enough to roll that having it saves nothing — so
-          paying extra for it makes the craft dearer, not cheaper.
+        <p className="text-[11px] text-muted-foreground">
+          <strong>Worth nothing on its own:</strong>{' '}
+          {advice.worseThanNothing
+            .map((r) => `${r.present.join(' + ')} (+${(-r.share * 100).toFixed(2)}%)`)
+            .join(', ')}
+          . Each fills a slot the rest of the craft needs and is cheap enough to roll anyway, so
+          finishing from one costs fractionally more than from an empty base. The amount is small —
+          this is “don’t pay extra for it”, not “avoid it”.
         </p>
       )}
 

@@ -374,6 +374,25 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
    * therefore the honest word: the item holds exactly one of these, and the plan works either way.
    */
   const label = (ids: readonly string[]): string => ids.map(text).join(' or ');
+  /**
+   * The positions of one holding, named — with the SIDE appended to any two that read alike.
+   *
+   * Eight base/text collisions exist in 0.5.0, all the `ItemFoundRarity` prefix/suffix pair, and they
+   * are two genuinely different modifiers an item can carry at once. A graph BOX shows one position
+   * at a time so it never had to care; a holding lists several on one line, where "Rarity + Rarity"
+   * reads as a rendering bug rather than as the two modifiers it is. Appended only on collision, so
+   * every other row stays as short as it was.
+   */
+  const bySide = (positions: readonly (readonly string[])[]): string[] => {
+    const labels = positions.map(label);
+    const seen = new Map<string, number>();
+    for (const l of labels) seen.set(l, (seen.get(l) ?? 0) + 1);
+    return labels.map((l, i) => {
+      if ((seen.get(l) ?? 0) < 2) return l;
+      const side = data.mods.get(positions[i]![0]!)?.type;
+      return side ? `${l} (${side})` : l;
+    });
+  };
   const nodes: EnginePolicyNode[] = res.nodes.map((nd) => ({
     key: nd.key,
     present: nd.present.map(label),
@@ -403,8 +422,9 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
     nodes, edges,
     ...(res.bareCost !== undefined ? { bareCost: res.bareCost } : {}),
     // Same `label` the graph's boxes use, so a merged same-family position reads "Fire or Cold" in
-    // both places rather than two spellings of one state.
-    ...(res.holdings ? { holdings: res.holdings.map((h) => ({ present: h.present.map(label), cost: h.cost })) } : {}),
+    // both places rather than two spellings of one state — then disambiguated, because a holding puts
+    // several positions on ONE line and two of them can print identically.
+    ...(res.holdings ? { holdings: res.holdings.map((h) => ({ present: bySide(h.present), cost: h.cost })) } : {}),
     ...(res.reason ? { reason: res.reason } : {}),
   };
 }

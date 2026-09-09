@@ -3553,11 +3553,34 @@ and they need opposite responses:
   a defect, and one no unit test would catch.
 
 **One seed cannot distinguish them; independent seeds can.** A bias keeps its SIGN across seeds,
-sampling noise does not, so the test is the sign count and not the z. That sweep was attempted twice
-and has not been run to completion — 8 seeds x 20,000 runs over three items is ~480,000 policy walks
-and had not finished one item in 25 minutes. Run it small first:
+sampling noise does not, so the test is the sign count and not the z.
 
-    npx tsx scripts/policy-vs-mc.mts 4000 8
+### The seed sweep: 6 seeds x 800 runs (2026-09-09)
+
+    npx tsx scripts/policy-vs-mc.mts 800 6
+
+| item | per-seed deviation from V (%) | above V | mean of 6 |
+|---|---|---|---|
+| Corpse Mantle | +5.64 +1.96 +2.56 −4.48 +2.27 +0.22 | 5/6 | +1.36% |
+| Empyrean Pace | −0.17 −1.70 −2.17 −2.30 +3.53 −1.36 | 1/6 | −0.69% |
+| Phoenix Core | −4.25 −1.60 +1.54 +3.55 −2.81 +2.11 | 3/6 | −0.24% |
+| Kraken Crest | +4.59 +0.03 −3.53 −3.98 +2.79 +3.24 | 4/6 | +0.52% |
+| Pain Collar | −1.07 −3.06 −8.00 +0.62 −0.20 +3.74 | 2/6 | **−1.33%** |
+
+**The heavy-tail explanation is confirmed**: SD/mean ≈ 1.0 on every item and a worst single run of
+5-9x V, so the single-seed standard error really was too small and the z values were inflated. Every
+item flips sign across seeds, Pain Collar included.
+
+**But it is NOT settled, and the reason is Pain Collar.** Its mean over 6 seeds is −1.33%, against
+−1.29% from the independent 50,000-run pass — same sign, near-identical magnitude. Mixed per-seed
+signs are what you would see either way at this sample size: the seed-to-seed spread is ~4%, so the
+mean-of-means carries roughly ±1.6%, and a −1.3% bias is not distinguishable from zero by this run.
+Two measurements agreeing to 0.04 points is suggestive; it is not evidence at this precision.
+
+Next step, and it needs more than patience — at ~1% precision the sampling cost scales badly. Either
+run `policy-vs-mc.mts` at high seeds AND high runs on Pain Collar alone, or reduce variance directly
+(compare per-STATE V against a per-state MC rather than the start value, which localises any bias to
+the states that carry it). Do not record this as a pass until one of those is done.
 
 The two rings are skipped by the script: their odds are long enough that a run walks millions of
 restarts before it succeeds, so sampling them is intractable rather than informative. That is a limit

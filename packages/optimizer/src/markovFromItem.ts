@@ -118,6 +118,18 @@ export interface PolicyEdge {
   readonly regress: boolean;
 }
 
+/**
+ * One candidate STARTING item: some of the targets already on it, and what finishing then costs.
+ *
+ * `present` has the same shape as `PolicyNode.present` — one entry per filled position, holding the
+ * interchangeable ids that could be filling it — so the UI renders both the same way.
+ */
+export interface Holding {
+  readonly present: readonly (readonly string[])[];
+  /** Expected cost to finish from a clean item holding exactly these. Carries the result's `bound`. */
+  readonly cost: number;
+}
+
 export interface MarkovResult {
   /** Minimum expected cost (exalt-equivalents) to reach the target under the optimal policy. */
   readonly expectedCost: number;
@@ -177,6 +189,14 @@ export interface MarkovResult {
    * returns before a lattice exists — or when the bare state is unreachable (V pinned at Infinity).
    */
   readonly bareCost?: number;
+  /**
+   * Every subset of the targets, priced as a STARTING item — "what should I look for when I buy one".
+   *
+   * Read straight out of the solved lattice, so it costs nothing and is exactly as trustworthy as
+   * `expectedCost`: same `bound`, same solve. Absent when the craft did not reach value iteration.
+   * The empty subset is present and equals `bareCost`.
+   */
+  readonly holdings?: readonly Holding[];
 }
 
 /**
@@ -1557,12 +1577,40 @@ export function markovFromItem(
   const withVisits = nodes.map((nd) => (
     { ...nd, visitRate: (forward.get(nd.key) ?? 0) * (toGoal.get(nd.key) ?? 0) }));
 
-  // The lattice already holds V for a bare item of this rarity; reading it out is the whole cost of
-  // the comparison. Omitted rather than faked when the state is unreachable and V stayed at Infinity.
-  const bareIdx = idxOfState.get(encode(0, 0, 0, 0, FLAG_NONE, s0.rarity));
-  const bare = bareIdx === undefined ? undefined : V[bareIdx];
+  /**
+   * What the craft costs from a CLEAN item already holding each SUBSET of the targets.
+   *
+   * This is free. Value iteration solved the whole lattice, and a state "holding exactly these
+   * targets, no junk" is a cell of it — so the answer to "which of these should I already have when
+   * I buy the item" is a table lookup, not 2^n more solves. `bareCost` was already read out this way
+   * for one cell; this is the same read over all of them, and `bare` is now literally the empty entry
+   * rather than a second computation that could drift from it.
+   *
+   * `encode` may canonicalise symmetric states onto one key, which is correct here rather than merely
+   * tolerable: those states have equal V by construction, which is why the reduction is sound at all.
+   *
+   * IT ASSUMES THE REST OF THE ITEM IS EMPTY (`jp`/`js` = 0). A real listing usually carries junk in
+   * the other slots and costs MORE than this to finish, so every figure here is the best case for the
+   * mods it names. The UI has to say so.
+   */
+  const holdings: Holding[] = [];
+  for (let mask = 0; mask < (1 << list.length); mask++) {
+    const idx = idxOfState.get(encode(mask, 0, 0, 0, FLAG_NONE, s0.rarity));
+    if (idx === undefined) continue;
+    const v = V[idx];
+    // Unreachable states keep V = Infinity, and one must never reach a table of costs. DEFENSIVE:
+    // no shipped craft can trip it, because `enumerateStates` emits only legal states and a feasible
+    // solve reaches all of them — the one shape that would (four prefix targets) is refused before
+    // the lattice is built, with `target needs 4 prefixes, and an item holds 3`. Mutating it away
+    // therefore changes nothing, so the test asserts the INVARIANT — every row finite — rather than
+    // pretending to cover the guard.
+    if (v === undefined || !Number.isFinite(v)) continue;
+    holdings.push({ present: list.filter((_, i) => has(mask, i)).map(idsOf), cost: v });
+  }
+  const bare = holdings.find((h) => h.present.length === 0)?.cost;
   return {
     expectedCost: startCost, feasible: true, converged, bound, nodes: withVisits, edges, policy,
-    ...(bare !== undefined && Number.isFinite(bare) ? { bareCost: bare } : {}),
+    ...(bare !== undefined ? { bareCost: bare } : {}),
+    ...(holdings.length > 0 ? { holdings } : {}),
   };
 }

@@ -1411,3 +1411,67 @@ describe('markovFromItem — a Magic start is modelled, not approximated', () =>
     expect(m.expectedCost).toBeGreaterThan(r.expectedCost);
   });
 });
+
+/**
+ * `holdings` — every subset of the targets, priced as a starting item.
+ *
+ * The claim is that these are FREE and EXACT: value iteration already solved every state, so reading
+ * out "a clean item holding these" is a table lookup. That claim is only worth anything if the number
+ * it reads matches what a real solve from that item returns, which is what the differential below
+ * checks. Frozen prices, because it asserts equality between two numbers rather than a cost.
+ */
+describe('holdings — what to look for when buying a base', () => {
+  const real = loadPatch('data/patches/0.5.0');
+  const rp = loadFrozenPrices();
+  const w = real.bases.get('Wands')!;
+  const ids = [...w.pools.normal.prefixes.slice(0, 2), ...w.pools.normal.suffixes.slice(0, 1)];
+  const targets = ids.map((modId) => ({ modId }));
+  const bare: ItemState = { base: w, level: 82, rarity: 'rare', prefixes: [], suffixes: [] };
+  const solved = markovFromItem(real, rp, bare, targets);
+
+  it('prices every subset, and the empty one IS the bare cost', () => {
+    expect(solved.holdings).toHaveLength(2 ** ids.length);
+    const empty = solved.holdings!.find((h) => h.present.length === 0)!;
+    expect(empty.cost).toBe(solved.bareCost);
+    expect(empty.cost).toBe(solved.expectedCost); // this craft STARTS bare
+  });
+
+  it('prices the finished item at nothing', () => {
+    const full = solved.holdings!.find((h) => h.present.length === ids.length)!;
+    expect(full.cost).toBe(0);
+  });
+
+  /** No row may carry Infinity into a table of costs. See the defensive guard's note at the source. */
+  it('never publishes a non-finite cost', () => {
+    for (const h of solved.holdings!) expect(Number.isFinite(h.cost), h.present.join('+')).toBe(true);
+  });
+
+  /**
+   * The differential. Each single-modifier row must equal an actual solve from an item holding that
+   * modifier — otherwise the table is a plausible-looking number nobody computed.
+   */
+  it.each([0, 1, 2])('row for target %i equals a real solve from an item holding it', (i) => {
+    const id = ids[i]!;
+    const mod = real.mods.get(id)!;
+    const held = { modId: id, tierName: mod.tiers.at(-1)!.name };
+    const start: ItemState = {
+      base: w, level: 82, rarity: 'rare',
+      prefixes: mod.type === 'prefix' ? [held] : [],
+      suffixes: mod.type === 'suffix' ? [held] : [],
+    };
+    const direct = markovFromItem(real, rp, start, targets);
+    const row = solved.holdings!.find((h) => h.present.length === 1 && h.present[0]!.includes(id))!;
+    expect(row.cost).toBeCloseTo(direct.expectedCost, 6);
+  });
+
+  /**
+   * The finding this feature exists to surface: a modifier already on the item can leave you WORSE
+   * off than an empty base. It takes a slot the rest of the craft needs, and if it is cheap to roll
+   * anyway, having it saves nothing. Nobody would guess it, and it is real on shipped data.
+   */
+  it('finds at least one single modifier that costs more than starting bare', () => {
+    const bareCost = solved.bareCost!;
+    const traps = solved.holdings!.filter((h) => h.present.length === 1 && h.cost > bareCost);
+    expect(traps.length, 'a held modifier that is worse than nothing').toBeGreaterThan(0);
+  });
+});

@@ -28,6 +28,7 @@ import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
 import QuickCurrencyCheck from './QuickCurrencyCheck';
 import PasteItem from './PasteItem';
+import WhatToBuy from './WhatToBuy';
 import RuneHint from './RuneHint';
 
 const selectCls =
@@ -1038,6 +1039,7 @@ const ItemActions: React.FC = () => {
                 </p>
               )}
               <ItemWorth markov={markov} rates={rates} />
+              <WhatToBuy markov={markov} rates={rates} />
               <p className="text-[11px] text-muted-foreground">
                 The honest average spend to reach this target, playing the optimal policy — it weighs
                 Greater/Perfect Exalts and side omens, and <strong>recovers in place</strong> after a bad roll

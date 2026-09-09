@@ -402,6 +402,9 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
     assumedOdds: [...res.policy.values()].some((a) => a.currency === 'desecrate' && a.boss === undefined),
     nodes, edges,
     ...(res.bareCost !== undefined ? { bareCost: res.bareCost } : {}),
+    // Same `label` the graph's boxes use, so a merged same-family position reads "Fire or Cold" in
+    // both places rather than two spellings of one state.
+    ...(res.holdings ? { holdings: res.holdings.map((h) => ({ present: h.present.map(label), cost: h.cost })) } : {}),
     ...(res.reason ? { reason: res.reason } : {}),
   };
 }

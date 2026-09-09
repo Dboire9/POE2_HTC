@@ -532,6 +532,26 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   real data the screening bracket is a few parts in ten thousand and the wrong comparison picks the
   same plans anyway; the rule was extracted into `bestByBudget` so a test can inject a deliberately
   useless screen. A guarantee that cannot be made to fail on real data has to be tested where it can.
+- **"WHICH OF THESE SHOULD I ALREADY HAVE?" IS A TABLE LOOKUP, NOT 2^n SOLVES** (2026-09-09). Value
+  iteration solves every state in the lattice, and "a clean item holding exactly these targets" is one
+  cell of it — `bareCost` had been reading out a single cell that way since it shipped. `holdings`
+  reads out ALL of them, so a six-target craft answers 64 shopping questions for free and `bareCost`
+  is now literally the empty entry rather than a second computation that could drift from it.
+  Differentially tested: each single-modifier row equals an actual `markovFromItem` solve from an item
+  holding that modifier, to 6 decimals. Without that check it is a plausible-looking number nobody
+  computed.
+  **The finding it exists to surface: a modifier already on the item can leave you WORSE OFF than an
+  empty base.** On a real 4-target Wand craft, holding `Increased Mana` costs 8,205 ex against 8,189
+  bare — it occupies a prefix slot the rest of the craft needs, and it is cheap enough to roll that
+  having it saves nothing. `startingItem.ts` names those explicitly, because it is the least guessable
+  thing in the panel and the difference between paying for a head start and paying for a handicap.
+  **The best PAIR is not the best single plus the next best** — they compete for the same three slots
+  — so `buyAdvice` picks the cheapest set at each SIZE rather than ranking modifiers and stacking
+  them. `startingItem.test.ts` pins that with a fixture where the two disagree.
+  `WhatToBuy` renders on BOTH tabs and refuses to draw unless `bound === 'exact'`: a table of bounds
+  compared against each other is worse than one bound, because the differences between them are not
+  bounded by anything (the `ItemWorth` rule). Every row assumes NO junk in the other slots, so a real
+  listing costs at least that to finish — the panel says so.
 - **The MDP models Chaos at BASE STRENGTH ONLY, and that is measured rather than missed.** The linear
   planner searches `chaos_greater` / `chaos_perfect` (real listings; the engine has always honoured the
   floor). Giving the MDP a matching `strength` axis was built and reverted on 2026-09-01: interleaved

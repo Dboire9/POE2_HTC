@@ -302,6 +302,13 @@ export interface EnginePolicyEdge {
   readonly regress: boolean;
 }
 
+/** One candidate starting item: target modifiers already on it, and what finishing then costs. */
+export interface EngineHolding {
+  /** Target-mod texts already on the item; a merged same-family position reads "Fire or Cold". */
+  readonly present: readonly string[];
+  readonly cost: number;
+}
+
 export interface EngineMarkovResult {
   /** False when the MDP doesn't model this target (e.g. a perfect-essence/desecrate mod) — use the frontier. */
   readonly applicable: boolean;
@@ -333,6 +340,15 @@ export interface EngineMarkovResult {
    * the start is already the target, or unreachable.
    */
   readonly bareCost?: number;
+  /**
+   * Every subset of the targets priced as a STARTING item — "which of these should I already have?"
+   *
+   * Free: value iteration solves the whole lattice and each of these is one cell of it, so this is a
+   * table lookup rather than 2^n more solves. Same `bound` as `expectedCost`. The empty subset is
+   * included and equals `bareCost`. Each assumes NO junk in the other slots, so a real listing costs
+   * at least this to finish — see `startingItem.ts`, which is the only thing that should read it.
+   */
+  readonly holdings?: readonly EngineHolding[];
   readonly nodes: readonly EnginePolicyNode[];
   readonly edges: readonly EnginePolicyEdge[];
 }

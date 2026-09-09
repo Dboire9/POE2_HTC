@@ -23,6 +23,7 @@ import {
 } from '../../lib/targetSlots';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import StreamerGear from './StreamerGear';
+import WhatToBuy from './WhatToBuy';
 import ItemActions from './ItemActions';
 import UserGuide from './UserGuide';
 import FrontierView from './FrontierView';
@@ -931,6 +932,10 @@ const EngineLab: React.FC = () => {
             The step routes below are the simpler per-plan view: one fixed sequence, every slam hitting
             a named mod.
           </p>
+          {/* On this tab the craft starts bare, so every row is a strictly better start than the one
+              being planned — which is exactly the "should I buy a base with some of these already?"
+              question a from-scratch plan raises. */}
+          <WhatToBuy markov={markov} rates={engine ? priceBasis(engine).rates : undefined} />
           <PolicyGraph result={markov} rates={engine ? priceBasis(engine).rates : undefined} />
         </Card>
       )}

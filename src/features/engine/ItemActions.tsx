@@ -26,7 +26,7 @@ import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
 import QuickCurrencyCheck from './QuickCurrencyCheck';
-import PasteItem from './PasteItem';
+import ItemImport from './ItemImport';
 import RuneHint from './RuneHint';
 
 const selectCls =
@@ -550,10 +550,8 @@ const ItemActions: React.FC = () => {
     <div className="space-y-4">
       {/* Your item */}
       <Card className="p-4 space-y-4">
-        {/* Above the pickers, because it REPLACES them: a player who has the item in front of them
-            should not have to work out which row of the base list it is before they can start. */}
         {engine && (
-          <PasteItem
+          <ItemImport
             data={engine.data}
             onApply={(it) => {
               setBaseId(it.baseId);

@@ -169,6 +169,22 @@ export interface ExistingItem {
   readonly suffixes: readonly ItemModInput[];
 }
 
+/**
+ * What an "I already have this item" import hands the Item tab.
+ *
+ * `ExistingItem` with the tab's own narrower rarity — the tab offers Rare and Magic, and a white item
+ * is not something anyone pastes — and with mutable lists, which is what the tab's setters take. It
+ * exists so the paste box and the streamer picker fill the tab through ONE contract rather than two
+ * inline prop types that could drift apart.
+ */
+export interface ImportedItem {
+  readonly baseId: string;
+  readonly level: number;
+  readonly rarity: 'magic' | 'rare';
+  readonly prefixes: ItemModInput[];
+  readonly suffixes: ItemModInput[];
+}
+
 /** One currency's outcome on the current item: the exact per-use probability, plus feasibility. */
 export interface CurrencyAction {
   readonly currency: PlanStep['currency'];

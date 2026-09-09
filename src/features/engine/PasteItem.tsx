@@ -5,7 +5,7 @@ import {
   readPastedItem, itemModsFrom, isSettled, NO_CHOICES,
   type PasteChoices, type PasteReading, type PasteRow,
 } from '../../lib/pasteItem';
-import type { ItemModInput } from '../../lib/engineTypes';
+import type { ImportedItem } from '../../lib/engineTypes';
 
 /**
  * "Paste your item" — read a Ctrl+C block instead of rebuilding the item by hand.
@@ -116,10 +116,7 @@ const Row: React.FC<{
 
 const PasteItem: React.FC<{
   data: PatchData;
-  onApply: (item: {
-    baseId: string; level: number; rarity: 'magic' | 'rare';
-    prefixes: ItemModInput[]; suffixes: ItemModInput[];
-  }) => void;
+  onApply: (item: ImportedItem) => void;
 }> = ({ data, onApply }) => {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');

@@ -221,6 +221,20 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   not work (5 of 30 category arrays disagree in length on one character, because the game sums
   same-stat modifiers and splits hybrids), so each category uses the route that can answer it and
   nothing is matched by index. Worth 50 → 52 modifiers.
+  **The panel is `StreamerGear.tsx`, and its whole job is naming what it left off.** `readGear`
+  (`src/lib/streamerGear.ts`) turns one gear entry into the Item tab's shape and returns a SENTENCE per
+  modifier that did not make it — a mod id this app no longer has (the two files refreshed apart), a
+  second modifier of one exclusion family, a fourth of one side, or a line the job could not read at
+  all. All of them print. An empty list is the claim that the import is exact, and nothing else in the
+  panel is allowed to make it. The family case is the Aldur staff and it is not hypothetical: that item
+  is in the shipped file, so the panel loads 5 of its 6 modifiers and says which family and why.
+  Both import routes hand back one `ImportedItem` through one callback (`ItemImport.tsx`), so the tab
+  cannot treat "the item I hold" and "the item a streamer holds" as different kinds of thing.
+  The gear file is fetched BY URL on first open, never imported as a value — it ships as its own
+  content-hashed asset (`dist/static/json/<patch>-<hash>.json`) and a player who never opens the panel
+  never downloads it. `streamerGear.test.ts` runs against the shipped gear file and the shipped patch
+  data TOGETHER, which is where drift between two independently-scheduled refreshes has to surface; a
+  synthetic fixture would pass forever while the app quietly stopped recognising the gear.
   **poe.ninja's profile endpoints**: `/poe2/api/profile/characters/<slug>/<anything>` is the character
   list — that second segment is REQUIRED AND IGNORED (the slug alone 404s; `0`, the real account id
   and `999999` all return the same 36,953 bytes) — and

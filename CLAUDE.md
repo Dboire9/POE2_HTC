@@ -336,7 +336,7 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   tests exercise at the scale of a real craft. **Read the SIGN COUNT across seeds, never the z from
   one.** The cost distribution is heavy-tailed, and for heavy tails the sample variance understates
   the true variance, so the SE comes out too small and |z| is inflated; a bias keeps its sign across
-  As of 2026-09-09 the heavy-tail explanation is CONFIRMED —
+  independent seeds and noise does not. As of 2026-09-09 the heavy-tail explanation is CONFIRMED —
   SD/mean is about 1.0 on every item, the worst single run is 5-9x V, and every item flips sign
   across 6 seeds — so those z values were inflated. **One item stays open**: Pain Collar came out
   -1.33% over 6 seeds against -1.29% on an independent 50,000-run pass, same sign and magnitude,

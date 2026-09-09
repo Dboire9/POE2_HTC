@@ -52,7 +52,7 @@ export interface ItemTabState {
 }
 
 export interface Workspace {
-  readonly mode: 'plan' | 'item';
+  readonly mode: Mode;
   readonly lab: LabState;
   readonly item: ItemTabState;
 }
@@ -94,6 +94,24 @@ const FORMAT_BASE = 1;
 const FORMAT_SLOTS = 2;
 const READABLE: readonly number[] = [FORMAT_BASE, FORMAT_SLOTS];
 
+/**
+ * Which top-level tab is showing.
+ *
+ * `gear` browses a streamer's items and crafts none of its own — it hands what you pick to the `item`
+ * tab through `importToItem`. It rides in the share link like the other two; an OLDER deployed client
+ * decoding a `g` falls through to `plan` rather than breaking, which is why this needed no FORMAT
+ * bump (the same trade `bc` took).
+ */
+export type Mode = 'plan' | 'item' | 'gear';
+type WireMode = 'p' | 'i' | 'g';
+
+const WIRE_MODE: Readonly<Record<Mode, WireMode>> = { plan: 'p', item: 'i', gear: 'g' };
+const MODE_OF: Readonly<Record<WireMode, Mode>> = { p: 'plan', i: 'item', g: 'gear' };
+
+/** A stranger's `m`. Anything unrecognised opens the tab a first-time visitor gets, never throws. */
+const modeOf = (m: unknown): Mode =>
+  (typeof m === 'string' && m in MODE_OF ? MODE_OF[m as WireMode] : 'plan');
+
 /** `[modId, tierDisplay, slot?]`. The third element is present only on a target that has alternatives,
  *  which is what keeps a slot-free workspace byte-identical to what version 1 always wrote. */
 type WireTarget = readonly [string, number, number?];
@@ -101,7 +119,7 @@ type WireItemMod = readonly [string, number, 1?];
 
 interface Wire {
   readonly v: number;
-  readonly m: 'p' | 'i';
+  readonly m: WireMode;
   readonly l: {
     readonly b: string; readonly lv: number; readonly t: readonly WireTarget[];
     readonly f: readonly string[]; readonly p: readonly string[]; readonly bg: string;
@@ -128,7 +146,7 @@ interface Wire {
  * `lv` was fixed and `bg`/`bc` — two lines below it — were not.
  *
  * Leaves left strict are the ones already safe by construction: `v` is rejected unless it equals
- * FORMAT; `m`/`r`/`sm` are read through a `=== 'x'` ternary; and a non-string mod id throws inside
+ * FORMAT; `r`/`sm` are read through a `=== 'x'` ternary, `m` through `modeOf`; and a non-string mod id throws inside
  * `restore`, which `decodeWorkspace`'s try/catch turns into a clean null. Widening those would add
  * noise, not safety.
  */
@@ -137,7 +155,7 @@ type WireItemModIn = readonly [string, unknown, 1?];
 
 interface WireIn {
   readonly v: number;
-  readonly m: 'p' | 'i';
+  readonly m: unknown;
   readonly l: {
     readonly b: unknown; readonly lv: unknown; readonly t: readonly WireTargetIn[];
     readonly f: readonly string[]; readonly p: readonly string[]; readonly bg: unknown;
@@ -248,7 +266,7 @@ export function encodeWorkspace(ws: Workspace): string {
 
   const wire: Wire = {
     v: usesSlots ? FORMAT_SLOTS : FORMAT_BASE,
-    m: ws.mode === 'item' ? 'i' : 'p',
+    m: WIRE_MODE[ws.mode],
     l: {
       b: lb, lv: ws.lab.level, t: t(lb, ws.lab.targets, labSlots),
       f: [...ws.lab.fractured].map((id) => strip(lb, id)),
@@ -382,7 +400,7 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
   const d = defaultWorkspace();
   return {
     workspace: {
-      mode: wire.m === 'i' ? 'item' : 'plan',
+      mode: modeOf(wire.m),
       lab: {
         baseId: lb, level: clampLevel(wire.l.lv, d.lab.level), targets: targets(lb, wire.l.t),
         fractured: oneFractured(ids(lb, wire.l.f)), pinned: ids(lb, wire.l.p), budget: clampText(wire.l.bg),
@@ -485,7 +503,7 @@ export function useOnChange<T>(value: T, fn: () => void): void {
 }
 
 /** The active tab. A top-level field rather than one of the two sections, so it gets its own hook. */
-export function useMode(): ['plan' | 'item', (m: 'plan' | 'item') => void] {
+export function useMode(): [Mode, (m: Mode) => void] {
   const ws = useWorkspace();
   return [ws.mode, (mode) => setWorkspace({ ...getWorkspace(), mode })];
 }

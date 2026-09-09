@@ -20,25 +20,17 @@ const { loadStreamers } = await import('../../lib/streamerGear');
 beforeEach(() => { vi.mocked(loadStreamers).mockResolvedValue(file); });
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
-/** Open the panel and wait for the gear to arrive. */
+/** Render the tab and wait for the gear to arrive. */
 async function open(onApply = vi.fn()) {
   const user = userEvent.setup();
   render(<StreamerGear data={data} onApply={onApply} />);
-  await user.click(screen.getByRole('button', { name: /Load a streamer’s item/i }));
   await screen.findByText(new RegExp(file.characters[0]!.character));
   return { user, onApply };
 }
 
-describe('the streamer gear panel', () => {
-  it('is collapsed on arrival and fetches nothing until it is opened', () => {
-    render(<StreamerGear data={data} onApply={vi.fn()} />);
-    expect(screen.getByRole('button', { name: /Load a streamer’s item/i }))
-      .toHaveAttribute('aria-expanded', 'false');
-    // The gear file is a separate request precisely so a player who never opens this does not pay it.
-    expect(loadStreamers).not.toHaveBeenCalled();
-  });
-
-  it('fetches once the panel is opened, and lists the character’s items', async () => {
+describe('the streamer gear tab', () => {
+  /** The gear file is its own request, made by this tab — the rest of the app never downloads it. */
+  it('fetches the gear file when the tab is shown, and lists the character’s items', async () => {
     await open();
     expect(loadStreamers).toHaveBeenCalled();
     for (const it of file.characters[0]!.items) {
@@ -95,11 +87,9 @@ describe('the streamer gear panel', () => {
     expect(sent.level).toBe(helm.level);
   });
 
-  it('stays usable when the gear file cannot be fetched', async () => {
+  it('says so, rather than hanging, when the gear file cannot be fetched', async () => {
     vi.mocked(loadStreamers).mockRejectedValue(new Error('offline'));
-    const user = userEvent.setup();
     render(<StreamerGear data={data} onApply={vi.fn()} />);
-    await user.click(screen.getByRole('button', { name: /Load a streamer’s item/i }));
     expect(await screen.findByText(/Couldn’t load the gear file/)).toBeInTheDocument();
   });
 });

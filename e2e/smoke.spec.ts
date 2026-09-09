@@ -186,3 +186,31 @@ test('7 — the crawler fallback is served, then replaced by the app', async ({ 
   // …and what replaced it is the real app.
   await expect(page.getByRole('button', { name: 'Find plans' })).toBeVisible();
 });
+
+test('8 — streamer gear loads over the network and lands on the Item tab', async ({ page }) => {
+  // The gear file ships as its own content-hashed asset and is fetched at runtime. Every unit test
+  // mocks that fetch, so this is the only place that can tell whether the bytes are actually served
+  // under the name the bundle asks for — the exact failure the asset-hash trap produces.
+  const errors: string[] = [];
+  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+
+  await page.goto('/');
+  await waitForReady(page);
+
+  await page.getByRole('button', { name: 'Streamer gear' }).click();
+
+  // A character's name arriving is the fetch having succeeded and parsed.
+  await expect(page.getByText(/level \d+ ·/)).toBeVisible({ timeout: 30_000 });
+
+  // Pick the first item and take it to the Item tab. Which item, and what it costs, is the unit
+  // suite's business — this asserts the hand-off happens at all.
+  await page.locator('ul li button').first().click();
+  await page.getByRole('button', { name: /Use this item/i }).click();
+
+  // The Item tab is showing (its sub-tabs are), and the gear's modifiers are on the item — a Remove
+  // control exists only for a modifier the item actually holds.
+  await expect(page.getByRole('button', { name: 'Quick currency check' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('button', { name: /Remove .* from your item/ }).first()).toBeVisible();
+
+  expect(errors, 'console errors while loading streamer gear').toEqual([]);
+});

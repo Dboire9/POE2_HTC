@@ -22,6 +22,8 @@ import {
   MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotCounts, slotsOf, whyNotAdd,
 } from '../../lib/targetSlots';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
+import StreamerGear from './StreamerGear';
+import { importToItem } from '../../lib/importToItem';
 import ItemActions from './ItemActions';
 import UserGuide from './UserGuide';
 import FrontierView from './FrontierView';
@@ -521,9 +523,20 @@ const EngineLab: React.FC = () => {
         >
           I have an item
         </button>
+        {/* Browsing gear is not crafting, so it gets its own tab rather than a third panel stacked
+            above the Item tab's pickers. Picking an item there lands on `I have an item`. */}
+        <button
+          className={`${tabCls(mode === 'gear')} ${FOCUS_RING}`}
+          onClick={() => setMode('gear')}
+          aria-pressed={mode === 'gear'}
+        >
+          Streamer gear
+        </button>
       </div>
 
-      {mode === 'item' ? <ItemActions /> : (<>
+      {mode === 'item' ? <ItemActions />
+        : mode === 'gear' ? (data ? <StreamerGear data={data} onApply={importToItem} /> : <Spinner />)
+        : (<>
       {/* Setup */}
       <Card className="p-4 space-y-4">
         <div className="flex flex-wrap items-end gap-4">

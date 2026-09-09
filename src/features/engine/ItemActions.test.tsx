@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CurrencyAction, EngineMod, EngineResult } from '../../lib/engine';
+import type { ImportedItem } from '../../lib/engineTypes';
 import { oddsText } from './QuickCurrencyCheck';
 
 // ItemActions ("I have an item") holds the item builder + quick-check + full-plan target rules. Driven
@@ -39,12 +40,27 @@ const mocks = vi.hoisted(() => ({
   currencyActions: vi.fn(), optimizeItem: vi.fn(), optimizeItemMarkov: vi.fn(),
 }));
 
+// The paste box is stubbed to ONE button that runs the REAL `importToItem`: what is under test is
+// what the Item tab does with an imported item, not how the paste box read it. The streamer tab
+// reaches this same helper, so both routes are covered by it.
+vi.mock('./PasteItem', () => ({
+  default: ({ onApply }: { onApply: (it: ImportedItem) => void }) => (
+    <button onClick={() => onApply({
+      baseId: 'Staves', level: 77, rarity: 'rare',
+      prefixes: [{ modId: 'np', tierDisplay: 1 }], suffixes: [{ modId: 'ns', tierDisplay: 2 }],
+    })}>apply a test import</button>
+  ),
+}));
+
 vi.mock('../../lib/engine', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../lib/engine')>();
   return {
     ...actual,
     loadEngine: () => Promise.resolve({ data: {} as never, prices: { currency: {}, omens: {} } as never }),
-    listBases: () => [{ id: 'Wands', name: 'Wands', category: 'weapon' }],
+    listBases: () => [
+      { id: 'Wands', name: 'Wands', category: 'weapon' },
+      { id: 'Staves', name: 'Staves', category: 'weapon' },
+    ],
     listMods: () => ({ prefixes: [NP], suffixes: [NS] }),
     listDesecrated: () => [DS, DS2],
     listPerfectEssences: () => [PE],
@@ -716,5 +732,61 @@ describe('ItemActions — copying the item to the target', () => {
     // T2 held -> T2 wanted, so the row reads as satisfied rather than as something to re-roll.
     expect(screen.getByLabelText(/Target tier for Normal Prefix/i)).toHaveValue('2');
     expect(screen.getByText(/on your item \(T2\)/)).toBeInTheDocument();
+  });
+});
+
+/**
+ * An import names a base as well as modifiers, and the base is usually NOT the one on screen.
+ *
+ * This is a REGRESSION test with a shipped bug behind it: the tab cleared itself from an effect
+ * watching `baseId`, so an imported item whose base differed from the one on screen arrived with
+ * every modifier stripped — which was nearly every paste, since the tab defaults to Wands.
+ */
+describe('applying an imported item', () => {
+  it('keeps the modifiers when the import also changes the base', async () => {
+    const user = userEvent.setup();
+    render(<ItemActions />);
+    await screen.findByRole('button', { name: /apply a test import/i });
+    await user.click(screen.getByRole('button', { name: /apply a test import/i }));
+
+    // Asserted through the REMOVE control, which exists only for a mod that is on the item — the mod's
+    // text alone also appears in the "add" columns, so a text query would pass without the import.
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Remove Normal Prefix from your item/i })).toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: /Remove Normal Suffix from your item/i })).toBeInTheDocument();
+  });
+});
+
+/**
+ * The Lab tab has had a Reset since it shipped; this one never did, so starting over meant removing
+ * six modifiers one at a time.
+ */
+describe('Reset', () => {
+  const resetBtn = () => screen.getByRole('button', { name: /^Reset$/ });
+
+  it('is offered but inert while there is nothing to clear', async () => {
+    render(<ItemActions />);
+    await screen.findByRole('button', { name: /apply a test import/i });
+    expect(resetBtn()).toBeDisabled();
+  });
+
+  it('clears the item and the target, and keeps the base and item level', async () => {
+    const user = userEvent.setup();
+    render(<ItemActions />);
+    await screen.findByRole('button', { name: /apply a test import/i });
+    await user.click(screen.getByRole('button', { name: /apply a test import/i }));
+    await screen.findByRole('button', { name: /Remove Normal Prefix from your item/i });
+
+    await user.click(resetBtn());
+
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /Remove Normal Prefix from your item/i })).toBeNull();
+    });
+    expect(screen.queryByRole('button', { name: /Remove Normal Suffix from your item/i })).toBeNull();
+    // Kept: the base the import chose, and its item level. Clearing those would make Reset a
+    // different button from the Lab's, which keeps them too.
+    expect(screen.getByRole('combobox', { name: /Variant/i })).toHaveValue('Staves');
+    expect(screen.getByDisplayValue('77')).toBeInTheDocument();
   });
 });

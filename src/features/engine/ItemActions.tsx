@@ -16,7 +16,8 @@ import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
-import { useField, useOnChange } from '../../lib/workspace';
+import { useField } from '../../lib/workspace';
+import { importToItem } from '../../lib/importToItem';
 import { MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotsOf, whyNotAdd } from '../../lib/targetSlots';
 import { exactExalts, formatBoundedCost, formatCost, type Rates } from '../../lib/currency';
 import FrontierView from './FrontierView';
@@ -26,7 +27,7 @@ import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
 import QuickCurrencyCheck from './QuickCurrencyCheck';
-import ItemImport from './ItemImport';
+import PasteItem from './PasteItem';
 import RuneHint from './RuneHint';
 
 const selectCls =
@@ -226,12 +227,28 @@ const ItemActions: React.FC = () => {
     return m;
   }, [pool, perfect, desecratedTargets]);
 
-  // Reset everything when the base changes — but NOT on mount. This component is unmounted on every
-  // tab switch, so firing on mount would destroy the restored item each time you came back.
-  useOnChange(baseId, () => {
+  /**
+   * Empty the craft, keeping the base and item level — the same contract as the Lab tab's Reset.
+   *
+   * `markov` and `tookMs` are cleared too. Neither is rendered without `plan`, so leaving them was not
+   * visible, but "Last solve took 3.2s" beside an empty item is a claim about work that no longer
+   * relates to anything on screen.
+   */
+  const clearItem = () => {
     setPrefixes([]); setSuffixes([]);
-    setTarget([]); setPlan(null); setPlanErr(null); setSearch('');
-  });
+    setTarget([]); setPlan(null); setMarkov(null); setPlanErr(null); setSearch(''); setTookMs(null);
+  };
+
+  /**
+   * Picking a different base clears the item, because the modifiers on it belong to the base they
+   * came from.
+   *
+   * A HANDLER, not an effect watching `baseId`. An import changes the base too, and it brings the
+   * modifiers that go with it — a value watcher cannot tell those two intents apart, and silently
+   * emptied every imported item whose base was not the one already on screen, which is nearly all of
+   * them. The base picker is the only place the user changes a base, so that is where the clear goes.
+   */
+  const changeBase = (id: string) => { setBaseId(id); clearItem(); };
   // Dropping to magic can overflow the 1-per-side cap; trim to keep the item legal.
   //
   // This is a synchronous setState in an effect, which `react-hooks/set-state-in-effect` flags, and
@@ -550,20 +567,12 @@ const ItemActions: React.FC = () => {
     <div className="space-y-4">
       {/* Your item */}
       <Card className="p-4 space-y-4">
-        {engine && (
-          <ItemImport
-            data={engine.data}
-            onApply={(it) => {
-              setBaseId(it.baseId);
-              setLevel(it.level);
-              setRarity(it.rarity);
-              setPrefixes(it.prefixes);
-              setSuffixes(it.suffixes);
-            }}
-          />
-        )}
+        {/* Above the pickers, because it REPLACES them: someone holding the item should not have to
+            find its row in the base list before they can start. `importToItem` writes the whole item
+            in ONE update — see there for why five setters was a bug rather than a style. */}
+        {engine && <PasteItem data={engine.data} onApply={importToItem} />}
         <div className="flex flex-wrap items-end gap-4">
-          <BaseSelect bases={bases} value={baseId} onChange={setBaseId} />
+          <BaseSelect bases={bases} value={baseId} onChange={changeBase} />
           <label className="flex flex-col gap-1">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Item level</span>
             <input
@@ -579,6 +588,18 @@ const ItemActions: React.FC = () => {
               <option value="magic">Magic (1 + 1)</option>
             </select>
           </label>
+          <div className="flex-1" />
+          {/* The Lab tab has had one of these since it shipped and this tab never did, so the only way
+              to start over here was to remove six modifiers one at a time. Same contract as the Lab's:
+              it keeps the base and the item level, and clears everything built on them. */}
+          <Button
+            variant="outline"
+            onClick={clearItem}
+            disabled={itemMods.length === 0 && target.length === 0 && plan === null}
+            title="Clear the modifiers on your item, the target and any result — keeps the base and item level"
+          >
+            Reset
+          </Button>
         </div>
 
         <div>

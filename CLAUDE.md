@@ -221,6 +221,25 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   not work (5 of 30 category arrays disagree in length on one character, because the game sums
   same-stat modifiers and splits hybrids), so each category uses the route that can answer it and
   nothing is matched by index. Worth 50 → 52 modifiers.
+  **It is its own TAB, not a panel on the Item tab** (2026-09-09). Browsing gear is not crafting, and
+  a third collapsible stacked above the Item tab's pickers was clutter on the densest view in the app.
+  Picking an item there calls `importToItem` (`src/lib/importToItem.ts`), which writes the item and
+  switches to `I have an item` — one crafting surface, not two that have to agree. `Mode` gained
+  `'gear'` and the share link a `g`; an OLDER deployed client decoding it falls through to `plan`, so
+  no FORMAT bump (the `bc` trade), and `modeOf` treats `m` as the untrusted leaf it is.
+  **The tab used to clear itself from an effect watching `baseId`, and that silently emptied every
+  import.** `useOnChange(baseId, …)` cannot tell a base PICK from an import that brings its own
+  modifiers, so pasting anything that was not a Wand — the tab's default — arrived with the base and
+  level set and every modifier stripped. The fix is `changeBase`, a handler on the picker: the clear
+  happens where the user changes a base, so intent is known rather than inferred from a value both
+  paths move. Note what did NOT fix it: making the write atomic. The effect fires on the new value
+  however few writes produced it, and `importToItem.test.ts` says so in a comment beside the test that
+  proves the single write is real (counted through `localStorage`, because React batches the renders
+  and a render-counting version of that test passed against the five-setter code it claimed to rule
+  out). `ItemActions.test.tsx` pins the regression with a stubbed paste box calling the REAL helper.
+  **The Item tab has a Reset now**, on the same contract as the Lab's: it keeps the base and item
+  level and clears the modifiers, the target and any result. The Lab has had one since it shipped;
+  here the only way to start over was to remove six modifiers one at a time.
   **The panel is `StreamerGear.tsx`, and its whole job is naming what it left off.** `readGear`
   (`src/lib/streamerGear.ts`) turns one gear entry into the Item tab's shape and returns a SENTENCE per
   modifier that did not make it — a mod id this app no longer has (the two files refreshed apart), a
@@ -228,9 +247,9 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   all. All of them print. An empty list is the claim that the import is exact, and nothing else in the
   panel is allowed to make it. The family case is the Aldur staff and it is not hypothetical: that item
   is in the shipped file, so the panel loads 5 of its 6 modifiers and says which family and why.
-  Both import routes hand back one `ImportedItem` through one callback (`ItemImport.tsx`), so the tab
-  cannot treat "the item I hold" and "the item a streamer holds" as different kinds of thing.
-  The gear file is fetched BY URL on first open, never imported as a value — it ships as its own
+  Both import routes hand back one `ImportedItem` through one callback, so the tab cannot treat "the
+  item I hold" and "the item a streamer holds" as different kinds of thing.
+  The gear file is fetched BY URL when the tab is first shown, never imported as a value — it ships as its own
   content-hashed asset (`dist/static/json/<patch>-<hash>.json`) and a player who never opens the panel
   never downloads it. `streamerGear.test.ts` runs against the shipped gear file and the shipped patch
   data TOGETHER, which is where drift between two independently-scheduled refreshes has to surface; a

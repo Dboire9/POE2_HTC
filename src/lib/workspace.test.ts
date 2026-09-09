@@ -448,3 +448,42 @@ describe('decodeWorkspace — one fractured modifier survives, not two', () => {
     expect(got?.item.suffixes[0]?.fractured).toBeUndefined();
   });
 });
+
+
+/**
+ * The tab rides in the share link, and a THIRD one was added after links had been in the wild for a
+ * while. Both directions matter: a `gear` link must come back as `gear`, and a link an older build
+ * could not have written must not take the app down.
+ */
+describe('the tab in a share link', () => {
+  it('round-trips the gear tab', () => {
+    const out = decodeWorkspace(encodeWorkspace({ ...defaultWorkspace(), mode: 'gear' }), data);
+    expect(out!.workspace.mode).toBe('gear');
+  });
+
+  it('round-trips each of the three tabs', () => {
+    for (const mode of ['plan', 'item', 'gear'] as const) {
+      const out = decodeWorkspace(encodeWorkspace({ ...defaultWorkspace(), mode }), data);
+      expect(out!.workspace.mode, mode).toBe(mode);
+    }
+  });
+
+  /**
+   * A stranger's link. `m` is untrusted like every other leaf, so an unrecognised one opens the tab a
+   * first-time visitor gets rather than throwing — a white screen from a crafted URL is the failure
+   * this decoder exists to prevent.
+   */
+  it('falls back to the plan tab on a mode it does not recognise', () => {
+    const b64 = (o: unknown) =>
+      btoa(JSON.stringify(o)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const link = JSON.parse(atob(
+      encodeWorkspace(defaultWorkspace()).replace(/-/g, '+').replace(/_/g, '/'),
+    )) as Record<string, unknown>;
+
+    for (const m of ['z', '', 42, null, {}]) {
+      const out = decodeWorkspace(b64({ ...link, m }), data);
+      expect(out, JSON.stringify(m)).not.toBeNull();
+      expect(out!.workspace.mode, JSON.stringify(m)).toBe('plan');
+    }
+  });
+});

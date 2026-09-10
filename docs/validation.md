@@ -3511,7 +3511,10 @@ tab shipped reading "makes it the target on *I have an item*and leaves your own 
 
 ## The engine against a real character's gear (2026-09-09)
 
-All nine of fubgun's items, crafted from a white base of the same kind, at 20M sweeps.
+All nine of fubgun's items, crafted from a white base of the same kind, at 20M sweeps — **at ANY tier**:
+`scripts/policy-vs-mc.mts` passes bare mod ids, so each row prices those modifiers, not the streamer's
+rolls. (Corrected 2026-09-10. At its real tiers — what "Craft this from scratch" sends — the Dire Spire
+is **1,981,936 ex**, 100x its row; see "Extra Cold OR Extra Lightning" below.)
 
 | item | targets | solve | cost from white |
 |---|---|---|---|
@@ -3767,7 +3770,12 @@ the old "3× fire"); no legality check, 1 — on a built base where Lightning cl
 modifier's family, since no shipped base has one.
 
 At the default Standard effort (15 s) the Lab cannot put a number on this craft with either goal: both
-come back "ran out of time … a six-mod target at T1 needs the longest setting".
+come back "ran out of time … a six-mod target at T1 needs the longest setting". At the longest setting
+(20M sweeps, policy solver, free restart) both are exact, at the staff's real tiers: **1,997,322 ex**
+naming Extra Cold, **1,981,936 ex** with the slot — 0.8% cheaper (94 s and 106 s). The slot is the
+right goal; the saving is small here because only one of the six positions gained an alternative.
+These are the numbers "Craft this from scratch" leads to. The 19,415 ex in the 2026-09-09 table is the
+same six modifiers at ANY tier, which is what that table measured throughout.
 
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share

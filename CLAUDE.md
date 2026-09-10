@@ -310,6 +310,9 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   dropping it, so the two craft routes plan six targets and the panel names the rune that finishes
   them. Measured: the five-target craft is **6,615 ex** and the real six-target one **19,415 ex + 12.13
   for the rune — 2.9x dearer**, so the old answer flattered the craft as well as misdescribing it.
+  **Both at ANY tier** — the measuring script (`scripts/policy-vs-mc.mts`) passes bare mod ids. At the
+  streamer's real tiers, which is what the tab sends, the six-target craft is **1,981,936 ex** with the
+  Cold-or-Lightning slot (1,997,322 naming Cold): 100x the any-tier figure. Say which one you quote.
   `I own this one` still loads the five, because that IS the limit on what can be held.
   The pairing rule (each substituted sibling takes the tier of the copy it replaces) is invisible on
   the shipped fixture — both fire copies are T1 — so its test builds an item with two tiers instead.

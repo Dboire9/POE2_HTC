@@ -1326,6 +1326,27 @@ line in `profileItems.test.ts` pin it.
 
 **Verify.** New rows get the CoE check every other category had.
 
+## 20. A bone in play costs 2-8x the solve time — OPEN, found 2026-09-10
+
+The price gate that kept Desecration off crafts it "could never help" was unsound and is gone
+(docs/validation.md, 2026-09-10), so every craft with bones priced and allowed carries the flag axis.
+Measured on ten ordinary from-white crafts at Standard (15 s): 2-8x slower, and two 5×T2 crafts that
+finished in ~5 s now need ~20 s — past Standard, so the Lab asks for Exhaustive. They cost half as much
+or less when they finish (Wands 52,758 → 27,006 ex; Amulets 141,127 → 37,717 ex), and fubgun's Aldur
+staff takes roughly 450 s of Exhaustive's 900 s. The price of a right answer, not a regression to revert.
+
+Two ways to buy the time back, neither tried:
+
+- **Seed the bone solve with the bone-free policy.** Any bone-free policy is proper in the bigger lattice
+  (the flag gates only bones), so its closed-form value is a valid phase-B seed — the door
+  `heuristicSeed` already opens to skip phase A, which is 92-98% of a solve. The bone-free solve is the
+  fast one.
+- **Answer from the bone-free solve when the bone solve runs out.** Its policy is playable, so its cost
+  is an honest ceiling ("≤ x") where today a Standard solve that runs out prints nothing.
+
+**Verify.** The ten-craft table in docs/validation.md re-measured alone, and the Aldur staff at
+Exhaustive.
+
 ---
 
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02

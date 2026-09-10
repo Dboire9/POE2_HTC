@@ -311,9 +311,14 @@ describe('policy iteration answers where value iteration can only bound', () => 
   // On 2026-09-02 the omens went live from poe.ninja's Ritual feed and this craft became easy enough
   // that VI settled it too, so the test failed while asserting something still true of the solvers.
   // Everything else in this file keeps reading the shipped sheet.
+  //
+  // Desecration excluded for the same reason. Until 2026-09-10 a price gate kept bones off this ring
+  // (the collarbone is 7.69ex on this sheet, over three Exalts); bones now compete at any price, and
+  // with them the craft is easy enough to settle inside 2,000 sweeps, so "too small for either" had
+  // nothing left to refuse. Excluding them is the lattice these numbers were measured on.
   const frozen = { data: eng.data, prices: loadFrozenPrices() };
   const ring = {
-    kind: 'lab', from: { baseId: 'Rings', level: 82 },
+    kind: 'lab', from: { baseId: 'Rings', level: 82 }, excluded: ['desecrate'],
     targets: [
       { modId: 'Rings/IncreasedLife', tierDisplay: 99 }, { modId: 'Rings/IncreasedMana', tierDisplay: 99 },
       { modId: 'Rings/ColdResistance', tierDisplay: 99 }, { modId: 'Rings/ChaosResistance', tierDisplay: 99 },

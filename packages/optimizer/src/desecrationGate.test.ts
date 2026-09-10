@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from '../../engine/src/loadPatch.ts';
-import { bossOmenAllowed, desecrationBoneFor } from '../../engine/src/probability.ts';
+import { DESECRATION_OFFER_COUNT, bossOmenAllowed, desecrationBoneFor } from '../../engine/src/probability.ts';
 import type { ItemState } from '../../engine/src/types.ts';
 import { loadFrozenPrices } from './frozenPrices.ts';
 import { optimizePareto } from './optimize.ts';
@@ -298,14 +298,14 @@ describe('a Chaos Orb has no special treatment for the desecrated mod', () => {
  * The model used to switch desecration off entirely unless a carved mod was targeted, so none of that
  * was reachable.
  *
- * The gate that replaced it is a NECESSARY condition, not a heuristic: the offer raises the chance of
- * a hit by at most `DESECRATION_OFFER_COUNT` (1−(1−p)^m ≤ m·p), and a bone's per-draw p is strictly
- * below an Exalt's because its denominator also carries the carved pool. So a bone priced at m Exalts
- * or more cannot win, and skipping it costs nothing — which is what keeps the desJunk axis, and the 3x
- * states it brings, off a craft that could never have used it. On amulets and rings the collarbone is
- * 7.69ex and the gate closes.
+ * It competes at ANY price. A gate used to switch bones off wherever one cost three Exalts or more, on
+ * the argument that three offers can at most triple the chance of a hit. That weighs one bone against
+ * three Exalts — but three Exalts put three mods on the item and a bone puts one, and every mod that
+ * misses must come off again (an Annulment, which may take a target instead) or cost the item. The
+ * offer is worth what a miss costs, which no price test can know. By 2026-09-10 the market had closed
+ * that gate on every base, and no craft in the app desecrated for an ordinary mod.
  */
-describe('a bone competes for ordinary mods too, where its price allows', () => {
+describe('a bone competes for ordinary mods too, at any price', () => {
   const heldRare = (baseId: string) => {
     const base = data.bases.get(baseId)!;
     const out: string[] = [];
@@ -393,16 +393,32 @@ describe('a bone competes for ordinary mods too, where its price allows', () => 
     expect(without.expectedCost).toBeGreaterThanOrEqual(r.expectedCost - 1e-9);
   });
 
-  it('leaves it out where the bone costs too much to ever win, keeping the state space untouched', () => {
-    // Amulets take a collarbone at 7.69ex against a 1.00ex Exalt — over the m-Exalt ceiling, so no
-    // offer can make it pay. The craft must come out byte-identical to one with bones excluded.
+  /**
+   * The craft the old gate threw away. The collarbone is 7.69ex on this sheet — over the three-Exalt
+   * line — and that alone switched bones off for every amulet and ring. Measured 52,738.7ex without
+   * them, 26,561.2ex with: half the cost.
+   */
+  it('plays a bone that costs more than three Exalts', () => {
+    expect(pricesForBase(prices, data.bases.get('Amulets')!).currency.desecrate)
+      .toBeGreaterThan(DESECRATION_OFFER_COUNT * prices.currency.exalt!);
     const withBones = solve('Amulets', false);
     const without = solve('Amulets', true);
-    expect(withBones.expectedCost).toBeCloseTo(without.expectedCost, 9);
-    expect([...withBones.policy.values()].some((a) => a.currency === 'desecrate')).toBe(false);
-    // The desJunk axis is what the gate is really protecting: it triples the lattice.
-    expect(withBones.nodes.some((nd) => nd.desecratedJunk !== undefined)).toBe(false);
-    expect(withBones.nodes.length).toBe(without.nodes.length);
+    expect([...withBones.policy.values()].some((a) => a.currency === 'desecrate')).toBe(true);
+    expect(withBones.expectedCost).toBeLessThan(without.expectedCost * 0.85);
+  });
+
+  /**
+   * …and the price is not what decides it. A jawbone at thirty Exalts, ten times the old line, still
+   * takes more than a third off this Wand (4,073.8ex → 2,608.8ex): what a bone buys is not a hit, it is
+   * not having to take a miss.
+   */
+  it('still plays one priced at thirty Exalts', () => {
+    const { start, targets } = heldRare('Wands');
+    const dear = { ...prices, bones: { ...prices.bones, jawbone: 30 * prices.currency.exalt! } };
+    const withBones = markovFromItem(data, dear, start, targets);
+    const without = markovFromItem(data, dear, start, targets, { policy: { excluded: new Set(['desecrate']) } });
+    expect([...withBones.policy.values()].some((a) => a.currency === 'desecrate')).toBe(true);
+    expect(withBones.expectedCost).toBeLessThan(without.expectedCost * 0.85);
   });
 });
 

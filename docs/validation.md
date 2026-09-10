@@ -1553,7 +1553,7 @@ And from a white base they make the solve **faster**, because the craft is genui
 The 6×T1 Body Armour craft that prompted the seeded solve also improves — phase A 314 s → 145 s,
 E 2.07M → 1.25M ex — though at 145 s it still needs the Patient preset.
 
-**The gate is a necessary condition, not a heuristic.** `bonePrice < DESECRATION_OFFER_COUNT ×
+**RETRACTED 2026-09-10 — see "The bone price gate was never a necessary condition".** **The gate is a necessary condition, not a heuristic.** `bonePrice < DESECRATION_OFFER_COUNT ×
 exaltPrice`. The offer raises the chance of a hit by at most `m`, since `1−(1−p)^m ≤ m·p`; and a bone's
 per-draw `p` is strictly below an Exalt's, because its denominator also carries the carved pool. So a
 bone at `m` Exalts or more cannot win, and skipping it costs nothing — which is what keeps the desJunk
@@ -1657,7 +1657,7 @@ And from a white base they make the solve **faster**, because the craft is genui
 The 6×T1 Body Armour craft that prompted the seeded solve also improves — phase A 314 s → 145 s,
 E 2.07M → 1.25M ex — though at 145 s it still needs the Patient preset.
 
-**The gate is a necessary condition, not a heuristic.** `bonePrice < DESECRATION_OFFER_COUNT ×
+**RETRACTED 2026-09-10 — see "The bone price gate was never a necessary condition".** **The gate is a necessary condition, not a heuristic.** `bonePrice < DESECRATION_OFFER_COUNT ×
 exaltPrice`. The offer raises the chance of a hit by at most `m`, since `1−(1−p)^m ≤ m·p`; and a bone's
 per-draw `p` is strictly below an Exalt's, because its denominator also carries the carved pool. So a
 bone at `m` Exalts or more cannot win, and skipping it costs nothing — which is what keeps the desJunk
@@ -3776,6 +3776,75 @@ naming Extra Cold, **1,981,936 ex** with the slot — 0.8% cheaper (94 s and 106
 right goal; the saving is small here because only one of the six positions gained an alternative.
 These are the numbers "Craft this from scratch" leads to. The 19,415 ex in the 2026-09-09 table is the
 same six modifiers at ANY tier, which is what that table measured throughout.
+
+## The bone price gate was never a necessary condition (2026-09-10)
+
+Asked while reading a from-white route for fubgun's Aldur staff: *"why do we not desecrate also,
+wouldn't we have better odds? It is not because we do not put desecrated mod, that the best way isn't
+with it."* The MDP had not been allowed to answer. `desecratable` switched the whole Desecration action
+space off unless a bone cost less than three Exalts, and on 2026-09-10 none did: jawbone 4.2ex, rib
+21ex, collarbone 110ex, against a 1ex Exalt. The jawbone first crossed the line on 09-05 and has
+flickered since; the rib has been over it since 09-05; the collarbone never was under it. From then on no
+craft in the app desecrated for an ordinary mod, and nothing said so.
+
+**The argument, and where it breaks.** Three offers raise the chance of a hit by at most 3x
+(1−(1−p)³ ≤ 3p) and a bone's per-draw p is below an Exalt's, so a bone at three Exalts or more "cannot
+win". That weighs one bone against three Exalts on the chance of a hit — and three Exalts put three mods
+on the item where a bone puts one. Every miss is a mod that has to come off again, by an Annulment
+(140ex on the live sheet) that picks at random and can take a target, or by giving up the item. The offer
+is worth what a miss costs, and that is a property of V, not of the price sheet: the bone is worth
+`c_B + E[min of three V(s′)]`, the Exalt `c_E + E[V(s′)]`, and no ratio of `c_B` to `c_E` orders the
+two without knowing how far apart the V(s′) are. On a high-tier craft they are millions of ex apart.
+
+**Measured.** Held Rare, three ordinary targets at top tier, frozen sheet — the gate's own test craft:
+
+| base | bone price | bones excluded | bones available | |
+|---|---|---|---|---|
+| Amulets | 7.69ex (gate closed) | 52,738.7 ex | **26,561.2 ex** | −50% |
+| Rings | 7.69ex (gate closed) | 6,932.4 ex | **3,811.3 ex** | −45% |
+| Wands | 0.20ex | 4,073.8 ex | **2,493.7 ex** | −39% |
+| Wands | 4.155ex (the live jawbone) | 4,073.8 ex | **2,509.0 ex** | −38% |
+| Wands | 10ex | 4,073.8 ex | **2,531.7 ex** | −38% |
+| Wands | 30ex | 4,073.8 ex | **2,608.8 ex** | −36% |
+
+At thirty Exalts a bone still takes a third off the craft.
+
+From white, live sheet, Standard effort (15 s), T2 targets:
+
+| craft | bones excluded | bones available |
+|---|---|---|
+| Wands, 3 | 4,924 ex, 0.2 s | 4,111 ex, 0.8 s |
+| Wands, 4 | 13,819 ex, 0.9 s | 9,825 ex, 7.1 s |
+| Wands, 5 | 52,758 ex, 5.4 s | 27,006 ex, 19.5 s — past Standard |
+| Body_Armours_str, 3 | 2,142 ex, 0.1 s | 1,533 ex, 0.3 s |
+| Body_Armours_str, 4 | 10,441 ex, 0.6 s | 5,661 ex, 2.1 s |
+| Body_Armours_str, 5 | 23,866 ex, 1.3 s | 8,873 ex, 8.6 s |
+| Amulets, 3 | 10,041 ex, 0.2 s | 8,940 ex, 0.9 s |
+| Amulets, 4 | 52,626 ex, 0.9 s | 24,918 ex, 7.4 s |
+| Amulets, 5 | 141,127 ex, 4.6 s | 37,717 ex, 22.5 s — past Standard |
+| Staves, 3 | 4,924 ex, 0.3 s | 4,140 ex, 0.7 s |
+
+Timed with four solves sharing the machine, so read the ratios, not the seconds.
+
+And the craft that asked: fubgun's Aldur staff from white, six targets at the streamer's tiers with the
+Cold-or-Lightning slot, Exhaustive — **1,981,936 ex (7,445 div) → 187,666 ex (705 div)**, both exact.
+Ten times cheaper. Without bones the solve takes 106 s alone and 191 s under that load; with them it
+took 817–839 s under the load, so roughly 450 s alone — inside Exhaustive's 900 s, not by a wide margin.
+
+**The fix** deletes the price clause: `desecratable` opens whenever a bone is priced and the player has
+not excluded Desecration (an unpriced bone still reads as none). Two tests replace the one that pinned
+the gate — an amulet whose collarbone is over the old line, and a Wand whose jawbone is priced at thirty
+Exalts — and with the clause restored exactly those two go red.
+
+**What it costs is real:** the flag axis, ~3x the states and 2-8x the solve time, and two 5×T2 crafts
+that fit Standard now need Exhaustive. That is TODO 20 — the price of an answer that was wrong by up to
+ten times, not a regression to revert.
+
+**Asked on the same route: why Regal straight after Transmute, not Augment?** A near-tie. With the
+slot's Cold on a Magic item, a Greater Regal beats a Greater Augment by **0.3 ex**, on the 1.98M ex
+craft and on the 187,666 ex one alike. The first hit is worth ~1 ex of progress, because almost all of
+the cost sits in the last mods; with Fire as the first hit the policy Augments first, by 0.5 ex. The
+route shows whichever wins by a hair.
 
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share

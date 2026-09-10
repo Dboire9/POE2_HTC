@@ -22,6 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The planner considers Desecration for ordinary mods again, whatever a bone costs.** Asked "why do
+  we not desecrate also, wouldn't we have better odds?" on fubgun's Aldur staff, the answer was that a
+  price rule had switched bones off: it allowed them only while a bone cost less than three Exalted
+  Orbs, and since early September none has (jawbone 4.2ex, rib 21ex, collarbone 110ex). The rule assumed
+  three Exalts could stand in for one bone, but they put three mods on the item where a bone puts one,
+  kept from three offers — and on a high-tier craft a miss costs far more than the bone. With bones back
+  that staff costs **705 divine instead of 7,445**, and ordinary 3–5 mod crafts measured 11–73% cheaper.
+  Solves that use them take 2–8x longer: two five-mod crafts that fit the Standard effort now need
+  Exhaustive.
 - **The Aldur staff's sixth modifier is "Extra Cold or Extra Lightning", not Cold alone.** Passion of
   Aldur converts either one to fire, so both finish the craft — asking for Cold alone threw away every
   roll that landed Lightning, and quoted a dearer craft than the real one. "Craft this from scratch" and

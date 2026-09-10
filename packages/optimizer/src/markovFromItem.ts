@@ -26,7 +26,7 @@
 
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
-import { DESECRATION_OFFER_COUNT, bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
+import { bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
@@ -571,25 +571,26 @@ export function markovFromItem(
   /*
    * Is Desecration in play at all?
    *
-   * A desecrated target to craft, or a flagged mod on the item to clear — and, since a bone OFFERS three
-   * modifiers and you keep one, the case that used to be dismissed: a bone can simply be the cheapest
-   * way to add an ORDINARY mod. That is not marginal. A Preserved rib is 0.31ex against an Exalt's
-   * 1.00ex, so on a Body Armour a bone lands a named normal mod for ~1.2ex where an Exalt needs
-   * ~9.6ex. (On amulets and rings the collarbone is 7.69ex and the Exalt wins.)
+   * A desecrated target to craft, a flagged mod on the item to clear — or simply a bone on the price
+   * sheet. A bone OFFERS three modifiers and you keep one, so it can be the cheapest way to add an
+   * ORDINARY mod, and whether it is depends on what a miss would cost, which only the solve knows.
    *
-   * The price test is a NECESSARY condition, not a heuristic. The offer raises the chance of a hit by
-   * at most a factor of `DESECRATION_OFFER_COUNT`, since 1−(1−p)^m ≤ m·p; and a bone's per-draw p is
-   * strictly below an Exalt's, because its denominator carries the desecrated pool as well. So a bone
-   * priced at m Exalts or more cannot win, and leaving it out costs nothing — which keeps the desJunk
-   * axis, and the 3x states it brings, off every craft that could never have used it.
+   * A price test used to stand here — bones only when one cost less than `DESECRATION_OFFER_COUNT`
+   * Exalts — sold as a necessary condition: the offer at most triples the chance of a hit, so a dearer
+   * bone "cannot win". That weighs one bone against three Exalts, but three Exalts put three mods on
+   * the item and a bone puts one, and every miss is a mod to take off again (an Annulment, which may
+   * take a target instead) or the item itself. What the offer buys is not a hit; it is not having to
+   * take a miss. Measured 2026-09-10 on a held Rare Wand: a jawbone priced at 30 Exalts still takes the
+   * craft from 4,073.8ex to 2,608.8ex. By then the market had closed the test on every base (jawbone
+   * 4.2ex, rib 21ex, collarbone 110ex, Exalt 1ex), so no craft desecrated for an ordinary mod.
+   *
+   * What the test protected is real, and now paid for: the flag axis, ~3x the states and 2-8x the solve
+   * time on a craft that would not otherwise have used it. TODO 20.
    *
    * An ABSENT price reads as "no bone", not as a free one: `stepCost` turns a missing key into 0, and
    * a 0 here would switch desecration on for every base in a sheet that simply doesn't price bones.
    */
-  const bonePrice = prices.currency.desecrate;
-  const exaltPrice = prices.currency.exalt;
-  const boneCanOutbidAnExalt = bonePrice !== undefined && exaltPrice !== undefined
-    && bonePrice < DESECRATION_OFFER_COUNT * exaltPrice;
+  const bonePriced = prices.currency.desecrate !== undefined;
   // …and none of it matters if the player has excluded the currency: with no Desecration in the action
   // space nothing can ever set the flag, so enumerating the axis is pure cost. Worth checking here
   // rather than leaving to `allowsAction`, which prunes ACTIONS and cannot shrink the lattice.
@@ -597,7 +598,7 @@ export function markovFromItem(
   const desecratable = bonesAllowed
     && (list.some((t) => representative(t).source === 'desecrated')
       || s0.flagged !== FLAG_NONE
-      || boneCanOutbidAnExalt);
+      || bonePriced);
   // Where "start over" lands: the item you began with, which for a from-white craft is the bare base.
   // Built here rather than later because the action space closes over it.
   const restartKey = encode(s0.present, s0.blocked, s0.jp, s0.js, s0.flagged, s0.rarity);

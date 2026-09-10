@@ -294,9 +294,8 @@ is offered. A regular Essence is a Magic-item move: it forces its mod and turns 
 **About the Desecration rows.** A bone **offers three modifiers and you keep one**, so the number
 shown is the chance one of the three is what you asked for — roughly three times the chance of a
 single draw, and the same number the planner uses. A plain bone draws from the normal **and**
-desecrated pools together, so it can land an ordinary mod too; that is often the cheaper buy, because
-a bone costs a fraction of an Exalted Orb. The row is priced by the bone your item actually consumes
-(jawbone for a weapon or quiver, rib for armour, collarbone for jewellery and belts).
+desecrated pools together, so it can land an ordinary mod too. The row is priced by the bone your item
+actually consumes (jawbone for a weapon or quiver, rib for armour, collarbone for jewellery and belts).
 
 Two rules it will tell you about rather than hide: an item holds **at most one desecrated mod**, so
 the row is refused while a carved mod is still on the item; and the boss omens read *"your next

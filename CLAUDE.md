@@ -111,11 +111,14 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 - **A bone is one resource, not a repeatable orb, and the model plays it that way.** Asked for three
   ordinary mods on a held Wand the policy opens with an **Exalt** and holds the bone back, which is how
   the mechanic is actually played. Measured worth on a held Rare: Wands 4,073.8ex → 2,493.7ex (−39%),
-  Body Armour 2,967.6ex → 1,396.4ex (−53%), amulets/rings unchanged (the collarbone is 7.69ex and the
-  price gate closes). `desecratable` in `markovFromItem.ts` opens on
-  `bonePrice < DESECRATION_OFFER_COUNT * exaltPrice` — a NECESSARY condition — and also checks the
-  currency policy, since with Desecration excluded the flag axis is pure cost (worth 6x on one craft).
-  The axis costs ~5x the solve time when desecration IS in play; see TODO 3.
+  Body Armour 2,967.6ex → 1,396.4ex (−53%), Amulets 52,738.7ex → 26,561.2ex (−50%).
+- **A bone competes at ANY price.** `desecratable` in `markovFromItem.ts` opens whenever a bone is
+  priced and the player has not excluded Desecration. A price gate (`bonePrice < 3 × exaltPrice`) used
+  to stand there, sold as a necessary condition. It was not: it weighed one bone against three Exalts,
+  and three Exalts put three mods on the item where a bone puts one — each miss an Annulment or the
+  item. A jawbone at 30 Exalts still takes a held-Rare Wand 4,073.8ex → 2,608.8ex, and by 2026-09-10
+  the market had closed the gate on every base. With Desecration excluded the flag axis is pure cost
+  (worth 6x on one craft) and is skipped. In play it costs 2-8x the solve time; see TODO 20.
 - **Reachability means ALMOST SURELY, not "with some chance"** (`prob1` in `markovFromItem.ts`), and is
   computed BEFORE value iteration, per phase, with dead states pinned at Infinity. The weak reading let
   states with no route to the goal be backed up forever — E grew 11.4M → 113.6M ex as the sweep cap rose

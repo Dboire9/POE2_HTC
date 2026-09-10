@@ -22,6 +22,14 @@ import type { AnnulOmen, ChaosOmen, DesecrationBossOmen, EssenceOmen } from '../
 import { desecrationBoneFor } from '../../engine/src/probability.ts';
 
 /**
+ * The Omen of Abyssal Echoes — the one omen spent only when it is USED: it rerolls a Desecration's three
+ * offered mods, and is consumed by the reroll, not by the Desecration (confirmed 2026-09-10). So it is in
+ * `stepOmenIds` — a player without one must never be handed the step — but not in `stepCost`'s up-front
+ * price; the solver and the Quick check add its expected spend themselves.
+ */
+export const ECHOES_OMEN = 'OmenofAbyssalEchoes';
+
+/**
  * The only fields of a step that PRICING reads.
  *
  * Naming that subset is what lets the MDP price its own actions through this one table instead of
@@ -61,7 +69,7 @@ export interface PricedStep {
   readonly boss?: DesecrationBossOmen;
   /** An ANCIENT bone ("Minimum Modifier Level: 40") rather than a Preserved one — priced `desecrate_ancient`. */
   readonly ancient?: boolean;
-  /** An Omen of Abyssal Echoes on a desecration: the three offered mods may be rerolled once. */
+  /** An Omen of Abyssal Echoes on a desecration: the offer may be rerolled once, the omen spent only then. */
   readonly echoes?: boolean;
   /** The mod an essence forces. Read ONLY for essence pricing — see the note above. */
   readonly add?: string;
@@ -205,7 +213,7 @@ export function stepOmenIds(step: PricedStep): string[] {
       else if (step.boss === 'sovereign') ids.push('OmenoftheSovereign');
       if (step.constrainTo === 'prefix') ids.push('OmenofSinistralNecromancy');
       else if (step.constrainTo === 'suffix') ids.push('OmenofDextralNecromancy');
-      if (step.echoes) ids.push('OmenofAbyssalEchoes');
+      if (step.echoes) ids.push(ECHOES_OMEN);
       return ids;
     }
     default:
@@ -329,7 +337,8 @@ export function stepCost(prices: Prices, step: PricedStep): number {
   // charging 0 — a free essence would look like a bargain and dominate every frontier.
   const base = prices.currency[key]
     ?? (key.startsWith('essence:') ? prices.currency[legacyEssenceKey(step)] ?? 0 : 0);
-  const omens = stepOmenIds(step).reduce((sum, id) => sum + (prices.omens[id] ?? 0), 0);
+  // Up front only: the Echoes omen is paid on a reroll, if one happens — see ECHOES_OMEN.
+  const omens = stepOmenIds(step).reduce((sum, id) => (id === ECHOES_OMEN ? sum : sum + (prices.omens[id] ?? 0)), 0);
   return base + omens;
 }
 

@@ -301,9 +301,10 @@ actually consumes (jawbone for a weapon or quiver, rib for armour, collarbone fo
 
 An **Ancient bone** reads *"Minimum Modifier Level: 40"*: its three offers skip every ordinary tier
 below modifier level 40, which is better odds for a high tier at a much dearer bone. The **Omen of
-Abyssal Echoes** lets you throw all three offers back once for a fresh three. Wanting one mod, you do
-that exactly when none of the three is it, so its row shows the chance the mod turns up in either set —
-six draws. The omen is charged whether or not you end up rerolling.
+Abyssal Echoes** lets you throw all three offers back once for a fresh three, which can repeat the first.
+Wanting one mod, you do that exactly when none of the three is it, so its row shows the chance the mod
+turns up in either set — six draws. The omen is spent only when you reroll, so the row's price is the
+bone plus the omen times the chance you'll need it.
 
 Two rules it will tell you about rather than hide: an item holds **at most one desecrated mod**, so
 the row is refused while a carved mod is still on the item; and the boss omens read *"your next
@@ -543,14 +544,13 @@ routes possible.
 
 **Strengths.** Transmutation, Augmentation, Regal, Exalted and Chaos all come in **Basic**, **Greater**
 and **Perfect**. A stronger orb raises the *minimum modifier level* the roll draws from: 35 for a Greater
-orb and 50 for a Perfect one — except a Perfect Transmutation or Augmentation, which rolls at **70**. (A
-Greater Transmutation or Augmentation is modelled at 35; nobody has confirmed that one.) That is not
-always an improvement: raising the floor also deletes low tiers from the pool, so a Perfect orb can be
+orb and 50 for a Perfect one — except Transmutation and Augmentation, whose Greater and Perfect orbs roll
+at **55** and **70**. That is not always an improvement: raising the floor also deletes low tiers from the pool, so a Perfect orb can be
 *worse* for a mod whose good tiers sit low. The engine searches all three and picks per step.
 
 **Omens** modify the currency used with them — the ones the engine models are Sinistral (prefix side),
 Dextral (suffix side), Light, Crystallisation, Necromancy, the Blackblooded, the Liege, the Sovereign,
-**Abyssal Echoes** (reroll a Desecration's three offered mods once), **Whittling** (a Chaos Orb removes your lowest-level mod instead of a random one) and **Greater
+**Abyssal Echoes** (reroll a Desecration's three offered mods once — spent only if you do), **Whittling** (a Chaos Orb removes your lowest-level mod instead of a random one) and **Greater
 Exaltation** (one Exalted Orb adds two mods).
 A *Dextral Exaltation* constrains an Exalt to add a **suffix**; a *Dextral Annulment* constrains an
 Annulment to remove one; a *Dextral Crystallisation* constrains a Perfect Essence's removal. They are

@@ -125,16 +125,18 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   means no Ancient bone, never a free one. The Omen of Abyssal Echoes throws the whole offer back once.
   `keepWeights` in `markovFromItem.ts` is the ONE formula for what an offer is worth: the value, the
   closed-form evaluation and the published edges all read it. The reroll is part of the action
-  signature, or the omened twin folds into the plain one as a dearer duplicate. The omen is charged
-  whether or not the reroll is used — the conservative reading, not a confirmed one (TODO 21).
+  signature. The omen is spent only when the reroll is TAKEN (confirmed 2026-09-10), so it is not in
+  `stepCost`'s up-front price (`ECHOES_OMEN`, cost.ts): `keepWeights` adds its expected spend and rerolls
+  only while the offer is worse than the omen plus a fresh three. Since the player may always decline, the
+  omened draw dominates the plain one and REPLACES it wherever the omen is to hand; `published` shows it
+  as the plain draw wherever the reroll is never taken, and `PolicyNode.actionCost` carries the spend.
 - **Boss draws are built only for a boss whose carved mods the craft targets** (`bossesWanted`,
   markovActions.ts). A PRUNING, and labelled as one: junk can have value, so nothing proves an unwanted
   boss draw useless — 24 crafts measured identical to 1e-6 ex without them. It exists because Ancient +
   Echoes took a weapon from 12 Desecration actions per state to 30 and fubgun's staff past Exhaustive's
   900 s; do not widen the action space again without timing that craft.
 - **Orb strength floors are per currency** (`CURRENCY_FLOOR`, `packages/engine/src/types.ts`): Regal and
-  Exalted 35/50; a Perfect Transmutation or Augmentation 70 (confirmed 2026-09-10); their Greater floor
-  stays at 35, unconfirmed. `REACHABLE_FLOORS` (`markovActions.ts`) derives from it plus the Ancient
+  Exalted 35/50; Transmutation and Augmentation 55/70 (both confirmed 2026-09-10). `REACHABLE_FLOORS` (`markovActions.ts`) derives from it plus the Ancient
   bone's 40 — a floor missing there lets markovSymmetry merge positions that behave apart.
 - **Reachability means ALMOST SURELY, not "with some chance"** (`prob1` in `markovFromItem.ts`), and is
   computed BEFORE value iteration, per phase, with dead states pinned at Infinity. The weak reading let

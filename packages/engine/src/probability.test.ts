@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { ItemBase, Mod, PatchData, Tier } from './index.ts';
-import { transmuteProbability, addAffixProbability, whiteItem, loadPatch, resolveMod } from './index.ts';
+import { transmuteProbability, regalProbability, addAffixProbability, whiteItem, loadPatch, resolveMod } from './index.ts';
 
 // --- tiny synthetic pool with hand-computable weights ----------------------------------------
 const tier = (name: string, ilvl: number, weight: number): Tier => ({ name, ilvl, weight, ranges: [] });
@@ -62,10 +62,17 @@ describe('item level caps tier eligibility', () => {
 });
 
 describe('currency strength (Greater orb) raises the tier floor', () => {
-  it('floor 35 leaves only the ilvl-40 prefix tier, so it is certain', () => {
-    // greater floor=35: only P_SPELL ilvl40 (100) is eligible anywhere; suffix pool empties → prefix-only
-    expect(transmuteProbability(DATA, BASE, 'P_SPELL', { currencyTier: 'greater' })).toBeCloseTo(1, 10);
-    expect(transmuteProbability(DATA, BASE, 'P_MANA', { currencyTier: 'greater' })).toBe(0);
+  it('floor 35 leaves only the ilvl-40 prefix tier, so a Greater Regal is certain', () => {
+    // A Greater Regal rolls at 35: only P_SPELL's ilvl-40 tier (100) is eligible anywhere, and the suffix
+    // pool empties, so the draw is prefix-only.
+    const magic = { ...whiteItem(BASE), rarity: 'magic' as const };
+    expect(regalProbability(DATA, magic, 'P_SPELL', { currencyTier: 'greater' })).toBeCloseTo(1, 10);
+    expect(regalProbability(DATA, magic, 'P_MANA', { currencyTier: 'greater' })).toBe(0);
+  });
+
+  // The ladders differ by currency: a Greater Transmute rolls at 55, above every tier on this base.
+  it('a Greater Transmute, at 55, has nothing here to land', () => {
+    expect(transmuteProbability(DATA, BASE, 'P_SPELL', { currencyTier: 'greater' })).toBe(0);
   });
 });
 

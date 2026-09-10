@@ -326,7 +326,7 @@ describe('engine facade — the Quick check prices what the routes charge', () =
     expect(ancient.cost).toBeCloseTo(shipped.prices.bones!['jawbone_ancient']!, 9);
   });
 
-  it('offers each bone again with an Omen of Abyssal Echoes: six draws, for the bone plus the omen', () => {
+  it('offers each bone again with an Omen of Abyssal Echoes: six draws, the omen spent only on a miss', () => {
     const acts = currencyActions(shipped, wand, { addModId: 'Wands/Intelligence' });
     const plain = acts.find((a) => a.label === 'Desecration')!;
     const echoed = acts.find((a) => a.label === 'Desecration + Omen of Abyssal Echoes')!;
@@ -334,7 +334,8 @@ describe('engine facade — the Quick check prices what the routes charge', () =
     // Wanting one mod you reroll exactly when none of the three is it, so it is kept if it shows in
     // either set of three.
     expect(echoed.prob).toBeCloseTo(1 - (1 - draw) ** 6, 12);
-    expect(echoed.cost).toBeCloseTo(plain.cost + shipped.prices.omens['OmenofAbyssalEchoes']!, 9);
+    // The omen is spent only when the first three miss, so the row carries its average spend.
+    expect(echoed.cost).toBeCloseTo(plain.cost + shipped.prices.omens['OmenofAbyssalEchoes']! * (1 - draw) ** 3, 9);
   });
 });
 

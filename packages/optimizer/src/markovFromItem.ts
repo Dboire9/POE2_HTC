@@ -77,6 +77,12 @@ export interface PolicyNode {
   readonly expectedCost: number;
   /** The optimal currency to use here (undefined at the goal). */
   readonly action?: McAction;
+  /**
+   * What playing `action` once costs here, ON AVERAGE: its price, plus — for a Desecration carrying an
+   * Omen of Abyssal Echoes — the omen times the chance this policy rerolls, since the omen is spent only
+   * then. The action's plain price for everything else; undefined at the goal.
+   */
+  readonly actionCost?: number;
   /** The item's rarity here. Without it a 2-mod Magic item and a 2-mod Rare item render identically
    *  while behaving completely differently — one of them cannot take an Exalt at all. */
   readonly rarity: McRarity;
@@ -733,8 +739,9 @@ export function markovFromItem(
     readonly isRestart: boolean;
     /** Draws shown to the player, of which they keep the best; 1 for an ordinary action. See `valueOf`. */
     readonly offer: number;
-    /** Times the whole offer may be thrown back for a fresh one: 1 under an Omen of Abyssal Echoes. */
-    readonly reroll: number;
+    /** What throwing the whole offer back once costs — an Omen of Abyssal Echoes, spent only on the
+     *  throw. Infinity for an offer with no reroll, and for every ordinary action. */
+    readonly rerollCost: number;
     /** An offer's outcomes, KEPT sorted by V between calls, so re-sorting is near-linear. Empty otherwise. */
     readonly order: Int32Array;
   }
@@ -778,7 +785,7 @@ export function markovFromItem(
       }
       if (to.length > widestOffer && offer > 1) widestOffer = to.length;
       out.push({
-        def, cost: def.cost, selfProb, offer, reroll: def.reroll ?? 0, isRestart: def.action.currency === 'restart',
+        def, cost: def.cost, selfProb, offer, rerollCost: def.reroll?.cost ?? Infinity, isRestart: def.action.currency === 'restart',
         to: Int32Array.from(to), prob: Float64Array.from(prob),
         order: offer > 1 ? Int32Array.from(to, (_, j) => j) : NO_ORDER,
       });
@@ -907,6 +914,8 @@ export function markovFromItem(
   for (let i = 0; i < N; i++) if (canReachPushForward[i] !== 1) V[i] = Infinity;
   // Reused by every offer evaluation; sized once so the hot loop allocates nothing.
   const keptScratch = new Float64Array(widestOffer);
+  /** P(the offer was thrown back) in the latest `keepWeights` call — read straight after it, never later. */
+  let lastThrow = 0;
   /** `x ** m`, but an offer is three, and Math.pow is a real cost in the hottest loop of the solve. */
   const powOffer = (x: number, m: number): number => (m === 3 ? x * x * x : x ** m);
   /**
@@ -923,15 +932,17 @@ export function markovFromItem(
    * is one formula, not a special case bolted on. O(K log K) with K ≈ 10 outcomes, and only a
    * Desecration pays it.
    *
-   * With a REROLL — an Omen of Abyssal Echoes — the player sees the first offer and may throw all of
-   * it back for a fresh one, which they must then keep. They throw it back exactly when the best of it
-   * is worse than a fresh offer is worth, τ = Σ P(keep k)·V_k, the plain value above. So outcome k is
-   * kept from the first offer when V_k ≤ τ, and from the second whenever the first went back:
+   * With a REROLL — an Omen of Abyssal Echoes, spent only when used (confirmed 2026-09-10) — the player
+   * sees the first offer and may pay the omen to throw all of it back for a fresh one, which they must
+   * then keep; the fresh three may repeat mods from the first. They throw it back exactly when its best
+   * is worse than the omen plus a fresh offer: c + τ, with τ = Σ P(keep k)·V_k the plain value above.
+   * So outcome k is kept from the first offer when V_k ≤ c + τ, and from the second whenever the first
+   * went back:
    *
-   *     P'(keep k) = [V_k ≤ τ]·P(keep k) + P(throw)·P(keep k),    P(throw) = Σ over V_j > τ of P(keep j)
+   *     P'(keep k) = [V_k ≤ c + τ]·P(keep k) + P(throw)·P(keep k),   P(throw) = Σ over V_j > c + τ of P(keep j)
    *
-   * The weights still sum to one. The omen is in `a.cost` whether or not it gets used — the
-   * conservative reading of when the game consumes it.
+   * The weights still sum to one; the value adds the omen's expected spend, P(throw)·c, and leaves
+   * P(throw) in `lastThrow` for the callers that need the spend on its own.
    *
    * Fills `w` with the probability of ending on each outcome, indexed like `a.to`, and returns Σ w·V —
    * the action's value less its cost. `offerValue`, the closed-form evaluation and the published edges
@@ -965,16 +976,20 @@ export function markovFromItem(
       fresh += V[a.to[idx]!]! * w[idx];
       tailPow = nextPow;
     }
-    if (a.reroll === 0) return fresh;
+    lastThrow = 0;
+    if (a.rerollCost === Infinity) return fresh;
+    const bar = fresh + a.rerollCost; // anything no worse than paying for a fresh offer is kept
     let thrown = 0;
-    for (let j = 0; j < K; j++) if (V[a.to[j]!]! > fresh) thrown += w[j]!;
+    for (let j = 0; j < K; j++) if (V[a.to[j]!]! > bar) thrown += w[j]!;
+    if (thrown === 0) return fresh;
     let kept = 0;
     for (let j = 0; j < K; j++) {
       const v = V[a.to[j]!]!;
-      w[j] = (v > fresh ? 0 : w[j]!) + thrown * w[j]!;
+      w[j] = (v > bar ? 0 : w[j]!) + thrown * w[j]!;
       kept += w[j]! * v;
     }
-    return kept;
+    lastThrow = thrown;
+    return kept + thrown * a.rerollCost;
   };
   const offerValue = (a: CompiledAction): number => a.cost + keepWeights(a, keptScratch);
   const valueOf = (a: CompiledAction): number => {
@@ -1103,6 +1118,7 @@ export function markovFromItem(
     const wTo: Int32Array[] = new Array<Int32Array>(N);
     const wPr: Float64Array[] = new Array<Float64Array>(N);
     const selfW = new Float64Array(N);
+    const spendOf = new Float64Array(N); // an Echoes omen's expected spend, frozen with the weights
     const isTerm = new Uint8Array(N);   // goal or "policy restarts here" — the chain stops
     const cOf = new Float64Array(N);
     const qOf = new Float64Array(N);
@@ -1120,6 +1136,7 @@ export function markovFromItem(
         // shows up in the weights and is split out below.
         const w = new Float64Array(a.to.length);
         keepWeights(a, w, true);
+        if (lastThrow > 0) spendOf[i] = lastThrow * a.rerollCost;
         let self = 0;
         for (let j = 0; j < a.to.length; j++) if (a.to[j] === i) self += w[j]!;
         wTo[i] = a.to; wPr[i] = w; selfW[i] = self;
@@ -1145,7 +1162,7 @@ export function markovFromItem(
         const to = wTo[i]!; const pr = wPr[i]!;
         const denom = 1 - selfW[i]!;
         if (denom <= 1e-12) { cOf[i] = Infinity; qOf[i] = 1; continue; } // only loops back: no progress
-        let cAcc = a.cost; let qAcc = 0;
+        let cAcc = a.cost + spendOf[i]!; let qAcc = 0;
         for (let j = 0; j < to.length; j++) {
           const t = to[j]!;
           // Self-weight is divided out below, never summed here. For an ordinary action `to` already
@@ -1448,11 +1465,30 @@ export function markovFromItem(
   };
 
   // Full policy over every non-goal state (the reachable graph below is a subset) — for the MC validator.
+  /**
+   * An action as the result reports it: what to play, and what playing it once costs on average.
+   *
+   * An Echoes-omened Desecration is offered INSTEAD of the plain one (it can only be better), so where
+   * its reroll is never worth taking it is published as the plain draw — the player needs no omen for
+   * it, and it is worth exactly the same. Elsewhere it keeps the omen, and its cost the expected spend.
+   */
+  const published = (a: CompiledAction): { action: McAction; cost: number } => {
+    const d = a.def.action;
+    if (a.offer <= 1 || a.rerollCost === Infinity || d.currency !== 'desecrate') return { action: d, cost: a.cost };
+    keepWeights(a, keptScratch, true);
+    if (lastThrow > 0) return { action: d, cost: a.cost + lastThrow * a.rerollCost };
+    const plain: McAction = {
+      currency: 'desecrate',
+      ...(d.boss ? { boss: d.boss } : {}), ...(d.side ? { side: d.side } : {}), ...(d.ancient ? { ancient: true } : {}),
+    };
+    return { action: plain, cost: a.cost };
+  };
+
   const policy = new Map<StateKey, McAction>();
   for (const key of allStates) {
     if (goalKeys.has(key)) continue;
     const a = bestAction(key);
-    if (a) policy.set(key, a.def.action);
+    if (a) policy.set(key, published(a).action);
   }
 
   // Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) +
@@ -1508,6 +1544,7 @@ export function markovFromItem(
     const st = decodeState(k);
     const isGoal = goalKeys.has(k);
     const act = isGoal ? undefined : bestAction(k);
+    const shown = act ? published(act) : undefined;
     nodes.push({
       key: k,
       present: list.filter((_, i) => has(st.present, i)).map(idsOf),
@@ -1515,13 +1552,13 @@ export function markovFromItem(
       junkPrefixes: st.jp, junkSuffixes: st.js, rarity: st.rarity,
       ...flagFields(st),
       isStart: k === startKey, isGoal, depth: distanceToGoal(k), expectedCost: V[idxOfState.get(k)!] ?? Infinity,
-      ...(act ? { action: act.def.action } : {}),
+      ...(shown ? { action: shown.action, actionCost: shown.cost } : {}),
     });
-    if (act) {
+    if (act && shown) {
       for (const [rawTo, p] of realizedDist(act)) {
         if (p <= 0) continue;
         const to = canonical(rawTo);
-        edges.push({ from: k, to, action: act.def.action, prob: p, regress: distanceToGoal(to) > distanceToGoal(k) });
+        edges.push({ from: k, to, action: shown.action, prob: p, regress: distanceToGoal(to) > distanceToGoal(k) });
         if (!seen.has(to)) queue.push(to);
       }
     }

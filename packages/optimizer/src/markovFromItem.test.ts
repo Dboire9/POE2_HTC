@@ -1188,6 +1188,11 @@ describe('enumerateStates — a family cannot be held twice', () => {
  * representation changes: they delete states the solver could not tell apart, so every cost, bound and
  * feasibility here is expected to survive them EXACTLY. Captured before either landed, on 0.5.0.
  *
+ * Re-captured 2026-09-10, when Greater Transmutation and Augmentation moved to their real floor of 55 — a
+ * model change, which moved every from-white number here. Before re-pinning, each cross-family craft was
+ * solved again with the quotienting switched off (`permutationClasses` returning nothing): identical,
+ * but for the three-way group at two ulp.
+ *
  * A tolerance would defeat the point. These are `toBe`, and a change of any size is the alarm.
  */
 describe('markovFromItem — costs are invariant under lattice reduction', () => {
@@ -1217,11 +1222,11 @@ describe('markovFromItem — costs are invariant under lattice reduction', () =>
     expect(r.feasible).toBe(true);
     expect(r.bound).toBe('exact');
     // Cold and Lightning are interchangeable on this base, so their two spellings collapse onto one
-    // state and the outcomes that led to each are summed together. Reordering a floating-point sum
-    // moves the last bit: 55.10323732898523 against 55.103237328985244, one ulp. (The three-way craft
-    // below quotients too and lands byte-identical — whether the reordering bites is luck, which is
-    // exactly why this is pinned to fifteen figures rather than to whatever came out.)
-    expect(r.expectedCost).toBeCloseTo(55.103237328985244, 12);
+    // state and the outcomes that led to each are summed together. Reordering a floating-point sum can
+    // move the last bits: here it lands byte-identical, the three-way craft below two ulp off. Whether
+    // the reordering bites is luck, which is exactly why both are pinned to fifteen figures rather than
+    // to whatever came out.
+    expect(r.expectedCost).toBeCloseTo(51.194548140883654, 12);
   });
 
   it('cross-family, three alternatives', () => {
@@ -1229,7 +1234,8 @@ describe('markovFromItem — costs are invariant under lattice reduction', () =>
       { modId: XCOLD, slot: 2 }, { modId: XFIRE, slot: 2 }, { modId: XLIGHT, slot: 2 }]);
     expect(r.feasible).toBe(true);
     expect(r.bound).toBe('exact');
-    expect(r.expectedCost).toBe(40.2303738299529);
+    // 37.67364148683409 with the quotienting off; see the two-way craft above.
+    expect(r.expectedCost).toBeCloseTo(37.67364148683411, 12);
   });
 
   it('same-family, three alternatives', () => {
@@ -1239,10 +1245,10 @@ describe('markovFromItem — costs are invariant under lattice reduction', () =>
     expect(r.bound).toBe('exact');
     // The one anchor that is NOT `toBe`, and the reason is the mechanism rather than a fudge: merging
     // sums the members' weights and divides once, where three separate targets each divided first.
-    // `(a+b+c)/g` and `a/g + b/g + c/g` differ in the last bits of the mantissa — 23.539201819271984
-    // against 23.539201819271987, three ulp. Pinned to fifteen significant figures, which is far
-    // tighter than any real change to the model could hide in.
-    expect(r.expectedCost).toBeCloseTo(23.539201819271987, 12);
+    // `(a+b+c)/g` and `a/g + b/g + c/g` differ in the last bits of the mantissa — three ulp when this was
+    // first captured. Pinned to fifteen significant figures, which is far tighter than any real change
+    // to the model could hide in.
+    expect(r.expectedCost).toBeCloseTo(22.229403965971063, 12);
   });
 
   /**
@@ -1265,7 +1271,7 @@ describe('markovFromItem — costs are invariant under lattice reduction', () =>
       { modId: WFIRE, slot: 1 }, { modId: WCARVED, slot: 1 }]);
     expect(r.feasible).toBe(true);
     expect(r.bound).toBe('exact');
-    expect(r.expectedCost).toBe(68.08074919253308);
+    expect(r.expectedCost).toBe(64.41469972366163);
   });
 
   /**
@@ -1354,7 +1360,7 @@ describe('markovFromItem — costs are invariant under lattice reduction', () =>
       { modId: XCOLD, slot: 2, minTierIndex: 5 }, { modId: XLIGHT, slot: 2, minTierIndex: 3 }]);
     expect(r.feasible).toBe(true);
     expect(r.bound).toBe('exact');
-    expect(r.expectedCost).toBe(111.62502259425796);
+    expect(r.expectedCost).toBe(92.89279180203232);
   });
 });
 

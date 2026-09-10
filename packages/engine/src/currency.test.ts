@@ -73,25 +73,35 @@ describe('exalt (rare only) + slot fullness', () => {
 });
 
 /**
- * A Perfect Orb of Transmutation "upgrades a normal item to magic, guaranteeing 1 modifier with minimum
- * modifier level of 70. Augmentation is the same" (confirmed 2026-09-10). One table used to give every
- * orb the Exalt's ladder — Perfect 50 — so a Perfect Transmute could land a mod whose best tier is 54.
+ * "Perfect Orb of Transmutation … guaranteeing 1 modifier with minimum modifier level of 70. Augmentation
+ * is the same", and "for greater both are minimum modifier level of 55" (confirmed 2026-09-10). One table
+ * used to give every orb the Exalt's ladder — Greater 35, Perfect 50.
  */
-describe('Perfect Transmutation and Augmentation roll at modifier level 70', () => {
+describe('Transmutation and Augmentation roll at modifier level 55 (Greater) and 70 (Perfect)', () => {
   const shipped = loadPatch('data/patches/0.5.0');
   const rings = shipped.bases.get('Rings')!;
-  const LIFE = 'Rings/IncreasedLife'; // its best tier is ilvl 54: between the Exalt's 50 and 70
+  const LIFE = 'Rings/IncreasedLife'; // best tier ilvl 54 — under both floors
+  const RES = 'Rings/AllResistances'; // best tier ilvl 68 — between them
   const at = (rarity: Rarity): ItemState => ({ base: rings, level: 82, rarity, prefixes: [], suffixes: [] });
+  const p = (currency: 'transmute' | 'augment' | 'regal', id: string, tier: 'greater' | 'perfect'): number =>
+    addNormalAffixProbability(shipped, at(currency === 'transmute' ? 'normal' : 'magic'), currency, id, { currencyTier: tier });
 
-  it('cannot land a mod whose best tier is below 70', () => {
-    expect(Math.max(...shipped.mods.get(LIFE)!.tiers.map((t) => t.ilvl))).toBeLessThan(70);
-    expect(addNormalAffixProbability(shipped, at('normal'), 'transmute', LIFE, { currencyTier: 'perfect' })).toBe(0);
-    expect(addNormalAffixProbability(shipped, at('magic'), 'augment', LIFE, { currencyTier: 'perfect' })).toBe(0);
+  it('reads the best tiers these tests lean on', () => {
+    const best = (id: string) => Math.max(...shipped.mods.get(id)!.tiers.map((t) => t.ilvl));
+    expect(best(LIFE)).toBe(54);
+    expect(best(RES)).toBe(68);
   });
 
-  /** The ladders differ by currency; the other rungs did not move. */
-  it('leaves a Perfect Regal at 50 and a Greater Transmute at 35, so both still can', () => {
-    expect(addNormalAffixProbability(shipped, at('magic'), 'regal', LIFE, { currencyTier: 'perfect' })).toBeGreaterThan(0);
-    expect(addNormalAffixProbability(shipped, at('normal'), 'transmute', LIFE, { currencyTier: 'greater' })).toBeGreaterThan(0);
+  it('a Perfect one cannot land a mod whose best tier is under 70; a Greater one can, from 55', () => {
+    for (const c of ['transmute', 'augment'] as const) {
+      expect(p(c, RES, 'perfect'), c).toBe(0);
+      expect(p(c, RES, 'greater'), c).toBeGreaterThan(0);
+    }
+  });
+
+  it('a Greater one cannot land a mod whose best tier is under 55 — a Regal, on its own ladder, still can', () => {
+    for (const c of ['transmute', 'augment'] as const) expect(p(c, LIFE, 'greater'), c).toBe(0);
+    expect(p('regal', LIFE, 'greater')).toBeGreaterThan(0); // the Regal's Greater floor: 35
+    expect(p('regal', LIFE, 'perfect')).toBeGreaterThan(0); // and its Perfect: 50
   });
 });

@@ -12,7 +12,7 @@ import { excluded, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
 import { ANCIENT_BONE_FLOOR, DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
-import { allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost } from './cost.ts';
+import { ECHOES_OMEN, allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost } from './cost.ts';
 import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
 import {
   FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, addTo, anyWeightOf, bit, decodeState,
@@ -37,7 +37,7 @@ export type McAction =
   //
   // `ancient` is the bone's grade: an Ancient bone draws its three offers at minimum modifier level 40
   // (ANCIENT_BONE_FLOOR), a Preserved one at 0. `echoes` is an Omen of Abyssal Echoes: see the offer,
-  // and throw all three back once for a fresh three when they are worse than a fresh three is worth.
+  // and pay the omen to throw all three back for a fresh three when that beats keeping the best of them.
   | {
     readonly currency: 'desecrate'; readonly boss?: DesecrationBossOmen; readonly side?: 'prefix' | 'suffix';
     readonly ancient?: true; readonly echoes?: true;
@@ -91,10 +91,10 @@ export interface ActionDef {
    */
   readonly offer?: number;
   /**
-   * How many times the player may throw the whole offer back for a fresh one — an Omen of Abyssal
-   * Echoes gives one. Absent means none. Only meaningful with `offer`; see `keepWeights`.
+   * The player may throw the whole offer back ONCE for a fresh one — an Omen of Abyssal Echoes — paying
+   * `cost` only if they do. Absent means no reroll. Only meaningful with `offer`; see `keepWeights`.
    */
-  readonly reroll?: number;
+  readonly reroll?: { readonly cost: number };
 }
 
 /**
@@ -259,7 +259,10 @@ export function createActionSpace(params: ActionSpaceParams): {
   const lightOk = omenOk('OmenofLight');
   const necromancyOk = (sd: 'prefix' | 'suffix'): boolean =>
     omenOk(sd === 'prefix' ? 'OmenofSinistralNecromancy' : 'OmenofDextralNecromancy');
-  const echoesOk = omenOk('OmenofAbyssalEchoes');
+  // The omen is spent only on a reroll, so its price travels as the reroll's cost — never in an action's
+  // up-front `cost` (see ECHOES_OMEN in cost.ts).
+  const echoesPrice = prices.omens[ECHOES_OMEN];
+  const echoesOk = echoesPrice !== undefined && notExcluded(ECHOES_OMEN);
   // The grades of bone this solve can spend: a Preserved one wherever desecration is in play, an Ancient
   // one only where the sheet prices it — an absent price must never read as a free bone. Exclusion is
   // enforced by `push` like everything else.
@@ -663,11 +666,11 @@ export function createActionSpace(params: ActionSpaceParams): {
    * P=1 exactly as a restart does, and folding those two together would leave phase A with no action at
    * all at that state — an Infinity where a real value belongs, and a different seed for phase B.
    *
-   * The reroll is in it for the opposite reason: an Echoes-omened offer is its plain twin's draw
-   * exactly, at a higher price, and worth more. Folded, it would be dropped as a dearer duplicate.
+   * The reroll is in it too: an Echoes-omened offer shares its plain twin's draw exactly and is worth
+   * more, so should the two ever be offered side by side they are different moves.
    */
-  const signatureOf = (action: McAction, dist: Dist, offer: number, reroll: number): string =>
-    `${action.currency === 'restart'}|${offer}|${reroll}|`
+  const signatureOf = (action: McAction, dist: Dist, offer: number, reroll: boolean): string =>
+    `${action.currency === 'restart'}|${offer}|${reroll ? 1 : 0}|`
     + [...dist].map(([k, p]) => `${k}=${p}`).sort().join(';');
 
   // The one place an action enters the space, so the one place exclusion has to hold. The `*Ok` gates
@@ -680,14 +683,14 @@ export function createActionSpace(params: ActionSpaceParams): {
   // did before the fold existed.
   const pusher = (acts: ActionDef[]) => {
     const seen = new Map<string, number>(); // outcome signature → its slot in `acts`
-    return (action: McAction, dist: Dist, offer?: number, reroll?: number): void => {
+    return (action: McAction, dist: Dist, offer?: number, reroll?: { readonly cost: number }): void => {
       if (dist.size === 0) return;
       if (!allowsAction(policy, action)) return;
       const cost = actionCostOf(prices, action);
       const def: ActionDef = {
         action, cost, dist, ...(offer === undefined ? {} : { offer }), ...(reroll ? { reroll } : {}),
       };
-      const sig = signatureOf(action, dist, offer ?? 1, reroll ?? 0);
+      const sig = signatureOf(action, dist, offer ?? 1, reroll !== undefined);
       const at = seen.get(sig);
       // Replace IN PLACE rather than appending, so the survivor keeps the earlier slot and the solver
       // still sees the push order the tie-breaks above rely on.
@@ -766,21 +769,23 @@ export function createActionSpace(params: ActionSpaceParams): {
       // must own. (It used to survive only by winning `bestAction`'s strict `<`, after both had been
       // evaluated on every sweep.)
       //
-      // Every draw comes twice where the player has an Omen of Abyssal Echoes: as itself, and with one
-      // reroll of the whole offer. Same distribution, so it is built once; the reroll is part of the
-      // signature, so the omened twin is never folded into the plain one.
-      const offerBoth = (action: DesecrateAction, dist: Dist): void => {
-        push(action, dist, DESECRATION_OFFER_COUNT);
-        if (echoesOk) push({ ...action, echoes: true }, dist, DESECRATION_OFFER_COUNT, 1);
+      // Where the player has an Omen of Abyssal Echoes every draw is offered WITH it, and not also
+      // without: the omen is spent only if they reroll, and they are free not to, so the omened draw is
+      // worth at least the plain one in every state. Offering both would double the work for nothing.
+      // Where the reroll is never worth taking, the solve publishes the step as the plain draw it then
+      // is (`published` in markovFromItem.ts).
+      const offerDraw = (action: DesecrateAction, dist: Dist): void => {
+        if (echoesOk) push({ ...action, echoes: true }, dist, DESECRATION_OFFER_COUNT, { cost: echoesPrice });
+        else push(action, dist, DESECRATION_OFFER_COUNT);
       };
       // Preserved first, then Ancient: where the floor changes nothing (every outcome of the draw already
       // at ilvl 40 or above) the two draws are identical, and the fold keeps the cheaper bone.
       for (const grade of bonesOffered) {
         const floor = grade.ancient ? ANCIENT_BONE_FLOOR : 0;
-        offerBoth({ currency: 'desecrate', ...grade }, desecrateAnyOutcomes(s, undefined, floor));
+        offerDraw({ currency: 'desecrate', ...grade }, desecrateAnyOutcomes(s, undefined, floor));
         for (const sd of ['prefix', 'suffix'] as const) {
           if (necromancyOk(sd)) {
-            offerBoth({ currency: 'desecrate', ...grade, side: sd }, desecrateAnyOutcomes(s, sd, floor));
+            offerDraw({ currency: 'desecrate', ...grade, side: sd }, desecrateAnyOutcomes(s, sd, floor));
           }
         }
       }
@@ -790,9 +795,9 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (bossTargetable) {
         for (const boss of ['blackblooded', 'liege', 'sovereign'] as const) {
           if (!bossesWanted.has(boss)) continue;
-          offerBoth({ currency: 'desecrate', boss }, desecrateOutcomes(s, boss));
+          offerDraw({ currency: 'desecrate', boss }, desecrateOutcomes(s, boss));
           for (const sd of ['prefix', 'suffix'] as const) {
-            if (necromancyOk(sd)) offerBoth({ currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd));
+            if (necromancyOk(sd)) offerDraw({ currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd));
           }
         }
       }

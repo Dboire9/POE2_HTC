@@ -130,14 +130,14 @@ export type StrengthCurrency = 'transmute' | 'augment' | 'regal' | 'exalt';
  * Minimum modifier level each orb strength imposes — PER CURRENCY, because the ladders differ.
  *
  *   • Regal and Exalted: Greater 35, Perfect 50 (ExaltAndRegalProbability.java).
- *   • Transmutation and Augmentation: Perfect **70** — "guaranteeing 1 modifier with minimum modifier
- *     level of 70. Augmentation is the same" (the user, 2026-09-10). One shared table used to give them
- *     the Exalt's 50, which let a Perfect Transmute land tiers it cannot.
- *   • Their GREATER floor is not confirmed, so it keeps the shared 35 it has always had.
+ *   • Transmutation and Augmentation: Greater **55**, Perfect **70** — "guaranteeing 1 modifier with
+ *     minimum modifier level of 70. Augmentation is the same" and "for greater both are minimum modifier
+ *     level of 55" (the user, 2026-09-10). One shared table used to give them the Exalt's ladder, which
+ *     let them land tiers they cannot.
  */
 export const CURRENCY_FLOOR: Record<StrengthCurrency, Record<CurrencyTier, number>> = {
-  transmute: { base: 0, greater: 35, perfect: 70 },
-  augment: { base: 0, greater: 35, perfect: 70 },
+  transmute: { base: 0, greater: 55, perfect: 70 },
+  augment: { base: 0, greater: 55, perfect: 70 },
   regal: { base: 0, greater: 35, perfect: 50 },
   exalt: { base: 0, greater: 35, perfect: 50 },
 };

@@ -21,7 +21,7 @@ import {
 // because the UI has to DESCRIBE desecration differently on armour, not just cost it differently.
 export { bossOmenAllowed };
 import {
-  cheapestEssenceLevel, currencyKey, essenceLevelOf, indexPrices, pricesForBase, stepCost,
+  ECHOES_OMEN, cheapestEssenceLevel, currencyKey, essenceLevelOf, indexPrices, pricesForBase, stepCost,
   type PricedStep, type Prices, type PricesFile,
 } from '../../packages/optimizer/src/cost.ts';
 import { atStrength } from '../../packages/optimizer/src/levers.ts';
@@ -279,6 +279,8 @@ interface ActionRow {
   readonly detail: string;
   readonly prob: number;
   readonly reason?: string;
+  /** Average spend beyond the step's up-front price: an Echoes omen, paid only if the offer is rerolled. */
+  readonly extraCost?: number;
 }
 
 /**
@@ -313,12 +315,17 @@ function desecrationRows(data: PatchData, state: ItemState, add: Mod, sheet: Pri
     return prob > 0 ? { step, label, detail, prob } : { step, label, detail, prob, reason: why() };
   };
   // Every row comes twice where the sheet prices an Omen of Abyssal Echoes: as itself, and with one
-  // reroll of the whole offer — wanting one mod, you reroll exactly when none of the three is it.
-  const echoes = sheet.omens.OmenofAbyssalEchoes !== undefined;
+  // reroll of the whole offer — wanting one mod, you reroll exactly when none of the three is it. The
+  // omen is spent only then, so the row carries its average spend: its price times that chance.
+  const echoesPrice = sheet.omens[ECHOES_OMEN];
   const offer = (step: PricedStep, label: string, detail: string, draw: number, reason?: string): void => {
-    for (const e of echoes ? [false, true] : [false]) {
-      const r = e
-        ? row({ ...step, echoes: true }, `${label} + Omen of Abyssal Echoes`, `${detail}, rerolling all 3 once if none is`, draw)
+    for (const e of echoesPrice === undefined ? [false] : [false, true]) {
+      const r: ActionRow = e
+        ? {
+          ...row({ ...step, echoes: true }, `${label} + Omen of Abyssal Echoes`,
+            `${detail} — if none is, the omen rerolls all 3 (spent only then)`, draw),
+          extraCost: echoesPrice! * (1 - desecrationOffered(draw)),
+        }
         : row(step, label, detail, draw);
       rows.push(reason === undefined ? r : { ...r, reason });
     }
@@ -378,10 +385,10 @@ export function currencyActions(
   const sheet = pricesForBase(prices, state.base);
   const text = (id: string): string => data.mods.get(id)?.text ?? id;
   const push = (
-    step: PricedStep, label: string, detail: string, prob: number, reason?: string,
+    step: PricedStep, label: string, detail: string, prob: number, reason?: string, extraCost = 0,
   ): void => {
     const row = {
-      currency: step.currency, label, detail, prob, cost: stepCost(sheet, step), feasible: prob > 0,
+      currency: step.currency, label, detail, prob, cost: stepCost(sheet, step) + extraCost, feasible: prob > 0,
     };
     actions.push(reason === undefined ? row : { ...row, reason });
   };
@@ -427,7 +434,7 @@ export function currencyActions(
           c > 0 ? undefined : (!onItem(removeModId) ? `${text(removeModId)} isn’t on the item` : `can’t add ${text(addModId)} even after the swap`));
         pushStrengths({ currency: 'chaos', add: addModId, remove: removeModId }, 'Chaos Orb', swap);
       }
-      for (const row of desecrationRows(data, state, add, sheet)) push(row.step, row.label, row.detail, row.prob, row.reason);
+      for (const row of desecrationRows(data, state, add, sheet)) push(row.step, row.label, row.detail, row.prob, row.reason, row.extraCost);
       // A Perfect Essence adds its mod for CERTAIN and takes one at random in exchange, so the only
       // uncertainty — and the only thing worth quoting — is which mod it eats. That makes a sacrifice
       // mandatory to the question, not optional to it: `PlanStep`'s perfect-essence variant requires

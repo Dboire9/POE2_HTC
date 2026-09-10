@@ -201,7 +201,7 @@ describe('cheapestEssenceLevel — a better essence is often the cheaper one', (
   });
 });
 
-describe('a bone has two grades, priced apart, and the Echoes omen is a surcharge on either', () => {
+describe('a bone has two grades, priced apart, and the Echoes omen rides on either', () => {
   const wands = loadPatch('data/patches/0.5.0').bases.get('Wands')!;
   const sheet: Prices = {
     currency: { desecrate: 9 }, omens: { OmenofAbyssalEchoes: 3 },
@@ -215,10 +215,12 @@ describe('a bone has two grades, priced apart, and the Echoes omen is a surcharg
     expect(stepCost(p, { currency: 'desecrate', ancient: true })).toBe(50);
   });
 
-  it('charges the omen on top of whichever bone it rides on', () => {
+  /** Spent only on a reroll, so it is no part of the up-front price — the solver and the Quick check
+   *  add its expected spend themselves. */
+  it('leaves the omen out of the up-front price, since it is spent only on a reroll', () => {
     const p = pricesForBase(sheet, wands);
-    expect(stepCost(p, { currency: 'desecrate', echoes: true })).toBe(1 + 3);
-    expect(stepCost(p, { currency: 'desecrate', ancient: true, echoes: true })).toBe(50 + 3);
+    expect(stepCost(p, { currency: 'desecrate', echoes: true })).toBe(1);
+    expect(stepCost(p, { currency: 'desecrate', ancient: true, echoes: true })).toBe(50);
   });
 
   it('lets a player be without Ancient bones, or without the omen, and keep the rest', () => {

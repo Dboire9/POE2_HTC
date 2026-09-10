@@ -3858,7 +3858,8 @@ Three rulings from the user on one day, each answering a question the app had pu
 - **"Perfect Orb of Transmutation … guaranteeing 1 modifier with minimum modifier level of 70.
   Augmentation is the same."** The engine had one ladder for every orb — the Exalt's, Greater 35 and
   Perfect 50 — so a Perfect Transmute could land a mod whose best tier sits at 54 (`Rings/IncreasedLife`).
-  `CURRENCY_FLOOR` is per currency now. Greater Transmutation and Augmentation were not stated and keep 35.
+  `CURRENCY_FLOOR` is per currency now. Greater Transmutation and Augmentation were not stated and kept
+  35 — until the next entry: 55.
 
 **The reroll, modelled.** A player looking at an offer throws it back exactly when its best is worse than
 a fresh offer is worth, τ = E[best of three], so the outcome kept is
@@ -3867,7 +3868,8 @@ closed-form policy evaluation and the published edges — the three copies of th
 replaced could drift apart silently. Hand-computed on the synthetic 9/7 case, the brick falls from ⅛ to
 1/64 and E = (65 + 64c)/63: 17/15 at c = 0.1, bought; declined above the ¼ break-even; and 100k walks of
 the published graph land on it. The omen is charged whenever it is taken, rerolled or not — the
-conservative reading of when the game consumes it, and the one open assumption here (TODO 21).
+conservative reading of when the game consumes it. **Superseded the same day** (next entry): it is spent
+only on a reroll, which changes this arithmetic to E = (65 + 8c)/63.
 
 **Measured**, frozen sheet, a held Rare, three Wand targets:
 
@@ -3929,6 +3931,75 @@ Exalt's ladder; the Ancient floor ignored; an unpriced Ancient bone offered; 40 
 interchangeability floors; the reroll ignored, made unconditional, or dropped from the action signature;
 the Quick check's rows without the reroll or without the floor; the omen uncharged; the Ancient price key
 or its per-base resolution missing; the step label without the omen.
+
+## The Echoes omen is spent only on a reroll, and Greater is 55 (2026-09-10)
+
+The two open questions from the entry above, answered: *"The echoes is consumed when you reroll all three
+choices, to give you three other choices, not excluding the ones that were presented before. For greater
+both are minimum modifier level of 55."*
+
+**Greater Transmutation and Augmentation roll at 55** (`CURRENCY_FLOOR`). `Rings/IncreasedLife`, best tier
+54, is now out of a Greater Transmute's reach as well as a Perfect one's, while a Greater Regal (35) still
+lands it — pinned in currency.test.ts beside `Rings/AllResistances` (68), which a Greater one reaches and a
+Perfect one does not.
+
+**The omen is paid on the reroll, so it is not in any up-front price.** It stays in `stepOmenIds` — a
+player without one must not get the step — but `stepCost` skips it (`ECHOES_OMEN`). The solver throws
+an offer back only while its best is worse than the omen plus a fresh three, c + τ, and adds the expected
+spend P(throw)·c to the action's value; the closed-form policy evaluation freezes that spend with the
+weights. On the synthetic case the arithmetic becomes E = 1 + ⅛·(c + ⅛·(1 + E)) = (65 + 8c)/63: 47/45 at
+c = 0.1, still rerolling at c = 1.9, and never above c = 2, where it meets the plain 9/7 exactly.
+
+**It changes the action space as well as the price.** An omen the player may decline to use cannot make a
+Desecration worse — keeping the best of three is always one of the choices — so the omened draw dominates
+the plain one in every state, provably, and REPLACES it wherever the omen is to hand. That halves a
+weapon's Desecration actions again, 12 → 6 per state. Where the reroll is never worth taking the step is
+published as the plain draw (`published`), because a player with no omen can play it at the same value;
+`PolicyNode.actionCost` carries each step's average spend, and the 100k-walk test reads it.
+
+**The Quick check** prices its Echoes rows the same way: the bone, plus the omen times the chance the first
+three miss.
+
+**Five anchors moved with the Greater floor.** The lattice-reduction anchors in markovFromItem.test.ts are
+exact from-white Wand costs, and a better Greater Transmute lowers them (55.10 → 51.19 ex on the first).
+Before re-pinning, each cross-family craft was solved again with the quotienting switched off —
+identical, but for the three-way group at two ulp — so the reduction is still exact and only the model
+moved. A synthetic probability test that pinned the Greater floor through a Transmute now pins it
+through a Greater Regal (35) and a Greater Transmute (55).
+
+**Mutation-checked nine ways**, each red: the throw-back threshold without the omen's price; the spend left
+out of the value, or out of the closed-form evaluation; the plain draw offered beside the omened one; the
+omen charged up front; the Quick check without the spend; the step never published as plain; and either
+Greater floor back at 35.
+
+**Measured** — the build on `main` against this one on the same sheet, from white at Standard (15 s), T2
+targets, run side by side:
+
+| craft | `main` | now |
+|---|---|---|
+| Wands, 3 | 4,111 ex, 0.7 s | 2,262 ex, 0.5 s |
+| Wands, 4 | 9,825 ex, 5.0 s | 4,878 ex, 4.3 s |
+| Wands, 5 | ≤ 95,750 ex, 15.7 s | 18,330 ex, 12.9 s |
+| Body_Armours_str, 3 | 1,533 ex, 0.4 s | 934 ex, 0.3 s |
+| Body_Armours_str, 4 | 5,661 ex, 2.3 s | 2,174 ex, 1.4 s |
+| Body_Armours_str, 5 | 8,873 ex, 7.6 s | 4,307 ex, 9.2 s |
+| Amulets, 3 | 8,940 ex, 0.9 s | 5,351 ex, 0.5 s |
+| Amulets, 4 | 24,918 ex, 7.2 s | 12,071 ex, 3.9 s |
+| Staves, 3 | 4,140 ex, 0.6 s | 2,278 ex, 0.5 s |
+| Staves, 4 | 10,081 ex, 6.0 s | 4,997 ex, 3.7 s |
+| Staves, 5 | 26,289 ex, 14.8 s | 18,007 ex, 13.1 s |
+
+Amulets at 5 runs past Standard in both. 32–62% cheaper (`main`'s Wands 5×T2 stopped at the budget with
+only a ceiling this time; an earlier run settled it at 27,006 ex in 15.9 s, so it sits on the edge), and
+faster on ten of the eleven.
+
+**fubgun's Aldur staff**, from white at Exhaustive, alone on this machine: **158,661 ex (596 div) in
+717 s**, exact — from 165,187 ex (621 div) in the entry above and 187,666 ex (705 div) with Preserved
+bones alone. The route now opens Greater Transmute → **Greater Augment** → Greater Regal: at a floor of 55
+a Greater Augment lands the Cold prefix 11.9% of the time, where the old ladder had made the Regal the
+better second step by 0.3 ex. It still ends on the omened bone (2.7% onward, 135 div to go). 717 s is
+inside the 900 s budget by less than the entry above's 664 s — machine variance between the two runs is
+not ruled out — so TODO 20 stands.
 
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share

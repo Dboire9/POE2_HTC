@@ -121,47 +121,58 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
   });
 
   /**
-   * The Omen of Abyssal Echoes: see the three, and throw them all back once for a fresh three (confirmed
-   * 2026-09-10). Same start as the 9/7 case. Wanting DP1, you throw back exactly when the offer is all
-   * DS1 — ⅛ — so the omen turns that brick into (⅛)² = 1/64, and it is charged whether or not it is used:
+   * The Omen of Abyssal Echoes: see the three, and pay the omen to throw them all back once for a fresh
+   * three — which may repeat the first — spending it only then (both confirmed 2026-09-10). Same start as
+   * the 9/7 case. Wanting DP1 you throw back exactly when the offer is all DS1 (⅛) and the omen is worth
+   * it: V(junk) = 1 + E against c + τ, τ = ⅛·V(junk), i.e. while c < ⅞·V(junk) = 2. Then
    *
-   *   E = 1 + c + (1/64)·(1 + E)  ⇒  E = (65 + 64c) / 63
+   *   E = 1 + ⅛·(c + ⅛·(1 + E))  ⇒  E = (65 + 8c) / 63
    *
-   * At c = 0.1 that is 71.4/63 = 17/15 ≈ 1.133, under the plain offer's 9/7 ≈ 1.286, so it is bought.
-   * Break-even is c = ¼.
+   * — 47/45 at c = 0.1, the brick down from ⅛ to 1/64. At c = 2 it meets the plain offer's 9/7.
    */
-  it('an Omen of Abyssal Echoes rerolls a bad offer once: E = 17/15 at 0.1, and the brick is 1 in 64', () => {
-    const prices: Prices = {
-      currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
-      omens: { OmenofAbyssalEchoes: 0.1 },
-    };
-    const r = markovFromItem(data, prices, start, targets, EXACT);
-    expect(r.expectedCost).toBeCloseTo(17 / 15, 9);
+  const echoesAt = (c: number): Prices => ({
+    currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 }, omens: { OmenofAbyssalEchoes: c },
+  });
+
+  it('an Omen of Abyssal Echoes rerolls a bad offer, spent only then: E = 47/45 at 0.1, brick 1 in 64', () => {
+    const r = markovFromItem(data, echoesAt(0.1), start, targets, EXACT);
+    expect(r.expectedCost).toBeCloseTo(47 / 45, 9);
     const s0 = r.nodes.find((nd) => nd.isStart)!;
     expect(s0.action).toEqual({ currency: 'desecrate', echoes: true });
+    // One bone, plus the omen on the ⅛ of offers it is thrown at.
+    expect(s0.actionCost).toBeCloseTo(1 + 0.1 / 8, 12);
     // The graph publishes what the player faces with the omen — six draws missing, not three.
     expect(r.edges.some((e) => e.from === s0.key && e.regress && Math.abs(e.prob - 1 / 64) < 1e-12)).toBe(true);
     expect(r.edges.some((e) => e.from === s0.key && Math.abs(e.prob - 1 / 8) < 1e-9)).toBe(false);
   });
 
-  it('declines the omen where it costs more than the reroll saves (0.5, over the ¼ break-even)', () => {
-    const prices: Prices = {
-      currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
-      omens: { OmenofAbyssalEchoes: 0.5 },
-    };
-    const r = markovFromItem(data, prices, start, targets, EXACT);
-    expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
-    expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'desecrate' });
+  /** The closed-form policy evaluation is a second place the spend must be counted. It runs only once a
+   *  restart is on the table, so this offers one no policy would take. */
+  it('counts the omen’s spend in the closed-form policy evaluation too', () => {
+    const r = markovFromItem(data, echoesAt(0.1), start, targets, { ...EXACT, restartCost: 100, solver: 'policy' });
+    expect(r.expectedCost).toBeCloseTo(47 / 45, 9);
   });
 
-  /** The reroll, played out: the published edges must land on 17/15 too, or the graph and the cost
-   *  describe two different processes (see the 9/7 walk below). */
-  it('100k runs of the published Echoes graph land on the hand-computed 17/15', () => {
-    const prices: Prices = {
-      currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
-      omens: { OmenofAbyssalEchoes: 0.1 },
-    };
-    const r = markovFromItem(data, prices, start, targets, EXACT);
+  it('still rerolls just under the break-even (c = 1.9 < 2): E = 80.2/63, under 9/7', () => {
+    const r = markovFromItem(data, echoesAt(1.9), start, targets, EXACT);
+    expect(r.expectedCost).toBeCloseTo(80.2 / 63, 9);
+    expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'desecrate', echoes: true });
+  });
+
+  /** Above it the reroll is never worth taking, so the omen is never spent — and the step reads as the
+   *  plain bone it then is, since a player without the omen can play it. */
+  it('never rerolls above it (c = 4), and then reads as the plain bone, at the plain 9/7', () => {
+    const r = markovFromItem(data, echoesAt(4), start, targets, EXACT);
+    expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
+    const s0 = r.nodes.find((nd) => nd.isStart)!;
+    expect(s0.action).toEqual({ currency: 'desecrate' });
+    expect(s0.actionCost).toBeCloseTo(1, 12);
+  });
+
+  /** The reroll, played out: the published edges and each step's average cost must land on 47/45, or the
+   *  graph and the figure describe two different processes (see the 9/7 walk below). */
+  it('100k runs of the published Echoes graph land on the hand-computed 47/45', () => {
+    const r = markovFromItem(data, echoesAt(0.1), start, targets, EXACT);
     const byKey = new Map(r.nodes.map((nd) => [nd.key, nd]));
     const outs = new Map<string, { to: string; prob: number }[]>();
     for (const e of r.edges) outs.set(e.from, [...(outs.get(e.from) ?? []), { to: e.to, prob: e.prob }]);
@@ -175,7 +186,7 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
       for (let guard = 0; guard < 10_000; guard++) {
         const nd = byKey.get(cur)!;
         if (nd.isGoal) break;
-        total += actionCostOf(prices, nd.action!);
+        total += nd.actionCost!;
         const list = outs.get(cur)!;
         let x = rng();
         let next = list[list.length - 1]!.to;
@@ -184,8 +195,8 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
       }
     }
     const mc = total / RUNS;
-    expect(mc).toBeGreaterThan((17 / 15) * 0.99);
-    expect(mc).toBeLessThan((17 / 15) * 1.01);
+    expect(mc).toBeGreaterThan((47 / 45) * 0.99);
+    expect(mc).toBeLessThan((47 / 45) * 1.01);
   });
 
   /**

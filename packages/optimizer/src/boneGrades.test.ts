@@ -57,8 +57,8 @@ describe('an Ancient bone: "Minimum Modifier Level: 40"', () => {
 
   /** Positions that agree at every OTHER floor could otherwise pass as interchangeable and behave apart
    *  under an Ancient bone or a Perfect Transmute. */
-  it('is one of the floors the interchangeability check compares at, beside a Perfect Transmute’s 70', () => {
-    expect(REACHABLE_FLOORS).toEqual(expect.arrayContaining([0, 35, ANCIENT_BONE_FLOOR, 50, 70]));
+  it('is one of the floors the interchangeability check compares at, beside a Transmute’s 55 and 70', () => {
+    expect(REACHABLE_FLOORS).toEqual(expect.arrayContaining([0, 35, ANCIENT_BONE_FLOOR, 50, 55, 70]));
   });
 
   it('is played where it pays: three top tiers on a Wand cost ~16% less with it, even at 20ex', () => {
@@ -75,10 +75,10 @@ describe('an Ancient bone: "Minimum Modifier Level: 40"', () => {
 });
 
 describe('the MDP’s Perfect Transmute rolls at modifier level 70 too', () => {
-  it('cannot land a mod whose best tier is below 70, where a Greater one can', () => {
+  it('cannot land a mod whose best tier is below 70, where a Greater one (55) can', () => {
     const rings = data.bases.get('Rings')!;
-    const life = data.mods.get('Rings/IncreasedLife')!; // best tier ilvl 54
-    const list: McTarget[] = [{ mods: [{ mod: life, minIndex: 0 }], type: life.type, fractured: false }];
+    const res = data.mods.get('Rings/AllResistances')!; // best tier ilvl 68
+    const list: McTarget[] = [{ mods: [{ mod: res, minIndex: 0 }], type: res.type, fractured: false }];
     const space = createActionSpace({
       data, prices: pricesForBase(frozen, rings), level: 82, pools: rings.pools, list,
       side: sideIndexOf(list), desecratable: false, bossTargetable: true,

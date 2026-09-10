@@ -64,7 +64,7 @@ describe('the action space never offers two spellings of one move', () => {
           for (const a of acts) {
             // Restart is deliberately excluded from the fold; see the `isRestart` note on `signatureOf`.
             if (a.action.currency === 'restart') continue;
-            const k = `${a.offer ?? 1}|${a.reroll ?? 0}|${distKey(a.dist)}`;
+            const k = `${a.offer ?? 1}|${a.reroll ? 1 : 0}|${distKey(a.dist)}`;
             const prev = seen.get(k);
             expect(prev, `${JSON.stringify(a.action)} duplicates ${JSON.stringify(prev?.action)} at `
               + `present=${present} jp=${jp} js=${js}`).toBeUndefined();
@@ -164,27 +164,32 @@ describe('the action space never offers two spellings of one move', () => {
     const plain = bones.find((a) => !('boss' in a.action) && !('side' in a.action));
     expect(plain).toBeDefined();
     for (const b of bones) {
-      if (b === plain || b.reroll) continue; // an Echoes twin shares the draw by design — see below
+      if (b === plain) continue;
       expect(distKey(b.dist)).not.toBe(distKey(plain!.dist));
     }
   });
 
   /**
-   * …and the one pair it must NOT fold: a Desecration and the same Desecration with an Omen of Abyssal
-   * Echoes. Their draws are identical by construction — the omen changes what the player may do with
-   * the offer, not what it holds — so the reroll is in `signatureOf`, and the dearer twin survives.
+   * An Echoes-omened draw is offered INSTEAD of the plain one, never beside it. The omen is spent only on
+   * a reroll and the player may always decline one, so the omened draw is worth at least the plain one in
+   * every state, and offering both would double the Desecration work for nothing. No omen, no reroll.
    */
-  it('keeps an Echoes-omened draw beside its plain twin, though the two draws are identical', () => {
-    const sheet: Prices = { ...rp, omens: { ...rp.omens, OmenofAbyssalEchoes: 50 } };
-    const { actionsOf } = spaceFor('Wands', WAND, undefined, sheet);
-    const bones = actionsOf(st(0, 0, 0, 0)).filter((a) => a.action.currency === 'desecrate');
-    const plain = bones.find((a) => Object.keys(a.action).length === 1)!;
-    const twin = bones.find((a) => a.action.currency === 'desecrate' && a.action.echoes === true
-      && !a.action.side && !a.action.ancient && !a.action.boss);
-    expect(twin).toBeDefined();
-    expect(distKey(twin!.dist)).toBe(distKey(plain.dist));
-    expect(twin!.reroll).toBe(1);
-    expect(twin!.cost).toBeGreaterThan(plain.cost);
+  it('offers the Echoes-omened draw instead of the plain one while the omen is to hand', () => {
+    const withOmen: Prices = { ...rp, omens: { ...rp.omens, OmenofAbyssalEchoes: 50 } };
+    const bonesWith = spaceFor('Wands', WAND, undefined, withOmen).actionsOf(st(0, 0, 0, 0))
+      .filter((a) => a.action.currency === 'desecrate');
+    expect(bonesWith.length).toBeGreaterThan(0);
+    for (const a of bonesWith) {
+      expect(a.action.currency === 'desecrate' && a.action.echoes).toBe(true);
+      expect(a.reroll?.cost).toBe(50);
+    }
+    const withoutOmen: Prices = {
+      ...rp, omens: Object.fromEntries(Object.entries(rp.omens).filter(([k]) => k !== 'OmenofAbyssalEchoes')),
+    };
+    const bonesWithout = spaceFor('Wands', WAND, undefined, withoutOmen).actionsOf(st(0, 0, 0, 0))
+      .filter((a) => a.action.currency === 'desecrate');
+    expect(bonesWithout.length).toBeGreaterThan(0);
+    expect(bonesWithout.some((a) => a.action.currency === 'desecrate' && a.action.echoes)).toBe(false);
   });
 });
 

@@ -4,8 +4,20 @@ import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { readGear, placedCount, goalCount, type StreamerFile, type StreamerItem } from './streamerGear';
 
 const data = loadPatch('data/patches/0.5.0');
-const file = JSON.parse(readFileSync('data/streamers/0.5.0.json', 'utf8')) as StreamerFile;
-const gear = file.characters[0]!;
+/**
+ * TWO files, on purpose — the same split as `loadFrozenPrices()` against the shipped price sheet.
+ *
+ * `shipped` is what the app serves, and the job REWRITES it whenever it runs: a streamer switching
+ * characters replaces every item in it. So it carries only checks that hold for ANY gear — the file
+ * agrees with the patch data, and every modifier is placed or explained.
+ *
+ * `frozen` is the 2026-09-09 snapshot, and the tests that name a specific real case read it: the Aldur
+ * staff, the Crossbow line the reader could not place. Pointed at the shipped file, those tests would
+ * fail the day fubgun changed staff, with nothing wrong.
+ */
+const shipped = JSON.parse(readFileSync('data/streamers/0.5.0.json', 'utf8')) as StreamerFile;
+const frozen = JSON.parse(readFileSync('src/lib/__fixtures__/streamers-2026-09-09.json', 'utf8')) as StreamerFile;
+const gear = frozen.characters[0]!;
 const itemAt = (slot: string): StreamerItem => {
   const it = gear.items.find((i) => i.slot === slot);
   if (!it) throw new Error(`no ${slot} in the shipped gear file`);
@@ -20,18 +32,37 @@ const itemAt = (slot: string): StreamerItem => {
  * synthetic fixture would keep passing forever while the app quietly stopped recognising the gear.
  */
 describe('the shipped gear file agrees with the shipped patch data', () => {
-  it('names a base and a patch this app knows', () => {
-    expect(file.patch).toBe(data.patch);
-    for (const it of gear.items) {
-      expect(data.bases.has(it.baseId), `${it.name} sits on ${it.baseId}`).toBe(true);
+  it('names a patch this app knows, and has somebody in it', () => {
+    expect(shipped.patch).toBe(data.patch);
+    expect(shipped.characters.length).toBeGreaterThan(0);
+  });
+
+  // Every character, not the first: a streamer added later is exactly who a refresh would break.
+  it.each(shipped.characters.map((c) => [c.character, c] as const))('%s — every base is one this app knows', (_, c) => {
+    for (const it of c.items) expect(data.bases.has(it.baseId), `${it.name} sits on ${it.baseId}`).toBe(true);
+  });
+
+  it.each(shipped.characters.map((c) => [c.character, c] as const))('%s — every modifier is one this app still has', (_, c) => {
+    const missing = c.items.flatMap((it) => it.mods.map((m) => m.modId).filter((id) => !data.mods.has(id)));
+    expect(missing, 'a refresh of one file without the other').toEqual([]);
+  });
+
+  /** The panel's one promise, on live gear: every modifier is placed on the held item, or explained. */
+  it.each(shipped.characters.map((c) => [c.character, c] as const))('%s — every modifier placed or explained', (_, c) => {
+    for (const it of c.items) {
+      const r = readGear(data, it);
+      expect(placedCount(r) + r.omitted.length, it.name).toBe(it.mods.length + it.unresolved.length);
     }
   });
 
-  it('names only modifiers this app still has', () => {
-    const missing = gear.items.flatMap((it) =>
-      it.mods.map((m) => m.modId).filter((id) => !data.mods.has(id)),
-    );
-    expect(missing, 'a refresh of one file without the other').toEqual([]);
+  /** A rune is claimed only where the item really holds one family twice. */
+  it.each(shipped.characters.map((c) => [c.character, c] as const))('%s — no rune claimed on an ordinary item', (_, c) => {
+    for (const it of c.items) {
+      if (it.familyConflict.length > 0) continue;
+      const r = readGear(data, it);
+      expect(r.rune, it.name).toBeUndefined();
+      expect(r.goal, it.name).toBe(r.item);
+    }
   });
 });
 

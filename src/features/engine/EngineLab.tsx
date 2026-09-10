@@ -540,6 +540,13 @@ const EngineLab: React.FC = () => {
           aria-pressed={mode === 'gear'}
         >
           Streamer gear
+          {/* Marked BETA because it ships unfinished, on purpose: a few streamers, a snapshot we
+              refresh by hand, and reads that are approximate in named places (Sanctified rolls). The
+              word is visible text, so it is also in the button's accessible name — a screen reader
+              hears the same caveat a sighted player sees. */}
+          <span className="ml-1.5 rounded border border-amber-500/50 bg-amber-500/10 px-1 py-px align-middle text-[9px] font-semibold uppercase tracking-wider text-amber-300">
+            Beta
+          </span>
         </button>
       </div>
 

@@ -7,7 +7,9 @@ import { loadPatch } from '../../../packages/engine/src/index.ts';
 import type { StreamerFile } from '../../lib/streamerGear';
 
 const data = loadPatch('data/patches/0.5.0');
-const file = JSON.parse(readFileSync('data/streamers/0.5.0.json', 'utf8')) as StreamerFile;
+// The FROZEN 2026-09-09 snapshot, not the shipped file: these tests click Kraken Crest and the Aldur
+// staff by name, and the shipped file is rewritten whenever the gear job runs.
+const file = JSON.parse(readFileSync('src/lib/__fixtures__/streamers-2026-09-09.json', 'utf8')) as StreamerFile;
 
 // The panel fetches on first open; the reading itself stays REAL, because what this suite is about is
 // whether the panel prints what the reader worked out.
@@ -158,5 +160,45 @@ describe('an item a rune made', () => {
     // what it converts — so this asserts the paragraph, not a unique node.
     expect(note.textContent).toMatch(/passion-of-aldur/);
     expect(note.textContent).toMatch(/cross-family modifiers/);
+  });
+});
+
+/**
+ * Whole items are held to the tab's rule too: nothing a character wears is left off without saying so.
+ *
+ * Found by adding four streamers: Steelmage showed 4 items and was wearing 7 more that silently did
+ * not appear — 3 Uniques, and Rares on bases this app's data does not have (Sekhema Sandals, Ancestral
+ * Tiara, a Skullcrusher Quarterstaff). The panel promised every omission was named, and whole items
+ * were the one kind it never named.
+ */
+describe('items the character wears that the tab does not show', () => {
+  const withSkips = (skipped: { name: string; slot: string; rarity: string; reason: string }[]) => ({
+    ...file,
+    characters: [{ ...file.characters[0]!, skipped }],
+  });
+
+  it('counts the Uniques and names each unreadable Rare with its reason', async () => {
+    vi.mocked(loadStreamers).mockResolvedValue(withSkips([
+      { name: 'Mageblood', slot: 'Belt', rarity: 'Unique', reason: 'Unique — only a Rare is craftable here' },
+      { name: 'Forgotten Warden', slot: 'Offhand', rarity: 'Unique', reason: 'Unique — only a Rare is craftable here' },
+      { name: 'Rage Sole', slot: 'Boots', rarity: 'Rare', reason: '“Sekhema Sandals” is not a base in the 0.5.0 data' },
+    ]));
+    await open();
+    const note = screen.getByText(/Not shown:/).closest('div')!;
+    expect(note.textContent).toMatch(/2 Uniques — a Unique can’t be crafted/);
+    expect(note.textContent).toMatch(/1 Rare this app can’t read yet/);
+    expect(note.textContent).toMatch(/Rage Sole \(Boots\) — “Sekhema Sandals” is not a base in the 0\.5\.0 data/);
+  });
+
+  it('says nothing when nothing was left out', async () => {
+    vi.mocked(loadStreamers).mockResolvedValue(withSkips([]));
+    await open();
+    expect(screen.queryByText(/Not shown:/)).toBeNull();
+  });
+
+  /** A gear file written before the list existed has none — that means "not recorded", not "nothing". */
+  it('reads an older gear file with no skipped list without breaking', async () => {
+    await open();
+    expect(screen.queryByText(/Not shown:/)).toBeNull();
   });
 });

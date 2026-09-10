@@ -37,8 +37,10 @@ describe('a real character, read end to end', () => {
   /** A Unique is not a failure — nothing this app models can change its modifiers. Saying which and
    *  why beats an empty list. */
   it('skips the Unique with a reason rather than dropping it', () => {
+    // What the item IS travels with the reason: the job keeps the skips a player would miss (Rares
+    // and Uniques) and drops socketed runes and Incursion limbs, and it can only do that by rarity.
     expect(result.skipped).toEqual([
-      { name: 'Mageblood', reason: 'Unique — only a Rare is craftable here' },
+      { name: 'Mageblood', reason: 'Unique — only a Rare is craftable here', rarity: 'Unique', slot: 'Belt' },
     ]);
   });
 });
@@ -119,5 +121,22 @@ describe('items it declines', () => {
       { name: 'X', baseType: 'Gold Ring', rarity: 'Rare', ilvl: 81, corrupted: true, mods: {} },
     ]);
     expect(r.items[0]?.corrupted).toBe(true);
+  });
+});
+
+/**
+ * A Rare on a base this data lacks is the skip a player would actually miss, so it has to say it is a
+ * Rare, and where it was worn. The job keeps skips BY RARITY — drop the field here and the eleven Rares
+ * four real streamers wear on bases the 0.5.0 data does not have would vanish from the tab unannounced,
+ * which is exactly what they did before `skipped` was persisted. Sekhema Sandals is one of them.
+ */
+describe('a skipped item says what it is', () => {
+  it('carries rarity and slot for a Rare on a base the data lacks', () => {
+    const r = resolveProfileItems(data, [
+      { name: 'Rage Sole', baseType: 'Sekhema Sandals', rarity: 'Rare', inventoryId: 'Boots' },
+    ]);
+    expect(r.skipped).toEqual([{
+      name: 'Rage Sole', reason: '“Sekhema Sandals” is not a base in the 0.5.0 data', rarity: 'Rare', slot: 'Boots',
+    }]);
   });
 });

@@ -44,6 +44,16 @@ export interface StreamerItem {
   readonly corrupted: boolean;
 }
 
+/** Gear the character wears that the tab does not show, and why. */
+export interface StreamerSkip {
+  readonly name: string;
+  /** Equipment slot, e.g. `Boots`. */
+  readonly slot: string;
+  /** Only `Rare` and `Unique` are written — the two a player would notice missing. */
+  readonly rarity: string;
+  readonly reason: string;
+}
+
 export interface StreamerCharacter {
   readonly profile: string;
   readonly character: string;
@@ -51,6 +61,11 @@ export interface StreamerCharacter {
   readonly level: number;
   readonly league: string;
   readonly items: readonly StreamerItem[];
+  /**
+   * Worn but not shown. Optional because gear files written before 2026-09-10 — the frozen test
+   * snapshot among them — predate it; an absent list means "not recorded", not "nothing skipped".
+   */
+  readonly skipped?: readonly StreamerSkip[];
 }
 
 export interface StreamerFile {

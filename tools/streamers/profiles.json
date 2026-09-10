@@ -1,4 +1,4 @@
 {
-  "//": "poe.ninja profile slugs to fetch. A slug is the last path segment of the profile URL: https://poe.ninja/poe2/profile/fubgun-1755 -> fubgun-1755.",
-  "profiles": ["fubgun-1755"]
+  "//": "poe.ninja profile slugs to fetch: the account name and its # number, as in https://poe.ninja/poe2/profile/fubgun-1755 -> fubgun-1755. CASE-SENSITIVE — Zizaran-6796 works and zizaran-6796 404s — so copy it exactly from a poe.ninja build URL rather than typing it. The job reads each profile's CURRENT character, so a streamer switching characters changes what the tab shows on the next run.",
+  "profiles": ["fubgun-1755", "Zizaran-6796", "Steelmage-5874", "xthefarmerx-5994", "TwitchTVSpicysushi-7614"]
 }

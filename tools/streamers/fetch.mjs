@@ -69,6 +69,8 @@ async function main() {
       const open = resolved.reduce((n, i) => n + i.unresolved.length, 0);
       console.log(`  ${slug}: ${char.name} (${char.league}, level ${char.level}) — `
         + `${resolved.length} items, ${placed} modifiers placed, ${open} unresolved, ${skipped.length} skipped`);
+      // A skipped RARE is a gap in this app's data, not a property of the item — say which, every run.
+      for (const s of skipped.filter((x) => x.rarity === 'Rare')) console.log(`      not read: ${s.name} (${s.slot ?? '?'}) — ${s.reason}`);
       out.push({
         profile: slug,
         character: char.name,
@@ -76,6 +78,12 @@ async function main() {
         level: char.level ?? 0,
         league: char.league ?? '',
         items: resolved,
+        // Only what a player would recognise as missing gear: a Unique (never craftable) and a Rare this
+        // app could not read. Socketed runes ("Chakra") and Incursion limbs carry no such rarity and are
+        // left out rather than listed as noise.
+        skipped: skipped
+          .filter((s) => s.rarity === 'Rare' || s.rarity === 'Unique')
+          .map((s) => ({ name: s.name, slot: s.slot ?? '', rarity: s.rarity, reason: s.reason })),
       });
     } catch (e) {
       // One profile failing must not lose the others: a character can be deleted or set private

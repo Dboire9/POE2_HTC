@@ -73,10 +73,20 @@ export interface ProfileItem {
   readonly corrupted: boolean;
 }
 
+/** An item the read left out, and why — with what it is, so a caller can decide what to show. */
+export interface ProfileSkip {
+  readonly name: string;
+  readonly reason: string;
+  /** As the source gives it. Absent on socketables such as runes, which carry no rarity at all. */
+  readonly rarity?: string;
+  /** The source's `inventoryId`: an equipment slot like `Helm`, or a non-gear one like `Chakra`. */
+  readonly slot?: string;
+}
+
 export interface ProfileResult {
   readonly items: readonly ProfileItem[];
   /** Items skipped, and why — a Unique is not a failure, it is simply not craftable. */
-  readonly skipped: readonly { readonly name: string; readonly reason: string }[];
+  readonly skipped: readonly ProfileSkip[];
 }
 
 /**
@@ -108,12 +118,18 @@ const strip = (line: string): string =>
 export function resolveProfileItems(data: PatchData, source: readonly SourceItem[]): ProfileResult {
   const bases = baseNameIndex(data);
   const items: ProfileItem[] = [];
-  const skipped: { name: string; reason: string }[] = [];
+  const skipped: ProfileSkip[] = [];
+  // What the item IS travels with the reason: a Unique, a Rare on a base this data lacks, and a rune in
+  // a socket are all "skipped", and only the first two are anything a player would notice missing.
+  const what = (item: SourceItem) => ({
+    ...(item.rarity ? { rarity: item.rarity } : {}),
+    ...(item.inventoryId ? { slot: item.inventoryId } : {}),
+  });
 
   for (const item of source) {
     const label = item.name ?? item.baseType ?? '(unnamed)';
     if (item.rarity !== 'Rare') {
-      skipped.push({ name: label, reason: `${item.rarity ?? 'unknown rarity'} — only a Rare is craftable here` });
+      skipped.push({ name: label, reason: `${item.rarity ?? 'unknown rarity'} — only a Rare is craftable here`, ...what(item) });
       continue;
     }
     const match = findBaseInName(bases, item.baseType ?? '');
@@ -123,6 +139,7 @@ export function resolveProfileItems(data: PatchData, source: readonly SourceItem
         reason: match.ids.length > 1
           ? `“${item.baseType}” is on several rows (${match.ids.join(', ')})`
           : `“${item.baseType}” is not a base in the ${data.patch} data`,
+        ...what(item),
       });
       continue;
     }

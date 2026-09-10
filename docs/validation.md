@@ -3603,6 +3603,38 @@ T1, so its craft is still a floor on the real item); **7 of 9 items carry a dese
 that pool's spawn weight is the engine's one measured-not-published input (2,500 assumed, range
 1,995-3,981 from 40 bones — see D4).
 
+## Five streamers, and a data gap they exposed (2026-09-10)
+
+`tools/streamers/profiles.json` now reads five profiles. Each streamer's CURRENT character, as the job
+resolved it:
+
+| streamer | character | items read | modifiers placed | lines unread | items not shown |
+|---|---|---|---|---|---|
+| fubgun | Fubgun_Oil, 97 | 9 | 52 | 2 | 1 Unique |
+| Zizaran | ZizaranMonkBrothers, 93 (HC private) | 8 | 42 | 5 | 2 Rares |
+| Steelmage | SteelMonkBrothers, 95 (HC private) | 4 | 21 | 1 | 3 Rares, 3 Uniques |
+| XTheFarmerX | xthefarmerxMILKED, 96 | 4 | 23 | 2 | 4 Rares, 3 Uniques |
+| SpicySushi | SushiToppingFub, 96 | 4 | 18 | 6 | 2 Rares, 4 Uniques |
+
+**The 11 Rares not shown are a DATA gap, not a reader bug.** Every one sits on a base that is absent
+from `data/patches/0.5.0` and from the 2026-07-04 RePoE cache the pipeline reads: Sekhema Sandals (x2),
+Ancestral Tiara (x2), Daggerfoot Shoes, Runeforged Daggerfoot Shoes, Secured Wraps, Runeforged Secured
+Wraps, Sirenscale Gloves, Akoyan Spear, Skullcrusher Quarterstaff. Controls on the same search —
+Masked Greathelm, Chiming Staff, Knightly Mitts — are all present. So the reader is doing its job; the
+data predates these bases or never carried them. Closing it is `npm run update-data` against a fresh
+dump, with the differential and CoE checks that implies — deliberately NOT done alongside a Beta release.
+
+Unread LINES on the items that did resolve fall into three groups, recorded so the next pass does not
+re-diagnose them: `crafted: Essence…` and `crafted: Alloy…` (essence and alloy grants the stat index
+does not cover — fubgun's first read had one too), minion modifiers on rings (`MinionLifeRing4`,
+`MinionElementalResistance4`, …), and league-mechanic grants (`GenesisTreeRing…Crafted`, the desecrated
+`Offering Skills have #% increased Buff effect`).
+
+**Before this, the tab hid whole items.** The job did not persist `skipped`, so Steelmage showed 4
+items while wearing 6 more — the panel's "everything left off is named" held for modifiers and never
+for whole items. The job now writes the Rare and Unique skips; socketed runes (`Chakra`) and Incursion
+limbs carry no such rarity and are left out as noise.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

@@ -285,6 +285,28 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   never downloads it. `streamerGear.test.ts` runs against the shipped gear file and the shipped patch
   data TOGETHER, which is where drift between two independently-scheduled refreshes has to surface; a
   synthetic fixture would pass forever while the app quietly stopped recognising the gear.
+  **FIVE streamers as of 2026-09-10** — fubgun, Zizaran, Steelmage, XTheFarmerX, SpicySushi
+  (`tools/streamers/profiles.json`). A slug is the account name plus its `#` number and it is
+  CASE-SENSITIVE: `Zizaran-6796` works, `zizaran-6796` 404s, while fubgun's is lowercase because his
+  account is. Copy slugs from a poe.ninja build URL — the official site 403s scripts and poe.ninja's
+  builds HTML carries no account data. XTheFarmerX's account is `xthefarmerx-5994`; SpicySushi's is
+  `TwitchTVSpicysushi-7614`, NOT `FoosballGG-7971`, a different account with a character named after him.
+  **The new characters exposed a DATA GAP, not a reader bug.** 11 Rares across four of them sit on bases
+  absent from `data/patches/0.5.0` AND from the 2026-07-04 RePoE cache the pipeline reads — Sekhema
+  Sandals, Ancestral Tiara, Daggerfoot Shoes, Secured Wraps, Sirenscale Gloves, Akoyan Spear,
+  Skullcrusher Quarterstaff, and "Runeforged" variants — while the controls (Masked Greathelm, Chiming
+  Staff, Knightly Mitts) are all present. Closing it is a DATA REFRESH, not code. Until then the tab
+  NAMES each one: the job persists `skipped` (Rares and Uniques only — socketed runes in `Chakra` slots
+  and Incursion limbs carry no such rarity and would be noise) and `StreamerGear` lists them under
+  "Not shown". Before that, Steelmage displayed 4 items and silently omitted 6, which broke the tab's
+  one promise for the one kind of omission it had never been asked to name: whole items.
+  **The tab is labelled BETA**, in the tab bar and in a note whose every clause is a current limitation.
+  Delete a clause when it stops being true, rather than leaving a caveat that no longer applies.
+  **Its tests are split the `loadFrozenPrices()` way.** Tests that name a specific real case (the Aldur
+  staff, Kraken Crest) read `src/lib/__fixtures__/streamers-2026-09-09.json`; the shipped file, which the
+  job rewrites every run, carries only checks that hold for ANY gear, run over EVERY character.
+  **`npm run update-streamers` is `npx tsx …`.** It was bare `tsx`, which is not a dependency, so the
+  script never ran from npm at all — the same convention `og` already uses.
   **poe.ninja's profile endpoints**: `/poe2/api/profile/characters/<slug>/<anything>` is the character
   list — that second segment is REQUIRED AND IGNORED (the slug alone 404s; `0`, the real account id
   and `999999` all return the same 36,953 bytes) — and
@@ -320,6 +342,15 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
 ## Prices
 
 - **The sheet refreshes ITSELF, daily.** `.github/workflows/refresh-prices.yml` runs the script at 06:00 UTC, and **merges its own PR** when the data passes BOTH gates; failing either leaves the PR open, titled `REVIEW NEEDED`. The gates are market depth (the script's `DEPTH-VERDICT:` line) and **the whole test suite** run against the new sheet. Hardened 2026-09-08, after a league rollover shipped collapsed Alloy prices through a green guard: it ran `priceResolution` + `costConsistency` only, and those pass on data wrong in ways they were never asked about — `src/lib/alloys.test.ts` catches exactly that and was not in the list. Curating a list only defers the problem to the next test nobody adds to it. Two more silences closed the same day: the league check was an EVENT (`prev.league !== league`), so it fired on the changeover day and then never again because merging that day's PR makes `prev.league` the new league — it is now an AGE (`DEPTH.leagueHoldDays`, 7) measured from a `leagueSince` field the sheet records, since poe.ninja's `/leagues` serves no start date; and a refused merge logged a `::warning::` and exited 0, leaving an ordinary-looking unmerged PR and a green job. `deployConfig.test.ts` pins all of it, because nothing else in the suite executes that file. Depth is **units traded per day = `volumePrimaryValue / primaryValue`**, never the raw volume field — that is denominated in divine, so it ranks liquidity backwards (measured 2026-09-01: raw volume calls plain Transmute the 4th-thinnest currency at 0.42 and the Mirror the deepest market at 48,400; by units it is Transmute 2,548/day and Mirror **7**). Currency and bones are deep and hold the PR if one goes thin-and-moving; essences are not a market at all (median **2** units/day, 72 of 78 lines under 50) and are handled at the SOURCE instead — `priceEssences` ignores any quote under 1 unit/day and infers that price from the same essence's other levels, which is why `caveat` now names ~51 inferred variants rather than ~21. Without that filter the sheet took `essence-of-command` at **+16,567% in a week on zero units traded**.
+- **`main` went red on 2026-09-10 through the OLD guard.** The bot's #19 ran main's pre-hardening
+  workflow (`priceResolution` + `costConsistency` only), and its sheet fails `alternativesFromWhite …
+  never starves the swap/drop classes` — best in-budget 0.81 against `> 0.9`. That test pins the SEARCH
+  (mutation-checked: skipping the per-edit-class exploration turns it red), so it now reads
+  `loadFrozenPrices()`. #19 also LOST all five `rune:*` keys, because main's older `prices.mjs` does not
+  read the Runes feed and a missing key prices at 0. Merging it into `beta` therefore took beta's sheet
+  and REGENERATED it with the merged script rather than picking a side of generated data. Both halves
+  are why the hardened guard matters: under it #19 is held for review, and without the frozen fix every
+  daily price PR would have been.
 - **A test that asserts an EXACT cost must read `loadFrozenPrices()`**, not the shipped sheet — `packages/optimizer/src/frozenPrices.ts`, a snapshot of the 2026-08-22 sheet that is never refreshed. Those tests pin the MODEL (lattice reduction is cost-invariant to 15 figures; the unit ladder's output string; how tight the budget bracket is), and a daily refresh made 8 of them fail across 3 files with nothing wrong. The fixture is deliberately the sheet those numbers were DERIVED from: re-freezing a newer one and updating the expectations to match would re-baseline them to whatever came out. Everything else keeps reading what ships, and since 2026-09-08 the refresh workflow runs the WHOLE suite as its guard — so a live-sheet test is the thing standing between a bad feed and `main`, and freezing one silently removes it from that guard. `priceResolution.test.ts` and `costConsistency.test.ts` are the sheet's own contract; `alloys.test.ts` is the one that caught a real collapse.
 - `data/patches/0.5.0/prices.json` is **live poe.ninja data**, not hand-authored: currency, Abyss bones (`bones`), and 1288 per-essence `essence:<level>:<modId>` keys. The `caveat` field names exactly what is still inferred (currently 29 untraded essence variants) — `PriceBasisNote` renders it, so keep it a complete sentence.
 - **Omens ARE served by poe.ninja, under `type=Ritual`** (found 2026-09-02). The long-standing note here said they had no endpoint, and it was half right: `type=Omens` really does return byte-identical output to an invalid type, and the Omens *page* really is client-rendered with no embedded payload. But omens are RITUAL content in PoE2, and that feed carries 36 of them — every key this sheet uses, plus Whittling — with volume and a sparkline like any other line. Only the name was wrong; the conclusion "hand-transcribe them" stood for months on one untried guess. Independently confirmed against poe2db (11.7 divine vs 11.4 for Whittling). This mattered more than a chore: omens are an ADDITIVE surcharge 20-27x the orb they modify, so a stale omen:orb ratio changes which plans are recommended — measured against the 11-day-old transcription the live feed moved Greater Exaltation **0.20x** and Sinistral Necromancy 1.77x.

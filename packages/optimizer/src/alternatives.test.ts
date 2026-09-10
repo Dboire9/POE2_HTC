@@ -8,6 +8,7 @@ import type { ParetoPlan } from './optimize.ts';
 import { planCostCdf } from './cost.ts';
 import { optimizeFromItem } from './fromItem.ts';
 import { loadPrices } from './loadPrices.ts';
+import { loadFrozenPrices } from './frozenPrices.ts';
 
 // Synthetic pool built to isolate the two swap regimes that decide this feature's whole design:
 //   FSym  — PSym1 / PSym2: same family, IDENTICAL weights ⇒ swapping buys nothing ⇒ must stay off the
@@ -265,7 +266,15 @@ describe('alternativesFromWhite — real data (Wands, 0.5.0)', () => {
       { modId: 'Wands/IncreasedMana', minTierIndex: 10 },
       { modId: 'Wands/WeaponSpellDamage', minTierIndex: 7 },
     ];
-    const r = alternativesFromWhite(real, rprices, wands, desired, 600, { level: 82, maxNodes: 200 });
+    // FROZEN prices, not the shipped sheet. What this guards is the SEARCH — whether it reaches an edit
+    // class at all — and the in-budget threshold below is only a price fact about one day's market. It
+    // had already been re-tuned once for the live sheet (30ex -> 600ex), and on 2026-09-10 the live
+    // sheet moved again: the best reachable alternative fell to 81% in-budget, failing `> 0.9` with the
+    // search working exactly as intended. A model test reading the live sheet fails for reasons that
+    // are not defects — the `loadFrozenPrices()` rule — and now that the refresh workflow runs the whole
+    // suite as its guard, it would have held every daily price PR for review until someone froze it.
+    const frozen = loadFrozenPrices();
+    const r = alternativesFromWhite(real, frozen, wands, desired, 600, { level: 82, maxNodes: 200 });
     // The exact item is hopeless even on 600ex — that's the honest row 0…
     expect(r.frontier[0]!.closeness).toEqual({ dropped: 0, swapped: 0, valueRetained: 1 });
     expect(r.frontier[0]!.inBudget).toBeLessThan(0.05);

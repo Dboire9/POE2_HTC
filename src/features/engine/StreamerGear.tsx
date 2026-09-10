@@ -96,6 +96,9 @@ const StreamerGear: React.FC<{ data: PatchData; routes?: GearRoutes }> = ({ data
     [data, item],
   );
   const blocked = reading?.blocked !== undefined;
+  const skipped = character?.skipped ?? [];
+  const uniques = skipped.filter((s) => s.rarity === 'Unique');
+  const unread = skipped.filter((s) => s.rarity !== 'Unique');
 
   return (
     <div className="space-y-4">
@@ -104,6 +107,14 @@ const StreamerGear: React.FC<{ data: PatchData; routes?: GearRoutes }> = ({ data
         <p className="text-[11px] text-muted-foreground">
           Pick an item to see how it was built, then load it into <strong>I have an item</strong> and
           plan from there — what to keep, what to re-roll, and what it would cost to finish.
+        </p>
+        {/* Each clause here is a true, current limitation — keep it that way. When one is fixed, delete
+            its clause rather than leaving a caveat that no longer applies. */}
+        <p className="rounded border border-amber-500/40 bg-amber-500/5 px-2 py-1.5 text-[11px] text-amber-300">
+          <strong>Beta — still being finished.</strong> A handful of streamers for now, and their gear is
+          a snapshot we refresh by hand rather than live. Some item bases aren’t in this app’s data yet,
+          so those items can’t be read, and a Sanctified roll counts as the best normal tier, so that
+          item really cost more. The tab always says what it left out.
         </p>
 
         {failed && (
@@ -159,6 +170,26 @@ const StreamerGear: React.FC<{ data: PatchData; routes?: GearRoutes }> = ({ data
                 </li>
               ))}
             </ul>
+
+            {/* Whole items, held to the same rule as modifiers: nothing this character wears is left
+                off without a sentence. Uniques are counted — none is craftable. Rares are NAMED, because
+                each one is a gap in this app's data rather than anything about the item. */}
+            {skipped.length > 0 && (
+              <div className="text-[11px] text-muted-foreground">
+                <strong>Not shown:</strong>
+                {uniques.length > 0 && (
+                  <> {uniques.length} Unique{uniques.length === 1 ? '' : 's'} — a Unique can’t be crafted.</>
+                )}
+                {unread.length > 0 && (
+                  <>
+                    {' '}{unread.length} Rare{unread.length === 1 ? '' : 's'} this app can’t read yet:
+                    <ul className="ml-4 list-disc">
+                      {unread.map((s) => <li key={`${s.slot}-${s.name}`}>{s.name} ({s.slot}) — {s.reason}</li>)}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )}
           </>
         )}
       </Card>

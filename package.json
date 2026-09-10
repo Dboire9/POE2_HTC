@@ -27,7 +27,7 @@
     "update-data": "bash tools/refresh/run.sh",
     "update-prices": "node tools/refresh/prices.mjs",
     "og": "npx tsx scripts/og.mts",
-    "update-streamers": "tsx tools/streamers/fetch.mjs"
+    "update-streamers": "npx tsx tools/streamers/fetch.mjs"
   },
   "dependencies": {
     "@sentry/react": "^10.26.0",

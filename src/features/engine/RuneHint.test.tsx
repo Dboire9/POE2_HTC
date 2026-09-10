@@ -1,10 +1,12 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
 import RuneHint from './RuneHint';
-import { loadPatch } from '../../../packages/engine/src/index.ts';
+import { loadShippedPatch } from '../../../packages/engine/src/loadPatch.ts';
 import type { Rates } from '../../lib/currency';
 
-const data = loadPatch('data/patches/0.5.0');
+// The browser's copy of the patch: this hint runs in the app, where `tiers[].stats` is never downloaded.
+// Against the full file it passed while the app showed no hint at all.
+const data = loadShippedPatch('data/patches/0.5.0');
 const RATES: Rates = { chaos: 15.55, divine: 190 };
 const PRICED = { 'rune:passion-of-aldur': 12.13 };
 const FIRE = 'Staves/DamageGainedAsFire';

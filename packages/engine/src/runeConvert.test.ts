@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { loadPatch } from './loadPatch.ts';
+import { loadPatch, loadShippedPatch } from './loadPatch.ts';
 import { runeRoute, runeOpportunity, gainAsExtraByElement, runePriceKey } from './runeConvert.ts';
-import { itemFamilies } from './pool.ts';
+import { itemFamilies, resolveMod } from './pool.ts';
+import { statsOf } from './statLookup.ts';
 import type { ItemBase, ItemState } from './types.ts';
 
 const data = loadPatch('data/patches/0.5.0');
@@ -13,8 +14,8 @@ const base = (id: string): ItemBase => {
 };
 
 describe('the gain-as-extra family on a base', () => {
-  /** Read out of the stat keys (`…_to_gain_as_fire`), never a hardcoded list, so a new element in a
-   *  future patch needs no code change. */
+  /** Read off the text (`…as Extra Fire Damage`), never a hardcoded list, so a new element in a future
+   *  patch needs no code change. */
   it('finds all three elements on a Staff', () => {
     expect([...gainAsExtraByElement(data, base('Staves'))].sort()).toEqual([
       ['cold', 'Staves/DamageGainedAsCold'],
@@ -147,5 +148,49 @@ describe('spotting the rune for a target list already chosen', () => {
   it('says nothing on a base that cannot roll them', () => {
     expect(runeOpportunity(data, base('Rings'), ['Rings/AllResistances', 'Rings/ChaosResistance']))
       .toBeUndefined();
+  });
+});
+
+/**
+ * The browser's copy of the data, not the file on disk. `tiers[].stats` is stripped from what the app
+ * downloads, and this module used to read the stat ids — so the route was found in every test and
+ * nowhere in the app: fubgun's Aldur staff went to the Lab as five modifiers, and no rune was mentioned.
+ */
+describe('on the data the browser downloads', () => {
+  const shipped = loadShippedPatch('data/patches/0.5.0');
+  const staves = shipped.bases.get('Staves')!;
+
+  it('finds the same siblings as the full file, and the same route', () => {
+    expect([...gainAsExtraByElement(shipped, staves)]).toEqual([...gainAsExtraByElement(data, base('Staves'))]);
+    expect(runeRoute(shipped, staves, 'Staves/DamageGainedAsFire', 2)?.targets)
+      .toEqual(['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsCold']);
+  });
+
+  it('still offers the rune for a target list holding two of them', () => {
+    expect(runeOpportunity(shipped, staves, ['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsCold'])?.rune)
+      .toBe('passion-of-aldur');
+  });
+});
+
+/**
+ * Text in place of the stat id must name exactly the same modifiers, or the fix changed what a route may
+ * use. Checked on every base against the stat ids the full file still carries — a carved or essence
+ * "gain as extra" line would show up here, since those have text and no stats.
+ */
+describe('text in place of the stat id', () => {
+  it('names exactly the modifiers the stat ids name, on every base', () => {
+    const STAT = /_to_gain_as_([a-z]+)$/;
+    for (const b of data.bases.values()) {
+      const byStat = new Map<string, string>();
+      for (const pool of [b.pools.normal, b.pools.desecrated, b.pools.essence]) {
+        for (const id of [...pool.prefixes, ...pool.suffixes]) {
+          for (const stat of statsOf(resolveMod(data, id))) {
+            const m = STAT.exec(stat);
+            if (m && !byStat.has(m[1]!)) byStat.set(m[1]!, id);
+          }
+        }
+      }
+      expect([...gainAsExtraByElement(data, b)], b.id).toEqual([...byStat]);
+    }
   });
 });

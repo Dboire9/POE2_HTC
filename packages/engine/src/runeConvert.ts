@@ -1,6 +1,5 @@
 import type { ItemBase, PatchData } from './types.ts';
 import { resolveMod } from './pool.ts';
-import { statsOf } from './statLookup.ts';
 
 /**
  * Stacking a modifier the family rules forbid, by rolling its siblings and converting them.
@@ -22,8 +21,14 @@ import { statsOf } from './statLookup.ts';
  * rather than one, and nothing gates it.
  */
 
-/** `non_skill_base_all_damage_%_to_gain_as_fire` -> `fire`. The element is in the data, not a list. */
-const GAIN_AS = /_to_gain_as_([a-z]+)$/;
+/**
+ * `Gain #% of Damage as Extra Fire Damage` -> `fire`. The element is in the data, not a list — read off
+ * the mod's TEXT rather than its stat id (`…_to_gain_as_fire`), because text is what the browser has:
+ * `tiers[].stats` is stripped from the asset it downloads (shipMods.ts). Reading the stat id, this found
+ * nothing in the app while every test — each loading the full file — passed: the streamer tab sent the
+ * Aldur staff to the Lab as five modifiers, and the Lab never mentioned the rune.
+ */
+const GAIN_AS = /^Gain #% of Damage as Extra ([A-Za-z]+) Damage$/;
 
 /**
  * Which rune produces which element.
@@ -39,20 +44,23 @@ export const ALDUR_RUNE_BY_ELEMENT: ReadonlyMap<string, string> = new Map([['fir
 /** Price keys are `rune:<id>`, matching the sheet `prices.mjs` writes from poe.ninja's Runes feed. */
 export const runePriceKey = (rune: string): string => `rune:${rune}`;
 
-/** Every `gain as extra <element>` modifier a base can roll, by element. Twelve bases carry all
- *  three (the Staves and Wands families); everything else carries none. */
+/**
+ * Every `gain as extra <element>` modifier a base can ROLL, by element — from its normal pool, since a
+ * route's siblings are rolled with ordinary currency. Twelve bases carry all three (the Staves and Wands
+ * families); everything else carries none.
+ *
+ * Carved and essence ones exist too — Staves' desecrated Extra Chaos, Wands' Extra Physical, the martial
+ * weapons' Perfect Essences — and are deliberately not siblings: whether a route may use them is
+ * untraced, and an item holds at most one essence and one carved modifier besides. The stat-id version
+ * never saw them either, since neither pool carries stats; runeConvert.test.ts pins that the two agree
+ * on every base.
+ */
 export function gainAsExtraByElement(data: PatchData, base: ItemBase): ReadonlyMap<string, string> {
   const out = new Map<string, string>();
-  const seen = new Set<string>();
-  for (const pool of [base.pools.normal, base.pools.desecrated, base.pools.essence]) {
-    for (const id of [...pool.prefixes, ...pool.suffixes]) {
-      if (seen.has(id)) continue;
-      seen.add(id);
-      for (const stat of statsOf(resolveMod(data, id))) {
-        const m = GAIN_AS.exec(stat);
-        if (m && !out.has(m[1]!)) out.set(m[1]!, id);
-      }
-    }
+  for (const id of [...base.pools.normal.prefixes, ...base.pools.normal.suffixes]) {
+    const text = resolveMod(data, id).text;
+    const element = (text === null ? null : GAIN_AS.exec(text))?.[1]?.toLowerCase();
+    if (element !== undefined && !out.has(element)) out.set(element, id);
   }
   return out;
 }

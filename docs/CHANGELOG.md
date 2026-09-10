@@ -22,7 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **The Streamer gear tab reads "reduced" modifiers.** "#% reduced Attribute Requirements", "reduced
+- **Crafting a streamer's Aldur-rune item from scratch sends all of its modifiers.** fubgun's staff holds
+  two "Gain #% of Damage as Extra Fire Damage", made by rolling Fire and Cold and then socketing a Passion
+  of Aldur. The Streamer gear tab was built to send that six-modifier craft, but in the app it sent five
+  and never mentioned the rune — and the Lab's rune suggestion for two "gain as extra" targets never
+  appeared either. Both work now.
+- **The Streamer gear tab reads "reduced" modifiers.**
+ "#% reduced Attribute Requirements", "reduced
   Duration of Bleeding" and "reduced Poison Duration" on you, and a belt's "reduced Flask/Charm Charges
   used" always showed as "could not match" on a streamer's item, though pasting the same item read
   them. The game data sends these as negative numbers, and the reader flipped the sign a second time.

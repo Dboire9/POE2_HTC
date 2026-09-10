@@ -3724,6 +3724,28 @@ Steelmage's Cataclysm Span and XTheFarmerX's Dusk Edge, and a second family in t
 reader: essence and alloy grants, desecrated lines the text path cannot place, minion ring mods, and
 league-mechanic grants.
 
+## The Aldur rune route worked in every test and nowhere in the app (2026-09-10)
+
+Reported from the app: crafting fubgun's staff from scratch sent five modifiers to the Lab, not the six
+the rune route builds. `runeConvert.ts` found a base's gain-as-extra siblings by their STAT ids, through
+`statsOf` — and `tiers[].stats` is stripped from the mods asset the browser downloads (`shipMods.ts`).
+Rebuilt the way the app builds it, the data gave the Staves base no siblings at all: no route, a goal
+identical to the five-modifier held item, and no `RuneHint` in the Lab or the Item tab either. Every test
+loaded the full file with `loadPatch`, where the stats exist, and passed.
+
+**Fix:** the element is read off the text (`Gain #% of Damage as Extra Fire Damage`) of the NORMAL pool
+only. A text match over every pool would also take Staves' carved Extra Chaos, Wands' carved Extra
+Physical and the martial weapons' Perfect Essence lines, which carry text and no stats, so the stat
+version never used them; a test holds the two equal on all 52 bases. `loadShippedPatch` builds the
+browser's projection for tests, and the rune, streamer-tab and RuneHint suites load it now.
+**Mutation-checked:** the stat-id lookup back turns 11 browser-data tests red across four suites; a text
+match over every pool turns 3 red, the equality test among them.
+
+**On the real staff, with the browser's data:** holds 5, goal 6 — Extra Fire T1, Extra Cold T1, Spell
+Damage T1, +Level of all Fire Spell Skills T2, Intelligence T1, Cast Speed T2 — finished by socketing a
+Passion of Aldur. Cold and Lightning roll identically on Staves (weight 500 at each of six tiers), so the
+sibling chosen, Cold, costs nothing over Lightning.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

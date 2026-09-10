@@ -234,6 +234,15 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   duration on you on 6 each, the two belt charge mods) could be placed from a profile, while pasting the
   same item read them fine. It compares magnitudes now, as `aboveEveryTier` always did; a positive range
   still compares raw. The fubgun fixture holds no "reduced" line, which is why the suite never saw it.
+  **Anything the browser runs is tested on `loadShippedPatch`** (2026-09-10). The app downloads the mods
+  file PROJECTED by `shipMods.ts` — no `tiers[].stats` — while `loadPatch` reads the full record, so a
+  browser module leaning on a stripped field passes every test and does nothing for a player.
+  `runeConvert.ts` did exactly that: it found the Aldur siblings through `statsOf`, a job-only helper, so
+  in the app the streamer tab sent fubgun's staff to the Lab as 5 modifiers and `RuneHint` never showed.
+  It now reads the element off the NORMAL pool's text, pinned equal to the stat-id answer on all 52 bases
+  — a text match over every pool would also take carved and Perfect Essence "gain as extra" lines, which
+  have text and no stats, so the stat version never saw them. `statsOf`/`statLookup` stay job-only; the
+  rune, streamer-tab and RuneHint suites load `loadShippedPatch`.
   **`profileItems.ts` is the whole read, and `tools/streamers/fetch.mjs` the job around it**
   (`npm run update-streamers`, config in `tools/streamers/profiles.json`, output
   `data/streamers/<patch>.json`). Measured on a real character: **9 items, 52 of 54 modifiers placed**,

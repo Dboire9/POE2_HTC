@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
+import { loadShippedPatch } from '../../packages/engine/src/loadPatch.ts';
 import { readGear, placedCount, goalCount, type StreamerFile, type StreamerItem } from './streamerGear';
 
-const data = loadPatch('data/patches/0.5.0');
+// The browser's copy of the patch, since `readGear` runs in the app: the full file carries stat ids the
+// app never downloads, and a reading that leaned on them passed here while failing every player.
+const data = loadShippedPatch('data/patches/0.5.0');
 /**
  * TWO files, on purpose — the same split as `loadFrozenPrices()` against the shipped price sheet.
  *

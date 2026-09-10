@@ -3,10 +3,12 @@ import { readFileSync } from 'node:fs';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import StreamerGear from './StreamerGear';
-import { loadPatch } from '../../../packages/engine/src/index.ts';
+import { loadShippedPatch } from '../../../packages/engine/src/loadPatch.ts';
 import type { StreamerFile } from '../../lib/streamerGear';
 
-const data = loadPatch('data/patches/0.5.0');
+// What the BROWSER gets — the mods file projected by shipMods.ts — since that is what this tab reads in
+// the app. Against the full file the Aldur staff's rune route worked here and nowhere in the app.
+const data = loadShippedPatch('data/patches/0.5.0');
 // The FROZEN 2026-09-09 snapshot, not the shipped file: these tests click Kraken Crest and the Aldur
 // staff by name, and the shipped file is rewritten whenever the gear job runs.
 const file = JSON.parse(readFileSync('src/lib/__fixtures__/streamers-2026-09-09.json', 'utf8')) as StreamerFile;

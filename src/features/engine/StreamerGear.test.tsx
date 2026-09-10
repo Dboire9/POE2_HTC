@@ -166,10 +166,10 @@ describe('an item a rune made', () => {
 /**
  * Whole items are held to the tab's rule too: nothing a character wears is left off without saying so.
  *
- * Found by adding four streamers: Steelmage showed 4 items and was wearing 7 more that silently did
- * not appear — 3 Uniques, and Rares on bases this app's data does not have (Sekhema Sandals, Ancestral
- * Tiara, a Skullcrusher Quarterstaff). The panel promised every omission was named, and whole items
- * were the one kind it never named.
+ * Found by adding four streamers: Steelmage showed 4 items and was wearing 6 more that silently did
+ * not appear — 3 Uniques, and 3 Rares on bases the shipped rows did not name (Sekhema Sandals, Ancestral
+ * Tiara, a Skullcrusher Quarterstaff — all read since the pipeline learnt base-type twins). The panel
+ * promised every omission was named, and whole items were the one kind it never named.
  */
 describe('items the character wears that the tab does not show', () => {
   const withSkips = (skipped: { name: string; slot: string; rarity: string; reason: string }[]) => ({
@@ -181,13 +181,13 @@ describe('items the character wears that the tab does not show', () => {
     vi.mocked(loadStreamers).mockResolvedValue(withSkips([
       { name: 'Mageblood', slot: 'Belt', rarity: 'Unique', reason: 'Unique — only a Rare is craftable here' },
       { name: 'Forgotten Warden', slot: 'Offhand', rarity: 'Unique', reason: 'Unique — only a Rare is craftable here' },
-      { name: 'Rage Sole', slot: 'Boots', rarity: 'Rare', reason: '“Sekhema Sandals” is not a base in the 0.5.0 data' },
+      { name: 'Doom Shell', slot: 'BodyArmour', rarity: 'Rare', reason: '“Grand Regalia” is not a base in the 0.5.0 data' },
     ]));
     await open();
     const note = screen.getByText(/Not shown:/).closest('div')!;
     expect(note.textContent).toMatch(/2 Uniques — a Unique can’t be crafted/);
     expect(note.textContent).toMatch(/1 Rare this app can’t read yet/);
-    expect(note.textContent).toMatch(/Rage Sole \(Boots\) — “Sekhema Sandals” is not a base in the 0\.5\.0 data/);
+    expect(note.textContent).toMatch(/Doom Shell \(BodyArmour\) — “Grand Regalia” is not a base in the 0\.5\.0 data/);
   });
 
   it('says nothing when nothing was left out', async () => {

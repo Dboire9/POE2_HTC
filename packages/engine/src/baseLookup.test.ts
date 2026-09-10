@@ -63,3 +63,33 @@ describe('the shipped data can answer for every base', () => {
     }
   });
 });
+
+/**
+ * Base-type twins (tools/refresh/twins.mjs). Each row is built from RePoE's plain variant, and until
+ * 2026-09-10 only that variant's names shipped — so the Ezomyte, Maraketh, Vaal and Karui bases and
+ * every Runeforged or Runemastered one, 1,019 released names in all, read as "not a base in the 0.5.0
+ * data" while sitting in it. Eleven Rares that four streamers wear were among them.
+ */
+describe('a base-type twin reads as the row whose pool it rolls', () => {
+  it.each([
+    ['Sekhema Sandals', 'Boots_int'], // Karui
+    ['Runeforged Secured Wraps', 'Gloves_dex_int'], // Karui and Runeforged
+    ['Akoyan Spear', 'Spears'],
+    ['Skullcrusher Quarterstaff', 'Quarterstaves'],
+    ['Leather Vest', 'Body_Armours_dex'], // Ezomyte, level 1
+    ['Runemastered Runic Fork', 'Wands'], // the any-element row, not an element-locked one
+  ])('%s -> %s', (name, id) => {
+    expect(findBase(index, name).id).toBe(id);
+  });
+
+  /** The Trarthan Cannon is a crossbow with a `cannon` tag and a pool of its own — grenade suffixes and
+   *  no Additional Ammo — so reading it as Crossbows would offer mods it cannot roll. */
+  it('never reads a base as a row whose pool it does not share', () => {
+    expect(findBase(index, 'Trarthan Cannon').ids).not.toContain('Crossbows');
+  });
+
+  /** Golden Hoop is an unreleased Demigod twin of the ring pool — a name no player can be holding. */
+  it('names only bases a player can own', () => {
+    expect(findBase(index, 'Golden Hoop').ids).toEqual([]);
+  });
+});

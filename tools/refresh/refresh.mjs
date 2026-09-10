@@ -14,6 +14,7 @@
 // Usage: node tools/refresh/refresh.mjs [repoeDir=tools/refresh/cache] [outDir=data/patches/0.5.0] [baselineDir=data/patches/0.5]
 
 import { templateFixedRoll } from './modText.mjs';
+import { twinsOf } from './twins.mjs';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -66,7 +67,9 @@ const CATEGORY_CLASS = {
 const EXTRA_BASES = [
   { id: 'Belts', name: 'Belts', category: 'Belts' },
 ];
-// Tags that mark a NON-canonical (specialised) base variant; the generic base has none of them.
+// Tags that mark a NON-canonical (specialised) base variant; the generic base has none of them. A variant
+// carrying nothing but these beyond a row's own tags, and rolling its pool, is that row's TWIN
+// (twins.mjs): the row is still built from the plain variant, but it answers to the twin's base names too.
 const SPECIALIZER = new Set([
   'ezomyte_basetype', 'maraketh_basetype', 'vaal_basetype', 'karui_basetype',
   'runeforged', 'not_for_sale', 'demigods',
@@ -171,18 +174,31 @@ function buildMod(baseId, type, group, modIds, baseTags) {
 }
 
 const warnings = [];
-const warn = (m) => warnings.push(m);
+const warn = (m) => { if (!warnings.includes(m)) warnings.push(m); };
 
 /**
- * Display names of the real game bases behind a RePoE variant, e.g. ["Frigid Wand"].
+ * Display names of the real game bases a row covers, e.g. ["Frigid Wand"]: those of the variant it is
+ * built from AND of that variant's base-type twins (twins.mjs), the Karui, Vaal, Maraketh, Ezomyte and
+ * Runeforged bases that roll the identical pool. Before twins were read, 1,019 released base names
+ * could not be traced to any row — campaign bases like Leather Vest among them, and the Rares four
+ * streamers wear.
  *
- * `[DNT…]` marks a name the game itself says Do Not Translate — a developer placeholder, not something
- * a player can own. Two of them sit in the unrestricted staff variant and would have been offered as
- * the answer to "which staff is this row?".
+ * Only a base a player can own is named. `[DNT…]` marks a name the game itself says Do Not Translate —
+ * a developer placeholder; two sit in the unrestricted staff variant and would have been offered as the
+ * answer to "which staff is this row?". And the base must be `released`, which keeps out the two
+ * unreleased Demigod twins (Golden Hoop, Golden Obi) and changed none of the 529 names shipped before.
  */
-const baseNamesOf = (variant) => [...new Set((variant.bases || [])
-  .map((path) => repoeBaseItems[path]?.name)
-  .filter((n) => n && !/^\[DNT/i.test(n)))].sort();
+function baseNamesOf(cls, sig) {
+  const variants = repoeByBase[cls];
+  const { twins, differ } = twinsOf(variants, sig, SPECIALIZER);
+  for (const other of differ) {
+    warn(`${cls} [${other}] adds only base-type tags to [${sig}] but rolls a different pool — its bases are left unread`);
+  }
+  return [...new Set([sig, ...twins].flatMap((s) => variants[s].bases || [])
+    .map((path) => repoeBaseItems[path])
+    .filter((b) => b && b.release_state === 'released' && !/^\[DNT/i.test(b.name))
+    .map((b) => b.name))].sort();
+}
 
 // --- main: iterate the baseline roster, plus any base Java never had ---------------------------
 const mods = new Map(); // id -> mod
@@ -213,7 +229,7 @@ for (const base of [...baseline.items, ...EXTRA_BASES]) {
   // The concrete base names this row covers — "Knightly Mitts", "Gold Ring". `name` stays the
   // DISPLAY label (BaseSelect renders it), so the two jobs do not share a field: reading an item
   // someone pasted or fetched needs the list, and the picker needs a caption.
-  items.push({ id: base.id, name: base.name, bases: baseNamesOf(picked.variant), category: base.category, class: cls, pools });
+  items.push({ id: base.id, name: base.name, bases: baseNamesOf(cls, picked.sig), category: base.category, class: cls, pools });
 }
 
 // --- spell-element base variants (Wands, Staves) ------------------------------------------------
@@ -264,9 +280,9 @@ for (const parent of [...items]) {
 
   // The parent is the unrestricted base, and it has real names too — a player holding a Siphoning Wand
   // needs to be told that is the "any element" row, or the split has only moved the guesswork.
-  const parentNames = baseNamesOf(variants[
-    Object.keys(variants).find((sig) => blockedElements(sig).length === 0 && !sig.split(',').some((t) => SPECIALIZER.has(t)))
-  ] || {});
+  const parentSig = Object.keys(variants)
+    .find((sig) => blockedElements(sig).length === 0 && !sig.split(',').some((t) => SPECIALIZER.has(t)));
+  const parentNames = parentSig === undefined ? [] : baseNamesOf(parent.class, parentSig);
   if (parentNames.length > 0) { parent.name = parentNames.join(', '); parent.bases = parentNames; }
 
   for (const [sig, v] of restricted) {
@@ -277,7 +293,7 @@ for (const parent of [...items]) {
     const element = allowed[0];
     const id = `${parent.id}_${element}`;
     if (items.some((b) => b.id === id)) { warn(`duplicate spell variant ${id}`); continue; }
-    const names = baseNamesOf(v);
+    const names = baseNamesOf(parent.class, sig);
     const pools = { normal: { prefixes: [], suffixes: [] }, desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] } };
     for (const [type, key] of [['prefix', 'prefixes'], ['suffix', 'suffixes']]) {
       const groups = new Set(Object.keys(v.mods?.[type] || {}));
@@ -303,7 +319,8 @@ writeJson(join(OUT_DIR, 'base_items.json'), {
 });
 
 console.log(`Refreshed patch ${PATCH} from RePoE (${REPOE_DIR})`);
-console.log(`  bases: ${items.length}   mods: ${sortedMods.length}   tiers: ${tierCount}`);
+const nameCount = items.reduce((n, b) => n + b.bases.length, 0);
+console.log(`  bases: ${items.length}   base names: ${nameCount}   mods: ${sortedMods.length}   tiers: ${tierCount}`);
 console.log('\n  base -> RePoE variant:');
 for (const line of mapping) console.log('    ' + line);
 if (warnings.length) {

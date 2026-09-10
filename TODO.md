@@ -1296,6 +1296,38 @@ second price lookup. The panel's own copy must keep naming what it checks (docs/
 
 ---
 
+## 19. Bases the data has and no row reads — OPEN, found 2026-09-10
+
+Reading base-type twins (CLAUDE.md; `tools/refresh/twins.mjs`) named 1,019 bases and deliberately left
+**31 released names** unread, because none can honestly share an existing row's pool:
+
+- **Tri-attribute armour — four new rows.** RePoE has Str/Dex/Int variants for Body Armours (Grand
+  Regalia, Sacrificial Regalia, Grasping Mail, Garment), Boots (Grand Cuisses), Gloves (Grand
+  Manchettes) and Helmets (Grand Visage), plus their Runeforged/Runemastered forms. `attributeTag`
+  already maps `_str_dex_int`, so the roster entries are `EXTRA_BASES` lines. What is missing is
+  WEIGHTS: no `*_str_dex_int` poe2db page is cached, and — the belts lesson — a row without one ships
+  every weight defaulted while the log mentions it in one line. First establish whether poe2db has such
+  pages at all; if not, whether the class page carries tri-attribute rows (`keepForBase` already
+  filters the essence and desecrated tables per attribute).
+- **The Trarthan Cannon — its own Crossbows row.** Its pool swaps Additional Ammo for 3 grenade
+  suffixes. poe2db's Crossbows page lists the base; whether its weights cover those suffixes is the
+  first check.
+- **Fists of Stone — a question, not a row.** An Ascendancy glove (`FourGlovesDexIntAscendancy`) whose
+  pool matches `Gloves_dex_int` only as a tag SET (it repeats `gloves`). If it crafts like ordinary
+  gloves, twins.mjs could compare sets; nothing else needs that.
+- Not candidates: the Str/Dex Venerable Defender (Unique-only) and the five Golden bases (Demigod).
+
+**Found on the same pass — a stat-reader gap, not a base gap.** `ReducedLocalAttributeRequirements3/4/5`
+("#% reduced Attribute Requirements") stays unread on three streamer items — Zizaran's wand (before
+this change too), Steelmage's Sekhema Sandals, XTheFarmerX's Akoyan Spear — though it is a normal suffix
+all three rows carry, stat `local_attribute_requirements_+%`, with NEGATIVE ranges (-15 … -35). A sign
+convention between poe.ninja's stat value and RePoE's range is the first suspect; unverified.
+
+**Verify.** New rows get the CoE check every other category had. The reader fix gets a profile test
+built on the real stat payload.
+
+---
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

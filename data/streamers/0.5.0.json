@@ -658,6 +658,60 @@
           "corrupted": false
         },
         {
+          "slot": "Boots",
+          "name": "Rage Sole",
+          "baseName": "Sekhema Sandals",
+          "baseId": "Boots_int",
+          "level": 81,
+          "mods": [
+            {
+              "modId": "Boots_int/FireResistance",
+              "tierDisplay": 5,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_int/ReducedFreezeDuration",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_int/LocalEnergyShield",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_int/MovementVelocity",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_int/ColdResistance",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_int/LocalEnergyShieldPercent",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
           "slot": "Offhand",
           "name": "Tempest Song",
           "baseName": "Omen Sceptre",
@@ -857,6 +911,60 @@
           "corrupted": false
         },
         {
+          "slot": "Gloves",
+          "name": "Behemoth Palm",
+          "baseName": "Sirenscale Gloves",
+          "baseId": "Gloves_int",
+          "level": 81,
+          "mods": [
+            {
+              "modId": "Gloves_int/ColdResistance",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_int/LocalEnergyShield",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_int/EnergyShieldRegeneration",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_int/Intelligence",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_int/LocalEnergyShieldPercent",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_int/LocalIncreasedEnergyShieldAndLife",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
           "slot": "Weapon",
           "name": "Morbid Bane",
           "baseName": "Attuned Wand",
@@ -906,20 +1014,7 @@
           "corrupted": false
         }
       ],
-      "skipped": [
-        {
-          "name": "Rage Sole",
-          "slot": "Boots",
-          "rarity": "Rare",
-          "reason": "“Sekhema Sandals” is not a base in the 0.5.0 data"
-        },
-        {
-          "name": "Behemoth Palm",
-          "slot": "Gloves",
-          "rarity": "Rare",
-          "reason": "“Sirenscale Gloves” is not a base in the 0.5.0 data"
-        }
-      ]
+      "skipped": []
     },
     {
       "profile": "Steelmage-5874",
@@ -928,6 +1023,55 @@
       "level": 95,
       "league": "HC BroSF Forbidden Rites (PL86530)",
       "items": [
+        {
+          "slot": "Boots",
+          "name": "Cataclysm Span",
+          "baseName": "Sekhema Sandals",
+          "baseId": "Boots_int",
+          "level": 81,
+          "mods": [
+            {
+              "modId": "Boots_int/ReducedFreezeDuration",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_int/MovementVelocity",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_int/LocalEnergyShieldPercent",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_int/LightningResistance",
+              "tierDisplay": 5,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_int/LocalEnergyShield",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [
+            "explicit: ReducedLocalAttributeRequirements4"
+          ],
+          "familyConflict": [],
+          "corrupted": false
+        },
         {
           "slot": "Amulet",
           "name": "Sol Noose",
@@ -1014,6 +1158,96 @@
             }
           ],
           "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Helm",
+          "name": "Pandemonium Cowl",
+          "baseName": "Ancestral Tiara",
+          "baseId": "Helmets_int",
+          "level": 80,
+          "mods": [
+            {
+              "modId": "Helmets_int/LocalEnergyShield",
+              "tierDisplay": 6,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_int/LocalIncreasedEnergyShieldAndMana",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": true
+            },
+            {
+              "modId": "Helmets_int/GlobalIncreaseMinionSpellSkillGemLevel",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_int/CriticalStrikeChance",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_int/Intelligence",
+              "tierDisplay": 4,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": true
+        },
+        {
+          "slot": "Weapon",
+          "name": "Demon Roar",
+          "baseName": "Skullcrusher Quarterstaff",
+          "baseId": "Quarterstaves",
+          "level": 81,
+          "mods": [
+            {
+              "modId": "Quarterstaves/LocalIncreasedAttackSpeed",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Quarterstaves/ManaLeechLocalPermyriad",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Quarterstaves/LocalLightningDamage",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Quarterstaves/LocalPhysicalDamagePercent",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [
+            "crafted: EssenceAttackSkillLevel2H1",
+            "desecrated: Adds 29 to 43 Physical Damage"
+          ],
           "familyConflict": [],
           "corrupted": false
         },
@@ -1128,12 +1362,6 @@
       ],
       "skipped": [
         {
-          "name": "Cataclysm Span",
-          "slot": "Boots",
-          "rarity": "Rare",
-          "reason": "“Sekhema Sandals” is not a base in the 0.5.0 data"
-        },
-        {
           "name": "Amor Mandragora",
           "slot": "Weapon2",
           "rarity": "Unique",
@@ -1144,18 +1372,6 @@
           "slot": "BodyArmour",
           "rarity": "Unique",
           "reason": "Unique — only a Rare is craftable here"
-        },
-        {
-          "name": "Pandemonium Cowl",
-          "slot": "Helm",
-          "rarity": "Rare",
-          "reason": "“Ancestral Tiara” is not a base in the 0.5.0 data"
-        },
-        {
-          "name": "Demon Roar",
-          "slot": "Weapon",
-          "rarity": "Rare",
-          "reason": "“Skullcrusher Quarterstaff” is not a base in the 0.5.0 data"
         },
         {
           "name": "Lochtonial Caress",
@@ -1223,6 +1439,55 @@
             }
           ],
           "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Weapon2",
+          "name": "Dusk Edge",
+          "baseName": "Akoyan Spear",
+          "baseId": "Spears",
+          "level": 81,
+          "mods": [
+            {
+              "modId": "Spears/LocalLightningDamage",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Spears/IncreasedWeaponElementalDamagePercent",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Spears/GlobalIncreaseProjectileSkillGemLevelWeapon",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Spears/LocalBaseCriticalStrikeChance",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Spears/LocalFireDamage",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [
+            "explicit: ReducedLocalAttributeRequirements5"
+          ],
           "familyConflict": [],
           "corrupted": false
         },
@@ -1387,6 +1652,163 @@
           ],
           "familyConflict": [],
           "corrupted": false
+        },
+        {
+          "slot": "Helm",
+          "name": "Horror Dome",
+          "baseName": "Ancestral Tiara",
+          "baseId": "Helmets_int",
+          "level": 81,
+          "mods": [
+            {
+              "modId": "Helmets_int/LightningResistance",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_int/ItemFoundRarityIncreasePrefix",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_int/ColdResistance",
+              "tierDisplay": 4,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_int/LocalEnergyShieldPercent",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_int/ItemFoundRarityIncrease",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Helmets_int/LocalEnergyShield",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Boots",
+          "name": "Torment Spur",
+          "baseName": "Daggerfoot Shoes",
+          "baseId": "Boots_dex_int",
+          "level": 80,
+          "mods": [
+            {
+              "modId": "Boots_dex_int/EvasionAppliesToDeflection",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/LocalEvasionAndEnergyShield",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/ReducedChillDuration",
+              "tierDisplay": 4,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/LocalBaseEvasionRatingAndEnergyShield",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/ItemFoundRarityIncrease",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/MovementVelocity",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Gloves",
+          "name": "Kraken Touch",
+          "baseName": "Runeforged Secured Wraps",
+          "baseId": "Gloves_dex_int",
+          "level": 82,
+          "mods": [
+            {
+              "modId": "Gloves_dex_int/Dexterity",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_dex_int/FireDamage",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_dex_int/LightningDamage",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_dex_int/FireResistance",
+              "tierDisplay": 4,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_dex_int/CriticalStrikeMultiplier",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [
+            "desecrated: Adds 9 to 14 Physical Damage to Attacks"
+          ],
+          "familyConflict": [],
+          "corrupted": false
         }
       ],
       "skipped": [
@@ -1403,34 +1825,10 @@
           "reason": "Unique — only a Rare is craftable here"
         },
         {
-          "name": "Dusk Edge",
-          "slot": "Weapon2",
-          "rarity": "Rare",
-          "reason": "“Akoyan Spear” is not a base in the 0.5.0 data"
-        },
-        {
-          "name": "Horror Dome",
-          "slot": "Helm",
-          "rarity": "Rare",
-          "reason": "“Ancestral Tiara” is not a base in the 0.5.0 data"
-        },
-        {
-          "name": "Torment Spur",
-          "slot": "Boots",
-          "rarity": "Rare",
-          "reason": "“Daggerfoot Shoes” is not a base in the 0.5.0 data"
-        },
-        {
           "name": "The Taming",
           "slot": "Ring2",
           "rarity": "Unique",
           "reason": "Unique — only a Rare is craftable here"
-        },
-        {
-          "name": "Kraken Touch",
-          "slot": "Gloves",
-          "rarity": "Rare",
-          "reason": "“Runeforged Secured Wraps” is not a base in the 0.5.0 data"
         }
       ]
     },
@@ -1476,6 +1874,62 @@
             "desecrated: Offering Skills have 26% increased Buff effect"
           ],
           "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Gloves",
+          "name": "Dusk Talons",
+          "baseName": "Secured Wraps",
+          "baseId": "Gloves_dex_int",
+          "level": 82,
+          "mods": [
+            {
+              "modId": "Gloves_dex_int/LifeLeechPermyriad",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_dex_int/ColdResistance",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_dex_int/ColdResistance",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_dex_int/LocalBaseEvasionRatingAndEnergyShield",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_dex_int/IncreasedLife",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Gloves_dex_int/LocalIncreasedEvasionAndEnergyShieldAndLife",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [
+            "Gloves_dex_int/ColdResistance"
+          ],
           "corrupted": false
         },
         {
@@ -1530,6 +1984,62 @@
           ],
           "unresolved": [],
           "familyConflict": [],
+          "corrupted": false
+        },
+        {
+          "slot": "Boots",
+          "name": "Honour Pace",
+          "baseName": "Runeforged Daggerfoot Shoes",
+          "baseId": "Boots_dex_int",
+          "level": 80,
+          "mods": [
+            {
+              "modId": "Boots_dex_int/FireResistance",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/LocalEvasionAndEnergyShield",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/Intelligence",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/IncreasedLife",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/FireResistance",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
+              "modId": "Boots_dex_int/MovementVelocity",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": true,
+              "sanctified": false
+            }
+          ],
+          "unresolved": [],
+          "familyConflict": [
+            "Boots_dex_int/FireResistance"
+          ],
           "corrupted": false
         },
         {
@@ -1625,18 +2135,6 @@
         }
       ],
       "skipped": [
-        {
-          "name": "Dusk Talons",
-          "slot": "Gloves",
-          "rarity": "Rare",
-          "reason": "“Secured Wraps” is not a base in the 0.5.0 data"
-        },
-        {
-          "name": "Honour Pace",
-          "slot": "Boots",
-          "rarity": "Rare",
-          "reason": "“Runeforged Daggerfoot Shoes” is not a base in the 0.5.0 data"
-        },
         {
           "name": "Mageblood",
           "slot": "Belt",

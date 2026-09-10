@@ -193,20 +193,23 @@ describe('finding the base inside a name', () => {
   });
 
   /**
-   * The pasted bow is REAL and its base does not exist in the 0.5.0 data this app ships — the item
-   * comes from a later patch. Finding nothing is the right answer, and a UI has to say so rather than
-   * plan a craft against whichever row happened to match.
+   * The pasted bow is REAL, and this test used to say its base came from a later patch and pin "finds
+   * nothing". It is a Karui bow, in the 0.5.0 dump all along: the pipeline built each row from RePoE's
+   * plain variant and never read the names of the base-type twins that roll the same pool
+   * (tools/refresh/twins.mjs). A base the data really lacks is the last case here — nothing, said so.
    */
-  it('finds nothing for a base the shipped patch does not have', () => {
-    expect(findBaseInName(index, 'Obliterator Bow').id).toBeUndefined();
-    expect(findBaseInName(index, 'Obliterator Bow').ids).toEqual([]);
+  it('reads a base-type twin, like the Karui Obliterator Bow, as the row whose pool it rolls', () => {
+    expect(findBaseInName(index, 'Obliterator Bow').id).toBe('Bows');
+    expect(findBaseInName(index, 'Runeforged Secured Wraps').id).toBe('Gloves_dex_int');
   });
 
   /**
    * Longest match, and it is load-bearing across item CATEGORIES rather than a nicety. `Ring` is a
    * jewellery base and `Ring Mail` is a body armour, so a shortest-first search reads a magic Ring
    * Mail as a ring — and then plans the craft against the wrong pool entirely, with nothing on screen
-   * to say so. 26 of the 529 shipped names sit inside another name this way.
+   * to say so. 519 of the 1,548 shipped names sit inside a longer one, nearly all a plain base inside
+   * its own Runeforged or Runemastered form on the same row, where the longest match changes nothing;
+   * Ring inside Ring Mail is the one pair that crosses rows.
    */
   it('prefers the longest name, so Ring Mail is not read as a Ring', () => {
     expect(findBaseInName(index, 'Ring Mail').id).toBe('Body_Armours_str_dex');

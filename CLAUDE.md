@@ -43,6 +43,24 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   **THREE maps had to learn the category, not two.** `refresh.mjs`'s `CATEGORY_CLASS` (→ the `repoeByBase` key), `apply_pools.mjs`'s (→ a poe2db page name), **and `apply_weights.mjs`'s** (→ the same page name, a separate copy). Missing the third is silent in the worst way: the pipeline completes, the base appears, and only the line `bases with NO poe2db page: Belts->undefined` in the middle of the log says every belt weight defaulted. Note the `item_class` in `repoe_base_items.json` is the SINGULAR `Belt`; neither map uses that field, and `repoeByBase` is keyed `Belts`.
   Adding a base does NOT mean editing `data/patches/0.5/base_items.json`. That file is the frozen Java differential anchor, and `refresh.mjs` reads only `id`/`name`/`category` off it — the pools are rebuilt from RePoE every run — so it is a ROSTER. `EXTRA_BASES` in `refresh.mjs` extends the roster with bases Java never had, leaving the anchor untouched. `pickVariant` then chose `[belt,default]` unaided, because `runeforged`, `not_for_sale` and `demigods` were already in `SPECIALIZER`.
   **Charms and Jewels stay out.** Charms exist in the dump (13 bases, one shared pool, 4 prefix + 5 suffix families) and look trivially addable, but they are tagged `utility_flask,flask,default` — flasks — and this model assumes the 3-prefix/3-suffix rare (`perSideCap` is by RARITY, with no category axis). Whether that cap holds for a charm is untraced, so adding them would be asserting a mechanic. Jewels have their own affix model besides.
+- **A row answers to its base-type TWINS' names** (2026-09-10, `tools/refresh/twins.mjs`). Each row is
+  built from RePoE's PLAIN variant, but most bases sit in variants that add only a `SPECIALIZER` tag —
+  the Ezomyte/Maraketh/Vaal/Karui base-type families and `runeforged` — and their names were never read:
+  **1,019 released names against the 529 shipped**, campaign bases (Leather Vest, Crude Bow) and the
+  Karui endgame set among them. So a paste or a streamer's item on any of them was "not a base in the
+  0.5.0 data" while sitting in the dump. A variant is folded only if its tags minus `SPECIALIZER` ARE the
+  row's tags, in order, AND `poolKey` matches — the same prefix and suffix groups with the same tier ids;
+  a tag-twin rolling another pool is warned and left unread. Measured: all 332 tag-twins pool-identical,
+  no name on two rows, and only `bases` moved — rows, `mods.json`, every pool and weight byte-identical,
+  plus one caption (Wands gained "Runemastered Runic Fork"). A name must also be `release_state:
+  released`, which kept out Golden Hoop and Golden Obi and dropped none of the 529. **Left unread on
+  purpose** (TODO 19): tri-attribute armour (Grand Regalia, Sacrificial Regalia, Grasping Mail, Garment,
+  Grand Cuisses/Manchettes/Visage) has NO row and no cached poe2db page, so a row now would ship
+  defaulted weights; the Trarthan Cannon rolls its own pool (`cannon`: grenade suffixes, no Additional
+  Ammo); Fists of Stone is an Ascendancy base matching only through a doubled `gloves` tag, and whether
+  it crafts like ordinary gloves is untraced; the Str/Dex Venerable Defender is Unique-only and the
+  Golden bases are Demigod. **Three tests had pinned the bug with a false reason**: "Obliterator Bow" was
+  the suite's example of "a base from a later patch" — a Karui bow, in the data all along.
 - **A Desecration needs a Rare item**, and the bone depends on the base: jawbone = weapons + quivers, rib = armour, collarbone = amulets/rings/belts. **`BONE_BY_CATEGORY` said "Amulet, Ring or Belt" in its comment for weeks while having no `Belts` entry**, and the fallthrough is `?? 'rib'` — so the day belts landed a belt would have been charged the armour bone (0.41ex against the collarbone's 4.69ex, ~11x under) and, because `bossOmenAllowed` is defined as "not rib", silently refused the boss omens the game does allow on it. A comment is not a mapping; grep the map, not the prose. Only the **Preserved** grade applies while every desecrated mod is ilvl 65 (`prices.mjs` warns if that stops being true).
 - **Annulment does not downgrade rarity.** A Rare stays Rare as you annul mods off it — which is why "roll filler, annul it, then Desecrate" is a legal route even though no planner here searches it.
 - **An item carries at most ONE essence modifier — regular and perfect counted TOGETHER.** `isEssenceMod` (`probability.ts`) is the single predicate; every planner and picker counts with it. A regular essence needs a Magic item and turns it Rare; a **Perfect Essence works on a Rare and is a SWAP** — it forces its mod on while removing one existing mod uniformly at random (`1/(pf+sf)`, or `1/pf`,`1/sf` under a Sinistral/Dextral Crystallisation omen), and is gated at ilvl 72. The two grant from **disjoint pools**: 317 `source: 'essence'` mods vs 363 `perfect_essence`, zero id overlap, both inside `base.pools.essence`. So a Perfect Essence can never supply a second regular-essence mod, and can never be added on top of one either.
@@ -291,12 +309,13 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   account is. Copy slugs from a poe.ninja build URL — the official site 403s scripts and poe.ninja's
   builds HTML carries no account data. XTheFarmerX's account is `xthefarmerx-5994`; SpicySushi's is
   `TwitchTVSpicysushi-7614`, NOT `FoosballGG-7971`, a different account with a character named after him.
-  **The new characters exposed a DATA GAP, not a reader bug.** 11 Rares across four of them sit on bases
-  absent from `data/patches/0.5.0` AND from the 2026-07-04 RePoE cache the pipeline reads — Sekhema
-  Sandals, Ancestral Tiara, Daggerfoot Shoes, Secured Wraps, Sirenscale Gloves, Akoyan Spear,
-  Skullcrusher Quarterstaff, and "Runeforged" variants — while the controls (Masked Greathelm, Chiming
-  Staff, Knightly Mitts) are all present. Closing it is a DATA REFRESH, not code. Until then the tab
-  NAMES each one: the job persists `skipped` (Rares and Uniques only — socketed runes in `Chakra` slots
+  **The new characters exposed a PIPELINE gap, first misread here as a data gap.** 11 Rares across four
+  of them sat on bases no row named — Sekhema Sandals, Ancestral Tiara, Daggerfoot Shoes, Secured Wraps,
+  Sirenscale Gloves, Akoyan Spear, Skullcrusher Quarterstaff, and Runeforged forms. This note said they
+  were missing from the 2026-07-04 RePoE cache too; **every one is in it**, once, in
+  `repoe_base_items.json`. A name search of `repoe_mods_by_base.json` finds NO base at all — it lists
+  bases by metadata path — so it proves nothing. Fixed the same day by reading base-type twins (Critical
+  rules), and all 11 resolve. The tab still NAMES any item it cannot read: the job persists `skipped` (Rares and Uniques only — socketed runes in `Chakra` slots
   and Incursion limbs carry no such rarity and would be noise) and `StreamerGear` lists them under
   "Not shown". Before that, Steelmage displayed 4 items and silently omitted 6, which broke the tab's
   one promise for the one kind of omission it had never been asked to name: whole items.

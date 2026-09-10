@@ -112,7 +112,7 @@ const StreamerGear: React.FC<{ data: PatchData; routes?: GearRoutes }> = ({ data
             its clause rather than leaving a caveat that no longer applies. */}
         <p className="rounded border border-amber-500/40 bg-amber-500/5 px-2 py-1.5 text-[11px] text-amber-300">
           <strong>Beta — still being finished.</strong> A handful of streamers for now, and their gear is
-          a snapshot we refresh by hand rather than live. Some item bases aren’t in this app’s data yet,
+          a snapshot we refresh by hand rather than live. A few item bases aren’t in this app’s data yet,
           so those items can’t be read, and a Sanctified roll counts as the best normal tier, so that
           item really cost more. The tab always says what it left out.
         </p>

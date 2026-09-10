@@ -3616,13 +3616,13 @@ resolved it:
 | XTheFarmerX | xthefarmerxMILKED, 96 | 4 | 23 | 2 | 4 Rares, 3 Uniques |
 | SpicySushi | SushiToppingFub, 96 | 4 | 18 | 6 | 2 Rares, 4 Uniques |
 
-**The 11 Rares not shown are a DATA gap, not a reader bug.** Every one sits on a base that is absent
-from `data/patches/0.5.0` and from the 2026-07-04 RePoE cache the pipeline reads: Sekhema Sandals (x2),
-Ancestral Tiara (x2), Daggerfoot Shoes, Runeforged Daggerfoot Shoes, Secured Wraps, Runeforged Secured
-Wraps, Sirenscale Gloves, Akoyan Spear, Skullcrusher Quarterstaff. Controls on the same search —
-Masked Greathelm, Chiming Staff, Knightly Mitts — are all present. So the reader is doing its job; the
-data predates these bases or never carried them. Closing it is `npm run update-data` against a fresh
-dump, with the differential and CoE checks that implies — deliberately NOT done alongside a Beta release.
+**Corrected the same day: the 11 Rares were a PIPELINE gap, not a data gap.** Every one sits on a base
+no row named — Sekhema Sandals (x2), Ancestral Tiara (x2), Daggerfoot Shoes, Runeforged Daggerfoot
+Shoes, Secured Wraps, Runeforged Secured Wraps, Sirenscale Gloves, Akoyan Spear, Skullcrusher
+Quarterstaff. This paragraph first said they were missing from the 2026-07-04 RePoE cache as well; they
+are not — `repoe_base_items.json` names each one exactly once. A name search of `repoe_mods_by_base.json`,
+which lists bases by metadata path, finds no base at all, the controls included, so it proved nothing.
+The next section is the fix; all 11 resolve now.
 
 Unread LINES on the items that did resolve fall into three groups, recorded so the next pass does not
 re-diagnose them: `crafted: Essence…` and `crafted: Alloy…` (essence and alloy grants the stat index
@@ -3634,6 +3634,67 @@ does not cover — fubgun's first read had one too), minion modifiers on rings (
 items while wearing 6 more — the panel's "everything left off is named" held for modifiers and never
 for whole items. The job now writes the Rare and Unique skips; socketed runes (`Chakra`) and Incursion
 limbs carry no such rarity and are left out as noise.
+
+## Base-type twins: the eleven Rares were in the data all along (2026-09-10)
+
+**What was wrong.** `refresh.mjs` builds each row from ONE RePoE variant — the plain one — and shipped
+only that variant's base names. RePoE splits every class into variants by tag, and most bases sit in
+variants that add only a base-type family tag (`ezomyte_basetype`, `maraketh_basetype`, `vaal_basetype`,
+`karui_basetype`) or `runeforged`. Their names were never read: **1,019 released base names** that no
+paste and no profile could trace to a row, against the 529 the rows carried — low-level bases like
+Leather Vest (level 1) among them, and the Karui endgame set the streamers wear.
+
+**The rule** (`tools/refresh/twins.mjs`). A variant lends a row its names only when its tags minus
+`SPECIALIZER` ARE the row's tags, in order, AND `poolKey` matches — the same prefix and suffix groups
+with the same tier ids. A tag-twin rolling another pool is warned and left unread; the unit test covers
+that guard on a synthetic class, since the real dump never trips it.
+
+| measured on the 2026-07-04 dump | |
+|---|---|
+| variants holding an unnamed released base | 333 |
+| … whose tags minus `SPECIALIZER` are a row's | 332 — all 332 roll that row's exact pool |
+| released names added | 1,019 (529 → 1,548) |
+| names landing on two rows | 0 |
+| rows / `mods.json` / pools / weights changed | none — byte-identical; only `bases` grew |
+| captions changed | 1 (Wands gained "Runemastered Runic Fork") |
+
+`run.sh` on the clean tree reproduced the committed data byte-for-byte BEFORE the change, so the diff
+is the change and nothing else. A name must also be `release_state: released`: that kept out the two
+unreleased Demigod twins (Golden Hoop, Golden Obi) and removed none of the 529.
+
+**Left unread on purpose — 31 released names, TODO 19.** Tri-attribute armour (Grand Regalia,
+Sacrificial Regalia, Grasping Mail, Garment, Grand Cuisses, Grand Manchettes, Grand Visage, and their
+rune forms) has no row and no cached poe2db page, so a row now would ship defaulted weights. The
+Trarthan Cannon (`cannon`) rolls its own pool — 3 grenade suffixes, no Additional Ammo. Fists of Stone
+is an Ascendancy base whose pool matches only through a doubled `gloves` tag, and whether it crafts like
+ordinary gloves is untraced. The Str/Dex Runemastered Venerable Defender is Unique-only; the Golden
+bases are Demigod.
+
+**The gear, re-fetched against the new data:**
+
+| streamer | items read | modifiers placed | lines unread | items not shown |
+|---|---|---|---|---|
+| fubgun | 9 | 52 | 2 | 1 Unique |
+| Zizaran | 10 | 54 | 5 | none |
+| Steelmage | 7 | 35 | 4 | 3 Uniques |
+| XTheFarmerX | 8 | 45 | 4 | 3 Uniques |
+| SpicySushi | 6 | 30 | 6 | 4 Uniques |
+
+The 11 formerly unread Rares place 60 modifiers and leave 5 lines unread: an essence grant, two
+desecrated lines (the desecrated pool carries no `tiers[].stats`), and
+`ReducedLocalAttributeRequirements4`/`5` on the Sekhema Sandals and the Akoyan Spear. That last is a
+**normal suffix our data carries on both rows**, with the stat id RePoE uses, so it is a stat-reader
+matching gap and not a data gap — and it predates this change: Zizaran's Morbid Bane wand already left
+`…3` unread. TODO 19.
+
+**Three tests had pinned the bug.** "Obliterator Bow" was the suite's example of "a base from a later
+patch" in `parseItem`, `profileItems` and `pasteItem`. It is a Karui bow, in the data all along. The
+negative cases now use an invented base; the real bow is a positive case.
+
+**Mutation-checked**, each by breaking the behaviour, watching its test go red, and restoring byte for
+byte: in `twins.mjs`, the pool guard, the tag rule and `poolKey`'s group ordering (synthetic test, 2, 2
+and 1 red); through the real pipeline, not folding twins at all (529 names ship; 7 lookup tests red) and
+dropping the `released` filter (1,550 names, Golden Hoop and Golden Obi back; the owner test red).
 
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share

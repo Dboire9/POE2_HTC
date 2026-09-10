@@ -22,7 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **An item can only hold one fractured modifier, and both tabs now say so.** You could mark every mod
+- **Items on 1,019 more bases are recognised.** Pasting an item — or reading a streamer's gear — said
+  "not a base in the 0.5.0 data" for every Ezomyte, Maraketh, Vaal or Karui base and every Runeforged or
+  Runemastered one: low-level bases like Leather Vest, and endgame ones like Sekhema Sandals and the
+  Akoyan Spear. The data had them all along; the data pipeline built each base row from one variant and
+  named only that variant's bases. It now also names every variant that rolls the identical pool,
+  checked modifier by modifier on each refresh. No modifier, weight or price changed. The Streamer gear
+  tab shows the 11 items it could not read before.
+- **An item can only hold one fractured modifier
+, and both tabs now say so.** You could mark every mod
   on your item as fractured, which describes an item that cannot exist — the Fracturing Orb's own text
   is *"Fracture a random modifier on a rare item with at least 4 modifiers"* and *"Cannot be used on
   Fractured items"*. Marking a second now releases the first, the way the one-carved-mod rule already

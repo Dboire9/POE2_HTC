@@ -110,7 +110,7 @@ describe('tiers come back as the pickers show them', () => {
 describe('items it declines', () => {
   it('skips a base the shipped patch does not have, and says so', () => {
     const r = resolveProfileItems(data, [
-      { name: 'Miracle Siege', baseType: 'Obliterator Bow', rarity: 'Rare', ilvl: 81, mods: {} },
+      { name: 'Miracle Siege', baseType: 'Not A Real Bow', rarity: 'Rare', ilvl: 81, mods: {} },
     ]);
     expect(r.items).toEqual([]);
     expect(r.skipped[0]?.reason).toMatch(/not a base in the 0\.5\.0 data/);
@@ -126,17 +126,18 @@ describe('items it declines', () => {
 
 /**
  * A Rare on a base this data lacks is the skip a player would actually miss, so it has to say it is a
- * Rare, and where it was worn. The job keeps skips BY RARITY — drop the field here and the eleven Rares
- * four real streamers wear on bases the 0.5.0 data does not have would vanish from the tab unannounced,
- * which is exactly what they did before `skipped` was persisted. Sekhema Sandals is one of them.
+ * Rare, and where it was worn. The job keeps skips BY RARITY — drop the field here and such a Rare
+ * would vanish from the tab unannounced. Eleven did, on four streamers, before `skipped` was persisted;
+ * they turned out to be base-type twins the pipeline had never named (Sekhema Sandals among them) and
+ * are read now, so the base here is invented. Any base still unknown takes this path.
  */
 describe('a skipped item says what it is', () => {
   it('carries rarity and slot for a Rare on a base the data lacks', () => {
     const r = resolveProfileItems(data, [
-      { name: 'Rage Sole', baseType: 'Sekhema Sandals', rarity: 'Rare', inventoryId: 'Boots' },
+      { name: 'Rage Sole', baseType: 'Not A Real Sandal', rarity: 'Rare', inventoryId: 'Boots' },
     ]);
     expect(r.skipped).toEqual([{
-      name: 'Rage Sole', reason: '“Sekhema Sandals” is not a base in the 0.5.0 data', rarity: 'Rare', slot: 'Boots',
+      name: 'Rage Sole', reason: '“Not A Real Sandal” is not a base in the 0.5.0 data', rarity: 'Rare', slot: 'Boots',
     }]);
   });
 });

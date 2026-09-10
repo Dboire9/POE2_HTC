@@ -95,10 +95,11 @@ describe('what it will not let you craft', () => {
     expect(r.problems.join(' ')).toMatch(/Corrupted/);
   });
 
-  /** A real pasted bow named a base 0.5.0 does not have. Saying so beats planning against whichever
-   *  row happened to match. */
+  /** A base the shipped data has no row for. Saying so beats planning against whichever row happened
+   *  to match. (This used to be a real Obliterator Bow — a Karui bow the data had all along, unread until
+   *  the pipeline named base-type twins — so the base is invented now.) */
   it('says so when the base is not in the shipped patch', () => {
-    const r = read(item('+219 to Armour', 'Item Class: Bows\nRarity: Rare\nX\nObliterator Bow'))!;
+    const r = read(item('+219 to Armour', 'Item Class: Bows\nRarity: Rare\nX\nNot A Real Bow'))!;
     expect(r.baseId).toBeUndefined();
     expect(r.problems.join(' ')).toMatch(/not a base in the 0\.5\.0 data/);
   });

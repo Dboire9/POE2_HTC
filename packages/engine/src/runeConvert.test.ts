@@ -12,6 +12,8 @@ const base = (id: string): ItemBase => {
   if (!b) throw new Error(`no such base: ${id}`);
   return b;
 };
+/** Plain targets, one position each — how a list with no alternatives looks. */
+const ids = (list: readonly string[]) => list.map((modId) => ({ modId }));
 
 describe('the gain-as-extra family on a base', () => {
   /** Read off the text (`…as Extra Fire Damage`), never a hardcoded list, so a new element in a future
@@ -38,13 +40,21 @@ describe('stacking a modifier the family rules allow only once', () => {
    */
   it('turns "two of one mod" into two DIFFERENT elements plus a rune', () => {
     const r = runeRoute(data, staff, 'Staves/DamageGainedAsFire', 2);
-    expect(r?.targets).toEqual(['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsCold']);
+    // The second copy is EITHER sibling — the rune converts both, so naming one would throw away every
+    // roll that lands the other.
+    expect(r?.slots).toEqual([
+      ['Staves/DamageGainedAsFire'],
+      ['Staves/DamageGainedAsCold', 'Staves/DamageGainedAsLightning'],
+    ]);
     expect(r?.rune).toBe('passion-of-aldur');
     expect(r?.element).toBe('fire');
   });
 
   it('stacks all three, which is as many as the base can roll', () => {
-    expect(runeRoute(data, staff, 'Staves/DamageGainedAsFire', 3)?.targets).toHaveLength(3);
+    // Every sibling is needed, so there is nothing to choose between.
+    expect(runeRoute(data, staff, 'Staves/DamageGainedAsFire', 3)?.slots).toEqual([
+      ['Staves/DamageGainedAsFire'], ['Staves/DamageGainedAsCold'], ['Staves/DamageGainedAsLightning'],
+    ]);
   });
 
   /**
@@ -53,7 +63,7 @@ describe('stacking a modifier the family rules allow only once', () => {
    * forbids and every probability computed for it would be meaningless.
    */
   it('asks for targets that can genuinely coexist on one item', () => {
-    const targets = runeRoute(data, staff, 'Staves/DamageGainedAsFire', 3)!.targets;
+    const targets = runeRoute(data, staff, 'Staves/DamageGainedAsFire', 3)!.slots.flat();
     const item: ItemState = {
       base: staff, level: 82, rarity: 'rare',
       prefixes: targets.map((modId) => ({ modId, tierName: data.mods.get(modId)!.tiers.at(-1)!.name })),
@@ -116,7 +126,7 @@ describe('spotting the rune for a target list already chosen', () => {
   const staff = base('Staves');
 
   it('offers it once two of them are on the list', () => {
-    const o = runeOpportunity(data, staff, ['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsCold']);
+    const o = runeOpportunity(data, staff, ids(['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsCold']));
     expect(o?.rune).toBe('passion-of-aldur');
     expect(o?.element).toBe('fire');
     expect([...(o?.elements ?? [])].sort()).toEqual(["cold", "fire"]);
@@ -125,29 +135,47 @@ describe('spotting the rune for a target list already chosen', () => {
   /** The rune converts every one of them, so it fuses elements the player never asked for either —
    *  which is worth offering, and is exactly what the caveat is about. */
   it('offers it even when the wanted element is not among them', () => {
-    const o = runeOpportunity(data, staff, ['Staves/DamageGainedAsCold', 'Staves/DamageGainedAsLightning']);
+    const o = runeOpportunity(data, staff, ids(['Staves/DamageGainedAsCold', 'Staves/DamageGainedAsLightning']));
     expect(o?.element).toBe('fire');
     expect(o?.caveat).toMatch(/including any you meant to keep/);
   });
 
   it('says nothing for a single one, since there is nothing to fuse', () => {
-    expect(runeOpportunity(data, staff, ['Staves/DamageGainedAsFire'])).toBeUndefined();
+    expect(runeOpportunity(data, staff, ids(['Staves/DamageGainedAsFire']))).toBeUndefined();
   });
 
   it('says nothing for targets that are not gain-as-extra mods', () => {
-    expect(runeOpportunity(data, staff, ['Staves/Intelligence', 'Staves/WeaponSpellDamage'])).toBeUndefined();
+    expect(runeOpportunity(data, staff, ids(['Staves/Intelligence', 'Staves/WeaponSpellDamage']))).toBeUndefined();
   });
 
   /** A duplicate id is one modifier, not two — the list must not be fooled into offering a fusion of
    *  something with itself. */
   it('does not count the same target twice', () => {
-    expect(runeOpportunity(data, staff, ['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsFire']))
+    expect(runeOpportunity(data, staff, ids(['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsFire'])))
       .toBeUndefined();
   });
 
   it('says nothing on a base that cannot roll them', () => {
-    expect(runeOpportunity(data, base('Rings'), ['Rings/AllResistances', 'Rings/ChaosResistance']))
+    expect(runeOpportunity(data, base('Rings'), ids(['Rings/AllResistances', 'Rings/ChaosResistance'])))
       .toBeUndefined();
+  });
+
+  /** Alternatives fill ONE place on the item, so they fuse as one modifier — Fire beside "Cold or
+   *  Lightning" is two, and saying three would describe an item that cannot exist. */
+  it('counts a slot of alternatives once', () => {
+    const o = runeOpportunity(data, staff, [
+      { modId: 'Staves/DamageGainedAsFire' },
+      { modId: 'Staves/DamageGainedAsCold', slot: 0 },
+      { modId: 'Staves/DamageGainedAsLightning', slot: 0 },
+    ]);
+    expect(o?.count).toBe(2);
+  });
+
+  it('says nothing for one slot of alternatives alone, since only one of them lands', () => {
+    expect(runeOpportunity(data, staff, [
+      { modId: 'Staves/DamageGainedAsCold', slot: 0 },
+      { modId: 'Staves/DamageGainedAsLightning', slot: 0 },
+    ])).toBeUndefined();
   });
 });
 
@@ -162,12 +190,12 @@ describe('on the data the browser downloads', () => {
 
   it('finds the same siblings as the full file, and the same route', () => {
     expect([...gainAsExtraByElement(shipped, staves)]).toEqual([...gainAsExtraByElement(data, base('Staves'))]);
-    expect(runeRoute(shipped, staves, 'Staves/DamageGainedAsFire', 2)?.targets)
-      .toEqual(['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsCold']);
+    expect(runeRoute(shipped, staves, 'Staves/DamageGainedAsFire', 2)?.slots)
+      .toEqual([['Staves/DamageGainedAsFire'], ['Staves/DamageGainedAsCold', 'Staves/DamageGainedAsLightning']]);
   });
 
   it('still offers the rune for a target list holding two of them', () => {
-    expect(runeOpportunity(shipped, staves, ['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsCold'])?.rune)
+    expect(runeOpportunity(shipped, staves, ids(['Staves/DamageGainedAsFire', 'Staves/DamageGainedAsCold']))?.rune)
       .toBe('passion-of-aldur');
   });
 });

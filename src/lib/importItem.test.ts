@@ -1,13 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { craftFromScratch, importToItem, useAsTarget } from './importItem';
 import { getWorkspace, setWorkspace, defaultWorkspace, STORAGE_KEY } from './workspace';
-import type { ImportedItem } from './engineTypes';
+import { goalOf } from './streamerGear';
+import type { CraftGoal, ImportedItem } from './engineTypes';
 
 const ITEM: ImportedItem = {
   baseId: 'Staves', level: 77, rarity: 'rare',
   prefixes: [{ modId: 'Staves/A', tierDisplay: 1 }],
   suffixes: [{ modId: 'Staves/B', tierDisplay: 2 }],
 };
+/** The same modifiers read as a goal — what the two goal routes take. */
+const GOAL: CraftGoal = goalOf(ITEM);
 
 beforeEach(() => { setWorkspace(defaultWorkspace()); });
 
@@ -54,7 +57,7 @@ describe('importToItem', () => {
 
 describe('craftFromScratch', () => {
   it('makes the item’s modifiers the Lab’s targets, on its own base and item level', () => {
-    craftFromScratch(ITEM);
+    craftFromScratch(GOAL);
     const ws = getWorkspace();
     expect(ws.mode).toBe('plan');
     expect(ws.lab.baseId).toBe('Staves');
@@ -71,7 +74,7 @@ describe('craftFromScratch', () => {
    * scratch" means.
    */
   it('does not carry a fractured modifier across as a pre-owned one', () => {
-    craftFromScratch({ ...ITEM, prefixes: [{ modId: 'Staves/A', tierDisplay: 1, fractured: true }] });
+    craftFromScratch(goalOf({ ...ITEM, prefixes: [{ modId: 'Staves/A', tierDisplay: 1, fractured: true }] }));
     expect(getWorkspace().lab.fractured.size).toBe(0);
     expect(getWorkspace().lab.targets.map((t) => t.modId)).toContain('Staves/A');
   });
@@ -79,8 +82,19 @@ describe('craftFromScratch', () => {
   it('does not carry the previous craft’s pins onto modifiers that were never in it', () => {
     const d = defaultWorkspace();
     setWorkspace({ ...d, lab: { ...d.lab, pinned: new Set(['Wands/Old']) } });
-    craftFromScratch(ITEM);
+    craftFromScratch(GOAL);
     expect(getWorkspace().lab.pinned.size).toBe(0);
+  });
+
+  /** A slot of alternatives survives the trip: the Lab solves "Cold or Lightning" as one position. */
+  it('carries a slot of alternatives across as one slot', () => {
+    const slotted: CraftGoal = { ...GOAL, targets: [
+      { modId: 'Staves/A', tierDisplay: 1 },
+      { modId: 'Staves/Cold', tierDisplay: 1, slot: 0 },
+      { modId: 'Staves/Lightning', tierDisplay: 1, slot: 0 },
+    ] };
+    craftFromScratch(slotted);
+    expect(getWorkspace().lab.targets).toEqual(slotted.targets);
   });
 });
 
@@ -91,7 +105,7 @@ describe('useAsTarget', () => {
   it('leaves the item you hold alone when it is the same base', () => {
     const d = defaultWorkspace();
     setWorkspace({ ...d, item: { ...d.item, baseId: 'Staves', level: 80, prefixes: [held] } });
-    useAsTarget(ITEM);
+    useAsTarget(GOAL);
     const ws = getWorkspace();
     expect(ws.mode).toBe('item');
     expect(ws.item.subMode).toBe('plan');
@@ -107,7 +121,7 @@ describe('useAsTarget', () => {
   it('clears an item from another base, along with its level', () => {
     const d = defaultWorkspace();
     setWorkspace({ ...d, item: { ...d.item, baseId: 'Wands', level: 80, prefixes: [{ modId: 'Wands/X', tierDisplay: 1 }] } });
-    useAsTarget(ITEM);
+    useAsTarget(GOAL);
     const ws = getWorkspace();
     expect(ws.item.baseId).toBe('Staves');
     expect(ws.item.prefixes).toEqual([]);
@@ -123,13 +137,13 @@ describe('useAsTarget', () => {
  */
 describe('aiming and then pasting', () => {
   it('keeps the target when the pasted item is the same base', () => {
-    useAsTarget(ITEM);
+    useAsTarget(GOAL);
     importToItem({ ...ITEM, prefixes: [{ modId: 'Staves/Held', tierDisplay: 3 }], suffixes: [] });
     expect(getWorkspace().item.target).toHaveLength(2);
   });
 
   it('drops the target when the pasted item is a different base', () => {
-    useAsTarget(ITEM);
+    useAsTarget(GOAL);
     importToItem({ baseId: 'Wands', level: 80, rarity: 'rare', prefixes: [], suffixes: [] });
     expect(getWorkspace().item.target).toEqual([]);
   });

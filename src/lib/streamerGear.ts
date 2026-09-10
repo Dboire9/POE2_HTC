@@ -1,7 +1,7 @@
 import type { PatchData } from '../../packages/engine/src/types.ts';
 import { familiesOf } from '../../packages/engine/src/pool.ts';
 import { runeRoute } from '../../packages/engine/src/runeConvert.ts';
-import type { ImportedItem, ItemModInput } from './engineTypes.ts';
+import type { CraftGoal, ImportedItem, ItemModInput, TargetInput } from './engineTypes.ts';
 // The shipped answer, not the source: `tools/streamers/fetch.mjs` did the resolving in Node, because
 // it needs `tiers[].stats` and `shipMods.ts` strips that column from the asset a browser downloads.
 // Fetched by URL rather than imported as a value, exactly as `loadEngine` fetches the patch — so the
@@ -101,16 +101,21 @@ export interface GearReading {
    * cold one to fire. So the GOAL is a six-modifier cross-family item plus a rune, and quoting the
    * five-modifier craft instead would answer a question nobody asked, about an item nobody owns.
    *
-   * Identical to `item` whenever no rune route applies, which is every other item measured.
+   * A TARGET LIST rather than an item, because a slot may name alternatives: the staff's second fire
+   * copy is "Extra Cold or Extra Lightning", whichever lands, since the rune converts either. Naming Cold
+   * alone threw away every roll that finished the craft with Lightning.
+   *
+   * `goalOf(item)` whenever no rune route applies, which is every other item measured.
    */
-  readonly goal: ImportedItem;
+  readonly goal: CraftGoal;
   /** The rune the goal ends on, when `goal` differs from `item`. */
   readonly rune?: {
     readonly rune: string;
     readonly element: string;
     readonly caveat: string;
     readonly priceKey: string;
-    /** What the goal rolls instead, in the goal's own words — for the sentence the panel prints. */
+    /** What the goal rolls instead, one entry per copy in the goal's own words, alternatives as
+     *  "either … or …" — for the sentence the panel prints. */
     readonly converts: readonly string[];
   };
   /**
@@ -181,6 +186,21 @@ function place(data: PatchData, mods: readonly { modId: string; tierDisplay: num
 }
 
 /**
+ * An item read as a GOAL rather than as a start: every modifier becomes a target.
+ *
+ * The item has already obeyed both rules a target list must (three a side, one per exclusion family),
+ * so this is a projection and not a second place those can be got wrong. The FRACTURED flag is
+ * deliberately dropped: on a target list it would claim the base you buy already has it — a claim about
+ * a base the player has not got. Planning to roll it is the conservative reading, and what "from
+ * scratch" means.
+ */
+export const goalOf = (it: ImportedItem): CraftGoal => ({
+  baseId: it.baseId,
+  level: it.level,
+  targets: [...it.prefixes, ...it.suffixes].map((m) => ({ modId: m.modId, tierDisplay: m.tierDisplay })),
+});
+
+/**
  * Turn one gear entry into the Item tab's shape, and account for everything that did not fit.
  *
  * Four things can drop a modifier from the HELD item, and each gets its own sentence because the fix
@@ -209,43 +229,62 @@ export function readGear(data: PatchData, it: StreamerItem): GearReading {
   const copies = new Map<string, number>();
   for (const m of it.mods) copies.set(m.modId, (copies.get(m.modId) ?? 0) + 1);
 
-  const substitute = new Map<string, string[]>();
+  const substitute = new Map<string, readonly (readonly string[])[]>();
+  const textOf = (id: string): string => data.mods.get(id)?.text ?? id;
   let rune: GearReading['rune'];
   if (base) {
     for (const [modId, n] of copies) {
       if (n < 2) continue;
       const route = runeRoute(data, base, modId, n);
       if (!route) continue;
-      substitute.set(modId, [...route.targets]);
+      substitute.set(modId, route.slots);
       rune = {
         rune: route.rune,
         element: route.element,
         caveat: route.caveat,
         priceKey: route.priceKey,
-        converts: route.targets.map((id) => data.mods.get(id)?.text ?? id),
+        converts: route.slots.map((s) => (s.length > 1 ? `either ${s.map(textOf).join(' or ')}` : textOf(s[0]!))),
       };
     }
   }
 
-  if (substitute.size === 0) return { item, goal: item, omitted, ...blocked };
+  if (substitute.size === 0) return { item, goal: goalOf(item), omitted, ...blocked };
 
-  // Each copy takes the next target of its route, so the wanted element keeps its own tier and the
-  // siblings take the tiers of the copies they stand in for.
+  // Each copy takes the next SLOT of its route: the wanted element keeps its own tier, and each sibling
+  // slot takes the tier of the copy it stands in for. A slot's first candidate stands for it while the
+  // goal is laid out, so the one walk that decides legality decides it here too.
   const used = new Map<string, number>();
+  const candidatesOf = new Map<string, readonly string[]>();
   const goalMods = it.mods.map((m) => {
-    const list = substitute.get(m.modId);
-    if (!list) return m;
+    const slots = substitute.get(m.modId);
+    if (!slots) return m;
     const k = used.get(m.modId) ?? 0;
     used.set(m.modId, k + 1);
-    return { ...m, modId: list[k] ?? m.modId };
+    const slot = slots[k] ?? [m.modId];
+    candidatesOf.set(slot[0]!, slot);
+    return { ...m, modId: slot[0]! };
   });
   const goalPlaced = place(data, goalMods);
-  const goal: ImportedItem = { baseId: it.baseId, level: it.level, rarity: 'rare', ...goalPlaced };
+  // Another candidate joins the slot only if the item still holds together with it standing there.
+  const fits = (from: string, to: string): boolean =>
+    place(data, goalMods.map((m) => (m.modId === from ? { ...m, modId: to } : m))).omitted.length
+      <= goalPlaced.omitted.length;
+  const targets: TargetInput[] = [];
+  let nextSlot = 0;
+  for (const m of [...goalPlaced.prefixes, ...goalPlaced.suffixes]) {
+    const candidates = (candidatesOf.get(m.modId) ?? [m.modId]).filter((id) => id === m.modId || fits(m.modId, id));
+    if (candidates.length === 1) { targets.push({ modId: m.modId, tierDisplay: m.tierDisplay }); continue; }
+    const slot = nextSlot++;
+    for (const id of candidates) targets.push({ modId: id, tierDisplay: m.tierDisplay, slot });
+  }
+  const goal: CraftGoal = { baseId: it.baseId, level: it.level, targets };
   return { item, goal, omitted, ...(rune ? { rune } : {}), ...blocked };
 }
 
 /** How many modifiers a reading places on the item the character holds. */
 export const placedCount = (r: GearReading): number => r.item.prefixes.length + r.item.suffixes.length;
 
-/** How many the GOAL aims at — larger than `placedCount` exactly when a rune route applies. */
-export const goalCount = (r: GearReading): number => r.goal.prefixes.length + r.goal.suffixes.length;
+/** How many the GOAL aims at — one per SLOT, since alternatives fill one place on the item. Larger than
+ *  `placedCount` exactly when a rune route applies. */
+export const goalCount = (r: GearReading): number =>
+  new Set(r.goal.targets.map((t, i) => (t.slot === undefined ? `solo:${i}` : `slot:${t.slot}`))).size;

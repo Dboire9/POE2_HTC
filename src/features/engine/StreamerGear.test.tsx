@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import StreamerGear from './StreamerGear';
 import { loadShippedPatch } from '../../../packages/engine/src/loadPatch.ts';
 import type { StreamerFile } from '../../lib/streamerGear';
+import type { CraftGoal, ImportedItem } from '../../lib/engineTypes';
 
 // What the BROWSER gets — the mods file projected by shipMods.ts — since that is what this tab reads in
 // the app. Against the full file the Aldur staff's rune route worked here and nowhere in the app.
@@ -130,7 +131,7 @@ describe('the streamer gear tab', () => {
 
 /**
  * The staff the rune made. `I own this one` gets what the planner can HOLD; the two goal routes get
- * what you would CRAFT, which is one modifier larger and 2.9x dearer. Sending the held version to a
+ * what you would CRAFT, which is one modifier larger, and dearer. Sending the held version to a
  * planner quotes a cheaper craft for an item nobody owns.
  */
 describe('an item a rune made', () => {
@@ -145,13 +146,17 @@ describe('an item a rune made', () => {
     await user.click(screen.getByRole('button', { name: /I have some of these/ }));
     await user.click(screen.getByRole('button', { name: /I own this one/ }));
 
-    const count = (m: ReturnType<typeof vi.fn>) => {
-      const it = vi.mocked(m).mock.calls[0]![0] as { prefixes: unknown[]; suffixes: unknown[] };
-      return it.prefixes.length + it.suffixes.length;
-    };
-    expect(count(routes.scratch), 'scratch aims at the whole item').toBe(staff.mods.length);
-    expect(count(routes.aim), 'aim targets the whole item').toBe(staff.mods.length);
-    expect(count(routes.own), 'own loads only what can be held').toBe(staff.mods.length - 1);
+    // A goal counts POSITIONS — alternatives in one slot fill one place — and the held item its mods.
+    const sent = (m: ReturnType<typeof vi.fn>) => vi.mocked(m).mock.calls[0]![0] as CraftGoal;
+    const positions = (g: CraftGoal) =>
+      new Set(g.targets.map((t, i) => (t.slot === undefined ? `solo:${i}` : `slot:${t.slot}`))).size;
+    const held = vi.mocked(routes.own).mock.calls[0]![0] as ImportedItem;
+    expect(positions(sent(routes.scratch)), 'scratch aims at the whole item').toBe(staff.mods.length);
+    expect(positions(sent(routes.aim)), 'aim targets the whole item').toBe(staff.mods.length);
+    expect(held.prefixes.length + held.suffixes.length, 'own loads only what can be held').toBe(staff.mods.length - 1);
+    // The converted copy may be either sibling, since the rune converts both.
+    expect(sent(routes.scratch).targets.map((t) => t.modId))
+      .toEqual(expect.arrayContaining(['Staves/DamageGainedAsCold', 'Staves/DamageGainedAsLightning']));
   });
 
   it('says a rune finishes the craft, and which one', async () => {

@@ -185,6 +185,17 @@ export interface ImportedItem {
   readonly suffixes: ItemModInput[];
 }
 
+/**
+ * Something to craft TOWARD: a base, its item level, and the targets. A target list rather than an
+ * item, because a slot may name alternatives — "Extra Cold or Extra Lightning", whichever lands — and no
+ * item can hold a disjunction. What the Lab and the Item tab's plan both take as a goal.
+ */
+export interface CraftGoal {
+  readonly baseId: string;
+  readonly level: number;
+  readonly targets: readonly TargetInput[];
+}
+
 /** One currency's outcome on the current item: the exact per-use probability, plus feasibility. */
 export interface CurrencyAction {
   readonly currency: PlanStep['currency'];

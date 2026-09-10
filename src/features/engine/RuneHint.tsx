@@ -2,6 +2,7 @@ import React from 'react';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import { runeHint } from '../../lib/engine';
 import { formatCost, type Rates } from '../../lib/currency';
+import type { TargetInput } from '../../lib/engineTypes';
 
 /**
  * "These three become one modifier, three times over."
@@ -25,11 +26,12 @@ import { formatCost, type Rates } from '../../lib/currency';
 const RuneHint: React.FC<{
   data: PatchData;
   baseId: string;
-  modIds: readonly string[];
+  /** The targets as chosen, slots included — alternatives fill ONE place on the item. */
+  targets: readonly TargetInput[];
   prices: Readonly<Record<string, number>> | undefined;
   rates: Rates | undefined;
-}> = ({ data, baseId, modIds, prices, rates }) => {
-  const o = runeHint(data, baseId, modIds);
+}> = ({ data, baseId, targets, prices, rates }) => {
+  const o = runeHint(data, baseId, targets);
   if (!o) return null;
 
   // `stepCost` charges 0 for a key the sheet lacks, so an absent price would read as a free rune.
@@ -40,7 +42,7 @@ const RuneHint: React.FC<{
   return (
     <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 rounded-md border border-sky-500/50 bg-sky-500/10 px-2 py-1.5 text-[11px] text-sky-700 dark:text-sky-300">
       <span>
-        <strong>{o.modIds.length}× {o.element}</strong> is reachable: these {o.modIds.length} are
+        <strong>{o.count}× {o.element}</strong> is reachable: these {o.count} are
         different families, so they can all sit on one item. Socket{' '}
         <strong>{o.rune}</strong>{cost ? ` (${cost})` : ''} afterwards and every one of them becomes{' '}
         {o.element}.

@@ -64,10 +64,10 @@ export { modFamilies } from './engineTypes.ts';
  * and immediately fatal to anything that reaches into the snapshot itself.
  */
 export function runeHint(
-  data: PatchData, baseId: string, modIds: readonly string[],
+  data: PatchData, baseId: string, targets: readonly { readonly modId: string; readonly slot?: number }[],
 ): RuneOpportunity | undefined {
   const base = data.bases?.get(baseId);
-  return base ? runeOpportunity(data, base, modIds) : undefined;
+  return base ? runeOpportunity(data, base, targets) : undefined;
 }
 export type {
   EngineBase, EngineTier, EngineMod, EngineBaseMods, TargetInput, EngineStep, EnginePlan, EngineResult,

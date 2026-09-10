@@ -243,6 +243,13 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   — a text match over every pool would also take carved and Perfect Essence "gain as extra" lines, which
   have text and no stats, so the stat version never saw them. `statsOf`/`statLookup` stay job-only; the
   rune, streamer-tab and RuneHint suites load `loadShippedPatch`.
+  **A streamer goal is a TARGET LIST with slots, not an item** (2026-09-10). `GearReading.goal` is a
+  `CraftGoal` (`baseId`, `level`, `targets`), because the rune route's converted copy may be ANY sibling:
+  `runeRoute` returns `slots` (`[[Fire], [Cold, Lightning]]`) and the goal carries them as one target slot,
+  so the MDP solves "Cold or Lightning" directly (`slots.ts`) instead of throwing away every roll that
+  lands the other. A candidate joins the slot only if `place()` still holds with it standing there — no
+  shipped base exercises that, a built test does. `runeOpportunity`/`RuneHint` count POSITIONS, one per
+  slot: counting candidates printed "3× fire" for Fire beside "Cold or Lightning", an item that cannot exist.
   **`profileItems.ts` is the whole read, and `tools/streamers/fetch.mjs` the job around it**
   (`npm run update-streamers`, config in `tools/streamers/profiles.json`, output
   `data/streamers/<patch>.json`). Measured on a real character: **9 items, 52 of 54 modifiers placed**,

@@ -1,4 +1,4 @@
-import type { ImportedItem, TargetInput } from './engineTypes.ts';
+import type { CraftGoal, ImportedItem } from './engineTypes.ts';
 import { getWorkspace, setWorkspace } from './workspace';
 
 /**
@@ -42,34 +42,22 @@ export function importToItem(it: ImportedItem): void {
 }
 
 /**
- * Every modifier of an imported item, as targets — the item read as a GOAL rather than as a start.
- *
- * A `readGear` reading has already applied both rules a target list has to obey (three a side, one
- * per exclusion family), so this is a projection and not a second place those can be got wrong.
- *
- * The FRACTURED flag is deliberately dropped. On a target list it would mean "the base I buy already
- * has this", which is a claim about a base the player has not got; planning to roll it is the
- * conservative reading and the one that matches "from scratch".
- */
-const targetsOf = (it: ImportedItem): TargetInput[] =>
-  [...it.prefixes, ...it.suffixes].map((m) => ({ modId: m.modId, tierDisplay: m.tierDisplay }));
-
-/**
- * Craft this item from a white base: its modifiers become the Lab tab's targets, and go there.
+ * Craft this goal from a white base: its targets become the Lab tab's — a slot of alternatives stays
+ * one slot — and go there. `goalOf` (streamerGear.ts) is how an item becomes a goal.
  *
  * The item level comes across too, because it decides which tiers can roll at all — carrying the
- * modifiers without it would plan a craft the base cannot produce.
+ * targets without it would plan a craft the base cannot produce.
  */
-export function craftFromScratch(it: ImportedItem): void {
+export function craftFromScratch(goal: CraftGoal): void {
   const ws = getWorkspace();
   setWorkspace({
     ...ws,
     mode: 'plan',
     lab: {
       ...ws.lab,
-      baseId: it.baseId,
-      level: it.level,
-      targets: targetsOf(it),
+      baseId: goal.baseId,
+      level: goal.level,
+      targets: [...goal.targets],
       // Chosen afresh for a new craft; carrying them over would apply the last craft's decisions to
       // modifiers that were never part of it.
       fractured: new Set(),
@@ -79,7 +67,7 @@ export function craftFromScratch(it: ImportedItem): void {
 }
 
 /**
- * Aim at this item from whatever you are already holding: it becomes the Item tab's TARGET.
+ * Aim at this goal from whatever you are already holding: its targets become the Item tab's TARGET.
  *
  * This is the "I have some of these already — what now?" route, and the Item tab's planner is built
  * for exactly that: it keeps every held modifier the target names and plans only the gap.
@@ -88,21 +76,21 @@ export function craftFromScratch(it: ImportedItem): void {
  * cannot be — the modifiers on it name that other base's mod ids — so the item is cleared along with
  * it, and the button says which of the two is about to happen.
  */
-export function useAsTarget(it: ImportedItem): void {
+export function useAsTarget(goal: CraftGoal): void {
   const ws = getWorkspace();
-  const keep = sameBase(ws.item.baseId, it.baseId);
+  const keep = sameBase(ws.item.baseId, goal.baseId);
   setWorkspace({
     ...ws,
     mode: 'item',
     item: {
       ...ws.item,
-      baseId: it.baseId,
-      level: keep ? ws.item.level : it.level,
+      baseId: goal.baseId,
+      level: keep ? ws.item.level : goal.level,
       prefixes: keep ? ws.item.prefixes : [],
       suffixes: keep ? ws.item.suffixes : [],
       // The plan sub-tab, because a target is what it reads and the quick check ignores one entirely.
       subMode: 'plan',
-      target: targetsOf(it),
+      target: [...goal.targets],
     },
   });
 }

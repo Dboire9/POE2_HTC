@@ -823,7 +823,7 @@ const ItemActions: React.FC = () => {
                 that fuses them is the part no plan would otherwise mention. */}
             {engine && (
               <RuneHint
-                data={engine.data} baseId={baseId} modIds={target.map((t) => t.modId)}
+                data={engine.data} baseId={baseId} targets={target}
                 prices={engine.prices.currency} rates={rates}
               />
             )}

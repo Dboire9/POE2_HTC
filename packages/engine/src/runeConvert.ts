@@ -66,9 +66,13 @@ export function gainAsExtraByElement(data: PatchData, base: ItemBase): ReadonlyM
 }
 
 export interface RuneRoute {
-  /** The modifiers to craft — one per copy asked for, each a different element and so a different
-   *  exclusion family. The asked-for element leads, since it needs no conversion to be worth having. */
-  readonly targets: readonly string[];
+  /**
+   * What to craft, one SLOT per copy asked for. The first is the asked-for modifier itself, since it
+   * needs no conversion to be worth having. Each other slot lists the siblings that can stand for a
+   * copy, any one of which does: the rune converts them all alike, so a Lightning landing where Cold was
+   * planned is simply a finish. Every candidate is a different element, so a different exclusion family.
+   */
+  readonly slots: readonly (readonly string[])[];
   /** The rune to socket once the craft is done. */
   readonly rune: string;
   /** The price key for it, which must exist on the sheet — `stepCost` charges 0 for a missing one. */
@@ -100,10 +104,14 @@ export function runeRoute(
   const rune = ALDUR_RUNE_BY_ELEMENT.get(element);
   if (rune === undefined) return undefined;
   if (count > byElement.size) return undefined;
-  // The wanted element first, then its siblings in the data's order, so the list is stable.
+  // The wanted element first, then its siblings in the data's order, so the list is stable. ONE copy to
+  // fill from several siblings is a slot of all of them — naming one would throw away every roll that
+  // lands another. Several copies name their siblings outright, which on a three-element base (every
+  // shipped one) only happens when all of them are needed anyway.
   const others = [...byElement].filter(([e]) => e !== element).map(([, id]) => id);
+  const need = count - 1;
   return {
-    targets: [modId, ...others].slice(0, count),
+    slots: [[modId], ...(need === 1 ? [others] : others.slice(0, need).map((id) => [id]))],
     rune,
     priceKey: runePriceKey(rune),
     element,
@@ -114,8 +122,13 @@ export function runeRoute(
 
 /** What a rune would do to the targets a player has already chosen. */
 export interface RuneOpportunity {
-  /** The chosen targets that are gain-as-extra modifiers, in the base's own order. */
+  /** The chosen targets that are gain-as-extra modifiers, each once. */
   readonly modIds: readonly string[];
+  /**
+   * How many of them END ON the item: one per position. Alternatives in one slot fill one place, so
+   * "Extra Cold or Extra Lightning" beside Extra Fire is two, not three.
+   */
+  readonly count: number;
   /** The elements those cover today, before the rune. */
   readonly elements: readonly string[];
   readonly rune: string;
@@ -133,25 +146,32 @@ export interface RuneOpportunity {
  * gap was never permission, it was that nobody would think to, and that the plan then never mentions
  * the rune it needs at the end. This is what a panel can say once two of them are chosen.
  *
- * Offered whenever two or more are on the list, whatever elements they are: the rune converts every
- * one of them regardless, so a player holding cold and lightning can still fuse them into fire. That
- * it may not be the element they wanted is exactly what `caveat` is for.
+ * Offered whenever two or more of them will end on the item, whatever elements they are: the rune
+ * converts every one of them regardless, so a player holding cold and lightning can still fuse them into
+ * fire. That it may not be the element they wanted is exactly what `caveat` is for.
+ *
+ * Counted by POSITION, since a target list can hold alternatives: a slot of "Cold or Lightning" puts one
+ * modifier on the item, not two, so on its own it has nothing to fuse with.
  */
 export function runeOpportunity(
-  data: PatchData, base: ItemBase, modIds: readonly string[],
+  data: PatchData, base: ItemBase, targets: readonly { readonly modId: string; readonly slot?: number }[],
 ): RuneOpportunity | undefined {
   const byElement = gainAsExtraByElement(data, base);
   const byId = new Map([...byElement].map(([e, id]) => [id, e]));
-  const chosen = [...new Set(modIds)].filter((id) => byId.has(id));
-  if (chosen.length < 2) return undefined;
+  const chosen = targets.filter((t) => byId.has(t.modId));
+  // One position per slot, and one per distinct unslotted mod — a duplicate id is one modifier, not two.
+  const count = new Set(chosen.map((t) => (t.slot === undefined ? `mod:${t.modId}` : `slot:${t.slot}`))).size;
+  if (count < 2) return undefined;
+  const modIds = [...new Set(chosen.map((t) => t.modId))];
   // The rune fixes the element, so there is nothing to choose: take the one confirmed rune. Where
   // several are confirmed a caller could offer each, which is why this returns the element it used.
   const entry = [...ALDUR_RUNE_BY_ELEMENT].find(([e]) => byElement.has(e));
   if (!entry) return undefined;
   const [element, rune] = entry;
   return {
-    modIds: chosen,
-    elements: chosen.map((id) => byId.get(id)!),
+    modIds,
+    count,
+    elements: modIds.map((id) => byId.get(id)!),
     rune,
     priceKey: runePriceKey(rune),
     element,

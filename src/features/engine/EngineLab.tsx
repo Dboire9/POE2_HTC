@@ -656,7 +656,7 @@ const EngineLab: React.FC = () => {
               nothing; it says what a rune would make of them, which nobody would otherwise think of. */}
           {engine && (
             <RuneHint
-              data={engine.data} baseId={baseId} modIds={targets.map((t) => t.modId)}
+              data={engine.data} baseId={baseId} targets={targets}
               prices={engine.prices.currency} rates={priceBasis(engine).rates}
             />
           )}

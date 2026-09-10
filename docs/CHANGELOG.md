@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The Aldur staff's sixth modifier is "Extra Cold or Extra Lightning", not Cold alone.** Passion of
+  Aldur converts either one to fire, so both finish the craft — asking for Cold alone threw away every
+  roll that landed Lightning, and quoted a dearer craft than the real one. "Craft this from scratch" and
+  "I have some of these" now send one slot holding both, and the rune note beside the targets counts
+  that slot once ("2× fire", not "3×").
 - **Crafting a streamer's Aldur-rune item from scratch sends all of its modifiers.** fubgun's staff holds
   two "Gain #% of Damage as Extra Fire Damage", made by rolling Fire and Cold and then socketing a Passion
   of Aldur. The Streamer gear tab was built to send that six-modifier craft, but in the app it sent five

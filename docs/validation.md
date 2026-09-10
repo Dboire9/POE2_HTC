@@ -3746,6 +3746,29 @@ Damage T1, +Level of all Fire Spell Skills T2, Intelligence T1, Cast Speed T2 �
 Passion of Aldur. Cold and Lightning roll identically on Staves (weight 500 at each of six tiers), so the
 sibling chosen, Cold, costs nothing over Lightning.
 
+## "Extra Cold OR Extra Lightning": the Aldur goal's sixth modifier is a slot (2026-09-10)
+
+Reported from the app right after the fix above: the staff's sixth modifier came across as Extra Cold
+alone. Passion of Aldur converts Cold and Lightning alike, so either one finishes the craft, and a goal
+naming Cold throws away every roll that lands Lightning. The engine already solves a slot of
+alternatives directly (`slots.ts`: the MDP takes the disjunction, the linear planners expand it); the
+streamer goal simply could not express one, because it was an `ImportedItem`.
+
+**Fix:** `runeRoute` returns `slots` — `[[Fire], [Cold, Lightning]]` for two copies, every sibling named
+outright for three — and `GearReading.goal` is a `CraftGoal` target list, so the converted copy becomes
+one slot at the tier of the copy it replaces. A candidate joins the slot only if `place()` still holds
+with it standing there. `runeOpportunity`/`RuneHint` count positions, one per slot: counting candidates
+would have printed "3× fire" for this very goal.
+
+On today's staff, with the browser's data: 6 positions — Extra Fire T1, [Extra Cold T1 or Extra
+Lightning T1], Spell Damage T1, +Level of all Fire Spell Skills T2, Intelligence T1, Cast Speed T2.
+**Mutation-checked:** a fixed sibling again turns 6 tests red; the hint counting candidates, 3 (printing
+the old "3× fire"); no legality check, 1 — on a built base where Lightning clashes with another
+modifier's family, since no shipped base has one.
+
+At the default Standard effort (15 s) the Lab cannot put a number on this craft with either goal: both
+come back "ran out of time … a six-mod target at T1 needs the longest setting".
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

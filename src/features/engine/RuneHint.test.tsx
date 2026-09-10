@@ -3,6 +3,7 @@ import { cleanup, render } from '@testing-library/react';
 import RuneHint from './RuneHint';
 import { loadShippedPatch } from '../../../packages/engine/src/loadPatch.ts';
 import type { Rates } from '../../lib/currency';
+import type { TargetInput } from '../../lib/engineTypes';
 
 // The browser's copy of the patch: this hint runs in the app, where `tiers[].stats` is never downloaded.
 // Against the full file it passed while the app showed no hint at all.
@@ -16,8 +17,9 @@ afterEach(cleanup);
 
 /** The hint is one sentence built from several interpolations, so React splits it across text nodes
  *  and a per-node query would miss phrases that plainly render. Read what the panel actually says. */
+const plain = (modIds: readonly string[]): TargetInput[] => modIds.map((modId) => ({ modId, tierDisplay: 1 }));
 const show = (modIds: string[], prices: Record<string, number> | undefined = PRICED): string =>
-  render(<RuneHint data={data} baseId="Staves" modIds={modIds} prices={prices} rates={RATES} />)
+  render(<RuneHint data={data} baseId="Staves" targets={plain(modIds)} prices={prices} rates={RATES} />)
     .container.textContent ?? '';
 
 describe('the rune hint', () => {
@@ -59,7 +61,7 @@ describe('the rune hint', () => {
 
   it('says nothing on a base that cannot roll them', () => {
     const { container } = render(
-      <RuneHint data={data} baseId="Rings" modIds={['Rings/AllResistances', 'Rings/ChaosResistance']}
+      <RuneHint data={data} baseId="Rings" targets={plain(['Rings/AllResistances', 'Rings/ChaosResistance'])}
         prices={PRICED} rates={RATES} />,
     );
     expect(container).toBeEmptyDOMElement();
@@ -67,8 +69,21 @@ describe('the rune hint', () => {
 
   it('renders nothing for a base id that does not exist', () => {
     const { container } = render(
-      <RuneHint data={data} baseId="NotABase" modIds={[FIRE, COLD]} prices={PRICED} rates={RATES} />,
+      <RuneHint data={data} baseId="NotABase" targets={plain([FIRE, COLD])} prices={PRICED} rates={RATES} />,
     );
     expect(container).toBeEmptyDOMElement();
+  });
+
+  /** Alternatives fill ONE place on the item: Extra Fire beside "Cold or Lightning" fuses two, not three. */
+  it('counts a slot of alternatives once', () => {
+    const targets: TargetInput[] = [
+      { modId: FIRE, tierDisplay: 1 },
+      { modId: COLD, tierDisplay: 1, slot: 0 },
+      { modId: 'Staves/DamageGainedAsLightning', tierDisplay: 1, slot: 0 },
+    ];
+    const text = render(<RuneHint data={data} baseId="Staves" targets={targets} prices={PRICED} rates={RATES} />)
+      .container.textContent ?? '';
+    expect(text).toMatch(/2× fire/);
+    expect(text).not.toMatch(/3×/);
   });
 });

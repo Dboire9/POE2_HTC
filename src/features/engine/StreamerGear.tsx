@@ -6,7 +6,7 @@ import {
   loadStreamers, readGear, placedCount, goalCount,
   type GearReading, type StreamerFile, type StreamerItem,
 } from '../../lib/streamerGear';
-import type { ImportedItem } from '../../lib/engineTypes';
+import type { CraftGoal, ImportedItem } from '../../lib/engineTypes';
 import { craftFromScratch, importToItem, useAsTarget } from '../../lib/importItem';
 
 /**
@@ -27,7 +27,7 @@ import { craftFromScratch, importToItem, useAsTarget } from '../../lib/importIte
  *
  * THE TWO GOAL ROUTES SEND `goal`, NOT `item`, AND ON ONE REAL ITEM THOSE DIFFER. A staff carrying
  * two `Gain as Extra Fire` cannot be held by this planner — one family, twice — but it is perfectly
- * craftable: roll fire AND cold, then socket a Passion of Aldur, which converts the cold one. Sending
+ * craftable: roll fire AND cold or lightning, then socket a Passion of Aldur, which converts it. Sending
  * the five-modifier version would have quoted a cheaper craft for an item nobody owns.
  *
  * IT IS A SNAPSHOT, AND IT SAYS SO. The resolving happened in a periodic job (`tools/streamers/`),
@@ -64,8 +64,8 @@ const ModLine: React.FC<{ data: PatchData; modId: string; tier: number; fracture
 /** The three routes out of this tab, injectable so a test can watch them without a workspace. */
 export interface GearRoutes {
   readonly own: (it: ImportedItem) => void;
-  readonly scratch: (it: ImportedItem) => void;
-  readonly aim: (it: ImportedItem) => void;
+  readonly scratch: (goal: CraftGoal) => void;
+  readonly aim: (goal: CraftGoal) => void;
 }
 
 export const DEFAULT_ROUTES: GearRoutes = {

@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { loadShippedPatch } from '../../packages/engine/src/loadPatch.ts';
-import { readGear, placedCount, goalCount, type StreamerFile, type StreamerItem } from './streamerGear';
+import type { ItemBase, Mod, PatchData } from '../../packages/engine/src/types.ts';
+import { readGear, placedCount, goalCount, goalOf, type StreamerFile, type StreamerItem } from './streamerGear';
 
 // The browser's copy of the patch, since `readGear` runs in the app: the full file carries stat ids the
 // app never downloads, and a reading that leaned on them passed here while failing every player.
@@ -63,7 +64,7 @@ describe('the shipped gear file agrees with the shipped patch data', () => {
       if (it.familyConflict.length > 0) continue;
       const r = readGear(data, it);
       expect(r.rune, it.name).toBeUndefined();
-      expect(r.goal, it.name).toBe(r.item);
+      expect(r.goal, it.name).toEqual(goalOf(r.item));
     }
   });
 });
@@ -209,12 +210,23 @@ describe('an item a rune made', () => {
     expect(r.rune?.rune).toBe('passion-of-aldur');
     expect(r.rune?.element).toBe('fire');
     expect(r.rune?.converts).toHaveLength(2);
+    expect(r.rune?.converts[1]).toMatch(/^either .*Extra Cold.* or .*Extra Lightning/);
+  });
+
+  /** Either sibling finishes the craft — the rune converts both — so the goal asks for either, in ONE
+   *  slot at the tier of the copy it replaces. Naming Cold alone threw away every roll landing Lightning. */
+  it('lets the converted copy be either sibling', () => {
+    const r = readGear(data, staff());
+    const slot = r.goal.targets.filter((t) => t.slot !== undefined);
+    expect(slot.map((t) => t.modId)).toEqual(['Staves/DamageGainedAsCold', 'Staves/DamageGainedAsLightning']);
+    expect(new Set(slot.map((t) => t.slot)).size, 'one slot').toBe(1);
+    expect(new Set(slot.map((t) => t.tierDisplay)).size, 'one tier').toBe(1);
   });
 
   /** The substitution has to be legal, or the goal is an item the game forbids too. */
   it('substitutes a SIBLING, so every goal modifier is a different family', () => {
     const r = readGear(data, staff());
-    const ids = [...r.goal.prefixes, ...r.goal.suffixes].map((m) => m.modId);
+    const ids = r.goal.targets.map((t) => t.modId);
     expect(new Set(ids).size, 'no modifier twice').toBe(ids.length);
     const fams = ids.flatMap((id) => {
       const m = data.mods.get(id)!;
@@ -239,11 +251,12 @@ describe('an item a rune made', () => {
       ],
     };
     const r = readGear(data, two);
-    const goal = [...r.goal.prefixes, ...r.goal.suffixes];
-    expect(goal).toHaveLength(2);
+    const goal = r.goal.targets;
+    expect(goalCount(r)).toBe(2);
     // Route order is [wanted element, then siblings], paired with the copies in the order they appear.
     expect(goal.find((g) => g.modId === 'Staves/DamageGainedAsFire')?.tierDisplay).toBe(1);
     expect(goal.find((g) => g.modId === 'Staves/DamageGainedAsCold')?.tierDisplay).toBe(4);
+    expect(goal.find((g) => g.modId === 'Staves/DamageGainedAsLightning')?.tierDisplay).toBe(4);
   });
 
   /** Every other item is untouched: goal IS the item, and no rune is claimed. */
@@ -253,7 +266,40 @@ describe('an item a rune made', () => {
       if (it.familyConflict.length > 0) continue;
       expect(r.rune, it.name).toBeUndefined();
       expect(goalCount(r), it.name).toBe(placedCount(r));
-      expect(r.goal).toBe(r.item);
+      expect(r.goal).toEqual(goalOf(r.item));
     }
+  });
+});
+
+/**
+ * A candidate joins its slot only if the item still holds together with it standing there — the same
+ * walk that decides legality for the held item. No shipped base has a modifier sharing a sibling's
+ * family, so this one is built: a Lightning that would clash with another of the item's modifiers is
+ * left out, and the copy falls back to Cold alone.
+ */
+describe('a sibling that would not fit', () => {
+  it('is left out of the slot, and the copy falls back to the sibling that does', () => {
+    const like = (id: string, family: string, text: string): Mod =>
+      ({ ...data.mods.get('Staves/DamageGainedAsFire')!, id, family, text });
+    const mods = [
+      like('B/Fire', 'FireDamage', 'Gain #% of Damage as Extra Fire Damage'),
+      like('B/Cold', 'ColdDamage', 'Gain #% of Damage as Extra Cold Damage'),
+      like('B/Lightning', 'LightningDamage', 'Gain #% of Damage as Extra Lightning Damage'),
+      like('B/Zap', 'LightningDamage', 'Adds # to # Lightning Damage'),
+    ];
+    const none = { prefixes: [], suffixes: [] };
+    const base: ItemBase = {
+      ...data.bases.get('Staves')!, id: 'B',
+      pools: { normal: { prefixes: mods.map((m) => m.id), suffixes: [] }, desecrated: none, essence: none },
+    };
+    const built: PatchData = { patch: 't', mods: new Map(mods.map((m) => [m.id, m])), bases: new Map([['B', base]]) };
+    const held = (modId: string) => ({ modId, tierDisplay: 1, fractured: false, desecrated: false, sanctified: false });
+    const item: StreamerItem = { ...itemAt('Weapon'), baseId: 'B', mods: [held('B/Fire'), held('B/Fire'), held('B/Zap')] };
+
+    expect(readGear(built, item).goal.targets).toEqual([
+      { modId: 'B/Fire', tierDisplay: 1 },
+      { modId: 'B/Cold', tierDisplay: 1 },
+      { modId: 'B/Zap', tierDisplay: 1 },
+    ]);
   });
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { ItemState, PlacedMod, Rarity } from './index.ts';
 import {
-  loadPatch, addAffixProbability, itemFamilies,
+  loadPatch, addAffixProbability, addNormalAffixProbability, itemFamilies,
   augmentationProbability, regalProbability, exaltProbability,
 } from './index.ts';
 
@@ -69,5 +69,29 @@ describe('exalt (rare only) + slot fullness', () => {
     const rare3p = item('rare', [placed(MANA), placed(SPELL), placed('Wands/DAMAGE_AS_EXTRA_FIRE_DAMAGE')], []);
     expect(exaltProbability(data, rare3p, COLD)).toBe(0);   // prefix, no slot
     expect(exaltProbability(data, rare3p, INT)).toBeGreaterThan(0); // suffix, open
+  });
+});
+
+/**
+ * A Perfect Orb of Transmutation "upgrades a normal item to magic, guaranteeing 1 modifier with minimum
+ * modifier level of 70. Augmentation is the same" (confirmed 2026-09-10). One table used to give every
+ * orb the Exalt's ladder — Perfect 50 — so a Perfect Transmute could land a mod whose best tier is 54.
+ */
+describe('Perfect Transmutation and Augmentation roll at modifier level 70', () => {
+  const shipped = loadPatch('data/patches/0.5.0');
+  const rings = shipped.bases.get('Rings')!;
+  const LIFE = 'Rings/IncreasedLife'; // its best tier is ilvl 54: between the Exalt's 50 and 70
+  const at = (rarity: Rarity): ItemState => ({ base: rings, level: 82, rarity, prefixes: [], suffixes: [] });
+
+  it('cannot land a mod whose best tier is below 70', () => {
+    expect(Math.max(...shipped.mods.get(LIFE)!.tiers.map((t) => t.ilvl))).toBeLessThan(70);
+    expect(addNormalAffixProbability(shipped, at('normal'), 'transmute', LIFE, { currencyTier: 'perfect' })).toBe(0);
+    expect(addNormalAffixProbability(shipped, at('magic'), 'augment', LIFE, { currencyTier: 'perfect' })).toBe(0);
+  });
+
+  /** The ladders differ by currency; the other rungs did not move. */
+  it('leaves a Perfect Regal at 50 and a Greater Transmute at 35, so both still can', () => {
+    expect(addNormalAffixProbability(shipped, at('magic'), 'regal', LIFE, { currencyTier: 'perfect' })).toBeGreaterThan(0);
+    expect(addNormalAffixProbability(shipped, at('normal'), 'transmute', LIFE, { currencyTier: 'greater' })).toBeGreaterThan(0);
   });
 });

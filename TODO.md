@@ -1347,6 +1347,26 @@ Two ways to buy the time back, neither tried:
 **Verify.** The ten-craft table in docs/validation.md re-measured alone, and the Aldur staff at
 Exhaustive.
 
+## 21. Ancient bones and the Omen of Abyssal Echoes — what is assumed, and where they are not — OPEN, 2026-09-10
+
+Both are in the true-cost route and the Quick check (docs/validation.md, 2026-09-10). What rests on a
+reading rather than a source, and where they are missing:
+
+- **When the Echoes omen is consumed.** Charged on every Desecration it rides on, rerolled or not — the
+  conservative reading. If the game takes it only when you actually reroll, the MDP undervalues it; the
+  change is one line in `keepWeights` (throw back above `τ + c`, and no charge up front).
+- **Greater Transmutation and Augmentation.** Their floor is unconfirmed and stays at the shared 35.
+  Perfect is 70, confirmed. `CURRENCY_FLOOR` in `packages/engine/src/types.ts`.
+- **No Ancient bone on a boss draw.** A boss draw is count-uniform over carved mods, all ilvl 65, so the
+  floor cannot move it — the same odds for a dearer bone. Re-check if carved mods ever get real tiers.
+- **The step planners** (`fromItem.ts`, `optimize.ts`) still spend a bone only on a carved target, and
+  know neither grade nor omen.
+- **Solve time.** Every Desecration now comes in up to two grades, each with and without the omen. That
+  cost up to 1.8x the time, and fubgun's staff its answer, until boss draws were pruned to the bosses a
+  craft wants (`bossesWanted` — a measured pruning, not a proof). With it, twelve crafts at Standard run
+  from 2.2x faster to 1.35x slower than before, and the staff takes 664 s of Exhaustive's 900 s — as close
+  to the edge as the build before it. TODO 20's seeding is what would buy real margin.
+
 ---
 
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02

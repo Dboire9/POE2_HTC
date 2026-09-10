@@ -3846,6 +3846,90 @@ craft and on the 187,666 ex one alike. The first hit is worth ~1 ex of progress,
 the cost sits in the last mods; with Fire as the first hit the policy Augments first, by 0.5 ex. The
 route shows whichever wins by a hair.
 
+## Ancient bones, the Omen of Abyssal Echoes, and a Perfect Transmute's real floor (2026-09-10)
+
+Three rulings from the user on one day, each answering a question the app had put to them:
+
+- **Ancient bones — "yes"**, used in play. The item text reads "Minimum Modifier Level: 40", so an
+  Ancient bone is a Preserved bone's draw with every normal tier below modifier level 40 taken out
+  (`ANCIENT_BONE_FLOOR`). Carved mods are all ilvl 65 and unaffected, so a boss draw gains nothing from
+  one and is offered on a Preserved bone only.
+- **The Omen of Abyssal Echoes — "yes"**, it rerolls the three offered mods once.
+- **"Perfect Orb of Transmutation … guaranteeing 1 modifier with minimum modifier level of 70.
+  Augmentation is the same."** The engine had one ladder for every orb — the Exalt's, Greater 35 and
+  Perfect 50 — so a Perfect Transmute could land a mod whose best tier sits at 54 (`Rings/IncreasedLife`).
+  `CURRENCY_FLOOR` is per currency now. Greater Transmutation and Augmentation were not stated and keep 35.
+
+**The reroll, modelled.** A player looking at an offer throws it back exactly when its best is worse than
+a fresh offer is worth, τ = E[best of three], so the outcome kept is
+`P'(k) = [V_k ≤ τ]·P(k) + P(throw)·P(k)`. That is one function, `keepWeights`, read by the value, the
+closed-form policy evaluation and the published edges — the three copies of the tail-sum loop it
+replaced could drift apart silently. Hand-computed on the synthetic 9/7 case, the brick falls from ⅛ to
+1/64 and E = (65 + 64c)/63: 17/15 at c = 0.1, bought; declined above the ¼ break-even; and 100k walks of
+the published graph land on it. The omen is charged whenever it is taken, rerolled or not — the
+conservative reading of when the game consumes it, and the one open assumption here (TODO 21).
+
+**Measured**, frozen sheet, a held Rare, three Wand targets:
+
+| | without | with |
+|---|---|---|
+| the omen at 0.1 / 1 / 5 ex, any tier | 2,493.7 ex | 1,573.4 / 1,575.3 / 1,583.8 ex (−37%) |
+| an Ancient bone at 1 / 20 / 100 ex, top tiers | 164,365.3 ex | 137,205.7 / 137,725.4 / 139,913.9 ex (−16%) |
+
+An Ancient draw nearly doubles a top tier's chance on that Wand: 1.35% → 2.56% per draw.
+
+From white, on the live sheet (Ancient bones 853–1,116 ex, the omen 73.82 ex), Standard effort, T2
+targets — the previous build against this one on the same sheet, run side by side:
+
+| craft | before | now |
+|---|---|---|
+| Wands, 3 | 4,111 ex, 0.7 s | 3,582 ex, 0.6 s |
+| Wands, 4 | 9,825 ex, 5.5 s | 7,489 ex, 6.9 s |
+| Wands, 5 | 27,006 ex, 15.9 s | 20,878 ex, 13.9 s |
+| Body_Armours_str, 3 | 1,533 ex, 0.3 s | 1,255 ex, 0.3 s |
+| Body_Armours_str, 4 | 5,661 ex, 1.5 s | 4,054 ex, 1.3 s |
+| Body_Armours_str, 5 | 8,873 ex, 8.2 s | 6,636 ex, 11.1 s |
+| Amulets, 3 | 8,940 ex, 0.8 s | 7,404 ex, 0.5 s |
+| Amulets, 4 | 24,918 ex, 7.0 s | 15,607 ex, 3.2 s |
+| Staves, 3 | 4,140 ex, 0.7 s | 3,613 ex, 0.7 s |
+| Staves, 4 | 10,081 ex, 10.6 s | 7,603 ex, 9.7 s |
+| Staves, 5 | ran out | 20,597 ex, 14.1 s |
+
+Amulets at 5 runs past Standard in both. 13–37% cheaper at about the same speed — from 2.2x faster to
+1.35x slower, craft by craft — once the pruning and the sort below were in; before them the same table
+ran up to 1.8x slower.
+
+**It did not fit, at first.** With both in, a weapon's Desecration fanned out to 30 actions per Rare
+state where it had 12 — each draw in two grades, each with and without the omen, and nine boss draws
+doubled with them. fubgun's staff ran the whole 900 s of Exhaustive and returned no number. A CPU profile
+of that solve put 61% of the time in the sweep loop and 34% in `keepWeights`, so the cure had to be fewer
+offers, not only faster ones:
+
+- **Boss draws only for a boss the craft wants** (`bossesWanted`, markovActions.ts). A boss omen confines
+  the draw to its boss's carved pool; with none of that pool among the targets, all it can add is flagged
+  junk. That is not a proof — junk can be worth something, filling a side steers the next Exalt — so it
+  was measured: on 24 crafts without a carved target (Wands, Staves, Sceptres, Amulets; held Rares at
+  any and at top tiers, and from white; frozen and live sheets) the costs agree to 1e-6 ex, and no
+  unpruned policy chose a boss draw even once. On a weapon it is 18 of the 30 actions.
+- **`keepWeights` sorts from where it left off** — V moves little between sweeps, so the insertion sort
+  is near-linear — and cubes by multiplying rather than through `Math.pow`. The callers that publish or
+  freeze the weights start from index order, so outcomes tied on V split the same way every time.
+
+With all of it, fubgun's Aldur staff from white at Exhaustive, alone on this machine: **165,187 ex (621
+div) in 664 s**, exact — down from 187,666 ex (705 div) with Preserved bones alone. The route is the same
+to its last step, where a bone with the Omen of Abyssal Echoes (2.7% onward) replaces the plain one
+(1.4%), and what is left to pay there falls from 251 div to 135. No Ancient bone is played: at 1,116 ex a
+jawbone, the better odds do not pay for themselves on this craft. 664 s is inside the 900 s budget but not
+by much, and the build on `main` before this change is no faster — run side by side on one loaded
+machine, both ran out at 900 s. That is TODO 20.
+
+**Mutation-checked seventeen ways**, each red: either Perfect floor back at 50; boss draws built for
+every boss (two tests); the MDP's add chain on the
+Exalt's ladder; the Ancient floor ignored; an unpriced Ancient bone offered; 40 missing from the
+interchangeability floors; the reroll ignored, made unconditional, or dropped from the action signature;
+the Quick check's rows without the reroll or without the floor; the omen uncharged; the Ancient price key
+or its per-base resolution missing; the step label without the omen.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

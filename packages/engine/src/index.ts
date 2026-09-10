@@ -28,7 +28,7 @@ export {
   annulProbability, perfectEssenceProbability, essenceForcedProbability,
   desecrationBossProbability, desecrationBossAnySideProbability, desecrationProbability, desecrationOmenForMod, chaosProbability, chaosRemovalProbability, lowestLevelMods, alchemyProbability,
   ALCHEMY_MOD_COUNT, greaterExaltProbability, GREATER_EXALT_MOD_COUNT,
-  bossOmenAllowed, desecrationBoneFor, isEssenceMod,
+  bossOmenAllowed, desecrationBoneFor, isEssenceMod, ANCIENT_BONE_FLOOR,
 } from './probability.ts';
 export type {
   AddAffixOptions, CurrencyOptions, TransmuteOptions, NormalAddCurrency,

@@ -337,7 +337,11 @@ function actionLabel(data: PatchData, action: McAction): string {
     // No boss omen — the untargeted draw over the whole pool. That is the only desecration available
     // on armour, so this is the common label, not an edge case: don't name an omen that isn't used.
     const boss = action.boss ? `Omen of the ${BOSS_LABEL[action.boss]}` : null;
-    const parts = [boss, sideLabel].filter((x): x is string => x !== null);
+    // The bone's grade leads and the omens follow in the order they act — which pool, which side, then
+    // the reroll: "Desecrate (Ancient, Dextral, Omen of Abyssal Echoes)".
+    const grade = action.ancient ? 'Ancient' : null;
+    const echoes = action.echoes ? 'Omen of Abyssal Echoes' : null;
+    const parts = [grade, boss, sideLabel, echoes].filter((x): x is string => x !== null);
     return parts.length > 0 ? `Desecrate (${parts.join(', ')})` : 'Desecrate';
   }
   if (action.currency === 'transmute' || action.currency === 'augment' || action.currency === 'regal') {

@@ -65,7 +65,7 @@ function optsForStep(step: PlanStep, level: number): { limit: number; floor: num
   if (step.currency !== 'transmute' && step.currency !== 'augment' && step.currency !== 'regal' && step.currency !== 'exalt') {
     throw new Error(`optsForStep: not an add step (${step.currency})`);
   }
-  const floor = CURRENCY_FLOOR[step.tier ?? 'base'];
+  const floor = CURRENCY_FLOOR[step.currency][step.tier ?? 'base'];
   const side = step.currency === 'exalt' ? step.constrainTo : undefined;
   const base = { limit: RESULT_SLOT_LIMIT[step.currency], floor, cap: level };
   return side ? { ...base, side } : base;

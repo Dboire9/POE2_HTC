@@ -121,6 +121,74 @@ describe('markovFromItem — Desecration as an MDP action (hand-computed)', () =
   });
 
   /**
+   * The Omen of Abyssal Echoes: see the three, and throw them all back once for a fresh three (confirmed
+   * 2026-09-10). Same start as the 9/7 case. Wanting DP1, you throw back exactly when the offer is all
+   * DS1 — ⅛ — so the omen turns that brick into (⅛)² = 1/64, and it is charged whether or not it is used:
+   *
+   *   E = 1 + c + (1/64)·(1 + E)  ⇒  E = (65 + 64c) / 63
+   *
+   * At c = 0.1 that is 71.4/63 = 17/15 ≈ 1.133, under the plain offer's 9/7 ≈ 1.286, so it is bought.
+   * Break-even is c = ¼.
+   */
+  it('an Omen of Abyssal Echoes rerolls a bad offer once: E = 17/15 at 0.1, and the brick is 1 in 64', () => {
+    const prices: Prices = {
+      currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
+      omens: { OmenofAbyssalEchoes: 0.1 },
+    };
+    const r = markovFromItem(data, prices, start, targets, EXACT);
+    expect(r.expectedCost).toBeCloseTo(17 / 15, 9);
+    const s0 = r.nodes.find((nd) => nd.isStart)!;
+    expect(s0.action).toEqual({ currency: 'desecrate', echoes: true });
+    // The graph publishes what the player faces with the omen — six draws missing, not three.
+    expect(r.edges.some((e) => e.from === s0.key && e.regress && Math.abs(e.prob - 1 / 64) < 1e-12)).toBe(true);
+    expect(r.edges.some((e) => e.from === s0.key && Math.abs(e.prob - 1 / 8) < 1e-9)).toBe(false);
+  });
+
+  it('declines the omen where it costs more than the reroll saves (0.5, over the ¼ break-even)', () => {
+    const prices: Prices = {
+      currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
+      omens: { OmenofAbyssalEchoes: 0.5 },
+    };
+    const r = markovFromItem(data, prices, start, targets, EXACT);
+    expect(r.expectedCost).toBeCloseTo(9 / 7, 9);
+    expect(r.nodes.find((nd) => nd.isStart)!.action).toEqual({ currency: 'desecrate' });
+  });
+
+  /** The reroll, played out: the published edges must land on 17/15 too, or the graph and the cost
+   *  describe two different processes (see the 9/7 walk below). */
+  it('100k runs of the published Echoes graph land on the hand-computed 17/15', () => {
+    const prices: Prices = {
+      currency: { exalt: 1, annul: 1, chaos: 99, desecrate: 1 },
+      omens: { OmenofAbyssalEchoes: 0.1 },
+    };
+    const r = markovFromItem(data, prices, start, targets, EXACT);
+    const byKey = new Map(r.nodes.map((nd) => [nd.key, nd]));
+    const outs = new Map<string, { to: string; prob: number }[]>();
+    for (const e of r.edges) outs.set(e.from, [...(outs.get(e.from) ?? []), { to: e.to, prob: e.prob }]);
+    for (const [, list] of outs) expect(list.reduce((acc, o) => acc + o.prob, 0)).toBeCloseTo(1, 9);
+    const rng = mulberry32(11);
+    const startKey = r.nodes.find((nd) => nd.isStart)!.key;
+    let total = 0;
+    const RUNS = 100_000;
+    for (let run = 0; run < RUNS; run++) {
+      let cur = startKey;
+      for (let guard = 0; guard < 10_000; guard++) {
+        const nd = byKey.get(cur)!;
+        if (nd.isGoal) break;
+        total += actionCostOf(prices, nd.action!);
+        const list = outs.get(cur)!;
+        let x = rng();
+        let next = list[list.length - 1]!.to;
+        for (const o of list) { x -= o.prob; if (x < 0) { next = o.to; break; } }
+        cur = next;
+      }
+    }
+    const mc = total / RUNS;
+    expect(mc).toBeGreaterThan((17 / 15) * 0.99);
+    expect(mc).toBeLessThan((17 / 15) * 1.01);
+  });
+
+  /**
    * The offer math, played out rather than derived.
    *
    * Value iteration and the published edge odds are two separate computations of the same mechanic

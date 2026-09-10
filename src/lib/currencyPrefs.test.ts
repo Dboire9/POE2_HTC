@@ -31,7 +31,14 @@ describe('toExcludedKeys — group settings become price-sheet keys', () => {
 
   it('a currency with no variants excludes its single key', () => {
     expect(toExcludedKeys({ annul: { only: [] } })).toEqual(['annul']);
-    expect(toExcludedKeys({ desecrate: { only: [] } })).toEqual(['desecrate']);
+  });
+
+  /** Bones come in two grades priced apart. The whole row is both; a tick is just that one. An older
+   *  build stored `{ desecrate: { only: [] } }`, which still reads as "no bones at all". */
+  it('Desecration excludes both grades of bone, or only the one ticked', () => {
+    expect(toExcludedKeys({ desecrate: { only: [] } }).sort()).toEqual(['desecrate', 'desecrate_ancient']);
+    expect(toExcludedKeys({ desecrate: { only: ['ancient'] } })).toEqual(['desecrate_ancient']);
+    expect(toExcludedKeys({ desecrate: { only: ['preserved'] } })).toEqual(['desecrate']);
   });
 
   it('the global strength row spans every family that has one, essences included', () => {

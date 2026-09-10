@@ -23,7 +23,7 @@ export interface GroupMember {
 export interface CurrencyGroup {
   readonly id: string;
   readonly label: string;
-  /** Empty when the currency has no variants (Alchemy, Annulment, Desecration) — render no sub-list. */
+  /** Empty when the currency has no variants (Alchemy, Annulment) — render no sub-list. */
   readonly members: readonly GroupMember[];
   /** Price keys for a group with no members. Stated rather than inferred from `id`: they happen to
    *  match today, and a silent rename would then stop excluding anything. */
@@ -40,8 +40,9 @@ const strengths = (base: string): GroupMember[] => [
 
 /**
  * Every excludable group, in the order the UI shows them. A group gets a sub-list when the currency has
- * versions to tell apart — the five tiered orb families and Essences do; Alchemy, Annulment and
- * Desecration have exactly one version each, so an expandable drawer there would open onto nothing.
+ * versions to tell apart — the five tiered orb families, Essences, and Desecration's two grades of bone
+ * do; Alchemy and Annulment have exactly one version each, so an expandable drawer there would open onto
+ * nothing.
  *
  * Member ids are the shortcut's vocabulary: any member called `greater` or `perfect` is picked up by
  * STRENGTH_GROUP below, so name them to match when adding a family.
@@ -64,7 +65,16 @@ export const CURRENCY_GROUPS: readonly CurrencyGroup[] = [
       { id: 'perfect', label: 'Perfect', keys: ['perfect_essence'] },
     ],
   },
-  { id: 'desecrate', label: 'Desecration (bones)', members: [], keys: ['desecrate'] },
+  {
+    id: 'desecrate',
+    label: 'Desecration (bones)',
+    // Two grades priced apart: Preserved, and Ancient ("Minimum Modifier Level: 40"). Neither id is
+    // `greater`/`perfect`, so the strength shortcut rightly leaves bones alone.
+    members: [
+      { id: 'preserved', label: 'Preserved', keys: ['desecrate'] },
+      { id: 'ancient', label: 'Ancient', keys: ['desecrate_ancient'] },
+    ],
+  },
 ];
 
 /**
@@ -110,6 +120,7 @@ export const OMEN_GROUP: CurrencyGroup = {
     { id: WHITTLING_MEMBER, label: 'Whittling', keys: ['OmenofWhittling'] },
     { id: 'sinNecro', label: 'Sinistral Necromancy', keys: ['OmenofSinistralNecromancy'] },
     { id: 'dexNecro', label: 'Dextral Necromancy', keys: ['OmenofDextralNecromancy'] },
+    { id: 'echoes', label: 'Abyssal Echoes', keys: ['OmenofAbyssalEchoes'] },
     { id: 'blackblooded', label: 'the Blackblooded', keys: ['OmenoftheBlackblooded'] },
     { id: 'liege', label: 'the Liege', keys: ['OmenoftheLiege'] },
     { id: 'sovereign', label: 'the Sovereign', keys: ['OmenoftheSovereign'] },
@@ -132,7 +143,7 @@ export function toExcludedKeys(ex: Exclusions): string[] {
   for (const [id, { only }] of Object.entries(ex)) {
     const group = groupById.get(id);
     if (!group) continue; // a stale id from an older build; ignore rather than throw at the user
-    // A member-less group (Alchemy, Annulment, Desecration) carries its keys directly. Otherwise:
+    // A member-less group (Alchemy, Annulment) carries its keys directly. Otherwise:
     // no narrowing means the whole group; a narrowing means exactly the members named.
     for (const k of group.keys ?? []) keys.add(k);
     const members = only.length > 0 ? group.members.filter((m) => only.includes(m.id)) : group.members;

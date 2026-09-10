@@ -7,10 +7,10 @@
 // off-tier trap), side-constrained exalts and annuls (Omen of Sinistral/Dextral), and Chaos. A strength
 // or omen with no price is NOT offered, so a missing price can't mint a free super-orb.
 
-import type { ItemBase, PatchData } from '../../engine/src/types.ts';
+import { CURRENCY_FLOOR, type ItemBase, type PatchData } from '../../engine/src/types.ts';
 import { excluded, poolTotalWeight } from '../../engine/src/pool.ts';
 import type { DesecrationBossOmen } from '../../engine/src/probability.ts';
-import { DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
+import { ANCIENT_BONE_FLOOR, DESECRATION_OFFER_COUNT, desecrationOmenForMod } from '../../engine/src/probability.ts';
 import type { CurrencyPolicy, Prices, PricedStep } from './cost.ts';
 import { allowsStep, cheapestEssenceLevel, essenceLevelOf, stepCost } from './cost.ts';
 import type { Dist, FlagCode, McRarity, McState, McTarget, SideIndex, StateEncoder } from './markovState.ts';
@@ -34,7 +34,14 @@ export type McAction =
   // restricts it to one, shrinking the pool. WITHOUT a boss omen (`boss` absent) it draws by weight
   // from the base's combined normal ∪ desecrated pool — longer odds, but no omen to buy, and the only
   // desecration armour can perform at all (the boss omens are "Weapon or Jewellery" only).
-  | { readonly currency: 'desecrate'; readonly boss?: DesecrationBossOmen; readonly side?: 'prefix' | 'suffix' }
+  //
+  // `ancient` is the bone's grade: an Ancient bone draws its three offers at minimum modifier level 40
+  // (ANCIENT_BONE_FLOOR), a Preserved one at 0. `echoes` is an Omen of Abyssal Echoes: see the offer,
+  // and throw all three back once for a fresh three when they are worse than a fresh three is worth.
+  | {
+    readonly currency: 'desecrate'; readonly boss?: DesecrationBossOmen; readonly side?: 'prefix' | 'suffix';
+    readonly ancient?: true; readonly echoes?: true;
+  }
   // A Perfect Essence forces one specific mod on while removing one at random. `side` is a
   // Sinistral/Dextral Crystallisation omen constraining WHICH mod the essence eats.
   | { readonly currency: 'perfect-essence'; readonly target: string; readonly side?: 'prefix' | 'suffix' }
@@ -59,6 +66,8 @@ export type McAction =
   // caller says starting over is actually possible; a specific Rare in your stash cannot be rebought.
   | { readonly currency: 'restart'; readonly cost: number };
 
+type DesecrateAction = Extract<McAction, { readonly currency: 'desecrate' }>;
+
 /** An action bound to a state: what it is, what it costs, and where it lands. */
 export interface ActionDef {
   readonly action: McAction;
@@ -81,6 +90,11 @@ export interface ActionDef {
    * the tail-sum identity in markovFromItem's `valueOf`.
    */
   readonly offer?: number;
+  /**
+   * How many times the player may throw the whole offer back for a fresh one — an Omen of Abyssal
+   * Echoes gives one. Absent means none. Only meaningful with `offer`; see `keepWeights`.
+   */
+  readonly reroll?: number;
 }
 
 /**
@@ -113,6 +127,8 @@ function pricedStepOf(action: McAction): PricedStep {
         currency: 'desecrate',
         ...(action.boss ? { boss: action.boss } : {}),
         ...(action.side ? { constrainTo: action.side } : {}),
+        ...(action.ancient ? { ancient: true } : {}),
+        ...(action.echoes ? { echoes: true } : {}),
       };
     case 'perfect-essence': {
       const omen = asOmen(action.side);
@@ -154,16 +170,16 @@ export function allowsAction(policy: CurrencyPolicy | undefined, action: McActio
   return allowsStep(policy, pricedStepOf(action));
 }
 
-/** ilvl floor each Exalted-Orb strength imposes (mirrors pool.ts: base 0 / greater 35 / perfect 50). */
-export const STRENGTH_FLOOR: Record<ExaltStrength, number> = { base: 0, greater: 35, perfect: 50 };
-
 /**
- * Every ilvl floor a craft can draw at: the three orb strengths, and 0 for the draws that have no
- * strength (a Desecration, a Chaos). Exported because the interchangeability test in markovSymmetry.ts
+ * Every ilvl floor a craft can draw at: every orb strength of every currency (CURRENCY_FLOOR — the
+ * ladders differ, a Perfect Transmute sits at 70), an Ancient bone's 40, and 0 for the draws that have
+ * none (a Preserved bone, a Chaos). Exported because the interchangeability test in markovSymmetry.ts
  * has to compare weights at each of them — miss one and two positions could pass as swappable while
  * behaving differently under a Perfect Exalt.
  */
-export const REACHABLE_FLOORS: readonly number[] = [...new Set([0, ...Object.values(STRENGTH_FLOOR)])];
+export const REACHABLE_FLOORS: readonly number[] = [...new Set([
+  0, ANCIENT_BONE_FLOOR, ...Object.values(CURRENCY_FLOOR).flatMap((ladder) => Object.values(ladder)),
+])];
 /** Map each exalt strength to its price key in the Prices record. */
 const strengthPriceKey = (s: ExaltStrength): string => s === 'base' ? 'exalt' : s === 'greater' ? 'exalt_greater' : 'exalt_perfect';
 /** The price key for any add currency at a strength — `regal_greater`, `transmute_perfect`, … */
@@ -180,7 +196,7 @@ export interface ActionSpaceParams {
   readonly pools: ItemBase['pools'];
   readonly list: readonly McTarget[];
   readonly side: SideIndex;
-  /** Whether desecration is in play at all (see markovFromItem: only when a desecrated mod is involved). */
+  /** Whether desecration is in play at all — see `desecratable` in markovFromItem. */
   readonly desecratable: boolean;
   /** Currencies the player doesn't have; actions needing one are never offered. */
   readonly policy?: CurrencyPolicy;
@@ -243,6 +259,15 @@ export function createActionSpace(params: ActionSpaceParams): {
   const lightOk = omenOk('OmenofLight');
   const necromancyOk = (sd: 'prefix' | 'suffix'): boolean =>
     omenOk(sd === 'prefix' ? 'OmenofSinistralNecromancy' : 'OmenofDextralNecromancy');
+  const echoesOk = omenOk('OmenofAbyssalEchoes');
+  // The grades of bone this solve can spend: a Preserved one wherever desecration is in play, an Ancient
+  // one only where the sheet prices it — an absent price must never read as a free bone. Exclusion is
+  // enforced by `push` like everything else.
+  const bonesOffered: readonly Pick<DesecrateAction, 'ancient'>[] = [
+    {},
+    ...(prices.currency.desecrate_ancient !== undefined && notExcluded('desecrate_ancient')
+      ? [{ ancient: true } as const] : []),
+  ];
 
   // Slot room depends on the RARITY, not on the Rare cap: a Magic item holds one per side. The `into`
   // override is for a Regal, which converts to Rare as it adds and so places against the Rare cap.
@@ -414,6 +439,25 @@ export function createActionSpace(params: ActionSpaceParams): {
     }
   }
 
+  /**
+   * The bosses whose omen can land something this craft WANTS.
+   *
+   * A boss omen's only effect is to confine the draw to that boss's carved pool, so with none of that pool
+   * among the targets every draw it makes is flagged junk — which a Preserved bone's own draw, or an
+   * Exalt, puts on the item more cheaply. This is a pruning, NOT a proof: junk can be worth something
+   * (filling a side steers the next Exalt), so an action that only adds junk is not dominated by
+   * construction. Measured instead: dropping them changed no cost on the crafts in docs/validation.md
+   * (2026-09-10), and on a weapon they are 18 of its 30 Desecration actions — the difference between
+   * fubgun's staff finishing inside Exhaustive and not.
+   */
+  const bossesWanted = new Set<DesecrationBossOmen>();
+  for (const t of list) {
+    for (const m of t.mods) {
+      const boss = m.mod.source === 'desecrated' ? desecrationOmenForMod(m.mod) : undefined;
+      if (boss) bossesWanted.add(boss);
+    }
+  }
+
   const desecrateOutcomes = (s: McState, boss: DesecrationBossOmen, constrainTo?: 'prefix' | 'suffix'): Dist => {
     const out: Dist = new Map();
     if (!desecratable || hasDesecrated(s)) return out; // an item holds at most one desecrated mod
@@ -461,16 +505,17 @@ export function createActionSpace(params: ActionSpaceParams): {
    * same currencies. The two used to be tracked apart — junk on jp/js, desecrated on its own axis with
    * its own slot — which double-counted the desecrated mod as an extra affix the item did not have.
    */
-  const desecrateAnyOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix'): Dist => {
+  const desecrateAnyOutcomes = (s: McState, constrainTo?: 'prefix' | 'suffix', floor = 0): Dist => {
     const out: Dist = new Map();
     if (!desecratable || hasDesecrated(s)) return out; // an item holds at most one desecrated mod
     const prefixOpen = constrainTo !== 'suffix' && prefixOpenIn(s);
     const suffixOpen = constrainTo !== 'prefix' && suffixOpenIn(s);
     const occ = occupiedFamilies(s.present, s.blocked, list);
-    // Preserved bones are unrestricted ("Minimum Modifier Level" is an Ancient-grade line), and every
-    // desecrated mod in the data is ilvl 65, so the strength floor is 0. See desecrationBoneFor.
+    // `floor` is the bone's grade: 0 for a Preserved bone, which has no minimum modifier level, and
+    // ANCIENT_BONE_FLOOR for an Ancient one. Every desecrated mod in the data is ilvl 65, so only the
+    // normal pool feels it. See desecrationBoneFor.
     const weigh = (ids: readonly string[], open: boolean): number =>
-      (open ? poolTotalWeight(data, ids, 0, level, occ) : 0);
+      (open ? poolTotalWeight(data, ids, floor, level, occ) : 0);
     const prefNormal = weigh(pools.normal.prefixes, prefixOpen);
     const prefDes = weigh(pools.desecrated.prefixes, prefixOpen);
     const sufNormal = weigh(pools.normal.suffixes, suffixOpen);
@@ -487,8 +532,8 @@ export function createActionSpace(params: ActionSpaceParams): {
       if (src !== 'normal' && src !== 'desecrated') continue; // essence-only mods are in neither pool
       if (excluded(representative(t), occ)) continue;
       if (!(t.type === 'prefix' ? prefixOpen : suffixOpen)) continue;
-      const succ = succWeight(t, 0);
-      const any = anyWeight(t, 0);
+      const succ = succWeight(t, floor);
+      const any = anyWeight(t, floor);
       if (succ > 0) addTo(out, encodeState(s.present | bit(i), s.blocked, s.jp, s.js, flagTarget(i), s.rarity), succ / grand);
       const below = any - succ;
       if (below > 0) addTo(out, encodeState(s.present, s.blocked | bit(i), s.jp, s.js, flagTarget(i), s.rarity), below / grand);
@@ -617,9 +662,12 @@ export function createActionSpace(params: ActionSpaceParams): {
    * only, so it skips restarts; an Annulment that empties a one-mod item lands on the start state with
    * P=1 exactly as a restart does, and folding those two together would leave phase A with no action at
    * all at that state — an Infinity where a real value belongs, and a different seed for phase B.
+   *
+   * The reroll is in it for the opposite reason: an Echoes-omened offer is its plain twin's draw
+   * exactly, at a higher price, and worth more. Folded, it would be dropped as a dearer duplicate.
    */
-  const signatureOf = (action: McAction, dist: Dist, offer: number): string =>
-    `${action.currency === 'restart'}|${offer}|`
+  const signatureOf = (action: McAction, dist: Dist, offer: number, reroll: number): string =>
+    `${action.currency === 'restart'}|${offer}|${reroll}|`
     + [...dist].map(([k, p]) => `${k}=${p}`).sort().join(';');
 
   // The one place an action enters the space, so the one place exclusion has to hold. The `*Ok` gates
@@ -632,12 +680,14 @@ export function createActionSpace(params: ActionSpaceParams): {
   // did before the fold existed.
   const pusher = (acts: ActionDef[]) => {
     const seen = new Map<string, number>(); // outcome signature → its slot in `acts`
-    return (action: McAction, dist: Dist, offer?: number): void => {
+    return (action: McAction, dist: Dist, offer?: number, reroll?: number): void => {
       if (dist.size === 0) return;
       if (!allowsAction(policy, action)) return;
       const cost = actionCostOf(prices, action);
-      const def: ActionDef = { action, cost, dist, ...(offer === undefined ? {} : { offer }) };
-      const sig = signatureOf(action, dist, offer ?? 1);
+      const def: ActionDef = {
+        action, cost, dist, ...(offer === undefined ? {} : { offer }), ...(reroll ? { reroll } : {}),
+      };
+      const sig = signatureOf(action, dist, offer ?? 1, reroll ?? 0);
       const at = seen.get(sig);
       // Replace IN PLACE rather than appending, so the survivor keeps the earlier slot and the solver
       // still sees the push order the tie-breaks above rely on.
@@ -670,7 +720,7 @@ export function createActionSpace(params: ActionSpaceParams): {
       for (const currency of chain) {
         const into: McRarity = currency === 'regal' ? 'rare' : 'magic';
         for (const strength of strengthsFor(currency)) {
-          push({ currency, strength }, addOutcomes(s, STRENGTH_FLOOR[strength], undefined, into));
+          push({ currency, strength }, addOutcomes(s, CURRENCY_FLOOR[currency][strength], undefined, into));
         }
       }
       // A regular Essence also converts Magic → Rare, forcing its mod instead of rolling one. It is
@@ -696,7 +746,7 @@ export function createActionSpace(params: ActionSpaceParams): {
     for (const constrainTo of exaltSides) {
       for (const strength of strengths) {
         push({ currency: 'exalt', strength, ...(constrainTo ? { side: constrainTo } : {}) },
-          addOutcomes(s, STRENGTH_FLOOR[strength], constrainTo));
+          addOutcomes(s, CURRENCY_FLOOR.exalt[strength], constrainTo));
       }
     }
     for (const constrainTo of [undefined, 'prefix', 'suffix'] as const) {
@@ -715,17 +765,34 @@ export function createActionSpace(params: ActionSpaceParams): {
       // the one that survives to the solver at all: same odds, same cost, one fewer thing the player
       // must own. (It used to survive only by winning `bestAction`'s strict `<`, after both had been
       // evaluated on every sweep.)
-      push({ currency: 'desecrate' }, desecrateAnyOutcomes(s), DESECRATION_OFFER_COUNT);
-      for (const sd of ['prefix', 'suffix'] as const) {
-        if (necromancyOk(sd)) push({ currency: 'desecrate', side: sd }, desecrateAnyOutcomes(s, sd), DESECRATION_OFFER_COUNT);
+      //
+      // Every draw comes twice where the player has an Omen of Abyssal Echoes: as itself, and with one
+      // reroll of the whole offer. Same distribution, so it is built once; the reroll is part of the
+      // signature, so the omened twin is never folded into the plain one.
+      const offerBoth = (action: DesecrateAction, dist: Dist): void => {
+        push(action, dist, DESECRATION_OFFER_COUNT);
+        if (echoesOk) push({ ...action, echoes: true }, dist, DESECRATION_OFFER_COUNT, 1);
+      };
+      // Preserved first, then Ancient: where the floor changes nothing (every outcome of the draw already
+      // at ilvl 40 or above) the two draws are identical, and the fold keeps the cheaper bone.
+      for (const grade of bonesOffered) {
+        const floor = grade.ancient ? ANCIENT_BONE_FLOOR : 0;
+        offerBoth({ currency: 'desecrate', ...grade }, desecrateAnyOutcomes(s, undefined, floor));
+        for (const sd of ['prefix', 'suffix'] as const) {
+          if (necromancyOk(sd)) {
+            offerBoth({ currency: 'desecrate', ...grade, side: sd }, desecrateAnyOutcomes(s, sd, floor));
+          }
+        }
       }
       // Boss targeting is "Weapon or Jewellery" only — offering it on armour would plan a step the
-      // game refuses.
+      // game refuses. Preserved bones only: a boss draw is count-uniform over carved mods, all ilvl 65,
+      // so an Ancient bone's floor cannot change it — the same odds for a dearer bone.
       if (bossTargetable) {
         for (const boss of ['blackblooded', 'liege', 'sovereign'] as const) {
-          push({ currency: 'desecrate', boss }, desecrateOutcomes(s, boss), DESECRATION_OFFER_COUNT);
+          if (!bossesWanted.has(boss)) continue;
+          offerBoth({ currency: 'desecrate', boss }, desecrateOutcomes(s, boss));
           for (const sd of ['prefix', 'suffix'] as const) {
-            if (necromancyOk(sd)) push({ currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd), DESECRATION_OFFER_COUNT);
+            if (necromancyOk(sd)) offerBoth({ currency: 'desecrate', boss, side: sd }, desecrateOutcomes(s, boss, sd));
           }
         }
       }

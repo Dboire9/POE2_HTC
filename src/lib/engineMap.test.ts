@@ -44,3 +44,19 @@ describe('mapMarkov — naming two positions that read alike', () => {
     ]);
   });
 });
+
+/** A Desecration can spend a bone grade and three omens at once; the label must name each one it pays for. */
+describe('mapMarkov — naming a Desecration', () => {
+  it('names the bone’s grade and every omen it spends', () => {
+    const res = {
+      expectedCost: 1, feasible: true, converged: true, bound: 'exact', edges: [], policy: new Map(),
+      nodes: [{
+        key: 's', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: true, isGoal: false,
+        expectedCost: 1, rarity: 'rare', visitRate: 1, depth: 1,
+        action: { currency: 'desecrate', ancient: true, side: 'suffix', echoes: true },
+      }],
+    } as unknown as Parameters<typeof mapMarkov>[1];
+    const out = mapMarkov({ mods: new Map() } as unknown as Parameters<typeof mapMarkov>[0], res);
+    expect(out.nodes[0]!.action).toBe('Desecrate (Ancient, Dextral, Omen of Abyssal Echoes)');
+  });
+});

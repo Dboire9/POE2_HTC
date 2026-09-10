@@ -258,7 +258,9 @@ shows the chance a **single orb** does exactly what you asked, and what that orb
 | **Exalted Orb** | Rare, you named a mod to add |
 | **Chaos Orb** | Rare, you named both an add and a sacrifice |
 | **Desecration** | Rare, you named a mod to add |
+| **Desecration (Ancient bone)** | …where the price sheet prices one |
 | **Desecration + a boss omen** | …and that mod is a desecrated one |
+| **…+ Omen of Abyssal Echoes** | each Desecration row again, where the sheet prices the omen |
 | **Perfect Essence** | Rare, and the mod you want is a Perfect-Essence one |
 | **Perfect Essence + a Crystallisation omen** | …and you named a sacrifice, on the side that omen can reach |
 | **Orb of Augmentation** | Magic, you named a mod to add |
@@ -296,6 +298,12 @@ shown is the chance one of the three is what you asked for — roughly three tim
 single draw, and the same number the planner uses. A plain bone draws from the normal **and**
 desecrated pools together, so it can land an ordinary mod too. The row is priced by the bone your item
 actually consumes (jawbone for a weapon or quiver, rib for armour, collarbone for jewellery and belts).
+
+An **Ancient bone** reads *"Minimum Modifier Level: 40"*: its three offers skip every ordinary tier
+below modifier level 40, which is better odds for a high tier at a much dearer bone. The **Omen of
+Abyssal Echoes** lets you throw all three offers back once for a fresh three. Wanting one mod, you do
+that exactly when none of the three is it, so its row shows the chance the mod turns up in either set —
+six draws. The omen is charged whether or not you end up rerolling.
 
 Two rules it will tell you about rather than hide: an item holds **at most one desecrated mod**, so
 the row is refused while a carved mod is still on the item; and the boss omens read *"your next
@@ -412,7 +420,7 @@ what you've actually said.
 
 Groups available: *Chaos Orbs*, *Exalted Orbs*, *Orbs of Annulment*, *Orbs of Alchemy*, *Regal Orbs*,
 *Orbs of Transmutation*, *Orbs of Augmentation*, *Essences* (Lesser / Normal / Greater / Perfect),
-*Desecration (bones)*, *Greater and Perfect orbs and essences* (every strength in one row), and *Omens*
+*Desecration (bones)* (Preserved / Ancient), *Greater and Perfect orbs and essences* (every strength in one row), and *Omens*
 — all of which are listed individually by name.
 
 Excluding something removes it from both solvers, so the true expected cost respects your exclusions too.
@@ -534,13 +542,15 @@ routes possible.
 | **Bone offerings (Desecration)** | Place a desecrated mod |
 
 **Strengths.** Transmutation, Augmentation, Regal, Exalted and Chaos all come in **Basic**, **Greater**
-and **Perfect**. A stronger orb raises the *minimum tier* the roll can produce — which is not always an
-improvement: raising the floor also deletes low tiers from the pool, so a Perfect orb can be *worse* for
-a mod whose good tiers sit low. The engine searches all three and picks per step.
+and **Perfect**. A stronger orb raises the *minimum modifier level* the roll draws from: 35 for a Greater
+orb and 50 for a Perfect one — except a Perfect Transmutation or Augmentation, which rolls at **70**. (A
+Greater Transmutation or Augmentation is modelled at 35; nobody has confirmed that one.) That is not
+always an improvement: raising the floor also deletes low tiers from the pool, so a Perfect orb can be
+*worse* for a mod whose good tiers sit low. The engine searches all three and picks per step.
 
 **Omens** modify the currency used with them — the ones the engine models are Sinistral (prefix side),
 Dextral (suffix side), Light, Crystallisation, Necromancy, the Blackblooded, the Liege, the Sovereign,
-**Whittling** (a Chaos Orb removes your lowest-level mod instead of a random one) and **Greater
+**Abyssal Echoes** (reroll a Desecration's three offered mods once), **Whittling** (a Chaos Orb removes your lowest-level mod instead of a random one) and **Greater
 Exaltation** (one Exalted Orb adds two mods).
 A *Dextral Exaltation* constrains an Exalt to add a **suffix**; a *Dextral Annulment* constrains an
 Annulment to remove one; a *Dextral Crystallisation* constrains a Perfect Essence's removal. They are

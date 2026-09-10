@@ -123,9 +123,21 @@ export interface ItemState {
 /** Currency strength — restricts rolls to higher-ilvl tiers (Greater/Perfect orbs). */
 export type CurrencyTier = 'base' | 'greater' | 'perfect';
 
-/** Minimum tier ilvl each currency strength can roll (from ExaltAndRegalProbability.java). */
-export const CURRENCY_FLOOR: Record<CurrencyTier, number> = {
-  base: 0,
-  greater: 35,
-  perfect: 50,
+/** The orbs sold at Greater and Perfect strength, where the strength sets a minimum modifier level. */
+export type StrengthCurrency = 'transmute' | 'augment' | 'regal' | 'exalt';
+
+/**
+ * Minimum modifier level each orb strength imposes — PER CURRENCY, because the ladders differ.
+ *
+ *   • Regal and Exalted: Greater 35, Perfect 50 (ExaltAndRegalProbability.java).
+ *   • Transmutation and Augmentation: Perfect **70** — "guaranteeing 1 modifier with minimum modifier
+ *     level of 70. Augmentation is the same" (the user, 2026-09-10). One shared table used to give them
+ *     the Exalt's 50, which let a Perfect Transmute land tiers it cannot.
+ *   • Their GREATER floor is not confirmed, so it keeps the shared 35 it has always had.
+ */
+export const CURRENCY_FLOOR: Record<StrengthCurrency, Record<CurrencyTier, number>> = {
+  transmute: { base: 0, greater: 35, perfect: 70 },
+  augment: { base: 0, greater: 35, perfect: 70 },
+  regal: { base: 0, greater: 35, perfect: 50 },
+  exalt: { base: 0, greater: 35, perfect: 50 },
 };

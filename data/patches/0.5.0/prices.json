@@ -1547,7 +1547,8 @@
     "essence:perfect:Wands_physical/PerfectEssence_IncreasedCastSpeed": 102.4,
     "essence_lesser": 3.167,
     "essence": 5.334,
-    "essence_greater": 1.978
+    "essence_greater": 1.978,
+    "desecrate_ancient": 935.5
   },
   "omenQuotesAsOf": "2026-08-22",
   "omenQuotesSource": "https://poe.ninja/poe2/economy/runesofaldur/omens — transcribed by hand; poe.ninja's economy API has no `type` value that serves omens (Currency/Essences/Fragments/Runes do), and the web page is client-rendered, so this is the only route.",
@@ -1632,7 +1633,8 @@
     "OmenofDextralNecromancy": 1.38,
     "OmenofSinistralNecromancy": 1.599,
     "OmenoftheLiege": 0.1615,
-    "OmenofWhittling": 982.2
+    "OmenofWhittling": 982.2,
+    "OmenofAbyssalEchoes": 73.82
   },
   "league": "Forbidden Rites",
   "estimated": true,
@@ -1640,7 +1642,10 @@
   "bones": {
     "jawbone": 4.155,
     "rib": 21.41,
-    "collarbone": 110.2
+    "collarbone": 110.2,
+    "jawbone_ancient": 1116,
+    "rib_ancient": 935.5,
+    "collarbone_ancient": 852.5
   },
   "leagueSince": "2026-09-05"
 }

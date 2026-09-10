@@ -4,7 +4,7 @@ import {
   currencyActions, alternatives, alternativesForItem, type CurrencyAction,
   type EngineMod, type ExistingItem, type ItemModInput,
 } from './engine.ts';
-import { desecrationProbability } from '../../packages/engine/src/probability.ts';
+import { ANCIENT_BONE_FLOOR, desecrationProbability } from '../../packages/engine/src/probability.ts';
 import { buildItemState } from './engineMap.ts';
 import { loadPatch } from '../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
@@ -315,6 +315,26 @@ describe('engine facade — the Quick check prices what the routes charge', () =
     // This sum used to be written out by hand here — a second copy of `stepCost`, which is the shape
     // the D8 mispricing hid in. Asserted relationally so the daily price refresh can't break it.
     expect(light.cost).toBeCloseTo(plain.cost + shipped.prices.omens['OmenofLight']!, 9);
+  });
+
+  it('offers an Ancient bone, drawn at modifier level 40 and charged the Ancient jawbone', () => {
+    const acts = currencyActions(shipped, wand, { addModId: 'Wands/Intelligence' });
+    const ancient = acts.find((a) => a.label === 'Desecration (Ancient bone)')!;
+    const draw = desecrationProbability(shipped.data, buildItemState(shipped.data, wand), 'Wands/Intelligence',
+      { floor: ANCIENT_BONE_FLOOR });
+    expect(ancient.prob).toBeCloseTo(1 - (1 - draw) ** 3, 12);
+    expect(ancient.cost).toBeCloseTo(shipped.prices.bones!['jawbone_ancient']!, 9);
+  });
+
+  it('offers each bone again with an Omen of Abyssal Echoes: six draws, for the bone plus the omen', () => {
+    const acts = currencyActions(shipped, wand, { addModId: 'Wands/Intelligence' });
+    const plain = acts.find((a) => a.label === 'Desecration')!;
+    const echoed = acts.find((a) => a.label === 'Desecration + Omen of Abyssal Echoes')!;
+    const draw = desecrationProbability(shipped.data, buildItemState(shipped.data, wand), 'Wands/Intelligence');
+    // Wanting one mod you reroll exactly when none of the three is it, so it is kept if it shows in
+    // either set of three.
+    expect(echoed.prob).toBeCloseTo(1 - (1 - draw) ** 6, 12);
+    expect(echoed.cost).toBeCloseTo(plain.cost + shipped.prices.omens['OmenofAbyssalEchoes']!, 9);
   });
 });
 

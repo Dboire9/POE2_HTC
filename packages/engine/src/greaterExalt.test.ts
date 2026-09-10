@@ -238,8 +238,8 @@ describe('greaterExaltProbability — matches Monte-Carlo on the shipped 0.5.0 W
     const b = 'Wands/Intelligence';
     const analytic = greaterExaltProbability(shipped, empty, [{ modId: a }, { modId: b }], { currencyTier: 'greater' });
     expect(analytic).toBeGreaterThan(0);
-    expect(CURRENCY_FLOOR.greater).toBe(35);
-    expect(Math.abs(analytic - mc([a, b], CURRENCY_FLOOR.greater))).toBeLessThan(tol(analytic));
+    expect(CURRENCY_FLOOR.exalt.greater).toBe(35);
+    expect(Math.abs(analytic - mc([a, b], CURRENCY_FLOOR.exalt.greater))).toBeLessThan(tol(analytic));
     // …and it is a DIFFERENT number from the base-strength one, or the test above would pass for free.
     expect(analytic).not.toBeCloseTo(greaterExaltProbability(shipped, empty, [{ modId: a }, { modId: b }]), 6);
   });

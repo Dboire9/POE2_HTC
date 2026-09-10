@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Ancient bones and the Omen of Abyssal Echoes.** Both answer "wouldn't we have better odds?". An
+  Ancient bone ("Minimum Modifier Level: 40") offers three mods with every ordinary tier below level 40
+  taken out — nearly twice the chance of a top tier on a Wand, for a bone that costs about 1,000ex. The
+  omen lets you throw a bad offer back once for a fresh three. The planner weighs both on every
+  Desecration and the Quick check shows their rows. Ordinary 3–5 mod crafts measured 13–37% cheaper at
+  about the same solve time, and fubgun's Aldur staff falls from 705 to **621 divine** — the omen takes
+  its last step. Both can be marked "I don't have this"; Desecration now lists Preserved and Ancient.
 - **The Quick currency check offers Desecration.** Asked "it says Exalted Orb but we could desecrate
   also?", the honest answer was that the panel only ever knew six orbs. It now shows a **Desecration**
   row on every add, plus a **Desecration + Omen of the …** row when the mod is a carved one, and
@@ -22,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **A Perfect Transmutation or Augmentation rolls at modifier level 70, not 50.** Every orb had the
+  Exalted Orb's ladder, so a Perfect Transmute could land a mod whose best tier is 54. Greater
+  Transmutation and Augmentation stay at 35 — that one is unconfirmed.
 - **The planner considers Desecration for ordinary mods again, whatever a bone costs.** Asked "why do
   we not desecrate also, wouldn't we have better odds?" on fubgun's Aldur staff, the answer was that a
   price rule had switched bones off: it allowed them only while a bone cost less than three Exalted

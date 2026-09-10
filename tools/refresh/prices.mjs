@@ -65,14 +65,19 @@ const CURRENCY = {
 /**
  * A Desecration consumes a BONE, and the item text says which: Gnawed/Preserved/Ancient Jawbone
  * "Desecrates a Rare Weapon or Quiver", Rib "a Rare Armour", Collarbone "a Rare Amulet, Ring or Belt",
- * Cranium "a Rare Jewel". Only PRESERVED matters here: Gnawed says "Maximum Item Level: 64" while
- * every desecrated mod in the data is ilvl 65, and Ancient's "Minimum Modifier Level: 40" is a
- * quality upgrade nothing models yet. The engine maps a base to its bone (`desecrationBoneFor`).
+ * Cranium "a Rare Jewel". Two grades matter here. PRESERVED is the ordinary bone — Gnawed says "Maximum
+ * Item Level: 64" while every desecrated mod in the data is ilvl 65, so it never applies. ANCIENT says
+ * "Minimum Modifier Level: 40", which the engine models as a stronger bone (ANCIENT_BONE_FLOOR), keyed
+ * `<bone>_ancient` and resolved per base by `pricesForBase`. The engine maps a base to its bone
+ * (`desecrationBoneFor`).
  */
 const BONES = {
   jawbone: 'preserved-jawbone',
   rib: 'preserved-rib',
   collarbone: 'preserved-collarbone',
+  jawbone_ancient: 'ancient-jawbone',
+  rib_ancient: 'ancient-rib',
+  collarbone_ancient: 'ancient-collarbone',
 };
 
 /** Essence level → the prefix poe.ninja puts on the id. NORMAL has none. */
@@ -140,7 +145,7 @@ const OMEN_KEYS = [
   'OmenofSinistralAnnulment', 'OmenofDextralAnnulment', 'OmenofLight',
   'OmenofSinistralExaltation', 'OmenofDextralExaltation', 'OmenofGreaterExaltation',
   'OmenofSinistralCrystallisation', 'OmenofDextralCrystallisation',
-  'OmenofSinistralNecromancy', 'OmenofDextralNecromancy',
+  'OmenofSinistralNecromancy', 'OmenofDextralNecromancy', 'OmenofAbyssalEchoes',
   'OmenoftheBlackblooded', 'OmenoftheLiege', 'OmenoftheSovereign',
   'OmenofWhittling',
 ];
@@ -434,7 +439,7 @@ async function main() {
   const abyssLines = new Map(abyss.lines.map((l) => [l.id, l.primaryValue / exalt]));
   const boneDepth = depthIndex(abyss.lines);
   const bones = {};
-  console.log('\ndesecration bones (Preserved — Gnawed caps at item level 64, and every desecrated mod is ilvl 65):');
+  console.log('\ndesecration bones (Preserved and Ancient — Gnawed caps at item level 64, and every desecrated mod is ilvl 65):');
   for (const [bone, id] of Object.entries(BONES)) {
     const v = abyssLines.get(id);
     if (v === undefined) { console.warn(`  WARNING no ${id} in the Abyss feed`); continue; }
@@ -481,6 +486,7 @@ async function main() {
   // `desecrationBoneFor` treats an unmapped category as armour, so the flat fallback key mirrors the
   // rib price rather than keeping the old 0.5 guess.
   if (bones.rib !== undefined) prices.desecrate = bones.rib;
+  if (bones.rib_ancient !== undefined) prices.desecrate_ancient = bones.rib_ancient;
   console.log(`\nessences: ${Object.keys(essencePrices).length} (level, mod) prices from ${essFeed.lines.length} live lines`);
   if (untraded) {
     console.log(`  ${untraded} of ${essFeed.lines.length} listed lines moved under ${DEPTH.minEssenceUnits} unit(s)/day and were IGNORED as quotes rather than markets.`);

@@ -24,10 +24,13 @@ import type { Dist, McState, McTarget } from './markovState.ts';
 const real = loadPatch('data/patches/0.5.0');
 const rp = loadPrices('data/patches/0.5.0');
 
-/** Outcome-distribution fingerprint — the same equality `signatureOf` uses, minus the restart bit. */
+/** Outcome-distribution fingerprint — `signatureOf`'s equality minus the restart bit and the reroll,
+ *  which the callers add: an Echoes-omened draw shares its plain twin's distribution by design. */
 const distKey = (d: Dist): string => [...d].map(([k, p]) => `${k}=${p}`).sort().join(';');
 
-const spaceFor = (baseId: string, modIds: readonly string[], restart?: { cost: number; dist: Dist }) => {
+const spaceFor = (
+  baseId: string, modIds: readonly string[], restart?: { cost: number; dist: Dist }, prices: Prices = rp,
+) => {
   const base = real.bases.get(baseId)!;
   const list: McTarget[] = modIds.map((id) => {
     const mod = real.mods.get(id)!;
@@ -36,7 +39,7 @@ const spaceFor = (baseId: string, modIds: readonly string[], restart?: { cost: n
   return {
     list,
     ...createActionSpace({
-      data: real, prices: pricesForBase(rp, base), level: 82, pools: base.pools, list,
+      data: real, prices: pricesForBase(prices, base), level: 82, pools: base.pools, list,
       side: sideIndexOf(list), desecratable: true, bossTargetable: bossOmenAllowed(base.category),
       ...(restart ? { restart } : {}),
     }),
@@ -61,7 +64,7 @@ describe('the action space never offers two spellings of one move', () => {
           for (const a of acts) {
             // Restart is deliberately excluded from the fold; see the `isRestart` note on `signatureOf`.
             if (a.action.currency === 'restart') continue;
-            const k = `${a.offer ?? 1}|${distKey(a.dist)}`;
+            const k = `${a.offer ?? 1}|${a.reroll ?? 0}|${distKey(a.dist)}`;
             const prev = seen.get(k);
             expect(prev, `${JSON.stringify(a.action)} duplicates ${JSON.stringify(prev?.action)} at `
               + `present=${present} jp=${jp} js=${js}`).toBeUndefined();
@@ -161,9 +164,27 @@ describe('the action space never offers two spellings of one move', () => {
     const plain = bones.find((a) => !('boss' in a.action) && !('side' in a.action));
     expect(plain).toBeDefined();
     for (const b of bones) {
-      if (b === plain) continue;
+      if (b === plain || b.reroll) continue; // an Echoes twin shares the draw by design — see below
       expect(distKey(b.dist)).not.toBe(distKey(plain!.dist));
     }
+  });
+
+  /**
+   * …and the one pair it must NOT fold: a Desecration and the same Desecration with an Omen of Abyssal
+   * Echoes. Their draws are identical by construction — the omen changes what the player may do with
+   * the offer, not what it holds — so the reroll is in `signatureOf`, and the dearer twin survives.
+   */
+  it('keeps an Echoes-omened draw beside its plain twin, though the two draws are identical', () => {
+    const sheet: Prices = { ...rp, omens: { ...rp.omens, OmenofAbyssalEchoes: 50 } };
+    const { actionsOf } = spaceFor('Wands', WAND, undefined, sheet);
+    const bones = actionsOf(st(0, 0, 0, 0)).filter((a) => a.action.currency === 'desecrate');
+    const plain = bones.find((a) => Object.keys(a.action).length === 1)!;
+    const twin = bones.find((a) => a.action.currency === 'desecrate' && a.action.echoes === true
+      && !a.action.side && !a.action.ancient && !a.action.boss);
+    expect(twin).toBeDefined();
+    expect(distKey(twin!.dist)).toBe(distKey(plain.dist));
+    expect(twin!.reroll).toBe(1);
+    expect(twin!.cost).toBeGreaterThan(plain.cost);
   });
 });
 

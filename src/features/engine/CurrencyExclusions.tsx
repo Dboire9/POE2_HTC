@@ -73,7 +73,7 @@ const CurrencyExclusions: React.FC = () => {
                     separately below, and "what is this?" is the wrong thing to make them guess. */}
                 {g.hint && <p className="ml-6 text-[11px] text-muted-foreground">{g.hint}</p>}
                 {/* Narrowing only appears once the group is marked, and only where there is something
-                    to narrow: Alchemy, Annulment and Desecration have exactly one version each. */}
+                    to narrow: Alchemy and Annulment have exactly one version each. */}
                 {on && g.members.length > 0 && (
                   <div className="ml-6 mt-1 flex flex-wrap gap-x-4 gap-y-1">
                     {g.members.map((m) => (

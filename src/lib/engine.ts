@@ -14,7 +14,7 @@ import type { RuneOpportunity } from '../../packages/engine/src/runeConvert.ts';
 import type { ItemState, Mod, PatchData } from '../../packages/engine/src/types.ts';
 import {
   annulProbability, augmentationProbability, bossOmenAllowed, chaosProbability,
-  desecrationBossAnySideProbability, desecrationOffered, desecrationOmenForMod, desecrationProbability,
+  ANCIENT_BONE_FLOOR, desecrationBossAnySideProbability, desecrationOffered, desecrationOmenForMod, desecrationProbability,
   exaltProbability, regalProbability,
 } from '../../packages/engine/src/probability.ts';
 // Whether a Desecration on this base can be boss-targeted ("Weapon or Jewellery" only). Re-exported
@@ -282,7 +282,9 @@ interface ActionRow {
 }
 
 /**
- * The Desecration rows: a plain bone, and — for a carved mod — the bone plus its boss omen.
+ * The Desecration rows: a plain bone, an Ancient one where the sheet prices it, and — for a carved mod —
+ * the bone plus its boss omen. Each comes again with an Omen of Abyssal Echoes where that is priced: the
+ * same draw, and one reroll of all three if none of them is the mod.
  *
  * Sits beside the Exalt because it answers the same question, and inside the caller's `rare` branch
  * because the bone's own text says so: "Desecrates a **Rare** Weapon or Quiver" / "…a **Rare** Armour".
@@ -301,31 +303,48 @@ interface ActionRow {
  * next **Weapon or Jewellery** Desecration attempt" — so on armour they are impossible, said out loud
  * rather than left as a missing row, because that gap is the most confusing part of the mechanic.
  */
-function desecrationRows(data: PatchData, state: ItemState, add: Mod): ActionRow[] {
+function desecrationRows(data: PatchData, state: ItemState, add: Mod, sheet: Prices): ActionRow[] {
   const rows: ActionRow[] = [];
   const carried = state.desecrated === true;
   const held = carried ? 'the item already holds a desecrated mod — remove it first' : null;
   const why = (): string => held ?? addBlockedReason(data, state, add);
   const row = (step: PricedStep, label: string, detail: string, draw: number): ActionRow => {
-    const prob = desecrationOffered(draw);
+    const prob = desecrationOffered(draw, step.echoes ? 1 : 0);
     return prob > 0 ? { step, label, detail, prob } : { step, label, detail, prob, reason: why() };
+  };
+  // Every row comes twice where the sheet prices an Omen of Abyssal Echoes: as itself, and with one
+  // reroll of the whole offer — wanting one mod, you reroll exactly when none of the three is it.
+  const echoes = sheet.omens.OmenofAbyssalEchoes !== undefined;
+  const offer = (step: PricedStep, label: string, detail: string, draw: number, reason?: string): void => {
+    for (const e of echoes ? [false, true] : [false]) {
+      const r = e
+        ? row({ ...step, echoes: true }, `${label} + Omen of Abyssal Echoes`, `${detail}, rerolling all 3 once if none is`, draw)
+        : row(step, label, detail, draw);
+      rows.push(reason === undefined ? r : { ...r, reason });
+    }
   };
 
   // The plain bone draws by weight from the COMBINED normal ∪ desecrated pool, so it can land an
   // ordinary mod as well as a carved one — which is why this row belongs on every add, not only on
   // desecrated ones.
-  rows.push(row({ currency: 'desecrate' }, 'Desecration',
-    `offers 3 mods — the odds one of them is ${add.text}`,
-    carried ? 0 : desecrationProbability(data, state, add.id)));
+  offer({ currency: 'desecrate' }, 'Desecration', `offers 3 mods — the odds one of them is ${add.text}`,
+    carried ? 0 : desecrationProbability(data, state, add.id));
+  // An Ancient bone reads "Minimum Modifier Level: 40": the same draw with every normal tier below ilvl
+  // 40 taken out — better odds for a high tier, at a much dearer bone.
+  if (sheet.currency.desecrate_ancient !== undefined) {
+    offer({ currency: 'desecrate', ancient: true }, 'Desecration (Ancient bone)',
+      `offers 3 mods of modifier level 40+ — the odds one of them is ${add.text}`,
+      carried ? 0 : desecrationProbability(data, state, add.id, { floor: ANCIENT_BONE_FLOOR }));
+  }
 
   const boss = desecrationOmenForMod(add);
   if (boss === undefined) return rows; // not a carved mod: no boss owns it, so no omen can target it
   const allowed = bossOmenAllowed(state.base.category);
   const name = bossOmenLabel(boss);
   const draw = carried || !allowed ? 0 : desecrationBossAnySideProbability(data, state, add.id, { omen: boss });
-  const r = row({ currency: 'desecrate', boss }, `Desecration + Omen of the ${name}`,
-    `draws only from the ${name}’s carved pool, then offers 3`, draw);
-  rows.push(allowed ? r : { ...r, reason: 'the boss omens only work on a Weapon or Jewellery' });
+  offer({ currency: 'desecrate', boss }, `Desecration + Omen of the ${name}`,
+    `draws only from the ${name}’s carved pool, then offers 3`, draw,
+    allowed ? undefined : 'the boss omens only work on a Weapon or Jewellery');
   return rows;
 }
 
@@ -408,7 +427,7 @@ export function currencyActions(
           c > 0 ? undefined : (!onItem(removeModId) ? `${text(removeModId)} isn’t on the item` : `can’t add ${text(addModId)} even after the swap`));
         pushStrengths({ currency: 'chaos', add: addModId, remove: removeModId }, 'Chaos Orb', swap);
       }
-      for (const row of desecrationRows(data, state, add)) push(row.step, row.label, row.detail, row.prob, row.reason);
+      for (const row of desecrationRows(data, state, add, sheet)) push(row.step, row.label, row.detail, row.prob, row.reason);
       // A Perfect Essence adds its mod for CERTAIN and takes one at random in exchange, so the only
       // uncertainty — and the only thing worth quoting — is which mod it eats. That makes a sacrifice
       // mandatory to the question, not optional to it: `PlanStep`'s perfect-essence variant requires

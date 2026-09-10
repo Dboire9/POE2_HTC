@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { Mod, PatchData, PlanResult, PlanStep } from '../../engine/src/index.ts';
 import { loadPatch } from '../../engine/src/index.ts';
-import { allowsStep, cheapestEssenceLevel, essenceLevelOf, planExpectedCost, stepCost } from './cost.ts';
+import { allowsStep, cheapestEssenceLevel, essenceLevelOf, planExpectedCost, pricesForBase, stepCost } from './cost.ts';
 import type { Prices } from './cost.ts';
 import { loadPrices } from './loadPrices.ts';
 import { optimizeCost } from './optimize.ts';
@@ -198,5 +198,35 @@ describe('cheapestEssenceLevel — a better essence is often the cheaper one', (
     expect(cheapestEssenceLevel(sheet, E, 0, 82)).toBe(0);
     expect(stepCost(sheet, { currency: 'essence', add: 'E', essenceLevel: essenceLevelOf(E.tiers[2]!.name) }))
       .toBe(900);
+  });
+});
+
+describe('a bone has two grades, priced apart, and the Echoes omen is a surcharge on either', () => {
+  const wands = loadPatch('data/patches/0.5.0').bases.get('Wands')!;
+  const sheet: Prices = {
+    currency: { desecrate: 9 }, omens: { OmenofAbyssalEchoes: 3 },
+    bones: { jawbone: 1, jawbone_ancient: 50, rib: 2, rib_ancient: 40 },
+  };
+
+  it('resolves the Ancient grade for the base’s own bone, beside the Preserved one', () => {
+    const p = pricesForBase(sheet, wands);
+    expect(p.currency['desecrate']).toBe(1);
+    expect(p.currency['desecrate_ancient']).toBe(50);
+    expect(stepCost(p, { currency: 'desecrate', ancient: true })).toBe(50);
+  });
+
+  it('charges the omen on top of whichever bone it rides on', () => {
+    const p = pricesForBase(sheet, wands);
+    expect(stepCost(p, { currency: 'desecrate', echoes: true })).toBe(1 + 3);
+    expect(stepCost(p, { currency: 'desecrate', ancient: true, echoes: true })).toBe(50 + 3);
+  });
+
+  it('lets a player be without Ancient bones, or without the omen, and keep the rest', () => {
+    const noAncient = { excluded: new Set(['desecrate_ancient']) };
+    expect(allowsStep(noAncient, { currency: 'desecrate' })).toBe(true);
+    expect(allowsStep(noAncient, { currency: 'desecrate', ancient: true })).toBe(false);
+    const noEchoes = { excluded: new Set(['OmenofAbyssalEchoes']) };
+    expect(allowsStep(noEchoes, { currency: 'desecrate' })).toBe(true);
+    expect(allowsStep(noEchoes, { currency: 'desecrate', echoes: true })).toBe(false);
   });
 });

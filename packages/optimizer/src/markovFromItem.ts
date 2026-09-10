@@ -590,11 +590,14 @@ export function markovFromItem(
    * An ABSENT price reads as "no bone", not as a free one: `stepCost` turns a missing key into 0, and
    * a 0 here would switch desecration on for every base in a sheet that simply doesn't price bones.
    */
-  const bonePriced = prices.currency.desecrate !== undefined;
+  // Either grade of bone will do — Preserved (`desecrate`) or Ancient (`desecrate_ancient`), each
+  // already resolved for this base by `pricesForBase`.
+  const BONE_KEYS = ['desecrate', 'desecrate_ancient'] as const;
   // …and none of it matters if the player has excluded the currency: with no Desecration in the action
   // space nothing can ever set the flag, so enumerating the axis is pure cost. Worth checking here
   // rather than leaving to `allowsAction`, which prunes ACTIONS and cannot shrink the lattice.
-  const bonesAllowed = opts.policy === undefined || !opts.policy.excluded.has('desecrate');
+  const bonesAllowed = BONE_KEYS.some((k) => !opts.policy?.excluded.has(k));
+  const bonePriced = BONE_KEYS.some((k) => prices.currency[k] !== undefined && !opts.policy?.excluded.has(k));
   const desecratable = bonesAllowed
     && (list.some((t) => representative(t).source === 'desecrated')
       || s0.flagged !== FLAG_NONE
@@ -730,8 +733,13 @@ export function markovFromItem(
     readonly isRestart: boolean;
     /** Draws shown to the player, of which they keep the best; 1 for an ordinary action. See `valueOf`. */
     readonly offer: number;
+    /** Times the whole offer may be thrown back for a fresh one: 1 under an Omen of Abyssal Echoes. */
+    readonly reroll: number;
+    /** An offer's outcomes, KEPT sorted by V between calls, so re-sorting is near-linear. Empty otherwise. */
+    readonly order: Int32Array;
   }
   const compiled: CompiledAction[][] = new Array<CompiledAction[]>(N);
+  const NO_ORDER = new Int32Array(0);
   let cheapestAction = Infinity;
   let widestOffer = 0; // biggest outcome count among offer actions, to size the sort scratch once
   for (let i = 0; i < N; i++) {
@@ -770,8 +778,9 @@ export function markovFromItem(
       }
       if (to.length > widestOffer && offer > 1) widestOffer = to.length;
       out.push({
-        def, cost: def.cost, selfProb, offer, isRestart: def.action.currency === 'restart',
+        def, cost: def.cost, selfProb, offer, reroll: def.reroll ?? 0, isRestart: def.action.currency === 'restart',
         to: Int32Array.from(to), prob: Float64Array.from(prob),
+        order: offer > 1 ? Int32Array.from(to, (_, j) => j) : NO_ORDER,
       });
       // The cheapest thing the craft can do, restart excluded — it sets both the default tolerance and
       // the factor that repairs the seed. Restart is left out because it is not in phase A, and because
@@ -897,7 +906,9 @@ export function markovFromItem(
   // which is still a valid seed for phase B — the seed only has to be an UPPER bound.
   for (let i = 0; i < N; i++) if (canReachPushForward[i] !== 1) V[i] = Infinity;
   // Reused by every offer evaluation; sized once so the hot loop allocates nothing.
-  const order = new Int32Array(widestOffer);
+  const keptScratch = new Float64Array(widestOffer);
+  /** `x ** m`, but an offer is three, and Math.pow is a real cost in the hottest loop of the solve. */
+  const powOffer = (x: number, m: number): number => (m === 3 ? x * x * x : x ** m);
   /**
    * What the player keeps when an action shows several draws and they must take one.
    *
@@ -911,10 +922,30 @@ export function markovFromItem(
    * With m = 1 this collapses to `T_k − T_(k+1) = p_k`, i.e. the ordinary expectation — the identity
    * is one formula, not a special case bolted on. O(K log K) with K ≈ 10 outcomes, and only a
    * Desecration pays it.
+   *
+   * With a REROLL — an Omen of Abyssal Echoes — the player sees the first offer and may throw all of
+   * it back for a fresh one, which they must then keep. They throw it back exactly when the best of it
+   * is worse than a fresh offer is worth, τ = Σ P(keep k)·V_k, the plain value above. So outcome k is
+   * kept from the first offer when V_k ≤ τ, and from the second whenever the first went back:
+   *
+   *     P'(keep k) = [V_k ≤ τ]·P(keep k) + P(throw)·P(keep k),    P(throw) = Σ over V_j > τ of P(keep j)
+   *
+   * The weights still sum to one. The omen is in `a.cost` whether or not it gets used — the
+   * conservative reading of when the game consumes it.
+   *
+   * Fills `w` with the probability of ending on each outcome, indexed like `a.to`, and returns Σ w·V —
+   * the action's value less its cost. `offerValue`, the closed-form evaluation and the published edges
+   * all read it, so the three cannot disagree about what an offer is worth.
+   *
+   * The sort starts from the order the last call left: V moves little from one sweep to the next, so
+   * insertion sort is close to linear. The value does not depend on how outcomes tied on V are ordered;
+   * their individual weights do, so a caller that PUBLISHES or FREEZES the weights passes `fromStart`,
+   * and ties split by index every time rather than by the history of the solve.
    */
-  const offerValue = (a: CompiledAction): number => {
+  const keepWeights = (a: CompiledAction, w: Float64Array, fromStart = false): number => {
     const K = a.to.length;
-    for (let j = 0; j < K; j++) order[j] = j;
+    const order = a.order;
+    if (fromStart) for (let j = 0; j < K; j++) order[j] = j;
     for (let j = 1; j < K; j++) { // insertion sort by V ascending; K is tiny
       const cur = order[j]!;
       const cv = V[a.to[cur]!]!;
@@ -924,17 +955,28 @@ export function markovFromItem(
     }
     let tail = 0;
     for (let j = 0; j < K; j++) tail += a.prob[j]!;
-    let tailPow = tail ** a.offer;
-    let acc = 0;
+    let tailPow = powOffer(tail, a.offer);
+    let fresh = 0; // τ: what one fresh offer is worth
     for (let j = 0; j < K; j++) {
       const idx = order[j]!;
       tail -= a.prob[idx]!;
-      const nextPow = tail <= 0 ? 0 : tail ** a.offer;
-      acc += V[a.to[idx]!]! * (tailPow - nextPow);
+      const nextPow = tail <= 0 ? 0 : powOffer(tail, a.offer);
+      w[idx] = tailPow - nextPow;
+      fresh += V[a.to[idx]!]! * w[idx];
       tailPow = nextPow;
     }
-    return a.cost + acc;
+    if (a.reroll === 0) return fresh;
+    let thrown = 0;
+    for (let j = 0; j < K; j++) if (V[a.to[j]!]! > fresh) thrown += w[j]!;
+    let kept = 0;
+    for (let j = 0; j < K; j++) {
+      const v = V[a.to[j]!]!;
+      w[j] = (v > fresh ? 0 : w[j]!) + thrown * w[j]!;
+      kept += w[j]! * v;
+    }
+    return kept;
   };
+  const offerValue = (a: CompiledAction): number => a.cost + keepWeights(a, keptScratch);
   const valueOf = (a: CompiledAction): number => {
     if (a.offer > 1) return offerValue(a);
     if (a.selfProb >= 1 - 1e-12) return Infinity; // an action that only loops back can't make progress
@@ -1051,6 +1093,7 @@ export function markovFromItem(
    * realized distribution moves as V moves, which would make c and q non-linear. The ordering is
    * therefore FROZEN for the duration of one evaluation — treated as part of the policy, exactly as
    * the improvement step already treats the choice of action. Improvement re-orders next round.
+   * An Echoes reroll's keep-or-throw-back decision is frozen with it: it reads the same V.
    *
    * Returns false when the policy never reaches the goal (`q(start) = 1`), which is a real state of
    * affairs — an improper policy has infinite value — and the caller must not read V after it.
@@ -1073,23 +1116,12 @@ export function markovFromItem(
       if (a.offer <= 1) {
         wTo[i] = a.to; wPr[i] = a.prob; selfW[i] = a.selfProb;
       } else {
-        // Same tail-sum identity as `offerValue`: P(keep k) = T_k^m − T_(k+1)^m over outcomes sorted
-        // by V ascending. Nothing is hoisted for an offer, so a self-outcome shows up in the weights
-        // and is split out below.
-        const K = a.to.length;
-        const order2 = Array.from({ length: K }, (_, j) => j).sort((x, y) => V[a.to[x]!]! - V[a.to[y]!]!);
-        const w = new Float64Array(K);
-        let tail = 0;
-        for (let j = 0; j < K; j++) tail += a.prob[j]!;
-        let tailPow = tail ** a.offer;
+        // `keepWeights`, frozen at V as it stands. Nothing is hoisted for an offer, so a self-outcome
+        // shows up in the weights and is split out below.
+        const w = new Float64Array(a.to.length);
+        keepWeights(a, w, true);
         let self = 0;
-        for (const j of order2) {
-          tail -= a.prob[j]!;
-          const nextPow = tail <= 0 ? 0 : tail ** a.offer;
-          w[j] = tailPow - nextPow;
-          if (a.to[j] === i) self += w[j];
-          tailPow = nextPow;
-        }
+        for (let j = 0; j < a.to.length; j++) if (a.to[j] === i) self += w[j]!;
         wTo[i] = a.to; wPr[i] = w; selfW[i] = self;
       }
     }
@@ -1403,19 +1435,14 @@ export function markovFromItem(
    */
   const realizedDist = (a: CompiledAction): ReadonlyMap<StateKey, number> => {
     if (a.offer <= 1) return a.def.dist;
-    const K = a.to.length;
-    const idx = Array.from({ length: K }, (_, j) => j)
-      .sort((x, y) => V[a.to[x]!]! - V[a.to[y]!]!);
-    let tail = 0;
-    for (let j = 0; j < K; j++) tail += a.prob[j]!;
-    let tailPow = tail ** a.offer;
+    const w = new Float64Array(a.to.length);
+    keepWeights(a, w, true);
+    // Published cheapest-first, the order these edges have always come out in.
+    const byV = Array.from({ length: a.to.length }, (_, j) => j).sort((x, y) => V[a.to[x]!]! - V[a.to[y]!]!);
     const out = new Map<StateKey, number>();
-    for (const j of idx) {
-      tail -= a.prob[j]!;
-      const nextPow = tail <= 0 ? 0 : tail ** a.offer;
+    for (const j of byV) {
       const key = allStates[a.to[j]!]!;
-      out.set(key, (out.get(key) ?? 0) + (tailPow - nextPow));
-      tailPow = nextPow;
+      out.set(key, (out.get(key) ?? 0) + w[j]!);
     }
     return out;
   };

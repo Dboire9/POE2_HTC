@@ -133,7 +133,7 @@ export function addNormalAffixProbability(
   if (mod.type === 'suffix' && item.suffixes.length >= limit) return 0;
 
   const addOpts: AddAffixOptions = {
-    floor: CURRENCY_FLOOR[opts.currencyTier ?? 'base'],
+    floor: CURRENCY_FLOOR[currency][opts.currencyTier ?? 'base'],
     occupiedFamilies: itemFamilies(data, item), // real-game family exclusion (D6)
     slotLimit: limit, // magic 1+1 slot enforcement (D2)
   };
@@ -440,7 +440,7 @@ export function greaterExaltProbability(
     if (!mod || mod.source !== 'normal') return 0;
   }
   return multiDrawProbability(data, item, targets, GREATER_EXALT_MOD_COUNT, {
-    floor: CURRENCY_FLOOR[opts.currencyTier ?? 'base'],
+    floor: CURRENCY_FLOOR.exalt[opts.currencyTier ?? 'base'],
     slotLimit: MAX_AFFIXES_PER_SIDE,
   });
 }
@@ -617,17 +617,29 @@ export function desecrationOmenForMod(mod: Mod): DesecrationBossOmen | undefined
 export const DESECRATION_OFFER_COUNT = 3;
 
 /**
+ * An ANCIENT bone's minimum modifier level. The item text reads "Minimum Modifier Level: 40"; a
+ * Preserved bone has no such line and draws at 0. It prunes NORMAL tiers below ilvl 40 from all three
+ * offers — every desecrated mod in the data is ilvl 65, so the carved pool is untouched. Confirmed as a
+ * bone the player actually uses, 2026-09-10.
+ */
+export const ANCIENT_BONE_FLOOR = 40;
+
+/**
  * P(the mod you want is somewhere in the offer), from the probability that ONE draw produces it.
  *
  * Treats the offered mods as independent draws. They are drawn from a pool of hundreds whose weights
  * total ~130,000, and no single mod carries a meaningful share of that, so whether the game draws with
  * or without replacement moves this by far less than the assumed desecrated spawn weight already does
  * (see D4). Worth ~3x on a real base: a specific desecrated mod on a Body Armour goes 0.74% -> 2.21%.
+ *
+ * `rerolls` is the Omen of Abyssal Echoes: see the three, and if none is the mod, reroll all three once
+ * (confirmed 2026-09-10). Wanting one mod, you reroll exactly when it is missing, so it is kept if it
+ * shows in either set of three — six draws.
  */
-export function desecrationOffered(pSingleDraw: number): number {
+export function desecrationOffered(pSingleDraw: number, rerolls = 0): number {
   if (pSingleDraw <= 0) return 0;
   if (pSingleDraw >= 1) return 1;
-  return 1 - (1 - pSingleDraw) ** DESECRATION_OFFER_COUNT;
+  return 1 - (1 - pSingleDraw) ** (DESECRATION_OFFER_COUNT * (1 + rerolls));
 }
 
 /**

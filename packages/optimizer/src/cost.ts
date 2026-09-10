@@ -59,6 +59,10 @@ export interface PricedStep {
   readonly omen?: AnnulOmen | EssenceOmen | ChaosOmen;
   /** Which boss pool a desecration draws from — each is its own omen. */
   readonly boss?: DesecrationBossOmen;
+  /** An ANCIENT bone ("Minimum Modifier Level: 40") rather than a Preserved one — priced `desecrate_ancient`. */
+  readonly ancient?: boolean;
+  /** An Omen of Abyssal Echoes on a desecration: the three offered mods may be rerolled once. */
+  readonly echoes?: boolean;
   /** The mod an essence forces. Read ONLY for essence pricing — see the note above. */
   readonly add?: string;
 }
@@ -146,6 +150,9 @@ export function currencyKey(step: PricedStep): string {
   // for and `exalt`/`exalt_greater`/`exalt_perfect` is the right key — the omen itself is a separate
   // surcharge in `stepOmenIds`. Keying it as its own currency would have made it FREE (no such key on
   // the sheet) and made "I don't own Exalted Orbs" stop excluding it, since `allowsStep` reads this.
+  // A bone's GRADE is its own listing: an Ancient one is resolved per base by `pricesForBase`, exactly as
+  // the Preserved one is under the plain key.
+  if (step.currency === 'desecrate' && step.ancient) return 'desecrate_ancient';
   const orb = step.currency === 'greater-exalt' ? 'exalt' : step.currency;
   // Which currencies the sheet sells at a strength. NOT "is this an add" — a chaos both removes and
   // adds, and it belongs here because `chaos_greater` / `chaos_perfect` are real listings.
@@ -198,6 +205,7 @@ export function stepOmenIds(step: PricedStep): string[] {
       else if (step.boss === 'sovereign') ids.push('OmenoftheSovereign');
       if (step.constrainTo === 'prefix') ids.push('OmenofSinistralNecromancy');
       else if (step.constrainTo === 'suffix') ids.push('OmenofDextralNecromancy');
+      if (step.echoes) ids.push('OmenofAbyssalEchoes');
       return ids;
     }
     default:
@@ -216,11 +224,24 @@ export function stepOmenIds(step: PricedStep): string[] {
  * `PricedStep` describes one action. Threading a base through every step to answer a question that
  * cannot vary within a plan would be noise; every planner entry point already holds the base.
  *
+ * Each bone comes in two grades the sheet prices apart: Preserved under the bone's own key, and Ancient
+ * ("Minimum Modifier Level: 40") under `<bone>_ancient`, which resolves to `desecrate_ancient`.
+ *
  * A sheet with no `bones` block is left untouched, so older data keeps working off the flat key.
  */
 export function pricesForBase(prices: Prices, base: ItemBase): Prices {
-  const price = prices.bones?.[desecrationBoneFor(base.category)];
-  return price === undefined ? prices : { ...prices, currency: { ...prices.currency, desecrate: price } };
+  const bone = desecrationBoneFor(base.category);
+  const preserved = prices.bones?.[bone];
+  const ancient = prices.bones?.[`${bone}_ancient`];
+  if (preserved === undefined && ancient === undefined) return prices;
+  return {
+    ...prices,
+    currency: {
+      ...prices.currency,
+      ...(preserved === undefined ? {} : { desecrate: preserved }),
+      ...(ancient === undefined ? {} : { desecrate_ancient: ancient }),
+    },
+  };
 }
 
 /**

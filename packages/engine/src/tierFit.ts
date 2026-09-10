@@ -11,17 +11,25 @@ import type { Mod, Tier } from './types.ts';
  */
 
 /**
- * Is a printed value inside a tier's range?
+ * Is a value inside a tier's range?
  *
- * The magnitude, deliberately. Five shipped texts read `#% reduced Flask Charges used` and store the
- * range as `[-13,-11]`: the wording already carries the sign, so the game prints `12` and the data
- * keeps `-12`. Comparing raw would reject every roll of them.
+ * A "reduced" mod stores its range NEGATIVE — `#% reduced Attribute Requirements` keeps `[-35,-35]` —
+ * and the two readers meet it with opposite signs: pasted text prints the magnitude (`35`; the wording
+ * carries the sign), while a profile API sends the signed stat value (`-35`). So a negative range is
+ * judged by MAGNITUDE, which reads both, as `aboveEveryTier` below always did. This used to flip the
+ * sign unconditionally — right for text, wrong for stats — so the gear reader could place none of the
+ * 52 shipped "reduced" mods, while pasting the same item read them fine.
+ *
+ * A positive range compares raw. No shipped range spans zero, so the two cases never meet.
  */
 export function within(range: readonly number[], v: number): boolean {
   const lo = Math.min(...range);
   const hi = Math.max(...range);
-  const x = hi <= 0 && lo < 0 ? -v : v;
-  return x >= lo && x <= hi;
+  if (hi <= 0 && lo < 0) {
+    const magnitude = Math.abs(v);
+    return magnitude >= -hi && magnitude <= -lo;
+  }
+  return v >= lo && v <= hi;
 }
 
 /**

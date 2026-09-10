@@ -986,6 +986,13 @@
               "sanctified": false
             },
             {
+              "modId": "Wands/LocalAttributeRequirements",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
               "modId": "Wands/WeaponSpellDamageAndMana",
               "tierDisplay": 3,
               "fractured": false,
@@ -1007,9 +1014,7 @@
               "sanctified": false
             }
           ],
-          "unresolved": [
-            "explicit: ReducedLocalAttributeRequirements3"
-          ],
+          "unresolved": [],
           "familyConflict": [],
           "corrupted": false
         }
@@ -1059,6 +1064,13 @@
               "sanctified": false
             },
             {
+              "modId": "Boots_int/LocalAttributeRequirements",
+              "tierDisplay": 2,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
               "modId": "Boots_int/LocalEnergyShield",
               "tierDisplay": 3,
               "fractured": false,
@@ -1066,9 +1078,7 @@
               "sanctified": false
             }
           ],
-          "unresolved": [
-            "explicit: ReducedLocalAttributeRequirements4"
-          ],
+          "unresolved": [],
           "familyConflict": [],
           "corrupted": false
         },
@@ -1450,6 +1460,13 @@
           "level": 81,
           "mods": [
             {
+              "modId": "Spears/LocalAttributeRequirements",
+              "tierDisplay": 1,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
               "modId": "Spears/LocalLightningDamage",
               "tierDisplay": 2,
               "fractured": false,
@@ -1485,9 +1502,7 @@
               "sanctified": false
             }
           ],
-          "unresolved": [
-            "explicit: ReducedLocalAttributeRequirements5"
-          ],
+          "unresolved": [],
           "familyConflict": [],
           "corrupted": false
         },
@@ -1574,6 +1589,13 @@
               "sanctified": false
             },
             {
+              "modId": "Body_Armours_dex_int/ReducedPoisonDuration",
+              "tierDisplay": 3,
+              "fractured": false,
+              "desecrated": false,
+              "sanctified": false
+            },
+            {
               "modId": "Body_Armours_dex_int/LocalEvasionAndEnergyShield",
               "tierDisplay": 4,
               "fractured": false,
@@ -1595,9 +1617,7 @@
               "sanctified": false
             }
           ],
-          "unresolved": [
-            "explicit: ReducedPoisonDuration3"
-          ],
+          "unresolved": [],
           "familyConflict": [
             "Body_Armours_dex_int/LocalBaseEvasionRatingAndEnergyShield",
             "Body_Armours_dex_int/LocalEvasionAndEnergyShield"

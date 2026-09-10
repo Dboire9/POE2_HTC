@@ -3685,7 +3685,7 @@ desecrated lines (the desecrated pool carries no `tiers[].stats`), and
 `ReducedLocalAttributeRequirements4`/`5` on the Sekhema Sandals and the Akoyan Spear. That last is a
 **normal suffix our data carries on both rows**, with the stat id RePoE uses, so it is a stat-reader
 matching gap and not a data gap — and it predates this change: Zizaran's Morbid Bane wand already left
-`…3` unread. TODO 19.
+`…3` unread. Fixed the same day — next section.
 
 **Three tests had pinned the bug.** "Obliterator Bow" was the suite's example of "a base from a later
 patch" in `parseItem`, `profileItems` and `pasteItem`. It is a Karui bow, in the data all along. The
@@ -3695,6 +3695,34 @@ negative cases now use an invented base; the real bow is a positive case.
 byte: in `twins.mjs`, the pool guard, the tag rule and `poolKey`'s group ordering (synthetic test, 2, 2
 and 1 red); through the real pipeline, not folding twins at all (529 names ship; 7 lookup tests red) and
 dropping the `released` filter (1,550 names, Golden Hoop and Golden Obi back; the owner test red).
+
+## "Reduced" modifiers never matched a tier from a profile (2026-09-10)
+
+Traced from the unread `ReducedLocalAttributeRequirements` lines above. poe.ninja sends
+`{ "local_attribute_requirements_+%": -35 }` for XTheFarmerX's Dusk Edge — the stat id our tier carries
+and the value its range holds, `[-35,-35]`. The matcher found the mod uniquely and then no tier:
+`within` (`tierFit.ts`) flipped a negative range's sign unconditionally, because pasted text prints the
+magnitude (`35% reduced …`), and so turned the profile's signed `-35` into `+35`. `aboveEveryTier`
+compares magnitudes, saw 35 against 35, and did not fire either. Pasting the same item always read it.
+The first guess — that poe.ninja and RePoE disagree on the sign — was wrong: they agree, and the flip
+was ours.
+
+**Reach:** every shipped mod with a negative range — 52, in 5 groups: `LocalAttributeRequirements` on
+38 bases, `ReducedBleedDuration` and `ReducedPoisonDuration` on 6 each, and the two belt charge mods.
+None could be placed from a profile. The fubgun fixture holds no such line, so the suite never saw it.
+
+**Fix:** a negative range is judged by magnitude, which reads both conventions, as `aboveEveryTier`
+already did; a positive range still compares raw. `tierFit.test.ts` pins both signs and the raw
+positive case; `profileItems.test.ts` pins the real Dusk Edge line at T1. Mutation-checked, each
+restored byte for byte: the old flip turns 2 tests red (the signed case, Dusk Edge) while the paste
+tests stay green; magnitude everywhere turns the positive-range case red.
+
+**Re-fetched**, no gear changed since the fetch before: 4 lines placed, none newly unread (21 → 17
+across the five characters) — `ReducedLocalAttributeRequirements3/4/5` on Zizaran's Morbid Bane,
+Steelmage's Cataclysm Span and XTheFarmerX's Dusk Edge, and a second family in the wild,
+`ReducedPoisonDuration3` on XTheFarmerX's Pandemonium Sanctuary. What stays unread is outside the stat
+reader: essence and alloy grants, desecrated lines the text path cannot place, minion ring mods, and
+league-mechanic grants.
 
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share

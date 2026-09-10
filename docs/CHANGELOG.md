@@ -22,7 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Items on 1,019 more bases are recognised.** Pasting an item — or reading a streamer's gear — said
+- **The Streamer gear tab reads "reduced" modifiers.** "#% reduced Attribute Requirements", "reduced
+  Duration of Bleeding" and "reduced Poison Duration" on you, and a belt's "reduced Flask/Charm Charges
+  used" always showed as "could not match" on a streamer's item, though pasting the same item read
+  them. The game data sends these as negative numbers, and the reader flipped the sign a second time.
+- **Items on 1,019 more bases are recognised.**
+ Pasting an item — or reading a streamer's gear — said
   "not a base in the 0.5.0 data" for every Ezomyte, Maraketh, Vaal or Karui base and every Runeforged or
   Runemastered one: low-level bases like Leather Vest, and endgame ones like Sekhema Sandals and the
   Akoyan Spear. The data had them all along; the data pipeline built each base row from one variant and

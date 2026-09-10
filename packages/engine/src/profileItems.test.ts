@@ -141,3 +141,22 @@ describe('a skipped item says what it is', () => {
     }]);
   });
 });
+
+/**
+ * A "reduced" modifier as a profile API sends it: the SIGNED stat value. The tier check used to flip a
+ * negative range's sign for printed text's sake, so this real line — XTheFarmerX's Dusk Edge, fetched
+ * 2026-09-10 — found its mod and then no tier. None of the 52 shipped "reduced" mods could be placed
+ * from a profile, while pasting the same item read them fine.
+ */
+describe('a "reduced" modifier from its signed stat value', () => {
+  it('places the real Dusk Edge line at its tier', () => {
+    const r = resolveProfileItems(data, [{
+      name: 'Dusk Edge', baseType: 'Akoyan Spear', rarity: 'Rare', ilvl: 81, inventoryId: 'Weapon2',
+      mods: { explicit: [{ id: 'ReducedLocalAttributeRequirements5', stats: { 'local_attribute_requirements_+%': -35 } }] },
+    }]);
+    expect(r.items[0]?.unresolved).toEqual([]);
+    expect(r.items[0]?.mods).toEqual([
+      { modId: 'Spears/LocalAttributeRequirements', tierDisplay: 1, fractured: false, desecrated: false, sanctified: false },
+    ]);
+  });
+});

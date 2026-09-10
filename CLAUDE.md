@@ -226,6 +226,14 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   uniquely within a base except in 8 cases over 52 bases — all the `ItemFoundRarity` prefix/suffix
   pair, which the source's own id then settles as a TIE-BREAKER ONLY (the two id schemes disagree 24
   times in 43, `FireResist7` against our `FireResistance`, so it is never a key).
+  **One tier check, two sign conventions** (2026-09-10). A "reduced" mod stores its range NEGATIVE
+  (`[-35,-35]` for `#% reduced Attribute Requirements`); pasted text prints the MAGNITUDE, and a profile
+  API sends the SIGNED stat (`-35`). `within` (`tierFit.ts`) flipped a negative range's sign
+  unconditionally — right for text, wrong for stats — so the stat path found the mod and then no tier,
+  and none of the 52 shipped "reduced" mods (Attribute Requirements on 38 bases, Bleed and Poison
+  duration on you on 6 each, the two belt charge mods) could be placed from a profile, while pasting the
+  same item read them fine. It compares magnitudes now, as `aboveEveryTier` always did; a positive range
+  still compares raw. The fubgun fixture holds no "reduced" line, which is why the suite never saw it.
   **`profileItems.ts` is the whole read, and `tools/streamers/fetch.mjs` the job around it**
   (`npm run update-streamers`, config in `tools/streamers/profiles.json`, output
   `data/streamers/<patch>.json`). Measured on a real character: **9 items, 52 of 54 modifiers placed**,

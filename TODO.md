@@ -1317,14 +1317,14 @@ Reading base-type twins (CLAUDE.md; `tools/refresh/twins.mjs`) named 1,019 bases
   gloves, twins.mjs could compare sets; nothing else needs that.
 - Not candidates: the Str/Dex Venerable Defender (Unique-only) and the five Golden bases (Demigod).
 
-**Found on the same pass — a stat-reader gap, not a base gap.** `ReducedLocalAttributeRequirements3/4/5`
-("#% reduced Attribute Requirements") stays unread on three streamer items — Zizaran's wand (before
-this change too), Steelmage's Sekhema Sandals, XTheFarmerX's Akoyan Spear — though it is a normal suffix
-all three rows carry, stat `local_attribute_requirements_+%`, with NEGATIVE ranges (-15 … -35). A sign
-convention between poe.ninja's stat value and RePoE's range is the first suspect; unverified.
+**Found on the same pass — a stat-reader gap, not a base gap — FIXED the same day.** `#% reduced
+Attribute Requirements` stayed unread on three streamer items though every row carries it. Not
+poe.ninja against RePoE: both say `-35`. Our own `within` (`tierFit.ts`) flipped a negative range's
+sign for printed text, which shows the magnitude, and so rejected the signed value a profile sends —
+every "reduced" mod, 52 of them. It compares magnitudes now; `tierFit.test.ts` and the real Dusk Edge
+line in `profileItems.test.ts` pin it.
 
-**Verify.** New rows get the CoE check every other category had. The reader fix gets a profile test
-built on the real stat payload.
+**Verify.** New rows get the CoE check every other category had.
 
 ---
 

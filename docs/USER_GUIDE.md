@@ -223,20 +223,25 @@ already carries some of your targets, and what finishing from it costs. It is th
 item should I start from?"* — on a streamer's gear, **Craft this from scratch** takes you straight to
 it.
 
-- **Already on it** — how many of your targets the item carries (2 to start with). Magic and Rare items
-  are both listed. A Magic item holds at most one prefix and one suffix, and its rows only ever carry
-  modifiers an orb rolls — the planner has no other way to put a modifier on a Magic item.
-- **Finishing costs** — the true expected cost from that item, playing the same optimal plan. That plan
+- **Modifiers already on the item** — how many of your targets the item carries (2 to start with).
+  Magic and Rare items are both listed, each tagged. A Magic item holds at most one prefix and one
+  suffix, and its rows only ever carry modifiers an orb rolls — the planner has no other way to put a
+  modifier on a Magic item.
+- **Cost to finish** — the true expected cost from that item, playing the same optimal plan. That plan
   still drops the item and starts over from a white base when that is cheaper than repairing it: what
   you paid for it is spent either way.
-- **Worth up to** — crafting from scratch (a white base plus the craft) minus finishing. Pay less than
-  this for the item and you come out ahead. *nothing* means finishing from it costs as much as
-  starting over.
+- **Pay at most** — crafting from scratch (a white base plus the craft) minus the cost to finish. Pay
+  less than this for the item and you come out ahead. *not worth buying* means finishing from it costs
+  as much as starting over.
 - **Trade price** — the price sheet has no prices for items with specific modifiers, so type what you
-  find on trade, in ex, chaos or div. The list re-ranks by **Total** (price plus finishing), and a
-  total below crafting from scratch is a better start.
+  find on trade, in ex, chaos or div (pick the unit above the table). A dot or a comma both work: 0.5
+  or 0,5. A box turns red when it cannot read what you typed.
+- **Total** — the price plus the cost to finish, and under it what that saves against crafting from
+  scratch, or how much more it costs. The rows stay where they are while you type; the cheapest item
+  you priced is tagged **best buy**, and a line under the table says whether it beats crafting from
+  scratch.
 
-Click an item to see the route from it: the same graph, starting at *the item you buy* and ending,
+Click **Route** on an item to see the route from it: the same graph, starting at *the item you buy* and ending,
 where a roll goes wrong badly enough, at **↺ start over**. Nothing is solved again — switching the
 number of modifiers, typing prices and drawing routes all read the one solve you already ran.
 

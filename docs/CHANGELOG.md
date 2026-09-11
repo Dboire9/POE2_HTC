@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   item should have, and you find the best way to the full item from the best first ones." A craft
   planned from scratch now lists every Magic and Rare item already carrying 1 to n−1 of the targets —
   pick how many — with what finishing from it costs and what it is worth paying for (crafting from
-  scratch minus finishing). Type the trade price you find and the list re-ranks by price plus
-  finishing; click an item for the route from it, ending where the plan would start over from a white
+  scratch minus finishing). Type the trade price you find and each item shows its total against
+  crafting from scratch, the cheapest tagged as the best buy; click **Route** for the route from it, ending where the plan would start over from a white
   base. All of it comes from the one solve the Lab already runs — no second solve, however many sizes,
   prices or routes you look at. On a streamer's item, **Craft this from scratch** leads there.
 - **Ancient bones and the Omen of Abyssal Echoes.** Both answer "wouldn't we have better odds?". An
@@ -38,6 +38,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Typing a trade price in "Start from an item you buy instead" works as expected.** Reported "when I
+  try to change the prices it does not work". Two faults, both reproduced in Chrome on the live site: the
+  price box silently dropped a comma, so "0,5" was read as 5, ten times the price; and the list
+  re-ranked on every key, so the first digit sent the row to the top and the box you were looking at
+  now belonged to another item. A comma is now a decimal point, a box turns red when it cannot read what
+  you typed, and the rows stay put — the cheapest item you priced is tagged **best buy** instead, with a
+  line saying whether it beats crafting from scratch. The panel also reads more plainly: the from-scratch
+  cost stands on its own line, each row is tagged Magic or Rare with one modifier per line (a two-line
+  modifier such as Spell Damage / maximum Mana no longer reads as two), the unit sits beside every price, each
+  total says what it saves, and every row has a **Route** button. A route on screen is no longer redrawn
+  on each key typed.
 - **"What to look for when you buy one" counted a slot of alternatives wrongly, and priced a carved
   modifier on the wrong item.** A Cold-or-Lightning slot plus Cast Speed listed 8 items where there
   are 4 — "Cold + Lightning" as two modifiers, and Cold and Lightning as two items at one price. An

@@ -120,15 +120,16 @@ export function startSizes(holdings: readonly EngineHolding[] | undefined): numb
 }
 
 /**
- * Every starting item carrying `k` of the targets, ranked for a buyer.
+ * Every starting item carrying `k` of the targets, cheapest to finish first.
  *
  * `scratch` is what crafting from scratch costs INCLUDING the white base — a solve's `expectedCost`
  * starts from a base you already hold, and only buying ANOTHER one is charged (`restartCost`). Buying a
  * starting item replaces buying that base, so the base is part of what the item is measured against.
  *
- * Ranked by what the player would pay: priced rows by price plus finishing, the rest by finishing cost
- * alone, after them — poe.ninja prices no item with specific modifiers, so a typed price is the only
- * way a row's real cost is known. A price that is not a finite, non-negative number is ignored.
+ * Ordered by finishing cost ONLY, never by a typed price. Ranking by price plus finishing sent a row to
+ * the top on its first digit, so the box the player had been looking at now belonged to another item and
+ * the price seemed to vanish (reported 2026-09-11). Which priced row is the best buy is `bestStart`'s
+ * answer instead. A price that is not a finite, non-negative number is ignored.
  */
 export function startOptions(
   holdings: readonly EngineHolding[], scratch: number, k: number, prices: ReadonlyMap<string, number>,
@@ -138,11 +139,35 @@ export function startOptions(
     const price = prices.get(h.key);
     return price !== undefined && Number.isFinite(price) && price >= 0 ? { ...base, price, total: price + h.cost } : base;
   });
-  return rows.sort((a, b) => {
-    if ((a.total === undefined) !== (b.total === undefined)) return a.total === undefined ? 1 : -1;
-    return (a.total ?? a.finish) - (b.total ?? b.finish)
-      || a.finish - b.finish
-      || (a.rarity === b.rarity ? 0 : a.rarity === 'magic' ? -1 : 1)
-      || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
-  });
+  return rows.sort((a, b) => a.finish - b.finish
+    || (a.rarity === b.rarity ? 0 : a.rarity === 'magic' ? -1 : 1)
+    || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+}
+
+/** A row somebody has priced. */
+export type PricedStart = StartOption & { readonly price: number; readonly total: number };
+const isPriced = (r: StartOption): r is PricedStart => r.total !== undefined;
+
+/**
+ * The priced row that costs least all in — trade price plus finishing — or `undefined` when nothing is
+ * priced. poe.ninja prices no item with specific modifiers, so a typed price is the only way a row's
+ * real cost is known; the cheapest to finish is often the dearest to buy. On a tie the row listed first
+ * (cheaper to finish) wins.
+ */
+export function bestStart(rows: readonly StartOption[]): PricedStart | undefined {
+  return rows.filter(isPriced).reduce<PricedStart | undefined>((b, r) => (b === undefined || r.total < b.total ? r : b), undefined);
+}
+
+/**
+ * A trade price as the player types it, or `undefined` when it is not one.
+ *
+ * A comma is a decimal point too: a French or German keyboard types "0,5" for half a divine, and the
+ * browser's number box silently dropped the comma and read "05", ten times the price (reported
+ * 2026-09-11). When the text also has a dot, its commas are thousands separators ("1,250.5"). Spaces go,
+ * French thousands included ("1 250"). Anything else is left unread for the panel to mark, never guessed.
+ */
+export function parsePrice(text: string): number | undefined {
+  const s = text.replace(/\s/g, '');
+  const plain = s.includes('.') ? s.replace(/,/g, '') : s.replace(',', '.');
+  return /^(\d+\.?\d*|\.\d+)$/.test(plain) ? Number(plain) : undefined;
 }

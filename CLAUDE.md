@@ -708,8 +708,11 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   `restartCost + V(white)` and **worth up to = `restartCost + V(white) − V(item)`, never below zero**
   because restart is a move in every state. `restartCost` is echoed on the RESULT, since the Base cost
   field can change after the solve. poe.ninja prices no item with specific mods, so the panel takes a
-  typed trade price per row and re-ranks by price + finishing; changing k or a price re-reads the one
-  solve. Same reason `FrontierView` sets `freeRestart={false}` on the Item tab.
+  typed trade price per row; changing k or a price re-reads the one solve. **Rows stay in finishing
+  order — never re-sort on a typed price** (it sent the row to the top on its first digit and the price
+  seemed to vanish, reported 2026-09-11); `bestStart` tags the cheapest total instead. **Price boxes are
+  `type="text"` read by `parsePrice`**, not `type="number"`: Chrome's number box dropped the comma of
+  "0,5" and read 5. Same reason `FrontierView` sets `freeRestart={false}` on the Item tab.
   **When the solve is not exact it SAYS SO rather than vanishing**, and it points at Search effort.
   The case is common: three T1 prefixes on a Wand returns `bound: 'lower'` at Standard. Raising effort
   IS the fix — that craft needs **~2.3M value-iteration sweeps and ~262 s**, inside Exhaustive's

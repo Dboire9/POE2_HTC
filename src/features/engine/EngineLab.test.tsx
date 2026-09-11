@@ -283,12 +283,12 @@ describe('EngineLab — reset and compute routing', () => {
     await user.click(addButton('Normal Prefix'));
     await user.click(screen.getByRole('button', { name: /Find plans/i }));
     expect(await screen.findByText(/Start from an item you buy instead/i)).toBeInTheDocument();
-    const price = () => screen.getByRole('spinbutton', { name: /Trade price for Rare · Normal Prefix,/ });
+    const price = () => screen.getByRole('textbox', { name: /Trade price for Rare · Normal Prefix,/ });
     await user.type(price(), '12');
-    expect(price()).toHaveValue(12);
+    expect(price()).toHaveValue('12');
     await user.click(screen.getByRole('button', { name: /Find plans/i }));
     await waitFor(() => expect(mocks.optimizeItemMarkov).toHaveBeenCalledTimes(2));
-    await waitFor(() => expect(price()).toHaveValue(null));
+    await waitFor(() => expect(price()).toHaveValue(''));
   });
 
   it('routes a plain craft through optimize, and a fractured craft through optimizeItem', async () => {

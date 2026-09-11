@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buyAdvice, startOptions, startSizes } from './startingItem';
+import { bestStart, buyAdvice, parsePrice, startOptions, startSizes } from './startingItem';
 import type { EngineHolding } from './engineTypes';
 
 const h = (present: string[], cost: number, rarity: EngineHolding['rarity'] = 'rare'): EngineHolding =>
@@ -109,18 +109,25 @@ describe('startOptions', () => {
   });
 
   /**
+   * A typed price never moves a row. Ranking by the total sent a row to the top on its first digit, and
+   * the box the player was looking at then belonged to another item.
+   */
+  it('keeps the rows in finishing order when prices are typed', () => {
+    const prices = new Map([[keyOf(['B']), 50], [keyOf(['A']), 5], [keyOf(['C']), 1]]);
+    const got = startOptions(rows, SCRATCH, 1, prices);
+    expect(got.map((r) => [r.present.join('+'), r.rarity, r.total])).toEqual([
+      ['B', 'rare', 90], ['A', 'magic', undefined], ['A', 'rare', 75], ['C', 'rare', 101],
+    ]);
+  });
+
+  /**
    * The reason prices can be typed at all: the item that is cheapest to FINISH is often the dearest
    * to buy, and only the total says which start is cheaper.
    */
-  it('re-ranks by price plus finishing once prices are typed', () => {
-    const prices = new Map([[keyOf(['B']), 50], [keyOf(['A']), 5]]);
-    const got = startOptions(rows, SCRATCH, 1, prices);
-    expect(got.slice(0, 2).map((r) => [r.present.join('+'), r.total])).toEqual([['A', 75], ['B', 90]]);
-  });
-
-  it('lists the rows nobody has priced after the ones somebody has', () => {
-    const got = startOptions(rows, SCRATCH, 1, new Map([[keyOf(['C']), 1]]));
-    expect(got.map((r) => r.present.join('+') + (r.total === undefined ? '' : '$'))).toEqual(['C$', 'B', 'A', 'A']);
+  it('names the priced item that costs least all in', () => {
+    const got = startOptions(rows, SCRATCH, 1, new Map([[keyOf(['B']), 50], [keyOf(['A']), 5]]));
+    expect(bestStart(got)).toMatchObject({ present: ['A'], rarity: 'rare', price: 5, total: 75 });
+    expect(bestStart(startOptions(rows, SCRATCH, 1, none))).toBeUndefined();
   });
 
   it('ignores a price that is not a usable number', () => {
@@ -130,5 +137,31 @@ describe('startOptions', () => {
 
   it('keeps each size to itself', () => {
     expect(startOptions(rows, SCRATCH, 2, none).map((r) => r.present.join('+'))).toEqual(['A+B', 'A+C']);
+  });
+});
+
+/** What a player types into a trade-price box, on any keyboard. */
+describe('parsePrice', () => {
+  it('reads a plain number, whole or not', () => {
+    expect(parsePrice('12')).toBe(12);
+    expect(parsePrice('0.5')).toBe(0.5);
+    expect(parsePrice('.5')).toBe(0.5);
+    expect(parsePrice('1.')).toBe(1); // half-typed
+  });
+
+  // The reported fault: the number box dropped the comma and read "0,5" as 5.
+  it('takes a comma as the decimal point', () => {
+    expect(parsePrice('0,5')).toBe(0.5);
+    expect(parsePrice('12,25')).toBe(12.25);
+  });
+
+  it('drops thousands separators it can tell apart', () => {
+    expect(parsePrice(' 1 250 ')).toBe(1250);
+    expect(parsePrice('1 250')).toBe(1250);
+    expect(parsePrice('1,250.5')).toBe(1250.5);
+  });
+
+  it('reads nothing it would have to guess at', () => {
+    for (const t of ['', '  ', 'abc', '-3', '1,2,3', '1.2.3', '5 div', '1e3']) expect(parsePrice(t)).toBeUndefined();
   });
 });

@@ -4172,6 +4172,27 @@ finish from the best two-of-three. On the dear crafts the last one is almost eve
 Collar is 2,041 div from scratch and 3.9 div from the four modifiers it has without its T1 "+# to Level
 of all Spell Skills".
 
+## Typing a trade price into "start from an item you buy instead" (2026-09-11)
+
+Reported the same day it shipped: "When I try to change the prices it does not work". Reproduced with
+Playwright driving Chromium against poe2htc.com, on a three-target Wand from scratch at Standard. Its
+table appeared after 3.9 s with three rows, in chaos. Two faults:
+
+- **A comma was dropped.** Typing `0,5` into a box that held `1` left `051` in it. `<input type="number">`
+  refuses the comma keystroke, in an `en-US` context and an `fr-FR` one alike, so a price typed on a
+  French keyboard was read ten times too big with nothing on screen to say so.
+- **The list moved under the cursor.** Typing `25` in the last row moved it to the top on the first
+  digit. The price was kept, and so was focus, but the box the player had been looking at now belonged
+  to another item, with an empty price.
+
+Fixed by keeping the rows in finishing order whatever is typed. `bestStart` tags the cheapest total
+instead, and a line under the table says whether it beats crafting from scratch. The price boxes are
+now `type="text"` read by `parsePrice`: a lone comma is the decimal point; with a dot present, commas
+are thousands; spaces are dropped; anything else turns the box red and is left out, never guessed.
+The route graph under the table is memoised on its route, so a key typed no longer rebuilds a graph of
+thousands of states on a big craft. Mutation-checked: letting `parsePrice` keep the comma, or sorting
+by total again, each turns its tests red.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

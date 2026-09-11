@@ -87,3 +87,62 @@ export function buyAdvice(all: readonly EngineHolding[] | undefined): BuyAdvice 
 
   return { bare, best, worseThanNothing };
 }
+
+/**
+ * One item the Lab offers to start from instead of a white base, measured against crafting from
+ * scratch. Read from a from-white solve, so finishing may still bin the item and start over when that
+ * is cheaper than repairing it — the price paid for it is spent either way (the player's choice,
+ * 2026-09-11).
+ */
+export interface StartOption {
+  /** The solver's state for this item — what `routeFor` draws the route from. */
+  readonly key: string;
+  readonly present: readonly string[];
+  readonly rarity: 'magic' | 'rare';
+  /** Expected cost to finish from it. */
+  readonly finish: number;
+  /**
+   * The most this item is worth paying for: crafting from scratch less finishing from it. Never
+   * negative, because starting over is always a move — an item that saves nothing is worth nothing.
+   */
+  readonly worthUpTo: number;
+  /** A trade price the player typed, in exalts, when it is a usable number. */
+  readonly price?: number;
+  /** `price + finish` — what starting from this item really costs, to hold against crafting from scratch. */
+  readonly total?: number;
+}
+
+/** How many targets a starting item can already carry: at least one, and not all of them. */
+export function startSizes(holdings: readonly EngineHolding[] | undefined): number[] {
+  if (!holdings || holdings.length === 0) return [];
+  const n = Math.max(...holdings.map((h) => h.present.length));
+  return [...new Set(holdings.map((h) => h.present.length))].filter((k) => k >= 1 && k < n).sort((a, b) => a - b);
+}
+
+/**
+ * Every starting item carrying `k` of the targets, ranked for a buyer.
+ *
+ * `scratch` is what crafting from scratch costs INCLUDING the white base — a solve's `expectedCost`
+ * starts from a base you already hold, and only buying ANOTHER one is charged (`restartCost`). Buying a
+ * starting item replaces buying that base, so the base is part of what the item is measured against.
+ *
+ * Ranked by what the player would pay: priced rows by price plus finishing, the rest by finishing cost
+ * alone, after them — poe.ninja prices no item with specific modifiers, so a typed price is the only
+ * way a row's real cost is known. A price that is not a finite, non-negative number is ignored.
+ */
+export function startOptions(
+  holdings: readonly EngineHolding[], scratch: number, k: number, prices: ReadonlyMap<string, number>,
+): StartOption[] {
+  const rows = holdings.filter((h) => h.present.length === k).map((h): StartOption => {
+    const base = { key: h.key, present: h.present, rarity: h.rarity, finish: h.cost, worthUpTo: Math.max(0, scratch - h.cost) };
+    const price = prices.get(h.key);
+    return price !== undefined && Number.isFinite(price) && price >= 0 ? { ...base, price, total: price + h.cost } : base;
+  });
+  return rows.sort((a, b) => {
+    if ((a.total === undefined) !== (b.total === undefined)) return a.total === undefined ? 1 : -1;
+    return (a.total ?? a.finish) - (b.total ?? b.finish)
+      || a.finish - b.finish
+      || (a.rarity === b.rarity ? 0 : a.rarity === 'magic' ? -1 : 1)
+      || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
+  });
+}

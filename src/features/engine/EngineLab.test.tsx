@@ -263,6 +263,34 @@ describe('EngineLab — reset and compute routing', () => {
     expect(screen.queryByText(/True expected cost/i)).not.toBeInTheDocument();
   });
 
+  /**
+   * The panel of items to buy instead reads ONE solve's rows, keyed by that solve's states — so what the
+   * player typed against them must not carry over onto the next craft's rows, which reuse the keys.
+   */
+  it('offers items to buy instead, and forgets the prices typed for them on the next solve', async () => {
+    const withStarts = {
+      ...labMarkov, restartCost: 0, routes: {},
+      holdings: [
+        { present: [], cost: 50, rarity: 'rare', key: 'e' },
+        { present: ['Normal Prefix'], cost: 30, rarity: 'rare', key: 'p' },
+        { present: ['Normal Suffix'], cost: 35, rarity: 'rare', key: 's' },
+        { present: ['Normal Prefix', 'Normal Suffix'], cost: 0, rarity: 'rare', key: 'g' },
+      ],
+    };
+    mocks.optimizeItemMarkov.mockReturnValue(withStarts);
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/Start from an item you buy instead/i)).toBeInTheDocument();
+    const price = () => screen.getByRole('spinbutton', { name: /Trade price for Rare · Normal Prefix,/ });
+    await user.type(price(), '12');
+    expect(price()).toHaveValue(12);
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    await waitFor(() => expect(mocks.optimizeItemMarkov).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(price()).toHaveValue(null));
+  });
+
   it('routes a plain craft through optimize, and a fractured craft through optimizeItem', async () => {
     const user = userEvent.setup();
     await loaded();

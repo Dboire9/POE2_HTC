@@ -28,6 +28,7 @@ import UserGuide from './UserGuide';
 import FrontierView from './FrontierView';
 import AlternativesView from './AlternativesView';
 import PolicyGraph from './PolicyGraph';
+import StartFromItem from './StartFromItem';
 import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
 import RuneHint from './RuneHint';
@@ -167,6 +168,8 @@ const EngineLab: React.FC = () => {
   const [result, setResult] = useState<EngineResult | null>(null);
   const [alts, setAlts] = useState<EngineAlternatives | null>(null);
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
+  // Bumped per solve result, so a panel keyed on it starts fresh — typed prices belong to ONE craft's rows.
+  const [markovRun, setMarkovRun] = useState(0);
   const [altBudget, setAltBudget] = useState<number>(0);
   const [runErr, setRunErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
@@ -466,6 +469,7 @@ const EngineLab: React.FC = () => {
         setResult(res.result);
         setAlts(res.alts);
         setMarkov(res.markov);
+        setMarkovRun((n) => n + 1);
         if (res.alts) setAltBudget(b);
       })
       .catch((e) => {
@@ -940,14 +944,15 @@ const EngineLab: React.FC = () => {
             The step routes below are the simpler per-plan view: one fixed sequence, every slam hitting
             a named mod.
           </p>
-          {/* NO `WhatToBuy` HERE, deliberately. It renders on the Item tab only, because a from-white
-              craft may bin the item and start over — at the default free base it always may — so V at
-              every rare state collapses toward `restartCost + V(start)`. Measured on a 4-target Wand
-              craft the "holding none of them" row came out equal to the white base's own cost to the
-              exalt, and three-of-four saved 18% against a held Rare's 37%. Right numbers, wrong
-              question: a buyer is not weighing a purchase against scrapping it for free. Same reason
-              `FrontierView` sets `freeRestart={false}` on the Item tab. */}
           <PolicyGraph result={markov} rates={engine ? priceBasis(engine).rates : undefined} />
+          {/* The Item tab's `WhatToBuy` stays there: it asks what holding some targets saves on an item
+              you KEEP, from a solve with no restart. This panel asks what an item is worth to buy
+              INSTEAD of a white base, from this solve, which may bin it and start over — the player's
+              choice on 2026-09-11, since the price paid is spent either way. So every row is V from this
+              solve, and worth up to = white base + V(white) − V(item), never below zero. Measured on a
+              4-target Wand, restart semantics save 18% where a held Rare saves 37%: both right, for
+              their own question. Same reason `FrontierView` sets `freeRestart={false}` on the Item tab. */}
+          {engine && <StartFromItem key={markovRun} markov={markov} engine={engine} rates={priceBasis(engine).rates} />}
         </Card>
       )}
 

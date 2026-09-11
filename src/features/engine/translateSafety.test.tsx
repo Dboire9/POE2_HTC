@@ -60,6 +60,7 @@ describe('no component reintroduces a loose text node beside an element', () => 
   it.each([
     'EngineLab.tsx',
     'ItemActions.tsx',
+    'StartFromItem.tsx',
   ])('%s', (file) => {
     const src = readFileSync(join(__dirname, file), 'utf8');
     const offenders = src.split('\n')

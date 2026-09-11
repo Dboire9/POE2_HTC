@@ -92,11 +92,13 @@ function describeStep(c: StepChanges): string {
  * screen, so drawing both is pure noise.
  *
  * The START and GOAL are deliberately keyed to themselves. They carry their own outline and wording,
- * and folding "your item" into a ×17 box would misreport where the player is standing.
+ * and folding "your item" into a ×17 box would misreport where the player is standing. So is the fresh
+ * base a route from a bought item ends at: it is where the back-arrows land, not a state to lump in.
  */
 export function groupKeyOf(nd: EnginePolicyNode, fmtCost: (x: number) => string): string {
   if (nd.isStart) return `start:${nd.key}`;
   if (nd.isGoal) return `goal:${nd.key}`;
+  if (nd.isRestart) return `restart:${nd.key}`;
   return `${nd.depth}|${stateLabel(nd)}|${nd.action ?? ''}|${fmtCost(nd.expectedCost)}`;
 }
 
@@ -153,10 +155,12 @@ export interface Pruned {
  * carry 90% of the visits and the tail sits at 5e-5 — states you enter once in twenty thousand
  * attempts, drawn at the same size and weight as the ones you enter every time.
  *
- * Three things are ALWAYS kept regardless of their rate:
+ * Four things are ALWAYS kept regardless of their rate:
  *  - the start, or the picture has no "you are here";
  *  - the goal, since `PolicyGraph` separately refuses to draw a graph that cannot reach it, and a
  *    pruned view must not manufacture that failure;
+ *  - the fresh base a route from a bought item ends at — no successful run passes through it, so its
+ *    rate is zero, but it is where every "start over" arrow lands, and without it they all vanish;
  *  - everything the reader has selected, so clicking a rare state does not erase it.
  */
 export function pruneToCoverage(
@@ -167,7 +171,7 @@ export function pruneToCoverage(
   if (coverage >= 1 || mass <= 0) return { result, shown: total, total, covered: 1 };
 
   const keep = new Set<string>(keepKeys);
-  for (const n of result.nodes) if (n.isStart || n.isGoal) keep.add(n.key);
+  for (const n of result.nodes) if (n.isStart || n.isGoal || n.isRestart) keep.add(n.key);
 
   let acc = 0;
   for (const n of [...result.nodes].sort((a, b) => b.visitRate - a.visitRate)) {
@@ -246,7 +250,8 @@ export function routeThrough(
  */
 const StateDetail: React.FC<{
   group: NodeGroup; result: EngineMarkovResult; fmtCost: (x: number) => string; onClose: () => void;
-}> = ({ group, result, fmtCost, onClose }) => {
+  startLabel: string;
+}> = ({ group, result, fmtCost, onClose, startLabel }) => {
   const { node, count } = group;
   const byKey = new Map(result.nodes.map((n) => [n.key, n]));
   const outcomes = result.edges
@@ -259,7 +264,7 @@ const StateDetail: React.FC<{
     <div className="rounded-md border border-primary/40 bg-background p-3 space-y-2 text-sm">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h4 className="font-semibold">
-          {node.isStart ? 'Your item' : node.isGoal ? 'Target reached' : stateLabel(node)}
+          {node.isStart ? startLabel : node.isGoal ? 'Target reached' : node.isRestart ? 'A fresh white base' : stateLabel(node)}
           {count > 1 && <span className="ml-2 text-xs font-normal text-muted-foreground">one of {count} states that look alike here</span>}
         </h4>
         <button type="button" onClick={onClose} className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground">
@@ -317,11 +322,14 @@ const StateDetail: React.FC<{
                   {pct(edge.prob)}
                 </span>
                 <span className="flex-1">
-                  {/* Landing back on the START is "you threw the item away", not a mod diff. Read as
-                      changes it comes out as "clears a junk mod · loses <every target you held>",
-                      which leads on the least important thing that happened. Described by identity
-                      instead — the same treatment the goal already gets on the next line. */}
-                  {to.isStart ? 'back to the base you started from, nothing on it'
+                  {/* Starting over is "you threw the item away", not a mod diff. Read as changes it
+                      comes out as "clears a junk mod · loses <every target you held>", which leads on
+                      the least important thing that happened. Described by identity instead — the
+                      same treatment the goal already gets on the next line. Two spellings of it: the
+                      craft's own start when that IS a white base, and the fresh base a route from a
+                      bought item ends at. A step back onto a bought item is a real diff, and reads as one. */}
+                  {to.isRestart ? 'start over from a new white base'
+                    : to.isStart && to.rarity === 'normal' ? 'back to the base you started from, nothing on it'
                     : describeStep({
                       gained: to.present.filter((x) => !node.present.includes(x)),
                       lost: node.present.filter((x) => !to.present.includes(x)),
@@ -339,7 +347,9 @@ const StateDetail: React.FC<{
   );
 };
 
-const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => string }> = ({ result: full, fmtCost }) => {
+const FullGraph: React.FC<{
+  result: EngineMarkovResult; fmtCost: (x: number) => string; startLabel: string;
+}> = ({ result: full, fmtCost, startLabel }) => {
   // Which box the player clicked, if any — the graph then dims everything not on a route through it.
   const [selected, setSelected] = React.useState<string | null>(null);
   // How much of the graph to draw, as a share of expected visits. Prune FIRST: grouping and layout are
@@ -507,6 +517,7 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
           result={result}
           fmtCost={fmtCost}
           onClose={() => setSelected(null)}
+          startLabel={startLabel}
         />
       )}
 
@@ -548,6 +559,7 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
           const gk = groupKeyOf(node, fmtCost);
           const isSelected = gk === selected;
           const boxClass = node.isGoal ? 'fill-emerald-500/15 stroke-emerald-500'
+            : node.isRestart ? 'fill-amber-500/10 stroke-amber-500'
             : node.isStart ? 'fill-background stroke-primary' : 'fill-background stroke-border';
           return (
             <g
@@ -575,6 +587,13 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
               />
               {node.isGoal ? (
                 <text x={x + W / 2} y={y + H / 2 + 4} textAnchor="middle" className="fill-emerald-600 dark:fill-emerald-400 text-[12px] font-semibold">✓ target</text>
+              ) : node.isRestart ? (
+                // The end of a route from a bought item, not a state on it: the policy bins the item and
+                // what follows is the from-scratch plan, which the Lab already shows. Its cost is that
+                // plan's — what finishing from a fresh base costs.
+                <text x={x + W / 2} y={y + H / 2 + 4} textAnchor="middle" className="fill-amber-600 dark:fill-amber-400 text-[12px] font-semibold">
+                  ↺ start over · {fmtCost(node.expectedCost)}
+                </text>
               ) : (
                 // HTML in a <foreignObject>, not SVG <text>. SVG text neither wraps nor truncates, so
                 // each row's left string ran straight under the number pinned to the box's right edge
@@ -617,7 +636,13 @@ const FullGraph: React.FC<{ result: EngineMarkovResult; fmtCost: (x: number) => 
   );
 };
 
-const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ result, rates }) => {
+/**
+ * `startLabel` names the root: "Your item" on a craft's own graph, and something else when the graph is
+ * a route from an item the player has not got yet — the Lab's "The item you buy".
+ */
+const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates; startLabel?: string }> = ({
+  result, rates, startLabel = 'Your item',
+}) => {
   const [showAll, setShowAll] = React.useState(false);
   if (!result.applicable || !result.feasible || result.nodes.length === 0) return null;
   // One unit across BOTH views, from the largest node cost — these are all the same quantity
@@ -703,7 +728,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
               <span className="w-5 shrink-0 text-right font-mono text-xs text-muted-foreground">{i + 1}.</span>
               <span className="font-semibold text-primary min-w-44">{s.action}</span>
               <span className="flex-1 min-w-40 text-muted-foreground text-xs">
-                {describeStep(s.changes) || `${s.node.isStart ? 'your item' : stateLabel(s.node)} → ${stateLabel(s.next)}`}
+                {describeStep(s.changes) || `${s.node.isStart ? startLabel.toLowerCase() : stateLabel(s.node)} → ${stateLabel(s.next)}`}
               </span>
               <span className="tabular-nums text-xs">
                 <span className="text-emerald-600 dark:text-emerald-400">{pct(s.advance)} onward</span>
@@ -718,7 +743,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
         </ol>
       )}
 
-      {showGraph && <FullGraph result={result} fmtCost={fmtCost} />}
+      {showGraph && <FullGraph result={result} fmtCost={fmtCost} startLabel={startLabel} />}
 
       {/* The legend belongs to the PICTURE, so it renders with the picture. It used to live in
           ItemActions, below a component that shows a numbered LIST by default — so the app explained
@@ -726,7 +751,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
           which renders the same graph. */}
       {showGraph && (
         <p className="text-[11px] text-muted-foreground">
-          Each square is an item state, from your item (left) to the target (right). Solid arrows are
+          Each square is an item state, from {startLabel.toLowerCase()} (left) to the target (right). Solid arrows are
           progress; dashed amber arrows are <strong>bricks</strong> — a bad roll (a miss, or a target
           rolled <strong>below its tier</strong> so its family is blocked) that sends you back a step,
           which the policy then digs out of.
@@ -749,7 +774,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
         )}
         {reachesTarget && haveLine && (
           <>
-            <p>The route from your item to the target, {steps.length} step{steps.length === 1 ? '' : 's'}.</p>
+            <p>The route from {startLabel.toLowerCase()} to the target, {steps.length} step{steps.length === 1 ? '' : 's'}.</p>
             <ol>
               {steps.map((s) => (
                 <li key={s.node.key}>
@@ -765,7 +790,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
         )}
         <p>
           All {result.nodes.length} item state{result.nodes.length === 1 ? '' : 's'} the policy can
-          reach, ordered from your item to the target, grouped into {grouped.length} that differ on
+          reach, ordered from {startLabel.toLowerCase()} to the target, grouped into {grouped.length} that differ on
           screen.
         </p>
         {/* Grouped exactly as the picture is, so this stops being a 262-item read-aloud of the same
@@ -773,7 +798,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates }> = ({ 
         <ol>
           {grouped.map(({ node: nd, count }) => (
             <li key={nd.key}>
-              {nd.isStart ? 'Your item: ' : nd.isGoal ? 'Target reached: ' : ''}
+              {nd.isStart ? `${startLabel}: ` : nd.isGoal ? 'Target reached: ' : nd.isRestart ? 'Start over, with a fresh white base: ' : ''}
               {stateLabel(nd)}
               {count > 1 ? ` (${count} states like this)` : ''}
               {`. Expected cost from here ${fmtCost(nd.expectedCost)}.`}

@@ -251,6 +251,18 @@ describe('EngineLab — reset and compute routing', () => {
     expect(screen.queryByText(/Target item/)).not.toBeInTheDocument();
   });
 
+  // Reset cleared the step routes and left the true-cost card standing: a number, a route and — once
+  // the panel beside it existed — a table of items to buy, all for a craft no longer on the screen.
+  it('reset clears the true cost of the craft it removed', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/True expected cost/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Reset/i }));
+    expect(screen.queryByText(/True expected cost/i)).not.toBeInTheDocument();
+  });
+
   it('routes a plain craft through optimize, and a fractured craft through optimizeItem', async () => {
     const user = userEvent.setup();
     await loaded();

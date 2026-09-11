@@ -239,6 +239,7 @@ const EngineLab: React.FC = () => {
   const clearCraft = () => {
     setTargets([]);
     setResult(null);
+    setMarkov(null);
     setAlts(null);
     setRunErr(null);
     setSearch('');
@@ -412,6 +413,7 @@ const EngineLab: React.FC = () => {
     setFractured(new Set());
     setPinned(new Set());
     setResult(null);
+    setMarkov(null);
     setAlts(null);
     setRunErr(null);
     setSearch('');

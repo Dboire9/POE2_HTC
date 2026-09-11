@@ -585,6 +585,20 @@ describe('pruneToCoverage — draw what a craft runs into, say what it left out'
     expect(p.result.nodes.some((n) => n.isGoal)).toBe(true);
   });
 
+  // A route from a bought item ends at a fresh base that no successful run passes through — its rate is
+  // zero by construction — and every "start over" arrow lands on it. Cut, the arrows would go with it.
+  it('never drops the fresh base a route from a bought item ends at', () => {
+    const r = many();
+    const withFresh: EngineMarkovResult = {
+      ...r,
+      nodes: [...r.nodes, node('fresh', 0, { isRestart: true, rarity: 'normal', depth: 5 })],
+      edges: [...r.edges, { from: 'hot', to: 'fresh', action: 'Start over with a new base', prob: 0.1, regress: true }],
+    };
+    const p = pruneToCoverage(withFresh, 0.9);
+    expect(p.result.nodes.map((n) => n.key)).toContain('fresh');
+    expect(p.result.edges.some((e) => e.to === 'fresh')).toBe(true);
+  });
+
   it('keeps a pinned state the cut would otherwise remove', () => {
     const p = pruneToCoverage(many(), 0.9, new Set(['cold7']));
     expect(p.result.nodes.map((n) => n.key)).toContain('cold7');
@@ -679,5 +693,49 @@ describe('PolicyGraph — the graph is offered, not hidden', () => {
   it('explains what each view is for, beside the switch', () => {
     render(<PolicyGraph result={result} />);
     expect(screen.getByText(/single likeliest path/i)).toBeInTheDocument();
+  });
+});
+
+/**
+ * A route from an item the player could BUY, which the Lab draws with this same component. Its root is
+ * that item, not "your item"; it ends where the policy starts over, at a fresh base; and a step back
+ * onto the bought item is a change to it — not the "back to the base you started from" a craft's own
+ * start means, where the start is a white base.
+ */
+describe('PolicyGraph — a route from an item you buy', () => {
+  const nd = (key: string, extra: Partial<EnginePolicyNode>): EnginePolicyNode => ({
+    key, present: ['A'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
+    isStart: false, isGoal: false, depth: 1, expectedCost: 5, visitRate: 0.5, ...extra,
+  });
+  const route = result_({
+    nodes: [
+      nd('item', { isStart: true, depth: 1, action: 'Exalt', visitRate: 1.4 }),
+      nd('junk', { junkPrefixes: 1, depth: 2, action: 'Annul', visitRate: 0.4 }),
+      nd('goal', { present: ['A', 'B'], isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 }),
+      nd('fresh', { present: [], rarity: 'normal', isRestart: true, depth: 4, expectedCost: 13, visitRate: 0 }),
+    ],
+    edges: [
+      { from: 'item', to: 'goal', action: 'Exalt', prob: 0.6, regress: false },
+      { from: 'item', to: 'junk', action: 'Exalt', prob: 0.4, regress: true },
+      { from: 'junk', to: 'item', action: 'Annul', prob: 0.5, regress: false },
+      { from: 'junk', to: 'fresh', action: 'Annul', prob: 0.5, regress: true },
+    ],
+  });
+
+  it('names its root as the item you buy, and draws where it starts over', async () => {
+    render(<PolicyGraph result={route} startLabel="The item you buy" />);
+    await expand();
+    expect(screen.getByText(/↺ start over/)).toBeInTheDocument();
+    expect(screen.getByText(/The item you buy:/)).toBeInTheDocument(); // the screen-reader list
+    expect(screen.queryByText(/Your item/)).not.toBeInTheDocument();
+  });
+
+  it('describes a step back onto the bought item as what it changes', async () => {
+    render(<PolicyGraph result={route} startLabel="The item you buy" />);
+    await expand();
+    await userEvent.setup().click(screen.getByRole('button', { name: /^1 mod · \+1 junk/ }));
+    expect(screen.getByText(/clears a junk mod/)).toBeInTheDocument();
+    expect(screen.getByText(/start over from a new white base/)).toBeInTheDocument();
+    expect(screen.queryByText(/back to the base you started from/)).not.toBeInTheDocument();
   });
 });

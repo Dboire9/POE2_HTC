@@ -451,6 +451,7 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
     ...(res.restartCost !== undefined ? { restartCost: res.restartCost } : {}),
     ...(res.routes ? { routes: res.routes } : {}),
     ...(res.reason ? { reason: res.reason } : {}),
+    ...(res.stoppedEarly ? { stoppedEarly: true as const } : {}),
   };
 }
 

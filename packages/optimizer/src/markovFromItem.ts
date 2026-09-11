@@ -63,6 +63,12 @@ export interface MarkovResult {
   readonly feasible: boolean;
   readonly reason?: string;
   /**
+   * Set when there is no number because the solve ran out of clock or sweeps before it had one — the
+   * one failure a higher Search effort can fix, since both limits rise with it. Every other `reason` is
+   * about the target itself, and trying harder changes nothing.
+   */
+  readonly stoppedEarly?: true;
+  /**
    * Whether value iteration actually reached `tolerance`, or gave up at `maxIters`.
    *
    * This is NOT a detail: an unconverged `expectedCost` is a bound, not an estimate. Which bound is
@@ -259,9 +265,9 @@ const MAX_CANDIDATES = 9;
 export function markovFromItem(
   data: PatchData, rawPrices: Prices, start: ItemState, targets: readonly TierTarget[], opts: MarkovOptions = {},
 ): MarkovResult {
-  const fail = (reason: string): MarkovResult => ({
+  const fail = (reason: string, why: { stoppedEarly?: true } = {}): MarkovResult => ({
     expectedCost: Infinity, feasible: false, converged: true, bound: 'exact',
-    reason, nodes: [], edges: [], policy: new Map(),
+    reason, nodes: [], edges: [], policy: new Map(), ...why,
   });
   const prices = pricesForBase(rawPrices, start.base);
 
@@ -1339,7 +1345,7 @@ export function markovFromItem(
       return fail(deadline === Infinity
         ? 'this craft needs more value-iteration sweeps than the solver allows — the step routes still cover it'
         : 'the solver ran out of time before it could put a number on this craft — raise Search effort and '
-          + 'try again (a six-mod target at T1 needs the longest setting)');
+          + 'try again (a six-mod target at T1 needs the longest setting)', { stoppedEarly: true });
     }
     converged = opts.solver === 'policy' ? iteratePolicy(500, 1000) : iterate(true, 500, 1000);
     bound = converged ? 'exact' : 'upper';

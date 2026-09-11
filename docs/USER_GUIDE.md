@@ -218,10 +218,11 @@ raise Search effort.
 
 ### Start from an item you buy instead
 
-Under the policy graph, a craft planned from scratch also lists every item you could **buy** that
-already carries some of your targets, and what finishing from it costs. It is the answer to *"which
-item should I start from?"* — on a streamer's gear, **Craft this from scratch** takes you straight to
-it.
+Every craft planned from scratch has its own section, under the true expected cost, listing every item
+you could **buy** that already carries some of your targets, and what finishing from it costs. It is
+the answer to *"which item should I start from?"* — on a streamer's gear, **Craft this from scratch**
+takes you straight to it. It is open by default; **Hide** folds it away, and it stays folded on later
+crafts until you click **Show**.
 
 - **Modifiers already on the item** — how many of your targets the item carries (2 to start with).
   Magic and Rare items are both listed, each tagged. A Magic item holds at most one prefix and one
@@ -246,9 +247,14 @@ where a roll goes wrong badly enough, at **↺ start over**. Nothing is solved a
 number of modifiers, typing prices and drawing routes all read the one solve you already ran.
 
 Each row assumes the **rest of the item is empty**; a listing that also carries modifiers you do not
-want costs more to finish, because they have to come off first. The list appears once the solve has
-settled — on a bound, raise **Search effort**. The *I have an item* tab's **What to look for when you
-buy one** answers a different question: there you keep the item, so it never starts over.
+want costs more to finish, because they have to come off first.
+
+The list needs the solve's costs to have settled. When the solve stopped before they did — common on
+five- and six-mod crafts at Standard — the section says so and offers **Compute again at …**: the next
+Search effort up, in one click. At Exhaustive, the top, it says the craft is beyond what the solver can
+settle. It is not available on a craft that starts from fractured modifiers, which has no white base
+for a bought item to replace. The *I have an item* tab's **What to look for when you buy one** answers
+a different question: there you keep the item, so it never starts over.
 
 ---
 

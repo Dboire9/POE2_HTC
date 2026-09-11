@@ -713,7 +713,12 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   seemed to vanish, reported 2026-09-11); `bestStart` tags the cheapest total instead. **Price boxes are
   `type="text"` read by `parsePrice`**, not `type="number"`: Chrome's number box dropped the comma of
   "0,5" and read 5. Same reason `FrontierView` sets `freeRestart={false}` on the Item tab.
-  **When the solve is not exact it SAYS SO rather than vanishing**, and it points at Search effort.
+  **It is its own Card on every Lab craft, open by default** (hide remembered under
+  `poe2htc.startFromItem.hidden.v1`), and **when the solve is not exact it SAYS SO rather than
+  vanishing**, with a one-click **Compute again at {`nextEffort(ranAt)`}** — stepped from the effort the
+  solve RAN at, not the dropdown, and passed into `compute(effortId)` rather than read from its closure.
+  A solve that ran out of clock or sweeps before it had any number carries `stoppedEarly`, so the panel
+  never string-matches `reason`; every other failure is about the target, and the panel stays silent.
   The case is common: three T1 prefixes on a Wand returns `bound: 'lower'` at Standard. Raising effort
   IS the fix — that craft needs **~2.3M value-iteration sweeps and ~262 s**, inside Exhaustive's
   20M/900s cap and far outside Standard's 100k. And the floor is not a usable estimate: **5.08e6

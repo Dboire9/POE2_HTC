@@ -135,6 +135,8 @@ describe('markovFromItem — hand-computed expected cost', () => {
     expect(r.feasible).toBe(false);
     expect(r.expectedCost).toBe(Infinity);
     expect(r.reason).toMatch(/roll/i);
+    // About the target, not the solver's limits: no effort fixes it, so nothing may offer one.
+    expect(r.stoppedEarly).toBeUndefined();
   });
 
   /**
@@ -553,6 +555,9 @@ describe('markovFromItem — from a white base', () => {
     // raise. The message names the limit that actually bit.
     expect(r.reason).toMatch(/sweeps/i);
     expect(r.reason).not.toMatch(/search effort/i);
+    // …yet it stopped early all the same, and in the app a higher preset DOES raise the sweep cap, so
+    // the Lab's start panel may offer one.
+    expect(r.stoppedEarly).toBe(true);
   });
 
   it('points at the effort setting when it was a CLOCK that ran out', () => {
@@ -560,6 +565,7 @@ describe('markovFromItem — from a white base', () => {
     const r = markovFromItem(real, rp, white, targets, { restartCost: 0, maxMillis: 1 });
     expect(r.feasible).toBe(false);
     expect(r.reason).toMatch(/search effort/i);
+    expect(r.stoppedEarly).toBe(true);
   });
 
   // The scale check, same as the from-item cases above: play the policy through the real random

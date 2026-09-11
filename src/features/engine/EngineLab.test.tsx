@@ -59,7 +59,7 @@ vi.mock('../../lib/engine', async (importOriginal) => {
 });
 
 import EngineLab from './EngineLab';
-import { DEFAULT_EFFORT, EFFORT_PRESETS, setEffort } from '../../lib/searchEffort';
+import { DEFAULT_EFFORT, EFFORT_PRESETS, getEffort, limitsFor, nextEffort, setEffort } from '../../lib/searchEffort';
 
 /** The picker row for a mod's text (the row div holding its "+"), from within the mod-picker card. */
 const pickerRow = (text: string): HTMLElement => screen.getByText(text).closest('div') as HTMLElement;
@@ -353,6 +353,22 @@ describe('EngineLab — the true cost of a craft from scratch', () => {
     expect(await screen.findByText(/^≥\s/)).toBeInTheDocument();
     expect(screen.getByText(/floor/i)).toBeInTheDocument();
     expect(screen.queryByText(/ceiling/i)).toBeNull();
+  });
+
+  /** The start panel answers a solve that stopped early with the next Search effort, in one click. */
+  it('computes the craft again one effort up from the start panel', async () => {
+    mocks.optimizeItemMarkov.mockReturnValue({ ...labMarkov, converged: false, bound: 'upper' });
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    const next = nextEffort(DEFAULT_EFFORT)!;
+    await user.click(await screen.findByRole('button', { name: `Compute again at ${next.label}` }));
+    await waitFor(() => expect(mocks.optimizeItemMarkov).toHaveBeenCalledTimes(2));
+    expect(getEffort()).toBe(next.id);
+    // The second solve ran under the NEW preset's clock, not the one the click was made under — a
+    // `compute` that read the effort from its closure would still pass Standard's here.
+    expect(mocks.optimizeItemMarkov.mock.calls[1]![3].maxMillis).toBeGreaterThan(limitsFor(DEFAULT_EFFORT).maxMillis);
   });
 
   /**

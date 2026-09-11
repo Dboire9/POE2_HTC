@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
-  DEFAULT_EFFORT, EFFORT_PRESETS, EFFORT_STORAGE_KEY, getEffort, isTopEffort, limitsFor, setEffort,
+  DEFAULT_EFFORT, EFFORT_PRESETS, EFFORT_STORAGE_KEY, getEffort, isTopEffort, limitsFor, nextEffort, setEffort,
 } from './searchEffort.ts';
 import { runSolve } from './solve.ts';
 import { optimize } from './engine.ts';
@@ -40,6 +40,14 @@ describe('the effort presets', () => {
     expect(ids.filter(isTopEffort)).toEqual([ids[ids.length - 1]]);
     expect(isTopEffort(DEFAULT_EFFORT)).toBe(false);
     expect(isTopEffort('nonsense')).toBe(false);
+  });
+
+  // What the Lab's start panel offers when a solve stopped early: one rung up, and nothing past the top.
+  it('offers the next preset up, and nothing above the top one', () => {
+    const ids = EFFORT_PRESETS.map((p) => p.id);
+    for (let i = 0; i < ids.length - 1; i++) expect(nextEffort(ids[i]!)?.id).toBe(ids[i + 1]);
+    expect(nextEffort(ids[ids.length - 1]!)).toBeUndefined();
+    expect(nextEffort('nonsense')?.id).toBe(nextEffort(DEFAULT_EFFORT)?.id);
   });
 
   // A preset renamed in a later version must not wedge the app on limits that no longer exist.

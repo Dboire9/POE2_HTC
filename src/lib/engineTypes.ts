@@ -335,6 +335,9 @@ export interface EngineMarkovResult {
   /** False when a target can't roll at this item level (cost ∞). */
   readonly feasible: boolean;
   readonly reason?: string;
+  /** Set when there is no number because the solve ran out of clock or sweeps — the one failure a
+   *  higher Search effort can fix. See MarkovResult.stoppedEarly. */
+  readonly stoppedEarly?: true;
   /** True expected cost under the optimal policy. */
   readonly expectedCost: number;
   /** False when value iteration hit its sweep cap instead of converging — then `expectedCost` is a

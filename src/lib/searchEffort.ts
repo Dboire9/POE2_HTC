@@ -174,6 +174,17 @@ export function isTopEffort(id: string): boolean {
   return id === EFFORT_PRESETS[EFFORT_PRESETS.length - 1]!.id;
 }
 
+/**
+ * The preset one step harder than `id`, or `undefined` at the top — what a "compute again, harder"
+ * button offers. Derived from the list like `isTopEffort`, so a rung added later is offered in turn. A
+ * retired id steps from its successor, and an unknown one from the default, exactly as `limitsFor`
+ * would have run them.
+ */
+export function nextEffort(id: string): EffortPreset | undefined {
+  const at = EFFORT_PRESETS.findIndex((p) => p.id === (RETIRED_EFFORT[id] ?? id));
+  return EFFORT_PRESETS[(at < 0 ? EFFORT_PRESETS.findIndex((p) => p.id === DEFAULT_EFFORT) : at) + 1];
+}
+
 export function limitsFor(id: string): EffortLimits {
   // Retired ids resolve here too, not only in `read()` — anything holding a stored id (a worker
   // message, a test, a URL) must get the successor rather than be silently dropped to the default.

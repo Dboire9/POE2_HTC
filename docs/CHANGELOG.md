@@ -16,7 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scratch minus finishing). Type the trade price you find and each item shows its total against
   crafting from scratch, the cheapest tagged as the best buy; click **Route** for the route from it, ending where the plan would start over from a white
   base. All of it comes from the one solve the Lab already runs — no second solve, however many sizes,
-  prices or routes you look at. On a streamer's item, **Craft this from scratch** leads there.
+  prices or routes you look at. On a streamer's item, **Craft this from scratch** leads there. It is its own section on every craft
+  planned from scratch, open by default; **Hide** keeps it folded on later crafts until **Show**. When
+  the solve stops before its costs settle, the section says so and offers **Compute again at** the next
+  Search effort, in one click, rather than disappearing.
 - **Ancient bones and the Omen of Abyssal Echoes.** Both answer "wouldn't we have better odds?". An
   Ancient bone ("Minimum Modifier Level: 40") offers three mods with every ordinary tier below level 40
   taken out — nearly twice the chance of a top tier on a Wand, for a bone that costs about 1,000ex. The

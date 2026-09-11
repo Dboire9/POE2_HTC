@@ -1,6 +1,10 @@
 import React from 'react';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
 import { routeFor, type Engine, type EngineMarkovResult } from '../../lib/engine';
 import { exactExalts, formatIn, pickUnit, type CostUnit, type Rates } from '../../lib/currency';
+import { PREFS_PREFIX } from '../../lib/currencyPrefs';
+import { EFFORT_PRESETS, nextEffort, setEffort } from '../../lib/searchEffort';
 import { bestStart, parsePrice, startOptions, startSizes, type StartOption } from '../../lib/startingItem';
 import { cn } from '../../lib/utils';
 import PolicyGraph from './PolicyGraph';
@@ -8,16 +12,17 @@ import PolicyGraph from './PolicyGraph';
 /**
  * "Which item should I buy to start from — and how do I finish it from there?"
  *
- * Beside the from-scratch plan on the Lab, because that is what every row is measured against. A solve
- * from a white base already prices every item the craft passes through, so each row here is a cell of
- * that solve read out — changing how many modifiers the item carries, or typing a price, re-reads it
- * rather than solving again. So does drawing the route from a row: the result carries the solved
- * policy (`routes`), and `routeFor` walks it from the row's state.
+ * Its own section under the from-scratch plan on the Lab, on every craft, open by default and hideable
+ * (the player's choice, 2026-09-11). A solve from a white base already prices every item the craft
+ * passes through, so each row here is a cell of that solve read out — changing how many modifiers the
+ * item carries, or typing a price, re-reads it rather than solving again. So does drawing the route from
+ * a row: the result carries the solved policy (`routes`), and `routeFor` walks it from the row's state.
  *
  * Read from the from-WHITE solve, which may start over, on purpose: once an item is bought its price is
  * spent either way, so if it goes wrong the cheapest honest plan still bins it when repairing costs more
  * than a fresh craft (the player's choice, 2026-09-11). The Item tab's `WhatToBuy` asks the other
- * question — you keep the item you have — from its own solve, and stays there.
+ * question — you keep the item you have — from its own solve, and stays there. Measured on a 4-target
+ * Wand, restart semantics save 18% where a held Rare saves 37%: both right, for their own question.
  */
 
 /** Nothing saved: finishing from this item costs what crafting from scratch does, so its move is to start over. */
@@ -37,7 +42,46 @@ const RARITY_CLS: Record<StartOption['rarity'], string> = {
   rare: 'border-yellow-500/60 text-yellow-700 dark:text-yellow-300',
 };
 
-const StartFromItem: React.FC<{ markov: EngineMarkovResult; engine: Engine; rates?: Rates }> = ({ markov, engine, rates }) => {
+const TOP_EFFORT = EFFORT_PRESETS[EFFORT_PRESETS.length - 1]!;
+
+/**
+ * Hidden stays hidden, craft after craft, until the player shows it again. Stored under the prefs
+ * prefix, which survives the version bump that clears everything else in storage.
+ */
+const HIDDEN_KEY = `${PREFS_PREFIX}startFromItem.hidden.v1`;
+function useHidden(): readonly [boolean, (next: boolean) => void] {
+  const [hidden, setHidden] = React.useState(() => {
+    try { return localStorage.getItem(HIDDEN_KEY) === '1'; } catch { return false; }
+  });
+  const set = (next: boolean): void => {
+    setHidden(next);
+    try {
+      if (next) localStorage.setItem(HIDDEN_KEY, '1');
+      else localStorage.removeItem(HIDDEN_KEY);
+    } catch {
+      // Storage blocked (private mode): it still hides for this session.
+    }
+  };
+  return [hidden, set] as const;
+}
+
+interface Props {
+  readonly markov: EngineMarkovResult;
+  readonly engine: Engine;
+  readonly rates?: Rates;
+  /** The craft starts from fractured mods: a real item, so there is no white base for a bought one to replace. */
+  readonly carved: boolean;
+  /** The Search effort `markov` was solved at — "compute again" offers the rung above it. */
+  readonly ranAt: string;
+  /** A solve is running; the one-click recompute waits for it. */
+  readonly computing: boolean;
+  /** Solve the same craft again at this Search effort. */
+  readonly recompute: (effortId: string) => void;
+}
+
+const StartFromItem: React.FC<Props> = ({ markov, engine, rates, carved, ranAt, computing, recompute }) => {
+  const [hidden, setHidden] = useHidden();
+  const bodyId = React.useId();
   const sizes = startSizes(markov.holdings);
   const [k, setK] = React.useState(() => (sizes.includes(2) ? 2 : sizes[0] ?? 1));
   // What the player typed, per row, as text — so a half-typed "1." or "0," stays in the box.
@@ -62,21 +106,69 @@ const StartFromItem: React.FC<{ markov: EngineMarkovResult; engine: Engine; rate
     [route, rates],
   );
 
-  // Only a from-white Lab solve can answer this: it is the one that prices "instead of a white base".
-  if (markov.restartCost === undefined || sizes.length === 0) return null;
+  const section = (body: React.ReactNode): React.ReactElement => (
+    <Card className="p-4 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-bold">Start from an item you buy instead</h3>
+        <button
+          type="button"
+          aria-expanded={!hidden}
+          aria-controls={bodyId}
+          onClick={() => setHidden(!hidden)}
+          className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+        >
+          {hidden ? 'Show' : 'Hide'}
+        </button>
+      </div>
+      {!hidden && <div id={bodyId} className="space-y-3">{body}</div>}
+    </Card>
+  );
+
+  if (carved) {
+    return section(
+      <p className="text-xs text-muted-foreground">
+        Not available for a craft that starts from fractured modifiers: that item is already the start, so
+        there is no white base for a bought one to replace.
+      </p>,
+    );
+  }
   /**
-   * A bound is not an answer, and a table of bounds compared against each other is worse than one: the
-   * differences between them are bounded by nothing. Same rule as `WhatToBuy`, and said rather than
-   * silent, because raising the effort is the fix. (The solver attaches `routes` only to an exact
-   * solve, so this is also what guarantees a row can draw its route.)
+   * The solve stopped before it settled — a bound, or no number at all. A bound is not an answer, and a
+   * table of bounds compared with each other is worse than one, so there are no rows; but the panel
+   * stays, and offers the one thing that fixes it in one click. Both the clock and the sweep cap rise
+   * with Search effort, so the next rung up is the move until there is none.
    */
-  if (markov.bound !== 'exact') {
-    return (
-      <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-[11px] text-muted-foreground">
-        <strong className="text-foreground">Start from an item you buy instead</strong> — the app works this out
-        from a settled cost, and this craft only reached a {markov.bound === 'lower' ? 'floor' : 'ceiling'}.
-        Raise <strong>Search effort</strong> and compute again.
-      </p>
+  if (markov.applicable && (markov.stoppedEarly === true || (markov.feasible && markov.bound !== 'exact'))) {
+    const next = nextEffort(ranAt);
+    return section(
+      <>
+        <p className="text-xs text-muted-foreground">
+          Every row here is a cost from the solve above, and that solve stopped before its costs settled —
+          so there is no list to trust yet.
+        </p>
+        {next ? (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Button size="sm" disabled={computing} onClick={() => { setEffort(next.id); recompute(next.id); }}>
+              {computing ? 'Computing…' : `Compute again at ${next.label}`}
+            </Button>
+            <span className="text-[11px] text-muted-foreground">{next.hint}</span>
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            This is <strong>{TOP_EFFORT.label}</strong> already — the craft is beyond what the solver can settle.
+          </p>
+        )}
+      </>,
+    );
+  }
+  // No true cost for a reason trying harder cannot fix; the card above says which. Only a from-white
+  // solve prices "instead of a white base", and it always echoes `restartCost`.
+  if (!markov.applicable || !markov.feasible || markov.restartCost === undefined) return null;
+  if (sizes.length === 0) {
+    return section(
+      <p className="text-xs text-muted-foreground">
+        With a single target there is nothing to start from: an item already holding it is the finished item.
+      </p>,
     );
   }
 
@@ -94,17 +186,12 @@ const StartFromItem: React.FC<{ markov: EngineMarkovResult; engine: Engine; rate
   const base = markov.restartCost;
   const th = 'whitespace-nowrap pb-1 pr-3 font-normal';
 
-  return (
-    <div className="rounded-md border border-border bg-muted/40 px-3 py-3 space-y-3">
-      <div className="space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Start from an item you buy instead
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Buy an item that already has some of the target modifiers, then finish the craft from it. Type
-          what the item costs on trade to see whether that beats crafting from scratch.
-        </p>
-      </div>
+  return section(
+    <>
+      <p className="text-xs text-muted-foreground">
+        Buy an item that already has some of the target modifiers, then finish the craft from it. Type what
+        the item costs on trade to see whether that beats crafting from scratch.
+      </p>
 
       <p className="flex flex-wrap items-baseline gap-x-2 text-xs">
         <span className="text-muted-foreground">Crafting from scratch costs</span>
@@ -279,7 +366,7 @@ const StartFromItem: React.FC<{ markov: EngineMarkovResult; engine: Engine; rate
           ) : graph}
         </div>
       )}
-    </div>
+    </>,
   );
 };
 

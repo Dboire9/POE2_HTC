@@ -170,6 +170,8 @@ const EngineLab: React.FC = () => {
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   // Bumped per solve result, so a panel keyed on it starts fresh — typed prices belong to ONE craft's rows.
   const [markovRun, setMarkovRun] = useState(0);
+  // The Search effort that solve ran at: the start panel's "compute again" steps up from THIS, not the dropdown.
+  const [markovEffort, setMarkovEffort] = useState('');
   const [altBudget, setAltBudget] = useState<number>(0);
   const [runErr, setRunErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
@@ -433,7 +435,7 @@ const EngineLab: React.FC = () => {
   // Runs in the same Web Worker as the from-item planner. These calls are fast (a few ms), so this is
   // about having ONE compute path rather than a fast one here and a slow one there — and about the main
   // thread never running the optimizer at all.
-  const compute = () => {
+  const compute = (effortId: string = effort) => {
     if (!engine || targets.length === 0) return;
     const runId = ++runIdRef.current; // see ItemActions.compute — guards against a superseded run
     const current = () => runIdRef.current === runId;
@@ -458,7 +460,7 @@ const EngineLab: React.FC = () => {
       targets,
       ...(hasBudget ? { budget: b, want } : {}),
       ...(hasBaseCost ? { baseCost: bc } : {}),
-      effort: limitsFor(effort),
+      effort: limitsFor(effortId),
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
     }, (p) => { if (current()) setProgress(p); });
     cancelRef.current = handle.cancel;
@@ -470,6 +472,7 @@ const EngineLab: React.FC = () => {
         setAlts(res.alts);
         setMarkov(res.markov);
         setMarkovRun((n) => n + 1);
+        setMarkovEffort(effortId);
         if (res.alts) setAltBudget(b);
       })
       .catch((e) => {
@@ -605,7 +608,7 @@ const EngineLab: React.FC = () => {
           <Button variant="outline" onClick={reset} disabled={targets.length === 0 && !result} size="lg">
             Reset
           </Button>
-          <Button onClick={compute} disabled={!canCompute} size="lg">
+          <Button onClick={() => compute()} disabled={!canCompute} size="lg">
             Find plans
           </Button>
         </div>
@@ -945,15 +948,17 @@ const EngineLab: React.FC = () => {
             a named mod.
           </p>
           <PolicyGraph result={markov} rates={engine ? priceBasis(engine).rates : undefined} />
-          {/* The Item tab's `WhatToBuy` stays there: it asks what holding some targets saves on an item
-              you KEEP, from a solve with no restart. This panel asks what an item is worth to buy
-              INSTEAD of a white base, from this solve, which may bin it and start over — the player's
-              choice on 2026-09-11, since the price paid is spent either way. So every row is V from this
-              solve, and worth up to = white base + V(white) − V(item), never below zero. Measured on a
-              4-target Wand, restart semantics save 18% where a held Rare saves 37%: both right, for
-              their own question. Same reason `FrontierView` sets `freeRestart={false}` on the Item tab. */}
-          {engine && <StartFromItem key={markovRun} markov={markov} engine={engine} rates={priceBasis(engine).rates} />}
         </Card>
+      )}
+
+      {/* Its own section on every craft from scratch, open unless the player hid it (their choice,
+          2026-09-11). It reads the solve above, which may bin a bought item and start over; the Item
+          tab's `WhatToBuy` asks the keep-the-item question from its own solve. See StartFromItem. */}
+      {markov && !runErr && engine && (
+        <StartFromItem
+          key={markovRun} markov={markov} engine={engine} rates={priceBasis(engine).rates}
+          carved={fractured.size > 0} ranAt={markovEffort} computing={computing} recompute={compute}
+        />
       )}
 
       {result && !runErr && (

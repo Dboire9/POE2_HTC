@@ -43,86 +43,14 @@ import {
   enumerateStates, flaggedTarget, has, isAccepting, popcount, representative,
   sideIndexOf, slotsFilled,
 } from './markovState.ts';
+import type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
-// it from here rather than reaching into markovActions.ts.
+// it from here rather than reaching into markovActions.ts. So are the route's shapes, which live beside
+// the walk that builds them (markovRoute.ts).
 export type { McAction, ExaltStrength } from './markovActions.ts';
 export { actionCostOf } from './markovActions.ts';
-
-export interface PolicyNode {
-  readonly key: string;
-  /**
-   * One entry per FILLED POSITION, holding the interchangeable mod ids that could be filling it.
-   *
-   * A group of ids rather than one, because a position may be several same-family alternatives merged
-   * into one bit — the state records that the position is filled, and cannot say which member did it,
-   * because nothing downstream depends on the answer. One id per entry for every craft without
-   * alternatives. The UI joins each group with "or" (`mapMarkov`); the LENGTH is still the number of
-   * target mods on the item, which is what the graph's box label counts.
-   */
-  readonly present: readonly (readonly string[])[];
-  /** Positions whose family is occupied by a below-tier ("off-tier") roll — must be annulled first. */
-  readonly blocked: readonly (readonly string[])[];
-  readonly junkPrefixes: number;
-  readonly junkSuffixes: number;
-  /** Set when the mod a Desecration placed is JUNK, naming the side it sits on. It blocks
-   *  re-desecrating until it is removed. */
-  readonly desecratedJunk?: 'prefix' | 'suffix';
-  /** Set when the mod a Desecration placed is one of the TARGETS — that position's mod ids. Blocks
-   *  re-desecrating just the same, which is why keeping it can cost more than it looks. */
-  readonly desecratedTarget?: readonly string[];
-  readonly isStart: boolean;
-  readonly isGoal: boolean;
-  /** Minimum expected cost to reach the target from here. */
-  readonly expectedCost: number;
-  /** The optimal currency to use here (undefined at the goal). */
-  readonly action?: McAction;
-  /**
-   * What playing `action` once costs here, ON AVERAGE: its price, plus — for a Desecration carrying an
-   * Omen of Abyssal Echoes — the omen times the chance this policy rerolls, since the omen is spent only
-   * then. The action's plain price for everything else; undefined at the goal.
-   */
-  readonly actionCost?: number;
-  /** The item's rarity here. Without it a 2-mod Magic item and a 2-mod Rare item render identically
-   *  while behaving completely differently — one of them cannot take an Exalt at all. */
-  readonly rarity: McRarity;
-  /**
-   * How much this state matters to a run that SUCCEEDS — expected visits per successful attempt.
-   *
-   * This is what decides which states the graph draws, and the obvious metric is the wrong one. Plain
-   * visit frequency ranks the FAILURES first: on a craft with a free base ~98% of states choose
-   * "start over", so they are entered constantly while every one of them shows the same action and
-   * the same cost (they all share V(start)). A real 6-target T2 craft drew ten boxes at 90% coverage
-   * and nine read "Start over with a new base · 2,132 div" — statistically faithful and useless. The
-   * spine a player needs sat below 99%.
-   *
-   * So it is weighted by the probability of reaching the goal from here. A state whose best move is
-   * to restart has no route onward and drops out; what is left is the path the craft actually takes.
-   * Restart edges are still DRAWN from the states that survive — they are the back-arrows, and how
-   * often a step throws you back is precisely what the reader needs to see.
-   *
-   * Expected VISITS, not a probability: one attempt can pass through the same state twice, so this
-   * can exceed 1. Ranking, not odds.
-   */
-  readonly visitRate: number;
-  /**
-   * Moves still to make, by the same estimate `regress` is judged against.
-   *
-   * Carried rather than recomputed by the UI: engineMap had its own copy of this expression, and the
-   * moment rarity entered the formula the two disagreed — a state the solver called a step forward
-   * would have been drawn as a step back.
-   */
-  readonly depth: number;
-}
-
-export interface PolicyEdge {
-  readonly from: string;
-  readonly to: string;
-  readonly action: McAction;
-  readonly prob: number;
-  /** True when this outcome moves AWAY from the target (a "brick" — the back-arrow in the graph). */
-  readonly regress: boolean;
-}
+export type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
 
 /**
  * One candidate STARTING item: some of the targets already on it, and what finishing then costs.
@@ -203,6 +131,14 @@ export interface MarkovResult {
    * The empty subset is present and equals `bareCost`.
    */
   readonly holdings?: readonly Holding[];
+  /**
+   * The solved policy over the whole lattice, so a route can be drawn from any state without solving
+   * again — see `RouteTable`. Only when asked for (`keepRoutes`) and only on an EXACT solve: a bound's
+   * policy is not the optimal one, and a route drawn from it would be a guess dressed as a plan.
+   */
+  readonly routes?: RouteTable;
+  /** The `restartCost` this solve ran with, echoed — present exactly when starting over was a move. */
+  readonly restartCost?: number;
 }
 
 /**
@@ -302,6 +238,13 @@ export interface MarkovOptions {
   readonly restartCost?: number;
   /** Currencies the player doesn't have; the policy never plays one. */
   readonly policy?: CurrencyPolicy;
+  /**
+   * Carry the solved policy (`MarkovResult.routes`) on an exact result.
+   *
+   * Opt-in because it is the whole lattice: the Lab asks for it, to draw the route from any item the
+   * player might buy instead, and no other caller pays to ship it.
+   */
+  readonly keepRoutes?: boolean;
 }
 
 /** How often the O(states) loops report. Frequent enough to animate, rare enough to cost nothing. */
@@ -1484,12 +1427,48 @@ export function markovFromItem(
     return { action: plain, cost: a.cost };
   };
 
+  /*
+   * One pass settles what the policy does EVERYWHERE — the move each state plays, what it costs on
+   * average, and where it lands — as the plain data of a `RouteTable`. Every graph is a walk over it:
+   * the craft's own route below, and on the Lab the route from any item a player might buy instead,
+   * which is why it is the whole lattice rather than only the states the start can reach.
+   */
   const policy = new Map<StateKey, McAction>();
-  for (const key of allStates) {
+  const actions: McAction[] = [];
+  const actionIdx = new Map<string, number>();
+  const act = new Int32Array(N).fill(-1);
+  const actCost = new Float64Array(N);
+  const outStart = new Int32Array(N + 1);
+  const outTo: number[] = [];
+  const outProb: number[] = [];
+  for (let i = 0; i < N; i++) {
+    outStart[i] = outTo.length;
+    const key = allStates[i]!;
     if (goalKeys.has(key)) continue;
     const a = bestAction(key);
-    if (a) policy.set(key, published(a).action);
+    if (!a) continue;
+    const shown = published(a);
+    policy.set(key, shown.action);
+    // Deduplicated only to keep the table small; two spellings of one move would merely cost a slot.
+    const id = JSON.stringify(shown.action);
+    let ai = actionIdx.get(id);
+    if (ai === undefined) { ai = actions.length; actions.push(shown.action); actionIdx.set(id, ai); }
+    act[i] = ai;
+    actCost[i] = shown.cost;
+    for (const [to, p] of realizedDist(a)) {
+      if (p <= 0) continue;
+      outTo.push(idxOfState.get(to)!);
+      outProb.push(p);
+    }
   }
+  outStart[N] = outTo.length;
+  const table: RouteTable = {
+    keys: allStates, value: V, act, actions, actCost,
+    outStart, outTo: Int32Array.from(outTo), outProb: Float64Array.from(outProb),
+    goal: isGoalIdx, goalIdx: idxOfState.get(goalKey)!,
+    restartIdx: startIdx, canRestart,
+    positions: list.map(idsOf), slotMasks,
+  };
 
   // Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) +
   // junk, counting an unwanted desecrated mod as junk too (it likewise costs a removal to clear).
@@ -1696,5 +1675,7 @@ export function markovFromItem(
     expectedCost: startCost, feasible: true, converged, bound, nodes: withVisits, edges, policy,
     ...(bare !== undefined ? { bareCost: bare } : {}),
     ...(holdings.length > 0 ? { holdings } : {}),
+    ...(opts.keepRoutes && bound === 'exact' ? { routes: table } : {}),
+    ...(opts.restartCost !== undefined ? { restartCost: opts.restartCost } : {}),
   };
 }

@@ -1347,6 +1347,12 @@ Two ways to buy the time back, neither tried:
 **Verify.** The ten-craft table in docs/validation.md re-measured alone, and the Aldur staff at
 Exhaustive.
 
+
+**A second craft past the budget, found 2026-09-11** by the streamer sweep (`scripts/start-items-sweep.mts`,
+docs/validation.md). Zizaran's Maelström Twirl, a 6-mod Ring asking T1 Cast Speed, T1 Cold Damage and a
+desecrated T1 suffix, does not settle from white alone in 900 s, nor in 2,400 s: phase A does not converge in either.
+At Exhaustive the Lab gets no number, and prints the solver's advice to raise Search effort, which at
+the top preset is a dead end.
 ## 21. Ancient bones and the Omen of Abyssal Echoes — what is assumed, and where they are not — OPEN, 2026-09-10
 
 Both are in the true-cost route and the Quick check (docs/validation.md, 2026-09-10). What rests on a

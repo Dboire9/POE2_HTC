@@ -4117,6 +4117,61 @@ The carved correction is visible on a two-target Wand, frozen sheet, holding
 mod costs **647.14 ex** to finish: 6.5% low, because the old read assumed the item could still be
 desecrated. The row now reads 647.14 ex.
 
+## Every streamer item through "start from an item you buy instead" (2026-09-11)
+
+The panel was measured on the staff that asked for it. This entry puts **all 40 streamer items** through
+it with `scripts/start-items-sweep.mts`, which runs each item and checks it rather than only printing
+it. Each item is solved from white as the Lab solves it (free base, policy iteration, Exhaustive's 900 s),
+six at a time on a 16-core machine, on the sheet of 2026-09-10.
+
+**Outcome: 38 settled exactly.**
+
+- **One is corrupted** (Steelmage's Pandemonium Cowl), and the panel offers nothing, as it should.
+- **Two ran out of the 900 s under the six-way load**, and were run again alone.
+  - fubgun's Dire Spire settled in 739 s (596 div, as in the entry above).
+  - Zizaran's Maelström Twirl did not: 901 s alone. It is a 6-mod Ring asking T1 Cast Speed, T1
+    Cold Damage and a desecrated T1 suffix, and phase A does not converge within 900 s, nor within 2,400 s on a second
+    solo run. At
+    Exhaustive the Lab gives it no number at all, so the panel cannot appear: the solver's limit
+    (TODO 20), not the panel's. The Lab then prints the solver's reason verbatim, which ends "raise
+    Search effort and try again (a six-mod target at T1 needs the longest setting)". At Exhaustive that
+    is a dead end, and it is not yet fixed.
+
+**Every check is clean on all 38.** The checks:
+
+- No starting item costs more to finish than crafting from scratch.
+- Magic rows carry at most two modifiers, and no two rows read one state.
+- The largest row fills every slot and costs nothing.
+- For the best item at every size and the best Magic one (243 routes):
+  - the route starts at its row's cost;
+  - it ends at no more than one start-over terminal, which has no move out;
+  - a route from an item worth anything reaches the target;
+  - every state's outcomes sum to one;
+  - every state satisfies V(s) = cost of its move + Σ p·V(next). The worst mismatch is 5.9e-7
+    relative, inside the solver's stopping tolerance.
+
+A click on the best two-modifier row draws its route in 8 ms median. The staff (203 ms) is the
+outlier; next is fubgun's Damnation Circle at 72 ms.
+
+**What the panel says, across the 38**, is the back-loading, on every item, from 3-slot Rings to
+6-slot Spears. The best starting item, by how many target modifiers are still missing:
+
+| still missing | items | best start is worth, share of crafting from scratch |
+|---|---|---|
+| 1 | 38 | median 90.9% (8.0 – 99.8%) |
+| 2 | 38 | median 21.1% (0.5 – 78.7%) |
+| 3 | 36 | median 4.0% (0.2 – 21.6%) |
+| 4 | 34 | median 0.3% (0 – 1.6%) |
+| 5 | 21 | median 0.0% (0 – 0.3%) |
+
+At two modifiers already on (the example the question used) the best start is worth a median **0.8%**
+of crafting from scratch, 12.8% at most. The best two-modifier start is a Magic item on 10 of the 38;
+the best start is never Magic from three modifiers up, because a Magic item holds two. The low end of
+the first row, 8%, is spicysushi's 3-slot Onslaught Eye: 7.0 div from scratch, and still 6.4 div to
+finish from the best two-of-three. On the dear crafts the last one is almost everything: fubgun's Pain
+Collar is 2,041 div from scratch and 3.9 div from the four modifiers it has without its T1 "+# to Level
+of all Spell Skills".
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

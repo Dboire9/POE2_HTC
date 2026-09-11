@@ -4,7 +4,7 @@ import { loadPrices } from '../../packages/optimizer/src/loadPrices.ts';
 import { loadFrozenPrices } from '../../packages/optimizer/src/frozenPrices.ts';
 import type { MarkovProgress } from '../../packages/optimizer/src/markovFromItem.ts';
 import {
-  optimize, optimizeItem, optimizeItemMarkov, alternatives, listMods, type ExistingItem,
+  optimize, optimizeItem, optimizeItemMarkov, alternatives, listMods, routeFor, type ExistingItem,
 } from './engine.ts';
 import { runSolve, toFraction, type SolveProgress, type SolveRequest } from './solve.ts';
 
@@ -105,6 +105,46 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
       return got.markov;
     };
     expect(at(50)).toEqual(at(0));
+  });
+
+  /**
+   * Only a from-white Lab solve carries the solved policy. It is the one craft with an "instead" to
+   * price — an item you buy against a white base — and the table is the whole lattice, so nothing else
+   * pays to ship it. The echoed `restartCost` is what the Lab's "worth up to" is summed against, read
+   * from the result because the Base cost field can change after the solve.
+   */
+  it('carries the solved policy on a from-white Lab solve, and on nothing else', () => {
+    const white = runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, baseCost: 7 });
+    const carved = runSolve(eng, { kind: 'lab', from: { item }, targets });
+    const held = runSolve(eng, { kind: 'item', item, targets });
+    if (white.kind !== 'lab' || carved.kind !== 'lab' || held.kind !== 'item') throw new Error('wrong kind');
+    expect(white.markov.routes).toBeDefined();
+    expect(white.markov.restartCost).toBe(7);
+    for (const m of [carved.markov, held.markov]) {
+      expect(m.routes).toBeUndefined();
+      expect(m.restartCost).toBeUndefined();
+    }
+  });
+
+  it('draws the route from any starting item of a Lab result, ready for the graph', () => {
+    const got = runSolve(eng, { kind: 'lab', from: { baseId: 'Wands', level: 82 }, targets, baseCost: 7 });
+    if (got.kind !== 'lab') throw new Error('wrong kind');
+    const m = got.markov;
+    const starts = m.holdings!.filter((h) => h.present.length === 1);
+    expect(new Set(starts.map((h) => h.rarity))).toEqual(new Set(['magic', 'rare']));
+    for (const h of starts) {
+      const route = routeFor(eng, m, h.key)!;
+      expect(route.expectedCost).toBe(h.cost);
+      expect(route.nodes[0]!).toMatchObject({ isStart: true, present: h.present, rarity: h.rarity });
+      // A route answers one question; the craft's table, rows and bare cost stay with the craft.
+      expect(route.routes).toBeUndefined();
+      expect(route.holdings).toBeUndefined();
+      expect(route.restartCost).toBe(7);
+      const fresh = route.nodes.filter((n) => n.isRestart);
+      expect(fresh.length).toBeLessThanOrEqual(1);
+      for (const n of fresh) expect(n.expectedCost).toBe(m.expectedCost);
+    }
+    expect(routeFor(eng, m, 'not-a-state')).toBeNull();
   });
 
   it('item returns both the frontier and the MDP, matching the direct calls', () => {

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { mapMarkov } from './engineMap';
+import { mapMarkov, mapRoute } from './engineMap';
+import type { EngineMarkovResult } from './engineTypes';
 
 /**
  * Two DIFFERENT modifiers can print the same text, and a holding puts several on one line.
@@ -64,5 +65,41 @@ describe('mapMarkov — naming a Desecration', () => {
     } as unknown as Parameters<typeof mapMarkov>[1];
     const out = mapMarkov({ mods: new Map() } as unknown as Parameters<typeof mapMarkov>[0], res);
     expect(out.nodes[0]!.action).toBe('Desecrate (Ancient, Dextral, Omen of Abyssal Echoes)');
+  });
+});
+
+/**
+ * A route from a starting item, in the shape `PolicyGraph` already draws. It costs what its root costs,
+ * names its boxes exactly as the craft's own graph would, marks the fresh base it ends at, and leaves
+ * the craft's table and rows behind.
+ */
+describe('mapRoute — a route from a starting item, for the graph', () => {
+  const data = { mods: new Map([['c', { id: 'c', text: 'Cold', type: 'prefix' }], ['l', { id: 'l', text: 'Lightning', type: 'prefix' }]]) } as unknown as Parameters<typeof mapRoute>[0];
+  const node = (key: string, over: object) => ({
+    key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare', isStart: false, isGoal: false,
+    expectedCost: 0, visitRate: 0, depth: 0, ...over,
+  });
+  const route = {
+    nodes: [
+      node('s', { present: [['c', 'l']], isStart: true, expectedCost: 9, action: { currency: 'desecrate' }, actionCost: 1 }),
+      node('w', { rarity: 'normal', isRestart: true, expectedCost: 13 }),
+    ],
+    edges: [{ from: 's', to: 'w', action: { currency: 'desecrate' }, prob: 1, regress: true }],
+  } as unknown as Parameters<typeof mapRoute>[1];
+  const from = {
+    applicable: true, feasible: true, converged: true, bound: 'exact', assumedOdds: false, expectedCost: 13,
+    restartCost: 3, bareCost: 20, holdings: [], routes: {}, nodes: [], edges: [],
+  } as unknown as EngineMarkovResult;
+
+  it('draws it the way the craft’s own graph draws a state', () => {
+    const out = mapRoute(data, route, from);
+    expect(out.expectedCost).toBe(9);
+    expect(out.nodes[0]).toMatchObject({ present: ['Cold or Lightning'], isStart: true, action: 'Desecrate' });
+    expect(out.nodes[1]).toMatchObject({ isRestart: true, expectedCost: 13 });
+    expect(out.nodes[0]!.isRestart).toBeUndefined();
+    // An unomened Desecration on THIS route leans on the assumed spawn weight, whatever the craft's did.
+    expect(out.assumedOdds).toBe(true);
+    expect(out.restartCost).toBe(3);
+    expect([out.routes, out.holdings, out.bareCost]).toEqual([undefined, undefined, undefined]);
   });
 });

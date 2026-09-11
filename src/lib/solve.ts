@@ -323,7 +323,10 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const mdpSpan = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
   const mdpClock = clockLeft();
   const markov = markovOrReason(() => optimizeItemMarkov(eng, mdpItem, req.targets, withSweepLimit(withPolicy({
-    ...(fromWhite ? { restartCost: req.baseCost ?? WHITE_BASE_COST } : {}),
+    // …and the whole solved policy, so the Lab can draw the route from any item a player might buy
+    // instead of a white base without solving again. From white only: a held or carved item has no
+    // restart, so there is no "instead" to price, and the other solves stay the size they were.
+    ...(fromWhite ? { restartCost: req.baseCost ?? WHITE_BASE_COST, keepRoutes: true } : {}),
     ...(mdpClock === undefined ? {} : { maxMillis: mdpClock }),
     ...(onProgress
       ? { onProgress: (pr: MarkovProgress): void => onProgress({ phase: pr.phase, fraction: within(mdpSpan, toFraction(pr) * 1000, 1000) }) }

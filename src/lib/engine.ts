@@ -29,6 +29,7 @@ import { stepProbability, type PlanStep } from '../../packages/engine/src/plan.t
 import { optimizePareto, type OptimizeParetoOptions } from '../../packages/optimizer/src/optimize.ts';
 import { optimizeFromItem } from '../../packages/optimizer/src/fromItem.ts';
 import { markovFromItem, type MarkovOptions } from '../../packages/optimizer/src/markovFromItem.ts';
+import { routeFrom } from '../../packages/optimizer/src/markovRoute.ts';
 import {
   alternativesFromWhite, alternativesFromItem, type AlternativesOptions,
 } from '../../packages/optimizer/src/alternatives.ts';
@@ -39,7 +40,7 @@ import type {
 } from './engineTypes.ts';
 import {
   prettyName, toEngineMod, toTierTargets, toAltTargets, buildItemState, addBlockedReason,
-  bossOmenLabel, mapFrontier, mapAlternatives, mapMarkov, rollLabel,
+  bossOmenLabel, mapFrontier, mapAlternatives, mapMarkov, mapRoute, rollLabel,
 } from './engineMap.ts';
 
 // Fetched as URLs (Vite copies them to /assets) rather than imported as modules, so the big JSON is
@@ -263,6 +264,19 @@ export function optimizeItemMarkov(
   const { data, prices } = eng;
   const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);
   return mapMarkov(data, res);
+}
+
+/**
+ * The route from one of a Lab result's starting items (`holdings[].key`) — a walk over the solved
+ * policy the result already carries, so it costs a fraction of a second where another solve would
+ * cost the whole craft again. Null when the result carries no table (anything but an exact from-white
+ * Lab solve) or the key is not a state of it.
+ */
+export function routeFor(eng: Engine, markov: EngineMarkovResult, key: string): EngineMarkovResult | null {
+  const t = markov.routes;
+  if (!t) return null;
+  const root = t.keys.indexOf(key as (typeof t.keys)[number]);
+  return root < 0 ? null : mapRoute(eng.data, routeFrom(t, root), markov);
 }
 
 // ── Existing-item currency actions (Option 1) ─────────────────────────────────

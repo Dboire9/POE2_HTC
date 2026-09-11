@@ -3,6 +3,7 @@
 
 import type { CurrencyTier } from '../../packages/engine/src/types.ts';
 import type { PlanStep } from '../../packages/engine/src/plan.ts';
+import type { RouteTable } from '../../packages/optimizer/src/markovRoute.ts';
 
 export interface EngineBase {
   readonly id: string;
@@ -277,6 +278,9 @@ export interface EnginePolicyNode {
   readonly desecratedTarget?: string;
   readonly isStart: boolean;
   readonly isGoal: boolean;
+  /** The white base a route from a BOUGHT item ends at when the policy starts over — drawn, never
+   *  walked, because what follows is the from-scratch plan. Only on a Lab route from a starting item. */
+  readonly isRestart?: true;
   /** Steps-to-goal ranking (0 = goal); used to lay the graph out left→right. */
   readonly depth: number;
   /**
@@ -366,6 +370,17 @@ export interface EngineMarkovResult {
    * `startingItem.ts`, which is the only thing that should read it.
    */
   readonly holdings?: readonly EngineHolding[];
+  /**
+   * What another white base costs, as this solve priced it — present exactly when starting over was a
+   * move (a from-white Lab craft). Read from the RESULT, not from the Base cost field, which the
+   * player can edit after solving.
+   */
+  readonly restartCost?: number;
+  /**
+   * The solved policy over the whole lattice, opaque to the UI: `routeFor` walks it to draw the route
+   * from any starting item without solving again. From-white Lab solves only, exact ones only.
+   */
+  readonly routes?: RouteTable;
   readonly nodes: readonly EnginePolicyNode[];
   readonly edges: readonly EnginePolicyEdge[];
 }

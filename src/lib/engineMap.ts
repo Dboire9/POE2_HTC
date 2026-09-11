@@ -7,10 +7,10 @@ import type { PatchData, ItemState, PlacedMod, CurrencyTier, Mod } from '../../p
 import type { PlanStep } from '../../packages/engine/src/plan.ts';
 import type { TierTarget, ParetoResult } from '../../packages/optimizer/src/optimize.ts';
 import type { Alternative, AlternativeTarget, AlternativesResult, SlotChange } from '../../packages/optimizer/src/alternatives.ts';
-import type { MarkovResult, McAction } from '../../packages/optimizer/src/markovFromItem.ts';
+import type { MarkovResult, McAction, PolicyEdge, PolicyNode } from '../../packages/optimizer/src/markovFromItem.ts';
 import type {
   EngineMod, EngineTier, EngineResult, EnginePlan, EngineStep, EngineSlot, EngineAlternative,
-  EngineAlternatives, EngineMarkovResult, EnginePolicyNode, ExistingItem, TargetInput, AltTargetInput,
+  EngineAlternatives, EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode, ExistingItem, TargetInput, AltTargetInput,
 } from './engineTypes.ts';
 
 // ── Labels ────────────────────────────────────────────────────────────────────
@@ -368,36 +368,23 @@ function actionLabel(data: PatchData, action: McAction): string {
   return 'Chaos';
 }
 
-/** Map the from-item MDP result into UI shapes: mod-text node labels, human action names, layout depth. */
-export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResult {
-  const text = (id: string): string => data.mods.get(id)?.text ?? id;
+/** A filled position named: the texts of the ids that could be filling it, joined with "or". */
+const positionLabel = (data: PatchData, ids: readonly string[]): string =>
+  ids.map((id) => data.mods.get(id)?.text ?? id).join(' or ');
+
+/**
+ * One state of a policy graph, named for the UI. Shared by the craft's own graph and by a route from a
+ * starting item (`mapRoute`), so the two can never label one state two ways.
+ */
+function mapNode(data: PatchData, nd: PolicyNode): EnginePolicyNode {
   /**
-   * One filled position, named. The solver hands back the ids that COULD be filling it — several when
-   * the position is same-family alternatives merged into one bit, because at that point nothing
-   * downstream depends on which member landed and the state genuinely does not record it. "or" is
-   * therefore the honest word: the item holds exactly one of these, and the plan works either way.
+   * The solver hands back the ids that COULD be filling each position — several when the position is
+   * same-family alternatives merged into one bit, because at that point nothing downstream depends on
+   * which member landed and the state genuinely does not record it. "or" is therefore the honest word:
+   * the item holds exactly one of these, and the plan works either way.
    */
-  const label = (ids: readonly string[]): string => ids.map(text).join(' or ');
-  /**
-   * The positions of one holding, named — with the SIDE appended to any two that read alike.
-   *
-   * Eight base/text collisions exist in 0.5.0, all the `ItemFoundRarity` prefix/suffix pair, and they
-   * are two genuinely different modifiers an item can carry at once. A graph BOX shows one position
-   * at a time so it never had to care; a holding lists several on one line, where "Rarity + Rarity"
-   * reads as a rendering bug rather than as the two modifiers it is. Appended only on collision, so
-   * every other row stays as short as it was.
-   */
-  const bySide = (positions: readonly (readonly string[])[]): string[] => {
-    const labels = positions.map(label);
-    const seen = new Map<string, number>();
-    for (const l of labels) seen.set(l, (seen.get(l) ?? 0) + 1);
-    return labels.map((l, i) => {
-      if ((seen.get(l) ?? 0) < 2) return l;
-      const side = data.mods.get(positions[i]![0]!)?.type;
-      return side ? `${l} (${side})` : l;
-    });
-  };
-  const nodes: EnginePolicyNode[] = res.nodes.map((nd) => ({
+  const label = (ids: readonly string[]): string => positionLabel(data, ids);
+  return {
     key: nd.key,
     present: nd.present.map(label),
     blocked: nd.blocked.map(label),
@@ -408,6 +395,7 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
     ...(nd.desecratedTarget ? { desecratedTarget: label(nd.desecratedTarget) } : {}),
     isStart: nd.isStart,
     isGoal: nd.isGoal,
+    ...(nd.isRestart ? { isRestart: true as const } : {}),
     // Steps-to-goal, taken from the solver rather than recomputed here. This used to be a second copy
     // of the same expression, and it silently went wrong the moment rarity joined the formula: a Magic
     // item is at least a Regal and an Annulment away however good its mods are, and a UI that didn't
@@ -416,22 +404,72 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
     visitRate: nd.visitRate,
     expectedCost: nd.expectedCost,
     ...(nd.action ? { action: actionLabel(data, nd.action) } : {}),
-  }));
-  const edges = res.edges.map((e) => ({ from: e.from, to: e.to, action: actionLabel(data, e.action), prob: e.prob, regress: e.regress }));
+  };
+}
+
+const mapEdge = (data: PatchData, e: PolicyEdge): EnginePolicyEdge =>
+  ({ from: e.from, to: e.to, action: actionLabel(data, e.action), prob: e.prob, regress: e.regress });
+
+/** Same rule as the frontier's: only an unomened Desecration leans on the assumed spawn weight. */
+const leansOnAssumedOdds = (actions: Iterable<McAction>): boolean =>
+  [...actions].some((a) => a.currency === 'desecrate' && a.boss === undefined);
+
+/** Map the from-item MDP result into UI shapes: mod-text node labels, human action names, layout depth. */
+export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResult {
+  /**
+   * The positions of one holding, named — with the SIDE appended to any two that read alike.
+   *
+   * Eight base/text collisions exist in 0.5.0, all the `ItemFoundRarity` prefix/suffix pair, and they
+   * are two genuinely different modifiers an item can carry at once. A graph BOX shows one position
+   * at a time so it never had to care; a holding lists several on one line, where "Rarity + Rarity"
+   * reads as a rendering bug rather than as the two modifiers it is. Appended only on collision, so
+   * every other row stays as short as it was.
+   */
+  const bySide = (positions: readonly (readonly string[])[]): string[] => {
+    const labels = positions.map((ids) => positionLabel(data, ids));
+    const seen = new Map<string, number>();
+    for (const l of labels) seen.set(l, (seen.get(l) ?? 0) + 1);
+    return labels.map((l, i) => {
+      if ((seen.get(l) ?? 0) < 2) return l;
+      const side = data.mods.get(positions[i]![0]!)?.type;
+      return side ? `${l} (${side})` : l;
+    });
+  };
   return {
     applicable: true, feasible: res.feasible, expectedCost: res.expectedCost,
     converged: res.converged, bound: res.bound,
-    // Same rule as the frontier's: only an unomened Desecration leans on the assumed weight.
-    assumedOdds: [...res.policy.values()].some((a) => a.currency === 'desecrate' && a.boss === undefined),
-    nodes, edges,
+    assumedOdds: leansOnAssumedOdds(res.policy.values()),
+    nodes: res.nodes.map((nd) => mapNode(data, nd)),
+    edges: res.edges.map((e) => mapEdge(data, e)),
     ...(res.bareCost !== undefined ? { bareCost: res.bareCost } : {}),
-    // Same `label` the graph's boxes use, so a merged same-family position reads "Fire or Cold" in
+    // Same labels the graph's boxes use, so a merged same-family position reads "Fire or Cold" in
     // both places rather than two spellings of one state — then disambiguated, because a holding puts
     // several positions on ONE line and two of them can print identically.
     ...(res.holdings ? {
       holdings: res.holdings.map((h) => ({ present: bySide(h.present), cost: h.cost, rarity: h.rarity, key: h.key })),
     } : {}),
+    ...(res.restartCost !== undefined ? { restartCost: res.restartCost } : {}),
+    ...(res.routes ? { routes: res.routes } : {}),
     ...(res.reason ? { reason: res.reason } : {}),
+  };
+}
+
+/**
+ * A route from a starting item (`routeFrom`), in the shape the craft's own graph has — so the same
+ * `PolicyGraph` draws it. Its cost is the root's, which the walk visits first; the table, the holdings
+ * and the bare cost stay with the craft's result, since a route answers none of what they answer.
+ */
+export function mapRoute(
+  data: PatchData, route: { readonly nodes: readonly PolicyNode[]; readonly edges: readonly PolicyEdge[] },
+  from: EngineMarkovResult,
+): EngineMarkovResult {
+  return {
+    applicable: from.applicable, feasible: from.feasible, converged: from.converged, bound: from.bound,
+    expectedCost: route.nodes[0]!.expectedCost,
+    assumedOdds: leansOnAssumedOdds(route.nodes.flatMap((nd) => (nd.action ? [nd.action] : []))),
+    nodes: route.nodes.map((nd) => mapNode(data, nd)),
+    edges: route.edges.map((e) => mapEdge(data, e)),
+    ...(from.restartCost !== undefined ? { restartCost: from.restartCost } : {}),
   };
 }
 

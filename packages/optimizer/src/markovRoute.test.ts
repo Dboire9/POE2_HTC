@@ -53,16 +53,36 @@ const CRAFTS: readonly Craft[] = [
  *
  * The claim that licenses drawing a route from ANY state is that walking the table from the craft's own
  * start reproduces the graph the solver has always drawn — nodes, edges, odds, visit rates, the lot.
- * Each craft picks out a different part of that walk: restart edges and their cut, an offer's realized
+ * That was proven against the old walk while both existed (dac91de: equal on all five crafts below, and
+ * red when edges were walked in reverse, self-loops dropped or goal states left unfolded). Since the old
+ * walk is gone, this pins what replaced it: the result's graph IS the walk from the start, and the table
+ * plays exactly the policy the result publishes.
+ *
+ * Each craft picks out a different part of the walk: restart edges and their cut, an offer's realized
  * odds and the flag axis, several goal states folding into one, and the Magic rung.
  */
 describe('routeFrom — the graph from any state, walked over the solved policy', () => {
-  it.each(CRAFTS)('reproduces the solver’s own graph from its start: $name', ({ prices, start, targets, opts }) => {
+  const solve = ({ prices, start, targets, opts }: Craft) => {
     const r = markovFromItem(real, prices, start, targets, { ...opts, keepRoutes: true });
     expect(r.feasible, r.reason).toBe(true);
     expect(r.bound).toBe('exact');
-    const t = r.routes!;
+    return { r, t: r.routes! };
+  };
+
+  it.each(CRAFTS)('draws the result’s graph as the walk from its start: $name', (craft) => {
+    const { r, t } = solve(craft);
     expect(t.keys[t.restartIdx]).toBe(r.nodes[0]!.key);
     expect(routeFrom(t, t.restartIdx)).toEqual({ nodes: r.nodes, edges: r.edges });
+  });
+
+  it.each(CRAFTS)('plays the published policy in every state: $name', (craft) => {
+    const { r, t } = solve(craft);
+    let played = 0;
+    t.keys.forEach((key, i) => {
+      const a = t.act[i]!;
+      expect(a >= 0 ? t.actions[a] : undefined, key).toEqual(r.policy.get(key));
+      if (a >= 0) played++;
+    });
+    expect(played).toBe(r.policy.size);
   });
 });

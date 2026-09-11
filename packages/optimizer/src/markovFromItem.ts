@@ -37,13 +37,13 @@ import {
 } from './markovSymmetry.ts';
 import type { ActionDef, McAction } from './markovActions.ts';
 import { createActionSpace } from './markovActions.ts';
-import type { McState, McTarget, StateKey, McRarity } from './markovState.ts';
+import type { McTarget, StateKey, McRarity } from './markovState.ts';
 import {
-  FLAG_JUNK_PREFIX, FLAG_JUNK_SUFFIX, FLAG_NONE, MAX_PER_SIDE, bit, classifyStart, decodeState,
-  enumerateStates, flaggedTarget, has, isAccepting, popcount, representative,
-  sideIndexOf, slotsFilled,
+  FLAG_NONE, MAX_PER_SIDE, bit, classifyStart, decodeState,
+  enumerateStates, has, isAccepting, popcount, representative, sideIndexOf,
 } from './markovState.ts';
 import type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
+import { flagFieldsOf, routeFrom } from './markovRoute.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
 // it from here rather than reaching into markovActions.ts. So are the route's shapes, which live beside
@@ -555,13 +555,6 @@ export function markovFromItem(
   // Built here rather than later because the action space closes over it.
   const restartKey = encode(s0.present, s0.blocked, s0.jp, s0.js, s0.flagged, s0.rarity);
 
-  const flagFields = (st: McState): { desecratedJunk?: 'prefix' | 'suffix'; desecratedTarget?: readonly string[] } => {
-    if (st.flagged === FLAG_JUNK_PREFIX) return { desecratedJunk: 'prefix' };
-    if (st.flagged === FLAG_JUNK_SUFFIX) return { desecratedJunk: 'suffix' };
-    const i = flaggedTarget(st.flagged);
-    return i >= 0 ? { desecratedTarget: idsOf(list[i]!) } : {};
-  };
-
   /**
    * The item already IS the target. Answer here, before a lattice exists.
    *
@@ -595,7 +588,7 @@ export function markovFromItem(
         junkPrefixes: s0.jp,
         junkSuffixes: s0.js,
         rarity: s0.rarity,
-        ...flagFields(s0),
+        ...flagFieldsOf(s0, list.map(idsOf)),
         isStart: true,
         isGoal: true,
         depth: 0,
@@ -1470,156 +1463,8 @@ export function markovFromItem(
     positions: list.map(idsOf), slotMasks,
   };
 
-  // Distance-to-goal for layout/regress: missing targets + blocked (each needs a remove then an add) +
-  // junk, counting an unwanted desecrated mod as junk too (it likewise costs a removal to clear).
-  const distanceToGoal = (k: StateKey): number => {
-    const st = decodeState(k);
-    // A state below Rare is at least two moves out however good its mods are: the Regal that converts
-    // it, plus the Annulment that clears the mod that Regal is forced to add. Without this a Magic item
-    // already holding every target scores 0 — the goal's own distance — while not being the goal, so
-    // the route walk (which may only step to a STRICTLY smaller distance) has nowhere to go and stalls.
-    // This is a layout and ordering heuristic, like the rest of the expression, not an exact metric.
-    const toRare = st.rarity === 'rare' ? 0 : 2;
-    // No term for the flag: a flagged JUNK mod is already counted in jp/js (marking it does not add an
-    // affix), and a flagged TARGET is a mod you wanted and have. The old axis needed one because it
-    // described a mod held outside those counters.
-    // Unfilled SLOTS, not missing candidates: with `slot 3 = {Cold, Lightning}` an item holding Cold
-    // is one step from done, and counting the Lightning it will never need as "missing" would put the
-    // goal permanently out of reach of a walk that may only step to a strictly smaller distance.
-    // Every slot a singleton makes this `n - popcount(present)` again, exactly as before.
-    return (slotMasks.length - slotsFilled(st.present, slotMasks))
-      + popcount(st.blocked) + st.jp + st.js + toRare;
-  };
-  /**
-   * How the UI should describe the mod a Desecration placed here, if any.
-   *
-   * Two fields rather than one, because the two cases read differently to a player: junk only needs
-   * its side (junk mods are interchangeable), while a flagged TARGET needs naming — it is a mod they
-   * asked for, and the fact that it also locks the item out of desecrating again is the whole reason
-   * the state is distinct.
-   */
-  /**
-   * Fold every goal state onto one key for display.
-   *
-   * The lattice has a goal per value of the flag axis — a finished item is finished whether or not a
-   * Desecration placed one of its mods — and they all have V = 0, so they are the same answer. Drawn
-   * as they come they would put several identical "✓ target" boxes in the graph and imply the player
-   * has a choice of endings.
-   */
-  const canonical = (k: StateKey): StateKey => (goalKeys.has(k) ? goalKey : k);
-
-  // Two phases on purpose: the BFS below discovers the states and their edges, and `visitRate` is a
-  // property of the finished GRAPH — it cannot be known for a node until every path into it exists.
-  // Typing the accumulator without the field is what makes that ordering explicit rather than a
-  // half-built object the compiler waves through.
-  const nodes: Omit<PolicyNode, 'visitRate'>[] = [];
-  const edges: PolicyEdge[] = [];
-  const seen = new Set<StateKey>();
-  const queue: StateKey[] = [startKey];
-  while (queue.length > 0) {
-    const k = queue.shift()!;
-    if (seen.has(k)) continue;
-    seen.add(k);
-    const st = decodeState(k);
-    const isGoal = goalKeys.has(k);
-    const act = isGoal ? undefined : bestAction(k);
-    const shown = act ? published(act) : undefined;
-    nodes.push({
-      key: k,
-      present: list.filter((_, i) => has(st.present, i)).map(idsOf),
-      blocked: list.filter((_, i) => has(st.blocked, i)).map(idsOf),
-      junkPrefixes: st.jp, junkSuffixes: st.js, rarity: st.rarity,
-      ...flagFields(st),
-      isStart: k === startKey, isGoal, depth: distanceToGoal(k), expectedCost: V[idxOfState.get(k)!] ?? Infinity,
-      ...(shown ? { action: shown.action, actionCost: shown.cost } : {}),
-    });
-    if (act && shown) {
-      for (const [rawTo, p] of realizedDist(act)) {
-        if (p <= 0) continue;
-        const to = canonical(rawTo);
-        edges.push({ from: k, to, action: shown.action, prob: p, regress: distanceToGoal(to) > distanceToGoal(k) });
-        if (!seen.has(to)) queue.push(to);
-      }
-    }
-  }
-
-  /**
-   * Rank every state by how much it matters to a run that SUCCEEDS.
-   *
-   * Two passes, and the second is the whole point.
-   *
-   *   forward(s) — expected visits per attempt: `f(s) = [s is start] + Σ_t f(t)·P(t→s)`.
-   *   toGoal(s)  — P(reach the goal from s without restarting): `g(s) = Σ_t P(s→t)·g(t)`, `g(goal)=1`.
-   *
-   * The product is expected visits to `s` on a successful attempt, and `forward` ALONE was measured
-   * to be actively misleading. On a craft with a free base ~98% of states choose "start over", so
-   * they are entered constantly and rank at the top — while every one of them shows the same action
-   * and the same cost, because they all share V(start). A real 6-target T2 craft drew ten boxes at
-   * 90% coverage and nine of them said "Start over with a new base · 2,132 div". The part a player
-   * needs — Chaos, Annul, Perfect Exalt, Desecrate, where the cost finally falls 2,131 → 751 — sat
-   * below 99%, past 89 boxes of noise.
-   *
-   * `toGoal` fixes it by construction: a state whose best move is to restart has no non-restart edge
-   * out, so its `g` is 0 and it leaves the ranking entirely. What survives is the spine of the craft.
-   * The restart edges are still DRAWN from the states that are kept — they are the back-arrows, and
-   * how often a step throws you back is exactly what the reader has to see.
-   *
-   * Power iteration for both: the graph is small, both chains are transient so the series converge
-   * geometrically, and the alternative is a dense N×N inverse for a number that only decides what
-   * gets drawn. The 1000 cap is a runaway guard; both settle in tens.
-   */
-  const incoming = new Map<string, { from: string; p: number }[]>();
-  const outgoing = new Map<string, { to: string; p: number }[]>();
-  for (const e of edges) {
-    // A restart ENDS the attempt. Followed, it feeds probability back into the start and both passes
-    // diverge — the loop is the reason for the cut, not a special case.
-    if (e.action.currency === 'restart' || e.to === startKey) continue;
-    const inList = incoming.get(e.to);
-    if (inList) inList.push({ from: e.from, p: e.prob });
-    else incoming.set(e.to, [{ from: e.from, p: e.prob }]);
-    const outList = outgoing.get(e.from);
-    if (outList) outList.push({ to: e.to, p: e.prob });
-    else outgoing.set(e.from, [{ to: e.to, p: e.prob }]);
-  }
-
-  const settle = (step: (prev: Map<string, number>) => Map<string, number>, init: Map<string, number>) => {
-    let cur = init;
-    for (let round = 0; round < 1000; round++) {
-      const next = step(cur);
-      let delta = 0;
-      for (const [k, v] of next) {
-        const d = Math.abs(v - (cur.get(k) ?? 0));
-        if (d > delta) delta = d;
-      }
-      cur = next;
-      if (delta <= 1e-12) break;
-    }
-    return cur;
-  };
-
-  const forward = settle((prev) => {
-    const next = new Map<string, number>();
-    for (const nd of nodes) {
-      let acc = nd.key === startKey ? 1 : 0;
-      for (const { from, p } of incoming.get(nd.key) ?? []) acc += (prev.get(from) ?? 0) * p;
-      next.set(nd.key, acc);
-    }
-    return next;
-  }, new Map(nodes.map((nd) => [nd.key, nd.key === startKey ? 1 : 0])));
-
-  const toGoal = settle((prev) => {
-    const next = new Map<string, number>();
-    for (const nd of nodes) {
-      if (nd.isGoal) { next.set(nd.key, 1); continue; }
-      let acc = 0;
-      for (const { to, p } of outgoing.get(nd.key) ?? []) acc += p * (prev.get(to) ?? 0);
-      next.set(nd.key, acc);
-    }
-    return next;
-  }, new Map(nodes.map((nd) => [nd.key, nd.isGoal ? 1 : 0])));
-
-  const withVisits = nodes.map((nd) => (
-    { ...nd, visitRate: (forward.get(nd.key) ?? 0) * (toGoal.get(nd.key) ?? 0) }));
+  // The craft's own route: the walk any other root gets too, from the start (markovRoute.ts).
+  const { nodes, edges } = routeFrom(table, startIdx);
 
   /**
    * What the craft costs from a CLEAN item already holding each SUBSET of the targets.
@@ -1672,7 +1517,7 @@ export function markovFromItem(
   const bareV = bareIdx === undefined ? undefined : V[bareIdx];
   const bare = bareV !== undefined && Number.isFinite(bareV) ? bareV : undefined;
   return {
-    expectedCost: startCost, feasible: true, converged, bound, nodes: withVisits, edges, policy,
+    expectedCost: startCost, feasible: true, converged, bound, nodes, edges, policy,
     ...(bare !== undefined ? { bareCost: bare } : {}),
     ...(holdings.length > 0 ? { holdings } : {}),
     ...(opts.keepRoutes && bound === 'exact' ? { routes: table } : {}),

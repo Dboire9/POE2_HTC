@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 // Two things that broke a deploy and a CI run respectively, neither of which any existing test could
 // have caught: both are about files that ship without being executed by the suite.
@@ -203,6 +206,89 @@ describe('the price refresh bot cannot merge quietly', () => {
   /** Both questions gate the merge: is the data backed by a market, and does the app work on it? */
   it('merges only when the depth verdict AND the tests are clean', () => {
     expect(wf).toMatch(/\[ "\$DEPTH" = clean \] && \[ "\$TESTS" = true \]/);
+  });
+
+  /**
+   * Everything above reads the workflow as TEXT, and on 2026-09-11 the text passed all of it while the
+   * PR step died on its first real run: vitest colours its output whenever `CI` is set — always, on a
+   * runner — so `grep '^\s+Tests'` matched nothing, `pipefail` made that fatal, and the step exited 1
+   * between the branch push and `gh pr create` with nothing in the log to say why. No PR, no prices.
+   *
+   * So this RUNS the step's own script, lifted out of the YAML, under bash, with `git` and `gh`
+   * stubbed on PATH, against vitest output captured from a run with `CI=true` (escape codes and all).
+   * A local run will not show those colours: vitest switches them off when it detects an AI agent.
+   */
+  describe.skipIf(process.platform === 'win32')('the PR step, executed against coloured vitest output', () => {
+    const lines = wf.split('\n');
+    const runAt = lines.findIndex((l, i) => i > lines.findIndex((m) => m.trim() === 'id: pr') && /^\s+run: \|$/.test(l));
+    const indent = lines[runAt]!.search(/\S/);
+    const end = lines.findIndex((l, i) => i > runAt && l.trim() !== '' && l.search(/\S/) <= indent);
+    const script = lines.slice(runAt + 1, end).map((l) => l.slice(indent + 2)).join('\n');
+
+    const E = '\x1b[';
+    const PASSED = [
+      `${E}1m${E}30m${E}46m RUN ${E}49m${E}39m${E}22m ${E}36mv4.1.11 ${E}39m${E}90m/home/runner/work/POE2_HTC/POE2_HTC${E}39m`,
+      '',
+      `${E}2m Test Files ${E}22m ${E}1m${E}32m93 passed${E}39m${E}22m${E}90m (93)${E}39m`,
+      `${E}2m      Tests ${E}22m ${E}1m${E}32m1817 passed${E}39m${E}22m${E}90m (1818)${E}39m`,
+    ].join('\n');
+    const FAILED = [
+      `${E}31m   ${E}31m\u00d7${E}31m prices a Wand${E}39m${E}32m 60${E}2mms${E}22m${E}39m`,
+      `${E}2m Test Files ${E}22m ${E}1m${E}31m1 failed${E}39m${E}22m${E}90m (93)${E}39m`,
+      `${E}2m      Tests ${E}22m ${E}1m${E}31m1 failed${E}39m${E}22m${E}2m | ${E}22m${E}1m${E}32m1816 passed${E}39m${E}22m${E}90m (1818)${E}39m`,
+    ].join('\n');
+
+    function runStep(guardLog: string, env: Record<string, string>) {
+      const dir = mkdtempSync(join(tmpdir(), 'pr-step-'));
+      const bin = join(dir, 'bin');
+      mkdirSync(bin);
+      writeFileSync(join(bin, 'git'), '#!/bin/sh\n[ "$1" = "${GIT_FAILS:-}" ] && exit 1\nexit 0\n', { mode: 0o755 });
+      writeFileSync(join(bin, 'gh'), [
+        '#!/bin/sh',
+        `echo "$*" >> '${dir}/gh.calls'`,
+        `case "$1 $2" in "pr list") [ -f '${dir}/created' ] && echo 21 ;; "pr create") touch '${dir}/created' ;; esac`,
+        'exit 0',
+      ].join('\n'), { mode: 0o755 });
+      writeFileSync(join(dir, 'refresh.log'), 'DEPTH-VERDICT: clean\n');
+      writeFileSync(join(dir, 'guard.log'), guardLog);
+      const r = spawnSync('bash', ['-c', script.split('/tmp/').join(`${dir}/`)], {
+        encoding: 'utf8',
+        env: { PATH: `${bin}:${process.env.PATH}`, GITHUB_OUTPUT: join(dir, 'out'), BASE: 'main', WHY: '', ...env },
+      });
+      const read = (f: string) => (existsSync(join(dir, f)) ? readFileSync(join(dir, f), 'utf8') : '');
+      return { status: r.status, stderr: r.stderr, gh: read('gh.calls'), body: read('pr-body.md') };
+    }
+
+    it('opens and merges a clean refresh, quoting the suite summary', () => {
+      const r = runStep(PASSED, { VERDICT: 'clean', TESTS: 'true' });
+      expect(r.stderr).toBe('');
+      expect(r.status).toBe(0);
+      expect(r.gh).toMatch(/^pr create /m);
+      expect(r.gh).toMatch(/^pr merge 21 /m);
+      expect(r.body).toContain('      Tests  1817 passed (1818)');
+    });
+
+    it('opens a held PR that names the failing test, and does not merge it', () => {
+      const r = runStep(FAILED, { VERDICT: 'review', TESTS: 'false', WHY: 'TESTS FAILED' });
+      expect(r.status).toBe(0);
+      expect(r.gh).toMatch(/^pr create /m);
+      expect(r.gh).not.toMatch(/^pr merge /m);
+      expect(r.body).toContain('   \u00d7 prices a Wand 60ms');
+    });
+
+    it('still opens the PR when the test log has no summary at all', () => {
+      const r = runStep('', { VERDICT: 'clean', TESTS: 'true' });
+      expect(r.status).toBe(0);
+      expect(r.gh).toMatch(/^pr create /m);
+      expect(r.body).toContain('(no summary line in the test log)');
+    });
+
+    it('says which line failed, rather than exiting without a word', () => {
+      const r = runStep(PASSED, { VERDICT: 'clean', TESTS: 'true', GIT_FAILS: 'commit' });
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/^::error::The PR step failed at line \d+: git commit /m);
+      expect(r.gh).toBe('');
+    });
   });
 });
 

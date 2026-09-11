@@ -182,7 +182,11 @@ jobs:
           TESTS: ${{ steps.guard.outputs.passed }}
         shell: bash
         run: |
-          set -euo pipefail
+          set -Eeuo pipefail
+          # `set -e` ends the step WITHOUT A WORD: on 2026-09-11 a grep that matched nothing killed this
+          # step between the branch push and `gh pr create`, and the log said only "exit code 1". The
+          # trap names the line that failed. To stderr, because the PR body block below redirects stdout.
+          trap 'echo "::error::The PR step failed at line $LINENO: $BASH_COMMAND" >&2' ERR
           branch=chore/refresh-prices
 
           git config user.name  "github-actions[bot]"
@@ -239,15 +243,22 @@ jobs:
             echo "The whole test suite ran against the new sheet in the refresh job — a PR opened by"
             echo "\`GITHUB_TOKEN\` does not trigger CI, so that check has to run there rather than here."
             echo
+            # Vitest COLOURS its output whenever `CI` is set, which on a runner it always is, so every
+            # line of the log starts with an escape code and `^\s+Tests` matches nothing — the
+            # 2026-09-11 failure. Strip them before reading. And never let the summary stop the PR:
+            # this is decoration on the body, so a missing line prints a note instead of exiting.
+            # `grep -m` rather than `| head`, because head closing the pipe early SIGPIPEs grep and
+            # `pipefail` turns that into a failure too.
+            sed 's/\x1b\[[0-9;]*m//g' /tmp/guard.log > /tmp/guard.txt
             if [ "$TESTS" = true ]; then
               echo '```'
-              grep -E '^\s+(Test Files|Tests) ' /tmp/guard.log | tail -2
+              grep -E '^\s+(Test Files|Tests) ' /tmp/guard.txt | tail -2 || echo "(no summary line in the test log)"
               echo '```'
             else
               echo "<details open><summary>Failing tests</summary>"
               echo
               echo '```'
-              grep -E '^\s+×|^\s+(Test Files|Tests) ' /tmp/guard.log | head -40
+              grep -m 40 -E '^\s+×|^\s+(Test Files|Tests) ' /tmp/guard.txt || echo "(no failing-test lines in the log — see the job log)"
               echo '```'
               echo
               echo "</details>"

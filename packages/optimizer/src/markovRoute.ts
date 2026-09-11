@@ -187,8 +187,6 @@ export function flagFieldsOf(
  * from-scratch plan the Lab already shows beside this one.
  */
 export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; edges: PolicyEdge[] } {
-  const rootKey = t.keys[root]!;
-  const restartKey = t.keys[t.restartIdx]!;
   const endsAtRestart = t.canRestart && root !== t.restartIdx;
   /**
    * Fold every goal state onto one key for display.
@@ -199,7 +197,13 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
    * has a choice of endings.
    */
   const canonical = (i: number): number => (t.goal[i] === 1 ? t.goalIdx : i);
-  const depthOf = (i: number): number => distanceToGoal(decodeState(t.keys[i]!), t.slotMasks);
+  // Distance-to-goal per state, decoded once: the walk asks it of both ends of every edge.
+  const depthMemo = new Int32Array(t.keys.length).fill(-1);
+  const depthOf = (i: number): number => {
+    let d = depthMemo[i]!;
+    if (d < 0) { d = distanceToGoal(decodeState(t.keys[i]!), t.slotMasks); depthMemo[i] = d; }
+    return d;
+  };
   const named = (mask: number): (readonly string[])[] => t.positions.filter((_, i) => has(mask, i));
 
   // Two phases on purpose: the BFS below discovers the states and their edges, and `visitRate` is a
@@ -208,12 +212,17 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
   // half-built object the compiler waves through.
   const nodes: Omit<PolicyNode, 'visitRate'>[] = [];
   const edges: PolicyEdge[] = [];
-  const seen = new Uint8Array(t.keys.length);
+  // Each state's place in `nodes` (-1 until walked), and each edge's two ends as states — so the
+  // visit-rate passes run over positions in typed arrays rather than over string keys in Maps, which
+  // on a 6,000-state route from fubgun's staff took three seconds a click.
+  const at = new Int32Array(t.keys.length).fill(-1);
+  const edgeFrom: number[] = [];
+  const edgeTo: number[] = [];
   const queue: number[] = [root];
   for (let head = 0; head < queue.length; head++) {
     const i = queue[head]!;
-    if (seen[i] === 1) continue;
-    seen[i] = 1;
+    if (at[i]! >= 0) continue;
+    at[i] = nodes.length;
     const key = t.keys[i]!;
     const st = decodeState(key);
     const isGoal = t.goal[i] === 1;
@@ -231,11 +240,12 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
       ...(action ? { action, actionCost: t.actCost[i]! } : {}),
     });
     if (!action) continue;
-    const depth = depthOf(i);
     for (let j = t.outStart[i]!; j < t.outStart[i + 1]!; j++) {
       const to = canonical(t.outTo[j]!);
-      edges.push({ from: key, to: t.keys[to]!, action, prob: t.outProb[j]!, regress: depthOf(to) > depth });
-      if (seen[to] !== 1) queue.push(to);
+      edges.push({ from: key, to: t.keys[to]!, action, prob: t.outProb[j]!, regress: depthOf(to) > depthOf(i) });
+      edgeFrom.push(i);
+      edgeTo.push(to);
+      if (at[to]! < 0) queue.push(to);
     }
   }
 
@@ -260,65 +270,89 @@ export function routeFrom(t: RouteTable, root: number): { nodes: PolicyNode[]; e
    * The restart edges are still DRAWN from the states that are kept — they are the back-arrows, and
    * how often a step throws you back is exactly what the reader has to see.
    *
-   * Power iteration for both: the graph is small, both chains are transient so the series converge
-   * geometrically, and the alternative is a dense N×N inverse for a number that only decides what
-   * gets drawn. The 1000 cap is a runaway guard; both settle in tens.
+   * Power iteration for both, capped at 1000 sweeps — and on a big route the cap is what stops it, not
+   * convergence: every route from fubgun's staff runs all 1000 (states that loop through each other
+   * mix slowly). Measured 2026-09-11, converging it properly changes nothing a reader sees — across 40
+   * of those routes the states drawn at 90% and at 99% coverage were identical, and no visit rate that
+   * matters moved by more than 0.3% — while a Gauss-Seidel solve with self-loops divided out still
+   * needed up to 1,978 sweeps. These numbers only decide what gets drawn, so the cap stays. Run over
+   * positions, with every sum taken in the order the Map-keyed version took it — edge order within a
+   * node, node order within a sweep — so the answer is the same to the bit.
    */
-  const incoming = new Map<string, { from: string; p: number }[]>();
-  const outgoing = new Map<string, { to: string; p: number }[]>();
-  for (const e of edges) {
+  const M = nodes.length;
+  // Adjacency by node position, cut edges left out, each list in edge order.
+  const inStart = new Int32Array(M + 1);
+  const outStartAt = new Int32Array(M + 1);
+  const kept: number[] = [];
+  for (let e = 0; e < edges.length; e++) {
     // A restart ENDS the attempt. Followed, it feeds probability back into the start and both passes
     // diverge — the loop is the reason for the cut, not a special case. Cut by where it LANDS as well
     // as by its name, which from the craft's own start is the rule this always was. From a bought item
     // an edge back into the ROOT is not a restart — annulling junk back to the item you bought is part
     // of the route — so it stays; the chain is still transient, because every restart edge is cut.
-    if (e.action.currency === 'restart' || e.to === restartKey) continue;
-    const inList = incoming.get(e.to);
-    if (inList) inList.push({ from: e.from, p: e.prob });
-    else incoming.set(e.to, [{ from: e.from, p: e.prob }]);
-    const outList = outgoing.get(e.from);
-    if (outList) outList.push({ to: e.to, p: e.prob });
-    else outgoing.set(e.from, [{ to: e.to, p: e.prob }]);
+    if (edges[e]!.action.currency === 'restart' || edgeTo[e] === t.restartIdx) continue;
+    kept.push(e);
+    inStart[at[edgeTo[e]!]! + 1]!++;
+    outStartAt[at[edgeFrom[e]!]! + 1]!++;
+  }
+  for (let j = 0; j < M; j++) { inStart[j + 1]! += inStart[j]!; outStartAt[j + 1]! += outStartAt[j]!; }
+  const inFrom = new Int32Array(kept.length);
+  const inProb = new Float64Array(kept.length);
+  const outTo = new Int32Array(kept.length);
+  const outProb = new Float64Array(kept.length);
+  const inFill = inStart.slice(0, M);
+  const outFill = outStartAt.slice(0, M);
+  for (const e of kept) {
+    const from = at[edgeFrom[e]!]!;
+    const to = at[edgeTo[e]!]!;
+    const p = edges[e]!.prob;
+    inFrom[inFill[to]!] = from; inProb[inFill[to]!++] = p;
+    outTo[outFill[from]!] = to; outProb[outFill[from]!++] = p;
   }
 
-  const settle = (step: (prev: Map<string, number>) => Map<string, number>, init: Map<string, number>) => {
-    let cur = init;
+  // One sweep writes every state's next value and returns the largest change — one pass, not two.
+  const settle = (step: (prev: Float64Array, next: Float64Array) => number, init: Float64Array): Float64Array => {
+    let cur: Float64Array = init;
+    let next: Float64Array = new Float64Array(M);
     for (let round = 0; round < 1000; round++) {
-      const next = step(cur);
-      let delta = 0;
-      for (const [k, v] of next) {
-        const d = Math.abs(v - (cur.get(k) ?? 0));
-        if (d > delta) delta = d;
-      }
-      cur = next;
+      const delta = step(cur, next);
+      [cur, next] = [next, cur];
       if (delta <= 1e-12) break;
     }
     return cur;
   };
 
-  const forward = settle((prev) => {
-    const next = new Map<string, number>();
-    for (const nd of nodes) {
-      let acc = nd.key === rootKey ? 1 : 0;
-      for (const { from, p } of incoming.get(nd.key) ?? []) acc += (prev.get(from) ?? 0) * p;
-      next.set(nd.key, acc);
+  // The root is the first state the walk visits, so it sits at position 0.
+  const forward = settle((prev, next) => {
+    let delta = 0;
+    for (let j = 0; j < M; j++) {
+      let acc = j === 0 ? 1 : 0;
+      for (let q = inStart[j]!; q < inStart[j + 1]!; q++) acc += prev[inFrom[q]!]! * inProb[q]!;
+      next[j] = acc;
+      const d = Math.abs(acc - prev[j]!);
+      if (d > delta) delta = d;
     }
-    return next;
-  }, new Map(nodes.map((nd) => [nd.key, nd.key === rootKey ? 1 : 0])));
+    return delta;
+  }, Float64Array.from(nodes, (_, j) => (j === 0 ? 1 : 0)));
 
-  const toGoal = settle((prev) => {
-    const next = new Map<string, number>();
-    for (const nd of nodes) {
-      if (nd.isGoal) { next.set(nd.key, 1); continue; }
-      let acc = 0;
-      for (const { to, p } of outgoing.get(nd.key) ?? []) acc += p * (prev.get(to) ?? 0);
-      next.set(nd.key, acc);
+  const goal = Uint8Array.from(nodes, (nd) => (nd.isGoal ? 1 : 0));
+  const toGoal = settle((prev, next) => {
+    let delta = 0;
+    for (let j = 0; j < M; j++) {
+      let acc = 1;
+      if (goal[j] !== 1) {
+        acc = 0;
+        for (let q = outStartAt[j]!; q < outStartAt[j + 1]!; q++) acc += outProb[q]! * prev[outTo[q]!]!;
+      }
+      next[j] = acc;
+      const d = Math.abs(acc - prev[j]!);
+      if (d > delta) delta = d;
     }
-    return next;
-  }, new Map(nodes.map((nd) => [nd.key, nd.isGoal ? 1 : 0])));
+    return delta;
+  }, Float64Array.from(goal));
 
   return {
-    nodes: nodes.map((nd) => ({ ...nd, visitRate: (forward.get(nd.key) ?? 0) * (toGoal.get(nd.key) ?? 0) })),
+    nodes: nodes.map((nd, j) => ({ ...nd, visitRate: forward[j]! * toGoal[j]! })),
     edges,
   };
 }

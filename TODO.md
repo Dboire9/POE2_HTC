@@ -1366,6 +1366,23 @@ reading rather than a source, and where they are missing:
 
 ---
 
+## 22. A route from a starting item is drawn on the main thread — OPEN, 2026-09-11
+
+The Lab's "Start from an item you buy instead" draws each row's route with `routeFor`, on the main
+thread, from the solved policy the result carries. On fubgun's staff, the heaviest shipped streamer
+craft, that is **175 ms median and 228 ms max** per click across all 77 starting items; ordinary crafts
+draw in about 20 ms. The panel shows "Drawing the route…" first, so the click is never silent.
+
+The plan set ~150 ms as the point to move it into the solve worker, and it was **not** moved: the
+worker is cancelled by `terminate()` and both tabs share it, so a session held there dies with any
+later Cancel, and a click would queue behind a running solve. If a craft makes the click feel slow,
+the cheaper move is a SECOND, route-only worker receiving the table (1.54 MB on the staff, 37 ms to
+clone) with the key. It is stateless, so there is nothing for a Cancel to kill.
+
+**Not** cheaper: converging the visit rates. Every staff route runs the full 1,000-sweep cap, and a
+Gauss-Seidel solve with self-loops divided out still needed 1,978 sweeps. It changed nothing drawn
+across 40 routes (docs/validation.md, 2026-09-11).
+
 ## What 1.0 means — ALL FIVE SHIPPED, prepared 2026-09-02
 
 The definition written on 2026-09-01 was: §7 the docs describe the app that exists, §8 prices refresh

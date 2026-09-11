@@ -4001,6 +4001,122 @@ better second step by 0.3 ex. It still ends on the omened bone (2.7% onward, 135
 inside the 900 s budget by less than the entry above's 664 s — machine variance between the two runs is
 not ruled out — so TODO 20 stands.
 
+## Start from an item you buy instead (2026-09-11)
+
+Asked on fubgun's staff: *"I enter how many mods on the item I would like to have (for example 2), and
+then you find the best way to go to the 6 mods on the streamer gear from the best first two mods."*
+
+**Two decisions were the player's.** If the bought item goes wrong, the plan may drop it and start over
+from a white base, but only when that is cheaper than repairing it: the price paid is spent either
+way, so finishing costs are read from the Lab's from-white solve, which has restart. The Item tab's
+"What to look for" answers the no-restart question from its own solve and stays as it was. And since
+poe.ninja prices no item with specific modifiers, each row takes a typed trade price and the list
+re-ranks by price plus finishing.
+
+**Nothing is solved twice.** The from-white solve already holds V for every item the craft passes
+through. A row is one cell of it, so switching the size or typing a price re-reads the table. A route
+from a row is a walk over the solved policy the result now carries (`RouteTable`, plain data: 1.54 MB
+for the staff's 21,561 states and 57,243 outcomes; the whole result goes from 5.44 to 6.98 MB and still
+clones in 37 ms).
+
+**Which cell a set of mods is read from** (`startCandidates`) had to be right before it could be ranked,
+and the old `holdings` read was wrong three ways, each now tested and mutation-checked:
+
+- **Slots, not candidates.** A Cold-or-Lightning slot plus Cast Speed gave 8 rows. "Cold + Lightning"
+  counted as two modifiers when it fills one slot, and Cold and Lightning appeared as two items at one
+  cost when the encoder had already made them one state. There are 4 rows.
+- **A desecrated-pool target is read at its flag cell.** A Desecration marks what it places, so the
+  unmarked cell is unreachable and priced an item that could still take a bone. The row now equals a
+  real solve from an item holding the mod.
+- **Magic as well as Rare.** Magic rows hold only normal-pool targets: below Rare the only adding moves
+  are Transmute, Augment and Regal.
+
+Every single and pair row equals a real from-item solve to 6 decimals.
+
+**Worth up to = `restartCost + V(white) − V(item)`**: a solve's `expectedCost` starts from a base you
+already hold, and only another base is charged. On a hand-built craft (prefixes T and J, suffix U,
+weight 1 each; Transmute 1, Augment 1, Regal 2, Exalt 1, Annulment and Chaos 1,000, base 3) the model
+gives exactly the derivation:
+
+- V(white) = 13.
+- A Rare holding T costs 9 and is worth up to 7.
+- A Magic holding T costs 10 and is worth up to 6.
+- With Exalts at 20, the Rare costs 16 and is worth nothing; its route is the single move "start over".
+
+On a real Wand craft:
+
+- no starting item costs more than a fresh base plus the craft;
+- walking every row's route as a Markov chain gives back the row's cost to 1e-6.
+
+**Every graph is `routeFrom(table, root)`.** It was proven equal to the walk it replaced, node for node
+and edge for edge, on five crafts (held Rare; from white with restart; a carved target with bones and
+Echoes; a slot with 7 goal states; a Magic start) before that walk was deleted. From a bought item the
+route ends at the white base, drawn once and not walked.
+
+The visit-rate cut is "restart edges, or edges into the restart state". From the craft's own start
+that is the old rule. It keeps an Annulment back onto a bought root as a revisit: with restart priced
+out, real Wand routes return to their root and count above one visit.
+
+**Measured on fubgun's staff**, from white at Exhaustive, sheet of 2026-09-10: **158,661 ex (596 div),
+exact, in 692.7 s and 684.3 s**, the same cost the previous entry recorded in 717 s. Starting items by
+how many targets they carry, with the best of each size:
+
+| on it | Magic | Rare | best | finishing | worth up to |
+|---|---|---|---|---|---|
+| 1 | 6 | 6 | Magic · Spell Damage | 595.4 div | 0.6 div |
+| 2 | 9 | 15 | Rare · Fire + Spell Damage | 588.4 div | 7.6 div |
+| 3 | 0 | 20 | Rare · Fire + Cold-or-Lightning + Spell Damage | 536.3 div | 59.7 div |
+| 4 | 0 | 15 | Rare · Spell Damage + Fire Spell levels + Int + Cast Speed | 452 div | 144 div |
+| 5 | 0 | 6 | Rare · all but Cold-or-Lightning | 25.5 div | 570.5 div |
+
+That is the back-loading this project first measured on 2026-09-03, on the item that asked. Two of six
+modifiers are worth at most 7.6 div, and 13 of the 24 two-mod items round to nothing at 0.1 div. Every
+pair worth a divine or more holds Spell Damage. The value is in the last modifiers: five of six, missing
+only the Cold-or-Lightning slot, leaves 25.5 div to finish.
+
+**Routes on the main thread.** The first build took **3.0 s** per route on the staff (5,906 states,
+24,849 edges from the best 2-mod item), all of it in the two visit-rate passes: Maps keyed by state
+strings, walked every sweep, and every staff route runs all 1,000 sweeps. Run over typed position
+arrays, with every sum in the same order, the result is bit-identical on 188 roots checked against the
+old walk. The time is **175 ms median, 228 ms max** across all 77 of the staff's starting items (9.0 s →
+0.65 s for every route of a 5-target Wand). The plan had set ~150 ms as the point to move routes into
+the solve worker. They stay on the main thread: the worker is cancelled by terminating it, and both
+tabs share it, so a route could not outlive any later Cancel. The panel shows "Drawing the route…" on
+the click, and ordinary crafts draw in about 20 ms.
+
+**Converging the visit rates was tried and rejected.** The 1,000-sweep cap is what stops every staff
+route, not convergence. A Gauss-Seidel solve with self-loops divided out still needed up to 1,978
+sweeps, and across 40 staff routes it changed nothing drawn: the same states at 90% and at 99%
+coverage, and no significant rate moved more than 0.3%. These numbers only decide what gets drawn.
+
+**The table costs the solve nothing measurable**: old build against new, interleaved, three runs each,
+medians, identical answers:
+
+| craft | old | new |
+|---|---|---|
+| Wands 4×T2 | 2.37 s | 2.37 s |
+| Body_Armours_str 5×T2 | 8.23 s | 8.44 s |
+| Amulets 4×T2 | 3.96 s | 3.90 s |
+
+The main bundle grows 4.4 kB gzip (132.95 → 137.33 kB) for the panel and the route walk.
+
+**The Item tab's "What to look for", before and after**, on the staff through *I have some of these*
+(an empty Rare of the same base, no restart, Exhaustive; both builds settled in ~705 s):
+
+- **Rows shrink from 120 to 64.** Two members of one slot and the duplicate spellings are gone.
+- **Nothing a buyer reads changes in value.** Every best-per-size row keeps its cost and its saving:
+  2.3% for one mod up to 98.5% for five.
+- **The 3- and 4-mod rows now say "Cold or Lightning".** The old read named whichever spelling the
+  encoder kept, "Cold", though a Lightning roll fills the same slot.
+
+The same run shows why the Lab reads the restart solve instead. Kept to the end, a bare Rare staff
+costs **1,760 div** to finish, three times crafting it from a white base.
+
+The carved correction is visible on a two-target Wand, frozen sheet, holding
+`Wands/Desecrated_WeaponDamageTypePrefix`. The old row said **605.08 ex**, while a real item holding that
+mod costs **647.14 ex** to finish: 6.5% low, because the old read assumed the item could still be
+desecrated. The row now reads 647.14 ex.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

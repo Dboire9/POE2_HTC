@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Start from an item you buy instead.** Asked for fubgun's staff: "I enter how many mods the starting
+  item should have, and you find the best way to the full item from the best first ones." A craft
+  planned from scratch now lists every Magic and Rare item already carrying 1 to n−1 of the targets —
+  pick how many — with what finishing from it costs and what it is worth paying for (crafting from
+  scratch minus finishing). Type the trade price you find and the list re-ranks by price plus
+  finishing; click an item for the route from it, ending where the plan would start over from a white
+  base. All of it comes from the one solve the Lab already runs — no second solve, however many sizes,
+  prices or routes you look at. On a streamer's item, **Craft this from scratch** leads there.
 - **Ancient bones and the Omen of Abyssal Echoes.** Both answer "wouldn't we have better odds?". An
   Ancient bone ("Minimum Modifier Level: 40") offers three mods with every ordinary tier below level 40
   taken out — nearly twice the chance of a top tier on a Wand, for a bone that costs about 1,000ex. The
@@ -30,6 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **"What to look for when you buy one" counted a slot of alternatives wrongly, and priced a carved
+  modifier on the wrong item.** A Cold-or-Lightning slot plus Cast Speed listed 8 items where there
+  are 4 — "Cold + Lightning" as two modifiers, and Cold and Lightning as two items at one price. An
+  item already holding a desecrated modifier was priced as if it could still be desecrated; it is now
+  priced as the real item, which cannot. Crafts without alternatives or carved targets are unchanged.
+- **Reset and a base change now clear the "True expected cost" card** — it stayed on screen for a
+  craft that was no longer there.
 - **Transmutation and Augmentation roll at modifier level 55 (Greater) and 70 (Perfect), not 35 and
   50.** Every orb had the Exalted Orb's ladder, so a Greater or Perfect Transmute could land a mod whose
   best tier is 54.

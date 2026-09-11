@@ -683,17 +683,33 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   **The best PAIR is not the best single plus the next best** — they compete for the same three slots
   — so `buyAdvice` picks the cheapest set at each SIZE rather than ranking modifiers and stacking
   them. `startingItem.test.ts` pins that with a fixture where the two disagree.
-  **HOLDINGS ARE READ AT THE RARE RUNG, NOT AT THE STARTING RARITY**, and reading `s0.rarity` was a
-  shipped bug: a from-WHITE craft got exactly ONE row (a Normal item holds nothing, so no other mask is
-  enumerated there), `buyAdvice` declined, and the panel silently never appeared on the Lab tab. An
-  item carrying modifiers is a Rare whatever the craft starts from. `bareCost` keeps its own read at
-  `s0.rarity` — different question, and `ItemWorth` is built on that meaning. Pinning that split needs
-  `restartCost > 0`: at the default FREE base the two reads agree to the exalt, so the obvious test
-  passes against the wrong code.
-  **`WhatToBuy` is on the ITEM TAB ONLY.** A from-white craft may bin the item and start over, so V at
-  every rare state collapses toward `restartCost + V(start)` — measured, the "holding none" row equalled
-  the white base's own cost to the exalt and three-of-four saved 18% against a held Rare's 37%. Right
-  numbers, wrong question. Same reason `FrontierView` sets `freeRestart={false}`.
+  **WHICH CELL A SET OF MODS IS READ FROM is `startCandidates` (markovStarts.ts), and each rule was a
+  wrong read first** (2026-09-11). Reading `s0.rarity` was a shipped bug — a from-WHITE craft got ONE row
+  (a Normal item holds nothing) and the panel never appeared on the Lab. Rows now come from the Magic AND
+  Rare rungs; **Magic rows hold only normal-pool targets** (below Rare only Transmutation, Augmentation
+  and Regal add a mod, and an Essence converts to Rare as it adds). **Size counts SLOTS**, at most one
+  member per slot — a Cold-or-Lightning slot plus Cast Speed read as 8 rows, including "Cold + Lightning"
+  as a two-mod step and Cold and Lightning as two items at one cost; there are 4. **A desecrated-pool
+  target is read at its own FLAG cell** (`flagTarget(i)`): only a Desecration places one, and it marks
+  what it places, so the unmarked cell is unreachable and priced an item that could still take a bone.
+  Two such targets on one item are skipped — the lattice carries those states (see the `conflicts`
+  note in markovFromItem.ts), no route reaches them. `buyAdvice` reads the RARE rows only. `bareCost`
+  keeps its own read at `s0.rarity` — different question, and `ItemWorth` is built on that meaning; it
+  equals the empty Rare row only on a Rare start. Pinning that split needs `restartCost > 0`: at the
+  default FREE base the two reads agree to the exalt, so the obvious test passes against the wrong code.
+  **TWO PANELS, TWO QUESTIONS, TWO SOLVES.** `WhatToBuy` stays on the Item tab: what holding some
+  targets saves on an item you KEEP, from a solve with no restart. The Lab's `StartFromItem` asks what an
+  item is worth to BUY INSTEAD of a white base, from the from-white solve, which may bin it and start
+  over — **the player's call on 2026-09-11**, because a bought item's price is spent either way, so the
+  cheapest honest plan still starts over when repairing costs more than a fresh craft. Restart makes
+  the rows smaller (measured on a 4-target Wand: three-of-four saves 18% there against a held Rare's
+  37%); both are right for their own question. **The first white base is NOT in `expectedCost`** — only
+  the restart action charges `restartCost`, for ANOTHER base — so crafting from scratch costs
+  `restartCost + V(white)` and **worth up to = `restartCost + V(white) − V(item)`, never below zero**
+  because restart is a move in every state. `restartCost` is echoed on the RESULT, since the Base cost
+  field can change after the solve. poe.ninja prices no item with specific mods, so the panel takes a
+  typed trade price per row and re-ranks by price + finishing; changing k or a price re-reads the one
+  solve. Same reason `FrontierView` sets `freeRestart={false}` on the Item tab.
   **When the solve is not exact it SAYS SO rather than vanishing**, and it points at Search effort.
   The case is common: three T1 prefixes on a Wand returns `bound: 'lower'` at Standard. Raising effort
   IS the fix — that craft needs **~2.3M value-iteration sweeps and ~262 s**, inside Exhaustive's
@@ -709,10 +725,31 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   `maxSweeps` straight to `markovFromItem` silently got the default 100,000 at every rung, which
   looked exactly like "more effort changes nothing" — and was written up as such before the option
   name was checked. When a sweep over a limit returns identical numbers, suspect the knob first.
-  `WhatToBuy` refuses to draw the TABLE unless `bound === 'exact'`: a table of bounds
-  compared against each other is worse than one bound, because the differences between them are not
-  bounded by anything (the `ItemWorth` rule). Every row assumes NO junk in the other slots, so a real
-  listing costs at least that to finish — the panel says so.
+  `WhatToBuy` and `StartFromItem` both refuse to draw the TABLE unless `bound === 'exact'`: a table of
+  bounds compared against each other is worse than one bound, because the differences between them are
+  not bounded by anything (the `ItemWorth` rule). Every row assumes NO junk in the other slots, so a
+  real listing costs at least that to finish — both panels say so.
+- **EVERY GRAPH IS `routeFrom(table, root)`** (markovRoute.ts, 2026-09-11). The solve ends with ONE pass
+  that settles the move, its average cost and its realized outcomes for every state into a
+  `RouteTable` — plain data, so it survives the worker's structured clone — and the craft's own graph
+  is the walk from its start. Proven equal to the walk it replaced, node for node, on five crafts
+  (restart, offers with Echoes, 7 goal states, Magic) before that walk was deleted. From any OTHER root
+  the route ENDS where the policy starts over: the white base is one `isRestart` terminal carrying
+  V(white), never walked, always kept by `pruneToCoverage` (its visit rate is zero by construction, and
+  every start-over arrow lands on it). **The visit-rate cut is "restart edges, or edges INTO the restart
+  state"** — identical to the old rule from the craft's own start, and it keeps an edge back into a
+  BOUGHT root (annulling junk off again), which is a revisit, not a restart; with restart priced out a
+  real Wand route returns to its root and must count above one. `keepRoutes` attaches the table only to
+  an EXACT solve (a bound's policy is not the optimal one), and solve.ts asks for it on from-white Lab
+  solves only. **No worker session instead**, deliberately: cancelling is `terminate()`, both tabs share
+  one worker, so cancelling any later solve would kill the session behind the Lab result on screen and
+  a route click would queue behind a running solve. If the table ever gets too heavy to ship, that is
+  the fallback — same table, same `routeFrom`, only where it lives changes. **`routeFrom` runs its visit-
+  rate passes over typed position arrays**, every sum in the order the Map version took it: the first
+  build took 3.0 s per route on fubgun's staff, now 175 ms median / 228 ms max across all 77 of its
+  starting items, bit-identical on 188 roots. Every staff route runs the full 1,000-sweep cap — the
+  "settle in tens" claim was wrong for big routes — and converging them properly was measured and
+  rejected: it changes nothing drawn (TODO 22).
 - **The MDP models Chaos at BASE STRENGTH ONLY, and that is measured rather than missed.** The linear
   planner searches `chaos_greater` / `chaos_perfect` (real listings; the engine has always honoured the
   floor). Giving the MDP a matching `strength` axis was built and reverted on 2026-09-01: interleaved

@@ -281,3 +281,19 @@ The two lessons worth carrying forward, both already in CLAUDE.md's critical rul
 2. **The rule cuts both ways.** Row 1 called a real game rule a planner limit, on reasoning that was
    confidently argued and simply false. Verifying "this is impossible" and verifying "this is merely
    unimplemented" take the same care.
+
+## The Lab's starting-item panel (2026-09-11)
+
+New copy for **Start from an item you buy instead** (`StartFromItem.tsx`, `docs/USER_GUIDE.md`), checked
+before shipping rather than after. Every claim is about what the app computes, except row 26, whose
+game half is traced.
+
+| # | Claim | Where | Verdict | Traced to |
+|---|---|---|---|---|
+| 21 | "Worth up to is crafting from scratch less finishing: pay less than that for the item and you come out ahead" | `StartFromItem.tsx`, guide | **OK** | `startOptions`: `restartCost + V(white) − V(item)`, clamped at 0 — `expectedCost` excludes the first base (only restart charges `restartCost`, `markovFromItem.ts` restart action), so the base is added back. "Ahead" is against that same from-scratch figure, for a clean item (row 23) |
+| 22 | "The price sheet has no prices for items with specific modifiers" | `StartFromItem.tsx`, guide | **OK** | A claim about the app's own sheet: `tools/refresh/prices.mjs` reads poe.ninja's currency, bone, essence and omen feeds, and nothing that prices a Magic or Rare item by its modifiers |
+| 23 | "Each row assumes the rest of the item is empty" | `StartFromItem.tsx`, guide | **OK** | `startCandidates` reads `jp = js = 0`, nothing blocked — same as `WhatToBuy`'s footer |
+| 24 | "…which still drops the item and starts over from a white base when that is cheaper than repairing it" | `StartFromItem.tsx`, guide | **OK** | The from-white solve offers restart in every state (`markovActions.ts`, both rarity branches) and the policy takes the cheaper move by V; the rows are read from that solve |
+| 25 | "From this item the cheapest move is to start over from a white base — it saves nothing" | `StartFromItem.tsx` | **OK** | Shown exactly when `worthUpTo` is 0, i.e. V(item) = `restartCost` + V(white) — the restart action's own value, which the policy then plays (the hand-derived route test pins the route being that one move) |
+| 26 | "A Magic item holds at most one prefix and one suffix, and its rows only ever carry modifiers an orb rolls — the planner has no other way to put a modifier on a Magic item" | guide | **GAME RULE + PLANNER SCOPE, each named** | One affix per side: `perSideCap('magic')`, `markovState.ts:32`. The rest is said as the planner's: below Rare its only adding moves are Transmute, Augment and Regal, which skip non-`rollable` targets (`markovActions.ts:246`), and an Essence converts to Rare as it adds (`:608`) |
+

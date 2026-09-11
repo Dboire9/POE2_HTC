@@ -20,6 +20,7 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
   - [True expected cost — and why it's lower](#true-expected-cost--and-why-its-lower)
   - [The bound markers: "≥ x" and "≤ x"](#the-bound-markers--x-and--x)
   - [The policy graph](#the-policy-graph)
+  - [Start from an item you buy instead](#start-from-an-item-you-buy-instead)
 - [I have an item](#i-have-an-item)
   - [Quick currency check](#quick-currency-check)
   - [Full plan to a target](#full-plan-to-a-target)
@@ -214,6 +215,35 @@ A state shows:
 
 If it says *"No route to show yet"*, the solve stopped before the policy settled — same fix as above,
 raise Search effort.
+
+### Start from an item you buy instead
+
+Under the policy graph, a craft planned from scratch also lists every item you could **buy** that
+already carries some of your targets, and what finishing from it costs. It is the answer to *"which
+item should I start from?"* — on a streamer's gear, **Craft this from scratch** takes you straight to
+it.
+
+- **Already on it** — how many of your targets the item carries (2 to start with). Magic and Rare items
+  are both listed. A Magic item holds at most one prefix and one suffix, and its rows only ever carry
+  modifiers an orb rolls — the planner has no other way to put a modifier on a Magic item.
+- **Finishing costs** — the true expected cost from that item, playing the same optimal plan. That plan
+  still drops the item and starts over from a white base when that is cheaper than repairing it: what
+  you paid for it is spent either way.
+- **Worth up to** — crafting from scratch (a white base plus the craft) minus finishing. Pay less than
+  this for the item and you come out ahead. *nothing* means finishing from it costs as much as
+  starting over.
+- **Trade price** — the price sheet has no prices for items with specific modifiers, so type what you
+  find on trade, in ex, chaos or div. The list re-ranks by **Total** (price plus finishing), and a
+  total below crafting from scratch is a better start.
+
+Click an item to see the route from it: the same graph, starting at *the item you buy* and ending,
+where a roll goes wrong badly enough, at **↺ start over**. Nothing is solved again — switching the
+number of modifiers, typing prices and drawing routes all read the one solve you already ran.
+
+Each row assumes the **rest of the item is empty**; a listing that also carries modifiers you do not
+want costs more to finish, because they have to come off first. The list appears once the solve has
+settled — on a bound, raise **Search effort**. The *I have an item* tab's **What to look for when you
+buy one** answers a different question: there you keep the item, so it never starts over.
 
 ---
 

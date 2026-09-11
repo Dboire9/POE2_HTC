@@ -428,7 +428,9 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
     // Same `label` the graph's boxes use, so a merged same-family position reads "Fire or Cold" in
     // both places rather than two spellings of one state — then disambiguated, because a holding puts
     // several positions on ONE line and two of them can print identically.
-    ...(res.holdings ? { holdings: res.holdings.map((h) => ({ present: bySide(h.present), cost: h.cost })) } : {}),
+    ...(res.holdings ? {
+      holdings: res.holdings.map((h) => ({ present: bySide(h.present), cost: h.cost, rarity: h.rarity, key: h.key })),
+    } : {}),
     ...(res.reason ? { reason: res.reason } : {}),
   };
 }

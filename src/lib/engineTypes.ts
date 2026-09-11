@@ -315,9 +315,14 @@ export interface EnginePolicyEdge {
 
 /** One candidate starting item: target modifiers already on it, and what finishing then costs. */
 export interface EngineHolding {
-  /** Target-mod texts already on the item; a merged same-family position reads "Fire or Cold". */
+  /** Target-mod texts already on the item, one per filled slot; interchangeable alternatives read
+   *  "Cold or Lightning". */
   readonly present: readonly string[];
   readonly cost: number;
+  /** A Magic and a Rare holding the same mods finish differently — only the Magic one can Regal. */
+  readonly rarity: 'magic' | 'rare';
+  /** The solver's state for this item, so the Lab can draw the route from it. */
+  readonly key: string;
 }
 
 export interface EngineMarkovResult {
@@ -352,12 +357,13 @@ export interface EngineMarkovResult {
    */
   readonly bareCost?: number;
   /**
-   * Every subset of the targets priced as a STARTING item — "which of these should I already have?"
+   * Every clean item the craft could START from, priced — "which of these should I already have?"
    *
    * Free: value iteration solves the whole lattice and each of these is one cell of it, so this is a
-   * table lookup rather than 2^n more solves. Same `bound` as `expectedCost`. The empty subset is
-   * included and equals `bareCost`. Each assumes NO junk in the other slots, so a real listing costs
-   * at least this to finish — see `startingItem.ts`, which is the only thing that should read it.
+   * table lookup rather than a solve per candidate. Same `bound` as `expectedCost`. Magic and Rare
+   * rows; the empty Rare is one, and equals `bareCost` only when the craft starts Rare. Each assumes
+   * NO junk in the other slots, so a real listing costs at least this to finish — see
+   * `startingItem.ts`, which is the only thing that should read it.
    */
   readonly holdings?: readonly EngineHolding[];
   readonly nodes: readonly EnginePolicyNode[];

@@ -1443,7 +1443,11 @@ describe('holdings — what to look for when buying a base', () => {
   it('prices every subset from a WHITE start too, not just from a held Rare', () => {
     const white: ItemState = { base: w, level: 82, rarity: 'normal', prefixes: [], suffixes: [] };
     const r = markovFromItem(real, rp, white, targets, { restartCost: 0 });
-    expect(r.holdings).toHaveLength(2 ** ids.length);
+    expect(r.holdings!.filter((h) => h.rarity === 'rare')).toHaveLength(2 ** ids.length);
+    // …and the Magic rung a from-white craft also climbs through: a Magic item holds one prefix and one
+    // suffix, so of two prefixes and a suffix that is each single mod and each prefix with the suffix.
+    expect(r.holdings!.filter((h) => h.rarity === 'magic').map((h) => h.present.length).sort())
+      .toEqual([1, 1, 1, 2, 2]);
   });
 
   /**
@@ -1497,6 +1501,48 @@ describe('holdings — what to look for when buying a base', () => {
     const direct = markovFromItem(real, rp, start, targets);
     const row = solved.holdings!.find((h) => h.present.length === 1 && h.present[0]!.includes(id))!;
     expect(row.cost).toBeCloseTo(direct.expectedCost, 6);
+  });
+
+  const holding = (modIds: readonly string[]): ItemState => {
+    const on = (type: 'prefix' | 'suffix') => modIds
+      .filter((id) => real.mods.get(id)!.type === type)
+      .map((modId) => ({ modId, tierName: real.mods.get(modId)!.tiers.at(-1)!.name }));
+    return { base: w, level: 82, rarity: 'rare', prefixes: on('prefix'), suffixes: on('suffix') };
+  };
+
+  /** …and each PAIR, which is where "which two" stops being "the best one plus the next best". */
+  it.each([[0, 1], [0, 2], [1, 2]])('row for targets %i+%i equals a real solve from an item holding both', (i, j) => {
+    const pair = [ids[i]!, ids[j]!];
+    const direct = markovFromItem(real, rp, holding(pair), targets);
+    const row = solved.holdings!.find((h) => h.present.length === 2 && pair.every((id) => h.present.flat().includes(id)))!;
+    expect(row.cost).toBeCloseTo(direct.expectedCost, 6);
+  });
+
+  /**
+   * A desecrated-pool target only ever arrives by Desecration, which marks what it placed — so a row
+   * holding one is read at the marked cell, which is where a real item holding it starts. Read
+   * unmarked, it priced an item that could still take a bone, which no such item can.
+   */
+  it('reads a desecrated-pool target where a real item holding it starts', () => {
+    const CARVED = 'Wands/Desecrated_WeaponDamageTypePrefix';
+    const tg = [{ modId: CARVED }, { modId: ids[2]! }];
+    const r = markovFromItem(real, rp, bare, tg);
+    const row = r.holdings!.find((h) => h.present.length === 1 && h.present[0]!.includes(CARVED))!;
+    expect(row.cost).toBeCloseTo(markovFromItem(real, rp, holding([CARVED]), tg).expectedCost, 6);
+  });
+
+  /**
+   * A slot of alternatives fills ONE modifier, and members the data cannot tell apart are one
+   * situation. Reading every subset of the candidates gave 8 rows here — "Cold + Lightning" as a
+   * two-modifier step, and "Cold" and "Lightning" as two items at one cost. There are four.
+   */
+  it('lists a slot of alternatives as the four items it really is', () => {
+    const XCOLD = 'Wands/DamageGainedAsCold';
+    const XLIGHT = 'Wands/DamageGainedAsLightning';
+    const CAST = 'Wands/IncreasedCastSpeed';
+    const r = markovFromItem(real, rp, bare, [{ modId: XCOLD, slot: 0 }, { modId: XLIGHT, slot: 0 }, { modId: CAST }]);
+    const named = r.holdings!.map((h) => h.present.map((g) => [...g].sort().join(' or ')).sort().join(' + '));
+    expect(named.sort()).toEqual(['', CAST, `${XCOLD} or ${XLIGHT}`, `${XCOLD} or ${XLIGHT} + ${CAST}`].sort());
   });
 
   /**

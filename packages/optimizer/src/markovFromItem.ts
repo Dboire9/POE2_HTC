@@ -44,6 +44,8 @@ import {
 } from './markovState.ts';
 import type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
 import { flagFieldsOf, routeFrom } from './markovRoute.ts';
+import type { Holding } from './markovStarts.ts';
+import { startCandidates } from './markovStarts.ts';
 
 // The action vocabulary is this module's public face too — callers (the facade, the UI, tests) import
 // it from here rather than reaching into markovActions.ts. So are the route's shapes, which live beside
@@ -51,18 +53,8 @@ import { flagFieldsOf, routeFrom } from './markovRoute.ts';
 export type { McAction, ExaltStrength } from './markovActions.ts';
 export { actionCostOf } from './markovActions.ts';
 export type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
+export type { Holding } from './markovStarts.ts';
 
-/**
- * One candidate STARTING item: some of the targets already on it, and what finishing then costs.
- *
- * `present` has the same shape as `PolicyNode.present` — one entry per filled position, holding the
- * interchangeable ids that could be filling it — so the UI renders both the same way.
- */
-export interface Holding {
-  readonly present: readonly (readonly string[])[];
-  /** Expected cost to finish from a clean item holding exactly these. Carries the result's `bound`. */
-  readonly cost: number;
-}
 
 export interface MarkovResult {
   /** Minimum expected cost (exalt-equivalents) to reach the target under the optimal policy. */
@@ -124,11 +116,11 @@ export interface MarkovResult {
    */
   readonly bareCost?: number;
   /**
-   * Every subset of the targets, priced as a STARTING item — "what should I look for when I buy one".
+   * Every clean item the craft could START from, priced — see `Holding` and markovStarts.ts.
    *
    * Read straight out of the solved lattice, so it costs nothing and is exactly as trustworthy as
    * `expectedCost`: same `bound`, same solve. Absent when the craft did not reach value iteration.
-   * The empty subset is present and equals `bareCost`.
+   * The empty Rare is a row, and equals `bareCost` only when the craft starts Rare.
    */
   readonly holdings?: readonly Holding[];
   /**
@@ -412,10 +404,11 @@ export function markovFromItem(
    * cannot be satisfied at all — two slots offering NOTHING BUT carved mods, so every way of filling
    * them lands two.
    *
-   * Enforcement of the rest is structural rather than another check: the desecrated candidates go into
-   * `conflicts` below, so the lattice never carries a state holding two. The action space already
-   * agreed — a bone needs an item with no bone-placed mod (`hasDesecrated`) — so nothing can transition
-   * into what is pruned, and the closure assertion in the compile step is what proves it.
+   * Enforcement of the rest is the action space's, not the lattice's: a bone needs an item with no
+   * bone-placed mod (`hasDesecrated`), and a desecrated-pool mod only arrives by bone, so no ROUTE
+   * reaches a state holding two. The lattice still carries such states — see the note above on why
+   * they are not in `conflicts` — which is why anything reading cells directly has to skip them itself
+   * (`startCandidates`).
    */
   const forcedCarved = slotMasks.filter((m) => {
     let any = false;
@@ -1466,52 +1459,19 @@ export function markovFromItem(
   // The craft's own route: the walk any other root gets too, from the start (markovRoute.ts).
   const { nodes, edges } = routeFrom(table, startIdx);
 
-  /**
-   * What the craft costs from a CLEAN item already holding each SUBSET of the targets.
-   *
-   * This is free. Value iteration solved the whole lattice, and a state "holding exactly these
-   * targets, no junk" is a cell of it — so the answer to "which of these should I already have when
-   * I buy the item" is a table lookup, not 2^n more solves. `bareCost` was already read out this way
-   * for one cell; this is the same read over all of them, and `bare` is now literally the empty entry
-   * rather than a second computation that could drift from it.
-   *
-   * READ AT THE RARE RUNG, ALWAYS — not at the starting rarity. An item that already carries several
-   * modifiers is a Rare by definition, so a from-WHITE craft asking this question is asking about a
-   * Rare it might buy, not about the Normal base it starts from. Reading `s0.rarity` gave a from-white
-   * solve exactly ONE row (a Normal item holds nothing, so no other mask is enumerated at that rung),
-   * which `buyAdvice` then declined — the panel silently never appeared on the Lab tab at all.
+  /*
+   * What finishing costs from every CLEAN item the craft could start from — a table lookup, since
+   * value iteration solved every cell of the lattice (markovStarts.ts has the rules for which cell a
+   * set of mods is read from). Both rungs a buyer meets: Magic and Rare.
    *
    * `bareCost` keeps its own read at `s0.rarity`, because it answers a different question (what the
    * craft in front of you would cost with none of it done) and `ItemWorth` is built on that meaning.
-   *
-   * `encode` may canonicalise symmetric states onto one key, which is correct here rather than merely
-   * tolerable: those states have equal V by construction, which is why the reduction is sound at all.
-   *
-   * A CRAFT THAT MAY RESTART MAKES THESE NUMBERS ANSWER A DIFFERENT QUESTION. With a free white base
-   * the policy simply bins the item and starts again, so V at every rare state collapses toward
-   * `restartCost + V(start)` — measured on a 4-target Wand craft, the empty row equalled the white
-   * base's own cost to the exalt and the best three-of-four saved 18% where a held Rare saved 37%.
-   * The numbers are right; "what should I buy" is not what they answer. That is the UI's call and
-   * `WhatToBuy` renders on the Item tab only.
-   *
-   * IT ASSUMES THE REST OF THE ITEM IS EMPTY (`jp`/`js` = 0). A real listing usually carries junk in
-   * the other slots and costs MORE than this to finish, so every figure here is the best case for the
-   * mods it names. The UI has to say so.
+   * It equals the empty Rare row only when the craft starts Rare.
    */
-  const holdings: Holding[] = [];
-  for (let mask = 0; mask < (1 << list.length); mask++) {
-    const idx = idxOfState.get(encode(mask, 0, 0, 0, FLAG_NONE, 'rare'));
-    if (idx === undefined) continue;
-    const v = V[idx];
-    // Unreachable states keep V = Infinity, and one must never reach a table of costs. DEFENSIVE:
-    // no shipped craft can trip it, because `enumerateStates` emits only legal states and a feasible
-    // solve reaches all of them — the one shape that would (four prefix targets) is refused before
-    // the lattice is built, with `target needs 4 prefixes, and an item holds 3`. Mutating it away
-    // therefore changes nothing, so the test asserts the INVARIANT — every row finite — rather than
-    // pretending to cover the guard.
-    if (v === undefined || !Number.isFinite(v)) continue;
-    holdings.push({ present: list.filter((_, i) => has(mask, i)).map(idsOf), cost: v });
-  }
+  const holdings = startCandidates({
+    list, slotMasks, rarities, encode,
+    valueAt: (key) => { const i = idxOfState.get(key); return i === undefined ? undefined : V[i]; },
+  });
   // Its own read, at the STARTING rarity — see the note above on why that differs from `holdings`.
   const bareIdx = idxOfState.get(encode(0, 0, 0, 0, FLAG_NONE, s0.rarity));
   const bareV = bareIdx === undefined ? undefined : V[bareIdx];

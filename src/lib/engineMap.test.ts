@@ -23,8 +23,8 @@ describe('mapMarkov — naming two positions that read alike', () => {
     expectedCost: 1, feasible: true, converged: true, bound: 'exact',
     nodes: [], edges: [], policy: new Map(),
     holdings: [
-      { present: [[P], [S]], cost: 10 },
-      { present: [[P], ['x']], cost: 20 },
+      { present: [[P], [S]], cost: 10, rarity: 'rare', key: '3:0:0:0:0:2' },
+      { present: [[P], ['x']], cost: 20, rarity: 'magic', key: '5:0:0:0:0:1' },
     ],
   } as unknown as Parameters<typeof mapMarkov>[1];
 
@@ -42,6 +42,12 @@ describe('mapMarkov — naming two positions that read alike', () => {
       '#% increased Rarity of Items found',
       '+# to maximum Life',
     ]);
+  });
+
+  // The Lab draws the route from a row's state, and a Magic and a Rare row read differently.
+  it('carries each row’s rarity and state through', () => {
+    const out = mapMarkov(data, res);
+    expect(out.holdings!.map((h) => [h.rarity, h.key])).toEqual([['rare', '3:0:0:0:0:2'], ['magic', '5:0:0:0:0:1']]);
   });
 });
 

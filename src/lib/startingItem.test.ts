@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { buyAdvice } from './startingItem';
 import type { EngineHolding } from './engineTypes';
 
-const h = (present: string[], cost: number): EngineHolding => ({ present, cost });
+const h = (present: string[], cost: number, rarity: EngineHolding['rarity'] = 'rare'): EngineHolding =>
+  ({ present, cost, rarity, key: `${present.join('+')}/${rarity}` });
 
 /** A bare cost of 100, three targets, and one deliberate trap. */
 const HOLDINGS: EngineHolding[] = [
@@ -55,6 +56,15 @@ describe('buyAdvice', () => {
   it('says nothing when no single modifier is a trap', () => {
     const clean = HOLDINGS.filter((x) => x.present.join() !== 'A').concat([h(['A'], 95)]);
     expect(buyAdvice(clean)!.worseThanNothing).toEqual([]);
+  });
+
+  /**
+   * The table weighs Rares against a bare Rare. A solve from a Magic item prices Magic starts too, and
+   * a Magic row is a different item — it can still Regal — so it may not win a size, or be the base.
+   */
+  it('reads only the Rare rows', () => {
+    const withMagic = [...HOLDINGS, h(['C'], 1, 'magic'), h(['A', 'B'], 2, 'magic')];
+    expect(buyAdvice(withMagic)).toEqual(buyAdvice(HOLDINGS));
   });
 
   it('declines when there is nothing to advise', () => {

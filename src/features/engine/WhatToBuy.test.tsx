@@ -10,8 +10,9 @@ const base = {
   bound: 'exact', assumedOdds: false, nodes: [], edges: [],
 } as unknown as EngineMarkovResult;
 
+// Every fixture row is a Rare — the only rows the table reads (see `buyAdvice`).
 const withHoldings = (holdings: { present: string[]; cost: number }[], over: Partial<EngineMarkovResult> = {}) =>
-  ({ ...base, bareCost: 100, holdings, ...over }) as EngineMarkovResult;
+  ({ ...base, bareCost: 100, holdings: holdings.map((h) => ({ ...h, rarity: 'rare', key: h.present.join('+') })), ...over }) as EngineMarkovResult;
 
 const HOLDINGS = [
   { present: [], cost: 100 },

@@ -56,8 +56,12 @@ const rowOf = (h: EngineHolding, bare: number): BuyRow => ({
 /**
  * `null` when there is nothing to advise: no lattice, no baseline, or a craft with one target, where
  * "already have it" means the craft is already done and the only row is the trivial one.
+ *
+ * RARE ROWS ONLY. The table weighs Rares against a bare Rare, and a solve from a Magic item also
+ * prices Magic starts — a cheaper Magic row would otherwise win a size it is not comparable at.
  */
-export function buyAdvice(holdings: readonly EngineHolding[] | undefined): BuyAdvice | null {
+export function buyAdvice(all: readonly EngineHolding[] | undefined): BuyAdvice | null {
+  const holdings = all?.filter((h) => h.rarity === 'rare');
   if (!holdings || holdings.length === 0) return null;
   const bare = holdings.find((h) => h.present.length === 0)?.cost;
   if (bare === undefined || !(bare > 0)) return null;

@@ -99,6 +99,22 @@ export default tseslint.config(
     },
   },
 
+  // ---- api/: the one server function -----------------------------------------------------------
+  // `api/feedback.ts` runs on Node as a Vercel Function, never in a browser, so Node globals rather
+  // than the DOM's. Typed through the root tsconfig, which includes it; the same tier as src/, since it
+  // is app code rather than a hot loop.
+  {
+    files: ['api/**/*.ts'],
+    extends: [...tseslint.configs.recommendedTypeChecked],
+    languageOptions: {
+      globals: { ...globals.node },
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+    },
+  },
+
   // ---- the Playwright suite --------------------------------------------------------------------
   // Node globals, and untyped: `e2e/*.ts` is in `allowDefaultProject` above, so the type-aware rules
   // have no program to consult and would error on every one of them.

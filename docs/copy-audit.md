@@ -302,3 +302,15 @@ game half is traced.
 | 30 | "Compute again at {next effort}" / "the craft is beyond what the solver can settle" | `StartFromItem.tsx`, guide | **OK** | `nextEffort(ranAt)`: the preset above the one the solve ran at; every limit rises strictly up the ladder (`searchEffort.test.ts`), so the next rung always gives the solver more. None above the top |
 | 31 | "Not available for a craft that starts from fractured modifiers … no white base for a bought one to replace" | `StartFromItem.tsx`, guide | **OK** | `solve.ts`: a carved Lab craft solves from the item, with no `restartCost` — there is no "instead of a white base" to price |
 
+## Rate the app (2026-09-14)
+
+The rating box (`RateApp.tsx`, `docs/USER_GUIDE.md`) makes promises about privacy and about bots, so
+each is traced to the code that keeps it.
+
+| # | Claim | Where | Verdict | Traced to |
+|---|---|---|---|---|
+| 32 | "No email, no name, no account — only the stars, your words and the app version are sent" | `RateApp.tsx`, guide | **OK** | The panel posts `{ rating, message, version, website: '' }` and nothing else (`RateApp.test.tsx` pins the body); `api/feedback.ts` forwards the stars, the words and the version as `release`, and the envelope test asserts no address, user, browser or contact field. Sentry sees the function as the sender. Vercel logs request metadata for this request as for every page view — that is the host, not a thing this box collects |
+| 33 | "An invisible check keeps bots out; you never see a puzzle" | guide | **OK, scoped** | BotID Basic runs a challenge in the background and verifies it server-side before the body is read; there is no visible step. "Keeps bots out" is the check's job, not a guarantee — the honeypot, the limits and Sentry's spam filter back it up |
+| 34 | "Your browser didn't pass the automatic bot check" | `RateApp.tsx` | **OK** | Shown only on 403, which the function returns only when `checkBotId()` says `isBot` |
+| 35 | "Ratings aren't switched on right now" | `RateApp.tsx` | **OK** | 503: no `FEEDBACK_SENTRY_DSN`, one that is not a DSN, or BotID unable to run (the OIDC option off) — each is the site switched off, from the player's side |
+

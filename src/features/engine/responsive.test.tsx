@@ -45,7 +45,7 @@ describe('the header actions survive a narrow screen', () => {
   // would announce "💬". Every action states its own name instead, and the emoji is decorative.
   it('names every action explicitly rather than leaning on emoji text', () => {
     for (const label of [
-      'Report a problem', 'Join the Discord community', 'Support the project',
+      'Rate the app', 'Report a problem', 'Join the Discord community', 'Support the project',
     ]) {
       expect(app).toContain(`aria-label="${label}"`);
     }

@@ -178,7 +178,7 @@ describe('header actions are reachable by name', () => {
   it('every action has a real name, not an emoji', async () => {
     const App = (await import('../../App')).default;
     render(<App />);
-    for (const name of [/Report a problem/i, /Join the Discord community/i, /Support the project/i]) {
+    for (const name of [/Rate the app/i, /Report a problem/i, /Join the Discord community/i, /Support the project/i]) {
       expect(screen.getByRole('button', { name })).toBeInTheDocument();
     }
     // Nothing is named by an emoji alone.
@@ -193,6 +193,17 @@ describe('header actions are reachable by name', () => {
     const trigger = screen.getByRole('button', { name: /Report a problem/i });
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
     expect(trigger).toHaveAttribute('aria-controls');
+  });
+
+  it('the rating trigger is a disclosure too, and opens the panel it names', async () => {
+    const App = (await import('../../App')).default;
+    const user = userEvent.setup();
+    render(<App />);
+    const trigger = screen.getByRole('button', { name: /Rate the app/i });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(document.getElementById(trigger.getAttribute('aria-controls')!)).toHaveTextContent(/Your rating helps me a lot/);
   });
 });
 

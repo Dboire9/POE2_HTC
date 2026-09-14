@@ -714,6 +714,11 @@ The app also has a **Report a problem** control. It builds a complete report —
 price basis, and the craft you were running — as a block you copy and paste wherever you like: Discord,
 a GitHub issue, a message to a friend. It doesn't file anything for you.
 
+**Rate the app** (the 💛 button in the header) is the quickest way to say how it's going: pick 1–5
+stars, say what's good and what isn't if you like, and send. No email, no name, no account — only the
+stars, your words and the app version are sent. An invisible check keeps bots out; you never see a
+puzzle.
+
 ---
 
 *This is a third-party tool and is not affiliated with or endorsed by Grinding Gear Games.*

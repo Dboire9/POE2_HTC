@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Rate the app.** A **💛 Rate the app** button in the header opens a small box: 1–5 stars and an
+  optional "what's good, and what isn't?", and nothing else — no email, no name, no account. It reaches
+  the maintainer through the site's first server function, `/api/feedback`, which accepts a rating
+  only after Vercel's invisible BotID check (no puzzle for the player), then forwards the stars and the
+  words — nothing that identifies the player — to a private Sentry project. Until that project is set
+  up, the box says ratings aren't switched on and points at Discord.
 - **Start from an item you buy instead.** Asked for fubgun's staff: "I enter how many mods the starting
   item should have, and you find the best way to the full item from the best first ones." A craft
   planned from scratch now lists every Magic and Rare item already carrying 1 to n−1 of the targets —

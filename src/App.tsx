@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useState } from 'react';
 import { Toaster } from './components/ui/toaster';
 import EngineLab from './features/engine/EngineLab';
 import ReportProblem, { DISCORD_URL, PANEL_ID } from './features/engine/ReportProblem';
+import RateApp, { RATE_PANEL_ID } from './features/engine/RateApp';
 // Read from the manifest rather than restated here, because the two HAVE drifted: for three commits
 // around `d866713` the header told users 0.5.9 while the package — which is what the release workflow
 // tags and names its artifact from — said 0.9.0. A hardcoded string makes the version a player sees
@@ -26,6 +27,7 @@ const openExternalLink = (url: string) => {
 
 export default function App() {
   const [reporting, setReporting] = useState(false);
+  const [rateOpen, setRateOpen] = useState(false);
   const showGuide = useIsGuide();
   return (
     <div className="min-h-screen text-foreground bg-background">
@@ -56,6 +58,18 @@ export default function App() {
             >
               <span className="text-xs uppercase tracking-wider opacity-70 hidden lg:inline">Created by</span>
               <span className="font-medium text-sm">Dboire</span>
+            </button>
+            {/* The ask, first and warmest: a rating is the cheapest help a player can give, and the
+                panel says so. No email, no name — see RateApp and api/feedback.ts. */}
+            <button
+              onClick={() => setRateOpen((o) => !o)}
+              className={`${CHIP} bg-pink-500/15 hover:bg-pink-500/25 border-pink-500/40 hover:border-pink-500/60 text-foreground`}
+              aria-label="Rate the app"
+              aria-expanded={rateOpen}
+              aria-controls={RATE_PANEL_ID}
+            >
+              <span aria-hidden="true">💛</span>
+              <span className="hidden sm:inline">Rate the app</span>
             </button>
             <button
               onClick={() => setReporting((r) => !r)}
@@ -112,6 +126,7 @@ export default function App() {
             `[hidden]`. Nothing else on this element sets `display`, so they cannot disagree. */}
         <div hidden={showGuide} className={showGuide ? 'hidden' : undefined}>
           <div className="space-y-3">
+            <RateApp version={version} open={rateOpen} onClose={() => setRateOpen(false)} />
             <ReportProblem version={version} open={reporting} onClose={() => setReporting(false)} />
             <EngineLab />
           </div>

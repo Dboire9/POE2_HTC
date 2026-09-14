@@ -937,6 +937,25 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   app reported nothing and a crash was just a progress bar that stopped. **Tags must be
   `captureException`'s SECOND ARGUMENT** — hanging them off the Error type-checks, runs, reports, and
   silently drops them; `sentry.test.ts` mutation-pins that, the queue's copy of it, and the queue cap.
+- **`api/feedback.ts` is the site's ONE server function ("Rate the app"), and its order is the
+  security.** A static page cannot tell a person from a script, so the page never talks to the inbox:
+  it posts to `/api/feedback`, which runs **Vercel BotID (Basic, free, invisible) FIRST**, before the
+  body is read, then checks the inbox is configured, a strict body (1–5 stars and/or ≤ 1,000
+  characters; control and direction-flipping characters dropped), a hidden honeypot field (answered
+  "ok", kept nowhere), and a per-address limit that is per-instance and best effort. **The inbox is a
+  SEPARATE Sentry project** whose DSN is `FEEDBACK_SENTRY_DSN`, a server-only secret — never a `VITE_`
+  variable. The app's own DSN is public by design, so forwarding there would let a bot skip every
+  check by posting to Sentry directly. The function builds the `feedback` envelope itself rather than
+  carrying an SDK, and forwards nothing identifying (the envelope test pins that). Unset, it answers
+  503 and the panel points at Discord. **BotID needs the project's OIDC option on**: `checkBotId()`
+  THROWS without the token, which the function turns into 503 `check-unavailable` rather than a crash.
+  BotID only verifies in production (locally it always answers "human") and its `vercel.json`
+  rewrites apply only in production, so the real check is observable only on the live site — curl
+  must get 403, the panel in a real browser must get past it. The rewrite paths are fixed by the
+  `botid` package; `deployConfig.test.ts` reads them from the installed client. **Basic only**: Deep
+  Analysis loads a script that frames the proxy path, which the site's `frame-ancestors 'none'`
+  forbids — enabling it needs a CSP change first. The client (`botid/client/core`) is a dynamic
+  import started when the panel OPENS, and it patches `window.fetch` for that one route only.
 - **An `aria-label` REPLACES a visible label, it does not add to it.** `SearchEffort`'s select read
   "How hard the solver should look before giving up" and contained none of the "Search effort" next to
   it — WCAG 2.5.3 Label in Name, and a concrete break for voice control, where saying the visible

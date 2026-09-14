@@ -11,6 +11,7 @@ describe('vercel.json', () => {
   const raw = readFileSync('vercel.json', 'utf8');
   const config = JSON.parse(raw) as {
     headers?: { source?: string; headers?: { key?: string; value?: string }[] }[];
+    rewrites?: { source?: string; destination?: string }[];
   };
 
   // JSON HAS NO COMMENTS. A `"//"` key was added to explain each rule, and Vercel's schema rejects
@@ -30,6 +31,26 @@ describe('vercel.json', () => {
         expect(Object.keys(h).sort()).toEqual(['key', 'value']);
       }
     }
+    for (const rule of config.rewrites ?? []) {
+      expect(Object.keys(rule).sort()).toEqual(['destination', 'source']);
+    }
+  });
+
+  /**
+   * "Rate the app" is guarded by Vercel's BotID, whose challenge the page fetches from paths on THIS
+   * site that Vercel proxies to its own API. The paths are fixed by the `botid` package, not chosen
+   * here: if an update moved them, every rating would be refused as a bot with nothing else failing.
+   * So they are read from the installed client rather than trusted.
+   */
+  it('proxies exactly the paths the installed BotID client asks for', () => {
+    const client = readFileSync('node_modules/botid/dist/client/core/index.mjs', 'utf8');
+    const to = (destination: string) => (config.rewrites ?? []).find((r) => r.destination === destination)?.source ?? '';
+    const script = to('https://api.vercel.com/bot-protection/v1/challenge');
+    const proxy = to('https://api.vercel.com/bot-protection/v1/proxy/:path*');
+    expect(script).not.toBe('');
+    expect(client).toContain(`"${script}"`);
+    expect(proxy).toMatch(/\/:path\*$/);
+    expect(client).toContain(`"${proxy.replace(/\/:path\*$/, '')}"`);
   });
 
   // The whole reason this file exists: hashed assets cached forever, the unhashed entry point never.

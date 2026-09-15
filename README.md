@@ -21,18 +21,14 @@
 
 A web app that works out **how to craft the item you want in Path of Exile 2**, and what it will cost.
 It runs the probability math exactly — no simulation, no sampling — over the real 0.5.0 modifier pools,
-prices every route from a live poe.ninja sheet, and shows you the trade-off between the cheapest way and
-the surest way. Everything runs in your browser; there is no server and nothing to install.
+prices every route from a daily poe.ninja sheet, and shows you the trade-off between the cheapest way
+and the surest way. The crafting runs entirely in your browser, and there is nothing to install.
 
-## 🌐 Web Application
-
-**Try it now at [poe2htc.com](https://poe2htc.com)** - No installation required!
+**Try it now at [poe2htc.com](https://poe2htc.com)** · **Join us on [Discord](https://discord.gg/RvxCWyFF3D)**
 
 <a href="https://buymeacoffee.com/dboire" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important;width: 145px !important;" ></a>
 
 *If you find this tool helpful, consider supporting its development!*
-
-## Join us on [Discord](https://discord.gg/RvxCWyFF3D).
 
 ## 📑 Table of Contents
 
@@ -43,7 +39,6 @@ the surest way. Everything runs in your browser; there is no server and nothing 
 - [💻 Development](#-development)
 - [🤝 Contributing](#-contributing)
 - [📚 Documentation](#-documentation)
-- [📝 API Documentation](#-api-documentation)
 - [🐛 Known Issues](#-known-issues)
 - [🗺️ Roadmap](#️-roadmap)
 - [📄 License](#-license)
@@ -57,40 +52,55 @@ the surest way. Everything runs in your browser; there is no server and nothing 
   three misses, start over. Real crafting isn't like that — after a bad roll you look at what you're
   holding and pick the best move from *there*. The engine solves that as a Markov decision process, so
   the cost it quotes is the cost of playing well, recovering in place, not of restarting.
-- 🎯 **Optimal crafting paths** — the currency sequence to reach the mods and tiers you asked for
-- 📊 **Exact probability math** — analytic weight-pool calculations, cross-checked against Craft of
-  Exile and a Monte-Carlo simulator. No sampling noise, and the per-step odds are the real ones.
+- 🎯 **Optimal crafting paths** — the currency sequence to reach the mods and tiers you asked for, with
+  exact per-step odds, cross-checked against Craft of Exile and a Monte-Carlo simulator
 - 💰 **Cost ↔ success trade-off** — a Pareto frontier of plans, cheapest through surest, each priced in
-  Exalted-Orb equivalents from a live [poe.ninja](https://poe.ninja) sheet
-- 🎒 **"I already have this item"** — paste in what's actually on your item, mid-craft, and get the best
+  Exalted-Orb equivalents from [poe.ninja](https://poe.ninja)
+- 🛒 **Start from an item you buy instead** — every craft from scratch also lists the items already
+  carrying some of your targets, what finishing from each one costs, and what it is worth paying for.
+  Type the trade prices you find and it tags the best buy, and draws the route from any of them.
+- 🎥 **Streamer gear** — browse real endgame items from streamers' characters and hand any of them to
+  the planner: craft it from scratch, aim at it from the item you hold, or load it as the item you own
+- 🎒 **"I already have this item"** — enter what's actually on your item, mid-craft, and get the best
   move from where you are, not from a white base
+- 🦴 **The currency that matters** — Basic, Greater and Perfect orbs, Essences and Perfect Essences,
+  Desecration with every bone (Ancient included) and the Omen of Abyssal Echoes, omens, fractured mods
 - 💸 **Budget mode** — say what you can spend and get the *closest item that money can actually finish*,
   with the probability of finishing it inside the budget
 - 🚫 **Currency exclusions** — don't own Perfect Exalts, or refuse to use Omens? Tick them off and the
   planner routes around them
-- ⚡ **Instant, offline, private** — the engine runs client-side in a Web Worker; nothing you type is
-  sent anywhere
+- 🔗 **Share a craft** — *Copy link* reproduces the exact base, mods, tiers and budget in anyone's
+  browser, and your own workspace is kept between visits
+- ⏱️ **Search effort** — Quick, Standard or Exhaustive. When a big craft doesn't settle, the app says so
+  and offers to compute it again one level up, in one click
+- ⚡ **Runs in your browser** — every solve runs client-side, in a Web Worker. What leaves the page:
+  anonymous page-view counts, an error report if the app breaks (with a replay of that session, so the
+  bug can be reproduced), and a rating if you choose to send one
+- 💛 **Rate the app** — stars and a few words, straight to the maintainer, with no email and no account
 
 ## 🚀 Quick Start
 
-**Visit [poe2htc.com](https://poe2htc.com)** — that's the whole install step. It is a static web page;
-it works on desktop and mobile browsers, and it keeps working offline once loaded.
+**Visit [poe2htc.com](https://poe2htc.com)** — that's the whole install step. It works in desktop and
+mobile browsers.
 
 New here? The **[User Guide](docs/USER_GUIDE.md)** walks through a first craft end to end.
 Used it before? **[What's new in 1.0](docs/WHATS-NEW.md)** is the tour of what the site does now.
 
 ### Running from source
 
-**Prerequisites**: Node.js 20+ (that's it — no Java, no backend, no database)
+**Prerequisites**: Node.js 20+ (no Java, no database)
 
 ```bash
 git clone https://github.com/Dboire9/POE2_HTC.git
 cd POE2_HTC
-npm install --legacy-peer-deps
+npm install      # .npmrc already sets legacy-peer-deps, which React 19 needs
 
 npm run dev      # dev server on http://localhost:5173
 npm run build    # or build the static site into dist/
 ```
+
+Everything works locally except **Rate the app**, which posts to a Vercel server function that
+`npm run dev` doesn't serve.
 
 ---
 
@@ -112,53 +122,29 @@ I built this project while actively searching for an internship, both to strengt
 
 ## 📖 How Does It Work?
 
-Two ways in, depending on where you're starting from.
+Three ways in, depending on where you're starting from.
 
 **From a white base** — *Plan from scratch*:
 
 1. **Select** your base item type, item level, and the modifiers and tiers you want
 2. **Compute** — the engine evaluates candidate plans with exact weight-pool probability math
 3. **Review** a Pareto frontier, cheapest through likeliest, each with step-by-step instructions and
-   per-step odds — plus the true expected cost of playing optimally rather than following one fixed script
+   per-step odds — plus the true expected cost of playing optimally rather than following one fixed
+   script, and the items worth buying instead of a white base
 4. **Craft** in-game following the currency sequence
 
 **From an item you're holding** — *I have an item*: enter the mods already on it, say what you want it to
 end up as, and the engine answers from that state. It will tell you when the best move is to keep going,
 and when it's to stop.
 
+**From someone else's item** — *Streamer gear*: pick an item a streamer actually built, and send it to
+either tab. The gear is a dated snapshot, and the app names every modifier it could not carry over.
+
 The engine accounts for item rarity transitions, modifier weights, currency behaviours and strengths
 (Basic / Greater / Perfect), omens, family conflicts, item-level gates, fractured mods and slot limits.
 Monte-Carlo simulation is used only to *validate* the analytic math, never to produce the numbers you see.
 
-**📘 For a walkthrough of every panel and what each number means, see the [User Guide](docs/USER_GUIDE.md).**
-
----
-
-## 💻 Development
-
-**Quick Start:**
-```bash
-# Clone and install dependencies
-git clone https://github.com/Dboire9/POE2_HTC.git
-cd POE2_HTC
-npm install --legacy-peer-deps
-
-# Run the web app (Vite dev server)
-npm run dev
-
-# ...or build the static site
-npm run build
-```
-
-**Architecture (pure client-side — no server):**
-- **App**: React 19 + TypeScript + Vite (web only); the UI is the Engine Lab (`src/features/engine/`), driven by the browser facade `src/lib/engine.ts`
-- **Engine**: `packages/engine` — a pure-TS crafting engine (no I/O, no DOM) doing exact weight-pool probability math per currency
-- **Optimizer**: `packages/optimizer` — the Pareto frontier, the from-item planner, and the MDP policy solver, with Monte-Carlo self-checks
-- **Data**: `data/patches/<patch>/*.json` — versioned mod/base/price data (the app ships `0.5.0`)
-
-**📘 For detailed setup instructions, project structure, and contribution guidelines, see the [Development Guide](docs/DEVELOPMENT.md).**
-
-### How the engine finds paths
+### Two solvers, two questions
 
 Two solvers run on every craft, and the app shows both because they answer different questions.
 
@@ -175,14 +161,44 @@ because the frontier can only restart where a real crafter would recover.
 
 **Key properties:**
 - Exact, sampling-noise-free probability for each step and the plan as a whole
-- Costs in exalt-equivalents from a live poe.ninja price sheet, so plans can be ranked by money
+- Costs in exalt-equivalents from a poe.ninja price sheet refreshed daily, so plans can be ranked by money
 - Full PoE2 semantics: rarity transitions, orb strengths, omens, essences, desecration, family
   exclusion, item-level gates, currency tier floors, fractured mods
 - Honest bounds: when a solve doesn't fully settle, the app prints "≥ x" or "≤ x" rather than a
   confident number
-- Runs locally in a Web Worker — no backend, no network, cancellable, with a progress bar
+- Runs locally in a Web Worker — no network during a solve, cancellable, with a progress bar
 
-> 📖 **[Read the full algorithm explanation →](docs/ALGORITHM.md)**
+**📘 For a walkthrough of every panel and what each number means, see the [User Guide](docs/USER_GUIDE.md).
+For the maths, see [How it works](docs/ALGORITHM.md).**
+
+---
+
+## 💻 Development
+
+**Architecture:**
+- **App**: React 19 + TypeScript + Vite, a static site; the UI lives in `src/features/`, driven by the
+  browser facade `src/lib/engine.ts`
+- **Engine**: `packages/engine` — a pure-TS crafting engine (no I/O, no DOM) doing exact weight-pool
+  probability math per currency
+- **Optimizer**: `packages/optimizer` — the Pareto frontier, the from-item planner, and the MDP policy
+  solver, with Monte-Carlo self-checks
+- **Data**: `data/patches/<patch>/*.json` — versioned mod, base and price data (the app ships `0.5.0`);
+  `data/streamers/` is the streamer-gear snapshot, built by `tools/streamers/`
+- **Server**: `api/feedback.ts` is the one server function — the *Rate the app* endpoint, a Vercel
+  Function behind Vercel's BotID. Nothing else runs on a server.
+- **Automation**: a GitHub workflow refreshes the price sheet from poe.ninja every day and merges its own
+  pull request when the market data passes a liquidity check
+
+**The verify chain** — what CI runs on every push:
+
+```bash
+npm test -- --run
+npm run type-check && npm run type-check:engine && npm run type-check:optimizer
+npm run lint
+npm run build && npm run test:e2e
+```
+
+**📘 For detailed setup instructions, project structure, and contribution guidelines, see the [Development Guide](docs/DEVELOPMENT.md).**
 
 ---
 
@@ -190,9 +206,9 @@ because the frontier can only restart where a real crafter would recover.
 
 We welcome contributions! Here's how you can help:
 
-1. **Report Bugs** - Open an issue with reproduction steps  
-2. **Suggest Features** - Share your ideas for improvements  
-3. **Submit Pull Requests** - Fix bugs or add features  
+1. **Report Bugs** - Open an issue with reproduction steps, or use *Report a problem* in the app
+2. **Suggest Features** - Share your ideas for improvements
+3. **Submit Pull Requests** - Fix bugs or add features
 4. **Update Data** - Help keep modifier data current with game patches
 
 **📘 For detailed contribution guidelines, development setup, and code style, see the [Contributing Guide](docs/CONTRIBUTING.md).**
@@ -216,7 +232,7 @@ Everything in `docs/`, so nothing is only findable by knowing it exists.
 | | |
 |---|---|
 | [How it works](docs/ALGORITHM.md) | The maths — exact weight-pool probability and the decision model. |
-| [Validation log](docs/validation.md) | Every measurement behind every claim, including the experiments that **failed**. Three thousand lines of "we tried this and it didn't work", kept on purpose. |
+| [Validation log](docs/validation.md) | Every measurement behind every claim, including the experiments that **failed**, kept on purpose. |
 | [Copy audit](docs/copy-audit.md) | Every claim the app makes about the game, and what enforces it. Written because telling a player something is impossible when it isn't costs them real currency. |
 | [Changelog](docs/CHANGELOG.md) | Release by release. |
 
@@ -230,10 +246,6 @@ Everything in `docs/`, so nothing is only findable by knowing it exists.
 | [0.5.0 refresh diff](docs/refresh-0.5.0-diff.md) | What changed between the Java-extracted baseline and the poe2db data the app ships. |
 | [API examples](docs/API_EXAMPLES.md) | Calling the engine packages directly. |
 | [Security policy](docs/SECURITY.md) · [Code of conduct](docs/CODE_OF_CONDUCT.md) | |
-
-## 📝 API Documentation
-
-See [API_EXAMPLES.md](docs/API_EXAMPLES.md) for detailed API usage and examples.
 
 ## 🐛 Known Issues
 
@@ -251,8 +263,8 @@ the engine is uncertain, it says so on screen.
 - **Charms and Jewels are not supported.** Both are classed differently from ordinary gear (charms are
   flasks in the game data, jewels have their own affix model), so neither fits the 3-prefix/3-suffix
   rare that this optimizer plans for. Every equipment slot IS supported.
-- **The "Plan from scratch" tab can't target a Perfect-Essence-only mod.** The "I have an item" tab and
-  the policy solver both handle them fully.
+- **Big crafts need patience.** A six-mod target at top tiers can take the Exhaustive search effort and
+  several minutes to settle; until it does, the app shows a bound rather than a guess.
 
 `docs/copy-audit.md` is the full inventory of what the app claims and what actually enforces it.
 See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for reported bugs.
@@ -260,12 +272,12 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for reported b
 ## 🗺️ Roadmap
 
 ### Completed
-- [x] Pure-TypeScript engine (retired the Java/Maven backend — the app is now fully client-side)
+- [x] Pure-TypeScript engine (retired the Java/Maven backend — the crafting is now fully client-side)
 - [x] Cost ↔ success Pareto optimizer with Monte-Carlo validation
 - [x] "I already have this item" flow (per-currency odds + from-item planner)
 - [x] Heavy solves moved off the main thread into a Web Worker
-- [x] **Crafting cost estimation** — every plan priced in Exalted-Orb equivalents from a live
-      poe.ninja sheet, plus the MDP's true expected cost of playing optimally
+- [x] **Crafting cost estimation** — every plan priced in Exalted-Orb equivalents from a poe.ninja
+      sheet, plus the MDP's true expected cost of playing optimally
 - [x] **Budget mode** — the best item a given number of exalts can actually finish, with the
       probability of finishing it in budget
 - [x] **Orb strengths** — Basic, Greater and Perfect are searched for every add currency, on both the
@@ -279,6 +291,13 @@ See the [Issues](https://github.com/Dboire9/POE2_HTC/issues) page for reported b
       orb, and this omen is a promise not to)
 - [x] **Automated daily price refresh** — the sheet updates itself from poe.ninja and merges its own
       pull request when the market data passes a liquidity check
+- [x] **Share links** — a craft travels as a URL, and the workspace survives a reload
+- [x] **Streamer gear** — real endgame items from streamers' characters, sent straight to the planner
+- [x] **Ancient bones and the Omen of Abyssal Echoes** — weighed on every Desecration, and Desecration
+      offered in the Quick currency check
+- [x] **Start from an item you buy instead** — which item to buy as a head start, with typed trade prices
+      and the route from it
+- [x] **Rate the app** — feedback with no email and no account, protected by an invisible bot check
 
 ### Short-Term (Next Release)
 - [ ] A measured desecrated spawn weight, from players' own bone counts rather than one 40-bone sample
@@ -300,6 +319,7 @@ This project is licensed under the GNU Affero General Public License v3.0 (AGPL-
 
 ## 📞 Contact
 
+- **Discord**: [discord.gg/RvxCWyFF3D](https://discord.gg/RvxCWyFF3D)
 - **Issues**: [GitHub Issues](https://github.com/Dboire9/POE2_HTC/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/Dboire9/POE2_HTC/discussions)
 

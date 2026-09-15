@@ -51,7 +51,9 @@ const order = (): string[] => screen.getAllByRole('row').slice(1)
   .map((r) => within(r).getByRole('button').getAttribute('aria-label')!.replace(/^Route from /, ''));
 const row = (name: string): HTMLElement =>
   screen.getAllByRole('row').find((r) => within(r).queryByRole('button', { name: `Route from ${name}` }))!;
-const priceBox = (name: string): HTMLElement => screen.getByRole('textbox', { name: new RegExp(`^Trade price for ${name.replace(/[+]/g, '\\+')},`) });
+/** A row's price box, by the start of its name — compared as text, so no character in a name is syntax. */
+const priceBox = (name: string): HTMLElement =>
+  screen.getByRole('textbox', { name: (accessible) => accessible.startsWith(`Trade price for ${name},`) });
 
 /** A drawable route from the bought item: one Exalt to the target. */
 const route: EngineMarkovResult = {

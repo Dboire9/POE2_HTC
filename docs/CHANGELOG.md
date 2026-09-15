@@ -47,6 +47,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **GitHub's code scanning (CodeQL) findings are fixed.** Two patterns that read poe.ninja's streamer
+  data could slow down quadratically on a hostile line — `[` after `[` with no closing bracket, or a
+  long run of digits. They run only in the periodic streamer job, never in a player's browser, and now
+  read each line in one pass. The rest were in tests and a measuring script: a hand-escaped pattern and
+  a pattern built from a command-line argument now compare plain text, and a test that stripped HTML
+  with patterns now parses the page.
 - **Typing a trade price in "Start from an item you buy instead" works as expected.** Reported "when I
   try to change the prices it does not work". Two faults, both reproduced in Chrome on the live site: the
   price box silently dropped a comma, so "0,5" was read as 5, ten times the price; and the list

@@ -18,13 +18,15 @@ import { optimizeItemMarkov, routeFor } from '../src/lib/engine.ts';
 import { readGear } from '../src/lib/streamerGear.ts';
 import { startOptions } from '../src/lib/startingItem.ts';
 
-const who = new RegExp(process.argv[2] ?? 'fubgun');
+// Part of a profile name, matched as plain text: a pattern built from an argument would read "." or
+// "(" in a name as syntax.
+const who = process.argv[2] ?? 'fubgun';
 const budget = Number(process.argv[3] ?? 900_000);
 const data = loadShippedPatch('data/patches/0.5.0');
 const sheet = JSON.parse(readFileSync('data/patches/0.5.0/prices.json', 'utf8'));
 const eng = { data, prices: indexPrices(sheet) };
 const character = JSON.parse(readFileSync('data/streamers/0.5.0.json', 'utf8')).characters
-  .find((c: { profile: string }) => who.test(c.profile));
+  .find((c: { profile: string }) => c.profile.includes(who));
 // The item with a slot of alternatives is the Aldur-rune staff; any other profile takes its first item.
 const item = character.items.find((i: { familyConflict?: unknown[] }) => (i.familyConflict?.length ?? 0) > 0) ?? character.items[0];
 const goal = readGear(data, item).goal;

@@ -133,14 +133,18 @@ describe('vercel.json', () => {
  */
 describe('index.html says what the page is without JavaScript', () => {
   const html = readFileSync('index.html', 'utf8');
-  /** Visible text only: scripts, styles, comments and tags stripped, the way a crawler reads it. */
-  const visibleText = html
-    .replace(/<script[\s\S]*?<\/script>/g, '')
-    .replace(/<style[\s\S]*?<\/style>/g, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  /**
+   * Visible text only, the way a crawler reads it: the page PARSED, scripts and styles dropped, every
+   * text node kept (comments are not text nodes). Parsed rather than stripped with patterns, because
+   * tag-matching patterns have gaps real HTML walks through — `</script >`, a `>` inside an attribute —
+   * which is what CodeQL flagged them for. A parser has no such gaps.
+   */
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  for (const el of doc.querySelectorAll('script, style')) el.remove();
+  const walker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_TEXT);
+  const texts: string[] = [];
+  for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) texts.push(node.textContent ?? '');
+  const visibleText = texts.join(' ').replace(/\s+/g, ' ').trim();
 
   it('serves real text in the body, not an empty root div', () => {
     expect(visibleText.length).toBeGreaterThan(300);

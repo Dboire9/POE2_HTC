@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { loadPatch } from './loadPatch.ts';
-import { resolveProfileItems, type SourceItem } from './profileItems.ts';
+import { resolveProfileItems, strip, type SourceItem } from './profileItems.ts';
 
 const data = loadPatch('data/patches/0.5.0');
 
@@ -158,5 +158,25 @@ describe('a "reduced" modifier from its signed stat value', () => {
     expect(r.items[0]?.mods).toEqual([
       { modId: 'Spears/LocalAttributeRequirements', tierDisplay: 1, fractured: false, desecrated: false, sanctified: false },
     ]);
+  });
+});
+
+/**
+ * The markup reader, and why it changed: its old patterns let every `[` rescan the rest of the line, so
+ * a line of unclosed brackets cost quadratic time (CodeQL). These lines come from poe.ninja.
+ */
+describe('poe.ninja markup', () => {
+  it('keeps what a player reads', () => {
+    expect(strip('Adds [Fire|Fire Damage] and [Cold] to [Attacks|attacks]')).toBe('Adds Fire Damage and Cold to attacks');
+    expect(strip('no markup here')).toBe('no markup here');
+  });
+
+  // Sized so the old patterns take several seconds here (measured) while one pass takes milliseconds — at
+  // 30,000 characters V8 still ran the quadratic version in under a second, and the test caught nothing.
+  it('reads a line of unclosed brackets in one pass', () => {
+    const t = performance.now();
+    expect(strip('['.repeat(150_000))).toHaveLength(150_000);
+    expect(strip('[a|'.repeat(50_000))).toHaveLength(150_000);
+    expect(performance.now() - t).toBeLessThan(1000);
   });
 });

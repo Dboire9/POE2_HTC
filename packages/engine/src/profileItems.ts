@@ -111,9 +111,16 @@ const CRAFTABLE = ['explicit', 'fractured', 'crafted'] as const;
  * modifiers into one line and splits hybrids across two. So each category uses the route that can
  * actually answer it, and nothing is matched up by index.
  */
-/** poe.ninja renders PoE's markup: `[Token|Display]`, where the second half is what a player reads. */
-const strip = (line: string): string =>
-  line.replace(/\[[^\]|]+\|([^\]]+)\]/g, '$1').replace(/\[([^\]]+)\]/g, '$1');
+/**
+ * poe.ninja renders PoE's markup: `[Token|Display]`, where the second half is what a player reads.
+ *
+ * No class may cross a `[`. The markup never nests, and a class that could run past an opening bracket
+ * made every `[` rescan the rest of the line — quadratic on a line of unclosed brackets (CodeQL:
+ * polynomial regex on uncontrolled data, and these lines come from poe.ninja). With `[` excluded each
+ * scan stops at the next one, so no two scans overlap and the line is read once.
+ */
+export const strip = (line: string): string =>
+  line.replace(/\[[^[\]|]+\|([^[\]]+)\]/g, '$1').replace(/\[([^[\]]+)\]/g, '$1');
 
 export function resolveProfileItems(data: PatchData, source: readonly SourceItem[]): ProfileResult {
   const bases = baseNameIndex(data);

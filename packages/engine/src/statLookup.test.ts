@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { loadPatch } from './loadPatch.ts';
-import { statIndex, resolveByStats, statsOf, familyConflicts } from './statLookup.ts';
+import { statIndex, resolveByStats, statsOf, familyConflicts, withoutTrailingDigits } from './statLookup.ts';
 import type { ItemBase } from './types.ts';
 
 const data = loadPatch('data/patches/0.5.0');
@@ -121,5 +121,24 @@ describe('what this needs from the data', () => {
     // 80 mods in the Amulets pool collapse to 32 distinct stat sets — the difference is real and is
     // the essence/normal twins and the tier families sharing a stat, not missing data.
     expect(on('Amulets').size).toBe(32);
+  });
+});
+
+describe('the tier number off a source id', () => {
+  it('drops the trailing digits, and only those', () => {
+    expect(withoutTrailingDigits('IncreasedLife7')).toBe('IncreasedLife');
+    expect(withoutTrailingDigits('Mana2Regeneration12')).toBe('Mana2Regeneration');
+    expect(withoutTrailingDigits('Life')).toBe('Life');
+    expect(withoutTrailingDigits('')).toBe('');
+  });
+
+  // The old `replace(/\d+$/, '')` was retried from every digit: quadratic on a long run of digits that
+  // does not end the id (CodeQL). Source ids come from poe.ninja. Sized so the old pattern takes several
+  // seconds (measured: 60,000 digits took 1.06 s, too close to the limit to catch it reliably).
+  it('reads a long run of digits in one pass', () => {
+    const id = `${'1'.repeat(200_000)}x`;
+    const t = performance.now();
+    expect(withoutTrailingDigits(id)).toBe(id);
+    expect(performance.now() - t).toBeLessThan(1000);
   });
 });

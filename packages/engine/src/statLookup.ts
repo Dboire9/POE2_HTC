@@ -162,9 +162,22 @@ export function familyConflicts(data: PatchData, modIds: readonly string[]): rea
  */
 function breakTie(modIds: readonly string[], sourceId: string | undefined): string | undefined {
   if (sourceId === undefined) return undefined;
-  const bare = sourceId.replace(/\d+$/, '');
+  const bare = withoutTrailingDigits(sourceId);
   const hits = modIds.filter((id) => id.split('/').at(-1) === bare);
   return hits.length === 1 ? hits[0] : undefined;
+}
+
+/**
+ * `id` without its trailing digits — the tier number in both schemes.
+ *
+ * A loop rather than `replace(/\d+$/, '')`: that pattern is retried from every digit, so a long run of
+ * digits that is NOT at the end costs quadratic time (CodeQL: polynomial regex on uncontrolled data,
+ * and these ids come from poe.ninja). Walking back from the end reads each character at most once.
+ */
+export function withoutTrailingDigits(id: string): string {
+  let end = id.length;
+  while (end > 0 && id.charCodeAt(end - 1) >= 48 && id.charCodeAt(end - 1) <= 57) end--;
+  return id.slice(0, end);
 }
 
 const familiesOfId = (data: PatchData, id: string): readonly string[] => {

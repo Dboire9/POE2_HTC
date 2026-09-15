@@ -32,11 +32,6 @@ the surest way. Everything runs in your browser; there is no server and nothing 
 
 *If you find this tool helpful, consider supporting its development!*
 
-<div style="display: flex; gap: 10px;">
-  <img src="screenshots/Full_initial_screen.PNG" alt="PoE2 Pathfinder" width="400"/>
-  <img src="screenshots/Bow_result.PNG" alt="PoE2 Pathfinder final result" width="400"/>
-</div>
-
 ## Join us on [Discord](https://discord.gg/RvxCWyFF3D).
 
 ## 📑 Table of Contents

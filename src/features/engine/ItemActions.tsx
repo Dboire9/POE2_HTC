@@ -8,6 +8,7 @@ import {
   loadEngine, listBases, listMods, listPerfectEssences, listDesecrated,
   priceBasis,
   modFamilies,
+  isRollable,
   type EngineBase, type EngineMod, type ExistingItem, type ItemModInput, type TargetInput,
   type EngineResult, type EngineMarkovResult,
 } from '../../lib/engine';
@@ -211,20 +212,23 @@ const ItemActions: React.FC = () => {
   }, [setBaseId]);
 
   const bases: EngineBase[] = useMemo(() => (engine ? listBases(engine.data) : []), [engine]);
-  // The item builder offers rollable (normal) mods AND desecrated mods — a real item can carry a
-  // desecrated mod, and modelling it matters (it eats a slot + family, and it's the sole Omen-of-Light
-  // target). Desecrated mods are NOT in `addable` below: no modelled currency can ADD one to the item.
+  // The item builder offers ROLLABLE mods AND desecrated mods — a real item can carry a desecrated
+  // mod, and modelling it matters (it eats a slot + family, and it's the sole Omen-of-Light target).
+  // Desecrated mods are NOT in `addable` below: no modelled currency can ADD one to the item.
+  // "Rollable" includes a rune pool's modifiers once that rune is ticked — see `isRollable`.
   const pool = useMemo(() => {
     if (!engine || !baseId) return { prefixes: [] as EngineMod[], suffixes: [] as EngineMod[] };
-    const m = listMods(engine.data, baseId);
-    const normal = (l: readonly EngineMod[]) => l.filter((x) => x.source === 'normal');
+    // With the ticked runes, so the builder offers what the item can actually hold — untick the rune
+    // and its modifiers leave the list, exactly as they leave the pool the planners roll from.
+    const m = listMods(engine.data, baseId, runes);
+    const normal = (l: readonly EngineMod[]) => l.filter((x) => isRollable(x.source));
     const des = listDesecrated(engine.data, baseId);
     const desOf = (type: 'prefix' | 'suffix') => des.filter((x) => x.type === type);
     return {
       prefixes: [...normal(m.prefixes), ...desOf('prefix')],
       suffixes: [...normal(m.suffixes), ...desOf('suffix')],
     };
-  }, [engine, baseId]);
+  }, [engine, baseId, runes]);
   // Perfect essences + desecrated mods: offered as TARGETS in the from-item flow (a Perfect Essence
   // adds its mod while removing one random mod; a Desecration adds a desecrated mod via its boss omen).
   // Not shown in the current-item builder's add columns.
@@ -388,10 +392,11 @@ const ItemActions: React.FC = () => {
     return { prefixes: pick(pool.prefixes), suffixes: pick(pool.suffixes) };
   }, [pool, search, onItem]);
 
-  // "Mod to add" (quick-check) — currency can only add NORMAL mods, so desecrated ones are excluded
-  // here, and so is anything already on the item: no orb can add a mod you have.
+  // "Mod to add" (quick-check) — currency can only add ROLLABLE mods, so desecrated ones are excluded
+  // here, and so is anything already on the item: no orb can add a mod you have. A rune pool's
+  // modifiers ARE rollable once the rune is socketed, which is the whole point of socketing it.
   const addable = useMemo(
-    () => [...pool.prefixes, ...pool.suffixes].filter((m) => !onItem.has(m.id) && m.source === 'normal'),
+    () => [...pool.prefixes, ...pool.suffixes].filter((m) => !onItem.has(m.id) && isRollable(m.source)),
     [pool, onItem],
   );
   /**
@@ -404,7 +409,7 @@ const ItemActions: React.FC = () => {
    * caps, families, the essence rules) and never about what the item happens to hold.
    */
   const targetable = useMemo(
-    () => [...pool.prefixes, ...pool.suffixes].filter((m) => m.source === 'normal'),
+    () => [...pool.prefixes, ...pool.suffixes].filter((m) => isRollable(m.source)),
     [pool],
   );
   const itemMods = useMemo(
@@ -1074,7 +1079,7 @@ const ItemActions: React.FC = () => {
                 — it is honest about how crafting actually behaves; the price sheet it is multiplied by is
                 still an estimate.
               </p>
-              {engine && <PriceBasisNote basis={priceBasis(engine)} exactOdds={!markov.assumedOdds} />}
+              {engine && <PriceBasisNote basis={priceBasis(engine)} exactOdds={!markov.assumedOdds} assumedFrom={markov.assumedFrom} />}
               {/* The graph's legend moved INTO PolicyGraph, which is the only place that knows
                   whether the picture or the route list is on screen. */}
               <PolicyGraph result={markov} rates={rates} />

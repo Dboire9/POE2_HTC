@@ -72,6 +72,9 @@ export function modSourceLabel(source: EngineMod['source']): string {
     case 'alloy': return ' · Alloy';
     case 'essence': return ' · Essence only';
     case 'desecrated': return ' · Desecrated';
+    // Generic, because the rune's NAME is on the mod (`EngineMod.rune`) and this is keyed by source
+    // alone. A picker that wants "· Thrud's Might" reads the name from there.
+    case 'rune': return ' · Rune';
     case 'normal': return '';
   }
 }
@@ -138,7 +141,12 @@ export function toEngineMod(data: PatchData, modId: string, type: 'prefix' | 'su
   return {
     id: mod.id, text: mod.text ?? mod.id, type, family: mod.family,
     ...(mod.families && mod.families.length > 1 ? { families: mod.families } : {}),
-    source: isEssence ? 'essence' : 'normal', tiers,
+    // A rune-pool modifier is `normal` to the engine and its own thing to a player: it is on offer
+    // only because a rune is socketed, and the picker has to say so. `mod.rune` is the marker
+    // `apply_runes.mjs` writes; the engine source it carries is unchanged.
+    source: isEssence ? 'essence' : mod.rune ? 'rune' : 'normal',
+    ...(mod.rune ? { rune: mod.rune } : {}),
+    tiers,
   };
 }
 
@@ -218,7 +226,7 @@ export function addBlockedReason(data: PatchData, state: ItemState, mod: Mod): s
 // ── Frontier / alternatives mapping ───────────────────────────────────────────
 
 /** Map an optimizer ParetoResult into the UI-shaped EngineResult (shared by from-white and from-item). */
-export function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
+export function mapFrontier(data: PatchData, res: ParetoResult, poolAssumed = false): EngineResult {
   const text = (id: string): string => data.mods.get(id)?.text ?? id;
   const frontier: EnginePlan[] = res.frontier.map((plan) => ({
     probability: plan.probability,
@@ -268,10 +276,17 @@ export function mapFrontier(data: PatchData, res: ParetoResult): EngineResult {
   // count-uniform and ignores weights entirely, so it stays exact. Computed here from the actual
   // steps rather than "did the target mention a desecrated mod", so the caveat appears exactly when
   // the numbers it qualifies are on screen.
-  const assumedOdds = res.frontier.some((plan) =>
+  // A socketed POOL rune makes the whole solve lean on an assumption, which is why it arrives as a
+  // flag rather than being looked for in the steps: its modifiers carry a weight nobody published, and
+  // weight sits in the DENOMINATOR of every weighted draw — so once one is in, every random add is
+  // affected, not only the steps that land one of its modifiers. See `usesAssumedPool` (runes.ts).
+  const desecrateAssumed = res.frontier.some((plan) =>
     plan.steps.some((step) => step.currency === 'desecrate' && step.boss === undefined));
+  const assumedOdds = poolAssumed || desecrateAssumed;
+  const assumedFrom = assumedFromOf(poolAssumed, desecrateAssumed);
   return {
     frontier: paretoOnDisplayed(frontier), plansEvaluated: res.plansEvaluated, assumedOdds,
+    ...(assumedFrom ? { assumedFrom } : {}),
     ...(res.truncated ? { truncated: true } : {}),
   };
 }
@@ -418,8 +433,12 @@ const mapEdge = (data: PatchData, e: PolicyEdge): EnginePolicyEdge =>
 const leansOnAssumedOdds = (actions: Iterable<McAction>): boolean =>
   [...actions].some((a) => a.currency === 'desecrate' && a.boss === undefined);
 
+/** Which assumption a result rests on, for the note that has to name it. Both can apply at once. */
+const assumedFromOf = (pool: boolean, desecrate: boolean): EngineResult['assumedFrom'] =>
+  pool && desecrate ? 'both' : pool ? 'rune-pool' : desecrate ? 'desecration' : undefined;
+
 /** Map the from-item MDP result into UI shapes: mod-text node labels, human action names, layout depth. */
-export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResult {
+export function mapMarkov(data: PatchData, res: MarkovResult, poolAssumed = false): EngineMarkovResult {
   /**
    * The positions of one holding, named — with the SIDE appended to any two that read alike.
    *
@@ -439,10 +458,13 @@ export function mapMarkov(data: PatchData, res: MarkovResult): EngineMarkovResul
       return side ? `${l} (${side})` : l;
     });
   };
+  const desecrateAssumed = leansOnAssumedOdds(res.policy.values());
+  const assumedFrom = assumedFromOf(poolAssumed, desecrateAssumed);
   return {
     applicable: true, feasible: res.feasible, expectedCost: res.expectedCost,
     converged: res.converged, bound: res.bound,
-    assumedOdds: leansOnAssumedOdds(res.policy.values()),
+    assumedOdds: poolAssumed || desecrateAssumed,
+    ...(assumedFrom ? { assumedFrom } : {}),
     nodes: res.nodes.map((nd) => mapNode(data, nd)),
     edges: res.edges.map((e) => mapEdge(data, e)),
     ...(res.bareCost !== undefined ? { bareCost: res.bareCost } : {}),

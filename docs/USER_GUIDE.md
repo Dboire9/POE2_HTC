@@ -648,10 +648,22 @@ that socket.
 **A rune costs a socket, and sockets are not modelled here.** The plan assumes you have a free one;
 Artificer's Orbs are not priced, so budget for them yourself.
 
-**Only these two appear in the Runes row.** The other rule-changing runes — *Thrud's Might*,
-*Kolr's Hunt* and the rest of the "Can roll … modifiers" family — are not offered at all, because the
-extra modifiers they unlock aren't in this app's data yet. They're named here so you know what's
-missing, rather than wondering why you can't find them.
+Six more runes each **add a pool of modifiers** the base cannot otherwise roll. Tick one and its
+modifiers appear in the pickers and in every plan; untick it and they leave again.
+
+| Rune | Where it fits | What it adds |
+|---|---|---|
+| **Thrud's Might** | weapons | Destruction modifiers |
+| **Uhtred's Sidereus** | boots | Chronomancy modifiers |
+| **Kolr's Hunt** | gloves | Marksman modifiers |
+| **Katla's Gloom** | gloves | Decay modifiers |
+| **Vorana's Carnage** | helmets | Berserking modifiers |
+| **Medved's Tending** | body armour | Soul modifiers |
+
+> **The odds on a pool modifier are an estimate, not a measurement.** The game's data publishes no
+> spawn weight for any of these — it reports a placeholder for all 128 — so the app assumes one that
+> puts them on roughly the footing of an ordinary modifier. Their *probabilities* are therefore
+> ballpark in a way the rest of the app's are not, and any plan that rolls one says so.
 
 The **Aldur** runes are a different thing again: they convert every modifier of one element on the
 item into another. The app suggests one by itself when your targets make it worthwhile — you do not

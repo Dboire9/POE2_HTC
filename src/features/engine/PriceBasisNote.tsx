@@ -31,9 +31,25 @@ import type { EnginePriceBasis } from '../../lib/engine';
  */
 const PriceBasisNote: React.FC<{
   basis: EnginePriceBasis; className?: string; exactOdds?: boolean;
-}> = ({ basis, className, exactOdds = true }) => {
+  /** WHICH assumption the odds rest on, when `exactOdds` is false. Defaults to the desecrated weight,
+   *  which was the only one that existed when this note was written. */
+  assumedFrom?: 'desecration' | 'rune-pool' | 'both';
+}> = ({ basis, className, exactOdds = true, assumedFrom = 'desecration' }) => {
+  // Three whole sentences rather than one frame with the cause spliced in, because the TAIL differs
+  // too. An unomened Desecration qualifies its own steps and leaves every other probability exact; a
+  // socketed pool rune changes the denominator of every weighted draw, so nothing in the craft is
+  // left exact and saying otherwise would be the more comfortable lie.
   const oddsLine = exactOdds ? (
     <> The <strong>odds are exact</strong> — use costs to compare plans, not to budget precisely.</>
+  ) : assumedFrom === 'rune-pool' ? (
+    <> A <strong>rune's own modifier pool</strong> is socketed here, and the data source publishes no
+      spawn weight for those modifiers, so the app assumes one. That changes the odds of{' '}
+      <strong>every</strong> random step in this craft, not just the ones that land a rune modifier —
+      treat the probabilities as ballpark.</>
+  ) : assumedFrom === 'both' ? (
+    <> Two numbers here are <strong>assumed</strong> rather than published: the spawn weight for
+      desecrated modifiers, and the one for the socketed rune's pool. The rune's affects{' '}
+      <strong>every</strong> random step in this craft — treat the probabilities as ballpark.</>
   ) : (
     <> This plan uses a <strong>Desecration without a boss omen</strong>, whose odds rest on an{' '}
       <strong>assumed</strong> spawn weight for desecrated mods — the data source publishes none. Treat
@@ -58,7 +74,12 @@ const PriceBasisNote: React.FC<{
     <p
       className={`text-[11px] text-amber-300 ${className ?? ''}`}
       title={
-        (exactOdds ? 'The crafting odds are exact. ' : 'Most crafting odds here are exact; the unomened Desecration steps rest on an assumed spawn weight. ')
+        (exactOdds
+          ? 'The crafting odds are exact. '
+          : assumedFrom === 'desecration'
+            // Only this case may say the REST are exact; a socketed pool rune qualifies every draw.
+            ? 'Most crafting odds here are exact; the unomened Desecration steps rest on an assumed spawn weight. '
+            : 'Some of the crafting odds here rest on a spawn weight the data source does not publish. ')
         + 'Some of the prices they are multiplied by are estimates, so '
         + 'treat costs as ballpark — and note that plans are ranked BY cost, so if your economy '
         + 'differs the recommended plan may differ too.'

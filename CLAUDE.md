@@ -242,8 +242,16 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   reads its limits through `limitsOf`, so raising one there reaches all of them and nothing downstream
   learns the word "rune". A rune that does not fit the base, or an id from a future patch arriving in
   a share link, is ignored rather than fatal. The item KEEPS what the rune allowed after the rune is
-  swapped out (user, 2026-09-15), which is why a plan may end by replacing it. The six "Can roll …"
-  pool runes are in the table but not plannable — their modifiers are not in the data yet.
+  swapped out (user, 2026-09-15), which is why a plan may end by replacing it.
+- **THE SIX "Can roll …" POOL RUNES ADD MODIFIERS, and they live in `base.pools.rune[<runeId>]`**
+  (`apply_runes.mjs`, built from RePoE's own pool TAGS — `destruction`, `chronomancy`, `marksman`,
+  `decay`, `berserking`, `soul`). `withRunes` folds the ticked ones into `pools.normal`, which is why
+  no planner has a rune branch in it: a rune-pool mod's engine `source` is `'normal'`, so every
+  rollable check already treats it as ordinary, and a `rune` marker carries the UI half (the split
+  `alloy` makes). **The restrictions are encoded NEGATIVELY** — a mod lists the bases it must NOT roll
+  on at weight 0 BEFORE its pool tag — so `resolveWeight(mod, [...baseTags, poolTag])` answers them
+  with no special case. **Their weights are ASSUMED**: RePoE publishes 1 for all 128, so
+  `RUNE_POOL_ASSUMED_WEIGHT` is 1000 (Dorian, 2026-09-15) and the app discloses it.
 - **A CRAFTED MODIFIER EXCLUDES ONLY OTHER CRAFTED MODIFIERS.** `familiesOf` (pool.ts) returns
   `crafted:<family>` for the essence and perfect-essence sources, so a rolled and a crafted resistance
   of one family coexist — as they do on three real uncorrupted items (Steelmage's jacket and sandals,

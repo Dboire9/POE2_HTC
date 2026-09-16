@@ -360,6 +360,24 @@
             "Body_Armours_dex/PerfectEssence_PresenceRadius",
             "Body_Armours_dex/PerfectEssence_SlowPotency"
           ]
+        },
+        "rune": {
+          "medveds-tending": {
+            "prefixes": [
+              "Body_Armours_dex/Rune_soul_MaximumLifeIncreasePercent",
+              "Body_Armours_dex/Rune_soul_MaximumManaIncreasePercent",
+              "Body_Armours_dex/Rune_soul_MaximumSpiritIncreasePercent",
+              "Body_Armours_dex/Rune_soul_IncreasedLife",
+              "Body_Armours_dex/Rune_soul_BaseLocalDefencesAndLife"
+            ],
+            "suffixes": [
+              "Body_Armours_dex/Rune_soul_ReducedAilmentDuration",
+              "Body_Armours_dex/Rune_soul_ReducedCriticalStrikeDamageTaken",
+              "Body_Armours_dex/Rune_soul_FireAndChaosDamageResistance",
+              "Body_Armours_dex/Rune_soul_ColdAndChaosDamageResistance",
+              "Body_Armours_dex/Rune_soul_LightningAndChaosDamageResistance"
+            ]
+          }
         }
       }
     },
@@ -487,6 +505,24 @@
             "Body_Armours_dex_int/PerfectEssence_PresenceRadius",
             "Body_Armours_dex_int/PerfectEssence_SlowPotency"
           ]
+        },
+        "rune": {
+          "medveds-tending": {
+            "prefixes": [
+              "Body_Armours_dex_int/Rune_soul_MaximumLifeIncreasePercent",
+              "Body_Armours_dex_int/Rune_soul_MaximumManaIncreasePercent",
+              "Body_Armours_dex_int/Rune_soul_MaximumSpiritIncreasePercent",
+              "Body_Armours_dex_int/Rune_soul_IncreasedLife",
+              "Body_Armours_dex_int/Rune_soul_BaseLocalDefencesAndLife"
+            ],
+            "suffixes": [
+              "Body_Armours_dex_int/Rune_soul_ReducedAilmentDuration",
+              "Body_Armours_dex_int/Rune_soul_ReducedCriticalStrikeDamageTaken",
+              "Body_Armours_dex_int/Rune_soul_FireAndChaosDamageResistance",
+              "Body_Armours_dex_int/Rune_soul_ColdAndChaosDamageResistance",
+              "Body_Armours_dex_int/Rune_soul_LightningAndChaosDamageResistance"
+            ]
+          }
         }
       }
     },
@@ -618,6 +654,24 @@
             "Body_Armours_int/PerfectEssence_PresenceRadius",
             "Body_Armours_int/PerfectEssence_SlowPotency"
           ]
+        },
+        "rune": {
+          "medveds-tending": {
+            "prefixes": [
+              "Body_Armours_int/Rune_soul_MaximumLifeIncreasePercent",
+              "Body_Armours_int/Rune_soul_MaximumManaIncreasePercent",
+              "Body_Armours_int/Rune_soul_MaximumSpiritIncreasePercent",
+              "Body_Armours_int/Rune_soul_IncreasedLife",
+              "Body_Armours_int/Rune_soul_BaseLocalDefencesAndLife"
+            ],
+            "suffixes": [
+              "Body_Armours_int/Rune_soul_ReducedAilmentDuration",
+              "Body_Armours_int/Rune_soul_ReducedCriticalStrikeDamageTaken",
+              "Body_Armours_int/Rune_soul_FireAndChaosDamageResistance",
+              "Body_Armours_int/Rune_soul_ColdAndChaosDamageResistance",
+              "Body_Armours_int/Rune_soul_LightningAndChaosDamageResistance"
+            ]
+          }
         }
       }
     },
@@ -744,6 +798,24 @@
             "Body_Armours_str/PerfectEssence_PresenceRadius",
             "Body_Armours_str/PerfectEssence_SlowPotency"
           ]
+        },
+        "rune": {
+          "medveds-tending": {
+            "prefixes": [
+              "Body_Armours_str/Rune_soul_MaximumLifeIncreasePercent",
+              "Body_Armours_str/Rune_soul_MaximumManaIncreasePercent",
+              "Body_Armours_str/Rune_soul_MaximumSpiritIncreasePercent",
+              "Body_Armours_str/Rune_soul_IncreasedLife",
+              "Body_Armours_str/Rune_soul_BaseLocalDefencesAndLife"
+            ],
+            "suffixes": [
+              "Body_Armours_str/Rune_soul_ReducedAilmentDuration",
+              "Body_Armours_str/Rune_soul_ReducedCriticalStrikeDamageTaken",
+              "Body_Armours_str/Rune_soul_FireAndChaosDamageResistance",
+              "Body_Armours_str/Rune_soul_ColdAndChaosDamageResistance",
+              "Body_Armours_str/Rune_soul_LightningAndChaosDamageResistance"
+            ]
+          }
         }
       }
     },
@@ -871,6 +943,24 @@
             "Body_Armours_str_dex/PerfectEssence_PresenceRadius",
             "Body_Armours_str_dex/PerfectEssence_SlowPotency"
           ]
+        },
+        "rune": {
+          "medveds-tending": {
+            "prefixes": [
+              "Body_Armours_str_dex/Rune_soul_MaximumLifeIncreasePercent",
+              "Body_Armours_str_dex/Rune_soul_MaximumManaIncreasePercent",
+              "Body_Armours_str_dex/Rune_soul_MaximumSpiritIncreasePercent",
+              "Body_Armours_str_dex/Rune_soul_IncreasedLife",
+              "Body_Armours_str_dex/Rune_soul_BaseLocalDefencesAndLife"
+            ],
+            "suffixes": [
+              "Body_Armours_str_dex/Rune_soul_ReducedAilmentDuration",
+              "Body_Armours_str_dex/Rune_soul_ReducedCriticalStrikeDamageTaken",
+              "Body_Armours_str_dex/Rune_soul_FireAndChaosDamageResistance",
+              "Body_Armours_str_dex/Rune_soul_ColdAndChaosDamageResistance",
+              "Body_Armours_str_dex/Rune_soul_LightningAndChaosDamageResistance"
+            ]
+          }
         }
       }
     },
@@ -1003,6 +1093,24 @@
             "Body_Armours_str_int/PerfectEssence_PresenceRadius",
             "Body_Armours_str_int/PerfectEssence_SlowPotency"
           ]
+        },
+        "rune": {
+          "medveds-tending": {
+            "prefixes": [
+              "Body_Armours_str_int/Rune_soul_MaximumLifeIncreasePercent",
+              "Body_Armours_str_int/Rune_soul_MaximumManaIncreasePercent",
+              "Body_Armours_str_int/Rune_soul_MaximumSpiritIncreasePercent",
+              "Body_Armours_str_int/Rune_soul_IncreasedLife",
+              "Body_Armours_str_int/Rune_soul_BaseLocalDefencesAndLife"
+            ],
+            "suffixes": [
+              "Body_Armours_str_int/Rune_soul_ReducedAilmentDuration",
+              "Body_Armours_str_int/Rune_soul_ReducedCriticalStrikeDamageTaken",
+              "Body_Armours_str_int/Rune_soul_FireAndChaosDamageResistance",
+              "Body_Armours_str_int/Rune_soul_ColdAndChaosDamageResistance",
+              "Body_Armours_str_int/Rune_soul_LightningAndChaosDamageResistance"
+            ]
+          }
         }
       }
     },
@@ -1115,6 +1223,21 @@
             "Boots_dex/PerfectEssence_SkillEffectDuration",
             "Boots_dex/PerfectEssence_BaseSpirit"
           ]
+        },
+        "rune": {
+          "uhtreds-sidereus": {
+            "prefixes": [
+              "Boots_dex/Rune_chronomancy_MovementVelocity",
+              "Boots_dex/Rune_chronomancy_MovementVelocityWhileSprinting",
+              "Boots_dex/Rune_chronomancy_DodgeRoll"
+            ],
+            "suffixes": [
+              "Boots_dex/Rune_chronomancy_SkillEffectDuration",
+              "Boots_dex/Rune_chronomancy_CooldownRecovery",
+              "Boots_dex/Rune_chronomancy_ChargeChanceToNotConsume",
+              "Boots_dex/Rune_chronomancy_DebuffTime"
+            ]
+          }
         }
       }
     },
@@ -1222,6 +1345,21 @@
             "Boots_dex_int/PerfectEssence_SkillEffectDuration",
             "Boots_dex_int/PerfectEssence_BaseSpirit"
           ]
+        },
+        "rune": {
+          "uhtreds-sidereus": {
+            "prefixes": [
+              "Boots_dex_int/Rune_chronomancy_MovementVelocity",
+              "Boots_dex_int/Rune_chronomancy_MovementVelocityWhileSprinting",
+              "Boots_dex_int/Rune_chronomancy_DodgeRoll"
+            ],
+            "suffixes": [
+              "Boots_dex_int/Rune_chronomancy_SkillEffectDuration",
+              "Boots_dex_int/Rune_chronomancy_CooldownRecovery",
+              "Boots_dex_int/Rune_chronomancy_ChargeChanceToNotConsume",
+              "Boots_dex_int/Rune_chronomancy_DebuffTime"
+            ]
+          }
         }
       }
     },
@@ -1334,6 +1472,21 @@
             "Boots_int/PerfectEssence_SkillEffectDuration",
             "Boots_int/PerfectEssence_BaseSpirit"
           ]
+        },
+        "rune": {
+          "uhtreds-sidereus": {
+            "prefixes": [
+              "Boots_int/Rune_chronomancy_MovementVelocity",
+              "Boots_int/Rune_chronomancy_MovementVelocityWhileSprinting",
+              "Boots_int/Rune_chronomancy_DodgeRoll"
+            ],
+            "suffixes": [
+              "Boots_int/Rune_chronomancy_SkillEffectDuration",
+              "Boots_int/Rune_chronomancy_CooldownRecovery",
+              "Boots_int/Rune_chronomancy_ChargeChanceToNotConsume",
+              "Boots_int/Rune_chronomancy_DebuffTime"
+            ]
+          }
         }
       }
     },
@@ -1446,6 +1599,21 @@
             "Boots_str/PerfectEssence_SkillEffectDuration",
             "Boots_str/PerfectEssence_BaseSpirit"
           ]
+        },
+        "rune": {
+          "uhtreds-sidereus": {
+            "prefixes": [
+              "Boots_str/Rune_chronomancy_MovementVelocity",
+              "Boots_str/Rune_chronomancy_MovementVelocityWhileSprinting",
+              "Boots_str/Rune_chronomancy_DodgeRoll"
+            ],
+            "suffixes": [
+              "Boots_str/Rune_chronomancy_SkillEffectDuration",
+              "Boots_str/Rune_chronomancy_CooldownRecovery",
+              "Boots_str/Rune_chronomancy_ChargeChanceToNotConsume",
+              "Boots_str/Rune_chronomancy_DebuffTime"
+            ]
+          }
         }
       }
     },
@@ -1554,6 +1722,21 @@
             "Boots_str_dex/PerfectEssence_SkillEffectDuration",
             "Boots_str_dex/PerfectEssence_BaseSpirit"
           ]
+        },
+        "rune": {
+          "uhtreds-sidereus": {
+            "prefixes": [
+              "Boots_str_dex/Rune_chronomancy_MovementVelocity",
+              "Boots_str_dex/Rune_chronomancy_MovementVelocityWhileSprinting",
+              "Boots_str_dex/Rune_chronomancy_DodgeRoll"
+            ],
+            "suffixes": [
+              "Boots_str_dex/Rune_chronomancy_SkillEffectDuration",
+              "Boots_str_dex/Rune_chronomancy_CooldownRecovery",
+              "Boots_str_dex/Rune_chronomancy_ChargeChanceToNotConsume",
+              "Boots_str_dex/Rune_chronomancy_DebuffTime"
+            ]
+          }
         }
       }
     },
@@ -1661,6 +1844,21 @@
             "Boots_str_int/PerfectEssence_SkillEffectDuration",
             "Boots_str_int/PerfectEssence_BaseSpirit"
           ]
+        },
+        "rune": {
+          "uhtreds-sidereus": {
+            "prefixes": [
+              "Boots_str_int/Rune_chronomancy_MovementVelocity",
+              "Boots_str_int/Rune_chronomancy_MovementVelocityWhileSprinting",
+              "Boots_str_int/Rune_chronomancy_DodgeRoll"
+            ],
+            "suffixes": [
+              "Boots_str_int/Rune_chronomancy_SkillEffectDuration",
+              "Boots_str_int/Rune_chronomancy_CooldownRecovery",
+              "Boots_str_int/Rune_chronomancy_ChargeChanceToNotConsume",
+              "Boots_str_int/Rune_chronomancy_DebuffTime"
+            ]
+          }
         }
       }
     },
@@ -1782,6 +1980,20 @@
             "Bows/PerfectEssence_Strength",
             "Bows/PerfectEssence_CurseEffectiveness"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Bows/Rune_destruction_SpeedModifierEffect",
+              "Bows/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Bows/Rune_destruction_PhysicalModifierEffect",
+              "Bows/Rune_destruction_ElementalModifierEffect",
+              "Bows/Rune_destruction_ChaosModifierEffect",
+              "Bows/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -2017,6 +2229,19 @@
             "Crossbows/PerfectEssence_Strength",
             "Crossbows/PerfectEssence_AdditionalBallistaTotem"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Crossbows/Rune_destruction_SpeedModifierEffect",
+              "Crossbows/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Crossbows/Rune_destruction_PhysicalModifierEffect",
+              "Crossbows/Rune_destruction_ElementalModifierEffect",
+              "Crossbows/Rune_destruction_ChaosModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -2271,6 +2496,44 @@
             "Gloves_dex/PerfectEssence_DamagingAilmentDuration",
             "Gloves_dex/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
+        },
+        "rune": {
+          "kolrs-hunt": {
+            "prefixes": [
+              "Gloves_dex/Rune_marksman_ProjectileDamage",
+              "Gloves_dex/Rune_marksman_CurseEffectiveness",
+              "Gloves_dex/Rune_marksman_ProjectileSpeed"
+            ],
+            "suffixes": [
+              "Gloves_dex/Rune_marksman_CriticalStrikeChanceIncrease",
+              "Gloves_dex/Rune_marksman_ChanceToPierce",
+              "Gloves_dex/Rune_marksman_AdditionalProjectileChance",
+              "Gloves_dex/Rune_marksman_ChainFromTerrain",
+              "Gloves_dex/Rune_marksman_ForkingProjectiles",
+              "Gloves_dex/Rune_marksman_MarkDuration",
+              "Gloves_dex/Rune_marksman_MarkUseSpeed",
+              "Gloves_dex/Rune_marksman_IncreaseSocketedGemLevel"
+            ]
+          },
+          "katlas-gloom": {
+            "prefixes": [
+              "Gloves_dex/Rune_decay_IgniteEffect",
+              "Gloves_dex/Rune_decay_BleedingDamage",
+              "Gloves_dex/Rune_decay_PoisonEffect",
+              "Gloves_dex/Rune_decay_AilmentEffect",
+              "Gloves_dex/Rune_decay_FasterAilmentDamage"
+            ],
+            "suffixes": [
+              "Gloves_dex/Rune_decay_DamagingAilmentDuration",
+              "Gloves_dex/Rune_decay_LifeLeech",
+              "Gloves_dex/Rune_decay_LifeLeechAmount",
+              "Gloves_dex/Rune_decay_WitheredEffect",
+              "Gloves_dex/Rune_decay_CurseEffectiveness",
+              "Gloves_dex/Rune_decay_ExposureEffect",
+              "Gloves_dex/Rune_decay_BaseCurseDuration",
+              "Gloves_dex/Rune_decay_CurseDelay"
+            ]
+          }
         }
       }
     },
@@ -2389,6 +2652,44 @@
             "Gloves_dex_int/PerfectEssence_DamagingAilmentDuration",
             "Gloves_dex_int/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
+        },
+        "rune": {
+          "kolrs-hunt": {
+            "prefixes": [
+              "Gloves_dex_int/Rune_marksman_ProjectileDamage",
+              "Gloves_dex_int/Rune_marksman_CurseEffectiveness",
+              "Gloves_dex_int/Rune_marksman_ProjectileSpeed"
+            ],
+            "suffixes": [
+              "Gloves_dex_int/Rune_marksman_CriticalStrikeChanceIncrease",
+              "Gloves_dex_int/Rune_marksman_ChanceToPierce",
+              "Gloves_dex_int/Rune_marksman_AdditionalProjectileChance",
+              "Gloves_dex_int/Rune_marksman_ChainFromTerrain",
+              "Gloves_dex_int/Rune_marksman_ForkingProjectiles",
+              "Gloves_dex_int/Rune_marksman_MarkDuration",
+              "Gloves_dex_int/Rune_marksman_MarkUseSpeed",
+              "Gloves_dex_int/Rune_marksman_IncreaseSocketedGemLevel"
+            ]
+          },
+          "katlas-gloom": {
+            "prefixes": [
+              "Gloves_dex_int/Rune_decay_IgniteEffect",
+              "Gloves_dex_int/Rune_decay_BleedingDamage",
+              "Gloves_dex_int/Rune_decay_PoisonEffect",
+              "Gloves_dex_int/Rune_decay_AilmentEffect",
+              "Gloves_dex_int/Rune_decay_FasterAilmentDamage"
+            ],
+            "suffixes": [
+              "Gloves_dex_int/Rune_decay_DamagingAilmentDuration",
+              "Gloves_dex_int/Rune_decay_LifeLeech",
+              "Gloves_dex_int/Rune_decay_LifeLeechAmount",
+              "Gloves_dex_int/Rune_decay_WitheredEffect",
+              "Gloves_dex_int/Rune_decay_CurseEffectiveness",
+              "Gloves_dex_int/Rune_decay_ExposureEffect",
+              "Gloves_dex_int/Rune_decay_BaseCurseDuration",
+              "Gloves_dex_int/Rune_decay_CurseDelay"
+            ]
+          }
         }
       }
     },
@@ -2513,6 +2814,44 @@
             "Gloves_int/PerfectEssence_DamagingAilmentDuration",
             "Gloves_int/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
+        },
+        "rune": {
+          "kolrs-hunt": {
+            "prefixes": [
+              "Gloves_int/Rune_marksman_ProjectileDamage",
+              "Gloves_int/Rune_marksman_CurseEffectiveness",
+              "Gloves_int/Rune_marksman_ProjectileSpeed"
+            ],
+            "suffixes": [
+              "Gloves_int/Rune_marksman_CriticalStrikeChanceIncrease",
+              "Gloves_int/Rune_marksman_ChanceToPierce",
+              "Gloves_int/Rune_marksman_AdditionalProjectileChance",
+              "Gloves_int/Rune_marksman_ChainFromTerrain",
+              "Gloves_int/Rune_marksman_ForkingProjectiles",
+              "Gloves_int/Rune_marksman_MarkDuration",
+              "Gloves_int/Rune_marksman_MarkUseSpeed",
+              "Gloves_int/Rune_marksman_IncreaseSocketedGemLevel"
+            ]
+          },
+          "katlas-gloom": {
+            "prefixes": [
+              "Gloves_int/Rune_decay_IgniteEffect",
+              "Gloves_int/Rune_decay_BleedingDamage",
+              "Gloves_int/Rune_decay_PoisonEffect",
+              "Gloves_int/Rune_decay_AilmentEffect",
+              "Gloves_int/Rune_decay_FasterAilmentDamage"
+            ],
+            "suffixes": [
+              "Gloves_int/Rune_decay_DamagingAilmentDuration",
+              "Gloves_int/Rune_decay_LifeLeech",
+              "Gloves_int/Rune_decay_LifeLeechAmount",
+              "Gloves_int/Rune_decay_WitheredEffect",
+              "Gloves_int/Rune_decay_CurseEffectiveness",
+              "Gloves_int/Rune_decay_ExposureEffect",
+              "Gloves_int/Rune_decay_BaseCurseDuration",
+              "Gloves_int/Rune_decay_CurseDelay"
+            ]
+          }
         }
       }
     },
@@ -2636,6 +2975,44 @@
             "Gloves_str/PerfectEssence_DamagingAilmentDuration",
             "Gloves_str/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
+        },
+        "rune": {
+          "kolrs-hunt": {
+            "prefixes": [
+              "Gloves_str/Rune_marksman_ProjectileDamage",
+              "Gloves_str/Rune_marksman_CurseEffectiveness",
+              "Gloves_str/Rune_marksman_ProjectileSpeed"
+            ],
+            "suffixes": [
+              "Gloves_str/Rune_marksman_CriticalStrikeChanceIncrease",
+              "Gloves_str/Rune_marksman_ChanceToPierce",
+              "Gloves_str/Rune_marksman_AdditionalProjectileChance",
+              "Gloves_str/Rune_marksman_ChainFromTerrain",
+              "Gloves_str/Rune_marksman_ForkingProjectiles",
+              "Gloves_str/Rune_marksman_MarkDuration",
+              "Gloves_str/Rune_marksman_MarkUseSpeed",
+              "Gloves_str/Rune_marksman_IncreaseSocketedGemLevel"
+            ]
+          },
+          "katlas-gloom": {
+            "prefixes": [
+              "Gloves_str/Rune_decay_IgniteEffect",
+              "Gloves_str/Rune_decay_BleedingDamage",
+              "Gloves_str/Rune_decay_PoisonEffect",
+              "Gloves_str/Rune_decay_AilmentEffect",
+              "Gloves_str/Rune_decay_FasterAilmentDamage"
+            ],
+            "suffixes": [
+              "Gloves_str/Rune_decay_DamagingAilmentDuration",
+              "Gloves_str/Rune_decay_LifeLeech",
+              "Gloves_str/Rune_decay_LifeLeechAmount",
+              "Gloves_str/Rune_decay_WitheredEffect",
+              "Gloves_str/Rune_decay_CurseEffectiveness",
+              "Gloves_str/Rune_decay_ExposureEffect",
+              "Gloves_str/Rune_decay_BaseCurseDuration",
+              "Gloves_str/Rune_decay_CurseDelay"
+            ]
+          }
         }
       }
     },
@@ -2755,6 +3132,44 @@
             "Gloves_str_dex/PerfectEssence_DamagingAilmentDuration",
             "Gloves_str_dex/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
+        },
+        "rune": {
+          "kolrs-hunt": {
+            "prefixes": [
+              "Gloves_str_dex/Rune_marksman_ProjectileDamage",
+              "Gloves_str_dex/Rune_marksman_CurseEffectiveness",
+              "Gloves_str_dex/Rune_marksman_ProjectileSpeed"
+            ],
+            "suffixes": [
+              "Gloves_str_dex/Rune_marksman_CriticalStrikeChanceIncrease",
+              "Gloves_str_dex/Rune_marksman_ChanceToPierce",
+              "Gloves_str_dex/Rune_marksman_AdditionalProjectileChance",
+              "Gloves_str_dex/Rune_marksman_ChainFromTerrain",
+              "Gloves_str_dex/Rune_marksman_ForkingProjectiles",
+              "Gloves_str_dex/Rune_marksman_MarkDuration",
+              "Gloves_str_dex/Rune_marksman_MarkUseSpeed",
+              "Gloves_str_dex/Rune_marksman_IncreaseSocketedGemLevel"
+            ]
+          },
+          "katlas-gloom": {
+            "prefixes": [
+              "Gloves_str_dex/Rune_decay_IgniteEffect",
+              "Gloves_str_dex/Rune_decay_BleedingDamage",
+              "Gloves_str_dex/Rune_decay_PoisonEffect",
+              "Gloves_str_dex/Rune_decay_AilmentEffect",
+              "Gloves_str_dex/Rune_decay_FasterAilmentDamage"
+            ],
+            "suffixes": [
+              "Gloves_str_dex/Rune_decay_DamagingAilmentDuration",
+              "Gloves_str_dex/Rune_decay_LifeLeech",
+              "Gloves_str_dex/Rune_decay_LifeLeechAmount",
+              "Gloves_str_dex/Rune_decay_WitheredEffect",
+              "Gloves_str_dex/Rune_decay_CurseEffectiveness",
+              "Gloves_str_dex/Rune_decay_ExposureEffect",
+              "Gloves_str_dex/Rune_decay_BaseCurseDuration",
+              "Gloves_str_dex/Rune_decay_CurseDelay"
+            ]
+          }
         }
       }
     },
@@ -2874,6 +3289,44 @@
             "Gloves_str_int/PerfectEssence_DamagingAilmentDuration",
             "Gloves_str_int/PerfectEssence_IncreasedAttackAreaOfEffect"
           ]
+        },
+        "rune": {
+          "kolrs-hunt": {
+            "prefixes": [
+              "Gloves_str_int/Rune_marksman_ProjectileDamage",
+              "Gloves_str_int/Rune_marksman_CurseEffectiveness",
+              "Gloves_str_int/Rune_marksman_ProjectileSpeed"
+            ],
+            "suffixes": [
+              "Gloves_str_int/Rune_marksman_CriticalStrikeChanceIncrease",
+              "Gloves_str_int/Rune_marksman_ChanceToPierce",
+              "Gloves_str_int/Rune_marksman_AdditionalProjectileChance",
+              "Gloves_str_int/Rune_marksman_ChainFromTerrain",
+              "Gloves_str_int/Rune_marksman_ForkingProjectiles",
+              "Gloves_str_int/Rune_marksman_MarkDuration",
+              "Gloves_str_int/Rune_marksman_MarkUseSpeed",
+              "Gloves_str_int/Rune_marksman_IncreaseSocketedGemLevel"
+            ]
+          },
+          "katlas-gloom": {
+            "prefixes": [
+              "Gloves_str_int/Rune_decay_IgniteEffect",
+              "Gloves_str_int/Rune_decay_BleedingDamage",
+              "Gloves_str_int/Rune_decay_PoisonEffect",
+              "Gloves_str_int/Rune_decay_AilmentEffect",
+              "Gloves_str_int/Rune_decay_FasterAilmentDamage"
+            ],
+            "suffixes": [
+              "Gloves_str_int/Rune_decay_DamagingAilmentDuration",
+              "Gloves_str_int/Rune_decay_LifeLeech",
+              "Gloves_str_int/Rune_decay_LifeLeechAmount",
+              "Gloves_str_int/Rune_decay_WitheredEffect",
+              "Gloves_str_int/Rune_decay_CurseEffectiveness",
+              "Gloves_str_int/Rune_decay_ExposureEffect",
+              "Gloves_str_int/Rune_decay_BaseCurseDuration",
+              "Gloves_str_int/Rune_decay_CurseDelay"
+            ]
+          }
         }
       }
     },
@@ -2994,6 +3447,28 @@
             "Helmets_dex/PerfectEssence_ArchonDuration",
             "Helmets_dex/PerfectEssence_SpellAreaOfEffect"
           ]
+        },
+        "rune": {
+          "voranas-carnage": {
+            "prefixes": [
+              "Helmets_dex/Rune_berserking_MaximumRage",
+              "Helmets_dex/Rune_berserking_WarcryDamage",
+              "Helmets_dex/Rune_berserking_WarcryPower",
+              "Helmets_dex/Rune_berserking_ArmourBreakEffect",
+              "Helmets_dex/Rune_berserking_GloryGeneration",
+              "Helmets_dex/Rune_berserking_RageCost"
+            ],
+            "suffixes": [
+              "Helmets_dex/Rune_berserking_RageLossDelay",
+              "Helmets_dex/Rune_berserking_GainRage",
+              "Helmets_dex/Rune_berserking_WarcrySpeed",
+              "Helmets_dex/Rune_berserking_WarcryCooldownSpeed",
+              "Helmets_dex/Rune_berserking_AreaOfEffect",
+              "Helmets_dex/Rune_berserking_WarcryLifeRecovery",
+              "Helmets_dex/Rune_berserking_ArmourBreakDuration",
+              "Helmets_dex/Rune_berserking_AdditionalComboChance"
+            ]
+          }
         }
       }
     },
@@ -3108,6 +3583,28 @@
             "Helmets_dex_int/PerfectEssence_ArchonDuration",
             "Helmets_dex_int/PerfectEssence_SpellAreaOfEffect"
           ]
+        },
+        "rune": {
+          "voranas-carnage": {
+            "prefixes": [
+              "Helmets_dex_int/Rune_berserking_MaximumRage",
+              "Helmets_dex_int/Rune_berserking_WarcryDamage",
+              "Helmets_dex_int/Rune_berserking_WarcryPower",
+              "Helmets_dex_int/Rune_berserking_ArmourBreakEffect",
+              "Helmets_dex_int/Rune_berserking_GloryGeneration",
+              "Helmets_dex_int/Rune_berserking_RageCost"
+            ],
+            "suffixes": [
+              "Helmets_dex_int/Rune_berserking_RageLossDelay",
+              "Helmets_dex_int/Rune_berserking_GainRage",
+              "Helmets_dex_int/Rune_berserking_WarcrySpeed",
+              "Helmets_dex_int/Rune_berserking_WarcryCooldownSpeed",
+              "Helmets_dex_int/Rune_berserking_AreaOfEffect",
+              "Helmets_dex_int/Rune_berserking_WarcryLifeRecovery",
+              "Helmets_dex_int/Rune_berserking_ArmourBreakDuration",
+              "Helmets_dex_int/Rune_berserking_AdditionalComboChance"
+            ]
+          }
         }
       }
     },
@@ -3228,6 +3725,28 @@
             "Helmets_int/PerfectEssence_ArchonDuration",
             "Helmets_int/PerfectEssence_SpellAreaOfEffect"
           ]
+        },
+        "rune": {
+          "voranas-carnage": {
+            "prefixes": [
+              "Helmets_int/Rune_berserking_MaximumRage",
+              "Helmets_int/Rune_berserking_WarcryDamage",
+              "Helmets_int/Rune_berserking_WarcryPower",
+              "Helmets_int/Rune_berserking_ArmourBreakEffect",
+              "Helmets_int/Rune_berserking_GloryGeneration",
+              "Helmets_int/Rune_berserking_RageCost"
+            ],
+            "suffixes": [
+              "Helmets_int/Rune_berserking_RageLossDelay",
+              "Helmets_int/Rune_berserking_GainRage",
+              "Helmets_int/Rune_berserking_WarcrySpeed",
+              "Helmets_int/Rune_berserking_WarcryCooldownSpeed",
+              "Helmets_int/Rune_berserking_AreaOfEffect",
+              "Helmets_int/Rune_berserking_WarcryLifeRecovery",
+              "Helmets_int/Rune_berserking_ArmourBreakDuration",
+              "Helmets_int/Rune_berserking_AdditionalComboChance"
+            ]
+          }
         }
       }
     },
@@ -3346,6 +3865,28 @@
             "Helmets_str/PerfectEssence_ArchonDuration",
             "Helmets_str/PerfectEssence_SpellAreaOfEffect"
           ]
+        },
+        "rune": {
+          "voranas-carnage": {
+            "prefixes": [
+              "Helmets_str/Rune_berserking_MaximumRage",
+              "Helmets_str/Rune_berserking_WarcryDamage",
+              "Helmets_str/Rune_berserking_WarcryPower",
+              "Helmets_str/Rune_berserking_ArmourBreakEffect",
+              "Helmets_str/Rune_berserking_GloryGeneration",
+              "Helmets_str/Rune_berserking_RageCost"
+            ],
+            "suffixes": [
+              "Helmets_str/Rune_berserking_RageLossDelay",
+              "Helmets_str/Rune_berserking_GainRage",
+              "Helmets_str/Rune_berserking_WarcrySpeed",
+              "Helmets_str/Rune_berserking_WarcryCooldownSpeed",
+              "Helmets_str/Rune_berserking_AreaOfEffect",
+              "Helmets_str/Rune_berserking_WarcryLifeRecovery",
+              "Helmets_str/Rune_berserking_ArmourBreakDuration",
+              "Helmets_str/Rune_berserking_AdditionalComboChance"
+            ]
+          }
         }
       }
     },
@@ -3461,6 +4002,28 @@
             "Helmets_str_dex/PerfectEssence_ArchonDuration",
             "Helmets_str_dex/PerfectEssence_SpellAreaOfEffect"
           ]
+        },
+        "rune": {
+          "voranas-carnage": {
+            "prefixes": [
+              "Helmets_str_dex/Rune_berserking_MaximumRage",
+              "Helmets_str_dex/Rune_berserking_WarcryDamage",
+              "Helmets_str_dex/Rune_berserking_WarcryPower",
+              "Helmets_str_dex/Rune_berserking_ArmourBreakEffect",
+              "Helmets_str_dex/Rune_berserking_GloryGeneration",
+              "Helmets_str_dex/Rune_berserking_RageCost"
+            ],
+            "suffixes": [
+              "Helmets_str_dex/Rune_berserking_RageLossDelay",
+              "Helmets_str_dex/Rune_berserking_GainRage",
+              "Helmets_str_dex/Rune_berserking_WarcrySpeed",
+              "Helmets_str_dex/Rune_berserking_WarcryCooldownSpeed",
+              "Helmets_str_dex/Rune_berserking_AreaOfEffect",
+              "Helmets_str_dex/Rune_berserking_WarcryLifeRecovery",
+              "Helmets_str_dex/Rune_berserking_ArmourBreakDuration",
+              "Helmets_str_dex/Rune_berserking_AdditionalComboChance"
+            ]
+          }
         }
       }
     },
@@ -3576,6 +4139,28 @@
             "Helmets_str_int/PerfectEssence_ArchonDuration",
             "Helmets_str_int/PerfectEssence_SpellAreaOfEffect"
           ]
+        },
+        "rune": {
+          "voranas-carnage": {
+            "prefixes": [
+              "Helmets_str_int/Rune_berserking_MaximumRage",
+              "Helmets_str_int/Rune_berserking_WarcryDamage",
+              "Helmets_str_int/Rune_berserking_WarcryPower",
+              "Helmets_str_int/Rune_berserking_ArmourBreakEffect",
+              "Helmets_str_int/Rune_berserking_GloryGeneration",
+              "Helmets_str_int/Rune_berserking_RageCost"
+            ],
+            "suffixes": [
+              "Helmets_str_int/Rune_berserking_RageLossDelay",
+              "Helmets_str_int/Rune_berserking_GainRage",
+              "Helmets_str_int/Rune_berserking_WarcrySpeed",
+              "Helmets_str_int/Rune_berserking_WarcryCooldownSpeed",
+              "Helmets_str_int/Rune_berserking_AreaOfEffect",
+              "Helmets_str_int/Rune_berserking_WarcryLifeRecovery",
+              "Helmets_str_int/Rune_berserking_ArmourBreakDuration",
+              "Helmets_str_int/Rune_berserking_AdditionalComboChance"
+            ]
+          }
         }
       }
     },
@@ -3700,6 +4285,19 @@
             "OneHand_Maces/PerfectEssence_Strength",
             "OneHand_Maces/PerfectEssence_GloryChanceToNotConsume"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "OneHand_Maces/Rune_destruction_SpeedModifierEffect",
+              "OneHand_Maces/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "OneHand_Maces/Rune_destruction_PhysicalModifierEffect",
+              "OneHand_Maces/Rune_destruction_ElementalModifierEffect",
+              "OneHand_Maces/Rune_destruction_ChaosModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -3819,6 +4417,19 @@
             "Quarterstaves/PerfectEssence_Strength",
             "Quarterstaves/PerfectEssence_BellHitLimit"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Quarterstaves/Rune_destruction_SpeedModifierEffect",
+              "Quarterstaves/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Quarterstaves/Rune_destruction_PhysicalModifierEffect",
+              "Quarterstaves/Rune_destruction_ElementalModifierEffect",
+              "Quarterstaves/Rune_destruction_ChaosModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -4077,6 +4688,20 @@
             "Sceptres/PerfectEssence_SoulCore",
             "Sceptres/PerfectEssence_MaximumPuppeteerStacks"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Sceptres/Rune_destruction_SpeedModifierEffect",
+              "Sceptres/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Sceptres/Rune_destruction_PhysicalModifierEffect",
+              "Sceptres/Rune_destruction_ElementalModifierEffect",
+              "Sceptres/Rune_destruction_ChaosModifierEffect",
+              "Sceptres/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -4557,6 +5182,19 @@
             "Spears/PerfectEssence_Strength",
             "Spears/PerfectEssence_MeleeWeaponAndUnarmedRange"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Spears/Rune_destruction_SpeedModifierEffect",
+              "Spears/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Spears/Rune_destruction_PhysicalModifierEffect",
+              "Spears/Rune_destruction_ElementalModifierEffect",
+              "Spears/Rune_destruction_ChaosModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -4651,6 +5289,20 @@
             "Staves/PerfectEssence_IncreasedCastSpeed",
             "Staves/PerfectEssence_ChanceToGainNaturesArchon"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Staves/Rune_destruction_SpeedModifierEffect",
+              "Staves/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Staves/Rune_destruction_PhysicalModifierEffect",
+              "Staves/Rune_destruction_ElementalModifierEffect",
+              "Staves/Rune_destruction_ChaosModifierEffect",
+              "Staves/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -4726,6 +5378,20 @@
             "Staves_chaos/PerfectEssence_IncreasedCastSpeed",
             "Staves_chaos/PerfectEssence_ChanceToGainNaturesArchon"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Staves_chaos/Rune_destruction_SpeedModifierEffect",
+              "Staves_chaos/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Staves_chaos/Rune_destruction_PhysicalModifierEffect",
+              "Staves_chaos/Rune_destruction_ElementalModifierEffect",
+              "Staves_chaos/Rune_destruction_ChaosModifierEffect",
+              "Staves_chaos/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -4803,6 +5469,20 @@
             "Staves_cold/PerfectEssence_IncreasedCastSpeed",
             "Staves_cold/PerfectEssence_ChanceToGainNaturesArchon"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Staves_cold/Rune_destruction_SpeedModifierEffect",
+              "Staves_cold/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Staves_cold/Rune_destruction_PhysicalModifierEffect",
+              "Staves_cold/Rune_destruction_ElementalModifierEffect",
+              "Staves_cold/Rune_destruction_ChaosModifierEffect",
+              "Staves_cold/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -4880,6 +5560,20 @@
             "Staves_fire/PerfectEssence_IncreasedCastSpeed",
             "Staves_fire/PerfectEssence_ChanceToGainNaturesArchon"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Staves_fire/Rune_destruction_SpeedModifierEffect",
+              "Staves_fire/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Staves_fire/Rune_destruction_PhysicalModifierEffect",
+              "Staves_fire/Rune_destruction_ElementalModifierEffect",
+              "Staves_fire/Rune_destruction_ChaosModifierEffect",
+              "Staves_fire/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -4957,6 +5651,20 @@
             "Staves_lightning/PerfectEssence_IncreasedCastSpeed",
             "Staves_lightning/PerfectEssence_ChanceToGainNaturesArchon"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Staves_lightning/Rune_destruction_SpeedModifierEffect",
+              "Staves_lightning/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Staves_lightning/Rune_destruction_PhysicalModifierEffect",
+              "Staves_lightning/Rune_destruction_ElementalModifierEffect",
+              "Staves_lightning/Rune_destruction_ChaosModifierEffect",
+              "Staves_lightning/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -5032,6 +5740,20 @@
             "Staves_physical/PerfectEssence_IncreasedCastSpeed",
             "Staves_physical/PerfectEssence_ChanceToGainNaturesArchon"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Staves_physical/Rune_destruction_SpeedModifierEffect",
+              "Staves_physical/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Staves_physical/Rune_destruction_PhysicalModifierEffect",
+              "Staves_physical/Rune_destruction_ElementalModifierEffect",
+              "Staves_physical/Rune_destruction_ChaosModifierEffect",
+              "Staves_physical/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -5159,6 +5881,19 @@
             "TwoHand_Maces/PerfectEssence_Strength",
             "TwoHand_Maces/PerfectEssence_GloryChanceToNotConsume"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "TwoHand_Maces/Rune_destruction_SpeedModifierEffect",
+              "TwoHand_Maces/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "TwoHand_Maces/Rune_destruction_PhysicalModifierEffect",
+              "TwoHand_Maces/Rune_destruction_ElementalModifierEffect",
+              "TwoHand_Maces/Rune_destruction_ChaosModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -5254,6 +5989,20 @@
             "Wands/PerfectEssence_IncreasedCastSpeed",
             "Wands/PerfectEssence_ElementalSkillLimit"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Wands/Rune_destruction_SpeedModifierEffect",
+              "Wands/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Wands/Rune_destruction_PhysicalModifierEffect",
+              "Wands/Rune_destruction_ElementalModifierEffect",
+              "Wands/Rune_destruction_ChaosModifierEffect",
+              "Wands/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -5331,6 +6080,20 @@
             "Wands_chaos/PerfectEssence_IncreasedCastSpeed",
             "Wands_chaos/PerfectEssence_ElementalSkillLimit"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Wands_chaos/Rune_destruction_SpeedModifierEffect",
+              "Wands_chaos/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Wands_chaos/Rune_destruction_PhysicalModifierEffect",
+              "Wands_chaos/Rune_destruction_ElementalModifierEffect",
+              "Wands_chaos/Rune_destruction_ChaosModifierEffect",
+              "Wands_chaos/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -5408,6 +6171,20 @@
             "Wands_cold/PerfectEssence_IncreasedCastSpeed",
             "Wands_cold/PerfectEssence_ElementalSkillLimit"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Wands_cold/Rune_destruction_SpeedModifierEffect",
+              "Wands_cold/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Wands_cold/Rune_destruction_PhysicalModifierEffect",
+              "Wands_cold/Rune_destruction_ElementalModifierEffect",
+              "Wands_cold/Rune_destruction_ChaosModifierEffect",
+              "Wands_cold/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -5485,6 +6262,20 @@
             "Wands_fire/PerfectEssence_IncreasedCastSpeed",
             "Wands_fire/PerfectEssence_ElementalSkillLimit"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Wands_fire/Rune_destruction_SpeedModifierEffect",
+              "Wands_fire/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Wands_fire/Rune_destruction_PhysicalModifierEffect",
+              "Wands_fire/Rune_destruction_ElementalModifierEffect",
+              "Wands_fire/Rune_destruction_ChaosModifierEffect",
+              "Wands_fire/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -5562,6 +6353,20 @@
             "Wands_lightning/PerfectEssence_IncreasedCastSpeed",
             "Wands_lightning/PerfectEssence_ElementalSkillLimit"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Wands_lightning/Rune_destruction_SpeedModifierEffect",
+              "Wands_lightning/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Wands_lightning/Rune_destruction_PhysicalModifierEffect",
+              "Wands_lightning/Rune_destruction_ElementalModifierEffect",
+              "Wands_lightning/Rune_destruction_ChaosModifierEffect",
+              "Wands_lightning/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     },
@@ -5639,6 +6444,20 @@
             "Wands_physical/PerfectEssence_IncreasedCastSpeed",
             "Wands_physical/PerfectEssence_ElementalSkillLimit"
           ]
+        },
+        "rune": {
+          "thruds-might": {
+            "prefixes": [
+              "Wands_physical/Rune_destruction_SpeedModifierEffect",
+              "Wands_physical/Rune_destruction_CriticalModifierEffect"
+            ],
+            "suffixes": [
+              "Wands_physical/Rune_destruction_PhysicalModifierEffect",
+              "Wands_physical/Rune_destruction_ElementalModifierEffect",
+              "Wands_physical/Rune_destruction_ChaosModifierEffect",
+              "Wands_physical/Rune_destruction_ManaModifierEffect"
+            ]
+          }
         }
       }
     }

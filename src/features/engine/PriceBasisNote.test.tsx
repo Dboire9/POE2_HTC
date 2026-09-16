@@ -110,3 +110,45 @@ describe('PriceBasisNote — the assumed desecration weight', () => {
     expect((container.textContent ?? '')).toMatch(/assumed/i);
   });
 });
+
+/**
+ * A SECOND assumed weight arrived with the rune pools, and naming the wrong one is its own false
+ * claim. Before `assumedFrom`, a craft with a pool rune socketed and no Desecration anywhere in it was
+ * still told "This plan uses a Desecration without a boss omen" — a sentence about a currency the
+ * player never touched.
+ *
+ * The two cases differ in their TAIL as well as their cause, which is the part a shared frame would
+ * have got wrong: an unomened Desecration qualifies its own steps and leaves every other probability
+ * exact, while a socketed pool rune changes the denominator of every weighted draw, so nothing in the
+ * craft stays exact.
+ */
+describe('PriceBasisNote — which assumption it names', () => {
+  const basis = { estimated: true, caveat: 'Prices are live.', asOf: '2026-08-23' };
+  const textOf = (node: React.ReactElement): string => {
+    const { container } = render(node);
+    return (container.textContent ?? '').replace(/\s+/g, ' ');
+  };
+
+  it('names the rune pool, and does not blame a Desecration the craft never used', () => {
+    const text = textOf(<PriceBasisNote basis={basis} exactOdds={false} assumedFrom="rune-pool" />);
+    expect(text).toMatch(/rune/i);
+    expect(text).not.toMatch(/Desecration/i);
+    // The claim that had to go with it: with a pool rune in, the REST are not exact either.
+    expect(text).not.toMatch(/every other probability here is exact/i);
+    expect(text).toMatch(/every/i); // …it says the opposite — every random step is affected
+  });
+
+  it('names both when both apply', () => {
+    const text = textOf(<PriceBasisNote basis={basis} exactOdds={false} assumedFrom="both" />);
+    expect(text).toMatch(/desecrated/i);
+    expect(text).toMatch(/rune/i);
+    expect(text).not.toMatch(/every other probability here is exact/i);
+  });
+
+  /** The default is deliberate: it is what every caller meant before a second assumption existed, so
+   *  an older result with no `assumedFrom` keeps describing itself correctly. */
+  it('falls back to the desecration wording when no reason is given', () => {
+    const text = textOf(<PriceBasisNote basis={basis} exactOdds={false} />);
+    expect(text).toMatch(/Desecration without a boss omen/i);
+  });
+});

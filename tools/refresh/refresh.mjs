@@ -15,6 +15,13 @@
 
 import { templateFixedRoll } from './modText.mjs';
 import { twinsOf } from './twins.mjs';
+// How to read RePoE: which class a category is, which variant a base row stands for, what a mod's
+// weight is on it, and how its text is spelled. Shared with apply_runes.mjs, which has to reach the
+// same answers — a second copy of any of these is how two scripts come to disagree about what a base
+// can roll.
+import {
+  CATEGORY_CLASS, SPECIALIZER, attributeTag, pickVariant, cleanText, resolveWeight,
+} from './variants.mjs';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,15 +47,6 @@ const repoeBaseItems = load(REPOE_DIR, 'repoe_base_items.json');
 
 // --- our base id -> (RePoE item class, required attribute tag) --------------------------------
 // Class comes from the base's category; the attribute tag (for armour/shields) from the id suffix.
-const CATEGORY_CLASS = {
-  Wands: 'Wands', Sceptres: 'Sceptres', Bows: 'Bows', Crossbows: 'Crossbows',
-  Quarterstaves: 'Quarterstaves', Staves: 'Staves', Spears: 'Spears',
-  OneHand_Maces: 'One Hand Maces', TwoHand_Maces: 'Two Hand Maces',
-  Foci: 'Foci', Quivers: 'Quivers', Bucklers: 'Bucklers',
-  Amulets: 'Amulets', Rings: 'Rings', Belts: 'Belts',
-  Body_Armours: 'Body Armours', Boots: 'Boots', Gloves: 'Gloves', Helmets: 'Helmets',
-  Shields: 'Shields',
-};
 
 // Bases the 0.5 Java baseline never had, because the Java engine never modelled them.
 //
@@ -67,70 +65,6 @@ const CATEGORY_CLASS = {
 const EXTRA_BASES = [
   { id: 'Belts', name: 'Belts', category: 'Belts' },
 ];
-// Tags that mark a NON-canonical (specialised) base variant; the generic base has none of them. A variant
-// carrying nothing but these beyond a row's own tags, and rolling its pool, is that row's TWIN
-// (twins.mjs): the row is still built from the plain variant, but it answers to the twin's base names too.
-const SPECIALIZER = new Set([
-  'ezomyte_basetype', 'maraketh_basetype', 'vaal_basetype', 'karui_basetype',
-  'runeforged', 'not_for_sale', 'demigods',
-]);
-const isSpecializer = (t) => SPECIALIZER.has(t) || /^no_.*_spell_mods$/.test(t);
-
-// Attribute tag a base requires, derived from its id suffix (e.g. Body_Armours_str_int -> str_int_armour).
-function attributeTag(baseId, cls) {
-  const m = baseId.match(/_(str|dex|int)((?:_(?:str|dex|int))*)$/);
-  if (!m) return null;
-  const combo = (m[1] + m[2]).split('_').filter(Boolean); // e.g. ["str","int"]
-  const order = ['str', 'dex', 'int'];
-  const sorted = order.filter((a) => combo.includes(a));
-  if (cls === 'Shields') return sorted.join('_') + '_shield'; // str_shield, str_dex_shield, ...
-  return sorted.join('_') + '_armour'; // str_armour, str_int_armour, ...
-}
-
-// Pick the canonical variant of a class for a base: zero specializer tags, matching attribute tag,
-// most bases as tie-break.
-function pickVariant(cls, attrTag) {
-  const variants = repoeByBase[cls];
-  if (!variants) throw new Error(`RePoE has no class "${cls}"`);
-  // An attribute *discriminator* tag, e.g. str_armour / str_dex_armour / str_shield. Shields carry
-  // BOTH a *_armour and a *_shield tag, so we only compare within the same suffix kind.
-  const DISC = /^(?:str|dex|int)(?:_(?:str|dex|int))*_(armour|shield)$/;
-  const kind = attrTag ? (attrTag.endsWith('_shield') ? 'shield' : 'armour') : null;
-  let candidates = Object.entries(variants).filter(([sig]) => {
-    const tags = sig.split(',');
-    if (tags.some(isSpecializer)) return false;
-    if (attrTag && !tags.includes(attrTag)) return false;
-    // Reject a variant carrying a DIFFERENT attribute of the same kind (e.g. str_dex when we want str).
-    if (attrTag && tags.some((t) => DISC.test(t) && t.endsWith('_' + kind) && t !== attrTag)) return false;
-    return true;
-  });
-  if (candidates.length === 0) return null;
-  candidates.sort((a, b) => (b[1].bases?.length || 0) - (a[1].bases?.length || 0));
-  return {
-    sig: candidates[0][0], variant: candidates[0][1],
-    ambiguous: candidates.length > 1,
-    alt: candidates.slice(1).map(([s]) => s),
-  };
-}
-
-// --- text cleanup: strip wiki links [A|B]->B / [A]->A, collapse numeric ranges to # ------------
-function cleanText(t) {
-  if (t == null) return null;
-  return t
-    .replace(/\[([^\]|]+)\|([^\]]+)\]/g, '$2')
-    .replace(/\[([^\]]+)\]/g, '$1')
-    .replace(/\((?:[-+]?\d+(?:\.\d+)?)(?:-[-+]?\d+(?:\.\d+)?)?\)/g, '#');
-}
-
-// Resolve a mod's spawn weight for a base = weight of the first base tag that appears in the mod's
-// spawn_weights list (PoE first-match convention). NOTE: in the 0.5 game dump these are uniformly 1
-// (or 0) — placeholders. Real weights come from community data via weights_overrides.json.
-function resolveWeight(rm, baseTags) {
-  for (const sw of rm.spawn_weights || []) {
-    if (baseTags.includes(sw.tag)) return sw.weight;
-  }
-  return 0;
-}
 
 // --- build one of our mods from a RePoE group ------------------------------------------------
 // modIds: the tier mod ids for this group (keys of the mods_by_base group object; its VALUES are
@@ -209,7 +143,7 @@ for (const base of [...baseline.items, ...EXTRA_BASES]) {
   const cls = CATEGORY_CLASS[base.category];
   if (!cls) { warn(`no class mapping for category ${base.category} (base ${base.id})`); continue; }
   const attrTag = attributeTag(base.id, cls);
-  const picked = pickVariant(cls, attrTag);
+  const picked = pickVariant(repoeByBase, cls, attrTag);
   if (!picked) { warn(`no canonical variant for ${base.id} (class ${cls}, attr ${attrTag})`); continue; }
   mapping.push(`${base.id.padEnd(24)} -> ${cls} :: [${picked.sig}]`
     + (picked.ambiguous ? `  (tie-broken; alt: ${picked.alt.map((s) => '[' + s + ']').join(' ')})` : ''));

@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   them; they travel in share links too, under their own link version, so an older build refuses a link
   rather than quietly planning the wrong item. The item keeps what the rune allowed after the rune is
   swapped out, so a plan may end by replacing it.
+- **The six "Can roll …" runes now add their modifiers.** *Thrud's Might* (Destruction, weapons),
+  *Uhtred's Sidereus* (Chronomancy, boots), *Kolr's Hunt* (Marksman) and *Katla's Gloom* (Decay, both
+  gloves), *Vorana's Carnage* (Berserking, helmets) and *Medved's Tending* (Soul, body armour). Tick one
+  in the **Runes** row and its modifiers appear in the pickers and in every plan; untick it and they
+  leave again — 439 modifiers in all. Each rune's restrictions are the game's own: the caster-only
+  Destruction modifier stays off a quarterstaff, and a Soul defence modifier only appears on the armour
+  whose attributes grant that defence.
+  **Their odds are an estimate and the app now says which estimate.** The game's data publishes no
+  spawn weight for any of these, so one is assumed — and because weight decides the odds of *every*
+  random step, a craft with a pool rune socketed says the whole thing is ballpark rather than blaming a
+  Desecration the player never used.
 - **The item a player asked for can now be planned.** A rare Sceptre carrying four rolled modifiers
   *and* both Puppet Master Alloys was refused outright — "an item can hold one essence modifier" —
   because one crafted modifier is the game's rule (0.5.0: "items can only have 1 crafted modifier at a

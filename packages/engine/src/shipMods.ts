@@ -41,6 +41,9 @@ export function shipModsFile(file: ModsFile): ModsFile {
       ...(m.families ? { families: m.families } : {}),
       tags: m.tags,
       ...(m.alloy ? { alloy: true } : {}),
+      // SHIPPED, unlike `codes`: the picker has to know which rune offers a modifier to show it only
+      // when that rune is ticked, and that decision happens in the browser.
+      ...(m.rune ? { rune: m.rune } : {}),
       text: m.text,
       tiers: m.tiers.map((t): Tier => ({ name: t.name, ilvl: t.ilvl, weight: t.weight, ranges: t.ranges })),
     })),

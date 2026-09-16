@@ -46,6 +46,15 @@ export interface Mod {
    * Sovereign Alloy", and it is priced from an entirely different poe.ninja feed.
    */
   readonly alloy?: boolean;
+  /**
+   * This modifier is unlocked by a socketed RUNE — the id of the one that offers it (`runes.ts`).
+   *
+   * Present only on mods from a `pools.rune` pool. Its `source` stays `'normal'`, and that is the
+   * point: once the rune is in, an Exalt rolls it like any other modifier, so every planner must treat
+   * it as ordinary. This marks it so the UI can say where it came from and offer it only while its
+   * rune is chosen — exactly the split `alloy` makes for a currency whose mechanic is unchanged.
+   */
+  readonly rune?: string;
   readonly text: string | null;
   /** Ascending by ilvl: tiers[0] = lowest ilvl (worst), tiers[last] = highest ilvl (best). */
   readonly tiers: readonly Tier[];
@@ -92,6 +101,15 @@ export interface ItemBase {
     readonly normal: Pool;
     readonly desecrated: Pool;
     readonly essence: Pool;
+    /**
+     * What a socketed "Can roll … modifiers" rune adds, by rune id — Thrud's Might's Destruction pool,
+     * Kolr's Hunt's Marksman pool, and the four others (`apply_runes.mjs`).
+     *
+     * A MAP of pools rather than a pool, because which one applies depends on what the player has
+     * socketed, and a base can take more than one (Gloves take two). `withRunes` merges the chosen
+     * ones into `normal`, so no planner ever reads this directly. Absent where no rune fits the base.
+     */
+    readonly rune?: Readonly<Record<string, Pool>>;
   };
   /** Absent means the game's own limits — see `ItemLimits` and `limitsOf` (item.ts). */
   readonly limits?: ItemLimits;

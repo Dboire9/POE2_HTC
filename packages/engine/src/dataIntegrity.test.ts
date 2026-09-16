@@ -11,7 +11,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { loadPatch } from './loadPatch.ts';
-import type { ItemBase, PatchData } from './types.ts';
+import type { ItemBase, PatchData, Pool } from './types.ts';
 
 /**
  * The RAW rows, as `mods.json` holds them — deliberately not `Mod`.
@@ -41,8 +41,19 @@ function auditPatch(patch: string, baseline: Baseline): void {
   const bases: ItemBase[] = [...data.bases.values()];
 
   /** Walk every (base, pool, side, modId) entry. */
-  const eachEntry = (fn: (base: ItemBase, pool: typeof POOLS[number], side: typeof SIDES[number], id: string) => void) => {
-    for (const b of bases) for (const pool of POOLS) for (const side of SIDES) for (const id of b.pools[pool][side]) fn(b, pool, side, id);
+  /**
+   * Every pool on a base, named — including the RUNE pools, which are a MAP of pools rather than a
+   * pool. `pools.rune['kolrs-hunt']` is as real as `pools.normal`: its ids must resolve, must not
+   * repeat, and must sit on the side their mod declares. Walking only the three fixed names would
+   * have exempted 439 modifiers from every check below.
+   */
+  const poolsOf = (b: ItemBase): readonly (readonly [string, Pool])[] => [
+    ...POOLS.map((p) => [p, b.pools[p]] as const),
+    ...Object.entries(b.pools.rune ?? {}).map(([id, p]) => [`rune:${id}`, p] as const),
+  ];
+
+  const eachEntry = (fn: (base: ItemBase, pool: string, side: typeof SIDES[number], id: string) => void) => {
+    for (const b of bases) for (const [pool, p] of poolsOf(b)) for (const side of SIDES) for (const id of p[side]) fn(b, pool, side, id);
   };
 
   describe(`data integrity [${patch}] — hard invariants (must always hold)`, () => {
@@ -67,9 +78,9 @@ function auditPatch(patch: string, baseline: Baseline): void {
 
     it('no mod id appears twice in the same pool', () => {
       const dupes: string[] = [];
-      for (const b of bases) for (const pool of POOLS) for (const side of SIDES) {
+      for (const b of bases) for (const [pool, p] of poolsOf(b)) for (const side of SIDES) {
         const seen = new Set<string>();
-        for (const id of b.pools[pool][side]) { if (seen.has(id)) dupes.push(`${b.id} ${pool}.${side} ${id}`); seen.add(id); }
+        for (const id of p[side]) { if (seen.has(id)) dupes.push(`${b.id} ${pool}.${side} ${id}`); seen.add(id); }
       }
       expect(dupes).toEqual([]);
     });
@@ -160,6 +171,31 @@ auditPatch('0.5.0', {
     'ElementalInfusion on Staves_fire', 'ElementalInfusion on Staves_cold',
     'ElementalInfusion on Staves_lightning', 'ElementalInfusion on Staves_chaos',
     'ElementalInfusion on Staves_physical',
+    // RUNE POOLS on Gloves, added 2026-09-16. Gloves is the only base that takes TWO "Can roll …"
+    // runes, and Kolr's Hunt (Marksman) and Katla's Gloom (Decay) each contribute a modifier that
+    // shares one exclusion group with the other's, on the opposite side:
+    //   CurseEffectiveness — `MarksmanInfluenceMarkEffect` (prefix, mark effect) against
+    //                        `DecayInfluenceCurseMagnitude` (suffix, curse magnitude). A Mark IS a
+    //                        curse, so the game grouping them is right.
+    //   AilmentEffect      — the same shape across the same two pools.
+    // Different modifiers by different mechanics, exactly like `FlaskChargeGeneration on Belts`:
+    // family exclusion still holds, so an item takes one or the other and never both. Faithful, not
+    // a bug — and it is the reason a rune mod's id is namespaced by its pool (`Rune_<tag>_<family>`),
+    // without which the second of each pair was silently dropped.
+    'CurseEffectiveness on Gloves_str', 'CurseEffectiveness on Gloves_dex',
+    'CurseEffectiveness on Gloves_int', 'CurseEffectiveness on Gloves_str_dex',
+    'CurseEffectiveness on Gloves_str_int', 'CurseEffectiveness on Gloves_dex_int',
+    'AilmentEffect on Gloves_str', 'AilmentEffect on Gloves_dex',
+    'AilmentEffect on Gloves_int', 'AilmentEffect on Gloves_str_dex',
+    'AilmentEffect on Gloves_str_int', 'AilmentEffect on Gloves_dex_int',
+    // And on Boots, where only ONE pool rune applies, so this is the cross-SOURCE pattern instead —
+    // `FlaskChargeGeneration on Belts` again rather than the Gloves case above. "+# metres to Dodge
+    // Roll distance" exists twice on a boot: `Desecrated_DodgeRoll` (suffix, placed only by a
+    // Desecration) and `Rune_chronomancy_DodgeRoll` (prefix, rollable only with Uhtred's Sidereus
+    // socketed). Two routes to one stat is precisely why the game groups them, and family exclusion
+    // still means an item takes one or the other.
+    'DodgeRoll on Boots_str', 'DodgeRoll on Boots_dex', 'DodgeRoll on Boots_int',
+    'DodgeRoll on Boots_str_dex', 'DodgeRoll on Boots_str_int', 'DodgeRoll on Boots_dex_int',
   ]),
 });
 

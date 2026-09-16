@@ -10,7 +10,7 @@
 import { indexPatch, type BasesFile, type ModsFile } from '../../packages/engine/src/indexPatch.ts';
 import { resolveMod } from '../../packages/engine/src/pool.ts';
 import { runeOpportunity } from '../../packages/engine/src/runeConvert.ts';
-import { withRunes } from '../../packages/engine/src/runes.ts';
+import { withRunes, usesAssumedPool } from '../../packages/engine/src/runes.ts';
 import type { RuneOpportunity } from '../../packages/engine/src/runeConvert.ts';
 import type { ItemState, Mod, PatchData } from '../../packages/engine/src/types.ts';
 import {
@@ -54,7 +54,7 @@ import basesUrl from '../../data/patches/0.5.0/base_items.json?url';
 import pricesUrl from '../../data/patches/0.5.0/prices.json?url';
 
 // Re-export the UI-shaped types so components keep importing them from '../../lib/engine'.
-export { modFamilies } from './engineTypes.ts';
+export { modFamilies, isRollable } from './engineTypes.ts';
 
 /**
  * The Aldur rune that would fuse the gain-as-extra targets a player has chosen, or nothing.
@@ -149,9 +149,14 @@ export function listBases(data: PatchData): EngineBase[] {
  * The prefixes and suffixes a base can carry, each with its tiers (best-first): the rollable normal
  * pool plus the essence-only mods (obtainable only via an essence, their tiers being essence levels).
  */
-export function listMods(data: PatchData, baseId: string): EngineBaseMods {
-  const base = data.bases.get(baseId);
-  if (!base) return { prefixes: [], suffixes: [] };
+export function listMods(data: PatchData, baseId: string, runes: readonly string[] = []): EngineBaseMods {
+  const raw = data.bases.get(baseId);
+  if (!raw) return { prefixes: [], suffixes: [] };
+  // Socketed runes are applied HERE rather than filtered afterwards, so the picker offers exactly what
+  // the planners will roll: `withRunes` folds a "Can roll …" rune's pool into `normal`, which is the
+  // same base every solve runs on. Defaulting to none keeps every existing caller — and every test —
+  // asking the question it already asked.
+  const base = withRunes(raw, runes);
   const map = (ids: readonly string[], type: 'prefix' | 'suffix'): EngineMod[] =>
     ids.map((id) => toEngineMod(data, id, type)).filter((m): m is EngineMod => m !== null);
   const byText = (a: EngineMod, b: EngineMod) => a.text.localeCompare(b.text);
@@ -233,7 +238,9 @@ export function optimize(
   // A from-white craft has no item to carry its runes, so they ride in on the options.
   const base = withRunes(raw, opts.runes ?? []);
   const res = optimizePareto(data, prices, base, toTierTargets(data, targets), { ...opts, level });
-  return mapFrontier(data, res);
+  // A pool rune's weights are assumed, and weight is in the denominator of every weighted draw — so
+  // the whole result is qualified, not the steps that happen to land one of its modifiers.
+  return mapFrontier(data, res, usesAssumedPool(opts.runes ?? []));
 }
 
 /**
@@ -247,7 +254,7 @@ export function optimizeItem(
 ): EngineResult {
   const { data, prices } = eng;
   const res = optimizeFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);
-  return mapFrontier(data, res);
+  return mapFrontier(data, res, usesAssumedPool(item.runes ?? []));
 }
 
 /**
@@ -266,7 +273,7 @@ export function optimizeItemMarkov(
 ): EngineMarkovResult {
   const { data, prices } = eng;
   const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);
-  return mapMarkov(data, res);
+  return mapMarkov(data, res, usesAssumedPool(item.runes ?? []));
 }
 
 /**

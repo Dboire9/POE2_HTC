@@ -111,7 +111,39 @@ export const runePriceKey = (rune: string): string => `rune:${rune}`;
  */
 export function withRunes(base: ItemBase, runeIds: readonly string[]): ItemBase {
   const limits = limitsWithRunes(base.category, runeIds, base.limits);
-  return limits === (base.limits ?? DEFAULT_LIMITS) ? base : { ...base, limits };
+  const pools = poolsWithRunes(base, runeIds);
+  if (limits === (base.limits ?? DEFAULT_LIMITS) && pools === base.pools) return base;
+  return { ...base, limits, pools };
+}
+
+/**
+ * The base's rollable pool with the chosen runes' modifiers folded into it.
+ *
+ * Folded into `normal` rather than kept apart, because that is exactly what the rune does: it puts its
+ * tag on the item, and from then on an Exalt rolls those modifiers like any other. Every pool
+ * denominator, every probability and both pickers read `pools.normal`, so merging here is what makes a
+ * rune's modifiers real everywhere at once — and is why nothing downstream has a rune branch in it.
+ *
+ * Returns the base's own pools BY IDENTITY when no chosen rune offers any, which is what lets
+ * `withRunes` hand back the very base it was given for the overwhelmingly common case.
+ */
+function poolsWithRunes(base: ItemBase, runeIds: readonly string[]): ItemBase['pools'] {
+  const offered = base.pools.rune;
+  if (!offered) return base.pools;
+  // Presence IS the fit test: `apply_runes.mjs` writes a pool only for the bases a rune fits, so a
+  // rune that does not belong on this base simply has no entry here.
+  const chosen = runeIds.filter((id) => offered[id] !== undefined);
+  if (chosen.length === 0) return base.pools;
+  const prefixes = [...base.pools.normal.prefixes];
+  const suffixes = [...base.pools.normal.suffixes];
+  for (const id of chosen) {
+    prefixes.push(...offered[id]!.prefixes);
+    suffixes.push(...offered[id]!.suffixes);
+  }
+  // No de-duplication, and that is checked rather than assumed: a rune mod's id is namespaced by its
+  // pool (`<base>/Rune_<tag>_<family>`), so two runes on one base cannot contribute the same id and
+  // none of them can collide with a normal one.
+  return { ...base.pools, normal: { prefixes, suffixes } };
 }
 
 /**
@@ -138,6 +170,19 @@ export function limitsWithRunes(
   }
   return limits;
 }
+
+/**
+ * Does any of these runes put an ASSUMED-weight pool on the item?
+ *
+ * Asked of the SOCKETED RUNES rather than of a plan's steps, and that is the honest shape. A pool
+ * rune's modifiers carry a weight nobody published (`RUNE_POOL_ASSUMED_WEIGHT`), and weight sits in
+ * the DENOMINATOR of every weighted draw on the item — so once one is socketed, every random add in
+ * the solve rests on the assumption, not merely the steps that happen to land one of its modifiers.
+ * The desecrated caveat can be narrower (`leansOnAssumedOdds`) because an unomened Desecration is the
+ * only draw that reads that pool at all.
+ */
+export const usesAssumedPool = (runeIds: readonly string[]): boolean =>
+  runeIds.some((id) => RUNE_BY_ID.get(id)?.effect.kind === 'pool');
 
 /** The runes that fit a base. A rune with no categories fits every one of them. */
 export function runesFor(base: ItemBase): readonly Rune[] {

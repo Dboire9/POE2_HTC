@@ -47,7 +47,16 @@ export interface EngineMod {
    * stays `perfect_essence` and every planner treats the two identically — and a different currency by
    * NAME and PRICE, which is all this distinction is for.
    */
-  readonly source: 'normal' | 'essence' | 'perfect' | 'alloy' | 'desecrated';
+  readonly source: 'normal' | 'essence' | 'perfect' | 'alloy' | 'desecrated' | 'rune';
+  /**
+   * The rune that offers it, when `source` is `'rune'` — its id in `packages/engine/src/runes.ts`.
+   *
+   * The engine's own source for these stays `'normal'`, because once the rune is socketed an Exalt
+   * rolls them like anything else. This is the UI half of that split, as `'alloy'` is for a currency
+   * whose mechanic is likewise unchanged: it exists so a picker can name where the modifier came from
+   * and offer it only while its rune is ticked.
+   */
+  readonly rune?: string;
   /** Tiers best-first (T1 … Tn); for essence mods these are the Greater→Lesser essence levels. */
   readonly tiers: readonly EngineTier[];
 }
@@ -86,6 +95,21 @@ export function modFamilies(
     ? own.map((f) => `crafted:${f}`)
     : own;
 }
+
+/**
+ * Can currency roll this modifier onto an item?
+ *
+ * `'rune'` counts, and that is the whole reason this exists rather than `source === 'normal'` written
+ * out at each site. A rune-pool modifier is ordinary once its rune is socketed — the engine's own
+ * source for it IS `normal`, and every planner already treats it that way — so a picker testing for
+ * `'normal'` alone would offer a solve the engine is perfectly willing to run, and hide the modifiers
+ * the player ticked the rune to get.
+ *
+ * Deliberately NOT used by the fracture checkbox: claiming you can buy a base with a rune-pool
+ * modifier already carved on it is untraced, so that stays the narrower `'normal'`.
+ */
+export const isRollable = (source: EngineMod['source'] | undefined): boolean =>
+  source === 'normal' || source === 'rune';
 
 export interface EngineBaseMods {
   readonly prefixes: readonly EngineMod[];
@@ -139,9 +163,12 @@ export interface EngineResult {
    * own sentence here, and `FrontierView` prefers it over its generic hint.
    */
   readonly reason?: string;
-  /** True when a shown number depends on the ASSUMED desecrated spawn weight (an unomened
-   *  Desecration). The UI must say so — see PriceBasisNote's `exactOdds`. */
+  /** True when a shown number depends on an ASSUMED spawn weight. The UI must say so — see
+   *  PriceBasisNote's `exactOdds`. */
   readonly assumedOdds: boolean;
+  /** WHICH assumption, so the note can name it. Naming the wrong one is its own false claim: a craft
+   *  with a pool rune socketed and no Desecration in it was still told it "uses a Desecration". */
+  readonly assumedFrom?: 'desecration' | 'rune-pool' | 'both';
 }
 
 /** A modifier currently sitting on an item the user already holds. */
@@ -378,9 +405,11 @@ export interface EngineMarkovResult {
    *  from `converged` alone — a from-item solve truncates upward and a from-white solve downward, so
    *  assuming either direction prints a confidently wrong figure. See MarkovResult.bound. */
   readonly bound: 'exact' | 'lower' | 'upper';
-  /** True when a shown number depends on the ASSUMED desecrated spawn weight (an unomened
-   *  Desecration). The UI must say so — see PriceBasisNote's `exactOdds`. */
+  /** True when a shown number depends on an ASSUMED spawn weight. The UI must say so — see
+   *  PriceBasisNote's `exactOdds`. */
   readonly assumedOdds: boolean;
+  /** WHICH assumption, so the note can name it rather than guessing — see `EngineResult`. */
+  readonly assumedFrom?: 'desecration' | 'rune-pool' | 'both';
   /**
    * What the same craft would cost from a BARE item of this rarity — none of the targets, no junk.
    *

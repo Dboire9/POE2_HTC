@@ -4257,6 +4257,67 @@ forgetting `codes` in the wire guardrail fails 1. The second of those was writte
 never applied — the test suite stayed green and proved nothing — which is why each mutation now prints
 the count of occurrences it changed before the tests run.
 
+## The six rune pools, and a bug my own measurement hid (2026-09-16)
+
+The plan called for scraping poe2db's class pages for the "Can roll <X> modifiers" pools, and the cache
+those pages live in is fetch-once and gitignored — it was not on disk. It turned out not to be needed:
+**all six pools are real tags in RePoE's own `tags.json`** — `destruction`, `chronomancy`, `marksman`,
+`decay`, `berserking`, `soul` — and 128 modifiers carry one of them in `spawn_weights` beside
+`default: 0`, so they can never roll normally and do roll once the rune puts its tag on the item. That
+is the whole mechanic, and it means the join needs no new exclusion logic at all:
+`resolveWeight(mod, [...baseTags, poolTag])` answers it with the first-match rule `refresh.mjs` already
+uses.
+
+**The restrictions are encoded NEGATIVELY**, which is the part worth reading twice. A restricted
+modifier lists the bases it must NOT roll on at weight 0 BEFORE its pool tag at weight 1, so
+`DestructionInfluenceManaModifierEffect` names warstaff, crossbow, spear and seven more at 0: a
+Quarterstaff matches `warstaff` first and is blocked, a Bow matches nothing until `destruction` and
+rolls. Measured: **9 of 9 destruction modifiers on Bows, Sceptres, Staves and Wands; 8 of 9 on
+Crossbows, Quarterstaves, Spears and both Mace classes.**
+
+**Soul self-checks, and that is what proved the rule was read the right way round.** Each of its 12
+attribute-restricted modifiers lands on exactly ONE body-armour variant, and on the one its own name
+describes: `…HybridArmour` on str, `…HybridArmourEvasion` on str_dex, `…HybridEnergyShield` on int.
+Read backwards, each would appear on the five variants it actually excludes.
+
+**A bug my own measurement hid.** The first id scheme was `<base>/Rune_<family>`, which names neither
+the rune nor the affix side — and Gloves is the only base taking TWO pool runes. Kolr's Hunt's
+Mark-effect PREFIX and Katla's Gloom's curse-magnitude SUFFIX share RePoE's `CurseEffectiveness` group
+(correctly: a Mark is a curse), so the second collided and **6 real modifiers were dropped behind a
+warning line.** Katla's Gloom came out at 72 modifiers where the measurement said 78, which is what
+caught it. Ids are namespaced by pool now (`Rune_<tag>_<family>`), and a collision exits non-zero
+instead of warning — a dropped modifier is a pool that quietly offers less than the game does.
+
+That was the second time in this session that measuring one direction only hid something: the crafted
+`codes` join had a tier collecting 116 game ids because ambiguity was counted as "one id claimed by two
+tiers" and never as "one tier claiming many ids". Both are now counted both ways.
+
+**Two mixed-side families are baselined rather than fixed**, because both are faithful:
+`CurseEffectiveness` and `AilmentEffect` on Gloves (two pool runes, opposite sides), and `DodgeRoll` on
+Boots — "+# metres to Dodge Roll distance" exists as a desecrated SUFFIX and a chronomancy PREFIX, two
+routes to one stat, which is precisely why the game groups them. Family exclusion still holds in every
+case, so an item takes one or the other.
+
+**`refresh.mjs` was refactored and proved unchanged.** `pickVariant`, `resolveWeight`, `attributeTag`,
+`CATEGORY_CLASS` and `cleanText` moved to `variants.mjs` so `apply_runes.mjs` asks the same questions
+rather than keeping a second copy. It cannot be verified through `run.sh` (that needs the absent poe2db
+cache), so it was verified directly: the generator was run into a scratch directory before and after,
+and **both files came back byte-identical** (`mods.json` md5 `e658418b…`, `base_items.json`
+`33fdcdaf…`).
+
+**The assumed weight, and what it costs.** RePoE reports 1 for all 128 — the same placeholder poe2db
+gives the desecrated pool — so `RUNE_POOL_ASSUMED_WEIGHT` is 1000 (Dorian's decision, 2026-09-15).
+Weight sits in the DENOMINATOR of every weighted draw, so a socketed pool rune qualifies the whole
+solve rather than the steps that land one of its modifiers: `usesAssumedPool` carries that to
+`assumedOdds`, and `assumedFrom` now names WHICH assumption applies. Before it, a craft with a pool rune
+and no Desecration in it was told "This plan uses a Desecration without a boss omen" — a sentence about
+a currency the player never touched.
+
+**Cost on the wire, measured rather than estimated.** 439 modifiers over 820 tier rows take the shipped
+total from 2,478 to 2,917. `mods.json` goes 1,070.30 kB → 1,225.14 kB (gzip **82.54 → 110.69 kB**) and
+`base_items.json` 156.97 → 181.14 kB (gzip **21.21 → 23.59 kB**): about **30.5 kB more gzipped**, which
+is roughly double the 10–15 kB estimated when the one-file option was chosen.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

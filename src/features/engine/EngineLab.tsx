@@ -6,6 +6,7 @@ import { Spinner } from '../../components/ui/spinner';
 import {
   loadEngine, listBases, listMods, listDesecrated, listPerfectEssences, bossOmenAllowed,
   priceBasis,
+  isRollable,
   type EngineBase, type EngineMod, type EngineResult, type TargetInput, type ExistingItem,
   type EngineAlternatives, type AltTargetInput, type EngineMarkovResult,
 } from '../../lib/engine';
@@ -222,13 +223,15 @@ const EngineLab: React.FC = () => {
   // Regal — the planner reports it when a target can't get there.
   const mods = useMemo(() => {
     if (!(data && baseId)) return { prefixes: [] as EngineMod[], suffixes: [] as EngineMod[] };
-    const m = listMods(data, baseId);
+    // The ticked runes go IN, so the picker offers exactly what the solve will roll: a "Can roll …"
+    // rune's modifiers are in the pool only while its rune is socketed, and untick it and they leave.
+    const m = listMods(data, baseId, runes);
     const extra = [...listDesecrated(data, baseId), ...listPerfectEssences(data, baseId)];
     return {
       prefixes: [...m.prefixes, ...extra.filter((x) => x.type === 'prefix')],
       suffixes: [...m.suffixes, ...extra.filter((x) => x.type === 'suffix')],
     };
-  }, [data, baseId]);
+  }, [data, baseId, runes]);
   const modById = useMemo(() => {
     const m = new Map<string, EngineMod>();
     for (const x of [...mods.prefixes, ...mods.suffixes]) m.set(x.id, x);
@@ -271,7 +274,7 @@ const EngineLab: React.FC = () => {
   // fracture is no obstacle to it at all. Conflating the two would block a legal combination.
   const regularEssenceUsed = targets.some((t) => modById.get(t.modId)?.source === 'essence');
   const desecratedUsed = targets.some((t) => modById.get(t.modId)?.source === 'desecrated');
-  const normalTargets = targets.filter((t) => modById.get(t.modId)?.source === 'normal').length;
+  const normalTargets = targets.filter((t) => isRollable(modById.get(t.modId)?.source)).length;
   // Via the facade's UI-shaped base list rather than the raw PatchData — same source the rest of
   // this component uses, so it can't disagree with what the picker is showing.
   const category = bases.find((b) => b.id === baseId)?.category ?? '';

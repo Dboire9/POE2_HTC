@@ -51,9 +51,19 @@ export function poolTotalWeight(
  * An empty family means "no exclusion group" and yields none, so unrelated blank-family mods can
  * never collide.
  */
+export const CRAFTED_SOURCES: ReadonlySet<Mod['source']> = new Set(['essence', 'perfect_essence']);
+
 export function familiesOf(mod: Mod): readonly string[] {
-  if (mod.families && mod.families.length > 0) return mod.families;
-  return mod.family ? [mod.family] : [];
+  const own = mod.families && mod.families.length > 0 ? mod.families : mod.family ? [mod.family] : [];
+  // A CRAFTED modifier — Essence, Perfect Essence or Alloy — excludes only other crafted modifiers.
+  // Real items carry a rolled and a crafted modifier of one family side by side: Steelmage's jacket
+  // holds +28% Lightning Resistance rolled beside +34% crafted, his sandals two Fire Resistances, and
+  // xthefarmerx's ring another pair (poe.ninja, 2026-09-15; none of the three corrupted).
+  //
+  // Namespacing the GROUP is what makes that legal everywhere at once, because every exclusion in the
+  // engine is decided through this function: pool denominators, the lattice's blocked bits, both
+  // pickers. Two crafted mods of one family still collide — untraced, so it stays refused.
+  return CRAFTED_SOURCES.has(mod.source) ? own.map((f) => `crafted:${f}`) : own;
 }
 
 /**

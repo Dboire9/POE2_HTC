@@ -23,7 +23,14 @@ const INT = mod('int', 'suffix', 'Int');
 const DES = mod('des', 'prefix', 'Desecrated', 'desecrated');
 const DES2 = mod('des2', 'suffix', 'Desecrated2', 'desecrated');
 const DES3 = mod('des3', 'prefix', 'Desecrated3', 'desecrated'); // carved PREFIX, so it can join DES's slot
-const modById = new Map([FIRE, COLD, XCOLD, XFIRE, SPELL, MANA, CAST, CRIT, INT, DES, DES2, DES3].map((m) => [m.id, m]));
+// Crafted siblings of FIRE/COLD: same family, but a currency forces them on rather than a roll landing
+// them, which is its own exclusion group (`modFamilies`).
+const COLD_ALLOY = mod('coldAlloy', 'prefix', 'WeaponDamageTypePrefix', 'alloy');
+const COLD_ESSENCE = mod('coldEssence', 'prefix', 'WeaponDamageTypePrefix', 'essence');
+const modById = new Map(
+  [FIRE, COLD, XCOLD, XFIRE, SPELL, MANA, CAST, CRIT, INT, DES, DES2, DES3, COLD_ALLOY, COLD_ESSENCE]
+    .map((m) => [m.id, m]),
+);
 
 const t = (modId: string, slot?: number): TargetInput =>
   (slot === undefined ? { modId, tierDisplay: 1 } : { modId, tierDisplay: 1, slot });
@@ -70,6 +77,22 @@ describe('whyNotAdd — adding a NEW slot', () => {
 
   it('refuses a family another slot already holds', () => {
     expect(whyNotAdd(COLD, [t('fire')], modById)).toMatch(/WeaponDamageTypePrefix/);
+  });
+
+  /**
+   * …but a CRAFTED modifier is not in that family for exclusion purposes. Real items carry a rolled
+   * and a crafted modifier of one family together — Steelmage's jacket holds two Lightning Resistances,
+   * one of each (poe.ninja, 2026-09-15) — so the picker has to allow the pair. `modFamilies` gives a
+   * crafted mod its own namespace, which is what both tabs decide through.
+   */
+  it('allows a crafted modifier beside a rolled one of the same family', () => {
+    expect(whyNotAdd(COLD_ALLOY, [t('fire')], modById)).toBeNull();
+    expect(whyNotAdd(FIRE, [t('coldAlloy')], modById)).toBeNull();
+  });
+
+  it('still refuses a second crafted modifier of that family', () => {
+    // Refused for the family, before the one-crafted-modifier cap is even reached.
+    expect(whyNotAdd(COLD_ESSENCE, [t('coldAlloy')], modById)).toMatch(/WeaponDamageTypePrefix/);
   });
 
   // Two carved mods in slots of their own can never both land, so this stays refused…

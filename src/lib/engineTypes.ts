@@ -73,10 +73,18 @@ export interface EnginePriceBasis {
 /** Every exclusion group a UI mod belongs to — the single accessor the UI should use, so a
  * multi-family mod (a desecrated "+Str +Int") blocks and is blocked by all of its groups, not just
  * the primary one. Tolerates undefined so callers can pass a Map lookup straight in. */
-export function modFamilies(mod: { family: string; families?: readonly string[] } | undefined): readonly string[] {
+export function modFamilies(
+  mod: { family: string; families?: readonly string[]; source?: EngineMod['source'] } | undefined,
+): readonly string[] {
   if (!mod) return [];
-  if (mod.families && mod.families.length > 0) return mod.families;
-  return mod.family ? [mod.family] : [];
+  const own = mod.families && mod.families.length > 0 ? mod.families : mod.family ? [mod.family] : [];
+  // The UI's mirror of `familiesOf` (pool.ts): a crafted modifier — Essence, Perfect Essence or Alloy
+  // — excludes only other crafted ones, so the picker allows a crafted mod beside a rolled mod of the
+  // same family, which is what real items do. A caller passing a bare `{ family }` has no source and
+  // keeps the plain groups.
+  return mod.source === 'essence' || mod.source === 'perfect' || mod.source === 'alloy'
+    ? own.map((f) => `crafted:${f}`)
+    : own;
 }
 
 export interface EngineBaseMods {

@@ -1,6 +1,6 @@
 import type { AffixType, CurrencyTier, ItemBase, ItemState, Mod, PatchData, PlacedMod } from './types.ts';
 import { CURRENCY_FLOOR } from './types.ts';
-import { familiesOf, familyAvailable, itemFamilies, modTierWeight, poolTotalWeight, resolveMod } from './pool.ts';
+import { CRAFTED_SOURCES, familiesOf, familyAvailable, itemFamilies, modTierWeight, poolTotalWeight, resolveMod } from './pool.ts';
 import { limitsOf, prefixCount, prefixesFull, suffixCount, suffixesFull, whiteItem } from './item.ts';
 
 export interface AddAffixOptions {
@@ -602,7 +602,9 @@ export function bossOmenAllowed(category: string): boolean {
  * caller counts with THIS, and phrases its own rejection message.
  */
 export function isEssenceMod(mod: Mod): boolean {
-  return mod.source === 'essence' || mod.source === 'perfect_essence';
+  // Through `CRAFTED_SOURCES` (pool.ts), which `familiesOf` reads too: the cap that counts these mods
+  // and the exclusion group that separates them have to agree on which sources are crafted.
+  return CRAFTED_SOURCES.has(mod.source);
 }
 
 export function desecrationOmenForMod(mod: Mod): DesecrationBossOmen | undefined {

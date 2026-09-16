@@ -1,5 +1,5 @@
 import type { ItemBase, Mod, PatchData, Tier } from './types.ts';
-import { resolveMod } from './pool.ts';
+import { familiesOf, resolveMod } from './pool.ts';
 import { tierFit } from './tierFit.ts';
 
 /**
@@ -180,7 +180,6 @@ export function withoutTrailingDigits(id: string): string {
   return id.slice(0, end);
 }
 
-const familiesOfId = (data: PatchData, id: string): readonly string[] => {
-  const m = resolveMod(data, id);
-  return m.families && m.families.length > 0 ? m.families : m.family ? [m.family] : [];
-};
+/** Through `familiesOf` rather than re-derived: crafted modifiers are namespaced there, and a second
+ *  copy of that rule is how a reader comes to disagree with the engine about what collides. */
+const familiesOfId = (data: PatchData, id: string): readonly string[] => familiesOf(resolveMod(data, id));

@@ -429,11 +429,16 @@ export function markovFromItem(
   if (forcedCarved > 1) {
     return fail('an item holds at most one desecrated mod, and this target needs two');
   }
-  // …and at most one ESSENCE modifier, regular or perfect together (see `isEssenceMod`). Without this
-  // `actionsOf` built a perfect-essence action per perfect target and the policy would happily stack
-  // two, producing a route to an item the game cannot hold.
-  if (list.filter((t) => isEssenceMod(representative(t))).length > 1) {
-    return fail('an item can hold at most one essence modifier (regular or perfect) — pick one');
+  // …and at most ONE CRAFTED modifier — Essence, Perfect Essence and Alloy together (see
+  // `isEssenceMod`) — unless a socketed Astrid's Creativity raised `limits.crafted`. Without a cap here
+  // `actionsOf` builds a perfect-essence action per crafted target and the policy stacks them happily,
+  // producing a route to an item the game cannot hold.
+  const craftedTargets = list.filter((t) => isEssenceMod(representative(t))).length;
+  if (craftedTargets > limits.crafted) {
+    return fail(limits.crafted === 1
+      ? 'an item can hold at most one crafted modifier (Essence, Perfect Essence or Alloy) — pick one, '
+        + 'or socket Astrid’s Creativity for a second'
+      : `an item can hold at most ${limits.crafted} crafted modifiers (Essence, Perfect Essence or Alloy)`);
   }
   // Every member of a merged position answers to that position, so a placed mod finds its bit by id
   // whichever alternative it happens to be.
@@ -463,13 +468,16 @@ export function markovFromItem(
    * mods, so it annuls the held essence before applying the new one, and `ItemActions` renders this
    * reason beside those routes exactly as it already does for a Magic start.
    */
-  if (list.some((t) => isEssenceMod(representative(t)))) {
-    const stray = [...start.prefixes, ...start.suffixes]
+  if (craftedTargets > 0) {
+    const strays = [...start.prefixes, ...start.suffixes]
       .map((p) => data.mods.get(p.modId))
-      .find((m) => m !== undefined && isEssenceMod(m) && !idxOf.has(m.id));
+      .filter((m) => m !== undefined && isEssenceMod(m) && !idxOf.has(m.id));
+    // Held crafted modifiers count toward the same cap as the targets. Under the cap there is nothing
+    // to refuse: every route the model can build still ends within `limits.crafted`.
+    const stray = craftedTargets + strays.length > limits.crafted ? strays[0] : undefined;
     if (stray) {
-      return fail(`${stray.id} is already on the item, and an item holds one essence modifier `
-        + '(regular or perfect) — remove it, or make it the target');
+      return fail(`${stray.id} is already on the item, and an item holds ${limits.crafted} crafted `
+        + 'modifier(s) — Essence, Perfect Essence or Alloy — so remove it, or make it the target');
     }
   }
 

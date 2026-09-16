@@ -237,16 +237,29 @@ function buildParetoSteps(
   /** False on armour, where a Desecration can't be boss-targeted at all — see `bossOmenAllowed`. */
   bossOk: boolean,
 ): PlanStep[][] {
-  const steps: PlanStep[] = [];
-  /** Targets placed so far — the candidate victims for a Perfect Essence. */
-  const placed: string[] = [];
-  let rarity: Rarity = 'normal';
-  let modCount = 0;
   // No `tier`: this builds a SKELETON, and the orb strength on it is `leverOptions`' to decide.
-  const addStep = (id: string): PlanStep =>
+  const addStep = (id: string, rarity: Rarity, modCount: number): PlanStep =>
     ({ currency: nextAddCurrency(rarity, modCount), add: id, minTierIndex: tierOf.get(id) ?? 0 });
 
-  for (let k = 0; k < order.length; k++) {
+  /**
+   * The walk carries its own state, because a Perfect Essence BRANCHES and the rest of the ordering has
+   * to continue from where that branch left off.
+   *
+   * It used to recurse into a fresh `buildParetoSteps`, which restarted the tail on an empty Normal
+   * item. That was invisible while one crafted modifier was the cap — nothing could follow a perfect
+   * target — and wrong the moment Astrid's Creativity allows a second: the second essence found nothing
+   * to eat and returned no sequence at all, so the whole ordering was dropped.
+   */
+  const walk = (
+    from: number, prior: readonly PlanStep[], seen: readonly string[], startRarity: Rarity, startCount: number,
+  ): PlanStep[][] => {
+  const steps: PlanStep[] = [...prior];
+  /** Targets placed so far — the candidate victims for a Perfect Essence. */
+  const placed: string[] = [...seen];
+  let rarity: Rarity = startRarity;
+  let modCount = startCount;
+
+  for (let k = from; k < order.length; k++) {
     const id = order[k]!;
     const minTierIndex = tierOf.get(id) ?? 0;
     if (perfects.has(id)) {
@@ -260,20 +273,17 @@ function buildParetoSteps(
       // scores 0 in evaluatePlan and drops out — the same "offer it and let evaluation prune" rule the
       // desecrate branch relies on, rather than duplicating plan.ts's legality logic here.
       if (placed.length === 0) return []; // nothing to eat: no legal sequence from this ordering
-      const rest = order.slice(k + 1);
       return placed.map((victim) => {
         const tail: PlanStep[] = [
+          ...steps,
           { currency: 'perfect-essence', add: id, remove: victim },
           // Re-add the sacrificed target. The item is Rare by now, so this is always an Exalt.
           { currency: 'exalt', add: victim, minTierIndex: tierOf.get(victim) ?? 0 },
         ];
-        // After swap + re-add the item holds exactly what it would have with a plain add of `id`, so
-        // the remainder of the ordering continues on unchanged state.
-        const after = buildParetoSteps(data, rest, essences, desecrated, perfects, tierOf, essenceTierOf, bossOk);
-        // `rest` can contain no further perfect target (one essence modifier per item), so `after` has
-        // exactly one element — but map over it rather than assuming, so a future second branch can't
-        // silently drop sequences.
-        return after.map((tailSteps) => [...steps, ...tail, ...tailSteps]);
+        // After swap + re-add the item holds exactly what a plain add of `id` would have left: same
+        // rarity, one more modifier, and `id` now among the placed. The rest of the ordering continues
+        // from there — including a SECOND perfect target, which now finds targets to eat.
+        return walk(k + 1, tail, [...placed, id], rarity, modCount + 1);
       }).flat();
     }
     if (essences.has(id)) {
@@ -293,7 +303,7 @@ function buildParetoSteps(
       const omen = bossOk ? desecrationOmenForMod(resolveMod(data, id)) : undefined;
       steps.push(omen ? { currency: 'desecrate', add: id, boss: omen } : { currency: 'desecrate', add: id });
     } else {
-      const step = addStep(id);
+      const step = addStep(id, rarity, modCount);
       steps.push(step);
       if (step.currency === 'transmute') rarity = 'magic';
       else if (step.currency === 'regal') rarity = 'rare';
@@ -302,6 +312,8 @@ function buildParetoSteps(
     modCount++;
   }
   return [steps];
+  };
+  return walk(0, [], [], 'normal', 0);
 }
 
 /**
@@ -444,10 +456,14 @@ function paretoForOneCraft(
   const perfect = modIds.filter((id) => resolveMod(data, id).source === 'perfect_essence');
   const perfSet = new Set(perfect);
   const rolled = modIds.filter((id) => !essSet.has(id) && !desSet.has(id) && !perfSet.has(id));
-  // An item carries at most ONE essence modifier, regular or perfect — see `isEssenceMod`. Counting
-  // only `source: 'essence'` here enforced the rule on half the mods it covers.
-  if (modIds.filter((id) => isEssenceMod(resolveMod(data, id))).length > 1) {
-    throw new Error('an item can hold at most one essence modifier (regular or perfect) — pick one');
+  // An item carries ONE crafted modifier — Essence, Perfect Essence or Alloy, counted together by
+  // `isEssenceMod` — unless a socketed Astrid's Creativity raises `limits.crafted`.
+  const craftedCap = limitsOf(base).crafted;
+  if (modIds.filter((id) => isEssenceMod(resolveMod(data, id))).length > craftedCap) {
+    throw new Error(craftedCap === 1
+      ? 'an item can hold at most one crafted modifier (Essence, Perfect Essence or Alloy) — pick one, '
+        + 'or socket Astrid’s Creativity for a second'
+      : `an item can hold at most ${craftedCap} crafted modifiers (Essence, Perfect Essence or Alloy)`);
   }
   // Checked BEFORE the shape validation: "you picked two essences" is the useful message, and the
   // shape check would otherwise reject a perfect-essence mod first for not being in the normal pool.

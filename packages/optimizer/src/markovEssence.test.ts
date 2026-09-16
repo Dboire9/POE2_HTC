@@ -254,10 +254,10 @@ describe('the Essence action on real data', () => {
     expect(Math.abs(total / RUNS - r.expectedCost) / r.expectedCost).toBeLessThan(0.05);
   }, 120_000);
 
-  it('still caps an item at one essence modifier, regular and perfect counted together', () => {
+  it('still caps an item at one crafted modifier, Essence and Perfect Essence counted together', () => {
     const r = markovFromItem(real, rp, whiteWand,
       [{ modId: ESS }, { modId: 'Wands/PerfectEssence_IncreasedMana' }], { restartCost: 0 });
     expect(r.feasible).toBe(false);
-    expect(r.reason).toMatch(/at most one essence modifier/);
+    expect(r.reason).toMatch(/at most one crafted modifier/);
   });
 });

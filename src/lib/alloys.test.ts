@@ -96,21 +96,23 @@ describe('Alloys — the rule that had to be preserved on purpose', () => {
   const byId = (...ms: EngineMod[]) => new Map(ms.map((m) => [m.id, m]));
 
   /**
-   * `whyNotAdd` caps an item at one essence modifier. It tested `source === 'essence' || 'perfect'` —
-   * a COMPARISON, not a switch, so adding `'alloy'` to the union did not make the compiler ask about
-   * it. Leaving it out would have let a player request two, a rule change smuggled in as a rename.
-   * Whether the cap really covers Alloys is untraced; today's behaviour is what this pins.
+   * `whyNotAdd` caps an item at one CRAFTED modifier, and an Alloy is one.
+   *
+   * That was the conservative reading when nothing traced it; it is now the game's own rule — 0.5.0:
+   * "items can only have 1 crafted modifier at a time" — and poe.ninja's item data files every Essence
+   * and Alloy modifier as crafted. What lifts it is a socketed Astrid's Creativity, which the message
+   * names and `craftedCap.test.ts` plans crafts around.
    */
-  it('still refuses a second essence modifier when the first is an Alloy', () => {
+  it('still refuses a second crafted modifier when the first is an Alloy', () => {
     const a = mod('a', 'alloy');
     const b = mod('b', 'perfect');
-    expect(whyNotAdd(b, [{ modId: 'a', tierDisplay: 1 }], byId(a, b))).toMatch(/one essence modifier/i);
+    expect(whyNotAdd(b, [{ modId: 'a', tierDisplay: 1 }], byId(a, b))).toMatch(/one crafted modifier/i);
   });
 
   it('refuses an Alloy on top of a regular essence too', () => {
     const e = mod('e', 'essence');
     const a = mod('a', 'alloy');
-    expect(whyNotAdd(a, [{ modId: 'e', tierDisplay: 1 }], byId(e, a))).toMatch(/one essence modifier/i);
+    expect(whyNotAdd(a, [{ modId: 'e', tierDisplay: 1 }], byId(e, a))).toMatch(/one crafted modifier/i);
   });
 
   it('allows an Alloy beside an ordinary mod', () => {

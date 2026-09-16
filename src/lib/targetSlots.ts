@@ -140,8 +140,11 @@ export function whyNotAdd(
   opts: {
     readonly intoSlot?: number;
     readonly hasFractured?: boolean;
-    /** The item's own per-side limits, which a socketed rune may have raised. Absent ⇒ three a side. */
-    readonly limits?: { readonly prefixes: number; readonly suffixes: number };
+    /**
+     * The item's own limits, which a socketed rune may have raised: three a side and one crafted
+     * modifier when absent. `crafted` counts Essences, Perfect Essences and Alloys together.
+     */
+    readonly limits?: { readonly prefixes: number; readonly suffixes: number; readonly crafted?: number };
   } = {},
 ): AddBlock {
   const slots = slotsOf(targets, modById);
@@ -169,16 +172,17 @@ export function whyNotAdd(
   const clash = modFamilies(mod).find((f) => taken.has(f));
   if (clash !== undefined) return `Family “${clash}” is already on the item — one mod per family`;
 
-  // `'alloy'` is here deliberately, and it is the one place adding that source could have changed a
-  // RULE rather than a label. An Alloy is a Perfect Essence by mechanic — the engine's source for both
-  // is `perfect_essence`, and `isEssenceMod` counts them together — so leaving it out would have let a
-  // player ask for two essence modifiers on one item, a rule change smuggled in as a rename.
-  // Whether the cap really covers Alloys is UNTRACED; keeping today's behaviour is the conservative
-  // reading, and `whyNotAdd` is where that choice is written down rather than left to drift.
-  const isEssence = (m: EngineMod | undefined): boolean =>
+  // A CRAFTED modifier is an Essence, a Perfect Essence or an Alloy: the engine's source for the last
+  // two is `perfect_essence`, and `isEssenceMod` counts all three together. 0.5.0 states the cap —
+  // "items can only have 1 crafted modifier at a time" — and a socketed Astrid's Creativity ("Can have
+  // 1 additional Crafted Modifier") raises it, which is what `limits.crafted` carries here.
+  const isCrafted = (m: EngineMod | undefined): boolean =>
     m?.source === 'essence' || m?.source === 'perfect' || m?.source === 'alloy';
-  if (isEssence(mod) && targets.some((t) => isEssence(modById.get(t.modId)))) {
-    return 'An item can hold one essence modifier — regular or perfect, not both';
+  const craftedCap = opts.limits?.crafted ?? 1;
+  if (isCrafted(mod) && targets.filter((t) => isCrafted(modById.get(t.modId))).length >= craftedCap) {
+    return craftedCap === 1
+      ? 'An item holds one crafted modifier — Essence, Perfect Essence or Alloy. Socket Astrid’s Creativity to allow a second.'
+      : `An item holds ${craftedCap} crafted modifiers, and this target already names that many`;
   }
   if (mod.source === 'essence' && opts.hasFractured) {
     return 'Can’t use a regular essence with a fractured mod — it needs a Magic start, a fracture forces a Rare';

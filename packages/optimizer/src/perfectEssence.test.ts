@@ -10,10 +10,12 @@ import type { Prices } from './cost.ts';
 // A Perfect Essence is a SWAP on a RARE item: it forces its own mod on (deterministic) while removing
 // one existing mod uniformly at random — 1/(pf+sf), or 1/pf / 1/sf under a Crystallisation omen.
 //
-// Two things are pinned here. (1) An item carries at most ONE essence modifier, and REGULAR AND PERFECT
-// COUNT TOGETHER — nothing enforced that, so all three planners would build a craft the game cannot
-// hold. (2) The from-white search can now reach a perfect-essence target: since every mod on a
-// from-white item is one you wanted, the essence necessarily eats a target, and the plan re-adds it.
+// Two things are pinned here. (1) An item carries at most ONE CRAFTED modifier — Essence, Perfect
+// Essence and Alloy counted together (0.5.0: "items can only have 1 crafted modifier at a time") —
+// unless a socketed Astrid's Creativity raises it, which `craftedCap.test.ts` covers. Nothing enforced
+// the cap once, so all three planners would build a craft the game cannot hold. (2) The from-white
+// search can reach a perfect-essence target: since every mod on a from-white item is one you wanted,
+// the essence necessarily eats a target, and the plan re-adds it.
 
 const mk = (
   id: string, type: 'prefix' | 'suffix', family: string, source: Mod['source'], weight = 100, ilvl = 1,
@@ -60,7 +62,7 @@ const CRYSTALLISATION = ['OmenofSinistralCrystallisation', 'OmenofDextralCrystal
 const noOmens = { excluded: new Set(CRYSTALLISATION) };
 const targets = ['NP1', 'NP2', 'NS1', 'PE1'].map((modId) => ({ modId }));
 
-describe('one essence modifier per item — regular and perfect counted together', () => {
+describe('one crafted modifier per item — Essence, Perfect Essence and Alloy counted together', () => {
   it('rejects two perfect essences from white', () => {
     const withBoth: PatchData = {
       ...data,
@@ -68,13 +70,13 @@ describe('one essence modifier per item — regular and perfect counted together
     };
     expect(() => optimizePareto(withBoth, prices, withBoth.bases.get('S')!, [
       { modId: 'NP1' }, { modId: 'NP2' }, { modId: 'NS1' }, { modId: 'PE1' }, { modId: 'PE2' },
-    ])).toThrow(/at most one essence modifier/i);
+    ])).toThrow(/at most one crafted modifier/i);
   });
 
   it('rejects a regular essence combined with a perfect one', () => {
     expect(() => optimizePareto(data, prices, base, [
       { modId: 'NP1' }, { modId: 'ESS1' }, { modId: 'PE1' },
-    ])).toThrow(/at most one essence modifier/i);
+    ])).toThrow(/at most one crafted modifier/i);
   });
 
   // The from-item planner built one `perfect-essence` op per perfect target, with no cap at all.
@@ -90,7 +92,7 @@ describe('one essence modifier per item — regular and perfect counted together
       suffixes: [{ modId: 'NS1', tierName: 't1' }],
     };
     expect(() => optimizeFromItem(withBoth, prices, start, [{ modId: 'PE1' }, { modId: 'PE2' }]))
-      .toThrow(/at most one essence modifier/i);
+      .toThrow(/at most one crafted modifier/i);
   });
 
   // …and the MDP gave each perfect target its own action, so its policy could stack them.
@@ -106,7 +108,7 @@ describe('one essence modifier per item — regular and perfect counted together
     };
     const r = markovFromItem(withBoth, prices, start, [{ modId: 'PE1' }, { modId: 'PE2' }]);
     expect(r.feasible).toBe(false);
-    expect(r.reason).toMatch(/at most one essence modifier/i);
+    expect(r.reason).toMatch(/at most one crafted modifier/i);
   });
 });
 

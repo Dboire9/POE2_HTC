@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { ALDUR_RUNE_BY_ELEMENT, RUNES, RUNE_BY_ID, aldurEats, runePriceKey, runesFor } from './runes.ts';
+import { ALDUR_RUNE_BY_ELEMENT, RUNES, RUNE_BY_ID, aldurEats, runePriceKey, runesFor, withRunes } from './runes.ts';
+import { limitsOf } from './item.ts';
 import { loadPatch } from './loadPatch.ts';
 
 const data = loadPatch('data/patches/0.5.0');
@@ -58,6 +59,35 @@ describe('the rune table', () => {
     expect(aldurEats('passion-of-aldur')).toEqual(['cold', 'lightning']);
     expect(aldurEats('betrayal-of-aldur')).toEqual(['fire', 'cold', 'lightning']);
     expect(aldurEats('kolrs-hunt')).toEqual([]); // not a converting rune
+  });
+});
+
+describe('withRunes — the base a craft actually runs on', () => {
+  const sceptre = byCategory('Sceptres');
+
+  it('leaves the base alone when nothing is socketed', () => {
+    expect(withRunes(sceptre, [])).toBe(sceptre);
+    expect(limitsOf(withRunes(sceptre, []))).toEqual({ prefixes: 3, suffixes: 3, crafted: 1 });
+  });
+
+  it('raises the crafted limit for Astrid’s Creativity, and the suffix one for Serle’s Triumph', () => {
+    expect(limitsOf(withRunes(sceptre, ['astrids-creativity'])).crafted).toBe(2);
+    expect(limitsOf(withRunes(sceptre, ['serles-triumph'])).suffixes).toBe(4);
+    // Both at once, each raising only its own limit.
+    expect(limitsOf(withRunes(sceptre, ['astrids-creativity', 'serles-triumph'])))
+      .toEqual({ prefixes: 3, suffixes: 4, crafted: 2 });
+  });
+
+  it('ignores a rune that does not fit the base, and an id it has never heard of', () => {
+    // Uhtred's Sidereus is boots-only, so on a Sceptre it changes nothing.
+    expect(withRunes(sceptre, ['uhtreds-sidereus'])).toBe(sceptre);
+    expect(withRunes(sceptre, ['no-such-rune'])).toBe(sceptre);
+    // A share link from a later patch may name both; it must load, not throw.
+    expect(limitsOf(withRunes(sceptre, ['no-such-rune', 'astrids-creativity'])).crafted).toBe(2);
+  });
+
+  it('keeps the pools it was given', () => {
+    expect(withRunes(sceptre, ['astrids-creativity']).pools).toBe(sceptre.pools);
   });
 });
 

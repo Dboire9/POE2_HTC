@@ -14,7 +14,7 @@ export { resolveProfileItems } from './profileItems.ts';
 export type { ProfileItem, ProfileMod, ProfileResult, ProfileSkip, SourceItem } from './profileItems.ts';
 export { runeRoute, runeOpportunity, runeOpportunities, gainAsExtraByElement } from './runeConvert.ts';
 export type { RuneRoute, RuneOpportunity } from './runeConvert.ts';
-export { RUNES, RUNE_BY_ID, runesFor, runePriceKey, aldurEats, ALDUR_RUNE_BY_ELEMENT } from './runes.ts';
+export { RUNES, RUNE_BY_ID, runesFor, runePriceKey, aldurEats, withRunes, ALDUR_RUNE_BY_ELEMENT } from './runes.ts';
 export type { Rune, RuneEffect } from './runes.ts';
 export type { StatMod, StatMatch } from './statLookup.ts';
 export { tierFit, within, fitsTier, tiersFitting, aboveEveryTier } from './tierFit.ts';

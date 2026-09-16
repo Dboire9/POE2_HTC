@@ -1,4 +1,5 @@
 import type { ItemBase } from './types.ts';
+import { DEFAULT_LIMITS } from './item.ts';
 
 /**
  * The socketables that change what a CRAFT can produce.
@@ -82,6 +83,29 @@ export const RUNE_BY_ID: ReadonlyMap<string, Rune> = new Map(RUNES.map((r) => [r
 
 /** Price keys are `rune:<id>`, matching the sheet `prices.mjs` writes from poe.ninja's Runes feed. */
 export const runePriceKey = (rune: string): string => `rune:${rune}`;
+
+/**
+ * The base a craft actually runs on, once the player says which runes are socketed.
+ *
+ * ONE place changes anything. Every planner reads its limits through `limitsOf(base)` and its pools off
+ * the base it is handed, so a rune that raises a limit reaches all of them at once and nothing
+ * downstream ever learns the word "rune". A rune that does not fit the base is ignored, as is an
+ * unknown id — a share link carries these, and a link from a future patch must not throw.
+ */
+export function withRunes(base: ItemBase, runeIds: readonly string[]): ItemBase {
+  const fitted = runeIds
+    .map((id) => RUNE_BY_ID.get(id))
+    .filter((r): r is Rune => r !== undefined && (r.categories.length === 0 || r.categories.includes(base.category)));
+  if (fitted.length === 0) return base;
+  const limits = { ...(base.limits ?? DEFAULT_LIMITS) };
+  for (const r of fitted) {
+    if (r.effect.kind === 'crafted') limits.crafted += r.effect.plus;
+    else if (r.effect.kind === 'suffix') limits.suffixes += r.effect.plus;
+    // 'pool' and 'convert' runes raise no limit: a pool rune adds modifiers to what the base can roll
+    // (merged here once those pools are in the data), and an Aldur rune rewrites finished ones.
+  }
+  return { ...base, limits };
+}
 
 /** The runes that fit a base. A rune with no categories fits every one of them. */
 export function runesFor(base: ItemBase): readonly Rune[] {

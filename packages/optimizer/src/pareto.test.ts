@@ -107,7 +107,7 @@ describe('optimizePareto — essence-only mods (Model B)', () => {
   it('rejects two essence-only mods (one Magic→Rare transition per craft)', () => {
     expect(() => optimizePareto(data, prices, wands, [
       { modId: ESS }, { modId: 'Wands/ESSENCE_SPELL_CRIT_CHANCE' },
-    ])).toThrow(/at most one essence modifier/i);
+    ])).toThrow(/at most one crafted modifier/i);
   });
 
   // REGRESSION. An item carries at most one essence modifier, counting regular and PERFECT together
@@ -119,13 +119,13 @@ describe('optimizePareto — essence-only mods (Model B)', () => {
     expect(data.mods.get('Wands/ESSENCE_ALL_SPELL_SKILL_LEVEL')!.source).toBe('perfect_essence');
     expect(() => optimizePareto(data, prices, wands, [
       { modId: ESS }, { modId: 'Wands/ESSENCE_ALL_SPELL_SKILL_LEVEL' },
-    ])).toThrow(/at most one essence modifier/i);
+    ])).toThrow(/at most one crafted modifier/i);
   });
 
   it('rejects two perfect essences', () => {
     expect(() => optimizePareto(data, prices, wands, [
       { modId: 'Wands/ESSENCE_ALL_SPELL_SKILL_LEVEL' }, { modId: 'Wands/ESSENCE_MANA_COST_EFFICIENCY' },
-    ])).toThrow(/at most one essence modifier/i);
+    ])).toThrow(/at most one crafted modifier/i);
   });
 
   it('rejects an essence-only-only target (no rollable Magic base for the essence)', () => {

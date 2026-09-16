@@ -74,10 +74,16 @@ function validateFromItemTarget(
   if (suf > limits.suffixes) throw new Error(`target has ${suf} suffixes (max ${limits.suffixes})`);
   // The Desecration mechanic places a single carved mod — an item can hold at most one desecrated mod.
   if (desecratedCount > 1) throw new Error('an item can hold at most one desecrated mod');
-  // …and at most one ESSENCE modifier, counting regular and perfect together (see `isEssenceMod`).
-  // This planner used to build one `perfect-essence` step per perfect target, so a two-essence target
-  // produced a plan for an item the game cannot hold.
-  if (essenceCount > 1) throw new Error('an item can hold at most one essence modifier (regular or perfect) — pick one');
+  // …and at most ONE CRAFTED modifier — Essence, Perfect Essence and Alloy counted together (see
+  // `isEssenceMod`) — unless a socketed Astrid's Creativity raised `limits.crafted`. This planner used
+  // to build one `perfect-essence` step per perfect target, so a two-crafted target produced a plan for
+  // an item the game could not hold.
+  if (essenceCount > limits.crafted) {
+    throw new Error(limits.crafted === 1
+      ? 'an item can hold at most one crafted modifier (Essence, Perfect Essence or Alloy) — pick one, '
+        + 'or socket Astrid’s Creativity for a second'
+      : `an item can hold at most ${limits.crafted} crafted modifiers (Essence, Perfect Essence or Alloy)`);
+  }
 }
 
 /**

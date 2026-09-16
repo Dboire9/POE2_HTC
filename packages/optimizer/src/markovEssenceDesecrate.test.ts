@@ -559,7 +559,7 @@ describe('markovFromItem — one carved mod, one essence modifier, counting the 
     const r = markovFromItem(real, rp, item([HELD_ESS], [CAST, CRIT]), [{ modId: WANT_ESS }]);
     expect(r.feasible).toBe(false);
     expect(r.reason).toContain(HELD_ESS);
-    expect(r.reason).toMatch(/one essence modifier/i);
+    expect(r.reason).toMatch(/crafted modifier/i);
   });
 
   // …but only where an essence ACTION exists to be offered wrongly. With no essence target the held

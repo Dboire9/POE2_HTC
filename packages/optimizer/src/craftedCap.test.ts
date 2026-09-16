@@ -94,3 +94,56 @@ describe('two Alloys need Astrid’s Creativity', () => {
     expect(markovFromItem(data, prices, whiteItem(runed, 82), three).reason).toMatch(/crafted modifiers/i);
   });
 });
+
+/**
+ * THE WHOLE ITEM FROM THE SCREENSHOT, modifier for modifier.
+ *
+ * `SMALL` above is a five-modifier subset, chosen because it solves quickly; the tests that PLAN
+ * anything use it, so nothing yet asserted that the real item — four rolled modifiers and both Alloys,
+ * filling all six slots — can be crafted at all. That is the thing the player actually asked for, so it
+ * is worth pinning as itself rather than by proxy.
+ */
+describe('the Spirit Star Sceptre, as photographed', () => {
+  /** Each line of the screenshot: the modifier, and the number printed beside it. */
+  const PHOTO: readonly (readonly [string, number])[] = [
+    [ALLY_DAMAGE, 115], [SPIRIT, 49], [ALLY_RES, 16], [MINION_LEVEL, 4],
+    [ALLOY_CHANCE, 48], [ALLOY_STACKS, 6],
+  ];
+
+  it('is six real Sceptre modifiers, three a side, two of them Alloys', () => {
+    const side = (t: 'prefix' | 'suffix') => SPIRIT_STAR.filter((x) => data.mods.get(x.modId)!.type === t);
+    expect(side('prefix')).toHaveLength(3);
+    expect(side('suffix')).toHaveLength(3);
+    expect(SPIRIT_STAR.filter((x) => data.mods.get(x.modId)!.alloy === true)).toHaveLength(2);
+  });
+
+  /**
+   * Five of the six rolls land in exactly one tier, so the item is representable — and the sixth does
+   * not, which is the item's own oddity rather than a gap in this data. The photo reads "+6 maximum
+   * stacks of Puppet Master" and The Runebinder's Alloy tops out at 5. A roll above everything a
+   * modifier can produce is read as Sanctified (`tierFit`) and Sanctification is NOT modelled as a
+   * mechanic, so a plan for this item quotes the +5 it can actually craft. Pinned here so that
+   * discrepancy is on the record rather than a surprise.
+   */
+  it('matches the photographed rolls to real tiers, except the one above the ceiling', () => {
+    const fits = (modId: string, v: number) => data.mods.get(modId)!.tiers
+      .filter((t) => t.ranges.some((r) => v >= Math.min(...r) && v <= Math.max(...r)));
+    for (const [modId, roll] of PHOTO) {
+      if (modId === ALLOY_STACKS) continue;
+      expect(fits(modId, roll), `${modId} @ ${roll}`).toHaveLength(1);
+    }
+    expect(fits(ALLOY_STACKS, 6)).toHaveLength(0);
+    const best = data.mods.get(ALLOY_STACKS)!.tiers.at(-1)!;
+    expect(Math.max(...best.ranges.flat())).toBe(5);
+  });
+
+  it('is refused without the rune, and craftable with it at a finite cost', () => {
+    expect(() => optimizePareto(data, prices, sceptre, SPIRIT_STAR)).toThrow(/crafted modifier/i);
+    const r = markovFromItem(data, prices, whiteItem(runed, 82), SPIRIT_STAR);
+    expect(r.feasible).toBe(true);
+    expect(Number.isFinite(r.expectedCost)).toBe(true);
+    expect(r.expectedCost).toBeGreaterThan(0);
+    // The step planner has to agree — all three planners quote the same craft.
+    expect(optimizePareto(data, prices, runed, SPIRIT_STAR).frontier.length).toBeGreaterThan(0);
+  }, 120_000);
+});

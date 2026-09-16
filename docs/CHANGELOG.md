@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-16
+
 ### Added
 
 - **Runes that change what an item can hold.** Two socketables alter the rules a craft obeys, and the

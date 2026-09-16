@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { loadPatch, loadShippedPatch } from './loadPatch.ts';
-import { runeRoute, runeOpportunity, gainAsExtraByElement, runePriceKey } from './runeConvert.ts';
+import { runeRoute, runeOpportunity, runeOpportunities, gainAsExtraByElement } from './runeConvert.ts';
+import { runePriceKey } from './runes.ts';
 import { itemFamilies, resolveMod } from './pool.ts';
 import { statsOf } from './statLookup.ts';
-import type { ItemBase, ItemState } from './types.ts';
+import type { ItemBase, ItemState, Mod, PatchData } from './types.ts';
 
 const data = loadPatch('data/patches/0.5.0');
 const base = (id: string): ItemBase => {
@@ -99,12 +100,34 @@ describe('when there is no route, it says so rather than improvising', () => {
   });
 
   /**
-   * Only the fire rune is traced — a real staff carried "Forged by the Passion of Aldur" beside two
-   * gain-as-extra-FIRE modifiers. The feed prices four more Aldur runes whose elements would be a
-   * guess, and a guessed one would print a route that does not work.
+   * Cold and lightning have routes of their own now. Every Aldur rune's element is named by the game
+   * data (`RuneConvertCold`: "transforms all Fire and Lightning modifiers to equivalent Cold
+   * modifiers"), where before only fire was traced and this declined the other two rather than guess.
    */
-  it('declines an element whose rune nobody has confirmed', () => {
-    expect(runeRoute(data, base('Staves'), 'Staves/DamageGainedAsCold', 2)).toBeUndefined();
+  it('routes cold and lightning through their own runes', () => {
+    expect(runeRoute(data, base('Staves'), 'Staves/DamageGainedAsCold', 2)?.rune).toBe('breath-of-aldur');
+    expect(runeRoute(data, base('Staves'), 'Staves/DamageGainedAsLightning', 2)?.rune).toBe('ire-of-aldur');
+  });
+
+  /** …and an element no rune makes still declines rather than improvising one. */
+  it('declines an element no rune produces', () => {
+    const phys: Mod = {
+      id: 'P/Phys', source: 'normal', type: 'prefix', family: 'PhysExtra', tags: [],
+      text: 'Gain #% of Damage as Extra Physical Damage',
+      tiers: [{ name: 't1', ilvl: 1, weight: 100, ranges: [] }],
+    };
+    const fire: Mod = { ...phys, id: 'P/Fire', family: 'FireExtra', text: 'Gain #% of Damage as Extra Fire Damage' };
+    const synthetic: ItemBase = {
+      id: 'P', name: 'P', category: 'C',
+      pools: {
+        normal: { prefixes: ['P/Phys', 'P/Fire'], suffixes: [] },
+        desecrated: { prefixes: [], suffixes: [] }, essence: { prefixes: [], suffixes: [] },
+      },
+    };
+    const d: PatchData = {
+      patch: 't', mods: new Map([[phys.id, phys], [fire.id, fire]]), bases: new Map([[synthetic.id, synthetic]]),
+    };
+    expect(runeRoute(d, synthetic, 'P/Phys', 2)).toBeUndefined();
   });
 });
 
@@ -132,12 +155,25 @@ describe('spotting the rune for a target list already chosen', () => {
     expect([...(o?.elements ?? [])].sort()).toEqual(["cold", "fire"]);
   });
 
-  /** The rune converts every one of them, so it fuses elements the player never asked for either —
-   *  which is worth offering, and is exactly what the caveat is about. */
-  it('offers it even when the wanted element is not among them', () => {
+  /**
+   * With every Aldur rune named, the one to show is the one that costs the player least: an element
+   * they already asked for. Fusing Cold and Lightning into lightning keeps the lightning they chose;
+   * into fire it would keep neither.
+   */
+  it('prefers a rune whose element is already among the targets', () => {
     const o = runeOpportunity(data, staff, ids(['Staves/DamageGainedAsCold', 'Staves/DamageGainedAsLightning']));
-    expect(o?.element).toBe('fire');
+    expect(o?.rune).toBe('ire-of-aldur');
+    expect(o?.elements).toContain(o?.element);
     expect(o?.caveat).toMatch(/including any you meant to keep/);
+  });
+
+  /** …and the others stay on offer, because which element to end on is the player's call. */
+  it('lists every rune the base can use', () => {
+    const all = runeOpportunities(data, staff, ids(['Staves/DamageGainedAsCold', 'Staves/DamageGainedAsLightning']));
+    expect(all.map((o) => o.rune)).toEqual(['passion-of-aldur', 'ire-of-aldur', 'breath-of-aldur']);
+    // Betrayal of Aldur makes chaos, which no base ROLLS as a gain-as-extra sibling — offering it
+    // would describe an item nobody can build.
+    expect(all.map((o) => o.element)).not.toContain('chaos');
   });
 
   it('says nothing for a single one, since there is nothing to fuse', () => {

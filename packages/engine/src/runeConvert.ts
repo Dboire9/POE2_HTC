@@ -1,5 +1,6 @@
 import type { ItemBase, PatchData } from './types.ts';
 import { resolveMod } from './pool.ts';
+import { ALDUR_RUNE_BY_ELEMENT, aldurEats, runePriceKey } from './runes.ts';
 
 /**
  * Stacking a modifier the family rules forbid, by rolling its siblings and converting them.
@@ -31,18 +32,25 @@ import { resolveMod } from './pool.ts';
 const GAIN_AS = /^Gain #% of Damage as Extra ([A-Za-z]+) Damage$/;
 
 /**
- * Which rune produces which element.
+ * Which rune makes which element — and what it eats getting there — lives in `runes.ts`.
  *
- * Only `fire` is traced: a real staff carried "Forged by the Passion of Aldur" alongside two
- * gain-as-extra-FIRE modifiers, which fixes the output element of that rune by observation. The feed
- * prices four more Aldur runes (`breath`, `ire`, `betrayal`, `legacy`) whose elements would be a
- * guess, and a wrong one here would print a route that does not work — so they are absent until
- * somebody confirms them, and `runeRoute` simply declines an element it cannot name a rune for.
+ * All four are named by the game data now (`RuneConvertFire`: "Transforms all Cold and Lightning
+ * modifiers on the item into equivalent Fire modifiers", and its Lightning, Cold and Chaos siblings).
+ * Before that scan only fire was traced, from a real staff carrying "Forged by the Passion of Aldur"
+ * beside two gain-as-extra-FIRE modifiers, and this declined every other element rather than guess.
  */
-export const ALDUR_RUNE_BY_ELEMENT: ReadonlyMap<string, string> = new Map([['fire', 'passion-of-aldur']]);
 
-/** Price keys are `rune:<id>`, matching the sheet `prices.mjs` writes from poe.ninja's Runes feed. */
-export const runePriceKey = (rune: string): string => `rune:${rune}`;
+/**
+ * The two costs that are NOT in the plan's arithmetic, in words: the socket the rune spends, and the
+ * modifiers it takes with it. Naming the elements it eats is the honest form — a cold sibling the
+ * player meant to keep does not survive Passion of Aldur, and the sentence should say which ones.
+ */
+const caveatFor = (rune: string, element: string): string => {
+  const eats = aldurEats(rune);
+  const list = eats.length > 1 ? `${eats.slice(0, -1).join(', ')} and ${eats[eats.length - 1]}` : eats[0] ?? 'other';
+  return `Socketing ${rune} spends a rune socket and converts EVERY ${list} "gain as extra" modifier `
+    + `on the item to ${element} — including any you meant to keep.`;
+};
 
 /**
  * Every `gain as extra <element>` modifier a base can ROLL, by element — from its normal pool, since a
@@ -115,8 +123,7 @@ export function runeRoute(
     rune,
     priceKey: runePriceKey(rune),
     element,
-    caveat: `Socketing ${rune} spends a rune socket and converts EVERY "gain as extra" modifier on `
-      + `the item to ${element} — including any you meant to keep.`,
+    caveat: caveatFor(rune, element),
   };
 }
 
@@ -153,29 +160,38 @@ export interface RuneOpportunity {
  * Counted by POSITION, since a target list can hold alternatives: a slot of "Cold or Lightning" puts one
  * modifier on the item, not two, so on its own it has nothing to fuse with.
  */
-export function runeOpportunity(
+export function runeOpportunities(
   data: PatchData, base: ItemBase, targets: readonly { readonly modId: string; readonly slot?: number }[],
-): RuneOpportunity | undefined {
+): readonly RuneOpportunity[] {
   const byElement = gainAsExtraByElement(data, base);
   const byId = new Map([...byElement].map(([e, id]) => [id, e]));
   const chosen = targets.filter((t) => byId.has(t.modId));
   // One position per slot, and one per distinct unslotted mod — a duplicate id is one modifier, not two.
   const count = new Set(chosen.map((t) => (t.slot === undefined ? `mod:${t.modId}` : `slot:${t.slot}`))).size;
-  if (count < 2) return undefined;
+  if (count < 2) return [];
   const modIds = [...new Set(chosen.map((t) => t.modId))];
-  // The rune fixes the element, so there is nothing to choose: take the one confirmed rune. Where
-  // several are confirmed a caller could offer each, which is why this returns the element it used.
-  const entry = [...ALDUR_RUNE_BY_ELEMENT].find(([e]) => byElement.has(e));
-  if (!entry) return undefined;
-  const [element, rune] = entry;
-  return {
-    modIds,
-    count,
-    elements: modIds.map((id) => byId.get(id)!),
-    rune,
-    priceKey: runePriceKey(rune),
-    element,
-    caveat: `Socketing ${rune} spends a rune socket and converts EVERY "gain as extra" modifier on `
-      + `the item to ${element} — including any you meant to keep.`,
-  };
+  const elements = modIds.map((id) => byId.get(id)!);
+  // One option per rune whose element this base can ROLL. Converting to an element the base carries no
+  // modifier for would describe an item nobody can build: the normal pools roll fire, cold and
+  // lightning only, while chaos and physical exist as carved and essence lines, which are not siblings.
+  return [...ALDUR_RUNE_BY_ELEMENT]
+    .filter(([element]) => byElement.has(element))
+    .map(([element, rune]) => ({
+      modIds, count, elements, rune, priceKey: runePriceKey(rune), element, caveat: caveatFor(rune, element),
+    }));
+}
+
+/**
+ * The one to put in front of a player, of the several that now exist.
+ *
+ * It prefers an element they ALREADY asked for, because that is the option which loses them the least:
+ * fusing Fire and Cold into fire keeps the fire they chose, while fusing both into lightning keeps
+ * neither. With none of their elements available it falls back to the first rune the base can use, and
+ * `runeOpportunities` has the rest for a caller that wants to offer the choice.
+ */
+export function runeOpportunity(
+  data: PatchData, base: ItemBase, targets: readonly { readonly modId: string; readonly slot?: number }[],
+): RuneOpportunity | undefined {
+  const all = runeOpportunities(data, base, targets);
+  return all.find((o) => o.elements.includes(o.element)) ?? all[0];
 }

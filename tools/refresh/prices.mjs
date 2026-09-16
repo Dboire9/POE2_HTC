@@ -509,16 +509,26 @@ async function main() {
   //
   // Kept under a `rune:` prefix rather than bare, so a rune can never collide with a currency name,
   // and written from the feed's own ids so no transcription sits between the two.
+  //
+  // The list is every rune `packages/engine/src/runes.ts` models — the Aldur four plus the Ancient
+  // Runes that change a craft's rules. It is spelt out here rather than imported because this script
+  // runs under plain `node`, which cannot load a TypeScript module; `runes.test.ts` reads this file and
+  // fails if the two ever disagree, so the duplication cannot drift.
+  const MODELLED_RUNES = new Set([
+    'astrids-creativity', 'serles-triumph', 'thruds-might', 'uhtreds-sidereus', 'kolrs-hunt',
+    'katlas-gloom', 'voranas-carnage', 'medveds-tending',
+    'passion-of-aldur', 'ire-of-aldur', 'breath-of-aldur', 'betrayal-of-aldur',
+  ]);
   const runeFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Runes`);
   let runesPriced = 0;
   for (const line of runeFeed.lines ?? []) {
-    if (!/-of-aldur$|^aldurs-/.test(line.id ?? '')) continue;
+    if (!MODELLED_RUNES.has(line.id ?? '')) continue;
     const v = line.primaryValue;
     if (typeof v !== 'number' || !(v > 0)) continue;
     prices[`rune:${line.id}`] = Number((v / exalt).toPrecision(4));
     runesPriced++;
   }
-  console.log(`  runes: ${runesPriced} Aldur rune(s) priced of ${(runeFeed.lines ?? []).length} lines`);
+  console.log(`  runes: ${runesPriced} modelled rune(s) priced of ${(runeFeed.lines ?? []).length} lines`);
 
   const ritualFeed = await getJson(`${API}/exchange/current/overview?league=${encodeURIComponent(league)}&type=Ritual`);
   const { omens, fallback, thin } = priceOmens(ritualFeed.lines, prev.omenQuotes, exalt, rates);

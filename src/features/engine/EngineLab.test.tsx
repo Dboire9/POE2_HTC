@@ -134,6 +134,23 @@ describe('EngineLab — target picker rules', () => {
     expect(addButton('Essence Prefix Two')).toBeDisabled();
   });
 
+  /**
+   * …unless Astrid's Creativity is socketed, which is the whole point of the control: "Can have 1
+   * additional Crafted Modifier" is what lets the Spirit Star Sceptre hold two Alloys. The picker has
+   * to agree with the planners about how much the item can hold, so the tick has to reach it.
+   */
+  it('a socketed Astrid’s Creativity lets a second crafted mod in', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Essence Prefix'));
+    expect(addButton('Essence Prefix Two')).toBeDisabled();
+    await user.click(screen.getByRole('checkbox', { name: /Astrid/i }));
+    expect(addButton('Essence Prefix Two')).toBeEnabled();
+    // Untick and it closes again — the rule is the rune's, not a one-way door.
+    await user.click(screen.getByRole('checkbox', { name: /Astrid/i }));
+    expect(addButton('Essence Prefix Two')).toBeDisabled();
+  });
+
   it('at most one desecrated mod: a second desecrated disables in the picker', async () => {
     const user = userEvent.setup();
     await loaded();

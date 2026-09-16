@@ -26,6 +26,8 @@ import PriceBasisNote from './PriceBasisNote';
 import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
+import RunePicker from './RunePicker';
+import { limitsWithRunes } from '../../../packages/engine/src/runes.ts';
 import QuickCurrencyCheck from './QuickCurrencyCheck';
 import PasteItem from './PasteItem';
 import WhatToBuy from './WhatToBuy';
@@ -159,6 +161,9 @@ const ItemActions: React.FC = () => {
   const [search, setSearch] = useState('');
 
   const [subMode, setSubMode] = useField('item', 'subMode');
+  // Runes socketed in the item you hold: they change what it may HOLD, so the builder's per-side caps
+  // and the target picker's rules both read them, and they travel with the item to every planner.
+  const [runes, setRunes] = useField('item', 'runes');
 
   // Option 2 (full plan) target + result.
   const [target, setTarget] = useField('item', 'target');
@@ -333,11 +338,16 @@ const ItemActions: React.FC = () => {
     return s;
   }, [onItem, modById]);
 
-  const cap = CAP[rarity];
+  // A Magic item holds one per side whatever is socketed; a Rare holds what its runes allow, which is
+  // why the two sides can differ (Serle's Triumph raises the suffix one alone).
+  const category = bases.find((b) => b.id === baseId)?.category ?? '';
+  const limits = useMemo(() => limitsWithRunes(category, runes), [category, runes]);
+  const capOf = (type: 'prefix' | 'suffix'): number =>
+    (rarity === 'magic' ? CAP.magic : type === 'prefix' ? limits.prefixes : limits.suffixes);
   const addItemMod = (mod: EngineMod) => {
     if (onItem.has(mod.id) || modFamilies(mod).some((f) => occupiedFamilies.has(f))) return;
     const cur = mod.type === 'prefix' ? prefixes : suffixes;
-    if (cur.length >= cap) return;
+    if (cur.length >= capOf(mod.type)) return;
     (mod.type === 'prefix' ? setPrefixes : setSuffixes)((l) => [...l, { modId: mod.id, tierDisplay: 1 }]);
   };
   const dropItemMod = (modId: string) => {
@@ -418,7 +428,7 @@ const ItemActions: React.FC = () => {
     [addable, essenceMods, perfect, desecratedTargets, onItem],
   );
 
-  const item: ExistingItem = { baseId, level, rarity, prefixes, suffixes };
+  const item: ExistingItem = { baseId, level, rarity, prefixes, suffixes, ...(runes.length ? { runes } : {}) };
   /**
    * Why "Compute plan" is unavailable, or null when it isn't. Two conditions disabled the button and
    * only one of them said anything — with a Rare item and no targets picked it simply greyed out and
@@ -452,7 +462,7 @@ const ItemActions: React.FC = () => {
   // The same guard EngineLab uses. This tab had its own copy, worded differently and — in the picker
   // below — not enforced at all: a fourth prefix was a dead choice that silently did nothing.
   const blockFor = (mod: EngineMod): string | null =>
-    whyNotAdd(mod, target, modById, addingTo === null ? {} : { intoSlot: addingTo });
+    whyNotAdd(mod, target, modById, addingTo === null ? { limits } : { intoSlot: addingTo, limits });
   const addTarget = (mod: EngineMod) => {
     if (blockFor(mod) !== null) return;
     const slot = addingTo;
@@ -598,6 +608,7 @@ const ItemActions: React.FC = () => {
               <option value="magic">Magic (1 + 1)</option>
             </select>
           </label>
+          <RunePicker category={category} value={runes} onChange={setRunes} />
           <div className="flex-1" />
           {/* The Lab tab has had one of these since it shipped and this tab never did, so the only way
               to start over here was to remove six modifiers one at a time. Same contract as the Lab's:
@@ -625,8 +636,8 @@ const ItemActions: React.FC = () => {
           {/* Stacks on a phone. A bare `flex` kept both columns side by side at every width, so
               on a narrow screen each got half of it and the mod text was crushed to nothing. */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <BuilderColumn title="Prefixes" list={filtered.prefixes} count={prefixes.length} cap={cap} occupiedFamilies={occupiedFamilies} onAdd={addItemMod} />
-            <BuilderColumn title="Suffixes" list={filtered.suffixes} count={suffixes.length} cap={cap} occupiedFamilies={occupiedFamilies} onAdd={addItemMod} />
+            <BuilderColumn title="Prefixes" list={filtered.prefixes} count={prefixes.length} cap={capOf('prefix')} occupiedFamilies={occupiedFamilies} onAdd={addItemMod} />
+            <BuilderColumn title="Suffixes" list={filtered.suffixes} count={suffixes.length} cap={capOf('suffix')} occupiedFamilies={occupiedFamilies} onAdd={addItemMod} />
           </div>
         </div>
 

@@ -14,6 +14,8 @@ import type { SolveProgress as Progress } from '../../lib/solve';
 import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { EFFORT_PRESETS, isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
+import RunePicker from './RunePicker';
+import { limitsWithRunes } from '../../../packages/engine/src/runes.ts';
 import {
   decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode,
 } from '../../lib/workspace';
@@ -164,6 +166,9 @@ const EngineLab: React.FC = () => {
     ? 'the budget search will never relax, swap or drop it'
     : 'saved for when you set a budget; that search will never relax, swap or drop it';
   const [baseCost, setBaseCost] = useField('lab', 'baseCost');
+  // Runes socketed in the item being crafted. They change what it may HOLD, so they reach the picker's
+  // rules (`limits` below) and every planner in the solve, not just the words on the page.
+  const [runes, setRunes] = useField('lab', 'runes');
 
   const [result, setResult] = useState<EngineResult | null>(null);
   const [alts, setAlts] = useState<EngineAlternatives | null>(null);
@@ -269,7 +274,10 @@ const EngineLab: React.FC = () => {
   const normalTargets = targets.filter((t) => modById.get(t.modId)?.source === 'normal').length;
   // Via the facade's UI-shaped base list rather than the raw PatchData — same source the rest of
   // this component uses, so it can't disagree with what the picker is showing.
-  const bossTargetable = bossOmenAllowed(bases.find((b) => b.id === baseId)?.category ?? '');
+  const category = bases.find((b) => b.id === baseId)?.category ?? '';
+  const bossTargetable = bossOmenAllowed(category);
+  // What the item can hold once its runes are in — the same rule the planners read off the base.
+  const limits = useMemo(() => limitsWithRunes(category, runes), [category, runes]);
   // From white the item is Normal, and a Desecration needs a RARE — reached via transmute → augment →
   // regal, three adds the from-white planner can only spend on mods you asked for (every PlanStep it
   // builds names a target mod; there is no filler concept). With fewer than three rollable targets
@@ -293,8 +301,9 @@ const EngineLab: React.FC = () => {
     (mod: EngineMod): string | null => whyNotAdd(mod, targets, modById, {
       ...(addingTo === null ? {} : { intoSlot: addingTo }),
       hasFractured: fractured.size > 0,
+      limits,
     }),
-    [targets, modById, addingTo, fractured],
+    [targets, modById, addingTo, fractured, limits],
   );
 
   const filtered = useMemo(() => {
@@ -462,6 +471,7 @@ const EngineLab: React.FC = () => {
       ...(hasBaseCost ? { baseCost: bc } : {}),
       effort: limitsFor(effortId),
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
+      ...(runes.length > 0 ? { runes } : {}),
     }, (p) => { if (current()) setProgress(p); });
     cancelRef.current = handle.cancel;
 
@@ -600,6 +610,7 @@ const EngineLab: React.FC = () => {
               />
             </label>
           )}
+          <RunePicker category={category} value={runes} onChange={setRunes} />
           <SearchEffort />
           <div className="flex-1" />
           <Button variant="outline" onClick={() => void share()} disabled={targets.length === 0 && mode === 'plan'} size="lg" title="Copy a link that reproduces this workspace">

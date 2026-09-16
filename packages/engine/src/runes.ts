@@ -1,4 +1,4 @@
-import type { ItemBase } from './types.ts';
+import type { ItemBase, ItemLimits } from './types.ts';
 import { DEFAULT_LIMITS } from './item.ts';
 
 /**
@@ -93,18 +93,33 @@ export const runePriceKey = (rune: string): string => `rune:${rune}`;
  * unknown id — a share link carries these, and a link from a future patch must not throw.
  */
 export function withRunes(base: ItemBase, runeIds: readonly string[]): ItemBase {
+  const limits = limitsWithRunes(base.category, runeIds, base.limits);
+  return limits === (base.limits ?? DEFAULT_LIMITS) ? base : { ...base, limits };
+}
+
+/**
+ * The same rule by CATEGORY, for callers holding no engine base — the pickers, which decide what a
+ * player may add next and must agree with the planners about how much the item can hold.
+ *
+ * Returns the given limits unchanged (by identity) when no rune applies, which is what lets
+ * `withRunes` hand back the very base it was given.
+ */
+export function limitsWithRunes(
+  category: string, runeIds: readonly string[], from?: ItemLimits,
+): ItemLimits {
+  const base = from ?? DEFAULT_LIMITS;
   const fitted = runeIds
     .map((id) => RUNE_BY_ID.get(id))
-    .filter((r): r is Rune => r !== undefined && (r.categories.length === 0 || r.categories.includes(base.category)));
+    .filter((r): r is Rune => r !== undefined && (r.categories.length === 0 || r.categories.includes(category)));
   if (fitted.length === 0) return base;
-  const limits = { ...(base.limits ?? DEFAULT_LIMITS) };
+  const limits = { ...base };
   for (const r of fitted) {
     if (r.effect.kind === 'crafted') limits.crafted += r.effect.plus;
     else if (r.effect.kind === 'suffix') limits.suffixes += r.effect.plus;
     // 'pool' and 'convert' runes raise no limit: a pool rune adds modifiers to what the base can roll
     // (merged here once those pools are in the data), and an Aldur rune rewrites finished ones.
   }
-  return { ...base, limits };
+  return limits;
 }
 
 /** The runes that fit a base. A rune with no categories fits every one of them. */

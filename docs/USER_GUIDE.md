@@ -617,11 +617,45 @@ twice before you buy: two plans that look alike can differ by three orders of ma
 On some bases they are the majority of what is on offer — on a Wand, most of the guaranteed-mod targets
 are Alloys rather than Perfect Essences.
 
-> **One caveat, stated as what the app does rather than what the game does.** The app allows **one**
-> guaranteed-mod modifier per item and counts Essences, Perfect Essences and Alloys together toward
-> that one. For Essences that limit is a game rule. Whether it extends to Alloys is **not something
-> this project has verified**, so the app keeps the stricter behaviour rather than guessing the looser
-> one. If you know it to be wrong, [say so](#getting-help) — it is a one-line change.
+> **One crafted modifier per item, Alloys included — and this is now the game's rule, not the app's
+> caution.** The 0.5.0 patch notes say items "can only have 1 crafted modifier at a time", and the
+> game's own item data files every Essence, Perfect Essence and Alloy modifier as *crafted*, so all
+> three count toward the same one. This paragraph used to say the Alloy half was unverified; it has
+> been verified, and the app's behaviour was right all along.
+>
+> **A socketed *Astrid's Creativity* allows a second** ([Runes](#runes)), which is how a real item
+> carries two Alloys at once. Tick it and the planner will aim at both.
+
+### Runes
+
+Most runes simply add a modifier and change nothing about how an item is crafted. Two change the
+**rules**, and the app plans with them:
+
+| Rune | What it allows |
+|---|---|
+| **Astrid's Creativity** | a **second crafted modifier** — a second Essence, Perfect Essence or Alloy |
+| **Serle's Triumph** | a **fourth suffix** |
+
+Tick the ones you have socketed in the **Runes** row, on either tab. Every planner sees them, so a
+craft that is otherwise refused outright becomes plannable — an item wanting four rolled modifiers and
+two Alloys is impossible without Astrid's Creativity and ordinary with it. Runes are saved in a shared
+workspace link too.
+
+**The item keeps what the rune allowed after the rune comes out.** So a rune is a step in the craft
+rather than a permanent passenger, and a plan may end by swapping it for whatever you actually want in
+that socket.
+
+**A rune costs a socket, and sockets are not modelled here.** The plan assumes you have a free one;
+Artificer's Orbs are not priced, so budget for them yourself.
+
+**Only these two appear in the Runes row.** The other rule-changing runes — *Thrud's Might*,
+*Kolr's Hunt* and the rest of the "Can roll … modifiers" family — are not offered at all, because the
+extra modifiers they unlock aren't in this app's data yet. They're named here so you know what's
+missing, rather than wondering why you can't find them.
+
+The **Aldur** runes are a different thing again: they convert every modifier of one element on the
+item into another. The app suggests one by itself when your targets make it worthwhile — you do not
+tick those.
 
 ### Families
 

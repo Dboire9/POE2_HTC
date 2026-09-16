@@ -314,3 +314,26 @@ each is traced to the code that keeps it.
 | 34 | "Your browser didn't pass the automatic bot check" | `RateApp.tsx` | **OK** | Shown only on 403, which the function returns only when `checkBotId()` says `isBot` |
 | 35 | "Ratings aren't switched on right now" | `RateApp.tsx` | **OK** | 503: no `FEEDBACK_SENTRY_DSN`, one that is not a DSN, or BotID unable to run (the OIDC option off) — each is the site switched off, from the player's side |
 
+## Runes, and the one-crafted-modifier rule (2026-09-16)
+
+This sweep exists because a previous verdict went stale in the player's favour. The guide used to say
+the app allowed one guaranteed-mod modifier per item and that **whether that extended to Alloys was
+"not something this project has verified"** — honest caution at the time, and wrong now: the 0.5.0
+patch notes state the rule and the game's own item data files Essences, Perfect Essences and Alloys
+alike as *crafted*. A caveat that has since been traced is its own kind of false claim, so it is
+replaced rather than left standing.
+
+Row 41 is the one to watch: a claim about the GAME that rests on a user ruling with no data source
+behind it, stated as such.
+
+| # | Claim | Where | Verdict | Traced to |
+|---|---|---|---|---|
+| 36 | "An item holds one crafted modifier — Essence, Perfect Essence or Alloy. Socket Astrid's Creativity to allow a second." | `targetSlots.ts:184`, both pickers | **GAME RULE** | 0.5.0 patch notes: items "can only have 1 crafted modifier at a time"; poe.ninja files all three sources as `crafted` (68 crafted mods over 64 items, 18 characters). Enforced by `whyNotAdd` counting crafted targets against `limitsWithRunes(...).crafted`, which is `DEFAULT_LIMITS.crafted = 1` plus any Astrid's Creativity |
+| 37 | "An item holds {n} crafted modifiers, and this target already names that many" | `targetSlots.ts:185` | **OK** | The same count with the rune's raised limit substituted — the message a player meets once Astrid's Creativity is ticked, so the number shown is the item's, not a constant |
+| 38 | "Allows a second crafted modifier — Essence, Perfect Essence or Alloy" / "Allows a fourth suffix" | `RunePicker.tsx:17-19,41` | **GAME RULE** | The runes' own stat text in the game data ("Can have 1 additional Crafted Modifier", "+1 Suffix Modifier allowed"), carried into `runes.ts` as `crafted +1` / `suffix +1` and applied by `withRunes` |
+| 39 | "One crafted modifier per item, Alloys included — and this is now the game's rule, not the app's caution" | guide, Alloys | **GAME RULE** | As row 36. Replaces the superseded caveat quoted above |
+| 40 | "Only these two appear in the Runes row … the rest are not offered at all" | guide, Runes | **OK** | `RunePicker` filters `RUNES` to those carrying an `EFFECT` entry — 2 of the 12 in the table — so the pool and Aldur runes are genuinely absent from the control, not merely inert |
+| 41 | "The item keeps what the rune allowed after the rune comes out" | guide, Runes | **GAME RULE, on a user ruling only** | Confirmed by the user 2026-09-15. No data source backs it and no code enforces it — the app never takes a rune out — so it is a claim about the game resting on one report. If it is wrong, a plan that ends by swapping the rune is wrong with it |
+| 42 | "A rune costs a socket, and sockets are not modelled here … Artificer's Orbs are not priced" | guide, Runes | **OK** | A claim about the app's own scope: nothing in `cost.ts` or `prices.mjs` tracks sockets or prices an Artificer's Orb, and `runePriceKey` charges only the rune itself |
+| 43 | "One line stays unread — a Genesis Tree ring craft, a mechanic this app does not model" | gear tab omissions | **OK** | `codeIndex` has no entry for `GenesisTreeRingMinionCooldownRecoveryCrafted`; it is reported through the existing unresolved path rather than matched to an essence that did not make it |
+

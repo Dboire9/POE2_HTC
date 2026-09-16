@@ -231,6 +231,32 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   rune is a FREE one and would dominate every frontier it reached. Passion of Aldur is **12.13 ex**,
   not the 0.064 the feed's raw `primaryValue` shows — that field is denominated in divine and must be
   divided by the Exalted Orb's own primary value, exactly as every other line is.
+- **HOW MUCH AN ITEM CAN HOLD BELONGS TO THE ITEM, not to a constant.** `ItemBase.limits`
+  (`ItemLimits { prefixes, suffixes, crafted }`, defaulting to 3/3/1) read through `limitsOf(base)` —
+  because a socketed rune raises one of them and nine places used to hard-code the answer. **One
+  crafted modifier is the game's rule** (0.5.0: "items can only have 1 crafted modifier at a time"),
+  and crafted covers Essences, Perfect Essences and Alloys alike: poe.ninja's item data files all
+  three that way, 68 crafted mods across 64 items on 18 streamer characters.
+- **`runes.ts` IS THE RUNE TABLE, and `withRunes` is the only place a rune changes anything.**
+  Astrid's Creativity allows a second crafted modifier, Serle's Triumph a fourth suffix; every planner
+  reads its limits through `limitsOf`, so raising one there reaches all of them and nothing downstream
+  learns the word "rune". A rune that does not fit the base, or an id from a future patch arriving in
+  a share link, is ignored rather than fatal. The item KEEPS what the rune allowed after the rune is
+  swapped out (user, 2026-09-15), which is why a plan may end by replacing it. The six "Can roll …"
+  pool runes are in the table but not plannable — their modifiers are not in the data yet.
+- **A CRAFTED MODIFIER EXCLUDES ONLY OTHER CRAFTED MODIFIERS.** `familiesOf` (pool.ts) returns
+  `crafted:<family>` for the essence and perfect-essence sources, so a rolled and a crafted resistance
+  of one family coexist — as they do on three real uncorrupted items (Steelmage's jacket and sandals,
+  xthefarmerx's ring, 2026-09-15). Namespacing the GROUP is what makes that true everywhere at once,
+  since every exclusion in the engine is decided through that one function. Two crafted mods of one
+  family still collide: untraced, so it stays refused.
+- **CRAFTED TIERS CARRY THE GAME'S OWN MODIFIER IDS, as `tiers[].codes`** — a FILE field like
+  `tiers[].stats`, stripped from the browser asset by `shipMods.ts` and read only by the periodic gear
+  job. Written by `tools/refresh/apply_codes.mjs`, which **must run after `apply_pools.mjs`** (that
+  rebuilds the essence pools and would leave the codes pointing at nothing); `run.sh` does. Read back
+  by `codeIndex` (profileItems.ts). It exists because **no essence, perfect-essence or alloy mod
+  carries `tiers[].stats`**, so `resolveByStats` cannot resolve a crafted line at all. Ambiguous joins
+  are left unmatched rather than guessed — see docs/validation.md (2026-09-16).
 - **TWO MODIFIERS CAN PRINT AS ONE LINE, and no reader of the text can undo it.** The game SUMS
   same-stat modifiers on screen: a staff carrying 71% and 62% `Gain as Extra Fire` displays a single
   `133%`. That is the reverse of the hybrid case `resolveMods` handles (one modifier printing as two

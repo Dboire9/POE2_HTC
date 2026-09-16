@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Runes that change what an item can hold.** Two socketables alter the rules a craft obeys, and the
+  app now plans with them: **Astrid's Creativity** allows a *second* crafted modifier, and **Serle's
+  Triumph** a *fourth suffix*. Tick the ones you have socketed in either tab and every planner sees
+  them; they travel in share links too, under their own link version, so an older build refuses a link
+  rather than quietly planning the wrong item. The item keeps what the rune allowed after the rune is
+  swapped out, so a plan may end by replacing it.
+- **The item a player asked for can now be planned.** A rare Sceptre carrying four rolled modifiers
+  *and* both Puppet Master Alloys was refused outright — "an item can hold one essence modifier" —
+  because one crafted modifier is the game's rule (0.5.0: "items can only have 1 crafted modifier at a
+  time") and poe.ninja files every Essence, Perfect Essence and Alloy modifier as crafted. What lifts
+  it is an Astrid's Creativity, which the refusal message now names.
+- **A crafted modifier may share a family with a rolled one.** Real uncorrupted items carry a rolled
+  and a crafted resistance of the same family side by side — three of them across the streamers read
+  here — so crafted modifiers now exclude only other crafted modifiers. Crafts that ask for both a
+  rolled and a guaranteed version of one stat are plannable for the first time.
+- **Streamer gear reads crafted modifiers, and the runes socketed in it.** A crafted line carries no
+  stats this app could match, so nine of them across five characters were listed as unread and the
+  items looked emptier, and cheaper to finish, than they are. They resolve from the game's own modifier
+  id now: 204 modifiers placed with 17 unread becomes **213 with 8**. Socketed runes are read as well,
+  and **Craft this from scratch** plans the craft that actually produced the item rather than one the
+  planner would refuse. One line stays unread on purpose — a Genesis Tree ring craft, a mechanic this
+  app does not model, named rather than guessed at.
 - **Rate the app.** A **💛 Rate the app** button in the header opens a small box: 1–5 stars and an
   optional "what's good, and what isn't?", and nothing else — no email, no name, no account. It reaches
   the maintainer through the site's first server function, `/api/feedback`, which accepts a rating

@@ -4193,6 +4193,70 @@ The route graph under the table is memoised on its route, so a key typed no long
 thousands of states on a big craft. Mutation-checked: letting `parsePrice` keep the comma, or sorting
 by total again, each turns its tests red.
 
+## A streamer's crafted modifiers, and the runes they socket (2026-09-16)
+
+The gear tab could not read a CRAFTED line at all, and the cause was in the data rather than in the
+code: **0 of 353 essence and 0 of 481 perfect-essence mods carry `tiers[].stats`, against 951 of 951
+normal ones.** The stat vocabulary is RePoE's and those pools are poe2db's, so `statIndex` holds none
+of them and `resolveByStats` answered nothing for every one. Nine lines across five characters were
+listed as unread, and an item missing a modifier is a different item — a cheaper one to finish.
+
+**The key that works is the game's own modifier id**, which the profile API sends
+(`{"id":"EssenceGlobalDefences1", …}`). `apply_codes.mjs` joins RePoE-fork's 16,784 modifiers to our
+pools by exclusion group, affix side and roll, and writes the matching ids onto the tier as `codes`.
+Matching TIER BY TIER is what makes it exact: one group holds Lesser, Greater and Perfect levels that
+differ only in what they roll, so `Amulets/Essence_IncreasedLife` takes `IncreasedLife2` /
+`IncreasedLife6` / `IncreasedLife7`. Because the id names the tier outright, nothing is fitted from
+the roll and a hybrid Alloy's two stats need no ordering.
+
+**It also re-points 18 lines the stats did resolve, and that is the half worth stating.** An Essence
+of Opulence forces the ordinary rarity modifier, so poe.ninja sends `ItemFoundRarityIncrease3` — a
+normal mod's id — filed under `crafted`. Read as the rolled mod it understates the item; read as the
+essence it occupies the crafted slot and sits in the crafted family namespace. Measured before
+committing: **9 newly resolved, 18 re-pointed, 0 items pushed over the one-crafted-modifier cap, 0
+crafted family clashes.** Nothing became unrepresentable, and no real item now falsely demands an
+Astrid's Creativity.
+
+Result on the shipped snapshot: **204 modifiers placed with 17 unresolved becomes 213 with 8.** The
+one crafted line still open is `GenesisTreeRingMinionCooldownRecoveryCrafted` — a Genesis Tree ring
+craft, a mechanic this app does not model — so it stays named rather than forced onto an essence that
+did not make it.
+
+**A bug the first revision shipped past the measurement, caught by measuring the other direction.**
+poe2db prints a fixed value inline instead of as a range, so a flat tier stores `ranges: []` where
+RePoE stores `min === max`; reading our value out of the text recovers those tiers. But a value alone
+cannot separate siblings — `IncreaseSocketedGemLevel` holds +3 to Melee, Spell, Projectile, Minion and
+Attack skills in ONE exclusion group — and the first rule matched all of them: **one Quarterstaves
+tier collected 116 game ids, `MinionGemLevelBelt1` among them.** It hid because ambiguity was measured
+only as "one id claimed by two tiers", never as "one tier hoovering up many ids"; 4,845 ids over 1,444
+tiers was the tell. A flat tier may now only be claimed by an id the game itself names as crafted
+(`Essence…`/`Alloy…`), which drops that tier to 2 and the worst in the data to 7 — and those 7 are one
+real essence outcome, since poe2db collapses the defence combinations into a single `DefencesPercent`
+family while RePoE lists each separately. A stat-identity rule was tried first and rejected: it left
+the 33-id case untouched and broke the hybrid Alloy, whose two stats no normal sibling shares.
+
+**Ambiguity is left unmatched rather than guessed.** Eight game ids — the four
+`Damage as Extra <element>` Perfect Essences on Bows and Crossbows — share a family AND identical
+ranges, so nothing in either dataset separates Abrasion from Flames but the essence's name. Those
+tiers get no code, and such a line stays honestly unresolved. Same stance as `breakTie`.
+
+**Socketed runes are read**, because an item cannot be explained without them: two crafted modifiers
+or four suffixes are illegal until you know an Astrid's Creativity or a Serle's Triumph is in there.
+The payload leaves `name` empty on a socketed item and puts the rune in `baseType`, spelled with an
+ASCII apostrophe where the game data uses a typographic one — eight of the twelve runes have one, so
+comparing raw strings would have found four and failed silently on the rest. fubgun's Chiming Staff
+carries a **Thrud's Might** today; no character wears a limit-changing rune at the moment, so that is
+the rune the reader is exercised against on real data.
+
+**`codes` never reaches the browser**: 0 occurrences in the built asset against 1,373 in the record,
+the same split `tiers[].stats` already has, and `shipMods.test.ts` now names it as a field the app
+never receives.
+
+Mutation-checked: dropping the code lookup fails 3 tests, removing the apostrophe fold fails 3, and
+forgetting `codes` in the wire guardrail fails 1. The second of those was written once in a form that
+never applied — the test suite stayed green and proved nothing — which is why each mutation now prints
+the count of occurrences it changed before the tests run.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

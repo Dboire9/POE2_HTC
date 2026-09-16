@@ -74,9 +74,12 @@ describe('the guide page', () => {
 
   it('renders the guide\'s caveat callouts, rather than dropping them', () => {
     const { container } = render(<GuidePage />);
-    // The Alloys caveat — the app enforces a limit the data does not confirm, and saying so is the
-    // point of the box.
-    expect(container.textContent).toContain('stated as what the app does');
+    // The Alloys callout. It used to say the app enforced a limit the DATA did not confirm, and this
+    // test pinned that wording — but the limit is traced now (0.5.0's "items can only have 1 crafted
+    // modifier at a time", plus poe.ninja filing every Essence, Perfect Essence and Alloy modifier as
+    // crafted), so the box states the game's rule and names the rune that lifts it. The phrase is a
+    // canary for blockquotes surviving the render at all, so it stays short and central to the claim.
+    expect(container.textContent).toContain('One crafted modifier per item');
     expect(container.querySelectorAll('.border-sky-500\\/50').length).toBeGreaterThan(0);
   });
 

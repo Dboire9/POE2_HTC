@@ -41,6 +41,13 @@ export interface StreamerItem {
   readonly unresolved: readonly string[];
   /** Mod ids sharing an exclusion family — see `familyConflicts`. */
   readonly familyConflict: readonly string[];
+  /**
+   * Runes socketed in it that change what it may hold, by their id in `runes.ts`.
+   *
+   * Optional because gear files written before 2026-09-16 predate the job reading them; absent means
+   * "not recorded", not "none socketed", which is why nothing here treats `[]` and `undefined` alike.
+   */
+  readonly runes?: readonly string[];
   readonly corrupted: boolean;
 }
 
@@ -198,6 +205,9 @@ export const goalOf = (it: ImportedItem): CraftGoal => ({
   baseId: it.baseId,
   level: it.level,
   targets: [...it.prefixes, ...it.suffixes].map((m) => ({ modId: m.modId, tierDisplay: m.tierDisplay })),
+  // The runes come across because they are part of what makes the item legal: aim at its four suffixes
+  // without the Serle's Triumph that allows them and the planner refuses a craft somebody has done.
+  ...(it.runes ? { runes: it.runes } : {}),
 });
 
 /**
@@ -217,7 +227,9 @@ export function readGear(data: PatchData, it: StreamerItem): GearReading {
     omitted.push(`${u} — the gear reader could not match this line to a craftable modifier.`);
   }
 
-  const item: ImportedItem = { baseId: it.baseId, level: it.level, rarity: 'rare', ...held };
+  const item: ImportedItem = {
+    baseId: it.baseId, level: it.level, rarity: 'rare', ...held, ...(it.runes ? { runes: it.runes } : {}),
+  };
   const blocked = it.corrupted
     // A Corrupted item takes no further currency, so importing it would offer a craft that cannot be
     // performed. Reported rather than hidden: the gear is still worth looking at.
@@ -277,7 +289,9 @@ export function readGear(data: PatchData, it: StreamerItem): GearReading {
     const slot = nextSlot++;
     for (const id of candidates) targets.push({ modId: id, tierDisplay: m.tierDisplay, slot });
   }
-  const goal: CraftGoal = { baseId: it.baseId, level: it.level, targets };
+  const goal: CraftGoal = {
+    baseId: it.baseId, level: it.level, targets, ...(it.runes ? { runes: it.runes } : {}),
+  };
   return { item, goal, omitted, ...(rune ? { rune } : {}), ...blocked };
 }
 

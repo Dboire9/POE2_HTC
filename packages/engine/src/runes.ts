@@ -81,6 +81,23 @@ export const RUNES: readonly Rune[] = [
 
 export const RUNE_BY_ID: ReadonlyMap<string, Rune> = new Map(RUNES.map((r) => [r.id, r]));
 
+/**
+ * A name as written down, reduced to something two sources can agree on.
+ *
+ * THE APOSTROPHE IS THE WHOLE PROBLEM. This table spells the runes as the game prints them, with the
+ * typographic `’`; poe.ninja sends the ASCII `'` (`"Thrud's Might"`, measured 2026-09-16). Eight of the
+ * twelve runes have one in their name, so comparing the raw strings finds four of them — and fails
+ * silently, which is the worst way to fail here: a socketed Astrid's Creativity that goes unread turns
+ * a legal item into one the planner refuses.
+ */
+const plainName = (name: string): string => name.replace(/[’']/g, '\'').trim().toLowerCase();
+
+const RUNE_BY_NAME: ReadonlyMap<string, string> = new Map(RUNES.map((r) => [plainName(r.name), r.id]));
+
+/** The rune a profile API's socketed item is, by the name it prints. Unknown socketables — soul cores,
+ *  idols, skill gems, and every rune that changes no craft rule — are simply not in here. */
+export const runeIdByName = (name: string): string | undefined => RUNE_BY_NAME.get(plainName(name));
+
 /** Price keys are `rune:<id>`, matching the sheet `prices.mjs` writes from poe.ninja's Runes feed. */
 export const runePriceKey = (rune: string): string => `rune:${rune}`;
 

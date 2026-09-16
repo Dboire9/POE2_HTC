@@ -38,8 +38,10 @@ export function importToItem(it: ImportedItem): void {
       suffixes: it.suffixes,
       target: sameBase(ws.item.baseId, it.baseId) ? ws.item.target : [],
       // Runes belong to the item, not to the tab: a paste on another base describes a different item,
-      // and claiming it carries the last one's runes would quietly change what it may hold.
-      runes: sameBase(ws.item.baseId, it.baseId) ? ws.item.runes : [],
+      // and claiming it carries the last one's runes would quietly change what it may hold. An import
+      // that KNOWS them — the streamer tab reads them off the real item — says so and wins; a paste
+      // carries no rune information at all, so there the base rule still decides.
+      runes: it.runes ? [...it.runes] : sameBase(ws.item.baseId, it.baseId) ? ws.item.runes : [],
     },
   });
 }
@@ -62,11 +64,12 @@ export function craftFromScratch(goal: CraftGoal): void {
       level: goal.level,
       targets: [...goal.targets],
       // Chosen afresh for a new craft; carrying them over would apply the last craft's decisions to
-      // modifiers that were never part of it. Socketed runes are the same kind of decision — they say
-      // what THIS item may hold — so they start empty too.
+      // modifiers that were never part of it. Runes are the exception when the GOAL names them: they
+      // are not a leftover preference there but part of the item being copied, and without them the
+      // craft that produced it can be literally impossible to plan.
       fractured: new Set(),
       pinned: new Set(),
-      runes: [],
+      runes: [...(goal.runes ?? [])],
     },
   });
 }
@@ -96,7 +99,10 @@ export function useAsTarget(goal: CraftGoal): void {
       // The plan sub-tab, because a target is what it reads and the quick check ignores one entirely.
       subMode: 'plan',
       target: [...goal.targets],
-      runes: keep ? ws.item.runes : [],
+      // A goal that names runes needs them to be reachable at all, so they are adopted here as well —
+      // this route keeps YOUR item, and an item that cannot hold the target is not a plan, it is a
+      // refusal. Where the goal names none, the base rule decides as before.
+      runes: goal.runes ? [...goal.runes] : keep ? ws.item.runes : [],
     },
   });
 }

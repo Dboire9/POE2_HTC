@@ -24,14 +24,16 @@ describe('a real character, read end to end', () => {
     expect(result.items.every((i) => i.baseId !== '')).toBe(true);
   });
 
-  it('places all but two of the modifiers, and names those two', () => {
+  /**
+   * One line short of the whole item, and it is a desecrated one. The crafted Essence line that used to
+   * sit beside it here is read now — from the game's own modifier id, since no essence mod carries the
+   * stats the other route needs. See `codeIndex` and `tools/refresh/apply_codes.mjs`.
+   */
+  it('places all but one of the modifiers, and names it', () => {
     const placed = result.items.reduce((n, i) => n + i.mods.length, 0);
     const open = result.items.flatMap((i) => i.unresolved);
-    expect(placed).toBe(52);
-    expect(open).toEqual([
-      'desecrated: Grenade Skills have +1 Cooldown Use',
-      'crafted: EssenceGlobalDefences1',
-    ]);
+    expect(placed).toBe(53);
+    expect(open).toEqual(['desecrated: Grenade Skills have +1 Cooldown Use']);
   });
 
   /** A Unique is not a failure — nothing this app models can change its modifiers. Saying which and
@@ -93,6 +95,87 @@ describe('desecrated modifiers come from the text, not the stats', () => {
     for (const item of result.items) {
       expect(item.mods.filter((m) => m.desecrated).length).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+/**
+ * Crafted lines resolve from the GAME'S OWN modifier id, and they have to: **0 of 353 essence and 0 of
+ * 481 perfect-essence mods carry `tiers[].stats`**, so the stat index holds none of them and
+ * `resolveByStats` answers nothing for any of them. `apply_codes.mjs` writes those ids onto the tiers.
+ */
+describe('crafted modifiers resolve from the game’s own id', () => {
+  it('places the Perfect Essence line no stat lookup could reach', () => {
+    const placed = result.items.flatMap((i) => i.mods.map((m) => m.modId));
+    expect(placed).toContain('Amulets/PerfectEssence_AllDefences');
+  });
+
+  /**
+   * And it RE-POINTS a line the stats did resolve, which is the half worth stating outright. An Essence
+   * of Opulence forces the ordinary rarity modifier, so poe.ninja sends `ItemFoundRarityIncrease3` —
+   * a normal mod's id — filed under `crafted`. Only the essence-pool mod occupies the crafted slot and
+   * sits in the crafted family namespace, so reading it as the rolled one understates the item.
+   */
+  it('reads an essence-forced ordinary modifier as the essence, not as a rolled mod', () => {
+    const r = resolveProfileItems(data, [{
+      name: 'Test', baseType: 'Gold Ring', rarity: 'Rare', ilvl: 81, inventoryId: 'Ring',
+      mods: { crafted: [{ id: 'ItemFoundRarityIncrease3', stats: { 'base_item_found_rarity_+%': 18 } }] },
+    }]);
+    expect(r.items[0]?.mods).toEqual([
+      { modId: 'Rings/Essence_ItemFoundRarityIncrease', tierDisplay: 1, fractured: false, desecrated: false, sanctified: false },
+    ]);
+  });
+
+  /** An id nothing claims stays unresolved. A Genesis Tree ring craft is a real one — a mechanic this
+   *  app does not model — and inventing a mod for it would price a craft nobody can perform. */
+  it('leaves an id it cannot place unresolved rather than guessing', () => {
+    const r = resolveProfileItems(data, [{
+      name: 'Test', baseType: 'Gold Ring', rarity: 'Rare', ilvl: 81, inventoryId: 'Ring',
+      mods: { crafted: [{ id: 'GenesisTreeRingMinionCooldownRecoveryCrafted', stats: { 'minion_cooldown_recovery_+%': 25 } }] },
+    }]);
+    expect(r.items[0]?.mods).toEqual([]);
+    expect(r.items[0]?.unresolved).toEqual(['crafted: GenesisTreeRingMinionCooldownRecoveryCrafted']);
+  });
+});
+
+/**
+ * Socketed runes are read because the item cannot be explained without them: two crafted modifiers or
+ * four suffixes are illegal until you know an Astrid's Creativity or a Serle's Triumph is in there.
+ *
+ * Shaped from the real payload (poe.ninja, 2026-09-16, fubgun's Chiming Staff): a socketed item leaves
+ * `name` EMPTY and puts the rune in `baseType`, spelled with an ASCII apostrophe where the game data
+ * uses a typographic one.
+ */
+describe('socketed runes are read off the item', () => {
+  const staff = (...sockets: string[]): SourceItem => ({
+    name: 'Spirit Star', baseType: 'Chiming Staff', rarity: 'Rare', ilvl: 81, inventoryId: 'Weapon',
+    socketedItems: sockets.map((baseType) => ({ name: '', baseType, typeLine: baseType })),
+  });
+
+  it('reads a rune that changes what the item may hold', () => {
+    expect(resolveProfileItems(data, [staff('Thrud\'s Might')]).items[0]?.runes).toEqual(['thruds-might']);
+  });
+
+  /** The apostrophe is the whole hazard: eight of the twelve runes have one, and the two sources spell
+   *  it differently. Both spellings must find the rune, or most of them are silently never read. */
+  it('matches whichever apostrophe the source used', () => {
+    expect(resolveProfileItems(data, [staff('Astrid’s Creativity')]).items[0]?.runes).toEqual(['astrids-creativity']);
+    expect(resolveProfileItems(data, [staff('Astrid\'s Creativity')]).items[0]?.runes).toEqual(['astrids-creativity']);
+  });
+
+  it('ignores socketables that change no craft rule', () => {
+    const r = resolveProfileItems(data, [staff('Perfect Iron Rune', 'Jiquani\'s Soul Core of Rippling', 'Sigil of Power')]);
+    expect(r.items[0]?.runes).toEqual([]);
+  });
+
+  /** Two of one rune is ordinary on a real item. Whether a second Astrid's Creativity would allow a
+   *  THIRD crafted modifier is untraced, so it is read once rather than claimed to stack. */
+  it('counts a rune socketed twice once', () => {
+    const r = resolveProfileItems(data, [staff('Astrid\'s Creativity', 'Astrid\'s Creativity')]);
+    expect(r.items[0]?.runes).toEqual(['astrids-creativity']);
+  });
+
+  it('records an empty list when nothing rule-changing is socketed', () => {
+    expect(resolveProfileItems(data, [staff()]).items[0]?.runes).toEqual([]);
   });
 });
 

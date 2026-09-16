@@ -204,6 +204,9 @@ export interface ImportedItem {
   readonly rarity: 'magic' | 'rare';
   readonly prefixes: ItemModInput[];
   readonly suffixes: ItemModInput[];
+  /** Runes socketed in the item this was read from, as `ExistingItem.runes`. An imported item that
+   *  dropped them would claim to hold less than it does — four suffixes would become illegal. */
+  readonly runes?: readonly string[];
 }
 
 /**
@@ -215,6 +218,14 @@ export interface CraftGoal {
   readonly baseId: string;
   readonly level: number;
   readonly targets: readonly TargetInput[];
+  /**
+   * Runes the craft is planned WITH, when the goal came from a real item that has them socketed.
+   *
+   * Part of the goal rather than of the item because they change what the finished item may hold: aim
+   * at four suffixes without naming the Serle's Triumph that allows them and every planner refuses a
+   * craft the streamer has already done.
+   */
+  readonly runes?: readonly string[];
 }
 
 /** One currency's outcome on the current item: the exact per-use probability, plus feasibility. */

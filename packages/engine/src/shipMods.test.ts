@@ -15,9 +15,16 @@ import { shipModsFile, shipModsJson } from './shipMods.ts';
 const RAW_PATH = 'data/patches/0.5.0/mods.json';
 const raw = JSON.parse(readFileSync(RAW_PATH, 'utf8')) as ModsFile;
 
-/** The four fields on disk that no code reads. Named here so the test says what it expects to lose. */
+/**
+ * The fields on disk that no code in the APP reads. Named here so the test says what it expects to lose.
+ *
+ * "Dead" means dead to the browser, not useless: `group`/`field` are the RePoE provenance
+ * `dataIntegrity.test.ts` checks the import against, `stats` is what `statLookup.ts` resolves a pasted
+ * or fetched item from, and `codes` is what `profileItems.ts` resolves a CRAFTED line from. All four
+ * belong to jobs that run in Node against the full file, and none of them belongs in a download.
+ */
 const DEAD_MOD_FIELDS = ['group', 'field', 'categories'] as const;
-const DEAD_TIER_FIELDS = ['stats'] as const;
+const DEAD_TIER_FIELDS = ['stats', 'codes'] as const;
 
 /**
  * The same projection written the OTHER way round — by deleting, where `shipModsFile` builds up.
@@ -42,7 +49,7 @@ function byDeletion(file: ModsFile): unknown {
 }
 
 describe('shipMods — the browser asset is the record minus what nothing reads', () => {
-  it('differs from the file on disk in exactly the four dead fields', () => {
+  it('differs from the file on disk in exactly the fields nothing in the app reads', () => {
     // Mutation-check: drop `ranges` (or reorder `tiers`) inside shipModsFile and this goes red.
     expect(JSON.parse(shipModsJson(raw))).toEqual(byDeletion(raw));
   });
@@ -52,7 +59,14 @@ describe('shipMods — the browser asset is the record minus what nothing reads'
     // and `dataIntegrity.test.ts` would be the thing that noticed, for group/field at least.
     const first = raw.mods[0] as unknown as Record<string, unknown>;
     for (const k of DEAD_MOD_FIELDS) expect(first, k).toHaveProperty(k);
-    for (const k of DEAD_TIER_FIELDS) expect(first['tiers'] as object, k).toHaveProperty(['0', k]);
+    // Counted across the whole file rather than read off the first mod, because the two tier fields
+    // are not on the same tiers: `stats` sits on every normal one and `codes` only on the CRAFTED ones
+    // (`apply_codes.mjs`), so asking `mods[0]` for `codes` would fail on a field present in its
+    // thousands. A count also says more than `toHaveProperty` — it goes red if a refresh emits one.
+    const tiers = raw.mods.flatMap((m) => m.tiers as unknown as Record<string, unknown>[]);
+    for (const k of DEAD_TIER_FIELDS) {
+      expect(tiers.filter((t) => t[k] !== undefined).length, k).toBeGreaterThan(0);
+    }
   });
 
   it('is idempotent — projecting an already-projected file changes nothing', () => {

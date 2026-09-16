@@ -1,9 +1,10 @@
-import type { PatchData } from './types.ts';
+import type { ItemBase, PatchData, Tier } from './types.ts';
 import { resolveMod } from './pool.ts';
 import { baseNameIndex, findBaseInName } from './baseLookup.ts';
 import { statIndex, resolveByStats, familyConflicts } from './statLookup.ts';
 import { resolveMods } from './resolveMods.ts';
 import { tierDisplay } from './tierFit.ts';
+import { runeIdByName } from './runes.ts';
 
 /**
  * A character's gear, as a profile API serves it, turned into crafts this engine understands.
@@ -37,6 +38,16 @@ export interface SourceItem {
   /** The desecrated modifiers as PRINTED. Needed because the shipped data carries stat identifiers
    *  for every normal mod and for none of the 693 desecrated ones — see `DESECRATED_BY_TEXT`. */
   readonly desecratedMods?: readonly string[];
+  /** What is socketed in it — runes, soul cores, idols, skill gems. Only the few that change a
+   *  CRAFT's rules are kept (`runeIdByName`); the rest are not this app's business. */
+  readonly socketedItems?: readonly SourceSocketed[];
+}
+
+/** A socketed item. poe.ninja leaves `name` empty on these and puts the rune in `baseType`. */
+interface SourceSocketed {
+  readonly name?: string;
+  readonly baseType?: string;
+  readonly typeLine?: string;
 }
 
 export interface ProfileMod {
@@ -69,6 +80,14 @@ export interface ProfileItem {
    * how such an item is actually crafted.
    */
   readonly familyConflict: readonly string[];
+  /**
+   * Runes socketed in it that change what it may HOLD, by their id in `runes.ts`.
+   *
+   * Read because the item cannot be explained without them: an item carrying two crafted modifiers or
+   * four suffixes is illegal until you know an Astrid's Creativity or a Serle's Triumph is in it, and a
+   * planner told only about the modifiers would refuse a craft somebody has actually done.
+   */
+  readonly runes: readonly string[];
   /** Nothing can modify a Corrupted item further. */
   readonly corrupted: boolean;
 }
@@ -122,6 +141,46 @@ const CRAFTABLE = ['explicit', 'fractured', 'crafted'] as const;
 export const strip = (line: string): string =>
   line.replace(/\[[^[\]|]+\|([^[\]]+)\]/g, '$1').replace(/\[([^[\]]+)\]/g, '$1');
 
+/** A tier as the FILE carries it. `codes` is absent from the shipped `Tier` — see `apply_codes.mjs`,
+ *  which writes it, and `shipMods.ts`, which projects it away for exactly the reason `stats` is. */
+type TierWithCodes = Tier & { readonly codes?: readonly string[] };
+
+/** Where a game modifier id lands: the mod that stands for it here, and which of its tiers it is. */
+interface CodeHit {
+  readonly modId: string;
+  readonly tierName: string;
+}
+
+/**
+ * Index one base's CRAFTED pool by the game's own modifier ids.
+ *
+ * The counterpart to `statIndex`, and it exists because that one structurally cannot answer here:
+ * **no essence, perfect-essence or alloy mod carries `tiers[].stats`**, so the stat index holds none
+ * of them and `resolveByStats` returns nothing for every crafted line. The game id the profile API
+ * sends is the key that does work, and it names the exact TIER as well as the mod — so nothing has to
+ * be fitted from the roll, and a hybrid's two stats need no ordering.
+ *
+ * Per BASE, like `statIndex`, and for the same reason: one game id names a different mod on a Ring
+ * than on a Body Armour.
+ */
+export function codeIndex(data: PatchData, base: ItemBase): ReadonlyMap<string, CodeHit> {
+  const idx = new Map<string, CodeHit>();
+  const seen = new Set<string>();
+  for (const id of [...base.pools.essence.prefixes, ...base.pools.essence.suffixes]) {
+    const mod = resolveMod(data, id);
+    for (const tier of mod.tiers as readonly TierWithCodes[]) {
+      for (const code of tier.codes ?? []) {
+        // Two tiers claiming one id is the ambiguity `apply_codes.mjs` already drops. Belt and braces:
+        // should a shipped file ever carry one, resolve NEITHER rather than let pool order decide.
+        if (seen.has(code)) { idx.delete(code); continue; }
+        seen.add(code);
+        idx.set(code, { modId: id, tierName: tier.name });
+      }
+    }
+  }
+  return idx;
+}
+
 export function resolveProfileItems(data: PatchData, source: readonly SourceItem[]): ProfileResult {
   const bases = baseNameIndex(data);
   const items: ProfileItem[] = [];
@@ -152,12 +211,31 @@ export function resolveProfileItems(data: PatchData, source: readonly SourceItem
     }
     const base = data.bases.get(match.id)!;
     const index = statIndex(data, base);
+    const codes = codeIndex(data, base);
     const level = item.ilvl ?? 100;
 
     const mods: ProfileMod[] = [];
     const unresolved: string[] = [];
     for (const category of CRAFTABLE) {
       for (const entry of item.mods?.[category] ?? []) {
+        // A CRAFTED line is resolved from the game's own id FIRST, because the stats route cannot do
+        // it at all: an Essence or Alloy mod carries no stats here. Nine such lines went unresolved on
+        // five real characters. It also RE-POINTS lines the stats did resolve, and that is the point —
+        // an Essence of Opulence forces the ordinary rarity modifier, so `ItemFoundRarityIncrease3`
+        // arrives filed under `crafted`, and only the essence-pool mod occupies the crafted slot and
+        // sits in the crafted family namespace (`familiesOf`, pool.ts).
+        const hit = category === 'crafted' && entry.id !== undefined ? codes.get(entry.id) : undefined;
+        if (hit) {
+          mods.push({
+            modId: hit.modId,
+            tierDisplay: tierDisplay(resolveMod(data, hit.modId), hit.tierName),
+            fractured: false,
+            desecrated: false,
+            // The id names the tier outright, so there is no roll sitting above one to report.
+            sanctified: false,
+          });
+          continue;
+        }
         if (!entry.stats || Object.keys(entry.stats).length === 0) {
           unresolved.push(`${category}: ${entry.id ?? '(no stats)'}`);
           continue;
@@ -199,6 +277,15 @@ export function resolveProfileItems(data: PatchData, source: readonly SourceItem
       for (const u of r.unresolved) unresolved.push(`desecrated: ${u.line}`);
     }
 
+    // Socketed runes, each counted ONCE. Two of one rune is ordinary on a real item — two Perfect Iron
+    // Runes, measured — and whether a second Astrid's Creativity would allow a THIRD crafted modifier
+    // is untraced, so this reads what is there without claiming a stack nobody has verified.
+    const runes = [...new Set(
+      (item.socketedItems ?? [])
+        .map((s) => runeIdByName(s.baseType ?? s.typeLine ?? s.name ?? ''))
+        .filter((id): id is string => id !== undefined),
+    )];
+
     items.push({
       slot: item.inventoryId ?? '',
       name: item.name ?? '',
@@ -208,6 +295,7 @@ export function resolveProfileItems(data: PatchData, source: readonly SourceItem
       mods,
       unresolved,
       familyConflict: familyConflicts(data, mods.map((m) => m.modId)),
+      runes,
       corrupted: item.corrupted === true,
     });
   }

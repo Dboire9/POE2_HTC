@@ -37,6 +37,9 @@ export function importToItem(it: ImportedItem): void {
       prefixes: it.prefixes,
       suffixes: it.suffixes,
       target: sameBase(ws.item.baseId, it.baseId) ? ws.item.target : [],
+      // Runes belong to the item, not to the tab: a paste on another base describes a different item,
+      // and claiming it carries the last one's runes would quietly change what it may hold.
+      runes: sameBase(ws.item.baseId, it.baseId) ? ws.item.runes : [],
     },
   });
 }
@@ -59,9 +62,11 @@ export function craftFromScratch(goal: CraftGoal): void {
       level: goal.level,
       targets: [...goal.targets],
       // Chosen afresh for a new craft; carrying them over would apply the last craft's decisions to
-      // modifiers that were never part of it.
+      // modifiers that were never part of it. Socketed runes are the same kind of decision — they say
+      // what THIS item may hold — so they start empty too.
       fractured: new Set(),
       pinned: new Set(),
+      runes: [],
     },
   });
 }
@@ -91,6 +96,7 @@ export function useAsTarget(goal: CraftGoal): void {
       // The plan sub-tab, because a target is what it reads and the quick check ignores one entirely.
       subMode: 'plan',
       target: [...goal.targets],
+      runes: keep ? ws.item.runes : [],
     },
   });
 }

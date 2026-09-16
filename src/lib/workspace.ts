@@ -16,6 +16,7 @@
 import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
 import type { PatchData } from '../../packages/engine/src/types.ts';
 import { isEssenceMod } from '../../packages/engine/src/probability.ts';
+import { RUNE_BY_ID } from '../../packages/engine/src/runes.ts';
 import type { ItemModInput, TargetInput } from './engineTypes.ts';
 import { PREFS_PREFIX } from './currencyPrefs';
 
@@ -39,6 +40,8 @@ export interface LabState {
    * assume. See WHITE_BASE_COST in solve.ts for the fallback.
    */
   readonly baseCost: string;
+  /** Runes socketed on the item being crafted, by id (`packages/engine/src/runes.ts`). */
+  readonly runes: readonly string[];
 }
 
 export interface ItemTabState {
@@ -49,6 +52,8 @@ export interface ItemTabState {
   readonly suffixes: readonly ItemModInput[];
   readonly subMode: 'check' | 'plan';
   readonly target: readonly TargetInput[];
+  /** Runes socketed in the item you hold, by id (`packages/engine/src/runes.ts`). */
+  readonly runes: readonly string[];
 }
 
 export interface Workspace {
@@ -60,8 +65,14 @@ export interface Workspace {
 export function defaultWorkspace(): Workspace {
   return {
     mode: 'plan',
-    lab: { baseId: '', level: 82, targets: [], fractured: new Set(), pinned: new Set(), budget: '', baseCost: '' },
-    item: { baseId: '', level: 82, rarity: 'rare', prefixes: [], suffixes: [], subMode: 'check', target: [] },
+    lab: {
+      baseId: '', level: 82, targets: [], fractured: new Set(), pinned: new Set(), budget: '', baseCost: '',
+      runes: [],
+    },
+    item: {
+      baseId: '', level: 82, rarity: 'rare', prefixes: [], suffixes: [], subMode: 'check', target: [],
+      runes: [],
+    },
   };
 }
 
@@ -92,7 +103,16 @@ export function defaultWorkspace(): Workspace {
  */
 const FORMAT_BASE = 1;
 const FORMAT_SLOTS = 2;
-const READABLE: readonly number[] = [FORMAT_BASE, FORMAT_SLOTS];
+/**
+ * A craft with a socketed rune, for the same reason `FORMAT_SLOTS` exists.
+ *
+ * A rune changes what the item may HOLD — a second crafted modifier, a fourth suffix — so an old
+ * reader dropping `ru` would not read the link wrongly in some detail: it would plan a craft the
+ * player never described, and quote a cost for it. Refusing the link is the better failure, and only
+ * links that actually name a rune pay for it.
+ */
+const FORMAT_RUNES = 3;
+const READABLE: readonly number[] = [FORMAT_BASE, FORMAT_SLOTS, FORMAT_RUNES];
 
 /**
  * Which top-level tab is showing.
@@ -123,6 +143,8 @@ interface Wire {
   readonly l: {
     readonly b: string; readonly lv: number; readonly t: readonly WireTarget[];
     readonly f: readonly string[]; readonly p: readonly string[]; readonly bg: string;
+    /** Socketed runes, by id. Written only when the craft uses one — see `FORMAT_RUNES`. */
+    readonly ru?: readonly string[];
     /** Added after FORMAT 1 shipped, so links written before it simply lack the key — the decoder
      *  reads it as "" and the craft plans on the default. Bumping FORMAT would REJECT those links
      *  instead, which is a far worse trade for one optional field. */
@@ -132,6 +154,7 @@ interface Wire {
     readonly b: string; readonly lv: number; readonly r: 'm' | 'r';
     readonly px: readonly WireItemMod[]; readonly sx: readonly WireItemMod[];
     readonly sm: 'c' | 'p'; readonly t: readonly WireTarget[];
+    readonly ru?: readonly string[];
   };
 }
 
@@ -159,12 +182,14 @@ interface WireIn {
   readonly l: {
     readonly b: unknown; readonly lv: unknown; readonly t: readonly WireTargetIn[];
     readonly f: readonly string[]; readonly p: readonly string[]; readonly bg: unknown;
+    readonly ru?: unknown;
     readonly bc?: unknown;
   };
   readonly i: {
     readonly b: unknown; readonly lv: unknown; readonly r: 'm' | 'r';
     readonly px: readonly WireItemModIn[]; readonly sx: readonly WireItemModIn[];
     readonly sm: 'c' | 'p'; readonly t: readonly WireTargetIn[];
+    readonly ru?: unknown;
   };
 }
 
@@ -261,22 +286,25 @@ export function encodeWorkspace(ws: Workspace): string {
       ? [strip(base, x.modId), x.tierDisplay]
       : [strip(base, x.modId), x.tierDisplay, x.slot]));
   const usesSlots = labSlots.size > 0 || itemSlots.size > 0;
+  const usesRunes = ws.lab.runes.length > 0 || ws.item.runes.length > 0;
   const im = (list: readonly ItemModInput[]): WireItemMod[] =>
     list.map((x) => (x.fractured ? [strip(ib, x.modId), x.tierDisplay, 1] : [strip(ib, x.modId), x.tierDisplay]));
 
   const wire: Wire = {
-    v: usesSlots ? FORMAT_SLOTS : FORMAT_BASE,
+    v: usesRunes ? FORMAT_RUNES : usesSlots ? FORMAT_SLOTS : FORMAT_BASE,
     m: WIRE_MODE[ws.mode],
     l: {
       b: lb, lv: ws.lab.level, t: t(lb, ws.lab.targets, labSlots),
       f: [...ws.lab.fractured].map((id) => strip(lb, id)),
       p: [...ws.lab.pinned].map((id) => strip(lb, id)),
       bg: ws.lab.budget, bc: ws.lab.baseCost,
+      ...(ws.lab.runes.length ? { ru: [...ws.lab.runes] } : {}),
     },
     i: {
       b: ib, lv: ws.item.level, r: ws.item.rarity === 'magic' ? 'm' : 'r',
       px: im(ws.item.prefixes), sx: im(ws.item.suffixes),
       sm: ws.item.subMode === 'plan' ? 'p' : 'c', t: t(ib, ws.item.target, itemSlots),
+      ...(ws.item.runes.length ? { ru: [...ws.item.runes] } : {}),
     },
   };
   return toBase64Url(JSON.stringify(wire));
@@ -374,6 +402,23 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
       const t = clampTier(tier);
       return [frac ? { modId: full, tierDisplay: t, fractured: true } : { modId: full, tierDisplay: t }];
     });
+  /**
+   * The runes a link names, checked against the table.
+   *
+   * An id this build has never heard of is a real loss — the craft it describes allows something this
+   * one will not — so it is reported like an unknown mod rather than ignored. A link from a later patch
+   * naming a rune we lack therefore says so instead of quietly planning a stricter craft.
+   */
+  const runeIds = (list: unknown): string[] => {
+    if (!Array.isArray(list)) return [];
+    const out: string[] = [];
+    for (const id of list as unknown[]) {
+      if (typeof id !== 'string' || !id) continue;
+      if (RUNE_BY_ID.has(id)) out.push(id);
+      else dropped.push(id);
+    }
+    return out;
+  };
   const ids = (base: string, list: readonly string[] | undefined): Set<string> => {
     const out = new Set<string>();
     for (const short of list ?? []) {
@@ -404,7 +449,7 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
       lab: {
         baseId: lb, level: clampLevel(wire.l.lv, d.lab.level), targets: targets(lb, wire.l.t),
         fractured: oneFractured(ids(lb, wire.l.f)), pinned: ids(lb, wire.l.p), budget: clampText(wire.l.bg),
-        baseCost: clampText(wire.l.bc),
+        baseCost: clampText(wire.l.bc), runes: runeIds(wire.l.ru),
       },
       item: {
         baseId: ib, level: clampLevel(wire.i.lv, d.item.level), rarity: wire.i.r === 'm' ? 'magic' : 'rare',
@@ -420,6 +465,7 @@ function decodeOrThrow(payload: string, data: PatchData): DecodeResult | null {
           return { prefixes: cap(itemMods(ib, wire.i.px)), suffixes: cap(itemMods(ib, wire.i.sx)) };
         })(),
         subMode: wire.i.sm === 'p' ? 'plan' : 'check', target: targets(ib, wire.i.t),
+        runes: runeIds(wire.i.ru),
       },
     },
     dropped,

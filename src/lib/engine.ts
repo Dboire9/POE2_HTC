@@ -10,6 +10,7 @@
 import { indexPatch, type BasesFile, type ModsFile } from '../../packages/engine/src/indexPatch.ts';
 import { resolveMod } from '../../packages/engine/src/pool.ts';
 import { runeOpportunity } from '../../packages/engine/src/runeConvert.ts';
+import { withRunes } from '../../packages/engine/src/runes.ts';
 import type { RuneOpportunity } from '../../packages/engine/src/runeConvert.ts';
 import type { ItemState, Mod, PatchData } from '../../packages/engine/src/types.ts';
 import {
@@ -36,7 +37,7 @@ import {
 import type {
   EngineBase, EngineMod, EngineBaseMods, EngineResult, TargetInput,
   ExistingItem, CurrencyAction, AltTargetInput, EngineAlternatives, EngineMarkovResult,
-  EnginePriceBasis,
+  EnginePriceBasis, RuneChoice,
 } from './engineTypes.ts';
 import {
   prettyName, toEngineMod, toTierTargets, toAltTargets, buildItemState, addBlockedReason,
@@ -224,11 +225,13 @@ export function listDesecrated(data: PatchData, baseId: string): EngineMod[] {
  */
 export function optimize(
   eng: Engine, baseId: string, level: number, targets: readonly TargetInput[],
-  opts: OptimizeParetoOptions = {},
+  opts: OptimizeParetoOptions & RuneChoice = {},
 ): EngineResult {
   const { data, prices } = eng;
-  const base = data.bases.get(baseId);
-  if (!base) throw new Error(`Unknown base: ${baseId}`);
+  const raw = data.bases.get(baseId);
+  if (!raw) throw new Error(`Unknown base: ${baseId}`);
+  // A from-white craft has no item to carry its runes, so they ride in on the options.
+  const base = withRunes(raw, opts.runes ?? []);
   const res = optimizePareto(data, prices, base, toTierTargets(data, targets), { ...opts, level });
   return mapFrontier(data, res);
 }
@@ -524,11 +527,12 @@ export function currencyActions(
  */
 export function alternatives(
   eng: Engine, baseId: string, level: number, targets: readonly AltTargetInput[], budget: number,
-  opts: AlternativesOptions = {},
+  opts: AlternativesOptions & RuneChoice = {},
 ): EngineAlternatives {
   const { data, prices } = eng;
-  const base = data.bases.get(baseId);
-  if (!base) throw new Error(`Unknown base: ${baseId}`);
+  const raw = data.bases.get(baseId);
+  if (!raw) throw new Error(`Unknown base: ${baseId}`);
+  const base = withRunes(raw, opts.runes ?? []);
   return mapAlternatives(data, alternativesFromWhite(data, prices, base, toAltTargets(data, targets), budget, { ...opts, level }));
 }
 

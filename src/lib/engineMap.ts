@@ -3,6 +3,7 @@
 // engine.ts so the facade stays a thin public API. Pure — each takes a PatchData, never the memoized Engine.
 
 import { resolveMod, familyAvailable } from '../../packages/engine/src/pool.ts';
+import { withRunes } from '../../packages/engine/src/runes.ts';
 import type { PatchData, ItemState, PlacedMod, CurrencyTier, Mod } from '../../packages/engine/src/types.ts';
 import type { PlanStep } from '../../packages/engine/src/plan.ts';
 import type { TierTarget, ParetoResult } from '../../packages/optimizer/src/optimize.ts';
@@ -169,8 +170,11 @@ export function toAltTargets(data: PatchData, targets: readonly AltTargetInput[]
 
 /** Turn a UI item description into the engine's ItemState (looks up mods, records their tier ilvl). */
 export function buildItemState(data: PatchData, item: ExistingItem): ItemState {
-  const base = data.bases.get(item.baseId);
-  if (!base) throw new Error(`Unknown base: ${item.baseId}`);
+  const raw = data.bases.get(item.baseId);
+  if (!raw) throw new Error(`Unknown base: ${item.baseId}`);
+  // Socketed runes change what the item can hold, and every planner reads those limits off the base —
+  // so they are applied HERE, once, rather than at each of the four call sites that build an item state.
+  const base = withRunes(raw, item.runes ?? []);
   const place = (inputs: ExistingItem['prefixes']): PlacedMod[] =>
     inputs.map((m) => {
       const mod = resolveMod(data, m.modId);

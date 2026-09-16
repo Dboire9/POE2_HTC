@@ -45,6 +45,46 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
     expect(got.result).toEqual(optimizeItem(eng, item, targets));
   });
 
+  /**
+   * Socketed runes have to reach EVERY planner in a solve, exactly as `excluded` does: a frontier built
+   * without them beside a model built with them would be two answers to different questions.
+   *
+   * Serle's Triumph is the visible case — four suffixes are refused outright without it — and it rides
+   * in on the OPTIONS from white, where there is no item to carry it, and on the ITEM everywhere else.
+   */
+  /**
+   * The Spirit Star Sceptre's craft: two Alloys, which need Astrid's Creativity, plus three rolled
+   * modifiers to carry a white base up to Rare for them.
+   *
+   * Chosen over a four-suffix craft (Serle's Triumph, the other visible rune) because this one is small
+   * enough to solve twice inside a test — the four-suffix lattice took 47 s here, which is a
+   * measurement, not a check.
+   */
+  const twoAlloys = [
+    'Sceptres/LocalIncreasedSpiritPercent', 'Sceptres/AlliesInPresenceAllResistances',
+    'Sceptres/AlliesInPresenceAllDamage', 'Sceptres/PerfectEssence_MinionGainPuppetMasterOnCommand',
+    'Sceptres/PerfectEssence_MaximumPuppeteerStacks',
+  ].map((modId) => ({ modId, tierDisplay: 99 }));
+
+  it('carries socketed runes to the from-white planners', () => {
+    const runes = ['astrids-creativity'];
+    const from = { baseId: 'Sceptres', level: 82 };
+    const got = runSolve(eng, { kind: 'lab', from, targets: twoAlloys, runes });
+    if (got.kind !== 'lab') throw new Error('wrong kind');
+    expect(got.result).toEqual(optimize(eng, 'Sceptres', 82, twoAlloys, { runes }));
+    // …and the same craft without the rune is a different answer: an item holds one crafted modifier.
+    const bare = runSolve(eng, { kind: 'lab', from, targets: twoAlloys });
+    if (bare.kind !== 'lab') throw new Error('wrong kind');
+    expect(bare.result).not.toEqual(got.result);
+  }, 60_000);
+
+  it('carries them onto the item a from-item solve is handed', () => {
+    const runes = ['astrids-creativity'];
+    const got = runSolve(eng, { kind: 'item', item, targets, runes });
+    if (got.kind !== 'item') throw new Error('wrong kind');
+    expect(got.plan).toEqual(optimizeItem(eng, { ...item, runes }, targets));
+  });
+
   // Declared timeout: the near-miss search runs a full Pareto solve per relaxed target, ~8s locally.
   // CI is slower than the 30s default allows for a test that is legitimately this expensive.
   it('lab with a budget also answers the near-miss question', () => {

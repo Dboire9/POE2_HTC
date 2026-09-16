@@ -176,6 +176,18 @@ export interface ExistingItem {
   readonly rarity: 'normal' | 'magic' | 'rare';
   readonly prefixes: readonly ItemModInput[];
   readonly suffixes: readonly ItemModInput[];
+  /**
+   * Runes socketed in it, by their poe.ninja id (`packages/engine/src/runes.ts`).
+   *
+   * They change what the item may HOLD — Astrid's Creativity a second crafted modifier, Serle's
+   * Triumph a fourth suffix — so every planner has to see them. `buildItemState` applies them once.
+   */
+  readonly runes?: readonly string[];
+}
+
+/** Opts for a from-white call, which has no item to carry its runes. */
+export interface RuneChoice {
+  readonly runes?: readonly string[];
 }
 
 /**

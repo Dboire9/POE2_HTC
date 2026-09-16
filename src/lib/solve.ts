@@ -34,6 +34,14 @@ interface ExcludingRequest {
    */
   readonly excluded?: readonly string[];
   /**
+   * Runes the player says are socketed, by id (`packages/engine/src/runes.ts`).
+   *
+   * They change what the item may hold — a second crafted modifier, a fourth suffix — so EVERY planner
+   * in the solve has to see the same set, exactly as `excluded` does: a frontier built without them
+   * beside a model built with them would be two answers to different questions.
+   */
+  readonly runes?: readonly string[];
+  /**
    * The player's "how hard should I look?" limits (src/lib/searchEffort.ts). Plain numbers so the
    * worker message stays trivially structured-clone-safe, same reasoning as `excluded` above.
    * Absent ⇒ each planner keeps its own built-in default, which is what tests rely on.
@@ -221,6 +229,10 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
     ? { excluded: new Set(req.excluded) }
     : undefined;
   const withPolicy = <T extends object>(o: T): T => (policy ? { ...o, policy } : o);
+  // The socketed runes, carried onto whatever each planner is handed: the OPTIONS on a from-white call,
+  // which has no item, and the ITEM itself everywhere else (`buildItemState` applies them there).
+  const runes = req.runes?.length ? req.runes : undefined;
+  const runed = <T extends object>(o: T): T => (runes ? { ...o, runes } : o);
   // Each limit goes to the planner that owns it: relaxed targets to the budget search, the clock to
   // the step planner. Absent ⇒ the planner's own default stands.
   //
@@ -280,7 +292,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
       ? { onProgress: (done: number, total: number): void => onProgress({ phase: 'plan', fraction: within(ITEM_PLAN, done, total) }) }
       : {};
     const planOpts = withClock(withPolicy(planOnProgress));
-    const plan = frontierOrReason(() => optimizeItem(eng, req.item, req.targets,
+    const plan = frontierOrReason(() => optimizeItem(eng, runed(req.item), req.targets,
       planShare === undefined ? planOpts : { ...planOpts, maxMillis: planShare }));
     // The honest expected cost + optimal-policy graph.
     const mdpReport = onProgress
@@ -288,7 +300,7 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
       : {};
     const mdpOpts = withSweepLimit(withPolicy(mdpReport));
     const remaining = clockLeft();
-    const markov = markovOrReason(() => optimizeItemMarkov(eng, req.item, req.targets,
+    const markov = markovOrReason(() => optimizeItemMarkov(eng, runed(req.item), req.targets,
       remaining === undefined ? mdpOpts : { ...mdpOpts, maxMillis: remaining }));
     return { kind: 'item', plan, markov };
   }
@@ -306,8 +318,8 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const result = frontierOrReason(() => ('item' in from
     // The from-item planner has no progress reporting of its own yet; a carved craft therefore shows
     // no movement until the budget search starts.
-    ? optimizeItem(eng, from.item, req.targets, withClock(withPolicy({})))
-    : optimize(eng, from.baseId, from.level, req.targets, planOpts)));
+    ? optimizeItem(eng, runed(from.item), req.targets, withClock(withPolicy({})))
+    : optimize(eng, from.baseId, from.level, req.targets, runed(planOpts))));
 
   // The same push-forward model the Item tab uses. A white base is not an item you hold, so it gets the
   // one thing a held item cannot have: permission to scrap and start again, priced at what another base
@@ -315,9 +327,9 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   // rather than bin 0.18ex and reroll — measured at an 83x overestimate. A CARVED item (fractured mods)
   // is a real item and gets no such permission.
   const fromWhite = !('item' in from);
-  const mdpItem: ExistingItem = 'item' in from
+  const mdpItem: ExistingItem = runed('item' in from
     ? from.item
-    : { baseId: from.baseId, level: from.level, rarity: 'normal', prefixes: [], suffixes: [] };
+    : { baseId: from.baseId, level: from.level, rarity: 'normal', prefixes: [], suffixes: [] });
   // Reported, not silent: this can run for seconds, and a bar that stops moving through a phase is the
   // thing that made a 24-second solve feel like ten minutes in the first place.
   const mdpSpan = hasBudget ? LAB_MDP_THEN_SEARCH : LAB_MDP_ALONE;
@@ -350,8 +362,8 @@ export function runSolve(eng: Engine, req: SolveRequest, onProgress?: (p: SolveP
   const alts = ((): EngineAlternatives | null => {
     try {
       return 'item' in from
-        ? alternativesForItem(eng, from.item, want, budget, altOpts)
-        : alternatives(eng, from.baseId, from.level, want, budget, altOpts);
+        ? alternativesForItem(eng, runed(from.item), want, budget, altOpts)
+        : alternatives(eng, from.baseId, from.level, want, budget, runed(altOpts));
     } catch { return null; }
   })();
   // The search can stop just short of its node cap (196 of 200 is typical), which would leave the bar

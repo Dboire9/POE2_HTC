@@ -21,6 +21,7 @@ const filled = (): Workspace => ({
     pinned: new Set([S[0]!]),
     budget: '600',
     baseCost: '2.5',
+    runes: ['astrids-creativity'],
   },
   item: {
     baseId: 'Wands', level: 81, rarity: 'rare',
@@ -28,8 +29,15 @@ const filled = (): Workspace => ({
     suffixes: [{ modId: S[1]!, tierDisplay: 3 }],
     subMode: 'plan',
     target: [{ modId: P[2]!, tierDisplay: 1 }],
+    runes: ['serles-triumph'],
   },
 });
+
+/** The wire object a payload carries, for the tests that care what was written rather than read. */
+const wireOf = (payload: string): { v: number; l: { ru?: string[] }; i: { ru?: string[] } } => {
+  const b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4)));
+};
 
 describe('URL codec — a workspace survives the round trip', () => {
   it('preserves every field, including the Sets', () => {
@@ -65,6 +73,38 @@ describe('URL codec — a workspace survives the round trip', () => {
       lab: { ...big.lab, targets: six.map((modId) => ({ modId, tierDisplay: 1 })) },
     });
     expect(payload.length).toBeLessThan(1500);
+  });
+});
+
+describe('URL codec — socketed runes', () => {
+  /**
+   * A rune changes what the item may HOLD — a second crafted modifier, a fourth suffix — so a build
+   * that ignored `ru` would not lose a detail: it would plan a craft the player never described. The
+   * link says so in its version, exactly as slot alternatives do, and an old build refuses it.
+   */
+  it('marks a link that names a rune, and leaves every other link at version 1', () => {
+    expect(wireOf(encodeWorkspace(filled())).v).toBe(3);
+    const ws = filled();
+    const none = { ...ws, lab: { ...ws.lab, runes: [] }, item: { ...ws.item, runes: [] } };
+    expect(wireOf(encodeWorkspace(none)).v).toBe(1);
+    // …and writes nothing at all for a craft with no runes, so those links keep their old bytes.
+    expect(wireOf(encodeWorkspace(none)).l.ru).toBeUndefined();
+  });
+
+  it('carries each tab’s runes back', () => {
+    const out = decodeWorkspace(encodeWorkspace(filled()), data)!;
+    expect(out.workspace.lab.runes).toEqual(['astrids-creativity']);
+    expect(out.workspace.item.runes).toEqual(['serles-triumph']);
+  });
+
+  /** A rune this build has never heard of is a real loss: the craft it describes allows something this
+   *  one will not, so it is reported rather than quietly dropped into a stricter craft. */
+  it('drops a rune it does not know, and reports it', () => {
+    const ws = filled();
+    const payload = encodeWorkspace({ ...ws, lab: { ...ws.lab, runes: ['astrids-creativity', 'rune-from-0-6'] } });
+    const out = decodeWorkspace(payload, data)!;
+    expect(out.dropped).toContain('rune-from-0-6');
+    expect(out.workspace.lab.runes).toEqual(['astrids-creativity']);
   });
 });
 
@@ -359,7 +399,11 @@ describe('slot alternatives round-trip, without stranding old links', () => {
 
   it('writes version 2 only when a craft actually uses alternatives', () => {
     expect(ver(encodeWorkspace(withSlots()))).toBe(2);
-    expect(ver(encodeWorkspace(filled()))).toBe(1);
+    // `filled()` names socketed runes, which carry a version of their own — take them off so this
+    // says what it means: no ALTERNATIVES, so not version 2.
+    const f = filled();
+    const noRunes = { ...f, lab: { ...f.lab, runes: [] }, item: { ...f.item, runes: [] } };
+    expect(ver(encodeWorkspace(noRunes))).toBe(1);
     expect(ver(encodeWorkspace(defaultWorkspace()))).toBe(1);
   });
 

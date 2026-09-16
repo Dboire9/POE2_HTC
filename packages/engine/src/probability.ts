@@ -1,7 +1,7 @@
 import type { AffixType, CurrencyTier, ItemBase, ItemState, Mod, PatchData, PlacedMod } from './types.ts';
 import { CURRENCY_FLOOR } from './types.ts';
 import { familiesOf, familyAvailable, itemFamilies, modTierWeight, poolTotalWeight, resolveMod } from './pool.ts';
-import { MAX_AFFIXES_PER_SIDE, prefixCount, prefixesFull, suffixCount, suffixesFull, whiteItem } from './item.ts';
+import { limitsOf, prefixCount, prefixesFull, suffixCount, suffixesFull, whiteItem } from './item.ts';
 
 export interface AddAffixOptions {
   /** Currency-strength floor ilvl. Default 0 (base). */
@@ -16,8 +16,9 @@ export interface AddAffixOptions {
    */
   occupiedFamilies?: ReadonlySet<string>;
   /**
-   * Max mods per side for the slot-branch: magic = 1, rare = 3 (D2). Default 3 (Java-parity, which
-   * treats every rarity as 3+3). The currency wrappers set this from the currency's result rarity.
+   * Max mods per side for the slot-branch, overriding BOTH sides — the Magic 1+1 rung (D2), which is
+   * the only caller that needs it. Absent means the ITEM's own limits (`limitsOf`), which a socketed
+   * rune may have raised on one side, so a Rare's cap is never written down here.
    */
   slotLimit?: number;
 }
@@ -63,22 +64,26 @@ function addAffixProbabilityFromPools(
   const totalPrefix = usePrefixes ? poolTotalWeight(data, prefixPool, floor, cap, exclude) : 0;
   const totalSuffix = useSuffixes ? poolTotalWeight(data, suffixPool, floor, cap, exclude) : 0;
 
-  const limit = opts.slotLimit ?? 3;
+  // Per SIDE, since a rune can raise one of them (Serle's Triumph allows a fourth suffix). A given
+  // `slotLimit` still overrides both, which is how the Magic rung is enforced.
+  const limits = limitsOf(item.base);
+  const limP = opts.slotLimit ?? limits.prefixes;
+  const limS = opts.slotLimit ?? limits.suffixes;
   const pf = prefixCount(item);
   const sf = suffixCount(item);
   const hasPrefixes = usePrefixes && totalPrefix > 0;
   const hasSuffixes = useSuffixes && totalSuffix > 0;
 
   // Both sides open → draw from the combined pool.
-  if (pf < limit && sf < limit && hasPrefixes && hasSuffixes) {
+  if (pf < limP && sf < limS && hasPrefixes && hasSuffixes) {
     return weight / (totalPrefix + totalSuffix);
   }
   // Only prefixes reachable (suffixes full or unavailable).
-  if (mod.type === 'prefix' && pf < limit && hasPrefixes && (sf >= limit || !hasSuffixes)) {
+  if (mod.type === 'prefix' && pf < limP && hasPrefixes && (sf >= limS || !hasSuffixes)) {
     return weight / totalPrefix;
   }
   // Only suffixes reachable.
-  if (mod.type === 'suffix' && sf < limit && hasSuffixes && (pf >= limit || !hasPrefixes)) {
+  if (mod.type === 'suffix' && sf < limS && hasSuffixes && (pf >= limP || !hasPrefixes)) {
     return weight / totalSuffix;
   }
   return 0;
@@ -97,12 +102,13 @@ const VALID_RARITY: Record<NormalAddCurrency, ReadonlySet<ItemState['rarity']>> 
 };
 
 /**
- * Max mods per side for the slot-branch, by the RESULT rarity of the currency (D2, magic = 1+1):
- * transmute/augment leave the item Magic (1/side); regal/exalt leave it Rare (3/side). So augment on
- * a 1-prefix Magic item can only add a suffix, while regal (which converts to Rare) may add either.
+ * The rarity a currency LEAVES the item at, which is what decides how many mods a side can hold (D2,
+ * magic = 1+1): transmute/augment leave it Magic, one per side; regal/exalt leave it Rare, where the
+ * cap is the ITEM's own (`limitsOf`, which a socketed rune may have raised). So augment on a 1-prefix
+ * Magic item can only add a suffix, while regal — which converts to Rare — may add either.
  */
-const RESULT_SLOT_LIMIT: Record<NormalAddCurrency, number> = {
-  transmute: 1, augment: 1, regal: 3, exalt: 3,
+const RESULT_RARITY: Record<NormalAddCurrency, 'magic' | 'rare'> = {
+  transmute: 'magic', augment: 'magic', regal: 'rare', exalt: 'rare',
 };
 
 export interface CurrencyOptions {
@@ -128,14 +134,17 @@ export function addNormalAffixProbability(
   const pool = item.base.pools.normal;
   if (!pool.prefixes.includes(desiredModId) && !pool.suffixes.includes(desiredModId)) return 0;
   if (!familyAvailable(data, item, mod)) return 0;
-  const limit = RESULT_SLOT_LIMIT[currency]; // magic result = 1/side, rare result = 3/side (D2)
-  if (mod.type === 'prefix' && item.prefixes.length >= limit) return 0;
-  if (mod.type === 'suffix' && item.suffixes.length >= limit) return 0;
+  const magicResult = RESULT_RARITY[currency] === 'magic';
+  const limits = limitsOf(item.base);
+  const sideLimit = magicResult ? 1 : mod.type === 'prefix' ? limits.prefixes : limits.suffixes;
+  if (mod.type === 'prefix' && item.prefixes.length >= sideLimit) return 0;
+  if (mod.type === 'suffix' && item.suffixes.length >= sideLimit) return 0;
 
   const addOpts: AddAffixOptions = {
     floor: CURRENCY_FLOOR[currency][opts.currencyTier ?? 'base'],
     occupiedFamilies: itemFamilies(data, item), // real-game family exclusion (D6)
-    slotLimit: limit, // magic 1+1 slot enforcement (D2)
+    // The Magic rung is the override (D2); a Rare result lets the math read the item's own limits.
+    ...(magicResult ? { slotLimit: 1 } : {}),
   };
   if (opts.minTierIndex !== undefined) addOpts.minTierIndex = opts.minTierIndex;
   if (opts.constrainTo !== undefined) addOpts.constrainTo = opts.constrainTo;
@@ -337,10 +346,12 @@ export interface DrawTarget {
  */
 function multiDrawProbability(
   data: PatchData, item: ItemState, targets: readonly DrawTarget[], draws: number,
-  opts: { floor?: number; slotLimit?: number } = {},
+  opts: { floor?: number } = {},
 ): number {
   const floor = opts.floor ?? 0;
-  const limit = opts.slotLimit ?? MAX_AFFIXES_PER_SIDE;
+  // The ITEM's per-side limits, not a constant: a socketed rune can allow a fourth suffix, and a side
+  // that is full stops being offered for the rest of the draw.
+  const limits = limitsOf(item.base);
   const cap = item.level;
   const need = new Set(targets.map((t) => t.modId));
   if (need.size === 0 || need.size !== targets.length || need.size > draws) return 0;
@@ -367,7 +378,7 @@ function multiDrawProbability(
   const f = (left: number, pf: number, sf: number): number => {
     if (need.size === 0) return 1;      // every target already landed
     if (left < need.size) return 0;     // too few draws left to catch them all
-    const pool = [...(pf < limit ? pre : []), ...(sf < limit ? suf : [])]
+    const pool = [...(pf < limits.prefixes ? pre : []), ...(sf < limits.suffixes ? suf : [])]
       .filter((x) => !x.families.some((fam) => occupied.has(fam)));
     let total = 0;
     for (const x of pool) total += x.w;
@@ -441,7 +452,6 @@ export function greaterExaltProbability(
   }
   return multiDrawProbability(data, item, targets, GREATER_EXALT_MOD_COUNT, {
     floor: CURRENCY_FLOOR.exalt[opts.currencyTier ?? 'base'],
-    slotLimit: MAX_AFFIXES_PER_SIDE,
   });
 }
 

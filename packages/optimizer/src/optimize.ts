@@ -8,11 +8,11 @@
 // of them and score each exactly with the engine's evaluatePlan. No heuristic, no beam pruning: the
 // returned plan is the true probability-maximising ordering. The search is analytic and exact.
 
-import type { ItemBase, PatchData, Rarity } from '../../engine/src/types.ts';
+import type { ItemBase, ItemLimits, PatchData, Rarity } from '../../engine/src/types.ts';
 import type { PlanResult, PlanStep } from '../../engine/src/plan.ts';
 import { evaluatePlan, evaluatePlanFrom } from '../../engine/src/plan.ts';
 import { resolveMod } from '../../engine/src/pool.ts';
-import { whiteItem } from '../../engine/src/item.ts';
+import { limitsOf, whiteItem } from '../../engine/src/item.ts';
 import { ALCHEMY_MOD_COUNT, bossOmenAllowed, desecrationOmenForMod, isEssenceMod } from '../../engine/src/probability.ts';
 import type { CostBreakdown, CurrencyPolicy, Prices } from './cost.ts';
 import { cheapestEssenceLevel, essenceLevelOf, planExpectedCost, pricesForBase } from './cost.ts';
@@ -314,7 +314,7 @@ function buildParetoSteps(
  * the plan uses an essence (an essence needs the Magic→Rare path; alchemy goes straight to Rare).
  */
 function alchemyOpenerSequences(
-  data: PatchData, modIds: readonly string[], tierOf: Map<string, number>,
+  data: PatchData, modIds: readonly string[], tierOf: Map<string, number>, limits: ItemLimits,
 ): PlanStep[][] {
   if (modIds.length < ALCHEMY_MOD_COUNT) return [];
   const anyTier = modIds.filter((id) => (tierOf.get(id) ?? 0) === 0);
@@ -327,7 +327,7 @@ function alchemyOpenerSequences(
       if (resolveMod(data, id).type === 'prefix') pre++;
       else suf++;
     }
-    if (pre > 3 || suf > 3) continue; // alchemy places at most 3 per side
+    if (pre > limits.prefixes || suf > limits.suffixes) continue; // alchemy can't pass the item's own limits
     const fourSet = new Set(four);
     const rest = modIds.filter((id) => !fourSet.has(id));
     for (const order of permutations(rest)) {
@@ -491,7 +491,7 @@ function paretoForOneCraft(
   // (4 mods slammed at once, the rest exalted). Not combinable with an essence (Magic→Rare) or a
   // desecration (alchemy lands 4 normal mods; the desecrated ones would need a separate Desecration).
   if (essences.length === 0 && desecrated.length === 0) {
-    for (const seq of alchemyOpenerSequences(data, modIds, tierOf)) skeletons.push(seq);
+    for (const seq of alchemyOpenerSequences(data, modIds, tierOf, limitsOf(base))) skeletons.push(seq);
   }
 
   const white = whiteItem(base, level);
@@ -554,8 +554,9 @@ function validateTargetShape(
     if (mod.type === 'prefix') prefixes++;
     else suffixes++;
   }
-  if (prefixes > 3) throw new Error(`target has ${prefixes} prefixes (max 3)`);
-  if (suffixes > 3) throw new Error(`target has ${suffixes} suffixes (max 3)`);
+  const limits = limitsOf(base);
+  if (prefixes > limits.prefixes) throw new Error(`target has ${prefixes} prefixes (max ${limits.prefixes})`);
+  if (suffixes > limits.suffixes) throw new Error(`target has ${suffixes} suffixes (max ${limits.suffixes})`);
 }
 
 /** Full validation for a SINGLE plan config: shape plus the per-plan essence rules. */

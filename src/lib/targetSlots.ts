@@ -137,7 +137,12 @@ export function whyNotAdd(
   mod: EngineMod,
   targets: readonly TargetInput[],
   modById: ReadonlyMap<string, EngineMod>,
-  opts: { readonly intoSlot?: number; readonly hasFractured?: boolean } = {},
+  opts: {
+    readonly intoSlot?: number;
+    readonly hasFractured?: boolean;
+    /** The item's own per-side limits, which a socketed rune may have raised. Absent ⇒ three a side. */
+    readonly limits?: { readonly prefixes: number; readonly suffixes: number };
+  } = {},
 ): AddBlock {
   const slots = slotsOf(targets, modById);
   const joining = opts.intoSlot === undefined ? undefined : slots.find((s) => s.id === opts.intoSlot);
@@ -150,7 +155,8 @@ export function whyNotAdd(
   } else {
     const counts = slotCounts(targets, modById);
     const used = mod.type === 'prefix' ? counts.prefix : counts.suffix;
-    if (used >= MAX_PER_SIDE) return `This side is full (max ${MAX_PER_SIDE})`;
+    const cap = (mod.type === 'prefix' ? opts.limits?.prefixes : opts.limits?.suffixes) ?? MAX_PER_SIDE;
+    if (used >= cap) return `This side is full (max ${cap})`;
   }
 
   // Families held by every OTHER slot. The slot being joined is exempt: its members are alternatives,

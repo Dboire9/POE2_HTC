@@ -8,7 +8,7 @@
 
 import type { AffixType, CurrencyTier, ItemBase, ItemState, PatchData, PlacedMod, Rarity } from './types.ts';
 import { familyAvailable, resolveMod } from './pool.ts';
-import { MAX_AFFIXES_PER_SIDE, prefixesFull, suffixesFull, whiteItem, withAffix } from './item.ts';
+import { limitsOf, prefixesFull, suffixesFull, whiteItem, withAffix } from './item.ts';
 import type { AnnulOmen, ChaosOmen, CurrencyOptions, DesecrationBossOmen, DrawTarget, EssenceOmen } from './probability.ts';
 import {
   alchemyProbability, annulProbability, augmentationProbability, chaosProbability, desecrationBossAnySideProbability,
@@ -159,7 +159,8 @@ export function stepProbability(data: PatchData, state: ItemState, step: PlanSte
       // sacrificing a suffix.)
       const addSide = added.type === 'prefix' ? state.prefixes : state.suffixes;
       const freesAddSide = addSide.some((p) => p.modId === step.remove);
-      if (addSide.length - (freesAddSide ? 1 : 0) >= MAX_AFFIXES_PER_SIDE) return 0;
+      const sideLimit = added.type === 'prefix' ? limitsOf(state.base).prefixes : limitsOf(state.base).suffixes;
+      if (addSide.length - (freesAddSide ? 1 : 0) >= sideLimit) return 0;
       return perfectEssenceProbability(data, state, added.type, step.remove, step.omen ? { omen: step.omen } : {});
     }
   }

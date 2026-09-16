@@ -196,6 +196,11 @@ export interface ActionSpaceParams {
   readonly pools: ItemBase['pools'];
   readonly list: readonly McTarget[];
   readonly side: SideIndex;
+  /**
+   * The base's Rare per-side limits (`limitsOf`) — a socketed Serle's Triumph allows a fourth suffix.
+   * Absent means the game's three a side. The Magic rung holds one per side whatever this says.
+   */
+  readonly limits?: { readonly prefixes: number; readonly suffixes: number };
   /** Whether desecration is in play at all — see `desecratable` in markovFromItem. */
   readonly desecratable: boolean;
   /** Currencies the player doesn't have; actions needing one are never offered. */
@@ -228,7 +233,10 @@ export interface ActionSpaceParams {
 export function createActionSpace(params: ActionSpaceParams): {
   actionsOf: (s: McState) => ActionDef[];
 } {
-  const { data, prices, level, pools, list, side, desecratable, policy, bossTargetable, restart } = params;
+  const {
+    data, prices, level, pools, list, side, desecratable, policy, bossTargetable, restart,
+    limits = { prefixes: perSideCap('rare'), suffixes: perSideCap('rare') },
+  } = params;
   const n = list.length;
   // THE choke point. Every successor in this file is named through `encodeState`, so canonicalising
   // here reaches all of them at once — no call site below knows, or needs to, that two arrangements of
@@ -274,8 +282,10 @@ export function createActionSpace(params: ActionSpaceParams): {
 
   // Slot room depends on the RARITY, not on the Rare cap: a Magic item holds one per side. The `into`
   // override is for a Regal, which converts to Rare as it adds and so places against the Rare cap.
-  const prefixOpenIn = (s: McState, into: McRarity = s.rarity): boolean => prefUsed(s, side) < perSideCap(into);
-  const suffixOpenIn = (s: McState, into: McRarity = s.rarity): boolean => sufUsed(s, side) < perSideCap(into);
+  const prefixOpenIn = (s: McState, into: McRarity = s.rarity): boolean =>
+    prefUsed(s, side) < perSideCap(into, limits.prefixes);
+  const suffixOpenIn = (s: McState, into: McRarity = s.rarity): boolean =>
+    sufUsed(s, side) < perSideCap(into, limits.suffixes);
 
   /** The add-distribution from a state at ilvl `floor`, optionally constrained to one side (side omen).
    *  A weighted add lands a target at tier (→ present), the target below tier (→ blocked), or foreign

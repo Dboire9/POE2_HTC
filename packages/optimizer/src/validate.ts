@@ -6,32 +6,36 @@
 // end-to-end check of the restart-on-first-failure COST formula.
 
 import type { ItemBase, ItemState, PatchData, PlanStep, Rarity } from '../../engine/src/index.ts';
-import { CURRENCY_FLOOR, excluded, itemFamilies, resolveMod, whiteItem, withAffix } from '../../engine/src/index.ts';
+import { CURRENCY_FLOOR, excluded, itemFamilies, limitsOf, resolveMod, whiteItem, withAffix } from '../../engine/src/index.ts';
 import { stepCost, type Prices } from './cost.ts';
 import { mulberry32 } from './simulate.ts';
 
-/** Max mods per side for the add's RESULT rarity (magic 1+1 / rare 3, D2) — matches the engine. */
-const RESULT_SLOT_LIMIT: Record<'transmute' | 'augment' | 'regal' | 'exalt', number> = {
-  transmute: 1, augment: 1, regal: 3, exalt: 3,
+/** The rarity each add LEAVES the item at (D2) — the mirror of the engine's own `RESULT_RARITY`. A
+ *  Magic result holds one per side; a Rare result holds whatever the ITEM's limits allow. */
+const RESULT_RARITY: Record<'transmute' | 'augment' | 'regal' | 'exalt', 'magic' | 'rare'> = {
+  transmute: 'magic', augment: 'magic', regal: 'rare', exalt: 'rare',
 };
+
+/** Per-side caps, as they travel between `optsForStep` and `reachablePairs`. */
+interface SideLimits { readonly prefixes: number; readonly suffixes: number }
 
 interface Pair { readonly modId: string; readonly tierIndex: number; readonly weight: number; }
 
 /**
  * Every (mod, tier) the next add could produce on `state`, weighted exactly as the analytic's pool
- * math: open sides only (count < `limit`, D2), on-item families removed (D6), tier ilvl within
- * [`floor`, `cap`] (orb floor D5 + item-level cap), and — with `side` — only that affix type (omen).
+ * math: open sides only (count below THAT side's limit, D2), on-item families removed (D6), tier ilvl
+ * within [`floor`, `cap`] (orb floor D5 + item-level cap), and — with `side` — only that affix type.
  */
 export function reachablePairs(
   data: PatchData, state: ItemState,
-  opts: { limit: number; floor: number; cap: number; side?: 'prefix' | 'suffix' },
+  opts: { limits: SideLimits; floor: number; cap: number; side?: 'prefix' | 'suffix' },
 ): Pair[] {
   const occupied = itemFamilies(data, state);
   const sides: ('prefix' | 'suffix')[] = opts.side ? [opts.side] : ['prefix', 'suffix'];
   const pairs: Pair[] = [];
   for (const side of sides) {
     const count = side === 'prefix' ? state.prefixes.length : state.suffixes.length;
-    if (count >= opts.limit) continue; // side full → contributes nothing
+    if (count >= (side === 'prefix' ? opts.limits.prefixes : opts.limits.suffixes)) continue; // side full
     const ids = side === 'prefix' ? state.base.pools.normal.prefixes : state.base.pools.normal.suffixes;
     for (const id of ids) {
       const mod = resolveMod(data, id);
@@ -61,13 +65,17 @@ function rarityAfterAdd(currency: PlanStep['currency'], prev: Rarity): Rarity {
 }
 
 /** The reachable-pool options an add step implies (orb floor, item-level cap, slot limit, omen side). */
-function optsForStep(step: PlanStep, level: number): { limit: number; floor: number; cap: number; side?: 'prefix' | 'suffix' } {
+function optsForStep(
+  step: PlanStep, level: number, limits: SideLimits,
+): { limits: SideLimits; floor: number; cap: number; side?: 'prefix' | 'suffix' } {
   if (step.currency !== 'transmute' && step.currency !== 'augment' && step.currency !== 'regal' && step.currency !== 'exalt') {
     throw new Error(`optsForStep: not an add step (${step.currency})`);
   }
   const floor = CURRENCY_FLOOR[step.currency][step.tier ?? 'base'];
   const side = step.currency === 'exalt' ? step.constrainTo : undefined;
-  const base = { limit: RESULT_SLOT_LIMIT[step.currency], floor, cap: level };
+  // A Magic result is one per side whatever the item allows; a Rare result reads the item's own limits.
+  const slots: SideLimits = RESULT_RARITY[step.currency] === 'magic' ? { prefixes: 1, suffixes: 1 } : limits;
+  const base = { limits: slots, floor, cap: level };
   return side ? { ...base, side } : base;
 }
 
@@ -89,7 +97,7 @@ export function mcPerStepRates(
     } else {
       const target = step.add;
       const minTierIndex = 'minTierIndex' in step ? step.minTierIndex ?? 0 : 0;
-      const pairs = reachablePairs(data, state, optsForStep(step, level));
+      const pairs = reachablePairs(data, state, optsForStep(step, level, limitsOf(base)));
       let ok = 0;
       for (let r = 0; r < runs; r++) {
         const p = samplePair(pairs, rng);
@@ -133,7 +141,10 @@ export function mcPlanCost(
       info.push({ cost, pairs: null, target: step.add, minTierIndex: 0 }); // deterministic
     } else {
       const minTierIndex = 'minTierIndex' in step ? step.minTierIndex ?? 0 : 0;
-      info.push({ cost, pairs: reachablePairs(data, state, optsForStep(step, level)), target: step.add, minTierIndex });
+      info.push({
+        cost, pairs: reachablePairs(data, state, optsForStep(step, level, limitsOf(base))),
+        target: step.add, minTierIndex,
+      });
     }
     const mod = resolveMod(data, step.add);
     const tierIdx = step.currency === 'essence' ? (step.essenceTier ?? 0) : 0;

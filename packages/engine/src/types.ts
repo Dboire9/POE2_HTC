@@ -56,6 +56,20 @@ export interface Pool {
   readonly suffixes: readonly string[];
 }
 
+/**
+ * How many modifiers of each kind an item on this base can hold.
+ *
+ * The game's defaults are three a side and ONE crafted modifier — 0.5.0's "items can only have 1
+ * crafted modifier at a time", where crafted covers Essences, Perfect Essences and Alloys alike.
+ * A socketed rune raises one of them (Astrid's Creativity a crafted modifier, Serle's Triumph a
+ * suffix), which is why this belongs to the item rather than to a constant in the engine.
+ */
+export interface ItemLimits {
+  readonly prefixes: number;
+  readonly suffixes: number;
+  readonly crafted: number;
+}
+
 export interface ItemBase {
   readonly id: string;
   /** The picker's caption for this row. Not a lookup key — see `bases`. */
@@ -79,6 +93,8 @@ export interface ItemBase {
     readonly desecrated: Pool;
     readonly essence: Pool;
   };
+  /** Absent means the game's own limits — see `ItemLimits` and `limitsOf` (item.ts). */
+  readonly limits?: ItemLimits;
 }
 
 /** A parsed, indexed data snapshot for one patch. The engine takes this — it never does I/O. */

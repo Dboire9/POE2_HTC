@@ -1,5 +1,5 @@
 export type {
-  AffixType, ModSource, Rarity, Tier, Mod, Pool, ItemBase, PatchData,
+  AffixType, ModSource, Rarity, Tier, Mod, Pool, ItemBase, ItemLimits, PatchData,
   PlacedMod, ItemState, CurrencyTier,
 } from './types.ts';
 export { CURRENCY_FLOOR } from './types.ts';
@@ -20,7 +20,8 @@ export type { TierFit } from './tierFit.ts';
 export type { ParsedItem, ParsedMod, ModKind } from './parseItem.ts';
 export type { ResolvedLine, UnresolvedLine, ResolveResult, ResolveOptions } from './resolveMods.ts';
 export {
-  MAX_AFFIXES_PER_SIDE, whiteItem, prefixCount, suffixCount, prefixesFull, suffixesFull, withAffix,
+  MAX_AFFIXES_PER_SIDE, DEFAULT_LIMITS, limitsOf,
+  whiteItem, prefixCount, suffixCount, prefixesFull, suffixesFull, withAffix,
 } from './item.ts';
 export {
   addAffixProbability, addNormalAffixProbability,

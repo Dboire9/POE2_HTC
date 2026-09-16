@@ -27,6 +27,7 @@
 import type { ItemState, PatchData } from '../../engine/src/types.ts';
 import { modTierWeight, resolveMod } from '../../engine/src/pool.ts';
 import { bossOmenAllowed, isEssenceMod } from '../../engine/src/probability.ts';
+import { limitsOf } from '../../engine/src/item.ts';
 import type { CurrencyPolicy, Prices } from './cost.ts';
 import { pricesForBase } from './cost.ts';
 import type { TierTarget } from './optimize.ts';
@@ -39,7 +40,7 @@ import type { ActionDef, McAction } from './markovActions.ts';
 import { createActionSpace } from './markovActions.ts';
 import type { McTarget, StateKey, McRarity } from './markovState.ts';
 import {
-  FLAG_NONE, MAX_PER_SIDE, bit, classifyStart, decodeState,
+  FLAG_NONE, bit, classifyStart, decodeState,
   enumerateStates, has, isAccepting, popcount, representative, sideIndexOf,
 } from './markovState.ts';
 import type { PolicyEdge, PolicyNode, RouteTable } from './markovRoute.ts';
@@ -273,6 +274,9 @@ export function markovFromItem(
 
   const level = start.level;
   const pools = start.base.pools;
+  // What this item can hold. A socketed rune may have raised one of these, so every cap below reads
+  // them rather than a constant.
+  const limits = limitsOf(start.base);
   const fracturedIds = new Set([...start.prefixes, ...start.suffixes].filter((p) => p.fractured).map((p) => p.modId));
 
   // Resolve targets into the ordered list the bitmasks index: rollable normal mods, desecrated mods
@@ -346,7 +350,8 @@ export function markovFromItem(
   }
   for (const sideName of ['prefix', 'suffix'] as const) {
     const used = slotSides.filter((t) => t === sideName).length;
-    if (used > MAX_PER_SIDE) return fail(`target needs ${used} ${sideName}es, and an item holds ${MAX_PER_SIDE}`);
+    const cap = sideName === 'prefix' ? limits.prefixes : limits.suffixes;
+    if (used > cap) return fail(`target needs ${used} ${sideName}es, and an item holds ${cap}`);
   }
   /*
    * Two SLOTS may not want the same family, because only one of them could ever be filled — the goal
@@ -599,7 +604,7 @@ export function markovFromItem(
     };
   }
   const { actionsOf } = createActionSpace({
-    data, prices, level, pools, list, side, desecratable, encode,
+    data, prices, level, pools, list, side, desecratable, encode, limits,
     bossTargetable: bossOmenAllowed(start.base.category),
     ...(opts.policy ? { policy: opts.policy } : {}),
     ...(opts.restartCost === undefined
@@ -613,7 +618,7 @@ export function markovFromItem(
   const rarities: McRarity[] = start.rarity === 'rare' ? ['rare']
     : start.rarity === 'magic' ? ['magic', 'rare']
     : ['normal', 'magic', 'rare'];
-  const allStates = enumerateStates(n, side, desecratable, rarities, conflicts, onlyCanonical);
+  const allStates = enumerateStates(n, side, desecratable, rarities, conflicts, onlyCanonical, limits);
 
   /*
    * The goal states — found by TESTING the lattice, not by naming keys.

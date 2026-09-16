@@ -28,8 +28,15 @@ export type McRarity = 'normal' | 'magic' | 'rare';
 const RARITY_CODE: Record<McRarity, number> = { normal: 0, magic: 1, rare: 2 };
 const RARITY_BY_CODE: readonly McRarity[] = ['normal', 'magic', 'rare'];
 
-/** How many mods a side can hold at each rarity: Normal none, Magic one, Rare three. */
-export const perSideCap = (r: McRarity): number => (r === 'rare' ? MAX_PER_SIDE : r === 'magic' ? 1 : 0);
+/**
+ * How many mods a side can hold at each rarity: Normal none, Magic one, Rare its own cap.
+ *
+ * `rareCap` is THAT side's limit from the base (`limitsOf`), which a socketed Serle's Triumph raises
+ * to four suffixes. It defaults to the game's three, so a caller with no base in hand keeps the
+ * behaviour this had before runes existed. The Magic rung is one per side whatever the cap says.
+ */
+export const perSideCap = (r: McRarity, rareCap: number = MAX_PER_SIDE): number =>
+  (r === 'rare' ? rareCap : r === 'magic' ? 1 : 0);
 
 /** One mod that can fill a target position, and the worst tier acceptable for THAT mod. */
 export interface McCandidate {
@@ -257,10 +264,17 @@ export function enumerateStates(
    * Absent for every craft with nothing interchangeable, which leaves the lattice exactly as it was.
    */
   canonical?: (present: number, blocked: number) => boolean,
+  /**
+   * The base's per-side limits (`limitsOf`), which a socketed rune may have raised. Defaults to the
+   * game's three a side, which leaves every craft that carries no rune with exactly the state space
+   * it had before.
+   */
+  limits: { readonly prefixes: number; readonly suffixes: number } = { prefixes: MAX_PER_SIDE, suffixes: MAX_PER_SIDE },
 ): StateKey[] {
   const out: StateKey[] = [];
   for (const rarity of rarities) {
-    const cap = perSideCap(rarity);
+    const capP = perSideCap(rarity, limits.prefixes);
+    const capS = perSideCap(rarity, limits.suffixes);
     for (let present = 0; present < bit(n); present++) {
       for (let blocked = 0; blocked < bit(n); blocked++) {
         if ((present & blocked) !== 0) continue;
@@ -275,11 +289,11 @@ export function enumerateStates(
         if (canonical && !canonical(present, blocked)) continue;
         const tp = countSide(present, side.prefix) + countSide(blocked, side.prefix);
         const ts = countSide(present, side.suffix) + countSide(blocked, side.suffix);
-        if (tp > cap || ts > cap) continue;
+        if (tp > capP || ts > capS) continue;
         // Every target on the item is somewhere a bone could have left its mark.
         const onItem = present | blocked;
-        for (let jp = 0; jp + tp <= cap; jp++) {
-          for (let js = 0; js + ts <= cap; js++) {
+        for (let jp = 0; jp + tp <= capP; jp++) {
+          for (let js = 0; js + ts <= capS; js++) {
             const flags: FlagCode[] = [FLAG_NONE];
             if (desecratable) {
               if (jp > 0) flags.push(FLAG_JUNK_PREFIX);

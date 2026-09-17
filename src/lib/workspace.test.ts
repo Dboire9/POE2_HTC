@@ -535,3 +535,75 @@ describe('the tab in a share link', () => {
     }
   });
 });
+
+/**
+ * FREE SLOTS on the wire.
+ *
+ * A free slot changes what "finished" means — the item may end up carrying a modifier nobody named —
+ * so the link says so in its version and an older build refuses it, exactly as slot alternatives and
+ * socketed runes do. Measured on the craft the feature was built for: an old reader dropping `sp`
+ * would plan the strict item and quote 366.84 ex for a link describing 191.27.
+ */
+describe('URL codec — free slots', () => {
+  const b64 = (o: unknown) =>
+    btoa(JSON.stringify(o)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const raw = (payload: string): Record<string, { sp?: unknown }> =>
+    JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+  const withFree = (): Workspace => {
+    const w = filled();
+    return {
+      ...w,
+      lab: { ...w.lab, spare: { prefixes: 0, suffixes: 1 } },
+      item: { ...w.item, spare: { prefixes: 2, suffixes: 0 } },
+    };
+  };
+
+  it('carries each tab’s free slots back', () => {
+    const out = decodeWorkspace(encodeWorkspace(withFree()), data)!;
+    expect(out.workspace.lab.spare).toEqual({ prefixes: 0, suffixes: 1 });
+    expect(out.workspace.item.spare).toEqual({ prefixes: 2, suffixes: 0 });
+  });
+
+  it('writes version 4 only when a craft actually leaves one free', () => {
+    expect(wireOf(encodeWorkspace(withFree())).v).toBe(4);
+    // `filled()` names socketed runes, which carry a version of their own — so this asserts the
+    // FALLBACK is to that, not that the whole scheme collapses to 1.
+    expect(wireOf(encodeWorkspace(filled())).v).toBe(3);
+    expect(wireOf(encodeWorkspace(defaultWorkspace())).v).toBe(1);
+  });
+
+  it('writes nothing at all for a craft with none, so those links keep their old bytes', () => {
+    const w = raw(encodeWorkspace(filled()));
+    expect(w.l!.sp).toBeUndefined();
+    expect(w.i!.sp).toBeUndefined();
+  });
+
+  /**
+   * A link is not a form. `?? default` catches null and undefined and nothing else, so a hand-written
+   * `sp` can carry a negative, a fraction, a string or a count no item could hold. Those are read as
+   * zero rather than reported as a loss: unlike an unknown rune id this is not a feature the build
+   * lacks, it is a number that was never legal.
+   */
+  it('clamps a free-slot count that no item could have', () => {
+    const link = raw(encodeWorkspace(withFree()));
+    for (const sp of [[99, 1], [-1, 2], ['a', 1], [1.5, 1], [null, 3], 'nope', {}, []]) {
+      const out = decodeWorkspace(b64({ ...link, l: { ...link.l, sp } }), data);
+      expect(out, JSON.stringify(sp)).not.toBeNull();
+      const got = out!.workspace.lab.spare;
+      expect(got.prefixes, JSON.stringify(sp)).toBeGreaterThanOrEqual(0);
+      expect(got.prefixes, JSON.stringify(sp)).toBeLessThanOrEqual(3);
+      expect(Number.isInteger(got.suffixes), JSON.stringify(sp)).toBe(true);
+    }
+    // …and spelled out for the two that matter: too many is dropped, a good one beside it survives.
+    const out = decodeWorkspace(b64({ ...link, l: { ...link.l, sp: [99, 2] } }), data)!;
+    expect(out.workspace.lab.spare).toEqual({ prefixes: 0, suffixes: 2 });
+  });
+
+  /** A link written before free slots existed has no `sp`, and must read as a craft that has none. */
+  it('reads a link with no sp as no free slots', () => {
+    const link = raw(encodeWorkspace(filled()));
+    const out = decodeWorkspace(b64(link), data)!;
+    expect(out.workspace.lab.spare).toEqual({ prefixes: 0, suffixes: 0 });
+    expect(out.workspace.item.spare).toEqual({ prefixes: 0, suffixes: 0 });
+  });
+});

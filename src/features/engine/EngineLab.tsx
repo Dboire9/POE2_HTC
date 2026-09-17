@@ -16,13 +16,16 @@ import { toExcludedKeys, useExclusions } from '../../lib/currencyPrefs';
 import { EFFORT_PRESETS, isTopEffort, limitsFor, useEffort } from '../../lib/searchEffort';
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import RunePicker from './RunePicker';
+import { AnyModRow, FreeSlotNote, FreeSlotRows, withSpare } from './FreeSlots';
+import type { Spare } from '../../../packages/optimizer/src/slots.ts';
+import { NO_SPARE } from '../../../packages/optimizer/src/slots.ts';
 import { limitsWithRunes } from '../../../packages/engine/src/runes.ts';
 import {
   decodeWorkspace, getWorkspace, setWorkspace, shareUrl, useField, useMode,
 } from '../../lib/workspace';
 import { toast } from 'sonner';
 import {
-  MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotCounts, slotsOf, whyNotAdd,
+  MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, roomOnSide, slotCounts, slotsOf, whyNotAdd,
 } from '../../lib/targetSlots';
 import type { PatchData } from '../../../packages/engine/src/types.ts';
 import StreamerGear from './StreamerGear';
@@ -64,9 +67,17 @@ function tierOption(mod: EngineMod, ti: EngineMod['tiers'][number]): string {
 
 interface ModColumnProps {
   readonly title: string;
+  readonly side: 'prefix' | 'suffix';
   readonly list: readonly EngineMod[];
-  /** SLOTS used on this side, not mods — a slot with three alternatives still fills one. */
+  /** SLOTS used on this side, not mods — a slot with three alternatives still fills one, and a FREE
+   *  slot fills one while naming nothing. */
   readonly count: number;
+  /** Slots this side can hold. Read rather than printed as `3`, which a socketed Serle's Triumph
+   *  (a fourth suffix) has made wrong since runes shipped. */
+  readonly cap: number;
+  /** The "Any …" row, or absent to leave it out — which is what a search does, since it matches no
+   *  query and would sit there as the one result that ignored what you typed. */
+  readonly spare?: { readonly block: string | null; readonly onAdd: () => void };
   /**
    * Why this mod can't be added, or null. The column used to work the rules out itself from four
    * separate flags; it now asks, because the answer depends on something it has no business knowing —
@@ -83,14 +94,15 @@ interface ModColumnProps {
 // each render, so React would remount this whole subtree on every keystroke — dropping the search box's
 // focus and detaching the "+" buttons mid-interaction. Hoisting it fixes both.
 const ModColumn: React.FC<ModColumnProps> = ({
-  title, list, count, blockFor, pickTier, onPickTier, onAdd,
+  title, side, list, count, cap, spare, blockFor, pickTier, onPickTier, onAdd,
 }) => (
   <div className="flex-1 min-w-0">
     <div className="flex items-center justify-between mb-1">
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h4>
-      <span className="text-xs text-muted-foreground">{count}/3</span>
+      <span className="text-xs text-muted-foreground">{count}/{cap}</span>
     </div>
     <div className="max-h-64 overflow-y-auto rounded-md border border-border divide-y divide-border/50">
+      {spare && <AnyModRow side={side} block={spare.block} onAdd={spare.onAdd} />}
       {list.length === 0 && <p className="px-2 py-3 text-xs text-muted-foreground">No matches</p>}
       {list.map((m) => {
         const isEssence = m.source === 'essence';
@@ -170,6 +182,9 @@ const EngineLab: React.FC = () => {
   // Runes socketed in the item being crafted. They change what it may HOLD, so they reach the picker's
   // rules (`limits` below) and every planner in the solve, not just the words on the page.
   const [runes, setRunes] = useField('lab', 'runes');
+  // Positions on the finished item the player doesn't care about. Part of the TARGET, not of the item,
+  // so it clears with the rest of the craft when the base changes.
+  const [spare, setSpare] = useField('lab', 'spare');
 
   const [result, setResult] = useState<EngineResult | null>(null);
   const [alts, setAlts] = useState<EngineAlternatives | null>(null);
@@ -178,6 +193,10 @@ const EngineLab: React.FC = () => {
   const [markovRun, setMarkovRun] = useState(0);
   // The Search effort that solve ran at: the start panel's "compute again" steps up from THIS, not the dropdown.
   const [markovEffort, setMarkovEffort] = useState('');
+  // …and the free slots it ran with, for the same reason. The graph says how much junk really has to
+  // go, which is a claim about the SOLVE — reading the live setting would let it change under a result
+  // that was computed with a different one.
+  const [markovSpare, setMarkovSpare] = useState<Spare>(NO_SPARE);
   const [altBudget, setAltBudget] = useState<number>(0);
   const [runErr, setRunErr] = useState<string | null>(null);
   const [computing, setComputing] = useState(false);
@@ -259,6 +278,7 @@ const EngineLab: React.FC = () => {
     setPickTier({});
     setFractured(new Set());
     setPinned(new Set());
+    setSpare(NO_SPARE);
   };
   const changeBase = (id: string) => { setBaseId(id); clearCraft(); };
 
@@ -305,9 +325,36 @@ const EngineLab: React.FC = () => {
       ...(addingTo === null ? {} : { intoSlot: addingTo }),
       hasFractured: fractured.size > 0,
       limits,
+      spare,
     }),
-    [targets, modById, addingTo, fractured, limits],
+    [targets, modById, addingTo, fractured, limits, spare],
   );
+  /**
+   * The "Any …" row's own guard, which is the side cap and nothing else.
+   *
+   * None of the other rules in `whyNotAdd` can apply: a free slot has no id to duplicate, no family to
+   * clash, no source to count against the one-essence or one-desecrated caps. So this asks the one
+   * question that IS shared — is there room on the side — through the same `roomOnSide` the mod rows
+   * ask it through, rather than restating a cap that could then drift from theirs.
+   */
+  const spareBlock = (side: 'prefix' | 'suffix'): string | null =>
+    (roomOnSide(side, targets, modById, { limits, spare }) > 0
+      ? null
+      : `This side is full (max ${side === 'prefix' ? limits.prefixes : limits.suffixes})`);
+  const addSpare = (side: 'prefix' | 'suffix') => { setSpare(withSpare(spare, side, 1)); setAddingTo(null); };
+
+  /*
+   * Offer "Any …" only when the picker is showing its whole list and starting a new slot.
+   *
+   * A SEARCH is the obvious half: the row matches no query, so leaving it in would put the one result
+   * that ignored what you typed at the top of the list. Joining a slot is the less obvious half and the
+   * more important one — an alternative answers "which of these would do?", and "anything" is not an
+   * answer to that question but a different question about the whole slot. A slot that already offers
+   * "anything" among its alternatives is not a choice at all.
+   */
+  const offerSpare = search.trim() === '' && addingTo === null;
+  /** Free slots across both sides — positions on the item, so counted with `slots` and not with mods. */
+  const freeSlots = spare.prefixes + spare.suffixes;
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -475,6 +522,7 @@ const EngineLab: React.FC = () => {
       effort: limitsFor(effortId),
       ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
       ...(runes.length > 0 ? { runes } : {}),
+      ...(freeSlots > 0 ? { spare } : {}),
     }, (p) => { if (current()) setProgress(p); });
     cancelRef.current = handle.cancel;
 
@@ -486,6 +534,7 @@ const EngineLab: React.FC = () => {
         setMarkov(res.markov);
         setMarkovRun((n) => n + 1);
         setMarkovEffort(effortId);
+        setMarkovSpare(spare);
         if (res.alts) setAltBudget(b);
       })
       .catch((e) => {
@@ -654,11 +703,15 @@ const EngineLab: React.FC = () => {
               on a narrow screen each got half of it and the mod text was crushed to nothing. */}
           <div className="flex flex-col sm:flex-row gap-4">
             <ModColumn
-              title="Prefixes" list={filtered.prefixes} count={counts.prefix}
+              title="Prefixes" side="prefix" list={filtered.prefixes}
+              count={counts.prefix + spare.prefixes} cap={limits.prefixes}
+              {...(offerSpare ? { spare: { block: spareBlock('prefix'), onAdd: () => addSpare('prefix') } } : {})}
               blockFor={blockFor} pickTier={pickTier} onPickTier={onPickTier} onAdd={addTarget}
             />
             <ModColumn
-              title="Suffixes" list={filtered.suffixes} count={counts.suffix}
+              title="Suffixes" side="suffix" list={filtered.suffixes}
+              count={counts.suffix + spare.suffixes} cap={limits.suffixes}
+              {...(offerSpare ? { spare: { block: spareBlock('suffix'), onAdd: () => addSpare('suffix') } } : {})}
               blockFor={blockFor} pickTier={pickTier} onPickTier={onPickTier} onAdd={addTarget}
             />
           </div>
@@ -666,14 +719,18 @@ const EngineLab: React.FC = () => {
       </Card>
 
       {/* Selected targets */}
-      {targets.length > 0 && (
+      {(targets.length > 0 || freeSlots > 0) && (
         <Card className="p-4 space-y-2">
           {/* A craft with no alternatives keeps the words it always had. "Slots" is the precise term
-              but it is only worth teaching to someone who has just made a slot mean something. */}
+              but it is only worth teaching to someone who has just made a slot mean something — and a
+              free slot is exactly that, so it switches to the precise wording too.
+              "named" is added only where a free slot makes "2 mods" ambiguous about whether the free
+              one counts; a craft with alternatives alone keeps the sentence it has always had. */}
           <h3 className="text-sm font-bold">
-            {targets.length === slots.length
+            {targets.length === slots.length && freeSlots === 0
               ? `Target item (${targets.length} mod${targets.length !== 1 ? 's' : ''})`
-              : `Target item (${slots.length} slot${slots.length !== 1 ? 's' : ''}, ${targets.length} mods)`}
+              : `Target item (${slots.length + freeSlots} slot${slots.length + freeSlots !== 1 ? 's' : ''}, `
+                + `${targets.length} mod${targets.length !== 1 ? 's' : ''}${freeSlots > 0 ? ' named' : ''})`}
           </h3>
           {/* Two "gain as extra" targets are already legal — different families — so this unlocks
               nothing; it says what a rune would make of them, which nobody would otherwise think of. */}
@@ -836,7 +893,11 @@ const EngineLab: React.FC = () => {
                 </div>
               );
             })}
+            {/* Last, because a free slot is what you have NOT decided — reading the named positions
+                first and "and one more, whatever" after is the order the player thinks in. */}
+            <FreeSlotRows spare={spare} onRemove={(side) => setSpare(withSpare(spare, side, -1))} />
           </div>
+          <FreeSlotNote spare={spare} fromWhite={fractured.size === 0} />
           {slots.some((sl) => sl.members.length > 1) && (
             /* Answered honestly rather than left to be discovered: an alternative eases ONE slot, so a
                target with six of them gains far less than a small one. Measured on Wands from white —
@@ -961,7 +1022,7 @@ const EngineLab: React.FC = () => {
             The step routes below are the simpler per-plan view: one fixed sequence, every slam hitting
             a named mod.
           </p>
-          <PolicyGraph result={markov} rates={engine ? priceBasis(engine).rates : undefined} />
+          <PolicyGraph result={markov} rates={engine ? priceBasis(engine).rates : undefined} spare={markovSpare} />
         </Card>
       )}
 

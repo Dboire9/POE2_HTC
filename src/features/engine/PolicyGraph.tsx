@@ -3,6 +3,8 @@ import type { EngineMarkovResult, EnginePolicyNode } from '../../lib/engine';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
 import { mainLine, type StepChanges } from '../../lib/policyPath';
 import { cn } from '../../lib/utils';
+import type { Spare } from '../../../packages/optimizer/src/slots.ts';
+import { NO_SPARE } from '../../../packages/optimizer/src/slots.ts';
 
 // The from-item MDP's optimal policy, shown two ways.
 //
@@ -250,8 +252,8 @@ export function routeThrough(
  */
 const StateDetail: React.FC<{
   group: NodeGroup; result: EngineMarkovResult; fmtCost: (x: number) => string; onClose: () => void;
-  startLabel: string;
-}> = ({ group, result, fmtCost, onClose, startLabel }) => {
+  startLabel: string; spare: Spare;
+}> = ({ group, result, fmtCost, onClose, startLabel, spare }) => {
   const { node, count } = group;
   const byKey = new Map(result.nodes.map((n) => [n.key, n]));
   const outcomes = result.edges
@@ -285,8 +287,26 @@ const StateDetail: React.FC<{
         )}
         <dt className="text-muted-foreground">Junk to clear</dt>
         <dd>
-          {junk === 0 ? <span className="text-muted-foreground">none</span>
-            : `${junk} (${node.junkPrefixes} prefix, ${node.junkSuffixes} suffix)`}
+          {/* "To clear" is a CLAIM, and a free slot can make it false: junk inside the allowance may
+              stay on the finished item. So the number is what actually has to go — junk above the
+              allowance, per side — and the rest is named as allowed rather than silently dropped from
+              a total the reader can count for themselves in the box above. */}
+          {(() => {
+            const goP = Math.max(0, node.junkPrefixes - spare.prefixes);
+            const goS = Math.max(0, node.junkSuffixes - spare.suffixes);
+            const allowed = junk - goP - goS;
+            return (
+              <>
+                {goP + goS === 0 ? <span className="text-muted-foreground">none</span>
+                  : `${goP + goS} (${goP} prefix, ${goS} suffix)`}
+                {allowed > 0 && (
+                  <span className="text-muted-foreground">
+                    {goP + goS === 0 ? ' — ' : ' · '}{allowed} may stay, in the slot{allowed === 1 ? '' : 's'} you left free
+                  </span>
+                )}
+              </>
+            );
+          })()}
           {node.desecratedJunk && <span className="text-muted-foreground"> · one of them was placed by a Desecration, which blocks desecrating again until it goes</span>}
         </dd>
         {node.desecratedTarget !== undefined && (
@@ -348,8 +368,8 @@ const StateDetail: React.FC<{
 };
 
 const FullGraph: React.FC<{
-  result: EngineMarkovResult; fmtCost: (x: number) => string; startLabel: string;
-}> = ({ result: full, fmtCost, startLabel }) => {
+  result: EngineMarkovResult; fmtCost: (x: number) => string; startLabel: string; spare: Spare;
+}> = ({ result: full, fmtCost, startLabel, spare }) => {
   // Which box the player clicked, if any — the graph then dims everything not on a route through it.
   const [selected, setSelected] = React.useState<string | null>(null);
   // How much of the graph to draw, as a share of expected visits. Prune FIRST: grouping and layout are
@@ -518,6 +538,7 @@ const FullGraph: React.FC<{
           fmtCost={fmtCost}
           onClose={() => setSelected(null)}
           startLabel={startLabel}
+          spare={spare}
         />
       )}
 
@@ -640,8 +661,14 @@ const FullGraph: React.FC<{
  * `startLabel` names the root: "Your item" on a craft's own graph, and something else when the graph is
  * a route from an item the player has not got yet — the Lab's "The item you buy".
  */
-const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates; startLabel?: string }> = ({
-  result, rates, startLabel = 'Your item',
+const PolicyGraph: React.FC<{
+  result: EngineMarkovResult; rates?: Rates; startLabel?: string;
+  /** Free slots the craft allows, so "Junk to clear" can say how much of the junk really has to go.
+   *  Defaults to none, which is what every craft without them means and what every caller meant
+   *  before they existed. */
+  spare?: Spare;
+}> = ({
+  result, rates, startLabel = 'Your item', spare = NO_SPARE,
 }) => {
   const [showAll, setShowAll] = React.useState(false);
   if (!result.applicable || !result.feasible || result.nodes.length === 0) return null;
@@ -743,7 +770,7 @@ const PolicyGraph: React.FC<{ result: EngineMarkovResult; rates?: Rates; startLa
         </ol>
       )}
 
-      {showGraph && <FullGraph result={result} fmtCost={fmtCost} startLabel={startLabel} />}
+      {showGraph && <FullGraph result={result} fmtCost={fmtCost} startLabel={startLabel} spare={spare} />}
 
       {/* The legend belongs to the PICTURE, so it renders with the picture. It used to live in
           ItemActions, below a component that shows a numbered LIST by default — so the app explained

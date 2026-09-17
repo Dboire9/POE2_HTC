@@ -19,7 +19,7 @@ import { EFFORT_PRESETS, isTopEffort, limitsFor, useEffort } from '../../lib/sea
 import { SearchEffort, SearchEffortHint } from './SearchEffort';
 import { useField } from '../../lib/workspace';
 import { importToItem } from '../../lib/importItem';
-import { MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotsOf, whyNotAdd } from '../../lib/targetSlots';
+import { MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, roomOnSide, slotsOf, whyNotAdd } from '../../lib/targetSlots';
 import { exactExalts, formatBoundedCost, formatCost, type Rates } from '../../lib/currency';
 import FrontierView from './FrontierView';
 import PolicyGraph from './PolicyGraph';
@@ -28,6 +28,9 @@ import SolveProgress from './SolveProgress';
 import CurrencyExclusions from './CurrencyExclusions';
 import BaseSelect from './BaseSelect';
 import RunePicker from './RunePicker';
+import { FreeSlotNote, FreeSlotRows, withSpare } from './FreeSlots';
+import type { Spare } from '../../../packages/optimizer/src/slots.ts';
+import { NO_SPARE } from '../../../packages/optimizer/src/slots.ts';
 import { limitsWithRunes } from '../../../packages/engine/src/runes.ts';
 import QuickCurrencyCheck from './QuickCurrencyCheck';
 import PasteItem from './PasteItem';
@@ -168,6 +171,13 @@ const ItemActions: React.FC = () => {
 
   // Option 2 (full plan) target + result.
   const [target, setTarget] = useField('item', 'target');
+  // Positions on the finished item the player doesn't care about — the same target-side setting the
+  // Lab tab has, read by the same guard and sent to the same solve.
+  const [spare, setSpare] = useField('item', 'spare');
+  const freeSlots = spare.prefixes + spare.suffixes;
+  // The free slots the LAST SOLVE ran with. The policy graph's "Junk to clear" is a claim about that
+  // solve, so it must not follow the live setting once the answer is on screen.
+  const [markovSpare, setMarkovSpare] = useState<Spare>(NO_SPARE);
   const [plan, setPlan] = useState<EngineResult | null>(null);
   const [markov, setMarkov] = useState<EngineMarkovResult | null>(null);
   const [planErr, setPlanErr] = useState<string | null>(null);
@@ -256,6 +266,9 @@ const ItemActions: React.FC = () => {
   const clearItem = () => {
     setPrefixes([]); setSuffixes([]);
     setTarget([]); setPlan(null); setMarkov(null); setPlanErr(null); setSearch(''); setTookMs(null);
+    // Free slots are part of the TARGET, so they go with it — a base change that left "any suffix"
+    // behind would carry a position from a craft the player has finished with.
+    setSpare(NO_SPARE);
   };
 
   /**
@@ -467,7 +480,27 @@ const ItemActions: React.FC = () => {
   // The same guard EngineLab uses. This tab had its own copy, worded differently and — in the picker
   // below — not enforced at all: a fourth prefix was a dead choice that silently did nothing.
   const blockFor = (mod: EngineMod): string | null =>
-    whyNotAdd(mod, target, modById, addingTo === null ? { limits } : { intoSlot: addingTo, limits });
+    whyNotAdd(mod, target, modById,
+      addingTo === null ? { limits, spare } : { intoSlot: addingTo, limits, spare });
+  /**
+   * Adding a FREE slot, from the same `<select>` the mods come from.
+   *
+   * The sentinels can't collide with a mod id: every id in the data carries a `<baseId>/` prefix, and
+   * neither of these has a slash. Only the side cap can refuse one — a free slot has no id to
+   * duplicate, no family to clash and no source to count — and it is asked through `roomOnSide`, the
+   * same helper the mod rows' cap check goes through.
+   */
+  const ANY: Readonly<Record<string, 'prefix' | 'suffix'>> = { 'any:prefix': 'prefix', 'any:suffix': 'suffix' };
+  const spareBlock = (side: 'prefix' | 'suffix'): string | null =>
+    (roomOnSide(side, target, modById, { limits, spare }) > 0
+      ? null
+      : `this side is full (max ${side === 'prefix' ? limits.prefixes : limits.suffixes})`);
+  const addSpare = (side: 'prefix' | 'suffix') => {
+    if (spareBlock(side) !== null) return;
+    setSpare(withSpare(spare, side, 1));
+    setAddingTo(null);
+    setPlan(null);
+  };
   const addTarget = (mod: EngineMod) => {
     if (blockFor(mod) !== null) return;
     const slot = addingTo;
@@ -541,6 +574,7 @@ const ItemActions: React.FC = () => {
       {
         kind: 'item', item, targets: target, effort: limitsFor(effort),
         ...(excludedKeys.length > 0 ? { excluded: excludedKeys } : {}),
+        ...(freeSlots > 0 ? { spare } : {}),
       },
       (p) => { if (current()) setProgress(p); },
     );
@@ -552,6 +586,7 @@ const ItemActions: React.FC = () => {
         // The honest expected cost + optimal-policy graph (push-forward MDP). Falls back silently to the
         // frontier alone when the target isn't MDP-modellable (perfect-essence / desecrate).
         setMarkov(res.markov);
+        setMarkovSpare(spare);
       })
       .catch((e) => {
         if (!current() || isCancelled(e)) return; // cancelling is what the user asked for, not an error
@@ -768,7 +803,8 @@ const ItemActions: React.FC = () => {
             </div>
             <p className="text-[11px] text-muted-foreground">
               Pick the <strong>final</strong> mods you want. Any mod on your item that isn’t in this list is treated
-              as junk and removed. The plan below keeps everything you already have that’s in the target.
+              as junk and removed{freeSlots > 0 ? ' — except for the free slots below, which may keep one' : ''}.
+              The plan below keeps everything you already have that’s in the target.
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -776,9 +812,26 @@ const ItemActions: React.FC = () => {
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Add a target mod</span>
                 <select
                   className={`${selectCls} min-w-72`} value=""
-                  onChange={(e) => { const m = modById.get(e.target.value); if (m) addTarget(m); }}
+                  onChange={(e) => {
+                    const side = ANY[e.target.value];
+                    if (side) { addSpare(side); return; }
+                    const m = modById.get(e.target.value);
+                    if (m) addTarget(m);
+                  }}
                 >
                   <option value="">— choose —</option>
+                  {/* Offered only while starting a NEW slot: an alternative answers "which of these
+                      would do?", and "anything" is not an answer to that but a different question about
+                      the whole slot. */}
+                  {addingTo === null && (['prefix', 'suffix'] as const).map((side) => {
+                    const why = spareBlock(side);
+                    return (
+                      <option key={side} value={`any:${side}`} disabled={why !== null}>
+                        {side === 'prefix' ? 'P' : 'S'} · Any {side} — I don’t care what lands here
+                        {why ? ` — ${why}` : ''}
+                      </option>
+                    );
+                  })}
                   {/* Every mod that cannot be added is DISABLED with its reason, rather than filtered
                       away or — as before — left selectable and silently ignored. This list used to
                       hide the one-desecrated and one-essence cases and enforce nothing else, so
@@ -813,7 +866,7 @@ const ItemActions: React.FC = () => {
                 once — and a slot counts as held if ANY of its candidates is, since whichever lands
                 fills it. This is the answer to "how far along am I" that the list itself makes you
                 assemble row by row. */}
-            {targetSlots.length > 0 && (() => {
+            {targetSlots.length + freeSlots > 0 && (() => {
               const per = targetSlots.map((slot) => {
                 const states = slot.members.map((i) => targetState(target[i]!));
                 return states.includes('have') ? 'have' : states.includes('reroll') ? 'reroll' : 'add';
@@ -823,10 +876,13 @@ const ItemActions: React.FC = () => {
               if (n('have') > 0) parts.push(<span key="h" className="text-emerald-600 dark:text-emerald-400"><strong>{n('have')}</strong> already on your item</span>);
               if (n('reroll') > 0) parts.push(<span key="r" className="text-amber-700 dark:text-amber-300"><strong>{n('reroll')}</strong> to re-roll</span>);
               if (n('add') > 0) parts.push(<span key="a" className="text-sky-700 dark:text-sky-300"><strong>{n('add')}</strong> to add</span>);
+              // A free slot is in none of the three states above: nothing has to be there, so it is
+              // neither held, nor to re-roll, nor to add. Left out of them and counted here instead.
+              if (freeSlots > 0) parts.push(<span key="f" className="text-muted-foreground"><strong>{freeSlots}</strong> free</span>);
               return (
                 <p className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs">
                   <span className="font-semibold text-foreground">
-                    {targetSlots.length} slot{targetSlots.length === 1 ? '' : 's'}:
+                    {targetSlots.length + freeSlots} slot{targetSlots.length + freeSlots === 1 ? '' : 's'}:
                   </span>
                   {parts.map((el, i) => (
                     <React.Fragment key={i}>{i > 0 && <span className="text-muted-foreground">·</span>}{el}</React.Fragment>
@@ -843,7 +899,7 @@ const ItemActions: React.FC = () => {
                 prices={engine.prices.currency} rates={rates}
               />
             )}
-            {target.length > 0 && (
+            {target.length + freeSlots > 0 && (
               <div className="space-y-2">
                 {/* By SLOT, not by target: a slot with alternatives is one position on the item and has
                     to read as one, or a three-way choice looks like three mods you must all get. */}
@@ -963,8 +1019,13 @@ const ItemActions: React.FC = () => {
                     </div>
                   );
                 })}
+                <FreeSlotRows spare={spare} onRemove={(side) => { setSpare(withSpare(spare, side, -1)); setPlan(null); }} />
               </div>
             )}
+            {/* `fromWhite` is false here by definition: this tab plans from an item you hold, and its
+                step planner CAN use a free slot — it decides which junk to leave before spending an
+                orb, where a from-white route would have to decide after the roll. */}
+            <FreeSlotNote spare={spare} fromWhite={false} />
             {targetSlots.some((sl) => sl.members.length > 1) && (
               <p className="text-[11px] text-muted-foreground">
                 ⊕ An alternative slot is filled by whichever of its mods lands, so it never costs you a
@@ -1082,7 +1143,7 @@ const ItemActions: React.FC = () => {
               {engine && <PriceBasisNote basis={priceBasis(engine)} exactOdds={!markov.assumedOdds} assumedFrom={markov.assumedFrom} />}
               {/* The graph's legend moved INTO PolicyGraph, which is the only place that knows
                   whether the picture or the route list is on screen. */}
-              <PolicyGraph result={markov} rates={rates} />
+              <PolicyGraph result={markov} rates={rates} spare={markovSpare} />
             </Card>
           )}
           {plan && !planErr && trueCostAnswered && !showRoutes && (

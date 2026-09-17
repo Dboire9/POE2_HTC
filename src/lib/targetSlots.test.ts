@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { EngineMod, TargetInput } from './engineTypes.ts';
 import {
-  MAX_PER_SIDE, MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, slotCounts, slotsOf, whyNotAdd,
+  MAX_PER_SIDE, MIXED_TIER_NOTE, mixedTierAlternatives, nextSlotId, roomOnSide, slotCounts, slotsOf, whyNotAdd,
 } from './targetSlots.ts';
 
 const tier = (d: number) => ({ display: d, name: `t${d}`, ilvl: 1, label: `T${d}`, range: '1–2', values: ['1–2'] });
@@ -221,5 +221,47 @@ describe('mixedTierAlternatives', () => {
   it('says what stands in the way without promising a number', () => {
     expect(MIXED_TIER_NOTE).toMatch(/same answer/i);
     expect(MIXED_TIER_NOTE).not.toMatch(/\d+(\.\d+)?\s*(x|×|%|faster)/i);
+  });
+});
+
+/**
+ * FREE SLOTS occupy positions on the finished item without naming a mod, so the side cap has to count
+ * them — and the picker has to say so rather than leave the solver to make the slot quietly inert.
+ */
+describe('free slots and the side cap', () => {
+  const three = [t('fire'), t('spell'), t('mana')]; // prefix side full at 3
+  const two = [t('fire'), t('spell')];
+
+  it('counts a free slot as a position, so it fills the side', () => {
+    expect(roomOnSide('prefix', two, modById)).toBe(1);
+    expect(roomOnSide('prefix', two, modById, { spare: { prefixes: 1, suffixes: 0 } })).toBe(0);
+    // …and only on its own side.
+    expect(roomOnSide('suffix', two, modById, { spare: { prefixes: 1, suffixes: 0 } })).toBe(MAX_PER_SIDE);
+  });
+
+  it('refuses a mod on a side whose last position is already spoken for', () => {
+    expect(whyNotAdd(MANA, two, modById)).toBeNull();
+    expect(whyNotAdd(MANA, two, modById, { spare: { prefixes: 1, suffixes: 0 } }))
+      .toMatch(/side is full/i);
+  });
+
+  it('leaves a side with no free slots exactly as it was', () => {
+    expect(roomOnSide('prefix', three, modById)).toBe(0);
+    expect(whyNotAdd(MANA, two, modById, { spare: { prefixes: 0, suffixes: 0 } })).toBeNull();
+  });
+
+  /** Joining a slot adds a CANDIDATE, not a position, so free slots are none of its business. */
+  it('does not apply to an alternative joining an existing slot', () => {
+    const grouped = [t('fire', 0), t('spell'), t('mana')];
+    expect(whyNotAdd(COLD, grouped, modById, { intoSlot: 0, spare: { prefixes: 3, suffixes: 3 } }))
+      .toBeNull();
+  });
+
+  /** The cap it reports is the base's own, which a socketed Serle's Triumph raises to four suffixes. */
+  it('reads the raised cap a rune gives, not a constant', () => {
+    const suffixes = [t('cast'), t('crit'), t('int')];
+    const limits = { prefixes: 3, suffixes: 4 };
+    expect(roomOnSide('suffix', suffixes, modById, { limits })).toBe(1);
+    expect(roomOnSide('suffix', suffixes, modById, { limits, spare: { prefixes: 0, suffixes: 1 } })).toBe(0);
   });
 });

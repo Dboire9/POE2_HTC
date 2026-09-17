@@ -621,3 +621,83 @@ describe('EngineLab — a base holds one fractured mod', () => {
     expect(lock(/Normal Prefix/)).toHaveAttribute('aria-pressed', 'false');
   });
 });
+
+/**
+ * FREE SLOTS — "I don't care what lands here."
+ *
+ * Offered in the picker, beside the mods, because that is where a player goes to say what the item
+ * should end up as and this is one of the things they can say. It is not a mod underneath — no id, no
+ * tier, no family, just a count per side — and these pin the places where that difference shows.
+ */
+describe('EngineLab — a free slot', () => {
+  const anyRow = (side: 'prefix' | 'suffix'): HTMLElement =>
+    screen.getByRole('button', { name: new RegExp(`Leave one ${side} free`, 'i') });
+  const dropRow = (side: 'prefix' | 'suffix'): HTMLElement =>
+    screen.getByRole('button', { name: new RegExp(`Stop leaving a ${side} free`, 'i') });
+
+  it('adds one from the picker and lists it as a position on the item', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(anyRow('suffix'));
+    // Counted as a SLOT, and the mods are counted separately — "2 mods" would be a claim that the free
+    // one is a modifier you asked for.
+    expect(screen.getByText(/Target item \(2 slots, 1 mod named\)/i)).toBeInTheDocument();
+    expect(dropRow('suffix')).toBeInTheDocument();
+  });
+
+  it('takes it off again', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(anyRow('prefix'));
+    await user.click(dropRow('prefix'));
+    // Back to the words a craft without free slots has always had.
+    expect(screen.getByText(/Target item \(1 mod\)/i)).toBeInTheDocument();
+  });
+
+  /** It fills a position, so the side runs out one mod sooner — and the picker says so, rather than
+   *  leaving the solver to make the slot silently inert. */
+  it('uses up a position, so the side fills one mod sooner', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(addButton('Essence Prefix'));
+    expect(addButton('Essence Prefix Two')).toBeDisabled(); // one essence per item, not the cap
+    expect(screen.getByText('2/3')).toBeInTheDocument();
+    await user.click(anyRow('prefix'));
+    // The column's own tally counts it too, or the side would read as having room it no longer has.
+    expect(screen.getByText('3/3')).toBeInTheDocument();
+    expect(anyRow('prefix')).toBeDisabled(); // 2 named + 1 free = the whole prefix side
+  });
+
+  /** Says what it does to the answer, including the half a reader would otherwise infer wrongly: the
+   *  step routes below can't use it. */
+  it('explains that the routes ignore it and the true cost does not', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(anyRow('suffix'));
+    expect(screen.getByText(/don’t use it/i)).toBeInTheDocument();
+    expect(screen.getByText(/Exalt/)).toBeInTheDocument();
+  });
+
+  /** An alternative answers "which of these would do?"; "anything" is not an answer to that. */
+  it('is not offered while you are picking an alternative', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    expect(anyRow('prefix')).toBeInTheDocument();
+    await user.click(screen.getAllByRole('button', { name: /or…/i })[0]!);
+    expect(screen.queryByRole('button', { name: /Leave one prefix free/i })).toBeNull();
+  });
+
+  /** …nor while a search is on, where it would be the one result that ignored what you typed. */
+  it('is not offered while the picker is filtered', async () => {
+    const user = userEvent.setup();
+    await loaded();
+    expect(anyRow('suffix')).toBeInTheDocument();
+    await user.type(screen.getByPlaceholderText(/Search modifiers to add as targets/i), 'suffix');
+    expect(screen.queryByRole('button', { name: /Leave one suffix free/i })).toBeNull();
+  });
+});

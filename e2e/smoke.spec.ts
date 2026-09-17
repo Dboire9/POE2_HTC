@@ -88,14 +88,24 @@ test('3 — item compute: the from-item planner answers on a held item', async (
   // `Compute plan` disabled on "Pick at least one target mod above".
   const picker = page.getByRole('combobox', { name: /add a target mod/i });
   await expect(picker).toBeVisible();
+
+  // The list opens with the two FREE-SLOT options ("Any prefix / Any suffix"), which are positions on
+  // the item rather than modifiers — so "the first enabled option" stopped meaning "a target mod" the
+  // day they shipped, and this test failed on exactly that. Assert the distinction rather than route
+  // around it: a craft of nothing but free slots has nothing to aim at, and Compute stays disabled.
+  const compute = page.getByRole('button', { name: 'Compute plan' });
+  await picker.selectOption('any:suffix');
+  await expect(page.getByRole('button', { name: /Stop leaving a suffix free/i })).toBeVisible();
+  await expect(compute).toBeDisabled();
+  await page.getByRole('button', { name: /Stop leaving a suffix free/i }).click();
+
   const firstEnabled = await picker
-    .locator('option:not([disabled]):not([value=""])')
+    .locator('option:not([disabled]):not([value=""]):not([value^="any:"])')
     .first()
     .getAttribute('value');
   expect(firstEnabled, 'at least one target mod is selectable').toBeTruthy();
   await picker.selectOption(firstEnabled!);
 
-  const compute = page.getByRole('button', { name: 'Compute plan' });
   await expect(compute).toBeEnabled();
   await compute.click();
 

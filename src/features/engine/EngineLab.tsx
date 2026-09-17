@@ -1055,6 +1055,16 @@ const EngineLab: React.FC = () => {
                 <p>No plan avoids the {excludedKeys.length} currenc{excludedKeys.length === 1 ? 'y' : 'ies'} you
                   excluded. Untick some under “Currency I don’t have” to widen the search — or the target may be
                   out of reach anyway, which this can’t tell you without re-running it unrestricted.</p>
+              ) : freeSlots > 0 ? (
+                /* Not a claim that the free slot CAUSED this — a short target can come back empty
+                   without one, for the same underlying reason. It is a claim about where the answer
+                   is: every step these routes build names the mod it adds, so none of them can be
+                   spent on a position you left open, and the generic "try a lower tier" below would
+                   send the reader off adjusting something that was never the problem. */
+                <p>These routes can’t use the slot you left free — every step in a route names the mod
+                  it adds, so none of them can be spent on “anything”. The <strong>true expected
+                  cost</strong> above is not restricted that way: if it came back with a number, the
+                  craft is reachable even though no route here is.</p>
               ) : undefined}
         />
       )}

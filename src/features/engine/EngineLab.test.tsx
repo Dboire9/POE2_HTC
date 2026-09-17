@@ -682,6 +682,23 @@ describe('EngineLab — a free slot', () => {
     expect(screen.getByText(/Exalt/)).toBeInTheDocument();
   });
 
+  /**
+   * An empty frontier beside a free slot must not be explained by the generic "try a lower tier" —
+   * that sends the reader off adjusting something that was never the problem. Seen for real: a
+   * two-prefix craft from white comes back with no route at all (the planner has no filler step) while
+   * the model answers 3,603 ex, and the fallback blamed the item level.
+   */
+  it('says where the answer is when no route can be built and a slot is free', async () => {
+    const user = userEvent.setup();
+    mocks.optimize.mockReturnValue({ ...okFrontier, frontier: [] });
+    await loaded();
+    await user.click(addButton('Normal Prefix'));
+    await user.click(anyRow('suffix'));
+    await user.click(screen.getByRole('button', { name: /Find plans/i }));
+    expect(await screen.findByText(/can’t use the slot you left free/i)).toBeInTheDocument();
+    expect(screen.queryByText(/gated above the item level/i)).toBeNull();
+  });
+
   /** An alternative answers "which of these would do?"; "anything" is not an answer to that. */
   it('is not offered while you are picking an alternative', async () => {
     const user = userEvent.setup();

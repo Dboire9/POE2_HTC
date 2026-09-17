@@ -94,11 +94,13 @@ describe('mainLine', () => {
 // left out the one thing a player needs, which mod. Both states are already in hand, so the step's
 // effect is a diff nobody was taking.
 describe('mainLine — what each step moves', () => {
+  /** Positions in the mapped shape; these cases are about the DIFF, so the side is a stand-in. */
+  const mods = (texts: readonly string[]) => texts.map((text) => ({ text, type: 'prefix' as const }));
   const withMods = (
     key: string, depth: number, present: string[], blocked: string[], junk: number,
     extra: Partial<EnginePolicyNode> = {},
   ): EnginePolicyNode => ({
-    key, present, blocked, junkPrefixes: junk, junkSuffixes: 0, rarity: 'rare',
+    key, present: mods(present), blocked: mods(blocked), junkPrefixes: junk, junkSuffixes: 0, rarity: 'rare',
     isStart: false, isGoal: false, depth, expectedCost: depth, visitRate: 1, action: 'Exalt', ...extra,
   });
 

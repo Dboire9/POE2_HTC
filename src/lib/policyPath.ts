@@ -12,7 +12,7 @@
 //
 // Pure and free of React so it can be unit-tested without jsdom (same reasoning as currency.ts).
 
-import type { EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode } from './engineTypes.ts';
+import type { EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode, PolicyMod } from './engineTypes.ts';
 
 export interface MainLineStep {
   /** The state you are in when you take this action. */
@@ -53,10 +53,27 @@ export interface StepChanges {
   readonly junkDelta: number;
 }
 
-/** `a` minus `b`, on mod-text lists that are already de-duplicated by construction. */
-const without = (a: readonly string[], b: readonly string[]): string[] => a.filter((x) => !b.includes(x));
+/**
+ * `a` minus `b`, by TEXT.
+ *
+ * Positions carry a side and a tier now, and comparing whole objects would make two spellings of the
+ * same position — one mapped with a tier, one without — read as a mod gained and a mod lost. The text
+ * is what identifies a position to a reader and it is what these lists hold, so it is what the
+ * difference is taken on. De-duplicated by construction on both sides.
+ */
+const without = (a: readonly PolicyMod[], b: readonly PolicyMod[]): string[] => {
+  const seen = new Set(b.map((p) => p.text));
+  return a.filter((p) => !seen.has(p.text)).map((p) => p.text);
+};
 
-function diff(node: EnginePolicyNode, next: EnginePolicyNode): StepChanges {
+/**
+ * What one step changes, between two states of the same policy.
+ *
+ * Exported because the GRAPH asks the same question when it describes an edge, and used to ask it with
+ * its own copy of this expression. Two copies of a diff are two chances to disagree about what a step
+ * did — and they nearly did, the moment a position stopped being a bare string.
+ */
+export function changesBetween(node: EnginePolicyNode, next: EnginePolicyNode): StepChanges {
   return {
     gained: without(next.present, node.present),
     lost: without(node.present, next.present),
@@ -135,7 +152,7 @@ export function mainLine(result: EngineMarkovResult): MainLine {
     if (!best) return { steps: [] }; // stalled — let the caller fall back to the full graph
     steps.push({
       node, action: node.action ?? best.edge.action, next: best.to, advance: best.edge.prob, brick,
-      changes: diff(node, best.to),
+      changes: changesBetween(node, best.to),
     });
     node = best.to;
   }

@@ -5,7 +5,11 @@ import PolicyGraph, { groupNodes, groupKeyOf, progressEdges, routeThrough, prune
 import { optimizeItemMarkov } from '../../lib/engine';
 import { loadPatch } from '../../../packages/engine/src/loadPatch.ts';
 import { loadPrices } from '../../../packages/optimizer/src/loadPrices.ts';
-import type { EngineMarkovResult, EnginePolicyNode } from '../../lib/engine';
+import type { EngineMarkovResult, EnginePolicyNode, PolicyMod } from '../../lib/engine';
+/** Node positions in the mapped shape. These fixtures are about layout and wiring, so the side is a
+ *  stand-in and the tier is left off — the cases that care about either say so. */
+const mods = (...texts: string[]): PolicyMod[] => texts.map((text) => ({ text, type: 'prefix' as const }));
+
 
 // Rendered from REAL MDP output (keep Mana, swap Int→Spell Damage on a Wand), not a fixture.
 const eng = { data: loadPatch('data/patches/0.5.0'), prices: loadPrices('data/patches/0.5.0') };
@@ -141,8 +145,8 @@ describe('PolicyGraph — degenerate input', () => {
     const deadEnd: EngineMarkovResult = {
       applicable: true, feasible: true, expectedCost: 5.4e6, converged: false, bound: 'lower', assumedOdds: false,
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 7, expectedCost: 5.4e6, visitRate: 1, action: 'Annul' },
-        { key: 'b', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 6, expectedCost: 5.4e6, visitRate: 1, action: 'Chaos' },
+        { key: 'a', present: mods(), blocked: mods(), junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 7, expectedCost: 5.4e6, visitRate: 1, action: 'Annul' },
+        { key: 'b', present: mods(), blocked: mods(), junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 6, expectedCost: 5.4e6, visitRate: 1, action: 'Chaos' },
       ],
       edges: [{ from: 'a', to: 'b', action: 'Annul', prob: 1, regress: false }],
     };
@@ -162,8 +166,8 @@ describe('PolicyGraph — degenerate input', () => {
     const stalled: EngineMarkovResult = {
       applicable: true, feasible: true, expectedCost: 5, converged: true, bound: 'exact', assumedOdds: false,
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 5, visitRate: 1, action: 'Annul' },
-        { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+        { key: 'a', present: mods(), blocked: mods(), junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 5, visitRate: 1, action: 'Annul' },
+        { key: 'g', present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
       ],
       edges: [],
     };
@@ -231,8 +235,8 @@ describe('PolicyGraph — the route names the mods', () => {
   it('says when a step only clears junk', () => {
     const r = result_({
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 9, visitRate: 1, action: 'Annul' },
-        { key: 'g', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+        { key: 'a', present: mods(), blocked: mods(), junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 2, expectedCost: 9, visitRate: 1, action: 'Annul' },
+        { key: 'g', present: mods(), blocked: mods(), junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
       ],
       edges: [{ from: 'a', to: 'g', action: 'Annul', prob: 0.5, regress: false }],
     });
@@ -277,10 +281,10 @@ describe('PolicyGraph — highlighting the route through a state', () => {
     // — so it is not asserted here, where it would only be testing the fixture.)
     const forked = result_({
       nodes: [
-        { key: 's', present: [], blocked: [], junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 3, expectedCost: 9, visitRate: 1, action: 'Annul' },
-        { key: 'left', present: ['A'], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 8, visitRate: 1, action: 'Exalt' },
-        { key: 'right', present: ['B'], blocked: [], junkPrefixes: 0, junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 7, visitRate: 1, action: 'Chaos' },
-        { key: 'g', present: ['A', 'B'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+        { key: 's', present: mods(), blocked: mods(), junkPrefixes: 2, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 3, expectedCost: 9, visitRate: 1, action: 'Annul' },
+        { key: 'left', present: mods('A'), blocked: mods(), junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 8, visitRate: 1, action: 'Exalt' },
+        { key: 'right', present: mods('B'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 7, visitRate: 1, action: 'Chaos' },
+        { key: 'g', present: mods('A', 'B'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
       ],
       edges: [
         { from: 's', to: 'left', action: 'Annul', prob: 0.5, regress: false },
@@ -305,8 +309,8 @@ describe('PolicyGraph — highlighting the route through a state', () => {
     // walks strictly-decreasing depth and cannot.
     const cyc: EngineMarkovResult = result_({
       nodes: [
-        { key: 'a', present: [], blocked: [], junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 1, expectedCost: 2, visitRate: 1, action: 'Exalt' },
-        { key: 'b', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+        { key: 'a', present: mods(), blocked: mods(), junkPrefixes: 1, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false, depth: 1, expectedCost: 2, visitRate: 1, action: 'Exalt' },
+        { key: 'b', present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
       ],
       edges: [
         { from: 'a', to: 'b', action: 'Exalt', prob: 0.5, regress: false },
@@ -382,13 +386,13 @@ describe('PolicyGraph — highlighting the route through a state', () => {
 describe('PolicyGraph — the full description of a clicked state', () => {
   const detailed = result_({
     nodes: [
-      { key: 'a', present: ['Spell Damage'], blocked: ['Cold Damage'], junkPrefixes: 1, junkSuffixes: 2,
+      { key: 'a', present: mods('Spell Damage'), blocked: mods('Cold Damage'), junkPrefixes: 1, junkSuffixes: 2,
         rarity: 'rare' as const, isStart: true, isGoal: false, depth: 4, expectedCost: 900, visitRate: 1, action: 'Exalt (Dextral, Perfect)' },
-      { key: 'b', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: ['Cold Damage'],
+      { key: 'b', present: mods('Spell Damage', 'Mana Regeneration Rate'), blocked: mods('Cold Damage'),
         junkPrefixes: 1, junkSuffixes: 2, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 3, expectedCost: 800, visitRate: 1, action: 'Annul' },
-      { key: 'c', present: ['Spell Damage'], blocked: ['Cold Damage'], junkPrefixes: 1, junkSuffixes: 3,
+      { key: 'c', present: mods('Spell Damage'), blocked: mods('Cold Damage'), junkPrefixes: 1, junkSuffixes: 3,
         rarity: 'rare' as const, isStart: false, isGoal: false, depth: 5, expectedCost: 950, visitRate: 1, action: 'Annul' },
-      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+      { key: 'g', present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
     ],
     edges: [
       { from: 'a', to: 'b', action: 'Exalt (Dextral, Perfect)', prob: 0.2, regress: false },
@@ -409,6 +413,62 @@ describe('PolicyGraph — the full description of a clicked state', () => {
     expect(screen.getByText(/Target mods held/i)).toBeInTheDocument();
     expect(screen.getByText(/Stuck below tier/i)).toBeInTheDocument();
     expect(screen.getByText(/annul before re-adding/i)).toBeInTheDocument();
+  });
+
+  /**
+   * The panel used to join every held modifier with ", " onto one line. Modifier text is full of its
+   * own commas and "+"s — "+# maximum stacks of Puppet Master, #% Surpassing Chance to gain a Puppet
+   * Master stack whenever you use a Command Skill, #% increased Spirit" reads as five things, not
+   * three — so the separator could not be a comma, and the count could not be read at all.
+   */
+  it('lists one position per row, with its side and the tier it was asked at', async () => {
+    const withTiers = result_({
+      nodes: [
+        { key: 'a', present: [{ text: 'Spell Damage', type: 'prefix' as const, tier: 2 },
+          { text: 'Cast Speed', type: 'suffix' as const, tier: 1 }],
+        blocked: [{ text: 'Cold Damage', type: 'prefix' as const, tier: 3 }],
+        junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const, isStart: true, isGoal: false,
+        depth: 2, expectedCost: 9, visitRate: 1, action: 'Exalt' },
+        { key: 'g', present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0,
+          rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+      ],
+      edges: [{ from: 'a', to: 'g', action: 'Exalt', prob: 1, regress: false }],
+    });
+    render(<PolicyGraph result={withTiers} />);
+    await expand();
+    await userEvent.setup().click(screen.getAllByRole('button', { name: /Highlight the route through this state/i })[0]!);
+
+    // The <dd> beside the label, not the whole <dl> — the off-tier row below it is a list too.
+    const held = screen.getByText(/Target mods held/i).nextElementSibling as HTMLElement;
+    // One list item per position, not one line holding all of them.
+    expect(within(held).getAllByRole('listitem')).toHaveLength(2);
+    // Side, so a reader can tell which half of the item is filling up…
+    expect(within(held).getByText('P')).toBeInTheDocument();
+    expect(within(held).getByText('S')).toBeInTheDocument();
+    // …and the tier as the ASK it is: present means "at that tier or better", never exactly it.
+    expect(within(held).getByText('T2+')).toBeInTheDocument();
+    expect(within(held).getByText('T1+')).toBeInTheDocument();
+    // The off-tier row gets the same treatment — there the tier is the ask the roll fell short of.
+    expect(screen.getByText('T3+')).toBeInTheDocument();
+  });
+
+  /** A position mapped without a target list has no tier to show, and must not invent one. */
+  it('shows the side alone when no tier was asked', async () => {
+    const noTiers = result_({
+      nodes: [
+        { key: 'a', present: mods('Spell Damage'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0,
+          rarity: 'rare' as const, isStart: true, isGoal: false, depth: 1, expectedCost: 9, visitRate: 1, action: 'Exalt' },
+        { key: 'g', present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0,
+          rarity: 'rare' as const, isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
+      ],
+      edges: [{ from: 'a', to: 'g', action: 'Exalt', prob: 1, regress: false }],
+    });
+    render(<PolicyGraph result={noTiers} />);
+    await expand();
+    await userEvent.setup().click(screen.getAllByRole('button', { name: /Highlight the route through this state/i })[0]!);
+    const held = screen.getByText(/Target mods held/i).nextElementSibling as HTMLElement;
+    expect(within(held).getByText('P')).toBeInTheDocument();
+    expect(within(held).queryByText(/^T\d+\+$/)).toBeNull();
   });
 
   it('breaks the junk down by side, which the box label cannot', async () => {
@@ -448,14 +508,14 @@ describe('PolicyGraph — the full description of a clicked state', () => {
 describe('PolicyGraph — starting over is described as what it is', () => {
   const withRestart = result_({
     nodes: [
-      { key: 'w', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
+      { key: 'w', present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
         isStart: true, isGoal: false, depth: 4, expectedCost: 100, visitRate: 1, action: 'Transmute' },
-      { key: 'm', present: ['Spell Damage'], blocked: [], junkPrefixes: 0, junkSuffixes: 0,
+      { key: 'm', present: mods('Spell Damage'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0,
         rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 90, visitRate: 1, action: 'Exalt' },
-      { key: 'r', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: [], junkPrefixes: 0,
+      { key: 'r', present: mods('Spell Damage', 'Mana Regeneration Rate'), blocked: mods(), junkPrefixes: 0,
         junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false, depth: 3,
         expectedCost: 100, visitRate: 1, action: 'Start over with a new base' },
-      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const,
+      { key: 'g', present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const,
         isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
     ],
     edges: [
@@ -503,15 +563,15 @@ describe('PolicyGraph — a state that only knows how to start over is still dra
     nodes: [
       // Depth 8, further from the goal than the loaded item below — a white base needs the Regal that
       // makes it Rare on top of every mod. So restarting is a REGRESS and never a progress edge.
-      { key: 'w', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
+      { key: 'w', present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'normal' as const,
         isStart: true, isGoal: false, depth: 8, expectedCost: 100, visitRate: 1, action: 'Transmute' },
-      { key: 'm', present: ['Spell Damage'], blocked: [], junkPrefixes: 0, junkSuffixes: 0,
+      { key: 'm', present: mods('Spell Damage'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0,
         rarity: 'rare' as const, isStart: false, isGoal: false, depth: 2, expectedCost: 90, visitRate: 1, action: 'Exalt' },
       // Nothing lists this one as an outcome, exactly as in the reported craft.
-      { key: 'r', present: ['Spell Damage', 'Mana Regeneration Rate'], blocked: ['Cold Damage'],
+      { key: 'r', present: mods('Spell Damage', 'Mana Regeneration Rate'), blocked: mods('Cold Damage'),
         junkPrefixes: 0, junkSuffixes: 1, rarity: 'rare' as const, isStart: false, isGoal: false,
         depth: 4, expectedCost: 100, visitRate: 1, action: 'Start over with a new base' },
-      { key: 'g', present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const,
+      { key: 'g', present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare' as const,
         isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
     ],
     edges: [
@@ -550,7 +610,7 @@ describe('PolicyGraph — a state that only knows how to start over is still dra
  */
 describe('pruneToCoverage — draw what a craft runs into, say what it left out', () => {
   const node = (key: string, visitRate: number, extra: Partial<EnginePolicyNode> = {}): EnginePolicyNode => ({
-    key, present: [], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
+    key, present: mods(), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
     isStart: false, isGoal: false, depth: 1, expectedCost: 1, visitRate, action: 'Exalt', ...extra,
   });
   // One hot state, a start, a goal, and twenty you meet once in a thousand attempts.
@@ -704,15 +764,15 @@ describe('PolicyGraph — the graph is offered, not hidden', () => {
  */
 describe('PolicyGraph — a route from an item you buy', () => {
   const nd = (key: string, extra: Partial<EnginePolicyNode>): EnginePolicyNode => ({
-    key, present: ['A'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
+    key, present: mods('A'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
     isStart: false, isGoal: false, depth: 1, expectedCost: 5, visitRate: 0.5, ...extra,
   });
   const route = result_({
     nodes: [
       nd('item', { isStart: true, depth: 1, action: 'Exalt', visitRate: 1.4 }),
       nd('junk', { junkPrefixes: 1, depth: 2, action: 'Annul', visitRate: 0.4 }),
-      nd('goal', { present: ['A', 'B'], isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 }),
-      nd('fresh', { present: [], rarity: 'normal', isRestart: true, depth: 4, expectedCost: 13, visitRate: 0 }),
+      nd('goal', { present: mods('A', 'B'), isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 }),
+      nd('fresh', { present: mods(), rarity: 'normal', isRestart: true, depth: 4, expectedCost: 13, visitRate: 0 }),
     ],
     edges: [
       { from: 'item', to: 'goal', action: 'Exalt', prob: 0.6, regress: false },

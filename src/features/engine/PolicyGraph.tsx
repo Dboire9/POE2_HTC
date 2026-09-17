@@ -1,7 +1,7 @@
 import React from 'react';
-import type { EngineMarkovResult, EnginePolicyNode } from '../../lib/engine';
+import type { EngineMarkovResult, EnginePolicyNode, PolicyMod } from '../../lib/engine';
 import { formatIn, pickUnit, type Rates } from '../../lib/currency';
-import { mainLine, type StepChanges } from '../../lib/policyPath';
+import { changesBetween, mainLine, type StepChanges } from '../../lib/policyPath';
 import { cn } from '../../lib/utils';
 import type { Spare } from '../../../packages/optimizer/src/slots.ts';
 import { NO_SPARE } from '../../../packages/optimizer/src/slots.ts';
@@ -38,6 +38,18 @@ const PAD = 16;
  * the same box over and over. Grouping by exactly what a box displays collapses 262 to 79.
  */
 interface Group { node: EnginePolicyNode; count: number; x: number; y: number; }
+
+/**
+ * One position as PLAIN TEXT, for the places that cannot hold markup — an SVG `<title>` tooltip and the
+ * screen-reader list. Same three facts the rendered list shows, in the same order.
+ *
+ * Separated with "·" rather than ", " for the reason the list exists at all: modifier text is full of
+ * its own commas, so a comma cannot be the thing that divides one modifier from the next.
+ */
+const positionText = (m: PolicyMod): string =>
+  `${m.type === 'prefix' ? 'P' : 'S'}${m.tier === undefined ? '' : ` T${m.tier}+`} ${m.text}`;
+
+const positionsText = (items: readonly PolicyMod[]): string => items.map(positionText).join(' · ');
 
 /** Short state label: target mods present + any off-tier blocks + how much junk remains. */
 function stateLabel(nd: EnginePolicyNode): string {
@@ -250,6 +262,46 @@ export function routeThrough(
  * state; when the box stands for several, the panel says so rather than implying they all behave
  * identically.
  */
+/**
+ * The positions of a state, as a LIST rather than a comma-separated run-on.
+ *
+ * Four modifiers joined by commas is one long line in which every mod's own commas and "+"s look like
+ * separators — "+# maximum stacks of Puppet Master, #% Surpassing Chance to gain a Puppet Master stack
+ * whenever you use a Command Skill, #% increased Spirit" reads as five things, not three. One row each,
+ * with the side and the tier the target was asked at, turns it back into something you can count.
+ *
+ * The tier is the ASK, not a roll: a present position means "at that tier or better", and the state
+ * does not record which. So it is written "T2+" rather than "T2", and left off entirely where the
+ * caller gave no targets or a merged position's members disagree (`PolicyMod.tier`).
+ */
+const PositionList: React.FC<{ readonly items: readonly PolicyMod[]; readonly tone?: string }> = ({ items, tone }) => (
+  <ul className="space-y-0.5">
+    {items.map((m) => (
+      <li key={`${m.type}-${m.text}`} className="flex items-start gap-1.5">
+        <span
+          className={cn(
+            'mt-px shrink-0 rounded px-1 text-[10px] font-semibold leading-4',
+            m.type === 'prefix'
+              ? 'bg-sky-500/15 text-sky-700 dark:text-sky-300'
+              : 'bg-violet-500/15 text-violet-700 dark:text-violet-300',
+          )}
+          title={m.type}
+        >
+          {m.type === 'prefix' ? 'P' : 'S'}
+        </span>
+        {m.tier !== undefined && (
+          <span className="mt-px shrink-0 tabular-nums text-[10px] font-semibold leading-4 text-muted-foreground"
+            title={`asked at tier ${m.tier} or better`}
+          >
+            T{m.tier}+
+          </span>
+        )}
+        <span className={tone}>{m.text}</span>
+      </li>
+    ))}
+  </ul>
+);
+
 const StateDetail: React.FC<{
   group: NodeGroup; result: EngineMarkovResult; fmtCost: (x: number) => string; onClose: () => void;
   startLabel: string; spare: Spare;
@@ -276,13 +328,21 @@ const StateDetail: React.FC<{
 
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
         <dt className="text-muted-foreground">Target mods held</dt>
-        <dd>{node.present.length > 0 ? node.present.join(', ') : <span className="text-muted-foreground">none yet</span>}</dd>
+        <dd>
+          {node.present.length > 0
+            ? <PositionList items={node.present} />
+            : <span className="text-muted-foreground">none yet</span>}
+        </dd>
         {node.blocked.length > 0 && (
           <>
             <dt className="text-muted-foreground">Stuck below tier</dt>
             {/* Worth spelling out: the family is occupied by a roll that is too low, so the mod cannot
-                be re-rolled onto the item until that roll is annulled off. */}
-            <dd>{node.blocked.join(', ')} <span className="text-muted-foreground">— annul before re-adding</span></dd>
+                be re-rolled onto the item until that roll is annulled off. The tier beside each one is
+                what makes that readable — it names the ask the roll fell short of. */}
+            <dd>
+              <PositionList items={node.blocked} />
+              <span className="text-muted-foreground">annul before re-adding</span>
+            </dd>
           </>
         )}
         <dt className="text-muted-foreground">Junk to clear</dt>
@@ -350,12 +410,7 @@ const StateDetail: React.FC<{
                       bought item ends at. A step back onto a bought item is a real diff, and reads as one. */}
                   {to.isRestart ? 'start over from a new white base'
                     : to.isStart && to.rarity === 'normal' ? 'back to the base you started from, nothing on it'
-                    : describeStep({
-                      gained: to.present.filter((x) => !node.present.includes(x)),
-                      lost: node.present.filter((x) => !to.present.includes(x)),
-                      blocked: to.blocked.filter((x) => !node.blocked.includes(x)),
-                      junkDelta: (to.junkPrefixes + to.junkSuffixes) - junk,
-                    }) || (to.isGoal ? 'reaches the target' : 'no change')}
+                    : describeStep(changesBetween(node, to)) || (to.isGoal ? 'reaches the target' : 'no change')}
                   {edge.regress && <span className="text-amber-600 dark:text-amber-400"> — a step backwards</span>}
                 </span>
               </li>
@@ -571,8 +626,8 @@ const FullGraph: React.FC<{
             ? `${count} states that look identical here — same remaining work, same best action `
               + `(${node.action ?? '—'}), same cost to finish (${fmtCost(node.expectedCost)}). They differ `
               + 'in WHICH mods are present.'
-            : `${node.present.length > 0 ? node.present.join(', ') : 'no target mods yet'}`
-              + `${node.blocked.length > 0 ? ` · off-tier: ${node.blocked.join(', ')}` : ''}`
+            : `${node.present.length > 0 ? positionsText(node.present) : 'no target mods yet'}`
+              + `${node.blocked.length > 0 ? ` · off-tier: ${positionsText(node.blocked)}` : ''}`
               + `${node.junkPrefixes + node.junkSuffixes > 0 ? ` · ${node.junkPrefixes + node.junkSuffixes} junk` : ''}`
               + `${node.desecratedJunk ? ` · a junk ${node.desecratedJunk} was placed by a Desecration` : ''}`
               + `${node.desecratedTarget ? ` · ${node.desecratedTarget} was placed by a Desecration` : ''}`

@@ -69,6 +69,62 @@ describe('mapMarkov — naming a Desecration', () => {
 });
 
 /**
+ * Each position of a policy state carries the three facts the graph lays out: the modifier, the SIDE it
+ * sits on, and the TIER the target asked for. The last is the ask, not a roll — a present position
+ * means "at that tier or better" and the state does not record which — so it is only ever as specific
+ * as the ask was.
+ */
+describe('mapMarkov — a position names its side and the tier it was asked at', () => {
+  const data = {
+    mods: new Map([
+      ['p', { id: 'p', text: 'Spell Damage', type: 'prefix' }],
+      ['s', { id: 's', text: 'Cast Speed', type: 'suffix' }],
+      ['c', { id: 'c', text: 'Cold', type: 'prefix' }],
+      ['l', { id: 'l', text: 'Lightning', type: 'prefix' }],
+    ]),
+  } as unknown as Parameters<typeof mapMarkov>[0];
+  const withPositions = (present: string[][]) => ({
+    feasible: true, expectedCost: 1, converged: true, bound: 'exact', policy: new Map(), edges: [],
+    nodes: [{
+      key: 's', present, blocked: [], junkPrefixes: 0, junkSuffixes: 0, isStart: true, isGoal: false,
+      expectedCost: 1, rarity: 'rare', visitRate: 1, depth: 1,
+    }],
+  } as unknown as Parameters<typeof mapMarkov>[1]);
+
+  /** The side is READ FROM THE DATA, which is the only source that has it — a suffix target must not
+   *  be drawn on the prefix side because the first position happened to be one. */
+  it('takes each side from the modifier, not from its neighbours', () => {
+    const out = mapMarkov(data, withPositions([['p'], ['s']]), false,
+      [{ modId: 'p', tierDisplay: 2 }, { modId: 's', tierDisplay: 1 }]);
+    expect(out.nodes[0]!.present).toEqual([
+      { text: 'Spell Damage', type: 'prefix', tier: 2 },
+      { text: 'Cast Speed', type: 'suffix', tier: 1 },
+    ]);
+  });
+
+  /**
+   * A MERGED position holds several interchangeable modifiers, and they can have been asked at
+   * different tiers — the case `mixedTierAlternatives` puts a note under. One number would then speak
+   * for two asks, so none is shown.
+   */
+  it('shows no tier for a merged position whose members were asked at different tiers', () => {
+    const agree = mapMarkov(data, withPositions([['c', 'l']]), false,
+      [{ modId: 'c', tierDisplay: 3 }, { modId: 'l', tierDisplay: 3 }]);
+    expect(agree.nodes[0]!.present[0]).toEqual({ text: 'Cold or Lightning', type: 'prefix', tier: 3 });
+
+    const differ = mapMarkov(data, withPositions([['c', 'l']]), false,
+      [{ modId: 'c', tierDisplay: 3 }, { modId: 'l', tierDisplay: 1 }]);
+    expect(differ.nodes[0]!.present[0]).toEqual({ text: 'Cold or Lightning', type: 'prefix' });
+  });
+
+  /** No targets, no tiers — the side still comes through, and nothing is invented. */
+  it('leaves the tier off when the caller gave no targets', () => {
+    const out = mapMarkov(data, withPositions([['p']]), false);
+    expect(out.nodes[0]!.present[0]).toEqual({ text: 'Spell Damage', type: 'prefix' });
+  });
+});
+
+/**
  * A route from a starting item, in the shape `PolicyGraph` already draws. It costs what its root costs,
  * names its boxes exactly as the craft's own graph would, marks the fresh base it ends at, and leaves
  * the craft's table and rows behind.
@@ -94,7 +150,12 @@ describe('mapRoute — a route from a starting item, for the graph', () => {
   it('draws it the way the craft’s own graph draws a state', () => {
     const out = mapRoute(data, route, from);
     expect(out.expectedCost).toBe(9);
-    expect(out.nodes[0]).toMatchObject({ present: ['Cold or Lightning'], isStart: true, action: 'Desecrate' });
+    // A position, not a bare string: the side comes off the data even here, where `mapRoute` was given
+    // no target list and so has no tier to add.
+    expect(out.nodes[0]).toMatchObject({
+      present: [{ text: 'Cold or Lightning', type: 'prefix' }], isStart: true, action: 'Desecrate',
+    });
+    expect(out.nodes[0]!.present[0]!.tier).toBeUndefined();
     expect(out.nodes[1]).toMatchObject({ isRestart: true, expectedCost: 13 });
     expect(out.nodes[0]!.isRestart).toBeUndefined();
     // An unomened Desecration on THIS route leans on the assumed spawn weight, whatever the craft's did.

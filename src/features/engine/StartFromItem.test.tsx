@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { EngineHolding, EngineMarkovResult } from '../../lib/engineTypes';
+import type { EngineHolding, EngineMarkovResult, PolicyMod } from '../../lib/engineTypes';
 import { DEFAULT_EFFORT, EFFORT_PRESETS, getEffort, nextEffort, setEffort } from '../../lib/searchEffort';
 
 const mocks = vi.hoisted(() => ({ routeFor: vi.fn(), recompute: vi.fn() }));
@@ -54,14 +54,18 @@ const row = (name: string): HTMLElement =>
 /** A row's price box, by the start of its name — compared as text, so no character in a name is syntax. */
 const priceBox = (name: string): HTMLElement =>
   screen.getByRole('textbox', { name: (accessible) => accessible.startsWith(`Trade price for ${name},`) });
+/** Node positions in the mapped shape. These fixtures are about layout and wiring, so the side is a
+ *  stand-in and the tier is left off — the cases that care about either say so. */
+const mods = (...texts: string[]): PolicyMod[] => texts.map((text) => ({ text, type: 'prefix' as const }));
+
 
 /** A drawable route from the bought item: one Exalt to the target. */
 const route: EngineMarkovResult = {
   applicable: true, feasible: true, converged: true, bound: 'exact', assumedOdds: false, expectedCost: 20,
   nodes: [
-    { key: 's', present: ['Fire', 'Int'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare', isStart: true,
+    { key: 's', present: mods('Fire', 'Int'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare', isStart: true,
       isGoal: false, depth: 1, expectedCost: 20, visitRate: 1, action: 'Exalt' },
-    { key: 'g', present: ['Fire', 'Int', 'Cast'], blocked: [], junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
+    { key: 'g', present: mods('Fire', 'Int', 'Cast'), blocked: mods(), junkPrefixes: 0, junkSuffixes: 0, rarity: 'rare',
       isStart: false, isGoal: true, depth: 0, expectedCost: 0, visitRate: 1 },
   ],
   edges: [{ from: 's', to: 'g', action: 'Exalt', prob: 0.2, regress: false }],

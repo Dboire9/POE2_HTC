@@ -317,12 +317,31 @@ export interface EngineAlternatives {
 // ── From-item MDP (true expected cost + optimal-policy graph) ──────────────────
 
 /** One state (square) in the optimal-policy graph for a from-item craft. */
+/**
+ * One POSITION of a policy state, named for a reader.
+ *
+ * `text` is what it always was — the modifier, or several joined with "or" when same-family
+ * alternatives merged into one position. The other two are what turn a comma-separated run-on into
+ * something scannable: which side of the item it sits on, and the tier it was asked at.
+ *
+ * `tier` is the tier the TARGET named, not a roll the state records — a present position means "at
+ * that tier or better", and the state deliberately does not remember which. Absent when the caller
+ * gave no target list, and absent for a merged position whose members were asked at different tiers
+ * (the case `mixedTierAlternatives` warns about), where one number would speak for two asks.
+ */
+export interface PolicyMod {
+  readonly text: string;
+  readonly type: 'prefix' | 'suffix';
+  /** 1 = best. See above for when it is absent. */
+  readonly tier?: number;
+}
+
 export interface EnginePolicyNode {
   readonly key: string;
-  /** Target-mod texts present (at ≥ their wanted tier) in this state. */
-  readonly present: readonly string[];
-  /** Target-mod texts whose family is occupied by a below-tier ("off-tier") roll — annul before re-adding. */
-  readonly blocked: readonly string[];
+  /** Target positions present (at ≥ their wanted tier) in this state. */
+  readonly present: readonly PolicyMod[];
+  /** Target positions whose family is occupied by a below-tier ("off-tier") roll — annul before re-adding. */
+  readonly blocked: readonly PolicyMod[];
   readonly junkPrefixes: number;
   readonly junkSuffixes: number;
   /** The item's rarity in this state — a from-white craft climbs Normal → Magic → Rare, and a 2-mod

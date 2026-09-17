@@ -755,7 +755,10 @@ describe('engine facade — optimizeItemMarkov (0.5.0)', () => {
     expect(r.feasible).toBe(true);
     expect(r.expectedCost).toBeGreaterThan(0);
     const startNode = r.nodes.find((nd) => nd.isStart)!;
-    expect(startNode.present).toContain('+# to maximum Mana');
+    // Each position carries the three facts the graph lays out: the modifier, the side it sits on, and
+    // the tier the target was asked at — the last only because `optimizeItemMarkov` is handed the
+    // targets, which is the only place `tierDisplay` survives.
+    expect(startNode.present).toContainEqual({ text: '+# to maximum Mana', type: 'prefix', tier: 99 });
     expect(startNode.action).toBeTruthy(); // a human action label
     expect(r.nodes.some((nd) => nd.isGoal && nd.expectedCost === 0)).toBe(true);
     expect(r.edges.some((e) => e.regress)).toBe(true); // a back-arrow exists
@@ -854,7 +857,7 @@ describe('engine facade — a slot with alternatives reaches the solver (0.5.0)'
     ]);
     const goal = r.nodes.find((nd) => nd.isGoal)!;
     expect(goal).toBeDefined();
-    const extras = goal.present.filter((t) => /Extra (Cold|Fire) Damage/.test(t));
+    const extras = goal.present.filter((p) => /Extra (Cold|Fire) Damage/.test(p.text));
     expect(extras).toHaveLength(1);
   });
 });

@@ -74,7 +74,7 @@ export function runeHint(
 export type {
   EngineBase, EngineTier, EngineMod, EngineBaseMods, TargetInput, EngineStep, EnginePlan, EngineResult,
   ItemModInput, ExistingItem, CurrencyAction, AltTargetInput, EngineSlot, EngineAlternative, EngineAlternatives,
-  EngineMarkovResult, EnginePolicyNode, EnginePolicyEdge, EnginePriceBasis,
+  EngineMarkovResult, EnginePolicyNode, EnginePolicyEdge, EnginePriceBasis, PolicyMod,
 } from './engineTypes.ts';
 
 // ── Data loading (memoized) ──────────────────────────────────────────────────
@@ -273,7 +273,10 @@ export function optimizeItemMarkov(
 ): EngineMarkovResult {
   const { data, prices } = eng;
   const res = markovFromItem(data, prices, buildItemState(data, item), toTierTargets(data, targets), opts);
-  return mapMarkov(data, res, usesAssumedPool(item.runes ?? []));
+  // `targets` is handed on so every position can carry the tier it was ASKED at. It is the UI-shaped
+  // list, which is the only place `tierDisplay` survives — `toTierTargets` converts it to the engine's
+  // worst-first index on the way in, and the graph needs it back the way the player wrote it.
+  return mapMarkov(data, res, usesAssumedPool(item.runes ?? []), targets);
 }
 
 /**

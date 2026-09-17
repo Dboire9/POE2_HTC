@@ -175,7 +175,10 @@ describe('runSolve — dispatches to the same planners the UI called inline', ()
     for (const h of starts) {
       const route = routeFor(eng, m, h.key)!;
       expect(route.expectedCost).toBe(h.cost);
-      expect(route.nodes[0]!).toMatchObject({ isStart: true, present: h.present, rarity: h.rarity });
+      // `holdings[].present` is still a list of labels; a graph NODE's positions carry the side and
+      // the asked tier besides, so the two are compared on the text they share.
+      expect(route.nodes[0]!).toMatchObject({ isStart: true, rarity: h.rarity });
+      expect(route.nodes[0]!.present.map((p) => p.text)).toEqual(h.present);
       // A route answers one question; the craft's table, rows and bare cost stay with the craft.
       expect(route.routes).toBeUndefined();
       expect(route.holdings).toBeUndefined();

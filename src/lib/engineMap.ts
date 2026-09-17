@@ -11,7 +11,8 @@ import type { Alternative, AlternativeTarget, AlternativesResult, SlotChange } f
 import type { MarkovResult, McAction, PolicyEdge, PolicyNode } from '../../packages/optimizer/src/markovFromItem.ts';
 import type {
   EngineMod, EngineTier, EngineResult, EnginePlan, EngineStep, EngineSlot, EngineAlternative,
-  EngineAlternatives, EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode, ExistingItem, TargetInput, AltTargetInput,
+  EngineAlternatives, EngineMarkovResult, EnginePolicyEdge, EnginePolicyNode, ExistingItem, PolicyMod,
+  TargetInput, AltTargetInput,
 } from './engineTypes.ts';
 
 // ── Labels ────────────────────────────────────────────────────────────────────
@@ -392,10 +393,32 @@ const positionLabel = (data: PatchData, ids: readonly string[]): string =>
   ids.map((id) => data.mods.get(id)?.text ?? id).join(' or ');
 
 /**
+ * The tier a target was asked at, as the picker spells it (1 = best), for one POSITION.
+ *
+ * Engine tiers run worst-first and `minTierIndex` is the worst acceptable index, so the display tier is
+ * `tiers.length − minTierIndex` — the same conversion `mapSlot` makes, and the reason this reads off
+ * the caller's UI targets rather than re-deriving it.
+ *
+ * Undefined when the members of a merged position disagree, because one number would then speak for
+ * two different asks. That is exactly the case `mixedTierAlternatives` puts a note under, so it is a
+ * real shape rather than a defensive branch.
+ */
+type TierOf = (ids: readonly string[]) => number | undefined;
+
+const askedTierOf = (targets: readonly TargetInput[]): TierOf => {
+  const by = new Map(targets.map((t) => [t.modId, t.tierDisplay]));
+  return (ids) => {
+    const tiers = ids.map((id) => by.get(id));
+    const first = tiers[0];
+    return first !== undefined && tiers.every((x) => x === first) ? first : undefined;
+  };
+};
+
+/**
  * One state of a policy graph, named for the UI. Shared by the craft's own graph and by a route from a
  * starting item (`mapRoute`), so the two can never label one state two ways.
  */
-function mapNode(data: PatchData, nd: PolicyNode): EnginePolicyNode {
+function mapNode(data: PatchData, nd: PolicyNode, tierOf: TierOf): EnginePolicyNode {
   /**
    * The solver hands back the ids that COULD be filling each position — several when the position is
    * same-family alternatives merged into one bit, because at that point nothing downstream depends on
@@ -403,10 +426,23 @@ function mapNode(data: PatchData, nd: PolicyNode): EnginePolicyNode {
    * the item holds exactly one of these, and the plan works either way.
    */
   const label = (ids: readonly string[]): string => positionLabel(data, ids);
+  /**
+   * Side comes off the DATA, not off the target list, so it is there even for a route mapped without
+   * one. Members of a position always share a side — `markovFromItem` refuses a slot that spans both,
+   * and a merge requires it — so the first id answers for the group.
+   */
+  const position = (ids: readonly string[]): PolicyMod => {
+    const tier = tierOf(ids);
+    return {
+      text: label(ids),
+      type: data.mods.get(ids[0]!)?.type ?? 'prefix',
+      ...(tier === undefined ? {} : { tier }),
+    };
+  };
   return {
     key: nd.key,
-    present: nd.present.map(label),
-    blocked: nd.blocked.map(label),
+    present: nd.present.map(position),
+    blocked: nd.blocked.map(position),
     junkPrefixes: nd.junkPrefixes,
     junkSuffixes: nd.junkSuffixes,
     rarity: nd.rarity,
@@ -438,7 +474,12 @@ const assumedFromOf = (pool: boolean, desecrate: boolean): EngineResult['assumed
   pool && desecrate ? 'both' : pool ? 'rune-pool' : desecrate ? 'desecration' : undefined;
 
 /** Map the from-item MDP result into UI shapes: mod-text node labels, human action names, layout depth. */
-export function mapMarkov(data: PatchData, res: MarkovResult, poolAssumed = false): EngineMarkovResult {
+export function mapMarkov(
+  data: PatchData, res: MarkovResult, poolAssumed = false,
+  /** The craft's targets, for the tier each position was asked at. Optional so a caller that has none
+   *  still gets every other label; the graph then shows sides without tiers. */
+  targets: readonly TargetInput[] = [],
+): EngineMarkovResult {
   /**
    * The positions of one holding, named — with the SIDE appended to any two that read alike.
    *
@@ -465,7 +506,7 @@ export function mapMarkov(data: PatchData, res: MarkovResult, poolAssumed = fals
     converged: res.converged, bound: res.bound,
     assumedOdds: poolAssumed || desecrateAssumed,
     ...(assumedFrom ? { assumedFrom } : {}),
-    nodes: res.nodes.map((nd) => mapNode(data, nd)),
+    nodes: res.nodes.map((nd) => mapNode(data, nd, askedTierOf(targets))),
     edges: res.edges.map((e) => mapEdge(data, e)),
     ...(res.bareCost !== undefined ? { bareCost: res.bareCost } : {}),
     // Same labels the graph's boxes use, so a merged same-family position reads "Fire or Cold" in
@@ -490,11 +531,23 @@ export function mapRoute(
   data: PatchData, route: { readonly nodes: readonly PolicyNode[]; readonly edges: readonly PolicyEdge[] },
   from: EngineMarkovResult,
 ): EngineMarkovResult {
+  const tierByText = new Map<string, number>();
+  for (const n of from.nodes) {
+    for (const p of [...n.present, ...n.blocked]) if (p.tier !== undefined) tierByText.set(p.text, p.tier);
+  }
   return {
     applicable: from.applicable, feasible: from.feasible, converged: from.converged, bound: from.bound,
     expectedCost: route.nodes[0]!.expectedCost,
     assumedOdds: leansOnAssumedOdds(route.nodes.flatMap((nd) => (nd.action ? [nd.action] : []))),
-    nodes: route.nodes.map((nd) => mapNode(data, nd)),
+    /**
+     * Labelled from the craft's OWN graph rather than from a target list this function was never given.
+     *
+     * A route walks states of the same craft, so every position it can name has already been named
+     * there, tier and all — reading it back is both cheaper than re-deriving and impossible to
+     * disagree with. A position the craft's drawn subset happens not to contain simply arrives with no
+     * tier, which is the same honest gap as a caller who passed no targets.
+     */
+    nodes: route.nodes.map((nd) => mapNode(data, nd, (ids) => tierByText.get(positionLabel(data, ids)))),
     edges: route.edges.map((e) => mapEdge(data, e)),
     ...(from.restartCost !== undefined ? { restartCost: from.restartCost } : {}),
   };

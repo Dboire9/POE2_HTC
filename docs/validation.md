@@ -4318,6 +4318,78 @@ total from 2,478 to 2,917. `mods.json` goes 1,070.30 kB → 1,225.14 kB (gzip **
 `base_items.json` 156.97 → 181.14 kB (gzip **21.21 → 23.59 kB**): about **30.5 kB more gzipped**, which
 is roughly double the 10–15 kB estimated when the one-file option was chosen.
 
+## "Any prefix / any suffix" — a slot the target doesn't check (2026-09-17)
+
+A player asked for the Sceptre they had already decided about: five modifiers they wanted, and the
+sixth — a suffix — they explicitly did not care about. The app refused. The only way to SAY that was to
+name every remaining suffix as an alternative in one slot, and `MAX_CANDIDATES = 9` refuses past nine
+candidates. Five named plus four alternatives is exactly nine, which is why "strip it down to 4 choices"
+was the workaround they found by trial.
+
+**Raising the cap is not the fix.** The lattice runs ~2,916 states at six candidates and ~20,952 at
+nine — roughly doubling per candidate — so a Sceptre's twelve remaining suffixes (14 normal suffixes in
+14 distinct families, so `mergeSlots` collapses none of them) is seventeen candidates and millions of
+states before the desecration axis multiplies it.
+
+**The real gap was `isAccepting`.** A target list has always meant *these mods and nothing else*: the
+predicate demanded `jp === 0 && js === 0`, so any modifier the player had not named had to come off
+before the item counted as finished. Deleting the sixth target does not help either — the app then
+plans a five-mod item with an EMPTY suffix and prices annulling whatever lands there, which overstates
+the cost rather than answering the question.
+
+So "any" is not a bigger disjunction. It is a relaxation of the finish condition, expressed as a count
+per side (`Spare`), and it is **cheaper to solve than the thing it replaces**: the junk counters are
+already state axes `enumerateStates` fills in, so it adds no states, widens the accepting set, and lets
+a junk roll on that side count as a finish instead of a miss.
+
+Measured, from white on Sceptres, five named modifiers (`solver: 'policy'`, `restartCost: 0`):
+
+| target | cost | solve |
+|---|---|---|
+| five named, strict (today) | 366.84 ex | 4.5 s |
+| five named + **one free suffix** | **191.27 ex** | **3.7 s** |
+| five named + four alternatives (9 candidates) | 402.08 ex | 94.3 s |
+| five named + all twelve alternatives | refused — `MAX_CANDIDATES` | — |
+
+Note the third row: the workaround is not merely slower, it is **dearer than the strict craft**, and
+correctly so — it demands a sixth modifier from a shortlist, where the strict craft demands five and
+the free slot demands five and tolerates a sixth. Three different questions; the middle one was the
+only one nobody could ask.
+
+**Both planners act on it, so the Item tab's two panels agree.** For the model that is one predicate:
+`goalKeys` is built by TESTING the lattice, the heuristic policy levels states by backward BFS from
+those goals, and the absorbing-state check reads the same set — all three follow without being told.
+For the step planner, junk the player tolerates may be LEFT on the item, which makes it identical to a
+fractured mod (still there, still holding its slot and family, simply never removed) and so needed no
+new concept in `plan.ts`. Which junk to leave is a real choice rather than a greedy one — a junk mod is
+also a Chaos-swap partner, so keeping it can cost more than annulling it — so it became a second
+expansion dimension crossed with slot alternatives and merged by `mergeParetoRuns`, which is now
+generic in what a combination is. Measured on a held Sceptre wanting five modifiers with one missing:
+strict annuls the junk in all six frontier plans at P=0.00144; with one free suffix both surviving
+plans leave it, at **P=0.00865**.
+
+**The from-WHITE frontier is deliberately unchanged**, and this is the part most likely to be "fixed"
+later by someone who has not read why. A plan there is a fixed sequence in which every step names the
+mod it is aimed at. An extra "anything" step has probability ~1 but still costs an orb, and a miss on a
+NAMED step is a miss whatever is tolerated elsewhere — so no such sequence is cheaper. The slack only
+pays when the spare can be chosen AFTER the roll, which is the MDP's job. The app says so on screen
+rather than leaving it to look like an oversight.
+
+**Mutation-checked, and one of them failed honestly.** Twelve mutations were run against the new tests.
+Eleven were caught first time. The twelfth — "a below-tier named target is still refused, however free
+the slots are" — was NOT: that behaviour is carried by the slot test in `isAccepting`, not by its
+`blocked` clause, so the test was pinning something real while its comment claimed a different rule.
+The comment was corrected and a case that does rest on `blocked` was added (an off-tier roll of a named
+alternative, under a free slot), which the mutation then caught.
+
+**Cost on the wire:** main bundle gzip **141.97 → 143.75 kB (+1.78 kB)**. No data file changed.
+
+**Assumption, stated:** a free slot may be left EMPTY as well as filled — `isAccepting` tests an
+inequality — on the reading that "I don't care" includes "there isn't one". The app tells the player
+they can Exalt or Desecrate it afterwards and whatever lands counts, which is a claim about the game
+and the weak half of it: the only way an Exalt fails to fill a free slot is the side being full, which
+the picker prevents by counting free slots against the cap.
+
 ## Still deferred
 - **Confirm the Omen of Whittling TIE rule in game** (2026-09-02): when two or more modifiers share
   the lowest item level, which does the Chaos Orb remove? Modelled as uniform — 50/50 on two — by the

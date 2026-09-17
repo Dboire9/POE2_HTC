@@ -338,3 +338,20 @@ behind it, stated as such.
 | 42 | "A rune costs a socket, and sockets are not modelled here … Artificer's Orbs are not priced" | guide, Runes | **OK** | A claim about the app's own scope: nothing in `cost.ts` or `prices.mjs` tracks sockets or prices an Artificer's Orb, and `runePriceKey` charges only the rune itself |
 | 43 | "One line stays unread — a Genesis Tree ring craft, a mechanic this app does not model" | gear tab omissions | **OK** | `codeIndex` has no entry for `GenesisTreeRingMinionCooldownRecoveryCrafted`; it is reported through the existing unresolved path rather than matched to an essence that did not make it |
 
+
+## Free slots — "any prefix / any suffix" (2026-09-17)
+
+A free slot changes what the app calls FINISHED, so it falsifies claims made elsewhere about what has
+to come off an item. This sweep covers the new copy and the two standing claims it invalidated.
+
+Row 47 is the one worth watching: it is the app admitting a limit of one of its own planners while the
+panel beside it does better, which is the shape of claim this audit exists to keep honest.
+
+| # | Claim | Where | Verdict | Traced to |
+|---|---|---|---|---|
+| 45 | "Any prefix / Any suffix — I don't care what lands here" | `FreeSlots.tsx`, `ItemActions.tsx` picker | **OK** | A free slot is a count per side (`Spare`), and `isAccepting` accepts up to it in `jp`/`js` — junk is by definition weight in a family the target never named, so "anything" is exactly what it tolerates |
+| 46 | "whatever lands here is fine, and so is leaving it empty — you can always Exalt (or Desecrate) afterwards" | `FreeSlots.tsx`, guide | **OK** | `isAccepting` tests `jp <= spare.prefixes`, an inequality, so a state with the slot EMPTY is accepting too. The Exalt half is a claim about the game, and the weaker one: any modifier counts, so the only way it fails is the side being full — which the picker prevents by counting free slots against the cap (`roomOnSide`) |
+| 47 | "The step-by-step plans below don't use it — every step in a route has to name the mod it's aiming at" | `FreeSlots.tsx` (Lab only), guide | **OK, and it is a PLANNER LIMIT said as one** | `optimizePareto` builds a fixed sequence in which every `PlanStep` names an `add`; there is no filler step to spend on "anything", and a miss on a named step is a miss whatever is tolerated elsewhere. Deliberate rather than pending: the slack only pays when the spare can be chosen AFTER the roll, which is the MDP's job. Not shown on the Item tab, where `optimizeFromItem` DOES use it — there the choice is made before any orb is spent |
+| 48 | "Any mod on your item that isn't in this list is treated as junk and removed" | `ItemActions.tsx` | **OK — amended** | Was unconditionally true and is not any more. Now reads "… removed — except for the free slots below, which may keep one" whenever a free slot exists, which is exactly when `keepSets` offers the planner a run that leaves junk alone |
+| 49 | "Junk to clear: N" | `PolicyGraph.tsx` | **OK — amended** | Counted every junk modifier, which under a free slot is more than has to go. Now counts junk ABOVE the allowance per side and names the rest as "may stay, in the slots you left free". Reads the free slots the SOLVE ran with (`markovSpare`), not the live setting, so the claim cannot drift under an answer already on screen |
+| 50 | "This side is full (max N)" for a free slot | both pickers | **GAME RULE** | A free slot is a position on the finished item, so `roomOnSide` counts it with the named slots against the base's own limit (`limitsWithRunes`). The engine would make an over-cap free slot silently inert instead — `enumerateStates` never emits a state past the cap — which is right for a solver and wrong for a picker |

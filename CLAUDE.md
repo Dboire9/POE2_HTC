@@ -252,6 +252,22 @@ React web app: user inputs target item (base + mods + tiers), gets optimal craft
   on at weight 0 BEFORE its pool tag — so `resolveWeight(mod, [...baseTags, poolTag])` answers them
   with no special case. **Their weights are ASSUMED**: RePoE publishes 1 for all 128, so
   `RUNE_POOL_ASSUMED_WEIGHT` is 1000 (Dorian, 2026-09-15) and the app discloses it.
+- **A FREE SLOT IS A COUNT PER SIDE, NEVER A TARGET** (2026-09-17). "Any prefix / any suffix" is
+  `Spare { prefixes, suffixes }` in `slots.ts`, and the ONE place it does anything is `isAccepting`
+  (markovState.ts), which is also the one place "finished" is defined: zero `blocked`, Rare, and no more
+  `jp`/`js` than the allowance. `NO_SPARE` is every craft that predates it, which is why the whole suite
+  passed unchanged. Keep it a count. A wildcard TARGET would cost a bit in `present`/`blocked` and
+  double the lattice — nine candidates is ~20,952 states against ~2,916 at six, and `MAX_CANDIDATES`
+  refuses past that — where the junk counters are state axes `enumerateStates` already fills in, so a
+  free slot adds **no** states and only widens the accepting set. It makes solves cheaper and faster
+  (Sceptres, five named mods from white: 366.84 ex / 4.5s strict → 191.27 ex / 3.7s with one free
+  suffix). Nothing validates `spare` against the item's limits, deliberately: an over-cap free slot is
+  inert because `enumerateStates` never emits the state. The PICKER refuses it anyway (`roomOnSide`),
+  because inert-and-silent is the wrong answer to a player who just added something.
+  **`optimizePareto` does not read it and that is not a bug** — a fixed sequence names a mod at every
+  step, so an "anything" step costs an orb and absorbs nothing, and a miss on a named step is still a
+  miss. `optimizeFromItem` DOES: which junk to leave is chosen before any orb is spent, so it becomes
+  one more expansion dimension crossed with slot alternatives and merged by `mergeParetoRuns`.
 - **A CRAFTED MODIFIER EXCLUDES ONLY OTHER CRAFTED MODIFIERS.** `familiesOf` (pool.ts) returns
   `crafted:<family>` for the essence and perfect-essence sources, so a rolled and a crafted resistance
   of one family coexist — as they do on three real uncorrupted items (Steelmage's jacket and sandals,

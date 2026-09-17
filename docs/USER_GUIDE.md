@@ -13,7 +13,7 @@ that one are meant to agree; if they ever don't, ALGORITHM.md is the one that's 
 - [Plan from scratch](#plan-from-scratch)
   - [1. Pick a base and item level](#1-pick-a-base-and-item-level)
   - [2. Choose the mods you want](#2-choose-the-mods-you-want)
-  - [3. Tiers, alternatives and pins](#3-tiers-alternatives-and-pins)
+  - [3. Tiers, alternatives, free slots and pins](#3-tiers-alternatives-free-slots-and-pins)
   - [4. Find plans](#4-find-plans)
 - [Reading the results](#reading-the-results)
   - [Your options — the plan cards](#your-options--the-plan-cards)
@@ -106,7 +106,7 @@ the picker, because what places them changes the whole route:
 
 The app routes accordingly, and tells you when a mod is out of reach rather than quietly dropping it.
 
-### 3. Tiers, alternatives and pins
+### 3. Tiers, alternatives, free slots and pins
 
 - **Target tier** — every target mod carries a tier selector. It means *"this tier **or better**"*, not
   "exactly this tier". Tier 1 is the best roll. Asking for T1 on six mods at once is what makes a craft
@@ -114,6 +114,19 @@ The app routes accordingly, and tells you when a mod is out of reach rather than
 - **Or / alternatives** — the `or` button on a target row adds an alternative to that slot. The slot
   counts as filled by *whichever one lands*. Use this when you'd be happy with any of several mods —
   it can cut the cost by orders of magnitude and costs you nothing.
+- **Any prefix / Any suffix** — at the top of each mod list. This is a position on the finished item
+  whose contents you don't care about: the craft is finished with *anything* in it, and equally with
+  *nothing* in it — you can Exalt or Desecrate the last slot afterwards and whatever lands counts.
+  It is the opposite of an alternative. An alternative lists what would satisfy you; a free slot says
+  nothing has to. Reach for it whenever a mod or two short of a full item is already the item you want.
+  Two things to know:
+  - It **uses up a position**, so three named suffixes plus a free one is four suffixes and the picker
+    will refuse it.
+  - The **plan cards don't use it**, and say so where you'd otherwise wonder. Every step in a route
+    names the mod it aims at, so a route cannot decide after a roll which one was the spare. The
+    **true expected cost** underneath can, and is where the saving shows. On the **I have an item** tab
+    the step plan *does* use it — there the choice (leave that junk mod alone, or annul it) is made
+    before any orb is spent, so a fixed sequence can express it.
 - **Fractured** — mark a mod as fractured if it's already locked on your base. A fractured mod can't be
   removed or rerolled, so this changes the whole route; the planner starts from a Rare rather than white.
   **One per item**: a Fracturing Orb locks a single random modifier and can't be used on an item that

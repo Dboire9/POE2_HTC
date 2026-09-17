@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **"Any prefix / any suffix" — a slot you don't care about.** A target list has always meant *these
+  modifiers and nothing else*, so anything you had not named had to come off before the app called the
+  item finished. The only way to say "three prefixes I want, and whatever lands in the last suffix is
+  fine" was to name every remaining suffix as an alternative in one slot — and on a Sceptre that is
+  twelve alternatives, seventeen candidates, past the nine the model will enumerate. Pick **Any prefix**
+  or **Any suffix** from the mod picker instead. The craft finishes with anything in that position, or
+  with nothing in it — you can always Exalt or Desecrate afterwards, and whatever lands counts.
+  It is *cheaper* to solve than the workaround rather than dearer, because a free slot adds no states
+  and lets a bad roll on that side count as a finish. Measured from white on Sceptres, five named
+  modifiers: **366.84 ex strict → 191.27 ex** with one free suffix, and the solve got faster (4.5s →
+  3.7s). The workaround — four alternatives in the sixth slot — costs **402.08 ex** and takes 94s.
+  On the **Item tab** the step-by-step plan understands it too, and leaves a modifier you tolerate where
+  it is instead of annulling it: on a held Sceptre wanting five modifiers, the chance per attempt goes
+  from **0.144% to 0.865%**. The Lab's step routes deliberately do not use it, and say so — a route has
+  to name the modifier every step aims at, so it cannot decide after a roll which one was the spare.
+  That is the true expected cost's job, and it does it.
+  Free slots travel in share links under their own link version, so an older build refuses a link
+  rather than quoting the strict craft's price for it.
+
 ## [1.1.0] - 2026-09-16
 
 ### Added
